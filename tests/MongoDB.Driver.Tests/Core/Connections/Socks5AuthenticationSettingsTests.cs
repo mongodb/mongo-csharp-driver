@@ -21,15 +21,19 @@ namespace MongoDB.Driver.Core.Connections;
 
 public class Socks5AuthenticationSettingsTests
 {
+    // 3 bytes * 86 = 258 bytes length when UTF8 encoded
+    public const string TooLong =
+        "€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€";
+
     [Fact]
-    public void Socks5AuthenticationSettings_None_should_return_NoAuthenticationSettings_instance()
+    public void None_should_return_NoAuthenticationSettings_instance()
     {
         var none = Socks5AuthenticationSettings.None;
         none.Should().BeOfType<Socks5AuthenticationSettings.NoAuthenticationSettings>();
     }
 
     [Fact]
-    public void Socks5AuthenticationSettings_UsernamePassword_should_return_UsernamePasswordAuthenticationSettings_instance_with_correct_values()
+    public void UsernamePassword_should_return_UsernamePasswordAuthenticationSettings_instance_with_correct_values()
     {
         var up = Socks5AuthenticationSettings.UsernamePassword("user", "pass");
         up.Should().BeOfType<Socks5AuthenticationSettings.UsernamePasswordAuthenticationSettings>();
@@ -43,14 +47,23 @@ public class Socks5AuthenticationSettingsTests
     [InlineData("user", null)]
     [InlineData("", "pass")]
     [InlineData("user", "")]
-    public void Socks5AuthenticationSettings_UsernamePassword_should_throw_when_username_or_password_is_null_or_empty(string username, string password)
+    public void UsernamePassword_should_throw_when_username_or_password_is_null_or_empty(string username, string password)
+    {
+        var ex = Record.Exception(() => Socks5AuthenticationSettings.UsernamePassword(username, password));
+        ex.Should().BeAssignableTo<ArgumentException>();
+    }
+
+    [Theory]
+    [InlineData(TooLong, "pass")]
+    [InlineData("user", TooLong)]
+    public void UsernamePassword_should_throw_when_username_or_password_are_too_long(string username, string password)
     {
         var ex = Record.Exception(() => Socks5AuthenticationSettings.UsernamePassword(username, password));
         ex.Should().BeAssignableTo<ArgumentException>();
     }
 
     [Fact]
-    public void Socks5AuthenticationSettings_NoAuthenticationSettings_Equals_should_return_true_for_any_Socks5AuthenticationSettings()
+    public void NoAuthenticationSettings_Equals_should_return_true_for_any_Socks5AuthenticationSettings()
     {
         var none = Socks5AuthenticationSettings.None;
         none.Equals(Socks5AuthenticationSettings.None).Should().BeTrue();
@@ -58,7 +71,7 @@ public class Socks5AuthenticationSettingsTests
     }
 
     [Fact]
-    public void Socks5AuthenticationSettings_UsernamePasswordAuthenticationSettings_Equals_and_GetHashCode_should_work()
+    public void UsernamePasswordAuthenticationSettings_Equals_and_GetHashCode_should_work()
     {
         var a = Socks5AuthenticationSettings.UsernamePassword("u", "p");
         var b = Socks5AuthenticationSettings.UsernamePassword("u", "p");
