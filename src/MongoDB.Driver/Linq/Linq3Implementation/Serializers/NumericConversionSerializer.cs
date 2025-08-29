@@ -69,6 +69,12 @@ internal class NumericConversionSerializer<TFrom, TTo> : SerializerBase<TTo>, IH
         {
             (TypeCode.Decimal, TypeCode.Double) => (object)(double)(decimal)value,
             (TypeCode.Double, TypeCode.Decimal) => (object)(decimal)(double)value,
+            (TypeCode.Int16, TypeCode.Int32) => (object)(int)(short)value,
+            (TypeCode.Int16, TypeCode.Int64) => (object)(long)(short)value,
+            (TypeCode.Int32, TypeCode.Int16) => (object)(short)(int)value,
+            (TypeCode.Int32, TypeCode.Int64) => (object)(long)(int)value,
+            (TypeCode.Int64, TypeCode.Int16) => (object)(short)(long)value,
+            (TypeCode.Int64, TypeCode.Int32) => (object)(int)(long)value,
             _ => throw new NotSupportedException($"Cannot convert {from} to {to}"),
         };
     }
