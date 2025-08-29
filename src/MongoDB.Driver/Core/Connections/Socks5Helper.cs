@@ -188,7 +188,7 @@ internal static class Socks5Helper
 
     private static bool ProcessGreetingResponse(byte[] buffer, bool useAuth)
     {
-        VerifyProtocolVersion(buffer[0]);
+        EnsureProtocolVersion(buffer[0]);
         var acceptedMethod = buffer[1];
         if (acceptedMethod == MethodUsernamePassword)
         {
@@ -233,14 +233,11 @@ internal static class Socks5Helper
 
     private static void ProcessAuthenticationResponse(byte[] buffer)
     {
+        EnsureSocksSuccess(buffer[1], "authentication");
+
         if (buffer[0] != SubnegotiationVersion)
         {
             throw new IOException($"Invalid SOCKS5 subnegotiation version in authentication response. Expected version {SubnegotiationVersion}, but received {buffer[0]}.");
-        }
-
-        if (buffer[1] != Socks5Success)
-        {
-            throw new IOException($"SOCKS5 authentication failed. Status: {buffer[1]}.");
         }
     }
 
@@ -285,12 +282,8 @@ internal static class Socks5Helper
     // Reads the SOCKS5 connect response and returns the number of bytes to skip in the buffer.
     private static int ProcessConnectResponse(byte[] buffer)
     {
-        VerifyProtocolVersion(buffer[0]);
-
-        if (buffer[1] != Socks5Success)
-        {
-            throw new IOException($"SOCKS5 connect failed. Error code: {buffer[1]}");
-        }
+        EnsureProtocolVersion(buffer[0]);
+        EnsureSocksSuccess(buffer[1], "connect");
 
         // We skip the last bytes of the response as we do not need them.
         // We skip length(dst.address) + length(dst.port) - 1 --- length(dst.port) is always 2
@@ -305,14 +298,6 @@ internal static class Socks5Helper
         };
     }
 
-    private static void VerifyProtocolVersion(byte version)
-    {
-        if (version != ProtocolVersion5)
-        {
-            throw new IOException($"Invalid SOCKS version in response. Expected version {ProtocolVersion5}, but received {version}.");
-        }
-    }
-
     private static byte EncodeString(string input, byte[] buffer, int offset, string parameterName)
     {
         try
@@ -324,5 +309,36 @@ internal static class Socks5Helper
         {
             throw new IOException($"The {parameterName} could not be encoded as UTF-8.");
         }
+    }
+
+    private static void EnsureProtocolVersion(byte version)
+    {
+        if (version != ProtocolVersion5)
+        {
+            throw new IOException($"Invalid SOCKS version in response. Expected version {ProtocolVersion5}, but received {version}.");
+        }
+    }
+
+    private static void EnsureSocksSuccess(byte code, string operation)
+    {
+        if (code == 0x00)
+        {
+            return; // success
+        }
+
+        var message = code switch
+        {
+            0x01 => "General SOCKS server failure",
+            0x02 => "Connection not allowed by ruleset",
+            0x03 => "Network unreachable",
+            0x04 => "Host unreachable",
+            0x05 => "Connection refused",
+            0x06 => "TTL expired",
+            0x07 => "Command not supported",
+            0x08 => "Address type not supported",
+            _    => $"Unassigned error (0x{code:X2})"
+        };
+
+        throw new IOException($"SOCKS5 {operation} failed. {message}");
     }
 }
