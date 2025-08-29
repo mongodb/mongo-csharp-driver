@@ -41,9 +41,12 @@ internal class UnknownSerializerFinder : ExpressionVisitor
 
     public override Expression Visit(Expression node)
     {
-        if (_knownSerializers.IsKnown(node, out var knownSerializer) && knownSerializer is IIgnoreSubtreeSerializer)
+        if (_knownSerializers.IsKnown(node, out var knownSerializer))
         {
-            return node; // don't visit subtree
+            if (knownSerializer is IIgnoreSubtreeSerializer or IUnknowableSerializer)
+            {
+                return node; // don't visit subtree
+            }
         }
 
         base.Visit(node);

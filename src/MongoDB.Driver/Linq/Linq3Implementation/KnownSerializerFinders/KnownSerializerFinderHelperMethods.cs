@@ -108,11 +108,6 @@ internal partial class KnownSerializerFinderVisitor
         }
     }
 
-    private void DeduceCollectionAndItemSerializers(Expression collectionExpression, Expression itemExpression)
-    {
-        DeduceItemAndCollectionSerializers(itemExpression, collectionExpression);
-    }
-
     private void DeduceCollectionAndCollectionSerializers(Expression collectionExpression1, Expression collectionExpression2)
     {
         IBsonSerializer collectionSerializer1;
@@ -120,16 +115,25 @@ internal partial class KnownSerializerFinderVisitor
 
         if (IsNotKnown(collectionExpression1) && IsKnown(collectionExpression2, out collectionSerializer2))
         {
-            collectionSerializer1 = CreateCollectionSerializerFromCollectionSerializer(collectionExpression1.Type, collectionSerializer2);
+            collectionSerializer1 = collectionSerializer2 is IUnknowableSerializer ?
+                UnknowableSerializer.Create(collectionExpression1.Type) :
+                CreateCollectionSerializerFromCollectionSerializer(collectionExpression1.Type, collectionSerializer2);
             AddKnownSerializer(collectionExpression1, collectionSerializer1);
         }
 
         if (IsNotKnown(collectionExpression2) && IsKnown(collectionExpression1, out collectionSerializer1))
         {
-            collectionSerializer2 = CreateCollectionSerializerFromCollectionSerializer(collectionExpression2.Type, collectionSerializer1);
+            collectionSerializer2 = collectionSerializer1 is IUnknowableSerializer ?
+                UnknowableSerializer.Create(collectionExpression2.Type) :
+                CreateCollectionSerializerFromCollectionSerializer(collectionExpression2.Type, collectionSerializer1);
             AddKnownSerializer(collectionExpression2, collectionSerializer2);
         }
 
+    }
+
+    private void DeduceCollectionAndItemSerializers(Expression collectionExpression, Expression itemExpression)
+    {
+        DeduceItemAndCollectionSerializers(itemExpression, collectionExpression);
     }
 
     private void DeduceItemAndCollectionSerializers(Expression itemExpression, Expression collectionExpression)
@@ -141,7 +145,9 @@ internal partial class KnownSerializerFinderVisitor
 
         if (IsNotKnown(collectionExpression) && IsKnown(itemExpression, out itemSerializer))
         {
-            var collectionSerializer = CreateCollectionSerializerFromItemSerializer(collectionExpression.Type, itemSerializer);
+            var collectionSerializer = itemSerializer is IUnknowableSerializer ?
+                UnknowableSerializer.Create(collectionExpression.Type) :
+                CreateCollectionSerializerFromItemSerializer(collectionExpression.Type, itemSerializer);
             if (collectionSerializer != null)
             {
                 AddKnownSerializer(collectionExpression, collectionSerializer);
@@ -175,6 +181,15 @@ internal partial class KnownSerializerFinderVisitor
         if (IsNotKnown(node))
         {
             AddKnownSerializer(node, StringSerializer.Instance);
+        }
+    }
+
+    private void DeduceUnknowableSerializer(Expression node)
+    {
+        if (IsNotKnown(node))
+        {
+            var unknowableSerializer = UnknowableSerializer.Create(node.Type);
+            AddKnownSerializer(node, unknowableSerializer);
         }
     }
 
