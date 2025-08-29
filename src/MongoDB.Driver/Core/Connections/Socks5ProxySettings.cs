@@ -80,6 +80,7 @@ public sealed class Socks5ProxySettings
     public Socks5ProxySettings(string host, int port, Socks5AuthenticationSettings authentication)
     {
         Host = Ensure.IsNotNullOrEmpty(host, nameof(host));
+        Ensure.That(Encoding.UTF8.GetByteCount(host) <= byte.MaxValue, $"{nameof(host)} must be at most 255 bytes long when encoded as UTF-8");
         Port = Ensure.IsBetween(port, 1, 65535, nameof(port));
         Authentication = Ensure.IsNotNull(authentication, nameof(authentication));
     }

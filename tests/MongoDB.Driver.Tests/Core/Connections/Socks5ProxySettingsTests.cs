@@ -68,6 +68,14 @@ public class Socks5ProxySettingsTests
         ex.Should().BeAssignableTo<ArgumentException>();
     }
 
+    [Fact]
+    public void Constructor_should_throw_when_host_is_too_long()
+    {
+        var host = new string('a', 256);
+        var ex = Record.Exception(() => new Socks5ProxySettings(host));
+        ex.Should().BeAssignableTo<ArgumentException>();
+    }
+
     [Theory]
     [InlineData(0)]
     [InlineData(65536)]
