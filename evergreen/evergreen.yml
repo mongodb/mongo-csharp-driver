@@ -1069,6 +1069,44 @@ functions:
           TARGET="TestX509" \
             evergreen/run-tests.sh
 
+  setup-socks5-proxy:
+    - command: shell.exec
+      params:
+        background: true
+        script: |
+          ${PREPARE_SHELL}
+          MONGODB_URI="${MONGODB_URI}"
+          # Read the MongoDB URI connection string and extract an arbitrary member's host:port
+          HOST_PORT=$(echo "$MONGODB_URI" | sed 's|mongodb://||' | cut -d',' -f1)
+
+          MAP_ARG="localhost:12345 to $HOST_PORT"
+          python3 $DRIVERS_TOOLS/.evergreen/socks5srv.py --map "$MAP_ARG" --port 1080 --auth username:p4ssw0rd & PROXY_PID1=$!
+          python3 $DRIVERS_TOOLS/.evergreen/socks5srv.py --map "$MAP_ARG" --port 1081 & PROXY_PID2=$!
+
+          echo "$PROXY_PID1" > socks5_pids.txt
+          echo "$PROXY_PID2" >> socks5_pids.txt
+
+          echo "Started proxies with PIDs: $PROXY_PID1, $PROXY_PID2"
+
+  run-socks5-proxy-tests:
+    - command: shell.exec
+      type: test
+      params:
+        working_dir: "mongo-csharp-driver"
+        shell: "bash"
+        script: |
+          export SOCKS5_PROXY_SERVERS_ENABLED=true
+          ${PREPARE_SHELL}
+          OS=${OS} \
+            evergreen/add-ca-certs.sh
+          SSL=${SSL} \
+          MONGODB_URI="${MONGODB_URI}" \
+          TOPOLOGY=${TOPOLOGY} \
+          OS=${OS} \
+          FRAMEWORK=${FRAMEWORK} \
+          TARGET="TestSocks5Proxy" \
+            evergreen/run-tests.sh
+
 pre:
   - func: fetch-source
   - func: prepare-resources
@@ -1234,6 +1272,30 @@ tasks:
     - name: test-gssapi-net60
       commands:
         - func: run-gssapi-auth-tests
+          vars:
+            FRAMEWORK: net60
+
+    - name: test-socks5-proxy-net472
+      commands:
+        - func: bootstrap-mongo-orchestration
+        - func: setup-socks5-proxy
+        - func: run-socks5-proxy-tests
+          vars:
+            FRAMEWORK: net472
+
+    - name: test-socks5-proxy-netstandard21
+      commands:
+        - func: bootstrap-mongo-orchestration
+        - func: setup-socks5-proxy
+        - func: run-socks5-proxy-tests
+          vars:
+            FRAMEWORK: netstandard21
+
+    - name: test-socks5-proxy-net60
+      commands:
+        - func: bootstrap-mongo-orchestration
+        - func: setup-socks5-proxy
+        - func: run-socks5-proxy-tests
           vars:
             FRAMEWORK: net60
 
@@ -2530,6 +2592,29 @@ buildvariants:
     - ubuntu1804-test
   tasks:
     - name: atlas-search-index-helpers-task-group
+
+# Socks5 Proxy tests
+- matrix_name: "socks5-proxy-tests-linux"
+  matrix_spec: { os: "ubuntu-2004", ssl: ["nossl", "ssl"], version: ["latest"], topology: ["replicaset"] }
+  display_name: "Socks5 Proxy ${version} ${os} ${ssl}"
+  tasks:
+    - name: test-socks5-proxy-netstandard21
+    - name: test-socks5-proxy-net60
+
+- matrix_name: "socks5-proxy-tests-windows"
+  matrix_spec: { os: "windows-64", ssl: ["nossl", "ssl"], version: ["latest"], topology: ["replicaset"] }
+  display_name: "Socks5 Proxy ${version} ${os} ${ssl}"
+  tasks:
+    - name: test-socks5-proxy-net472
+    - name: test-socks5-proxy-netstandard21
+    - name: test-socks5-proxy-net60
+
+- matrix_name: "socks5-proxy-tests-macos"
+  matrix_spec: { os: "macos-14", ssl: ["nossl", "ssl"], version: ["latest"], topology: ["replicaset"] }
+  display_name: "Socks5 Proxy ${version} ${os} ${ssl}"
+  tasks:
+    - name: test-socks5-proxy-netstandard21
+    - name: test-socks5-proxy-net60
 
 # CSFLE tests
 - matrix_name: "csfle-with-mocked-kms-tests-windows"
