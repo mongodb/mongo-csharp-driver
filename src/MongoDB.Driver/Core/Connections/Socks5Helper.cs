@@ -212,7 +212,12 @@ internal static class Socks5Helper
 
     private static int CreateAuthenticationRequest(byte[] buffer, Socks5AuthenticationSettings authenticationSettings)
     {
-        var usernamePasswordAuthenticationSettings = (Socks5AuthenticationSettings.UsernamePasswordAuthenticationSettings)authenticationSettings;
+        if (authenticationSettings is not Socks5AuthenticationSettings.UsernamePasswordAuthenticationSettings usernamePasswordAuthenticationSettings)
+        {
+            // This should not happen, trying to be defensive here.
+            throw new ArgumentException($"{nameof(authenticationSettings)} must be of type {nameof(Socks5AuthenticationSettings.UsernamePasswordAuthenticationSettings)}.");
+        }
+
         var proxyUsername = usernamePasswordAuthenticationSettings.Username;
         var proxyPassword = usernamePasswordAuthenticationSettings.Password;
 
@@ -228,9 +233,14 @@ internal static class Socks5Helper
 
     private static void ProcessAuthenticationResponse(byte[] buffer)
     {
-        if (buffer[0] != SubnegotiationVersion || buffer[1] != Socks5Success)
+        if (buffer[0] != SubnegotiationVersion)
         {
-            throw new IOException($"SOCKS5 authentication failed. Version: {buffer[0]}, Status: {buffer[1]}.");
+            throw new IOException($"Invalid SOCKS5 subnegotiation version in authentication response. Expected version {SubnegotiationVersion}, but received {buffer[0]}.");
+        }
+
+        if (buffer[1] != Socks5Success)
+        {
+            throw new IOException($"SOCKS5 authentication failed. Status: {buffer[1]}.");
         }
     }
 
