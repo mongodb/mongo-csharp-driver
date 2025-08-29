@@ -654,25 +654,11 @@ internal partial class KnownSerializerFinderVisitor
         var arguments = node.Arguments;
 
         DeduceMethodCallSerializers();
-        try
+        if (IsKnown(node, out var knownSerializer) && knownSerializer is IUnknowableSerializer)
         {
-            base.VisitMethodCall(node);
+            return node; // don't visit node any further
         }
-        catch
-        {
-            if (node.Method.Is(QueryableMethod.Select) && (_translationOptions.EnableClientSideProjections ?? false))
-            {
-                var sourceExpression = arguments[0];
-                if (IsItemSerializerKnown(sourceExpression, out var sourceItemSerializer))
-                {
-                    AddKnownSerializer(node, IgnoreSubtreeSerializer.Create(node.Type));
-                }
-            }
-            else
-            {
-                throw;
-            }
-        }
+        base.VisitMethodCall(node);
         DeduceMethodCallSerializers();
 
         return node;
@@ -840,7 +826,8 @@ internal partial class KnownSerializerFinderVisitor
                     break;
 
                 default:
-                    throw new ExpressionNotSupportedException(node, because: $"method {method.Name} is not supported");
+                    DeduceUnknowableSerializer(node);
+                    break;
             }
         }
 
@@ -2187,8 +2174,10 @@ internal partial class KnownSerializerFinderVisitor
 
             if (IsNotKnown(node) && IsKnown(sourceExpression, out var sourceSerializer))
             {
-                var sourceItemSerializer = ArraySerializerHelper.GetItemSerializer(sourceSerializer);
-                AddKnownSerializer(node, sourceItemSerializer);
+                var nodeSerializer = sourceSerializer is IUnknowableSerializer ?
+                    UnknowableSerializer.Create(node.Type) :
+                    ArraySerializerHelper.GetItemSerializer(sourceSerializer);
+                AddKnownSerializer(node, nodeSerializer);
             }
         }
 

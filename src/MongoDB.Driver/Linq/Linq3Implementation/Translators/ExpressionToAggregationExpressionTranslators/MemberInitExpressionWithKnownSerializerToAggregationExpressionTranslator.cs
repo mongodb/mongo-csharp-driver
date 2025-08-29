@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     var argumentTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, argument);
                     var matchingMemberSerializationInfo = matchingMemberSerializationInfos[i];
 
-                    if (!argumentTranslation.Serializer.Equals(matchingMemberSerializationInfo.Serializer))
+                    if (!argumentTranslation.Serializer.CanBeAssignedTo(matchingMemberSerializationInfo.Serializer))
                     {
                         throw new ExpressionNotSupportedException(argument, expression, because: "argument serializer is not equal to member serializer");
                     }

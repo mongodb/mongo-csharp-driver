@@ -42,14 +42,11 @@ internal partial class KnownSerializerFinderVisitor
         if (IsSymmetricalBinaryOperator(@operator) &&
             CanDeduceSerializer(leftExpression, rightExpression, out var unknownNode, out var knownSerializer))
         {
-            var isNull = unknownNode is ConstantExpression { Value: null };
-            if (!isNull && unknownNode.Type != knownSerializer.ValueType)
-            {
-                throw new ExpressionNotSupportedException(node, because: "operand types are not compatible with each other");
-            }
-
             // expr1 op expr2 => expr1: expr2Serializer or expr2: expr1Serializer
-            AddKnownSerializer(unknownNode, knownSerializer);
+            if (knownSerializer.ValueType == unknownNode.Type)
+            {
+                AddKnownSerializer(unknownNode, knownSerializer);
+            }
         }
 
         if (@operator == ExpressionType.ArrayIndex)
