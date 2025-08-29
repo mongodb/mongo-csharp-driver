@@ -35,16 +35,27 @@ internal partial class KnownSerializerFinderVisitor
         if (IsKnown(node, out var nodeSerializer) &&
             arguments.Any(IsNotKnown))
         {
-            var matchingMemberSerializationInfos = nodeSerializer.GetMatchingMemberSerializationInfosForConstructorParameters(node, node.Constructor);
-            for (var i = 0; i < matchingMemberSerializationInfos.Count; i++)
+            if (constructor == BsonDocumentConstructor.WithNameAndValue)
             {
-                var argument = arguments[i];
-                var matchingMemberSerializationInfo = matchingMemberSerializationInfos[i];
-
-                if (IsNotKnown(argument))
+                var nameExpression = arguments[0];
+                var valueExpression = arguments[1];
+                DeduceStringSerializer(nameExpression);
+                DeduceBsonValueSerializer(valueExpression);
+                DeduceBsonDocumentSerializer(node);
+            }
+            else
+            {
+                var matchingMemberSerializationInfos = nodeSerializer.GetMatchingMemberSerializationInfosForConstructorParameters(node, node.Constructor);
+                for (var i = 0; i < matchingMemberSerializationInfos.Count; i++)
                 {
-                    // arg => arg: matchingMemberSerializer
-                    AddKnownSerializer(argument, matchingMemberSerializationInfo.Serializer);
+                    var argument = arguments[i];
+                    var matchingMemberSerializationInfo = matchingMemberSerializationInfos[i];
+
+                    if (IsNotKnown(argument))
+                    {
+                        // arg => arg: matchingMemberSerializer
+                        AddKnownSerializer(argument, matchingMemberSerializationInfo.Serializer);
+                    }
                 }
             }
         }
