@@ -108,6 +108,22 @@ internal partial class KnownSerializerFinderVisitor
         }
     }
 
+    private void DeduceBsonDocumentSerializer(Expression node)
+    {
+        if (IsNotKnown(node))
+        {
+            AddKnownSerializer(node, BsonDocumentSerializer.Instance);
+        }
+    }
+
+    private void DeduceBsonValueSerializer(Expression node)
+    {
+        if (IsNotKnown(node))
+        {
+            AddKnownSerializer(node, BsonValueSerializer.Instance);
+        }
+    }
+
     private void DeduceCollectionAndCollectionSerializers(Expression collectionExpression1, Expression collectionExpression2)
     {
         IBsonSerializer collectionSerializer1;
