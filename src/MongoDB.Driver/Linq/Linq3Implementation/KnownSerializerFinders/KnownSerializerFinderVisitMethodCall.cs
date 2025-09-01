@@ -862,6 +862,10 @@ internal partial class KnownSerializerFinderVisitor
             {
                 DeduceReturnsDateTimeSerializer();
             }
+            else
+            {
+                DeduceUnknowableSerializer(node);
+            }
         }
 
         void DeduceAddDaysMethodSerializers()
