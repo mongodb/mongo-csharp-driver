@@ -265,7 +265,7 @@ namespace MongoDB.Bson.Serialization
                     if (memberMap.IsRequired)
                     {
                         var fieldOrProperty = (memberMap.MemberInfo is FieldInfo) ? "field" : "property";
-                        throw new FormatException($"Required element 'memberMap.ElementName' for {fieldOrProperty} '{memberMap.MemberName}' of class {_classMap.ClassType.FullName} is missing.");
+                        throw new FormatException($"Required element '{memberMap.ElementName}' for {fieldOrProperty} '{memberMap.MemberName}' of class {_classMap.ClassType.FullName} is missing.");
                     }
 
                     if (document != null)
