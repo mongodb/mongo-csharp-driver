@@ -36,7 +36,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
         // private static fields
         private static readonly MethodInfo[] __averageMethods;
         private static readonly MethodInfo[] __averageWithSelectorMethods;
-        private static readonly IExecutableQueryFinalizer<TOutput, TOutput> __finalizer = new SingleFinalizer<TOutput>();
+        private static readonly IExecutableQueryFinalizer<TOutput, TOutput> __singleFinalizer = new SingleFinalizer<TOutput>();
+        private static readonly IExecutableQueryFinalizer<TOutput, TOutput> __singleOrDefaultFinalizer = new SingleOrDefaultFinalizer<TOutput>();
 
         // static constructor
         static AverageMethodToExecutableQueryTranslator()
@@ -138,11 +139,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
 
                 IBsonSerializer outputValueSerializer = expression.GetResultType() switch
                 {
-                    Type t when t == typeof(int) => new Int32Serializer(),
-                    Type t when t == typeof(long) => new Int64Serializer(),
-                    Type t when t == typeof(float) => new SingleSerializer(),
-                    Type t when t == typeof(double) => new DoubleSerializer(),
-                    Type t when t == typeof(decimal) => new DecimalSerializer(),
+                    Type t when t == typeof(int) => Int32Serializer.Instance,
+                    Type t when t == typeof(long) => Int64Serializer.Instance,
+                    Type t when t == typeof(float) => SingleSerializer.Instance,
+                    Type t when t == typeof(double) => DoubleSerializer.Instance,
+                    Type t when t == typeof(decimal) => DecimalSerializer.Instance,
                     Type { IsConstructedGenericType: true } t when t.GetGenericTypeDefinition() == typeof(Nullable<>) => (IBsonSerializer)Activator.CreateInstance(typeof(NullableSerializer<>).MakeGenericType(t.GenericTypeArguments[0])),
                     _ => throw new ExpressionNotSupportedException(expression)
                 };
@@ -155,10 +156,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
                     AstStage.Project(AstProject.ExcludeId()),
                     outputWrappedValueSerializer);
 
+                var returnType = expression.Type;
+
                 return ExecutableQuery.Create(
                     provider,
                     pipeline,
-                    __finalizer);
+                    !returnType.IsValueType || returnType.IsNullable()
+                        ? __singleOrDefaultFinalizer
+                        : __singleFinalizer);
             }
 
             throw new ExpressionNotSupportedException(expression);

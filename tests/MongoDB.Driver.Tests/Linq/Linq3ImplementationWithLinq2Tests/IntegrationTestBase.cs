@@ -253,7 +253,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests
                 O = new List<long> { 100, 200, 300 },
                 P = 1.1,
                 U = -1.234565723762724332233489m,
-                Z = 10
+                Z = 10,
+                NullableW = 8,
+                NullableX = 9,
+                NullableY = 10,
+                NullableZ = 11
             };
             __collection.InsertOne(root);
         }
@@ -333,6 +337,14 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests
             public int Y { get; set; }
 
             public decimal Z { get; set; }
+
+            public double? NullableW { get; set; }
+
+            public long? NullableX { get; set; }
+
+            public int? NullableY { get; set; }
+
+            public decimal? NullableZ { get; set; }
         }
 
         public class RootDescended : Root
