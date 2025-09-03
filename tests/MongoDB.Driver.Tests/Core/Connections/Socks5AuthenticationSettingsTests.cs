@@ -22,7 +22,7 @@ namespace MongoDB.Driver.Core.Connections;
 public class Socks5AuthenticationSettingsTests
 {
     // 3 bytes * 86 = 258 bytes length when UTF8 encoded
-    public const string TooLong =
+    private const string TooLong =
         "€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€";
 
     [Fact]
@@ -36,8 +36,7 @@ public class Socks5AuthenticationSettingsTests
     public void UsernamePassword_should_return_UsernamePasswordAuthenticationSettings_instance_with_correct_values()
     {
         var up = Socks5AuthenticationSettings.UsernamePassword("user", "pass");
-        up.Should().BeOfType<Socks5AuthenticationSettings.UsernamePasswordAuthenticationSettings>();
-        var upcast = (Socks5AuthenticationSettings.UsernamePasswordAuthenticationSettings)up;
+        var upcast = up.Should() .BeOfType<Socks5AuthenticationSettings.UsernamePasswordAuthenticationSettings>().Subject;
         upcast.Username.Should().Be("user");
         upcast.Password.Should().Be("pass");
     }
@@ -63,21 +62,32 @@ public class Socks5AuthenticationSettingsTests
     }
 
     [Fact]
-    public void NoAuthenticationSettings_Equals_should_return_true_for_any_Socks5AuthenticationSettings()
+    public void NoAuthenticationSettings_Equals_and_GetHashCode_should_work_correctly()
     {
         var none = Socks5AuthenticationSettings.None;
         none.Equals(Socks5AuthenticationSettings.None).Should().BeTrue();
-        none.Equals(Socks5AuthenticationSettings.UsernamePassword("a", "b")).Should().BeFalse();
+        none.GetHashCode().Should().Be(Socks5AuthenticationSettings.None.GetHashCode());
+
+        var up = Socks5AuthenticationSettings.UsernamePassword("a", "b");
+        none.Equals(up).Should().BeFalse();
+        none.GetHashCode().Should().NotBe(up.GetHashCode());
     }
 
     [Fact]
-    public void UsernamePasswordAuthenticationSettings_Equals_and_GetHashCode_should_work()
+    public void UsernamePasswordAuthenticationSettings_Equals_and_GetHashCode_should_work_correctly()
     {
-        var a = Socks5AuthenticationSettings.UsernamePassword("u", "p");
-        var b = Socks5AuthenticationSettings.UsernamePassword("u", "p");
-        a.Equals(b).Should().BeTrue();
-        a.GetHashCode().Should().Be(b.GetHashCode());
-        var c = Socks5AuthenticationSettings.UsernamePassword("u", "x");
-        a.Equals(c).Should().BeFalse();
+        var up1 = Socks5AuthenticationSettings.UsernamePassword("u", "p");
+
+        var none = Socks5AuthenticationSettings.None;
+        up1.Equals(none).Should().BeFalse();
+        up1.GetHashCode().Should().NotBe(none.GetHashCode());
+
+        var up2 = Socks5AuthenticationSettings.UsernamePassword("u", "p");
+        up1.Equals(up2).Should().BeTrue();
+        up1.GetHashCode().Should().Be(up2.GetHashCode());
+
+        var up3 = Socks5AuthenticationSettings.UsernamePassword("u", "x");
+        up1.Equals(up3).Should().BeFalse();
+        up1.GetHashCode().Should().NotBe(up3.GetHashCode());
     }
 }
