@@ -75,28 +75,6 @@ namespace MongoDB.Driver.Core.Servers
             _connectionId = new ConnectionId(_subject.ServerId);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public async Task ChannelFork_should_not_affect_operations_count([Values(false, true)] bool async)
-        {
-            IClusterableServer server = SetupServer(false, false);
-
-            var channel = async ?
-                await server.GetChannelAsync(OperationContext.NoTimeout) :
-                server.GetChannel(OperationContext.NoTimeout);
-
-            server.OutstandingOperationsCount.Should().Be(1);
-
-            var forkedChannel = channel.Fork();
-            server.OutstandingOperationsCount.Should().Be(1);
-
-            forkedChannel.Dispose();
-            server.OutstandingOperationsCount.Should().Be(1);
-
-            channel.Dispose();
-            server.OutstandingOperationsCount.Should().Be(0);
-        }
-
         [Fact]
         public void Constructor_should_not_throw_when_serverApi_is_null()
         {
@@ -248,20 +226,20 @@ namespace MongoDB.Driver.Core.Servers
         {
             IClusterableServer server = SetupServer(false, false);
 
-            var channels = new List<IChannel>();
+            var channels = new List<IChannelHandle>();
             for (int i = 0; i < operationsCount; i++)
             {
-                var channel = async ?
+                var connection = async ?
                     await server.GetChannelAsync(OperationContext.NoTimeout) :
                     server.GetChannel(OperationContext.NoTimeout);
-                channels.Add(channel);
+                channels.Add(connection);
             }
 
             server.OutstandingOperationsCount.Should().Be(operationsCount);
 
             foreach (var channel in channels)
             {
-                channel.Dispose();
+                server.DecrementOutstandingOperationsCount();
                 server.OutstandingOperationsCount.Should().Be(--operationsCount);
             }
         }
@@ -305,8 +283,8 @@ namespace MongoDB.Driver.Core.Servers
             var openConnectionException = new MongoConnectionException(connectionId, "Oops", new IOException("Cry", innerMostException));
             var mockConnection = new Mock<IConnectionHandle>();
             mockConnection.Setup(c => c.ConnectionId).Returns(connectionId);
-            mockConnection.Setup(c => c.Open(It.IsAny<CancellationToken>())).Throws(openConnectionException);
-            mockConnection.Setup(c => c.OpenAsync(It.IsAny<CancellationToken>())).ThrowsAsync(openConnectionException);
+            mockConnection.Setup(c => c.Open(It.IsAny<OperationContext>())).Throws(openConnectionException);
+            mockConnection.Setup(c => c.OpenAsync(It.IsAny<OperationContext>())).ThrowsAsync(openConnectionException);
 
             var connectionFactory = new Mock<IConnectionFactory>();
             connectionFactory.Setup(cf => cf.CreateConnection(serverId, _endPoint)).Returns(mockConnection.Object);

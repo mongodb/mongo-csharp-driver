@@ -236,8 +236,7 @@ namespace MongoDB.Driver.Encryption
         {
             get
             {
-                uint length;
-                IntPtr p = mongocrypt_version(out length);
+                IntPtr p = mongocrypt_version(out _);
                 return Marshal.PtrToStringAnsi(p);
             }
         }

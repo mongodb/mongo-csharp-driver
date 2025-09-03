@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,10 +13,9 @@
 * limitations under the License.
 */
 
-using System.Linq;
 using System.Net;
 using System.Security;
-using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Authentication;
@@ -51,7 +50,7 @@ namespace MongoDB.Driver.Tests.Authentication
 
         [Theory]
         [ParameterAttributeData]
-        public void Authenticate_should_invoke_authenticators_when_they_exist(
+        public async Task Authenticate_should_invoke_authenticators_when_they_exist(
             [Values(false, true)]
             bool async)
         {
@@ -69,21 +68,21 @@ namespace MongoDB.Driver.Tests.Authentication
 
             if (async)
             {
-                AuthenticationHelper.AuthenticateAsync(mockConnection.Object, description, authenticator, CancellationToken.None).GetAwaiter().GetResult();
+                await AuthenticationHelper.AuthenticateAsync(OperationContext.NoTimeout, mockConnection.Object, description, authenticator);
 
-                mockAuthenticator.Verify(a => a.AuthenticateAsync(mockConnection.Object, description, CancellationToken.None), Times.Once);
+                mockAuthenticator.Verify(a => a.AuthenticateAsync(It.IsAny<OperationContext>(), mockConnection.Object, description), Times.Once);
             }
             else
             {
-                AuthenticationHelper.Authenticate(mockConnection.Object, description, authenticator, CancellationToken.None);
+                AuthenticationHelper.Authenticate(OperationContext.NoTimeout, mockConnection.Object, description, authenticator);
 
-                mockAuthenticator.Verify(a => a.Authenticate(mockConnection.Object, description, CancellationToken.None), Times.Once);
+                mockAuthenticator.Verify(a => a.Authenticate(It.IsAny<OperationContext>(), mockConnection.Object, description), Times.Once);
             }
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void Authenticate_should_not_invoke_authenticator_when_connected_to_an_arbiter(
+        public async Task Authenticate_should_not_invoke_authenticator_when_connected_to_an_arbiter(
             [Values(false, true)]
             bool async)
         {
@@ -101,15 +100,15 @@ namespace MongoDB.Driver.Tests.Authentication
 
             if (async)
             {
-                AuthenticationHelper.AuthenticateAsync(mockConnection.Object, description, authenticator, CancellationToken.None).GetAwaiter().GetResult();
+                await AuthenticationHelper.AuthenticateAsync(OperationContext.NoTimeout, mockConnection.Object, description, authenticator);
 
-                mockAuthenticator.Verify(a => a.AuthenticateAsync(It.IsAny<IConnection>(), It.IsAny<ConnectionDescription>(), It.IsAny<CancellationToken>()), Times.Never);
+                mockAuthenticator.Verify(a => a.AuthenticateAsync(It.IsAny<OperationContext>(), It.IsAny<IConnection>(), It.IsAny<ConnectionDescription>()), Times.Never);
             }
             else
             {
-                AuthenticationHelper.Authenticate(mockConnection.Object, description, authenticator, CancellationToken.None);
+                AuthenticationHelper.Authenticate(OperationContext.NoTimeout, mockConnection.Object, description, authenticator);
 
-                mockAuthenticator.Verify(a => a.Authenticate(It.IsAny<IConnection>(), It.IsAny<ConnectionDescription>(), It.IsAny<CancellationToken>()), Times.Never);
+                mockAuthenticator.Verify(a => a.Authenticate(It.IsAny<OperationContext>(), It.IsAny<IConnection>(), It.IsAny<ConnectionDescription>()), Times.Never);
             }
         }
     }

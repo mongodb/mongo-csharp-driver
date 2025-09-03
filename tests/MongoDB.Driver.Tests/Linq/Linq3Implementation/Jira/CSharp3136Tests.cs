@@ -20,19 +20,24 @@ using FluentAssertions;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp3136Tests : Linq3IntegrationTest
+    public class CSharp3136Tests : LinqIntegrationTest<CSharp3136Tests.ClassFixture>
     {
+        public CSharp3136Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
 
         [Fact]
         public void DateTime_ToString_with_no_arguments_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
 
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -52,7 +57,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void DateTime_ToString_with_format_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -76,7 +81,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData("%H:%M:%S", "-04:00", "{ $project : { _v : { $dateToString : { date : '$D', format : '%H:%M:%S', timezone : '-04:00' } }, _id : 0 } }", new[] { "23:04:05", "23:04:05" })]
         public void DateTime_ToString_with_format_and_timezone_constants_should_work(string format, string timezone, string expectedProjectStage, string[] expectedResults)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -104,7 +109,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(true, true, "{ $project : { _v : { $dateToString : { date : '$D', format : '$Format', timezone : '$Timezone' } }, _id : 0 } }", new[] { "23:04:05", "23:04:05" })]
         public void DateTime_ToString_with_format_and_timezone_expressions_should_work(bool withFormat, bool withTimezone, string expectedProjectStage, string[] expectedResults)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var orderby = collection
                 .AsQueryable()
@@ -138,7 +143,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
 
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -166,7 +171,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData("%H:%M:%S", "-04:00", "xx", "{ $project : { _v : { $dateToString : { date : '$N', format : '%H:%M:%S', timezone : '-04:00', onNull : 'xx' } }, _id : 0 } }", new[] { "23:04:05", "xx" })]
         public void NullableDateTime_ToString_with_format_and_timezone_and_onNull_constants_should_work(string format, string timezone, string onNull, string expectedProjectStage, string[] expectedResults)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -198,7 +203,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(true, true, true, "{ $project : { _v : { $dateToString : { date : '$N', format : '$Format', timezone : '$Timezone', onNull : '$OnNull' } }, _id : 0 } }", new[] { "23:04:05", "missing" })]
         public void NullableDateTime_ToString_with_format_and_timezone_and_onNull_expressions_should_work(bool withFormat, bool withTimezone, bool withOnNull, string expectedProjectStage, string[] expectedResults)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var orderby = collection
                 .AsQueryable()
@@ -231,18 +236,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Should().Equal(expectedResults);
         }
 
-        private IMongoCollection<C> CreateCollection()
-        {
-            var collection = GetCollection<C>();
-
-            CreateCollection(
-                collection,
-                new C { Id = 1, D = new DateTime(2021, 1, 2, 3, 4, 5, 123, DateTimeKind.Utc), N = new DateTime(2021, 1, 2, 3, 4, 5, 123, DateTimeKind.Utc), Format = "%H:%M:%S", Timezone = "-04:00", OnNull = "missing" },
-                new C { Id = 2, D = new DateTime(2021, 1, 2, 3, 4, 5, 123, DateTimeKind.Utc), N = null, Format = "%H:%M:%S", Timezone = "-04:00", OnNull = "missing" });
-
-            return collection;
-        }
-
         private List<string> RemoveTrailingZFromResults(List<string> results)
         {
             return results.Select(RemoveTrailingZ).ToList();
@@ -253,7 +246,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             }
         }
 
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public DateTime D { get; set; }
@@ -263,9 +256,13 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             public string OnNull { get; set; }
         }
 
-        private class ProductTypeSearchResult
+        public sealed class ClassFixture : MongoCollectionFixture<C>
         {
-            public bool IsExternalUrl { get; set; }
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, D = new DateTime(2021, 1, 2, 3, 4, 5, 123, DateTimeKind.Utc), N = new DateTime(2021, 1, 2, 3, 4, 5, 123, DateTimeKind.Utc), Format = "%H:%M:%S", Timezone = "-04:00", OnNull = "missing" },
+                new C { Id = 2, D = new DateTime(2021, 1, 2, 3, 4, 5, 123, DateTimeKind.Utc), N = null, Format = "%H:%M:%S", Timezone = "-04:00", OnNull = "missing" }
+            ];
         }
     }
 }

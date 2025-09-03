@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -84,14 +84,14 @@ namespace MongoDB.Driver.Core.Operations
             set { _maxTime = Ensure.IsNullOrInfiniteOrGreaterThanOrEqualToZero(value, nameof(value)); }
         }
 
-        public BsonDocument CreateCommand(ICoreSessionHandle session)
+        public BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session)
         {
-            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(session, _writeConcern);
+            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, session, _writeConcern);
             return new BsonDocument
             {
                 { "dropIndexes", _collectionNamespace.CollectionName },
                 { "index", _indexName },
-                { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue },
+                { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue && !operationContext.IsRootContextTimeoutConfigured() },
                 { "writeConcern", writeConcern, writeConcern != null },
                 { "comment", _comment, _comment != null }
             };
@@ -106,7 +106,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var channel = channelSource.GetChannel(operationContext))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
-                var operation = CreateOperation(channelBinding.Session);
+                var operation = CreateOperation(operationContext, channelBinding.Session);
                 BsonDocument result;
                 try
                 {
@@ -133,7 +133,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var channel = await channelSource.GetChannelAsync(operationContext).ConfigureAwait(false))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
-                var operation = CreateOperation(channelBinding.Session);
+                var operation = CreateOperation(operationContext, channelBinding.Session);
                 BsonDocument result;
                 try
                 {
@@ -153,9 +153,9 @@ namespace MongoDB.Driver.Core.Operations
 
         private IDisposable BeginOperation() => EventContext.BeginOperation("dropIndexes");
 
-        private WriteCommandOperation<BsonDocument> CreateOperation(ICoreSessionHandle session)
+        private WriteCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, ICoreSessionHandle session)
         {
-            var command = CreateCommand(session);
+            var command = CreateCommand(operationContext, session);
             return new WriteCommandOperation<BsonDocument>(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
         }
 

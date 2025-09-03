@@ -3386,6 +3386,18 @@ namespace MongoDB.Driver.Linq
         }
 
         /// <summary>
+        ///  Returns an <see cref="IAsyncEnumerable{T}" /> which can be enumerated asynchronously.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values.</param>
+        /// <returns>An IAsyncEnumerable for the query results.</returns>
+        public static IAsyncEnumerable<TSource> ToAsyncEnumerable<TSource>(this IQueryable<TSource> source)
+        {
+            var cursorSource = GetCursorSource(source);
+            return cursorSource.ToAsyncEnumerable();
+        }
+
+        /// <summary>
         /// Executes the LINQ query and returns a cursor to the results.
         /// </summary>
         /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>

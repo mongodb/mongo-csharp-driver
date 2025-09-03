@@ -22,17 +22,22 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
-    public class WindowMethodToAggregationExpressionTranslatorTests : Linq3IntegrationTest
+    public class WindowMethodToAggregationExpressionTranslatorTests : LinqIntegrationTest<WindowMethodToAggregationExpressionTranslatorTests.ClassFixture>
     {
+        public WindowMethodToAggregationExpressionTranslatorTests(ClassFixture fixture)
+            : base(fixture, server => server.Supports(Feature.SetWindowFields))
+        {
+        }
+
         [Fact]
         public void Translate_should_return_expected_result_for_AddToSet()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.AddToSet(x => x.Int32Field, null) });
@@ -52,8 +57,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Average_with_Decimal()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.Average(x => x.DecimalField, null) });
@@ -72,8 +76,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Average_with_Double()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.Average(x => x.DoubleField, null) });
@@ -92,8 +95,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Average_with_Int32()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.Average(x => x.Int32Field, null) });
@@ -112,8 +114,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Average_with_Int64()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.Average(x => x.Int64Field, null) });
@@ -132,8 +133,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Average_with_nullable_Decimal()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.Average(x => x.NullableDecimalField, null) });
@@ -152,8 +152,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Average_with_nullable_Double()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.Average(x => x.NullableDoubleField, null) });
@@ -172,8 +171,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Average_with_nullable_Int32()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.Average(x => x.NullableInt32Field, null) });
@@ -192,8 +190,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Average_with_nullable_Int64()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.Average(x => x.NullableInt64Field, null) });
@@ -212,8 +209,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Average_with_nullable_Single()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.Average(x => x.NullableSingleField, null) });
@@ -232,8 +228,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Average_with_Single()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.Average(x => x.SingleField, null) });
@@ -252,8 +247,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Count()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.Count(null) });
@@ -272,8 +266,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_CovariancePopulation_with_Decimal()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.CovariancePopulation(x => x.DecimalField1, x => x.DecimalField2, null) });
@@ -292,8 +285,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_CovariancePopulation_with_Double()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.CovariancePopulation(x => x.DoubleField1, x => x.DoubleField2, null) });
@@ -312,8 +304,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_CovariancePopulation_with_Int32()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.CovariancePopulation(x => x.Int32Field1, x => x.Int32Field2, null) });
@@ -332,8 +323,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_CovariancePopulation_with_Int64()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.CovariancePopulation(x => x.Int64Field1, x => x.Int64Field2, null) });
@@ -352,8 +342,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_CovariancePopulation_with_nullable_Decimal()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.CovariancePopulation(x => x.NullableDecimalField1, x => x.NullableDecimalField2, null) });
@@ -372,8 +361,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_CovariancePopulation_with_nullable_Double()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.CovariancePopulation(x => x.NullableDoubleField1, x => x.NullableDoubleField2, null) });
@@ -392,8 +380,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_CovariancePopulation_with_nullable_Int32()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.CovariancePopulation(x => x.NullableInt32Field1, x => x.NullableInt32Field2, null) });
@@ -412,8 +399,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_CovariancePopulation_with_nullable_Int64()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.CovariancePopulation(x => x.NullableInt64Field1, x => x.NullableInt64Field2, null) });
@@ -432,8 +418,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_CovariancePopulation_with_nullable_Single()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.CovariancePopulation(x => x.NullableSingleField1, x => x.NullableSingleField2, null) });
@@ -452,8 +437,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_CovariancePopulation_with_Single()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.CovariancePopulation(x => x.SingleField1, x => x.SingleField2, null) });
@@ -472,8 +456,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_CovarianceSample_with_Decimal()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.CovarianceSample(x => x.DecimalField1, x => x.DecimalField2, null) });
@@ -492,8 +475,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_CovarianceSample_with_Double()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.CovarianceSample(x => x.DoubleField1, x => x.DoubleField2, null) });
@@ -512,8 +494,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_CovarianceSample_with_Int32()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.CovarianceSample(x => x.Int32Field1, x => x.Int32Field2, null) });
@@ -532,8 +513,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_CovarianceSample_with_Int64()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.CovarianceSample(x => x.Int64Field1, x => x.Int64Field2, null) });
@@ -552,8 +532,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_CovarianceSample_with_nullable_Decimal()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.CovarianceSample(x => x.NullableDecimalField1, x => x.NullableDecimalField2, null) });
@@ -572,8 +551,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_CovarianceSample_with_nullable_Double()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.CovarianceSample(x => x.NullableDoubleField1, x => x.NullableDoubleField2, null) });
@@ -592,8 +570,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_CovarianceSample_with_nullable_Int32()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.CovarianceSample(x => x.NullableInt32Field1, x => x.NullableInt32Field2, null) });
@@ -612,8 +589,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_CovarianceSample_with_nullable_Int64()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.CovarianceSample(x => x.NullableInt64Field1, x => x.NullableInt64Field2, null) });
@@ -632,8 +608,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_CovarianceSample_with_nullable_Single()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.CovarianceSample(x => x.NullableSingleField1, x => x.NullableSingleField2, null) });
@@ -652,8 +627,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_CovarianceSample_with_Single()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.CovarianceSample(x => x.SingleField1, x => x.SingleField2, null) });
@@ -672,8 +646,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_DenseRank()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(
@@ -696,8 +669,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Derivative_with_Decimal()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(
@@ -720,8 +692,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Derivative_with_Decimal_and_unit()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(
@@ -751,8 +722,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Derivative_with_Double()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(
@@ -775,8 +745,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Derivative_with_Double_and_unit()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(
@@ -806,8 +775,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Derivative_with_Int32()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(
@@ -830,8 +798,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Derivative_with_Int32_and_unit()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(
@@ -861,8 +828,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Derivative_with_Int64()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(
@@ -885,8 +851,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Derivative_with_Int64_and_unit()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(
@@ -916,8 +881,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Derivative_with_Single()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(
@@ -940,8 +904,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Derivative_with_Single_and_unit()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(
@@ -971,8 +934,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_DocumentNumber()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(
@@ -995,8 +957,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_ExponentialMovingAverage_with_Decimal_and_alpha()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(
@@ -1019,8 +980,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_ExponentialMovingAverage_with_Decimal_and_n()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(
@@ -1043,8 +1003,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_ExponentialMovingAverage_with_Double_and_alpha()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(
@@ -1067,8 +1026,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_ExponentialMovingAverage_with_Double_and_n()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(
@@ -1091,8 +1049,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_ExponentialMovingAverage_with_Int32_and_alpha()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(
@@ -1115,8 +1072,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_ExponentialMovingAverage_with_Int32_and_n()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(
@@ -1139,8 +1095,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_ExponentialMovingAverage_with_Int64_and_alpha()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(
@@ -1163,8 +1118,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_ExponentialMovingAverage_with_Int64_and_n()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(
@@ -1187,8 +1141,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_ExponentialMovingAverage_with_Single_and_alpha()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(
@@ -1211,8 +1164,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_ExponentialMovingAverage_with_Single_and_n()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(
@@ -1235,8 +1187,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_First()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.First(x => x.Int32Field, null) });
@@ -1255,8 +1206,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Integral_with_Decimal()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(
@@ -1279,8 +1229,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Integral_with_Decimal_and_unit()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(
@@ -1303,8 +1252,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Integral_with_Double()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(
@@ -1327,8 +1275,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Integral_with_Double_and_unit()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(
@@ -1351,8 +1298,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Integral_with_Int32()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(
@@ -1375,8 +1321,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Integral_with_Int32_and_unit()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(
@@ -1399,8 +1344,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Integral_with_Int64()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(
@@ -1423,8 +1367,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Integral_with_Int64_and_unit()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(
@@ -1447,8 +1390,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Integral_with_Single()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(
@@ -1471,8 +1413,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Integral_with_Single_and_unit()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(
@@ -1495,8 +1436,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Last()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.Last(x => x.Int32Field, null) });
@@ -1516,7 +1456,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Translate_should_return_expected_result_for_Locf()
         {
             RequireServer.Check().Supports(Feature.SetWindowFieldsLocf);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.Locf(x => x.Int32Field, null) });
@@ -1532,8 +1472,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Max()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.Max(x => x.Int32Field, null) });
@@ -1550,10 +1489,247 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         }
 
         [Fact]
+        public void Translate_should_return_expected_result_for_Median_with_Decimal()
+        {
+            RequireServer.Check().Supports(Feature.MedianOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Median(x => x.DecimalField, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $median : { input : '$DecimalField', method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].ToDecimal().Should().Be(2.0M);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Median_with_Double()
+        {
+            RequireServer.Check().Supports(Feature.MedianOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Median(x => x.DoubleField, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $median : { input : '$DoubleField', method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsDouble.Should().Be(2.0);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Median_with_Int32()
+        {
+            RequireServer.Check().Supports(Feature.MedianOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Median(x => x.Int32Field, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $median : { input : '$Int32Field', method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsDouble.Should().Be(2.0);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Median_with_Int64()
+        {
+            RequireServer.Check().Supports(Feature.MedianOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Median(x => x.Int64Field, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $median : { input : '$Int64Field', method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsDouble.Should().Be(2.0);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Median_with_nullable_Decimal()
+        {
+            RequireServer.Check().Supports(Feature.MedianOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Median(x => x.NullableDecimalField, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $median : { input : '$NullableDecimalField', method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].ToDecimal().Should().Be(1.0M);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Median_with_nullable_Double()
+        {
+            RequireServer.Check().Supports(Feature.MedianOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Median(x => x.NullableDoubleField, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $median : { input : '$NullableDoubleField', method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsDouble.Should().Be(1.0);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Median_with_nullable_Int32()
+        {
+            RequireServer.Check().Supports(Feature.MedianOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Median(x => x.NullableInt32Field, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $median : { input : '$NullableInt32Field', method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsDouble.Should().Be(1.0);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Median_with_nullable_Int64()
+        {
+            RequireServer.Check().Supports(Feature.MedianOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Median(x => x.NullableInt64Field, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $median : { input : '$NullableInt64Field', method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsDouble.Should().Be(1.0);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Median_with_nullable_Single()
+        {
+            RequireServer.Check().Supports(Feature.MedianOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Median(x => x.NullableSingleField, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $median : { input : '$NullableSingleField', method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsDouble.Should().Be(1.0);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Median_with_Single()
+        {
+            RequireServer.Check().Supports(Feature.MedianOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Median(x => x.SingleField, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $median : { input : '$SingleField', method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsDouble.Should().Be(2.0);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Median_with_window()
+        {
+            RequireServer.Check().Supports(Feature.MedianOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(
+                    partitionBy: x => 1,
+                    sortBy: Builders<C>.Sort.Ascending(x => x.Id),
+                    output: p => new {
+                        Result = p.Median(x => x.Int32Field, DocumentsWindow.Create(-1, 1))
+                    });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[]
+            {
+                "{ $setWindowFields : { partitionBy : 1, sortBy : { _id : 1 }, output : { Result : { $median : { input : '$Int32Field', method : 'approximate' }, window : { documents : [-1, 1] } } } } }"
+            };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            results[0]["Result"].AsDouble.Should().Be(1.0);
+            results[1]["Result"].AsDouble.Should().Be(2.0);
+            results[2]["Result"].AsDouble.Should().Be(2.0);
+        }
+
+        [Fact]
         public void Translate_should_return_expected_result_for_Min()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.Min(x => x.Int32Field, null) });
@@ -1570,10 +1746,295 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         }
 
         [Fact]
+        public void Translate_should_return_expected_result_for_Percentile_with_Decimal()
+        {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Percentile(x => x.DecimalField, new[] { 0.5 }, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $percentile : { input : '$DecimalField', p : [0.5], method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsBsonArray[0].ToDecimal().Should().Be(2.0M);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Percentile_with_Double()
+        {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Percentile(x => x.DoubleField, new[] { 0.5 }, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $percentile : { input : '$DoubleField', p : [0.5], method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsBsonArray[0].AsDouble.Should().Be(2.0);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Percentile_with_Int32()
+        {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Percentile(x => x.Int32Field, new[] { 0.5 }, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $percentile : { input : '$Int32Field', p : [0.5], method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsBsonArray[0].AsDouble.Should().Be(2.0);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Percentile_with_Int64()
+        {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Percentile(x => x.Int64Field, new[] { 0.5 }, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $percentile : { input : '$Int64Field', p : [0.5], method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsBsonArray[0].AsDouble.Should().Be(2.0);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Percentile_with_nullable_Decimal()
+        {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Percentile(x => x.NullableDecimalField, new[] { 0.5 }, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $percentile : { input : '$NullableDecimalField', p : [0.5], method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsBsonArray[0].ToDecimal().Should().Be(1.0M);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Percentile_with_nullable_Double()
+        {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Percentile(x => x.NullableDoubleField, new[] { 0.5 }, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $percentile : { input : '$NullableDoubleField', p : [0.5], method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsBsonArray[0].AsDouble.Should().Be(1.0);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Percentile_with_nullable_Int32()
+        {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Percentile(x => x.NullableInt32Field, new[] { 0.5 }, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $percentile : { input : '$NullableInt32Field', p : [0.5], method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsBsonArray[0].AsDouble.Should().Be(1.0);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Percentile_with_nullable_Int64()
+        {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Percentile(x => x.NullableInt64Field, new[] { 0.5 }, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $percentile : { input : '$NullableInt64Field', p : [0.5], method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsBsonArray[0].AsDouble.Should().Be(1.0);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Percentile_with_nullable_Single()
+        {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Percentile(x => x.NullableSingleField, new[] { 0.5 }, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $percentile : { input : '$NullableSingleField', p : [0.5], method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsBsonArray[0].AsDouble.Should().Be(1.0);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Percentile_with_multiple_percentiles()
+        {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Percentile(x => x.Int32Field, new[] { 0.25, 0.75 }, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $percentile : { input : '$Int32Field', p : [0.25, 0.75], method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                var array = result["Result"].AsBsonArray;
+                array[0].AsDouble.Should().Be(1.0);
+                array[1].AsDouble.Should().Be(3.0);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Percentile_with_Single()
+        {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Percentile(x => x.SingleField, new[] { 0.5 }, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $percentile : { input : '$SingleField', p : [0.5], method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsBsonArray[0].AsDouble.Should().Be(2.0);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Percentile_with_window()
+        {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(
+                    partitionBy: x => 1,
+                    sortBy: Builders<C>.Sort.Ascending(x => x.Id),
+                    output: p => new {
+                        Result = p.Percentile(x => x.Int32Field, new[] { 0.5 }, DocumentsWindow.Create(-1, 1))
+                    });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[]
+            {
+                "{ $setWindowFields : { partitionBy : 1, sortBy : { _id : 1 }, output : { Result : { $percentile : { input : '$Int32Field', p : [0.5], method : 'approximate' }, window : { documents : [-1, 1] } } } } }"
+            };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            results[0]["Result"].AsBsonArray[0].AsDouble.Should().Be(1.0);
+            results[1]["Result"].AsBsonArray[0].AsDouble.Should().Be(2.0);
+            results[2]["Result"].AsBsonArray[0].AsDouble.Should().Be(2.0);
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Percentile_with_List_input()
+        {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
+            var collection = Fixture.Collection;
+            var percentiles = new List<double> { 0.25, 0.5, 0.75 };
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Percentile(x => x.Int32Field, percentiles, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $percentile : { input : '$Int32Field', p : [0.25, 0.5, 0.75], method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                var array = result["Result"].AsBsonArray;
+                array[0].AsDouble.Should().Be(1.0);
+                array[1].AsDouble.Should().Be(2.0);
+                array[2].AsDouble.Should().Be(3.0);
+            }
+        }
+
+        [Fact]
         public void Translate_should_return_expected_result_for_Push()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.Push(x => x.Int32Field, null) });
@@ -1592,8 +2053,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Rank()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(
@@ -1616,8 +2076,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Shift()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(
@@ -1640,8 +2099,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Shift_with_defaultValue()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(
@@ -1664,8 +2122,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_StandardDeviationPopulation_with_Decimal()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.StandardDeviationPopulation(x => x.DecimalField, null) });
@@ -1684,8 +2141,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_StandardDeviationPopulation_with_Double()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.StandardDeviationPopulation(x => x.DoubleField, null) });
@@ -1704,8 +2160,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_StandardDeviationPopulation_with_Int32()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.StandardDeviationPopulation(x => x.Int32Field, null) });
@@ -1724,8 +2179,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_StandardDeviationPopulation_with_Int64()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.StandardDeviationPopulation(x => x.Int64Field, null) });
@@ -1744,8 +2198,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_StandardDeviationPopulation_with_nullable_Decimal()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.StandardDeviationPopulation(x => x.NullableDecimalField, null) });
@@ -1764,8 +2217,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_StandardDeviationPopulation_with_nullable_Double()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.StandardDeviationPopulation(x => x.NullableDoubleField, null) });
@@ -1784,8 +2236,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_StandardDeviationPopulation_with_nullable_Int32()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.StandardDeviationPopulation(x => x.NullableInt32Field, null) });
@@ -1804,8 +2255,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_StandardDeviationPopulation_with_nullable_Int64()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.StandardDeviationPopulation(x => x.NullableInt64Field, null) });
@@ -1824,8 +2274,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_StandardDeviationPopulation_with_nullable_Single()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.StandardDeviationPopulation(x => x.NullableSingleField, null) });
@@ -1844,8 +2293,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_StandardDeviationPopulation_with_Single()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.StandardDeviationPopulation(x => x.SingleField, null) });
@@ -1864,8 +2312,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_StandardDeviationSample_with_Decimal()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.StandardDeviationSample(x => x.DecimalField, null) });
@@ -1884,8 +2331,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_StandardDeviationSample_with_Double()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.StandardDeviationSample(x => x.DoubleField, null) });
@@ -1904,8 +2350,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_StandardDeviationSample_with_Int32()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.StandardDeviationSample(x => x.Int32Field, null) });
@@ -1924,8 +2369,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_StandardDeviationSample_with_Int64()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.StandardDeviationSample(x => x.Int64Field, null) });
@@ -1944,8 +2388,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_StandardDeviationSample_with_nullable_Decimal()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.StandardDeviationSample(x => x.NullableDecimalField, null) });
@@ -1964,8 +2407,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_StandardDeviationSample_with_nullable_Double()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.StandardDeviationSample(x => x.NullableDoubleField, null) });
@@ -1984,8 +2426,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_StandardDeviationSample_with_nullable_Int32()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.StandardDeviationSample(x => x.NullableInt32Field, null) });
@@ -2004,8 +2445,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_StandardDeviationSample_with_nullable_Int64()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.StandardDeviationSample(x => x.NullableInt64Field, null) });
@@ -2024,8 +2464,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_StandardDeviationSample_with_nullable_Single()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.StandardDeviationSample(x => x.NullableSingleField, null) });
@@ -2044,8 +2483,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_StandardDeviationSample_with_Single()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.StandardDeviationSample(x => x.SingleField, null) });
@@ -2064,8 +2502,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Sum_with_Decimal()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.Sum(x => x.DecimalField, null) });
@@ -2084,8 +2521,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Sum_with_Double()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.Sum(x => x.DoubleField, null) });
@@ -2104,8 +2540,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Sum_with_Int32()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.Sum(x => x.Int32Field, null) });
@@ -2124,8 +2559,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Sum_with_Int64()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.Sum(x => x.Int64Field, null) });
@@ -2144,8 +2578,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Sum_with_nullable_Decimal()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.Sum(x => x.NullableDecimalField, null) });
@@ -2164,8 +2597,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Sum_with_nullable_Double()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.Sum(x => x.NullableDoubleField, null) });
@@ -2184,8 +2616,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Sum_with_nullable_Int32()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.Sum(x => x.NullableInt32Field, null) });
@@ -2204,8 +2635,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Sum_with_nullable_Int64()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.Sum(x => x.NullableInt64Field, null) });
@@ -2224,8 +2654,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Sum_with_nullable_Single()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.Sum(x => x.NullableSingleField, null) });
@@ -2244,8 +2673,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Sum_with_Single()
         {
-            RequireServer.Check().Supports(Feature.SetWindowFields);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .SetWindowFields(output: p => new { Result = p.Sum(x => x.SingleField, null) });
@@ -2259,61 +2687,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             {
                 result["Result"].AsDouble.Should().Be(6.0);
             }
-        }
-
-        private IMongoCollection<C> CreateCollection()
-        {
-            var collection = GetCollection<C>();
-            var documents = CreateTestDocuments();
-            CreateCollection(collection, documents);
-            return collection;
-        }
-
-        private IEnumerable<C> CreateTestDocuments()
-        {
-            var documents = new C[3];
-            for (var n = 1; n <= 3; n++)
-            {
-                var document = new C
-                {
-                    Id = n,
-                    DayField = new DateTime(2022, 01, 01, 0, 0, 0, DateTimeKind.Utc).AddDays(n - 1),
-                    DecimalField = n,
-                    DecimalField1 = n,
-                    DecimalField2 = n,
-                    DoubleField = n,
-                    DoubleField1 = n,
-                    DoubleField2 = n,
-                    Int32Field = n,
-                    Int32Field1 = n,
-                    Int32Field2 = n,
-                    Int64Field = n,
-                    Int64Field1 = n,
-                    Int64Field2 = n,
-                    NullableDecimalField = n < 3 ? n : null,
-                    NullableDecimalField1 = n < 3 ? n : null,
-                    NullableDecimalField2 = n < 3 ? n : null,
-                    NullableDoubleField = n < 3 ? n : null,
-                    NullableDoubleField1 = n < 3 ? n : null,
-                    NullableDoubleField2 = n < 3 ? n : null,
-                    NullableInt32Field = n < 3 ? n : null,
-                    NullableInt32Field1 = n < 3 ? n : null,
-                    NullableInt32Field2 = n < 3 ? n : null,
-                    NullableInt64Field = n < 3 ? n : null,
-                    NullableInt64Field1 = n < 3 ? n : null,
-                    NullableInt64Field2 = n < 3 ? n : null,
-                    NullableSingleField = n < 3 ? n : null,
-                    NullableSingleField1 = n < 3 ? n : null,
-                    NullableSingleField2 = n < 3 ? n : null,
-                    SingleField = n,
-                    SingleField1 = n,
-                    SingleField2 = n,
-                };
-
-                documents[n - 1] = document;
-            }
-
-            return documents;
         }
 
         public class C
@@ -2356,6 +2729,54 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             public float SingleField { get; set; }
             public float SingleField1 { get; set; }
             public float SingleField2 { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData
+            {
+                get
+                {
+                    for (var n = 1; n <= 3; n++)
+                    {
+                        yield return new C
+                        {
+                            Id = n,
+                            DayField = new DateTime(2022, 01, 01, 0, 0, 0, DateTimeKind.Utc).AddDays(n - 1),
+                            DecimalField = n,
+                            DecimalField1 = n,
+                            DecimalField2 = n,
+                            DoubleField = n,
+                            DoubleField1 = n,
+                            DoubleField2 = n,
+                            Int32Field = n,
+                            Int32Field1 = n,
+                            Int32Field2 = n,
+                            Int64Field = n,
+                            Int64Field1 = n,
+                            Int64Field2 = n,
+                            NullableDecimalField = n < 3 ? n : null,
+                            NullableDecimalField1 = n < 3 ? n : null,
+                            NullableDecimalField2 = n < 3 ? n : null,
+                            NullableDoubleField = n < 3 ? n : null,
+                            NullableDoubleField1 = n < 3 ? n : null,
+                            NullableDoubleField2 = n < 3 ? n : null,
+                            NullableInt32Field = n < 3 ? n : null,
+                            NullableInt32Field1 = n < 3 ? n : null,
+                            NullableInt32Field2 = n < 3 ? n : null,
+                            NullableInt64Field = n < 3 ? n : null,
+                            NullableInt64Field1 = n < 3 ? n : null,
+                            NullableInt64Field2 = n < 3 ? n : null,
+                            NullableSingleField = n < 3 ? n : null,
+                            NullableSingleField1 = n < 3 ? n : null,
+                            NullableSingleField2 = n < 3 ? n : null,
+                            SingleField = n,
+                            SingleField1 = n,
+                            SingleField2 = n,
+                        };
+                    }
+                }
+            }
         }
     }
 }

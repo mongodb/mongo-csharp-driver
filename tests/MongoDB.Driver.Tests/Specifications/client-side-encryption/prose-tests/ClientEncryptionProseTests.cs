@@ -86,6 +86,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             : base(testOutputHelper)
         {
             _cluster = CoreTestConfiguration.Cluster;
+
+            CoreTestConfiguration.SkipMongocryptdTests_SERVER_106469(checkForSharedLib: true);
         }
 
         // public methods
@@ -419,7 +421,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 var coll = GetCollection(clientEncrypted, __collCollectionNamespace);
                 var exception = Record.Exception(() => Insert(coll, async, new BsonDocument("encrypted", "test")));
 
-                AssertInnerEncryptionException<TimeoutException>(exception, "A timeout occurred after 10000ms selecting a server");
+                AssertInnerEncryptionExceptionRegex<TimeoutException>(exception, "A timeout occurred after \\d+ms selecting a server");
             }
         }
 
@@ -2182,7 +2184,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             [Range(1, 8)] int testCase,
             // test case rangeType values correspond to keys used in test configuration files
             [Values("DecimalNoPrecision", "DecimalPrecision", "DoubleNoPrecision", "DoublePrecision", "Date", "Int", "Long")] string rangeType,
-            [Values(false, false)] bool async)
+            [Values(true, false)] bool async)
         {
             // CSHARP-4606: Skip all fle2v2 tests on Mac until https://jira.mongodb.org/browse/SERVER-69563 propagates to EG Macs.
             RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
@@ -2901,6 +2903,10 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         private void AssertInnerEncryptionException<TInnerException>(Exception ex, string exceptionMessageContains)
             where TInnerException : Exception
             => AssertInnerEncryptionException<TInnerException>(ex, e => e.Message.Should().Contain(exceptionMessageContains));
+
+        private void AssertInnerEncryptionExceptionRegex<TInnerException>(Exception ex, string exceptionMessageRegex)
+            where TInnerException : Exception
+            => AssertInnerEncryptionException<TInnerException>(ex, e => e.Message.Should().MatchRegex(exceptionMessageRegex));
 
         private IMongoClient ConfigureClient(
             bool clearCollections = true,

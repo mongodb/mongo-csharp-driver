@@ -361,6 +361,17 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Wraps a cursor in an IAsyncEnumerable that can be enumerated one time.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="cursor">The cursor.</param>
+        /// <returns>An IAsyncEnumerable.</returns>
+        public static IAsyncEnumerable<TDocument> ToAsyncEnumerable<TDocument>(this IAsyncCursor<TDocument> cursor)
+        {
+            return new AsyncCursorEnumerableOneTimeAdapter<TDocument>(cursor, CancellationToken.None);
+        }
+
+        /// <summary>
         /// Returns a list containing all the documents returned by a cursor.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>

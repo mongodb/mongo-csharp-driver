@@ -1,4 +1,4 @@
-﻿/* Copyright 2015-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -46,7 +46,6 @@ namespace MongoDB.Driver.Core.Operations
         private BsonValue _comment;
         private CursorType _cursorType;
         private BsonDocument _filter;
-        private int? _firstBatchSize;
         private BsonValue _hint;
         private BsonDocument _let;
         private int? _limit;
@@ -123,12 +122,6 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _filter; }
             set { _filter = value; }
-        }
-
-        public int? FirstBatchSize
-        {
-            get { return _firstBatchSize; }
-            set { _firstBatchSize = Ensure.IsNullOrGreaterThanOrEqualToZero(value, nameof(value)); }
         }
 
         public BsonValue Hint
@@ -244,41 +237,37 @@ namespace MongoDB.Driver.Core.Operations
             set { _sort = value; }
         }
 
-        public BsonDocument CreateCommand(ConnectionDescription connectionDescription, ICoreSession session)
+        public BsonDocument CreateCommand(OperationContext operationContext, ICoreSession session, ConnectionDescription connectionDescription)
         {
             var wireVersion = connectionDescription.MaxWireVersion;
             FindProjectionChecker.ThrowIfAggregationExpressionIsUsedWhenNotSupported(_projection, wireVersion);
 
-            var firstBatchSize = _firstBatchSize ?? (_batchSize > 0 ? _batchSize : null);
+            var batchSize = _batchSize;
+            // https://github.com/mongodb/specifications/blob/668992950d975d3163e538849dd20383a214fc37/source/crud/crud.md?plain=1#L803
+            if (batchSize.HasValue && batchSize == _limit)
+            {
+                batchSize = _limit + 1;
+            }
+
             var isShardRouter = connectionDescription.HelloResult.ServerType == ServerType.ShardRouter;
-
-            var effectiveComment = _comment;
-            var effectiveHint = _hint;
-            var effectiveMax = _max;
-            var effectiveMaxTime = _maxTime;
-            var effectiveMin = _min;
-            var effectiveReturnKey = _returnKey;
-            var effectiveShowRecordId = _showRecordId;
-            var effectiveSort = _sort;
-
             var readConcern = ReadConcernHelper.GetReadConcernForCommand(session, connectionDescription, _readConcern);
             return new BsonDocument
             {
                 { "find", _collectionNamespace.CollectionName },
                 { "filter", _filter, _filter != null },
-                { "sort", effectiveSort, effectiveSort != null },
+                { "sort", _sort, _sort != null },
                 { "projection", _projection, _projection != null },
-                { "hint", effectiveHint, effectiveHint != null },
+                { "hint", _hint, _hint != null },
                 { "skip", () => _skip.Value, _skip.HasValue },
                 { "limit", () => Math.Abs(_limit.Value), _limit.HasValue && _limit != 0 },
-                { "batchSize", () => firstBatchSize.Value, firstBatchSize.HasValue },
+                { "batchSize", () => batchSize.Value, batchSize.HasValue && batchSize > 0 },
                 { "singleBatch", () => _limit < 0 || _singleBatch.Value, _limit < 0 || _singleBatch.HasValue },
-                { "comment", effectiveComment, effectiveComment != null },
-                { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(effectiveMaxTime.Value), effectiveMaxTime.HasValue },
-                { "max", effectiveMax, effectiveMax != null },
-                { "min", effectiveMin, effectiveMin != null },
-                { "returnKey", () => effectiveReturnKey.Value, effectiveReturnKey.HasValue },
-                { "showRecordId", () => effectiveShowRecordId.Value, effectiveShowRecordId.HasValue },
+                { "comment", _comment, _comment != null },
+                { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue && !operationContext.IsRootContextTimeoutConfigured() },
+                { "max", _max, _max != null },
+                { "min", _min, _min != null },
+                { "returnKey", () => _returnKey.Value, _returnKey.HasValue },
+                { "showRecordId", () => _showRecordId.Value, _showRecordId.HasValue },
                 { "tailable", true, _cursorType == CursorType.Tailable || _cursorType == CursorType.TailableAwait },
                 { "oplogReplay", () => _oplogReplay.Value, _oplogReplay.HasValue },
                 { "noCursorTimeout", () => _noCursorTimeout.Value, _noCursorTimeout.HasValue },
@@ -308,7 +297,7 @@ namespace MongoDB.Driver.Core.Operations
 
             using (EventContext.BeginFind(_batchSize, _limit))
             {
-                var operation = CreateOperation(context);
+                var operation = CreateOperation(operationContext, context);
                 var commandResult = operation.Execute(operationContext, context);
                 return CreateCursor(context.ChannelSource, context.Channel, commandResult);
             }
@@ -331,7 +320,7 @@ namespace MongoDB.Driver.Core.Operations
 
             using (EventContext.BeginFind(_batchSize, _limit))
             {
-                var operation = CreateOperation(context);
+                var operation = CreateOperation(operationContext, context);
                 var commandResult = await operation.ExecuteAsync(operationContext, context).ConfigureAwait(false);
                 return CreateCursor(context.ChannelSource, context.Channel, commandResult);
             }
@@ -376,9 +365,9 @@ namespace MongoDB.Driver.Core.Operations
 
         private IDisposable BeginOperation() => EventContext.BeginOperation(null, "find");
 
-        private ReadCommandOperation<BsonDocument> CreateOperation(RetryableReadContext context)
+        private ReadCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, RetryableReadContext context)
         {
-            var command = CreateCommand(context.Channel.ConnectionDescription, context.Binding.Session);
+            var command = CreateCommand(operationContext, context.Binding.Session, context.Channel.ConnectionDescription);
             var operation = new ReadCommandOperation<BsonDocument>(
                 _collectionNamespace.DatabaseNamespace,
                 command,

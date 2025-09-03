@@ -13,21 +13,29 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp2107Tests : Linq3IntegrationTest
+    public class CSharp2107Tests : LinqIntegrationTest<CSharp2107Tests.ClassFixture>
     {
+        public CSharp2107Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Aggregate_Project_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .Project(doc => new
@@ -46,7 +54,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Queryable_Select_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(doc => new
@@ -62,12 +70,34 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results[0].UserIsCustomer.Select(u => u.UserId).Should().Equal(1);
         }
 
-        private IMongoCollection<Customer> CreateCollection()
+        public class Customer
         {
-            var collection = GetCollection<Customer>();
+            public int Id { get; set; }
+            public IEnumerable<User> Users { get; set; }
+        }
 
-            var documents = new[]
-            {
+        public class User
+        {
+            public int UserId { get; set; }
+            public Identity Identity { get; set; }
+        }
+
+        public class Identity
+        {
+            [BsonRepresentation(BsonType.String)]
+            public IdentityType IdentityType { get; set; }
+        }
+
+        public enum IdentityType
+        {
+            Type1,
+            Type2
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<Customer>
+        {
+            protected override IEnumerable<Customer> InitialData =>
+            [
                 new Customer
                 {
                     Id = 1,
@@ -77,34 +107,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                         new User { UserId = 2, Identity = new Identity { IdentityType = IdentityType.Type2 } }
                     }
                 }
-            };
-            CreateCollection(collection, documents);
-
-            return collection;
-        }
-
-        private class Customer
-        {
-            public int Id { get; set; }
-            public IEnumerable<User> Users { get; set; }
-        }
-
-        private class User
-        {
-            public int UserId { get; set; }
-            public Identity Identity { get; set; }
-        }
-
-        private class Identity
-        {
-            [BsonRepresentation(BsonType.String)]
-            public IdentityType IdentityType { get; set; }
-        }
-
-        private enum IdentityType
-        {
-            Type1,
-            Type2
+            ];
         }
     }
 }

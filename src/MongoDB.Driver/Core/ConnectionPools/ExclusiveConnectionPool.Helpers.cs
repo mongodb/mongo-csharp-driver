@@ -33,6 +33,24 @@ namespace MongoDB.Driver.Core.ConnectionPools
     internal sealed partial class ExclusiveConnectionPool
     {
         // private methods
+        private TimeSpan CalculateRemainingTimeout(TimeSpan timeout, Stopwatch stopwatch)
+        {
+            if (timeout == Timeout.InfiniteTimeSpan)
+            {
+                return Timeout.InfiniteTimeSpan;
+            }
+
+            var elapsed = stopwatch.Elapsed;
+            var remainingTimeout = timeout - elapsed;
+
+            if (remainingTimeout < TimeSpan.Zero)
+            {
+                throw CreateTimeoutException(elapsed, $"Timed out waiting for a connection after {elapsed.TotalMilliseconds}ms.");
+            }
+
+            return remainingTimeout;
+        }
+
         private Exception CreateTimeoutException(TimeSpan elapsed, string message)
         {
             var checkOutsForCursorCount = _checkOutReasonCounter.GetCheckOutsCount(CheckOutReason.Cursor);
@@ -182,7 +200,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 try
                 {
                     StartCheckingOut(stopwatch);
-                    _poolQueueWaitResult = _pool._maxConnectionsQueue.WaitSignaled(operationContext.RemainingTimeout, operationContext.CancellationToken);
+                    var waitQueueTimeout = operationContext.RemainingTimeoutOrDefault(_pool.Settings.WaitQueueTimeout);
+                    _poolQueueWaitResult = _pool._maxConnectionsQueue.WaitSignaled(waitQueueTimeout, operationContext.CancellationToken);
 
                     if (_poolQueueWaitResult == SemaphoreSlimSignalable.SemaphoreWaitResult.Entered)
                     {
@@ -191,7 +210,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
                         using (var connectionCreator = new ConnectionCreator(_pool))
                         {
-                            pooledConnection = connectionCreator.CreateOpenedOrReuse(operationContext);
+                            waitQueueTimeout = _pool.CalculateRemainingTimeout(waitQueueTimeout, stopwatch);
+                            pooledConnection = connectionCreator.CreateOpenedOrReuse(operationContext, waitQueueTimeout);
                         }
 
                         return EndCheckingOut(pooledConnection, stopwatch);
@@ -214,7 +234,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 try
                 {
                     StartCheckingOut(stopwatch);
-                    _poolQueueWaitResult = await _pool._maxConnectionsQueue.WaitSignaledAsync(operationContext.RemainingTimeout, operationContext.CancellationToken).ConfigureAwait(false);
+                    var waitQueueTimeout = operationContext.RemainingTimeoutOrDefault(_pool.Settings.WaitQueueTimeout);
+                    _poolQueueWaitResult = await _pool._maxConnectionsQueue.WaitSignaledAsync(waitQueueTimeout, operationContext.CancellationToken).ConfigureAwait(false);
 
                     if (_poolQueueWaitResult == SemaphoreSlimSignalable.SemaphoreWaitResult.Entered)
                     {
@@ -223,7 +244,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
                         using (var connectionCreator = new ConnectionCreator(_pool))
                         {
-                            pooledConnection = await connectionCreator.CreateOpenedOrReuseAsync(operationContext).ConfigureAwait(false);
+                            waitQueueTimeout = _pool.CalculateRemainingTimeout(waitQueueTimeout, stopwatch);
+                            pooledConnection = await connectionCreator.CreateOpenedOrReuseAsync(operationContext, waitQueueTimeout).ConfigureAwait(false);
                         }
 
                         return EndCheckingOut(pooledConnection, stopwatch);
@@ -401,11 +423,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
-            public void Open(CancellationToken cancellationToken)
+            public void Open(OperationContext operationContext)
             {
                 try
                 {
-                    _connection.Open(cancellationToken);
+                    _connection.Open(operationContext);
                     SetEffectiveGenerationIfRequired(_connection.Description);
                 }
                 catch (MongoConnectionException ex)
@@ -416,11 +438,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
-            public async Task OpenAsync(CancellationToken cancellationToken)
+            public async Task OpenAsync(OperationContext operationContext)
             {
                 try
                 {
-                    await _connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+                    await _connection.OpenAsync(operationContext).ConfigureAwait(false);
                     SetEffectiveGenerationIfRequired(_connection.Description);
                 }
                 catch (MongoConnectionException ex)
@@ -431,15 +453,15 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
-            public void Reauthenticate(CancellationToken cancellationToken) => _connection.Reauthenticate(cancellationToken);
+            public void Reauthenticate(OperationContext operationContext) => _connection.Reauthenticate(operationContext);
 
-            public Task ReauthenticateAsync(CancellationToken cancellationToken) => _connection.ReauthenticateAsync(cancellationToken);
+            public Task ReauthenticateAsync(OperationContext operationContext) => _connection.ReauthenticateAsync(operationContext);
 
-            public ResponseMessage ReceiveMessage(int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+            public ResponseMessage ReceiveMessage(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings)
             {
                 try
                 {
-                    return _connection.ReceiveMessage(responseTo, encoderSelector, messageEncoderSettings, cancellationToken);
+                    return _connection.ReceiveMessage(operationContext, responseTo, encoderSelector, messageEncoderSettings);
                 }
                 catch (MongoConnectionException ex)
                 {
@@ -448,11 +470,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
-            public async Task<ResponseMessage> ReceiveMessageAsync(int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+            public async Task<ResponseMessage> ReceiveMessageAsync(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings)
             {
                 try
                 {
-                    return await _connection.ReceiveMessageAsync(responseTo, encoderSelector, messageEncoderSettings, cancellationToken).ConfigureAwait(false);
+                    return await _connection.ReceiveMessageAsync(operationContext, responseTo, encoderSelector, messageEncoderSettings).ConfigureAwait(false);
                 }
                 catch (MongoConnectionException ex)
                 {
@@ -461,11 +483,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
-            public void SendMessage(RequestMessage message, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+            public void SendMessage(OperationContext operationContext, RequestMessage message, MessageEncoderSettings messageEncoderSettings)
             {
                 try
                 {
-                    _connection.SendMessage(message, messageEncoderSettings, cancellationToken);
+                    _connection.SendMessage(operationContext, message, messageEncoderSettings);
                 }
                 catch (MongoConnectionException ex)
                 {
@@ -474,11 +496,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
-            public async Task SendMessageAsync(RequestMessage message, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+            public async Task SendMessageAsync(OperationContext operationContext, RequestMessage message, MessageEncoderSettings messageEncoderSettings)
             {
                 try
                 {
-                    await _connection.SendMessageAsync(message, messageEncoderSettings, cancellationToken).ConfigureAwait(false);
+                    await _connection.SendMessageAsync(operationContext, message, messageEncoderSettings).ConfigureAwait(false);
                 }
                 catch (MongoConnectionException ex)
                 {
@@ -494,11 +516,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     _checkOutReason = reason;
                     _connectionPool._checkOutReasonCounter.Increment(reason);
                 }
-            }
-
-            public void SetReadTimeout(TimeSpan timeout)
-            {
-                _connection.SetReadTimeout(timeout);
             }
 
             // private methods
@@ -587,64 +604,58 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 return new AcquiredConnection(_connectionPool, _reference);
             }
 
-            public void Open(CancellationToken cancellationToken)
+            public void Open(OperationContext operationContext)
             {
                 ThrowIfDisposed();
-                _reference.Instance.Open(cancellationToken);
+                _reference.Instance.Open(operationContext);
             }
 
-            public Task OpenAsync(CancellationToken cancellationToken)
+            public Task OpenAsync(OperationContext operationContext)
             {
                 ThrowIfDisposed();
-                return _reference.Instance.OpenAsync(cancellationToken);
+                return _reference.Instance.OpenAsync(operationContext);
             }
 
-            public void Reauthenticate(CancellationToken cancellationToken)
+            public void Reauthenticate(OperationContext operationContext)
             {
                 ThrowIfDisposed();
-                _reference.Instance.Reauthenticate(cancellationToken);
+                _reference.Instance.Reauthenticate(operationContext);
             }
 
-            public Task ReauthenticateAsync(CancellationToken cancellationToken)
+            public Task ReauthenticateAsync(OperationContext operationContext)
             {
                 ThrowIfDisposed();
-                return _reference.Instance.ReauthenticateAsync(cancellationToken);
+                return _reference.Instance.ReauthenticateAsync(operationContext);
             }
 
-            public Task<ResponseMessage> ReceiveMessageAsync(int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+            public Task<ResponseMessage> ReceiveMessageAsync(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings)
             {
                 ThrowIfDisposed();
-                return _reference.Instance.ReceiveMessageAsync(responseTo, encoderSelector, messageEncoderSettings, cancellationToken);
+                return _reference.Instance.ReceiveMessageAsync(operationContext, responseTo, encoderSelector, messageEncoderSettings);
             }
 
-            public ResponseMessage ReceiveMessage(int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+            public ResponseMessage ReceiveMessage(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings)
             {
                 ThrowIfDisposed();
-                return _reference.Instance.ReceiveMessage(responseTo, encoderSelector, messageEncoderSettings, cancellationToken);
+                return _reference.Instance.ReceiveMessage(operationContext, responseTo, encoderSelector, messageEncoderSettings);
             }
 
-            public void SendMessage(RequestMessage message, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+            public void SendMessage(OperationContext operationContext, RequestMessage message, MessageEncoderSettings messageEncoderSettings)
             {
                 ThrowIfDisposed();
-                _reference.Instance.SendMessage(message, messageEncoderSettings, cancellationToken);
+                _reference.Instance.SendMessage(operationContext, message, messageEncoderSettings);
             }
 
-            public Task SendMessageAsync(RequestMessage message, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+            public Task SendMessageAsync(OperationContext operationContext, RequestMessage message, MessageEncoderSettings messageEncoderSettings)
             {
                 ThrowIfDisposed();
-                return _reference.Instance.SendMessageAsync(message, messageEncoderSettings, cancellationToken);
+                return _reference.Instance.SendMessageAsync(operationContext, message, messageEncoderSettings);
             }
 
             public void SetCheckOutReasonIfNotAlreadySet(CheckOutReason reason)
             {
                 ThrowIfDisposed();
                 _reference.Instance.SetCheckOutReasonIfNotAlreadySet(reason);
-            }
-
-            public void SetReadTimeout(TimeSpan timeout)
-            {
-                ThrowIfDisposed();
-                _reference.Instance.SetReadTimeout(timeout);
             }
 
             private void ThrowIfDisposed()
@@ -863,7 +874,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
                     if (_connectingWaitStatus == SemaphoreSlimSignalable.SemaphoreWaitResult.TimedOut)
                     {
-                        _pool.CreateTimeoutException(stopwatch.Elapsed, $"Timed out waiting for in connecting queue after {stopwatch.ElapsedMilliseconds}ms.");
+                        throw _pool.CreateTimeoutException(stopwatch.Elapsed, $"Timed out waiting for in connecting queue after {stopwatch.ElapsedMilliseconds}ms.");
                     }
 
                     return CreateOpenedInternal(new(Timeout.InfiniteTimeSpan, cancellationToken));
@@ -875,7 +886,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
-            public PooledConnection CreateOpenedOrReuse(OperationContext operationContext)
+            public PooledConnection CreateOpenedOrReuse(OperationContext operationContext, TimeSpan waitQueueTimeout)
             {
                 try
                 {
@@ -885,12 +896,13 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     while (connection == null)
                     {
                         _pool._poolState.ThrowIfNotReady();
+                        var waitTimeout = _pool.CalculateRemainingTimeout(waitQueueTimeout, stopwatch);
 
                         // Try to acquire connecting semaphore. Possible operation results:
                         // Entered: The request was successfully fulfilled, and a connection establishment can start
                         // Signaled: The request was interrupted because Connection was return to pool and can be reused
                         // Timeout: The request was timed out after WaitQueueTimeout period.
-                        _connectingWaitStatus = _pool._maxConnectingQueue.WaitSignaled(operationContext.RemainingTimeout, operationContext.CancellationToken);
+                        _connectingWaitStatus = _pool._maxConnectingQueue.WaitSignaled(waitTimeout, operationContext.CancellationToken);
 
                         connection = _connectingWaitStatus switch
                         {
@@ -899,11 +911,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
                             SemaphoreSlimSignalable.SemaphoreWaitResult.TimedOut => throw CreateTimeoutException(stopwatch.Elapsed),
                             _ => throw new InvalidOperationException($"Invalid wait result {_connectingWaitStatus}")
                         };
-
-                        if (connection == null && operationContext.IsTimedOut())
-                        {
-                            throw CreateTimeoutException(stopwatch.Elapsed);
-                        }
                     }
 
                     return connection;
@@ -915,7 +922,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
-            public async Task<PooledConnection> CreateOpenedOrReuseAsync(OperationContext operationContext)
+            public async Task<PooledConnection> CreateOpenedOrReuseAsync(OperationContext operationContext, TimeSpan waitQueueTimeout)
             {
                 try
                 {
@@ -926,11 +933,12 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     {
                         _pool._poolState.ThrowIfNotReady();
 
+                        var waitTimeout = _pool.CalculateRemainingTimeout(waitQueueTimeout, stopwatch);
                         // Try to acquire connecting semaphore. Possible operation results:
                         // Entered: The request was successfully fulfilled, and a connection establishment can start
                         // Signaled: The request was interrupted because Connection was return to pool and can be reused
                         // Timeout: The request was timed out after WaitQueueTimeout period.
-                        _connectingWaitStatus = await _pool._maxConnectingQueue.WaitSignaledAsync(operationContext.RemainingTimeout, operationContext.CancellationToken).ConfigureAwait(false);
+                        _connectingWaitStatus = await _pool._maxConnectingQueue.WaitSignaledAsync(waitTimeout, operationContext.CancellationToken).ConfigureAwait(false);
 
                         connection = _connectingWaitStatus switch
                         {
@@ -939,11 +947,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
                             SemaphoreSlimSignalable.SemaphoreWaitResult.TimedOut => throw CreateTimeoutException(stopwatch.Elapsed),
                             _ => throw new InvalidOperationException($"Invalid wait result {_connectingWaitStatus}")
                         };
-
-                        if (connection == null && operationContext.IsTimedOut())
-                        {
-                            throw CreateTimeoutException(stopwatch.Elapsed);
-                        }
                     }
 
                     return connection;
@@ -974,8 +977,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             {
                 var stopwatch = StartCreating(operationContext);
 
-                // TODO: CSOT add support of CSOT timeout in connection open code too.
-                _connection.Open(operationContext.CancellationToken);
+                _connection.Open(operationContext);
 
                 FinishCreating(_connection.Description, stopwatch);
 
@@ -986,8 +988,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             {
                 var stopwatch = StartCreating(operationContext);
 
-                // TODO: CSOT add support of CSOT timeout in connection open code too.
-                await _connection.OpenAsync(operationContext.CancellationToken).ConfigureAwait(false);
+                await _connection.OpenAsync(operationContext).ConfigureAwait(false);
 
                 FinishCreating(_connection.Description, stopwatch);
 

@@ -33,7 +33,6 @@ using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
 {
-    [Trait("Category", "Serverless")]
     [Trait("Category", "Integration")]
     public class CrudProseTests : LoggableTestClass
     {
@@ -161,7 +160,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
         [ParameterAttributeData]
         public async Task MongoClient_bulkWrite_splits_batches_on_maxWriteBatchSize([Values(true, false)]bool async)
         {
-            RequireServer.Check().Supports(Feature.ClientBulkWrite).Serverless(false);
+            RequireServer.Check().Supports(Feature.ClientBulkWrite);
             var maxBatchCount = DriverTestConfiguration.GetConnectionDescription().MaxBatchCount;
             var models = Enumerable
                 .Range(0, maxBatchCount + 1)
@@ -185,7 +184,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
         [ParameterAttributeData]
         public async Task MongoClient_bulkWrite_splits_batches_on_maxMessageSizeBytes([Values(true, false)]bool async)
         {
-            RequireServer.Check().Supports(Feature.ClientBulkWrite).Serverless(false);
+            RequireServer.Check().Supports(Feature.ClientBulkWrite);
             var connectionDescription = DriverTestConfiguration.GetConnectionDescription();
             var maxDocumentSize = connectionDescription.MaxDocumentSize;
             var maxMessageSize = connectionDescription.MaxMessageSize;
@@ -213,7 +212,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
         [ParameterAttributeData]
         public async Task MongoClient_bulkWrite_collects_WriteConcernError_across_batches([Values(true, false)]bool async)
         {
-            RequireServer.Check().Supports(Feature.ClientBulkWrite).Serverless(false);
+            RequireServer.Check().Supports(Feature.ClientBulkWrite);
             var maxBatchCount = DriverTestConfiguration.GetConnectionDescription().MaxBatchCount;
             const string failPointCommand = @"
             {
@@ -261,7 +260,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
             [Values(true, false)] bool async,
             [Values(true, false)] bool ordered)
         {
-            RequireServer.Check().Supports(Feature.ClientBulkWrite).Serverless(false);
+            RequireServer.Check().Supports(Feature.ClientBulkWrite);
             var maxBatchCount = DriverTestConfiguration.GetConnectionDescription().MaxBatchCount;
             var model = new BsonDocument { { "_id", 1 } };
             var models = Enumerable
@@ -295,7 +294,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
             [Values(true, false)] bool async,
             [Values(true, false)] bool isInTransaction)
         {
-            RequireServer.Check().Supports(Feature.ClientBulkWrite).Serverless(false);
+            RequireServer.Check().Supports(Feature.ClientBulkWrite);
             if (isInTransaction)
             {
                 RequireServer.Check()
@@ -357,7 +356,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
         [ParameterAttributeData]
         public async Task MongoClient_bulkWrite_handles_getMore_error([Values(true, false)] bool async)
         {
-            RequireServer.Check().Supports(Feature.ClientBulkWrite).Serverless(false);
+            RequireServer.Check().Supports(Feature.ClientBulkWrite);
             var maxDocumentSize = DriverTestConfiguration.GetConnectionDescription().MaxDocumentSize;
 
             const string failPointCommand = @"
@@ -420,7 +419,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
         //     [Values(true, false)] bool async,
         //     [Values(true, false)] bool isBatchSplit)
         // {
-        //     RequireServer.Check().Supports(Feature.ClientBulkWrite).Serverless(false);
+        //     RequireServer.Check().Supports(Feature.ClientBulkWrite);
         //     var connectionDescription = DriverTestConfiguration.GetConnectionDescription();
         //     var maxDocumentSize = connectionDescription.MaxDocumentSize;
         //     var maxMessageSize = connectionDescription.MaxMessageSize;
@@ -477,7 +476,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
         [ParameterAttributeData]
         public async Task MongoClient_bulkWrite_throws_if_no_operations_can_be_added_big_document([Values(true, false)]bool async)
         {
-            RequireServer.Check().Supports(Feature.ClientBulkWrite).Serverless(false);
+            RequireServer.Check().Supports(Feature.ClientBulkWrite);
             var maxMessageSize = DriverTestConfiguration.GetConnectionDescription().MaxMessageSize;
 
             var models = new[]
@@ -496,6 +495,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
 
             var bulkWriteException = exception.Should().BeOfType<ClientBulkWriteException>().Subject;
             bulkWriteException.InnerException.Should().BeOfType<FormatException>();
+            bulkWriteException.PartialResult.Should().BeNull();
         }
 
         // https://github.com/mongodb/specifications/blob/7517681e6a3186cb7f3114314a9fe1bc3a747b9f/source/crud/tests/README.md?plain=1#L602
@@ -503,7 +503,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
         [ParameterAttributeData]
         public async Task MongoClient_bulkWrite_throws_if_no_operations_can_be_added_big_namespace([Values(true, false)]bool async)
         {
-            RequireServer.Check().Supports(Feature.ClientBulkWrite).Serverless(false);
+            RequireServer.Check().Supports(Feature.ClientBulkWrite);
             var maxMessageSize = DriverTestConfiguration.GetConnectionDescription().MaxMessageSize;
 
             var models = new[]
@@ -522,6 +522,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
 
             var bulkWriteException = exception.Should().BeOfType<ClientBulkWriteException>().Subject;
             bulkWriteException.InnerException.Should().BeOfType<FormatException>();
+            bulkWriteException.PartialResult.Should().BeNull();
         }
 
         // https://github.com/mongodb/specifications/blob/7517681e6a3186cb7f3114314a9fe1bc3a747b9f/source/crud/tests/README.md?plain=1#L647
@@ -529,7 +530,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
         [ParameterAttributeData]
         public async Task MongoClient_bulkWrite_throws_if_auto_encryption_configured([Values(true, false)]bool async)
         {
-            RequireServer.Check().Supports(Feature.ClientBulkWrite).Serverless(false);
+            RequireServer.Check().Supports(Feature.ClientBulkWrite);
 
             var models = new[]
             {
@@ -560,6 +561,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
                 : Record.Exception(() => client.BulkWrite(models));
 
             exception.Should().BeOfType<NotSupportedException>();
+            exception.Message.Should().Be("BulkWrite does not currently support automatic encryption.");
         }
 
         // https://github.com/mongodb/specifications/blob/d1bdb68b7b4aec9681ea56d41c8b9a6c1a97d365/source/crud/tests/README.md?plain=1#L699
@@ -567,7 +569,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
         [ParameterAttributeData]
         public async Task MongoClient_bulkWrite_unacknowledged_write_concern_uses_w0_all_batches([Values(true, false)] bool async)
         {
-            RequireServer.Check().Supports(Feature.ClientBulkWrite).Serverless(false);
+            RequireServer.Check().Supports(Feature.ClientBulkWrite);
 
             var connectionDescription = DriverTestConfiguration.GetConnectionDescription();
             var maxDocumentSize = connectionDescription.MaxDocumentSize;
@@ -672,7 +674,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
         [ParameterAttributeData]
         public async Task Ensure_generated_ids_are_first_fields_in_document_using_client_bulkWrite([Values(true, false)] bool async)
         {
-            RequireServer.Check().Supports(Feature.ClientBulkWrite).Serverless(false);
+            RequireServer.Check().Supports(Feature.ClientBulkWrite);
 
             var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>();
             using var client = CreateMongoClient(eventCapturer);

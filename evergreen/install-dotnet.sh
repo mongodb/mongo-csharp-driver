@@ -9,6 +9,8 @@ echo "runtime: $FRAMEWORK"
 if [ -n "$FRAMEWORK" ]; then
   if [ "$FRAMEWORK" = "net6.0" ]; then
     RUNTIME_VERSION="6.0"
+  elif [ "$FRAMEWORK" = "net8.0" ]; then
+      RUNTIME_VERSION="8.0"
   elif [ "$FRAMEWORK" = "netstandard2.1" ]; then
     RUNTIME_VERSION="3.1"
   fi

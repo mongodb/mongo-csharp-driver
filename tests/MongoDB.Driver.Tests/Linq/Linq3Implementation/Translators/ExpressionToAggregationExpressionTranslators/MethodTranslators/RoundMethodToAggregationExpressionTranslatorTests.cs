@@ -14,24 +14,28 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
-    public class RoundMethodToAggregationExpressionTranslatorTests : Linq3IntegrationTest
+    public class RoundMethodToAggregationExpressionTranslatorTests : LinqIntegrationTest<RoundMethodToAggregationExpressionTranslatorTests.ClassFixture>
     {
+        public RoundMethodToAggregationExpressionTranslatorTests(ClassFixture fixture)
+            : base(fixture, server => server.Supports(Feature.Round))
+        {
+        }
+
         [Fact]
         public void Math_round_double_should_work()
         {
-            RequireServer.Check().Supports(Feature.Round);
-
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(i => Math.Round(i.Double));
 
@@ -47,9 +51,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Math_round_double_with_digits_should_work()
         {
-            RequireServer.Check().Supports(Feature.Round);
-
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(i => Math.Round(i.Double, 1));
 
@@ -65,9 +67,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Math_round_decimal_should_work()
         {
-            RequireServer.Check().Supports(Feature.Round);
-
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(i => Math.Round(i.Decimal));
 
@@ -83,9 +83,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Math_round_decimal_with_decimals_should_work()
         {
-            RequireServer.Check().Supports(Feature.Round);
-
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(i => Math.Round(i.Decimal, 1));
 
@@ -98,22 +96,21 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             results.Should().Equal(10.2m, 9.7m, 9.2m);
         }
 
-        private IMongoCollection<Data> CreateCollection()
-        {
-            var collection = GetCollection<Data>("test");
-            CreateCollection(
-                collection,
-                new Data { Double = 10.234, Decimal = 10.234m },
-                new Data { Double = 9.66, Decimal = 9.66m },
-                new Data { Double = 9.2, Decimal = 9.2m });
-            return collection;
-        }
-
-        private class Data
+        public class Data
         {
             public double Double { get; set; }
             [BsonRepresentation(BsonType.Decimal128)]
             public decimal Decimal { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<Data>
+        {
+            protected override IEnumerable<Data> InitialData =>
+            [
+                new Data { Double = 10.234, Decimal = 10.234m },
+                new Data { Double = 9.66, Decimal = 9.66m },
+                new Data { Double = 9.2, Decimal = 9.2m }
+            ];
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿/* Copyright 2017-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -114,9 +114,9 @@ namespace MongoDB.Driver.Core.Operations
 
         public BsonDocument ExecuteAttempt(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
         {
-            var args = GetCommandArgs(context, attempt, transactionNumber);
-            // TODO: CSOT implement timeout in Command Execution
+            var args = GetCommandArgs(operationContext, context, attempt, transactionNumber);
             return context.Channel.Command<BsonDocument>(
+                operationContext,
                 context.ChannelSource.Session,
                 ReadPreference.Primary,
                 _databaseNamespace,
@@ -127,15 +127,14 @@ namespace MongoDB.Driver.Core.Operations
                 args.PostWriteAction,
                 args.ResponseHandling,
                 BsonDocumentSerializer.Instance,
-                args.MessageEncoderSettings,
-                operationContext.CancellationToken);
+                args.MessageEncoderSettings);
         }
 
         public Task<BsonDocument> ExecuteAttemptAsync(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
         {
-            var args = GetCommandArgs(context, attempt, transactionNumber);
-            // TODO: CSOT implement timeout in Command Execution
+            var args = GetCommandArgs(operationContext, context, attempt, transactionNumber);
             return context.Channel.CommandAsync<BsonDocument>(
+                operationContext,
                 context.ChannelSource.Session,
                 ReadPreference.Primary,
                 _databaseNamespace,
@@ -146,11 +145,10 @@ namespace MongoDB.Driver.Core.Operations
                 args.PostWriteAction,
                 args.ResponseHandling,
                 BsonDocumentSerializer.Instance,
-                args.MessageEncoderSettings,
-                operationContext.CancellationToken);
+                args.MessageEncoderSettings);
         }
 
-        protected abstract BsonDocument CreateCommand(ICoreSessionHandle session, int attempt, long? transactionNumber);
+        protected abstract BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, int attempt, long? transactionNumber);
 
         protected abstract IEnumerable<BatchableCommandMessageSection> CreateCommandPayloads(IChannelHandle channel, int attempt);
 
@@ -163,10 +161,10 @@ namespace MongoDB.Driver.Core.Operations
             return clone;
         }
 
-        private CommandArgs GetCommandArgs(RetryableWriteContext context, int attempt, long? transactionNumber)
+        private CommandArgs GetCommandArgs(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
         {
             var args = new CommandArgs();
-            args.Command = CreateCommand(context.Binding.Session, attempt, transactionNumber);
+            args.Command = CreateCommand(operationContext, context.Binding.Session, attempt, transactionNumber);
             args.CommandPayloads = CreateCommandPayloads(context.Channel, attempt).ToList();
             args.PostWriteAction = GetPostWriteAction(args.CommandPayloads);
             args.ResponseHandling = GetResponseHandling();

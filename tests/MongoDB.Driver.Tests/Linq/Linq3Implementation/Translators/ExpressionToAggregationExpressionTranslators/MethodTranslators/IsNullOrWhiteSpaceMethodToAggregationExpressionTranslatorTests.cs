@@ -13,22 +13,28 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
-    public class IsNullOrWhiteSpaceMethodToAggregationExpressionTranslatorTests : Linq3IntegrationTest
+    public class IsNullOrWhiteSpaceMethodToAggregationExpressionTranslatorTests : LinqIntegrationTest<IsNullOrWhiteSpaceMethodToAggregationExpressionTranslatorTests.ClassFixture>
     {
+        public IsNullOrWhiteSpaceMethodToAggregationExpressionTranslatorTests(ClassFixture fixture)
+            : base(fixture, server => server.Supports(Feature.TrimOperator))
+        {
+        }
+
         [Fact]
         public void Project_IsNullOrWhiteSpace_using_anonymous_class_should_return_expected_results()
         {
-            RequireServer.Check().Supports(Feature.FindProjectionExpressions, Feature.TrimOperator);
-            var collection = CreateCollection();
+            RequireServer.Check().Supports(Feature.FindProjectionExpressions);
+            var collection = Fixture.Collection;
 
             var find = collection.Find("{}")
                 .Project(x => new { R = string.IsNullOrWhiteSpace(x.S) })
@@ -44,8 +50,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Project_IsNullOrWhiteSpace_using_named_class_should_return_expected_results()
         {
-            RequireServer.Check().Supports(Feature.FindProjectionExpressions, Feature.TrimOperator);
-            var collection = CreateCollection();
+            RequireServer.Check().Supports(Feature.FindProjectionExpressions);
+            var collection = Fixture.Collection;
 
             var find = collection.Find("{}")
                 .Project(x => new Result { R = string.IsNullOrWhiteSpace(x.S) })
@@ -61,8 +67,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Select_IsNullOrWhiteSpace_using_scalar_result_should_return_expected_results()
         {
-            RequireServer.Check().Supports(Feature.TrimOperator);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .OrderBy(x => x.Id)
@@ -81,8 +86,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Select_IsNullOrWhiteSpace_using_anonymous_class_should_return_expected_results()
         {
-            RequireServer.Check().Supports(Feature.TrimOperator);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .OrderBy(x => x.Id)
@@ -101,8 +105,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Select_IsNullOrWhiteSpace_using_named_class_should_return_expected_results()
         {
-            RequireServer.Check().Supports(Feature.TrimOperator);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .OrderBy(x => x.Id)
@@ -118,19 +121,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             results.Select(x => x.R).Should().Equal(true, true, true, true, false);
         }
 
-        private IMongoCollection<C> CreateCollection()
-        {
-            var collection = GetCollection<C>();
-            CreateCollection(
-                collection,
-                new C { Id = 1, S = null },
-                new C { Id = 2, S = "" },
-                new C { Id = 3, S = " " },
-                new C { Id = 4, S = " \t\r\n" },
-                new C { Id = 5, S = "abc" });
-            return collection;
-        }
-
         public class C
         {
             public int Id { get; set; }
@@ -140,6 +130,18 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public class Result
         {
             public bool R { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, S = null },
+                new C { Id = 2, S = "" },
+                new C { Id = 3, S = " " },
+                new C { Id = 4, S = " \t\r\n" },
+                new C { Id = 5, S = "abc" }
+            ];
         }
     }
 }

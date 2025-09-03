@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -79,10 +79,8 @@ namespace MongoDB.Driver.Core.Operations
         private long? _maxDocuments;
         private long? _maxSize;
         private readonly MessageEncoderSettings _messageEncoderSettings;
-        private bool? _noPadding;
         private BsonDocument _storageEngine;
         private TimeSeriesOptions _timeSeriesOptions;
-        private bool? _usePowerOf2Sizes;
         private DocumentValidationAction? _validationAction;
         private DocumentValidationLevel? _validationLevel;
         private BsonDocument _validator;
@@ -171,12 +169,6 @@ namespace MongoDB.Driver.Core.Operations
             get { return _messageEncoderSettings; }
         }
 
-        public bool? NoPadding
-        {
-            get { return _noPadding; }
-            set { _noPadding = value; }
-        }
-
         public BsonDocument StorageEngine
         {
             get { return _storageEngine; }
@@ -187,12 +179,6 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _timeSeriesOptions; }
             set { _timeSeriesOptions = value; }
-        }
-
-        public bool? UsePowerOf2Sizes
-        {
-            get { return _usePowerOf2Sizes; }
-            set { _usePowerOf2Sizes = value; }
         }
 
         public DocumentValidationAction? ValidationAction
@@ -225,10 +211,9 @@ namespace MongoDB.Driver.Core.Operations
             set => _clusteredIndex = value;
         }
 
-        internal BsonDocument CreateCommand(ICoreSessionHandle session)
+        internal BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session)
         {
-            var flags = GetFlags();
-            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(session, _writeConcern);
+            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, session, _writeConcern);
             return new BsonDocument
             {
                 { "create", _collectionNamespace.CollectionName },
@@ -236,7 +221,6 @@ namespace MongoDB.Driver.Core.Operations
                 { "capped", () => _capped.Value, _capped.HasValue },
                 { "size", () => _maxSize.Value, _maxSize.HasValue },
                 { "max", () => _maxDocuments.Value, _maxDocuments.HasValue },
-                { "flags", () => (int)flags.Value, flags.HasValue },
                 { "storageEngine", _storageEngine, _storageEngine != null },
                 { "indexOptionDefaults", _indexOptionDefaults, _indexOptionDefaults != null },
                 { "validator", _validator, _validator != null },
@@ -252,27 +236,6 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        private CreateCollectionFlags? GetFlags()
-        {
-            if (_usePowerOf2Sizes.HasValue || _noPadding.HasValue)
-            {
-                var flags = CreateCollectionFlags.None;
-                if (_usePowerOf2Sizes.HasValue && _usePowerOf2Sizes.Value)
-                {
-                    flags |= CreateCollectionFlags.UsePowerOf2Sizes;
-                }
-                if (_noPadding.HasValue && _noPadding.Value)
-                {
-                    flags |= CreateCollectionFlags.NoPadding;
-                }
-                return flags;
-            }
-            else
-            {
-                return null;
-            }
-        }
-
         public BsonDocument Execute(OperationContext operationContext, IWriteBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
@@ -284,7 +247,7 @@ namespace MongoDB.Driver.Core.Operations
                 EnsureServerIsValid(channel.ConnectionDescription.MaxWireVersion);
                 using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
                 {
-                    var operation = CreateOperation(channelBinding.Session);
+                    var operation = CreateOperation(operationContext, channelBinding.Session);
                     return operation.Execute(operationContext, channelBinding);
                 }
             }
@@ -301,7 +264,7 @@ namespace MongoDB.Driver.Core.Operations
                 EnsureServerIsValid(channel.ConnectionDescription.MaxWireVersion);
                 using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
                 {
-                    var operation = CreateOperation(channelBinding.Session);
+                    var operation = CreateOperation(operationContext, channelBinding.Session);
                     return await operation.ExecuteAsync(operationContext, channelBinding).ConfigureAwait(false);
                 }
             }
@@ -309,23 +272,15 @@ namespace MongoDB.Driver.Core.Operations
 
         private IDisposable BeginOperation() => EventContext.BeginOperation("create");
 
-        private WriteCommandOperation<BsonDocument> CreateOperation(ICoreSessionHandle session)
+        private WriteCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, ICoreSessionHandle session)
         {
-            var command = CreateCommand(session);
+            var command = CreateCommand(operationContext, session);
             return new WriteCommandOperation<BsonDocument>(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
         }
 
         private void EnsureServerIsValid(int maxWireVersion)
         {
             _supportedFeature?.ThrowIfNotSupported(maxWireVersion);
-        }
-
-        [Flags]
-        private enum CreateCollectionFlags
-        {
-            None = 0,
-            UsePowerOf2Sizes = 1,
-            NoPadding = 2
         }
     }
 }

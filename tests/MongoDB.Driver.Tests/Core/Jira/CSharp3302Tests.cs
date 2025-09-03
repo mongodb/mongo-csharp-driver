@@ -243,8 +243,9 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 endPoints: serverInfoCollection.Select(c => c.Endpoint).ToArray());
 
             var serverMonitorSettings = new ServerMonitorSettings(
-                connectTimeout: TimeSpan.FromMilliseconds(1),
-                heartbeatInterval: __heartbeatInterval);
+                ConnectTimeout: TimeSpan.FromMilliseconds(20),
+                HeartbeatTimeout: TimeSpan.FromMilliseconds(10),
+                HeartbeatInterval: __heartbeatInterval);
             var serverSettings = new ServerSettings(serverMonitorSettings.HeartbeatInterval);
 
             var eventCapturer = new EventCapturer();
@@ -282,8 +283,8 @@ namespace MongoDB.Driver.Core.Tests.Jira
             var baseDocument = new BsonDocument
             {
                 { "ok", 1 },
-                { "minWireVersion", WireVersion.Server36 },
-                { "maxWireVersion", WireVersion.Server40 },
+                { "minWireVersion", WireVersion.Server42 },
+                { "maxWireVersion", WireVersion.Server44 },
                 { "setName", "rs" },
                 { "hosts", new BsonArray(new [] { "localhost:27017", "localhost:27018" })},
                 { "topologyVersion", new TopologyVersion(ObjectId.Empty, 1).ToBsonDocument(), false }
@@ -303,9 +304,9 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 .SetupGet(c => c.Description)
                 .Returns(GetConnectionDescription);
 
-            mockConnection.Setup(c => c.Open(It.IsAny<CancellationToken>())); // no action is required
+            mockConnection.Setup(c => c.Open(It.IsAny<OperationContext>())); // no action is required
             mockConnection
-                .Setup(c => c.ReceiveMessage(It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), It.IsAny<MessageEncoderSettings>(), It.IsAny<CancellationToken>()))
+                .Setup(c => c.ReceiveMessage(It.IsAny<OperationContext>(), It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), It.IsAny<MessageEncoderSettings>()))
                 .Returns(GetHelloResponse);
 
             ResponseMessage GetHelloResponse()

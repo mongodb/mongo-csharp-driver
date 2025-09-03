@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
@@ -39,71 +38,65 @@ namespace MongoDB.Driver
         }
 
         public TResult ExecuteReadOperation<TResult>(
+            OperationContext operationContext,
             IClientSessionHandle session,
             IReadOperation<TResult> operation,
-            ReadOperationOptions options,
-            bool allowChannelPinning,
-            CancellationToken cancellationToken)
+            ReadPreference readPreference,
+            bool allowChannelPinning)
         {
-            Ensure.IsNotNull(operation, nameof(operation));
-            Ensure.IsNotNull(options, nameof(options));
+            Ensure.IsNotNull(operationContext, nameof(operationContext));
             Ensure.IsNotNull(session, nameof(session));
+            Ensure.IsNotNull(operation, nameof(operation));
+            Ensure.IsNotNull(readPreference, nameof(readPreference));
             ThrowIfDisposed();
 
-            var operationContext = options.ToOperationContext(cancellationToken);
-            var readPreference = options.GetEffectiveReadPreference(session);
             using var binding = CreateReadBinding(session, readPreference, allowChannelPinning);
             return operation.Execute(operationContext, binding);
         }
 
         public async Task<TResult> ExecuteReadOperationAsync<TResult>(
+            OperationContext operationContext,
             IClientSessionHandle session,
             IReadOperation<TResult> operation,
-            ReadOperationOptions options,
-            bool allowChannelPinning,
-            CancellationToken cancellationToken)
+            ReadPreference readPreference,
+            bool allowChannelPinning)
         {
-            Ensure.IsNotNull(operation, nameof(operation));
-            Ensure.IsNotNull(options, nameof(options));
+            Ensure.IsNotNull(operationContext, nameof(operationContext));
             Ensure.IsNotNull(session, nameof(session));
+            Ensure.IsNotNull(operation, nameof(operation));
+            Ensure.IsNotNull(readPreference, nameof(readPreference));
             ThrowIfDisposed();
 
-            var operationContext = options.ToOperationContext(cancellationToken);
-            var readPreference = options.GetEffectiveReadPreference(session);
             using var binding = CreateReadBinding(session, readPreference, allowChannelPinning);
             return await operation.ExecuteAsync(operationContext, binding).ConfigureAwait(false);
         }
 
         public TResult ExecuteWriteOperation<TResult>(
+            OperationContext operationContext,
             IClientSessionHandle session,
             IWriteOperation<TResult> operation,
-            WriteOperationOptions options,
-            bool allowChannelPinning,
-            CancellationToken cancellationToken)
+            bool allowChannelPinning)
         {
-            Ensure.IsNotNull(operation, nameof(operation));
-            Ensure.IsNotNull(options, nameof(options));
+            Ensure.IsNotNull(operationContext, nameof(operationContext));
             Ensure.IsNotNull(session, nameof(session));
+            Ensure.IsNotNull(operation, nameof(operation));
             ThrowIfDisposed();
 
-            var operationContext = options.ToOperationContext(cancellationToken);
             using var binding = CreateReadWriteBinding(session, allowChannelPinning);
             return operation.Execute(operationContext, binding);
         }
 
         public async Task<TResult> ExecuteWriteOperationAsync<TResult>(
+            OperationContext operationContext,
             IClientSessionHandle session,
             IWriteOperation<TResult> operation,
-            WriteOperationOptions options,
-            bool allowChannelPinning,
-            CancellationToken cancellationToken)
+            bool allowChannelPinning)
         {
-            Ensure.IsNotNull(operation, nameof(operation));
-            Ensure.IsNotNull(options, nameof(options));
+            Ensure.IsNotNull(operationContext, nameof(operationContext));
             Ensure.IsNotNull(session, nameof(session));
+            Ensure.IsNotNull(operation, nameof(operation));
             ThrowIfDisposed();
 
-            var operationContext = options.ToOperationContext(cancellationToken);
             using var binding = CreateReadWriteBinding(session, allowChannelPinning);
             return await operation.ExecuteAsync(operationContext, binding).ConfigureAwait(false);
         }

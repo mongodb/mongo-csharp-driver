@@ -13,18 +13,25 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4057Tests : Linq3IntegrationTest
+    public class CSharp4057Tests : LinqIntegrationTest<CSharp4057Tests.ClassFixture>
     {
+        public CSharp4057Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Aggregate_Project_should_work()
         {
-            var collection = CreateProductsCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                .Sort(Builders<Product>.Sort.Ascending(p => p.Id))
@@ -47,7 +54,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Queryable_Select()
         {
-            var collection = CreateProductsCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .OrderBy(p => p.Id)
@@ -67,22 +74,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(r => r.IsExternalUrl).Should().Equal(true, true, false);
         }
 
-        private IMongoCollection<Product> CreateProductsCollection()
-        {
-            var collection = GetCollection<Product>();
-
-            var documents = new[]
-            {
-                new Product { Id = 1, ShopUrl = null },
-                new Product { Id = 2, ShopUrl = "" },
-                new Product { Id = 3, ShopUrl = "abc" }
-            };
-            CreateCollection(collection, documents);
-
-            return collection;
-        }
-
-        private class Product
+        public class Product
         {
             public int Id { get; set; }
             public string ShopUrl { get; set; }
@@ -91,6 +83,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         private class ProductTypeSearchResult
         {
             public bool IsExternalUrl { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<Product>
+        {
+            protected override IEnumerable<Product> InitialData =>
+            [
+                new Product { Id = 1, ShopUrl = null },
+                new Product { Id = 2, ShopUrl = "" },
+                new Product { Id = 3, ShopUrl = "abc" }
+            ];
         }
     }
 }

@@ -63,18 +63,19 @@ namespace MongoDB.Driver.Tests
         }
 
         public TResult ExecuteReadOperation<TResult>(
+            OperationContext operationContext,
             IClientSessionHandle session,
             IReadOperation<TResult> operation,
-            ReadOperationOptions readOperationOptions,
-            bool allowChannelPinning,
-            CancellationToken cancellationToken)
+            ReadPreference readPreference,
+            bool allowChannelPinning)
         {
             _calls.Enqueue(new ReadCall<TResult>
             {
                 Operation = operation,
-                CancellationToken = cancellationToken,
-                Options = readOperationOptions,
+                CancellationToken = operationContext.CancellationToken,
+                ReadPreference = readPreference,
                 SessionId = session?.WrappedCoreSession.Id,
+                Timeout = operationContext.Timeout,
                 UsedImplicitSession = session == null || session.IsImplicit
             });
 
@@ -95,15 +96,15 @@ namespace MongoDB.Driver.Tests
         }
 
         public Task<TResult> ExecuteReadOperationAsync<TResult>(
+            OperationContext operationContext,
             IClientSessionHandle session,
             IReadOperation<TResult> operation,
-            ReadOperationOptions readOperationOptions,
-            bool allowChannelPinning,
-            CancellationToken cancellationToken)
+            ReadPreference readPreference,
+            bool allowChannelPinning)
         {
             try
             {
-                var result = ExecuteReadOperation(session, operation, readOperationOptions, allowChannelPinning, cancellationToken);
+                var result = ExecuteReadOperation(operationContext, session, operation, readPreference, allowChannelPinning);
                 return Task.FromResult(result);
             }
             catch (Exception ex)
@@ -115,18 +116,17 @@ namespace MongoDB.Driver.Tests
         }
 
         public TResult ExecuteWriteOperation<TResult>(
+            OperationContext operationContext,
             IClientSessionHandle session,
             IWriteOperation<TResult> operation,
-            WriteOperationOptions writeOperationOptions,
-            bool allowChannelPinning,
-            CancellationToken cancellationToken)
+            bool allowChannelPinning)
         {
             _calls.Enqueue(new WriteCall<TResult>
             {
                 Operation = operation,
-                CancellationToken = cancellationToken,
-                Options = writeOperationOptions,
+                CancellationToken = operationContext.CancellationToken,
                 SessionId = session?.WrappedCoreSession.Id,
+                Timeout = operationContext.Timeout,
                 UsedImplicitSession = session == null || session.IsImplicit
             });
 
@@ -147,15 +147,14 @@ namespace MongoDB.Driver.Tests
         }
 
         public Task<TResult> ExecuteWriteOperationAsync<TResult>(
+            OperationContext operationContext,
             IClientSessionHandle session,
             IWriteOperation<TResult> operation,
-            WriteOperationOptions writeOperationOptions,
-            bool allowChannelPinning,
-            CancellationToken cancellationToken)
+            bool allowChannelPinning)
         {
             try
             {
-                var result = ExecuteWriteOperation(session, operation, writeOperationOptions, allowChannelPinning, cancellationToken);
+                var result = ExecuteWriteOperation(operationContext, session, operation, allowChannelPinning);
                 return Task.FromResult(result);
             }
             catch (Exception ex)
@@ -214,8 +213,9 @@ namespace MongoDB.Driver.Tests
         {
             public IReadOperation<TResult> Operation { get; set; }
             public CancellationToken CancellationToken { get; set; }
-            public ReadOperationOptions Options { get; set; }
+            public ReadPreference ReadPreference { get; set; }
             public BsonDocument SessionId { get; set; }
+            public TimeSpan? Timeout { get; set; }
             public bool UsedImplicitSession { get; set; }
         }
 
@@ -223,8 +223,8 @@ namespace MongoDB.Driver.Tests
         {
             public IWriteOperation<TResult> Operation { get; set; }
             public CancellationToken CancellationToken { get; set; }
-            public WriteOperationOptions Options { get; set; }
             public BsonDocument SessionId { get; set; }
+            public TimeSpan? Timeout { get; set; }
             public bool UsedImplicitSession { get; set; }
         }
     }

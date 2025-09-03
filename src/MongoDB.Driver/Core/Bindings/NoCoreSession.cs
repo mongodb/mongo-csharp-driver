@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Core.Bindings
     /// An object that represents no core session.
     /// </summary>
     /// <seealso cref="MongoDB.Driver.Core.Bindings.ICoreSession" />
-    public sealed class NoCoreSession : ICoreSession
+    public sealed class NoCoreSession : ICoreSession, ICoreSessionInternal
     {
         #region static
         // private static fields
@@ -89,13 +89,25 @@ namespace MongoDB.Driver.Core.Bindings
 
         // public methods
         /// <inheritdoc />
-        public void AbortTransaction(CancellationToken cancellationToken = default(CancellationToken))
+        public void AbortTransaction(CancellationToken cancellationToken = default)
+        {
+            throw new NotSupportedException("NoCoreSession does not support AbortTransaction.");
+        }
+
+        // TODO: CSOT: Make it public when CSOT will be ready for GA and add default value to cancellationToken parameter.
+        void ICoreSessionInternal.AbortTransaction(AbortTransactionOptions options, CancellationToken cancellationToken )
         {
             throw new NotSupportedException("NoCoreSession does not support AbortTransaction.");
         }
 
         /// <inheritdoc />
-        public Task AbortTransactionAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public Task AbortTransactionAsync(CancellationToken cancellationToken = default)
+        {
+            throw new NotSupportedException("NoCoreSession does not support AbortTransactionAsync.");
+        }
+
+        // TODO: CSOT: Make it public when CSOT will be ready for GA and add default value to cancellationToken parameter.
+        Task ICoreSessionInternal.AbortTransactionAsync(AbortTransactionOptions options, CancellationToken cancellationToken )
         {
             throw new NotSupportedException("NoCoreSession does not support AbortTransactionAsync.");
         }
@@ -122,13 +134,25 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         /// <inheritdoc />
-        public void CommitTransaction(CancellationToken cancellationToken = default(CancellationToken))
+        public void CommitTransaction(CancellationToken cancellationToken = default)
+        {
+            throw new NotSupportedException("NoCoreSession does not support CommitTransaction.");
+        }
+
+        // TODO: CSOT: Make it public when CSOT will be ready for GA and add default value to cancellationToken parameter.
+        void ICoreSessionInternal.CommitTransaction(CommitTransactionOptions options, CancellationToken cancellationToken)
         {
             throw new NotSupportedException("NoCoreSession does not support CommitTransaction.");
         }
 
         /// <inheritdoc />
-        public Task CommitTransactionAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public Task CommitTransactionAsync(CancellationToken cancellationToken = default)
+        {
+            throw new NotSupportedException("NoCoreSession does not support CommitTransactionAsync.");
+        }
+
+        // TODO: CSOT: Make it public when CSOT will be ready for GA and add default value to cancellationToken parameter.
+        Task ICoreSessionInternal.CommitTransactionAsync(CommitTransactionOptions options, CancellationToken cancellationToken)
         {
             throw new NotSupportedException("NoCoreSession does not support CommitTransactionAsync.");
         }

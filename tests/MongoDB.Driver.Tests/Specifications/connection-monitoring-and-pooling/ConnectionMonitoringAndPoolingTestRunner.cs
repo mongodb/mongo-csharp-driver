@@ -83,12 +83,6 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
             public readonly static string ignore = nameof(ignore);
             public readonly static string async = nameof(async);
 
-            public static class Operations
-            {
-                public const string runOn = nameof(runOn);
-                public readonly static string failPoint = nameof(failPoint);
-            }
-
             public static class Intergration
             {
                 public readonly static string runOn = nameof(runOn);
@@ -99,12 +93,6 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
             {
                 public readonly static string unit = nameof(unit);
                 public readonly static string integration = nameof(integration);
-            }
-
-            public sealed class FailPoint
-            {
-                public readonly static string appName = nameof(appName);
-                public readonly static string data = nameof(data);
             }
 
             public readonly static string[] AllFields = new[]
@@ -745,33 +733,6 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
             return (connectionPool, failPoint, cluster, eventsFilter);
         }
 
-        private IConnectionPool SetupConnectionPoolMock(BsonDocument test, IEventSubscriber eventSubscriber)
-        {
-            var endPoint = new DnsEndPoint("localhost", 27017);
-            var serverId = new ServerId(new ClusterId(), endPoint);
-            ParseSettings(test, out var connectionPoolSettings, out var connectionSettings);
-
-            var connectionFactory = new Mock<IConnectionFactory>();
-            var exceptionHandler = new Mock<IConnectionExceptionHandler>();
-            connectionFactory.Setup(f => f.ConnectionSettings).Returns(() => new ConnectionSettings());
-            connectionFactory
-                .Setup(c => c.CreateConnection(serverId, endPoint))
-                .Returns(() =>
-                {
-                    var connection = new MockConnection(serverId, connectionSettings, eventSubscriber);
-                    return connection;
-                });
-            var connectionPool = new ExclusiveConnectionPool(
-                serverId,
-                endPoint,
-                connectionPoolSettings,
-                connectionFactory.Object,
-                exceptionHandler.Object,
-                eventSubscriber.ToEventLogger<LogCategories.Connection>());
-
-            return connectionPool;
-        }
-
         private void Start(BsonDocument operation, ConcurrentDictionary<string, Task> tasks)
         {
             var startTarget = operation.GetValue("target").ToString();
@@ -855,6 +816,14 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
 
     internal static class IServerReflector
     {
-        public static IConnectionPool _connectionPool(this IServer server) => (IConnectionPool)Reflector.GetFieldValue(server, nameof(_connectionPool));
+        public static IConnectionPool _connectionPool(this IServer server)
+        {
+            if (server is SelectedServer)
+            {
+                server = (IServer)Reflector.GetFieldValue(server, "_server");
+            }
+
+            return (IConnectionPool)Reflector.GetFieldValue(server, nameof(_connectionPool));
+        }
     }
 }

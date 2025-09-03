@@ -29,6 +29,8 @@ namespace MongoDB.Driver.Core.Servers
 {
     internal sealed class ServerMonitor : IServerMonitor
     {
+        private static readonly TimeSpan __minHeartbeatInterval = TimeSpan.FromMilliseconds(500);
+
         private readonly ServerDescription _baseDescription;
         private volatile IConnection _connection;
         private readonly IConnectionFactory _connectionFactory;
@@ -73,6 +75,7 @@ namespace MongoDB.Driver.Core.Servers
                     serverId,
                     endPoint,
                     Ensure.IsNotNull(serverMonitorSettings, nameof(serverMonitorSettings)).HeartbeatInterval,
+                    Ensure.IsNotNull(serverMonitorSettings, nameof(serverMonitorSettings)).ConnectTimeout,
                     serverApi,
                     loggerFactory?.CreateLogger<RoundTripTimeMonitor>()),
                 serverApi,
@@ -206,7 +209,7 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         // private methods
-        private IConnection InitializeConnection(CancellationToken cancellationToken) // called setUpConnection in spec
+        private IConnection InitializeConnection(OperationContext operationContext) // called setUpConnection in spec
         {
             var connection = _connectionFactory.CreateConnection(_serverId, _endPoint);
             _eventLoggerSdam.LogAndPublish(new ServerHeartbeatStartedEvent(connection.ConnectionId, false));
@@ -214,9 +217,10 @@ namespace MongoDB.Driver.Core.Servers
             var stopwatch = Stopwatch.StartNew();
             try
             {
+                using var openOperationContext = operationContext.WithTimeout(_serverMonitorSettings.ConnectTimeout);
                 // if we are cancelling, it's because the server has
                 // been shut down and we really don't need to wait.
-                connection.Open(cancellationToken);
+                connection.Open(openOperationContext);
 
                 _eventLoggerSdam.LogAndPublish(new ServerHeartbeatSucceededEvent(connection.ConnectionId, stopwatch.Elapsed, false, connection.Description.HelloResult.Wrapped));
             }
@@ -241,7 +245,6 @@ namespace MongoDB.Driver.Core.Servers
             var commandResponseHandling = CommandResponseHandling.Return;
             if (IsUsingStreamingProtocol(connection.Description.HelloResult))
             {
-                connection.SetReadTimeout(_serverMonitorSettings.ConnectTimeout + _serverMonitorSettings.HeartbeatInterval);
                 commandResponseHandling = CommandResponseHandling.ExhaustAllowed;
 
                 var veryLargeHeartbeatInterval = TimeSpan.FromDays(1); // the server doesn't support Infinite value, so we set just a big enough value
@@ -277,18 +280,24 @@ namespace MongoDB.Driver.Core.Servers
         private bool IsUsingStreamingProtocol(HelloResult helloResult) => _isStreamingEnabled && helloResult?.TopologyVersion != null;
 
         private HelloResult GetHelloResult(
+            OperationContext operationContext,
             IConnection connection,
-            CommandWireProtocol<BsonDocument> helloProtocol,
-            CancellationToken cancellationToken)
+            CommandWireProtocol<BsonDocument> helloProtocol)
         {
-            cancellationToken.ThrowIfCancellationRequested();
+            var timeout = _serverMonitorSettings.HeartbeatTimeout;
+            if (IsUsingStreamingProtocol(connection.Description.HelloResult))
+            {
+                timeout = _serverMonitorSettings.ConnectTimeout + _serverMonitorSettings.HeartbeatInterval;
+            }
 
+            operationContext.ThrowIfTimedOutOrCanceled();
             _eventLoggerSdam.LogAndPublish(new ServerHeartbeatStartedEvent(connection.ConnectionId, IsUsingStreamingProtocol(connection.Description.HelloResult)));
 
             var stopwatch = Stopwatch.StartNew();
             try
             {
-                var helloResult = HelloHelper.GetResult(connection, helloProtocol, cancellationToken);
+                using var getHelloOperationContext = operationContext.WithTimeout(timeout);
+                var helloResult = HelloHelper.GetResult(getHelloOperationContext, connection, helloProtocol);
                 stopwatch.Stop();
 
                 // RTT check if using polling monitoring
@@ -312,6 +321,7 @@ namespace MongoDB.Driver.Core.Servers
 
         private void Heartbeat(CancellationToken cancellationToken)
         {
+            using var operationContext = new OperationContext(null, cancellationToken);
             CommandWireProtocol<BsonDocument> helloProtocol = null;
             bool processAnother = true;
             while (processAnother && !cancellationToken.IsCancellationRequested)
@@ -327,9 +337,10 @@ namespace MongoDB.Driver.Core.Servers
                     {
                         connection = _connection;
                     }
+
                     if (connection == null)
                     {
-                        var initializedConnection = InitializeConnection(cancellationToken);
+                        var initializedConnection = InitializeConnection(operationContext);
                         lock (_lock)
                         {
                             if (_state.Value == State.Disposed)
@@ -351,7 +362,8 @@ namespace MongoDB.Driver.Core.Servers
                         {
                             helloProtocol = InitializeHelloProtocol(connection, previousDescription?.HelloOk ?? false);
                         }
-                        heartbeatHelloResult = GetHelloResult(connection, helloProtocol, cancellationToken);
+
+                        heartbeatHelloResult = GetHelloResult(operationContext, connection, helloProtocol);
                     }
                 }
                 catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
@@ -497,7 +509,7 @@ namespace MongoDB.Driver.Core.Servers
                     HeartbeatDelay newHeartbeatDelay;
                     lock (_lock)
                     {
-                        newHeartbeatDelay = new HeartbeatDelay(metronome.GetNextTickDelay(), _serverMonitorSettings.MinHeartbeatInterval);
+                        newHeartbeatDelay = new HeartbeatDelay(metronome.GetNextTickDelay(), __minHeartbeatInterval);
 
                         _heartbeatDelay?.Dispose();
                         _heartbeatDelay = newHeartbeatDelay;

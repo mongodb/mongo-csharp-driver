@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -27,13 +28,13 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Encryption;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Specifications.sessions
 {
-    [Trait("Category", "Serverless")]
     [Trait("Category", "Integration")]
     public class SessionsProseTests : LoggableTestClass
     {
@@ -63,6 +64,7 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
         public async Task Ensure_explicit_session_raises_error_if_connection_does_not_support_sessions([Values(true, false)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
+            CoreTestConfiguration.SkipMongocryptdTests_SERVER_106469();
 
             using var mongocryptdContext = GetMongocryptdContext();
             using var session = mongocryptdContext.MongoClient.StartSession();
@@ -70,8 +72,9 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
             var exception = async ?
                 await Record.ExceptionAsync(() => mongocryptdContext.MongocryptdCollection.FindAsync(session, FilterDefinition<BsonDocument>.Empty)) :
                 Record.Exception(() => mongocryptdContext.MongocryptdCollection.Find(session, FilterDefinition<BsonDocument>.Empty).ToList());
-            exception.Should().BeOfType<MongoClientException>().Subject.Message.Should().Be("Sessions are not supported.");
 
+
+            exception.Should().BeOfType<MongoClientException>().Subject.Message.Should().Be("Sessions are not supported.");
             exception = async ?
                 await Record.ExceptionAsync(() => mongocryptdContext.MongocryptdCollection.InsertOneAsync(session, new BsonDocument())) :
                 Record.Exception(() => mongocryptdContext.MongocryptdCollection.InsertOne(session, new BsonDocument()));
@@ -84,6 +87,7 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
         public async Task Ensure_implicit_session_is_ignored_if_connection_does_not_support_sessions([Values(true, false)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
+            CoreTestConfiguration.SkipMongocryptdTests_SERVER_106469();
 
             using var mongocryptdContext = GetMongocryptdContext();
 

@@ -13,7 +13,9 @@
 * limitations under the License.
 */
 
+using System;
 using System.Net;
+using System.Threading;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
@@ -30,6 +32,9 @@ namespace MongoDB.Driver.Core.Connections
         private readonly ILoggerFactory _loggerFactory;
         private readonly ConnectionSettings _settings;
         private readonly IStreamFactory _streamFactory;
+        // TODO: CSOT: temporary here, remove on the next major release, together with socketTimeout
+        private readonly TimeSpan _socketReadTimeout;
+        private readonly TimeSpan _socketWriteTimeout;
 
         // constructors
         public BinaryConnectionFactory(
@@ -37,13 +42,17 @@ namespace MongoDB.Driver.Core.Connections
             IStreamFactory streamFactory,
             IEventSubscriber eventSubscriber,
             ServerApi serverApi,
-            ILoggerFactory loggerFactory)
+            ILoggerFactory loggerFactory,
+            TimeSpan? socketReadTimeout,
+            TimeSpan? socketWriteTimeout)
         {
             _settings = Ensure.IsNotNull(settings, nameof(settings));
             _streamFactory = Ensure.IsNotNull(streamFactory, nameof(streamFactory));
             _eventSubscriber = Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
             _connectionInitializer = new ConnectionInitializer(settings.ApplicationName, settings.Compressors, serverApi, settings.LibraryInfo);
             _loggerFactory = loggerFactory;
+            _socketReadTimeout = socketReadTimeout.HasValue && socketReadTimeout > TimeSpan.Zero ? socketReadTimeout.Value : Timeout.InfiniteTimeSpan;
+            _socketWriteTimeout = socketWriteTimeout.HasValue && socketWriteTimeout > TimeSpan.Zero ? socketWriteTimeout.Value : Timeout.InfiniteTimeSpan;
         }
 
         // properties
@@ -54,7 +63,15 @@ namespace MongoDB.Driver.Core.Connections
         {
             Ensure.IsNotNull(serverId, nameof(serverId));
             Ensure.IsNotNull(endPoint, nameof(endPoint));
-            return new BinaryConnection(serverId, endPoint, _settings, _streamFactory, _connectionInitializer, _eventSubscriber, _loggerFactory);
+            return new BinaryConnection(serverId,
+                endPoint,
+                _settings,
+                _streamFactory,
+                _connectionInitializer,
+                _eventSubscriber,
+                _loggerFactory,
+                _socketReadTimeout,
+                _socketWriteTimeout);
         }
     }
 }

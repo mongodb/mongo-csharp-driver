@@ -312,10 +312,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
                          .Setup(c => c.Settings)
                          .Returns(new ConnectionSettings());
                     connectionMock
-                        .Setup(c => c.Open(It.IsAny<CancellationToken>()))
+                        .Setup(c => c.Open(It.IsAny<OperationContext>()))
                         .Throws(exception);
                     connectionMock
-                        .Setup(c => c.OpenAsync(It.IsAny<CancellationToken>()))
+                        .Setup(c => c.OpenAsync(It.IsAny<OperationContext>()))
                         .Throws(exception);
 
                     return connectionMock.Object;
@@ -582,7 +582,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         .Setup(c => c.Settings)
                         .Returns(new ConnectionSettings());
                     connectionMock
-                        .Setup(c => c.Open(It.IsAny<CancellationToken>()))
+                        .Setup(c => c.Open(It.IsAny<OperationContext>()))
                         .Callback(() =>
                         {
                             if (establishingCount.CurrentCount > 0)
@@ -593,7 +593,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                             blockEstablishmentEvent.Wait();
                         });
                     connectionMock
-                        .Setup(c => c.OpenAsync(It.IsAny<CancellationToken>()))
+                        .Setup(c => c.OpenAsync(It.IsAny<OperationContext>()))
                         .Returns(() =>
                         {
                             if (establishingCount.CurrentCount > 0)
@@ -756,14 +756,14 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         .Setup(c => c.Settings)
                         .Returns(new ConnectionSettings());
                     connectionMock
-                        .Setup(c => c.Open(It.IsAny<CancellationToken>()))
+                        .Setup(c => c.Open(It.IsAny<OperationContext>()))
                         .Callback(() =>
                         {
                             var sleepMS = random.Next(minEstablishingTime, maxEstablishingTime);
                             Thread.Sleep(sleepMS);
                         });
                     connectionMock
-                        .Setup(c => c.OpenAsync(It.IsAny<CancellationToken>()))
+                        .Setup(c => c.OpenAsync(It.IsAny<OperationContext>()))
                         .Returns(async () =>
                         {
                             var sleepMS = random.Next(minEstablishingTime, maxEstablishingTime);
@@ -970,7 +970,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     var mockConnection = new Mock<IConnection>();
                     mockConnection.SetupGet(c => c.ConnectionId).Returns(new ConnectionId(serverId, ci));
                     mockConnection
-                        .Setup(c => c.Open(It.IsAny<CancellationToken>()))
+                        .Setup(c => c.Open(It.IsAny<OperationContext>()))
                         .Callback(() =>
                         {
                             if (minPoolSize == 0 || ci == 2) // ignore connection 1 created in minPoolSize logic
@@ -984,7 +984,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         });
 
                     mockConnection
-                        .Setup(c => c.OpenAsync(It.IsAny<CancellationToken>()))
+                        .Setup(c => c.OpenAsync(It.IsAny<OperationContext>()))
                         .Returns(async () =>
                         {
                             if (minPoolSize == 0 || ci == 2) // ignore connection 1 created in minPoolSize logic
@@ -1076,7 +1076,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             var authenticationException = new MongoAuthenticationException(connectionId, "test message");
             var authenticationFailedConnection = new Mock<IConnection>();
             authenticationFailedConnection
-                .Setup(c => c.Open(It.IsAny<CancellationToken>())) // an authentication exception is thrown from _connectionInitializer.InitializeConnection
+                .Setup(c => c.Open(It.IsAny<OperationContext>())) // an authentication exception is thrown from _connectionInitializer.InitializeConnection
                                                                    // that in turn is called from OpenAsync
                 .Throws(authenticationException);
             authenticationFailedConnection.SetupGet(c => c.ConnectionId).Returns(connectionId);
@@ -1166,7 +1166,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         .Returns(new ConnectionSettings());
 
                     connectionMock
-                       .Setup(c => c.Open(It.IsAny<CancellationToken>()))
+                       .Setup(c => c.Open(It.IsAny<OperationContext>()))
                        .Callback(() =>
                        {
                            allEstablishing.Signal();
@@ -1174,7 +1174,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                        });
 
                     connectionMock
-                        .Setup(c => c.OpenAsync(It.IsAny<CancellationToken>()))
+                        .Setup(c => c.OpenAsync(It.IsAny<OperationContext>()))
                         .Returns(() =>
                         {
                             allEstablishing.Signal();
@@ -1424,7 +1424,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         .Returns(new ConnectionSettings());
 
                     connectionMock
-                       .Setup(c => c.Open(It.IsAny<CancellationToken>()))
+                       .Setup(c => c.Open(It.IsAny<OperationContext>()))
                        .Callback(() =>
                        {
                            allAcquiringCountdownEvent.Signal();
@@ -1432,7 +1432,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                        });
 
                     connectionMock
-                        .Setup(c => c.OpenAsync(It.IsAny<CancellationToken>()))
+                        .Setup(c => c.OpenAsync(It.IsAny<OperationContext>()))
                         .Returns(() =>
                         {
                             allAcquiringCountdownEvent.Signal();
@@ -1516,7 +1516,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         .Returns(new ConnectionSettings());
 
                     connectionMock
-                       .Setup(c => c.Open(It.IsAny<CancellationToken>()))
+                       .Setup(c => c.Open(It.IsAny<OperationContext>()))
                        .Callback(() =>
                        {
                            allEstablishing.Signal();
@@ -1524,7 +1524,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                        });
 
                     connectionMock
-                        .Setup(c => c.OpenAsync(It.IsAny<CancellationToken>()))
+                        .Setup(c => c.OpenAsync(It.IsAny<OperationContext>()))
                         .Returns(() =>
                         {
                             allEstablishing.Signal();

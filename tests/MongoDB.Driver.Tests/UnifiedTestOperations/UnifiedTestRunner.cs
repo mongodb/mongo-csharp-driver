@@ -108,7 +108,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
             var schemaSemanticVersion = SemanticVersion.Parse(schemaVersion);
             if (schemaSemanticVersion < new SemanticVersion(1, 0, 0) ||
-                schemaSemanticVersion > new SemanticVersion(1, 22, 0))
+                schemaSemanticVersion > new SemanticVersion(1, 25, 0))
             {
                 throw new FormatException($"Schema version '{schemaVersion}' is not supported.");
             }
@@ -132,7 +132,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 KillOpenTransactions(DriverTestConfiguration.Client);
             }
 
-            BsonDocument lastKnownClusterTime = AddInitialData(DriverTestConfiguration.Client, initialData);
+            var lastKnownClusterTime = AddInitialData(DriverTestConfiguration.Client, initialData);
             _entityMap = UnifiedEntityMap.Create(_eventFormatters, _loggingService.LoggingSettings, async, lastKnownClusterTime);
             _entityMap.AddRange(entities);
 
@@ -193,10 +193,32 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
                 var database = client.GetDatabase(databaseName).WithWriteConcern(WriteConcern.WMajority);
 
+                var createCollectionOptions = new CreateCollectionOptions();
+                if (dataItem.AsBsonDocument.Contains("createOptions"))
+                {
+                    var options = dataItem.AsBsonDocument["createOptions"].AsBsonDocument;
+                    foreach (var option in options)
+                    {
+                        switch (option.Name)
+                        {
+                            case "encryptedFields":
+                                createCollectionOptions.EncryptedFields = option.Value.AsBsonDocument;
+                                break;
+                            default:
+                                throw new FormatException($"Invalid createOptions argument name: '{option.Name}'.");
+                        }
+                    }
+                }
+
                 _logger.LogDebug("Dropping {0}", collectionName);
                 using var session = client.StartSession();
-                database.DropCollection(session, collectionName);
-                database.CreateCollection(session, collectionName);
+
+                // For some QE spec tests we need to drop QE state collections (enxcol_.*.esc, enxcol_.*.ecoc).
+                // DropCollection with EncryptedFields automatically handles cleanup of those QE state collections
+                database.DropCollection(session, collectionName, new DropCollectionOptions { EncryptedFields = createCollectionOptions.EncryptedFields });
+
+                database.CreateCollection(session, collectionName, createCollectionOptions);
+
                 if (documents.Any())
                 {
                     var collection = database.GetCollection<BsonDocument>(collectionName);
@@ -334,7 +356,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             {
                 if (actualResult.Result != null)
                 {
-                    entityMap.Resutls.Add(saveResultAsEntity.AsString, actualResult.Result);
+                    entityMap.Results.Add(saveResultAsEntity.AsString, actualResult.Result);
                 }
                 else if (actualResult.ChangeStream != null)
                 {
@@ -378,9 +400,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 // SERVER-38335
                 serverVersion < new SemanticVersion(4, 1, 9) && ex.Code == (int)ServerErrorCode.Interrupted ||
                 // SERVER-54216
-                ex.Code == (int)ServerErrorCode.Unauthorized ||
-                // Serverless has a different code for Unauthorized error
-                ex.Code == (int)ServerErrorCode.UnauthorizedServerless)
+                ex.Code == (int)ServerErrorCode.Unauthorized)
             {
                 // ignore errors
             }

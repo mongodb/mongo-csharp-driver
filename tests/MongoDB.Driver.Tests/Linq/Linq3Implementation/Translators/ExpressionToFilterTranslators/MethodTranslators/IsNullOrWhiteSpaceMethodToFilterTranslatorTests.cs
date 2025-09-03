@@ -13,19 +13,24 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionToFilterTranslators.MethodTranslators
 {
-    public class IsNullOrWhiteSpaceMethodToFilterTranslatorTests : Linq3IntegrationTest
+    public class IsNullOrWhiteSpaceMethodToFilterTranslatorTests : LinqIntegrationTest<IsNullOrWhiteSpaceMethodToFilterTranslatorTests.ClassFixture>
     {
+        public IsNullOrWhiteSpaceMethodToFilterTranslatorTests(ClassFixture fixture) : base(fixture)
+        {
+        }
+
         [Fact]
         public void Find_using_IsNullOrWhiteSpace_should_return_expected_results()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var find = collection.Find(x => string.IsNullOrWhiteSpace(x.S));
 
@@ -39,7 +44,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Where_using_IsNullOrWhiteSpace_should_return_expected_results()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(x => string.IsNullOrWhiteSpace(x.S));
@@ -51,23 +56,22 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             results.Select(x => x.Id).Should().BeEquivalentTo(1, 2, 3, 4);
         }
 
-        private IMongoCollection<C> CreateCollection()
-        {
-            var collection = GetCollection<C>();
-            CreateCollection(
-                collection,
-                new C { Id = 1, S = null },
-                new C { Id = 2, S = "" },
-                new C { Id = 3, S = " " },
-                new C { Id = 4, S = " \t\r\n" },
-                new C { Id = 5, S = "abc" });
-            return collection;
-        }
-
         public class C
         {
             public int Id { get; set; }
             public string S { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, S = null },
+                new C { Id = 2, S = "" },
+                new C { Id = 3, S = " " },
+                new C { Id = 4, S = " \t\r\n" },
+                new C { Id = 5, S = "abc" }
+            ];
         }
     }
 }

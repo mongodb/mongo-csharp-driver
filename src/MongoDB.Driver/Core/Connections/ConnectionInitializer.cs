@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,8 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
@@ -47,13 +45,14 @@ namespace MongoDB.Driver.Core.Connections
             _serverApi = serverApi;
         }
 
-        public ConnectionInitializerContext Authenticate(IConnection connection, ConnectionInitializerContext connectionInitializerContext, CancellationToken cancellationToken)
+        public ConnectionInitializerContext Authenticate(OperationContext operationContext, IConnection connection, ConnectionInitializerContext connectionInitializerContext)
         {
+            Ensure.IsNotNull(operationContext, nameof(operationContext));
             Ensure.IsNotNull(connection, nameof(connection));
             Ensure.IsNotNull(connectionInitializerContext, nameof(connectionInitializerContext));
             var description = Ensure.IsNotNull(connectionInitializerContext.Description, nameof(connectionInitializerContext.Description));
 
-            AuthenticationHelper.Authenticate(connection, description, connectionInitializerContext.Authenticator, cancellationToken);
+            AuthenticationHelper.Authenticate(operationContext, connection, description, connectionInitializerContext.Authenticator);
 
             // Connection description should be updated only on the initial handshake and not after reauthentication
             if (!description.IsInitialized())
@@ -68,7 +67,7 @@ namespace MongoDB.Driver.Core.Connections
                     try
                     {
                         var getLastErrorProtocol = CreateGetLastErrorProtocol(_serverApi);
-                        var getLastErrorResult = getLastErrorProtocol.Execute(connection, cancellationToken);
+                        var getLastErrorResult = getLastErrorProtocol.Execute(operationContext, connection);
 
                         description = UpdateConnectionIdWithServerValue(description, getLastErrorResult);
                     }
@@ -82,13 +81,14 @@ namespace MongoDB.Driver.Core.Connections
             return new ConnectionInitializerContext(description, connectionInitializerContext.Authenticator);
         }
 
-        public async Task<ConnectionInitializerContext> AuthenticateAsync(IConnection connection, ConnectionInitializerContext connectionInitializerContext, CancellationToken cancellationToken)
+        public async Task<ConnectionInitializerContext> AuthenticateAsync(OperationContext operationContext, IConnection connection, ConnectionInitializerContext connectionInitializerContext)
         {
+            Ensure.IsNotNull(operationContext, nameof(operationContext));
             Ensure.IsNotNull(connection, nameof(connection));
             Ensure.IsNotNull(connectionInitializerContext, nameof(connectionInitializerContext));
             var description = Ensure.IsNotNull(connectionInitializerContext.Description, nameof(connectionInitializerContext.Description));
 
-            await AuthenticationHelper.AuthenticateAsync(connection, description, connectionInitializerContext.Authenticator, cancellationToken).ConfigureAwait(false);
+            await AuthenticationHelper.AuthenticateAsync(operationContext, connection, description, connectionInitializerContext.Authenticator).ConfigureAwait(false);
 
             // Connection description should be updated only on the initial handshake and not while reauthentication
             if (!description.IsInitialized())
@@ -104,7 +104,7 @@ namespace MongoDB.Driver.Core.Connections
                     {
                         var getLastErrorProtocol = CreateGetLastErrorProtocol(_serverApi);
                         var getLastErrorResult = await getLastErrorProtocol
-                            .ExecuteAsync(connection, cancellationToken)
+                            .ExecuteAsync(operationContext, connection)
                             .ConfigureAwait(false);
 
                         description = UpdateConnectionIdWithServerValue(description, getLastErrorResult);
@@ -119,13 +119,14 @@ namespace MongoDB.Driver.Core.Connections
             return new ConnectionInitializerContext(description, connectionInitializerContext.Authenticator);
         }
 
-        public ConnectionInitializerContext SendHello(IConnection connection, CancellationToken cancellationToken)
+        public ConnectionInitializerContext SendHello(OperationContext operationContext, IConnection connection)
         {
+            Ensure.IsNotNull(operationContext, nameof(operationContext));
             Ensure.IsNotNull(connection, nameof(connection));
             var authenticator = CreateAuthenticator(connection);
-            var helloCommand = CreateInitialHelloCommand(authenticator, connection.Settings.LoadBalanced, cancellationToken);
+            var helloCommand = CreateInitialHelloCommand(operationContext, authenticator, connection.Settings.LoadBalanced);
             var helloProtocol = HelloHelper.CreateProtocol(helloCommand, _serverApi);
-            var helloResult = HelloHelper.GetResult(connection, helloProtocol, cancellationToken);
+            var helloResult = HelloHelper.GetResult(operationContext, connection, helloProtocol);
             if (connection.Settings.LoadBalanced && !helloResult.ServiceId.HasValue)
             {
                 throw new InvalidOperationException("Driver attempted to initialize in load balancing mode, but the server does not support this mode.");
@@ -134,13 +135,14 @@ namespace MongoDB.Driver.Core.Connections
             return new (new ConnectionDescription(connection.ConnectionId, helloResult), authenticator);
         }
 
-        public async Task<ConnectionInitializerContext> SendHelloAsync(IConnection connection, CancellationToken cancellationToken)
+        public async Task<ConnectionInitializerContext> SendHelloAsync(OperationContext operationContext, IConnection connection)
         {
+            Ensure.IsNotNull(operationContext, nameof(operationContext));
             Ensure.IsNotNull(connection, nameof(connection));
             var authenticator = CreateAuthenticator(connection);
-            var helloCommand = CreateInitialHelloCommand(authenticator, connection.Settings.LoadBalanced, cancellationToken);
+            var helloCommand = CreateInitialHelloCommand(operationContext, authenticator, connection.Settings.LoadBalanced);
             var helloProtocol = HelloHelper.CreateProtocol(helloCommand, _serverApi);
-            var helloResult = await HelloHelper.GetResultAsync(connection, helloProtocol, cancellationToken).ConfigureAwait(false);
+            var helloResult = await HelloHelper.GetResultAsync(operationContext, connection, helloProtocol).ConfigureAwait(false);
             if (connection.Settings.LoadBalanced && !helloResult.ServiceId.HasValue)
             {
                 throw new InvalidOperationException("Driver attempted to initialize in load balancing mode, but the server does not support this mode.");
@@ -163,12 +165,12 @@ namespace MongoDB.Driver.Core.Connections
             return getLastErrorProtocol;
         }
 
-        private BsonDocument CreateInitialHelloCommand(IAuthenticator authenticator, bool loadBalanced = false, CancellationToken cancellationToken = default)
+        private BsonDocument CreateInitialHelloCommand(OperationContext operationContext, IAuthenticator authenticator, bool loadBalanced = false)
         {
             var command = HelloHelper.CreateCommand(_serverApi, loadBalanced: loadBalanced);
             HelloHelper.AddClientDocumentToCommand(command, _clientDocument);
             HelloHelper.AddCompressorsToCommand(command, _compressors);
-            return HelloHelper.CustomizeCommand(command, authenticator, cancellationToken);
+            return HelloHelper.CustomizeCommand(operationContext, command, authenticator);
         }
 
         private IAuthenticator CreateAuthenticator(IConnection connection)

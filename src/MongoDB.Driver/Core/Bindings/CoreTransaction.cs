@@ -1,4 +1,4 @@
-﻿/* Copyright 2018-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -55,6 +55,8 @@ namespace MongoDB.Driver.Core.Bindings
         ///   <c>true</c> if the transaction is empty; otherwise, <c>false</c>.
         /// </value>
         public bool IsEmpty => _isEmpty;
+
+        internal OperationContext OperationContext { get; set; }
 
         /// <summary>
         /// Gets the transaction state.

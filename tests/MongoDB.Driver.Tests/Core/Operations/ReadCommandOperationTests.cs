@@ -1,4 +1,4 @@
-﻿/* Copyright 2016-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,8 +13,8 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -96,6 +96,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 mockChannel.Verify(
                     c => c.CommandAsync(
+                        It.IsAny<OperationContext>(),
                         binding.Session,
                         readPreference,
                         subject.DatabaseNamespace,
@@ -106,14 +107,14 @@ namespace MongoDB.Driver.Core.Operations
                         null, // postWriteAction
                         CommandResponseHandling.Return,
                         subject.ResultSerializer,
-                        subject.MessageEncoderSettings,
-                        It.IsAny<CancellationToken>()),
+                        subject.MessageEncoderSettings),
                     Times.Once);
             }
             else
             {
                 mockChannel.Verify(
                     c => c.Command(
+                        It.IsAny<OperationContext>(),
                         binding.Session,
                         readPreference,
                         subject.DatabaseNamespace,
@@ -124,8 +125,7 @@ namespace MongoDB.Driver.Core.Operations
                         null, // postWriteAction
                         CommandResponseHandling.Return,
                         subject.ResultSerializer,
-                        subject.MessageEncoderSettings,
-                        It.IsAny<CancellationToken>()),
+                        subject.MessageEncoderSettings),
                 Times.Once);
             }
         }
@@ -150,6 +150,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 mockChannel.Verify(
                     c => c.CommandAsync(
+                        It.IsAny<OperationContext>(),
                         binding.Session,
                         readPreference,
                         subject.DatabaseNamespace,
@@ -160,14 +161,14 @@ namespace MongoDB.Driver.Core.Operations
                         null, // postWriteAction
                         CommandResponseHandling.Return,
                         subject.ResultSerializer,
-                        subject.MessageEncoderSettings,
-                        It.IsAny<CancellationToken>()),
+                        subject.MessageEncoderSettings),
                     Times.Once);
             }
             else
             {
                 mockChannel.Verify(
                     c => c.Command(
+                        It.IsAny<OperationContext>(),
                         binding.Session,
                         readPreference,
                         subject.DatabaseNamespace,
@@ -178,8 +179,7 @@ namespace MongoDB.Driver.Core.Operations
                         null, // postWriteAction
                         CommandResponseHandling.Return,
                         subject.ResultSerializer,
-                        subject.MessageEncoderSettings,
-                        It.IsAny<CancellationToken>()),
+                        subject.MessageEncoderSettings),
                     Times.Once);
             }
         }
@@ -203,6 +203,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 mockChannel.Verify(
                     c => c.CommandAsync(
+                        It.IsAny<OperationContext>(),
                         binding.Session,
                         readPreference,
                         subject.DatabaseNamespace,
@@ -213,14 +214,14 @@ namespace MongoDB.Driver.Core.Operations
                         null, // postWriteAction
                         CommandResponseHandling.Return,
                         subject.ResultSerializer,
-                        subject.MessageEncoderSettings,
-                        It.IsAny<CancellationToken>()),
+                        subject.MessageEncoderSettings),
                     Times.Once);
             }
             else
             {
                 mockChannel.Verify(
                     c => c.Command(
+                        It.IsAny<OperationContext>(),
                         binding.Session,
                         readPreference,
                         subject.DatabaseNamespace,
@@ -231,8 +232,7 @@ namespace MongoDB.Driver.Core.Operations
                         null, // postWriteAction
                         CommandResponseHandling.Return,
                         subject.ResultSerializer,
-                        subject.MessageEncoderSettings,
-                        It.IsAny<CancellationToken>()),
+                        subject.MessageEncoderSettings),
                     Times.Once);
             }
         }
@@ -257,6 +257,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 mockChannel.Verify(
                     c => c.CommandAsync(
+                        It.IsAny<OperationContext>(),
                         binding.Session,
                         readPreference,
                         subject.DatabaseNamespace,
@@ -267,14 +268,14 @@ namespace MongoDB.Driver.Core.Operations
                         null, // postWriteAction
                         CommandResponseHandling.Return,
                         subject.ResultSerializer,
-                        subject.MessageEncoderSettings,
-                        It.IsAny<CancellationToken>()),
+                        subject.MessageEncoderSettings),
                     Times.Once);
             }
             else
             {
                 mockChannel.Verify(
                     c => c.Command(
+                        It.IsAny<OperationContext>(),
                         binding.Session,
                         readPreference,
                         subject.DatabaseNamespace,
@@ -285,8 +286,7 @@ namespace MongoDB.Driver.Core.Operations
                         null, // postWriteAction
                         CommandResponseHandling.Return,
                         subject.ResultSerializer,
-                        subject.MessageEncoderSettings,
-                        It.IsAny<CancellationToken>()),
+                        subject.MessageEncoderSettings),
                     Times.Once);
             }
         }
@@ -320,8 +320,8 @@ namespace MongoDB.Driver.Core.Operations
             var mockSession = new Mock<ICoreSessionHandle>();
             mockBinding.SetupGet(b => b.ReadPreference).Returns(readPreference);
             mockBinding.SetupGet(b => b.Session).Returns(mockSession.Object);
-            mockBinding.Setup(b => b.GetReadChannelSource(It.IsAny<OperationContext>())).Returns(channelSource);
-            mockBinding.Setup(b => b.GetReadChannelSourceAsync(It.IsAny<OperationContext>())).Returns(Task.FromResult(channelSource));
+            mockBinding.Setup(b => b.GetReadChannelSource(It.IsAny<OperationContext>(), It.IsAny<IReadOnlyCollection<ServerDescription>>())).Returns(channelSource);
+            mockBinding.Setup(b => b.GetReadChannelSourceAsync(It.IsAny<OperationContext>(), It.IsAny<IReadOnlyCollection<ServerDescription>>())).Returns(Task.FromResult(channelSource));
             return mockBinding;
         }
 

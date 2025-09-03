@@ -21,7 +21,6 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators;
 
-#if NET6_0_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 public class NewKeyValuePairExpressionToAggregationExpressionTranslatorTests : LinqIntegrationTest<NewKeyValuePairExpressionToAggregationExpressionTranslatorTests.ClassFixture>
 {
     public NewKeyValuePairExpressionToAggregationExpressionTranslatorTests(ClassFixture fixture)
@@ -45,6 +44,7 @@ public class NewKeyValuePairExpressionToAggregationExpressionTranslatorTests : L
         result.Value.Should().Be(42);
     }
 
+#if NET6_0_OR_GREATER || NETCOREAPP3_1_OR_GREATER
     [Fact]
     public void KeyValuePair_Create_should_translate()
     {
@@ -60,6 +60,7 @@ public class NewKeyValuePairExpressionToAggregationExpressionTranslatorTests : L
         result.Key.Should().Be("X");
         result.Value.Should().Be(42);
     }
+#endif
 
     public class C
     {
@@ -74,5 +75,3 @@ public class NewKeyValuePairExpressionToAggregationExpressionTranslatorTests : L
         ];
     }
 }
-
-#endif

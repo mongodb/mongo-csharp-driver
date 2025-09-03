@@ -14,19 +14,25 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionToExecutableQueryTranslators
 {
-    public class ExecutableQueryTests : Linq3IntegrationTest
+    public class ExecutableQueryTests : LinqIntegrationTest<ExecutableQueryTests.ClassFixture>
     {
+        public ExecutableQueryTests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Cast_to_object_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable1 = collection.AsQueryable();
             var queryable2 = queryable1.Provider.CreateQuery<object>(queryable1.Expression);
 
@@ -38,7 +44,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Cast_aggregation_to_object_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable1 = collection.AsQueryable().GroupBy(
                 p => p.Type,
                 (k, p) => new ProductAggregation {Type = k, MaxPrice = p.Select(i => i.Price).Max()});
@@ -52,7 +58,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Cast_int_to_object_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable1 = collection.AsQueryable().Select(p => p.Id);
             var queryable2 = queryable1.Provider.CreateQuery<object>(queryable1.Expression);
 
@@ -64,7 +70,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Cast_to_nullable_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable1 = collection.AsQueryable().Select(p => p.Id);
             var queryable2 = queryable1.Provider.CreateQuery<int?>(queryable1.Expression);
 
@@ -76,7 +82,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Cast_to_incompatible_type_should_throw()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable1 = collection.AsQueryable();
             var queryable2 = queryable1.Provider.CreateQuery<ProductAggregation>(queryable1.Expression);
 
@@ -89,7 +95,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Cast_to_interface_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable1 = collection.AsQueryable();
             var queryable2 = queryable1.Provider.CreateQuery<IProduct>(queryable1.Expression);
 
@@ -101,7 +107,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Cast_to_base_class_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable1 = collection.AsQueryable();
             var queryable2 = queryable1.Provider.CreateQuery<ProductBase>(queryable1.Expression);
 
@@ -110,33 +116,20 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             results.Should().HaveCount(5);
         }
 
-        private IMongoCollection<DerivedProduct> GetCollection()
-        {
-            var collection = GetCollection<DerivedProduct>("test");
-            CreateCollection(
-                collection,
-                new DerivedProduct { Id = 1, Type = "a", Price = 1 },
-                new DerivedProduct { Id = 2, Type = "a", Price = 5 },
-                new DerivedProduct { Id = 3, Type = "a", Price = 12 },
-                new DerivedProduct { Id = 4, Type = "b", Price = 2 },
-                new DerivedProduct { Id = 5, Type = "b", Price = 7 });
-            return collection;
-        }
-
-        private interface IProduct
+        public interface IProduct
         {
             string Type { get; set; }
             decimal Price { get; set; }
         }
 
-        private class ProductBase : IProduct
+        public class ProductBase : IProduct
         {
             public int Id { get; set; }
             public string Type { get; set; }
             public decimal Price { get; set; }
         }
 
-        private class DerivedProduct : ProductBase
+        public class DerivedProduct : ProductBase
         {
         }
 
@@ -144,6 +137,18 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         {
             public string Type { get; set; }
             public decimal MaxPrice { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<DerivedProduct>
+        {
+            protected override IEnumerable<DerivedProduct> InitialData =>
+            [
+                new DerivedProduct { Id = 1, Type = "a", Price = 1 },
+                new DerivedProduct { Id = 2, Type = "a", Price = 5 },
+                new DerivedProduct { Id = 3, Type = "a", Price = 12 },
+                new DerivedProduct { Id = 4, Type = "b", Price = 2 },
+                new DerivedProduct { Id = 5, Type = "b", Price = 7 }
+            ];
         }
     }
 }

@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Core.Operations
     {
         private readonly bool? _bypassDocumentValidation;
         private readonly bool _errorsOnly;
-        private readonly Dictionary<int, BsonValue> _idsMap = new();
+        private readonly Dictionary<int, object> _idsMap = new();
         private readonly BsonDocument _let;
         private readonly RenderArgs<BsonDocument> _renderArgs;
         private readonly IBatchableSource<BulkWriteModel> _writeModels;
@@ -55,9 +55,9 @@ namespace MongoDB.Driver.Core.Operations
             WriteConcern = options?.WriteConcern;
         }
 
-        protected override BsonDocument CreateCommand(ICoreSessionHandle session, int attempt, long? transactionNumber)
+        protected override BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, int attempt, long? transactionNumber)
         {
-            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(session, WriteConcern);
+            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, session, WriteConcern);
             return new BsonDocument
             {
                 { "bulkWrite", 1 },
@@ -210,7 +210,12 @@ namespace MongoDB.Driver.Core.Operations
         {
             if (bulkWriteResult.TopLevelException != null)
             {
-                var partialResult = ToClientBulkWriteResult(bulkWriteResult);
+                ClientBulkWriteResult partialResult = null;
+                if (_writeModels.Offset != 0)
+                {
+                    partialResult = ToClientBulkWriteResult(bulkWriteResult);
+                }
+
                 throw new ClientBulkWriteException(
                     connectionId,
                     "An error occurred during bulkWrite operation. See InnerException for more details.",
@@ -332,7 +337,7 @@ namespace MongoDB.Driver.Core.Operations
                         _idsMap.TryGetValue(operationIndex, out var insertedId);
                         bulkWriteResult.InsertResults.Add(operationIndex, new()
                         {
-                            InsertedId = insertedId
+                            DocumentId = insertedId
                         });
                     }
                     else if (writeModelType == typeof(BulkWriteUpdateOneModel<>) || writeModelType == typeof(BulkWriteUpdateManyModel<>) || writeModelType == typeof(BulkWriteReplaceOneModel<>))

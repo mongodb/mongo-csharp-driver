@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+using System.IO;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -46,6 +47,13 @@ namespace MongoDB.Driver.Tests.Specifications.mongodb_handshake
         {
             var capturedEvents = new EventCapturer();
             var mockStreamFactory = new Mock<IStreamFactory>();
+            using var stream = new MemoryStream();
+            mockStreamFactory
+                .Setup(s => s.CreateStream(It.IsAny<EndPoint>(), It.IsAny<CancellationToken>()))
+                .Returns(stream);
+            mockStreamFactory
+                .Setup(s => s.CreateStreamAsync(It.IsAny<EndPoint>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(stream);
             var endPoint = new DnsEndPoint("localhost", 27017);
             var serverId = new ServerId(new ClusterId(), endPoint);
             var connectionId = new ConnectionId(serverId);
@@ -56,16 +64,16 @@ namespace MongoDB.Driver.Tests.Specifications.mongodb_handshake
 
             var mockConnectionInitializer = new Mock<IConnectionInitializer>();
             mockConnectionInitializer
-                .Setup(i => i.SendHello(It.IsAny<IConnection>(), CancellationToken.None))
+                .Setup(i => i.SendHello(It.IsAny<OperationContext>(), It.IsAny<IConnection>()))
                 .Returns(connectionInitializerContext);
             mockConnectionInitializer
-                .Setup(i => i.Authenticate(It.IsAny<IConnection>(), It.IsAny<ConnectionInitializerContext>(), CancellationToken.None))
+                .Setup(i => i.Authenticate(It.IsAny<OperationContext>(), It.IsAny<IConnection>(), It.IsAny<ConnectionInitializerContext>()))
                 .Returns(connectionInitializerContextAfterAuthentication);
             mockConnectionInitializer
-                .Setup(i => i.SendHelloAsync(It.IsAny<IConnection>(), CancellationToken.None))
+                .Setup(i => i.SendHelloAsync(It.IsAny<OperationContext>(), It.IsAny<IConnection>()))
                 .ReturnsAsync(connectionInitializerContext);
             mockConnectionInitializer
-                .Setup(i => i.AuthenticateAsync(It.IsAny<IConnection>(), It.IsAny<ConnectionInitializerContext>(), CancellationToken.None))
+                .Setup(i => i.AuthenticateAsync(It.IsAny<OperationContext>(), It.IsAny<IConnection>(), It.IsAny<ConnectionInitializerContext>()))
                 .ReturnsAsync(connectionInitializerContextAfterAuthentication);
 
             using var subject = new BinaryConnection(
@@ -75,15 +83,17 @@ namespace MongoDB.Driver.Tests.Specifications.mongodb_handshake
                 streamFactory: mockStreamFactory.Object,
                 connectionInitializer: mockConnectionInitializer.Object,
                 eventSubscriber: capturedEvents,
-                LoggerFactory);
+                LoggerFactory,
+                socketReadTimeout: Timeout.InfiniteTimeSpan,
+                socketWriteTimeout: Timeout.InfiniteTimeSpan);
 
             if (async)
             {
-                await subject.OpenAsync(CancellationToken.None);
+                await subject.OpenAsync(OperationContext.NoTimeout);
             }
             else
             {
-                subject.Open(CancellationToken.None);
+                subject.Open(OperationContext.NoTimeout);
             }
 
             subject._state().Should().Be(3); // 3 - open.

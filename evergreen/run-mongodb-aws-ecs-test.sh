@@ -25,8 +25,6 @@ if echo "$MONGODB_URI" | grep -q "@"; then
   echo "MONGODB_URI unexpectedly contains user credentials in ECS test!";
   exit 1
 fi
-# Now we can safely enable xtrace
-set -o xtrace
 export AWS_TESTS_ENABLED=true
 export AWS_ECS_ENABLED=true
 

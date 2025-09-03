@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
@@ -21,7 +20,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    internal class AsyncCursorSourceEnumerableAdapter<TDocument> : IEnumerable<TDocument>
+    internal sealed class AsyncCursorSourceEnumerableAdapter<TDocument> : IEnumerable<TDocument>, IAsyncEnumerable<TDocument>
     {
         // private fields
         private readonly CancellationToken _cancellationToken;
@@ -32,6 +31,11 @@ namespace MongoDB.Driver.Core.Operations
         {
             _source = Ensure.IsNotNull(source, nameof(source));
             _cancellationToken = cancellationToken;
+        }
+
+        public IAsyncEnumerator<TDocument> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+        {
+            return new AsyncCursorSourceEnumerator<TDocument>(_source, cancellationToken);
         }
 
         // public methods

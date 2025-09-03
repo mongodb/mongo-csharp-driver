@@ -202,17 +202,6 @@ Task("TestMongoDbOidc")
         action: (BuildConfig buildConfig, Path testProject) =>
             RunTests(buildConfig, testProject, filter: "Category=\"MongoDbOidc\""));
 
-Task("TestServerless")
-    .IsDependentOn("Build")
-    .DoesForEach(
-        items: GetFiles("./**/MongoDB.Driver.Tests.csproj"),
-        action: (BuildConfig buildConfig, Path testProject) =>
-            RunTests(buildConfig, testProject, filter: "Category=\"Serverless\""));
-
-Task("TestServerlessNet472").IsDependentOn("TestServerless");
-Task("TestServerlessNetStandard21").IsDependentOn("TestServerless");
-Task("TestServerlessNet60").IsDependentOn("TestServerless");
-
 Task("TestLibMongoCrypt")
     .IsDependentOn("Build")
     .DoesForEach(
@@ -264,6 +253,15 @@ Task("TestCsfleWithGcpKms")
         items: GetFiles("./**/*.Tests.csproj"),
         action: (BuildConfig buildConfig, Path testProject) =>
             RunTests(buildConfig, testProject, filter: "Category=\"CsfleGCPKMS\""));
+
+Task("TestX509")
+    .IsDependentOn("Build")
+    .DoesForEach(
+        items: GetFiles("./**/MongoDB.Driver.Tests.csproj"),
+        action: (BuildConfig buildConfig, Path testProject) =>
+            RunTests(buildConfig, testProject, filter: "Category=\"X509\""));
+
+Task("TestX509Net60").IsDependentOn("TestX509");
 
 Task("Package")
     .IsDependentOn("PackageNugetPackages");

@@ -40,7 +40,6 @@ namespace MongoDB.Driver.Core.TestHelpers
         private DateTime _openedAtUtc;
         private readonly Queue<ActionQueueItem> _replyActions;
         private readonly List<RequestMessage> _sentMessages;
-        private bool? _wasReadTimeoutChanged;
 
         private readonly Action<ConnectionOpeningEvent> _openingEventHandler;
         private readonly Action<ConnectionOpenedEvent> _openedEventHandler;
@@ -139,8 +138,6 @@ namespace MongoDB.Driver.Core.TestHelpers
 
         public ConnectionSettings Settings => _connectionSettings;
 
-        public bool? WasReadTimeoutChanged => _wasReadTimeoutChanged;
-
         // methods
         public void Dispose()
         {
@@ -184,7 +181,7 @@ namespace MongoDB.Driver.Core.TestHelpers
             return _sentMessages;
         }
 
-        public void Open(CancellationToken cancellationToken)
+        public void Open(OperationContext operationContext)
         {
             _openingEventHandler?.Invoke(new ConnectionOpeningEvent(_connectionId, _connectionSettings, null));
 
@@ -196,7 +193,7 @@ namespace MongoDB.Driver.Core.TestHelpers
             _openedEventHandler?.Invoke(new ConnectionOpenedEvent(_connectionId, _connectionSettings, TimeSpan.FromTicks(1), null));
         }
 
-        public Task OpenAsync(CancellationToken cancellationToken)
+        public Task OpenAsync(OperationContext operationContext)
         {
             _openingEventHandler?.Invoke(new ConnectionOpeningEvent(_connectionId, _connectionSettings, null));
 
@@ -210,42 +207,33 @@ namespace MongoDB.Driver.Core.TestHelpers
             return Task.CompletedTask;
         }
 
-        public void Reauthenticate(CancellationToken cancellationToken)
-        {
-            _replyActions.Dequeue().GetEffectiveMessage();
-        }
+        public void Reauthenticate(OperationContext operationContext)
+            => _replyActions.Dequeue().GetEffectiveMessage();
 
-        public async Task ReauthenticateAsync(CancellationToken cancellationToken)
-        {
-            await _replyActions.Dequeue().GetEffectiveMessageAsync().ConfigureAwait(false);
-        }
+        public Task ReauthenticateAsync(OperationContext operationContext)
+            => _replyActions.Dequeue().GetEffectiveMessageAsync();
 
-        public ResponseMessage ReceiveMessage(int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+        public ResponseMessage ReceiveMessage(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings)
         {
             var action = _replyActions.Dequeue();
             return (ResponseMessage)action.GetEffectiveMessage();
         }
 
-        public async Task<ResponseMessage> ReceiveMessageAsync(int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+        public async Task<ResponseMessage> ReceiveMessageAsync(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings)
         {
             var action = _replyActions.Dequeue();
             return (ResponseMessage)await action.GetEffectiveMessageAsync().ConfigureAwait(false);
         }
 
-        public void SendMessage(RequestMessage message, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+        public void SendMessage(OperationContext operationContext, RequestMessage message, MessageEncoderSettings messageEncoderSettings)
         {
             _sentMessages.Add(message);
         }
 
-        public Task SendMessageAsync(RequestMessage message, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+        public Task SendMessageAsync(OperationContext operationContext, RequestMessage message, MessageEncoderSettings messageEncoderSettings)
         {
             _sentMessages.Add(message);
             return Task.CompletedTask;
-        }
-
-        public void SetReadTimeout(TimeSpan timeout)
-        {
-            _wasReadTimeoutChanged = true;
         }
 
         // nested type

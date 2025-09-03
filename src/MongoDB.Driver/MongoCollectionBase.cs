@@ -164,7 +164,8 @@ namespace MongoDB.Driver
                 var bulkWriteOptions = new BulkWriteOptions
                 {
                     Comment = options.Comment,
-                    Let = options.Let
+                    Let = options.Let,
+                    Timeout = options.Timeout
                 };
                 var result = bulkWriteFunc(new[] { model }, bulkWriteOptions);
                 return DeleteResult.FromCore(result);
@@ -205,7 +206,8 @@ namespace MongoDB.Driver
                 var bulkWriteOptions = new BulkWriteOptions
                 {
                     Comment = options.Comment,
-                    Let = options.Let
+                    Let = options.Let,
+                    Timeout = options.Timeout
                 };
                 var result = await bulkWriteFuncAsync(new[] { model }, bulkWriteOptions).ConfigureAwait(false);
                 return DeleteResult.FromCore(result);
@@ -246,7 +248,8 @@ namespace MongoDB.Driver
                 var bulkWriteOptions = new BulkWriteOptions
                 {
                     Comment = options.Comment,
-                    Let = options.Let
+                    Let = options.Let,
+                    Timeout = options.Timeout
                 };
                 var result = bulkWrite(new[] { model }, bulkWriteOptions);
                 return DeleteResult.FromCore(result);
@@ -287,7 +290,8 @@ namespace MongoDB.Driver
                 var bulkWriteOptions = new BulkWriteOptions
                 {
                     Comment = options.Comment,
-                    Let = options.Let
+                    Let = options.Let,
+                    Timeout = options.Timeout
                 };
                 var result = await bulkWriteAsync(new[] { model }, bulkWriteOptions).ConfigureAwait(false);
                 return DeleteResult.FromCore(result);
@@ -435,7 +439,8 @@ namespace MongoDB.Driver
                 var bulkWriteOptions = options == null ? null : new BulkWriteOptions
                 {
                     BypassDocumentValidation = options.BypassDocumentValidation,
-                    Comment = options.Comment
+                    Comment = options.Comment,
+                    Timeout = options.Timeout
                 };
                 bulkWrite(new[] { model }, bulkWriteOptions);
             }
@@ -471,7 +476,8 @@ namespace MongoDB.Driver
                 var bulkWriteOptions = options == null ? null : new BulkWriteOptions
                 {
                     BypassDocumentValidation = options.BypassDocumentValidation,
-                    Comment = options.Comment
+                    Comment = options.Comment,
+                    Timeout = options.Timeout
                 };
                 await bulkWriteAsync(new[] { model }, bulkWriteOptions).ConfigureAwait(false);
             }
@@ -500,7 +506,8 @@ namespace MongoDB.Driver
             {
                 BypassDocumentValidation = options.BypassDocumentValidation,
                 Comment = options.Comment,
-                IsOrdered = options.IsOrdered
+                IsOrdered = options.IsOrdered,
+                Timeout = options.Timeout
             };
             bulkWrite(models, bulkWriteOptions);
         }
@@ -524,7 +531,8 @@ namespace MongoDB.Driver
             {
                 BypassDocumentValidation = options.BypassDocumentValidation,
                 Comment = options.Comment,
-                IsOrdered = options.IsOrdered
+                IsOrdered = options.IsOrdered,
+                Timeout = options.Timeout
             };
             return bulkWriteAsync(models, bulkWriteOptions);
         }
@@ -598,7 +606,8 @@ namespace MongoDB.Driver
                 {
                     BypassDocumentValidation = options.BypassDocumentValidation,
                     Comment = options.Comment,
-                    Let = options.Let
+                    Let = options.Let,
+                    Timeout = options.Timeout
                 };
                 var result = bulkWrite(new[] { model }, bulkWriteOptions);
                 return ReplaceOneResult.FromCore(result);
@@ -656,7 +665,8 @@ namespace MongoDB.Driver
                 {
                     BypassDocumentValidation = options.BypassDocumentValidation,
                     Comment = options.Comment,
-                    Let = options.Let
+                    Let = options.Let,
+                    Timeout = options.Timeout
                 };
                 var result = await bulkWriteAsync(new[] { model }, bulkWriteOptions).ConfigureAwait(false);
                 return ReplaceOneResult.FromCore(result);
@@ -697,7 +707,8 @@ namespace MongoDB.Driver
                 {
                     BypassDocumentValidation = options.BypassDocumentValidation,
                     Comment = options.Comment,
-                    Let = options.Let
+                    Let = options.Let,
+                    Timeout = options.Timeout
                 };
                 var result = bulkWrite(new[] { model }, bulkWriteOptions);
                 return UpdateResult.FromCore(result);
@@ -738,7 +749,8 @@ namespace MongoDB.Driver
                 {
                     BypassDocumentValidation = options.BypassDocumentValidation,
                     Comment = options.Comment,
-                    Let = options.Let
+                    Let = options.Let,
+                    Timeout = options.Timeout
                 };
                 var result = await bulkWriteAsync(new[] { model }, bulkWriteOptions).ConfigureAwait(false);
                 return UpdateResult.FromCore(result);
@@ -784,7 +796,8 @@ namespace MongoDB.Driver
                 {
                     BypassDocumentValidation = options.BypassDocumentValidation,
                     Comment = options.Comment,
-                    Let = options.Let
+                    Let = options.Let,
+                    Timeout = options.Timeout
                 };
                 var result = bulkWrite(new[] { model }, bulkWriteOptions);
                 return UpdateResult.FromCore(result);
@@ -830,7 +843,8 @@ namespace MongoDB.Driver
                 {
                     BypassDocumentValidation = options.BypassDocumentValidation,
                     Comment = options.Comment,
-                    Let = options.Let
+                    Let = options.Let,
+                    Timeout = options.Timeout
                 };
                 var result = await bulkWriteAsync(new[] { model }, bulkWriteOptions).ConfigureAwait(false);
                 return UpdateResult.FromCore(result);

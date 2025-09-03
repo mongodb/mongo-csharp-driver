@@ -14,9 +14,7 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.WireProtocol.Messages;
@@ -33,15 +31,14 @@ namespace MongoDB.Driver.Core.Connections
         bool IsExpired { get; }
         ConnectionSettings Settings { get; }
 
-        void SetReadTimeout(TimeSpan timeout);
-        void Open(CancellationToken cancellationToken);
-        Task OpenAsync(CancellationToken cancellationToken);
-        void Reauthenticate(CancellationToken cancellationToken);
-        Task ReauthenticateAsync(CancellationToken cancellationToken);
-        ResponseMessage ReceiveMessage(int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken);
-        Task<ResponseMessage> ReceiveMessageAsync(int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken);
-        void SendMessage(RequestMessage message, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken);
-        Task SendMessageAsync(RequestMessage message, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken);
+        void Open(OperationContext operationContext);
+        Task OpenAsync(OperationContext operationContext);
+        void Reauthenticate(OperationContext operationContext);
+        Task ReauthenticateAsync(OperationContext operationContext);
+        ResponseMessage ReceiveMessage(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings);
+        Task<ResponseMessage> ReceiveMessageAsync(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings);
+        void SendMessage(OperationContext operationContext, RequestMessage message, MessageEncoderSettings messageEncoderSettings);
+        Task SendMessageAsync(OperationContext operationContext, RequestMessage message, MessageEncoderSettings messageEncoderSettings);
     }
 
     internal interface IConnectionHandle : IConnection

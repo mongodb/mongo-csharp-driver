@@ -1,4 +1,4 @@
-﻿/* Copyright 2018-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var channel = channelSource.GetChannel(operationContext))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
-                var operation = CreateOperation();
+                var operation = CreateOperation(operationContext);
                 return operation.Execute(operationContext, channelBinding);
             }
         }
@@ -71,24 +71,30 @@ namespace MongoDB.Driver.Core.Operations
             using (var channel = await channelSource.GetChannelAsync(operationContext).ConfigureAwait(false))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
-                var operation = CreateOperation();
+                var operation = CreateOperation(operationContext);
                 return await operation.ExecuteAsync(operationContext, channelBinding).ConfigureAwait(false);
             }
         }
 
-        protected virtual BsonDocument CreateCommand()
+        protected virtual BsonDocument CreateCommand(OperationContext operationContext)
         {
+            var writeConcern = _writeConcern;
+            if (operationContext.IsRootContextTimeoutConfigured())
+            {
+                writeConcern = writeConcern.With(wTimeout: null);
+            }
+
             return new BsonDocument
             {
                 { CommandName, 1 },
-                { "writeConcern", () => _writeConcern.ToBsonDocument(), !_writeConcern.IsServerDefault },
+                { "writeConcern", () => _writeConcern.ToBsonDocument(), !writeConcern.IsServerDefault },
                 { "recoveryToken", _recoveryToken, _recoveryToken != null }
             };
         }
 
-        private IReadOperation<BsonDocument> CreateOperation()
+        private IReadOperation<BsonDocument> CreateOperation(OperationContext operationContext)
         {
-            var command = CreateCommand();
+            var command = CreateCommand(operationContext);
             return new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
                 RetryRequested = false
@@ -159,10 +165,10 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        protected override BsonDocument CreateCommand()
+        protected override BsonDocument CreateCommand(OperationContext operationContext)
         {
-            var command = base.CreateCommand();
-            if (_maxCommitTime.HasValue)
+            var command = base.CreateCommand(operationContext);
+            if (_maxCommitTime.HasValue && !operationContext.IsRootContextTimeoutConfigured())
             {
                 command.Add("maxTimeMS", (long)_maxCommitTime.Value.TotalMilliseconds);
             }

@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
@@ -26,6 +27,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
 {
     public class UnifiedValueMatcher
     {
+        private static readonly List<string> __numericTypes = ["int", "long", "double", "decimal"];
+
         private UnifiedEntityMap _entityMap;
 
         public UnifiedValueMatcher(UnifiedEntityMap entityMap)
@@ -135,7 +138,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                                 break;
                             case "$$matchesEntity":
                                 var resultId = operatorValue.AsString;
-                                expectedValue = _entityMap.Resutls[resultId];
+                                expectedValue = _entityMap.Results[resultId];
                                 break;
                             case "$$matchesHexBytes":
                                 expectedValue = operatorValue;
@@ -197,7 +200,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
 
             if (expectedTypes.IsString)
             {
-                expectedTypeNames = new List<string> { expectedTypes.AsString };
+                var expectedType = expectedTypes.AsString;
+                expectedTypeNames = expectedType == "number" ? __numericTypes : [expectedType];
             }
             else if (expectedTypes.IsBsonArray)
             {

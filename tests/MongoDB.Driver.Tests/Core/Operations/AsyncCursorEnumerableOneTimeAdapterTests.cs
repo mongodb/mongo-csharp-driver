@@ -15,6 +15,7 @@
 
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using Moq;
@@ -30,6 +31,37 @@ namespace MongoDB.Driver.Core.Operations
             Action action = () => new AsyncCursorEnumerableOneTimeAdapter<BsonDocument>(null, CancellationToken.None);
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("cursor");
+        }
+
+        [Fact]
+        public async Task GetAsyncEnumerator_should_return_expected_result()
+        {
+            var mockCursor = new Mock<IAsyncCursor<BsonDocument>>();
+            mockCursor.SetupSequence(c => c.MoveNextAsync(CancellationToken.None)).ReturnsAsync(true).ReturnsAsync(false);
+            mockCursor.Setup(c => c.Current).Returns(new[] { new BsonDocument("_id", 0) });
+            var subject = new AsyncCursorEnumerableOneTimeAdapter<BsonDocument>(mockCursor.Object, CancellationToken.None);
+
+            var result = subject.GetAsyncEnumerator();
+
+            var result1 = await result.MoveNextAsync();
+            result1.Should().BeTrue();
+
+            result.Current.Should().Be(new BsonDocument("_id", 0));
+
+            var result2 = await result.MoveNextAsync();
+            result2.Should().BeFalse();
+        }
+
+        [Fact]
+        public void GetAsyncEnumerator_should_throw_when_called_more_than_once()
+        {
+            var mockCursor = new Mock<IAsyncCursor<BsonDocument>>();
+            var subject = new AsyncCursorEnumerableOneTimeAdapter<BsonDocument>(mockCursor.Object, CancellationToken.None);
+            subject.GetAsyncEnumerator();
+
+            var exception = Record.Exception(() => subject.GetAsyncEnumerator());
+
+            exception.Should().BeOfType<InvalidOperationException>();
         }
 
         [Fact]

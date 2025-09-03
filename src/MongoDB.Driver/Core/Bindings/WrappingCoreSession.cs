@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Core.Bindings
     /// An abstract base class for a core session that wraps another core session.
     /// </summary>
     /// <seealso cref="MongoDB.Driver.Core.Bindings.ICoreSession" />
-    public abstract class WrappingCoreSession : ICoreSession
+    public abstract class WrappingCoreSession : ICoreSession, ICoreSessionInternal
     {
         // private fields
         private bool _disposed;
@@ -182,17 +182,31 @@ namespace MongoDB.Driver.Core.Bindings
 
         // public methods
         /// <inheritdoc />
-        public virtual void AbortTransaction(CancellationToken cancellationToken = default(CancellationToken))
+        public virtual void AbortTransaction(CancellationToken cancellationToken = default)
         {
             ThrowIfDisposed();
             _wrapped.AbortTransaction(cancellationToken);
         }
 
+        // TODO: CSOT: Make it public when CSOT will be ready for GA and add default value to cancellationToken parameter.
+        void ICoreSessionInternal.AbortTransaction(AbortTransactionOptions options, CancellationToken cancellationToken)
+        {
+            ThrowIfDisposed();
+            _wrapped.AbortTransaction(options, cancellationToken);
+        }
+
         /// <inheritdoc />
-        public virtual Task AbortTransactionAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task AbortTransactionAsync(CancellationToken cancellationToken = default)
         {
             ThrowIfDisposed();
             return _wrapped.AbortTransactionAsync(cancellationToken);
+        }
+
+        // TODO: CSOT: Make it public when CSOT will be ready for GA and add default value to cancellationToken parameter.
+        Task ICoreSessionInternal.AbortTransactionAsync(AbortTransactionOptions options, CancellationToken cancellationToken)
+        {
+            ThrowIfDisposed();
+            return _wrapped.AbortTransactionAsync(options, cancellationToken);
         }
 
         /// <inheritdoc />
@@ -223,17 +237,32 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         /// <inheritdoc />
-        public virtual void CommitTransaction(CancellationToken cancellationToken = default(CancellationToken))
+        public virtual void CommitTransaction(CancellationToken cancellationToken = default)
         {
             ThrowIfDisposed();
             _wrapped.CommitTransaction(cancellationToken);
         }
 
+
+        // TODO: CSOT: Make it public when CSOT will be ready for GA and add default value to cancellationToken parameter.
+        void ICoreSessionInternal.CommitTransaction(CommitTransactionOptions options, CancellationToken cancellationToken)
+        {
+            ThrowIfDisposed();
+            _wrapped.CommitTransaction(options, cancellationToken);
+        }
+
         /// <inheritdoc />
-        public virtual Task CommitTransactionAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task CommitTransactionAsync(CancellationToken cancellationToken = default)
         {
             ThrowIfDisposed();
             return _wrapped.CommitTransactionAsync(cancellationToken);
+        }
+
+        // TODO: CSOT: Make it public when CSOT will be ready for GA and add default value to cancellationToken parameter.
+        Task ICoreSessionInternal.CommitTransactionAsync(CommitTransactionOptions options, CancellationToken cancellationToken)
+        {
+            ThrowIfDisposed();
+            return _wrapped.CommitTransactionAsync(options, cancellationToken);
         }
 
         /// <inheritdoc />

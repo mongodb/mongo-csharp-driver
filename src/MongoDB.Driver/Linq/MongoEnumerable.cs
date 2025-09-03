@@ -16,8 +16,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 
@@ -239,6 +237,226 @@ namespace MongoDB.Driver.Linq
         }
 
         /// <summary>
+        /// Computes the median of a sequence of values.
+        /// </summary>
+        /// <param name="source">The sequence of values.</param>
+        /// <returns>The median value.</returns>
+        public static decimal Median(this IEnumerable<decimal> source)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        /// Computes the median of a sequence of values.
+        /// </summary>
+        /// <param name="source">The sequence of values.</param>
+        /// <returns>The median value.</returns>
+        public static decimal? Median(this IEnumerable<decimal?> source)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        /// Computes the median of a sequence of values.
+        /// </summary>
+        /// <param name="source">The sequence of values.</param>
+        /// <returns>The median value.</returns>
+        public static double Median(this IEnumerable<double> source)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        /// Computes the median of a sequence of values.
+        /// </summary>
+        /// <param name="source">The sequence of values.</param>
+        /// <returns>The median value.</returns>
+        public static double? Median(this IEnumerable<double?> source)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        /// Computes the median of a sequence of values.
+        /// </summary>
+        /// <param name="source">The sequence of values.</param>
+        /// <returns>The median value.</returns>
+        public static float Median(this IEnumerable<float> source)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        /// Computes the median of a sequence of values.
+        /// </summary>
+        /// <param name="source">The sequence of values.</param>
+        /// <returns>The median value.</returns>
+        public static float? Median(this IEnumerable<float?> source)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        /// Computes the median of a sequence of values.
+        /// </summary>
+        /// <param name="source">The sequence of values.</param>
+        /// <returns>The median value.</returns>
+        public static double Median(this IEnumerable<int> source)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        /// Computes the median of a sequence of values.
+        /// </summary>
+        /// <param name="source">The sequence of values.</param>
+        /// <returns>The median value.</returns>
+        public static double? Median(this IEnumerable<int?> source)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        /// Computes the median of a sequence of values.
+        /// </summary>
+        /// <param name="source">The sequence of values.</param>
+        /// <returns>The median value.</returns>
+        public static double Median(this IEnumerable<long> source)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        /// Computes the median of a sequence of values.
+        /// </summary>
+        /// <param name="source">The sequence of values.</param>
+        /// <returns>The median value.</returns>
+        public static double? Median(this IEnumerable<long?> source)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        /// Computes the median of a sequence of values.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <param name="source">A sequence of values to calculate the median of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <returns>The median value.</returns>
+        public static decimal Median<TSource>(this IEnumerable<TSource> source, Func<TSource, decimal> selector)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        /// Computes the median of a sequence of values.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <param name="source">A sequence of values to calculate the median of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <returns>The median value.</returns>
+        public static decimal? Median<TSource>(this IEnumerable<TSource> source, Func<TSource, decimal?> selector)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        /// Computes the median of a sequence of values.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <param name="source">A sequence of values to calculate the median of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <returns>The median value.</returns>
+        public static double Median<TSource>(this IEnumerable<TSource> source, Func<TSource, double> selector)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        /// Computes the median of a sequence of values.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <param name="source">A sequence of values to calculate the median of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <returns>The median value.</returns>
+        public static double? Median<TSource>(this IEnumerable<TSource> source, Func<TSource, double?> selector)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        /// Computes the median of a sequence of values.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <param name="source">A sequence of values to calculate the median of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <returns>The median value.</returns>
+        public static float Median<TSource>(this IEnumerable<TSource> source, Func<TSource, float> selector)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        /// Computes the median of a sequence of values.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <param name="source">A sequence of values to calculate the median of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <returns>The median value.</returns>
+        public static float? Median<TSource>(this IEnumerable<TSource> source, Func<TSource, float?> selector)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        /// Computes the median of a sequence of values.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <param name="source">A sequence of values to calculate the median of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <returns>The median value.</returns>
+        public static double Median<TSource>(this IEnumerable<TSource> source, Func<TSource, int> selector)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        /// Computes the median of a sequence of values.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <param name="source">A sequence of values to calculate the median of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <returns>The median value.</returns>
+        public static double? Median<TSource>(this IEnumerable<TSource> source, Func<TSource, int?> selector)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        /// Computes the median of a sequence of values.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <param name="source">A sequence of values to calculate the median of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <returns>The median value.</returns>
+        public static double Median<TSource>(this IEnumerable<TSource> source, Func<TSource, long> selector)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        /// Computes the median of a sequence of values.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <param name="source">A sequence of values to calculate the median of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <returns>The median value.</returns>
+        public static double? Median<TSource>(this IEnumerable<TSource> source, Func<TSource, long?> selector)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
         /// Returns the min n results.
         /// </summary>
         /// <typeparam name="TSource">The source type.</typeparam>
@@ -271,6 +489,246 @@ namespace MongoDB.Driver.Linq
             Func<TSource, TResult> selector,
             TKey key,
             Func<TKey, int> n)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        /// Computes multiple percentiles of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the percentiles of.</param>
+        /// <param name="percentiles">The percentiles to compute (each between 0.0 and 1.0).</param>
+        /// <returns>The percentiles of the sequence of values.</returns>
+        public static decimal[] Percentile(this IEnumerable<decimal> source, IEnumerable<double> percentiles)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        /// Computes multiple percentiles of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the percentiles of.</param>
+        /// <param name="percentiles">The percentiles to compute (each between 0.0 and 1.0).</param>
+        /// <returns>The percentiles of the sequence of values.</returns>
+        public static decimal?[] Percentile(this IEnumerable<decimal?> source, IEnumerable<double> percentiles)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        /// Computes multiple percentiles of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the percentiles of.</param>
+        /// <param name="percentiles">The percentiles to compute (each between 0.0 and 1.0).</param>
+        /// <returns>The percentiles of the sequence of values.</returns>
+        public static double[] Percentile(this IEnumerable<double> source, IEnumerable<double> percentiles)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        /// Computes multiple percentiles of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the percentiles of.</param>
+        /// <param name="percentiles">The percentiles to compute (each between 0.0 and 1.0).</param>
+        /// <returns>The percentiles of the sequence of values.</returns>
+        public static double?[] Percentile(this IEnumerable<double?> source, IEnumerable<double> percentiles)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        /// Computes multiple percentiles of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the percentiles of.</param>
+        /// <param name="percentiles">The percentiles to compute (each between 0.0 and 1.0).</param>
+        /// <returns>The percentiles of the sequence of values.</returns>
+        public static float[] Percentile(this IEnumerable<float> source, IEnumerable<double> percentiles)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        /// Computes multiple percentiles of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the percentiles of.</param>
+        /// <param name="percentiles">The percentiles to compute (each between 0.0 and 1.0).</param>
+        /// <returns>The percentiles of the sequence of values.</returns>
+        public static float?[] Percentile(this IEnumerable<float?> source, IEnumerable<double> percentiles)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        /// Computes multiple percentiles of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the percentiles of.</param>
+        /// <param name="percentiles">The percentiles to compute (each between 0.0 and 1.0).</param>
+        /// <returns>The percentiles of the sequence of values.</returns>
+        public static double[] Percentile(this IEnumerable<int> source, IEnumerable<double> percentiles)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        /// Computes multiple percentiles of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the percentiles of.</param>
+        /// <param name="percentiles">The percentiles to compute (each between 0.0 and 1.0).</param>
+        /// <returns>The percentiles of the sequence of values.</returns>
+        public static double?[] Percentile(this IEnumerable<int?> source, IEnumerable<double> percentiles)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        /// Computes multiple percentiles of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the percentiles of.</param>
+        /// <param name="percentiles">The percentiles to compute (each between 0.0 and 1.0).</param>
+        /// <returns>The percentiles of the sequence of values.</returns>
+        public static double[] Percentile(this IEnumerable<long> source, IEnumerable<double> percentiles)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        /// Computes multiple percentiles of a sequence of values.
+        /// </summary>
+        /// <param name="source">A sequence of values to calculate the percentiles of.</param>
+        /// <param name="percentiles">The percentiles to compute (each between 0.0 and 1.0).</param>
+        /// <returns>The percentiles of the sequence of values.</returns>
+        public static double?[] Percentile(this IEnumerable<long?> source, IEnumerable<double> percentiles)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        /// Computes multiple percentiles of a sequence of values.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the percentiles of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <param name="percentiles">The percentiles to compute (each between 0.0 and 1.0).</param>
+        /// <returns>The percentiles of the sequence of values.</returns>
+        public static decimal[] Percentile<TSource>(this IEnumerable<TSource> source, Func<TSource, decimal> selector, IEnumerable<double> percentiles)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        /// Computes multiple percentiles of a sequence of values.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the percentiles of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <param name="percentiles">The percentiles to compute (each between 0.0 and 1.0).</param>
+        /// <returns>The percentiles of the sequence of values.</returns>
+        public static decimal?[] Percentile<TSource>(this IEnumerable<TSource> source, Func<TSource, decimal?> selector, IEnumerable<double> percentiles)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        /// Computes multiple percentiles of a sequence of values.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the percentiles of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <param name="percentiles">The percentiles to compute (each between 0.0 and 1.0).</param>
+        /// <returns>The percentiles of the sequence of values.</returns>
+        public static double[] Percentile<TSource>(this IEnumerable<TSource> source, Func<TSource, double> selector, IEnumerable<double> percentiles)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        /// Computes multiple percentiles of a sequence of values.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the percentiles of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <param name="percentiles">The percentiles to compute (each between 0.0 and 1.0).</param>
+        /// <returns>The percentiles of the sequence of values.</returns>
+        public static double?[] Percentile<TSource>(this IEnumerable<TSource> source, Func<TSource, double?> selector, IEnumerable<double> percentiles)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        /// Computes multiple percentiles of a sequence of values.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the percentiles of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <param name="percentiles">The percentiles to compute (each between 0.0 and 1.0).</param>
+        /// <returns>The percentiles of the sequence of values.</returns>
+        public static float[] Percentile<TSource>(this IEnumerable<TSource> source, Func<TSource, float> selector, IEnumerable<double> percentiles)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        /// Computes multiple percentiles of a sequence of values.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the percentiles of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <param name="percentiles">The percentiles to compute (each between 0.0 and 1.0).</param>
+        /// <returns>The percentiles of the sequence of values.</returns>
+        public static float?[] Percentile<TSource>(this IEnumerable<TSource> source, Func<TSource, float?> selector, IEnumerable<double> percentiles)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        /// Computes multiple percentiles of a sequence of values.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the percentiles of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <param name="percentiles">The percentiles to compute (each between 0.0 and 1.0).</param>
+        /// <returns>The percentiles of the sequence of values.</returns>
+        public static double[] Percentile<TSource>(this IEnumerable<TSource> source, Func<TSource, int> selector, IEnumerable<double> percentiles)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        /// Computes multiple percentiles of a sequence of values.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the percentiles of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <param name="percentiles">The percentiles to compute (each between 0.0 and 1.0).</param>
+        /// <returns>The percentiles of the sequence of values.</returns>
+        public static double?[] Percentile<TSource>(this IEnumerable<TSource> source, Func<TSource, int?> selector, IEnumerable<double> percentiles)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        /// Computes multiple percentiles of a sequence of values.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the percentiles of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <param name="percentiles">The percentiles to compute (each between 0.0 and 1.0).</param>
+        /// <returns>The percentiles of the sequence of values.</returns>
+        public static double[] Percentile<TSource>(this IEnumerable<TSource> source, Func<TSource, long> selector, IEnumerable<double> percentiles)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        /// Computes multiple percentiles of a sequence of values.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values to calculate the percentiles of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <param name="percentiles">The percentiles to compute (each between 0.0 and 1.0).</param>
+        /// <returns>The percentiles of the sequence of values.</returns>
+        public static double?[] Percentile<TSource>(this IEnumerable<TSource> source, Func<TSource, long?> selector, IEnumerable<double> percentiles)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
