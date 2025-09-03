@@ -51,6 +51,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __csfleRangeAlgorithm = new Feature("CsfleRangeAlgorithm", WireVersion.Server62);
         private static readonly Feature __csfle2Qev2Lookup = new Feature("csfle2Qev2Lookup", WireVersion.Server81);
         private static readonly Feature __csfle2Qev2RangeAlgorithm = new Feature("csfle2Qev2RangeAlgorithm", WireVersion.Server80);
+        private static readonly Feature __csfle2Qev2TextPreviewAlgorithm = new Feature("csfle2Qev2TextPreviewAlgorithm", WireVersion.Server82);
         private static readonly Feature __csfle2 = new Feature("Csfle2", WireVersion.Server60);
         private static readonly Feature __csfle2Qev2 = new Feature("Csfle2Qev2", WireVersion.Server70, notSupportedMessage: "Driver support of Queryable Encryption is incompatible with server. Upgrade server to use Queryable Encryption.");
         private static readonly Feature __dateFromStringFormatArgument = new Feature("DateFromStringFormatArgument", WireVersion.Server40);
@@ -244,6 +245,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the csfle2 range algorithm feature.
         /// </summary>
         public static Feature Csfle2QEv2RangeAlgorithm => __csfle2Qev2RangeAlgorithm;
+
+        /// <summary>
+        /// Gets the csfle2 textPreview algorithm feature.
+        /// </summary>
+        public static Feature Csfle2QEv2TextPreviewAlgorithm => __csfle2Qev2TextPreviewAlgorithm;
 
         /// <summary>
         /// Gets the $dateFromString format argument feature.

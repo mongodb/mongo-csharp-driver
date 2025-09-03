@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Tests.Encryption
         {
             var exception = Record.Exception(() => new EncryptOptions(algorithm: "test", contentionFactor: 1, keyId: Guid.NewGuid()));
             var e = exception.Should().BeOfType<ArgumentException>().Subject;
-            e.Message.Should().Be("ContentionFactor only applies for Indexed or Range algorithm.");
+            e.Message.Should().Be("ContentionFactor only applies for Indexed, Range, or TextPreview algorithm.");
         }
 
         [Fact]
@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Tests.Encryption
         {
             var exception = Record.Exception(() => new EncryptOptions(algorithm: "test", queryType: "equality", keyId: Guid.NewGuid()));
             var e = exception.Should().BeOfType<ArgumentException>().Subject;
-            e.Message.Should().Be("QueryType only applies for Indexed or Range algorithm.");
+            e.Message.Should().Be("QueryType only applies for Indexed, Range, or TextPreview algorithm.");
         }
 
         [Fact]
@@ -67,6 +67,83 @@ namespace MongoDB.Driver.Tests.Encryption
             var exception = Record.Exception(() => new EncryptOptions(algorithm: "test", keyId: Guid.NewGuid(), rangeOptions: new RangeOptions()));
             var e = exception.Should().BeOfType<ArgumentException>().Subject;
             e.Message.Should().Be("RangeOptions only applies for Range algorithm.");
+        }
+
+        [Fact]
+        public void Constructor_should_fail_when_textOptions_is_null()
+        {
+            var exception = Record.Exception(() => new EncryptOptions(algorithm: "test", textOptions: null));
+            exception.Should().BeOfType<ArgumentNullException>();
+        }
+
+        [Fact]
+        public void Constructor_should_fail_when_textOptions_and_algorithm_is_not_textPreview()
+        {
+            var exception = Record.Exception(() => new EncryptOptions(algorithm: "test", keyId: Guid.NewGuid(), textOptions: new TextOptions(true, true)));
+
+            exception.Should().BeOfType<ArgumentException>()
+                .Which.Message.Should().Be("TextOptions only applies for TextPreview algorithm.");
+        }
+
+        [Fact]
+        public void Constructor_should_fail_with_invalid_queryType_for_textPreview()
+        {
+            var invalidQueryType = "equality";
+
+            var exception = Record.Exception(() => new EncryptOptions(algorithm: EncryptionAlgorithm.TextPreview, keyId: Guid.NewGuid(), queryType: invalidQueryType));
+
+            exception.Should().BeOfType<ArgumentException>()
+                .Which.Message.Should().Contain($"QueryType '{invalidQueryType}' is not valid for TextPreview algorithm");
+        }
+
+        [Theory]
+        [InlineData("prefixPreview")]
+        [InlineData("suffixPreview")]
+        [InlineData("substringPreview")]
+        public void Constructor_should_succeed_with_valid_queryType_for_textPreview(string validQueryType)
+        {
+            var subject = new EncryptOptions(algorithm: EncryptionAlgorithm.TextPreview, keyId: Guid.NewGuid(), queryType: validQueryType);
+
+            subject.QueryType.Should().Be(validQueryType);
+        }
+
+        [Fact]
+        public void Constructor_should_fail_when_prefixPreview_queryType_without_prefixOptions()
+        {
+            var exception = Record.Exception(() => new EncryptOptions(
+                algorithm: EncryptionAlgorithm.TextPreview,
+                keyId: Guid.NewGuid(),
+                queryType: "prefixPreview",
+                textOptions: new TextOptions(true, true)));
+
+            exception.Should().BeOfType<ArgumentException>()
+                .Which.Message.Should().Contain("PrefixOptions must be set");
+        }
+
+        [Fact]
+        public void Constructor_should_fail_when_substringPreview_queryType_without_substringOptions()
+        {
+            var exception = Record.Exception(() => new EncryptOptions(
+                algorithm: EncryptionAlgorithm.TextPreview,
+                keyId: Guid.NewGuid(),
+                queryType: "substringPreview",
+                textOptions: new TextOptions(true, true)));
+
+            exception.Should().BeOfType<ArgumentException>()
+                .Which.Message.Should().Contain("SubstringOptions must be set");
+        }
+
+        [Fact]
+        public void Constructor_should_fail_when_suffixPreview_queryType_without_suffixOptions()
+        {
+            var exception = Record.Exception(() => new EncryptOptions(
+                algorithm: EncryptionAlgorithm.TextPreview,
+                keyId: Guid.NewGuid(),
+                queryType: "suffixPreview",
+                textOptions: new TextOptions(true, true)));
+
+            exception.Should().BeOfType<ArgumentException>()
+                .Which.Message.Should().Contain("SuffixOptions must be set");
         }
 
         [Theory]
@@ -91,6 +168,9 @@ namespace MongoDB.Driver.Tests.Encryption
         // range algorithm
         [InlineData(EncryptionAlgorithm.Range, "Range")]
         [InlineData("Range", "Range")]
+        // textPreview algorithm
+        [InlineData(EncryptionAlgorithm.TextPreview, "TextPreview")]
+        [InlineData("TextPreview", "TextPreview")]
         public void Constructor_should_support_different_algorithm_representations(object algorithm, string expectedAlgorithmRepresentation)
         {
             var alternateKeyName = "test";
@@ -108,6 +188,21 @@ namespace MongoDB.Driver.Tests.Encryption
             subject.Algorithm.Should().Be(expectedAlgorithmRepresentation);
             subject.AlternateKeyName.Should().Be("test");
             subject.KeyId.Should().NotHaveValue();
+        }
+
+        [Fact]
+        public void With_textOptions_should_create_new_instance_with_updated_textOptions()
+        {
+            var originalTextOptions = new TextOptions(true, true, prefixOptions: new PrefixOptions(10, 2));
+            var newTextOptions = new TextOptions(false, false, substringOptions: new SubstringOptions(10, 8, 2));
+
+            var subject = new EncryptOptions(algorithm: EncryptionAlgorithm.TextPreview, keyId: Guid.NewGuid(), textOptions: originalTextOptions);
+
+            var updated = subject.With(textOptions: newTextOptions);
+
+            updated.TextOptions.Should().BeSameAs(newTextOptions);
+            updated.Algorithm.Should().Be(subject.Algorithm);
+            updated.KeyId.Should().Be(subject.KeyId);
         }
 
         [Fact]
