@@ -19,9 +19,8 @@ namespace MongoDB.Driver.Encryption;
 
 internal static class EncryptionOptionsExtensions
 {
-    public static BsonDocument CreateDocument(this RangeOptions rangeOptions)
-    {
-        return new BsonDocument
+    public static BsonDocument CreateDocument(this RangeOptions rangeOptions) =>
+        new()
         {
             { "min", rangeOptions.Min, rangeOptions.Min != null },
             { "max", rangeOptions.Max, rangeOptions.Max != null },
@@ -29,11 +28,9 @@ internal static class EncryptionOptionsExtensions
             { "sparsity", rangeOptions.Sparsity, rangeOptions.Sparsity != null },
             { "trimFactor", rangeOptions.TrimFactor, rangeOptions.TrimFactor != null }
         };
-    }
 
-    public static BsonDocument CreateDocument(this TextOptions textOptions)
-    {
-        return new BsonDocument
+    public static BsonDocument CreateDocument(this TextOptions textOptions) =>
+        new()
         {
             { "caseSensitive", textOptions.CaseSensitive },
             { "diacriticSensitive", textOptions.DiacriticSensitive },
@@ -63,5 +60,4 @@ internal static class EncryptionOptionsExtensions
                 textOptions.SuffixOptions != null
             }
         };
-    }
 }

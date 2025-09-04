@@ -320,7 +320,7 @@ namespace MongoDB.Driver.Encryption
                 _ => encryptionAlgorithm.ToString(),
             };
 
-        private static readonly string[] ValidTextQueryTypes = ["prefixPreview", "suffixPreview", "substringPreview"];
+        private static readonly string[] ValidTextQueryTypes = ["prefixPreview", "substringPreview", "suffixPreview"];
         #endregion
 
         // private fields
@@ -566,8 +566,7 @@ namespace MongoDB.Driver.Encryption
             Optional<string> alternateKeyName = default,
             Optional<Guid?> keyId = default,
             Optional<long?> contentionFactor = default,
-            Optional<string> queryType = default
-            )
+            Optional<string> queryType = default)
         {
             return new EncryptOptions(
                 algorithm: algorithm.WithDefault(_algorithm),
@@ -592,7 +591,7 @@ namespace MongoDB.Driver.Encryption
             {
                 Ensure.That(
                     ValidTextQueryTypes.Contains(_queryType),
-                    $"QueryType '{_queryType}' is not valid for TextPreview algorithm. Use: prefixPreview, suffixPreview, or substringPreview.");
+                    $"QueryType '{_queryType}' is not valid for TextPreview algorithm. Use: {string.Join(", ", ValidTextQueryTypes)}.");
             }
 
             if (_textOptions != null && _queryType != null)

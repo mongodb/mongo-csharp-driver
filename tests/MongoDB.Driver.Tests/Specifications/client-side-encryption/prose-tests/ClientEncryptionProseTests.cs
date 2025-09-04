@@ -2790,35 +2790,6 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
                 RunTestCase(clientEncryption, prefixSuffixCollection, substringCollection);
             }
-            return;
-
-            BsonDocument CreateFindFilter(string operation, string fieldName, BsonValue encryptedValue)
-            {
-                return new BsonDocument
-                {
-                    {
-                        "$expr", new BsonDocument
-                        {
-                            {
-                                $"{operation}", new BsonDocument
-                                {
-                                    { "input", $"${fieldName}" },
-                                    { "prefix", encryptedValue, operation == "$encStrStartsWith" },
-                                    { "substring", encryptedValue, operation == "$encStrContains" },
-                                    { "suffix", encryptedValue, operation == "$encStrEndsWith" }
-                                }
-                            }
-                        }
-                    }
-                };
-            }
-
-            void DropAndCreateCollection(IMongoClient client, CollectionNamespace collectionNamespace, BsonDocument encryptedFields)
-            {
-                var db = client.GetDatabase(collectionNamespace.DatabaseNamespace.DatabaseName, new MongoDatabaseSettings{ WriteConcern = WriteConcern.WMajority });
-                db.DropCollection(collectionNamespace.CollectionName, new DropCollectionOptions { EncryptedFields = encryptedFields });
-                db.CreateCollection(collectionNamespace.CollectionName, new CreateCollectionOptions { EncryptedFields = encryptedFields });
-            }
 
             void RunTestCase(ClientEncryption clientEncryption, IMongoCollection<BsonDocument> prefixSuffixCollection, IMongoCollection<BsonDocument> substringCollection)
             {
@@ -2940,12 +2911,38 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                 async);
                         });
 
-                        exception.Should().BeOfType<MongoEncryptionException>();
-                        exception.Message.Should().Contain("contention factor is required for textPreview algorithm");
+                        exception.Should().BeOfType<MongoEncryptionException>()
+                            .Which.Message.Should().Contain("contention factor is required for textPreview algorithm");
                         break;
                     }
                     default: throw new Exception($"Unexpected test case {testCase}.");
                 }
+            }
+
+            BsonDocument CreateFindFilter(string operation, string fieldName, BsonValue encryptedValue) =>
+                new()
+                {
+                    {
+                        "$expr", new BsonDocument
+                        {
+                            {
+                                $"{operation}", new BsonDocument
+                                {
+                                    { "input", $"${fieldName}" },
+                                    { "prefix", encryptedValue, operation == "$encStrStartsWith" },
+                                    { "substring", encryptedValue, operation == "$encStrContains" },
+                                    { "suffix", encryptedValue, operation == "$encStrEndsWith" }
+                                }
+                            }
+                        }
+                    }
+                };
+
+            void DropAndCreateCollection(IMongoClient client, CollectionNamespace collectionNamespace, BsonDocument encryptedFields)
+            {
+                var db = client.GetDatabase(collectionNamespace.DatabaseNamespace.DatabaseName, new MongoDatabaseSettings{ WriteConcern = WriteConcern.WMajority });
+                db.DropCollection(collectionNamespace.CollectionName, new DropCollectionOptions { EncryptedFields = encryptedFields });
+                db.CreateCollection(collectionNamespace.CollectionName, new CreateCollectionOptions { EncryptedFields = encryptedFields });
             }
         }
 

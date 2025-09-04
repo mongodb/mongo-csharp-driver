@@ -73,7 +73,7 @@ namespace MongoDB.Driver.Tests.Encryption
         public void Constructor_should_fail_when_textOptions_is_null()
         {
             var exception = Record.Exception(() => new EncryptOptions(algorithm: "test", textOptions: null));
-            exception.Should().BeOfType<ArgumentNullException>();
+            exception.Should().BeOfType<ArgumentNullException>().Which.ParamName.Should().Be("textOptions");
         }
 
         [Fact]
