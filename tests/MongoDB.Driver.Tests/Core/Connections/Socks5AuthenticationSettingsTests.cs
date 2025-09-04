@@ -36,29 +36,45 @@ public class Socks5AuthenticationSettingsTests
     public void UsernamePassword_should_return_UsernamePasswordAuthenticationSettings_instance_with_correct_values()
     {
         var up = Socks5AuthenticationSettings.UsernamePassword("user", "pass");
-        var upcast = up.Should() .BeOfType<Socks5AuthenticationSettings.UsernamePasswordAuthenticationSettings>().Subject;
+        var upcast = up.Should().BeOfType<Socks5AuthenticationSettings.UsernamePasswordAuthenticationSettings>().Subject;
         upcast.Username.Should().Be("user");
         upcast.Password.Should().Be("pass");
     }
 
     [Theory]
-    [InlineData(null, "pass")]
-    [InlineData("user", null)]
-    [InlineData("", "pass")]
-    [InlineData("user", "")]
-    public void UsernamePassword_should_throw_when_username_or_password_is_null_or_empty(string username, string password)
+    [InlineData(null)]
+    [InlineData("")]
+    public void UsernamePassword_should_throw_when_username_is_null_or_empty(string username)
     {
-        var ex = Record.Exception(() => Socks5AuthenticationSettings.UsernamePassword(username, password));
+        var ex = Record.Exception(() => Socks5AuthenticationSettings.UsernamePassword(username, "pass"));
         ex.Should().BeAssignableTo<ArgumentException>();
+        ex.Message.Should().Contain("username");
     }
 
     [Theory]
-    [InlineData(TooLong, "pass")]
-    [InlineData("user", TooLong)]
-    public void UsernamePassword_should_throw_when_username_or_password_are_too_long(string username, string password)
+    [InlineData(null)]
+    [InlineData("")]
+    public void UsernamePassword_should_throw_when_password_is_null_or_empty(string password)
     {
-        var ex = Record.Exception(() => Socks5AuthenticationSettings.UsernamePassword(username, password));
+        var ex = Record.Exception(() => Socks5AuthenticationSettings.UsernamePassword("username", password));
         ex.Should().BeAssignableTo<ArgumentException>();
+        ex.Message.Should().Contain("password");
+    }
+
+    [Fact]
+    public void UsernamePassword_should_throw_when_username_is_too_long()
+    {
+        var ex = Record.Exception(() => Socks5AuthenticationSettings.UsernamePassword(TooLong, "password"));
+        ex.Should().BeAssignableTo<ArgumentException>();
+        ex.Message.Should().Contain("username");
+    }
+
+    [Fact]
+    public void UsernamePassword_should_throw_when_password_is_too_long()
+    {
+        var ex = Record.Exception(() => Socks5AuthenticationSettings.UsernamePassword("username", TooLong));
+        ex.Should().BeAssignableTo<ArgumentException>();
+        ex.Message.Should().Contain("password");
     }
 
     [Fact]
@@ -73,21 +89,20 @@ public class Socks5AuthenticationSettingsTests
         none.GetHashCode().Should().NotBe(up.GetHashCode());
     }
 
-    [Fact]
-    public void UsernamePasswordAuthenticationSettings_Equals_and_GetHashCode_should_work_correctly()
+    [Theory]
+    [InlineData("u", "p", "u", "p", true)]
+    [InlineData("u", "p", "u", "x", false)]
+    [InlineData("u", "p", "x", "p", false)]
+    public void UsernamePasswordAuthenticationSettings_Equals_and_GetHashCode_should_work_correctly(string u1, string p1, string u2, string p2, bool areEqual)
     {
-        var up1 = Socks5AuthenticationSettings.UsernamePassword("u", "p");
+        var up1 = Socks5AuthenticationSettings.UsernamePassword(u1, p1);
 
         var none = Socks5AuthenticationSettings.None;
         up1.Equals(none).Should().BeFalse();
         up1.GetHashCode().Should().NotBe(none.GetHashCode());
 
-        var up2 = Socks5AuthenticationSettings.UsernamePassword("u", "p");
-        up1.Equals(up2).Should().BeTrue();
-        up1.GetHashCode().Should().Be(up2.GetHashCode());
-
-        var up3 = Socks5AuthenticationSettings.UsernamePassword("u", "x");
-        up1.Equals(up3).Should().BeFalse();
-        up1.GetHashCode().Should().NotBe(up3.GetHashCode());
+        var up2 = Socks5AuthenticationSettings.UsernamePassword(u2, p2);
+        up1.Equals(up2).Should().Be(areEqual);
+        up1.GetHashCode().Equals(up2.GetHashCode()).Should().Be(areEqual);
     }
 }

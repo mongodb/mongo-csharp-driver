@@ -23,7 +23,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.GridFS;
+using MongoDB.Driver.Support;
 
 namespace MongoDB.Driver.Core.Connections;
 
@@ -321,7 +321,7 @@ internal static class Socks5Helper
 
     private static void EnsureSocksSuccess(byte code, string operation)
     {
-        if (code == 0x00)
+        if (code == Socks5Success)
         {
             return; // success
         }

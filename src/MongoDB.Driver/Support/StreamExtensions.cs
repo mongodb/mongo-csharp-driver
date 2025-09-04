@@ -17,7 +17,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MongoDB.Driver.GridFS
+namespace MongoDB.Driver.Support
 {
     internal static class StreamExtensions
     {

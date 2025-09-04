@@ -1188,7 +1188,7 @@ namespace MongoDB.Driver
             sb.AppendFormat("MaxConnectionLifeTime={0};", _maxConnectionLifeTime);
             sb.AppendFormat("MaxConnectionPoolSize={0};", _maxConnectionPoolSize);
             sb.AppendFormat("MinConnectionPoolSize={0};", _minConnectionPoolSize);
-            if (_socks5ProxySettings!= null)
+            if (_socks5ProxySettings != null)
             {
                 sb.AppendFormat("ProxyHost={0};", _socks5ProxySettings);
             }
