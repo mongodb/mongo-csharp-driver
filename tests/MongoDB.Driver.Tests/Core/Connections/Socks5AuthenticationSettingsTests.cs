@@ -47,8 +47,16 @@ public class Socks5AuthenticationSettingsTests
     public void UsernamePassword_should_throw_when_username_is_null_or_empty(string username)
     {
         var ex = Record.Exception(() => Socks5AuthenticationSettings.UsernamePassword(username, "pass"));
-        ex.Should().BeAssignableTo<ArgumentException>();
-        ex.Message.Should().Contain("username");
+        var argumentEx = ex.Should().BeAssignableTo<ArgumentException>().Subject;
+        argumentEx.ParamName.Should().Contain("username");
+    }
+
+    [Fact]
+    public void UsernamePassword_should_throw_when_username_is_too_long()
+    {
+        var ex = Record.Exception(() => Socks5AuthenticationSettings.UsernamePassword(TooLong, "password"));
+        var argumentEx = ex.Should().BeAssignableTo<ArgumentException>().Subject;
+        argumentEx.ParamName.Should().Contain("username");
     }
 
     [Theory]
@@ -57,24 +65,16 @@ public class Socks5AuthenticationSettingsTests
     public void UsernamePassword_should_throw_when_password_is_null_or_empty(string password)
     {
         var ex = Record.Exception(() => Socks5AuthenticationSettings.UsernamePassword("username", password));
-        ex.Should().BeAssignableTo<ArgumentException>();
-        ex.Message.Should().Contain("password");
-    }
-
-    [Fact]
-    public void UsernamePassword_should_throw_when_username_is_too_long()
-    {
-        var ex = Record.Exception(() => Socks5AuthenticationSettings.UsernamePassword(TooLong, "password"));
-        ex.Should().BeAssignableTo<ArgumentException>();
-        ex.Message.Should().Contain("username");
+        var argumentEx = ex.Should().BeAssignableTo<ArgumentException>().Subject;
+        argumentEx.ParamName.Should().Contain("password");
     }
 
     [Fact]
     public void UsernamePassword_should_throw_when_password_is_too_long()
     {
         var ex = Record.Exception(() => Socks5AuthenticationSettings.UsernamePassword("username", TooLong));
-        ex.Should().BeAssignableTo<ArgumentException>();
-        ex.Message.Should().Contain("password");
+        var argumentEx = ex.Should().BeAssignableTo<ArgumentException>().Subject;
+        argumentEx.ParamName.Should().Contain("password");
     }
 
     [Fact]
@@ -93,16 +93,22 @@ public class Socks5AuthenticationSettingsTests
     [InlineData("u", "p", "u", "p", true)]
     [InlineData("u", "p", "u", "x", false)]
     [InlineData("u", "p", "x", "p", false)]
-    public void UsernamePasswordAuthenticationSettings_Equals_and_GetHashCode_should_work_correctly(string u1, string p1, string u2, string p2, bool areEqual)
+    public void UsernamePasswordAuthenticationSettings_Equals_and_GetHashCode_should_work_correctly_with_UsernamePassword(string u1, string p1, string u2, string p2, bool areEqual)
     {
         var up1 = Socks5AuthenticationSettings.UsernamePassword(u1, p1);
-
-        var none = Socks5AuthenticationSettings.None;
-        up1.Equals(none).Should().BeFalse();
-        up1.GetHashCode().Should().NotBe(none.GetHashCode());
 
         var up2 = Socks5AuthenticationSettings.UsernamePassword(u2, p2);
         up1.Equals(up2).Should().Be(areEqual);
         up1.GetHashCode().Equals(up2.GetHashCode()).Should().Be(areEqual);
+    }
+
+    [Fact]
+    public void UsernamePasswordAuthenticationSettings_Equals_and_GetHashCode_should_work_correctly_with_None()
+    {
+        var up1 = Socks5AuthenticationSettings.UsernamePassword("u1", "p1");
+
+        var none = Socks5AuthenticationSettings.None;
+        up1.Equals(none).Should().BeFalse();
+        up1.GetHashCode().Should().NotBe(none.GetHashCode());
     }
 }

@@ -68,9 +68,9 @@ public abstract class Socks5AuthenticationSettings
         internal UsernamePasswordAuthenticationSettings(string username, string password)
         {
             Username = Ensure.IsNotNullOrEmpty(username, nameof(username));
-            Ensure.That(Encoding.UTF8.GetByteCount(username) <= byte.MaxValue, $"{nameof(username)} must be at most 255 bytes long when encoded as UTF-8");
+            Ensure.That(Encoding.UTF8.GetByteCount(username) <= byte.MaxValue, $"{nameof(username)} must be at most 255 bytes long when encoded as UTF-8", nameof(username));
             Password = Ensure.IsNotNullOrEmpty(password, nameof(password));
-            Ensure.That(Encoding.UTF8.GetByteCount(password) <= byte.MaxValue, $"{nameof(password)} must be at most 255 bytes long when encoded as UTF-8");
+            Ensure.That(Encoding.UTF8.GetByteCount(password) <= byte.MaxValue, $"{nameof(password)} must be at most 255 bytes long when encoded as UTF-8", nameof(password));
         }
 
         /// <inheritdoc />
