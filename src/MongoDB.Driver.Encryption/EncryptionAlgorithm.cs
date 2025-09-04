@@ -59,6 +59,7 @@ namespace MongoDB.Driver.Encryption
         /// TextPreview algorithm.
         /// </summary>
         /// <remarks>
+        /// The TextPreview algorithm is in preview and should be used for experimental workloads only.
         /// To insert or query with a "TextPreview" encrypted payload, use a MongoClient configured with AutoEncryptionOptions.
         /// AutoEncryptionOptions.BypassQueryAnalysis may be true. AutoEncryptionOptions.BypassAutoEncryption must be false.
         /// </remarks>

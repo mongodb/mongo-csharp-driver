@@ -246,9 +246,9 @@ namespace MongoDB.Driver.Encryption
     /// Text options.
     /// </summary>
     /// <remarks>
-    /// The TextPreview algorithm is experimental only. It is not intended for public use.
     /// TextOptions specifies options for a Queryable Encryption field supporting "textPreview" queries.
-    /// TextOptions only applies when algorithm is "textPreview".
+    /// TextOptions is currently unstable API and subject to backwards breaking changes.
+    /// TextOptions only applies when the encryption algorithm is "textPreview".
     /// </remarks>
     public sealed class TextOptions
     {
@@ -495,6 +495,9 @@ namespace MongoDB.Driver.Encryption
         /// <value>
         /// The query type.
         /// </value>
+        /// <remarks>
+        /// Currently, we only support "equality", "range", "prefixPreview", "suffixPreview" or "substringPreview" queryTypes.
+        /// </remarks>
         public string QueryType => _queryType;
 
         /// <summary>
@@ -514,9 +517,9 @@ namespace MongoDB.Driver.Encryption
         /// Gets the text options.
         /// </summary>
         /// <remarks>
-        /// The TextPreview algorithm is experimental only. It is not intended for public use.
-        /// TextOptions specifies index options for a Queryable Encryption field supporting "textPreview" queries.
-        /// TextOptions only applies when algorithm is "textPreview".
+        /// TextOptions specifies options for a Queryable Encryption field supporting "textPreview" queries.
+        /// TextOptions is currently unstable API and subject to backwards breaking changes.
+        /// TextOptions only applies when the encryption algorithm is "textPreview".
         /// </remarks>
         public TextOptions TextOptions => _textOptions;
 
