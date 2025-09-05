@@ -60,18 +60,13 @@ internal static class KnownSerializerFinder
     {
         var visitor = new KnownSerializerFinderVisitor(translationOptions, knownSerializers);
 
-        int oldSerializerCount;
-        int newSerializerCount;
         do
         {
-            visitor.StartNextPass();
-            oldSerializerCount = knownSerializers.Count;
+            visitor.StartPass();
             visitor.Visit(expression);
-            newSerializerCount = knownSerializers.Count;
-
-            // TODO: prevent infinite loop, throw after 100000 passes?
+            visitor.EndPass();
         }
-        while (visitor.Pass == 1 || newSerializerCount > oldSerializerCount); // I don't know yet if this can be done in a single pass
+        while (visitor.IsMakingProgress);
 
         //#if DEBUG
         var expressionWithUnknownSerializer = UnknownSerializerFinder.FindExpressionWithUnknownSerializer(expression, knownSerializers);

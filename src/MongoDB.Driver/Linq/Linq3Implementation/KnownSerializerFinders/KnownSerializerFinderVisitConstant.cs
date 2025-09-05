@@ -23,27 +23,17 @@ internal partial class KnownSerializerFinderVisitor
 {
     protected override Expression VisitConstant(ConstantExpression node)
     {
-        if (IsNotKnown(node))
+        if (IsNotKnown(node) && _useDefaultSerializerForConstants)
         {
-            var value = node.Value;
-            IBsonSerializer constantSerializer = null;
-
-            if (_pass > 1)
+            if (StandardSerializers.TryGetSerializer(node.Type, out var standardSerializer))
             {
-                if (StandardSerializers.TryGetSerializer(node.Type, out constantSerializer))
-                {
-                    // constant => node: standardSerializer
-                }
-                else
-                {
-                    // constant => node: registeredSerializer
-                    constantSerializer = BsonSerializer.LookupSerializer(node.Type); // TODO: don't use static registry
-                }
+                AddKnownSerializer(node, standardSerializer);
             }
-
-            if (constantSerializer != null)
+            else
             {
-                AddKnownSerializer(node, constantSerializer);
+                // constant => node: registeredSerializer
+                var registeredSerializer = BsonSerializer.LookupSerializer(node.Type); // TODO: don't use static registry
+                AddKnownSerializer(node, registeredSerializer);
             }
         }
 

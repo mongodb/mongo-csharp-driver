@@ -101,6 +101,7 @@ internal partial class KnownSerializerFinderVisitor
                 "AsRegex" => RegexSerializer.RegularExpressionInstance,
                 "AsString" => StringSerializer.Instance,
                 "AsUniversalTime" => DateTimeSerializer.UtcInstance,
+                // TODO: return UnknowableSerializer???
                 _ => throw new ExpressionNotSupportedException(node, because: $"Unexpected member name: {memberName}")
             };
         }
@@ -129,6 +130,7 @@ internal partial class KnownSerializerFinderVisitor
                 "Today" => DateTimeSerializer.Instance,
                 "UtcNow" => DateTimeSerializer.Instance,
                 "Year" => Int32Serializer.Instance,
+                // TODO: return UnknowableSerializer???
                 _ => throw new ExpressionNotSupportedException(node, because: $"Unexpected member name: {memberName}")
             };
         }
@@ -139,6 +141,7 @@ internal partial class KnownSerializerFinderVisitor
             {
                 "HasValue" => BooleanSerializer.Instance,
                 "Value" => (containingSerializer as INullableSerializer)?.ValueSerializer,
+                // TODO: return UnknowableSerializer???
                 _ => throw new ExpressionNotSupportedException(node, because: $"Unexpected member name: {memberName}")
             };
         }
@@ -147,13 +150,16 @@ internal partial class KnownSerializerFinderVisitor
         {
             if (containingSerializer is not IBsonDocumentSerializer documentSerializer)
             {
+                // TODO: return UnknowableSerializer???
                 throw new ExpressionNotSupportedException(node, because: $"serializer type {containingSerializer.GetType()} does not implement the {nameof(IBsonDocumentSerializer)} interface");
             }
 
             if (!documentSerializer.TryGetMemberSerializationInfo(memberName, out var memberSerializationInfo))
             {
+                // TODO: return UnknowableSerializer???
                 throw new ExpressionNotSupportedException(node, because: $"serializer type {containingSerializer.GetType()} does not support a member named: {memberName}");
             }
+
             return memberSerializationInfo.Serializer;
         }
 
@@ -174,6 +180,7 @@ internal partial class KnownSerializerFinderVisitor
                 "Item6" => tupleSerializer.GetItemSerializer(6),
                 "Item7" => tupleSerializer.GetItemSerializer(7),
                 "Rest" => tupleSerializer.GetItemSerializer(8),
+                // TODO: return UnknowableSerializer???
                 _ => throw new ExpressionNotSupportedException(node, because: $"Unexpected member name: {memberName}")
             };
         }
