@@ -677,7 +677,7 @@ namespace MongoDB.Driver.Encryption.Tests
 
         private static CryptContext StartExplicitEncryptionContextWithKeyId(CryptClient client, byte[] keyId, string encryptionAlgorithm, byte[] message)
         {
-            return client.StartExplicitEncryptionContext(keyId, keyAltName: null, queryType: null, contentionFactor: null, encryptionAlgorithm, message, rangeOptions: null);
+            return client.StartExplicitEncryptionContext(keyId, keyAltName: null, queryType: null, contentionFactor: null, encryptionAlgorithm, message, rangeOptions: null, textOptions: null);
         }
 
         static IEnumerable<string> FindTestDirectories()

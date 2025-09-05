@@ -49,6 +49,20 @@ namespace MongoDB.Driver.Encryption
         /// <summary>
         /// Range algorithm.
         /// </summary>
-        Range
+        /// <remarks>
+        /// To insert or query with a "Range" encrypted payload, use a MongoClient configured with AutoEncryptionOptions.
+        /// AutoEncryptionOptions.BypassQueryAnalysis may be true. AutoEncryptionOptions.BypassAutoEncryption must be false.
+        /// </remarks>
+        Range,
+
+        /// <summary>
+        /// TextPreview algorithm.
+        /// </summary>
+        /// <remarks>
+        /// The TextPreview algorithm is in preview and should be used for experimental workloads only.
+        /// To insert or query with a "TextPreview" encrypted payload, use a MongoClient configured with AutoEncryptionOptions.
+        /// AutoEncryptionOptions.BypassQueryAnalysis may be true. AutoEncryptionOptions.BypassAutoEncryption must be false.
+        /// </remarks>
+        TextPreview
     }
 }

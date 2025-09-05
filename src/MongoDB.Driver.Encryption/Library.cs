@@ -147,6 +147,9 @@ namespace MongoDB.Driver.Encryption
             _mongocrypt_ctx_setopt_algorithm_range = new Lazy<Delegates.mongocrypt_ctx_setopt_algorithm_range>(
                 () => __loader.Value.GetFunction<Delegates.mongocrypt_ctx_setopt_algorithm_range>(
                     ("mongocrypt_ctx_setopt_algorithm_range")), true);
+            _mongocrypt_ctx_setopt_algorithm_text = new Lazy<Delegates.mongocrypt_ctx_setopt_algorithm_text>(
+                () => __loader.Value.GetFunction<Delegates.mongocrypt_ctx_setopt_algorithm_text>(
+                    ("mongocrypt_ctx_setopt_algorithm_text")), true);
             _mongocrypt_ctx_setopt_contention_factor = new Lazy<Delegates.mongocrypt_ctx_setopt_contention_factor>(
                 () => __loader.Value.GetFunction<Delegates.mongocrypt_ctx_setopt_contention_factor>(
                     ("mongocrypt_ctx_setopt_contention_factor")), true);
@@ -300,6 +303,7 @@ namespace MongoDB.Driver.Encryption
         internal static Delegates.mongocrypt_ctx_setopt_key_alt_name mongocrypt_ctx_setopt_key_alt_name => _mongocrypt_ctx_setopt_key_alt_name.Value;
         internal static Delegates.mongocrypt_ctx_setopt_algorithm mongocrypt_ctx_setopt_algorithm => _mongocrypt_ctx_setopt_algorithm.Value;
         internal static Delegates.mongocrypt_ctx_setopt_algorithm_range mongocrypt_ctx_setopt_algorithm_range => _mongocrypt_ctx_setopt_algorithm_range.Value;
+        internal static Delegates.mongocrypt_ctx_setopt_algorithm_text mongocrypt_ctx_setopt_algorithm_text => _mongocrypt_ctx_setopt_algorithm_text.Value;
         internal static Delegates.mongocrypt_ctx_setopt_contention_factor mongocrypt_ctx_setopt_contention_factor => _mongocrypt_ctx_setopt_contention_factor.Value;
         internal static Delegates.mongocrypt_ctx_setopt_query_type mongocrypt_ctx_setopt_query_type => _mongocrypt_ctx_setopt_query_type.Value;
         internal static Delegates.mongocrypt_setopt_retry_kms mongocrypt_setopt_retry_kms => _mongocrypt_setopt_retry_kms.Value;
@@ -393,6 +397,7 @@ namespace MongoDB.Driver.Encryption
         private static readonly Lazy<Delegates.mongocrypt_ctx_setopt_key_alt_name> _mongocrypt_ctx_setopt_key_alt_name;
         private static readonly Lazy<Delegates.mongocrypt_ctx_setopt_algorithm> _mongocrypt_ctx_setopt_algorithm;
         private static readonly Lazy<Delegates.mongocrypt_ctx_setopt_algorithm_range> _mongocrypt_ctx_setopt_algorithm_range;
+        private static readonly Lazy<Delegates.mongocrypt_ctx_setopt_algorithm_text> _mongocrypt_ctx_setopt_algorithm_text;
         private static readonly Lazy<Delegates.mongocrypt_ctx_setopt_contention_factor> _mongocrypt_ctx_setopt_contention_factor;
         private static readonly Lazy<Delegates.mongocrypt_ctx_setopt_query_type> _mongocrypt_ctx_setopt_query_type;
 
@@ -654,16 +659,25 @@ namespace MongoDB.Driver.Encryption
             /// </summary>
             [return: MarshalAs(UnmanagedType.I1)]
             public delegate bool mongocrypt_ctx_setopt_algorithm(ContextSafeHandle handle, [MarshalAs(UnmanagedType.LPStr)] string algorithm, int length);
+
             /// <summary>
             /// bool mongocrypt_ctx_setopt_algorithm_range(mongocrypt_ctx_t* ctx, mongocrypt_binary_t* opts);
             /// </summary>
             [return: MarshalAs(UnmanagedType.I1)]
             public delegate bool mongocrypt_ctx_setopt_algorithm_range(ContextSafeHandle handle, BinarySafeHandle opts);
+
+            /// <summary>
+            /// bool mongocrypt_ctx_setopt_algorithm_text(mongocrypt_ctx_t* ctx, mongocrypt_binary_t* opts);
+            /// </summary>
+            [return: MarshalAs(UnmanagedType.I1)]
+            public delegate bool mongocrypt_ctx_setopt_algorithm_text(ContextSafeHandle handle, BinarySafeHandle opts);
+
             /// <summary>
             /// bool mongocrypt_ctx_setopt_contention_factor(mongocrypt_ctx_t* ctx, int64_t contention_factor);
             /// </summary>
             [return: MarshalAs(UnmanagedType.I1)]
             public delegate bool mongocrypt_ctx_setopt_contention_factor(ContextSafeHandle ctx, long contention_factor);
+
             /// <summary>
             /// bool mongocrypt_ctx_setopt_query_type(mongocrypt_ctx_t* ctx, const char* query_type, int len)
             /// </summary>
