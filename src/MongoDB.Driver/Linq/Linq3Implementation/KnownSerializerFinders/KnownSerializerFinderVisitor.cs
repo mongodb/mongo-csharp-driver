@@ -25,9 +25,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.KnownSerializerFinders;
 
 internal partial class KnownSerializerFinderVisitor : ExpressionVisitor
 {
+    private bool _isMakingProgress = true;
     private readonly KnownSerializerMap _knownSerializers;
+    private int _oldKnownSerializersCount = 0;
     private int _pass = 0;
     private readonly ExpressionTranslationOptions _translationOptions;
+    private bool _useDefaultSerializerForConstants = false; // make as much progress as possible before setting this to true
 
     public KnownSerializerFinderVisitor(ExpressionTranslationOptions translationOptions, KnownSerializerMap knownSerializers)
     {
@@ -37,7 +40,30 @@ internal partial class KnownSerializerFinderVisitor : ExpressionVisitor
 
     public int Pass => _pass;
 
-    public void StartNextPass() => _pass++;
+    public bool IsMakingProgress => _isMakingProgress;
+
+    public bool UseDefaultSerializerForConstants => _useDefaultSerializerForConstants;
+
+    public void EndPass()
+    {
+        var newKnownSerializersCount = _knownSerializers.Count;
+        if (newKnownSerializersCount == _oldKnownSerializersCount)
+        {
+            if (_useDefaultSerializerForConstants)
+            {
+                _isMakingProgress = false;
+            }
+            else
+            {
+                _useDefaultSerializerForConstants = true;
+            }
+        }
+    }
+
+    public void StartPass()
+    {
+        _oldKnownSerializersCount = _knownSerializers.Count;
+    }
 
     public override Expression Visit(Expression node)
     {

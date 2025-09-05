@@ -27,49 +27,39 @@ internal partial class KnownSerializerFinderVisitor
     {
         base.VisitIndex(node);
 
-        var containerExpression = node.Object;
+        var collectionExpression = node.Object;
         var indexer = node.Indexer;
         var arguments = node.Arguments;
 
         if (IsBsonValueIndexer())
         {
-            var keyExpression = arguments[0];
-
-            DeduceSerializer(keyExpression, keyExpression.Type == typeof(string) ? StringSerializer.Instance : Int32Serializer.Instance);
             DeduceSerializer(node, BsonValueSerializer.Instance);
         }
         else if (IsDictionaryIndexer())
         {
-            var keyExpression = arguments[0];
-
-            if (IsKnown(containerExpression, out var containerSerializer) &&
-                containerSerializer is IBsonDictionarySerializer dictionarySerializer)
+            if (IsKnown(collectionExpression, out var collectionSerializer) &&
+                collectionSerializer is IBsonDictionarySerializer dictionarySerializer)
             {
-                var keySerializer = dictionarySerializer.KeySerializer;
                 var valueSerializer = dictionarySerializer.ValueSerializer;
-
-                DeduceSerializer(keyExpression, keySerializer);
                 DeduceSerializer(node, valueSerializer);
             }
         }
         // check array indexer AFTER dictionary indexer
-        else if (IsArrayIndexer())
+        else if (IsCollectionIndexer())
         {
-            var indexExpression = arguments[0];
-
-            if (IsKnown(containerExpression, out var containerSerializer) &&
-                containerSerializer is IBsonArraySerializer arraySerializer)
+            if (IsKnown(collectionExpression, out var collectionSerializer) &&
+                collectionSerializer is IBsonArraySerializer arraySerializer)
             {
                 var itemSerializer = arraySerializer.GetItemSerializer();
-
-                DeduceSerializer(indexExpression, Int32Serializer.Instance);
                 DeduceSerializer(node, itemSerializer);
             }
         }
+        // TODO: Deduce UnknowableSerializer???
+        // handle generic cases?
 
         return node;
 
-        bool IsArrayIndexer()
+        bool IsCollectionIndexer()
         {
             return
                 arguments.Count == 1 &&

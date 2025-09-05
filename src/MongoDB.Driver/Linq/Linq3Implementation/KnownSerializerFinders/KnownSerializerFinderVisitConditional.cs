@@ -30,7 +30,6 @@ internal partial class KnownSerializerFinderVisitor
         base.VisitConditional(node);
 
         DeduceSerializers(ifTrue, ifFalse);
-        DeduceSerializers(ifFalse, ifTrue);
         DeduceSerializers(node, ifTrue);
 
         return node;
