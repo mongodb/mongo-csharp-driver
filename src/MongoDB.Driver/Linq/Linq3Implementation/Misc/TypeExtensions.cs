@@ -306,6 +306,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         {
             return Type.GetTypeCode(type) is
                 TypeCode.Byte or
+                TypeCode.Char or // TODO: should we really treat char as numeric?
                 TypeCode.Decimal or
                 TypeCode.Double or
                 TypeCode.Int16 or

@@ -14,6 +14,7 @@
  */
 
 using System;
+using System.CodeDom;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -193,6 +194,25 @@ internal partial class KnownSerializerFinderVisitor
         QueryableMethod.GroupByWithKeySelectorElementSelectorAndResultSelector
     ];
 
+    private static readonly HashSet<MethodInfo> __indexOfMethods =
+    [
+        StringMethod.IndexOfAny,
+        StringMethod.IndexOfAnyWithStartIndex,
+        StringMethod.IndexOfAnyWithStartIndexAndCount,
+        StringMethod.IndexOfBytesWithValue,
+        StringMethod.IndexOfBytesWithValueAndStartIndex,
+        StringMethod.IndexOfBytesWithValueAndStartIndexAndCount,
+        StringMethod.IndexOfWithChar,
+        StringMethod.IndexOfWithCharAndStartIndex,
+        StringMethod.IndexOfWithCharAndStartIndexAndCount,
+        StringMethod.IndexOfWithString,
+        StringMethod.IndexOfWithStringAndComparisonType,
+        StringMethod.IndexOfWithStringAndStartIndex,
+        StringMethod.IndexOfWithStringAndStartIndexAndComparisonType,
+        StringMethod.IndexOfWithStringAndStartIndexAndCount,
+        StringMethod.IndexOfWithStringAndStartIndexAndCountAndComparisonType,
+    ];
+
     private static readonly HashSet<MethodInfo> __tupleOrValueTupleCreateMethods =
     [
         TupleMethod.Create1,
@@ -257,6 +277,13 @@ internal partial class KnownSerializerFinderVisitor
         QueryableMethod.SingleWithPredicate
     ];
 
+    private static readonly HashSet<MethodInfo> __logMethods =
+    [
+        MathMethod.Log,
+        MathMethod.Log10,
+        MathMethod.LogWithNewBase
+    ];
+
     private static readonly HashSet<MethodInfo> __lookupMethods =
     [
         MongoQueryableMethod.LookupWithDocumentsAndLocalFieldAndForeignField,
@@ -265,19 +292,6 @@ internal partial class KnownSerializerFinderVisitor
         MongoQueryableMethod.LookupWithFromAndLocalFieldAndForeignField,
         MongoQueryableMethod.LookupWithFromAndLocalFieldAndForeignFieldAndPipeline,
         MongoQueryableMethod.LookupWithFromAndPipeline
-    ];
-
-    private static readonly HashSet<MethodInfo> __lookupWithDocumentsMethods =
-    [
-        MongoQueryableMethod.LookupWithDocumentsAndLocalFieldAndForeignField,
-        MongoQueryableMethod.LookupWithDocumentsAndLocalFieldAndForeignFieldAndPipeline,
-        MongoQueryableMethod.LookupWithDocumentsAndPipeline
-    ];
-
-    private static readonly HashSet<MethodInfo> __lookupWithDocumentsAndLocalFieldAndForeignFieldMethods =
-    [
-        MongoQueryableMethod.LookupWithDocumentsAndLocalFieldAndForeignField,
-        MongoQueryableMethod.LookupWithDocumentsAndLocalFieldAndForeignFieldAndPipeline,
     ];
 
     private static readonly HashSet<MethodInfo> __maxOrMinMethods =
@@ -359,22 +373,6 @@ internal partial class KnownSerializerFinderVisitor
         QueryableMethod.MinWithSelector,
     ];
 
-    private static readonly HashSet<MethodInfo> __groupByWithElementSelectorMethods =
-    [
-        EnumerableMethod.GroupByWithKeySelectorAndElementSelector,
-        EnumerableMethod.GroupByWithKeySelectorElementSelectorAndResultSelector,
-        QueryableMethod.GroupByWithKeySelectorAndElementSelector,
-        QueryableMethod.GroupByWithKeySelectorElementSelectorAndResultSelector
-    ];
-
-    private static readonly HashSet<MethodInfo> __groupByWithResultSelectorMethods =
-    [
-        EnumerableMethod.GroupByWithKeySelectorAndResultSelector,
-        EnumerableMethod.GroupByWithKeySelectorElementSelectorAndResultSelector,
-        QueryableMethod.GroupByWithKeySelectorAndResultSelector,
-        QueryableMethod.GroupByWithKeySelectorElementSelectorAndResultSelector
-    ];
-
     private static readonly MethodInfo[] __pickMethods = new[]
     {
         EnumerableMethod.Bottom,
@@ -453,6 +451,16 @@ internal partial class KnownSerializerFinderVisitor
         EnumerableMethod.TakeWhile,
         QueryableMethod.SkipWhile,
         QueryableMethod.TakeWhile
+    ];
+
+    private static readonly HashSet<MethodInfo> __splitMethods =
+    [
+        StringMethod.SplitWithChars,
+        StringMethod.SplitWithCharsAndCount,
+        StringMethod.SplitWithCharsAndCountAndOptions,
+        StringMethod.SplitWithCharsAndOptions,
+        StringMethod.SplitWithStringsAndCountAndOptions,
+        StringMethod.SplitWithStringsAndOptions
     ];
 
     private static readonly HashSet<MethodInfo> __standardDeviationMethods =
@@ -709,6 +717,7 @@ internal partial class KnownSerializerFinderVisitor
                 case "Equals": DeduceEqualsMethodSerializers(); break;
                 case "Except": DeduceExceptMethodSerializers(); break;
                 case "Exists": DeduceExistsMethodSerializers(); break;
+                case "Exp": DeduceExpMethodSerializers(); break;
                 case "Field": DeduceFieldMethodSerializers(); break;
                 case "get_Item": DeduceGetItemMethodSerializers(); break;
                 case "GroupBy": DeduceGroupByMethodSerializers(); break;
@@ -717,19 +726,26 @@ internal partial class KnownSerializerFinderVisitor
                 case "Intersect": DeduceIntersectMethodSerializers(); break;
                 case "IsMatch": DeduceIsMatchMethodSerializers(); break;
                 case "IsNullOrEmpty": DeduceIsNullOrEmptyMethodSerializers(); break;
+                case "IsSubsetOf": DeduceIsSubsetOfMethodSerializers(); break;
                 case "Join": DeduceJoinMethodSerializers(); break;
                 case "Lookup": DeduceLookupMethodSerializers(); break;
                 case "OfType": DeduceOfTypeMethodSerializers(); break;
+                case "Parse": DeduceParseMethodSerializers(); break;
+                case "Pow": DeducePowMethodSerializers(); break;
                 case "RadiansToDegrees": DeduceRadiansToDegreesMethodSerializers(); break;
+                case "Range": DeduceRangeMethodSerializers(); break;
                 case "Repeat": DeduceRepeatMethodSerializers(); break;
                 case "Reverse": DeduceReverseMethodSerializers(); break;
                 case "Select": DeduceSelectMethodSerializers(); break;
                 case "SelectMany": DeduceSelectManySerializers(); break;
                 case "SequenceEqual": DeduceSequenceEqualMethodSerializers(); break;
+                case "SetEquals": DeduceSetEqualsMethodSerializers(); break;
                 case "Sin": DeduceSinMethodSerializers(); break;
                 case "Sinh": DeduceSinhMethodSerializers(); break;
+                case "Split": DeduceSplitMethodSerializers(); break;
                 case "Sqrt": DeduceSqrtMethodSerializers(); break;
                 case "StringIn": DeduceStringInMethodSerializers(); break;
+                case "StrLenBytes": DeduceStrLenBytesMethodSerializers(); break;
                 case "Subtract": DeduceSubtractMethodSerializers(); break;
                 case "Sum": DeduceSumMethodSerializers(); break;
                 case "Tan": DeduceTanMethodSerializers(); break;
@@ -765,6 +781,11 @@ internal partial class KnownSerializerFinderVisitor
                     DeducePickMethodSerializers();
                     break;
 
+                case "Ceiling":
+                case "Floor":
+                    DeduceCeilingOrFloorMethodSerializers();
+                    break;
+
                 case "Count":
                 case "LongCount":
                     DeduceCountMethodSerializers();
@@ -789,9 +810,20 @@ internal partial class KnownSerializerFinderVisitor
                     DeduceFirstOrLastMethodsSerializers();
                     break;
 
+                case "IndexOf":
+                case "IndexOfBytes":
+                    DeduceIndexOfMethodSerializers();
+                    break;
+
                 case "IsMissing":
                 case "IsNullOrMissing":
                     DeduceIsMissingOrIsNullOrMissingMethodSerializers();
+                    break;
+
+                case "Ln":
+                case "Log":
+                case "Log10":
+                    DeduceLogMethodSerializers();
                     break;
 
                 case "Max":
@@ -818,6 +850,11 @@ internal partial class KnownSerializerFinderVisitor
                     DeduceStandardDeviationMethodSerializers();
                     break;
 
+                case "Substring":
+                case "SubstrBytes":
+                    DeduceSubstringMethodSerializers();
+                    break;
+
                 case "ToLower":
                 case "ToLowerInvariant":
                 case "ToUpper":
@@ -826,7 +863,7 @@ internal partial class KnownSerializerFinderVisitor
                     break;
 
                 default:
-                    DeduceUnknowableSerializer(node);
+                    DeduceUnknownMethodSerializer();
                     break;
             }
         }
@@ -838,6 +875,10 @@ internal partial class KnownSerializerFinderVisitor
                 var valueExpression = arguments[0];
                 DeduceSerializers(node, valueExpression);
             }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
         }
 
         void DeduceAcosMethodSerializers()
@@ -846,6 +887,10 @@ internal partial class KnownSerializerFinderVisitor
             {
                 DeduceReturnsDoubleSerializer();
             }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
         }
 
         void DeduceAcoshMethodSerializers()
@@ -853,6 +898,10 @@ internal partial class KnownSerializerFinderVisitor
             if (method.Is(MathMethod.Acosh))
             {
                 DeduceReturnsDoubleSerializer();
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
             }
         }
 
@@ -864,7 +913,7 @@ internal partial class KnownSerializerFinderVisitor
             }
             else
             {
-                DeduceUnknowableSerializer(node);
+                DeduceUnknownMethodSerializer();
             }
         }
 
@@ -874,6 +923,10 @@ internal partial class KnownSerializerFinderVisitor
             {
                 DeduceReturnsDateTimeSerializer();
             }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
         }
 
         void DeduceAddHoursMethodSerializers()
@@ -881,6 +934,10 @@ internal partial class KnownSerializerFinderVisitor
             if (method.IsOneOf(DateTimeMethod.AddHours,  DateTimeMethod.AddHoursWithTimezone))
             {
                 DeduceReturnsDateTimeSerializer();
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
             }
         }
 
@@ -890,6 +947,10 @@ internal partial class KnownSerializerFinderVisitor
             {
                 DeduceReturnsDateTimeSerializer();
             }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
         }
 
         void DeduceAddMinutesMethodSerializers()
@@ -897,6 +958,10 @@ internal partial class KnownSerializerFinderVisitor
             if (method.IsOneOf(DateTimeMethod.AddMinutes,  DateTimeMethod.AddMinutesWithTimezone))
             {
                 DeduceReturnsDateTimeSerializer();
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
             }
         }
 
@@ -906,6 +971,10 @@ internal partial class KnownSerializerFinderVisitor
             {
                 DeduceReturnsDateTimeSerializer();
             }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
         }
 
         void DeduceAddQuartersMethodSerializers()
@@ -913,6 +982,10 @@ internal partial class KnownSerializerFinderVisitor
             if (method.IsOneOf(DateTimeMethod.AddQuarters, DateTimeMethod.AddQuartersWithTimezone))
             {
                 DeduceReturnsDateTimeSerializer();
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
             }
         }
 
@@ -922,6 +995,10 @@ internal partial class KnownSerializerFinderVisitor
             {
                 DeduceReturnsDateTimeSerializer();
             }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
         }
 
         void DeduceAddTicksMethodSerializers()
@@ -929,6 +1006,10 @@ internal partial class KnownSerializerFinderVisitor
             if (method.Is(DateTimeMethod.AddTicks))
             {
                 DeduceReturnsDateTimeSerializer();
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
             }
         }
 
@@ -938,6 +1019,10 @@ internal partial class KnownSerializerFinderVisitor
             {
                 DeduceReturnsDateTimeSerializer();
             }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
         }
 
         void DeduceAddYearsMethodSerializers()
@@ -945,6 +1030,10 @@ internal partial class KnownSerializerFinderVisitor
             if (method.IsOneOf(DateTimeMethod.AddYears, DateTimeMethod.AddYearsWithTimezone))
             {
                 DeduceReturnsDateTimeSerializer();
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
             }
         }
 
@@ -996,6 +1085,10 @@ internal partial class KnownSerializerFinderVisitor
                     DeduceSerializers(node, resultSelectorLambda.Body);
                 }
             }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
         }
 
         void DeduceAllMethodSerializers()
@@ -1008,6 +1101,10 @@ internal partial class KnownSerializerFinderVisitor
 
                 DeduceItemAndCollectionSerializers(predicateParameter, sourceExpression);
                 DeduceReturnsBooleanSerializer();
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
             }
         }
 
@@ -1026,6 +1123,10 @@ internal partial class KnownSerializerFinderVisitor
 
                 DeduceReturnsBooleanSerializer();
             }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
         }
 
         void DeduceAppendOrPrependMethodSerializers()
@@ -1037,6 +1138,10 @@ internal partial class KnownSerializerFinderVisitor
 
                 DeduceItemAndCollectionSerializers(elementExpression, sourceExpression);
                 DeduceSerializers(node, sourceExpression);
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
             }
         }
 
@@ -1062,6 +1167,10 @@ internal partial class KnownSerializerFinderVisitor
                     var resultSerializer = IEnumerableOrIQueryableSerializer.Create(node.Type, resultItemSerializer);
                     AddKnownSerializer(node, resultSerializer);
                 }
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
             }
         }
 
@@ -1102,6 +1211,10 @@ internal partial class KnownSerializerFinderVisitor
                     }
                 }
             }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
         }
 
         void DeduceAsinMethodSerializers()
@@ -1109,6 +1222,10 @@ internal partial class KnownSerializerFinderVisitor
             if (method.Is(MathMethod.Asin))
             {
                 DeduceReturnsDoubleSerializer();
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
             }
         }
 
@@ -1124,6 +1241,10 @@ internal partial class KnownSerializerFinderVisitor
                     AddKnownSerializer(node, resultSerializer);
                 }
             }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
         }
 
         void DeduceAsinhMethodSerializers()
@@ -1131,6 +1252,10 @@ internal partial class KnownSerializerFinderVisitor
             if (method.Is(MathMethod.Asinh))
             {
                 DeduceReturnsDoubleSerializer();
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
             }
         }
 
@@ -1140,6 +1265,10 @@ internal partial class KnownSerializerFinderVisitor
             {
                 DeduceReturnsDoubleSerializer();
             }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
         }
 
         void DeduceAtanhMethodSerializers()
@@ -1148,6 +1277,10 @@ internal partial class KnownSerializerFinderVisitor
             {
                 DeduceReturnsDoubleSerializer();
             }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
         }
 
         void DeduceAtan2MethodSerializers()
@@ -1155,6 +1288,10 @@ internal partial class KnownSerializerFinderVisitor
             if (method.Is(MathMethod.Atan2))
             {
                 DeduceReturnsDoubleSerializer();
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
             }
         }
 
@@ -1173,6 +1310,22 @@ internal partial class KnownSerializerFinderVisitor
 
                 DeduceReturnsNumericOrNullableNumericSerializer();
             }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
+        }
+
+        void DeduceCeilingOrFloorMethodSerializers()
+        {
+            if (method.IsOneOf(MathMethod.CeilingWithDecimal, MathMethod.CeilingWithDouble, MathMethod.FloorWithDecimal,  MathMethod.FloorWithDouble))
+            {
+                DeduceReturnsNumericSerializer();
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
         }
 
         void DeduceCompareToMethodSerializers()
@@ -1184,6 +1337,10 @@ internal partial class KnownSerializerFinderVisitor
 
                 DeduceSerializers(objectExpression, valueExpression);
                 DeduceReturnsInt32Serializer();
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
             }
 
             bool IsCompareToMethod()
@@ -1207,6 +1364,10 @@ internal partial class KnownSerializerFinderVisitor
 
                 DeduceCollectionAndCollectionSerializers(firstExpression, secondExpression);
                 DeduceCollectionAndCollectionSerializers(node, firstExpression);
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
             }
         }
 
@@ -1240,6 +1401,10 @@ internal partial class KnownSerializerFinderVisitor
                 DeduceSerializer(valueExpression, serializer);
                 DeduceSerializer(node, serializer);
             }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
         }
 
         void DeduceContainsKeyMethodSerializers()
@@ -1255,6 +1420,10 @@ internal partial class KnownSerializerFinderVisitor
 
                 DeduceReturnsBooleanSerializer();
             }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
         }
 
         void DeduceContainsMethodSerializers()
@@ -1267,6 +1436,10 @@ internal partial class KnownSerializerFinderVisitor
             {
                 DeduceCollectionAndItemSerializers(collectionExpression, itemExpression);
                 DeduceReturnsBooleanSerializer();
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
             }
 
             bool IsCollectionContainsMethod(out Expression collectionExpression, out Expression itemExpression)
@@ -1303,6 +1476,10 @@ internal partial class KnownSerializerFinderVisitor
 
                 DeduceReturnsBooleanSerializer();
             }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
 
             bool IsContainsValueInstanceMethod(out Expression collectionExpression, out Expression valueExpression)
             {
@@ -1330,6 +1507,10 @@ internal partial class KnownSerializerFinderVisitor
             {
                 DeduceReturnsDoubleSerializer();
             }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
         }
 
         void DeduceCoshMethodSerializers()
@@ -1337,6 +1518,10 @@ internal partial class KnownSerializerFinderVisitor
             if (method.Is(MathMethod.Cosh))
             {
                 DeduceReturnsDoubleSerializer();
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
             }
         }
 
@@ -1381,6 +1566,10 @@ internal partial class KnownSerializerFinderVisitor
                     AddKnownSerializer(node, resultSerializer);
                 }
             }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
         }
 
         void DeduceCountMethodSerializers()
@@ -1396,6 +1585,10 @@ internal partial class KnownSerializerFinderVisitor
                 }
 
                 DeduceReturnsNumericSerializer();
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
             }
         }
 
@@ -1413,6 +1606,10 @@ internal partial class KnownSerializerFinderVisitor
 
                 DeduceCollectionAndCollectionSerializers(node, sourceExpression);
             }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
         }
 
         void DeduceDegreesToRadiansMethodSerializers()
@@ -1420,6 +1617,10 @@ internal partial class KnownSerializerFinderVisitor
             if (method.Is(MongoDBMathMethod.DegreesToRadians))
             {
                 DeduceReturnsDoubleSerializer();
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
             }
         }
 
@@ -1429,6 +1630,10 @@ internal partial class KnownSerializerFinderVisitor
             {
                 var sourceExpression = arguments[0];
                 DeduceCollectionAndCollectionSerializers(node, sourceExpression);
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
             }
         }
 
@@ -1455,6 +1660,10 @@ internal partial class KnownSerializerFinderVisitor
                     AddKnownSerializer(node, nodeSerializer);
                 }
             }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
         }
 
         void DeduceElementAtMethodSerializers()
@@ -1464,6 +1673,10 @@ internal partial class KnownSerializerFinderVisitor
                 var sourceExpression = arguments[0];
                 DeduceItemAndCollectionSerializers(node, sourceExpression);
             }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
         }
 
         void DeduceEqualsMethodSerializers()
@@ -1472,6 +1685,10 @@ internal partial class KnownSerializerFinderVisitor
             {
                 DeduceSerializers(expression1, expression2);
                 DeduceReturnsBooleanSerializer();
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
             }
 
             bool IsEqualsReturningBooleanMethod(out Expression expression1, out Expression expression2)
@@ -1495,6 +1712,20 @@ internal partial class KnownSerializerFinderVisitor
                         expression2 = arguments[0];
                         return true;
                     }
+
+                    if (method.Is(StringMethod.EqualsWithComparisonType))
+                    {
+                        expression1 = node.Object;
+                        expression2 = arguments[0];
+                        return true;
+                    }
+
+                    if (method.Is(StringMethod.StaticEqualsWithComparisonType))
+                    {
+                        expression1 = arguments[0];
+                        expression2 = arguments[1];
+                        return true;
+                    }
                 }
 
                 expression1 = null;
@@ -1512,6 +1743,10 @@ internal partial class KnownSerializerFinderVisitor
                 DeduceCollectionAndCollectionSerializers(secondExpression, firstExpression);
                 DeduceCollectionAndCollectionSerializers(node, firstExpression);
             }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
         }
 
         void DeduceExistsMethodSerializers()
@@ -1524,10 +1759,25 @@ internal partial class KnownSerializerFinderVisitor
                 DeduceItemAndCollectionSerializers(predicateParameter, collectionExpression);
                 DeduceReturnsBooleanSerializer();
             }
-
-            if (method.Is(MqlMethod.Exists))
+            else if (method.Is(MqlMethod.Exists))
             {
                 DeduceReturnsBooleanSerializer();
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
+        }
+
+        void DeduceExpMethodSerializers()
+        {
+            if (method.IsOneOf(MathMethod.Exp))
+            {
+                DeduceReturnsDoubleSerializer();
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
             }
         }
 
@@ -1547,6 +1797,10 @@ internal partial class KnownSerializerFinderVisitor
                     AddKnownSerializer(node, fieldSerializer);
                 }
             }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
         }
 
         void DeduceFirstOrLastMethodsSerializers()
@@ -1562,6 +1816,10 @@ internal partial class KnownSerializerFinderVisitor
                 }
 
                 DeduceReturnsOneSourceItemSerializer();
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
             }
         }
 
@@ -1594,6 +1852,10 @@ internal partial class KnownSerializerFinderVisitor
                             AddKnownSerializer(node, valueSerializer);
                         }
                     }
+                }
+                else
+                {
+                    DeduceUnknownMethodSerializer();
                 }
             }
 
@@ -1677,6 +1939,10 @@ internal partial class KnownSerializerFinderVisitor
                     }
                 }
             }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
         }
 
         void DeduceGroupJoinMethodSerializers()
@@ -1699,6 +1965,22 @@ internal partial class KnownSerializerFinderVisitor
                 DeduceCollectionAndCollectionSerializers(resultSelectorInnerItemsParameter, innerExpression);
                 DeduceCollectionAndItemSerializers(node, resultSelectorLambda.Body);
             }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
+        }
+
+        void DeduceIndexOfMethodSerializers()
+        {
+            if (method.IsOneOf(__indexOfMethods))
+            {
+                DeduceReturnsInt32Serializer();
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
         }
 
         void DeduceInjectMethodSerializers()
@@ -1706,6 +1988,10 @@ internal partial class KnownSerializerFinderVisitor
             if (method.Is(LinqExtensionsMethod.Inject))
             {
                 DeduceReturnsBooleanSerializer();
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
             }
         }
 
@@ -1716,6 +2002,10 @@ internal partial class KnownSerializerFinderVisitor
                 var sourceExpression = arguments[0];
                 DeduceCollectionAndCollectionSerializers(node, sourceExpression);
             }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
         }
 
         void DeduceIsMatchMethodSerializers()
@@ -1724,6 +2014,10 @@ internal partial class KnownSerializerFinderVisitor
             {
                 DeduceReturnsBooleanSerializer();
             }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
         }
 
         void DeduceIsMissingOrIsNullOrMissingMethodSerializers()
@@ -1731,6 +2025,42 @@ internal partial class KnownSerializerFinderVisitor
             if (method.IsOneOf(MqlMethod.IsMissing, MqlMethod.IsNullOrMissing))
             {
                 DeduceReturnsBooleanSerializer();
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
+        }
+
+        void DeduceIsSubsetOfMethodSerializers()
+        {
+            if (IsSubsetOfMethod(method))
+            {
+                var objectExpression =  node.Object;
+                var otherExpression = arguments[0];
+
+                DeduceCollectionAndCollectionSerializers(objectExpression, otherExpression);
+                DeduceReturnsBooleanSerializer();
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
+
+            static bool IsSubsetOfMethod(MethodInfo method)
+            {
+                var declaringType = method.DeclaringType;
+                var parameters = method.GetParameters();
+                return
+                    method.IsPublic &&
+                    method.IsStatic == false &&
+                    method.ReturnType == typeof(bool) &&
+                    method.Name == "IsSubsetOf" &&
+                    parameters.Length == 1 &&
+                    parameters[0] is var otherParameter &&
+                    declaringType.ImplementsIEnumerable(out var declaringTypeItemType) &&
+                    otherParameter.ParameterType.ImplementsIEnumerable(out var otherTypeItemType) &&
+                    otherTypeItemType == declaringTypeItemType;
             }
         }
 
@@ -1754,6 +2084,10 @@ internal partial class KnownSerializerFinderVisitor
                 DeduceItemAndCollectionSerializers(resultSelectorInnerItemsParameter, innerExpression);
                 DeduceCollectionAndItemSerializers(node, resultSelectorLambda.Body);
             }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
         }
 
         void DeduceIsNullOrEmptyMethodSerializers()
@@ -1761,6 +2095,22 @@ internal partial class KnownSerializerFinderVisitor
             if (method.Is(StringMethod.IsNullOrEmpty))
             {
                 DeduceReturnsBooleanSerializer();
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
+        }
+
+        void DeduceLogMethodSerializers()
+        {
+            if (method.IsOneOf(__logMethods))
+            {
+                DeduceReturnsDoubleSerializer();
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
             }
         }
 
@@ -1914,6 +2264,10 @@ internal partial class KnownSerializerFinderVisitor
                     }
                 }
             }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
         }
 
         void DeduceMatchingElementsMethodSerializers()
@@ -1921,6 +2275,10 @@ internal partial class KnownSerializerFinderVisitor
             if (method.IsOneOf(MongoEnumerableMethod.AllElements, MongoEnumerableMethod.AllMatchingElements, MongoEnumerableMethod.FirstMatchingElement))
             {
                 DeduceReturnsOneSourceItemSerializer();
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
             }
         }
 
@@ -1942,6 +2300,10 @@ internal partial class KnownSerializerFinderVisitor
                     DeduceReturnsOneSourceItemSerializer();
                 }
             }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
         }
 
         void DeduceOfTypeMethodSerializers()
@@ -1957,6 +2319,10 @@ internal partial class KnownSerializerFinderVisitor
                     var resultSerializer = IEnumerableOrIQueryableSerializer.Create(node.Type, resultItemSerializer);
                     AddKnownSerializer(node, resultSerializer);
                 }
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
             }
         }
 
@@ -1978,6 +2344,10 @@ internal partial class KnownSerializerFinderVisitor
 
                 DeduceItemAndCollectionSerializers(keySelectorParameter, sourceExpression);
                 DeduceCollectionAndCollectionSerializers(node, sourceExpression);
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
             }
         }
 
@@ -2056,6 +2426,62 @@ internal partial class KnownSerializerFinderVisitor
                     }
                 }
             }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
+        }
+
+        void DeduceParseMethodSerializers()
+        {
+            if (IsNotKnown(node))
+            {
+                if (IsParseMethod(method))
+                {
+                    var nodeSerializer = GetParseResultSerializer(method.DeclaringType);
+                    AddKnownSerializer(node, nodeSerializer);
+                }
+                else
+                {
+                    DeduceUnknownMethodSerializer();
+                }
+            }
+
+            static bool IsParseMethod(MethodInfo method)
+            {
+                var parameters = method.GetParameters();
+                return
+                    method.IsPublic &&
+                    method.IsStatic &&
+                    method.ReturnType == method.DeclaringType &&
+                    parameters.Length == 1 &&
+                    parameters[0].ParameterType == typeof(string);
+            }
+
+            static IBsonSerializer GetParseResultSerializer(Type declaringType)
+            {
+                return declaringType switch
+                {
+                    _ when declaringType == typeof(DateTime) => DateTimeSerializer.Instance,
+                    _ when declaringType == typeof(decimal) => DecimalSerializer.Instance,
+                    _ when declaringType == typeof(double) => DoubleSerializer.Instance,
+                    _ when declaringType == typeof(int) => Int32Serializer.Instance,
+                    _ when declaringType == typeof(short) => Int64Serializer.Instance,
+                    _ => UnknowableSerializer.Create(declaringType)
+                };
+            }
+        }
+
+        void DeducePowMethodSerializers()
+        {
+            if (method.IsOneOf(MathMethod.Pow))
+            {
+                DeduceReturnsDoubleSerializer();
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
         }
 
         void DeduceRadiansToDegreesMethodSerializers()
@@ -2063,6 +2489,10 @@ internal partial class KnownSerializerFinderVisitor
             if (method.Is(MongoDBMathMethod.RadiansToDegrees))
             {
                 DeduceReturnsDoubleSerializer();
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
             }
         }
 
@@ -2210,12 +2640,29 @@ internal partial class KnownSerializerFinderVisitor
             }
         }
 
+        void DeduceRangeMethodSerializers()
+        {
+            if (method.Is(EnumerableMethod.Range))
+            {
+                var elementExpression = arguments[0];
+                DeduceCollectionAndItemSerializers(node, elementExpression);
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
+        }
+
         void DeduceRepeatMethodSerializers()
         {
             if (method.Is(EnumerableMethod.Repeat))
             {
                 var elementExpression = arguments[0];
                 DeduceCollectionAndItemSerializers(node, elementExpression);
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
             }
         }
 
@@ -2225,6 +2672,10 @@ internal partial class KnownSerializerFinderVisitor
             {
                 var sourceExpression = arguments[0];
                 DeduceCollectionAndCollectionSerializers(node, sourceExpression);
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
             }
         }
 
@@ -2237,6 +2688,10 @@ internal partial class KnownSerializerFinderVisitor
                 var selectorParameter = selectorLambda.Parameters.Single();
                 DeduceItemAndCollectionSerializers(selectorParameter, sourceExpression);
                 DeduceCollectionAndItemSerializers(node, selectorLambda.Body);
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
             }
         }
 
@@ -2270,6 +2725,10 @@ internal partial class KnownSerializerFinderVisitor
                     DeduceCollectionAndItemSerializers(node, resultSelectorLambda.Body);
                 }
             }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
         }
 
         void DeduceSequenceEqualMethodSerializers()
@@ -2282,6 +2741,42 @@ internal partial class KnownSerializerFinderVisitor
                 DeduceCollectionAndCollectionSerializers(source1Expression, source2Expression);
                 DeduceReturnsBooleanSerializer();
             }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
+        }
+
+        void DeduceSetEqualsMethodSerializers()
+        {
+            if (IsSetEqualsMethod(method))
+            {
+                var objectExpression =  node.Object;
+                var otherExpression = arguments[0];
+
+                DeduceCollectionAndCollectionSerializers(objectExpression, otherExpression);
+                DeduceReturnsBooleanSerializer();
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
+
+            static bool IsSetEqualsMethod(MethodInfo method)
+            {
+                var declaringType = method.DeclaringType;
+                var parameters = method.GetParameters();
+                return
+                    method.IsPublic &&
+                    method.IsStatic == false &&
+                    method.ReturnType == typeof(bool) &&
+                    method.Name == "SetEquals" &&
+                    parameters.Length == 1 &&
+                    parameters[0] is var otherParameter &&
+                    declaringType.ImplementsIEnumerable(out var declaringTypeItemType) &&
+                    otherParameter.ParameterType.ImplementsIEnumerable(out var otherTypeItemType) &&
+                    otherTypeItemType == declaringTypeItemType;
+            }
         }
 
         void DeduceSinMethodSerializers()
@@ -2289,6 +2784,10 @@ internal partial class KnownSerializerFinderVisitor
             if (method.Is(MathMethod.Sin))
             {
                 DeduceReturnsDoubleSerializer();
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
             }
         }
 
@@ -2298,6 +2797,26 @@ internal partial class KnownSerializerFinderVisitor
             {
                 DeduceReturnsDoubleSerializer();
             }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
+        }
+
+        void DeduceSplitMethodSerializers()
+        {
+            if (method.IsOneOf(__splitMethods))
+            {
+                if (IsNotKnown(node))
+                {
+                    var nodeSerializer = ArraySerializer.Create(StringSerializer.Instance);
+                    AddKnownSerializer(node, nodeSerializer);
+                }
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
         }
 
         void DeduceSqrtMethodSerializers()
@@ -2305,6 +2824,10 @@ internal partial class KnownSerializerFinderVisitor
             if (method.Is(MathMethod.Sqrt))
             {
                 DeduceReturnsDoubleSerializer();
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
             }
         }
 
@@ -2322,6 +2845,10 @@ internal partial class KnownSerializerFinderVisitor
 
                 DeduceReturnsNumericOrNullableNumericSerializer();
             }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
         }
 
         void DeduceEndsWithOrStartsWithMethodSerializers()
@@ -2329,6 +2856,10 @@ internal partial class KnownSerializerFinderVisitor
             if (method.IsOneOf(__stringEndsWithOrStartsWithMethods))
             {
                 DeduceReturnsBooleanSerializer();
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
             }
         }
 
@@ -2338,6 +2869,34 @@ internal partial class KnownSerializerFinderVisitor
             {
                 DeduceReturnsBooleanSerializer();
             }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
+        }
+
+        void DeduceStrLenBytesMethodSerializers()
+        {
+            if (method.Is(StringMethod.StrLenBytes))
+            {
+                DeduceReturnsInt32Serializer();
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
+        }
+
+        void DeduceSubstringMethodSerializers()
+        {
+            if (method.IsOneOf(StringMethod.Substring, StringMethod.SubstringWithLength, StringMethod.SubstrBytes))
+            {
+                DeduceReturnsStringSerializer();
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
         }
 
         void DeduceSubtractMethodSerializers()
@@ -2346,18 +2905,19 @@ internal partial class KnownSerializerFinderVisitor
             {
                 DeduceReturnsDateTimeSerializer();
             }
-
-            if (method.IsOneOf(__subtractReturningInt64Methods))
+            else if (method.IsOneOf(__subtractReturningInt64Methods))
             {
                 DeduceReturnsInt64Serializer();
             }
-
-            if (method.IsOneOf(__subtractReturningTimeSpanWithMillisecondsUnitsMethods))
+            else if (method.IsOneOf(__subtractReturningTimeSpanWithMillisecondsUnitsMethods))
             {
                 var units = TimeSpanUnits.Milliseconds;
                 DeduceReturnsTimeSpanSerializer(units);
             }
-
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
         }
 
         void DeduceSumMethodSerializers()
@@ -2388,6 +2948,10 @@ internal partial class KnownSerializerFinderVisitor
 
                 }
             }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
         }
 
         void DeduceSkipOrTakeMethodSerializers()
@@ -2405,6 +2969,10 @@ internal partial class KnownSerializerFinderVisitor
 
                 DeduceCollectionAndCollectionSerializers(node, sourceExpression);
             }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
         }
 
         void DeduceTanMethodSerializers()
@@ -2412,6 +2980,10 @@ internal partial class KnownSerializerFinderVisitor
             if (method.Is(MathMethod.Tan))
             {
                 DeduceReturnsDoubleSerializer();
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
             }
         }
 
@@ -2421,6 +2993,10 @@ internal partial class KnownSerializerFinderVisitor
             {
                 DeduceReturnsDoubleSerializer();
             }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
         }
 
         void DeduceToArrayMethodSerializers()
@@ -2428,6 +3004,10 @@ internal partial class KnownSerializerFinderVisitor
             if (IsToArrayMethod(out var sourceExpression))
             {
                 DeduceCollectionAndCollectionSerializers(node, sourceExpression);
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
             }
 
             bool IsToArrayMethod(out Expression sourceExpression)
@@ -2465,6 +3045,10 @@ internal partial class KnownSerializerFinderVisitor
             {
                 DeduceReturnsStringSerializer();
             }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
         }
 
         void DeduceToStringSerializers()
@@ -2478,6 +3062,14 @@ internal partial class KnownSerializerFinderVisitor
             {
                 DeduceReturnsDateTimeSerializer();
             }
+            else if (method.IsOneOf(MathMethod.TruncateDecimal, MathMethod.TruncateDouble))
+            {
+                DeduceReturnsNumericSerializer();
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
         }
 
         void DeduceUnionSerializers()
@@ -2487,6 +3079,15 @@ internal partial class KnownSerializerFinderVisitor
                 var sourceExpression = arguments[0];
                 DeduceCollectionAndCollectionSerializers(node, sourceExpression);
             }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
+        }
+
+        void DeduceUnknownMethodSerializer()
+        {
+            DeduceUnknowableSerializer(node);
         }
 
         void DeduceWeekSerializers()
@@ -2497,6 +3098,10 @@ internal partial class KnownSerializerFinderVisitor
                 {
                     AddKnownSerializer(node, Int32Serializer.Instance);
                 }
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
             }
         }
 
@@ -2509,6 +3114,10 @@ internal partial class KnownSerializerFinderVisitor
                 var predicateParameter =  predicateLambda.Parameters.Single();
                 DeduceItemAndCollectionSerializers(predicateParameter, sourceExpression);
                 DeduceCollectionAndCollectionSerializers(node, sourceExpression);
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
             }
         }
 
@@ -2539,6 +3148,10 @@ internal partial class KnownSerializerFinderVisitor
                     var resultSerializer = IEnumerableOrIQueryableSerializer.Create(node.Type, resultItemSerializer);
                     AddKnownSerializer(node, resultSerializer);
                 }
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
             }
         }
 
