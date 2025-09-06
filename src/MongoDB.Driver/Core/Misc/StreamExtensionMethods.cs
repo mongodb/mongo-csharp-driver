@@ -149,6 +149,20 @@ namespace MongoDB.Driver.Core.Misc
             }
         }
 
+        public static void ReadBytes(this Stream stream, byte[] destination, int offset, int count, CancellationToken cancellationToken)
+        {
+            while (count > 0)
+            {
+                var bytesRead = stream.Read(destination, offset, count); // TODO: honor cancellationToken?
+                if (bytesRead == 0)
+                {
+                    throw new EndOfStreamException();
+                }
+                offset += bytesRead;
+                count -= bytesRead;
+            }
+        }
+
         public static async Task ReadBytesAsync(this Stream stream, OperationContext operationContext, byte[] buffer, int offset, int count, TimeSpan socketTimeout)
         {
             Ensure.IsNotNull(stream, nameof(stream));
@@ -180,6 +194,20 @@ namespace MongoDB.Driver.Core.Misc
                 var backingBytes = buffer.AccessBackingBytes(offset);
                 var bytesToRead = Math.Min(count, backingBytes.Count);
                 var bytesRead = await stream.ReadAsync(backingBytes.Array, backingBytes.Offset, bytesToRead, operationContext.RemainingTimeoutOrDefault(socketTimeout), operationContext.CancellationToken).ConfigureAwait(false);
+                if (bytesRead == 0)
+                {
+                    throw new EndOfStreamException();
+                }
+                offset += bytesRead;
+                count -= bytesRead;
+            }
+        }
+
+        public static async Task ReadBytesAsync(this Stream stream, byte[] destination, int offset, int count, CancellationToken cancellationToken)
+        {
+            while (count > 0)
+            {
+                var bytesRead = await stream.ReadAsync(destination, offset, count, cancellationToken).ConfigureAwait(false);
                 if (bytesRead == 0)
                 {
                     throw new EndOfStreamException();

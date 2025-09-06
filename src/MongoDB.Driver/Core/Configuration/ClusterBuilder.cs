@@ -40,6 +40,7 @@ namespace MongoDB.Driver.Core.Configuration
         private SslStreamSettings _sslStreamSettings;
         private Func<IStreamFactory, IStreamFactory> _streamFactoryWrapper;
         private TcpStreamSettings _tcpStreamSettings;
+        private Socks5ProxyStreamSettings _socks5ProxyStreamSettings;
 
         // constructors
         /// <summary>
@@ -154,6 +155,19 @@ namespace MongoDB.Driver.Core.Configuration
             Ensure.IsNotNull(configurator, nameof(configurator));
 
             _tcpStreamSettings = configurator(_tcpStreamSettings);
+            return this;
+        }
+
+        /// <summary>
+        /// Configures the SOCKS5 proxy settings for the cluster.
+        /// </summary>
+        /// <param name="configurator"> The SOCKS5 proxy settings configurator delegate.</param>
+        /// <returns>A reconfigured cluster builder.</returns>
+        public ClusterBuilder ConfigureSocks5Proxy(Func<Socks5ProxyStreamSettings, Socks5ProxyStreamSettings> configurator)
+        {
+            Ensure.IsNotNull(configurator, nameof(configurator));
+
+            _socks5ProxyStreamSettings = configurator(_socks5ProxyStreamSettings ?? new Socks5ProxyStreamSettings());
             return this;
         }
 
@@ -290,6 +304,12 @@ namespace MongoDB.Driver.Core.Configuration
         private IStreamFactory CreateTcpStreamFactory(TcpStreamSettings tcpStreamSettings)
         {
             var streamFactory = (IStreamFactory)new TcpStreamFactory(tcpStreamSettings);
+
+            if (_socks5ProxyStreamSettings != null)
+            {
+                streamFactory = new Socks5ProxyStreamFactory(_socks5ProxyStreamSettings, streamFactory);
+            }
+
             if (_sslStreamSettings != null)
             {
                 streamFactory = new SslStreamFactory(_sslStreamSettings, streamFactory);
