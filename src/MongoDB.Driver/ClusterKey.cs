@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Shared;
 
@@ -55,6 +56,7 @@ namespace MongoDB.Driver
         private readonly ServerMonitoringMode _serverMonitoringMode;
         private readonly TimeSpan _serverSelectionTimeout;
         private readonly TimeSpan _socketTimeout;
+        private readonly Socks5ProxySettings _socks5ProxySettings;
         private readonly int _srvMaxHosts;
         private readonly string _srvServiceName;
         private readonly SslSettings _sslSettings;
@@ -93,6 +95,7 @@ namespace MongoDB.Driver
             ServerMonitoringMode serverMonitoringMode,
             TimeSpan serverSelectionTimeout,
             TimeSpan socketTimeout,
+            Socks5ProxySettings socks5ProxySettings,
             int srvMaxHosts,
             string srvServiceName,
             SslSettings sslSettings,
@@ -129,6 +132,7 @@ namespace MongoDB.Driver
             _serverMonitoringMode = serverMonitoringMode;
             _serverSelectionTimeout = serverSelectionTimeout;
             _socketTimeout = socketTimeout;
+            _socks5ProxySettings = socks5ProxySettings;
             _srvMaxHosts = srvMaxHosts;
             _srvServiceName = srvServiceName;
             _sslSettings = sslSettings;
@@ -169,6 +173,7 @@ namespace MongoDB.Driver
         public ServerMonitoringMode ServerMonitoringMode { get { return _serverMonitoringMode; } }
         public TimeSpan ServerSelectionTimeout { get { return _serverSelectionTimeout; } }
         public TimeSpan SocketTimeout { get { return _socketTimeout; } }
+        public Socks5ProxySettings Socks5ProxySettings { get { return _socks5ProxySettings; } }
         public int SrvMaxHosts { get { return _srvMaxHosts; } }
         public string SrvServiceName { get { return _srvServiceName; } }
         public SslSettings SslSettings { get { return _sslSettings; } }
@@ -224,6 +229,7 @@ namespace MongoDB.Driver
                 _serverMonitoringMode == rhs._serverMonitoringMode &&
                 _serverSelectionTimeout == rhs._serverSelectionTimeout &&
                 _socketTimeout == rhs._socketTimeout &&
+                object.Equals(_socks5ProxySettings, rhs._socks5ProxySettings) &&
                 _srvMaxHosts == rhs._srvMaxHosts &&
                 _srvServiceName == rhs.SrvServiceName &&
                 object.Equals(_sslSettings, rhs._sslSettings) &&

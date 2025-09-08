@@ -59,6 +59,10 @@ namespace MongoDB.Driver
         private string _replicaSetName;
         private bool? _retryReads;
         private bool? _retryWrites;
+        private string _proxyHost;
+        private int? _proxyPort;
+        private string _proxyUsername;
+        private string _proxyPassword;
         private ConnectionStringScheme _scheme;
         private IEnumerable<MongoServerAddress> _servers;
         private ServerMonitoringMode? _serverMonitoringMode;
@@ -104,6 +108,10 @@ namespace MongoDB.Driver
             _maxConnectionPoolSize = MongoDefaults.MaxConnectionPoolSize;
             _minConnectionPoolSize = MongoDefaults.MinConnectionPoolSize;
             _password = null;
+            _proxyHost = null;
+            _proxyPort = null;
+            _proxyUsername = null;
+            _proxyPassword = null;
             _readConcernLevel = null;
             _readPreference = null;
             _replicaSetName = null;
@@ -437,6 +445,55 @@ namespace MongoDB.Driver
         {
             get { return _password; }
             set { _password = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the proxy host.
+        /// </summary>
+        public string ProxyHost
+        {
+            get => _proxyHost;
+            set
+            {
+                _proxyHost = Ensure.IsNotNullOrEmpty(value, nameof(ProxyHost));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the proxy port.
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        public int? ProxyPort
+        {
+            get => _proxyPort;
+            set
+            {
+                _proxyPort = Ensure.IsNullOrBetween(value, 1, 65535, nameof(ProxyPort));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the proxy username.
+        /// </summary>
+        public string ProxyUsername
+        {
+            get => _proxyUsername;
+            set
+            {
+                _proxyUsername = Ensure.IsNotNullOrEmpty(value, nameof(ProxyUsername));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the proxy password.
+        /// </summary>
+        public string ProxyPassword
+        {
+            get => _proxyPassword;
+            set
+            {
+                _proxyPassword = Ensure.IsNotNullOrEmpty(value, nameof(ProxyPassword));
+            }
         }
 
         /// <summary>
@@ -998,6 +1055,22 @@ namespace MongoDB.Driver
             {
                 query.AppendFormat("retryWrites={0}&", JsonConvert.ToString(_retryWrites.Value));
             }
+            if(!string.IsNullOrEmpty(_proxyHost))
+            {
+                query.AppendFormat("proxyHost={0}&", _proxyHost);
+            }
+            if (_proxyPort.HasValue)
+            {
+                query.AppendFormat("proxyPort={0}&", _proxyPort);
+            }
+            if (!string.IsNullOrEmpty(_proxyUsername))
+            {
+                query.AppendFormat("proxyUsername={0}&", _proxyUsername);
+            }
+            if (!string.IsNullOrEmpty(_proxyPassword))
+            {
+                query.AppendFormat("proxyPassword={0}&", _proxyPassword);
+            }
             if (_srvMaxHosts.HasValue)
             {
                 query.AppendFormat("srvMaxHosts={0}&", _srvMaxHosts);
@@ -1044,6 +1117,10 @@ namespace MongoDB.Driver
             _maxConnectionPoolSize = connectionString.MaxPoolSize.GetValueOrDefault(MongoDefaults.MaxConnectionPoolSize);
             _minConnectionPoolSize = connectionString.MinPoolSize.GetValueOrDefault(MongoDefaults.MinConnectionPoolSize);
             _password = connectionString.Password;
+            _proxyHost = connectionString.ProxyHost;
+            _proxyPort = connectionString.ProxyPort;
+            _proxyUsername = connectionString.ProxyUsername;
+            _proxyPassword = connectionString.ProxyPassword;
             _readConcernLevel = connectionString.ReadConcernLevel;
             if (connectionString.ReadPreference.HasValue || connectionString.ReadPreferenceTags != null || connectionString.MaxStaleness.HasValue)
             {

@@ -218,6 +218,10 @@ Task("TestLoadBalanced")
 Task("TestLoadBalancedNetStandard21").IsDependentOn("TestLoadBalanced");
 Task("TestLoadBalancedNet60").IsDependentOn("TestLoadBalanced");
 
+Task("TestSocks5ProxyNet472").IsDependentOn("TestSocks5Proxy");
+Task("TestSocks5ProxyNetStandard21").IsDependentOn("TestSocks5Proxy");
+Task("TestSocks5ProxyNet60").IsDependentOn("TestSocks5Proxy");
+
 Task("TestCsfleWithMockedKms")
     .IsDependentOn("TestLibMongoCrypt")
     .DoesForEach(
@@ -262,6 +266,13 @@ Task("TestX509")
             RunTests(buildConfig, testProject, filter: "Category=\"X509\""));
 
 Task("TestX509Net60").IsDependentOn("TestX509");
+
+Task("TestSocks5Proxy")
+    .IsDependentOn("Build")
+    .DoesForEach(
+        items: GetFiles("./**/*.Tests.csproj"),
+        action: (BuildConfig buildConfig, Path testProject) =>
+            RunTests(buildConfig, testProject, filter: "Category=\"Socks5Proxy\""));
 
 Task("Package")
     .IsDependentOn("PackageNugetPackages");

@@ -374,6 +374,10 @@ namespace MongoDB.Driver.Core.Configuration
             subject.MaxPoolSize.Should().Be(null);
             subject.MinPoolSize.Should().Be(null);
             subject.Password.Should().BeNull();
+            subject.ProxyHost.Should().BeNull();
+            subject.ProxyPort.Should().Be(null);
+            subject.ProxyPassword.Should().BeNull();
+            subject.ProxyUsername.Should().BeNull();
             subject.ReadConcernLevel.Should().BeNull();
             subject.ReadPreference.Should().BeNull();
             subject.ReadPreferenceTags.Should().BeNull();
@@ -421,6 +425,10 @@ namespace MongoDB.Driver.Core.Configuration
                 "maxLifeTime=5ms;" +
                 "maxPoolSize=20;" +
                 "minPoolSize=15;" +
+                "proxyHost=host.com;" +
+                "proxyPort=2020;" +
+                "proxyUsername=user;" +
+                "proxyPassword=passw;" +
                 "readConcernLevel=majority;" +
                 "readPreference=primary;" +
                 "readPreferenceTags=dc:1;" +
@@ -464,6 +472,10 @@ namespace MongoDB.Driver.Core.Configuration
             subject.MaxPoolSize.Should().Be(20);
             subject.MinPoolSize.Should().Be(15);
             subject.Password.Should().Be("pass");
+            subject.ProxyHost.Should().Be("host.com");
+            subject.ProxyPort.Should().Be(2020);
+            subject.ProxyUsername.Should().Be("user");
+            subject.ProxyPassword.Should().Be("passw");
             subject.ReadConcernLevel.Should().Be(ReadConcernLevel.Majority);
             subject.ReadPreference.Should().Be(ReadPreferenceMode.Primary);
             subject.ReadPreferenceTags.Single().Should().Be(new TagSet(new[] { new Tag("dc", "1") }));
@@ -1217,6 +1229,60 @@ namespace MongoDB.Driver.Core.Configuration
 
             exception.Should().BeOfType<MongoConfigurationException>();
             exception.Message.Should().Contain("srvServiceName");
+        }
+
+        [Theory]
+        [InlineData("mongodb://localhost?proxyHost=222.222.222.12", "222.222.222.12", null, null, null)]
+        [InlineData("mongodb://localhost?proxyHost=222.222.222.12&proxyPort=8080", "222.222.222.12", 8080, null, null)]
+        [InlineData("mongodb://localhost?proxyHost=example.com", "example.com", null, null, null)]
+        [InlineData("mongodb://localhost?proxyHost=example.com&proxyPort=8080", "example.com", 8080, null, null)]
+        [InlineData("mongodb://localhost?proxyHost=example.com&proxyUsername=user&proxyPassword=passw", "example.com", null, "user", "passw")]
+        [InlineData("mongodb://localhost?proxyHost=example.com&proxyPort=8080&proxyUsername=user&proxyPassword=passw", "example.com", 8080, "user", "passw")]
+        public void When_proxy_parameters_are_specified(string connectionString, string host, int? port, string username, string password)
+        {
+            var subject = new ConnectionString(connectionString);
+
+            subject.ProxyHost.Should().Be(host);
+            subject.ProxyPort.Should().Be(port);
+            subject.ProxyUsername.Should().Be(username);
+            subject.ProxyPassword.Should().Be(password);
+        }
+
+        [Theory]
+        [InlineData("mongodb://localhost?proxyHost=localhost&proxyHost=localhost", "proxyHost")]
+        [InlineData("mongodb://localhost?proxyHost=localhost&proxyPort=2222&proxyPort=2222", "proxyPort")]
+        [InlineData("mongodb://localhost?proxyHost=localhost&proxyUsername=2222&proxyUsername=2222", "proxyUsername")]
+        [InlineData("mongodb://localhost?proxyHost=localhost&proxyPassword=2222&proxyPassword=2222", "proxyPassword")]
+        public void When_proxyParameter_is_specified_more_than_once(string connectionString, string parameterName)
+        {
+            var exception = Record.Exception(() => new ConnectionString(connectionString));
+
+            exception.Should().BeOfType<MongoConfigurationException>();
+            exception.Message.Should().Contain(parameterName);
+            exception.Message.Should().Contain("Multiple");
+        }
+
+        [Theory]
+        [InlineData("mongodb://localhost?proxyPort=2020", "proxyPort")]
+        [InlineData("mongodb://localhost?proxyUsername=user", "proxyUsername")]
+        [InlineData("mongodb://localhost?proxyPassword=pasw", "proxyPassword")]
+        public void When_proxyParameter_is_specified_without_proxyHost(string connectionString, string parameterName)
+        {
+            var exception = Record.Exception(() => new ConnectionString(connectionString));
+
+            exception.Should().BeOfType<MongoConfigurationException>();
+            exception.Message.Should().Contain(parameterName);
+        }
+
+        [Theory]
+        [InlineData("mongodb://localhost?proxyHost=host.com&proxyUsername=user")]
+        [InlineData("mongodb://localhost?proxyHost=host.com&proxyPassword=pasw")]
+        public void When_proxyPassword_and_proxyUsername_are_not_specified_together(string connectionString)
+        {
+            var exception = Record.Exception(() => new ConnectionString(connectionString));
+
+            exception.Should().BeOfType<MongoConfigurationException>();
+            exception.Message.Should().Contain("proxyUsername and proxyPassword");
         }
 
         [Theory]

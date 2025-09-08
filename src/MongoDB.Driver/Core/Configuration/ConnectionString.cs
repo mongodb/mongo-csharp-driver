@@ -92,6 +92,10 @@ namespace MongoDB.Driver.Core.Configuration
         private string _replicaSet;
         private bool? _retryReads;
         private bool? _retryWrites;
+        private string _proxyHost;
+        private int? _proxyPort;
+        private string _proxyUsername;
+        private string _proxyPassword;
         private ConnectionStringScheme _scheme;
         private ServerMonitoringMode? _serverMonitoringMode;
         private TimeSpan? _serverSelectionTimeout;
@@ -358,6 +362,26 @@ namespace MongoDB.Driver.Core.Configuration
         {
             get { return _password; }
         }
+
+        /// <summary>
+        /// Gets the proxy host.
+        /// </summary>
+        public string ProxyHost => _proxyHost;
+
+        /// <summary>
+        /// Gets the proxy port.
+        /// </summary>
+        public int? ProxyPort => _proxyPort;
+
+        /// <summary>
+        /// Gets the proxy username.
+        /// </summary>
+        public string ProxyUsername => _proxyUsername;
+
+        /// <summary>
+        /// Gets the proxy password.
+        /// </summary>
+        public string ProxyPassword => _proxyPassword;
 
         /// <summary>
         /// Gets the read concern level.
@@ -911,6 +935,29 @@ namespace MongoDB.Driver.Core.Configuration
                 }
             }
 
+            if (string.IsNullOrEmpty(_proxyHost))
+            {
+                if (_proxyPort is not null)
+                {
+                    throw new MongoConfigurationException("proxyPort cannot be specified without proxyHost.");
+                }
+
+                if (!string.IsNullOrEmpty(_proxyUsername))
+                {
+                    throw new MongoConfigurationException("proxyUsername cannot be specified without proxyHost.");
+                }
+
+                if (!string.IsNullOrEmpty(_proxyPassword))
+                {
+                    throw new MongoConfigurationException("proxyPassword cannot be specified without proxyHost.");
+                }
+            }
+
+            if (string.IsNullOrEmpty(_proxyUsername) != string.IsNullOrEmpty(_proxyPassword))
+            {
+                throw new MongoConfigurationException("proxyUsername and proxyPassword must both be specified or neither.");
+            }
+
             string ProtectConnectionString(string connectionString)
             {
                 var protectedString = Regex.Replace(connectionString, @"(?<=://)[^/]*(?=@)", "<hidden>");
@@ -1002,6 +1049,55 @@ namespace MongoDB.Driver.Core.Configuration
                     break;
                 case "minpoolsize":
                     _minPoolSize = ParseInt32(name, value);
+                    break;
+                case "proxyhost":
+                    if (_proxyHost != null)
+                    {
+                        throw new MongoConfigurationException("Multiple proxyHost options are not allowed.");
+                    }
+                    
+                    _proxyHost = value;
+                    if (_proxyHost.Length == 0)
+                    {
+                        throw new MongoConfigurationException("proxyHost cannot be empty.");
+                    }
+                    break;
+                case "proxyport":
+                    if (_proxyPort != null)
+                    {
+                        throw new MongoConfigurationException("Multiple proxyPort options are not allowed.");
+                    }
+
+                    var proxyPortValue = ParseInt32(name, value);
+                    if (proxyPortValue is < 1 or > 65535)
+                    {
+                        throw new MongoConfigurationException($"Invalid proxy port {proxyPortValue}: must be between 1 and 65535, inclusive.");
+                    }
+                    _proxyPort = proxyPortValue;
+                    break;
+                case "proxyusername":
+                    if (_proxyUsername != null)
+                    {
+                        throw new MongoConfigurationException("Multiple proxyUsername options are not allowed.");
+                    }
+
+                    _proxyUsername = value;
+                    if (_proxyUsername.Length == 0)
+                    {
+                        throw new MongoConfigurationException("proxyUsername cannot be empty.");
+                    }
+                    break;
+                case "proxypassword":
+                    if (_proxyPassword != null)
+                    {
+                        throw new MongoConfigurationException("Multiple proxyPassword options are not allowed.");
+                    }
+
+                    _proxyPassword = value;
+                    if (_proxyPassword.Length == 0)
+                    {
+                        throw new MongoConfigurationException("proxyPassword cannot be empty.");
+                    }
                     break;
                 case "readconcernlevel":
                     _readConcernLevel = ParseEnum<ReadConcernLevel>(name, value);

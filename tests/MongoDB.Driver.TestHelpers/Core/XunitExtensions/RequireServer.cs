@@ -198,7 +198,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
 
         public RequireServer Tls(bool required = true)
         {
-            var usingTls = CoreTestConfiguration.ConnectionString.Tls;
+            var usingTls = CoreTestConfiguration.ConnectionString.Tls ?? false;
             if (usingTls == required)
             {
                 return this;

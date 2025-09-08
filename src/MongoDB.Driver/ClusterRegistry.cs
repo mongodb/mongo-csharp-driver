@@ -70,6 +70,11 @@ namespace MongoDB.Driver
                 builder.ConfigureSsl(settings => ConfigureSsl(settings, clusterKey));
             }
 
+            if (clusterKey.Socks5ProxySettings != null)
+            {
+                builder.ConfigureSocks5Proxy(settings => ConfigureSocks5Proxy(settings, clusterKey));
+            }
+
             if (clusterKey.ClusterConfigurator != null)
             {
                 clusterKey.ClusterConfigurator(builder);
@@ -172,6 +177,12 @@ namespace MongoDB.Driver
                 receiveBufferSize: clusterKey.ReceiveBufferSize,
                 sendBufferSize: clusterKey.SendBufferSize,
                 writeTimeout: clusterKey.SocketTimeout);
+        }
+
+        private Socks5ProxyStreamSettings ConfigureSocks5Proxy(Socks5ProxyStreamSettings settings, ClusterKey clusterKey)
+        {
+            return settings.With(
+                clusterKey.Socks5ProxySettings);
         }
 
         internal IClusterInternal GetOrCreateCluster(ClusterKey clusterKey)
