@@ -126,6 +126,7 @@ internal partial class KnownSerializerFinderVisitor
                 case ExpressionType.Add:
                 case ExpressionType.AddChecked:
                 case ExpressionType.Divide:
+                case ExpressionType.Modulo:
                 case ExpressionType.Multiply:
                 case ExpressionType.MultiplyChecked:
                 case ExpressionType.Subtract:

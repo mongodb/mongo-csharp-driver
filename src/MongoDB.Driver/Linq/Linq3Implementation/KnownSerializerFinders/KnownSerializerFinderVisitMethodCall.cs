@@ -94,7 +94,7 @@ internal partial class KnownSerializerFinderVisitor
         QueryableMethod.Prepend
     ];
 
-    private static readonly HashSet<MethodInfo> __averageMethods =
+    private static readonly HashSet<MethodInfo> __averageOrMedianOrPercentileMethods =
     [
         EnumerableMethod.AverageDecimal,
         EnumerableMethod.AverageDecimalWithSelector,
@@ -135,10 +135,50 @@ internal partial class KnownSerializerFinderVisitor
         QueryableMethod.AverageNullableSingle,
         QueryableMethod.AverageNullableSingleWithSelector,
         QueryableMethod.AverageSingle,
-        QueryableMethod.AverageSingleWithSelector
+        QueryableMethod.AverageSingleWithSelector,
+        MongoEnumerableMethod.MedianDecimal,
+        MongoEnumerableMethod.MedianDecimalWithSelector,
+        MongoEnumerableMethod.MedianDouble,
+        MongoEnumerableMethod.MedianDoubleWithSelector,
+        MongoEnumerableMethod.MedianInt32,
+        MongoEnumerableMethod.MedianInt32WithSelector,
+        MongoEnumerableMethod.MedianInt64,
+        MongoEnumerableMethod.MedianInt64WithSelector,
+        MongoEnumerableMethod.MedianNullableDecimal,
+        MongoEnumerableMethod.MedianNullableDecimalWithSelector,
+        MongoEnumerableMethod.MedianNullableDouble,
+        MongoEnumerableMethod.MedianNullableDoubleWithSelector,
+        MongoEnumerableMethod.MedianNullableInt32,
+        MongoEnumerableMethod.MedianNullableInt32WithSelector,
+        MongoEnumerableMethod.MedianNullableInt64,
+        MongoEnumerableMethod.MedianNullableInt64WithSelector,
+        MongoEnumerableMethod.MedianNullableSingle,
+        MongoEnumerableMethod.MedianNullableSingleWithSelector,
+        MongoEnumerableMethod.MedianSingle,
+        MongoEnumerableMethod.MedianSingleWithSelector,
+        MongoEnumerableMethod.PercentileDecimal,
+        MongoEnumerableMethod.PercentileDecimalWithSelector,
+        MongoEnumerableMethod.PercentileDouble,
+        MongoEnumerableMethod.PercentileDoubleWithSelector,
+        MongoEnumerableMethod.PercentileInt32,
+        MongoEnumerableMethod.PercentileInt32WithSelector,
+        MongoEnumerableMethod.PercentileInt64,
+        MongoEnumerableMethod.PercentileInt64WithSelector,
+        MongoEnumerableMethod.PercentileNullableDecimal,
+        MongoEnumerableMethod.PercentileNullableDecimalWithSelector,
+        MongoEnumerableMethod.PercentileNullableDouble,
+        MongoEnumerableMethod.PercentileNullableDoubleWithSelector,
+        MongoEnumerableMethod.PercentileNullableInt32,
+        MongoEnumerableMethod.PercentileNullableInt32WithSelector,
+        MongoEnumerableMethod.PercentileNullableInt64,
+        MongoEnumerableMethod.PercentileNullableInt64WithSelector,
+        MongoEnumerableMethod.PercentileNullableSingle,
+        MongoEnumerableMethod.PercentileNullableSingleWithSelector,
+        MongoEnumerableMethod.PercentileSingle,
+        MongoEnumerableMethod.PercentileSingleWithSelector
     ];
 
-    private static readonly HashSet<MethodInfo> __averageWithSelectorMethods =
+    private static readonly HashSet<MethodInfo> __averageOrMedianOrPercentileWithSelectorMethods =
     [
         EnumerableMethod.AverageDecimalWithSelector,
         EnumerableMethod.AverageDoubleWithSelector,
@@ -159,7 +199,27 @@ internal partial class KnownSerializerFinderVisitor
         QueryableMethod.AverageNullableInt32WithSelector,
         QueryableMethod.AverageNullableInt64WithSelector,
         QueryableMethod.AverageNullableSingleWithSelector,
-        QueryableMethod.AverageSingleWithSelector
+        QueryableMethod.AverageSingleWithSelector,
+        MongoEnumerableMethod.MedianDecimalWithSelector,
+        MongoEnumerableMethod.MedianDoubleWithSelector,
+        MongoEnumerableMethod.MedianInt32WithSelector,
+        MongoEnumerableMethod.MedianInt64WithSelector,
+        MongoEnumerableMethod.MedianNullableDecimalWithSelector,
+        MongoEnumerableMethod.MedianNullableDoubleWithSelector,
+        MongoEnumerableMethod.MedianNullableInt32WithSelector,
+        MongoEnumerableMethod.MedianNullableInt64WithSelector,
+        MongoEnumerableMethod.MedianNullableSingleWithSelector,
+        MongoEnumerableMethod.MedianSingleWithSelector,
+        MongoEnumerableMethod.PercentileDecimalWithSelector,
+        MongoEnumerableMethod.PercentileDoubleWithSelector,
+        MongoEnumerableMethod.PercentileInt32WithSelector,
+        MongoEnumerableMethod.PercentileInt64WithSelector,
+        MongoEnumerableMethod.PercentileNullableDecimalWithSelector,
+        MongoEnumerableMethod.PercentileNullableDoubleWithSelector,
+        MongoEnumerableMethod.PercentileNullableInt32WithSelector,
+        MongoEnumerableMethod.PercentileNullableInt64WithSelector,
+        MongoEnumerableMethod.PercentileNullableSingleWithSelector,
+        MongoEnumerableMethod.PercentileSingleWithSelector
     ];
 
     private static readonly HashSet<MethodInfo> __countMethods =
@@ -358,6 +418,7 @@ internal partial class KnownSerializerFinderVisitor
         EnumerableMethod.MaxNullableInt64WithSelector,
         EnumerableMethod.MaxNullableSingleWithSelector,
         EnumerableMethod.MaxSingleWithSelector,
+        EnumerableMethod.MaxWithSelector,
         EnumerableMethod.MinDecimalWithSelector,
         EnumerableMethod.MinDoubleWithSelector,
         EnumerableMethod.MinInt32WithSelector,
@@ -700,7 +761,6 @@ internal partial class KnownSerializerFinderVisitor
                 case "Atan": DeduceAtanMethodSerializers(); break;
                 case "Atanh": DeduceAtanhMethodSerializers(); break;
                 case "Atan2": DeduceAtan2MethodSerializers(); break;
-                case "Average": DeduceAverageMethodSerializers(); break;
                 case "CompareTo": DeduceCompareToMethodSerializers(); break;
                 case "Concat": DeduceConcatMethodSerializers(); break;
                 case "Constant": DeduceConstantMethodSerializers(); break;
@@ -725,7 +785,6 @@ internal partial class KnownSerializerFinderVisitor
                 case "Inject": DeduceInjectMethodSerializers(); break;
                 case "Intersect": DeduceIntersectMethodSerializers(); break;
                 case "IsMatch": DeduceIsMatchMethodSerializers(); break;
-                case "IsNullOrEmpty": DeduceIsNullOrEmptyMethodSerializers(); break;
                 case "IsSubsetOf": DeduceIsSubsetOfMethodSerializers(); break;
                 case "Join": DeduceJoinMethodSerializers(); break;
                 case "Lookup": DeduceLookupMethodSerializers(); break;
@@ -768,6 +827,12 @@ internal partial class KnownSerializerFinderVisitor
                 case "Append":
                 case "Prepend":
                     DeduceAppendOrPrependMethodSerializers();
+                    break;
+
+                case "Average":
+                case "Median":
+                case "Percentile":
+                    DeduceAverageOrMedianOrPercentileMethodSerializers();
                     break;
 
                 case "Bottom":
@@ -818,6 +883,11 @@ internal partial class KnownSerializerFinderVisitor
                 case "IsMissing":
                 case "IsNullOrMissing":
                     DeduceIsMissingOrIsNullOrMissingMethodSerializers();
+                    break;
+
+                case "IsNullOrEmpty":
+                case "IsNullOrWhiteSpace":
+                    DeduceIsNullOrEmptyOrIsNullOrWhiteSpaceMethodSerializers();
                     break;
 
                 case "Ln":
@@ -1295,11 +1365,11 @@ internal partial class KnownSerializerFinderVisitor
             }
         }
 
-        void DeduceAverageMethodSerializers()
+        void DeduceAverageOrMedianOrPercentileMethodSerializers()
         {
-            if (method.IsOneOf(__averageMethods))
+            if (method.IsOneOf(__averageOrMedianOrPercentileMethods))
             {
-                if (method.IsOneOf(__averageWithSelectorMethods))
+                if (method.IsOneOf(__averageOrMedianOrPercentileWithSelectorMethods))
                 {
                     var sourceExpression = arguments[0];
                     var selectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
@@ -1308,7 +1378,11 @@ internal partial class KnownSerializerFinderVisitor
                     DeduceItemAndCollectionSerializers(selectorSourceItemParameter, sourceExpression);
                 }
 
-                DeduceReturnsNumericOrNullableNumericSerializer();
+                if (IsNotKnown(node))
+                {
+                    var nodeSerializer = StandardSerializers.GetSerializer(node.Type);
+                    AddKnownSerializer(node, nodeSerializer);
+                }
             }
             else
             {
@@ -2090,9 +2164,9 @@ internal partial class KnownSerializerFinderVisitor
             }
         }
 
-        void DeduceIsNullOrEmptyMethodSerializers()
+        void DeduceIsNullOrEmptyOrIsNullOrWhiteSpaceMethodSerializers()
         {
-            if (method.Is(StringMethod.IsNullOrEmpty))
+            if (method.IsOneOf(StringMethod.IsNullOrEmpty, StringMethod.IsNullOrWhiteSpace))
             {
                 DeduceReturnsBooleanSerializer();
             }
@@ -2619,7 +2693,7 @@ internal partial class KnownSerializerFinderVisitor
         {
             if (IsNotKnown(node))
             {
-                AddKnownSerializer(node, DoubleSerializer.Instance);
+                AddKnownSerializer(node, SingleSerializer.Instance);
             }
         }
 
