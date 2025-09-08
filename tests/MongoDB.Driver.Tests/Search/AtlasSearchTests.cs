@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Tests.Search
             var mongoClientSettings = MongoClientSettings.FromConnectionString(atlasSearchUri);
             mongoClientSettings.ClusterSource = DisposingClusterSource.Instance;
 
-            _mongoClient = new MongoClient(atlasSearchUri);
+            _mongoClient = new MongoClient(mongoClientSettings);
         }
 
         protected override void DisposeInternal() => _mongoClient.Dispose();
