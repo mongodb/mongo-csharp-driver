@@ -68,7 +68,11 @@ internal partial class KnownSerializerFinderVisitor
 
         IBsonSerializer GetKnownSerializer(ConstructorInfo constructor)
         {
-            if (constructor.DeclaringType == typeof(BsonDocument))
+            if (constructor == null)
+            {
+                return null;
+            }
+            else if (constructor.DeclaringType == typeof(BsonDocument))
             {
                 return BsonDocumentSerializer.Instance;
             }
