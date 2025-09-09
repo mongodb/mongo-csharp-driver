@@ -1601,6 +1601,33 @@ internal partial class KnownSerializerFinderVisitor
 
         void DeduceCreateMethodSerializers()
         {
+#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            if (method.Is(KeyValuePairMethod.Create))
+            {
+                if (AnyAreNotKnown(arguments) && IsKnown(node, out var nodeSerializer))
+                {
+                    var keyExpression = arguments[0];
+                    var valueExpression = arguments[1];
+
+                    if (nodeSerializer is IKeyValuePairSerializer keyValuePairSerializer)
+                    {
+                        var keySerializer = keyValuePairSerializer.KeySerializer;
+                        var valueSerializer =  keyValuePairSerializer.ValueSerializer;
+                        DeduceSerializer(keyExpression, keySerializer);
+                        DeduceSerializer(valueExpression, valueSerializer);
+                    }
+                }
+
+                if (IsNotKnown(node) && AllAreKnown(arguments, out var argumentSerializers))
+                {
+                    var keySerializer = argumentSerializers[0];
+                    var valueSerializer = argumentSerializers[1];
+                    var keyValuePairSerializer = KeyValuePairSerializer.Create(BsonType.Document, keySerializer, valueSerializer);
+                    AddKnownSerializer(node, keyValuePairSerializer);
+                }
+            }
+            else
+ #endif
             if (method.IsOneOf(__tupleOrValueTupleCreateMethods))
             {
                 if (AnyAreNotKnown(arguments) && IsKnown(node, out var nodeSerializer))
