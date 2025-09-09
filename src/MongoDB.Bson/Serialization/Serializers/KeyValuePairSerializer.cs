@@ -24,9 +24,19 @@ namespace MongoDB.Bson.Serialization.Serializers
     public interface IKeyValuePairSerializer
     {
         /// <summary>
+        ///
+        /// </summary>
+        IBsonSerializer KeySerializer { get; }
+
+        /// <summary>
         /// Gets the representation.
         /// </summary>
         BsonType Representation { get;  }
+
+        /// <summary>
+        ///
+        /// </summary>
+        IBsonSerializer ValueSerializer { get; }
     }
 
     /// <summary>
@@ -169,6 +179,8 @@ namespace MongoDB.Bson.Serialization.Serializers
             get { return _lazyKeySerializer.Value; }
         }
 
+        IBsonSerializer IKeyValuePairSerializer.KeySerializer => KeySerializer;
+
         /// <summary>
         /// Gets the representation.
         /// </summary>
@@ -190,6 +202,8 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             get { return _lazyValueSerializer.Value; }
         }
+
+        IBsonSerializer IKeyValuePairSerializer.ValueSerializer => ValueSerializer;
 
         // public methods
         /// <summary>
