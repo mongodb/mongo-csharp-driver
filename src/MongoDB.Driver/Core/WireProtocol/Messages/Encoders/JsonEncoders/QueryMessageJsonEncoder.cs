@@ -32,7 +32,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             : base(textReader, textWriter, encoderSettings)
         {
             _serializationDomain = encoderSettings?.GetOrDefault<IBsonSerializationDomain>(MessageEncoderSettingsName.SerializationDomain, null) ?? BsonSerializer.DefaultSerializationDomain;
-            //QUESTION: Should we use the default serialization domain here? I think it's appropriate.
         }
 
         // methods

@@ -447,7 +447,6 @@ namespace MongoDB.Driver.Core.Bindings
         // private methods
         private IReadOperation<BsonDocument> CreateAbortTransactionOperation(OperationContext operationContext)
         {
-            //QUESTION Is it correct we only need a default domain here?
             return new AbortTransactionOperation(_currentTransaction.RecoveryToken, GetTransactionWriteConcern(operationContext));
         }
 

@@ -477,7 +477,6 @@ namespace MongoDB.Driver
 
         IBsonSerializationDomain IInheritableMongoClientSettings.SerializationDomain
         {
-            //QUESTION Is this reasonable?
             get => _serializationDomain ?? BsonSerializer.DefaultSerializationDomain;
             set
             {

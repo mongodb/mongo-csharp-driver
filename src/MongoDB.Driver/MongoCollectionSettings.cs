@@ -124,7 +124,6 @@ namespace MongoDB.Driver
         /// </summary>
         internal IBsonSerializationDomain SerializationDomain
         {
-            //QUESTION Is this reasonable? In normal uses cases the domain would be setup by ApplyDefaultValues, but for testing it would not work.
             get => _serializationDomain.Value ?? BsonSerializer.DefaultSerializationDomain;
             set
             {

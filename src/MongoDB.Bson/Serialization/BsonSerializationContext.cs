@@ -143,7 +143,7 @@ namespace MongoDB.Bson.Serialization
                     _isDynamicType = other._isDynamicType;
                 }
 
-                /* QUESTION I removed the part where we set _isDynamicType from the BsonDefaults, and delay it until we have a serialization domain (when we build the SerializationContext).
+                /* FP I removed the part where we set _isDynamicType from the BsonDefaults, and delay it until we have a serialization domain (when we build the SerializationContext).
                  * This is technically changing the public behaviour, but it's in a builder, I do not thing it will affect anyone. Same done for the deserialization context.
                  */
             }

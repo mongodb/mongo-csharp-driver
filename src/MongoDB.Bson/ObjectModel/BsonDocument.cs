@@ -331,7 +331,6 @@ namespace MongoDB.Bson
         {
             using (var jsonReader = new JsonReader(json))
             {
-                //QUESTION Is it correct we only need a default domain here?
                 var context = BsonDeserializationContext.CreateRoot(jsonReader, BsonSerializer.DefaultSerializationDomain);
                 var document = BsonDocumentSerializer.Instance.Deserialize(context);
                 if (!jsonReader.IsAtEndOfFile())

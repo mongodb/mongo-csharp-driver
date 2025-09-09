@@ -60,7 +60,6 @@ namespace MongoDB.Bson.IO
                 Wrapped.PushSettings(_settingsConfigurator);
                 try
                 {
-                    //QUESTION Is it correct we only need a default domain here?
                     var context = BsonSerializationContext.CreateRoot(Wrapped, BsonSerializer.DefaultSerializationDomain);
                     foreach (var element in _elements)
                     {

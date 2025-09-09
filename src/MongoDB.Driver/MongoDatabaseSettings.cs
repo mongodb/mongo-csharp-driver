@@ -109,7 +109,7 @@ namespace MongoDB.Driver
         /// </summary>
         internal IBsonSerializationDomain SerializationDomain
         {
-            get => _serializationDomain.Value ?? BsonSerializer.DefaultSerializationDomain; //QUESTION Is this reasonable?
+            get => _serializationDomain.Value ?? BsonSerializer.DefaultSerializationDomain;
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoCollectionSettings is frozen."); }

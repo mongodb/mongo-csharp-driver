@@ -34,7 +34,6 @@ namespace MongoDB.Bson.Serialization
             _serializationDomain = new BsonSerializationDomain("MAIN");
         }
 
-        //QUESTION I think we should have another property here, called StandardSerializationDomain, which would have only the standard serializers and conventions registered.
         internal static IBsonSerializationDomain DefaultSerializationDomain => _serializationDomain;
 
         // public static properties

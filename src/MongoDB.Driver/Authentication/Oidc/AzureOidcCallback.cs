@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Authentication.Oidc
             using var responseReader = new StreamReader(responseStream);
             using var jsonReader = new JsonReader(responseReader);
 
-            var context = BsonDeserializationContext.CreateRoot(jsonReader, BsonSerializer.DefaultSerializationDomain);  //QUESTION Is it ok to use the default domain here?
+            var context = BsonDeserializationContext.CreateRoot(jsonReader, BsonSerializer.DefaultSerializationDomain);
             var document = BsonDocumentSerializer.Instance.Deserialize(context);
 
             var accessToken = document.GetValue("access_token");

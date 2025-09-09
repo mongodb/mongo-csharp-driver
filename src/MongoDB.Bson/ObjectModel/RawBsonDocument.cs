@@ -102,7 +102,6 @@ namespace MongoDB.Bson
                 using (var stream = new ByteBufferStream(_slice, ownsBuffer: false))
                 using (var bsonReader = new BsonBinaryReader(stream, _readerSettings))
                 {
-                    //QUESTION Is it correct we only need a default domain here?
                     var context = BsonDeserializationContext.CreateRoot(bsonReader, BsonSerializer.DefaultSerializationDomain);
 
                     bsonReader.ReadStartDocument();
@@ -165,7 +164,6 @@ namespace MongoDB.Bson
                 using (var stream = new ByteBufferStream(_slice, ownsBuffer: false))
                 using (var bsonReader = new BsonBinaryReader(stream, _readerSettings))
                 {
-                    //QUESTION Is it correct we only need a default domain here?
                     var context = BsonDeserializationContext.CreateRoot(bsonReader, BsonSerializer.DefaultSerializationDomain);
 
                     bsonReader.ReadStartDocument();
@@ -354,7 +352,6 @@ namespace MongoDB.Bson
             using (var stream = new ByteBufferStream(_slice, ownsBuffer: false))
             using (var bsonReader = new BsonBinaryReader(stream, _readerSettings))
             {
-                //QUESTION Is it correct we only need a default domain here?
                 var context = BsonDeserializationContext.CreateRoot(bsonReader, BsonSerializer.DefaultSerializationDomain);
 
                 bsonReader.ReadStartDocument();
@@ -411,7 +408,6 @@ namespace MongoDB.Bson
             using (var stream = new ByteBufferStream(_slice, ownsBuffer: false))
             using (var bsonReader = new BsonBinaryReader(stream, _readerSettings))
             {
-                //QUESTION Is it correct we only need a default domain here?
                 var context = BsonDeserializationContext.CreateRoot(bsonReader, BsonSerializer.DefaultSerializationDomain);
 
                 bsonReader.ReadStartDocument();
@@ -467,7 +463,6 @@ namespace MongoDB.Bson
             using (var stream = new ByteBufferStream(_slice, ownsBuffer: false))
             using (var bsonReader = new BsonBinaryReader(stream, _readerSettings))
             {
-                //QUESTION Is it correct we only need a default domain here?
                 var context = BsonDeserializationContext.CreateRoot(bsonReader, BsonSerializer.DefaultSerializationDomain);
 
                 bsonReader.ReadStartDocument();
@@ -499,7 +494,6 @@ namespace MongoDB.Bson
             using (var stream = new ByteBufferStream(_slice, ownsBuffer: false))
             using (var bsonReader = new BsonBinaryReader(stream, _readerSettings))
             {
-                //QUESTION Is it correct we only need a default domain here?
                 var context = BsonDeserializationContext.CreateRoot(bsonReader, BsonSerializer.DefaultSerializationDomain);
 
                 bsonReader.ReadStartDocument();
@@ -582,7 +576,6 @@ namespace MongoDB.Bson
             using (var stream = new ByteBufferStream(_slice, ownsBuffer: false))
             using (var reader = new BsonBinaryReader(stream, binaryReaderSettings))
             {
-                //QUESTION Is it correct we only need a default domain here?
                 var context = BsonDeserializationContext.CreateRoot(reader, BsonSerializer.DefaultSerializationDomain);
                 return BsonDocumentSerializer.Instance.Deserialize(context);
             }
@@ -706,7 +699,6 @@ namespace MongoDB.Bson
             using (var stream = new ByteBufferStream(_slice, ownsBuffer: false))
             using (var bsonReader = new BsonBinaryReader(stream, _readerSettings))
             {
-                //QUESTION Is it correct we only need a default domain here?
                 var context = BsonDeserializationContext.CreateRoot(bsonReader, BsonSerializer.DefaultSerializationDomain);
 
                 bsonReader.ReadStartDocument();
@@ -742,7 +734,6 @@ namespace MongoDB.Bson
             using (var stream = new ByteBufferStream(_slice, ownsBuffer: false))
             using (var bsonReader = new BsonBinaryReader(stream, _readerSettings))
             {
-                //QUESTION Is it correct we only need a default domain here?
                 var context = BsonDeserializationContext.CreateRoot(bsonReader, BsonSerializer.DefaultSerializationDomain);
 
                 bsonReader.ReadStartDocument();
