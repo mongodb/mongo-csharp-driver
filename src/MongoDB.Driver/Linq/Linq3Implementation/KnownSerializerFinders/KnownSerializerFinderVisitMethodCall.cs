@@ -592,6 +592,18 @@ internal partial class KnownSerializerFinderVisitor
         MongoEnumerableMethod.StandardDeviationSampleSingleWithSelector,
     ];
 
+    private static readonly HashSet<MethodInfo> __stringConcatMethods =
+    [
+        StringMethod.ConcatWith1Object,
+        StringMethod.ConcatWith2Objects,
+        StringMethod.ConcatWith2Strings,
+        StringMethod.ConcatWith3Objects,
+        StringMethod.ConcatWith3Strings,
+        StringMethod.ConcatWith4Strings,
+        StringMethod.ConcatWithObjectArray,
+        StringMethod.ConcatWithStringArray
+    ];
+
     private static readonly HashSet<MethodInfo> __stringContainsMethods =
     [
         StringMethod.ContainsWithChar,
@@ -1307,7 +1319,7 @@ internal partial class KnownSerializerFinderVisitor
 
                 if (IsNotKnown(node) && IsItemSerializerKnown(sourceExpression, out var sourceItemSerializer))
                 {
-                    var resultSerializer = IQueryableSerializer.Create(sourceItemSerializer);
+                    var resultSerializer = NestedAsQueryableSerializer.Create(sourceItemSerializer);
                     AddKnownSerializer(node, resultSerializer);
                 }
             }
@@ -1438,6 +1450,10 @@ internal partial class KnownSerializerFinderVisitor
 
                 DeduceCollectionAndCollectionSerializers(firstExpression, secondExpression);
                 DeduceCollectionAndCollectionSerializers(node, firstExpression);
+            }
+            else if (method.IsOneOf(__stringConcatMethods))
+            {
+                DeduceReturnsStringSerializer();
             }
             else
             {
