@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -35,15 +36,7 @@ internal partial class KnownSerializerFinderVisitor
         if (IsKnown(node, out var nodeSerializer) &&
             arguments.Any(IsNotKnown))
         {
-            if (constructor == BsonDocumentConstructor.WithNameAndValue)
-            {
-                var nameExpression = arguments[0];
-                var valueExpression = arguments[1];
-                DeduceStringSerializer(nameExpression);
-                DeduceBsonValueSerializer(valueExpression);
-                DeduceBsonDocumentSerializer(node);
-            }
-            else
+            if (nodeSerializer is IBsonDocumentSerializer)
             {
                 var matchingMemberSerializationInfos = nodeSerializer.GetMatchingMemberSerializationInfosForConstructorParameters(node, node.Constructor);
                 for (var i = 0; i < matchingMemberSerializationInfos.Count; i++)
@@ -75,9 +68,36 @@ internal partial class KnownSerializerFinderVisitor
 
         IBsonSerializer GetKnownSerializer(ConstructorInfo constructor)
         {
-            if (constructor == BsonDocumentConstructor.WithNoParameters || constructor == BsonDocumentConstructor.WithNameAndValue)
+            if (constructor.DeclaringType == typeof(BsonDocument))
             {
                 return BsonDocumentSerializer.Instance;
+            }
+            else if (constructor.DeclaringType == typeof(BsonValue))
+            {
+                return BsonValueSerializer.Instance;
+            }
+            else if (constructor.DeclaringType == typeof(DateTime))
+            {
+                return DateTimeSerializer.Instance;
+            }
+            else if (DictionaryConstructor.IsWithIEnumerableKeyValuePairConstructor(constructor))
+            {
+                var collectionExpression = arguments[0];
+                if (IsItemSerializerKnown(collectionExpression, out var itemSerializer) &&
+                    itemSerializer is IKeyValuePairSerializer keyValuePairSerializer)
+                {
+                    var keySerializer = keyValuePairSerializer.KeySerializer;
+                    var valueSerializer =  keyValuePairSerializer.ValueSerializer;
+                    return DictionarySerializer.Create(keySerializer, valueSerializer);
+                }
+            }
+            else if (HashSetConstructor.IsWithCollectionConstructor(constructor))
+            {
+                var collectionExpression = arguments[0];
+                if (IsItemSerializerKnown(collectionExpression, out var itemSerializer))
+                {
+                    return HashSetSerializer.Create(itemSerializer);
+                }
             }
             else if (ListConstructor.IsWithCollectionConstructor(constructor))
             {
