@@ -152,8 +152,8 @@ namespace MongoDB.Bson.Serialization
             var allMemberMaps = _classMap.AllMemberMaps;
             var extraElementsMemberMapIndex = _classMap.ExtraElementsMemberMapIndex;
 
-            var (bitArrayLength, useStackAlloc) = FastMemberMapHelper.GetBitArrayLength(_classMap.AllMemberMaps.Count);
-            using var bitArray = useStackAlloc ? FastMemberMapHelper.GetBitArray(stackalloc uint[bitArrayLength]) : FastMemberMapHelper.GetBitArray(bitArrayLength);
+            var (bitArrayLength, useStackAlloc) = FastMemberMapHelper.GetMembersBitArrayLength(_classMap.AllMemberMaps.Count);
+            using var bitArray = useStackAlloc ? FastMemberMapHelper.GetMembersBitArray(stackalloc uint[bitArrayLength]) : FastMemberMapHelper.GetMembersBitArray(bitArrayLength);
 
             bsonReader.ReadStartDocument();
             var elementTrie = _classMap.ElementTrie;
@@ -686,25 +686,29 @@ namespace MongoDB.Bson.Serialization
         // helper class that implements member map bit array helper functions
         internal static class FastMemberMapHelper
         {
-            internal ref struct BitArray()
+            internal ref struct MembersBitArray()
             {
                 private readonly ArrayPool<uint> _arrayPool;
                 private readonly Span<uint> _bitArray;
                 private readonly uint[] _rentedBuffer;
                 private bool _isDisposed = false;
 
-                public BitArray(Span<uint> bitArray) : this()
+                public MembersBitArray(Span<uint> bitArray) : this()
                 {
                     _arrayPool = null;
                     _bitArray = bitArray;
                     _rentedBuffer = null;
+
+                    _bitArray.Clear();
                 }
 
-                public BitArray(int spanLength, uint[] rentedBuffer, ArrayPool<uint> arrayPool) : this()
+                public MembersBitArray(int spanLength, uint[] rentedBuffer, ArrayPool<uint> arrayPool) : this()
                 {
                     _arrayPool = arrayPool;
                     _bitArray = rentedBuffer.AsSpan(0, spanLength);
                     _rentedBuffer = rentedBuffer;
+
+                    _bitArray.Clear();
                 }
 
                 public Span<uint> Span => _bitArray;
@@ -726,32 +730,17 @@ namespace MongoDB.Bson.Serialization
                 }
             }
 
-            public static (int BitArrayLength, bool UseStackAlloc) GetBitArrayLength(int membersCount)
+            public static (int BitArrayLength, bool UseStackAlloc) GetMembersBitArrayLength(int membersCount)
             {
                 var length = (membersCount + 31) >> 5;
                 return (length, length <= 8); // Use stackalloc for up to 256 members
             }
 
-            public static BitArray GetBitArray(Span<uint> span) =>
-                new(ResetSpan(span));
+            public static MembersBitArray GetMembersBitArray(Span<uint> span) =>
+                new(span);
 
-            public static BitArray GetBitArray(int length)
-            {
-                var rentedBuffer = ArrayPool<uint>.Shared.Rent(length);
-                ResetSpan(rentedBuffer);
-
-                return new(length, rentedBuffer, ArrayPool<uint>.Shared);
-            }
-
-            private static Span<uint> ResetSpan(Span<uint> span)
-            {
-                for (var i = 0; i < span.Length; i++)
-                {
-                    span[i] = 0;
-                }
-
-                return span;
-            }
+            public static MembersBitArray GetMembersBitArray(int length) =>
+                new(length, ArrayPool<uint>.Shared.Rent(length), ArrayPool<uint>.Shared);
         }
     }
 }

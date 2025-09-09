@@ -85,7 +85,7 @@ namespace MongoDB.Bson.Tests.Serialization
         [InlineData(1024, 993)]
         [InlineData(1024, 1000)]
         [InlineData(1024, 1023)]
-        public void Deserialize_should_throw_FormatException_when_no_required_element_is_found(int membersCount, int missingMemberIndex)
+        public void Deserialize_should_throw_FormatException_when_required_element_is_not_found(int membersCount, int missingMemberIndex)
         {
             var subject = BuildTypeAndGetSerializer("Prop", membersCount);
             var properties = Enumerable
@@ -197,19 +197,19 @@ namespace MongoDB.Bson.Tests.Serialization
         [InlineData(33, 2, true)]
         [InlineData(256, 8, true)]
         [InlineData(257, 9, false)]
-        public void FastMemberMapHelper_GetBitArrayLength_should_return_correctValue(int memberCount, int expectedBitArrayLength, bool expectedUseStackAlloc)
+        public void FastMemberMapHelper_GetMembersBitArrayLength_should_return_correctValue(int memberCount, int expectedBitArrayLength, bool expectedUseStackAlloc)
         {
-            var (bitArrayLength, useStackAlloc) = BsonClassMapSerializer<MyModel>.FastMemberMapHelper.GetBitArrayLength(memberCount);
+            var (bitArrayLength, useStackAlloc) = BsonClassMapSerializer<MyModel>.FastMemberMapHelper.GetMembersBitArrayLength(memberCount);
 
             bitArrayLength.ShouldBeEquivalentTo(expectedBitArrayLength);
             useStackAlloc.ShouldBeEquivalentTo(expectedUseStackAlloc);
         }
 
         [Fact]
-        public void FastMemberMapHelper_GetBitArray_with_span_should_use_the_provided_span()
+        public void FastMemberMapHelper_GetMembersBitArray_with_span_should_use_the_provided_span()
         {
             var backingArray = new uint[] { 1, 2, 3 };
-            using var bitArray =  BsonClassMapSerializer<MyModel>.FastMemberMapHelper.GetBitArray(backingArray);
+            using var bitArray =  BsonClassMapSerializer<MyModel>.FastMemberMapHelper.GetMembersBitArray(backingArray);
 
             bitArray.Span.ToArray().ShouldBeEquivalentTo(new uint[] { 0, 0, 0 });
             bitArray.ArrayPool.Should().Be(null);
@@ -221,9 +221,9 @@ namespace MongoDB.Bson.Tests.Serialization
         [Theory]
         [InlineData(3)]
         [InlineData(25)]
-        public void FastMemberMapHelper_GetBitArray_with_length_should_allocate_span(int length)
+        public void FastMemberMapHelper_GetMembersBitArray_with_length_should_allocate_span(int length)
         {
-            using var bitArray = BsonClassMapSerializer<MyModel>.FastMemberMapHelper.GetBitArray(length);
+            using var bitArray = BsonClassMapSerializer<MyModel>.FastMemberMapHelper.GetMembersBitArray(length);
 
             bitArray.Span.ToArray().ShouldBeEquivalentTo(Enumerable.Repeat<uint>(0, length));
             bitArray.ArrayPool.Should().Be(ArrayPool<uint>.Shared);
@@ -232,12 +232,12 @@ namespace MongoDB.Bson.Tests.Serialization
         [Theory]
         [InlineData(1)]
         [InlineData(2)]
-        public void FastMemberMapHelper_BitArray_with_arraypool_should_dispose_only_once(int disposeCount)
+        public void FastMemberMapHelper_MembersBitArray_with_arraypool_should_dispose_only_once(int disposeCount)
         {
             var backingArray = new uint[] { 1, 2, 3 };
 
             var mockArrayPool = new Mock<ArrayPool<uint>>();
-            var bitArray = new BsonClassMapSerializer<MyModel>.FastMemberMapHelper.BitArray(backingArray.Length, backingArray, mockArrayPool.Object);
+            var bitArray = new BsonClassMapSerializer<MyModel>.FastMemberMapHelper.MembersBitArray(backingArray.Length, backingArray, mockArrayPool.Object);
 
             for (int i = 0; i < disposeCount; i++)
             {
@@ -255,10 +255,10 @@ namespace MongoDB.Bson.Tests.Serialization
         [InlineData(266, 255)]
         [InlineData(544, 0)]
         [InlineData(621, 255)]
-        public void FastMemberMapHelper_GetBitArray_SetMemberIndex_should_set_correct_bit(int membersCount, int memberIndex)
+        public void FastMemberMapHelper_GetMembersBitArray_SetMemberIndex_should_set_correct_bit(int membersCount, int memberIndex)
         {
-            var (length, _) = BsonClassMapSerializer<MyModel>.FastMemberMapHelper.GetBitArrayLength(membersCount);
-            using var bitArray = BsonClassMapSerializer<MyModel>.FastMemberMapHelper.GetBitArray(length);
+            var (length, _) = BsonClassMapSerializer<MyModel>.FastMemberMapHelper.GetMembersBitArrayLength(membersCount);
+            using var bitArray = BsonClassMapSerializer<MyModel>.FastMemberMapHelper.GetMembersBitArray(length);
 
             var span = bitArray.Span;
             var blockIndex = memberIndex >> 5;
