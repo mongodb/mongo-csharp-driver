@@ -105,7 +105,7 @@ public class CSharp5532Tests : LinqIntegrationTest<CSharp5532Tests.ClassFixture>
                                                                                 {
                                                                                     input : "$$p.Refs",
                                                                                     as : "j",
-                                                                                    in : { $in : ["$$j._id", ["222222222222222222222222"]] }
+                                                                                    in : { $in : ["$$j._id", [{ "$oid" : "222222222222222222222222" }]] }
                                                                                 }
                                                                             }
                                                                         }
@@ -119,7 +119,7 @@ public class CSharp5532Tests : LinqIntegrationTest<CSharp5532Tests.ClassFixture>
                                                 }
                                             },
                                             as : "j",
-                                            cond : { $in : ['$$j._id', ["222222222222222222222222"]] }
+                                            cond : { $in : ['$$j._id', [{ "$oid" : "222222222222222222222222" }]] }
                                         }
                                     },
                                     0

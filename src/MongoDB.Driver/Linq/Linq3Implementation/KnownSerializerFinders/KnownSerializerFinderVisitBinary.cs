@@ -71,7 +71,21 @@ internal partial class KnownSerializerFinderVisitor
             if (IsNotKnown(node) &&
                 IsKnown(leftExpression, out var leftSerializer))
             {
-                AddKnownSerializer(node, leftSerializer);
+                if (leftSerializer.ValueType == node.Type)
+                {
+                    AddKnownSerializer(node, leftSerializer);
+                }
+                else if (
+                    leftSerializer is INullableSerializer nullableSerializer &&
+                    nullableSerializer.ValueSerializer is var nullableSerializerValueSerializer &&
+                    nullableSerializerValueSerializer.ValueType == node.Type)
+                {
+                    AddKnownSerializer(node, nullableSerializerValueSerializer);
+                }
+                else
+                {
+                    DeduceUnknowableSerializer(node);
+                }
             }
         }
 

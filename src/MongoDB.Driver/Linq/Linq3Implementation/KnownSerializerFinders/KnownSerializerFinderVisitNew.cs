@@ -36,7 +36,8 @@ internal partial class KnownSerializerFinderVisitor
         if (IsKnown(node, out var nodeSerializer) &&
             arguments.Any(IsNotKnown))
         {
-            if (nodeSerializer is IBsonDocumentSerializer)
+            if (!typeof(BsonValue).IsAssignableFrom(node.Type) &&
+                nodeSerializer is IBsonDocumentSerializer)
             {
                 var matchingMemberSerializationInfos = nodeSerializer.GetMatchingMemberSerializationInfosForConstructorParameters(node, node.Constructor);
                 for (var i = 0; i < matchingMemberSerializationInfos.Count; i++)
@@ -70,7 +71,7 @@ internal partial class KnownSerializerFinderVisitor
         {
             if (constructor == null)
             {
-                return null;
+                return CreateNewExpressionSerializer(node, node, bindings: null);
             }
             else if (constructor.DeclaringType == typeof(BsonDocument))
             {
@@ -91,7 +92,7 @@ internal partial class KnownSerializerFinderVisitor
                     itemSerializer is IKeyValuePairSerializer keyValuePairSerializer)
                 {
                     var keySerializer = keyValuePairSerializer.KeySerializer;
-                    var valueSerializer =  keyValuePairSerializer.ValueSerializer;
+                    var valueSerializer = keyValuePairSerializer.ValueSerializer;
                     return DictionarySerializer.Create(keySerializer, valueSerializer);
                 }
             }
@@ -123,7 +124,7 @@ internal partial class KnownSerializerFinderVisitor
             }
             else if (TupleOrValueTupleConstructor.IsTupleOrValueTupleConstructor(constructor))
             {
-                if (AllAreKnown(arguments,out var argumentSerializers))
+                if (AllAreKnown(arguments, out var argumentSerializers))
                 {
                     return TupleOrValueTupleSerializer.Create(constructor.DeclaringType, argumentSerializers);
                 }
