@@ -70,7 +70,7 @@ Documentation
 -------------
 * [MongoDB](https://www.mongodb.com/docs)
 * [.NET/C# Driver](https://www.mongodb.com/docs/drivers/csharp/current/)
-* [API Reference](https://mongodb.github.io/mongo-csharp-driver/3.4.0/api/index.html)
+* [API Reference](https://mongodb.github.io/mongo-csharp-driver/3.5.0/api/index.html)
 
 Questions/Bug Reports
 ---------------------
