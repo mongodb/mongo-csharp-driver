@@ -1,0 +1,400 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>Namespace MongoDB.Bson.Serialization
+ | MongoDB CSharp Driver API Reference </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Namespace MongoDB.Bson.Serialization
+ | MongoDB CSharp Driver API Reference ">
+      
+      <link rel="icon" href="../../images/favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/mongodb/mongo-csharp-driver/blob/main/apidocs/namespaces/MongoDB.Bson/MongoDB.Bson.Serialization.md/#L2">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+  </head>
+
+  <script type="module" src="./../../public/docfx.min.js"></script>
+
+  <script>
+    const theme = localStorage.getItem('theme') || 'auto'
+    document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+  </script>
+
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../images/mongodb-logo.svg" alt="">
+            
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+      <div class="toc-offcanvas">
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tocOffcanvasLabel">Table of Contents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#tocOffcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <nav class="toc" id="toc"></nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actionbar">
+          <button class="btn btn-lg border-0 d-md-none" style="margin-top: -.65em; margin-left: -.8em" type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas" aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="MongoDB.Bson.Serialization">
+
+  <h1 id="MongoDB_Bson_Serialization" data-uid="MongoDB.Bson.Serialization" class="text-break">Namespace MongoDB.Bson.Serialization
+</h1>
+  <div class="markdown level0 summary">
+<p>The MongoDB.Bson.Serialization namespace contains the types used in the serialization and deserialization of BSON data. It also contains the base interfaces to be implemented by the actual serializers.</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="markdown level0 remarks"></div>
+
+    <h3 id="classes">
+Classes
+</h3>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.AttributedSerializationProvider.html">AttributedSerializationProvider</a></dt>
+      <dd><p>Provides serializers based on an attribute.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.BinaryVectorExtensions.html">BinaryVectorExtensions</a></dt>
+      <dd><p>Contains extensions methods for <a class="xref" href="MongoDB.Bson.BinaryVector-1.html">BinaryVector&lt;TItem&gt;</a></p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonBinaryDataExtensions.html">BsonBinaryDataExtensions</a></dt>
+      <dd><p>Contains extensions methods for <a class="xref" href="MongoDB.Bson.BsonBinaryData.html">BsonBinaryData</a>.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonClassMap.html">BsonClassMap</a></dt>
+      <dd><p>Represents a mapping between a class and a BSON document.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonClassMapSerializer-1.html">BsonClassMapSerializer&lt;TClass&gt;</a></dt>
+      <dd><p>Represents a serializer for a class map.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonClassMap-1.html">BsonClassMap&lt;TClass&gt;</a></dt>
+      <dd><p>Represents a mapping between a class and a BSON document.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonCreatorMap.html">BsonCreatorMap</a></dt>
+      <dd><p>Represents a mapping to a delegate and its arguments.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonDeserializationContext.html">BsonDeserializationContext</a></dt>
+      <dd><p>Represents all the contextual information needed by a serializer to deserialize a value.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonDeserializationContext.Builder.html">BsonDeserializationContext.Builder</a></dt>
+      <dd><p>Represents a builder for a BsonDeserializationContext.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonDocumentBackedClass.html">BsonDocumentBackedClass</a></dt>
+      <dd><p>A class backed by a BsonDocument.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonDocumentBackedClassSerializer-1.html">BsonDocumentBackedClassSerializer&lt;TClass&gt;</a></dt>
+      <dd><p>Represents a serializer for TClass (a subclass of BsonDocumentBackedClass).</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonMemberMap.html">BsonMemberMap</a></dt>
+      <dd><p>Represents the mapping between a field or property and a BSON element.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonMemberMapAttributeUsageAttribute.html">BsonMemberMapAttributeUsageAttribute</a></dt>
+      <dd><p>Indicates the usage restrictions for the attribute.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonObjectModelSerializationProvider.html">BsonObjectModelSerializationProvider</a></dt>
+      <dd><p>Provides serializers for BsonValue and its derivations.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonSerializationContext.html">BsonSerializationContext</a></dt>
+      <dd><p>Represents all the contextual information needed by a serializer to serialize a value.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonSerializationContext.Builder.html">BsonSerializationContext.Builder</a></dt>
+      <dd><p>Represents a builder for a BsonSerializationContext.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonSerializationInfo.html">BsonSerializationInfo</a></dt>
+      <dd><p>Represents the information needed to serialize a member.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonSerializationProviderBase.html">BsonSerializationProviderBase</a></dt>
+      <dd><p>Base class for serialization providers.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonSerializer.html">BsonSerializer</a></dt>
+      <dd><p>A static class that represents the BSON serialization functionality.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonSerializerRegistry.html">BsonSerializerRegistry</a></dt>
+      <dd><p>Default, global implementation of an <a class="xref" href="MongoDB.Bson.Serialization.IBsonSerializerRegistry.html">IBsonSerializerRegistry</a>.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.CollectionsSerializationProvider.html">CollectionsSerializationProvider</a></dt>
+      <dd><p>Provides serializers for collections.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.CreatorMapDelegateCompiler.html">CreatorMapDelegateCompiler</a></dt>
+      <dd><p>A helper class used to create and compile delegates for creator maps.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.DiscriminatedInterfaceSerializationProvider.html">DiscriminatedInterfaceSerializationProvider</a></dt>
+      <dd><p>Provides a serializer for interfaces.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.ExpressionVisitor.html">ExpressionVisitor</a></dt>
+      <dd><p>An abstract base class for an Expression visitor.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.IBsonSerializerExtensions.html">IBsonSerializerExtensions</a></dt>
+      <dd><p>Extensions methods for IBsonSerializer.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.PrimitiveSerializationProvider.html">PrimitiveSerializationProvider</a></dt>
+      <dd><p>Provides serializers for primitive types.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.TypeMappingSerializationProvider.html">TypeMappingSerializationProvider</a></dt>
+      <dd><p>Represents a serialization provider based on a mapping from value types to serializer types.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.TypeNameDiscriminator.html">TypeNameDiscriminator</a></dt>
+      <dd><p>Supports using type names as discriminators.</p>
+</dd>
+    </dl>
+    <h3 id="structs">
+Structs
+</h3>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonDeserializationArgs.html">BsonDeserializationArgs</a></dt>
+      <dd><p>Represents args common to all serializers.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonSerializationArgs.html">BsonSerializationArgs</a></dt>
+      <dd><p>Represents args common to all serializers.</p>
+</dd>
+    </dl>
+    <h3 id="interfaces">
+Interfaces
+</h3>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.IBsonArraySerializer.html">IBsonArraySerializer</a></dt>
+      <dd><p>Contract for serializers to implement if they serialize an array of items.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.IBsonClassMapAttribute.html">IBsonClassMapAttribute</a></dt>
+      <dd><p>Represents an attribute used to modify a class map.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.IBsonCreatorMapAttribute.html">IBsonCreatorMapAttribute</a></dt>
+      <dd><p>Represents an attribute used to modify a creator map.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.IBsonDictionarySerializer.html">IBsonDictionarySerializer</a></dt>
+      <dd><p>Represents a dictionary serializer that can be used in LINQ queries.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.IBsonDocumentSerializer.html">IBsonDocumentSerializer</a></dt>
+      <dd><p>Contract for composite serializers that contain a number of named serializers.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.IBsonIdProvider.html">IBsonIdProvider</a></dt>
+      <dd><p>Contract for serializers that can get and set Id values.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.IBsonMemberMapAttribute.html">IBsonMemberMapAttribute</a></dt>
+      <dd><p>Represents an attribute used to modify a member map.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.IBsonPolymorphicSerializer.html">IBsonPolymorphicSerializer</a></dt>
+      <dd><p>An interface implemented by a polymorphic serializer.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.IBsonPostProcessingAttribute.html">IBsonPostProcessingAttribute</a></dt>
+      <dd><p>Represents an attribute used to post process a class map.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.IBsonSerializationProvider.html">IBsonSerializationProvider</a></dt>
+      <dd><p>An interface implemented by serialization providers.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.IBsonSerializer.html">IBsonSerializer</a></dt>
+      <dd><p>An interface implemented by a serializer.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.IBsonSerializerRegistry.html">IBsonSerializerRegistry</a></dt>
+      <dd><p>A serializer registry.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.IBsonSerializer-1.html">IBsonSerializer&lt;TValue&gt;</a></dt>
+      <dd><p>An interface implemented by a serializer for values of type TValue.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.IChildSerializerConfigurable.html">IChildSerializerConfigurable</a></dt>
+      <dd><p>Represents a serializer that has a child serializer that configuration attributes can be forwarded to.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.IDictionaryRepresentationConfigurable.html">IDictionaryRepresentationConfigurable</a></dt>
+      <dd><p>Represents a serializer that has a DictionaryRepresentation property.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.IDictionaryRepresentationConfigurable-1.html">IDictionaryRepresentationConfigurable&lt;TSerializer&gt;</a></dt>
+      <dd><p>Represents a serializer that has a DictionaryRepresentation property.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.IHasDiscriminatorConvention.html">IHasDiscriminatorConvention</a></dt>
+      <dd><p>Represents a serializer that has a DiscriminatorConvention property.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.IHasRepresentationSerializer.html">IHasRepresentationSerializer</a></dt>
+      <dd><p>Represents a serializer that has a Representation property.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.IIdGenerator.html">IIdGenerator</a></dt>
+      <dd><p>An interface implemented by Id generators.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.IMultipleChildSerializersConfigurable.html">IMultipleChildSerializersConfigurable</a></dt>
+      <dd><p>Represents a serializer that has multiple child serializers that configuration attributes can be forwarded to.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.IRegistryAwareBsonSerializationProvider.html">IRegistryAwareBsonSerializationProvider</a></dt>
+      <dd><p>An interface implemented by serialization providers that are aware of registries.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.IRepresentationConfigurable.html">IRepresentationConfigurable</a></dt>
+      <dd><p>Represents a serializer whose representation can be configured.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.IRepresentationConfigurable-1.html">IRepresentationConfigurable&lt;TSerializer&gt;</a></dt>
+      <dd><p>Represents a serializer that has a Representation property.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.IRepresentationConverterConfigurable.html">IRepresentationConverterConfigurable</a></dt>
+      <dd><p>Represents a serializer that has a representation converter.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.IRepresentationConverterConfigurable-1.html">IRepresentationConverterConfigurable&lt;TSerializer&gt;</a></dt>
+      <dd><p>Represents a serializer that has a representation converter.</p>
+</dd>
+    </dl>
+
+
+</article>
+
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          &copy; 2023 MongoDB, Inc.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

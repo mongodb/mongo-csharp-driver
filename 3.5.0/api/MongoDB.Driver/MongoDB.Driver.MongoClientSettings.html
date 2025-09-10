@@ -1,0 +1,488 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>Class MongoClientSettings
+ | MongoDB CSharp Driver API Reference </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Class MongoClientSettings
+ | MongoDB CSharp Driver API Reference ">
+      
+      <link rel="icon" href="../../images/favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/mongodb/mongo-csharp-driver/new/main/apiSpec/new?filename=MongoDB_Driver_MongoClientSettings.md&amp;value=---%0Auid%3A%20MongoDB.Driver.MongoClientSettings%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+  </head>
+
+  <script type="module" src="./../../public/docfx.min.js"></script>
+
+  <script>
+    const theme = localStorage.getItem('theme') || 'auto'
+    document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+  </script>
+
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../images/mongodb-logo.svg" alt="">
+            
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+      <div class="toc-offcanvas">
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tocOffcanvasLabel">Table of Contents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#tocOffcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <nav class="toc" id="toc"></nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actionbar">
+          <button class="btn btn-lg border-0 d-md-none" style="margin-top: -.65em; margin-left: -.8em" type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas" aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="MongoDB.Driver.MongoClientSettings">
+
+
+
+  <h1 id="MongoDB_Driver_MongoClientSettings" data-uid="MongoDB.Driver.MongoClientSettings" class="text-break">
+    Class MongoClientSettings
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/main/src/MongoDB.Driver/MongoClientSettings.cs/#L33"><i class="bi bi-code-slash"></i></a>
+  </h1>
+
+  <div class="facts text-secondary">
+    <dl><dt>Namespace</dt><dd><a class="xref" href="MongoDB.html">MongoDB</a>.<a class="xref" href="MongoDB.Driver.html">Driver</a></dd></dl>
+  <dl><dt>Assembly</dt><dd>MongoDB.Driver.dll</dd></dl>
+  </div>
+
+  <div class="markdown summary"><p>The settings for a MongoDB client.</p>
+</div>
+  <div class="markdown conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public class MongoClientSettings : IEquatable&lt;MongoClientSettings&gt;</code></pre>
+  </div>
+
+
+
+
+  <dl class="typelist inheritance">
+    <dt>Inheritance</dt>
+    <dd>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></div>
+      <div><span class="xref">MongoClientSettings</span></div>
+    </dd>
+  </dl>
+
+  <dl class="typelist implements">
+    <dt>Implements</dt>
+    <dd>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.iequatable-1">IEquatable</a>&lt;<a class="xref" href="MongoDB.Driver.MongoClientSettings.html">MongoClientSettings</a>&gt;</div>
+    </dd>
+  </dl>
+
+
+  <dl class="typelist derived">
+    <dt>Inherited Members</dt>
+    <dd>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)">object.Equals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gettype">object.GetType()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone">object.MemberwiseClone()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.referenceequals">object.ReferenceEquals(object, object)</a>
+    </div>
+  </dd></dl>
+
+
+
+
+
+  <h2 class="section" id="constructors">Constructors
+</h2>
+
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.-ctor.html#MongoDB_Driver_MongoClientSettings__ctor">MongoClientSettings()</a></dt>
+    <dd><p>Creates a new instance of MongoClientSettings. Usually you would use a connection string instead.</p>
+</dd>
+  </dl>
+
+  <h2 class="section" id="fields">Fields
+</h2>
+
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.Extensions.html">Extensions</a></dt>
+    <dd><p>Extension Manager provides a way to configure extensions for the driver.</p>
+</dd>
+  </dl>
+
+  <h2 class="section" id="properties">Properties
+</h2>
+
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.AllowInsecureTls.html#MongoDB_Driver_MongoClientSettings_AllowInsecureTls">AllowInsecureTls</a></dt>
+    <dd><p>Gets or sets whether to relax TLS constraints as much as possible.
+Setting this variable to true will also set SslSettings.CheckCertificateRevocation to false.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.ApplicationName.html#MongoDB_Driver_MongoClientSettings_ApplicationName">ApplicationName</a></dt>
+    <dd><p>Gets or sets the application name.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.AutoEncryptionOptions.html#MongoDB_Driver_MongoClientSettings_AutoEncryptionOptions">AutoEncryptionOptions</a></dt>
+    <dd><p>Gets or sets the auto encryption options.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.ClusterConfigurator.html#MongoDB_Driver_MongoClientSettings_ClusterConfigurator">ClusterConfigurator</a></dt>
+    <dd><p>Gets or sets the cluster configurator.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.Compressors.html#MongoDB_Driver_MongoClientSettings_Compressors">Compressors</a></dt>
+    <dd><p>Gets or sets the compressors.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.ConnectTimeout.html#MongoDB_Driver_MongoClientSettings_ConnectTimeout">ConnectTimeout</a></dt>
+    <dd><p>Gets or sets the connect timeout.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.Credential.html#MongoDB_Driver_MongoClientSettings_Credential">Credential</a></dt>
+    <dd><p>Gets or sets the credential.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.DirectConnection.html#MongoDB_Driver_MongoClientSettings_DirectConnection">DirectConnection</a></dt>
+    <dd><p>Gets or sets the direct connection.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.HeartbeatInterval.html#MongoDB_Driver_MongoClientSettings_HeartbeatInterval">HeartbeatInterval</a></dt>
+    <dd><p>Gets or sets the heartbeat interval.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.HeartbeatTimeout.html#MongoDB_Driver_MongoClientSettings_HeartbeatTimeout">HeartbeatTimeout</a></dt>
+    <dd><p>Gets or sets the heartbeat timeout.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.IPv6.html#MongoDB_Driver_MongoClientSettings_IPv6">IPv6</a></dt>
+    <dd><p>Gets or sets a value indicating whether to use IPv6.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.IsFrozen.html#MongoDB_Driver_MongoClientSettings_IsFrozen">IsFrozen</a></dt>
+    <dd><p>Gets a value indicating whether the settings have been frozen to prevent further changes.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.LibraryInfo.html#MongoDB_Driver_MongoClientSettings_LibraryInfo">LibraryInfo</a></dt>
+    <dd><p>Gets or sets information about a library using the .NET Driver.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.LoadBalanced.html#MongoDB_Driver_MongoClientSettings_LoadBalanced">LoadBalanced</a></dt>
+    <dd><p>Gets or sets whether load balanced mode is used.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.LocalThreshold.html#MongoDB_Driver_MongoClientSettings_LocalThreshold">LocalThreshold</a></dt>
+    <dd><p>Gets or sets the local threshold.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.LoggingSettings.html#MongoDB_Driver_MongoClientSettings_LoggingSettings">LoggingSettings</a></dt>
+    <dd><p>Gets or sets the logging settings</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.MaxConnecting.html#MongoDB_Driver_MongoClientSettings_MaxConnecting">MaxConnecting</a></dt>
+    <dd><p>Gets or sets the maximum concurrently connecting connections.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.MaxConnectionIdleTime.html#MongoDB_Driver_MongoClientSettings_MaxConnectionIdleTime">MaxConnectionIdleTime</a></dt>
+    <dd><p>Gets or sets the max connection idle time.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.MaxConnectionLifeTime.html#MongoDB_Driver_MongoClientSettings_MaxConnectionLifeTime">MaxConnectionLifeTime</a></dt>
+    <dd><p>Gets or sets the max connection life time.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.MaxConnectionPoolSize.html#MongoDB_Driver_MongoClientSettings_MaxConnectionPoolSize">MaxConnectionPoolSize</a></dt>
+    <dd><p>Gets or sets the max connection pool size.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.MinConnectionPoolSize.html#MongoDB_Driver_MongoClientSettings_MinConnectionPoolSize">MinConnectionPoolSize</a></dt>
+    <dd><p>Gets or sets the min connection pool size.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.ReadConcern.html#MongoDB_Driver_MongoClientSettings_ReadConcern">ReadConcern</a></dt>
+    <dd><p>Gets or sets the read concern.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.ReadEncoding.html#MongoDB_Driver_MongoClientSettings_ReadEncoding">ReadEncoding</a></dt>
+    <dd><p>Gets or sets the Read Encoding.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.ReadPreference.html#MongoDB_Driver_MongoClientSettings_ReadPreference">ReadPreference</a></dt>
+    <dd><p>Gets or sets the read preferences.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.ReplicaSetName.html#MongoDB_Driver_MongoClientSettings_ReplicaSetName">ReplicaSetName</a></dt>
+    <dd><p>Gets or sets the name of the replica set.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.RetryReads.html#MongoDB_Driver_MongoClientSettings_RetryReads">RetryReads</a></dt>
+    <dd><p>Gets or sets whether to retry reads.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.RetryWrites.html#MongoDB_Driver_MongoClientSettings_RetryWrites">RetryWrites</a></dt>
+    <dd><p>Gets or sets whether to retry writes.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.Scheme.html#MongoDB_Driver_MongoClientSettings_Scheme">Scheme</a></dt>
+    <dd><p>Gets or sets the connection string scheme.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.Server.html#MongoDB_Driver_MongoClientSettings_Server">Server</a></dt>
+    <dd><p>Gets or sets the address of the server (see also Servers if using more than one address).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.ServerApi.html#MongoDB_Driver_MongoClientSettings_ServerApi">ServerApi</a></dt>
+    <dd><p>Gets or sets the server API.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.ServerMonitoringMode.html#MongoDB_Driver_MongoClientSettings_ServerMonitoringMode">ServerMonitoringMode</a></dt>
+    <dd><p>Gets or sets the server monitoring mode to use.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.ServerSelectionTimeout.html#MongoDB_Driver_MongoClientSettings_ServerSelectionTimeout">ServerSelectionTimeout</a></dt>
+    <dd><p>Gets or sets the server selection timeout.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.Servers.html#MongoDB_Driver_MongoClientSettings_Servers">Servers</a></dt>
+    <dd><p>Gets or sets the list of server addresses (see also Server if using only one address).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.SocketTimeout.html#MongoDB_Driver_MongoClientSettings_SocketTimeout">SocketTimeout</a></dt>
+    <dd><p>Gets or sets the socket timeout.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.Socks5ProxySettings.html#MongoDB_Driver_MongoClientSettings_Socks5ProxySettings">Socks5ProxySettings</a></dt>
+    <dd><p>Gets or sets the SOCKS5 proxy settings.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.SrvMaxHosts.html#MongoDB_Driver_MongoClientSettings_SrvMaxHosts">SrvMaxHosts</a></dt>
+    <dd><p>Limits the number of SRV records used to populate the seedlist
+during initial discovery, as well as the number of additional hosts
+that may be added during SRV polling.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.SrvServiceName.html#MongoDB_Driver_MongoClientSettings_SrvServiceName">SrvServiceName</a></dt>
+    <dd><p>Gets or sets the SRV service name which modifies the srv URI to look like:</p>
+<pre><code class="lang-csharp">_{srvServiceName}._tcp.{hostname}.{domainname}</code></pre>
+<p>The default value is &quot;mongodb&quot;.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.SslSettings.html#MongoDB_Driver_MongoClientSettings_SslSettings">SslSettings</a></dt>
+    <dd><p>Gets or sets the SSL settings.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.TranslationOptions.html#MongoDB_Driver_MongoClientSettings_TranslationOptions">TranslationOptions</a></dt>
+    <dd><p>Gets or sets the translation options.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.UseSsl.html#MongoDB_Driver_MongoClientSettings_UseSsl">UseSsl</a></dt>
+    <dd><p>Gets or sets a value indicating whether to use SSL.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.UseTls.html#MongoDB_Driver_MongoClientSettings_UseTls">UseTls</a></dt>
+    <dd><p>Gets or sets a value indicating whether to use TLS.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.VerifySslCertificate.html#MongoDB_Driver_MongoClientSettings_VerifySslCertificate">VerifySslCertificate</a></dt>
+    <dd><p>Gets or sets a value indicating whether to verify an SSL certificate.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.WaitQueueSize.html#MongoDB_Driver_MongoClientSettings_WaitQueueSize">WaitQueueSize</a></dt>
+    <dd><p>Gets or sets the wait queue size.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.WaitQueueTimeout.html#MongoDB_Driver_MongoClientSettings_WaitQueueTimeout">WaitQueueTimeout</a></dt>
+    <dd><p>Gets or sets the wait queue timeout.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.WriteConcern.html#MongoDB_Driver_MongoClientSettings_WriteConcern">WriteConcern</a></dt>
+    <dd><p>Gets or sets the WriteConcern to use.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.WriteEncoding.html#MongoDB_Driver_MongoClientSettings_WriteEncoding">WriteEncoding</a></dt>
+    <dd><p>Gets or sets the Write Encoding.</p>
+</dd>
+  </dl>
+
+  <h2 class="section" id="methods">Methods
+</h2>
+
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.Clone.html#MongoDB_Driver_MongoClientSettings_Clone">Clone()</a></dt>
+    <dd><p>Creates a clone of the settings.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.Equals.html#MongoDB_Driver_MongoClientSettings_Equals_MongoDB_Driver_MongoClientSettings_">Equals(MongoClientSettings)</a></dt>
+    <dd><p>Determines whether the specified <a class="xref" href="MongoDB.Driver.MongoClientSettings.html">MongoClientSettings</a> is equal to this instance.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.Equals.html#MongoDB_Driver_MongoClientSettings_Equals_System_Object_">Equals(object)</a></dt>
+    <dd><p>Determines whether the specified <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a> is equal to this instance.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.Freeze.html#MongoDB_Driver_MongoClientSettings_Freeze">Freeze()</a></dt>
+    <dd><p>Freezes the settings.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.FromConnectionString.html#MongoDB_Driver_MongoClientSettings_FromConnectionString_System_String_">FromConnectionString(string)</a></dt>
+    <dd><p>Gets a MongoClientSettings object intialized with values from a connection string.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.FromUrl.html#MongoDB_Driver_MongoClientSettings_FromUrl_MongoDB_Driver_MongoUrl_">FromUrl(MongoUrl)</a></dt>
+    <dd><p>Gets a MongoClientSettings object initialized with values from a MongoURL.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.FrozenCopy.html#MongoDB_Driver_MongoClientSettings_FrozenCopy">FrozenCopy()</a></dt>
+    <dd><p>Returns a frozen copy of the settings.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.GetHashCode.html#MongoDB_Driver_MongoClientSettings_GetHashCode">GetHashCode()</a></dt>
+    <dd><p>Gets the hash code.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.ToString.html#MongoDB_Driver_MongoClientSettings_ToString">ToString()</a></dt>
+    <dd><p>Returns a string representation of the settings.</p>
+</dd>
+  </dl>
+
+  <h2 class="section" id="operators">Operators
+</h2>
+
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.op_Equality.html#MongoDB_Driver_MongoClientSettings_op_Equality_MongoDB_Driver_MongoClientSettings_MongoDB_Driver_MongoClientSettings_">operator ==(MongoClientSettings, MongoClientSettings)</a></dt>
+    <dd><p>Determines whether two <a class="xref" href="MongoDB.Driver.MongoClientSettings.html">MongoClientSettings</a> instances are equal.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoClientSettings.op_Inequality.html#MongoDB_Driver_MongoClientSettings_op_Inequality_MongoDB_Driver_MongoClientSettings_MongoDB_Driver_MongoClientSettings_">operator !=(MongoClientSettings, MongoClientSettings)</a></dt>
+    <dd><p>Determines whether two <a class="xref" href="MongoDB.Driver.MongoClientSettings.html">MongoClientSettings</a> instances are not equal.</p>
+</dd>
+  </dl>
+
+
+
+</article>
+
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          &copy; 2023 MongoDB, Inc.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

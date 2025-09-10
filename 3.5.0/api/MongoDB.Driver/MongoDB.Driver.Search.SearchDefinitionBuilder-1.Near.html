@@ -1,0 +1,657 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>Method Near
+ | MongoDB CSharp Driver API Reference </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Method Near
+ | MongoDB CSharp Driver API Reference ">
+      
+      <link rel="icon" href="../../images/favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/mongodb/mongo-csharp-driver/new/main/apiSpec/new?filename=MongoDB_Driver_Search_SearchDefinitionBuilder_1_Near_.md&amp;value=---%0Auid%3A%20MongoDB.Driver.Search.SearchDefinitionBuilder%601.Near*%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+  </head>
+
+  <script type="module" src="./../../public/docfx.min.js"></script>
+
+  <script>
+    const theme = localStorage.getItem('theme') || 'auto'
+    document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+  </script>
+
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../images/mongodb-logo.svg" alt="">
+            
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+      <div class="toc-offcanvas">
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tocOffcanvasLabel">Table of Contents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#tocOffcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <nav class="toc" id="toc"></nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actionbar">
+          <button class="btn btn-lg border-0 d-md-none" style="margin-top: -.65em; margin-left: -.8em" type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas" aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="MongoDB.Driver.Search.SearchDefinitionBuilder`1.Near*">
+
+
+
+
+
+<h1 id="MongoDB_Driver_Search_SearchDefinitionBuilder_1_Near_" data-uid="MongoDB.Driver.Search.SearchDefinitionBuilder`1.Near*" class="text-break">
+  Method Near
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/main/src/MongoDB.Driver/Search/SearchDefinitionBuilder.cs/#L388"><i class="bi bi-code-slash"></i></a>
+</h1>
+
+<div class="facts text-secondary">
+  <dl><dt>Namespace</dt><dd><a class="xref" href="MongoDB.html">MongoDB</a>.<a class="xref" href="MongoDB.Driver.html">Driver</a>.<a class="xref" href="MongoDB.Driver.Search.html">Search</a></dd></dl>
+  <dl><dt>Assembly</dt><dd>MongoDB.Driver.dll</dd></dl>
+</div>
+
+<div class="markdown summary"></div>
+<div class="markdown conceptual"></div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<a id="MongoDB_Driver_Search_SearchDefinitionBuilder_1_Near_" data-uid="MongoDB.Driver.Search.SearchDefinitionBuilder`1.Near*"></a>
+
+<h3 id="MongoDB_Driver_Search_SearchDefinitionBuilder_1_Near_MongoDB_Driver_Search_SearchPathDefinition__0__System_Double_System_Double_MongoDB_Driver_Search_SearchScoreDefinition__0__" data-uid="MongoDB.Driver.Search.SearchDefinitionBuilder`1.Near(MongoDB.Driver.Search.SearchPathDefinition{`0},System.Double,System.Double,MongoDB.Driver.Search.SearchScoreDefinition{`0})">
+  Near(SearchPathDefinition&lt;TDocument&gt;, double, double, SearchScoreDefinition&lt;TDocument&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/main/src/MongoDB.Driver/Search/SearchDefinitionBuilder.cs/#L388"><i class="bi bi-code-slash"></i></a>
+</h3>
+
+<div class="markdown level1 summary"><p>Creates a search definition that supports querying and scoring numeric and date values.</p>
+</div>
+<div class="markdown level1 conceptual"></div>
+
+<div class="codewrapper">
+  <pre><code class="lang-csharp hljs">public SearchDefinition&lt;TDocument&gt; Near(SearchPathDefinition&lt;TDocument&gt; path, double origin, double pivot, SearchScoreDefinition&lt;TDocument&gt; score = null)</code></pre>
+</div>
+
+<h4 class="section">Parameters</h4>
+<dl class="parameters">
+  <dt><code>path</code> <a class="xref" href="MongoDB.Driver.Search.SearchPathDefinition-1.html">SearchPathDefinition</a>&lt;TDocument&gt;</dt>
+  <dd><p>The indexed field or fields to search.</p>
+</dd>
+  <dt><code>origin</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
+  <dd><p>The number, date, or geographic point to search near.</p>
+</dd>
+  <dt><code>pivot</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
+  <dd><p>The value to use to calculate scores of result documents.</p>
+</dd>
+  <dt><code>score</code> <a class="xref" href="MongoDB.Driver.Search.SearchScoreDefinition-1.html">SearchScoreDefinition</a>&lt;TDocument&gt;</dt>
+  <dd><p>The score modifier.</p>
+</dd>
+</dl>
+
+<h4 class="section">Returns</h4>
+<dl class="parameters">
+  <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinition-1.html">SearchDefinition</a>&lt;TDocument&gt;</dt>
+  <dd><p>A near search definition.</p>
+</dd>
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+<a id="MongoDB_Driver_Search_SearchDefinitionBuilder_1_Near_" data-uid="MongoDB.Driver.Search.SearchDefinitionBuilder`1.Near*"></a>
+
+<h3 id="MongoDB_Driver_Search_SearchDefinitionBuilder_1_Near__1_System_Linq_Expressions_Expression_System_Func__0___0___System_Double_System_Double_MongoDB_Driver_Search_SearchScoreDefinition__0__" data-uid="MongoDB.Driver.Search.SearchDefinitionBuilder`1.Near``1(System.Linq.Expressions.Expression{System.Func{`0,``0}},System.Double,System.Double,MongoDB.Driver.Search.SearchScoreDefinition{`0})">
+  Near&lt;TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt;, double, double, SearchScoreDefinition&lt;TDocument&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/main/src/MongoDB.Driver/Search/SearchDefinitionBuilder.cs/#L404"><i class="bi bi-code-slash"></i></a>
+</h3>
+
+<div class="markdown level1 summary"><p>Creates a search definition that supports querying and scoring numeric and date values.</p>
+</div>
+<div class="markdown level1 conceptual"></div>
+
+<div class="codewrapper">
+  <pre><code class="lang-csharp hljs">public SearchDefinition&lt;TDocument&gt; Near&lt;TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt; path, double origin, double pivot, SearchScoreDefinition&lt;TDocument&gt; score = null)</code></pre>
+</div>
+
+<h4 class="section">Parameters</h4>
+<dl class="parameters">
+  <dt><code>path</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TField&gt;&gt;</dt>
+  <dd><p>The indexed field or fields to search.</p>
+</dd>
+  <dt><code>origin</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
+  <dd><p>The number, date, or geographic point to search near.</p>
+</dd>
+  <dt><code>pivot</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
+  <dd><p>The value to use to calculate scores of result documents.</p>
+</dd>
+  <dt><code>score</code> <a class="xref" href="MongoDB.Driver.Search.SearchScoreDefinition-1.html">SearchScoreDefinition</a>&lt;TDocument&gt;</dt>
+  <dd><p>The score modifier.</p>
+</dd>
+</dl>
+
+<h4 class="section">Returns</h4>
+<dl class="parameters">
+  <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinition-1.html">SearchDefinition</a>&lt;TDocument&gt;</dt>
+  <dd><p>A near search definition.</p>
+</dd>
+</dl>
+
+<h4 class="section">Type Parameters</h4>
+<dl class="parameters">
+  <dt><code>TField</code></dt>
+  <dd><p>The type of the field.</p>
+</dd>
+</dl>
+
+
+
+
+
+
+
+
+
+
+<a id="MongoDB_Driver_Search_SearchDefinitionBuilder_1_Near_" data-uid="MongoDB.Driver.Search.SearchDefinitionBuilder`1.Near*"></a>
+
+<h3 id="MongoDB_Driver_Search_SearchDefinitionBuilder_1_Near_MongoDB_Driver_Search_SearchPathDefinition__0__System_Int32_System_Int32_MongoDB_Driver_Search_SearchScoreDefinition__0__" data-uid="MongoDB.Driver.Search.SearchDefinitionBuilder`1.Near(MongoDB.Driver.Search.SearchPathDefinition{`0},System.Int32,System.Int32,MongoDB.Driver.Search.SearchScoreDefinition{`0})">
+  Near(SearchPathDefinition&lt;TDocument&gt;, int, int, SearchScoreDefinition&lt;TDocument&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/main/src/MongoDB.Driver/Search/SearchDefinitionBuilder.cs/#L419"><i class="bi bi-code-slash"></i></a>
+</h3>
+
+<div class="markdown level1 summary"><p>Creates a search definition that supports querying and scoring numeric and date values.</p>
+</div>
+<div class="markdown level1 conceptual"></div>
+
+<div class="codewrapper">
+  <pre><code class="lang-csharp hljs">public SearchDefinition&lt;TDocument&gt; Near(SearchPathDefinition&lt;TDocument&gt; path, int origin, int pivot, SearchScoreDefinition&lt;TDocument&gt; score = null)</code></pre>
+</div>
+
+<h4 class="section">Parameters</h4>
+<dl class="parameters">
+  <dt><code>path</code> <a class="xref" href="MongoDB.Driver.Search.SearchPathDefinition-1.html">SearchPathDefinition</a>&lt;TDocument&gt;</dt>
+  <dd><p>The indexed field or fields to search.</p>
+</dd>
+  <dt><code>origin</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+  <dd><p>The number, date, or geographic point to search near.</p>
+</dd>
+  <dt><code>pivot</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+  <dd><p>The value to use to calculate scores of result documents.</p>
+</dd>
+  <dt><code>score</code> <a class="xref" href="MongoDB.Driver.Search.SearchScoreDefinition-1.html">SearchScoreDefinition</a>&lt;TDocument&gt;</dt>
+  <dd><p>The score modifier.</p>
+</dd>
+</dl>
+
+<h4 class="section">Returns</h4>
+<dl class="parameters">
+  <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinition-1.html">SearchDefinition</a>&lt;TDocument&gt;</dt>
+  <dd><p>A near search definition.</p>
+</dd>
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+<a id="MongoDB_Driver_Search_SearchDefinitionBuilder_1_Near_" data-uid="MongoDB.Driver.Search.SearchDefinitionBuilder`1.Near*"></a>
+
+<h3 id="MongoDB_Driver_Search_SearchDefinitionBuilder_1_Near__1_System_Linq_Expressions_Expression_System_Func__0___0___System_Int32_System_Int32_MongoDB_Driver_Search_SearchScoreDefinition__0__" data-uid="MongoDB.Driver.Search.SearchDefinitionBuilder`1.Near``1(System.Linq.Expressions.Expression{System.Func{`0,``0}},System.Int32,System.Int32,MongoDB.Driver.Search.SearchScoreDefinition{`0})">
+  Near&lt;TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt;, int, int, SearchScoreDefinition&lt;TDocument&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/main/src/MongoDB.Driver/Search/SearchDefinitionBuilder.cs/#L435"><i class="bi bi-code-slash"></i></a>
+</h3>
+
+<div class="markdown level1 summary"><p>Creates a search definition that supports querying and scoring numeric and date values.</p>
+</div>
+<div class="markdown level1 conceptual"></div>
+
+<div class="codewrapper">
+  <pre><code class="lang-csharp hljs">public SearchDefinition&lt;TDocument&gt; Near&lt;TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt; path, int origin, int pivot, SearchScoreDefinition&lt;TDocument&gt; score = null)</code></pre>
+</div>
+
+<h4 class="section">Parameters</h4>
+<dl class="parameters">
+  <dt><code>path</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TField&gt;&gt;</dt>
+  <dd><p>The indexed field or fields to search.</p>
+</dd>
+  <dt><code>origin</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+  <dd><p>The number, date, or geographic point to search near.</p>
+</dd>
+  <dt><code>pivot</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a></dt>
+  <dd><p>The value to use to calculate scores of result documents.</p>
+</dd>
+  <dt><code>score</code> <a class="xref" href="MongoDB.Driver.Search.SearchScoreDefinition-1.html">SearchScoreDefinition</a>&lt;TDocument&gt;</dt>
+  <dd><p>The score modifier.</p>
+</dd>
+</dl>
+
+<h4 class="section">Returns</h4>
+<dl class="parameters">
+  <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinition-1.html">SearchDefinition</a>&lt;TDocument&gt;</dt>
+  <dd><p>A near search definition.</p>
+</dd>
+</dl>
+
+<h4 class="section">Type Parameters</h4>
+<dl class="parameters">
+  <dt><code>TField</code></dt>
+  <dd><p>The type of the field.</p>
+</dd>
+</dl>
+
+
+
+
+
+
+
+
+
+
+<a id="MongoDB_Driver_Search_SearchDefinitionBuilder_1_Near_" data-uid="MongoDB.Driver.Search.SearchDefinitionBuilder`1.Near*"></a>
+
+<h3 id="MongoDB_Driver_Search_SearchDefinitionBuilder_1_Near_MongoDB_Driver_Search_SearchPathDefinition__0__System_Int64_System_Int64_MongoDB_Driver_Search_SearchScoreDefinition__0__" data-uid="MongoDB.Driver.Search.SearchDefinitionBuilder`1.Near(MongoDB.Driver.Search.SearchPathDefinition{`0},System.Int64,System.Int64,MongoDB.Driver.Search.SearchScoreDefinition{`0})">
+  Near(SearchPathDefinition&lt;TDocument&gt;, long, long, SearchScoreDefinition&lt;TDocument&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/main/src/MongoDB.Driver/Search/SearchDefinitionBuilder.cs/#L450"><i class="bi bi-code-slash"></i></a>
+</h3>
+
+<div class="markdown level1 summary"><p>Creates a search definition that supports querying and scoring numeric and date values.</p>
+</div>
+<div class="markdown level1 conceptual"></div>
+
+<div class="codewrapper">
+  <pre><code class="lang-csharp hljs">public SearchDefinition&lt;TDocument&gt; Near(SearchPathDefinition&lt;TDocument&gt; path, long origin, long pivot, SearchScoreDefinition&lt;TDocument&gt; score = null)</code></pre>
+</div>
+
+<h4 class="section">Parameters</h4>
+<dl class="parameters">
+  <dt><code>path</code> <a class="xref" href="MongoDB.Driver.Search.SearchPathDefinition-1.html">SearchPathDefinition</a>&lt;TDocument&gt;</dt>
+  <dd><p>The indexed field or fields to search.</p>
+</dd>
+  <dt><code>origin</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+  <dd><p>The number, date, or geographic point to search near.</p>
+</dd>
+  <dt><code>pivot</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+  <dd><p>The value to use to calculate scores of result documents.</p>
+</dd>
+  <dt><code>score</code> <a class="xref" href="MongoDB.Driver.Search.SearchScoreDefinition-1.html">SearchScoreDefinition</a>&lt;TDocument&gt;</dt>
+  <dd><p>The score modifier.</p>
+</dd>
+</dl>
+
+<h4 class="section">Returns</h4>
+<dl class="parameters">
+  <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinition-1.html">SearchDefinition</a>&lt;TDocument&gt;</dt>
+  <dd><p>A near search definition.</p>
+</dd>
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+<a id="MongoDB_Driver_Search_SearchDefinitionBuilder_1_Near_" data-uid="MongoDB.Driver.Search.SearchDefinitionBuilder`1.Near*"></a>
+
+<h3 id="MongoDB_Driver_Search_SearchDefinitionBuilder_1_Near__1_System_Linq_Expressions_Expression_System_Func__0___0___System_Int64_System_Int64_MongoDB_Driver_Search_SearchScoreDefinition__0__" data-uid="MongoDB.Driver.Search.SearchDefinitionBuilder`1.Near``1(System.Linq.Expressions.Expression{System.Func{`0,``0}},System.Int64,System.Int64,MongoDB.Driver.Search.SearchScoreDefinition{`0})">
+  Near&lt;TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt;, long, long, SearchScoreDefinition&lt;TDocument&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/main/src/MongoDB.Driver/Search/SearchDefinitionBuilder.cs/#L466"><i class="bi bi-code-slash"></i></a>
+</h3>
+
+<div class="markdown level1 summary"><p>Creates a search definition that supports querying and scoring numeric and date values.</p>
+</div>
+<div class="markdown level1 conceptual"></div>
+
+<div class="codewrapper">
+  <pre><code class="lang-csharp hljs">public SearchDefinition&lt;TDocument&gt; Near&lt;TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt; path, long origin, long pivot, SearchScoreDefinition&lt;TDocument&gt; score = null)</code></pre>
+</div>
+
+<h4 class="section">Parameters</h4>
+<dl class="parameters">
+  <dt><code>path</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TField&gt;&gt;</dt>
+  <dd><p>The indexed field or fields to search.</p>
+</dd>
+  <dt><code>origin</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+  <dd><p>The number, date, or geographic point to search near.</p>
+</dd>
+  <dt><code>pivot</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+  <dd><p>The value to use to calculate scores of result documents.</p>
+</dd>
+  <dt><code>score</code> <a class="xref" href="MongoDB.Driver.Search.SearchScoreDefinition-1.html">SearchScoreDefinition</a>&lt;TDocument&gt;</dt>
+  <dd><p>The score modifier.</p>
+</dd>
+</dl>
+
+<h4 class="section">Returns</h4>
+<dl class="parameters">
+  <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinition-1.html">SearchDefinition</a>&lt;TDocument&gt;</dt>
+  <dd><p>A near search definition.</p>
+</dd>
+</dl>
+
+<h4 class="section">Type Parameters</h4>
+<dl class="parameters">
+  <dt><code>TField</code></dt>
+  <dd><p>The type of the field.</p>
+</dd>
+</dl>
+
+
+
+
+
+
+
+
+
+
+<a id="MongoDB_Driver_Search_SearchDefinitionBuilder_1_Near_" data-uid="MongoDB.Driver.Search.SearchDefinitionBuilder`1.Near*"></a>
+
+<h3 id="MongoDB_Driver_Search_SearchDefinitionBuilder_1_Near_MongoDB_Driver_Search_SearchPathDefinition__0__System_DateTime_System_Int64_MongoDB_Driver_Search_SearchScoreDefinition__0__" data-uid="MongoDB.Driver.Search.SearchDefinitionBuilder`1.Near(MongoDB.Driver.Search.SearchPathDefinition{`0},System.DateTime,System.Int64,MongoDB.Driver.Search.SearchScoreDefinition{`0})">
+  Near(SearchPathDefinition&lt;TDocument&gt;, DateTime, long, SearchScoreDefinition&lt;TDocument&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/main/src/MongoDB.Driver/Search/SearchDefinitionBuilder.cs/#L481"><i class="bi bi-code-slash"></i></a>
+</h3>
+
+<div class="markdown level1 summary"><p>Creates a search definition that supports querying and scoring numeric and date values.</p>
+</div>
+<div class="markdown level1 conceptual"></div>
+
+<div class="codewrapper">
+  <pre><code class="lang-csharp hljs">public SearchDefinition&lt;TDocument&gt; Near(SearchPathDefinition&lt;TDocument&gt; path, DateTime origin, long pivot, SearchScoreDefinition&lt;TDocument&gt; score = null)</code></pre>
+</div>
+
+<h4 class="section">Parameters</h4>
+<dl class="parameters">
+  <dt><code>path</code> <a class="xref" href="MongoDB.Driver.Search.SearchPathDefinition-1.html">SearchPathDefinition</a>&lt;TDocument&gt;</dt>
+  <dd><p>The indexed field or fields to search.</p>
+</dd>
+  <dt><code>origin</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
+  <dd><p>The number, date, or geographic point to search near.</p>
+</dd>
+  <dt><code>pivot</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+  <dd><p>The value to use to calculate scores of result documents.</p>
+</dd>
+  <dt><code>score</code> <a class="xref" href="MongoDB.Driver.Search.SearchScoreDefinition-1.html">SearchScoreDefinition</a>&lt;TDocument&gt;</dt>
+  <dd><p>The score modifier.</p>
+</dd>
+</dl>
+
+<h4 class="section">Returns</h4>
+<dl class="parameters">
+  <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinition-1.html">SearchDefinition</a>&lt;TDocument&gt;</dt>
+  <dd><p>A near search definition.</p>
+</dd>
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+<a id="MongoDB_Driver_Search_SearchDefinitionBuilder_1_Near_" data-uid="MongoDB.Driver.Search.SearchDefinitionBuilder`1.Near*"></a>
+
+<h3 id="MongoDB_Driver_Search_SearchDefinitionBuilder_1_Near__1_System_Linq_Expressions_Expression_System_Func__0___0___System_DateTime_System_Int64_MongoDB_Driver_Search_SearchScoreDefinition__0__" data-uid="MongoDB.Driver.Search.SearchDefinitionBuilder`1.Near``1(System.Linq.Expressions.Expression{System.Func{`0,``0}},System.DateTime,System.Int64,MongoDB.Driver.Search.SearchScoreDefinition{`0})">
+  Near&lt;TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt;, DateTime, long, SearchScoreDefinition&lt;TDocument&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/main/src/MongoDB.Driver/Search/SearchDefinitionBuilder.cs/#L497"><i class="bi bi-code-slash"></i></a>
+</h3>
+
+<div class="markdown level1 summary"><p>Creates a search definition that supports querying and scoring numeric and date values.</p>
+</div>
+<div class="markdown level1 conceptual"></div>
+
+<div class="codewrapper">
+  <pre><code class="lang-csharp hljs">public SearchDefinition&lt;TDocument&gt; Near&lt;TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt; path, DateTime origin, long pivot, SearchScoreDefinition&lt;TDocument&gt; score = null)</code></pre>
+</div>
+
+<h4 class="section">Parameters</h4>
+<dl class="parameters">
+  <dt><code>path</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TField&gt;&gt;</dt>
+  <dd><p>The indexed field or fields to search.</p>
+</dd>
+  <dt><code>origin</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a></dt>
+  <dd><p>The number, date, or geographic point to search near.</p>
+</dd>
+  <dt><code>pivot</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">long</a></dt>
+  <dd><p>The value to use to calculate scores of result documents.</p>
+</dd>
+  <dt><code>score</code> <a class="xref" href="MongoDB.Driver.Search.SearchScoreDefinition-1.html">SearchScoreDefinition</a>&lt;TDocument&gt;</dt>
+  <dd><p>The score modifier.</p>
+</dd>
+</dl>
+
+<h4 class="section">Returns</h4>
+<dl class="parameters">
+  <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinition-1.html">SearchDefinition</a>&lt;TDocument&gt;</dt>
+  <dd><p>A near search definition.</p>
+</dd>
+</dl>
+
+<h4 class="section">Type Parameters</h4>
+<dl class="parameters">
+  <dt><code>TField</code></dt>
+  <dd><p>The type of the field.</p>
+</dd>
+</dl>
+
+
+
+
+
+
+
+
+
+
+<a id="MongoDB_Driver_Search_SearchDefinitionBuilder_1_Near_" data-uid="MongoDB.Driver.Search.SearchDefinitionBuilder`1.Near*"></a>
+
+<h3 id="MongoDB_Driver_Search_SearchDefinitionBuilder_1_Near__1_MongoDB_Driver_Search_SearchPathDefinition__0__MongoDB_Driver_GeoJsonObjectModel_GeoJsonPoint___0__System_Double_MongoDB_Driver_Search_SearchScoreDefinition__0__" data-uid="MongoDB.Driver.Search.SearchDefinitionBuilder`1.Near``1(MongoDB.Driver.Search.SearchPathDefinition{`0},MongoDB.Driver.GeoJsonObjectModel.GeoJsonPoint{``0},System.Double,MongoDB.Driver.Search.SearchScoreDefinition{`0})">
+  Near&lt;TCoordinates&gt;(SearchPathDefinition&lt;TDocument&gt;, GeoJsonPoint&lt;TCoordinates&gt;, double, SearchScoreDefinition&lt;TDocument&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/main/src/MongoDB.Driver/Search/SearchDefinitionBuilder.cs/#L513"><i class="bi bi-code-slash"></i></a>
+</h3>
+
+<div class="markdown level1 summary"><p>Creates a search definition that supports querying and scoring numeric and date values.</p>
+</div>
+<div class="markdown level1 conceptual"></div>
+
+<div class="codewrapper">
+  <pre><code class="lang-csharp hljs">public SearchDefinition&lt;TDocument&gt; Near&lt;TCoordinates&gt;(SearchPathDefinition&lt;TDocument&gt; path, GeoJsonPoint&lt;TCoordinates&gt; origin, double pivot, SearchScoreDefinition&lt;TDocument&gt; score = null) where TCoordinates : GeoJsonCoordinates</code></pre>
+</div>
+
+<h4 class="section">Parameters</h4>
+<dl class="parameters">
+  <dt><code>path</code> <a class="xref" href="MongoDB.Driver.Search.SearchPathDefinition-1.html">SearchPathDefinition</a>&lt;TDocument&gt;</dt>
+  <dd><p>The indexed field or fields to search.</p>
+</dd>
+  <dt><code>origin</code> <a class="xref" href="MongoDB.Driver.GeoJsonObjectModel.GeoJsonPoint-1.html">GeoJsonPoint</a>&lt;TCoordinates&gt;</dt>
+  <dd><p>The number, date, or geographic point to search near.</p>
+</dd>
+  <dt><code>pivot</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
+  <dd><p>The value to use to calculate scores of result documents.</p>
+</dd>
+  <dt><code>score</code> <a class="xref" href="MongoDB.Driver.Search.SearchScoreDefinition-1.html">SearchScoreDefinition</a>&lt;TDocument&gt;</dt>
+  <dd><p>The score modifier.</p>
+</dd>
+</dl>
+
+<h4 class="section">Returns</h4>
+<dl class="parameters">
+  <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinition-1.html">SearchDefinition</a>&lt;TDocument&gt;</dt>
+  <dd><p>A near search definition.</p>
+</dd>
+</dl>
+
+<h4 class="section">Type Parameters</h4>
+<dl class="parameters">
+  <dt><code>TCoordinates</code></dt>
+  <dd><p>The type of the coordinates.</p>
+</dd>
+</dl>
+
+
+
+
+
+
+
+
+
+
+<a id="MongoDB_Driver_Search_SearchDefinitionBuilder_1_Near_" data-uid="MongoDB.Driver.Search.SearchDefinitionBuilder`1.Near*"></a>
+
+<h3 id="MongoDB_Driver_Search_SearchDefinitionBuilder_1_Near__2_System_Linq_Expressions_Expression_System_Func__0___1___MongoDB_Driver_GeoJsonObjectModel_GeoJsonPoint___0__System_Double_MongoDB_Driver_Search_SearchScoreDefinition__0__" data-uid="MongoDB.Driver.Search.SearchDefinitionBuilder`1.Near``2(System.Linq.Expressions.Expression{System.Func{`0,``1}},MongoDB.Driver.GeoJsonObjectModel.GeoJsonPoint{``0},System.Double,MongoDB.Driver.Search.SearchScoreDefinition{`0})">
+  Near&lt;TCoordinates, TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt;, GeoJsonPoint&lt;TCoordinates&gt;, double, SearchScoreDefinition&lt;TDocument&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/main/src/MongoDB.Driver/Search/SearchDefinitionBuilder.cs/#L531"><i class="bi bi-code-slash"></i></a>
+</h3>
+
+<div class="markdown level1 summary"><p>Creates a search definition that supports querying and scoring numeric and date values.</p>
+</div>
+<div class="markdown level1 conceptual"></div>
+
+<div class="codewrapper">
+  <pre><code class="lang-csharp hljs">public SearchDefinition&lt;TDocument&gt; Near&lt;TCoordinates, TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt; path, GeoJsonPoint&lt;TCoordinates&gt; origin, double pivot, SearchScoreDefinition&lt;TDocument&gt; score = null) where TCoordinates : GeoJsonCoordinates</code></pre>
+</div>
+
+<h4 class="section">Parameters</h4>
+<dl class="parameters">
+  <dt><code>path</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TField&gt;&gt;</dt>
+  <dd><p>The indexed field or fields to search.</p>
+</dd>
+  <dt><code>origin</code> <a class="xref" href="MongoDB.Driver.GeoJsonObjectModel.GeoJsonPoint-1.html">GeoJsonPoint</a>&lt;TCoordinates&gt;</dt>
+  <dd><p>The number, date, or geographic point to search near.</p>
+</dd>
+  <dt><code>pivot</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.double">double</a></dt>
+  <dd><p>The value to user to calculate scores of result documents.</p>
+</dd>
+  <dt><code>score</code> <a class="xref" href="MongoDB.Driver.Search.SearchScoreDefinition-1.html">SearchScoreDefinition</a>&lt;TDocument&gt;</dt>
+  <dd><p>The score modifier.</p>
+</dd>
+</dl>
+
+<h4 class="section">Returns</h4>
+<dl class="parameters">
+  <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinition-1.html">SearchDefinition</a>&lt;TDocument&gt;</dt>
+  <dd><p>A near search definition.</p>
+</dd>
+</dl>
+
+<h4 class="section">Type Parameters</h4>
+<dl class="parameters">
+  <dt><code>TCoordinates</code></dt>
+  <dd><p>The type of the coordinates</p>
+</dd>
+  <dt><code>TField</code></dt>
+  <dd><p>The type of the fields.</p>
+</dd>
+</dl>
+
+
+
+
+
+
+
+
+
+
+</article>
+
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          &copy; 2023 MongoDB, Inc.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
