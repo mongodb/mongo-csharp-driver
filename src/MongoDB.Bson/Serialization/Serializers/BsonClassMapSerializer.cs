@@ -152,8 +152,8 @@ namespace MongoDB.Bson.Serialization
             var allMemberMaps = _classMap.AllMemberMaps;
             var extraElementsMemberMapIndex = _classMap.ExtraElementsMemberMapIndex;
 
-            var (bitArrayLength, useStackAlloc) = FastMemberMapHelper.GetMembersBitArrayLength(_classMap.AllMemberMaps.Count);
-            using var bitArray = useStackAlloc ? FastMemberMapHelper.GetMembersBitArray(stackalloc uint[bitArrayLength]) : FastMemberMapHelper.GetMembersBitArray(bitArrayLength);
+            var (lengthInUInts, useStackAlloc) = FastMemberMapHelper.GetLengthInUInts(_classMap.AllMemberMaps.Count);
+            using var bitArray = useStackAlloc ? FastMemberMapHelper.GetMembersBitArray(stackalloc uint[lengthInUInts]) : FastMemberMapHelper.GetMembersBitArray(lengthInUInts);
 
             bsonReader.ReadStartDocument();
             var elementTrie = _classMap.ElementTrie;
@@ -702,11 +702,11 @@ namespace MongoDB.Bson.Serialization
                     _bitArray.Clear();
                 }
 
-                public MembersBitArray(int spanLength, uint[] rentedBuffer, ArrayPool<uint> arrayPool) : this()
+                public MembersBitArray(int lengthInUints, ArrayPool<uint> arrayPool) : this()
                 {
                     _arrayPool = arrayPool;
-                    _bitArray = rentedBuffer.AsSpan(0, spanLength);
-                    _rentedBuffer = rentedBuffer;
+                    _rentedBuffer = arrayPool.Rent(lengthInUints);
+                    _bitArray = _rentedBuffer.AsSpan(0, lengthInUints);
 
                     _bitArray.Clear();
                 }
@@ -730,7 +730,7 @@ namespace MongoDB.Bson.Serialization
                 }
             }
 
-            public static (int BitArrayLength, bool UseStackAlloc) GetMembersBitArrayLength(int membersCount)
+            public static (int LengthInUInts, bool UseStackAlloc) GetLengthInUInts(int membersCount)
             {
                 var length = (membersCount + 31) >> 5;
                 return (length, length <= 8); // Use stackalloc for up to 256 members
@@ -740,7 +740,7 @@ namespace MongoDB.Bson.Serialization
                 new(span);
 
             public static MembersBitArray GetMembersBitArray(int length) =>
-                new(length, ArrayPool<uint>.Shared.Rent(length), ArrayPool<uint>.Shared);
+                new(length, ArrayPool<uint>.Shared);
         }
     }
 }

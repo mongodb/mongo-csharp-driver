@@ -197,11 +197,11 @@ namespace MongoDB.Bson.Tests.Serialization
         [InlineData(33, 2, true)]
         [InlineData(256, 8, true)]
         [InlineData(257, 9, false)]
-        public void FastMemberMapHelper_GetMembersBitArrayLength_should_return_correctValue(int memberCount, int expectedBitArrayLength, bool expectedUseStackAlloc)
+        public void FastMemberMapHelper_GetMembersBitArrayLength_should_return_correctValue(int memberCount, int expectedLengthInUInts, bool expectedUseStackAlloc)
         {
-            var (bitArrayLength, useStackAlloc) = BsonClassMapSerializer<MyModel>.FastMemberMapHelper.GetMembersBitArrayLength(memberCount);
+            var (lengthInUInts, useStackAlloc) = BsonClassMapSerializer<MyModel>.FastMemberMapHelper.GetLengthInUInts(memberCount);
 
-            bitArrayLength.ShouldBeEquivalentTo(expectedBitArrayLength);
+            lengthInUInts.ShouldBeEquivalentTo(expectedLengthInUInts);
             useStackAlloc.ShouldBeEquivalentTo(expectedUseStackAlloc);
         }
 
@@ -237,7 +237,8 @@ namespace MongoDB.Bson.Tests.Serialization
             var backingArray = new uint[] { 1, 2, 3 };
 
             var mockArrayPool = new Mock<ArrayPool<uint>>();
-            var bitArray = new BsonClassMapSerializer<MyModel>.FastMemberMapHelper.MembersBitArray(backingArray.Length, backingArray, mockArrayPool.Object);
+            mockArrayPool.Setup(p => p.Rent(backingArray.Length)).Returns(backingArray);
+            var bitArray = new BsonClassMapSerializer<MyModel>.FastMemberMapHelper.MembersBitArray(backingArray.Length, mockArrayPool.Object);
 
             for (int i = 0; i < disposeCount; i++)
             {
@@ -257,7 +258,7 @@ namespace MongoDB.Bson.Tests.Serialization
         [InlineData(621, 255)]
         public void FastMemberMapHelper_GetMembersBitArray_SetMemberIndex_should_set_correct_bit(int membersCount, int memberIndex)
         {
-            var (length, _) = BsonClassMapSerializer<MyModel>.FastMemberMapHelper.GetMembersBitArrayLength(membersCount);
+            var (length, _) = BsonClassMapSerializer<MyModel>.FastMemberMapHelper.GetLengthInUInts(membersCount);
             using var bitArray = BsonClassMapSerializer<MyModel>.FastMemberMapHelper.GetMembersBitArray(length);
 
             var span = bitArray.Span;
