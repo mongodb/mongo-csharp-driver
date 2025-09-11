@@ -14,6 +14,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
@@ -54,35 +55,89 @@ internal partial class KnownSerializerFinderVisitor
 
         void DeduceNewArrayInitSerializers()
         {
-            if (node.Expressions.Any(IsNotKnown) && IsKnown(node, out var arraySerializer))
-            {
-                var itemSerializer = arraySerializer.GetItemSerializer();
+            var itemExpressions = node.Expressions;
 
-                foreach (var valueExpression in node.Expressions)
+            if (AnyIsNotKnown(itemExpressions) && IsKnown(node, out var arraySerializer))
+            {
+                if (arraySerializer is IFixedSizeArraySerializer fixedSizeArraySerializer)
                 {
-                    DeduceSerializer(valueExpression, itemSerializer);
+                    for (var i = 0; i < itemExpressions.Count; i++)
+                    {
+                        var itemExpression = itemExpressions[i];
+                        if (IsNotKnown(itemExpression))
+                        {
+                            var itemSerializer = fixedSizeArraySerializer.GetItemSerializer(i);
+                            AddKnownSerializer(itemExpression, itemSerializer);
+                        }
+                    }
+                }
+                else
+                {
+                    var itemSerializer = arraySerializer.GetItemSerializer();
+                    foreach (var itemExpression in itemExpressions)
+                    {
+                        if (IsNotKnown(itemExpression))
+                        {
+                            AddKnownSerializer(itemExpression, itemSerializer);
+                        }
+                    }
+                }
+            }
+
+            if (AnyIsNotKnown(itemExpressions) && AnyIsKnown(itemExpressions, out var knownItemSerializer))
+            {
+                var firstItemType = itemExpressions.First().Type;
+                if (itemExpressions.All(e => e.Type == firstItemType))
+                {
+                    foreach (var itemExpression in itemExpressions)
+                    {
+                        if (IsNotKnown(itemExpression))
+                        {
+                            AddKnownSerializer(itemExpression, knownItemSerializer);
+                        }
+                    }
                 }
             }
 
             if (IsNotKnown(node))
             {
-                var itemType = node.Type.GetElementType();
-                IBsonSerializer itemSerializer = null;
-
-                if (node.Expressions.Count == 0)
+                if (AllAreKnown(itemExpressions, out var itemSerializers))
                 {
-                    itemSerializer = BsonSerializer.LookupSerializer(itemType); // TODO: don't use static registry
-                }
-                else if (node.Expressions.Any(e => IsKnown(e, out itemSerializer)))
-                {
-                    // itemSerializer has been assigned a value by IsKnown
-                }
-
-                if (itemSerializer != null)
-                {
-                    var arraySerializerType = typeof(ArraySerializer<>).MakeGenericType(itemType);
-                    arraySerializer = (IBsonSerializer)Activator.CreateInstance(arraySerializerType, itemSerializer);
+                    if (AllItemSerializersAreEqual(itemSerializers, out var itemSerializer))
+                    {
+                        arraySerializer = ArraySerializer.Create(itemSerializer);
+                    }
+                    else
+                    {
+                        var itemType = node.Type.GetElementType();
+                        arraySerializer = FixedSizeArraySerializer.Create(itemType, itemSerializers);
+                    }
                     AddKnownSerializer(node, arraySerializer);
+                }
+            }
+
+            static bool AllItemSerializersAreEqual(IReadOnlyList<IBsonSerializer> itemSerializers, out IBsonSerializer itemSerializer)
+            {
+                switch (itemSerializers.Count)
+                {
+                    case 0:
+                        itemSerializer = null;
+                        return false;
+                    case 1:
+                        itemSerializer = itemSerializers[0];
+                        return true;
+                    default:
+                        var firstItemSerializer = itemSerializers[0];
+                        if (itemSerializers.Skip(1).All(s => s.Equals(firstItemSerializer)))
+                        {
+                            itemSerializer = firstItemSerializer;
+                            return true;
+                        }
+                        else
+                        {
+                            itemSerializer = null;
+                            return false;
+                        }
                 }
             }
         }

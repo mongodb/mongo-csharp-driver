@@ -54,12 +54,16 @@ internal partial class KnownSerializerFinderVisitor
             if (IsNotKnown(node) &&
                 IsKnown(leftExpression, out var leftSerializer))
             {
-                if (leftSerializer is not IBsonSerializer arraySerializer)
+                IBsonSerializer itemSerializer;
+                if (leftSerializer is IFixedSizeArraySerializer fixedSizeArraySerializer)
                 {
-                    throw new ExpressionNotSupportedException(node, because: $"serializer type {leftSerializer.GetType()} does not implement IBsonArraySerializer");
+                    var index = rightExpression.GetConstantValue<int>(node);
+                    itemSerializer = fixedSizeArraySerializer.GetItemSerializer(index);
                 }
-
-                var itemSerializer = ArraySerializerHelper.GetItemSerializer(arraySerializer);
+                else
+                {
+                    itemSerializer = leftSerializer.GetItemSerializer();
+                }
 
                 // expr[index] => node: itemSerializer
                 AddKnownSerializer(node, itemSerializer);
