@@ -25,7 +25,7 @@ namespace MongoDB.Bson
     /// </summary>
     public static class BsonExtensionMethods
     {
-        //DOMAIN-API We should remove this and use the version with the domain.
+        //DOMAIN-API We should remove all the methods that do not take a serialization domain.
         //QUESTION: Do we want to do something now about this...? It's used also internally, but it seems in most cases it's used for "default serialization", so it should be ok.
         /// <summary>
         /// Serializes an object to a BSON byte array.
@@ -43,21 +43,16 @@ namespace MongoDB.Bson
             IBsonSerializer<TNominalType> serializer = null,
             BsonBinaryWriterSettings writerSettings = null,
             Action<BsonSerializationContext.Builder> configurator = null,
-            BsonSerializationArgs args = default(BsonSerializationArgs),
-            int estimatedBsonSize = 0)
-        {
-            args.SetOrValidateNominalType(typeof(TNominalType), "<TNominalType>");
+            BsonSerializationArgs args = default,
+            int estimatedBsonSize = 0) => ToBson(obj, BsonSerializer.DefaultSerializationDomain, serializer, writerSettings, configurator, args, estimatedBsonSize);
 
-            return ToBson(obj, typeof(TNominalType), writerSettings, serializer, configurator, args, estimatedBsonSize);
-        }
-
-        internal static byte[] ToBson<TNominalType>(
+        private static byte[] ToBson<TNominalType>(
             this TNominalType obj,
             IBsonSerializationDomain serializationDomain,
             IBsonSerializer<TNominalType> serializer = null,
             BsonBinaryWriterSettings writerSettings = null,
             Action<BsonSerializationContext.Builder> configurator = null,
-            BsonSerializationArgs args = default(BsonSerializationArgs),
+            BsonSerializationArgs args = default,
             int estimatedBsonSize = 0)
         {
             args.SetOrValidateNominalType(typeof(TNominalType), "<TNominalType>");
@@ -65,7 +60,6 @@ namespace MongoDB.Bson
             return ToBson(obj, typeof(TNominalType), serializationDomain, writerSettings, serializer, configurator, args, estimatedBsonSize);
         }
 
-        //DOMAIN-API We should remove this and use the version with the domain.
         /// <summary>
         /// Serializes an object to a BSON byte array.
         /// </summary>
@@ -89,14 +83,14 @@ namespace MongoDB.Bson
             int estimatedBsonSize = 0) => ToBson(obj, nominalType, BsonSerializer.DefaultSerializationDomain, writerSettings,
             serializer, configurator, args, estimatedBsonSize);
 
-        internal static byte[] ToBson(
+        private static byte[] ToBson(
             this object obj,
             Type nominalType,
             IBsonSerializationDomain serializationDomain,
             BsonBinaryWriterSettings writerSettings = null,
             IBsonSerializer serializer = null,
             Action<BsonSerializationContext.Builder> configurator = null,
-            BsonSerializationArgs args = default(BsonSerializationArgs),
+            BsonSerializationArgs args = default,
             int estimatedBsonSize = 0)
         {
             if (estimatedBsonSize < 0)
@@ -144,7 +138,7 @@ namespace MongoDB.Bson
             this TNominalType obj,
             IBsonSerializer<TNominalType> serializer = null,
             Action<BsonSerializationContext.Builder> configurator = null,
-            BsonSerializationArgs args = default(BsonSerializationArgs))
+            BsonSerializationArgs args = default)
         {
             args.SetOrValidateNominalType(typeof(TNominalType), "<TNominalType>");
             return ToBsonDocument(obj, typeof(TNominalType), serializer, configurator, args);
@@ -169,7 +163,7 @@ namespace MongoDB.Bson
             BsonSerializationArgs args = default) => ToBsonDocument(obj, nominalType,
             BsonSerializer.DefaultSerializationDomain, serializer, configurator, args);
 
-        internal static BsonDocument ToBsonDocument(
+        private static BsonDocument ToBsonDocument(
             this object obj,
             Type nominalType,
             IBsonSerializationDomain serializationDomain,
@@ -237,7 +231,7 @@ namespace MongoDB.Bson
             JsonWriterSettings writerSettings = null,
             IBsonSerializer<TNominalType> serializer = null,
             Action<BsonSerializationContext.Builder> configurator = null,
-            BsonSerializationArgs args = default(BsonSerializationArgs))
+            BsonSerializationArgs args = default)
         {
             args.SetOrValidateNominalType(typeof(TNominalType), "<TNominalType>");
             return ToJson(obj, typeof(TNominalType), writerSettings, serializer, configurator, args);
@@ -266,14 +260,14 @@ namespace MongoDB.Bson
             BsonSerializationArgs args = default)
             => ToJson(obj, nominalType, BsonSerializer.DefaultSerializationDomain, writerSettings, serializer, configurator, args);
 
-        internal static string ToJson(
+        private static string ToJson(
             this object obj,
             Type nominalType,
             IBsonSerializationDomain domain,
             JsonWriterSettings writerSettings = null,
             IBsonSerializer serializer = null,
             Action<BsonSerializationContext.Builder> configurator = null,
-            BsonSerializationArgs args = default(BsonSerializationArgs))
+            BsonSerializationArgs args = default)
         {
             if (nominalType == null)
             {
