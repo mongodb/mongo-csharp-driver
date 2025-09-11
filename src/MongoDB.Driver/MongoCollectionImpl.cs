@@ -679,7 +679,7 @@ namespace MongoDB.Driver
                     {
                         _documentSerializer.SetDocumentIdIfMissing(this, insertOneModel.Document, renderArgs.SerializationDomain);
                     }
-                    return new InsertRequest(new BsonDocumentWrapper(insertOneModel.Document, _documentSerializer))
+                    return new InsertRequest(new BsonDocumentWrapper(insertOneModel.Document, _documentSerializer, renderArgs.SerializationDomain))
                     {
                         CorrelationId = index
                     };
@@ -706,7 +706,7 @@ namespace MongoDB.Driver
                     return new UpdateRequest(
                         UpdateType.Replacement,
                         replaceOneModel.Filter.Render(renderArgs),
-                        new BsonDocumentWrapper(replaceOneModel.Replacement, _documentSerializer))
+                        new BsonDocumentWrapper(replaceOneModel.Replacement, _documentSerializer, renderArgs.SerializationDomain))
                     {
                         Collation = replaceOneModel.Collation,
                         CorrelationId = index,
@@ -1010,7 +1010,7 @@ namespace MongoDB.Driver
             return new FindOneAndReplaceOperation<TProjection>(
                 _collectionNamespace,
                 filter.Render(renderArgs),
-                new BsonDocumentWrapper(replacement, _documentSerializer),
+                new BsonDocumentWrapper(replacement, _documentSerializer, renderArgs.SerializationDomain),
                 new FindAndModifyValueDeserializer<TProjection>(renderedProjection.ProjectionSerializer),
                 _messageEncoderSettings,
                 _settings.SerializationDomain)

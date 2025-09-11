@@ -393,7 +393,7 @@ namespace MongoDB.Driver
         public override BsonDocument Render(RenderArgs<TSource> args)
         {
             var serializer = args.SerializerRegistry.GetSerializer(_obj.GetType());
-            return new BsonDocumentWrapper(_obj, serializer);
+            return new BsonDocumentWrapper(_obj, serializer, args.SerializationDomain);
         }
     }
 
@@ -439,7 +439,7 @@ namespace MongoDB.Driver
         {
             var serializer = args.SerializerRegistry.GetSerializer(_obj.GetType());
             return new RenderedProjectionDefinition<TProjection>(
-                new BsonDocumentWrapper(_obj, serializer),
+                new BsonDocumentWrapper(_obj, serializer, args.SerializationDomain),
                 _projectionSerializer ?? args.GetSerializer<TProjection>());
         }
     }

@@ -241,7 +241,7 @@ namespace MongoDB.Driver
         public override BsonValue Render(RenderArgs<TDocument> args)
         {
             var serializer = args.SerializerRegistry.GetSerializer(_obj.GetType());
-            return new BsonDocumentWrapper(_obj, serializer);
+            return new BsonDocumentWrapper(_obj, serializer, args.SerializationDomain);
         }
     }
 }

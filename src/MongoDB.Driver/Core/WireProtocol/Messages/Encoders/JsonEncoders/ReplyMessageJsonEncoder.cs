@@ -104,7 +104,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             BsonArray documents = null;
             if (!message.QueryFailure)
             {
-                var wrappers = message.Documents.Select(d => new BsonDocumentWrapper(d, _serializer));
+                var wrappers = message.Documents.Select(d => new BsonDocumentWrapper(d, _serializer, _serializationDomain));
                 documents = new BsonArray(wrappers);
             }
 
