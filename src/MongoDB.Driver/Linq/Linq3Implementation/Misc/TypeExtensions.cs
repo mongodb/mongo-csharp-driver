@@ -212,10 +212,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                 type.IsNullableEnum(out enumType, out underlyingType);
         }
 
-        public static bool IsNullable(this Type type)
-        {
-            return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
-        }
+        // Commented out because there is an identical method in Bson assembly (and also in this assembly...).
+        // public static bool IsNullable(this Type type)
+        // {
+        //     return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
+        // }
 
         public static bool IsNullable(this Type type, out Type valueType)
         {
@@ -231,10 +232,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             }
         }
 
-        public static bool IsNullableEnum(this Type type)
-        {
-            return type.IsNullable(out var valueType) && valueType.IsEnum;
-        }
+        // Commented out because there is an identical method in Bson assembly.
+        // public static bool IsNullableEnum(this Type type)
+        // {
+        //     return type.IsNullable(out var valueType) && valueType.IsEnum;
+        // }
 
         public static bool IsNullableEnum(this Type type, out Type enumType, out Type underlyingType)
         {

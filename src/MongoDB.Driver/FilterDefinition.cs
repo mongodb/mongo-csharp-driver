@@ -205,11 +205,11 @@ namespace MongoDB.Driver
         {
             if (args.RenderForElemMatch)
             {
-                return LinqProviderAdapter.TranslateExpressionToElemMatchFilter(_expression, elementSerializer: args.DocumentSerializer, args.SerializerRegistry, args.TranslationOptions);
+                return LinqProviderAdapter.TranslateExpressionToElemMatchFilter(_expression, elementSerializer: args.DocumentSerializer, args.SerializationDomain, args.TranslationOptions);
             }
             else
             {
-                return LinqProviderAdapter.TranslateExpressionToFilter(_expression, args.DocumentSerializer, args.SerializerRegistry, args.TranslationOptions);
+                return LinqProviderAdapter.TranslateExpressionToFilter(_expression, args.DocumentSerializer, args.SerializationDomain, args.TranslationOptions);
             }
         }
     }
@@ -275,7 +275,7 @@ namespace MongoDB.Driver
         public override BsonDocument Render(RenderArgs<TDocument> args)
         {
             var serializer = args.SerializerRegistry.GetSerializer(_obj.GetType());
-            return new BsonDocumentWrapper(_obj, serializer);
+            return new BsonDocumentWrapper(_obj, serializer, args.SerializationDomain);
         }
     }
 }

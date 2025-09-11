@@ -25,7 +25,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// A convention that allows to set the types that can be safely serialized and deserialized with the <see cref="ObjectSerializer"/>.
     /// </summary>
-    public sealed class ObjectSerializerAllowedTypesConvention : ConventionBase, IMemberMapConvention
+    public sealed class ObjectSerializerAllowedTypesConvention : ConventionBase, IMemberMapConventionInternal
     {
         // static properties
 
@@ -151,7 +151,10 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// Applies a modification to the member map.
         /// </summary>
         /// <param name="memberMap">The member map.</param>
-        public void Apply(BsonMemberMap memberMap)
+        public void Apply(BsonMemberMap memberMap) => (this as IMemberMapConventionInternal).Apply(memberMap, BsonSerializer.DefaultSerializationDomain);
+
+        /// <inheritdoc />
+        void IMemberMapConventionInternal.Apply(BsonMemberMap memberMap, IBsonSerializationDomain domain)
         {
             var memberType = memberMap.MemberType;
 

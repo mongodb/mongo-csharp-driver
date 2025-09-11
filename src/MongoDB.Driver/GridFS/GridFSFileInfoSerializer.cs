@@ -31,7 +31,7 @@ namespace MongoDB.Driver.GridFS
         /// Initializes a new instance of the <see cref="GridFSFileInfoSerializer" /> class.
         /// </summary>
         public GridFSFileInfoSerializer()
-            : this(BsonSerializer.LookupSerializer<TFileId>())
+            : this(BsonSerializer.LookupSerializer<TFileId>())  //FP I think this should be fine.
         {
         }
 

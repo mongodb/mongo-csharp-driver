@@ -18,7 +18,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// A convention that sets whether to ignore nulls during serialization.
     /// </summary>
-    public class IgnoreIfNullConvention : ConventionBase, IMemberMapConvention
+    public class IgnoreIfNullConvention : ConventionBase, IMemberMapConventionInternal
     {
         // private fields
         private bool _ignoreIfNull;
@@ -37,7 +37,10 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// Applies a modification to the member map.
         /// </summary>
         /// <param name="memberMap">The member map.</param>
-        public void Apply(BsonMemberMap memberMap)
+        public void Apply(BsonMemberMap memberMap) => (this as IMemberMapConventionInternal).Apply(memberMap, BsonSerializer.DefaultSerializationDomain);
+
+        /// <inheritdoc />
+        void IMemberMapConventionInternal.Apply(BsonMemberMap memberMap, IBsonSerializationDomain domain)
         {
             memberMap.SetIgnoreIfNull(_ignoreIfNull);
         }

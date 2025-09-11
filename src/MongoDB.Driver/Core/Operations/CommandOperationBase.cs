@@ -33,17 +33,35 @@ namespace MongoDB.Driver.Core.Operations
         private DatabaseNamespace _databaseNamespace;
         private MessageEncoderSettings _messageEncoderSettings;
         private IBsonSerializer<TCommandResult> _resultSerializer;
+        private IBsonSerializationDomain _serializationDomain;
 
         protected CommandOperationBase(
             DatabaseNamespace databaseNamespace,
             BsonDocument command,
             IBsonSerializer<TCommandResult> resultSerializer,
-            MessageEncoderSettings messageEncoderSettings)
+            MessageEncoderSettings messageEncoderSettings,
+            IBsonSerializationDomain serializationDomain)
         {
             _databaseNamespace = Ensure.IsNotNull(databaseNamespace, nameof(databaseNamespace));
             _command = Ensure.IsNotNull(command, nameof(command));
             _resultSerializer = Ensure.IsNotNull(resultSerializer, nameof(resultSerializer));
             _messageEncoderSettings = messageEncoderSettings;
+            _serializationDomain = Ensure.IsNotNull(serializationDomain, nameof(serializationDomain));
+        }
+
+        //EXIT
+        protected CommandOperationBase(
+            DatabaseNamespace databaseNamespace,
+            BsonDocument command,
+            IBsonSerializer<TCommandResult> resultSerializer,
+            MessageEncoderSettings messageEncoderSettings)
+            : this(
+                databaseNamespace,
+                command,
+                resultSerializer,
+                messageEncoderSettings,
+                BsonSerializer.DefaultSerializationDomain)
+        {
         }
 
         public BsonDocument AdditionalOptions
@@ -100,7 +118,8 @@ namespace MongoDB.Driver.Core.Operations
                 null, // postWriteAction,
                 CommandResponseHandling.Return,
                 _resultSerializer,
-                _messageEncoderSettings);
+                _messageEncoderSettings,
+                _serializationDomain);
         }
 
         protected TCommandResult ExecuteProtocol(
@@ -131,7 +150,8 @@ namespace MongoDB.Driver.Core.Operations
                 null, // postWriteAction,
                 CommandResponseHandling.Return,
                 _resultSerializer,
-                _messageEncoderSettings);
+                _messageEncoderSettings,
+                _serializationDomain);
         }
 
         protected async Task<TCommandResult> ExecuteProtocolAsync(

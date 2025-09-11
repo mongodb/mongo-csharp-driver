@@ -27,19 +27,22 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
 {
     internal sealed class CommandMessageJsonEncoder : MessageJsonEncoderBase, IMessageEncoder
     {
-        private static readonly ICommandMessageSectionFormatter<Type0CommandMessageSection> __type0SectionFormatter = new Type0SectionFormatter();
-        private static readonly ICommandMessageSectionFormatter<Type1CommandMessageSection> __type1SectionFormatter = new Type1SectionFormatter();
+        private readonly ICommandMessageSectionFormatter<Type0CommandMessageSection> _type0SectionFormatter;
+        private readonly ICommandMessageSectionFormatter<Type1CommandMessageSection> _type1SectionFormatter;
 
         public CommandMessageJsonEncoder(TextReader textReader, TextWriter textWriter, MessageEncoderSettings encoderSettings)
             : base(textReader, textWriter, encoderSettings)
         {
+            //QUESTION Looking at the spec and our implementation, it seems that type 0 sections always serialize/deserialize RawBsonDocument, so they should use the default domain. Am I missing something?
+            _type0SectionFormatter = new Type0SectionFormatter(BsonSerializer.DefaultSerializationDomain);
+            _type1SectionFormatter = new Type1SectionFormatter(SerializationDomain);
         }
 
         // public methods
         public CommandMessage ReadMessage()
         {
             var reader = CreateJsonReader();
-            var context = BsonDeserializationContext.CreateRoot(reader);
+            var context = BsonDeserializationContext.CreateRoot(reader, SerializationDomain);
             var messageDocument = BsonDocumentSerializer.Instance.Deserialize(context);
 
             var opcode = messageDocument["opcode"].AsString;
@@ -143,11 +146,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             switch (section)
             {
                 case Type0CommandMessageSection type0Section:
-                    __type0SectionFormatter.FormatSection(type0Section, writer);
+                    _type0SectionFormatter.FormatSection(type0Section, writer);
                     break;
 
                 case Type1CommandMessageSection type1Section:
-                    __type1SectionFormatter.FormatSection(type1Section, writer);
+                    _type1SectionFormatter.FormatSection(type1Section, writer);
                     break;
 
                 default:

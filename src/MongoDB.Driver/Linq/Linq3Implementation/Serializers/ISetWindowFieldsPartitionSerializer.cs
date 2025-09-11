@@ -61,12 +61,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers
             throw new InvalidOperationException("This serializer is not intended to be used.");
         }
 
-
         public void Serialize(BsonSerializationContext context, BsonSerializationArgs args, object value)
         {
             throw new InvalidOperationException("This serializer is not intended to be used.");
         }
-
 
         object IBsonSerializer.Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {

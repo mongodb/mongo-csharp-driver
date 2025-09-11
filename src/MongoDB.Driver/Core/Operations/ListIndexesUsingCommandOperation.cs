@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Events;
@@ -32,13 +33,24 @@ namespace MongoDB.Driver.Core.Operations
         private BsonValue _comment;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private bool _retryRequested;
+        private IBsonSerializationDomain _serializationDomain;
 
         public ListIndexesUsingCommandOperation(
             CollectionNamespace collectionNamespace,
-            MessageEncoderSettings messageEncoderSettings)
+            MessageEncoderSettings messageEncoderSettings,
+            IBsonSerializationDomain serializationDomain)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
-            _messageEncoderSettings = messageEncoderSettings;
+            _messageEncoderSettings = messageEncoderSettings;  //FP sometimes we ensure that these are not null, sometimes we do not care
+            _serializationDomain = Ensure.IsNotNull(serializationDomain, nameof(serializationDomain));
+        }
+
+        //EXIT
+        public ListIndexesUsingCommandOperation(
+            CollectionNamespace collectionNamespace,
+            MessageEncoderSettings messageEncoderSettings)
+            : this(collectionNamespace, messageEncoderSettings, BsonSerializer.DefaultSerializationDomain)
+        {
         }
 
         public int? BatchSize
@@ -136,7 +148,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "cursor", () => new BsonDocument("batchSize", _batchSize.Value), _batchSize.HasValue },
                 { "comment", _comment, _comment != null },
             };
-            return new ReadCommandOperation<BsonDocument>(databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            return new ReadCommandOperation<BsonDocument>(databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings, _serializationDomain)
             {
                 RetryRequested = _retryRequested // might be overridden by retryable read context
             };
@@ -156,7 +168,8 @@ namespace MongoDB.Driver.Core.Operations
                 batchSize: _batchSize ?? 0,
                 0,
                 BsonDocumentSerializer.Instance,
-                _messageEncoderSettings);
+                _messageEncoderSettings,
+                _serializationDomain);
 
             return cursor;
         }

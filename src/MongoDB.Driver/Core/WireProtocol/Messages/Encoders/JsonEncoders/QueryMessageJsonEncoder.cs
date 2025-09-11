@@ -25,17 +25,20 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
 {
     internal sealed class QueryMessageJsonEncoder : MessageJsonEncoderBase, IMessageEncoder
     {
+        private IBsonSerializationDomain _serializationDomain;
+
         // constructors
         public QueryMessageJsonEncoder(TextReader textReader, TextWriter textWriter, MessageEncoderSettings encoderSettings)
             : base(textReader, textWriter, encoderSettings)
         {
+            _serializationDomain = encoderSettings?.GetOrDefault<IBsonSerializationDomain>(MessageEncoderSettingsName.SerializationDomain, null) ?? BsonSerializer.DefaultSerializationDomain;
         }
 
         // methods
         public QueryMessage ReadMessage()
         {
             var jsonReader = CreateJsonReader();
-            var messageContext = BsonDeserializationContext.CreateRoot(jsonReader);
+            var messageContext = BsonDeserializationContext.CreateRoot(jsonReader, _serializationDomain);
             var messageDocument = BsonDocumentSerializer.Instance.Deserialize(messageContext);
 
             var opcode = messageDocument["opcode"].AsString;
@@ -101,7 +104,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             };
 
             var jsonWriter = CreateJsonWriter();
-            var messageContext = BsonSerializationContext.CreateRoot(jsonWriter);
+            var messageContext = BsonSerializationContext.CreateRoot(jsonWriter, _serializationDomain);
             BsonDocumentSerializer.Instance.Serialize(messageContext, messageDocument);
         }
 
