@@ -86,7 +86,7 @@ namespace MongoDB.Bson
             get { return _wrapped; }
         }
 
-        // DOMAIN-API All the various Create methods are used only in testing, the version without the domain should be removed.
+        // DOMAIN-API All the various Create methods are used only in testing, the versions without the domain should be removed.
         // public static methods
         /// <summary>
         /// Creates a new instance of the BsonDocumentWrapper class.
@@ -111,7 +111,7 @@ namespace MongoDB.Bson
         public static BsonDocumentWrapper Create(Type nominalType, object value) =>
             Create(nominalType, value, BsonSerializer.DefaultSerializationDomain);
 
-        internal static BsonDocumentWrapper Create(Type nominalType, object value, IBsonSerializationDomain domain)
+        private static BsonDocumentWrapper Create(Type nominalType, object value, IBsonSerializationDomain domain)
         {
             var serializer = domain.LookupSerializer(nominalType);
             return new BsonDocumentWrapper(value, serializer, domain);
@@ -126,15 +126,7 @@ namespace MongoDB.Bson
         public static IEnumerable<BsonDocumentWrapper> CreateMultiple<TNominalType>(IEnumerable<TNominalType> values) =>
             CreateMultiple(values, BsonSerializer.DefaultSerializationDomain);
 
-        /// <summary>
-        /// //TODO
-        /// </summary>
-        /// <param name="values"></param>
-        /// <param name="domain"></param>
-        /// <typeparam name="TNominalType"></typeparam>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        internal static IEnumerable<BsonDocumentWrapper> CreateMultiple<TNominalType>(IEnumerable<TNominalType> values, IBsonSerializationDomain domain)
+        private static IEnumerable<BsonDocumentWrapper> CreateMultiple<TNominalType>(IEnumerable<TNominalType> values, IBsonSerializationDomain domain)
         {
             if (values == null)
             {
@@ -154,15 +146,7 @@ namespace MongoDB.Bson
         public static IEnumerable<BsonDocumentWrapper> CreateMultiple(Type nominalType, IEnumerable values) =>
             CreateMultiple(nominalType, values, BsonSerializer.DefaultSerializationDomain);
 
-        /// <summary>
-        /// //TODO
-        /// </summary>
-        /// <param name="nominalType"></param>
-        /// <param name="values"></param>
-        /// <param name="domain"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        internal static IEnumerable<BsonDocumentWrapper> CreateMultiple(Type nominalType, IEnumerable values, IBsonSerializationDomain domain)
+        private static IEnumerable<BsonDocumentWrapper> CreateMultiple(Type nominalType, IEnumerable values, IBsonSerializationDomain domain)
         {
             if (nominalType == null)
             {
