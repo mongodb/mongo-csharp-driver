@@ -54,6 +54,26 @@ internal partial class KnownSerializerFinderVisitor
         return nodes.Any(IsNotKnown);
     }
 
+    private bool AnyIsKnown(IEnumerable<Expression> nodes, out IBsonSerializer knownSerializer)
+    {
+        foreach (var node in nodes)
+        {
+            if (IsKnown(node, out var nodeSerializer))
+            {
+                knownSerializer = nodeSerializer;
+                return true;
+            }
+        }
+
+        knownSerializer = null;
+        return false;
+    }
+
+    private bool AnyIsNotKnown(IEnumerable<Expression> nodes)
+    {
+        return nodes.Any(IsNotKnown);
+    }
+
     private bool CanDeduceSerializer(Expression node1, Expression node2, out Expression unknownNode, out IBsonSerializer knownSerializer)
     {
         if (IsKnown(node1, out var node1Serializer) &&
