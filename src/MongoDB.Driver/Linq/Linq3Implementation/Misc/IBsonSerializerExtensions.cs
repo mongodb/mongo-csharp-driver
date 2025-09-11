@@ -13,8 +13,11 @@
  * limitations under the License.
  */
 
+using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
+using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Misc;
 
@@ -45,6 +48,31 @@ internal static class IBsonSerializerExtensions
 
     public static IBsonSerializer GetItemSerializer(this IBsonSerializer serializer)
         => ArraySerializerHelper.GetItemSerializer(serializer);
+
+    public static IBsonSerializer GetItemSerializer(this IBsonSerializer serializer, int index)
+    {
+        if (serializer is IFixedSizeArraySerializer fixedSizeArraySerializer)
+        {
+            return fixedSizeArraySerializer.GetItemSerializer(index);
+        }
+        else
+        {
+            return serializer.GetItemSerializer();
+        }
+    }
+
+    public static IBsonSerializer GetItemSerializer(this IBsonSerializer serializer, Expression indexExpression, Expression containingExpression)
+    {
+        if (serializer is IFixedSizeArraySerializer fixedSizeArraySerializer)
+        {
+            var index = indexExpression.GetConstantValue<int>(containingExpression);
+            return fixedSizeArraySerializer.GetItemSerializer(index);
+        }
+        else
+        {
+            return serializer.GetItemSerializer();
+        }
+    }
 
     public static bool HasNumericRepresentation(this IBsonSerializer serializer)
     {
