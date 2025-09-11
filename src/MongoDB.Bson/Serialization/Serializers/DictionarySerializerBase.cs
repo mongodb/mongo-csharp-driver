@@ -262,7 +262,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             bsonReader.ReadStartDocument();
             while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
             {
-                var key = DeserializeKeyString(bsonReader.ReadName());
+                var key = DeserializeKeyString(bsonReader.ReadName(), context.SerializationDomain);
                 var value = _valueSerializer.Deserialize(context);
                 dictionary.Add(key, value);
             }
@@ -270,13 +270,12 @@ namespace MongoDB.Bson.Serialization.Serializers
             return dictionary;
         }
 
-        private object DeserializeKeyString(string keyString)
+        private object DeserializeKeyString(string keyString, IBsonSerializationDomain serializationDomain)
         {
             var keyDocument = new BsonDocument("k", keyString);
             using (var keyReader = new BsonDocumentReader(keyDocument))
             {
-                //QUESTION Is it correct we only need a default domain here?
-                var context = BsonDeserializationContext.CreateRoot(keyReader, BsonSerializer.DefaultSerializationDomain);
+                var context = BsonDeserializationContext.CreateRoot(keyReader, serializationDomain);
                 keyReader.ReadStartDocument();
                 keyReader.ReadName("k");
                 var key = _keySerializer.Deserialize(context);
@@ -321,19 +320,18 @@ namespace MongoDB.Bson.Serialization.Serializers
             bsonWriter.WriteStartDocument();
             foreach (DictionaryEntry dictionaryEntry in value)
             {
-                bsonWriter.WriteName(SerializeKeyString(dictionaryEntry.Key));
+                bsonWriter.WriteName(SerializeKeyString(dictionaryEntry.Key, context.SerializationDomain));
                 _valueSerializer.Serialize(context, dictionaryEntry.Value);
             }
             bsonWriter.WriteEndDocument();
         }
 
-        private string SerializeKeyString(object key)
+        private string SerializeKeyString(object key, IBsonSerializationDomain serializationDomain)
         {
             var keyDocument = new BsonDocument();
             using (var keyWriter = new BsonDocumentWriter(keyDocument))
             {
-                //QUESTION Is it correct we only need a default domain here?
-                var context = BsonSerializationContext.CreateRoot(keyWriter, BsonSerializer.DefaultSerializationDomain);
+                var context = BsonSerializationContext.CreateRoot(keyWriter, serializationDomain);
                 keyWriter.WriteStartDocument();
                 keyWriter.WriteName("k");
                 _keySerializer.Serialize(context, key);
@@ -669,7 +667,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             bsonReader.ReadStartDocument();
             while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
             {
-                var key = DeserializeKeyString(bsonReader.ReadName());
+                var key = DeserializeKeyString(bsonReader.ReadName(), context.SerializationDomain);
                 var value = _lazyValueSerializer.Value.Deserialize(context);
                 accumulator.Add(new KeyValuePair<TKey, TValue>(key, value));
             }
@@ -678,13 +676,12 @@ namespace MongoDB.Bson.Serialization.Serializers
             return FinalizeAccumulator(accumulator);
         }
 
-        private TKey DeserializeKeyString(string keyString)
+        private TKey DeserializeKeyString(string keyString, IBsonSerializationDomain serializationDomain)
         {
             var keyDocument = new BsonDocument("k", keyString);
             using (var keyReader = new BsonDocumentReader(keyDocument))
             {
-                //QUESTION Is it correct we only need a default domain here?
-                var context = BsonDeserializationContext.CreateRoot(keyReader, BsonSerializer.DefaultSerializationDomain);
+                var context = BsonDeserializationContext.CreateRoot(keyReader, serializationDomain);
                 keyReader.ReadStartDocument();
                 keyReader.ReadName("k");
                 var key = _lazyKeySerializer.Value.Deserialize(context);
@@ -729,19 +726,18 @@ namespace MongoDB.Bson.Serialization.Serializers
             bsonWriter.WriteStartDocument();
             foreach (var keyValuePair in value)
             {
-                bsonWriter.WriteName(SerializeKeyString(keyValuePair.Key));
+                bsonWriter.WriteName(SerializeKeyString(keyValuePair.Key, context.SerializationDomain));
                 _lazyValueSerializer.Value.Serialize(context, keyValuePair.Value);
             }
             bsonWriter.WriteEndDocument();
         }
 
-        private string SerializeKeyString(TKey key)
+        private string SerializeKeyString(TKey key, IBsonSerializationDomain serializationDomain)
         {
             var keyDocument = new BsonDocument();
             using (var keyWriter = new BsonDocumentWriter(keyDocument))
             {
-                //QUESTION Is it correct we only need a default domain here?
-                var context = BsonSerializationContext.CreateRoot(keyWriter, BsonSerializer.DefaultSerializationDomain);
+                var context = BsonSerializationContext.CreateRoot(keyWriter, serializationDomain);
                 keyWriter.WriteStartDocument();
                 keyWriter.WriteName("k");
                 _lazyKeySerializer.Value.Serialize(context, key);
