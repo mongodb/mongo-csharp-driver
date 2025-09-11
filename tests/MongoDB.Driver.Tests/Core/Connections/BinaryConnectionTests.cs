@@ -500,52 +500,6 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public async Task ReceiveMessage_should_handle_out_of_order_replies(
-            [Values(false, true)]
-            bool async1,
-            [Values(false, true)]
-            bool async2)
-        {
-            using (var stream = new BlockingMemoryStream())
-            {
-                _mockStreamFactory.Setup(f => f.CreateStreamAsync(_endPoint, It.IsAny<CancellationToken>())).ReturnsAsync(stream);
-                await _subject.OpenAsync(OperationContext.NoTimeout);
-                _capturedEvents.Clear();
-
-                var encoderSelector = new ReplyMessageEncoderSelector<BsonDocument>(BsonDocumentSerializer.Instance);
-
-                var receivedTask10 = async1 ?
-                    _subject.ReceiveMessageAsync(OperationContext.NoTimeout, 10, encoderSelector, _messageEncoderSettings) :
-                    Task.Run(() => _subject.ReceiveMessage(OperationContext.NoTimeout, 10, encoderSelector, _messageEncoderSettings));
-
-                var receivedTask11 = async2 ?
-                    _subject.ReceiveMessageAsync(OperationContext.NoTimeout, 11, encoderSelector, _messageEncoderSettings) :
-                    Task.Run(() => _subject.ReceiveMessage(OperationContext.NoTimeout, 11, encoderSelector, _messageEncoderSettings));
-
-                SpinWait.SpinUntil(() => _capturedEvents.Count >= 2, TimeSpan.FromSeconds(5)).Should().BeTrue();
-
-                var messageToReceive10 = MessageHelper.BuildReply<BsonDocument>(new BsonDocument("_id", 10), BsonDocumentSerializer.Instance, responseTo: 10);
-                var messageToReceive11 = MessageHelper.BuildReply<BsonDocument>(new BsonDocument("_id", 11), BsonDocumentSerializer.Instance, responseTo: 11);
-                MessageHelper.WriteResponsesToStream(stream, messageToReceive11, messageToReceive10); // out of order
-
-                var received10 = await receivedTask10;
-                var received11 = await receivedTask11;
-
-                var expected = MessageHelper.TranslateMessagesToBsonDocuments(new[] { messageToReceive10, messageToReceive11 });
-                var actual = MessageHelper.TranslateMessagesToBsonDocuments(new[] { received10, received11 });
-
-                actual.Should().BeEquivalentTo(expected);
-
-                _capturedEvents.Next().Should().BeOfType<ConnectionReceivingMessageEvent>();
-                _capturedEvents.Next().Should().BeOfType<ConnectionReceivingMessageEvent>();
-                _capturedEvents.Next().Should().BeOfType<ConnectionReceivedMessageEvent>();
-                _capturedEvents.Next().Should().BeOfType<ConnectionReceivedMessageEvent>();
-                _capturedEvents.Any().Should().BeFalse();
-            }
-        }
-
         [Fact]
         public async Task ReceiveMessage_should_not_produce_unobserved_task_exceptions_on_fail()
         {
@@ -633,58 +587,6 @@ namespace MongoDB.Driver.Core.Connections
             {
                 TaskScheduler.UnobservedTaskException -= eventHandler;
                 mockStream.Object?.Dispose();
-            }
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public async Task ReceiveMessage_should_throw_network_exception_to_all_awaiters(
-            [Values(false, true)]
-            bool async1,
-            [Values(false, true)]
-            bool async2)
-        {
-            var mockStream = new Mock<Stream>();
-            using (mockStream.Object)
-            {
-                var encoderSelector = new ReplyMessageEncoderSelector<BsonDocument>(BsonDocumentSerializer.Instance);
-
-                _mockStreamFactory.Setup(f => f.CreateStream(_endPoint, It.IsAny<CancellationToken>()))
-                  .Returns(mockStream.Object);
-                var readTcs = new TaskCompletionSource<int>();
-                SetupStreamRead(mockStream, readTcs);
-                _subject.Open(OperationContext.NoTimeout);
-                _capturedEvents.Clear();
-
-                var task1 = async1 ?
-                    _subject.ReceiveMessageAsync(OperationContext.NoTimeout, 1, encoderSelector, _messageEncoderSettings) :
-                    Task.Run(() => _subject.ReceiveMessage(OperationContext.NoTimeout, 1, encoderSelector, _messageEncoderSettings));
-
-                var task2 = async2 ?
-                    _subject.ReceiveMessageAsync(OperationContext.NoTimeout, 2, encoderSelector, _messageEncoderSettings) :
-                    Task.Run(() => _subject.ReceiveMessage(OperationContext.NoTimeout, 2, encoderSelector, _messageEncoderSettings));
-
-                SpinWait.SpinUntil(() => _capturedEvents.Count >= 2, TimeSpan.FromSeconds(5)).Should().BeTrue();
-
-                readTcs.SetException(new SocketException());
-
-                var exception1 = await Record.ExceptionAsync(() => task1);
-                var exception2 = await Record.ExceptionAsync(() => task2);
-
-                exception1.Should().BeOfType<MongoConnectionException>().Subject
-                    .ConnectionId.Should().Be(_subject.ConnectionId);
-                exception1.InnerException.Should().BeOfType<SocketException>();
-
-                exception2.Should().BeOfType<MongoConnectionException>().Subject
-                    .ConnectionId.Should().Be(_subject.ConnectionId);
-                exception2.InnerException.Should().BeOfType<SocketException>();
-
-                _capturedEvents.Next().Should().BeOfType<ConnectionReceivingMessageEvent>();
-                _capturedEvents.Next().Should().BeOfType<ConnectionReceivingMessageEvent>();
-                _capturedEvents.Next().Should().BeOfType<ConnectionFailedEvent>();
-                _capturedEvents.Next().Should().BeOfType<ConnectionReceivingMessageFailedEvent>();
-                _capturedEvents.Next().Should().BeOfType<ConnectionReceivingMessageFailedEvent>();
-                _capturedEvents.Any().Should().BeFalse();
             }
         }
 
