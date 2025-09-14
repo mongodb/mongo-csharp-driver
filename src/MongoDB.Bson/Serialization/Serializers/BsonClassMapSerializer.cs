@@ -152,7 +152,7 @@ namespace MongoDB.Bson.Serialization
             var allMemberMaps = _classMap.AllMemberMaps;
             var extraElementsMemberMapIndex = _classMap.ExtraElementsMemberMapIndex;
 
-            var (lengthInUInts, useStackAlloc) = FastMemberMapHelper.GetLengthInUInts(_classMap.AllMemberMaps.Count);
+            var (lengthInUInts, useStackAlloc) = FastMemberMapHelper.GetLengthInUInts(allMemberMaps.Count);
             using var bitArray = useStackAlloc ? FastMemberMapHelper.GetMembersBitArray(stackalloc uint[lengthInUInts]) : FastMemberMapHelper.GetMembersBitArray(lengthInUInts);
 
             bsonReader.ReadStartDocument();
@@ -702,11 +702,11 @@ namespace MongoDB.Bson.Serialization
                     _bitArray.Clear();
                 }
 
-                public MembersBitArray(int lengthInUints, ArrayPool<uint> arrayPool) : this()
+                public MembersBitArray(int lengthInUInts, ArrayPool<uint> arrayPool) : this()
                 {
                     _arrayPool = arrayPool;
-                    _rentedBuffer = arrayPool.Rent(lengthInUints);
-                    _bitArray = _rentedBuffer.AsSpan(0, lengthInUints);
+                    _rentedBuffer = arrayPool.Rent(lengthInUInts);
+                    _bitArray = _rentedBuffer.AsSpan(0, lengthInUInts);
 
                     _bitArray.Clear();
                 }
@@ -732,15 +732,15 @@ namespace MongoDB.Bson.Serialization
 
             public static (int LengthInUInts, bool UseStackAlloc) GetLengthInUInts(int membersCount)
             {
-                var length = (membersCount + 31) >> 5;
-                return (length, length <= 8); // Use stackalloc for up to 256 members
+                var lengthInUInts = (membersCount + 31) >> 5;
+                return (lengthInUInts, lengthInUInts <= 8); // Use stackalloc for up to 256 members
             }
 
             public static MembersBitArray GetMembersBitArray(Span<uint> span) =>
                 new(span);
 
-            public static MembersBitArray GetMembersBitArray(int length) =>
-                new(length, ArrayPool<uint>.Shared);
+            public static MembersBitArray GetMembersBitArray(int lengthInUInts) =>
+                new(lengthInUInts, ArrayPool<uint>.Shared);
         }
     }
 }
