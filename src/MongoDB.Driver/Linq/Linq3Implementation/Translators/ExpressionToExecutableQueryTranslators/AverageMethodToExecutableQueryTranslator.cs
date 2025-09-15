@@ -161,7 +161,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
                 return ExecutableQuery.Create(
                     provider,
                     pipeline,
-                    !returnType.IsValueType || returnType.IsNullable()
+                    returnType.IsNullable() // Note: numeric types are never reference types
                         ? __singleOrDefaultFinalizer
                         : __singleFinalizer);
             }
