@@ -586,6 +586,8 @@ namespace MongoDB.Driver.Core.Clusters
                 UpdateClusterDescription(Description.WithType(_clusterType ?? Settings.GetInitialClusterType()));
             }
 
+            public override IEnumerable<IClusterableServer> Servers => _servers.Values;
+
             public void RemoveServer(EndPoint endPoint)
             {
                 _servers.Remove(endPoint);

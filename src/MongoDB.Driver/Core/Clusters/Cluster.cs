@@ -89,6 +89,8 @@ namespace MongoDB.Driver.Core.Clusters
             }
         }
 
+        public abstract IEnumerable<IClusterableServer> Servers { get; }
+
         public ClusterSettings Settings
         {
             get { return _settings; }

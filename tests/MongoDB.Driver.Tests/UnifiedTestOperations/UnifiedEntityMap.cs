@@ -16,6 +16,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,6 +25,7 @@ using MongoDB.Driver.Authentication.Oidc;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
@@ -494,6 +496,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             var writeConcern = WriteConcern.Acknowledged;
             var serverApi = CoreTestConfiguration.ServerApi;
             TimeSpan? wTimeout = null;
+            TimeSpan? awaitMinPoolSizeTimeout = null;
 
             foreach (var element in entity)
             {
@@ -504,6 +507,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         break;
                     case "autoEncryptOpts":
                         autoEncryptionOptions = ConfigureAutoEncryptionOptions(element.Value.AsBsonDocument);
+                        break;
+                    case "awaitMinPoolSizeMS":
+                        awaitMinPoolSizeTimeout = TimeSpan.FromMilliseconds(element.Value.AsInt32);
                         break;
                     case "uriOptions":
                         foreach (var option in element.Value.AsBsonDocument)
@@ -792,6 +798,24 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     }
                 },
                 useMultipleShardRouters);
+
+            if (awaitMinPoolSizeTimeout.HasValue && minPoolSize is > 0)
+            {
+                if (!SpinWait.SpinUntil(() =>
+                    {
+                        var servers = ((IClusterInternal)client.Cluster).Servers.Where(s => s.Description.IsDataBearing).ToArray();
+                        return servers.Any() && servers.All(s => ((ExclusiveConnectionPool)s.ConnectionPool).DormantCount >= minPoolSize);
+                    }, awaitMinPoolSizeTimeout.Value))
+                {
+                    client.Dispose();
+                    throw new TimeoutException("MinPoolSize population took too long");
+                }
+
+                foreach (var eventCapturer in clientEventCapturers.Values)
+                {
+                    eventCapturer.Clear();
+                }
+            }
 
             return (client, clientEventCapturers, loggingComponents);
         }
