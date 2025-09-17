@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Tests.Search
         {
             RequireEnvironment.Check().EnvironmentVariable("ATLAS_SEARCH_TESTS_ENABLED");
 
-            var atlasSearchUri = Environment.GetEnvironmentVariable("ATLAS_SEARCH");
+            var atlasSearchUri = Environment.GetEnvironmentVariable("ATLAS_SEARCH_URI");
             Ensure.IsNotNullOrEmpty(atlasSearchUri, nameof(atlasSearchUri));
 
             var mongoClientSettings = MongoClientSettings.FromConnectionString(atlasSearchUri);

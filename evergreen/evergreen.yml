@@ -526,7 +526,7 @@ functions:
           echo "Response Body: $response_body"
           echo "HTTP Status: $http_status"
 
-  assume-ec2-role:
+  assume-aws-test-secrets-role:
     - command: ec2.assume_role
       params:
         role_arn: ${aws_test_secrets_role}
@@ -665,9 +665,12 @@ functions:
       params:
         working_dir: mongo-csharp-driver
         include_expansions_in_env:
-          - "ATLAS_SEARCH"
+          - "AWS_ACCESS_KEY_ID"
+          - "AWS_SECRET_ACCESS_KEY"
+          - "AWS_SESSION_TOKEN"
         script: |
           ${PREPARE_SHELL}
+          . ${DRIVERS_TOOLS}/.evergreen/secrets_handling/setup-secrets.sh drivers/atlas-qa
           evergreen/run-atlas-search-test.sh
 
   run-atlas-search-index-helpers-test:
@@ -1250,7 +1253,7 @@ tasks:
 
     - name: atlas-connectivity-tests
       commands:
-        - func: assume-ec2-role
+        - func: assume-aws-test-secrets-role
         - func: run-atlas-connectivity-tests
 
     - name: test-gssapi
@@ -1356,12 +1359,13 @@ tasks:
 
     - name: atlas-data-lake-test
       commands:
-        - func: assume-ec2-role
+        - func: assume-aws-test-secrets-role
         - func: bootstrap-mongohoused
         - func: run-atlas-data-lake-test
 
     - name: atlas-search-test
       commands:
+        - func: assume-aws-test-secrets-role
         - func: run-atlas-search-test
 
     - name: atlas-search-index-helpers-test
@@ -1419,7 +1423,7 @@ tasks:
               ${PREPARE_SHELL}
               dotnet build
               tar czf /tmp/mongo-csharp-driver.tgz tests/*.Tests/bin/Debug/net6.0/ ./evergreen/run-mongodb-oidc-env-tests.sh
-        - func: assume-ec2-role
+        - func: assume-aws-test-secrets-role
         - func: run_oidc_k8s_tests
           vars:
             K8S_VARIANT: eks
@@ -1824,7 +1828,7 @@ tasks:
 
     - name: x509-auth-tests
       commands:
-        - func: assume-ec2-role
+        - func: assume-aws-test-secrets-role
         - func: setup-x509-tests
         - func: run-x509-tests
           vars:
@@ -2006,7 +2010,7 @@ task_groups:
       - func: fix-absolute-paths
       - func: init-test-results
       - func: make-files-executable
-      - func: assume-ec2-role
+      - func: assume-aws-test-secrets-role
       - command: subprocess.exec
         params:
           binary: bash
@@ -2052,7 +2056,7 @@ task_groups:
       - func: fix-absolute-paths
       - func: init-test-results
       - func: make-files-executable
-      - func: assume-ec2-role
+      - func: assume-aws-test-secrets-role
       - command: subprocess.exec
         params:
           binary: bash
@@ -2096,7 +2100,7 @@ task_groups:
       - func: fix-absolute-paths
       - func: init-test-results
       - func: make-files-executable
-      - func: assume-ec2-role
+      - func: assume-aws-test-secrets-role
       - command: subprocess.exec
         params:
           binary: bash
@@ -2128,7 +2132,7 @@ task_groups:
     setup_group:
       - func: fetch-source
       - func: prepare-resources
-      - func: assume-ec2-role
+      - func: assume-aws-test-secrets-role
       - command: subprocess.exec
         params:
           binary: bash
@@ -2163,7 +2167,7 @@ task_groups:
       - func: fix-absolute-paths
       - func: init-test-results
       - func: make-files-executable
-      - func: assume-ec2-role
+      - func: assume-aws-test-secrets-role
       - command: subprocess.exec
         params:
           binary: bash
@@ -2191,7 +2195,7 @@ task_groups:
       - func: prepare-resources
       - func: fix-absolute-paths
       - func: make-files-executable
-      - func: assume-ec2-role
+      - func: assume-aws-test-secrets-role
       - func: install-dotnet
       - command: subprocess.exec
         params:
@@ -2222,7 +2226,7 @@ task_groups:
       - func: prepare-resources
       - func: fix-absolute-paths
       - func: make-files-executable
-      - func: assume-ec2-role
+      - func: assume-aws-test-secrets-role
       - func: install-dotnet
       - command: subprocess.exec
         params:
@@ -2253,7 +2257,7 @@ task_groups:
       - func: fix-absolute-paths
       - func: make-files-executable
       - func: install-dotnet
-      - func: assume-ec2-role
+      - func: assume-aws-test-secrets-role
       - command: subprocess.exec
         params:
           binary: bash
