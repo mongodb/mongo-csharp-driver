@@ -21,6 +21,15 @@ using MongoDB.Driver.Core.Bindings;
 
 namespace MongoDB.Driver
 {
+    public static class ClientSessionExtensions
+    {
+        //TODO This will need to be moved somewhere else
+        public static BsonTimestamp GetSnapshotTime(this IClientSessionHandle session)
+        {
+            return ((ClientSessionHandle)session).SnapshotTime;
+        }
+    }
+
     /// <summary>
     /// The interface for a client session.
     /// </summary>
@@ -82,11 +91,6 @@ namespace MongoDB.Driver
         /// The server session.
         /// </value>
         IServerSession ServerSession { get; }
-
-        /// <summary>
-        /// //TODO
-        /// </summary>
-        BsonTimestamp SnapshotTime { get; }
 
         /// <summary>
         /// Gets the wrapped core session (intended for internal use only).

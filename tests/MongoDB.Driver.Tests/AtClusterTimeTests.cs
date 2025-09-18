@@ -51,7 +51,7 @@ public class AtClusterTimeTests
             var results = collection.Find(session1, filterDefinition).Sort(sortDefinition).ToList();
             AssertOneObj(results);
 
-            clusterTime1 = session1.SnapshotTime;
+            clusterTime1 = session1.GetSnapshotTime();
             Assert.NotEqual(null, clusterTime1);
         }
 
@@ -70,7 +70,7 @@ public class AtClusterTimeTests
             var results = collection.Find(session2, filterDefinition).Sort(sortDefinition).ToList();
             AssertOneObj(results);
 
-            var clusterTime2 = session2.SnapshotTime;
+            var clusterTime2 = session2.GetSnapshotTime();
             Assert.Equal(clusterTime2, clusterTime1);
         }
 
