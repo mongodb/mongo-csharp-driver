@@ -84,6 +84,11 @@ namespace MongoDB.Driver
         IServerSession ServerSession { get; }
 
         /// <summary>
+        /// //TODO
+        /// </summary>
+        BsonTimestamp SnapshotTime { get; }
+
+        /// <summary>
         /// Gets the wrapped core session (intended for internal use only).
         /// </summary>
         /// <value>

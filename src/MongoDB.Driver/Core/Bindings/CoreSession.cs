@@ -71,6 +71,7 @@ namespace MongoDB.Driver.Core.Bindings
         {
             _cluster = Ensure.IsNotNull(cluster, nameof(cluster));
             _options = Ensure.IsNotNull(options, nameof(options));
+            _snapshotTime = options.SnapshotTime;
         }
 
         // public properties

@@ -89,6 +89,8 @@ namespace MongoDB.Driver
             }
         }
 
+        public BsonTimestamp SnapshotTime => _coreSession.SnapshotTime;
+
         /// <inheritdoc />
         public ICoreSessionHandle WrappedCoreSession => _coreSession;
 

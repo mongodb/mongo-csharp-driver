@@ -627,6 +627,8 @@ namespace MongoDB.Driver
                 throw new NotSupportedException("Combining both causal consistency and snapshot options is not supported.");
             }
 
+            //TODO Throw an exception if SnapshotTime is set and Snapshot is not true.
+
             options ??= new ClientSessionOptions();
             if (_settings.Timeout.HasValue && options.DefaultTransactionOptions?.Timeout == null)
             {
