@@ -142,6 +142,19 @@ namespace MongoDB.Driver.Core.Clusters
             }
         }
 
+        public IEnumerable<IClusterableServer> Servers
+        {
+            get
+            {
+                if (_server == null)
+                {
+                    return [];
+                }
+
+                return [_server];
+            }
+        }
+
         public void Initialize()
         {
             ThrowIfDisposed();
