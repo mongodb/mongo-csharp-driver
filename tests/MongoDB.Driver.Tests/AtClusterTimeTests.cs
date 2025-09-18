@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -27,7 +28,7 @@ public class AtClusterTimeTests
     [Fact]
     public void AtClusterTime_should_work()
     {
-        RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
+        RequireServer.Check().ClusterType(ClusterType.ReplicaSet).Supports(Feature.SnapshotReads);
         const string collectionName = "atClusterTimeTests";
         const string databaseName = "testDb";
 
