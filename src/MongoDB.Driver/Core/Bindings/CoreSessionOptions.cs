@@ -17,7 +17,6 @@ using MongoDB.Bson;
 
 namespace MongoDB.Driver.Core.Bindings
 {
-    //TODO Why is this class public?
     /// <summary>
     /// Core session options.
     /// </summary>
