@@ -85,7 +85,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             var fullCollectionName = stream.ReadCString(Encoding);
             var skip = stream.ReadInt32();
             var batchSize = stream.ReadInt32();
-            var context = BsonDeserializationContext.CreateRoot(binaryReader, SerializationDomain);
+            var context = BsonDeserializationContext.CreateRoot(binaryReader);
             var query = serializer.Deserialize(context);
             BsonDocument fields = null;
             if (stream.Position < startPosition + messageSize)
@@ -156,8 +156,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         {
             if (fields != null)
             {
-                //QUESTION Is it correct we only need a default domain here?
-                var context = BsonSerializationContext.CreateRoot(binaryWriter, BsonSerializer.DefaultSerializationDomain);
+                var context = BsonSerializationContext.CreateRoot(binaryWriter);
                 BsonDocumentSerializer.Instance.Serialize(context, fields);
             }
         }
@@ -170,8 +169,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             binaryWriter.PushElementNameValidator(queryValidator);
             try
             {
-                //QUESTION Is it correct we only need a default domain here?
-                var context = BsonSerializationContext.CreateRoot(binaryWriter, BsonSerializer.DefaultSerializationDomain);
+                var context = BsonSerializationContext.CreateRoot(binaryWriter);
                 BsonDocumentSerializer.Instance.Serialize(context, query ?? new BsonDocument());
             }
             finally

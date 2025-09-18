@@ -32,7 +32,6 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
 
         // private fields
         private readonly IBsonSerializer<GeoJsonPolygonCoordinates<TCoordinates>> _coordinatesSerializer = BsonSerializer.LookupSerializer<GeoJsonPolygonCoordinates<TCoordinates>>();
-        //QUESTION This happens in all GeoJsonOBjectModel serializers, what do we do here? Do we just lookup the serialzer in each Serialize/Deserialize or do we cache it?
         private readonly GeoJsonObjectSerializerHelper<TCoordinates> _helper;
 
         // constructors

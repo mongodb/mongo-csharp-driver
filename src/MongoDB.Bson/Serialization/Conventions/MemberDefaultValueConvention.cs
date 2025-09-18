@@ -20,7 +20,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// A convention that sets the default value for members of a given type.
     /// </summary>
-    public class MemberDefaultValueConvention : ConventionBase, IMemberMapConventionInternal
+    public class MemberDefaultValueConvention : ConventionBase, IMemberMapConvention
     {
         // private fields
         private readonly Type _type;
@@ -43,10 +43,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// Applies a modification to the member map.
         /// </summary>
         /// <param name="memberMap">The member map.</param>
-        public void Apply(BsonMemberMap memberMap) => (this as IMemberMapConventionInternal).Apply(memberMap, BsonSerializer.DefaultSerializationDomain);
-
-        /// <inheritdoc />
-        void IMemberMapConventionInternal.Apply(BsonMemberMap memberMap, IBsonSerializationDomain domain)
+        public void Apply(BsonMemberMap memberMap)
         {
             if (memberMap.MemberType == _type)
             {

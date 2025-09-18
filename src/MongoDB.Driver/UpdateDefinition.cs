@@ -120,7 +120,6 @@ namespace MongoDB.Driver
             return ToString(inputSerializer, serializerRegistry);
         }
 
-        //DOMAIN-API These versions will need to go away.
         /// <summary>
         /// Returns a <see cref="System.String" /> that represents this instance.
         /// </summary>
@@ -241,7 +240,7 @@ namespace MongoDB.Driver
         public override BsonValue Render(RenderArgs<TDocument> args)
         {
             var serializer = args.SerializerRegistry.GetSerializer(_obj.GetType());
-            return new BsonDocumentWrapper(_obj, serializer, args.SerializationDomain);
+            return new BsonDocumentWrapper(_obj, serializer);
         }
     }
 }

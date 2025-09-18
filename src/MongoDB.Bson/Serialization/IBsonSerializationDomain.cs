@@ -304,12 +304,12 @@ namespace MongoDB.Bson.Serialization
         /// <summary>
         /// //TODO
         /// </summary>
-        IBsonClassMapDomain BsonClassMap { get; }
+        IBsonClassMapRegistry ClassMapRegistry { get; }
 
         /// <summary>
         /// //TODO
         /// </summary>
-        IConventionRegistryDomain ConventionRegistry { get; }
+        IConventionRegistry ConventionRegistry { get; }
 
         /// <summary>
         /// //TODO

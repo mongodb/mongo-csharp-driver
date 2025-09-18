@@ -16,7 +16,6 @@
 using System;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Events;
@@ -35,10 +34,9 @@ namespace MongoDB.Driver.Core.Operations
             CollectionNamespace collectionNamespace,
             BsonDocument encryptedFields,
             MessageEncoderSettings messageEncoderSettings,
-            IBsonSerializationDomain serializationDomain,
             Action<DropCollectionOperation> configureDropCollectionConfigurator)
         {
-            var mainOperation = new DropCollectionOperation(collectionNamespace, messageEncoderSettings, serializationDomain)
+            var mainOperation = new DropCollectionOperation(collectionNamespace, messageEncoderSettings)
             {
                 EncryptedFields = encryptedFields
             };
@@ -58,46 +56,21 @@ namespace MongoDB.Driver.Core.Operations
             }
 
             DropCollectionOperation CreateInnerDropOperation(string collectionName)
-                => new DropCollectionOperation(new CollectionNamespace(collectionNamespace.DatabaseNamespace.DatabaseName, collectionName), messageEncoderSettings, serializationDomain);
+                => new DropCollectionOperation(new CollectionNamespace(collectionNamespace.DatabaseNamespace.DatabaseName, collectionName), messageEncoderSettings);
         }
-
-        //EXIT
-        public static IWriteOperation<BsonDocument> CreateEncryptedDropCollectionOperationIfConfigured(
-            CollectionNamespace collectionNamespace,
-            BsonDocument encryptedFields,
-            MessageEncoderSettings messageEncoderSettings,
-            Action<DropCollectionOperation> configureDropCollectionConfigurator)
-            => CreateEncryptedDropCollectionOperationIfConfigured(
-                collectionNamespace,
-                encryptedFields,
-                messageEncoderSettings,
-                BsonSerializer.DefaultSerializationDomain,
-                configureDropCollectionConfigurator);
-
         #endregion
 
         private readonly CollectionNamespace _collectionNamespace;
         private BsonDocument _encryptedFields;
         private readonly MessageEncoderSettings _messageEncoderSettings;
-        private readonly IBsonSerializationDomain _serializationDomain;
         private WriteConcern _writeConcern;
 
         public DropCollectionOperation(
             CollectionNamespace collectionNamespace,
-            MessageEncoderSettings messageEncoderSettings,
-            IBsonSerializationDomain serializationDomain)
+            MessageEncoderSettings messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
             _messageEncoderSettings = messageEncoderSettings;
-            _serializationDomain = Ensure.IsNotNull(serializationDomain, nameof(serializationDomain));
-        }
-
-        //EXIT
-        public DropCollectionOperation(
-            CollectionNamespace collectionNamespace,
-            MessageEncoderSettings messageEncoderSettings)
-            : this(collectionNamespace, messageEncoderSettings, BsonSerializer.DefaultSerializationDomain)
-        {
         }
 
         public CollectionNamespace CollectionNamespace
@@ -191,7 +164,7 @@ namespace MongoDB.Driver.Core.Operations
         private WriteCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, ICoreSessionHandle session)
         {
             var command = CreateCommand(operationContext, session);
-            return new WriteCommandOperation<BsonDocument>(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings, _serializationDomain);
+            return new WriteCommandOperation<BsonDocument>(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
         }
 
         private bool ShouldIgnoreException(MongoCommandException ex)

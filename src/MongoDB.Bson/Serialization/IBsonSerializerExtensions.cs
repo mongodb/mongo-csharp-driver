@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Conventions;
 
@@ -49,24 +50,44 @@ namespace MongoDB.Bson.Serialization
             return serializer.Deserialize(context, args);
         }
 
+        internal static IBsonSerializer GetSerializerForBaseType(this IBsonSerializer serializer, Type baseType)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal static IBsonSerializer GetSerializerForDerivedType(this IBsonSerializer serializer, Type derivedType)
+        {
+            if (serializer is IHasSerializationDomain domainSpecificSerializer)
+            {
+                return domainSpecificSerializer.SerializationDomain.LookupSerializer(derivedType);
+            }
+            else
+            {
+                return BsonSerializationDomain.Default.LookupSerializer(derivedType);
+            }
+        }
+
         /// <summary>
         /// Gets the discriminator convention for a serializer.
         /// </summary>
         /// <param name="serializer">The serializer.</param>
         /// <returns>The discriminator convention.</returns>
-        public static IDiscriminatorConvention GetDiscriminatorConvention(this IBsonSerializer serializer) =>
-            GetDiscriminatorConvention(serializer, BsonSerializer.DefaultSerializationDomain);
-
-        /// <summary>
-        /// //TODO
-        /// </summary>
-        /// <param name="serializer"></param>
-        /// <param name="serializationDomain"></param>
-        /// <returns></returns>
-        internal static IDiscriminatorConvention GetDiscriminatorConvention(this IBsonSerializer serializer, IBsonSerializationDomain serializationDomain) =>
-            serializer is IHasDiscriminatorConvention hasDiscriminatorConvention
-                ? hasDiscriminatorConvention.DiscriminatorConvention
-                : serializationDomain.LookupDiscriminatorConvention(serializer.ValueType);
+        public static IDiscriminatorConvention GetDiscriminatorConvention(this IBsonSerializer serializer)
+        {
+            if (serializer is IHasDiscriminatorConvention hasDiscriminatorConvention)
+            {
+                return hasDiscriminatorConvention.DiscriminatorConvention;
+            }
+            else if (serializer is IHasSerializationDomain hasSerializationDomain)
+            {
+                var serializationDomain = hasSerializationDomain.SerializationDomain;
+                return serializationDomain.LookupDiscriminatorConvention(serializer.ValueType);
+            }
+            else
+            {
+                return NonPolymorphicDiscriminatorConvention.Instance;
+            }
+        }
 
         /// <summary>
         /// Serializes a value.
@@ -104,7 +125,7 @@ namespace MongoDB.Bson.Serialization
             var document = new BsonDocument();
             using (var writer = new BsonDocumentWriter(document))
             {
-                var context = BsonSerializationContext.CreateRoot(writer, BsonSerializer.DefaultSerializationDomain);
+                var context = BsonSerializationContext.CreateRoot(writer);
                 writer.WriteStartDocument();
                 writer.WriteName("x");
                 serializer.Serialize(context, value);
@@ -125,7 +146,7 @@ namespace MongoDB.Bson.Serialization
             var document = new BsonDocument();
             using (var writer = new BsonDocumentWriter(document))
             {
-                var context = BsonSerializationContext.CreateRoot(writer, BsonSerializer.DefaultSerializationDomain);
+                var context = BsonSerializationContext.CreateRoot(writer);
                 writer.WriteStartDocument();
                 writer.WriteName("x");
                 serializer.Serialize(context, value);

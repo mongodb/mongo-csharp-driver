@@ -31,11 +31,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         private readonly Dictionary<string, int> _nsInfos;
         private MemoryStream _nsInfoMemoryStream;
         private BsonBinaryWriter _nsInfoWriter;
-        private IBsonSerializationDomain _serializationDomain;
+        private IBsonSerializerRegistry _serializerRegistry;
         private Dictionary<int, object> _idsMap;
         private int _currentIndex;
 
-        public ClientBulkWriteOpsSectionFormatter(long? maxSize, IBsonSerializationDomain serializationDomain)
+        public ClientBulkWriteOpsSectionFormatter(long? maxSize)
         {
             _maxSize = (maxSize ?? long.MaxValue) - 1000; // according to spec we should leave some extra space for further overhead
             if (_maxSize <= 0)
@@ -46,7 +46,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             _nsInfos = new Dictionary<string, int>();
             _nsInfoMemoryStream = new MemoryStream();
             _nsInfoWriter = new BsonBinaryWriter(_nsInfoMemoryStream);
-            _serializationDomain = serializationDomain;
         }
 
         public void Dispose()
@@ -64,7 +63,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 throw new ArgumentException("Writer must be an instance of BsonBinaryWriter.");
             }
 
-            var serializationContext = BsonSerializationContext.CreateRoot(binaryWriter, _serializationDomain);
+            _serializerRegistry = BsonSerializer.SerializerRegistry;
+            var serializationContext = BsonSerializationContext.CreateRoot(binaryWriter);
             _idsMap = section.IdsMap;
             var stream = binaryWriter.BsonStream;
             var startPosition = stream.Position;
@@ -126,7 +126,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         public void RenderDeleteMany<TDocument>(RenderArgs<BsonDocument> renderArgs, BsonSerializationContext serializationContext, BulkWriteDeleteManyModel<TDocument> model)
         {
             WriteStartModel(serializationContext, "delete", model);
-            var documentSerializer = _serializationDomain.SerializerRegistry.GetSerializer<TDocument>();
+            var documentSerializer = _serializerRegistry.GetSerializer<TDocument>();
             WriteFilter(serializationContext, renderArgs, model.Filter, documentSerializer);
             WriteBoolean(serializationContext, "multi", true);
             WriteHint(serializationContext, model.Hint);
@@ -137,7 +137,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         public void RenderDeleteOne<TDocument>(RenderArgs<BsonDocument> renderArgs, BsonSerializationContext serializationContext, BulkWriteDeleteOneModel<TDocument> model)
         {
             WriteStartModel(serializationContext, "delete", model);
-            var documentSerializer = _serializationDomain.SerializerRegistry.GetSerializer<TDocument>();
+            var documentSerializer = _serializerRegistry.GetSerializer<TDocument>();
             WriteFilter(serializationContext, renderArgs, model.Filter, documentSerializer);
             WriteBoolean(serializationContext, "multi", false);
             WriteHint(serializationContext, model.Hint);
@@ -148,9 +148,9 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         public void RenderInsertOne<TDocument>(RenderArgs<BsonDocument> renderArgs, BsonSerializationContext serializationContext, BulkWriteInsertOneModel<TDocument> model)
         {
             WriteStartModel(serializationContext, "insert", model);
-            var documentSerializer = _serializationDomain.SerializerRegistry.GetSerializer<TDocument>();
-            var documentId = documentSerializer.SetDocumentIdIfMissing(null, model.Document, serializationContext.SerializationDomain);
-            _idsMap[_currentIndex] = BsonValue.Create(documentId);
+            var documentSerializer = _serializerRegistry.GetSerializer<TDocument>();
+            var documentId = documentSerializer.SetDocumentIdIfMissing(null, model.Document);
+            _idsMap[_currentIndex] = documentId;
             serializationContext.Writer.WriteName("document");
             documentSerializer.Serialize(serializationContext, model.Document);
             WriteEndModel(serializationContext);
@@ -159,7 +159,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         public void RenderReplaceOne<TDocument>(RenderArgs<BsonDocument> renderArgs, BsonSerializationContext serializationContext, BulkWriteReplaceOneModel<TDocument> model)
         {
             WriteStartModel(serializationContext, "update", model);
-            var documentSerializer = _serializationDomain.SerializerRegistry.GetSerializer<TDocument>();
+            var documentSerializer = _serializerRegistry.GetSerializer<TDocument>();
             WriteFilter(serializationContext, renderArgs, model.Filter, documentSerializer);
             WriteUpdate(serializationContext, model.Replacement, documentSerializer, UpdateType.Replacement);
             if (model.IsUpsert)
@@ -177,7 +177,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         public void RenderUpdateMany<TDocument>(RenderArgs<BsonDocument> renderArgs, BsonSerializationContext serializationContext, BulkWriteUpdateManyModel<TDocument> model)
         {
             WriteStartModel(serializationContext, "update", model);
-            var documentSerializer = _serializationDomain.SerializerRegistry.GetSerializer<TDocument>();
+            var documentSerializer = _serializerRegistry.GetSerializer<TDocument>();
             WriteFilter(serializationContext, renderArgs, model.Filter, documentSerializer);
             WriteUpdate(serializationContext, renderArgs, model.Update, documentSerializer);
             if (model.IsUpsert)
@@ -195,7 +195,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         public void RenderUpdateOne<TDocument>(RenderArgs<BsonDocument> renderArgs, BsonSerializationContext serializationContext, BulkWriteUpdateOneModel<TDocument> model)
         {
             WriteStartModel(serializationContext, "update", model);
-            var documentSerializer = _serializationDomain.SerializerRegistry.GetSerializer<TDocument>();
+            var documentSerializer = _serializerRegistry.GetSerializer<TDocument>();
             WriteFilter(serializationContext, renderArgs, model.Filter, documentSerializer);
             WriteUpdate(serializationContext, renderArgs, model.Update, documentSerializer);
             if (model.IsUpsert)
@@ -238,7 +238,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             serializationContext.Writer.WriteStartArray();
             foreach (var arrayFilter in arrayFilters)
             {
-                var renderedArrayFilter = arrayFilter.Render(null, _serializationDomain.SerializerRegistry);
+                var renderedArrayFilter = arrayFilter.Render(null, _serializerRegistry);
                 BsonDocumentSerializer.Instance.Serialize(serializationContext, renderedArrayFilter);
             }
             serializationContext.Writer.WriteEndArray();

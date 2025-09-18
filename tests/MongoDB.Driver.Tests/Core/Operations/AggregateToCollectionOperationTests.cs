@@ -21,7 +21,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
@@ -122,7 +121,7 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void Constructor_should_throw_when_pipeline_does_not_end_with_out()
         {
-            var exception = Record.Exception(() => new AggregateToCollectionOperation(_collectionNamespace, Enumerable.Empty<BsonDocument>(), _messageEncoderSettings, BsonSerializer.DefaultSerializationDomain));
+            var exception = Record.Exception(() => new AggregateToCollectionOperation(_collectionNamespace, Enumerable.Empty<BsonDocument>(), _messageEncoderSettings));
 
             var argumentException = exception.Should().BeOfType<ArgumentException>().Subject;
             argumentException.ParamName.Should().Be("pipeline");
@@ -131,7 +130,7 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void Constructor_should_throw_when_messageEncoderSettings_is_null()
         {
-            var exception = Record.Exception(() => new AggregateToCollectionOperation(_collectionNamespace, __pipeline, null, BsonSerializer.DefaultSerializationDomain));
+            var exception = Record.Exception(() => new AggregateToCollectionOperation(_collectionNamespace, __pipeline, null));
 
             var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
             argumentNullException.ParamName.Should().Be("messageEncoderSettings");

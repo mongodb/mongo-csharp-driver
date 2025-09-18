@@ -37,21 +37,11 @@ namespace MongoDB.Driver.Core.Operations
         public RetryableDeleteCommandOperation(
             CollectionNamespace collectionNamespace,
             BatchableSource<DeleteRequest> deletes,
-            MessageEncoderSettings messageEncoderSettings,
-            IBsonSerializationDomain serializationDomain)
-            : base(Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace)).DatabaseNamespace, messageEncoderSettings, serializationDomain)
+            MessageEncoderSettings messageEncoderSettings)
+            : base(Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace)).DatabaseNamespace, messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
             _deletes = Ensure.IsNotNull(deletes, nameof(deletes));
-        }
-
-        //EXIT
-        public RetryableDeleteCommandOperation(
-            CollectionNamespace collectionNamespace,
-            BatchableSource<DeleteRequest> deletes,
-            MessageEncoderSettings messageEncoderSettings)
-            : this(collectionNamespace, deletes, messageEncoderSettings, BsonSerializer.DefaultSerializationDomain)
-        {
         }
 
         public BsonDocument Let

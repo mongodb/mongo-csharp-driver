@@ -23,17 +23,15 @@ namespace MongoDB.Bson.Serialization
     /// </summary>
     public abstract class BsonSerializationProviderBase : IRegistryAwareBsonSerializationProvider
     {
-        //DOMAIN-API We should remove this and use the overload that takes a serializer registry instead.
         /// <inheritdoc/>
         public virtual IBsonSerializer GetSerializer(Type type)
         {
-            return GetSerializer(type, BsonSerializer.DefaultSerializationDomain.SerializerRegistry);
+            return GetSerializer(type, BsonSerializationDomain.Default.SerializerRegistry);
         }
 
         /// <inheritdoc/>
         public abstract IBsonSerializer GetSerializer(Type type, IBsonSerializerRegistry serializerRegistry);
 
-        //DOMAIN-API We should remove this and use the overload that takes a serializer registry instead.
         /// <summary>
         /// Creates the serializer from a serializer type definition and type arguments.
         /// </summary>
@@ -42,7 +40,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>A serializer.</returns>
         protected virtual IBsonSerializer CreateGenericSerializer(Type serializerTypeDefinition, params Type[] typeArguments)
         {
-            return CreateGenericSerializer(serializerTypeDefinition, typeArguments, BsonSerializer.DefaultSerializationDomain.SerializerRegistry);
+            return CreateGenericSerializer(serializerTypeDefinition, typeArguments, BsonSerializationDomain.Default.SerializerRegistry);
         }
 
         /// <summary>
@@ -60,7 +58,6 @@ namespace MongoDB.Bson.Serialization
             return CreateSerializer(serializerType, serializerRegistry);
         }
 
-        //DOMAIN-API We should remove this and use the overload that takes a serializer registry instead.
         /// <summary>
         /// Creates the serializer.
         /// </summary>
@@ -68,7 +65,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>A serializer.</returns>
         protected virtual IBsonSerializer CreateSerializer(Type serializerType)
         {
-            return CreateSerializer(serializerType, BsonSerializer.SerializerRegistry);
+            return CreateSerializer(serializerType, BsonSerializationDomain.Default.SerializerRegistry);
         }
 
         /// <summary>

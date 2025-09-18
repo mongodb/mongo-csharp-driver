@@ -18,7 +18,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// A convention that sets whether to ignore default values during serialization.
     /// </summary>
-    public class IgnoreIfDefaultConvention : ConventionBase, IMemberMapConventionInternal
+    public class IgnoreIfDefaultConvention : ConventionBase, IMemberMapConvention
     {
         // private fields
         private bool _ignoreIfDefault;
@@ -37,10 +37,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// Applies a modification to the member map.
         /// </summary>
         /// <param name="memberMap">The member map.</param>
-        public void Apply(BsonMemberMap memberMap) => (this as IMemberMapConventionInternal).Apply(memberMap, BsonSerializer.DefaultSerializationDomain);
-
-        /// <inheritdoc />
-        void IMemberMapConventionInternal.Apply(BsonMemberMap memberMap, IBsonSerializationDomain domain)
+        public void Apply(BsonMemberMap memberMap)
         {
             memberMap.SetIgnoreIfDefault(_ignoreIfDefault);
         }

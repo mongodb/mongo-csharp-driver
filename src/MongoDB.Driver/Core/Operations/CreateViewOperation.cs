@@ -17,7 +17,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
@@ -32,7 +31,6 @@ namespace MongoDB.Driver.Core.Operations
         private readonly DatabaseNamespace _databaseNamespace;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly IReadOnlyList<BsonDocument> _pipeline;
-        private readonly IBsonSerializationDomain _serializationDomain;
         private readonly string _viewName;
         private readonly string _viewOn;
         private WriteConcern _writeConcern;
@@ -42,26 +40,13 @@ namespace MongoDB.Driver.Core.Operations
             string viewName,
             string viewOn,
             IEnumerable<BsonDocument> pipeline,
-            MessageEncoderSettings messageEncoderSettings,
-            IBsonSerializationDomain serializationDomain)
+            MessageEncoderSettings messageEncoderSettings)
         {
             _databaseNamespace = Ensure.IsNotNull(databaseNamespace, nameof(databaseNamespace));
             _viewName = Ensure.IsNotNull(viewName, nameof(viewName));
             _viewOn = Ensure.IsNotNull(viewOn, nameof(viewOn));
             _pipeline = Ensure.IsNotNull(pipeline, nameof(pipeline)).ToList();
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
-            _serializationDomain = Ensure.IsNotNull(serializationDomain, nameof(serializationDomain));
-        }
-
-        //EXIT
-        public CreateViewOperation(
-            DatabaseNamespace databaseNamespace,
-            string viewName,
-            string viewOn,
-            IEnumerable<BsonDocument> pipeline,
-            MessageEncoderSettings messageEncoderSettings)
-            : this(databaseNamespace, viewName, viewOn, pipeline, messageEncoderSettings, BsonSerializer.DefaultSerializationDomain)
-        {
         }
 
         public Collation Collation
@@ -143,7 +128,7 @@ namespace MongoDB.Driver.Core.Operations
         private WriteCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription)
         {
             var command = CreateCommand(operationContext, session, connectionDescription);
-            return new WriteCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings, _serializationDomain);
+            return new WriteCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
         }
     }
 }

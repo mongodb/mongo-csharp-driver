@@ -23,13 +23,10 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// This convention is only responsible for setting the serializer and idGenerator. It is assumed that this convention runs after
     /// other conventions that identify which member is the _id and that the _id has already been added to the class map.
     /// </summary>
-    public class StringIdStoredAsObjectIdConvention : ConventionBase, IMemberMapConventionInternal
+    public class StringIdStoredAsObjectIdConvention : ConventionBase, IMemberMapConvention
     {
         /// <inheritdoc/>
-        public void Apply(BsonMemberMap memberMap) => (this as IMemberMapConventionInternal).Apply(memberMap, BsonSerializer.DefaultSerializationDomain);
-
-        /// <inheritdoc/>
-        void IMemberMapConventionInternal.Apply(BsonMemberMap memberMap, IBsonSerializationDomain domain)
+        public void Apply(BsonMemberMap memberMap)
         {
             if (memberMap != memberMap.ClassMap.IdMemberMap)
             {
@@ -41,7 +38,7 @@ namespace MongoDB.Bson.Serialization.Conventions
                 return;
             }
 
-            var defaultStringSerializer = domain.LookupSerializer(typeof(string));
+            var defaultStringSerializer = memberMap.SerializationDomain.LookupSerializer(typeof(string));
             if (memberMap.GetSerializer() != defaultStringSerializer)
             {
                 return;

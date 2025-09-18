@@ -1182,10 +1182,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
         {
             expression = (Expression<Func<TDocument, bool>>)PartialEvaluator.EvaluatePartially(expression);
 
-            var domain = BsonSerializer.DefaultSerializationDomain;
+            var serializationDomain = BsonSerializer.DefaultSerializationDomain;
             var parameter = expression.Parameters.Single();
-            var serializer = BsonSerializer.LookupSerializer<TDocument>();
-            var context = TranslationContext.Create(translationOptions: null, serializationDomain: domain);
+            var serializer = serializationDomain.LookupSerializer<TDocument>();
+            var context = TranslationContext.Create(serializationDomain, translationOptions: null);
             var symbol = context.CreateSymbol(parameter, serializer, isCurrent: true);
             context = context.WithSymbol(symbol);
             var filterAst = ExpressionToFilterTranslator.Translate(context, expression.Body);

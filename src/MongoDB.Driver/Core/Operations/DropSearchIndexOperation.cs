@@ -15,7 +15,6 @@
 
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Events;
@@ -33,7 +32,6 @@ namespace MongoDB.Driver.Core.Operations
         private readonly CollectionNamespace _collectionNamespace;
         private readonly string _indexName;
         private readonly MessageEncoderSettings _messageEncoderSettings;
-        private readonly IBsonSerializationDomain _serializationDomain;
 
         // constructors
         /// <summary>
@@ -42,17 +40,14 @@ namespace MongoDB.Driver.Core.Operations
         /// <param name="collectionNamespace">The collection namespace.</param>
         /// <param name="indexName">The name of the index.</param>
         /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        /// <param name="serializationDomain">The serialization domain.</param>
         public DropSearchIndexOperation(
             CollectionNamespace collectionNamespace,
             string indexName,
-            MessageEncoderSettings messageEncoderSettings,
-            IBsonSerializationDomain serializationDomain)
+            MessageEncoderSettings messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
             _indexName = Ensure.IsNotNullOrEmpty(indexName, nameof(indexName));
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
-            _serializationDomain = Ensure.IsNotNull(serializationDomain, nameof(serializationDomain));
         }
 
         // methods
@@ -64,7 +59,7 @@ namespace MongoDB.Driver.Core.Operations
             };
 
         private WriteCommandOperation<BsonDocument> CreateOperation() =>
-            new(_collectionNamespace.DatabaseNamespace, CreateCommand(), BsonDocumentSerializer.Instance, _messageEncoderSettings, _serializationDomain);
+            new(_collectionNamespace.DatabaseNamespace, CreateCommand(), BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
         /// <inheritdoc/>
         public BsonDocument Execute(OperationContext operationContext, IWriteBinding binding)

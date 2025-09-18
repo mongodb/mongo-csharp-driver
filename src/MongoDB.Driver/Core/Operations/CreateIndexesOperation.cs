@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
@@ -36,28 +35,16 @@ namespace MongoDB.Driver.Core.Operations
         private TimeSpan? _maxTime;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly IEnumerable<CreateIndexRequest> _requests;
-        private readonly IBsonSerializationDomain _serializationDomain;
         private WriteConcern _writeConcern = WriteConcern.Acknowledged;
 
         public CreateIndexesOperation(
             CollectionNamespace collectionNamespace,
             IEnumerable<CreateIndexRequest> requests,
-            MessageEncoderSettings messageEncoderSettings,
-            IBsonSerializationDomain serializationDomain)
+            MessageEncoderSettings messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
             _requests = Ensure.IsNotNull(requests, nameof(requests)).ToList();
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
-            _serializationDomain = Ensure.IsNotNull(serializationDomain, nameof(serializationDomain));
-        }
-
-        //EXIT
-        public CreateIndexesOperation(
-            CollectionNamespace collectionNamespace,
-            IEnumerable<CreateIndexRequest> requests,
-            MessageEncoderSettings messageEncoderSettings)
-             :this(collectionNamespace, requests, messageEncoderSettings, BsonSerializer.DefaultSerializationDomain)
-        {
         }
 
         public CollectionNamespace CollectionNamespace
@@ -150,7 +137,7 @@ namespace MongoDB.Driver.Core.Operations
             var databaseNamespace = _collectionNamespace.DatabaseNamespace;
             var command = CreateCommand(operationContext, session, connectionDescription);
             var resultSerializer = BsonDocumentSerializer.Instance;
-            return new WriteCommandOperation<BsonDocument>(databaseNamespace, command, resultSerializer, _messageEncoderSettings, _serializationDomain);
+            return new WriteCommandOperation<BsonDocument>(databaseNamespace, command, resultSerializer, _messageEncoderSettings);
         }
     }
 }

@@ -499,7 +499,7 @@ namespace MongoDB.Driver
 
             var messageEncoderSettings = GetMessageEncoderSettings();
             var renderArgs = GetRenderArgs();
-            var operation = new ClientBulkWriteOperation(models, options, messageEncoderSettings, renderArgs, _settings.SerializationDomain)
+            var operation = new ClientBulkWriteOperation(models, options, messageEncoderSettings, renderArgs)
             {
                 RetryRequested = _settings.RetryWrites,
             };
@@ -517,7 +517,7 @@ namespace MongoDB.Driver
                 databases => databases.Select(database => database["name"].AsString));
 
         private DropDatabaseOperation CreateDropDatabaseOperation(string name)
-            => new(new DatabaseNamespace(name), GetMessageEncoderSettings(), _settings.SerializationDomain)
+            => new(new DatabaseNamespace(name), GetMessageEncoderSettings())
             {
                 WriteConcern = _settings.WriteConcern
             };
@@ -528,11 +528,11 @@ namespace MongoDB.Driver
             var messageEncoderSettings = GetMessageEncoderSettings();
             var translationOptions = _settings.TranslationOptions;
 
-            return new ListDatabasesOperation(messageEncoderSettings, _settings.SerializationDomain)
+            return new ListDatabasesOperation(messageEncoderSettings)
             {
                 AuthorizedDatabases = options.AuthorizedDatabases,
                 Comment = options.Comment,
-                Filter = options.Filter?.Render(new(BsonDocumentSerializer.Instance, (_settings as IInheritableMongoClientSettings).SerializationDomain, translationOptions: translationOptions)),
+                Filter = options.Filter?.Render(new(BsonDocumentSerializer.Instance, _settings.SerializationDomain, translationOptions: translationOptions)),
                 NameOnly = options.NameOnly,
                 RetryRequested = _settings.RetryReads
             };
@@ -561,8 +561,7 @@ namespace MongoDB.Driver
                 _settings.ReadConcern,
                 GetMessageEncoderSettings(),
                 _settings.RetryReads,
-                _settings.TranslationOptions,
-                _settings.SerializationDomain);
+                _settings.TranslationOptions);
 
         private OperationContext CreateOperationContext(IClientSessionHandle session, TimeSpan? timeout, CancellationToken cancellationToken)
         {
@@ -617,7 +616,7 @@ namespace MongoDB.Driver
         private RenderArgs<BsonDocument> GetRenderArgs()
         {
             var translationOptions = Settings.TranslationOptions;
-            return new RenderArgs<BsonDocument>(BsonDocumentSerializer.Instance, (_settings as IInheritableMongoClientSettings).SerializationDomain, translationOptions: translationOptions);
+            return new RenderArgs<BsonDocument>(BsonDocumentSerializer.Instance, _settings.SerializationDomain, translationOptions: translationOptions);
         }
 
         private IClientSessionHandle StartSession(ClientSessionOptions options)

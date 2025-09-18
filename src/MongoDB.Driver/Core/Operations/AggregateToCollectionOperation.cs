@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
@@ -45,35 +44,21 @@ namespace MongoDB.Driver.Core.Operations
         private ReadConcern _readConcern;
         private ReadPreference _readPreference;
         private WriteConcern _writeConcern;
-        private readonly IBsonSerializationDomain _serializationDomain;
 
-        public AggregateToCollectionOperation(DatabaseNamespace databaseNamespace, IEnumerable<BsonDocument> pipeline, MessageEncoderSettings messageEncoderSettings, IBsonSerializationDomain serializationDomain)
+        public AggregateToCollectionOperation(DatabaseNamespace databaseNamespace, IEnumerable<BsonDocument> pipeline, MessageEncoderSettings messageEncoderSettings)
         {
             _databaseNamespace = Ensure.IsNotNull(databaseNamespace, nameof(databaseNamespace));
             _pipeline = Ensure.IsNotNull(pipeline, nameof(pipeline)).ToList();
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
-            _serializationDomain = Ensure.IsNotNull(serializationDomain, nameof(serializationDomain));
 
             EnsureIsOutputToCollectionPipeline();
             _pipeline = SimplifyOutStageIfOutputDatabaseIsSameAsInputDatabase(_pipeline);
         }
 
-        //EXIT
-        public AggregateToCollectionOperation(DatabaseNamespace databaseNamespace, IEnumerable<BsonDocument> pipeline, MessageEncoderSettings messageEncoderSettings)
-            : this(databaseNamespace, pipeline, messageEncoderSettings, BsonSerializer.DefaultSerializationDomain)
-        {
-        }
-
-        public AggregateToCollectionOperation(CollectionNamespace collectionNamespace, IEnumerable<BsonDocument> pipeline, MessageEncoderSettings messageEncoderSettings, IBsonSerializationDomain serializationDomain)
-            : this(Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace)).DatabaseNamespace, pipeline, messageEncoderSettings, serializationDomain)
+        public AggregateToCollectionOperation(CollectionNamespace collectionNamespace, IEnumerable<BsonDocument> pipeline, MessageEncoderSettings messageEncoderSettings)
+            : this(Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace)).DatabaseNamespace, pipeline, messageEncoderSettings)
         {
             _collectionNamespace = collectionNamespace;
-        }
-
-        //EXIT
-        public AggregateToCollectionOperation(CollectionNamespace collectionNamespace, IEnumerable<BsonDocument> pipeline, MessageEncoderSettings messageEncoderSettings)
-            : this(collectionNamespace, pipeline, messageEncoderSettings, BsonSerializer.DefaultSerializationDomain)
-        {
         }
 
         public bool? AllowDiskUse
@@ -220,7 +205,7 @@ namespace MongoDB.Driver.Core.Operations
         private WriteCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, ReadPreference effectiveReadPreference)
         {
             var command = CreateCommand(operationContext, session, connectionDescription);
-            var operation = new WriteCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, MessageEncoderSettings, _serializationDomain);
+            var operation = new WriteCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, MessageEncoderSettings);
             if (effectiveReadPreference != null)
             {
                 operation.ReadPreference = effectiveReadPreference;

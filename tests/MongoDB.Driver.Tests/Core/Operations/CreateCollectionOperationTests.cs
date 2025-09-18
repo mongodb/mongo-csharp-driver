@@ -19,7 +19,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
@@ -395,7 +394,7 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void CreateEncryptedCreateCollectionOperationIfConfigured_should_return_expected_result_when_EncryptedFields_is_null()
         {
-            var subject = CreateCollectionOperation.CreateEncryptedCreateCollectionOperationIfConfigured(_collectionNamespace, encryptedFields: null, _messageEncoderSettings, BsonSerializer.DefaultSerializationDomain, null);
+            var subject = CreateCollectionOperation.CreateEncryptedCreateCollectionOperationIfConfigured(_collectionNamespace, encryptedFields: null, _messageEncoderSettings, null);
             var session = OperationTestHelper.CreateSession();
 
             var s = subject.Should().BeOfType<CreateCollectionOperation>().Subject;
@@ -432,7 +431,7 @@ namespace MongoDB.Driver.Core.Operations
                 }}]
             }}");
 
-            var subject = CreateCollectionOperation.CreateEncryptedCreateCollectionOperationIfConfigured(_collectionNamespace, encryptedFields, _messageEncoderSettings, BsonSerializer.DefaultSerializationDomain, null);
+            var subject = CreateCollectionOperation.CreateEncryptedCreateCollectionOperationIfConfigured(_collectionNamespace, encryptedFields, _messageEncoderSettings, null);
             var session = OperationTestHelper.CreateSession();
 
             var operations = ((CompositeWriteOperation<BsonDocument>)subject)._operations<BsonDocument>();

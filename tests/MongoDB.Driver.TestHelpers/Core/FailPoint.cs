@@ -16,7 +16,6 @@
 using System;
 using System.Threading;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
@@ -185,8 +184,7 @@ namespace MongoDB.Driver.Core.TestHelpers
                 adminDatabase,
                 command,
                 BsonDocumentSerializer.Instance,
-                new MessageEncoderSettings(),
-                BsonSerializer.DefaultSerializationDomain);
+                new MessageEncoderSettings());
 
             operation.Execute(OperationContext.NoTimeout, _binding);
         }

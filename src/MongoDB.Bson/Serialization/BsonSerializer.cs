@@ -26,29 +26,21 @@ namespace MongoDB.Bson.Serialization
     /// </summary>
     public static class BsonSerializer
     {
-        private static readonly IBsonSerializationDomain _serializationDomain;
-
-        // static constructor
-        static BsonSerializer()
-        {
-            _serializationDomain = new BsonSerializationDomain("MAIN");
-        }
-
-        internal static IBsonSerializationDomain DefaultSerializationDomain => _serializationDomain;
-
         // public static properties
+        internal static IBsonSerializationDomain DefaultSerializationDomain => BsonSerializationDomain.Default;
+
         /// <summary>
         /// Gets the serializer registry.
         /// </summary>
-        public static IBsonSerializerRegistry SerializerRegistry => _serializationDomain.SerializerRegistry;
+        public static IBsonSerializerRegistry SerializerRegistry => BsonSerializationDomain.Default.SerializerRegistry;
 
         /// <summary>
         /// Gets or sets whether to use the NullIdChecker on reference Id types that don't have an IdGenerator registered.
         /// </summary>
         public static bool UseNullIdChecker
         {
-            get => _serializationDomain.UseNullIdChecker;
-            set => _serializationDomain.UseNullIdChecker = value;
+            get => BsonSerializationDomain.Default.UseNullIdChecker;
+            set => BsonSerializationDomain.Default.UseNullIdChecker = value;
         }
 
         /// <summary>
@@ -56,17 +48,14 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         public static bool UseZeroIdChecker
         {
-            get => _serializationDomain.UseZeroIdChecker;
-            set => _serializationDomain.UseZeroIdChecker = value;
+            get => BsonSerializationDomain.Default.UseZeroIdChecker;
+            set => BsonSerializationDomain.Default.UseZeroIdChecker = value;
         }
 
         // internal static properties
-        internal static ReaderWriterLockSlim ConfigLock => _serializationDomain.ConfigLock;
+        internal static ReaderWriterLockSlim ConfigLock => BsonSerializationDomain.Default.ConfigLock;
 
         // public static methods
-        //FP TODO: This is used only for testing, it can be removed later.
-        internal static IBsonSerializationDomain CreateSerializationDomain() => new BsonSerializationDomain();
-
         /// <summary>
         /// Deserializes an object from a BsonDocument.
         /// </summary>
@@ -75,7 +64,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="configurator">The configurator.</param>
         /// <returns>A deserialized value.</returns>
         public static TNominalType Deserialize<TNominalType>(BsonDocument document, Action<BsonDeserializationContext.Builder> configurator = null)
-            => _serializationDomain.Deserialize<TNominalType>(document, configurator);
+            => BsonSerializationDomain.Default.Deserialize<TNominalType>(document, configurator);
 
         /// <summary>
         /// Deserializes a value.
@@ -85,7 +74,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="configurator">The configurator.</param>
         /// <returns>A deserialized value.</returns>
         public static TNominalType Deserialize<TNominalType>(IBsonReader bsonReader, Action<BsonDeserializationContext.Builder> configurator = null)
-            => _serializationDomain.Deserialize<TNominalType>(bsonReader, configurator);
+            => BsonSerializationDomain.Default.Deserialize<TNominalType>(bsonReader, configurator);
 
         /// <summary>
         /// Deserializes an object from a BSON byte array.
@@ -95,7 +84,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="configurator">The configurator.</param>
         /// <returns>A deserialized value.</returns>
         public static TNominalType Deserialize<TNominalType>(byte[] bytes, Action<BsonDeserializationContext.Builder> configurator = null)
-            => _serializationDomain.Deserialize<TNominalType>(bytes, configurator);
+            => BsonSerializationDomain.Default.Deserialize<TNominalType>(bytes, configurator);
 
         /// <summary>
         /// Deserializes an object from a BSON Stream.
@@ -105,7 +94,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="configurator">The configurator.</param>
         /// <returns>A deserialized value.</returns>
         public static TNominalType Deserialize<TNominalType>(Stream stream, Action<BsonDeserializationContext.Builder> configurator = null)
-            => _serializationDomain.Deserialize<TNominalType>(stream, configurator);
+            => BsonSerializationDomain.Default.Deserialize<TNominalType>(stream, configurator);
 
         /// <summary>
         /// Deserializes an object from a JSON string.
@@ -115,7 +104,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="configurator">The configurator.</param>
         /// <returns>A deserialized value.</returns>
         public static TNominalType Deserialize<TNominalType>(string json, Action<BsonDeserializationContext.Builder> configurator = null)
-            => _serializationDomain.Deserialize<TNominalType>(json, configurator);
+            => BsonSerializationDomain.Default.Deserialize<TNominalType>(json, configurator);
 
         /// <summary>
         /// Deserializes an object from a JSON TextReader.
@@ -125,7 +114,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="configurator">The configurator.</param>
         /// <returns>A deserialized value.</returns>
         public static TNominalType Deserialize<TNominalType>(TextReader textReader, Action<BsonDeserializationContext.Builder> configurator = null)
-            => _serializationDomain.Deserialize<TNominalType>(textReader, configurator);
+            => BsonSerializationDomain.Default.Deserialize<TNominalType>(textReader, configurator);
 
         /// <summary>
         /// Deserializes an object from a BsonDocument.
@@ -135,7 +124,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="configurator">The configurator.</param>
         /// <returns>A deserialized value.</returns>
         public static object Deserialize(BsonDocument document, Type nominalType, Action<BsonDeserializationContext.Builder> configurator = null)
-            => _serializationDomain.Deserialize(document, nominalType, configurator);
+            => BsonSerializationDomain.Default.Deserialize(document, nominalType, configurator);
 
         /// <summary>
         /// Deserializes a value.
@@ -145,7 +134,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="configurator">The configurator.</param>
         /// <returns>A deserialized value.</returns>
         public static object Deserialize(IBsonReader bsonReader, Type nominalType, Action<BsonDeserializationContext.Builder> configurator = null)
-            => _serializationDomain.Deserialize(bsonReader, nominalType, configurator);
+            => BsonSerializationDomain.Default.Deserialize(bsonReader, nominalType, configurator);
 
         /// <summary>
         /// Deserializes an object from a BSON byte array.
@@ -155,7 +144,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="configurator">The configurator.</param>
         /// <returns>A deserialized value.</returns>
         public static object Deserialize(byte[] bytes, Type nominalType, Action<BsonDeserializationContext.Builder> configurator = null)
-            => _serializationDomain.Deserialize(bytes, nominalType, configurator);
+            => BsonSerializationDomain.Default.Deserialize(bytes, nominalType, configurator);
 
         /// <summary>
         /// Deserializes an object from a BSON Stream.
@@ -165,7 +154,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="configurator">The configurator.</param>
         /// <returns>A deserialized value.</returns>
         public static object Deserialize(Stream stream, Type nominalType, Action<BsonDeserializationContext.Builder> configurator = null)
-            => _serializationDomain.Deserialize(stream, nominalType, configurator);
+            => BsonSerializationDomain.Default.Deserialize(stream, nominalType, configurator);
 
         /// <summary>
         /// Deserializes an object from a JSON string.
@@ -175,7 +164,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="configurator">The configurator.</param>
         /// <returns>A deserialized value.</returns>
         public static object Deserialize(string json, Type nominalType, Action<BsonDeserializationContext.Builder> configurator = null)
-            => _serializationDomain.Deserialize(json, nominalType, configurator);
+            => BsonSerializationDomain.Default.Deserialize(json, nominalType, configurator);
 
         /// <summary>
         /// Deserializes an object from a JSON TextReader.
@@ -185,13 +174,13 @@ namespace MongoDB.Bson.Serialization
         /// <param name="configurator">The configurator.</param>
         /// <returns>A deserialized value.</returns>
         public static object Deserialize(TextReader textReader, Type nominalType, Action<BsonDeserializationContext.Builder> configurator = null)
-            => _serializationDomain.Deserialize(textReader, nominalType, configurator);
+            => BsonSerializationDomain.Default.Deserialize(textReader, nominalType, configurator);
 
         internal static IDiscriminatorConvention GetOrRegisterDiscriminatorConvention(Type type, IDiscriminatorConvention discriminatorConvention)
-            => _serializationDomain.GetOrRegisterDiscriminatorConvention(type, discriminatorConvention);
+            => BsonSerializationDomain.Default.GetOrRegisterDiscriminatorConvention(type, discriminatorConvention);
 
         internal static bool IsDiscriminatorConventionRegisteredAtThisLevel(Type type)
-            => _serializationDomain.IsDiscriminatorConventionRegisteredAtThisLevel(type);
+            => BsonSerializationDomain.Default.IsDiscriminatorConventionRegisteredAtThisLevel(type);
 
         /// <summary>
         /// Returns whether the given type has any discriminators registered for any of its subclasses.
@@ -199,7 +188,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="type">A Type.</param>
         /// <returns>True if the type is discriminated.</returns>
         public static bool IsTypeDiscriminated(Type type)
-            => _serializationDomain.IsTypeDiscriminated(type);
+            => BsonSerializationDomain.Default.IsTypeDiscriminated(type);
 
         /// <summary>
         /// Looks up the actual type of an object to be deserialized.
@@ -208,7 +197,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="discriminator">The discriminator.</param>
         /// <returns>The actual type of the object.</returns>
         public static Type LookupActualType(Type nominalType, BsonValue discriminator)
-            => _serializationDomain.LookupActualType(nominalType, discriminator);
+            => BsonSerializationDomain.Default.LookupActualType(nominalType, discriminator);
 
         /// <summary>
         /// Looks up the discriminator convention for a type.
@@ -216,7 +205,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="type">The type.</param>
         /// <returns>A discriminator convention.</returns>
         public static IDiscriminatorConvention LookupDiscriminatorConvention(Type type)
-            => _serializationDomain.LookupDiscriminatorConvention(type);
+            => BsonSerializationDomain.Default.LookupDiscriminatorConvention(type);
 
         /// <summary>
         /// Looks up an IdGenerator.
@@ -224,21 +213,21 @@ namespace MongoDB.Bson.Serialization
         /// <param name="type">The Id type.</param>
         /// <returns>An IdGenerator for the Id type.</returns>
         public static IIdGenerator LookupIdGenerator(Type type)
-            => _serializationDomain.LookupIdGenerator(type);
+            => BsonSerializationDomain.Default.LookupIdGenerator(type);
 
         /// <summary>
         /// Looks up a serializer for a Type.
         /// </summary>
         /// <typeparam name="T">The type.</typeparam>
         /// <returns>A serializer for type T.</returns>
-        public static IBsonSerializer<T> LookupSerializer<T>() => _serializationDomain.LookupSerializer<T>();
+        public static IBsonSerializer<T> LookupSerializer<T>() => BsonSerializationDomain.Default.LookupSerializer<T>();
 
         /// <summary>
         /// Looks up a serializer for a Type.
         /// </summary>
         /// <param name="type">The Type.</param>
         /// <returns>A serializer for the Type.</returns>
-        public static IBsonSerializer LookupSerializer(Type type) => _serializationDomain.LookupSerializer(type);
+        public static IBsonSerializer LookupSerializer(Type type) => BsonSerializationDomain.Default.LookupSerializer(type);
 
         /// <summary>
         /// Registers the discriminator for a type.
@@ -246,7 +235,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="type">The type.</param>
         /// <param name="discriminator">The discriminator.</param>
         public static void RegisterDiscriminator(Type type, BsonValue discriminator)
-            => _serializationDomain.RegisterDiscriminator(type, discriminator);
+            => BsonSerializationDomain.Default.RegisterDiscriminator(type, discriminator);
 
         /// <summary>
         /// Registers the discriminator convention for a type.
@@ -254,7 +243,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="type">Type type.</param>
         /// <param name="convention">The discriminator convention.</param>
         public static void RegisterDiscriminatorConvention(Type type, IDiscriminatorConvention convention)
-            => _serializationDomain.RegisterDiscriminatorConvention(type, convention);
+            => BsonSerializationDomain.Default.RegisterDiscriminatorConvention(type, convention);
 
         /// <summary>
         /// Registers a generic serializer definition for a generic type.
@@ -262,7 +251,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="genericTypeDefinition">The generic type.</param>
         /// <param name="genericSerializerDefinition">The generic serializer definition.</param>
         public static void RegisterGenericSerializerDefinition(Type genericTypeDefinition, Type genericSerializerDefinition)
-            => _serializationDomain.RegisterGenericSerializerDefinition(genericTypeDefinition, genericSerializerDefinition);
+            => BsonSerializationDomain.Default.RegisterGenericSerializerDefinition(genericTypeDefinition, genericSerializerDefinition);
 
         /// <summary>
         /// Registers an IdGenerator for an Id Type.
@@ -270,14 +259,14 @@ namespace MongoDB.Bson.Serialization
         /// <param name="type">The Id Type.</param>
         /// <param name="idGenerator">The IdGenerator for the Id Type.</param>
         public static void RegisterIdGenerator(Type type, IIdGenerator idGenerator)
-            => _serializationDomain.RegisterIdGenerator(type, idGenerator);
+            => BsonSerializationDomain.Default.RegisterIdGenerator(type, idGenerator);
 
         /// <summary>
         /// Registers a serialization provider.
         /// </summary>
         /// <param name="provider">The serialization provider.</param>
         public static void RegisterSerializationProvider(IBsonSerializationProvider provider)
-            => _serializationDomain.RegisterSerializationProvider(provider);
+            => BsonSerializationDomain.Default.RegisterSerializationProvider(provider);
 
         /// <summary>
         /// Registers a serializer for a type.
@@ -285,7 +274,7 @@ namespace MongoDB.Bson.Serialization
         /// <typeparam name="T">The type.</typeparam>
         /// <param name="serializer">The serializer.</param>
         public static void RegisterSerializer<T>(IBsonSerializer<T> serializer)
-            => _serializationDomain.RegisterSerializer<T>(serializer);
+            => BsonSerializationDomain.Default.RegisterSerializer<T>(serializer);
 
         /// <summary>
         /// Registers a serializer for a type.
@@ -293,7 +282,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="type">The type.</param>
         /// <param name="serializer">The serializer.</param>
         public static void RegisterSerializer(Type type, IBsonSerializer serializer)
-            => _serializationDomain.RegisterSerializer(type, serializer);
+            => BsonSerializationDomain.Default.RegisterSerializer(type, serializer);
 
         /// <summary>
         /// Serializes a value.
@@ -308,7 +297,7 @@ namespace MongoDB.Bson.Serialization
             TNominalType value,
             Action<BsonSerializationContext.Builder> configurator = null,
             BsonSerializationArgs args = default)
-            => _serializationDomain.Serialize<TNominalType>(bsonWriter, value, configurator, args);
+            => BsonSerializationDomain.Default.Serialize<TNominalType>(bsonWriter, value, configurator, args);
 
         /// <summary>
         /// Serializes a value.
@@ -324,7 +313,7 @@ namespace MongoDB.Bson.Serialization
             object value,
             Action<BsonSerializationContext.Builder> configurator = null,
             BsonSerializationArgs args = default(BsonSerializationArgs))
-            => _serializationDomain.Serialize(bsonWriter, nominalType, value, configurator, args);
+            => BsonSerializationDomain.Default.Serialize(bsonWriter, nominalType, value, configurator, args);
 
         /// <summary>
         /// Tries to register a serializer for a type.
@@ -333,7 +322,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="type">The type.</param>
         /// <returns>True if the serializer was registered on this call, false if the same serializer was already registered on a previous call, throws an exception if a different serializer was already registered.</returns>
         public static bool TryRegisterSerializer(Type type, IBsonSerializer serializer)
-            => _serializationDomain.TryRegisterSerializer(type, serializer);
+            => BsonSerializationDomain.Default.TryRegisterSerializer(type, serializer);
 
         /// <summary>
         /// Tries to register a serializer for a type.
@@ -342,13 +331,13 @@ namespace MongoDB.Bson.Serialization
         /// <param name="serializer">The serializer.</param>
         /// <returns>True if the serializer was registered on this call, false if the same serializer was already registered on a previous call, throws an exception if a different serializer was already registered.</returns>
         public static bool TryRegisterSerializer<T>(IBsonSerializer<T> serializer)
-            => _serializationDomain.TryRegisterSerializer<T>(serializer);
+            => BsonSerializationDomain.Default.TryRegisterSerializer<T>(serializer);
 
         // internal static methods
         internal static void EnsureKnownTypesAreRegistered(Type nominalType)
-            => _serializationDomain.EnsureKnownTypesAreRegistered(nominalType);
+            => BsonSerializationDomain.Default.EnsureKnownTypesAreRegistered(nominalType);
 
         internal static BsonValue[] GetDiscriminatorsForTypeAndSubTypes(Type type)
-            => _serializationDomain.GetDiscriminatorsForTypeAndSubTypes(type);
+            => BsonSerializationDomain.Default.GetDiscriminatorsForTypeAndSubTypes(type);
     }
 }

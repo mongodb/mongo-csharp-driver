@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 
             if (queryFailure)
             {
-                var context = BsonDeserializationContext.CreateRoot(binaryReader, SerializationDomain);
+                var context = BsonDeserializationContext.CreateRoot(binaryReader);
                 queryFailureDocument = BsonDocumentSerializer.Instance.Deserialize(context);
             }
             else
@@ -69,7 +69,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 for (var i = 0; i < numberReturned; i++)
                 {
                     var allowDuplicateElementNames = typeof(TDocument) == typeof(BsonDocument);
-                    var context = BsonDeserializationContext.CreateRoot(binaryReader, SerializationDomain, builder =>
+                    var context = BsonDeserializationContext.CreateRoot(binaryReader, builder =>
                     {
                         builder.AllowDuplicateElementNames = allowDuplicateElementNames;
                     });
@@ -124,16 +124,14 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             stream.WriteInt32(message.NumberReturned);
             if (message.QueryFailure)
             {
-                //QUESTION Is it correct we only need a default domain here?
-                var context = BsonSerializationContext.CreateRoot(binaryWriter, BsonSerializer.DefaultSerializationDomain);
+                var context = BsonSerializationContext.CreateRoot(binaryWriter);
                 _serializer.Serialize(context, message.QueryFailureDocument);
             }
             else
             {
                 foreach (var doc in message.Documents)
                 {
-                    //QUESTION Is it correct we only need a default domain here?
-                    var context = BsonSerializationContext.CreateRoot(binaryWriter, BsonSerializer.DefaultSerializationDomain);
+                    var context = BsonSerializationContext.CreateRoot(binaryWriter);
                     _serializer.Serialize(context, doc);
                 }
             }

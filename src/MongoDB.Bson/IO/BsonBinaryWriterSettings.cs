@@ -15,6 +15,7 @@
 
 using System;
 using System.Text;
+using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson.IO
 {
@@ -29,7 +30,7 @@ namespace MongoDB.Bson.IO
         // private fields
         private UTF8Encoding _encoding = Utf8Encodings.Strict;
         private bool _fixOldBinarySubTypeOnOutput = true;
-        private int _maxDocumentSize = BsonDefaults.MaxDocumentSize;
+        private int _maxDocumentSize = BsonSerializationDomain.Default.BsonDefaults.MaxDocumentSize;
 
         // constructors
         /// <summary>

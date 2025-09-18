@@ -1,3 +1,18 @@
+/* Copyright 2010-present MongoDB Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -5,13 +20,13 @@ using System.Reflection;
 
 namespace MongoDB.Bson.Serialization;
 
-internal class BsonClassMapDomain : IBsonClassMapDomain
+internal class BsonClassMapRegistry : IBsonClassMapRegistry
 {
     // private fields
-    private readonly IBsonSerializationDomain _serializationDomain;
     private readonly Dictionary<Type, BsonClassMap> _classMaps = new();
+    private readonly IBsonSerializationDomain _serializationDomain;
 
-    public BsonClassMapDomain(BsonSerializationDomain serializationDomain)
+    public BsonClassMapRegistry(BsonSerializationDomain serializationDomain)
     {
         _serializationDomain = serializationDomain;
     }
@@ -88,8 +103,9 @@ internal class BsonClassMapDomain : IBsonClassMapDomain
         // do the work of speculatively creating a new class map outside of holding any lock
         var classMapDefinition = typeof(BsonClassMap<>);
         var classMapType = classMapDefinition.MakeGenericType(classType);
-        var newClassMap = (BsonClassMap)Activator.CreateInstance(classMapType);
-        newClassMap.AutoMap(_serializationDomain);
+        var bindingAttr = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+        var newClassMap = (BsonClassMap)Activator.CreateInstance(classMapType, bindingAttr, binder: null, args: [_serializationDomain], culture: null);
+        newClassMap.AutoMap();
 
         _serializationDomain.ConfigLock.EnterWriteLock();
         try
@@ -115,7 +131,7 @@ internal class BsonClassMapDomain : IBsonClassMapDomain
     /// <returns>The class map.</returns>
     public BsonClassMap<TClass> RegisterClassMap<TClass>()
     {
-        return RegisterClassMap<TClass>(cm => { cm.AutoMap(_serializationDomain); });
+        return RegisterClassMap<TClass>(cm => { cm.AutoMap(); });
     }
 
     /// <summary>
@@ -162,12 +178,12 @@ internal class BsonClassMapDomain : IBsonClassMapDomain
     /// <returns>True if this call registered the class map, false if the class map was already registered.</returns>
     public bool TryRegisterClassMap<TClass>()
     {
-        return TryRegisterClassMap(() => ClassMapFactory(_serializationDomain));
+        return TryRegisterClassMap(() => ClassMapFactory());
 
-        static BsonClassMap<TClass> ClassMapFactory(IBsonSerializationDomain serializationDomain)
+        BsonClassMap<TClass> ClassMapFactory()
         {
-            var classMap = new BsonClassMap<TClass>();
-            classMap.AutoMap(serializationDomain);
+            var classMap = new BsonClassMap<TClass>(_serializationDomain);
+            classMap.AutoMap();
             return classMap;
         }
     }

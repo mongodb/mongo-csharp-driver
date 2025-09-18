@@ -1294,7 +1294,7 @@ namespace MongoDB.Driver
                     else
                     {
                         var inputSerializer = args.DocumentSerializer;
-                        var discriminatorConvention = inputSerializer.GetDiscriminatorConvention(args.SerializationDomain);
+                        var discriminatorConvention = inputSerializer.GetDiscriminatorConvention();
                         if (discriminatorConvention == null)
                         {
                             var message = string.Format("OfType requires that a discriminator convention exist for type: {0}.", BsonUtils.GetFriendlyTypeName(typeof(TOutput)));
@@ -1304,8 +1304,8 @@ namespace MongoDB.Driver
                         var discriminatorField = new AstFilterField(discriminatorConvention.ElementName);
                         ofTypeFilter = discriminatorConvention switch
                         {
-                            IHierarchicalDiscriminatorConvention hierarchicalDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, hierarchicalDiscriminatorConvention, nominalType, actualType, args.SerializationDomain),
-                            IScalarDiscriminatorConvention scalarDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, scalarDiscriminatorConvention, nominalType, actualType, args.SerializationDomain),
+                            IHierarchicalDiscriminatorConvention hierarchicalDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, hierarchicalDiscriminatorConvention, nominalType, actualType),
+                            IScalarDiscriminatorConvention scalarDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, scalarDiscriminatorConvention, nominalType, actualType),
                             _ => throw new NotSupportedException( "OfType is not supported with the configured discriminator convention.")
                         };
                     }

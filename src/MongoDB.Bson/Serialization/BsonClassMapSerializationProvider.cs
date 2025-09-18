@@ -21,21 +21,19 @@ namespace MongoDB.Bson.Serialization
     /// <summary>
     /// Represents the class map serialization provider.
     /// </summary>
-    internal class BsonClassMapSerializationProvider : BsonSerializationProviderBase, IDomainAwareBsonSerializationProvider
+    internal class BsonClassMapSerializationProvider : BsonSerializationProviderBase
     {
-        public IBsonSerializationDomain SerializationDomain { get; }
+        private readonly IBsonSerializationDomain _serializationDomain;
 
         public BsonClassMapSerializationProvider(IBsonSerializationDomain serializationDomain)
         {
-            SerializationDomain = serializationDomain;
+            _serializationDomain = serializationDomain;
         }
 
-        //DOMAIN-API This method should be removed.
+        public IBsonSerializationDomain SerializationDomain { get; }
+
         /// <inheritdoc/>
         public override IBsonSerializer GetSerializer(Type type, IBsonSerializerRegistry serializerRegistry)
-            => GetSerializerWithDomain(type);
-
-        public IBsonSerializer GetSerializerWithDomain(Type type)
         {
             if (type == null)
             {
@@ -52,10 +50,11 @@ namespace MongoDB.Bson.Serialization
                 !typeof(Array).GetTypeInfo().IsAssignableFrom(type) &&
                 !typeof(Enum).GetTypeInfo().IsAssignableFrom(type))
             {
-                var classMap = SerializationDomain.BsonClassMap.LookupClassMap(type);
+                var classMap = _serializationDomain.ClassMapRegistry.LookupClassMap(type);
                 var classMapSerializerDefinition = typeof(BsonClassMapSerializer<>);
                 var classMapSerializerType = classMapSerializerDefinition.MakeGenericType(type);
-                return (IBsonSerializer)Activator.CreateInstance(classMapSerializerType, classMap);
+                var bindingAttr =  BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+                return (IBsonSerializer)Activator.CreateInstance(classMapSerializerType, bindingAttr, binder: null, args: [_serializationDomain, classMap], culture: null);
             }
 
             return null;

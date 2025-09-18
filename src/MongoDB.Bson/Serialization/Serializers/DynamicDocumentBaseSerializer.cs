@@ -24,17 +24,28 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// Base serializer for dynamic types.
     /// </summary>
     /// <typeparam name="T">The dynamic type.</typeparam>
-    public abstract class DynamicDocumentBaseSerializer<T> : SerializerBase<T> where T : class, IDynamicMetaObjectProvider
+    public abstract class DynamicDocumentBaseSerializer<T> : SerializerBase<T>, IHasSerializationDomain
+        where T : class, IDynamicMetaObjectProvider
     {
         // private fields
         private IBsonSerializer<object> _objectSerializer;
+        private readonly IBsonSerializationDomain _serializationDomain;
 
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="DynamicDocumentBaseSerializer{T}"/> class.
         /// </summary>
         protected DynamicDocumentBaseSerializer()
-        { }
+            : this(BsonSerializationDomain.Default)
+        {
+        }
+
+        internal DynamicDocumentBaseSerializer(IBsonSerializationDomain serializationDomain)
+        {
+            _serializationDomain = serializationDomain;
+        }
+
+        IBsonSerializationDomain IHasSerializationDomain.SerializationDomain => _serializationDomain;
 
         // public methods
         /// <summary>
@@ -58,7 +69,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
                     {
                         var name = bsonReader.ReadName();
-                        var value = GetObjectSerializer(context.SerializationDomain).Deserialize(dynamicContext);
+                        var value = GetObjectSerializer().Deserialize(dynamicContext);
                         SetValueForMember(document, name, value);
                     }
                     bsonReader.ReadEndDocument();
@@ -101,7 +112,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 if (TryGetValueForMember(value, memberName, out memberValue))
                 {
                     bsonWriter.WriteName(memberName);
-                    GetObjectSerializer(context.SerializationDomain).Serialize(dynamicContext, memberValue);
+                    GetObjectSerializer().Serialize(dynamicContext, memberValue);
                 }
             }
             bsonWriter.WriteEndDocument();
@@ -144,9 +155,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         protected abstract bool TryGetValueForMember(T document, string memberName, out object value);
 
         //private methods
-        private IBsonSerializer<object> GetObjectSerializer(IBsonSerializationDomain domain)
+        private IBsonSerializer<object> GetObjectSerializer()
         {
-            return _objectSerializer ??= domain.LookupSerializer<object>();
+            return _objectSerializer ??= _serializationDomain.LookupSerializer<object>();
         }
     }
 }

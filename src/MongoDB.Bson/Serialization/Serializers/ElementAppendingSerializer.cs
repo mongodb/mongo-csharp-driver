@@ -89,7 +89,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             var writer = context.Writer;
             var elementAppendingWriter = new ElementAppendingBsonWriter(writer, _elements, _writerSettingsConfigurator);
-            var elementAppendingContext = BsonSerializationContext.CreateRoot(elementAppendingWriter, context.SerializationDomain, builder => ConfigureElementAppendingContext(builder, context));
+            var elementAppendingContext = BsonSerializationContext.CreateRoot(elementAppendingWriter, builder => ConfigureElementAppendingContext(builder, context));
             _documentSerializer.Serialize(elementAppendingContext, args, value);
         }
 

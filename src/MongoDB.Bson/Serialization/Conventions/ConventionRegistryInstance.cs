@@ -18,15 +18,19 @@ using System.Collections.Generic;
 
 namespace MongoDB.Bson.Serialization.Conventions
 {
-    internal class ConventionRegistryDomain : IConventionRegistryDomain
+    internal class ConventionRegistryInstance : IConventionRegistry
     {
-        private readonly List<ConventionPackContainer> _conventionPacks = [];
+        private readonly List<ConventionPackContainer> _conventionPacks = new();
         private readonly object _lock = new();
+        private readonly IBsonSerializationDomain _serializationDomain;
 
         //  constructors
-        internal ConventionRegistryDomain()
+        internal ConventionRegistryInstance(IBsonSerializationDomain serializationDomain)
         {
-            Register("__defaults__", DefaultConventionPack.Instance, t => true);
+            _serializationDomain = serializationDomain;
+            var defaultConventionPack = new DefaultConventionPack(serializationDomain);
+
+            Register("__defaults__", defaultConventionPack, t => true);
             Register("__attributes__", AttributeConventionPack.Instance, t => true);
         }
 

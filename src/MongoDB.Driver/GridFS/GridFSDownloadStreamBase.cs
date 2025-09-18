@@ -17,9 +17,7 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.GridFS
 {
@@ -32,29 +30,15 @@ namespace MongoDB.Driver.GridFS
         private bool _disposed;
         private readonly GridFSFileInfo<TFileId> _fileInfo;
 
-        // protected fields
-        protected readonly IBsonSerializationDomain SerializationDomain;
-
         // constructors
         protected GridFSDownloadStreamBase(
             IGridFSBucket<TFileId> bucket,
             IReadBinding binding,
-            GridFSFileInfo<TFileId> fileInfo,
-            IBsonSerializationDomain serializationDomain)
+            GridFSFileInfo<TFileId> fileInfo)
         {
             _bucket = bucket;
             _binding = binding;
             _fileInfo = fileInfo;
-            SerializationDomain = serializationDomain;
-        }
-
-        //EXIT
-        protected GridFSDownloadStreamBase(
-            IGridFSBucket<TFileId> bucket,
-            IReadBinding binding,
-            GridFSFileInfo<TFileId> fileInfo)
-            : this(bucket, binding, fileInfo, BsonSerializer.DefaultSerializationDomain)
-        {
         }
 
         // public properties

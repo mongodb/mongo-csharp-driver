@@ -14,20 +14,21 @@
 */
 
 using System;
+using System.Reflection;
 
 namespace MongoDB.Bson.Serialization.Conventions
 {
     /// <summary>
     /// A convention that sets the element name the same as the member name with the first character lower cased.
     /// </summary>
-    public class CamelCaseElementNameConvention : ConventionBase, IMemberMapConventionInternal
+    public class CamelCaseElementNameConvention : ConventionBase, IMemberMapConvention
     {
         // public methods
-        /// <inheritdoc />
-        public void Apply(BsonMemberMap memberMap) => (this as IMemberMapConventionInternal).Apply(memberMap, BsonSerializer.DefaultSerializationDomain);
-
-        /// <inheritdoc />
-        void IMemberMapConventionInternal.Apply(BsonMemberMap memberMap, IBsonSerializationDomain domain)
+        /// <summary>
+        /// Applies a modification to the member map.
+        /// </summary>
+        /// <param name="memberMap">The member map.</param>
+        public void Apply(BsonMemberMap memberMap)
         {
             string name = memberMap.MemberName;
             name = GetElementName(name);

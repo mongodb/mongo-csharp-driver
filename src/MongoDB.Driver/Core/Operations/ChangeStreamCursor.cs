@@ -46,7 +46,6 @@ namespace MongoDB.Driver.Core.Operations
         private readonly BsonDocument _initialStartAfter;
         private readonly BsonTimestamp _initialStartAtOperationTime;
         private readonly int _maxWireVersion;
-        private readonly IBsonSerializationDomain _serializationDomain;
 
         // public properties
         /// <inheritdoc />
@@ -66,7 +65,6 @@ namespace MongoDB.Driver.Core.Operations
         /// <param name="initialResumeAfter">The resume after value.</param>
         /// <param name="initialStartAtOperationTime">The start at operation time value.</param>
         /// <param name="maxWireVersion">The maximum wire version.</param>
-        /// <param name="serializationDomain">The serialization domain.</param>
         public ChangeStreamCursor(
             IAsyncCursor<RawBsonDocument> cursor,
             IBsonSerializer<TDocument> documentSerializer,
@@ -77,8 +75,7 @@ namespace MongoDB.Driver.Core.Operations
             BsonDocument initialStartAfter,
             BsonDocument initialResumeAfter,
             BsonTimestamp initialStartAtOperationTime,
-            int maxWireVersion,
-            IBsonSerializationDomain serializationDomain)
+            int maxWireVersion)
         {
             _cursor = Ensure.IsNotNull(cursor, nameof(cursor));
             _documentSerializer = Ensure.IsNotNull(documentSerializer, nameof(documentSerializer));
@@ -91,34 +88,6 @@ namespace MongoDB.Driver.Core.Operations
             _initialResumeAfter = initialResumeAfter;
             _initialStartAtOperationTime = initialStartAtOperationTime;
             _maxWireVersion = Ensure.IsGreaterThanOrEqualToZero(maxWireVersion, nameof(maxWireVersion));
-            _serializationDomain = Ensure.IsNotNull(serializationDomain, nameof(serializationDomain));
-        }
-
-        //EXIT
-        public ChangeStreamCursor(
-            IAsyncCursor<RawBsonDocument> cursor,
-            IBsonSerializer<TDocument> documentSerializer,
-            IReadBinding binding,
-            IChangeStreamOperation<TDocument> changeStreamOperation,
-            BsonDocument aggregatePostBatchResumeToken,
-            BsonTimestamp initialOperationTime,
-            BsonDocument initialStartAfter,
-            BsonDocument initialResumeAfter,
-            BsonTimestamp initialStartAtOperationTime,
-            int maxWireVersion)
-            : this(
-                cursor,
-                documentSerializer,
-                binding,
-                changeStreamOperation,
-                aggregatePostBatchResumeToken,
-                initialOperationTime,
-                initialStartAfter,
-                initialResumeAfter,
-                initialStartAtOperationTime,
-                maxWireVersion,
-                BsonSerializer.DefaultSerializationDomain)
-        {
         }
 
         // public methods
@@ -196,7 +165,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var stream = new ByteBufferStream(rawDocument.Slice, ownsBuffer: false))
             using (var reader = new BsonBinaryReader(stream))
             {
-                var context = BsonDeserializationContext.CreateRoot(reader, _serializationDomain);
+                var context = BsonDeserializationContext.CreateRoot(reader);
                 return _documentSerializer.Deserialize(context);
             }
         }

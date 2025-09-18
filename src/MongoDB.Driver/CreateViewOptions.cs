@@ -30,7 +30,6 @@ namespace MongoDB.Driver
         private IBsonSerializer<TDocument> _documentSerializer;
         private IBsonSerializerRegistry _serializerRegistry;
         private TimeSpan? _timeout;
-        private IBsonSerializationDomain _serializationDomain;
 
         // properties
         /// <summary>
@@ -57,8 +56,6 @@ namespace MongoDB.Driver
             set { _documentSerializer = value; }
         }
 
-        //DOMAIN-API We need to remove this, and have only the SerializationDomain property.
-        //We should also decide if we even need any of those two properties.
         /// <summary>
         /// Gets or sets the serializer registry.
         /// </summary>
@@ -79,12 +76,6 @@ namespace MongoDB.Driver
         {
             get => _timeout;
             set => _timeout = Ensure.IsNullOrValidTimeout(value, nameof(Timeout));
-        }
-
-        internal IBsonSerializationDomain SerializationDomain
-        {
-            get => _serializationDomain;
-            set => _serializationDomain = value;
         }
     }
 }

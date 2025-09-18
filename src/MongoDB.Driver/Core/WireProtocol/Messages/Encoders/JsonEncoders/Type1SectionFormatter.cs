@@ -20,13 +20,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
 {
     internal sealed class Type1SectionFormatter : ICommandMessageSectionFormatter<Type1CommandMessageSection>
     {
-        private readonly IBsonSerializationDomain _serializationDomain;
-
-        public Type1SectionFormatter(IBsonSerializationDomain serializationDomain)
-        {
-            _serializationDomain = serializationDomain;
-        }
-
         public void FormatSection(Type1CommandMessageSection section, IBsonWriter writer)
         {
             writer.WriteString("identifier", section.Identifier);
@@ -34,7 +27,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             writer.WriteStartArray();
             var batch = section.Documents;
             var serializer = section.DocumentSerializer;
-            var context = BsonSerializationContext.CreateRoot(writer, _serializationDomain);
+            var context = BsonSerializationContext.CreateRoot(writer);
             for (var i = 0; i < batch.Count; i++)
             {
                 var document = batch.Items[batch.Offset + i];

@@ -14,7 +14,6 @@
 */
 
 using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
 {

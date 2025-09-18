@@ -61,7 +61,6 @@ namespace MongoDB.Driver.Core.Operations
         private readonly IBsonSerializer<TDocument> _resultSerializer;
         private bool _retryRequested;
         private bool? _returnKey;
-        private IBsonSerializationDomain _serializationDomain;
         private bool? _showRecordId;
         private bool? _singleBatch;
         private int? _skip;
@@ -70,24 +69,12 @@ namespace MongoDB.Driver.Core.Operations
         public FindOperation(
             CollectionNamespace collectionNamespace,
             IBsonSerializer<TDocument> resultSerializer,
-            MessageEncoderSettings messageEncoderSettings,
-            IBsonSerializationDomain serializationDomain)
+            MessageEncoderSettings messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
             _resultSerializer = Ensure.IsNotNull(resultSerializer, nameof(resultSerializer));
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
-            _serializationDomain = serializationDomain ?? BsonSerializer.DefaultSerializationDomain;
             _cursorType = CursorType.NonTailable;
-        }
-
-        //EXIT
-        public FindOperation(
-            CollectionNamespace collectionNamespace,
-            IBsonSerializer<TDocument> resultSerializer,
-            MessageEncoderSettings messageEncoderSettings)
-            : this(collectionNamespace, resultSerializer, messageEncoderSettings,
-                BsonSerializer.DefaultSerializationDomain)
-        {
         }
 
         public bool? AllowDiskUse
@@ -361,7 +348,6 @@ namespace MongoDB.Driver.Core.Operations
                 _limit < 0 ? Math.Abs(_limit.Value) : _limit,
                 _resultSerializer,
                 _messageEncoderSettings,
-                _serializationDomain,
                 _cursorType == CursorType.TailableAwait ? _maxAwaitTime : null);
         }
 
@@ -372,7 +358,7 @@ namespace MongoDB.Driver.Core.Operations
 
             using (batch)
             {
-                var documents = CursorBatchDeserializationHelper.DeserializeBatch(batch, _resultSerializer, _messageEncoderSettings, _serializationDomain);
+                var documents = CursorBatchDeserializationHelper.DeserializeBatch(batch, _resultSerializer, _messageEncoderSettings);
                 return new CursorBatch<TDocument>(cursorId, documents);
             }
         }
@@ -386,8 +372,7 @@ namespace MongoDB.Driver.Core.Operations
                 _collectionNamespace.DatabaseNamespace,
                 command,
                 __findCommandResultSerializer,
-                _messageEncoderSettings,
-                _serializationDomain)
+                _messageEncoderSettings)
             {
                 RetryRequested = _retryRequested // might be overridden by retryable read context
             };

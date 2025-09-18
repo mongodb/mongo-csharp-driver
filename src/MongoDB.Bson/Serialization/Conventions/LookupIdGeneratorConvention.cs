@@ -13,26 +13,44 @@
 * limitations under the License.
 */
 
+using System;
+using System.Reflection;
+
 namespace MongoDB.Bson.Serialization.Conventions
 {
     /// <summary>
     /// A convention that looks up an id generator for the id member.
     /// </summary>
-    public class LookupIdGeneratorConvention : ConventionBase, IPostProcessingConventionInternal
+    public class LookupIdGeneratorConvention : ConventionBase, IPostProcessingConvention
     {
-        /// <inheritdoc/>
-        public void PostProcess(BsonClassMap classMap) => (this as IPostProcessingConventionInternal).PostProcess(classMap, BsonSerializer.DefaultSerializationDomain);
+        private readonly IBsonSerializationDomain _serializationDomain;
 
-        /// <inheritdoc/>
-        void IPostProcessingConventionInternal.PostProcess(BsonClassMap classMap, IBsonSerializationDomain domain)
+        /// <summary>
+        ///
+        /// </summary>
+        public LookupIdGeneratorConvention()
+            : this(BsonSerializationDomain.Default)
+        {
+        }
+
+        internal LookupIdGeneratorConvention(IBsonSerializationDomain serializationDomain)
+        {
+            _serializationDomain = serializationDomain;
+        }
+
+        // public methods
+        /// <summary>
+        /// Applies a post processing modification to the class map.
+        /// </summary>
+        /// <param name="classMap">The class map.</param>
+        public void PostProcess(BsonClassMap classMap)
         {
             var idMemberMap = classMap.IdMemberMap;
             if (idMemberMap != null)
             {
                 if (idMemberMap.IdGenerator == null)
                 {
-                    //or we pass the domain to the BsonClassMap. The first probably makes more sense, but it's messier.
-                    var idGenerator = domain.LookupIdGenerator(idMemberMap.MemberType);
+                    var idGenerator = _serializationDomain.LookupIdGenerator(idMemberMap.MemberType);
                     if (idGenerator != null)
                     {
                         idMemberMap.SetIdGenerator(idGenerator);

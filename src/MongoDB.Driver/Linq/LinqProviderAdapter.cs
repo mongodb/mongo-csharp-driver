@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Linq
             TranslationContextData contextData = null)
         {
             expression = (Expression<Func<TSource, TResult>>)PartialEvaluator.EvaluatePartially(expression);
-            var context = TranslationContext.Create(translationOptions, serializationDomain, contextData);
+            var context = TranslationContext.Create(serializationDomain, translationOptions, contextData);
             var translation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, expression, sourceSerializer, asRoot: true);
             var simplifiedAst = AstSimplifier.Simplify(translation.Ast);
 
@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Linq
         {
             expression = (LambdaExpression)PartialEvaluator.EvaluatePartially(expression);
             var parameter = expression.Parameters.Single();
-            var context = TranslationContext.Create(translationOptions, serializationDomain);
+            var context = TranslationContext.Create(serializationDomain, translationOptions);
             var symbol = context.CreateSymbol(parameter, documentSerializer, isCurrent: true);
             context = context.WithSymbol(symbol);
             var body = RemovePossibleConvertToObject(expression.Body);
@@ -106,7 +106,7 @@ namespace MongoDB.Driver.Linq
         {
             expression = (Expression<Func<TDocument, TField>>)PartialEvaluator.EvaluatePartially(expression);
             var parameter = expression.Parameters.Single();
-            var context = TranslationContext.Create(translationOptions, serializationDomain);
+            var context = TranslationContext.Create(serializationDomain, translationOptions);
             var symbol = context.CreateSymbol(parameter, documentSerializer, isCurrent: true);
             context = context.WithSymbol(symbol);
             var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, expression.Body);
@@ -125,7 +125,7 @@ namespace MongoDB.Driver.Linq
             ExpressionTranslationOptions translationOptions)
         {
             expression = (Expression<Func<TElement, bool>>)PartialEvaluator.EvaluatePartially(expression);
-            var context = TranslationContext.Create(translationOptions, serializationDomain);
+            var context = TranslationContext.Create(serializationDomain, translationOptions);
             var parameter = expression.Parameters.Single();
             var symbol = context.CreateSymbol(parameter, "@<elem>", elementSerializer);  // @<elem> represents the implied element
             context = context.WithSingleSymbol(symbol); // @<elem> is the only symbol visible inside an $elemMatch
@@ -142,7 +142,7 @@ namespace MongoDB.Driver.Linq
             ExpressionTranslationOptions translationOptions)
         {
             expression = (Expression<Func<TDocument, bool>>)PartialEvaluator.EvaluatePartially(expression);
-            var context = TranslationContext.Create(translationOptions, serializationDomain);
+            var context = TranslationContext.Create(serializationDomain, translationOptions);
             var filter = ExpressionToFilterTranslator.TranslateLambda(context, expression, documentSerializer, asRoot: true);
             filter = AstSimplifier.SimplifyAndConvert(filter);
 
@@ -177,7 +177,7 @@ namespace MongoDB.Driver.Linq
             }
 
             expression = (Expression<Func<TInput, TOutput>>)PartialEvaluator.EvaluatePartially(expression);
-            var context = TranslationContext.Create(translationOptions, serializationDomain);
+            var context = TranslationContext.Create(serializationDomain, translationOptions);
 
             var simplifier = forFind ? new AstFindProjectionSimplifier() : new AstSimplifier();
             try
@@ -216,7 +216,7 @@ namespace MongoDB.Driver.Linq
             IBsonSerializationDomain serializationDomain,
             ExpressionTranslationOptions translationOptions)
         {
-            var context = TranslationContext.Create(translationOptions, serializationDomain); // do not partially evaluate expression
+            var context = TranslationContext.Create(serializationDomain, translationOptions); // do not partially evaluate expression
             var parameter = expression.Parameters.Single();
             var symbol = context.CreateRootSymbol(parameter, documentSerializer);
             context = context.WithSymbol(symbol);

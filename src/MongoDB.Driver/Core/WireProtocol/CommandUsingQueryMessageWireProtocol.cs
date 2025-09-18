@@ -49,7 +49,6 @@ namespace MongoDB.Driver.Core.WireProtocol
         private readonly IBsonSerializer<TCommandResult> _resultSerializer;
         private readonly ServerApi _serverApi;
         private readonly ICoreSession _session;
-        private readonly IBsonSerializationDomain _serializationDomain;
 
         // constructors
         public CommandUsingQueryMessageWireProtocol(
@@ -64,8 +63,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             IBsonSerializer<TCommandResult> resultSerializer,
             MessageEncoderSettings messageEncoderSettings,
             Action<IMessageEncoderPostProcessor> postWriteAction,
-            ServerApi serverApi,
-            IBsonSerializationDomain serializationDomain)
+            ServerApi serverApi)
         {
             if (responseHandling != CommandResponseHandling.Return && responseHandling != CommandResponseHandling.Ignore)
             {
@@ -84,7 +82,6 @@ namespace MongoDB.Driver.Core.WireProtocol
             _messageEncoderSettings = messageEncoderSettings;
             _postWriteAction = postWriteAction; // can be null
             _serverApi = serverApi; // can be null
-            _serializationDomain = Ensure.IsNotNull(serializationDomain, nameof(serializationDomain));
         }
 
         // public properties
@@ -185,7 +182,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
 
             var payloadAppendingSerializer = new ElementAppendingSerializer<BsonDocument>(BsonDocumentSerializer.Instance, extraElements);
-            return new BsonDocumentWrapper(_command, payloadAppendingSerializer, _serializationDomain);
+            return new BsonDocumentWrapper(_command, payloadAppendingSerializer);
         }
 
         private BsonArray CreatePayloadArray(Type1CommandMessageSection payload, ConnectionDescription connectionDescription)
@@ -200,7 +197,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 payloadSerializer = CreateFixedCountPayloadSerializer(payload);
             }
 
-            var documents = new BsonDocumentWrapper(payload.Documents, payloadSerializer, _serializationDomain);
+            var documents = new BsonDocumentWrapper(payload.Documents, payloadSerializer);
             return new BsonArray { documents };
         }
 
@@ -329,7 +326,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                     var encoder = (ReplyMessageBinaryEncoder<TCommandResult>)encoderFactory.GetReplyMessageEncoder<TCommandResult>(_resultSerializer);
                     using (var reader = encoder.CreateBinaryReader())
                     {
-                        var context = BsonDeserializationContext.CreateRoot(reader, _serializationDomain);
+                        var context = BsonDeserializationContext.CreateRoot(reader);
                         return _resultSerializer.Deserialize(context);
                     }
                 }
@@ -377,7 +374,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 extraElements.Add(clusterTime);
             }
             var appendExtraElementsSerializer = new ElementAppendingSerializer<BsonDocument>(BsonDocumentSerializer.Instance, extraElements);
-            var commandWithExtraElements = new BsonDocumentWrapper(command, appendExtraElementsSerializer, _serializationDomain);
+            var commandWithExtraElements = new BsonDocumentWrapper(command, appendExtraElementsSerializer);
 
             var serverType = connectionDescription != null ? connectionDescription.HelloResult.ServerType : ServerType.Unknown;
             var readPreferenceDocument = QueryHelper.CreateReadPreferenceDocument(serverType, _readPreference, out secondaryOk);

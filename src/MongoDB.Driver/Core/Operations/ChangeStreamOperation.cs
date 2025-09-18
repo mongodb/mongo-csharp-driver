@@ -53,7 +53,6 @@ namespace MongoDB.Driver.Core.Operations
         private readonly IBsonSerializer<TResult> _resultSerializer;
         private BsonDocument _resumeAfter;
         private bool _retryRequested;
-        private readonly IBsonSerializationDomain _serializationDomain;
         private bool? _showExpandedEvents;
         private BsonDocument _startAfter;
         private BsonTimestamp _startAtOperationTime;
@@ -61,58 +60,31 @@ namespace MongoDB.Driver.Core.Operations
         public ChangeStreamOperation(
             IEnumerable<BsonDocument> pipeline,
             IBsonSerializer<TResult> resultSerializer,
-            MessageEncoderSettings messageEncoderSettings,
-            IBsonSerializationDomain serializationDomain)
+            MessageEncoderSettings messageEncoderSettings)
         {
             _pipeline = Ensure.IsNotNull(pipeline, nameof(pipeline)).ToList();
             _resultSerializer = Ensure.IsNotNull(resultSerializer, nameof(resultSerializer));
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
-            _serializationDomain = Ensure.IsNotNull(serializationDomain, nameof(serializationDomain));
         }
 
-        //EXIT
         public ChangeStreamOperation(
             DatabaseNamespace databaseNamespace,
             IEnumerable<BsonDocument> pipeline,
             IBsonSerializer<TResult> resultSerializer,
-            MessageEncoderSettings messageEncoderSettings,
-            IBsonSerializationDomain serializationDomain)
-            : this(pipeline, resultSerializer, messageEncoderSettings, serializationDomain)
+            MessageEncoderSettings messageEncoderSettings)
+            : this(pipeline, resultSerializer, messageEncoderSettings)
         {
             _databaseNamespace = Ensure.IsNotNull(databaseNamespace, nameof(databaseNamespace));
         }
 
-        //EXIT
-        public ChangeStreamOperation(
-            DatabaseNamespace databaseNamespace,
-            IEnumerable<BsonDocument> pipeline,
-            IBsonSerializer<TResult> resultSerializer,
-            MessageEncoderSettings messageEncoderSettings)
-            : this(databaseNamespace, pipeline, resultSerializer, messageEncoderSettings,
-                BsonSerializer.DefaultSerializationDomain)
-        {
-        }
-
         public ChangeStreamOperation(
             CollectionNamespace collectionNamespace,
             IEnumerable<BsonDocument> pipeline,
             IBsonSerializer<TResult> resultSerializer,
-            MessageEncoderSettings messageEncoderSettings,
-            IBsonSerializationDomain serializationDomain)
-            : this(pipeline, resultSerializer, messageEncoderSettings, serializationDomain)
+            MessageEncoderSettings messageEncoderSettings)
+            : this(pipeline, resultSerializer, messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
-        }
-
-        //EXIT
-        public ChangeStreamOperation(
-            CollectionNamespace collectionNamespace,
-            IEnumerable<BsonDocument> pipeline,
-            IBsonSerializer<TResult> resultSerializer,
-            MessageEncoderSettings messageEncoderSettings)
-            : this(collectionNamespace, pipeline, resultSerializer, messageEncoderSettings,
-                BsonSerializer.DefaultSerializationDomain)
-        {
         }
 
         // public properties
@@ -307,8 +279,7 @@ namespace MongoDB.Driver.Core.Operations
                     _startAfter,
                     _resumeAfter,
                     _startAtOperationTime,
-                    context.Channel.ConnectionDescription.MaxWireVersion,
-                    _serializationDomain);
+                    context.Channel.ConnectionDescription.MaxWireVersion);
             }
         }
 
@@ -343,8 +314,7 @@ namespace MongoDB.Driver.Core.Operations
                     _startAfter,
                     _resumeAfter,
                     _startAtOperationTime,
-                    context.Channel.ConnectionDescription.MaxWireVersion,
-                    _serializationDomain);
+                    context.Channel.ConnectionDescription.MaxWireVersion);
             }
         }
 
@@ -375,7 +345,7 @@ namespace MongoDB.Driver.Core.Operations
             AggregateOperation<RawBsonDocument> operation;
             if (_collectionNamespace != null)
             {
-                operation = new AggregateOperation<RawBsonDocument>(_collectionNamespace, combinedPipeline, RawBsonDocumentSerializer.Instance, _messageEncoderSettings, _serializationDomain)
+                operation = new AggregateOperation<RawBsonDocument>(_collectionNamespace, combinedPipeline, RawBsonDocumentSerializer.Instance, _messageEncoderSettings)
                 {
                     RetryRequested = _retryRequested // might be overridden by retryable read context
                 };
@@ -383,7 +353,7 @@ namespace MongoDB.Driver.Core.Operations
             else
             {
                 var databaseNamespace = _databaseNamespace ?? DatabaseNamespace.Admin;
-                operation = new AggregateOperation<RawBsonDocument>(databaseNamespace, combinedPipeline, RawBsonDocumentSerializer.Instance, _messageEncoderSettings, _serializationDomain)
+                operation = new AggregateOperation<RawBsonDocument>(databaseNamespace, combinedPipeline, RawBsonDocumentSerializer.Instance, _messageEncoderSettings)
                 {
                     RetryRequested = _retryRequested // might be overridden by retryable read context
                 };

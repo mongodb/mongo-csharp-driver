@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
@@ -42,9 +41,8 @@ namespace MongoDB.Driver.Core.Operations
             IReadOnlyList<BulkWriteModel> writeModels,
             ClientBulkWriteOptions options,
             MessageEncoderSettings messageEncoderSettings,
-            RenderArgs<BsonDocument> renderArgs,
-            IBsonSerializationDomain serializationDomain)
-            : base(DatabaseNamespace.Admin, messageEncoderSettings, serializationDomain)
+            RenderArgs<BsonDocument> renderArgs)
+            : base(DatabaseNamespace.Admin, messageEncoderSettings)
         {
             Ensure.IsNotNullOrEmpty(writeModels, nameof(writeModels));
             _writeModels = new BatchableSource<BulkWriteModel>(writeModels, true);
@@ -286,8 +284,7 @@ namespace MongoDB.Driver.Core.Operations
                 0,
                 0,
                 BsonDocumentSerializer.Instance,
-                MessageEncoderSettings,
-                SerializationDomain);
+                MessageEncoderSettings);
         }
 
         private void PopulateBulkWriteResponse(BsonDocument bulkWriteResponse, BulkWriteRawResult bulkWriteResult)

@@ -75,7 +75,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         {
             _collection = Ensure.IsNotNull(collection, nameof(collection));
             _pipelineInputSerializer = collection.DocumentSerializer;
-            _serializationDomain = collection.Settings?.SerializationDomain ?? BsonSerializer.DefaultSerializationDomain;
+            _serializationDomain = collection.Settings.SerializationDomain;
         }
 
         public MongoQueryProvider(
@@ -90,14 +90,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         }
 
         internal MongoQueryProvider(
+            IBsonSerializationDomain serializationDomain,
             IBsonSerializer pipelineInputSerializer,
             IClientSessionHandle session,
-            AggregateOptions options,
-            IBsonSerializationDomain serializationDomain)
+            AggregateOptions options)
             : base(session, options)
         {
-            _pipelineInputSerializer = Ensure.IsNotNull(pipelineInputSerializer, nameof(pipelineInputSerializer));
             _serializationDomain = Ensure.IsNotNull(serializationDomain, nameof(serializationDomain));
+            _pipelineInputSerializer = Ensure.IsNotNull(pipelineInputSerializer, nameof(pipelineInputSerializer));
         }
 
         // public properties

@@ -35,6 +35,9 @@ namespace MongoDB.Driver.Tests.Linq
             var session = Mock.Of<IClientSessionHandle>();
             var options = new AggregateOptions();
 
+            var collectionSettings = new MongoCollectionSettings { SerializationDomain = BsonSerializationDomain.Default };
+            Mock.Get(collection).SetupGet(x => x.Settings).Returns(collectionSettings);
+
             var result = LinqProviderAdapter.AsQueryable(collection, session, options);
 
             var queryable = result.Should().BeOfType<MongoQuery<C, C>>().Subject;

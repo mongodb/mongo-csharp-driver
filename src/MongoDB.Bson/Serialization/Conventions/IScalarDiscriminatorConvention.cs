@@ -29,9 +29,4 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <returns>The discriminators.</returns>
         BsonValue[] GetDiscriminatorsForTypeAndSubTypes(Type type);
     }
-
-    internal interface IScalarDiscriminatorConventionInternal : IScalarDiscriminatorConvention
-    {
-        BsonValue[] GetDiscriminatorsForTypeAndSubTypes(Type type, IBsonSerializationDomain serializationDomain);
-    }
 }

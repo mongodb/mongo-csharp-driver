@@ -243,8 +243,7 @@ namespace MongoDB.Driver.GridFS
         /// </value>
         public IBsonSerializerRegistry SerializerRegistry
         {
-            get { return BsonSerializer.SerializerRegistry; }  //QUESTION What do we do in this case...? Given it's read only, we could ignore it? Given this is used for default serialization, it should be ok.
-                                                               //Also, why the immutable options have a serializer registry and the non-immutable options do not?
+            get { return BsonSerializer.SerializerRegistry; }
         }
 
         /// <summary>

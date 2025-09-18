@@ -222,7 +222,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             {
                 writer.WriteStartDocument();
                 writer.WriteName("_v");
-                var context = BsonSerializationContext.CreateRoot(writer, BsonSerializer.DefaultSerializationDomain); //QUESTION Is it ok here to use the default domain?
+                var context = BsonSerializationContext.CreateRoot(writer);
                 serializer.Serialize(context, value);
                 writer.WriteEndDocument();
             }
@@ -237,7 +237,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                 writer.WriteStartDocument();
                 writer.WriteName("_v");
                 writer.WriteStartArray();
-                var context = BsonSerializationContext.CreateRoot(writer, BsonSerializer.DefaultSerializationDomain); //QUESTION Is it ok here to use the default domain?
+                var context = BsonSerializationContext.CreateRoot(writer);
                 foreach(var value in values)
                 {
                     itemSerializer.Serialize(context, value);

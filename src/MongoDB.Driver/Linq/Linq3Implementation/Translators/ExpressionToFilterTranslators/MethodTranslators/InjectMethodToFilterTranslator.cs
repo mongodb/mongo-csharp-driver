@@ -58,9 +58,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 {
                     throw new ExpressionNotSupportedException(expression, because: $"FilterDefinition TDocument type: {filterDefinitionDocumentType} does not match document type {documentSerializer.ValueType} ");
                 }
+                var serializerRegistry = BsonSerializer.SerializerRegistry;
 
                 var renderFilterMethod = __renderFilterMethodInfo.MakeGenericMethod(filterDefinitionDocumentType);
-                var renderedFilter = (BsonDocument)renderFilterMethod.Invoke(null, new[] { filterDefinition, documentSerializer, context.SerializationDomain, context.TranslationOptions });
+                var renderedFilter = (BsonDocument)renderFilterMethod.Invoke(null, new[] { filterDefinition, documentSerializer, serializerRegistry, context.TranslationOptions });
 
                 return AstFilter.Raw(renderedFilter);
             }
@@ -72,8 +73,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
         private static BsonDocument RenderFilter<TDocument>(
             FilterDefinition<TDocument> filterDefinition,
             IBsonSerializer<TDocument> documentSerializer,
-            IBsonSerializationDomain serializationDomain,
+            IBsonSerializerRegistry serializerRegistry,
             ExpressionTranslationOptions translationOptions) =>
-                filterDefinition.Render(new(documentSerializer, serializationDomain, translationOptions: translationOptions));
+                filterDefinition.Render(new(documentSerializer, serializerRegistry, translationOptions: translationOptions));
     }
 }

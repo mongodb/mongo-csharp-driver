@@ -37,24 +37,12 @@ namespace MongoDB.Driver.Core.Operations
             CollectionNamespace collectionNamespace,
             BatchableSource<TDocument> documents,
             IBsonSerializer<TDocument> documentSerializer,
-            MessageEncoderSettings messageEncoderSettings,
-            IBsonSerializationDomain serializationDomain)
-            : base(Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace)).DatabaseNamespace, messageEncoderSettings, serializationDomain)
+            MessageEncoderSettings messageEncoderSettings)
+            : base(Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace)).DatabaseNamespace, messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
             _documents = Ensure.IsNotNull(documents, nameof(documents));
             _documentSerializer = Ensure.IsNotNull(documentSerializer, nameof(documentSerializer));
-        }
-
-        //EXIT
-        public RetryableInsertCommandOperation(
-            CollectionNamespace collectionNamespace,
-            BatchableSource<TDocument> documents,
-            IBsonSerializer<TDocument> documentSerializer,
-            MessageEncoderSettings messageEncoderSettings)
-            : this(collectionNamespace, documents, documentSerializer, messageEncoderSettings,
-                BsonSerializer.DefaultSerializationDomain)
-        {
         }
 
         public bool? BypassDocumentValidation
@@ -151,7 +139,7 @@ namespace MongoDB.Driver.Core.Operations
                 {
                     if (_cachedSerializer.ValueType != actualType)
                     {
-                        _cachedSerializer = context.SerializationDomain.LookupSerializer(actualType);
+                        _cachedSerializer = _documentSerializer.GetSerializerForDerivedType(actualType);
                     }
                     serializer = _cachedSerializer;
                 }

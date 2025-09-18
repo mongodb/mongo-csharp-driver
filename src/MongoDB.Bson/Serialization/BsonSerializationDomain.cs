@@ -32,11 +32,43 @@ namespace MongoDB.Bson.Serialization
     /// </summary>
     internal class BsonSerializationDomain : IBsonSerializationDomain, IDisposable
     {
+        #region static
+        private readonly static IBsonSerializationDomain __default;
+
+        static BsonSerializationDomain()
+        {
+            var defaultSerializationDomain = new BsonSerializationDomain("Default");
+            defaultSerializationDomain.Initialize();
+            defaultSerializationDomain.ConfigureDefaults();
+            __default =  defaultSerializationDomain;
+        }
+
+        /// <summary>
+        /// Gets the default serialization domain.
+        /// </summary>
+        public static IBsonSerializationDomain Default => __default;
+
+        internal static IBsonSerializationDomain Create(string name)
+        {
+            var serializationDomain = new BsonSerializationDomain(name);
+            serializationDomain.Initialize();
+            return serializationDomain;
+        }
+
+        internal static IBsonSerializationDomain CreateWithDefaultConfiguration(string name)
+        {
+            var serializationDomain = new BsonSerializationDomain(name);
+            serializationDomain.Initialize();
+            serializationDomain.ConfigureDefaults();
+            return serializationDomain;
+        }
+        #endregion
+
         // private fields
         private IBsonDefaults _bsonDefaults;
         private ReaderWriterLockSlim _configLock = new(LockRecursionPolicy.SupportsRecursion);
-        private IBsonClassMapDomain _classMapDomain;
-        private IConventionRegistryDomain _conventionRegistryDomain;
+        private IBsonClassMapRegistry _classMapRegistry;
+        private IConventionRegistry _conventionRegistry;
         private Dictionary<Type, IIdGenerator> _idGenerators = new();
         private Dictionary<Type, IDiscriminatorConvention> _discriminatorConventions = new();
         private Dictionary<BsonValue, HashSet<Type>> _discriminators = new();
@@ -52,9 +84,6 @@ namespace MongoDB.Bson.Serialization
         // constructor
         public BsonSerializationDomain(string name = null)
         {
-            CreateSerializerRegistry();
-            CreateSubDomains();
-            RegisterIdGenerators();
             Name = name ?? "CUSTOM";
         }
 
@@ -124,7 +153,7 @@ namespace MongoDB.Bson.Serialization
             Action<BsonDeserializationContext.Builder> configurator = null)
         {
             var serializer = LookupSerializer<TNominalType>();
-            var context = BsonDeserializationContext.CreateRoot(bsonReader, this, configurator);
+            var context = BsonDeserializationContext.CreateRoot(bsonReader, configurator);
             return serializer.Deserialize(context);
         }
 
@@ -220,7 +249,7 @@ namespace MongoDB.Bson.Serialization
             Action<BsonDeserializationContext.Builder> configurator = null)
         {
             var serializer = LookupSerializer(nominalType);
-            var context = BsonDeserializationContext.CreateRoot(bsonReader, this, configurator);
+            var context = BsonDeserializationContext.CreateRoot(bsonReader, configurator);
             return serializer.Deserialize(context);
         }
 
@@ -482,7 +511,7 @@ namespace MongoDB.Bson.Serialization
                     if (type == typeof(object))
                     {
                         // if there is no convention registered for object register the default one
-                        convention = new ObjectDiscriminatorConvention("_t");
+                        convention = new ObjectDiscriminatorConvention(this, "_t");
                         RegisterDiscriminatorConvention(typeof(object), convention);
                     }
                     else if (typeInfo.IsInterface)
@@ -500,7 +529,7 @@ namespace MongoDB.Bson.Serialization
                         {
                             if (parentType == typeof(object))
                             {
-                                convention = StandardDiscriminatorConvention.Scalar;
+                                convention = new ScalarDiscriminatorConvention(this, "_t");
                                 break;
                             }
 
@@ -753,7 +782,7 @@ namespace MongoDB.Bson.Serialization
         {
             args.SetOrValidateNominalType(typeof(TNominalType), "<TNominalType>");
             var serializer = LookupSerializer<TNominalType>();
-            var context = BsonSerializationContext.CreateRoot(bsonWriter, this, configurator);
+            var context = BsonSerializationContext.CreateRoot(bsonWriter, configurator);
             serializer.Serialize(context, args, value);
         }
 
@@ -774,14 +803,13 @@ namespace MongoDB.Bson.Serialization
         {
             args.SetOrValidateNominalType(nominalType, "nominalType");
             var serializer = LookupSerializer(nominalType);
-            var context = BsonSerializationContext.CreateRoot(bsonWriter, this, configurator);
+            var context = BsonSerializationContext.CreateRoot(bsonWriter, configurator);
             serializer.Serialize(context, args, value);
         }
 
-        public IBsonClassMapDomain BsonClassMap => _classMapDomain;
+        public IBsonClassMapRegistry ClassMapRegistry => _classMapRegistry;
 
-        public IConventionRegistryDomain ConventionRegistry => _conventionRegistryDomain;
-
+        public IConventionRegistry ConventionRegistry => _conventionRegistry;
         public IBsonDefaults BsonDefaults => _bsonDefaults;
 
         /// <summary>
@@ -846,11 +874,17 @@ namespace MongoDB.Bson.Serialization
         }
 
         // private methods
-        private void CreateSerializerRegistry()
+        internal void Initialize()
         {
             _serializerRegistry = new BsonSerializerRegistry(this);
             _typeMappingSerializationProvider = new TypeMappingSerializationProvider();
+            _classMapRegistry = new BsonClassMapRegistry(this);
+            _conventionRegistry = new ConventionRegistryInstance(this);
+            _bsonDefaults = new BsonDefaultsRegistry(this);
+        }
 
+        internal void ConfigureDefaults()
+        {
             // order matters. It's in reverse order of how they'll get consumed
             _serializerRegistry.RegisterSerializationProvider(new BsonClassMapSerializationProvider(this));
             _serializerRegistry.RegisterSerializationProvider(new DiscriminatedInterfaceSerializationProvider());
@@ -859,17 +893,7 @@ namespace MongoDB.Bson.Serialization
             _serializerRegistry.RegisterSerializationProvider(new AttributedSerializationProvider());
             _serializerRegistry.RegisterSerializationProvider(_typeMappingSerializationProvider);
             _serializerRegistry.RegisterSerializationProvider(new BsonObjectModelSerializationProvider());
-        }
 
-        private void CreateSubDomains()
-        {
-            _classMapDomain = new BsonClassMapDomain(this);
-            _conventionRegistryDomain = new ConventionRegistryDomain();
-            _bsonDefaults = new BsonDefaultsDomain(this);
-        }
-
-        private void RegisterIdGenerators()
-        {
             RegisterIdGenerator(typeof(BsonObjectId), BsonObjectIdGenerator.Instance);
             RegisterIdGenerator(typeof(Guid), GuidGenerator.Instance);
             RegisterIdGenerator(typeof(ObjectId), ObjectIdGenerator.Instance);

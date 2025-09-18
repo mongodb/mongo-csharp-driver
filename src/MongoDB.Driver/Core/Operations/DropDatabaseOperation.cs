@@ -16,7 +16,6 @@
 using System;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Events;
@@ -29,25 +28,14 @@ namespace MongoDB.Driver.Core.Operations
     {
         private readonly DatabaseNamespace _databaseNamespace;
         private readonly MessageEncoderSettings _messageEncoderSettings;
-        private readonly IBsonSerializationDomain _serializationDomain;
         private WriteConcern _writeConcern;
 
         public DropDatabaseOperation(
             DatabaseNamespace databaseNamespace,
-            MessageEncoderSettings messageEncoderSettings,
-            IBsonSerializationDomain serializationDomain)
+            MessageEncoderSettings messageEncoderSettings)
         {
             _databaseNamespace = Ensure.IsNotNull(databaseNamespace, nameof(databaseNamespace));
             _messageEncoderSettings = messageEncoderSettings;
-            _serializationDomain = Ensure.IsNotNull(serializationDomain, nameof(serializationDomain));
-        }
-
-        //EXIT
-        public DropDatabaseOperation(
-            DatabaseNamespace databaseNamespace,
-            MessageEncoderSettings messageEncoderSettings)
-            : this(databaseNamespace, messageEncoderSettings, BsonSerializer.DefaultSerializationDomain)
-        {
         }
 
         public DatabaseNamespace DatabaseNamespace
@@ -109,7 +97,7 @@ namespace MongoDB.Driver.Core.Operations
         private WriteCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, ICoreSessionHandle session)
         {
             var command = CreateCommand(operationContext, session);
-            return new WriteCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings, _serializationDomain);
+            return new WriteCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
         }
     }
 }

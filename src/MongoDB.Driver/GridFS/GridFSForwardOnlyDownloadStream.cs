@@ -48,9 +48,8 @@ namespace MongoDB.Driver.GridFS
         public GridFSForwardOnlyDownloadStream(
             GridFSBucket<TFileId> bucket,
             IReadBinding binding,
-            GridFSFileInfo<TFileId> fileInfo,
-            IBsonSerializationDomain serializationDomain)
-            : base(bucket, binding, fileInfo, serializationDomain)
+            GridFSFileInfo<TFileId> fileInfo)
+            : base(bucket, binding, fileInfo)
         {
             _lastChunkNumber = (int)((fileInfo.Length - 1) / fileInfo.ChunkSizeBytes);
             _lastChunkSize = (int)(fileInfo.Length % fileInfo.ChunkSizeBytes);
@@ -186,8 +185,7 @@ namespace MongoDB.Driver.GridFS
             return new FindOperation<BsonDocument>(
                 chunksCollectionNamespace,
                 BsonDocumentSerializer.Instance,
-                messageEncoderSettings,
-                SerializationDomain)
+                messageEncoderSettings)
             {
                 Filter = filter,
                 Sort = sort,

@@ -31,7 +31,7 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         }
 
         // private fields
-        private readonly IBsonSerializer<TCoordinates> _coordinatesSerializer = BsonSerializer.LookupSerializer<TCoordinates>();  //QUESTION What do we do? We could lazily initialize it when we get the serialization/deserialization context.
+        private readonly IBsonSerializer<TCoordinates> _coordinatesSerializer = BsonSerializer.LookupSerializer<TCoordinates>();
         private readonly GeoJsonObjectSerializerHelper<TCoordinates> _helper;
 
         // constructors

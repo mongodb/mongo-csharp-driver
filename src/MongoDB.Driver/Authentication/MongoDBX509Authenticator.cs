@@ -16,7 +16,6 @@
 using System;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
@@ -30,6 +29,7 @@ namespace MongoDB.Driver.Authentication
         {
             get { return "MONGODB-X509"; }
         }
+
         private readonly string _username;
         private readonly ServerApi _serverApi;
 
@@ -112,8 +112,7 @@ namespace MongoDB.Driver.Authentication
                 secondaryOk: true,
                 resultSerializer: BsonDocumentSerializer.Instance,
                 messageEncoderSettings: null,
-                serverApi: _serverApi,
-                serializationDomain: BsonSerializer.DefaultSerializationDomain); //QUESTION Is this correct? Using a default serialization domain?
+                serverApi: _serverApi);
 
             return protocol;
         }

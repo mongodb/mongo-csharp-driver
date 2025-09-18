@@ -29,21 +29,19 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
     {
         // fields
         private readonly IBsonSerializer<TDocument> _serializer;
-        private readonly IBsonSerializationDomain _serializationDomain;
 
         // constructors
         public ReplyMessageJsonEncoder(TextReader textReader, TextWriter textWriter, MessageEncoderSettings encoderSettings, IBsonSerializer<TDocument> serializer)
             : base(textReader, textWriter, encoderSettings)
         {
             _serializer = Ensure.IsNotNull(serializer, nameof(serializer));
-            _serializationDomain = encoderSettings?.GetOrDefault<IBsonSerializationDomain>(MessageEncoderSettingsName.SerializationDomain, null) ?? BsonSerializer.DefaultSerializationDomain;
         }
 
         // methods
         public ReplyMessage<TDocument> ReadMessage()
         {
             var jsonReader = CreateJsonReader();
-            var messageContext = BsonDeserializationContext.CreateRoot(jsonReader, _serializationDomain);
+            var messageContext = BsonDeserializationContext.CreateRoot(jsonReader);
             var messageDocument = BsonDocumentSerializer.Instance.Deserialize(messageContext);
 
             var opcode = messageDocument["opcode"].AsString;
@@ -69,7 +67,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
                 {
                     using (var documentReader = new BsonDocumentReader(serializedDocument))
                     {
-                        var documentContext = BsonDeserializationContext.CreateRoot(documentReader, _serializationDomain);
+                        var documentContext = BsonDeserializationContext.CreateRoot(documentReader);
                         var document = _serializer.Deserialize(documentContext);
                         documents.Add(document);
                     }
@@ -104,7 +102,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             BsonArray documents = null;
             if (!message.QueryFailure)
             {
-                var wrappers = message.Documents.Select(d => new BsonDocumentWrapper(d, _serializer, _serializationDomain));
+                var wrappers = message.Documents.Select(d => new BsonDocumentWrapper(d, _serializer));
                 documents = new BsonArray(wrappers);
             }
 
@@ -123,7 +121,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             };
 
             var jsonWriter = CreateJsonWriter();
-            var messageContext = BsonSerializationContext.CreateRoot(jsonWriter, _serializationDomain);
+            var messageContext = BsonSerializationContext.CreateRoot(jsonWriter);
             BsonDocumentSerializer.Instance.Serialize(messageContext, messageDocument);
         }
 

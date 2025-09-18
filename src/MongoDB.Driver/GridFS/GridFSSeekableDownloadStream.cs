@@ -40,22 +40,12 @@ namespace MongoDB.Driver.GridFS
         public GridFSSeekableDownloadStream(
             GridFSBucket<TFileId> bucket,
             IReadBinding binding,
-            GridFSFileInfo<TFileId> fileInfo,
-            IBsonSerializationDomain serializationDomain)
-            : base(bucket, binding, fileInfo, serializationDomain)
+            GridFSFileInfo<TFileId> fileInfo)
+            : base(bucket, binding, fileInfo)
         {
             var idSerializer = bucket.Options.SerializerRegistry.GetSerializer<TFileId>();
             var idSerializationInfo = new BsonSerializationInfo("_id", idSerializer, typeof(TFileId));
             _idAsBsonValue = idSerializationInfo.SerializeValue(fileInfo.Id);
-        }
-
-        //EXIT
-        public GridFSSeekableDownloadStream(
-            GridFSBucket<TFileId> bucket,
-            IReadBinding binding,
-            GridFSFileInfo<TFileId> fileInfo)
-            : this(bucket, binding, fileInfo, BsonSerializer.DefaultSerializationDomain)
-        {
         }
 
         // public properties
@@ -170,8 +160,7 @@ namespace MongoDB.Driver.GridFS
             return new FindOperation<BsonDocument>(
                 chunksCollectionNamespace,
                 BsonDocumentSerializer.Instance,
-                messageEncoderSettings,
-                SerializationDomain)
+                messageEncoderSettings)
             {
                 Filter = filter,
                 Limit = -1,

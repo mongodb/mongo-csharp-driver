@@ -63,8 +63,7 @@ namespace MongoDB.Driver.Core.Servers
             Action<IMessageEncoderPostProcessor> postWriteAction,
             CommandResponseHandling responseHandling,
             IBsonSerializer<TResult> resultSerializer,
-            MessageEncoderSettings messageEncoderSettings,
-            IBsonSerializationDomain serializationDomain)
+            MessageEncoderSettings messageEncoderSettings)
         {
             var roundTripTime = TimeSpan.Zero;
             if (_server is ISelectedServer selectedServer)
@@ -85,41 +84,11 @@ namespace MongoDB.Driver.Core.Servers
                 resultSerializer,
                 messageEncoderSettings,
                 _server.ServerApi,
-                roundTripTime,
-                serializationDomain);
+                roundTripTime);
 
             return ExecuteProtocol(operationContext, protocol, session);
         }
 
-        //EXIT
-        public TResult Command<TResult>(
-            OperationContext operationContext,
-            ICoreSession session,
-            ReadPreference readPreference,
-            DatabaseNamespace databaseNamespace,
-            BsonDocument command,
-            IEnumerable<BatchableCommandMessageSection> commandPayloads,
-            IElementNameValidator commandValidator,
-            BsonDocument additionalOptions,
-            Action<IMessageEncoderPostProcessor> postWriteAction,
-            CommandResponseHandling responseHandling,
-            IBsonSerializer<TResult> resultSerializer,
-            MessageEncoderSettings messageEncoderSettings)
-            => Command<TResult>(
-                operationContext,
-                session,
-                readPreference,
-                databaseNamespace,
-                command,
-                commandPayloads,
-                commandValidator,
-                additionalOptions,
-                postWriteAction,
-                responseHandling,
-                resultSerializer,
-                messageEncoderSettings,
-                BsonSerializer.DefaultSerializationDomain);
-
         public Task<TResult> CommandAsync<TResult>(
             OperationContext operationContext,
             ICoreSession session,
@@ -132,8 +101,7 @@ namespace MongoDB.Driver.Core.Servers
             Action<IMessageEncoderPostProcessor> postWriteAction,
             CommandResponseHandling responseHandling,
             IBsonSerializer<TResult> resultSerializer,
-            MessageEncoderSettings messageEncoderSettings,
-            IBsonSerializationDomain serializationDomain)
+            MessageEncoderSettings messageEncoderSettings)
         {
             var roundTripTime = TimeSpan.Zero;
             if (_server is ISelectedServer selectedServer)
@@ -154,39 +122,10 @@ namespace MongoDB.Driver.Core.Servers
                 resultSerializer,
                 messageEncoderSettings,
                 _server.ServerApi,
-                roundTripTime,
-                serializationDomain);
+                roundTripTime);
 
             return ExecuteProtocolAsync(operationContext, protocol, session);
         }
-
-        public Task<TResult> CommandAsync<TResult>(
-            OperationContext operationContext,
-            ICoreSession session,
-            ReadPreference readPreference,
-            DatabaseNamespace databaseNamespace,
-            BsonDocument command,
-            IEnumerable<BatchableCommandMessageSection> commandPayloads,
-            IElementNameValidator commandValidator,
-            BsonDocument additionalOptions,
-            Action<IMessageEncoderPostProcessor> postWriteAction,
-            CommandResponseHandling responseHandling,
-            IBsonSerializer<TResult> resultSerializer,
-            MessageEncoderSettings messageEncoderSettings)
-            => CommandAsync(
-                operationContext,
-                session,
-                readPreference,
-                databaseNamespace,
-                command,
-                commandPayloads,
-                commandValidator,
-                additionalOptions,
-                postWriteAction,
-                responseHandling,
-                resultSerializer,
-                messageEncoderSettings,
-                BsonSerializer.DefaultSerializationDomain);
 
         public void Dispose()
         {

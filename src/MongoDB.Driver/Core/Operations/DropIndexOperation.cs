@@ -16,7 +16,6 @@
 using System;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Events;
@@ -33,44 +32,23 @@ namespace MongoDB.Driver.Core.Operations
         private TimeSpan? _maxTime;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private WriteConcern _writeConcern;
-        private readonly IBsonSerializationDomain _serializationDomain;
 
-        public DropIndexOperation(
-            CollectionNamespace collectionNamespace,
-            BsonDocument keys,
-            MessageEncoderSettings messageEncoderSettings,
-            IBsonSerializationDomain serializationDomain)
-            : this(collectionNamespace, IndexNameHelper.GetIndexName(keys), messageEncoderSettings, serializationDomain)
-        {
-        }
-
-        //EXIT
         public DropIndexOperation(
             CollectionNamespace collectionNamespace,
             BsonDocument keys,
             MessageEncoderSettings messageEncoderSettings)
-            : this(collectionNamespace, keys, messageEncoderSettings, BsonSerializer.DefaultSerializationDomain)
+            : this(collectionNamespace, IndexNameHelper.GetIndexName(keys), messageEncoderSettings)
         {
         }
 
         public DropIndexOperation(
             CollectionNamespace collectionNamespace,
             string indexName,
-            MessageEncoderSettings messageEncoderSettings,
-            IBsonSerializationDomain serializationDomain)
+            MessageEncoderSettings messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
             _indexName = Ensure.IsNotNullOrEmpty(indexName, nameof(indexName));
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
-            _serializationDomain = Ensure.IsNotNull(serializationDomain, nameof(serializationDomain));
-        }
-
-        public DropIndexOperation(
-            CollectionNamespace collectionNamespace,
-            string indexName,
-            MessageEncoderSettings messageEncoderSettings)
-            : this(collectionNamespace, indexName, messageEncoderSettings, BsonSerializer.DefaultSerializationDomain)
-        {
         }
 
         public CollectionNamespace CollectionNamespace
@@ -178,7 +156,7 @@ namespace MongoDB.Driver.Core.Operations
         private WriteCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, ICoreSessionHandle session)
         {
             var command = CreateCommand(operationContext, session);
-            return new WriteCommandOperation<BsonDocument>(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings, _serializationDomain);
+            return new WriteCommandOperation<BsonDocument>(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
         }
 
         private bool ShouldIgnoreException(MongoCommandException ex)

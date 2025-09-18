@@ -16,7 +16,6 @@
 using System;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
@@ -36,7 +35,6 @@ namespace MongoDB.Driver.Core.Operations
         private bool? _nonAtomicOutput;
         private readonly CollectionNamespace _outputCollectionNamespace;
         private MapReduceOutputMode _outputMode;
-        private IBsonSerializationDomain _serializationDomain;
         private bool? _shardedOutput;
         private WriteConcern _writeConcern;
 
@@ -49,14 +47,12 @@ namespace MongoDB.Driver.Core.Operations
         /// <param name="mapFunction">The map function.</param>
         /// <param name="reduceFunction">The reduce function.</param>
         /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        /// <param name="serializationDomain">The serialization domain</param>
         public MapReduceOutputToCollectionOperation(
             CollectionNamespace collectionNamespace,
             CollectionNamespace outputCollectionNamespace,
             BsonJavaScript mapFunction,
             BsonJavaScript reduceFunction,
-            MessageEncoderSettings messageEncoderSettings,
-            IBsonSerializationDomain serializationDomain)
+            MessageEncoderSettings messageEncoderSettings)
             : base(
                 collectionNamespace,
                 mapFunction,
@@ -64,25 +60,7 @@ namespace MongoDB.Driver.Core.Operations
                 messageEncoderSettings)
         {
             _outputCollectionNamespace = Ensure.IsNotNull(outputCollectionNamespace, nameof(outputCollectionNamespace));
-            _serializationDomain = Ensure.IsNotNull(serializationDomain, nameof(serializationDomain));
             _outputMode = MapReduceOutputMode.Replace;
-        }
-
-        //EXIT
-        public MapReduceOutputToCollectionOperation(
-            CollectionNamespace collectionNamespace,
-            CollectionNamespace outputCollectionNamespace,
-            BsonJavaScript mapFunction,
-            BsonJavaScript reduceFunction,
-            MessageEncoderSettings messageEncoderSettings)
-            : this(
-                collectionNamespace,
-                outputCollectionNamespace,
-                mapFunction,
-                reduceFunction,
-                messageEncoderSettings,
-                BsonSerializer.DefaultSerializationDomain)
-        {
         }
 
         // properties
@@ -221,7 +199,7 @@ namespace MongoDB.Driver.Core.Operations
         private WriteCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription)
         {
             var command = CreateCommand(operationContext, session, connectionDescription);
-            return new WriteCommandOperation<BsonDocument>(CollectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, MessageEncoderSettings, _serializationDomain);
+            return new WriteCommandOperation<BsonDocument>(CollectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, MessageEncoderSettings);
         }
     }
 }

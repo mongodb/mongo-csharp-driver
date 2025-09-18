@@ -16,7 +16,6 @@
 using System;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
@@ -31,24 +30,13 @@ namespace MongoDB.Driver.Core.Operations
         private BsonValue _comment;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private bool _retryRequested;
-        private IBsonSerializationDomain _serializationDomain;
 
-        public ListIndexesOperation(
-            CollectionNamespace collectionNamespace,
-            MessageEncoderSettings messageEncoderSettings,
-            IBsonSerializationDomain serializationDomain)
-        {
-            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
-            _messageEncoderSettings = messageEncoderSettings;
-            _serializationDomain = Ensure.IsNotNull(serializationDomain, nameof(serializationDomain));
-        }
-
-        //EXIT
         public ListIndexesOperation(
             CollectionNamespace collectionNamespace,
             MessageEncoderSettings messageEncoderSettings)
-            : this(collectionNamespace, messageEncoderSettings, BsonSerializer.DefaultSerializationDomain)
         {
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
+            _messageEncoderSettings = messageEncoderSettings;
         }
 
         public int? BatchSize
@@ -107,7 +95,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private IExecutableInRetryableReadContext<IAsyncCursor<BsonDocument>> CreateOperation()
         {
-            return new ListIndexesUsingCommandOperation(_collectionNamespace, _messageEncoderSettings, _serializationDomain)
+            return new ListIndexesUsingCommandOperation(_collectionNamespace, _messageEncoderSettings)
             {
                 BatchSize = _batchSize,
                 Comment = _comment,

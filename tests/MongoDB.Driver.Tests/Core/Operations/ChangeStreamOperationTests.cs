@@ -86,7 +86,7 @@ namespace MongoDB.Driver.Core.Operations
             var messageEncoderSettings = new MessageEncoderSettings();
 
 
-            var exception = Record.Exception(() => new ChangeStreamOperation<BsonDocument>(databaseNamespace, pipeline, resultSerializer, messageEncoderSettings, BsonSerializer.DefaultSerializationDomain));
+            var exception = Record.Exception(() => new ChangeStreamOperation<BsonDocument>(databaseNamespace, pipeline, resultSerializer, messageEncoderSettings));
 
             var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
             argumentNullException.ParamName.Should().Be("resultSerializer");
@@ -101,7 +101,7 @@ namespace MongoDB.Driver.Core.Operations
             MessageEncoderSettings messageEncoderSettings = null;
 
 
-            var exception = Record.Exception(() => new ChangeStreamOperation<BsonDocument>(databaseNamespace, pipeline, resultSerializer, messageEncoderSettings, BsonSerializer.DefaultSerializationDomain));
+            var exception = Record.Exception(() => new ChangeStreamOperation<BsonDocument>(databaseNamespace, pipeline, resultSerializer, messageEncoderSettings));
 
             var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
             argumentNullException.ParamName.Should().Be("messageEncoderSettings");
@@ -116,7 +116,7 @@ namespace MongoDB.Driver.Core.Operations
             var messageEncoderSettings = new MessageEncoderSettings();
 
 
-            var exception = Record.Exception(() => new ChangeStreamOperation<BsonDocument>(databaseNamespace, pipeline, resultSerializer, messageEncoderSettings, BsonSerializer.DefaultSerializationDomain));
+            var exception = Record.Exception(() => new ChangeStreamOperation<BsonDocument>(databaseNamespace, pipeline, resultSerializer, messageEncoderSettings));
 
             var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
             argumentNullException.ParamName.Should().Be("pipeline");
@@ -130,7 +130,7 @@ namespace MongoDB.Driver.Core.Operations
             var resultSerializer = BsonDocumentSerializer.Instance;
             var messageEncoderSettings = new MessageEncoderSettings();
 
-            var subject = new ChangeStreamOperation<BsonDocument>(collectionNamespace, pipeline, resultSerializer, messageEncoderSettings, BsonSerializer.DefaultSerializationDomain);
+            var subject = new ChangeStreamOperation<BsonDocument>(collectionNamespace, pipeline, resultSerializer, messageEncoderSettings);
 
             subject.BatchSize.Should().NotHaveValue();
             subject.Collation.Should().BeNull();
@@ -173,7 +173,7 @@ namespace MongoDB.Driver.Core.Operations
             var messageEncoderSettings = new MessageEncoderSettings();
 
 
-            var exception = Record.Exception(() => new ChangeStreamOperation<BsonDocument>(collectionNamespace, pipeline, resultSerializer, messageEncoderSettings, BsonSerializer.DefaultSerializationDomain));
+            var exception = Record.Exception(() => new ChangeStreamOperation<BsonDocument>(collectionNamespace, pipeline, resultSerializer, messageEncoderSettings));
 
             var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
             argumentNullException.ParamName.Should().Be("resultSerializer");
@@ -203,7 +203,7 @@ namespace MongoDB.Driver.Core.Operations
             var messageEncoderSettings = new MessageEncoderSettings();
 
 
-            var exception = Record.Exception(() => new ChangeStreamOperation<BsonDocument>(collectionNamespace, pipeline, resultSerializer, messageEncoderSettings, BsonSerializer.DefaultSerializationDomain));
+            var exception = Record.Exception(() => new ChangeStreamOperation<BsonDocument>(collectionNamespace, pipeline, resultSerializer, messageEncoderSettings));
 
             var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
             argumentNullException.ParamName.Should().Be("pipeline");
@@ -475,7 +475,7 @@ namespace MongoDB.Driver.Core.Operations
             var pipeline = new[] { BsonDocument.Parse("{ $match : { operationType : \"insert\" } }") };
             var resultSerializer = new ChangeStreamDocumentSerializer<BsonDocument>(BsonDocumentSerializer.Instance);
             var messageEncoderSettings = new MessageEncoderSettings();
-            var subject = new ChangeStreamOperation<ChangeStreamDocument<BsonDocument>>(_collectionNamespace, pipeline, resultSerializer, messageEncoderSettings, BsonSerializer.DefaultSerializationDomain);
+            var subject = new ChangeStreamOperation<ChangeStreamDocument<BsonDocument>>(_collectionNamespace, pipeline, resultSerializer, messageEncoderSettings);
             EnsureDatabaseExists();
             DropCollection();
             Insert("{ _id : 1, x : 1 }");

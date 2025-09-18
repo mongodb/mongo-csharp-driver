@@ -21,7 +21,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// Represents a serializer that serializes values as a discriminator/value pair.
     /// </summary>
     /// <typeparam name="TValue">The type of the value.</typeparam>
-    public sealed class DiscriminatedWrapperSerializer<TValue> : SerializerBase<TValue>
+    public sealed class DiscriminatedWrapperSerializer<TValue> : SerializerBase<TValue>, IHasSerializationDomain
     {
         // private constants
         private static class Flags
@@ -35,6 +35,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         private readonly IDiscriminatorConvention _discriminatorConvention;
         private readonly SerializerHelper _helper;
         private readonly SerializerHelper _isPositionedHelper;
+        private readonly IBsonSerializationDomain _serializationDomain;
         private readonly IBsonSerializer<TValue> _wrappedSerializer;
 
         // constructors
@@ -44,7 +45,13 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="discriminatorConvention">The discriminator convention.</param>
         /// <param name="wrappedSerializer">The wrapped serializer.</param>
         public DiscriminatedWrapperSerializer(IDiscriminatorConvention discriminatorConvention, IBsonSerializer<TValue> wrappedSerializer)
+            : this(BsonSerializationDomain.Default, discriminatorConvention, wrappedSerializer)
         {
+        }
+
+        internal DiscriminatedWrapperSerializer(IBsonSerializationDomain serializationDomain, IDiscriminatorConvention discriminatorConvention, IBsonSerializer<TValue> wrappedSerializer)
+        {
+            _serializationDomain = serializationDomain;
             _discriminatorConvention = discriminatorConvention;
             _wrappedSerializer = wrappedSerializer;
 
@@ -62,6 +69,8 @@ namespace MongoDB.Bson.Serialization.Serializers
             );
         }
 
+        IBsonSerializationDomain IHasSerializationDomain.SerializationDomain => _serializationDomain;
+
         // public methods
         /// <summary>
         /// Deserializes a value.
@@ -73,8 +82,8 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             var bsonReader = context.Reader;
             var nominalType = args.NominalType;
-            var actualType = _discriminatorConvention.GetActualTypeInternal(bsonReader, nominalType, context.SerializationDomain);
-            var serializer = context.SerializationDomain.LookupSerializer(actualType);
+            var actualType = _discriminatorConvention.GetActualType(bsonReader, nominalType);
+            var serializer = _serializationDomain.LookupSerializer(actualType);
 
             TValue value = default(TValue);
             _helper.DeserializeMembers(context, (elementName, flag) =>
@@ -145,7 +154,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             var bsonWriter = context.Writer;
             var nominalType = args.NominalType;
             var actualType = value.GetType();
-            var discriminator = _discriminatorConvention.GetDiscriminatorInternal(nominalType, actualType, context.SerializationDomain);
+            var discriminator = _discriminatorConvention.GetDiscriminator(nominalType, actualType);
 
             bsonWriter.WriteStartDocument();
             if (discriminator != null)

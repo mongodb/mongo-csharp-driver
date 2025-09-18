@@ -38,29 +38,14 @@ namespace MongoDB.Driver.Core.Operations
         private MessageEncoderSettings _messageEncoderSettings;
         private ReadConcern _readConcern = ReadConcern.Default;
         private bool _retryRequested;
-        private IBsonSerializationDomain _serializationDomain;
         private IBsonSerializer<TValue> _valueSerializer;
 
-        public DistinctOperation(CollectionNamespace collectionNamespace,
-            IBsonSerializer<TValue> valueSerializer,
-            string fieldName,
-            MessageEncoderSettings messageEncoderSettings,
-            IBsonSerializationDomain serializationDomain)
+        public DistinctOperation(CollectionNamespace collectionNamespace, IBsonSerializer<TValue> valueSerializer, string fieldName, MessageEncoderSettings messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
             _valueSerializer = Ensure.IsNotNull(valueSerializer, nameof(valueSerializer));
             _fieldName = Ensure.IsNotNullOrEmpty(fieldName, nameof(fieldName));
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
-            _serializationDomain = Ensure.IsNotNull(serializationDomain, nameof(serializationDomain));
-        }
-
-        //EXIT
-        public DistinctOperation(CollectionNamespace collectionNamespace,
-            IBsonSerializer<TValue> valueSerializer,
-            string fieldName,
-            MessageEncoderSettings messageEncoderSettings)
-            : this(collectionNamespace, valueSerializer, fieldName, messageEncoderSettings, BsonSerializer.DefaultSerializationDomain)
-        {
         }
 
         public Collation Collation
@@ -173,7 +158,7 @@ namespace MongoDB.Driver.Core.Operations
             var command = CreateCommand(operationContext, context.Binding.Session, context.Channel.ConnectionDescription);
             var serializer = new DistinctResultDeserializer(_valueSerializer);
 
-            return new ReadCommandOperation<DistinctResult>(_collectionNamespace.DatabaseNamespace, command, serializer, _messageEncoderSettings, _serializationDomain)
+            return new ReadCommandOperation<DistinctResult>(_collectionNamespace.DatabaseNamespace, command, serializer, _messageEncoderSettings)
             {
                 RetryRequested = _retryRequested // might be overridden by retryable read context
             };

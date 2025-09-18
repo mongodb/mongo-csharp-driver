@@ -475,7 +475,7 @@ namespace MongoDB.Driver
             }
         }
 
-        IBsonSerializationDomain IInheritableMongoClientSettings.SerializationDomain
+        internal IBsonSerializationDomain SerializationDomain
         {
             get => _serializationDomain ?? BsonSerializer.DefaultSerializationDomain;
             set
@@ -485,9 +485,7 @@ namespace MongoDB.Driver
             }
         }
 
-        //FP This is a convenience property, it could be removed.
-        internal IBsonSerializationDomain SerializationDomain
-            => (this as IInheritableMongoClientSettings).SerializationDomain;
+        IBsonSerializationDomain IInheritableMongoClientSettings.SerializationDomain => _serializationDomain;
 
         /// <summary>
         /// Gets or sets the name of the replica set.

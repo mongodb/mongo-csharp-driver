@@ -31,6 +31,7 @@ namespace MongoDB.Bson.Serialization.Conventions
 
         // private fields
         private string _elementName;
+        private protected readonly IBsonSerializationDomain _serializationDomain;
 
         // constructors
         /// <summary>
@@ -38,7 +39,16 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// </summary>
         /// <param name="elementName">The element name.</param>
         protected StandardDiscriminatorConvention(string elementName)
+            : this(BsonSerializationDomain.Default, elementName)
         {
+        }
+
+        private protected StandardDiscriminatorConvention(IBsonSerializationDomain serializationDomain, string elementName)
+        {
+            if (serializationDomain == null)
+            {
+                throw new ArgumentException("Serialization domain cannot be null.", nameof(serializationDomain));
+            }
             if (string.IsNullOrEmpty(elementName))
             {
                 throw new ArgumentException("Discriminator element name name cannot be null or empty.", nameof(elementName));
@@ -48,6 +58,7 @@ namespace MongoDB.Bson.Serialization.Conventions
                 throw new ArgumentException("Discriminator element name cannot contain nulls.", nameof(elementName));
             }
 
+            _serializationDomain = serializationDomain;
             _elementName = elementName;
         }
 
@@ -95,33 +106,30 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <param name="bsonReader">The reader.</param>
         /// <param name="nominalType">The nominal type.</param>
         /// <returns>The actual type.</returns>
-        public Type GetActualType(IBsonReader bsonReader, Type nominalType) =>  //TODO This one should not be used
-            GetActualType(bsonReader, nominalType, BsonSerializer.DefaultSerializationDomain);
-
-        internal Type GetActualType(IBsonReader bsonReader, Type nominalType, IBsonSerializationDomain domain)
+        public Type GetActualType(IBsonReader bsonReader, Type nominalType)
         {
             // the BsonReader is sitting at the value whose actual type needs to be found
             var bsonType = bsonReader.GetCurrentBsonType();
             if (bsonType == BsonType.Document)
             {
                 // ensure KnownTypes of nominalType are registered (so IsTypeDiscriminated returns correct answer)
-                domain.EnsureKnownTypesAreRegistered(nominalType);
+                _serializationDomain.EnsureKnownTypesAreRegistered(nominalType);
 
                 // we can skip looking for a discriminator if nominalType has no discriminated sub types
-                if (domain.IsTypeDiscriminated(nominalType))
+                if (_serializationDomain.IsTypeDiscriminated(nominalType))
                 {
                     var bookmark = bsonReader.GetBookmark();
                     bsonReader.ReadStartDocument();
                     var actualType = nominalType;
                     if (bsonReader.FindElement(_elementName))
                     {
-                        var context = BsonDeserializationContext.CreateRoot(bsonReader, domain);
+                        var context = BsonDeserializationContext.CreateRoot(bsonReader);
                         var discriminator = BsonValueSerializer.Instance.Deserialize(context);
                         if (discriminator.IsBsonArray)
                         {
                             discriminator = discriminator.AsBsonArray.Last(); // last item is leaf class discriminator
                         }
-                        actualType = domain.LookupActualType(nominalType, discriminator);
+                        actualType = _serializationDomain.LookupActualType(nominalType, discriminator);
                     }
                     bsonReader.ReturnToBookmark(bookmark);
                     return actualType;

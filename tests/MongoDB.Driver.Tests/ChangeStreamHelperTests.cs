@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Tests
             var messageEncoderSettings = new MessageEncoderSettings();
             var renderedPipeline = RenderPipeline(pipeline);
 
-            var result = ChangeStreamHelper.CreateChangeStreamOperation(pipeline, options, readConcern, messageEncoderSettings, retryRequested: true, translationOptions: null, BsonSerializer.DefaultSerializationDomain);
+            var result = ChangeStreamHelper.CreateChangeStreamOperation(pipeline, options, readConcern, messageEncoderSettings, retryRequested: true, translationOptions: null);
 
             result.BatchSize.Should().Be(options.BatchSize);
             result.Collation.Should().BeSameAs(options.Collation);
@@ -86,7 +86,7 @@ namespace MongoDB.Driver.Tests
             var messageEncoderSettings = new MessageEncoderSettings();
             var renderedPipeline = RenderPipeline(pipeline);
 
-            var result = ChangeStreamHelper.CreateChangeStreamOperation(mockDatabase.Object, pipeline, options, readConcern, messageEncoderSettings, retryRequested: true, translationOptions: null, BsonSerializer.DefaultSerializationDomain);
+            var result = ChangeStreamHelper.CreateChangeStreamOperation(mockDatabase.Object, pipeline, options, readConcern, messageEncoderSettings, retryRequested: true, translationOptions: null);
 
             result.BatchSize.Should().Be(options.BatchSize);
             result.Collation.Should().BeSameAs(options.Collation);
@@ -129,7 +129,7 @@ namespace MongoDB.Driver.Tests
             var messageEncoderSettings = new MessageEncoderSettings();
             var renderedPipeline = RenderPipeline(pipeline);
 
-            var result = ChangeStreamHelper.CreateChangeStreamOperation(mockCollection.Object, pipeline, documentSerializer, options, readConcern, messageEncoderSettings, retryRequested: true, translationOptions: null, BsonSerializer.DefaultSerializationDomain);
+            var result = ChangeStreamHelper.CreateChangeStreamOperation(mockCollection.Object, pipeline, documentSerializer, options, readConcern, messageEncoderSettings, retryRequested: true, translationOptions: null);
 
             result.BatchSize.Should().Be(options.BatchSize);
             result.Collation.Should().BeSameAs(options.Collation);

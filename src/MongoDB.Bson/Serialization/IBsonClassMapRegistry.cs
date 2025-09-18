@@ -19,7 +19,7 @@ using System.Reflection;
 
 namespace MongoDB.Bson.Serialization
 {
-    internal interface IBsonClassMapDomain
+    internal interface IBsonClassMapRegistry
     {
         /// <summary>
         /// Gets all registered class maps.

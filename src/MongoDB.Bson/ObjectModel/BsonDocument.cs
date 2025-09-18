@@ -331,7 +331,7 @@ namespace MongoDB.Bson
         {
             using (var jsonReader = new JsonReader(json))
             {
-                var context = BsonDeserializationContext.CreateRoot(jsonReader, BsonSerializer.DefaultSerializationDomain);
+                var context = BsonDeserializationContext.CreateRoot(jsonReader);
                 var document = BsonDocumentSerializer.Instance.Deserialize(context);
                 if (!jsonReader.IsAtEndOfFile())
                 {

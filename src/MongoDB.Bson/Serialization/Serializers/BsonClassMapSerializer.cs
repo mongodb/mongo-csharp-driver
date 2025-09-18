@@ -27,10 +27,11 @@ namespace MongoDB.Bson.Serialization
     /// Represents a serializer for a class map.
     /// </summary>
     /// <typeparam name="TClass">The type of the class.</typeparam>
-    public sealed class BsonClassMapSerializer<TClass> : SerializerBase<TClass>, IBsonIdProvider, IBsonDocumentSerializer, IBsonPolymorphicSerializer, IHasDiscriminatorConvention
+    public sealed class BsonClassMapSerializer<TClass> : SerializerBase<TClass>, IBsonIdProvider, IBsonDocumentSerializer, IBsonPolymorphicSerializer, IHasDiscriminatorConvention, IHasSerializationDomain
     {
         // private fields
         private readonly BsonClassMap _classMap;
+        private readonly IBsonSerializationDomain _serializationDomain;
 
         // constructors
         /// <summary>
@@ -38,7 +39,16 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <param name="classMap">The class map.</param>
         public BsonClassMapSerializer(BsonClassMap classMap)
+            : this(BsonSerializationDomain.Default, classMap)
         {
+        }
+
+        internal BsonClassMapSerializer(IBsonSerializationDomain serializationDomain, BsonClassMap classMap)
+        {
+            if (serializationDomain == null)
+            {
+                throw new ArgumentNullException(nameof(serializationDomain));
+            }
             if (classMap == null)
             {
                 throw new ArgumentNullException(nameof(classMap));
@@ -53,12 +63,13 @@ namespace MongoDB.Bson.Serialization
                 throw new ArgumentException("Class map is not frozen.", nameof(classMap));
             }
 
+            _serializationDomain = serializationDomain;
             _classMap = classMap;
         }
 
         // public properties
         /// <inheritdoc/>
-        public IDiscriminatorConvention DiscriminatorConvention => _classMap.GetDiscriminatorConvention();  //TODO This should be removed, because we need to have the serialization domain.
+        public IDiscriminatorConvention DiscriminatorConvention => _classMap.GetDiscriminatorConvention();
 
         /// <summary>
         /// Gets a value indicating whether this serializer's discriminator is compatible with the object serializer.
@@ -70,6 +81,8 @@ namespace MongoDB.Bson.Serialization
         {
             get { return true; }
         }
+
+        IBsonSerializationDomain IHasSerializationDomain.SerializationDomain => _serializationDomain;
 
         // public methods
         /// <summary>
@@ -88,17 +101,16 @@ namespace MongoDB.Bson.Serialization
                 return default(TClass);
             }
 
-            var discriminatorConvention = _classMap.GetDiscriminatorConvention(context.SerializationDomain);
+            var discriminatorConvention = _classMap.GetDiscriminatorConvention();
 
-            var actualType = discriminatorConvention.GetActualTypeInternal(bsonReader, args.NominalType, context.SerializationDomain);
-
+            var actualType = discriminatorConvention.GetActualType(bsonReader, args.NominalType);
             if (actualType == typeof(TClass))
             {
                 return DeserializeClass(context);
             }
 
-            var serializer = context.SerializationDomain.LookupSerializer(actualType);
-            return (TClass)serializer.Deserialize(context);
+            var actualTypeSerializer = this.GetSerializerForDerivedType(actualType);
+            return (TClass)actualTypeSerializer.Deserialize(context);
         }
 
         /// <summary>
@@ -147,7 +159,7 @@ namespace MongoDB.Bson.Serialization
                 }
             }
 
-            var discriminatorConvention = _classMap.GetDiscriminatorConvention(context.SerializationDomain);
+            var discriminatorConvention = _classMap.GetDiscriminatorConvention();
             var allMemberMaps = _classMap.AllMemberMaps;
             var extraElementsMemberMapIndex = _classMap.ExtraElementsMemberMapIndex;
             var memberMapBitArray = FastMemberMapHelper.GetBitArray(allMemberMaps.Count);
@@ -327,10 +339,6 @@ namespace MongoDB.Bson.Serialization
             out object id,
             out Type idNominalType,
             out IIdGenerator idGenerator)
-            => GetDocumentId(document, BsonSerializer.DefaultSerializationDomain, out id, out idNominalType, out idGenerator);
-
-        internal bool GetDocumentId(object document, IBsonSerializationDomain serializationDomain, out object id, out Type idNominalType,
-            out IIdGenerator idGenerator)
         {
             var idMemberMap = _classMap.IdMemberMap;
             if (idMemberMap != null)
@@ -397,8 +405,8 @@ namespace MongoDB.Bson.Serialization
                 return;
             }
 
-            var serializer = context.SerializationDomain.LookupSerializer(actualType);
-            serializer.Serialize(context, args, value);
+            var actualTypeSerializer = this.GetSerializerForDerivedType(actualType);
+            actualTypeSerializer.Serialize(context, args, value);
         }
 
         /// <summary>
@@ -571,7 +579,7 @@ namespace MongoDB.Bson.Serialization
         {
             try
             {
-                return memberMap.GetSerializer(context.SerializationDomain).Deserialize(context);
+                return memberMap.GetSerializer().Deserialize(context);
             }
             catch (Exception ex)
             {
@@ -642,12 +650,11 @@ namespace MongoDB.Bson.Serialization
 
         private void SerializeDiscriminator(BsonSerializationContext context, Type nominalType, object obj)
         {
-            var discriminatorConvention = _classMap.GetDiscriminatorConvention(context.SerializationDomain);
+            var discriminatorConvention = _classMap.GetDiscriminatorConvention();
             if (discriminatorConvention != null)
             {
                 var actualType = obj.GetType();
-                var discriminator = discriminatorConvention.GetDiscriminatorInternal(nominalType, actualType, context.SerializationDomain);
-
+                var discriminator = discriminatorConvention.GetDiscriminator(nominalType, actualType);
                 if (discriminator != null)
                 {
                     context.Writer.WriteName(discriminatorConvention.ElementName);
@@ -690,7 +697,7 @@ namespace MongoDB.Bson.Serialization
             }
 
             bsonWriter.WriteName(memberMap.ElementName);
-            memberMap.GetSerializer(context.SerializationDomain).Serialize(context, value);
+            memberMap.GetSerializer().Serialize(context, value);
         }
 
         private bool ShouldSerializeDiscriminator(Type nominalType)

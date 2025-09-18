@@ -15,7 +15,6 @@
 
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Events;
@@ -31,20 +30,17 @@ namespace MongoDB.Driver.Core.Operations
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly string _indexName;
         private readonly BsonDocument _definition;
-        private readonly IBsonSerializationDomain _serializationDomain;
 
         public UpdateSearchIndexOperation(
             CollectionNamespace collectionNamespace,
             string indexName,
             BsonDocument definition,
-            MessageEncoderSettings messageEncoderSettings,
-            IBsonSerializationDomain serializationDomain)
+            MessageEncoderSettings messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
             _indexName = Ensure.IsNotNullOrEmpty(indexName , nameof(indexName));
             _definition = Ensure.IsNotNull(definition, nameof(definition));
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
-            _serializationDomain = Ensure.IsNotNull(serializationDomain, nameof(serializationDomain));
         }
 
         public BsonDocument Execute(OperationContext operationContext, IWriteBinding binding)
@@ -80,7 +76,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "definition", _definition }
             };
 
-            return new (_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings, _serializationDomain);
+            return new (_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
         }
     }
 }

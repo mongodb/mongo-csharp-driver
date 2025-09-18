@@ -37,28 +37,12 @@ namespace MongoDB.Driver.Core.Operations
         private ReturnDocument _returnDocument;
         private BsonDocument _sort;
 
-        public FindOneAndReplaceOperation(CollectionNamespace collectionNamespace,
-            BsonDocument filter,
-            BsonDocument replacement,
-            IBsonSerializer<TResult> resultSerializer,
-            MessageEncoderSettings messageEncoderSettings,
-            IBsonSerializationDomain serializationDomain)
-            : base(collectionNamespace, resultSerializer, messageEncoderSettings, serializationDomain)
+        public FindOneAndReplaceOperation(CollectionNamespace collectionNamespace, BsonDocument filter, BsonDocument replacement, IBsonSerializer<TResult> resultSerializer, MessageEncoderSettings messageEncoderSettings)
+            : base(collectionNamespace, resultSerializer, messageEncoderSettings)
         {
             _filter = Ensure.IsNotNull(filter, nameof(filter));
             _replacement = Ensure.IsNotNull(replacement, nameof(replacement));
             _returnDocument = ReturnDocument.Before;
-        }
-
-        //EXIT
-        public FindOneAndReplaceOperation(CollectionNamespace collectionNamespace,
-            BsonDocument filter,
-            BsonDocument replacement,
-            IBsonSerializer<TResult> resultSerializer,
-            MessageEncoderSettings messageEncoderSettings)
-            : this(collectionNamespace, filter, replacement, resultSerializer, messageEncoderSettings,
-                BsonSerializer.DefaultSerializationDomain)
-        {
         }
 
         public bool? BypassDocumentValidation

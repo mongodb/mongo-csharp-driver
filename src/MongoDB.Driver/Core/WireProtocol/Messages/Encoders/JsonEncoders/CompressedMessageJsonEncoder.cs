@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         public CompressedMessage ReadMessage()
         {
             var reader = CreateJsonReader();
-            var context = BsonDeserializationContext.CreateRoot(reader, SerializationDomain);
+            var context = BsonDeserializationContext.CreateRoot(reader);
             var messageDocument = BsonDocumentSerializer.Instance.Deserialize(context);
 
             var opcode = (Opcode)messageDocument["opcode"].ToInt32();

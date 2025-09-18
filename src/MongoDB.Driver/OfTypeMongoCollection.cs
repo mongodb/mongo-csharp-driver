@@ -61,9 +61,9 @@ namespace MongoDB.Driver
 
             if (isUpsert)
             {
-                var discriminatorConvention = _rootDocumentCollection.DocumentSerializer.GetDiscriminatorConvention(Settings.SerializationDomain);
+                var discriminatorConvention = _rootDocumentCollection.DocumentSerializer.GetDiscriminatorConvention();
                 var discriminatorConventionElementName = discriminatorConvention.ElementName;
-                var discriminator = discriminatorConvention.GetDiscriminatorInternal(typeof(TRootDocument), typeof(TDerivedDocument), Settings.SerializationDomain);
+                var discriminator = discriminatorConvention.GetDiscriminator(typeof(TRootDocument), typeof(TDerivedDocument));
 
                 if (result is PipelineUpdateDefinition<TDerivedDocument> pipeline)
                 {

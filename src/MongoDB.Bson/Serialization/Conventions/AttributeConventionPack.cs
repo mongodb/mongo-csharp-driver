@@ -60,7 +60,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         }
 
         // nested classes
-        private class AttributeConvention : ConventionBase, IClassMapConvention, ICreatorMapConvention, IMemberMapConventionInternal, IPostProcessingConventionInternal
+        private class AttributeConvention : ConventionBase, IClassMapConvention, ICreatorMapConvention, IMemberMapConvention, IPostProcessingConvention
         {
             // public methods
             public void Apply(BsonClassMap classMap)
@@ -87,9 +87,7 @@ namespace MongoDB.Bson.Serialization.Conventions
                 }
             }
 
-            public void Apply(BsonMemberMap memberMap) => Apply(memberMap, BsonSerializer.DefaultSerializationDomain);
-
-            public void Apply(BsonMemberMap memberMap, IBsonSerializationDomain domain)
+            public void Apply(BsonMemberMap memberMap)
             {
                 var attributes = memberMap.MemberInfo.GetCustomAttributes(inherit: false).OfType<IBsonMemberMapAttribute>();
                 var groupings = attributes.GroupBy(a => (a is BsonSerializerAttribute) ? 1 : 2);
@@ -102,9 +100,7 @@ namespace MongoDB.Bson.Serialization.Conventions
                 }
             }
 
-            public void PostProcess(BsonClassMap classMap) => PostProcess(classMap, BsonSerializer.DefaultSerializationDomain);
-
-            public void PostProcess(BsonClassMap classMap, IBsonSerializationDomain domain)
+            public void PostProcess(BsonClassMap classMap)
             {
                 foreach (var attribute in classMap.ClassType.GetTypeInfo().GetCustomAttributes(inherit: false).OfType<IBsonPostProcessingAttribute>())
                 {

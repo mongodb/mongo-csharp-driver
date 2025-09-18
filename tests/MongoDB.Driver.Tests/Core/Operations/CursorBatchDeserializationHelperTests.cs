@@ -16,7 +16,6 @@
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using Xunit;
@@ -35,7 +34,7 @@ namespace MongoDB.Driver.Core.Operations
             var documentSerializer = BsonDocumentSerializer.Instance;
             var messageEncoderSettings = new MessageEncoderSettings();
 
-            var result = CursorBatchDeserializationHelper.DeserializeBatch<BsonDocument>(batch, documentSerializer, messageEncoderSettings, BsonSerializer.DefaultSerializationDomain);
+            var result = CursorBatchDeserializationHelper.DeserializeBatch<BsonDocument>(batch, documentSerializer, messageEncoderSettings);
 
             result.Count.Should().Be(1);
             result[0].Should().BeOfType<BsonDocument>();
@@ -52,7 +51,7 @@ namespace MongoDB.Driver.Core.Operations
             var documentSerializer = BsonDocumentSerializer.Instance;
             var messageEncoderSettings = new MessageEncoderSettings();
 
-            var result = CursorBatchDeserializationHelper.DeserializeBatch<BsonDocument>(batch, documentSerializer, messageEncoderSettings, BsonSerializer.DefaultSerializationDomain);
+            var result = CursorBatchDeserializationHelper.DeserializeBatch<BsonDocument>(batch, documentSerializer, messageEncoderSettings);
 
             result.Count.Should().Be(2);
             result[0].Should().BeOfType<BsonDocument>();
@@ -71,7 +70,7 @@ namespace MongoDB.Driver.Core.Operations
             var documentSerializer = BsonDocumentSerializer.Instance;
             var messageEncoderSettings = new MessageEncoderSettings();
 
-            var result = CursorBatchDeserializationHelper.DeserializeBatch<BsonDocument>(batch, documentSerializer, messageEncoderSettings, BsonSerializer.DefaultSerializationDomain);
+            var result = CursorBatchDeserializationHelper.DeserializeBatch<BsonDocument>(batch, documentSerializer, messageEncoderSettings);
 
             result.Count.Should().Be(0);
         }
@@ -87,7 +86,7 @@ namespace MongoDB.Driver.Core.Operations
             var documentSerializer = BsonDocumentSerializer.Instance;
             var messageEncoderSettings = new MessageEncoderSettings { { "GuidRepresentation", GuidRepresentation.Standard } };
 
-            var result = CursorBatchDeserializationHelper.DeserializeBatch<BsonDocument>(batch, documentSerializer, messageEncoderSettings, BsonSerializer.DefaultSerializationDomain);
+            var result = CursorBatchDeserializationHelper.DeserializeBatch<BsonDocument>(batch, documentSerializer, messageEncoderSettings);
 
             result.Count.Should().Be(1);
             result[0].Should().BeOfType<BsonDocument>();

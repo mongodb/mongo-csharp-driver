@@ -102,7 +102,7 @@ namespace MongoDB.Driver.Encryption
                 {
                     var wrappedKeyBytes = ProcessStates(context, _keyVaultNamespace.DatabaseNamespace.DatabaseName, cancellationToken);
 
-                    var wrappedKeyDocument = BsonSerializer.Deserialize<BsonDocument>(wrappedKeyBytes); //FP I think this is fine for now, this should use the standard domain.
+                    var wrappedKeyDocument = BsonSerializer.Deserialize<BsonDocument>(wrappedKeyBytes);
                     var keyId = UnwrapKeyId(wrappedKeyDocument);
 
                     _keyVaultCollection.Value.InsertOne(wrappedKeyDocument, cancellationToken: cancellationToken);
@@ -131,7 +131,7 @@ namespace MongoDB.Driver.Encryption
                 {
                     var wrappedKeyBytes = await ProcessStatesAsync(context, _keyVaultNamespace.DatabaseNamespace.DatabaseName, cancellationToken).ConfigureAwait(false);
 
-                    var wrappedKeyDocument = BsonSerializer.Deserialize<BsonDocument>(wrappedKeyBytes); //FP I think this is fine for now, this should use the standard domain.
+                    var wrappedKeyDocument = BsonSerializer.Deserialize<BsonDocument>(wrappedKeyBytes);
                     var keyId = UnwrapKeyId(wrappedKeyDocument);
 
                     await _keyVaultCollection.Value.InsertOneAsync(wrappedKeyDocument, cancellationToken: cancellationToken).ConfigureAwait(false);
@@ -555,7 +555,7 @@ namespace MongoDB.Driver.Encryption
 
         private static BsonValue RenderFilter(FilterDefinition<BsonDocument> filter)
         {
-            var registry = BsonSerializer.SerializerRegistry; //FP I think this is fine for now, this should use the standard domain.
+            var registry = BsonSerializer.SerializerRegistry;
             var serializer = registry.GetSerializer<BsonDocument>();
             return filter.Render(new(serializer, registry));
         }
@@ -572,7 +572,7 @@ namespace MongoDB.Driver.Encryption
 
         private static BsonValue UnwrapValue(byte[] encryptedWrappedBytes)
         {
-            var bsonDocument = BsonSerializer.Deserialize<BsonDocument>(encryptedWrappedBytes); //FP I think this is fine for now, this should use the standard domain.
+            var bsonDocument = BsonSerializer.Deserialize<BsonDocument>(encryptedWrappedBytes);
             return bsonDocument["v"];
         }
     }

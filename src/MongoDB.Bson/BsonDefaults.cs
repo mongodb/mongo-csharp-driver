@@ -30,8 +30,8 @@ namespace MongoDB.Bson
         /// </summary>
         public static IBsonSerializer DynamicArraySerializer
         {
-            get => BsonSerializer.DefaultSerializationDomain.BsonDefaults.DynamicArraySerializer;
-            set => BsonSerializer.DefaultSerializationDomain.BsonDefaults.DynamicArraySerializer = value;
+            get => BsonSerializationDomain.Default.BsonDefaults.DynamicArraySerializer;
+            set => BsonSerializationDomain.Default.BsonDefaults.DynamicArraySerializer = value;
         }
 
         /// <summary>
@@ -39,8 +39,8 @@ namespace MongoDB.Bson
         /// </summary>
         public static IBsonSerializer DynamicDocumentSerializer
         {
-            get => BsonSerializer.DefaultSerializationDomain.BsonDefaults.DynamicDocumentSerializer;
-            set => BsonSerializer.DefaultSerializationDomain.BsonDefaults.DynamicDocumentSerializer = value;
+            get => BsonSerializationDomain.Default.BsonDefaults.DynamicDocumentSerializer;
+            set => BsonSerializationDomain.Default.BsonDefaults.DynamicDocumentSerializer = value;
         }
 
         /* DOMAIN-API We should modify the API to have those two values (and in the writer/reader settings where they are used) be nullable.
@@ -53,8 +53,8 @@ namespace MongoDB.Bson
         /// </summary>
         public static int MaxDocumentSize
         {
-            get => BsonSerializer.DefaultSerializationDomain.BsonDefaults.MaxDocumentSize;
-            set => BsonSerializer.DefaultSerializationDomain.BsonDefaults.MaxDocumentSize = value;
+            get => BsonSerializationDomain.Default.BsonDefaults.MaxDocumentSize;
+            set => BsonSerializationDomain.Default.BsonDefaults.MaxDocumentSize = value;
         }
 
         /// <summary>
@@ -62,8 +62,8 @@ namespace MongoDB.Bson
         /// </summary>
         public static int MaxSerializationDepth
         {
-            get => BsonSerializer.DefaultSerializationDomain.BsonDefaults.MaxSerializationDepth;
-            set => BsonSerializer.DefaultSerializationDomain.BsonDefaults.MaxSerializationDepth = value;
+            get => BsonSerializationDomain.Default.BsonDefaults.MaxSerializationDepth;
+            set => BsonSerializationDomain.Default.BsonDefaults.MaxSerializationDepth = value;
         }
     }
 }

@@ -14,13 +14,12 @@
 */
 
 using System;
-using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Driver
 {
-    internal sealed class OfTypeSerializer<TRootDocument, TDerivedDocument> : SerializerBase<TDerivedDocument>, IBsonDocumentSerializer, IBsonIdProviderInternal
+    internal sealed class OfTypeSerializer<TRootDocument, TDerivedDocument> : SerializerBase<TDerivedDocument>, IBsonDocumentSerializer, IBsonIdProvider
         where TDerivedDocument : TRootDocument
     {
         private readonly IBsonSerializer<TDerivedDocument> _derivedDocumentSerializer;
@@ -47,14 +46,10 @@ namespace MongoDB.Driver
         }
 
         public bool GetDocumentId(object document, out object id, out Type idNominalType, out IIdGenerator idGenerator)
-            => GetDocumentId(document, BsonSerializer.DefaultSerializationDomain, out id, out idNominalType, out idGenerator);
-
-        public bool GetDocumentId(object document, IBsonSerializationDomain serializationDomain, out object id, out Type idNominalType,
-            out IIdGenerator idGenerator)
         {
             if (_derivedDocumentSerializer is IBsonIdProvider idProvider)
             {
-                return idProvider.GetDocumentIdInternal(document, serializationDomain, out id, out idNominalType, out idGenerator);
+                return idProvider.GetDocumentId(document, out id, out idNominalType, out idGenerator);
             }
             else
             {

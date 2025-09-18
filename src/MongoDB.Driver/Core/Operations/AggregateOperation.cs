@@ -46,7 +46,6 @@ namespace MongoDB.Driver.Core.Operations
         private readonly IReadOnlyList<BsonDocument> _pipeline;
         private ReadConcern _readConcern = ReadConcern.Default;
         private readonly IBsonSerializer<TResult> _resultSerializer;
-        private readonly IBsonSerializationDomain _serializationDomain;
         private bool _retryRequested;
         private bool? _useCursor;
 
@@ -58,22 +57,10 @@ namespace MongoDB.Driver.Core.Operations
         /// <param name="pipeline">The pipeline.</param>
         /// <param name="resultSerializer">The result value serializer.</param>
         /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        /// <param name="serializationDomain">The serialization domain.</param>
-        public AggregateOperation(DatabaseNamespace databaseNamespace,
-            IEnumerable<BsonDocument> pipeline, IBsonSerializer<TResult> resultSerializer,
-            MessageEncoderSettings messageEncoderSettings,
-            IBsonSerializationDomain serializationDomain)
-            : this(pipeline, resultSerializer, messageEncoderSettings, serializationDomain)
+        public AggregateOperation(DatabaseNamespace databaseNamespace, IEnumerable<BsonDocument> pipeline, IBsonSerializer<TResult> resultSerializer, MessageEncoderSettings messageEncoderSettings)
+            : this(pipeline, resultSerializer, messageEncoderSettings)
         {
             _databaseNamespace = Ensure.IsNotNull(databaseNamespace, nameof(databaseNamespace));
-        }
-
-        //EXIT
-        public AggregateOperation(DatabaseNamespace databaseNamespace,
-            IEnumerable<BsonDocument> pipeline, IBsonSerializer<TResult> resultSerializer,
-            MessageEncoderSettings messageEncoderSettings)
-            : this(databaseNamespace, pipeline, resultSerializer, messageEncoderSettings, BsonSerializer.DefaultSerializationDomain)
-        {
         }
 
         /// <summary>
@@ -83,35 +70,17 @@ namespace MongoDB.Driver.Core.Operations
         /// <param name="pipeline">The pipeline.</param>
         /// <param name="resultSerializer">The result value serializer.</param>
         /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        /// <param name="serializationDomain">The serialization domain.</param>
-        public AggregateOperation(CollectionNamespace collectionNamespace,
-            IEnumerable<BsonDocument> pipeline,
-            IBsonSerializer<TResult> resultSerializer,
-            MessageEncoderSettings messageEncoderSettings,
-            IBsonSerializationDomain serializationDomain)
-            : this(pipeline, resultSerializer, messageEncoderSettings, serializationDomain)
+        public AggregateOperation(CollectionNamespace collectionNamespace, IEnumerable<BsonDocument> pipeline, IBsonSerializer<TResult> resultSerializer, MessageEncoderSettings messageEncoderSettings)
+            : this(pipeline, resultSerializer, messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
         }
 
-        //EXIT
-        public AggregateOperation(CollectionNamespace collectionNamespace,
-            IEnumerable<BsonDocument> pipeline,
-            IBsonSerializer<TResult> resultSerializer,
-            MessageEncoderSettings messageEncoderSettings)
-            : this(collectionNamespace, pipeline, resultSerializer, messageEncoderSettings, BsonSerializer.DefaultSerializationDomain)
-        {
-        }
-
-        private AggregateOperation(IEnumerable<BsonDocument> pipeline,
-            IBsonSerializer<TResult> resultSerializer,
-            MessageEncoderSettings messageEncoderSettings,
-            IBsonSerializationDomain serializationDomain)
+        private AggregateOperation(IEnumerable<BsonDocument> pipeline, IBsonSerializer<TResult> resultSerializer, MessageEncoderSettings messageEncoderSettings)
         {
             _pipeline = Ensure.IsNotNull(pipeline, nameof(pipeline)).ToList();
             _resultSerializer = Ensure.IsNotNull(resultSerializer, nameof(resultSerializer));
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
-            _serializationDomain = Ensure.IsNotNull(serializationDomain, nameof(serializationDomain));
         }
 
         // properties
@@ -390,7 +359,7 @@ namespace MongoDB.Driver.Core.Operations
             var databaseNamespace = _collectionNamespace == null ? _databaseNamespace : _collectionNamespace.DatabaseNamespace;
             var command = CreateCommand(operationContext, context.Binding.Session, context.Channel.ConnectionDescription);
             var serializer = new AggregateResultDeserializer(_resultSerializer);
-            return new ReadCommandOperation<AggregateResult>(databaseNamespace, command, serializer, MessageEncoderSettings, _serializationDomain)
+            return new ReadCommandOperation<AggregateResult>(databaseNamespace, command, serializer, MessageEncoderSettings)
             {
                 RetryRequested = _retryRequested // might be overridden by retryable read context
             };
@@ -424,7 +393,6 @@ namespace MongoDB.Driver.Core.Operations
                 null, // limit
                 _resultSerializer,
                 MessageEncoderSettings,
-                _serializationDomain,
                 _maxAwaitTime);
         }
 
@@ -441,7 +409,6 @@ namespace MongoDB.Driver.Core.Operations
                 null, // limit
                 _resultSerializer,
                 MessageEncoderSettings,
-                _serializationDomain,
                 _maxAwaitTime);
         }
 

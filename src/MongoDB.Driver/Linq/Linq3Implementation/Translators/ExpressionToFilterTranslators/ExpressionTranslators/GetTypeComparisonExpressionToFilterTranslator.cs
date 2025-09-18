@@ -55,13 +55,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 var nominalType = fieldTranslation.Serializer.ValueType;
                 var actualType = typeConstantExpression.GetConstantValue<Type>(expression);
 
-                var discriminatorConvention = fieldTranslation.Serializer.GetDiscriminatorConvention(context.SerializationDomain);
+                var discriminatorConvention = fieldTranslation.Serializer.GetDiscriminatorConvention();
                 var discriminatorField = fieldTranslation.Ast.SubField(discriminatorConvention.ElementName);
 
                 var filter = discriminatorConvention switch
                 {
-                    IHierarchicalDiscriminatorConvention hierarchicalDiscriminatorConvention => DiscriminatorAstFilter.TypeEquals(discriminatorField, hierarchicalDiscriminatorConvention, nominalType, actualType, context.SerializationDomain),
-                    _ => DiscriminatorAstFilter.TypeEquals(discriminatorField, discriminatorConvention, nominalType, actualType, context.SerializationDomain),
+                    IHierarchicalDiscriminatorConvention hierarchicalDiscriminatorConvention => DiscriminatorAstFilter.TypeEquals(discriminatorField, hierarchicalDiscriminatorConvention, nominalType, actualType),
+                    _ => DiscriminatorAstFilter.TypeEquals(discriminatorField, discriminatorConvention, nominalType, actualType),
                 };
 
                 return comparisonOperator switch

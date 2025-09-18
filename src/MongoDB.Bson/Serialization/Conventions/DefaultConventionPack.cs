@@ -23,7 +23,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     public class DefaultConventionPack : IConventionPack
     {
         // private static fields
-        private static readonly IConventionPack __defaultConventionPack = new DefaultConventionPack();
+        private static readonly IConventionPack __defaultConventionPack = new DefaultConventionPack(BsonSerializationDomain.Default);
 
         // private fields
         private readonly IEnumerable<IConvention> _conventions;
@@ -32,7 +32,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultConventionPack" /> class.
         /// </summary>
-        private DefaultConventionPack()
+        internal DefaultConventionPack(IBsonSerializationDomain serializationDomain)
         {
             _conventions = new List<IConvention>
             {
@@ -43,7 +43,7 @@ namespace MongoDB.Bson.Serialization.Conventions
                 new ImmutableTypeClassMapConvention(),
                 new NamedParameterCreatorMapConvention(),
                 new StringObjectIdIdGeneratorConvention(), // should be before LookupIdGeneratorConvention
-                new LookupIdGeneratorConvention()
+                new LookupIdGeneratorConvention(serializationDomain)
             };
         }
 

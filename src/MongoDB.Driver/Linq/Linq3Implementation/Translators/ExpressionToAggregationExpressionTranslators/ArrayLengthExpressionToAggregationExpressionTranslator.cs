@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var arrayExpression = expression.Operand;
                 var arrayTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, arrayExpression);
                 var ast = AstExpression.Size(arrayTranslation.Ast);
-                var serializer = context.SerializationDomain.LookupSerializer(expression.Type);
+                var serializer = BsonSerializer.LookupSerializer(expression.Type);
                 return new TranslatedExpression(expression, ast, serializer);
             }
 

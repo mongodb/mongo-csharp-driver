@@ -19,7 +19,7 @@ using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson
 {
-    internal class BsonDefaultsDomain : IBsonDefaults
+    internal class BsonDefaultsRegistry : IBsonDefaults
     {
         private IBsonSerializationDomain _serializationDomain;
         private bool _dynamicArraySerializerWasSet;
@@ -27,7 +27,7 @@ namespace MongoDB.Bson
         private bool _dynamicDocumentSerializerWasSet;
         private IBsonSerializer _dynamicDocumentSerializer;
 
-        public BsonDefaultsDomain(IBsonSerializationDomain serializationDomain)
+        public BsonDefaultsRegistry(IBsonSerializationDomain serializationDomain)
         {
             _serializationDomain = serializationDomain;
         }

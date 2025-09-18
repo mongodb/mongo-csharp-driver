@@ -28,8 +28,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
     internal sealed class CommandMessageBinaryEncoder : MessageBinaryEncoderBase, IMessageEncoder
     {
         private const int EncryptedMaxBatchSize = 2 * 1024 * 1024; // 2 MiB
-        private static readonly ICommandMessageSectionFormatter<Type0CommandMessageSection> __type0SectionFormatter = new Type0SectionFormatter(BsonSerializer.DefaultSerializationDomain);
-        //QUESTION Looking at the spec and our implementation, it seems that type 0 sections always serialize/deserialize RawBsonDocument, so they should use the default domain. Am I missing something?
+        private static readonly ICommandMessageSectionFormatter<Type0CommandMessageSection> __type0SectionFormatter = new Type0SectionFormatter();
 
         // constructors
         public CommandMessageBinaryEncoder(Stream stream, MessageEncoderSettings encoderSettings)
@@ -215,7 +214,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         private Type0CommandMessageSection<RawBsonDocument> ReadType0Section(IBsonReader reader)
         {
             var serializer = RawBsonDocumentSerializer.Instance;
-            var context = BsonDeserializationContext.CreateRoot(reader, SerializationDomain);
+            var context = BsonDeserializationContext.CreateRoot(reader);
             var document = serializer.Deserialize(context);
             return new Type0CommandMessageSection<RawBsonDocument>(document, serializer);
         }
@@ -230,7 +229,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             var payloadEndPosition = payloadStartPosition + payloadLength;
             var identifier = stream.ReadCString(Utf8Encodings.Strict);
             var serializer = RawBsonDocumentSerializer.Instance;
-            var context = BsonDeserializationContext.CreateRoot(reader, SerializationDomain);
+            var context = BsonDeserializationContext.CreateRoot(reader);
             var documents = new List<RawBsonDocument>();
             while (stream.Position < payloadEndPosition)
             {
@@ -253,11 +252,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                     __type0SectionFormatter.FormatSection(type0Section, writer);
                     break;
                 case Type1CommandMessageSection type1Section:
-                    var type1SectionFormatter = new Type1SectionFormatter(GetSectionMaxSize(), SerializationDomain);
+                    var type1SectionFormatter = new Type1SectionFormatter(GetSectionMaxSize());
                     type1SectionFormatter.FormatSection(type1Section, writer);
                     break;
                 case ClientBulkWriteOpsCommandMessageSection bulkWriteOpsSection:
-                    using (var bulkWriteOpsSectionFormatter = new ClientBulkWriteOpsSectionFormatter(GetSectionMaxSize(), SerializationDomain))
+                    using (var bulkWriteOpsSectionFormatter = new ClientBulkWriteOpsSectionFormatter(GetSectionMaxSize()))
                     {
                         bulkWriteOpsSectionFormatter.FormatSection(bulkWriteOpsSection, writer);
                     }

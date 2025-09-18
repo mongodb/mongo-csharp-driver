@@ -21,7 +21,6 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq;
-using MongoDB.Driver.Support;
 
 namespace MongoDB.Driver
 {
@@ -330,7 +329,7 @@ namespace MongoDB.Driver
             IBsonSerializer currentSerializer = args.DocumentSerializer;
             foreach (var stage in _stages)
             {
-                var renderedStage = stage.RenderInternal(currentSerializer, args.SerializationDomain, args.SerializerRegistry, args.TranslationOptions);
+                var renderedStage = stage.Render(currentSerializer, args.SerializerRegistry, args.TranslationOptions);
                 currentSerializer = renderedStage.OutputSerializer;
                 foreach (var document in renderedStage.Documents)
                 {

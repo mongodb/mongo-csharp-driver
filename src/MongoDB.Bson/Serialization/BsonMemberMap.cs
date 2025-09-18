@@ -30,6 +30,7 @@ namespace MongoDB.Bson.Serialization
         private readonly MemberInfo _memberInfo;
         private readonly Type _memberType;
         private readonly bool _memberTypeIsBsonValue;
+        private readonly IBsonSerializationDomain _serializationDomain;
 
         private string _elementName;
         private bool _frozen; // once a class map has been frozen no further changes are allowed
@@ -53,10 +54,16 @@ namespace MongoDB.Bson.Serialization
         /// <param name="classMap">The class map this member map belongs to.</param>
         /// <param name="memberInfo">The member info.</param>
         public BsonMemberMap(BsonClassMap classMap, MemberInfo memberInfo)
+            : this(classMap.SerializationDomain, classMap, memberInfo)
         {
+        }
+
+        internal BsonMemberMap(IBsonSerializationDomain serializationDomain, BsonClassMap classMap, MemberInfo memberInfo)
+        {
+            _serializationDomain = serializationDomain;
             _classMap = classMap;
             _memberInfo = memberInfo;
-            _memberType = BsonClassMap.GetMemberInfoType(memberInfo); //FP This is more of a utility method, it can stay like this
+            _memberType = GetMemberInfoType(memberInfo);
             _memberTypeIsBsonValue = typeof(BsonValue).GetTypeInfo().IsAssignableFrom(_memberType);
 
             Reset();
@@ -243,6 +250,8 @@ namespace MongoDB.Bson.Serialization
             }
         }
 
+        internal IBsonSerializationDomain SerializationDomain => _serializationDomain;
+
         // public methods
         /// <summary>
         /// Applies the default value to the member of an object.
@@ -294,16 +303,14 @@ namespace MongoDB.Bson.Serialization
         /// Gets the serializer.
         /// </summary>
         /// <returns>The serializer.</returns>
-        public IBsonSerializer GetSerializer() => GetSerializer(BsonSerializer.DefaultSerializationDomain);
-
-        internal IBsonSerializer GetSerializer(IBsonSerializationDomain domain)
+        public IBsonSerializer GetSerializer()
         {
             if (_serializer == null)
             {
                 // return special serializer for BsonValue members that handles the _csharpnull representation
                 if (_memberTypeIsBsonValue)
                 {
-                    var wrappedSerializer = domain.LookupSerializer(_memberType);
+                    var wrappedSerializer = _serializationDomain.LookupSerializer(_memberType);
                     var isBsonArraySerializer = wrappedSerializer is IBsonArraySerializer;
                     var isBsonDocumentSerializer = wrappedSerializer is IBsonDocumentSerializer;
 
@@ -331,7 +338,7 @@ namespace MongoDB.Bson.Serialization
                 }
                 else
                 {
-                    _serializer = domain.LookupSerializer(_memberType);
+                    _serializer = _serializationDomain.LookupSerializer(_memberType);
                 }
             }
             return _serializer;
@@ -651,6 +658,26 @@ namespace MongoDB.Bson.Serialization
 
             return lambdaExpression.Compile();
         }
+
+        private Type GetMemberInfoType(MemberInfo memberInfo)
+        {
+            if (memberInfo == null)
+            {
+                throw new ArgumentNullException("memberInfo");
+            }
+
+            if (memberInfo is FieldInfo)
+            {
+                return ((FieldInfo)memberInfo).FieldType;
+            }
+            else if (memberInfo is PropertyInfo)
+            {
+                return ((PropertyInfo)memberInfo).PropertyType;
+            }
+
+            throw new NotSupportedException("Only field and properties are supported at this time.");
+        }
+
 
         private Action<object, object> GetPropertySetter()
         {

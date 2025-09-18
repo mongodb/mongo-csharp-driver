@@ -29,7 +29,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <param name="type">The type.</param>
         /// <returns>The conventions for that type.</returns>
         public static IConventionPack Lookup(Type type) =>
-            BsonSerializer.DefaultSerializationDomain.ConventionRegistry.Lookup(type);
+            BsonSerializationDomain.Default.ConventionRegistry.Lookup(type);
 
         /// <summary>
         /// Registers the conventions.
@@ -38,7 +38,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <param name="conventions">The conventions.</param>
         /// <param name="filter">The filter.</param>
         public static void Register(string name, IConventionPack conventions, Func<Type, bool> filter) =>
-            BsonSerializer.DefaultSerializationDomain.ConventionRegistry.Register(name, conventions, filter);
+            BsonSerializationDomain.Default.ConventionRegistry.Register(name, conventions, filter);
 
         /// <summary>
         /// Removes the conventions specified by the given name.
@@ -48,6 +48,6 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// and the __attributes__ conventions for those who want to completely customize the
         /// experience.</remarks>
         public static void Remove(string name) =>
-            BsonSerializer.DefaultSerializationDomain.ConventionRegistry.Remove(name);
+            BsonSerializationDomain.Default.ConventionRegistry.Remove(name);
     }
 }

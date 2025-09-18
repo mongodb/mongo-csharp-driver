@@ -182,9 +182,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
 
         private TranslationContext CreateContext(ParameterExpression parameter)
         {
-            var domain = BsonSerializer.DefaultSerializationDomain;
-            var serializer = domain.LookupSerializer(parameter.Type);
-            var context = TranslationContext.Create(translationOptions: null, domain);
+            var serializationDomain = BsonSerializer.DefaultSerializationDomain;
+            var serializer = serializationDomain.LookupSerializer(parameter.Type);
+            var context = TranslationContext.Create(serializationDomain, translationOptions: null);
             var symbol = context.CreateSymbol(parameter, serializer, isCurrent: true);
             return context.WithSymbol(symbol);
         }

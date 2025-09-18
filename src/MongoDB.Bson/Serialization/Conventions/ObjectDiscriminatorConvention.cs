@@ -31,6 +31,7 @@ namespace MongoDB.Bson.Serialization.Conventions
 
         // private fields
         private string _elementName;
+        private readonly IBsonSerializationDomain _serializationDomain;
 
         // constructors
         /// <summary>
@@ -38,7 +39,16 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// </summary>
         /// <param name="elementName">The element name.</param>
         public ObjectDiscriminatorConvention(string elementName)
+            : this(BsonSerializationDomain.Default, elementName)
         {
+        }
+
+        internal ObjectDiscriminatorConvention(IBsonSerializationDomain serializationDomain, string elementName)
+        {
+            if (serializationDomain == null)
+            {
+                throw new ArgumentNullException("serializationDomain");
+            }
             if (elementName == null)
             {
                 throw new ArgumentNullException("elementName");
@@ -47,6 +57,8 @@ namespace MongoDB.Bson.Serialization.Conventions
             {
                 throw new ArgumentException("Element names cannot contain nulls.", "elementName");
             }
+
+            _serializationDomain = serializationDomain;
             _elementName = elementName;
         }
 
@@ -86,11 +98,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <param name="bsonReader">The reader.</param>
         /// <param name="nominalType">The nominal type.</param>
         /// <returns>The actual type.</returns>
-        public Type GetActualType(IBsonReader bsonReader, Type nominalType) =>
-            GetActualType(bsonReader, nominalType, BsonSerializer.DefaultSerializationDomain);
-
-        /// <inheritdoc />
-        internal Type GetActualType(IBsonReader bsonReader, Type nominalType, IBsonSerializationDomain domain)
+        public Type GetActualType(IBsonReader bsonReader, Type nominalType)
         {
             // the BsonReader is sitting at the value whose actual type needs to be found
             var bsonType = bsonReader.GetCurrentBsonType();
@@ -133,13 +141,13 @@ namespace MongoDB.Bson.Serialization.Conventions
                 var actualType = nominalType;
                 if (bsonReader.FindElement(_elementName))
                 {
-                    var context = BsonDeserializationContext.CreateRoot(bsonReader, domain);
+                    var context = BsonDeserializationContext.CreateRoot(bsonReader);
                     var discriminator = BsonValueSerializer.Instance.Deserialize(context);
                     if (discriminator.IsBsonArray)
                     {
                         discriminator = discriminator.AsBsonArray.Last(); // last item is leaf class discriminator
                     }
-                    actualType = domain.LookupActualType(nominalType, discriminator);
+                    actualType = _serializationDomain.LookupActualType(nominalType, discriminator);
                 }
                 bsonReader.ReturnToBookmark(bookmark);
                 return actualType;

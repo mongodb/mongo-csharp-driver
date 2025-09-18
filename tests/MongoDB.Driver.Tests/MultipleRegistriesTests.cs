@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Tests
 
             //The first section demonstrates that the class maps are also separated
             {
-                var customDomain = BsonSerializer.CreateSerializationDomain();
+                var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
                 customDomain.RegisterSerializer(new CustomStringSerializer());
 
                 var client = CreateClientWithDomain(customDomain);
@@ -87,7 +87,7 @@ namespace MongoDB.Driver.Tests
             }
 
             {
-                var customDomain = BsonSerializer.CreateSerializationDomain();
+                var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
                 customDomain.RegisterSerializer(new CustomStringSerializer());
 
                 var client = CreateClientWithDomain(customDomain, dropCollection: false);
@@ -103,7 +103,7 @@ namespace MongoDB.Driver.Tests
         {
             RequireServer.Check();
 
-            var customDomain = BsonSerializer.CreateSerializationDomain();
+            var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
             customDomain.RegisterSerializer(new CustomStringSerializer());
 
             var client = CreateClientWithDomain(customDomain);
@@ -129,7 +129,7 @@ namespace MongoDB.Driver.Tests
         {
             RequireServer.Check();
 
-            var customDomain = BsonSerializer.CreateSerializationDomain();
+            var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
 
             // Register an id generator convention that uses a custom ObjectIdGenerator
             customDomain.RegisterIdGenerator(typeof(ObjectId), new CustomObjectIdGenerator());
@@ -161,22 +161,22 @@ namespace MongoDB.Driver.Tests
         {
             RequireServer.Check();
 
-            var customDomain = BsonSerializer.CreateSerializationDomain();
+            var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
 
-            customDomain.BsonClassMap.RegisterClassMap<BasePerson>(cm =>
+            customDomain.ClassMapRegistry.RegisterClassMap<BasePerson>(cm =>
             {
                 cm.AutoMap();
                 cm.SetIsRootClass(true);
             });
 
-            customDomain.BsonClassMap.RegisterClassMap<DerivedPerson1>(cm =>
+            customDomain.ClassMapRegistry.RegisterClassMap<DerivedPerson1>(cm =>
             {
                 cm.AutoMap();
                 cm.SetDiscriminator("dp1");
                 cm.MapMember( m => m.ExtraField1).SetSerializer(new CustomStringSerializer());
             });
 
-            customDomain.BsonClassMap.RegisterClassMap<DerivedPerson2>(cm =>
+            customDomain.ClassMapRegistry.RegisterClassMap<DerivedPerson2>(cm =>
             {
                 cm.AutoMap();
                 cm.SetDiscriminator("dp2");
@@ -267,7 +267,7 @@ namespace MongoDB.Driver.Tests
 
         private static IMongoClient CreateClientWithDomain(IBsonSerializationDomain domain, bool dropCollection = true)
         {
-            var client = DriverTestConfiguration.CreateMongoClient((MongoClientSettings c) => ((IInheritableMongoClientSettings)c).SerializationDomain = domain);
+            var client = DriverTestConfiguration.CreateMongoClient(c => c.SerializationDomain = domain);
             if (dropCollection)
             {
                 var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);

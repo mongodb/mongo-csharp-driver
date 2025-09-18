@@ -42,8 +42,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         public override RenderedPipelineStageDefinition<TOutput> Render(RenderArgs<TInput> args)
         {
             var inputSerializer = args.DocumentSerializer;
-            var groupingStage = RenderGroupingStage(inputSerializer, args.SerializationDomain, args.TranslationOptions, out var groupingSerializer);
-            var projectStage = RenderProjectStage(groupingSerializer, args.SerializationDomain, args.TranslationOptions,  out var outputSerializer);
+            var groupingStage = RenderGroupingStage(args.SerializationDomain, inputSerializer, args.TranslationOptions, out var groupingSerializer);
+            var projectStage = RenderProjectStage(args.SerializationDomain, groupingSerializer,  args.TranslationOptions, out var outputSerializer);
             var optimizedStages = OptimizeGroupingStages(groupingStage, projectStage, inputSerializer, outputSerializer);
             var renderedStages = optimizedStages.Select(x => x.Render().AsBsonDocument);
 
@@ -51,19 +51,19 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         }
 
         protected abstract AstStage RenderGroupingStage(
-            IBsonSerializer<TInput> inputSerializer,
             IBsonSerializationDomain serializationDomain,
+            IBsonSerializer<TInput> inputSerializer,
             ExpressionTranslationOptions translationOptions,
             out IBsonSerializer<TGrouping> groupingOutputSerializer);
 
         private AstStage RenderProjectStage(
-            IBsonSerializer<TGrouping> inputSerializer,
             IBsonSerializationDomain serializationDomain,
+            IBsonSerializer<TGrouping> inputSerializer,
             ExpressionTranslationOptions translationOptions,
             out IBsonSerializer<TOutput> outputSerializer)
         {
             var partiallyEvaluatedOutput = (Expression<Func<TGrouping, TOutput>>)PartialEvaluator.EvaluatePartially(_output);
-            var context = TranslationContext.Create(translationOptions, serializationDomain);
+            var context = TranslationContext.Create(serializationDomain, translationOptions);
             var outputTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, partiallyEvaluatedOutput, inputSerializer, asRoot: true);
             var (projectStage, projectSerializer) = ProjectionHelper.CreateProjectStage(outputTranslation);
             outputSerializer = (IBsonSerializer<TOutput>)projectSerializer;
@@ -98,14 +98,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
 
         public override string OperatorName => "$bucket";
 
-        protected override AstStage RenderGroupingStage(
+        protected override AstStage RenderGroupingStage(IBsonSerializationDomain serializationDomain,
             IBsonSerializer<TInput> inputSerializer,
-            IBsonSerializationDomain serializationDomain,
             ExpressionTranslationOptions translationOptions,
             out IBsonSerializer<IGrouping<TValue, TInput>> groupingOutputSerializer)
         {
             var partiallyEvaluatedGroupBy = (Expression<Func<TInput, TValue>>)PartialEvaluator.EvaluatePartially(_groupBy);
-            var context = TranslationContext.Create(translationOptions, serializationDomain);
+            var context = TranslationContext.Create(serializationDomain, translationOptions);
             var groupByTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, partiallyEvaluatedGroupBy, inputSerializer, asRoot: true);
 
             var valueSerializer = (IBsonSerializer<TValue>)groupByTranslation.Serializer;
@@ -143,13 +142,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         public override string OperatorName => "$bucketAuto";
 
         protected override AstStage RenderGroupingStage(
-            IBsonSerializer<TInput> inputSerializer,
             IBsonSerializationDomain serializationDomain,
+            IBsonSerializer<TInput> inputSerializer,
             ExpressionTranslationOptions translationOptions,
             out IBsonSerializer<IGrouping<AggregateBucketAutoResultId<TValue>, TInput>> groupingOutputSerializer)
         {
             var partiallyEvaluatedGroupBy = (Expression<Func<TInput, TValue>>)PartialEvaluator.EvaluatePartially(_groupBy);
-            var context = TranslationContext.Create(translationOptions, serializationDomain);
+            var context = TranslationContext.Create(serializationDomain, translationOptions);
             var groupByTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, partiallyEvaluatedGroupBy, inputSerializer, asRoot: true);
 
             var valueSerializer = (IBsonSerializer<TValue>)groupByTranslation.Serializer;
@@ -181,13 +180,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         public override string OperatorName => "$group";
 
         protected override AstStage RenderGroupingStage(
-            IBsonSerializer<TInput> inputSerializer,
             IBsonSerializationDomain serializationDomain,
+            IBsonSerializer<TInput> inputSerializer,
             ExpressionTranslationOptions translationOptions,
             out IBsonSerializer<IGrouping<TValue, TInput>> groupingOutputSerializer)
         {
             var partiallyEvaluatedGroupBy = (Expression<Func<TInput, TValue>>)PartialEvaluator.EvaluatePartially(_groupBy);
-            var context = TranslationContext.Create(translationOptions, serializationDomain);
+            var context = TranslationContext.Create(serializationDomain, translationOptions);
             var groupByTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, partiallyEvaluatedGroupBy, inputSerializer, asRoot: true);
             var pushElements = AstExpression.AccumulatorField("_elements", AstUnaryAccumulatorOperator.Push, AstExpression.RootVar);
             var groupBySerializer = (IBsonSerializer<TValue>)groupByTranslation.Serializer;

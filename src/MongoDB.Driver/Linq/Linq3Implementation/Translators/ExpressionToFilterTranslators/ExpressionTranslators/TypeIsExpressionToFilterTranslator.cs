@@ -41,13 +41,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 }
                 else
                 {
-                    var discriminatorConvention = fieldTranslation.Serializer.GetDiscriminatorConvention(context.SerializationDomain);
+                    var discriminatorConvention = fieldTranslation.Serializer.GetDiscriminatorConvention();
                     var discriminatorField = fieldTranslation.Ast.SubField(discriminatorConvention.ElementName);
 
                     return discriminatorConvention switch
                     {
-                        IHierarchicalDiscriminatorConvention hierarchicalDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, hierarchicalDiscriminatorConvention, nominalType, actualType, context.SerializationDomain),
-                        IScalarDiscriminatorConvention scalarDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, scalarDiscriminatorConvention, nominalType, actualType, context.SerializationDomain),
+                        IHierarchicalDiscriminatorConvention hierarchicalDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, hierarchicalDiscriminatorConvention, nominalType, actualType),
+                        IScalarDiscriminatorConvention scalarDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, scalarDiscriminatorConvention, nominalType, actualType),
                         _ => throw new ExpressionNotSupportedException(expression, because: "is operator is not supported with the configured discriminator convention")
                     };
                 }
