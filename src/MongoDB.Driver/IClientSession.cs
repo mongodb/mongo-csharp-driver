@@ -21,9 +21,17 @@ using MongoDB.Driver.Core.Bindings;
 
 namespace MongoDB.Driver
 {
+    /// <summary>
+    /// //TODO
+    /// </summary>
     public static class ClientSessionExtensions
     {
         //TODO This will need to be moved somewhere else
+        /// <summary>
+        /// //TODO
+        /// </summary>
+        /// <param name="session"></param>
+        /// <returns></returns>
         public static BsonTimestamp GetSnapshotTime(this IClientSessionHandle session)
         {
             return ((ClientSessionHandle)session).SnapshotTime;
