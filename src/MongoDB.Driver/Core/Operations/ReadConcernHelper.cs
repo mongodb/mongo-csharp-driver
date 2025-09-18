@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Core.Operations
                 Feature.SnapshotReads.ThrowIfNotSupported(connectionDescription.MaxWireVersion);
 
                 var readConcernDocument = ReadConcern.Snapshot.ToBsonDocument();
-                if (session.SnapshotTime != null)  // For the first read within a snapshot session, SnapshotTime will be null
+                if (session.SnapshotTime != null)
                 {
                     readConcernDocument.Add("atClusterTime", session.SnapshotTime);
                 }
