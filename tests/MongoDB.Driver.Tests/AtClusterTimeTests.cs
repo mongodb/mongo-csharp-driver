@@ -18,33 +18,25 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests;
 
-[Trait("Category", "Integration")]
-public class AtClusterTimeTests
+public class AtClusterTimeTests : IntegrationTest<AtClusterTimeTests.ClassFixture>
 {
-    [Fact]
-    public void AtClusterTime_should_work()
+    public AtClusterTimeTests(ClassFixture fixture)
+        : base(fixture, server => server.Supports(Feature.SnapshotReads).ClusterType(ClusterType.ReplicaSet))
     {
-        RequireServer.Check().ClusterType(ClusterType.ReplicaSet).Supports(Feature.SnapshotReads);
-        const string collectionName = "atClusterTimeTests";
-        const string databaseName = "testDb";
+    }
 
-        using var client = DriverTestConfiguration.Client;
-        var database = client.GetDatabase(databaseName);
-        database.DropCollection(collectionName);
-        var collection = database.GetCollection<TestObject>(collectionName);
-
-        var obj1 = new TestObject { Name = "obj1" };
-        collection.InsertOne(obj1);
+    [Fact]
+    public void MainTest()
+    {
+        var client = Fixture.Client;
+        var collection = Fixture.Collection;
 
         BsonTimestamp clusterTime1;
-
-        var filterDefinition = Builders<TestObject>.Filter.Empty;
-        var sortDefinition = Builders<TestObject>.Sort.Ascending(o => o.Name);
 
         var sessionOptions1 = new ClientSessionOptions
         {
@@ -53,7 +45,7 @@ public class AtClusterTimeTests
 
         using (var session1 = client.StartSession(sessionOptions1))
         {
-            var results = collection.Find(session1, filterDefinition).Sort(sortDefinition).ToList();
+            var results = GetTestObjects(collection, session1);
             AssertOneObj(results);
 
             clusterTime1 = session1.GetSnapshotTime();
@@ -72,7 +64,7 @@ public class AtClusterTimeTests
         //Snapshot read session at clusterTime1 should not see obj2
         using (var session2 = client.StartSession(sessionOptions2))
         {
-            var results = collection.Find(session2, filterDefinition).Sort(sortDefinition).ToList();
+            var results = GetTestObjects(collection, session2);
             AssertOneObj(results);
 
             var clusterTime2 = session2.GetSnapshotTime();
@@ -87,28 +79,127 @@ public class AtClusterTimeTests
         //Snapshot read session without cluster time should see obj2
         using (var session3 = client.StartSession(sessionOptions3))
         {
-            var results = collection.Find(session3, filterDefinition).Sort(sortDefinition).ToList();
+            var results = GetTestObjects(collection, session3);
             AssertTwoObjs(results);
 
-            var clusterTime3 = session3.WrappedCoreSession.SnapshotTime;
+            var clusterTime3 = session3.GetSnapshotTime();
             Assert.NotEqual(clusterTime3, clusterTime1);
-        }
-
-        void AssertOneObj(List<TestObject> objs)
-        {
-            Assert.Equal(1, objs.Count);
-            Assert.Equal("obj1", objs[0].Name);
-        }
-
-        void AssertTwoObjs(List<TestObject> objs)
-        {
-            Assert.Equal(2, objs.Count);
-            Assert.Equal("obj1", objs[0].Name);
-            Assert.Equal("obj2", objs[1].Name);
         }
     }
 
-    private class TestObject
+    [Fact]
+    public void IncreasedTimestamp()
+    {
+        var client = Fixture.Client;
+        var collection = Fixture.Collection;
+
+        BsonTimestamp clusterTime1;
+
+        var sessionOptions1 = new ClientSessionOptions
+        {
+            Snapshot = true
+        };
+
+        using (var session1 = client.StartSession(sessionOptions1))
+        {
+            var results = GetTestObjects(collection, session1);
+            AssertOneObj(results);
+
+            clusterTime1 = session1.GetSnapshotTime();
+            Assert.NotEqual(null, clusterTime1);
+        }
+
+        var obj2 = new TestObject { Name = "obj2" };
+        collection.InsertOne(obj2);
+
+        var modifiedClusterTime = new BsonTimestamp(clusterTime1.Value + 1);
+        var sessionOptions2 = new ClientSessionOptions
+        {
+            Snapshot = true,
+            SnapshotTime = modifiedClusterTime
+        };
+
+        //Snapshot read session at clusterTime1+1 should see obj2
+        using (var session2 = client.StartSession(sessionOptions2))
+        {
+            var results = GetTestObjects(collection, session2);
+            AssertTwoObjs(results);
+
+            var clusterTime2 = session2.GetSnapshotTime();
+            Assert.Equal(modifiedClusterTime, clusterTime2);
+        }
+    }
+
+    [Fact]
+    public void DecreasedTimestamp()
+    {
+        var client = Fixture.Client;
+        var collection = Fixture.Collection;
+
+        BsonTimestamp clusterTime1;
+
+        var sessionOptions1 = new ClientSessionOptions
+        {
+            Snapshot = true
+        };
+
+        using (var session1 = client.StartSession(sessionOptions1))
+        {
+            var results = GetTestObjects(collection, session1);
+            AssertOneObj(results);
+
+            clusterTime1 = session1.GetSnapshotTime();
+            Assert.NotEqual(null, clusterTime1);
+        }
+
+        var obj2 = new TestObject { Name = "obj2" };
+        collection.InsertOne(obj2);
+
+        var modifiedClusterTime = new BsonTimestamp(clusterTime1.Value - 1);
+        var sessionOptions2 = new ClientSessionOptions
+        {
+            Snapshot = true,
+            SnapshotTime = modifiedClusterTime
+        };
+
+        //Snapshot read session at clusterTime1-1 should not see obj2
+        using (var session2 = client.StartSession(sessionOptions2))
+        {
+            var results = GetTestObjects(collection, session2);
+            Assert.Equal(0, results.Count);
+
+            var clusterTime2 = session2.GetSnapshotTime();
+            Assert.Equal(modifiedClusterTime, clusterTime2);
+        }
+    }
+
+    List<TestObject> GetTestObjects(IMongoCollection<TestObject> collection, IClientSessionHandle session)
+    {
+        var filterDefinition = Builders<TestObject>.Filter.Empty;
+        var sortDefinition = Builders<TestObject>.Sort.Ascending(o => o.Name);
+        return collection.Find(session, filterDefinition).Sort(sortDefinition).ToList();
+    }
+
+    void AssertOneObj(List<TestObject> objs)
+    {
+        Assert.Equal(1, objs.Count);
+        Assert.Equal("obj1", objs[0].Name);
+    }
+
+    void AssertTwoObjs(List<TestObject> objs)
+    {
+        Assert.Equal(2, objs.Count);
+        Assert.Equal("obj1", objs[0].Name);
+        Assert.Equal("obj2", objs[1].Name);
+    }
+
+    public class ClassFixture : MongoCollectionFixture<TestObject>
+    {
+        public override bool InitializeDataBeforeEachTestCase => true;
+        protected override IEnumerable<TestObject> InitialData => [new() { Name = "obj1" }] ;
+    }
+
+    public class TestObject
     {
         [BsonId]
         public ObjectId Id { get; set; }
