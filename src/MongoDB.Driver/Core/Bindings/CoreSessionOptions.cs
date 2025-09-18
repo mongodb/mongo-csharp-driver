@@ -52,6 +52,22 @@ namespace MongoDB.Driver.Core.Bindings
             _snapshotTime = snapshotTime;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CoreSessionOptions" /> class.
+        /// </summary>
+        /// <param name="isCausallyConsistent">if set to <c>true</c> this session is causally consistent]</param>
+        /// <param name="isImplicit">if set to <c>true</c> this session is an implicit session.</param>
+        /// <param name="isSnapshot">if set to <c>true</c> this session is a snapshot session.</param>
+        /// <param name="defaultTransactionOptions">The default transaction options.</param>
+        public CoreSessionOptions(
+            bool isCausallyConsistent,
+            bool isImplicit,
+            TransactionOptions defaultTransactionOptions,
+            bool isSnapshot)
+        : this(isCausallyConsistent, isImplicit, defaultTransactionOptions, isSnapshot, null)
+        {
+        }
+
         // public properties
         /// <summary>
         /// Gets the default transaction options.
