@@ -13,8 +13,11 @@
 * limitations under the License.
 */
 
+using MongoDB.Bson;
+
 namespace MongoDB.Driver.Core.Bindings
 {
+    //TODO Why is this class public?
     /// <summary>
     /// Core session options.
     /// </summary>
@@ -25,6 +28,7 @@ namespace MongoDB.Driver.Core.Bindings
         private readonly bool _isCausallyConsistent;
         private readonly bool _isImplicit;
         private readonly bool _isSnapshot;
+        private readonly BsonTimestamp _snapshotTime;
 
         // constructors
         /// <summary>
@@ -34,16 +38,19 @@ namespace MongoDB.Driver.Core.Bindings
         /// <param name="isImplicit">if set to <c>true</c> this session is an implicit session.</param>
         /// <param name="isSnapshot">if set to <c>true</c> this session is a snapshot session.</param>
         /// <param name="defaultTransactionOptions">The default transaction options.</param>
+        /// <param name="snapshotTime">//TODO</param>
         public CoreSessionOptions(
             bool isCausallyConsistent = false,
             bool isImplicit = false,
             TransactionOptions defaultTransactionOptions = null,
-            bool isSnapshot = false)
+            bool isSnapshot = false,
+            BsonTimestamp snapshotTime = null)
         {
             _isCausallyConsistent = isCausallyConsistent;
             _isImplicit = isImplicit;
             _isSnapshot = isSnapshot;
             _defaultTransactionOptions = defaultTransactionOptions;
+            _snapshotTime = snapshotTime;
         }
 
         // public properties
@@ -78,5 +85,10 @@ namespace MongoDB.Driver.Core.Bindings
         ///   <c>true</c> if this session is a snapshot session; otherwise, <c>false</c>.
         /// </value>
         public bool IsSnapshot => _isSnapshot;
+
+        /// <summary>
+        /// //TODO
+        /// </summary>
+        public BsonTimestamp SnapshotTime => _snapshotTime;
     }
 }
