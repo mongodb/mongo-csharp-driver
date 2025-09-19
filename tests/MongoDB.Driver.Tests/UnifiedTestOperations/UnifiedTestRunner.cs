@@ -125,13 +125,6 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 throw new SkipException($"Test skipped because '{skipReason}'.");
             }
 
-            // should skip on KillOpenTransactions for Atlas Data Lake tests.
-            // https://github.com/mongodb/specifications/blob/80f88d0af6e47407c03874512e0d9b73708edad5/source/atlas-data-lake-testing/tests/README.md?plain=1#L23
-            if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ATLAS_DATA_LAKE_TESTS_ENABLED")))
-            {
-                KillOpenTransactions(DriverTestConfiguration.Client);
-            }
-
             var lastKnownClusterTime = AddInitialData(DriverTestConfiguration.Client, initialData);
             _entityMap = UnifiedEntityMap.Create(_eventFormatters, _loggingService.LoggingSettings, async, lastKnownClusterTime);
             _entityMap.AddRange(entities);
