@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Tests.Search
         {
             RequireEnvironment.Check().EnvironmentVariable("ATLAS_SEARCH_TESTS_ENABLED");
 
-            var atlasSearchUri = Environment.GetEnvironmentVariable("ATLAS_SEARCH");
+            var atlasSearchUri = Environment.GetEnvironmentVariable("ATLAS_SEARCH_URI");
             Ensure.IsNotNullOrEmpty(atlasSearchUri, nameof(atlasSearchUri));
 
             var mongoClientSettings = MongoClientSettings.FromConnectionString(atlasSearchUri);
@@ -436,8 +436,8 @@ namespace MongoDB.Driver.Tests.Search
             result[0].Title.Should().Be("The Great Race");
             result[1].Title.Should().Be("The Cannonball Run");
             result[2].Title.Should().Be("National Mechanics");
-            result[3].Title.Should().Be("Genevieve");
-            result[4].Title.Should().Be("Speedway Junky");
+            result[3].Title.Should().Be("Speedway Junky");
+            result[4].Title.Should().Be("Jo pour Jonathan");
         }
 
         [Fact]
@@ -866,7 +866,7 @@ namespace MongoDB.Driver.Tests.Search
         public class EmbeddedMovie : Movie
         {
             [BsonElement("plot_embedding")]
-            public double[] Embedding { get; set; }
+            public BinaryVectorFloat32 Embedding { get; set; }
         }
 
         [BsonIgnoreExtraElements]
