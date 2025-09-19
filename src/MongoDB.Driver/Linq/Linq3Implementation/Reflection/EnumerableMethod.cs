@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __aggregateWithSeedAndFunc;
         private static readonly MethodInfo __aggregateWithSeedFuncAndResultSelector;
         private static readonly MethodInfo __all;
+        private static readonly MethodInfo __allWithPredicate;
         private static readonly MethodInfo __any;
         private static readonly MethodInfo __anyWithPredicate;
         private static readonly MethodInfo __append;
@@ -73,7 +74,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __firstOrDefault;
         private static readonly MethodInfo __firstOrDefaultWithPredicate;
         private static readonly MethodInfo __firstWithPredicate;
-        private static readonly MethodInfo __groupBy;
+        private static readonly MethodInfo __groupByWithKeySelector;
         private static readonly MethodInfo __groupByWithKeySelectorAndElementSelector;
         private static readonly MethodInfo __groupByWithKeySelectorAndResultSelector;
         private static readonly MethodInfo __groupByWithKeySelectorElementSelectorAndResultSelector;
@@ -144,7 +145,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __repeat;
         private static readonly MethodInfo __reverse;
         private static readonly MethodInfo __select;
-        private static readonly MethodInfo __selectMany;
+        private static readonly MethodInfo __selectManyWithSelector;
         private static readonly MethodInfo __selectManyWithCollectionSelectorAndResultSelector;
         private static readonly MethodInfo __selectManyWithCollectionSelectorTakingIndexAndResultSelector;
         private static readonly MethodInfo __selectManyWithSelectorTakingIndex;
@@ -197,6 +198,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __aggregateWithSeedAndFunc = ReflectionInfo.Method((IEnumerable<object> source, object seed, Func<object, object, object> func) => source.Aggregate(seed, func));
             __aggregateWithSeedFuncAndResultSelector = ReflectionInfo.Method((IEnumerable<object> source, object seed, Func<object, object, object> func, Func<object, object> resultSelector) => source.Aggregate(seed, func, resultSelector));
             __all = ReflectionInfo.Method((IEnumerable<object> source, Func<object, bool> predicate) => source.All(predicate));
+            __allWithPredicate = ReflectionInfo.Method((IEnumerable<object> source, Func<object, bool> predicate) => source.All(predicate));
             __any = ReflectionInfo.Method((IEnumerable<object> source) => source.Any());
             __anyWithPredicate = ReflectionInfo.Method((IEnumerable<object> source, Func<object, bool> predicate) => source.Any(predicate));
             __append = ReflectionInfo.Method((IEnumerable<object> source, object element) => source.Append(element));
@@ -240,7 +242,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __firstOrDefault = ReflectionInfo.Method((IEnumerable<object> source) => source.FirstOrDefault());
             __firstOrDefaultWithPredicate = ReflectionInfo.Method((IEnumerable<object> source, Func<object, bool> predicate) => source.FirstOrDefault(predicate));
             __firstWithPredicate = ReflectionInfo.Method((IEnumerable<object> source, Func<object, bool> predicate) => source.First(predicate));
-            __groupBy = ReflectionInfo.Method((IEnumerable<object> source, Func<object, object> keySelector) => source.GroupBy(keySelector));
+            __groupByWithKeySelector = ReflectionInfo.Method((IEnumerable<object> source, Func<object, object> keySelector) => source.GroupBy(keySelector));
             __groupByWithKeySelectorAndElementSelector = ReflectionInfo.Method((IEnumerable<object> source, Func<object, object> keySelector, Func<object, object> elementSelector) => source.GroupBy(keySelector, elementSelector));
             __groupByWithKeySelectorAndResultSelector = ReflectionInfo.Method((IEnumerable<object> source, Func<object, object> keySelector, Func<object, object, object> resultSelector) => source.GroupBy(keySelector, resultSelector));
             __groupByWithKeySelectorElementSelectorAndResultSelector = ReflectionInfo.Method((IEnumerable<object> source, Func<object, object> keySelector, Func<object, object> elementSelector, Func<object, IEnumerable<object>, object> resultSelector) => source.GroupBy(keySelector, elementSelector, resultSelector));
@@ -311,7 +313,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __repeat = ReflectionInfo.Method((object element, int count) => Enumerable.Repeat(element, count));
             __reverse = ReflectionInfo.Method((IEnumerable<object> source) => source.Reverse());
             __select = ReflectionInfo.Method((IEnumerable<object> source, Func<object, object> selector) => source.Select(selector));
-            __selectMany = ReflectionInfo.Method((IEnumerable<object> source, Func<object, IEnumerable<object>> selector) => source.SelectMany(selector));
+            __selectManyWithSelector = ReflectionInfo.Method((IEnumerable<object> source, Func<object, IEnumerable<object>> selector) => source.SelectMany(selector));
             __selectManyWithCollectionSelectorAndResultSelector = ReflectionInfo.Method((IEnumerable<object> source, Func<object, IEnumerable<object>> collectionSelector, Func<object, object, object> resultSelector) => source.SelectMany(collectionSelector, resultSelector));
             __selectManyWithCollectionSelectorTakingIndexAndResultSelector = ReflectionInfo.Method((IEnumerable<object> source, Func<object, int, IEnumerable<object>> collectionSelector, Func<object, object, object> resultSelector) => source.SelectMany(collectionSelector, resultSelector));
             __selectManyWithSelectorTakingIndex = ReflectionInfo.Method((IEnumerable<object> source, Func<object, int, IEnumerable<object>> selector) => source.SelectMany(selector));
@@ -363,6 +365,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo AggregateWithSeedAndFunc => __aggregateWithSeedAndFunc;
         public static MethodInfo AggregateWithSeedFuncAndResultSelector => __aggregateWithSeedFuncAndResultSelector;
         public static MethodInfo All => __all;
+        public static MethodInfo AllWithPredicate => __allWithPredicate;
         public static MethodInfo Any => __any;
         public static MethodInfo AnyWithPredicate => __anyWithPredicate;
         public static MethodInfo Append => __append;
@@ -406,7 +409,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo FirstOrDefault => __firstOrDefault;
         public static MethodInfo FirstOrDefaultWithPredicate => __firstOrDefaultWithPredicate;
         public static MethodInfo FirstWithPredicate => __firstWithPredicate;
-        public static MethodInfo GroupBy => __groupBy;
+        public static MethodInfo GroupByWithKeySelector => __groupByWithKeySelector;
         public static MethodInfo GroupByWithKeySelectorAndElementSelector => __groupByWithKeySelectorAndElementSelector;
         public static MethodInfo GroupByWithKeySelectorAndResultSelector => __groupByWithKeySelectorAndResultSelector;
         public static MethodInfo GroupByWithKeySelectorElementSelectorAndResultSelector => __groupByWithKeySelectorElementSelectorAndResultSelector;
@@ -477,7 +480,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo Repeat => __repeat;
         public static MethodInfo Reverse => __reverse;
         public static MethodInfo Select => __select;
-        public static MethodInfo SelectMany => __selectMany;
+        public static MethodInfo SelectManyWithSelector => __selectManyWithSelector;
         public static MethodInfo SelectManyWithCollectionSelectorAndResultSelector => __selectManyWithCollectionSelectorAndResultSelector;
         public static MethodInfo SelectManyWithCollectionSelectorTakingIndexAndResultSelector => __selectManyWithCollectionSelectorTakingIndexAndResultSelector;
         public static MethodInfo SelectManyWithSelectorTakingIndex => __selectManyWithSelectorTakingIndex;
