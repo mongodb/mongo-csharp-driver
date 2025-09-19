@@ -44,14 +44,6 @@ namespace MongoDB.Driver.Tests.Specifications
         [UnifiedTestsTheory("auth.tests.unified")]
         public void Auth(JsonDrivenTestCase testCase) => Run(testCase);
 
-        [Trait("Category", "AtlasDataLake")]
-        [UnifiedTestsTheory("atlas_data_lake_testing.tests.unified")]
-        public void AtlasDataLake(JsonDrivenTestCase testCase)
-        {
-            RequireEnvironment.Check().EnvironmentVariable("ATLAS_DATA_LAKE_TESTS_ENABLED");
-            Run(testCase);
-        }
-
         [Category("SupportLoadBalancing")]
         [UnifiedTestsTheory("change_streams.tests.unified")]
         public void ChangeStreams(JsonDrivenTestCase testCase) => Run(testCase);
