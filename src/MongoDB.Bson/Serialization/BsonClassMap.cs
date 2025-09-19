@@ -29,13 +29,8 @@ namespace MongoDB.Bson.Serialization
     /// <summary>
     /// Represents a mapping between a class and a BSON document.
     /// </summary>
-    public class BsonClassMap
+    public class BsonClassMap : IHasSerializationDomain
     {
-        // private static fields
-        private readonly static Dictionary<Type, BsonClassMap> __classMaps = new Dictionary<Type, BsonClassMap>();
-        private readonly static Queue<Type> __knownTypesQueue = new Queue<Type>();
-        private static int __freezeNestingLevel = 0;
-
         // private fields
         private readonly Type _classType;
         private readonly List<BsonCreatorMap> _creatorMaps;
@@ -45,6 +40,7 @@ namespace MongoDB.Bson.Serialization
         private readonly ReadOnlyCollection<BsonMemberMap> _allMemberMapsReadonly;
         private List<BsonMemberMap> _declaredMemberMaps; // only the members declared in this class
         private readonly BsonTrie<int> _elementTrie;
+        private readonly IBsonSerializationDomain _serializationDomain;
 
         private bool _frozen; // once a class map has been frozen no further changes are allowed
         private BsonClassMap _baseClassMap; // null for class object and interfaces
@@ -67,7 +63,13 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <param name="classType">The class type.</param>
         public BsonClassMap(Type classType)
+            : this(BsonSerializationDomain.Default, classType)
         {
+        }
+
+        internal BsonClassMap(IBsonSerializationDomain serializationDomain, Type classType)
+        {
+            _serializationDomain = serializationDomain;
             _classType = classType;
             _creatorMaps = new List<BsonCreatorMap>();
             _conventionPack = ConventionRegistry.Lookup(classType);
@@ -86,7 +88,13 @@ namespace MongoDB.Bson.Serialization
         /// <param name="classType">Type of the class.</param>
         /// <param name="baseClassMap">The base class map.</param>
         public BsonClassMap(Type classType, BsonClassMap baseClassMap)
-            : this(classType)
+            : this(BsonSerializationDomain.Default, classType, baseClassMap)
+        {
+            throw new InvalidOperationException();
+        }
+
+        internal BsonClassMap(IBsonSerializationDomain serializationDomain, Type classType, BsonClassMap baseClassMap)
+            : this(serializationDomain, classType)
         {
             _baseClassMap = baseClassMap;
         }
@@ -253,132 +261,41 @@ namespace MongoDB.Bson.Serialization
             get { return _extraElementsMemberIndex; }
         }
 
+        internal IBsonSerializationDomain SerializationDomain => _serializationDomain;
+
+        IBsonSerializationDomain IHasSerializationDomain.SerializationDomain => _serializationDomain;
+
         // public static methods
-        /// <summary>
-        /// Gets the type of a member.
-        /// </summary>
-        /// <param name="memberInfo">The member info.</param>
-        /// <returns>The type of the member.</returns>
-        public static Type GetMemberInfoType(MemberInfo memberInfo)
-        {
-            if (memberInfo == null)
-            {
-                throw new ArgumentNullException("memberInfo");
-            }
-
-            if (memberInfo is FieldInfo)
-            {
-                return ((FieldInfo)memberInfo).FieldType;
-            }
-            else if (memberInfo is PropertyInfo)
-            {
-                return ((PropertyInfo)memberInfo).PropertyType;
-            }
-
-            throw new NotSupportedException("Only field and properties are supported at this time.");
-        }
-
         /// <summary>
         /// Gets all registered class maps.
         /// </summary>
         /// <returns>All registered class maps.</returns>
-        public static IEnumerable<BsonClassMap> GetRegisteredClassMaps()
-        {
-            BsonSerializer.ConfigLock.EnterReadLock();
-            try
-            {
-                return __classMaps.Values.ToList(); // return a copy for thread safety
-            }
-            finally
-            {
-                BsonSerializer.ConfigLock.ExitReadLock();
-            }
-        }
+        public static IEnumerable<BsonClassMap> GetRegisteredClassMaps() =>
+            BsonSerializationDomain.Default.ClassMapRegistry.GetRegisteredClassMaps();
 
         /// <summary>
         /// Checks whether a class map is registered for a type.
         /// </summary>
         /// <param name="type">The type to check.</param>
         /// <returns>True if there is a class map registered for the type.</returns>
-        public static bool IsClassMapRegistered(Type type)
-        {
-            if (type == null)
-            {
-                throw new ArgumentNullException("type");
-            }
-
-            BsonSerializer.ConfigLock.EnterReadLock();
-            try
-            {
-                return __classMaps.ContainsKey(type);
-            }
-            finally
-            {
-                BsonSerializer.ConfigLock.ExitReadLock();
-            }
-        }
+        public static bool IsClassMapRegistered(Type type) =>
+            BsonSerializationDomain.Default.ClassMapRegistry.IsClassMapRegistered(type);
 
         /// <summary>
         /// Looks up a class map (will AutoMap the class if no class map is registered).
         /// </summary>
         /// <param name="classType">The class type.</param>
         /// <returns>The class map.</returns>
-        public static BsonClassMap LookupClassMap(Type classType)
-        {
-            if (classType == null)
-            {
-                throw new ArgumentNullException("classType");
-            }
-
-            BsonSerializer.ConfigLock.EnterReadLock();
-            try
-            {
-                if (__classMaps.TryGetValue(classType, out var classMap))
-                {
-                    if (classMap.IsFrozen)
-                    {
-                        return classMap;
-                    }
-                }
-            }
-            finally
-            {
-                BsonSerializer.ConfigLock.ExitReadLock();
-            }
-
-            // automatically create a new classMap for classType and register it (unless another thread does first)
-            // do the work of speculatively creating a new class map outside of holding any lock
-            var classMapDefinition = typeof(BsonClassMap<>);
-            var classMapType = classMapDefinition.MakeGenericType(classType);
-            var newClassMap = (BsonClassMap)Activator.CreateInstance(classMapType);
-            newClassMap.AutoMap();
-
-            BsonSerializer.ConfigLock.EnterWriteLock();
-            try
-            {
-                if (!__classMaps.TryGetValue(classType, out var classMap))
-                {
-                    RegisterClassMap(newClassMap);
-                    classMap = newClassMap;
-                }
-
-                return classMap.Freeze();
-            }
-            finally
-            {
-                BsonSerializer.ConfigLock.ExitWriteLock();
-            }
-        }
+        public static BsonClassMap LookupClassMap(Type classType) =>
+            BsonSerializationDomain.Default.ClassMapRegistry.LookupClassMap(classType);
 
         /// <summary>
         /// Creates and registers a class map.
         /// </summary>
         /// <typeparam name="TClass">The class.</typeparam>
         /// <returns>The class map.</returns>
-        public static BsonClassMap<TClass> RegisterClassMap<TClass>()
-        {
-            return RegisterClassMap<TClass>(cm => { cm.AutoMap(); });
-        }
+        public static BsonClassMap<TClass> RegisterClassMap<TClass>()=>
+            BsonSerializationDomain.Default.ClassMapRegistry.RegisterClassMap<TClass>();
 
         /// <summary>
         /// Creates and registers a class map.
@@ -387,35 +304,14 @@ namespace MongoDB.Bson.Serialization
         /// <param name="classMapInitializer">The class map initializer.</param>
         /// <returns>The class map.</returns>
         public static BsonClassMap<TClass> RegisterClassMap<TClass>(Action<BsonClassMap<TClass>> classMapInitializer)
-        {
-            var classMap = new BsonClassMap<TClass>(classMapInitializer);
-            RegisterClassMap(classMap);
-            return classMap;
-        }
+            => BsonSerializationDomain.Default.ClassMapRegistry.RegisterClassMap(classMapInitializer);
 
         /// <summary>
         /// Registers a class map.
         /// </summary>
         /// <param name="classMap">The class map.</param>
         public static void RegisterClassMap(BsonClassMap classMap)
-        {
-            if (classMap == null)
-            {
-                throw new ArgumentNullException("classMap");
-            }
-
-            BsonSerializer.ConfigLock.EnterWriteLock();
-            try
-            {
-                // note: class maps can NOT be replaced (because derived classes refer to existing instance)
-                __classMaps.Add(classMap.ClassType, classMap);
-                BsonSerializer.RegisterDiscriminator(classMap.ClassType, classMap.Discriminator);
-            }
-            finally
-            {
-                BsonSerializer.ConfigLock.ExitWriteLock();
-            }
-        }
+            => BsonSerializationDomain.Default.ClassMapRegistry.RegisterClassMap(classMap);
 
         /// <summary>
         /// Registers a class map if it is not already registered.
@@ -423,16 +319,7 @@ namespace MongoDB.Bson.Serialization
         /// <typeparam name="TClass">The class.</typeparam>
         /// <returns>True if this call registered the class map, false if the class map was already registered.</returns>
         public static bool TryRegisterClassMap<TClass>()
-        {
-            return TryRegisterClassMap(ClassMapFactory);
-
-            static BsonClassMap<TClass> ClassMapFactory()
-            {
-                var classMap = new BsonClassMap<TClass>();
-                classMap.AutoMap();
-                return classMap;
-            }
-        }
+            => BsonSerializationDomain.Default.ClassMapRegistry.TryRegisterClassMap<TClass>();
 
         /// <summary>
         /// Registers a class map if it is not already registered.
@@ -441,19 +328,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="classMap">The class map.</param>
         /// <returns>True if this call registered the class map, false if the class map was already registered.</returns>
         public static bool TryRegisterClassMap<TClass>(BsonClassMap<TClass> classMap)
-        {
-            if (classMap == null)
-            {
-                throw new ArgumentNullException(nameof(classMap));
-            }
-
-            return TryRegisterClassMap(ClassMapFactory);
-
-            BsonClassMap<TClass> ClassMapFactory()
-            {
-                return classMap;
-            }
-        }
+            => BsonSerializationDomain.Default.ClassMapRegistry.TryRegisterClassMap(classMap);
 
         /// <summary>
         /// Registers a class map if it is not already registered.
@@ -462,19 +337,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="classMapInitializer">The class map initializer (only called if the class map is not already registered).</param>
         /// <returns>True if this call registered the class map, false if the class map was already registered.</returns>
         public static bool TryRegisterClassMap<TClass>(Action<BsonClassMap<TClass>> classMapInitializer)
-        {
-            if (classMapInitializer == null)
-            {
-                throw new ArgumentNullException(nameof(classMapInitializer));
-            }
-
-            return TryRegisterClassMap(ClassMapFactory);
-
-            BsonClassMap<TClass> ClassMapFactory()
-            {
-                return new BsonClassMap<TClass>(classMapInitializer);
-            }
-        }
+            => BsonSerializationDomain.Default.ClassMapRegistry.TryRegisterClassMap(classMapInitializer);
 
         /// <summary>
         /// Registers a class map if it is not already registered.
@@ -483,45 +346,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="classMapFactory">The class map factory (only called if the class map is not already registered).</param>
         /// <returns>True if this call registered the class map, false if the class map was already registered.</returns>
         public static bool TryRegisterClassMap<TClass>(Func<BsonClassMap<TClass>> classMapFactory)
-        {
-            if (classMapFactory == null)
-            {
-                throw new ArgumentNullException(nameof(classMapFactory));
-            }
-
-            BsonSerializer.ConfigLock.EnterReadLock();
-            try
-            {
-                if (__classMaps.ContainsKey(typeof(TClass)))
-                {
-                    return false;
-                }
-            }
-            finally
-            {
-                BsonSerializer.ConfigLock.ExitReadLock();
-            }
-
-            BsonSerializer.ConfigLock.EnterWriteLock();
-            try
-            {
-                if (__classMaps.ContainsKey(typeof(TClass)))
-                {
-                    return false;
-                }
-                else
-                {
-                    // create a classMap for TClass and register it
-                    var classMap = classMapFactory();
-                    RegisterClassMap(classMap);
-                    return true;
-                }
-            }
-            finally
-            {
-                BsonSerializer.ConfigLock.ExitWriteLock();
-            }
-        }
+            => BsonSerializationDomain.Default.ClassMapRegistry.TryRegisterClassMap(classMapFactory);
 
         // public methods
         /// <summary>
@@ -573,13 +398,29 @@ namespace MongoDB.Bson.Serialization
         /// <inheritdoc/>
         public override int GetHashCode() => 0;
 
+        internal class FreezeContext
+        {
+            public int FreezeNestingLevel { get; set; } = 0;
+            public Queue<Type> KnownTypesQueue { get; set; } = new();
+            public IBsonSerializationDomain SerializationDomain { get; set; }
+        }
+
         /// <summary>
         /// Freezes the class map.
         /// </summary>
         /// <returns>The frozen class map.</returns>
-        public BsonClassMap Freeze()
+        public BsonClassMap Freeze() => Freeze(BsonSerializationDomain.Default);
+
+        internal BsonClassMap Freeze(IBsonSerializationDomain serializationDomain)
         {
-            BsonSerializer.ConfigLock.EnterReadLock();
+            var freezeContext = new FreezeContext { SerializationDomain = serializationDomain };
+            return Freeze(freezeContext);
+        }
+
+        private BsonClassMap Freeze(FreezeContext context)
+        {
+            var configLock = context.SerializationDomain!.ConfigLock;
+            configLock.EnterReadLock();
             try
             {
                 if (_frozen)
@@ -589,15 +430,15 @@ namespace MongoDB.Bson.Serialization
             }
             finally
             {
-                BsonSerializer.ConfigLock.ExitReadLock();
+                configLock.ExitReadLock();
             }
 
-            BsonSerializer.ConfigLock.EnterWriteLock();
+            configLock.EnterWriteLock();
             try
             {
                 if (!_frozen)
                 {
-                    __freezeNestingLevel++;
+                    context.FreezeNestingLevel++;
                     try
                     {
                         var baseType = _classType.GetTypeInfo().BaseType;
@@ -605,9 +446,9 @@ namespace MongoDB.Bson.Serialization
                         {
                             if (_baseClassMap == null)
                             {
-                                _baseClassMap = LookupClassMap(baseType);
+                                _baseClassMap = context.SerializationDomain.ClassMapRegistry.LookupClassMap(baseType);
                             }
-                            _baseClassMap.Freeze();
+                            _baseClassMap.Freeze(context);
                             _discriminatorIsRequired |= _baseClassMap._discriminatorIsRequired;
                             _hasRootClass |= (_isRootClass || _baseClassMap.HasRootClass);
                             _allMemberMaps.AddRange(_baseClassMap.AllMemberMaps);
@@ -699,28 +540,28 @@ namespace MongoDB.Bson.Serialization
                         // this avoids infinite recursion when going back down the inheritance tree while processing known types
                         foreach (var knownType in _knownTypes)
                         {
-                            __knownTypesQueue.Enqueue(knownType);
+                            context.KnownTypesQueue.Enqueue(knownType);
                         }
 
                         // if we are back to the first level go ahead and process any queued known types
-                        if (__freezeNestingLevel == 1)
+                        if (context.FreezeNestingLevel == 1)
                         {
-                            while (__knownTypesQueue.Count != 0)
+                            while (context.KnownTypesQueue.Count != 0)
                             {
-                                var knownType = __knownTypesQueue.Dequeue();
-                                LookupClassMap(knownType); // will AutoMap and/or Freeze knownType if necessary
+                                var knownType = context.KnownTypesQueue.Dequeue();
+                                context.SerializationDomain.ClassMapRegistry.LookupClassMap(knownType); // will AutoMap and/or Freeze knownType if necessary
                             }
                         }
                     }
                     finally
                     {
-                        __freezeNestingLevel--;
+                        context.FreezeNestingLevel--;
                     }
                 }
             }
             finally
             {
-                BsonSerializer.ConfigLock.ExitWriteLock();
+                configLock.ExitWriteLock();
             }
             return this;
         }
@@ -1019,7 +860,7 @@ namespace MongoDB.Bson.Serialization
             var memberMap = _declaredMemberMaps.Find(m => m.MemberInfo == memberInfo);
             if (memberMap == null)
             {
-                memberMap = new BsonMemberMap(this, memberInfo);
+                memberMap = new BsonMemberMap(_serializationDomain, this, memberInfo);
                 _declaredMemberMaps.Add(memberMap);
             }
             return memberMap;
@@ -1359,7 +1200,7 @@ namespace MongoDB.Bson.Serialization
                         return classMap._discriminatorConvention;
                     }
 
-                    if (BsonSerializer.IsDiscriminatorConventionRegisteredAtThisLevel(classMap._classType))
+                    if (_serializationDomain.IsDiscriminatorConventionRegisteredAtThisLevel(classMap._classType))
                     {
                         // in this case LookupDiscriminatorConvention below will find it
                         break;
@@ -1368,21 +1209,23 @@ namespace MongoDB.Bson.Serialization
                     if (classMap._isRootClass)
                     {
                         // in this case auto-register a hierarchical convention for the root class and look it up as usual below
-                        BsonSerializer.GetOrRegisterDiscriminatorConvention(classMap._classType, StandardDiscriminatorConvention.Hierarchical);
+                        var discriminatorConvention = new HierarchicalDiscriminatorConvention(_serializationDomain, "_t");
+                        _serializationDomain.GetOrRegisterDiscriminatorConvention(classMap._classType, discriminatorConvention);
                         break;
                     }
 
                     classMap = classMap._baseClassMap;
                 }
 
-                return BsonSerializer.LookupDiscriminatorConvention(_classType);
+                return _serializationDomain.LookupDiscriminatorConvention(_classType);
             }
         }
 
         // private methods
         private void AutoMapClass()
         {
-            new ConventionRunner(_conventionPack).Apply(this);
+            var conventionPack = _serializationDomain.ConventionRegistry.Lookup(_classType);
+            new ConventionRunner(conventionPack).Apply(this);
 
             foreach (var memberMap in _declaredMemberMaps)
             {
@@ -1489,7 +1332,12 @@ namespace MongoDB.Bson.Serialization
         /// Initializes a new instance of the BsonClassMap class.
         /// </summary>
         public BsonClassMap()
-            : base(typeof(TClass))
+            : this(BsonSerializationDomain.Default)
+        {
+        }
+
+        internal BsonClassMap(IBsonSerializationDomain serializationDomain)
+            : base(serializationDomain, typeof(TClass))
         {
         }
 
@@ -1498,7 +1346,12 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <param name="classMapInitializer">The class map initializer.</param>
         public BsonClassMap(Action<BsonClassMap<TClass>> classMapInitializer)
-            : base(typeof(TClass))
+            : this(BsonSerializationDomain.Default, classMapInitializer)
+        {
+        }
+
+        internal BsonClassMap(IBsonSerializationDomain serializationDomain, Action<BsonClassMap<TClass>> classMapInitializer)
+            : base(serializationDomain, typeof(TClass))
         {
             classMapInitializer(this);
         }
@@ -1508,7 +1361,12 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <param name="baseClassMap">The base class map.</param>
         public BsonClassMap(BsonClassMap baseClassMap)
-            : base(typeof(TClass), baseClassMap)
+            : this(BsonSerializationDomain.Default, baseClassMap)
+        {
+        }
+
+        internal BsonClassMap(IBsonSerializationDomain serializationDomain, BsonClassMap baseClassMap)
+            : base(serializationDomain, typeof(TClass), baseClassMap)
         {
         }
 
