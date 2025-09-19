@@ -1820,6 +1820,10 @@ tasks:
             LOCAL_PATH: ${workdir}/efcore
             SCRIPT: |
               ${PREPARE_SHELL}
+              if [[ $OS =~ [Ww]indows.* ]]; then
+                export ATLAS_URI=Disabled
+              fi
+
               CRYPT_SHARED_LIB_PATH="${CRYPT_SHARED_LIB_PATH}" DRIVER_VERSION="${PACKAGE_VERSION}" MONGODB_VERSION="${VERSION}" bash ./evergreen/run-tests.sh
 
     - name: x509-auth-tests
