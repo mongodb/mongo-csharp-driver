@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
@@ -391,6 +392,112 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             results.Should().Equal(null, null, 4.0);
         }
 
+        [Theory]
+        [ParameterAttributeData]
+        public void Average_over_empty_set_of_nullable_values_should_work(
+            [Values(false, true)] bool withNestedAsQueryable)
+        {
+            var collection = Fixture.Collection;
+
+            var queryable = withNestedAsQueryable ?
+                collection.AsQueryable().Select(x => x.EmptyNullableDecimals.AsQueryable().Average()) :
+                collection.AsQueryable().Select(x => x.EmptyNullableDecimals.Average());
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : { $avg : '$EmptyNullableDecimals' }, _id : 0 } }");
+
+            var results = queryable.ToList();
+            results.Should().Equal(null, null, null);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Average_with_selector_over_empty_set_of_nullable_values_should_work(
+            [Values(false, true)] bool withNestedAsQueryable)
+        {
+            var collection = Fixture.Collection;
+
+            var queryable = withNestedAsQueryable ?
+                collection.AsQueryable().Select(x => x.EmptyNullableDecimals.AsQueryable().Average(x => x * 2.0M)) :
+                collection.AsQueryable().Select(x => x.EmptyNullableDecimals.Average(x => x * 2.0M));
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : { $avg : { $map : { input : '$EmptyNullableDecimals', as : 'x', in : { $multiply : ['$$x', NumberDecimal(2)] } } } }, _id : 0 } }");
+
+            var results = queryable.ToList();
+            results.Should().Equal(null, null, null);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Average_over_empty_set_of_non_nullable_values_should_throw(
+            [Values(false, true)] bool withNestedAsQueryable)
+        {
+            var collection = Fixture.Collection;
+
+            var queryable = withNestedAsQueryable ?
+                collection.AsQueryable().Select(x => x.EmptyDecimals.AsQueryable().Average()) :
+                collection.AsQueryable().Select(x => x.EmptyDecimals.Average());
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : { $avg : '$EmptyDecimals' }, _id : 0 } }");
+
+            Assert.Throws<FormatException>(() => queryable.ToList());
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Average_with_selector_over_empty_set_of_non_nullable_values_should_throw(
+            [Values(false, true)] bool withNestedAsQueryable)
+        {
+            var collection = Fixture.Collection;
+
+            var queryable = withNestedAsQueryable ?
+                collection.AsQueryable().Select(x => x.EmptyDecimals.AsQueryable().Average(x => x * 2.0M)) :
+                collection.AsQueryable().Select(x => x.EmptyDecimals.Average(x => x * 2.0M));
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : { $avg : { $map : { input : '$EmptyDecimals', as : 'x', in : { $multiply : ['$$x', NumberDecimal(2)] } } } }, _id : 0 } }");
+
+            Assert.Throws<FormatException>(() => queryable.ToList());
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Average_over_empty_set_of_non_nullable_values_cast_to_nullable_should_work(
+            [Values(false, true)] bool withNestedAsQueryable)
+        {
+            var collection = Fixture.Collection;
+
+            var queryable = withNestedAsQueryable ?
+                collection.AsQueryable().Select(x => x.EmptyDecimals.Select(e => (decimal?)e).AsQueryable().Average()) :
+                collection.AsQueryable().Select(x => x.EmptyDecimals.Select(e => (decimal?)e).Average());
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : { $avg : { $map : { input : '$EmptyDecimals', as : 'e', in : '$$e' } } }, _id : 0 } }");
+
+            var results = queryable.ToList();
+            results.Should().Equal(null, null, null);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Average_with_selector_over_empty_set_of_non_nullable_values_cast_to_nullable_should_work(
+            [Values(false, true)] bool withNestedAsQueryable)
+        {
+            var collection = Fixture.Collection;
+
+            var queryable = withNestedAsQueryable ?
+                collection.AsQueryable().Select(x => x.EmptyDecimals.Select(e => (decimal?)e).AsQueryable().Average(x => x * 2.0M)) :
+                collection.AsQueryable().Select(x => x.EmptyDecimals.Select(e => (decimal?)e).Average(x => x * 2.0M));
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : { $avg : { $map : { input : { $map : { input : '$EmptyDecimals', as : 'e', in : '$$e' } }, as : 'x', in : { $multiply : ['$$x', { '$numberDecimal' : '2.0' }] } } } }, _id : 0 } }");
+
+            var results = queryable.ToList();
+            results.Should().Equal(null, null, null);
+        }
+
         public class C
         {
             public int Id { get; set; }
@@ -404,6 +511,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             public float?[] NullableFloats { get; set; }
             public int?[] NullableInts { get; set; }
             public long?[] NullableLongs { get; set; }
+            [BsonRepresentation(BsonType.Decimal128)] public decimal[] EmptyDecimals { get; set; }
+            [BsonRepresentation(BsonType.Decimal128)] public decimal?[] EmptyNullableDecimals { get; set; }
         }
 
         public sealed class ClassFixture : MongoCollectionFixture<C>
@@ -422,7 +531,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                     NullableDoubles = new double?[0] { },
                     NullableFloats = new float?[0] { },
                     NullableInts = new int?[0] { },
-                    NullableLongs = new long?[0] { }
+                    NullableLongs = new long?[0] { },
+                    EmptyDecimals = [],
+                    EmptyNullableDecimals = []
                 },
                 new C
                 {
@@ -436,7 +547,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                     NullableDoubles = new double?[] { null },
                     NullableFloats = new float?[] { null },
                     NullableInts = new int?[] { null },
-                    NullableLongs = new long?[] { null }
+                    NullableLongs = new long?[] { null },
+                    EmptyDecimals = [],
+                    EmptyNullableDecimals = []
                 },
                 new C
                 {
@@ -450,7 +563,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                     NullableDoubles = new double?[] { null, 1.0, 2.0, 3.0 },
                     NullableFloats = new float?[] { null, 1.0F, 2.0F, 3.0F },
                     NullableInts = new int?[] { null, 1, 2, 3 },
-                    NullableLongs = new long?[] { null, 1L, 2L, 3L }
+                    NullableLongs = new long?[] { null, 1L, 2L, 3L },
+                    EmptyDecimals = [],
+                    EmptyNullableDecimals = []
                 }
             ];
         }
