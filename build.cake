@@ -156,13 +156,6 @@ Task("TestAtlasConnectivity")
         items: GetFiles("./**/AtlasConnectivity.Tests.csproj"),
         action: (BuildConfig buildConfig, Path testProject) => RunTests(buildConfig, testProject));
 
-Task("TestAtlasDataLake")
-    .IsDependentOn("Build")
-    .DoesForEach(
-        items: GetFiles("./**/MongoDB.Driver.Tests.csproj"),
-        action: (BuildConfig buildConfig, Path testProject) =>
-           RunTests(buildConfig, testProject, filter: "Category=\"AtlasDataLake\""));
-
 Task("TestAtlasSearch")
     .IsDependentOn("Build")
     .DoesForEach(

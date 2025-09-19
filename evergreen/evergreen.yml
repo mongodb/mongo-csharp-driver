@@ -650,15 +650,6 @@ functions:
         script: |
           DRIVERS_TOOLS=${DRIVERS_TOOLS} OS=${OS} ASSERT_NO_URI_CREDS=true evergreen/run-mongodb-aws-test.sh session-creds
 
-  run-atlas-data-lake-test:
-    - command: shell.exec
-      type: test
-      params:
-        working_dir: mongo-csharp-driver
-        script: |
-          ${PREPARE_SHELL}
-          evergreen/run-atlas-data-lake-test.sh
-
   run-atlas-search-test:
     - command: shell.exec
       type: test
@@ -1356,12 +1347,6 @@ tasks:
           vars:
             FRAMEWORK: net60
             REQUIRE_API_VERSION: true
-
-    - name: atlas-data-lake-test
-      commands:
-        - func: assume-aws-test-secrets-role
-        - func: bootstrap-mongohoused
-        - func: run-atlas-data-lake-test
 
     - name: atlas-search-test
       commands:
@@ -2579,13 +2564,6 @@ buildvariants:
     - windows-64-vs2017-test
   tasks:
     - name: atlas-connectivity-tests
-
-- name: atlas-data-lake-test
-  display_name: "Atlas Data Lake Tests"
-  run_on:
-    - ubuntu2004-large
-  tasks:
-    - name: atlas-data-lake-test
 
 - name: atlas-search-test
   display_name: "Atlas Search Tests"
