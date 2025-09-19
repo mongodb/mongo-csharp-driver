@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         public abstract ExpressionTranslationOptions GetTranslationOptions();
     }
 
-    internal sealed class MongoQueryProvider<TDocument> : MongoQueryProvider
+    internal sealed class MongoQueryProvider<TDocument> : MongoQueryProvider, IHasSerializationDomain
     {
         // private fields
         private readonly IMongoCollection<TDocument> _collection;

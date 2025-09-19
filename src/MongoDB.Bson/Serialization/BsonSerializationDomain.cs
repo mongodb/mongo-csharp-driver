@@ -692,6 +692,11 @@ namespace MongoDB.Bson.Serialization
             {
                 if (!_discriminatorConventions.ContainsKey(type))
                 {
+                    if (convention is IHasSerializationDomain hasSerializationDomain && hasSerializationDomain.SerializationDomain != this)
+                    {
+                        throw new ArgumentException($"Expected discriminator convention to be for serialization domain {Name} but was for serialization domain {hasSerializationDomain.SerializationDomain.Name}.");
+                    }
+
                     _discriminatorConventions.Add(type, convention);
                 }
                 else

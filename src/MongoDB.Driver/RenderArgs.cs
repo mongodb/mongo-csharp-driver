@@ -29,7 +29,7 @@ namespace MongoDB.Driver
     /// Encapsulates settings needed for rendering Builder definitions.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public record struct RenderArgs<TDocument>
+    public record struct RenderArgs<TDocument> : IHasSerializationDomain
     {
         private readonly IBsonSerializer<TDocument> _documentSerializer = default;
         private readonly PathRenderArgs _pathRenderArgs = default;
@@ -142,6 +142,8 @@ namespace MongoDB.Driver
             get => _serializationDomain;
             init => _serializationDomain = Ensure.IsNotNull(value, nameof(value));
         }
+
+        IBsonSerializationDomain IHasSerializationDomain.SerializationDomain => _serializationDomain;
 
         /// <summary>
         /// Gets the translation options used when translation Expressions to MQL.

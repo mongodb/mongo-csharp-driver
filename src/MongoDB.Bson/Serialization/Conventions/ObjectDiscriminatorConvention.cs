@@ -24,7 +24,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// Represents the object discriminator convention.
     /// </summary>
-    public class ObjectDiscriminatorConvention : IDiscriminatorConvention
+    public class ObjectDiscriminatorConvention : IDiscriminatorConvention, IHasSerializationDomain
     {
         // private static fields
         private static ObjectDiscriminatorConvention __instance = new ObjectDiscriminatorConvention("_t");
@@ -79,6 +79,8 @@ namespace MongoDB.Bson.Serialization.Conventions
         {
             get { return _elementName; }
         }
+
+        IBsonSerializationDomain IHasSerializationDomain.SerializationDomain => _serializationDomain;
 
         // public methods
         /// <inheritdoc/>

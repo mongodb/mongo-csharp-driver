@@ -21,7 +21,7 @@ using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
 {
-    internal class TranslationContext
+    internal class TranslationContext : IHasSerializationDomain
     {
         #region static
         public static TranslationContext Create(

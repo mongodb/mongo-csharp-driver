@@ -20,7 +20,7 @@ using System.Reflection;
 
 namespace MongoDB.Bson.Serialization;
 
-internal class BsonClassMapRegistry : IBsonClassMapRegistry
+internal class BsonClassMapRegistry : IBsonClassMapRegistry, IHasSerializationDomain
 {
     // private fields
     private readonly Dictionary<Type, BsonClassMap> _classMaps = new();
@@ -30,6 +30,8 @@ internal class BsonClassMapRegistry : IBsonClassMapRegistry
     {
         _serializationDomain = serializationDomain;
     }
+
+    IBsonSerializationDomain IHasSerializationDomain.SerializationDomain => _serializationDomain;
 
     /// <summary>
     /// Gets all registered class maps.
@@ -142,7 +144,7 @@ internal class BsonClassMapRegistry : IBsonClassMapRegistry
     /// <returns>The class map.</returns>
     public BsonClassMap<TClass> RegisterClassMap<TClass>(Action<BsonClassMap<TClass>> classMapInitializer)
     {
-        var classMap = new BsonClassMap<TClass>(classMapInitializer);
+        var classMap = new BsonClassMap<TClass>(_serializationDomain, classMapInitializer);
         RegisterClassMap(classMap);
         return classMap;
     }
@@ -156,6 +158,11 @@ internal class BsonClassMapRegistry : IBsonClassMapRegistry
         if (classMap == null)
         {
             throw new ArgumentNullException("classMap");
+        }
+
+        if (classMap.SerializationDomain != _serializationDomain)
+        {
+            throw new ArgumentException($"Expected class map to be for serialization domain {_serializationDomain.Name}, but was for serialization domain {classMap.SerializationDomain.Name}.");
         }
 
         _serializationDomain.ConfigLock.EnterWriteLock();

@@ -18,7 +18,7 @@ using System.Collections.Generic;
 
 namespace MongoDB.Bson.Serialization.Conventions
 {
-    internal class ConventionRegistryInstance : IConventionRegistry
+    internal class ConventionRegistryInstance : IConventionRegistry, IHasSerializationDomain
     {
         private readonly List<ConventionPackContainer> _conventionPacks = new();
         private readonly object _lock = new();
@@ -33,6 +33,8 @@ namespace MongoDB.Bson.Serialization.Conventions
             Register("__defaults__", defaultConventionPack, t => true);
             Register("__attributes__", AttributeConventionPack.Instance, t => true);
         }
+
+        IBsonSerializationDomain IHasSerializationDomain.SerializationDomain => _serializationDomain;
 
         // public static methods
         /// <summary>
@@ -49,7 +51,7 @@ namespace MongoDB.Bson.Serialization.Conventions
 
             lock (_lock)
             {
-                var pack = new ConventionPack();
+                var pack = new ConventionPack(_serializationDomain);
 
                 // append any attribute packs (usually just one) at the end so attributes are processed last
                 var attributePacks = new List<IConventionPack>();
@@ -99,6 +101,11 @@ namespace MongoDB.Bson.Serialization.Conventions
             if (filter == null)
             {
                 throw new ArgumentNullException("filter");
+            }
+
+            if (conventions is IHasSerializationDomain hasSerializationDomain && hasSerializationDomain.SerializationDomain != _serializationDomain)
+            {
+                throw new ArgumentException($"Expected convention pack to be for serialization domain {_serializationDomain.Name}, but was for serialization domain {hasSerializationDomain.SerializationDomain.Name}.");
             }
 
             lock (_lock)

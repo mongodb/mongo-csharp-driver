@@ -23,7 +23,7 @@ namespace MongoDB.Bson.Serialization
     /// <summary>
     /// Represents the mapping between a field or property and a BSON element.
     /// </summary>
-    public class BsonMemberMap
+    public class BsonMemberMap : IHasSerializationDomain
     {
         // private fields
         private readonly BsonClassMap _classMap;
@@ -140,6 +140,8 @@ namespace MongoDB.Bson.Serialization
                 return _getter;
             }
         }
+
+        IBsonSerializationDomain IHasSerializationDomain.SerializationDomain => _serializationDomain;
 
         /// <summary>
         /// Gets the setter function.

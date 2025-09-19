@@ -22,7 +22,7 @@ namespace MongoDB.Bson.Serialization
     /// <summary>
     /// Default, global implementation of an <see cref="IBsonSerializerRegistry"/>.
     /// </summary>
-    public sealed class BsonSerializerRegistry : IBsonSerializerRegistry
+    public sealed class BsonSerializerRegistry : IBsonSerializerRegistry, IHasSerializationDomain
     {
         // private fields
         private readonly ConcurrentDictionary<Type, IBsonSerializer> _cache;
@@ -48,6 +48,8 @@ namespace MongoDB.Bson.Serialization
         }
 
         internal IBsonSerializationDomain SerializationDomain => _serializationDomain;
+
+        IBsonSerializationDomain IHasSerializationDomain.SerializationDomain => _serializationDomain;
 
         // public methods
         /// <summary>
@@ -103,6 +105,10 @@ namespace MongoDB.Bson.Serialization
                 throw new ArgumentNullException("serializer");
             }
             EnsureRegisteringASerializerForThisTypeIsAllowed(type);
+            if (serializer is IHasSerializationDomain hasSerializationDomain && hasSerializationDomain.SerializationDomain != _serializationDomain)
+            {
+                throw new ArgumentException($"Expected serializer to be for serialization domain {_serializationDomain.Name} but was for  serialization domain {hasSerializationDomain.SerializationDomain.Name}.");
+            }
 
             if (!_cache.TryAdd(type, serializer))
             {
@@ -143,6 +149,10 @@ namespace MongoDB.Bson.Serialization
                 throw new ArgumentNullException(nameof(serializer));
             }
             EnsureRegisteringASerializerForThisTypeIsAllowed(type);
+            if (serializer is IHasSerializationDomain hasSerializationDomain && hasSerializationDomain.SerializationDomain != _serializationDomain)
+            {
+                throw new ArgumentException($"Expected serializer to be for serialization domain {_serializationDomain.Name} but was for  serialization domain {hasSerializationDomain.SerializationDomain.Name}.");
+            }
 
             if (_cache.TryAdd(type, serializer))
             {
@@ -179,6 +189,11 @@ namespace MongoDB.Bson.Serialization
 
                 if (serializer != null)
                 {
+                    if (serializer is IHasSerializationDomain hasSerializationDomain && hasSerializationDomain.SerializationDomain != _serializationDomain)
+                    {
+                        throw new ArgumentException($"Expected serializer to be for serialization domain {_serializationDomain.Name} but was for serialization domain {hasSerializationDomain.SerializationDomain.Name}.", "serializer");
+                    }
+
                     return serializer;
                 }
             }

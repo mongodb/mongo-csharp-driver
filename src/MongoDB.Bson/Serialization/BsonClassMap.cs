@@ -29,7 +29,7 @@ namespace MongoDB.Bson.Serialization
     /// <summary>
     /// Represents a mapping between a class and a BSON document.
     /// </summary>
-    public class BsonClassMap
+    public class BsonClassMap : IHasSerializationDomain
     {
         // private fields
         private readonly Type _classType;
@@ -262,6 +262,8 @@ namespace MongoDB.Bson.Serialization
         }
 
         internal IBsonSerializationDomain SerializationDomain => _serializationDomain;
+
+        IBsonSerializationDomain IHasSerializationDomain.SerializationDomain => _serializationDomain;
 
         // public static methods
         /// <summary>
@@ -858,7 +860,7 @@ namespace MongoDB.Bson.Serialization
             var memberMap = _declaredMemberMaps.Find(m => m.MemberInfo == memberInfo);
             if (memberMap == null)
             {
-                memberMap = new BsonMemberMap(this, memberInfo);
+                memberMap = new BsonMemberMap(_serializationDomain, this, memberInfo);
                 _declaredMemberMaps.Add(memberMap);
             }
             return memberMap;
