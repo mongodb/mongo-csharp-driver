@@ -24,7 +24,6 @@ using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
-using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Encryption;
 
@@ -184,6 +183,13 @@ namespace MongoDB.Driver.Tests
             {
                 serverSelectionTimeoutString = "30000";
             }
+
+            if (System.Diagnostics.Debugger.IsAttached)
+            {
+                clientSettings.HeartbeatTimeout = TimeSpan.FromDays(1);
+                clientSettings.ServerMonitoringMode = ServerMonitoringMode.Poll;
+            }
+
             clientSettings.ServerSelectionTimeout = TimeSpan.FromMilliseconds(int.Parse(serverSelectionTimeoutString));
             clientSettings.ClusterConfigurator = cb => CoreTestConfiguration.ConfigureLogging(cb);
             clientSettings.ServerApi = CoreTestConfiguration.ServerApi;

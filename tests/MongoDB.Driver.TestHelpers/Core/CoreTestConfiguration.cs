@@ -29,7 +29,6 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using MongoDB.Driver.Encryption;
 using MongoDB.Driver.TestHelpers;
 using Xunit.Sdk;
 
@@ -127,7 +126,16 @@ namespace MongoDB.Driver
         {
             builder = builder
                 .ConfigureWithConnectionString(__connectionString.Value, __serverApi.Value)
-                .ConfigureCluster(c => c.With(serverSelectionTimeout: __defaultServerSelectionTimeout.Value));
+                .ConfigureCluster(c => c.With(serverSelectionTimeout: __defaultServerSelectionTimeout.Value))
+                .ConfigureServer(s =>
+                {
+                    if (Debugger.IsAttached)
+                    {
+                        s = s.With(heartbeatTimeout: TimeSpan.FromDays(1), serverMonitoringMode: ServerMonitoringMode.Poll);
+                    }
+
+                    return s;
+                });;
 
             if (__connectionString.Value.Tls.HasValue &&
                 __connectionString.Value.Tls.Value &&
