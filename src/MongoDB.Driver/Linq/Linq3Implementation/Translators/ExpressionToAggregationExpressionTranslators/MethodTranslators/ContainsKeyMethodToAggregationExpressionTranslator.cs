@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             if (keyExpression is ConstantExpression keyConstantExpression)
             {
                 var keyValue = keyConstantExpression.Value;
-                var serializedKeyValue = SerializationHelper.SerializeValue(keySerializer, keyValue);
+                var serializedKeyValue = SerializationHelper.SerializeValue(context.SerializationDomain, keySerializer, keyValue);
                 ThrowIfKeyIsNotRepresentedAsAString(expression, serializedKeyValue.BsonType);
                 return AstExpression.Constant(serializedKeyValue);
             }

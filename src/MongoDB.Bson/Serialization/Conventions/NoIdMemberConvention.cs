@@ -13,24 +13,22 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-
 namespace MongoDB.Bson.Serialization.Conventions
 {
     /// <summary>
     /// A convention that sets a class's IdMember to null.
     /// </summary>
-    public class NoIdMemberConvention : ConventionBase, IPostProcessingConvention
+    public class NoIdMemberConvention : ConventionBase, IPostProcessingConventionInternal
     {
         // public methods
         /// <summary>
         /// Applies a post processing modification to the class map.
         /// </summary>
         /// <param name="classMap">The class map.</param>
-        public void PostProcess(BsonClassMap classMap)
+        public void PostProcess(BsonClassMap classMap) => (this as IPostProcessingConventionInternal).PostProcess(classMap, BsonSerializer.DefaultSerializationDomain);
+
+        /// <inheritdoc />
+        void IPostProcessingConventionInternal.PostProcess(BsonClassMap classMap, IBsonSerializationDomain domain)
         {
             classMap.SetIdMember(null);
         }

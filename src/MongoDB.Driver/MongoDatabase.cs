@@ -538,7 +538,8 @@ namespace MongoDB.Driver
                 _databaseNamespace,
                 renderedPipeline.Documents,
                 renderedPipeline.OutputSerializer,
-                messageEncoderSettings)
+                messageEncoderSettings,
+                Settings.SerializationDomain)
             {
                 AllowDiskUse = options.AllowDiskUse,
                 BatchSize = options.BatchSize,
@@ -565,7 +566,7 @@ namespace MongoDB.Driver
             // However, since we've added encryption configuration for CreateAggregateToCollectionOperation operation,
             // it's not superfluous to also add it here
             var messageEncoderSettings = GetMessageEncoderSettings();
-            var findOperation = new FindOperation<TResult>(outputCollectionNamespace, pipeline.OutputSerializer, messageEncoderSettings)
+            var findOperation = new FindOperation<TResult>(outputCollectionNamespace, pipeline.OutputSerializer, messageEncoderSettings, Settings.SerializationDomain)
             {
                 BatchSize = options.BatchSize,
                 Collation = options.Collation,
@@ -590,7 +591,8 @@ namespace MongoDB.Driver
             return new AggregateToCollectionOperation(
                 _databaseNamespace,
                 renderedPipeline.Documents,
-                messageEncoderSettings)
+                messageEncoderSettings,
+                _settings.SerializationDomain)
             {
                 AllowDiskUse = options.AllowDiskUse,
                 BypassDocumentValidation = options.BypassDocumentValidation,
@@ -624,9 +626,18 @@ namespace MongoDB.Driver
             var serializerRegistry = options.SerializerRegistry ?? BsonSerializer.SerializerRegistry;
             var documentSerializer = options.DocumentSerializer ?? serializerRegistry.GetSerializer<TDocument>();
 
-            var clusteredIndex = options.ClusteredIndex?.Render(documentSerializer, serializerRegistry, translationOptions);
-            var validator = options.Validator?.Render(new(documentSerializer, serializerRegistry, translationOptions: translationOptions));
+            //DOMAIN-API This will need to go away
+            //This is only happening in a couple of places, it's not worth to find better solutions right now.
+            RenderArgs<TDocument> renderArgs = options.SerializationDomain is null ?
+                new(documentSerializer, serializerRegistry, translationOptions: translationOptions) :
+                new(documentSerializer, options.SerializationDomain, translationOptions: translationOptions);
 
+            //DOMAIN-API This will need to go away
+            var clusteredIndex = options.SerializationDomain is null?
+                options.ClusteredIndex?.Render(documentSerializer, serializerRegistry, translationOptions):
+                options.ClusteredIndex?.Render(documentSerializer, options.SerializationDomain, translationOptions);
+
+            var validator = options.Validator?.Render(renderArgs);
             var collectionNamespace = new CollectionNamespace(_databaseNamespace, name);
 
             var effectiveEncryptedFields = EncryptedCollectionHelper.GetEffectiveEncryptedFields(collectionNamespace, options.EncryptedFields, _client.Settings?.AutoEncryptionOptions?.EncryptedFieldsMap);
@@ -636,6 +647,7 @@ namespace MongoDB.Driver
                 collectionNamespace,
                 effectiveEncryptedFields,
                 messageEncoderSettings,
+                _settings.SerializationDomain,
                 createCollectionOperationConfigurator: cco =>
                 {
                     cco.Capped = options.Capped;
@@ -666,8 +678,14 @@ namespace MongoDB.Driver
             var translationOptions = _client.Settings.TranslationOptions;
             var serializerRegistry = options.SerializerRegistry ?? BsonSerializer.SerializerRegistry;
             var documentSerializer = options.DocumentSerializer ?? serializerRegistry.GetSerializer<TDocument>();
-            var pipelineDocuments = pipeline.Render(new (documentSerializer, serializerRegistry, translationOptions: translationOptions)).Documents;
-            return new CreateViewOperation(_databaseNamespace, viewName, viewOn, pipelineDocuments, GetMessageEncoderSettings())
+
+            //DOMAIN-API This will need to go away
+            RenderArgs<TDocument> renderArgs = options.SerializationDomain is null ?
+                new(documentSerializer, serializerRegistry, translationOptions: translationOptions) :
+                new(documentSerializer, options.SerializationDomain, translationOptions: translationOptions);
+
+            var pipelineDocuments = pipeline.Render(renderArgs).Documents;
+            return new CreateViewOperation(_databaseNamespace, viewName, viewOn, pipelineDocuments, GetMessageEncoderSettings(), _settings.SerializationDomain)
             {
                 Collation = options.Collation,
                 WriteConcern = _settings.WriteConcern
@@ -681,6 +699,7 @@ namespace MongoDB.Driver
                 collectionNamespace,
                 effectiveEncryptedFields,
                 messageEncoderSettings,
+                _settings.SerializationDomain,
                 (dco) =>
                 {
                     dco.WriteConcern = _settings.WriteConcern;
@@ -691,7 +710,7 @@ namespace MongoDB.Driver
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
             var renderArgs = GetRenderArgs(BsonDocumentSerializer.Instance);
-            return new ListCollectionsOperation(_databaseNamespace, messageEncoderSettings)
+            return new ListCollectionsOperation(_databaseNamespace, messageEncoderSettings, Settings.SerializationDomain)
             {
                 AuthorizedCollections = options?.AuthorizedCollections,
                 Comment = options?.Comment,
@@ -705,7 +724,7 @@ namespace MongoDB.Driver
         {
             var renderArgs = GetRenderArgs(BsonDocumentSerializer.Instance);
             var messageEncoderSettings = GetMessageEncoderSettings();
-            return new ListCollectionsOperation(_databaseNamespace, messageEncoderSettings)
+            return new ListCollectionsOperation(_databaseNamespace, messageEncoderSettings, Settings.SerializationDomain)
             {
                 BatchSize = options?.BatchSize,
                 Comment = options?.Comment,
@@ -722,7 +741,8 @@ namespace MongoDB.Driver
             return new RenameCollectionOperation(
                 new CollectionNamespace(_databaseNamespace, oldName),
                 new CollectionNamespace(_databaseNamespace, newName),
-                messageEncoderSettings)
+                messageEncoderSettings,
+                _settings.SerializationDomain)
             {
                 DropTarget = options.DropTarget,
                 WriteConcern = _settings.WriteConcern
@@ -733,7 +753,7 @@ namespace MongoDB.Driver
         {
             var renderedCommand = command.Render(_settings.SerializerRegistry);
             var messageEncoderSettings = GetMessageEncoderSettings();
-            return new ReadCommandOperation<TResult>(_databaseNamespace, renderedCommand.Document, renderedCommand.ResultSerializer, messageEncoderSettings)
+            return new ReadCommandOperation<TResult>(_databaseNamespace, renderedCommand.Document, renderedCommand.ResultSerializer, messageEncoderSettings, Settings.SerializationDomain)
             {
                 RetryRequested = false
             };
@@ -752,7 +772,8 @@ namespace MongoDB.Driver
                 _settings.ReadConcern,
                 GetMessageEncoderSettings(),
                 _client.Settings.RetryReads,
-                translationOptions);
+                translationOptions,
+                _client.Settings.SerializationDomain);
         }
 
         private OperationContext CreateOperationContext(IClientSessionHandle session, TimeSpan? timeout, CancellationToken cancellationToken)
@@ -849,7 +870,8 @@ namespace MongoDB.Driver
             var messageEncoderSettings = new MessageEncoderSettings
             {
                 { MessageEncoderSettingsName.ReadEncoding, _settings.ReadEncoding ?? Utf8Encodings.Strict },
-                { MessageEncoderSettingsName.WriteEncoding, _settings.WriteEncoding ?? Utf8Encodings.Strict }
+                { MessageEncoderSettingsName.WriteEncoding, _settings.WriteEncoding ?? Utf8Encodings.Strict },
+                { MessageEncoderSettingsName.SerializationDomain, _settings.SerializationDomain }
             };
 
             if (_client is MongoClient mongoClient)
@@ -863,13 +885,13 @@ namespace MongoDB.Driver
         private RenderArgs<TDocument> GetRenderArgs<TDocument>(IBsonSerializer<TDocument> documentSerializer)
         {
             var translationOptions = _client.Settings.TranslationOptions;
-            return new RenderArgs<TDocument>(documentSerializer, _settings.SerializerRegistry, translationOptions: translationOptions);
+            return new RenderArgs<TDocument>(documentSerializer, _settings.SerializationDomain, translationOptions: translationOptions);
         }
 
         private RenderArgs<TDocument> GetRenderArgs<TDocument>(IBsonSerializer<TDocument> documentSerializer, ExpressionTranslationOptions translationOptions)
         {
             translationOptions = translationOptions.AddMissingOptionsFrom(_client.Settings.TranslationOptions);
-            return new RenderArgs<TDocument>(documentSerializer, _settings.SerializerRegistry, translationOptions: translationOptions);
+            return new RenderArgs<TDocument>(documentSerializer, _settings.SerializationDomain, translationOptions: translationOptions);
         }
     }
 }

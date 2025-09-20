@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             var arrayFieldTranslation = ExpressionToFilterFieldTranslator.TranslateEnumerable(context, arrayFieldExpression);
             var itemSerializer = ArraySerializerHelper.GetItemSerializer(arrayFieldTranslation.Serializer);
             var values = (IEnumerable)arrayConstantExpression.Value;
-            var serializedValues = SerializationHelper.SerializeValues(itemSerializer, values);
+            var serializedValues = SerializationHelper.SerializeValues(context.SerializationDomain, itemSerializer, values);
             return AstFilter.In(arrayFieldTranslation.Ast, serializedValues);
         }
 

@@ -30,7 +30,7 @@ namespace MongoDB.Driver
     public abstract class RangeWindowBoundary
     {
         internal RangeWindowBoundary() { } // disallow user defined subclasses
-        internal abstract BsonValue Render(IBsonSerializer valueSerializer);
+        internal abstract BsonValue Render(IBsonSerializationDomain serializationDomain, IBsonSerializer valueSerializer);
     }
 
     /// <summary>
@@ -53,7 +53,7 @@ namespace MongoDB.Driver
         /// <inheritdoc/>
         public override string ToString() => $"\"{_keyword}\"";
 
-        internal override BsonValue Render(IBsonSerializer valueSerializer) => _keyword;
+        internal override BsonValue Render(IBsonSerializationDomain serializationDomain, IBsonSerializer valueSerializer) => _keyword;
     }
 
     /// <summary>
@@ -92,13 +92,13 @@ namespace MongoDB.Driver
         /// <inheritdoc/>
         public override string ToString() => _value.ToString();
 
-        internal override BsonValue Render(IBsonSerializer valueSerializer)
+        internal override BsonValue Render(IBsonSerializationDomain serializationDomain, IBsonSerializer valueSerializer)
         {
             if (valueSerializer == null)
             {
-                throw new ArgumentNullException("A value serializer is required to serialize range values.", nameof(valueSerializer));
+                throw new ArgumentNullException(nameof(valueSerializer), "A value serializer is required to serialize range values.");
             }
-            return SerializationHelper.SerializeValue(valueSerializer, _value);
+            return SerializationHelper.SerializeValue(serializationDomain, valueSerializer, _value);
         }
     }
 
@@ -129,7 +129,7 @@ namespace MongoDB.Driver
         /// <inheritdoc/>
         public override string ToString() => $"{_value} ({_unit})";
 
-        internal override BsonValue Render(IBsonSerializer valueSerializer) => _value;
+        internal override BsonValue Render(IBsonSerializationDomain serializationDomain, IBsonSerializer valueSerializer) => _value;
     }
 
     internal static class ValueRangeWindowBoundaryConvertingValueSerializerFactory

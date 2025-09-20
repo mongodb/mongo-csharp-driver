@@ -58,10 +58,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                 else
                 {
                     var documentType = method.GetGenericArguments()[0];
-                    documentSerializer = BsonSerializer.LookupSerializer(documentType);
+                    documentSerializer = context.SerializationDomain.LookupSerializer(documentType);
                 }
 
-                var serializedDocuments = SerializationHelper.SerializeValues(documentSerializer, documents);
+                var serializedDocuments = SerializationHelper.SerializeValues(context.SerializationDomain, documentSerializer, documents);
                 var documentsStage = AstStage.Documents(serializedDocuments);
                 pipeline = pipeline.AddStage(documentsStage, documentSerializer);
 

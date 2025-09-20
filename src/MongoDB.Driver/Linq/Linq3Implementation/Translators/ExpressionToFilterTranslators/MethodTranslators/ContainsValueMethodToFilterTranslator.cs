@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 {
                     var valueField = AstFilter.Field("v");
                     var value = constantValueExpression.Value;
-                    var serializedValue = SerializationHelper.SerializeValue(valueSerializer, value);
+                    var serializedValue = SerializationHelper.SerializeValue(context.SerializationDomain, valueSerializer, value);
 
                     switch (dictionaryRepresentation)
                     {
