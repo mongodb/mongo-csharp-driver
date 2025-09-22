@@ -2354,6 +2354,11 @@ buildvariants:
   tasks:
     - name: test-netstandard21
     - name: test-net60
+  rules:
+    - if: { version: "*", topology: "*", auth: "*", ssl: "*", os: "macos-14-arm64" }
+      then:
+        remove_tasks:
+          - test-netstandard21
 
 - matrix_name: "secure-tests-linux-1804"
   matrix_spec: { version: ["4.2", "4.4", "5.0", "6.0"], topology: "*", auth: "auth", ssl: "ssl", os: "ubuntu-1804" }
@@ -2389,6 +2394,11 @@ buildvariants:
   tasks:
     - name: test-netstandard21
     - name: test-net60
+  rules:
+    - if: { version: "*", topology: "*", auth: "*", ssl: "*", os: "macos-14-arm64" }
+      then:
+        remove_tasks:
+          - test-netstandard21
 
 - matrix_name: "unsecure-tests-linux-1804"
   matrix_spec: { version: ["4.2", "4.4", "5.0", "6.0"], topology: "*", auth: "noauth", ssl: "nossl", os: "ubuntu-1804" }
@@ -2424,6 +2434,11 @@ buildvariants:
   tasks:
     - name: test-netstandard21
     - name: test-net60
+  rules:
+    - if: { compressor : "*", auth: "*", ssl: "*", version: "*", topology: "*", os: "macos-14-arm64" }
+      then:
+        remove_tasks:
+          - test-netstandard21
 
 - matrix_name: "tests-compression-linux-1804"
   matrix_spec: { compressor: "*", auth: "noauth", ssl: "nossl", version: ["4.2", "4.4", "5.0", "6.0"], topology: "standalone", os: "ubuntu-1804" }
@@ -2641,6 +2656,12 @@ buildvariants:
     - name: test-csfle-with-mocked-kms-tls-net60
     - name: test-csfle-with-mongocryptd-netstandard21
     - name: test-csfle-with-mongocryptd-net60
+  rules:
+    - if: { os: "macos-14-arm64", ssl: "*", version: "*", topology: "*" }
+      then:
+        remove_tasks:
+          - test-csfle-with-mocked-kms-tls-netstandard21
+          - test-csfle-with-mongocryptd-netstandard21
 
 - matrix_name: "csfle-with-azure-kms-tests-linux"
   matrix_spec: { ssl: "nossl", os: "ubuntu-2004" }
