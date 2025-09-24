@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Core.Bindings
         /// <param name="isImplicit">if set to <c>true</c> this session is an implicit session.</param>
         /// <param name="isSnapshot">if set to <c>true</c> this session is a snapshot session.</param>
         /// <param name="defaultTransactionOptions">The default transaction options.</param>
-        /// <param name="snapshotTime">//TODO</param>
+        /// <param name="snapshotTime">The snapshot time. If this is set, isSnapshot must be true.</param>
         public CoreSessionOptions(
             bool isCausallyConsistent = false,
             bool isImplicit = false,
