@@ -48,7 +48,8 @@ namespace MongoDB.Driver
         public bool Snapshot { get; set;}
 
         /// <summary>
-        /// //TODO
+        /// Gets or sets the snapshot time. If set, Snapshot must be true.
+        /// <value> The snapshot time </value>
         /// </summary>
         public BsonTimestamp SnapshotTime { get; set; }
 
