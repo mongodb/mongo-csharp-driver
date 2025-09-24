@@ -748,6 +748,15 @@ functions:
           git clone https://github.com/microsoft/semantic-kernel.git
           ./evergreen/run-sk.sh
 
+  run-csot-pendingresponse-tests:
+    - command: shell.exec
+      type: test
+      params:
+        working_dir: mongo-csharp-driver
+        script: |
+          ${PREPARE_SHELL}
+            evergreen/run-csot-pendingresponse-tests.sh
+
   setup-csfle-secrets:
     - command: ec2.assume_role
       params:
@@ -1823,6 +1832,25 @@ tasks:
           vars:
             FRAMEWORK: net60
 
+    - name: test-csot-pendingresponse
+      commands:
+        - func: bootstrap-mongo-orchestration
+          vars:
+            MONGODB_VERSION: latest
+            TOPOLOGY: standalone
+            AUTH: noauth
+            SSL: nossl
+        - command: subprocess.exec
+          params:
+            working_dir: mongo-csharp-driver
+            binary: bash
+            background: true
+            include_expansions_in_env:
+              - MONGODB_URI
+            args:
+              - ${DRIVERS_TOOLS}/.evergreen/start-mongoproxy.sh
+        - func: install-dotnet
+        - func: run-csot-pendingresponse-tests
 axes:
   - id: version
     display_name: MongoDB Version
@@ -2555,6 +2583,15 @@ buildvariants:
   tasks:
     - name: "test-load-balancer-netstandard21"
     - name: "test-load-balancer-net60"
+
+# CSOT
+- name: csot-pendingresponse-tests
+  display_name: "CSOT Pending Response tests"
+  batchtime: 720 # 12 hours
+  run_on:
+    - ubuntu2204-small
+  tasks:
+    - name: test-csot-pendingresponse
 
 # Performance tests
 - name: driver-performance-tests

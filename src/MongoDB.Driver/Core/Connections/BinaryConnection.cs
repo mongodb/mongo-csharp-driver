@@ -50,6 +50,7 @@ namespace MongoDB.Driver.Core.Connections
         private DateTime _openedAtUtc;
         private readonly object _openLock = new object();
         private Task _openTask;
+        private readonly ResponseHelper _responseHelper;
         private CompressorType? _sendCompressorType;
         private readonly ConnectionSettings _settings;
         private readonly TimeSpan _socketReadTimeout;
@@ -86,6 +87,7 @@ namespace MongoDB.Driver.Core.Connections
             _commandEventHelper = new CommandEventHelper(loggerFactory.CreateEventLogger<LogCategories.Command>(eventSubscriber));
             _socketReadTimeout = socketReadTimeout;
             _socketWriteTimeout = socketWriteTimeout;
+            _responseHelper = new ResponseHelper(this, SystemClock.Instance);
         }
 
         // properties
@@ -191,14 +193,26 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        private void EnsureMessageSizeIsValid(int messageSize)
+        public void EnsureConnectionReady(OperationContext operationContext)
         {
-            var maxMessageSize = _description?.MaxMessageSize ?? 48000000;
-
-            if (messageSize < 0 || messageSize > maxMessageSize)
+            if (!_responseHelper.HasPendingReads)
             {
-                throw new FormatException("The size of the message is invalid.");
+                return;
             }
+
+            ThrowIfCancelledOrDisposed(operationContext);
+            _responseHelper.DiscardPendingReads(operationContext);
+        }
+
+        public Task EnsureConnectionReadyAsync(OperationContext operationContext)
+        {
+            if (!_responseHelper.HasPendingReads)
+            {
+                return Task.CompletedTask;
+            }
+
+            ThrowIfCancelledOrDisposed(operationContext);
+            return _responseHelper.DiscardPendingReadsAsync(operationContext);
         }
 
         public void Open(OperationContext operationContext)
@@ -340,56 +354,6 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        private IByteBuffer ReceiveBuffer(OperationContext operationContext)
-        {
-            try
-            {
-                var messageSizeBytes = new byte[4];
-                _stream.ReadBytes(operationContext, messageSizeBytes, 0, 4, _socketReadTimeout);
-                var messageSize = BinaryPrimitives.ReadInt32LittleEndian(messageSizeBytes);
-                EnsureMessageSizeIsValid(messageSize);
-                var inputBufferChunkSource = new InputBufferChunkSource(BsonChunkPool.Default);
-                var buffer = ByteBufferFactory.Create(inputBufferChunkSource, messageSize);
-                buffer.Length = messageSize;
-                buffer.SetBytes(0, messageSizeBytes, 0, 4);
-                _stream.ReadBytes(operationContext, buffer, 4, messageSize - 4, _socketReadTimeout);
-                _lastUsedAtUtc = DateTime.UtcNow;
-                buffer.MakeReadOnly();
-                return buffer;
-            }
-            catch (Exception ex)
-            {
-                var wrappedException = WrapExceptionIfRequired(operationContext, ex, "receiving a message from the server");
-                ConnectionFailed(wrappedException ?? ex);
-                if (wrappedException == null) { throw; } else { throw wrappedException; }
-            }
-        }
-
-        private async Task<IByteBuffer> ReceiveBufferAsync(OperationContext operationContext)
-        {
-            try
-            {
-                var messageSizeBytes = new byte[4];
-                await _stream.ReadBytesAsync(operationContext, messageSizeBytes, 0, 4, _socketReadTimeout).ConfigureAwait(false);
-                var messageSize = BinaryPrimitives.ReadInt32LittleEndian(messageSizeBytes);
-                EnsureMessageSizeIsValid(messageSize);
-                var inputBufferChunkSource = new InputBufferChunkSource(BsonChunkPool.Default);
-                var buffer = ByteBufferFactory.Create(inputBufferChunkSource, messageSize);
-                buffer.Length = messageSize;
-                buffer.SetBytes(0, messageSizeBytes, 0, 4);
-                await _stream.ReadBytesAsync(operationContext, buffer, 4, messageSize - 4, _socketReadTimeout).ConfigureAwait(false);
-                _lastUsedAtUtc = DateTime.UtcNow;
-                buffer.MakeReadOnly();
-                return buffer;
-            }
-            catch (Exception ex)
-            {
-                var wrappedException = WrapExceptionIfRequired(operationContext, ex, "receiving a message from the server");
-                ConnectionFailed(wrappedException ?? ex);
-                if (wrappedException == null) { throw; } else { throw wrappedException; }
-            }
-        }
-
         public ResponseMessage ReceiveMessage(
             OperationContext operationContext,
             int responseTo,
@@ -405,7 +369,7 @@ namespace MongoDB.Driver.Core.Connections
                 helper.ReceivingMessage();
                 while (true)
                 {
-                    using (var buffer = ReceiveBuffer(operationContext))
+                    using (var buffer = _responseHelper.ReadResponse(operationContext))
                     {
                         if (responseTo != GetResponseTo(buffer))
                         {
@@ -414,14 +378,21 @@ namespace MongoDB.Driver.Core.Connections
 
                         var message = helper.DecodeMessage(operationContext, buffer, encoderSelector);
                         helper.ReceivedMessage(buffer, message);
+                        _lastUsedAtUtc = DateTime.UtcNow;
                         return message;
                     }
                 }
             }
             catch (Exception ex)
             {
+                var wrappedException = WrapExceptionIfRequired(operationContext, ex, "receiving a message from the server");
+                if (ex is not (TimeoutException or OperationCanceledException or TaskCanceledException))
+                {
+                    ConnectionFailed(wrappedException ?? ex);
+                }
+
                 helper.FailedReceivingMessage(ex);
-                throw;
+                if (wrappedException == null) { throw; } else { throw wrappedException; }
             }
         }
 
@@ -440,7 +411,7 @@ namespace MongoDB.Driver.Core.Connections
                 helper.ReceivingMessage();
                 while (true)
                 {
-                    using (var buffer = await ReceiveBufferAsync(operationContext).ConfigureAwait(false))
+                    using (var buffer = await _responseHelper.ReadResponseAsync(operationContext).ConfigureAwait(false))
                     {
                         if (responseTo != GetResponseTo(buffer))
                         {
@@ -449,14 +420,21 @@ namespace MongoDB.Driver.Core.Connections
 
                         var message = helper.DecodeMessage(operationContext, buffer, encoderSelector);
                         helper.ReceivedMessage(buffer, message);
+                        _lastUsedAtUtc = DateTime.UtcNow;
                         return message;
                     }
                 }
             }
             catch (Exception ex)
             {
+                var wrappedException = WrapExceptionIfRequired(operationContext, ex, "receiving a message from the server");
+                if (ex is not (TimeoutException or OperationCanceledException or TaskCanceledException))
+                {
+                    ConnectionFailed(wrappedException ?? ex);
+                }
+
                 helper.FailedReceivingMessage(ex);
-                throw;
+                if (wrappedException == null) { throw; } else { throw wrappedException; }
             }
         }
 
@@ -532,7 +510,8 @@ namespace MongoDB.Driver.Core.Connections
                         SendBuffer(operationContext, uncompressedBuffer);
                         sentLength = uncompressedBuffer.Length;
                     }
-                    helper.SentMessage(sentLength);
+
+                    helper.SentMessage(message, sentLength);
                 }
             }
             catch (Exception ex)
@@ -568,7 +547,8 @@ namespace MongoDB.Driver.Core.Connections
                         await SendBufferAsync(operationContext, uncompressedBuffer).ConfigureAwait(false);
                         sentLength = uncompressedBuffer.Length;
                     }
-                    helper.SentMessage(sentLength);
+
+                    helper.SentMessage(message, sentLength);
                 }
             }
             catch (Exception ex)
@@ -664,11 +644,6 @@ namespace MongoDB.Driver.Core.Connections
 
         private Exception WrapExceptionIfRequired(OperationContext operationContext, Exception ex, string action)
         {
-            if (ex is TimeoutException && operationContext.IsRootContextTimeoutConfigured())
-            {
-                return null;
-            }
-
             if (ex is ThreadAbortException ||
                 ex is StackOverflowException ||
                 ex is MongoAuthenticationException ||
@@ -750,6 +725,376 @@ namespace MongoDB.Driver.Core.Connections
                 _connection._eventLogger.LogAndPublish(new ConnectionOpeningEvent(_connection.ConnectionId, _connection._settings, EventContext.OperationId));
 
                 _stopwatch = Stopwatch.StartNew();
+            }
+        }
+
+#pragma warning disable CA1001
+        private sealed class ResponseHelper
+#pragma warning restore CA1001
+        {
+            private const int MessageSizePrefixLength = 4;
+            private static readonly TimeSpan __pendingReadsWindow = TimeSpan.FromSeconds(3);
+
+            private readonly IClock _clock;
+            private readonly BinaryConnection _connection;
+            private readonly byte[] _responseHeaderBuffer = new byte[MessageSizePrefixLength];
+            private readonly ManualResetEventSlim _manualResetEventSlim = new ManualResetEventSlim();
+            private IByteBuffer _byteBuffer;
+            private int _bytesRead;
+            private Exception _readException;
+            private long _lastReadTimestamp;
+            private long? _pendingRequestId;
+            private Task _pendingReadTask;
+
+            public ResponseHelper(BinaryConnection connection, IClock clock)
+            {
+                _connection = connection;
+                _clock = clock;
+            }
+
+            public bool HasPendingReads => _pendingRequestId.HasValue;
+
+            public void DiscardPendingReads(OperationContext operationContext)
+            {
+                if (!_pendingRequestId.HasValue)
+                {
+                    throw new InvalidOperationException();
+                }
+
+                ReadingRendingResponseStarted();
+                _pendingReadTask ??= ConfigurePendingReadsTask(ContinueReadAsync());
+                using var pendingReadsOperationContext = CreatePendingReadsContext(operationContext);
+
+                try
+                {
+                    pendingReadsOperationContext.WaitTask(_pendingReadTask);
+                    ReadingRendingResponseDone(pendingReadsOperationContext.Elapsed);
+                    ClearPendingReads();
+                }
+                catch (Exception ex)
+                {
+                    ReadingRendingResponseFailed(pendingReadsOperationContext.Elapsed, ex);
+                    HandlePendingReadsException(ex);
+                    throw;
+                }
+            }
+
+            public async Task DiscardPendingReadsAsync(OperationContext operationContext)
+            {
+                if (!_pendingRequestId.HasValue)
+                {
+                    throw new InvalidOperationException();
+                }
+
+                ReadingRendingResponseStarted();
+                _pendingReadTask ??= ConfigurePendingReadsTask(ContinueReadAsync());
+                using var pendingReadsOperationContext = CreatePendingReadsContext(operationContext);
+
+                try
+                {
+                    await pendingReadsOperationContext.WaitTaskAsync(_pendingReadTask).ConfigureAwait(false);
+                    ReadingRendingResponseDone(pendingReadsOperationContext.Elapsed);
+                    ClearPendingReads();
+                }
+                catch (Exception ex)
+                {
+                    ReadingRendingResponseFailed(pendingReadsOperationContext.Elapsed, ex);
+                    HandlePendingReadsException(ex);
+                    throw;
+                }
+            }
+
+            public IByteBuffer ReadResponse(OperationContext operationContext)
+            {
+                // TODO: remove this operationContext fork together with removal of SocketTimeout.
+                using var readOperationContext = operationContext.Timeout != null ? operationContext.Fork() : operationContext.WithTimeout(_connection._socketReadTimeout);
+
+                try
+                {
+                    var messageSize = ReadMessageSize(readOperationContext);
+                    _byteBuffer = PrepareBuffer(_responseHeaderBuffer, messageSize);
+
+                    while (messageSize > _bytesRead)
+                    {
+                        var backingBytes = _byteBuffer.AccessBackingBytes(_bytesRead);
+                        var bytesToRead = Math.Min(messageSize - _bytesRead, backingBytes.Count);
+
+                        ReadBytes(readOperationContext, backingBytes.Array, backingBytes.Offset, bytesToRead);
+                    }
+
+                    _byteBuffer.MakeReadOnly();
+                    var result = _byteBuffer;
+                    ClearPendingReads();
+                    return result;
+                }
+                catch (Exception ex)
+                {
+                    if (ex is not (TimeoutException or OperationCanceledException or TaskCanceledException))
+                    {
+                        // Should not dispose buffer here, as it is passed into ContinueReadAsync
+                        _byteBuffer?.Dispose();
+                    }
+
+                    throw;
+                }
+            }
+
+            public async Task<IByteBuffer> ReadResponseAsync(OperationContext operationContext)
+            {
+                var readTask = ContinueReadAsync();
+
+                // TODO: remove this operationContext fork together with removal of SocketTimeout.
+                using var readOperationContext = operationContext.Timeout != null ? operationContext.Fork() : operationContext.WithTimeout(_connection._socketReadTimeout);
+
+                try
+                {
+                    await readOperationContext.WaitTaskAsync(readTask).ConfigureAwait(false);
+                    var result = await readTask.ConfigureAwait(false);
+                    ClearPendingReads();
+                    return result;
+                }
+                catch (Exception ex) when (ex is TimeoutException or TaskCanceledException or TaskCanceledException)
+                {
+                    _pendingReadTask = ConfigurePendingReadsTask(readTask);
+                    throw;
+                }
+            }
+
+            public void SetPendingReads(long requestId)
+            {
+                if (_pendingRequestId.HasValue)
+                {
+                    throw new InvalidOperationException("There is already pending reads on the connection.");
+                }
+
+                _pendingRequestId = requestId;
+            }
+
+            private OperationContext CreatePendingReadsContext(OperationContext operationContext)
+            {
+                var spend = _clock.TimeSince(_lastReadTimestamp);
+                var pendingReadsRemainingTimeout = __pendingReadsWindow - spend;
+                if (pendingReadsRemainingTimeout < TimeSpan.Zero)
+                {
+                    pendingReadsRemainingTimeout = TimeSpan.Zero;
+                }
+
+                return operationContext.WithTimeout(pendingReadsRemainingTimeout);
+            }
+
+            private void HandlePendingReadsException(Exception ex)
+            {
+                if (ex is TimeoutException && __pendingReadsWindow - _clock.TimeSince(_lastReadTimestamp) > TimeSpan.FromMilliseconds(1))
+                {
+                    // Do nothing here?? accordingly to spec if there were any bytes read - we should return it to the pool
+                    return;
+                }
+
+                _connection.ConnectionFailed(ex);
+            }
+
+            private void ClearPendingReads()
+            {
+                _readException = null;
+                _bytesRead = 0;
+                _byteBuffer = null;
+                _pendingRequestId = null;
+                _pendingReadTask = null;
+                _lastReadTimestamp = 0;
+            }
+
+            private Task ConfigurePendingReadsTask(Task<IByteBuffer> readTask)
+            {
+                _lastReadTimestamp = _clock.GetTimestamp();
+                readTask.ContinueWith(t =>
+                {
+                    // This continuation will release the buffer once response is fully read
+                    // and also inspects Exception property to prevent UnobservedException.
+                    if (t.Exception == null)
+                    {
+                        t.Result.Dispose();
+                    }
+                });
+                return readTask;
+            }
+
+            private async Task<IByteBuffer> ContinueReadAsync(IAsyncResult asyncResult = null)
+            {
+                try
+                {
+                    if (asyncResult != null)
+                    {
+                        var asyncResultTask = Task.Factory.FromAsync(asyncResult, _ => { });
+                        await asyncResultTask.ConfigureAwait(false);
+
+                        if (_readException != null)
+                        {
+                            throw _readException;
+                        }
+                    }
+
+                    var messageSize = await ReadMessageSizeAsync().ConfigureAwait(false);
+
+                    _byteBuffer ??= PrepareBuffer(_responseHeaderBuffer, messageSize);
+
+                    while (messageSize > _bytesRead)
+                    {
+                        var backingBytes = _byteBuffer.AccessBackingBytes(_bytesRead);
+                        var bytesToRead = Math.Min(messageSize - _bytesRead, backingBytes.Count);
+                        await ReadBytesAsync(backingBytes.Array, backingBytes.Offset, bytesToRead).ConfigureAwait(false);
+                    }
+
+                    _byteBuffer.MakeReadOnly();
+                    return _byteBuffer;
+                }
+                catch (Exception)
+                {
+                    _byteBuffer?.Dispose();
+                    throw;
+                }
+            }
+
+            private void EnsureMessageSizeIsValid(int messageSize)
+            {
+                var maxMessageSize = _connection._description?.MaxMessageSize ?? 48000000;
+
+                if (messageSize < 0 || messageSize > maxMessageSize)
+                {
+                    throw new FormatException("The size of the message is invalid.");
+                }
+            }
+
+            private IByteBuffer PrepareBuffer(byte[] messageSizeBytes, int messageSize)
+            {
+                var inputBufferChunkSource = new InputBufferChunkSource(BsonChunkPool.Default);
+                var buffer = ByteBufferFactory.Create(inputBufferChunkSource, messageSize);
+                buffer.Length = messageSize;
+                buffer.SetBytes(0, messageSizeBytes, 0, MessageSizePrefixLength); // Do we really need message size in the result buffer?
+                return buffer;
+            }
+
+            private int ReadMessageSize(OperationContext operationContext)
+            {
+                operationContext.ThrowIfTimedOutOrCanceled();
+
+                ReadBytes(operationContext, _responseHeaderBuffer, 0, MessageSizePrefixLength);
+                var messageSize = BinaryPrimitives.ReadInt32LittleEndian(_responseHeaderBuffer);
+                EnsureMessageSizeIsValid(messageSize);
+
+                return messageSize;
+            }
+
+            private async Task<int> ReadMessageSizeAsync()
+            {
+                if (_bytesRead < MessageSizePrefixLength)
+                {
+                    await ReadBytesAsync(_responseHeaderBuffer, _bytesRead, MessageSizePrefixLength - _bytesRead).ConfigureAwait(false);
+                }
+
+                var messageSize = BinaryPrimitives.ReadInt32LittleEndian(_responseHeaderBuffer);
+                EnsureMessageSizeIsValid(messageSize);
+
+                return messageSize;
+            }
+
+            private void ReadingRendingResponseStarted()
+            {
+                _connection._eventLogger.LogAndPublish(
+                    new ConnectionReadingPendingResponseEvent(_connection._connectionId, _pendingRequestId.Value));
+            }
+
+            private void ReadingRendingResponseFailed(TimeSpan duration, Exception ex)
+            {
+                _connection._eventLogger.LogAndPublish(
+                    new ConnectionReadingPendingResponseFailedEvent(_connection._connectionId, _pendingRequestId.Value, duration, ex));
+            }
+
+            private void ReadingRendingResponseDone(TimeSpan duration)
+            {
+                _connection._eventLogger.LogAndPublish(
+                    new ConnectionReadPendingResponseEvent(_connection._connectionId, _pendingRequestId.Value, duration));
+            }
+
+            private void ReadBytes(OperationContext operationContext, byte[] destination, int offset, int count)
+            {
+                var bytesRead = 0;
+                var initialBytesRead = _bytesRead;
+                while (bytesRead < count)
+                {
+                    _manualResetEventSlim.Reset();
+
+                    var operation = _connection._stream.BeginRead(
+                        destination,
+                        offset + bytesRead,
+                        count - bytesRead,
+                        result =>
+                        {
+                            var responseHelper = (ResponseHelper)result.AsyncState;
+                            int readResult = 0;
+                            try
+                            {
+
+                                readResult = responseHelper._connection._stream.EndRead(result);
+                            }
+                            catch (ObjectDisposedException ex)
+                            {
+                                _readException = new EndOfStreamException(ex.Message, ex);
+                            }
+                            catch (Exception ex)
+                            {
+                                // Async handler should not throw any errors, we mark the current read as failed so appropriate exception could be thrown later.
+                                _readException = ex;
+                            }
+
+                            if (readResult == 0)
+                            {
+                                _readException ??= new EndOfStreamException();
+                            }
+
+                            responseHelper._bytesRead += readResult;
+                            responseHelper._lastReadTimestamp = responseHelper._clock.GetTimestamp();
+                            responseHelper._manualResetEventSlim.Set();
+                        },
+                        this);
+
+                    if (!_manualResetEventSlim.Wait(operationContext.RemainingTimeout, operationContext.CancellationToken))
+                    {
+                        _pendingReadTask = ConfigurePendingReadsTask(ContinueReadAsync(operation));
+                        operationContext.CancellationToken.ThrowIfCancellationRequested();
+                        throw new TimeoutException();
+                    }
+
+                    if (_readException != null)
+                    {
+                        throw _readException;
+                    }
+
+                    bytesRead = _bytesRead - initialBytesRead;
+                }
+            }
+
+            private async Task ReadBytesAsync(byte[] destination, int offset, int count)
+            {
+                try
+                {
+                    var bytesRead = 0;
+                    while (bytesRead < count)
+                    {
+                        var readResult = await _connection._stream.ReadAsync(destination, offset + bytesRead, count - bytesRead).ConfigureAwait(false);
+                        if (readResult == 0)
+                        {
+                            throw new EndOfStreamException();
+                        }
+
+                        bytesRead += readResult;
+                        _bytesRead += readResult;
+                        _lastReadTimestamp = _clock.GetTimestamp();
+                    }
+                }
+                catch (ObjectDisposedException ex)
+                {
+                    throw new EndOfStreamException(ex.Message, ex);
+                }
             }
         }
 
@@ -914,10 +1259,15 @@ namespace MongoDB.Driver.Core.Connections
                 _networkStopwatch = Stopwatch.StartNew();
             }
 
-            public void SentMessage(int bufferLength)
+            public void SentMessage(RequestMessage message, int bufferLength)
             {
                 _networkStopwatch.Stop();
                 var networkDuration = _networkStopwatch.Elapsed;
+
+                if (message.ResponseExpected)
+                {
+                    _connection._responseHelper.SetPendingReads(message.RequestId);
+                }
 
                 if (_connection._commandEventHelper.ShouldCallAfterSending)
                 {

@@ -1,0 +1,578 @@
+{
+  "description": "connection-logging",
+  "schemaVersion": "1.24",
+  "runOnRequirements": [
+    {
+      "topologies": [
+        "single"
+      ]
+    }
+  ],
+  "createEntities": [
+    {
+      "client": {
+        "id": "failPointClient"
+      }
+    }
+  ],
+  "tests": [
+    {
+      "description": "force a pending response read, fail first try, succeed second try",
+      "operations": [
+        {
+          "name": "createEntities",
+          "object": "testRunner",
+          "arguments": {
+            "entities": [
+              {
+                "client": {
+                  "id": "client",
+                  "uriOptions": {
+                    "retryReads": false,
+                    "appname": "clientAppName",
+                    "maxPoolSize": 1,
+                    "heartbeatFrequencyMS": 10000
+                  },
+                  "observeLogMessages": {
+                    "connection": "debug"
+                  }
+                }
+              },
+              {
+                "database": {
+                  "id": "test",
+                  "client": "client",
+                  "databaseName": "test"
+                }
+              },
+              {
+                "collection": {
+                  "id": "coll",
+                  "database": "test",
+                  "collectionName": "coll"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "runCommand",
+          "object": "test",
+          "arguments": {
+            "command": {
+              "ping": 1
+            },
+            "commandName": "ping"
+          }
+        },
+        {
+          "name": "failPoint",
+          "object": "testRunner",
+          "arguments": {
+            "client": "failPointClient",
+            "failPoint": {
+              "configureFailPoint": "failCommand",
+              "mode": {
+                "times": 1
+              },
+              "data": {
+                "failCommands": [
+                  "insert"
+                ],
+                "blockConnection": true,
+                "blockTimeMS": 300
+              }
+            }
+          }
+        },
+        {
+          "name": "insertOne",
+          "object": "coll",
+          "arguments": {
+            "timeoutMS": 50,
+            "document": {
+              "_id": 3,
+              "x": 1
+            }
+          },
+          "expectError": {
+            "isTimeoutError": true
+          }
+        },
+        {
+          "name": "find",
+          "object": "coll",
+          "arguments": {
+            "filter": {
+              "_id": 1
+            },
+            "timeoutMS": 75
+          },
+          "expectError": {
+            "isTimeoutError": true
+          }
+        },
+        {
+          "name": "wait",
+          "object": "testRunner",
+          "arguments": {
+            "ms": 200
+          }
+        },
+        {
+          "name": "find",
+          "object": "coll",
+          "arguments": {
+            "filter": {
+              "_id": 1
+            }
+          }
+        }
+      ],
+      "expectLogMessages": [
+        {
+          "client": "client",
+          "ignoreExtraMessages": true,
+          "messages": [
+            {
+              "level": "debug",
+              "component": "connection",
+              "data": {
+                "message": "Connection pool created",
+                "serverHost": {
+                  "$$type": "string"
+                },
+                "serverPort": {
+                  "$$type": [
+                    "int",
+                    "long"
+                  ]
+                }
+              }
+            },
+            {
+              "level": "debug",
+              "component": "connection",
+              "data": {
+                "message": "Connection pool ready",
+                "serverHost": {
+                  "$$type": "string"
+                },
+                "serverPort": {
+                  "$$type": [
+                    "int",
+                    "long"
+                  ]
+                }
+              }
+            },
+            {
+              "level": "debug",
+              "component": "connection",
+              "data": {
+                "message": "Connection checkout started",
+                "serverHost": {
+                  "$$type": "string"
+                },
+                "serverPort": {
+                  "$$type": [
+                    "int",
+                    "long"
+                  ]
+                }
+              }
+            },
+            {
+              "level": "debug",
+              "component": "connection",
+              "data": {
+                "message": "Connection created",
+                "driverConnectionId": {
+                  "$$type": [
+                    "int",
+                    "long"
+                  ]
+                },
+                "serverHost": {
+                  "$$type": "string"
+                },
+                "serverPort": {
+                  "$$type": [
+                    "int",
+                    "long"
+                  ]
+                }
+              }
+            },
+            {
+              "level": "debug",
+              "component": "connection",
+              "data": {
+                "message": "Connection ready",
+                "driverConnectionId": {
+                  "$$type": [
+                    "int",
+                    "long"
+                  ]
+                },
+                "serverHost": {
+                  "$$type": "string"
+                },
+                "serverPort": {
+                  "$$type": [
+                    "int",
+                    "long"
+                  ]
+                },
+                "durationMS": {
+                  "$$type": [
+                    "double",
+                    "int",
+                    "long"
+                  ]
+                }
+              }
+            },
+            {
+              "level": "debug",
+              "component": "connection",
+              "data": {
+                "message": "Connection checked out",
+                "driverConnectionId": {
+                  "$$type": [
+                    "int",
+                    "long"
+                  ]
+                },
+                "serverHost": {
+                  "$$type": "string"
+                },
+                "serverPort": {
+                  "$$type": [
+                    "int",
+                    "long"
+                  ]
+                },
+                "durationMS": {
+                  "$$type": [
+                    "double",
+                    "int",
+                    "long"
+                  ]
+                }
+              }
+            },
+            {
+              "level": "debug",
+              "component": "connection",
+              "data": {
+                "message": "Connection checked in",
+                "driverConnectionId": {
+                  "$$type": [
+                    "int",
+                    "long"
+                  ]
+                },
+                "serverHost": {
+                  "$$type": "string"
+                },
+                "serverPort": {
+                  "$$type": [
+                    "int",
+                    "long"
+                  ]
+                }
+              }
+            },
+            {
+              "level": "debug",
+              "component": "connection",
+              "data": {
+                "message": "Connection checkout started",
+                "serverHost": {
+                  "$$type": "string"
+                },
+                "serverPort": {
+                  "$$type": [
+                    "int",
+                    "long"
+                  ]
+                }
+              }
+            },
+            {
+              "level": "debug",
+              "component": "connection",
+              "data": {
+                "message": "Connection checked out",
+                "driverConnectionId": {
+                  "$$type": [
+                    "int",
+                    "long"
+                  ]
+                },
+                "serverHost": {
+                  "$$type": "string"
+                },
+                "serverPort": {
+                  "$$type": [
+                    "int",
+                    "long"
+                  ]
+                },
+                "durationMS": {
+                  "$$type": [
+                    "double",
+                    "int",
+                    "long"
+                  ]
+                }
+              }
+            },
+            {
+              "level": "debug",
+              "component": "connection",
+              "data": {
+                "message": "Connection checked in",
+                "driverConnectionId": {
+                  "$$type": [
+                    "int",
+                    "long"
+                  ]
+                },
+                "serverHost": {
+                  "$$type": "string"
+                },
+                "serverPort": {
+                  "$$type": [
+                    "int",
+                    "long"
+                  ]
+                }
+              }
+            },
+            {
+              "level": "debug",
+              "component": "connection",
+              "data": {
+                "message": "Connection checkout started",
+                "serverHost": {
+                  "$$type": "string"
+                },
+                "serverPort": {
+                  "$$type": [
+                    "int",
+                    "long"
+                  ]
+                }
+              }
+            },
+            {
+              "level": "debug",
+              "component": "connection",
+              "data": {
+                "message": "Pending response started",
+                "serverHost": {
+                  "$$type": "string"
+                },
+                "serverPort": {
+                  "$$type": [
+                    "int",
+                    "long"
+                  ]
+                },
+                "driverConnectionId": {
+                  "$$type": [
+                    "int",
+                    "long"
+                  ]
+                },
+                "requestId": {
+                  "$$type": [
+                    "int",
+                    "long"
+                  ]
+                }
+              }
+            },
+            {
+              "level": "debug",
+              "component": "connection",
+              "data": {
+                "message": "Pending response failed",
+                "serverHost": {
+                  "$$type": "string"
+                },
+                "serverPort": {
+                  "$$type": [
+                    "int",
+                    "long"
+                  ]
+                },
+                "driverConnectionId": {
+                  "$$type": [
+                    "int",
+                    "long"
+                  ]
+                },
+                "requestId": {
+                  "$$type": [
+                    "int",
+                    "long"
+                  ]
+                },
+                "reason": "timeout"
+              }
+            },
+            {
+              "level": "debug",
+              "component": "connection",
+              "data": {
+                "message": "Connection checkout failed",
+                "serverHost": {
+                  "$$type": "string"
+                },
+                "serverPort": {
+                  "$$type": [
+                    "int",
+                    "long"
+                  ]
+                }
+              }
+            },
+            {
+              "level": "debug",
+              "component": "connection",
+              "data": {
+                "message": "Connection checkout started",
+                "serverHost": {
+                  "$$type": "string"
+                },
+                "serverPort": {
+                  "$$type": [
+                    "int",
+                    "long"
+                  ]
+                }
+              }
+            },
+            {
+              "level": "debug",
+              "component": "connection",
+              "data": {
+                "message": "Pending response started",
+                "serverHost": {
+                  "$$type": "string"
+                },
+                "serverPort": {
+                  "$$type": [
+                    "int",
+                    "long"
+                  ]
+                },
+                "driverConnectionId": {
+                  "$$type": [
+                    "int",
+                    "long"
+                  ]
+                },
+                "requestId": {
+                  "$$type": [
+                    "int",
+                    "long"
+                  ]
+                }
+              }
+            },
+            {
+              "level": "debug",
+              "component": "connection",
+              "data": {
+                "message": "Pending response succeeded",
+                "serverHost": {
+                  "$$type": "string"
+                },
+                "serverPort": {
+                  "$$type": [
+                    "int",
+                    "long"
+                  ]
+                },
+                "driverConnectionId": {
+                  "$$type": [
+                    "int",
+                    "long"
+                  ]
+                },
+                "requestId": {
+                  "$$type": [
+                    "int",
+                    "long"
+                  ]
+                },
+                "durationMS": {
+                  "$$type": [
+                    "double",
+                    "int",
+                    "long"
+                  ]
+                }
+              }
+            },
+            {
+              "level": "debug",
+              "component": "connection",
+              "data": {
+                "message": "Connection checked out",
+                "driverConnectionId": {
+                  "$$type": [
+                    "int",
+                    "long"
+                  ]
+                },
+                "serverHost": {
+                  "$$type": "string"
+                },
+                "serverPort": {
+                  "$$type": [
+                    "int",
+                    "long"
+                  ]
+                },
+                "durationMS": {
+                  "$$type": [
+                    "double",
+                    "int",
+                    "long"
+                  ]
+                }
+              }
+            },
+            {
+              "level": "debug",
+              "component": "connection",
+              "data": {
+                "message": "Connection checked in",
+                "driverConnectionId": {
+                  "$$type": [
+                    "int",
+                    "long"
+                  ]
+                },
+                "serverHost": {
+                  "$$type": "string"
+                },
+                "serverPort": {
+                  "$$type": [
+                    "int",
+                    "long"
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

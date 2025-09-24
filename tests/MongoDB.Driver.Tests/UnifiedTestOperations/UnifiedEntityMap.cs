@@ -1026,6 +1026,15 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     case "connectioncheckedinevent":
                         eventCapturer = eventCapturer.Capture<ConnectionPoolCheckedInConnectionEvent>();
                         break;
+                    case "connectionpendingresponsestartedevent":
+                        eventCapturer = eventCapturer.Capture<ConnectionReadingPendingResponseEvent>();
+                        break;
+                    case "connectionpendingresponsesucceededevent":
+                        eventCapturer = eventCapturer.Capture<ConnectionReadPendingResponseEvent>();
+                        break;
+                    case "connectionpendingresponsefailedevent":
+                        eventCapturer = eventCapturer.Capture<ConnectionReadingPendingResponseFailedEvent>();
+                        break;
                     case "serverdescriptionchangedevent":
                         eventCapturer = eventCapturer.Capture<ServerDescriptionChangedEvent>();
                         break;

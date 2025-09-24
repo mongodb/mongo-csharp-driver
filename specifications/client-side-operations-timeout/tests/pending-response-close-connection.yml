@@ -1,0 +1,98 @@
+description: "Connection churn is prevented by reading pending responses during connection checkout"
+schemaVersion: "1.28"
+runOnRequirements:
+  - minServerVersion: "5.0"
+    # FailPoint on Server before 5.0 do not wait for blockTimeMS before closing the connection
+    topologies: ["single", "replicaset"]
+createEntities:
+  - client:
+      id: &failPointClient failPointClient
+      useMultipleMongoses: false
+  - client:
+      id: &client client
+      uriOptions:
+        maxPoolSize: 1
+        minPoolSize: 1
+      awaitMinPoolSizeMS: 10000
+      useMultipleMongoses: false
+      observeEvents:
+        - commandFailedEvent
+        - commandSucceededEvent
+        - connectionCheckOutStartedEvent
+        - connectionCheckedOutEvent
+        - connectionCheckOutFailedEvent
+        - connectionCheckedInEvent
+        - connectionCreatedEvent
+        - connectionReadyEvent
+        - connectionClosedEvent
+        - connectionPendingResponseSucceededEvent
+        - connectionPendingResponseStartedEvent
+        - connectionPendingResponseFailedEvent
+  - database:
+      id: &database test
+      client: *client
+      databaseName: *database
+  - collection:
+      id: &collection coll
+      database: *database
+      collectionName: *collection
+initialData:
+  - collectionName: *collection
+    databaseName: *database
+    documents: []
+tests:
+    # If the connection is closed server-side while draining the response, the
+    # driver must retry with a different connection.
+  - description: "write op retries when connection closes server-side while draining response"
+    operations:
+      # Create a failpoint to block the first and second operation.
+      - name: failPoint
+        object: testRunner
+        arguments:
+          client: *failPointClient
+          failPoint:
+            configureFailPoint: failCommand
+            mode: {times: 1}
+            data:
+              failCommands: ["insert"]
+              blockConnection: true
+              blockTimeMS: 200
+              closeConnection: true
+      # Execute operation with timeout less than block time.
+      - name: insertOne
+        object: *collection
+        arguments:
+          timeoutMS: 50
+          document: {_id: 3, x: 1}
+        expectError:
+          isTimeoutError: true
+      # Draining pending response should failure because of closed connection,
+      # but another connection should be established within the checkout and operation should succeed.
+      - name: insertOne
+        object: *collection
+        arguments:
+          timeoutMS: 1000
+          document: {_id: 3, x: 1}
+    expectEvents:
+      - client: *client
+        events:
+          - commandFailedEvent:
+              commandName: insert
+          - commandSucceededEvent:
+              commandName: insert
+      - client: *client
+        eventType: cmap
+        events:
+          - connectionCheckOutStartedEvent: { }
+          - connectionCheckedOutEvent: { }
+          - connectionCheckedInEvent: { } # Insert fails.
+          - connectionCheckOutStartedEvent: { }
+          - connectionPendingResponseStartedEvent: { }
+          - connectionPendingResponseFailedEvent: # Pending response failed.
+              reason: error
+          - connectionClosedEvent:
+              reason: error
+          - connectionCreatedEvent: { } # New connection should be created and checked out.
+          - connectionReadyEvent: { }
+          - connectionCheckedOutEvent: { }
+          - connectionCheckedInEvent: { } # Find finishes.

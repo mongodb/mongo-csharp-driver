@@ -31,6 +31,8 @@ namespace MongoDB.Driver.Core.Connections
         bool IsExpired { get; }
         ConnectionSettings Settings { get; }
 
+        void EnsureConnectionReady(OperationContext operationContext);
+        Task EnsureConnectionReadyAsync(OperationContext operationContext);
         void Open(OperationContext operationContext);
         Task OpenAsync(OperationContext operationContext);
         void Reauthenticate(OperationContext operationContext);

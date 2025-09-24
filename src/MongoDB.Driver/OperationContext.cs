@@ -63,9 +63,10 @@ namespace MongoDB.Driver
                 var result = Timeout.Value - Elapsed;
                 if (result < TimeSpan.Zero)
                 {
-                    result = TimeSpan.Zero;
+                    return TimeSpan.Zero;
                 }
 
+                result = TimeSpan.FromMilliseconds(Math.Ceiling(result.TotalMilliseconds));
                 return result;
             }
         }
@@ -94,14 +95,7 @@ namespace MongoDB.Driver
 
         private IClock Clock { get; }
 
-        public TimeSpan Elapsed
-        {
-            get
-            {
-                var totalSeconds = (Clock.GetTimestamp() - InitialTimestamp) / (double)Clock.Frequency;
-                return TimeSpan.FromSeconds(totalSeconds);
-            }
-        }
+        public TimeSpan Elapsed => Clock.TimeSince(InitialTimestamp);
 
         public TimeSpan? Timeout { get; }
 
@@ -122,7 +116,12 @@ namespace MongoDB.Driver
             // Dotnet APIs like task.WaitAsync truncating the timeout to milliseconds.
             // We should truncate the remaining timeout to the milliseconds, in order to maintain the consistent state:
             // if operationContext.WaitTaskAsync() failed with TimeoutException, we want IsTimedOut() returns true.
-            return (int)RemainingTimeout.TotalMilliseconds == 0;
+            if (RemainingTimeout == System.Threading.Timeout.InfiniteTimeSpan)
+            {
+                return false;
+            }
+
+            return RemainingTimeout.TotalMilliseconds < 5;
         }
 
         public bool IsCancelledOrTimedOut() => IsTimedOut() || CancellationToken.IsCancellationRequested;
@@ -177,7 +176,7 @@ namespace MongoDB.Driver
                 return;
             }
 
-            var timeout = RemainingTimeout;
+            var timeout = TimeSpan.FromMilliseconds(Math.Ceiling(RemainingTimeout.TotalMilliseconds));
             if (timeout == TimeSpan.Zero)
             {
                 throw new TimeoutException();
