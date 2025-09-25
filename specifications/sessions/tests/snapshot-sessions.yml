@@ -851,7 +851,7 @@ tests:
       pipeline:
       - "$match":
           _id: 1
-      session: session0
+      session: session2
     expectResult:
     - { _id: 1, x: 11 }
   - name: distinct
@@ -859,7 +859,7 @@ tests:
     arguments:
       fieldName: x
       filter: {}
-      session: session0
+      session: session2
     expectResult: [ 11 ]
   expectEvents:
   - client: client0
@@ -881,12 +881,10 @@ tests:
           aggregate: collection0
           readConcern:
             level: snapshot
-            atClusterTime:
-              "$$exists": true
+            atClusterTime: { $$matchesEntity: *savedSnapshotTime }
     - commandStartedEvent:
         command:
           distinct: collection0
           readConcern:
             level: snapshot
-            atClusterTime:
-              "$$exists": true
+            atClusterTime: { $$matchesEntity: *savedSnapshotTime }
