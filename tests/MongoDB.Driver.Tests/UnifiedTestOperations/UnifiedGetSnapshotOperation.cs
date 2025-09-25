@@ -13,9 +13,57 @@
  * limitations under the License.
  */
 
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using MongoDB.Bson;
+
 namespace MongoDB.Driver.Tests.UnifiedTestOperations;
 
-public class UnifiedGetSnapshotOperation
+public class UnifiedGetSnapshotOperation : IUnifiedEntityTestOperation
 {
-    
+    private readonly IClientSessionHandle _session;
+
+    public UnifiedGetSnapshotOperation(IClientSessionHandle session)
+    {
+        _session = session;
+    }
+
+    public OperationResult Execute(CancellationToken cancellationToken) => GetSnapshotTime();
+
+    //TODO Do we necessarily need an async version of this...?
+    public Task<OperationResult> ExecuteAsync(CancellationToken cancellationToken) => Task.FromResult(GetSnapshotTime());
+
+    private OperationResult GetSnapshotTime()
+    {
+        try
+        {
+            return OperationResult.FromResult(_session.GetSnapshotTime());
+        }
+        catch (Exception exception)
+        {
+            return OperationResult.FromException(exception);
+        }
+    }
+}
+
+public class UnifiedGetSnapshotOperationBuilder
+{
+    private readonly UnifiedEntityMap _entityMap;
+
+    public UnifiedGetSnapshotOperationBuilder(UnifiedEntityMap entityMap)
+    {
+        _entityMap = entityMap;
+    }
+
+    public UnifiedGetSnapshotOperation Build(string targetSessionId, BsonDocument arguments)
+    {
+        if (arguments != null)
+        {
+            throw new FormatException("GetSnapshotTime is not expected to contain arguments.");
+        }
+
+        var session = _entityMap.Sessions[targetSessionId];
+        return new UnifiedGetSnapshotOperation(session);
+    }
 }

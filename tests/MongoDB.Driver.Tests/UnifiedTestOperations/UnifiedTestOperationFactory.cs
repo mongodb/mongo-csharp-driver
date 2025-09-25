@@ -133,6 +133,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     "abortTransaction" => new UnifiedAbortTransactionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "commitTransaction" => new UnifiedCommitTransactionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "endSession" => new UnifiedEndSessionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "getSnapshotTime" => new UnifiedGetSnapshotOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "startTransaction" => new UnifiedStartTransactionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "withTransaction" => new UnifiedWithTransactionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     _ => throw new FormatException($"Invalid method name: '{operationName}'."),
