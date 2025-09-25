@@ -1714,7 +1714,7 @@
                 }
               }
             ],
-            "session": "session0"
+            "session": "session2"
           },
           "expectResult": [
             {
@@ -1729,7 +1729,7 @@
           "arguments": {
             "fieldName": "x",
             "filter": {},
-            "session": "session0"
+            "session": "session2"
           },
           "expectResult": [
             11
@@ -1770,7 +1770,7 @@
                   "readConcern": {
                     "level": "snapshot",
                     "atClusterTime": {
-                      "$$exists": true
+                      "$$matchesEntity": "savedSnapshotTime"
                     }
                   }
                 }
@@ -1783,7 +1783,7 @@
                   "readConcern": {
                     "level": "snapshot",
                     "atClusterTime": {
-                      "$$exists": true
+                      "$$matchesEntity": "savedSnapshotTime"
                     }
                   }
                 }
