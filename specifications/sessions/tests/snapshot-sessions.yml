@@ -565,3 +565,83 @@ tests:
               readConcern:
                 "$$exists": false
             databaseName: database0
+
+- description: Distinct operation with snapshot and snapshot time
+  operations:
+    - name: distinct
+      object: collection0
+      arguments:
+        session: session0
+        filter: {}
+        fieldName: x
+      expectResult: [11]
+    - name: getSnapshotTime
+      object: session0
+      saveResultAsEntity: &savedSnapshotTime savedSnapshotTime
+    - name: insertOne
+      object: collection0
+      arguments:
+        document: { _id: 3, x: 33 }
+    - name: createEntities
+      object: testRunner
+      arguments:
+        entities:
+          - session:
+              id: session2
+              client: client0
+              sessionOptions:
+                snapshot: true
+                snapshotTime: *savedSnapshotTime
+    - name: distinct
+      object: collection0
+      arguments:
+        session: session2
+        filter: {}
+        fieldName: x
+      expectResult: [11]
+    ## Calling find again to verify that atClusterTime/snapshotTime has not been modified after the first query
+    ## as it would happen if snapshotTime had not been specified
+    - name: distinct
+      object: collection0
+      arguments:
+        session: session2
+        filter: {}
+        fieldName: x
+      expectResult: [11]
+    - name: distinct
+      object: collection0
+      arguments:
+        filter: {}
+        fieldName: x
+      expectResult: [11, 33]
+  expectEvents:
+    - client: client0
+      events:
+        - commandStartedEvent:
+            command:
+              distinct: collection0
+              readConcern:
+                level: snapshot
+                atClusterTime:
+                  "$$exists": false
+            databaseName: database0
+        - commandStartedEvent:
+            command:
+              distinct: collection0
+              readConcern:
+                level: snapshot
+                atClusterTime: { $$matchesEntity: *savedSnapshotTime }
+            databaseName: database0
+        - commandStartedEvent:
+            command:
+              distinct: collection0
+              readConcern:
+                level: snapshot
+                atClusterTime: { $$matchesEntity: *savedSnapshotTime }
+            databaseName: database0
+        - commandStartedEvent:
+            command:
+              distinct: collection0
+              readConcern:
+                "$$exists": false
+            databaseName: database0
