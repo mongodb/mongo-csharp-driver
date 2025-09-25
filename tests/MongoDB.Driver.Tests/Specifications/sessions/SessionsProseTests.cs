@@ -357,6 +357,24 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
             commandStartedEvents[0].Command["$clusterTime"].Should().Be(clusterTime);
         }
 
+        [Fact]
+        public void If_SnapshotTime_is_set_Snapshot_must_be_true()
+        {
+            RequireServer.Check();
+
+            var sessionOptions = new ClientSessionOptions
+            {
+                Snapshot = false,
+                SnapshotTime = new BsonTimestamp(1, 1)
+            };
+
+            var mongoClient = DriverTestConfiguration.Client;
+
+            var exception = Record.Exception(() => mongoClient.StartSession(sessionOptions));
+            exception.Should().BeOfType<NotSupportedException>();
+        }
+
+
         private sealed class MongocryptdContext : IDisposable
         {
             public IMongoClient MongoClient { get; }

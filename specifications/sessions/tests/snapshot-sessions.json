@@ -1065,6 +1065,24 @@
           "name": "find",
           "object": "collection0",
           "arguments": {
+            "session": "session2",
+            "filter": {}
+          },
+          "expectResult": [
+            {
+              "_id": 1,
+              "x": 11
+            },
+            {
+              "_id": 2,
+              "x": 11
+            }
+          ]
+        },
+        {
+          "name": "find",
+          "object": "collection0",
+          "arguments": {
             "filter": {}
           },
           "expectResult": [
@@ -1095,6 +1113,20 @@
                     "level": "snapshot",
                     "atClusterTime": {
                       "$$exists": false
+                    }
+                  }
+                },
+                "databaseName": "database0"
+              }
+            },
+            {
+              "commandStartedEvent": {
+                "command": {
+                  "find": "collection0",
+                  "readConcern": {
+                    "level": "snapshot",
+                    "atClusterTime": {
+                      "$$matchesEntity": "savedSnapshotTime"
                     }
                   }
                 },

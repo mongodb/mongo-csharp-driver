@@ -378,7 +378,7 @@ tests:
       fieldName: x
       filter: {}
       session: session0
-    expectResult: [ 11 ] 
+    expectResult: [ 11 ]
   expectEvents:
   - client: client0
     events:
@@ -516,6 +516,16 @@ tests:
       expectResult:
         - { _id: 1, x: 11 }
         - { _id: 2, x: 11 }
+    ## Calling find again to verify that atClusterTime/snapshotTime has not been modified after the first query
+    ## as it would happen if snapshotTime had not been specified
+    - name: find
+      object: collection0
+      arguments:
+        session: session2
+        filter: {}
+      expectResult:
+        - { _id: 1, x: 11 }
+        - { _id: 2, x: 11 }
     - name: find
       object: collection0
       arguments:
@@ -540,7 +550,14 @@ tests:
               find: collection0
               readConcern:
                 level: snapshot
-                atClusterTime: { $$matchesEntity: savedSnapshotTime }
+                atClusterTime: { $$matchesEntity: *savedSnapshotTime }
+            databaseName: database0
+        - commandStartedEvent:
+            command:
+              find: collection0
+              readConcern:
+                level: snapshot
+                atClusterTime: { $$matchesEntity: *savedSnapshotTime }
             databaseName: database0
         - commandStartedEvent:
             command:
