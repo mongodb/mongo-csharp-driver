@@ -393,10 +393,7 @@ Setup<BuildConfig>(
         };
 
         var lowerTarget = target.ToLowerInvariant();
-        // Apple M1 (arm64) must run on .NET 6 as the hosting process is arm64 and cannot load the previous netcoreapp2.1/3.1 runtimes.
-        // While Rosetta 2 can cross-compile x64->arm64 to run x64 code, it requires a completely separate install of the .NET runtimes
-        // in a different directory with a x64 dotnet host process. This would further complicate our testing for little additional gain.
-        var framework = targetPlatform == "arm64" ? "net6.0" : lowerTarget switch
+        var framework = lowerTarget switch
         {
             string s when s.EndsWith("netstandard21") || s.EndsWith("netcoreapp31") => "netcoreapp3.1",
             string s when s.EndsWith("net472") => "net472",
