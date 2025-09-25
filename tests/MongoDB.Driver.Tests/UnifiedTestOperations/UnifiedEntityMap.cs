@@ -1056,6 +1056,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                                 case "snapshot":
                                     options.Snapshot = option.Value.ToBoolean();
                                     break;
+                                case "snapshotTime":
+                                    options.SnapshotTime = _results[option.Value.AsString].AsBsonTimestamp;
+                                    break;
                                 case "causalConsistency":
                                     options.CausalConsistency = option.Value.ToBoolean();
                                     break;
