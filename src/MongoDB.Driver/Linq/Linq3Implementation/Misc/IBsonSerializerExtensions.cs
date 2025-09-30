@@ -13,9 +13,11 @@
  * limitations under the License.
  */
 
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
 using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
@@ -79,5 +81,43 @@ internal static class IBsonSerializerExtensions
         return
             serializer is IHasRepresentationSerializer hasRepresentationSerializer &&
             hasRepresentationSerializer.Representation.IsNumeric();
+    }
+
+    public static bool IsKeyValuePairSerializer(
+        this IBsonSerializer serializer,
+        out string keyElementName,
+        out string valueElementName,
+        out IBsonSerializer keySerializer,
+        out IBsonSerializer valueSerializer)
+    {
+        if (serializer is IKeyValuePairSerializer keyValuePairSerializer)
+        {
+            keyElementName = "k";
+            valueElementName = "v";
+            keySerializer = keyValuePairSerializer.KeySerializer;
+            valueSerializer = keyValuePairSerializer.ValueSerializer;
+            return true;
+        }
+
+        // for backward compatibility not all KeyValuePair serializers implement IKeyValuePairSerializer
+        if (serializer.ValueType is var valueType &&
+            valueType.IsConstructedGenericType &&
+            valueType.GetGenericTypeDefinition() == typeof(KeyValuePair<,>) &&
+            serializer is IBsonDocumentSerializer documentSerializer &&
+            documentSerializer.TryGetMemberSerializationInfo("Key", out var keySerializationInfo) &&
+            documentSerializer.TryGetMemberSerializationInfo("Value", out var valueSerializationInfo))
+        {
+            keyElementName = keySerializationInfo.ElementName;
+            valueElementName = valueSerializationInfo.ElementName;
+            keySerializer = keySerializationInfo.Serializer;
+            valueSerializer = valueSerializationInfo.Serializer;
+            return true;
+        }
+
+        keyElementName = null;
+        valueElementName = null;
+        keySerializer = null;
+        valueSerializer = null;
+        return false;
     }
 }
