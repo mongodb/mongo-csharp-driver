@@ -28,6 +28,7 @@ using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
 using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
+using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.KnownSerializerFinders;
 
@@ -1625,10 +1626,8 @@ internal partial class KnownSerializerFinderVisitor
                     var keyExpression = arguments[0];
                     var valueExpression = arguments[1];
 
-                    if (nodeSerializer is IKeyValuePairSerializer keyValuePairSerializer)
+                    if (nodeSerializer.IsKeyValuePairSerializer(out _, out _, out var keySerializer, out var valueSerializer))
                     {
-                        var keySerializer = keyValuePairSerializer.KeySerializer;
-                        var valueSerializer =  keyValuePairSerializer.ValueSerializer;
                         DeduceSerializer(keyExpression, keySerializer);
                         DeduceSerializer(valueExpression, valueSerializer);
                     }
@@ -1638,7 +1637,12 @@ internal partial class KnownSerializerFinderVisitor
                 {
                     var keySerializer = argumentSerializers[0];
                     var valueSerializer = argumentSerializers[1];
-                    var keyValuePairSerializer = KeyValuePairSerializer.Create(BsonType.Document, keySerializer, valueSerializer);
+                    var keyValuePairSerializer = NewKeyValuePairExpressionToAggregationExpressionTranslator.CreateResultSerializer(
+                        resultType: method.ReturnType,
+                        keySerializer,
+                        valueSerializer,
+                        out _,
+                        out _);
                     AddKnownSerializer(node, keyValuePairSerializer);
                 }
             }
