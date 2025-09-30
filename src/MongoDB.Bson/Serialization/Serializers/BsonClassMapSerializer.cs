@@ -14,9 +14,11 @@
 */
 
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.Serializers;
@@ -82,7 +84,7 @@ namespace MongoDB.Bson.Serialization
         {
             var bsonReader = context.Reader;
 
-            if (bsonReader.GetCurrentBsonType() == Bson.BsonType.Null)
+            if (bsonReader.GetCurrentBsonType() == BsonType.Null)
             {
                 bsonReader.ReadNull();
                 return default(TClass);
@@ -149,7 +151,9 @@ namespace MongoDB.Bson.Serialization
             var discriminatorConvention = _classMap.GetDiscriminatorConvention();
             var allMemberMaps = _classMap.AllMemberMaps;
             var extraElementsMemberMapIndex = _classMap.ExtraElementsMemberMapIndex;
-            var memberMapBitArray = FastMemberMapHelper.GetBitArray(allMemberMaps.Count);
+
+            var (lengthInUInts, useStackAlloc) = FastMemberMapHelper.GetLengthInUInts(allMemberMaps.Count);
+            using var bitArray = useStackAlloc ? FastMemberMapHelper.GetMembersBitArray(stackalloc uint[lengthInUInts]) : FastMemberMapHelper.GetMembersBitArray(lengthInUInts);
 
             bsonReader.ReadStartDocument();
             var elementTrie = _classMap.ElementTrie;
@@ -193,7 +197,8 @@ namespace MongoDB.Bson.Serialization
                             DeserializeExtraElementValue(context, values, elementName, memberMap);
                         }
                     }
-                    memberMapBitArray[memberMapIndex >> 5] |= 1U << (memberMapIndex & 31);
+
+                    bitArray.SetMemberIndex(memberMapIndex);
                 }
                 else
                 {
@@ -221,7 +226,7 @@ namespace MongoDB.Bson.Serialization
                         {
                             DeserializeExtraElementValue(context, values, elementName, extraElementsMemberMap);
                         }
-                        memberMapBitArray[extraElementsMemberMapIndex >> 5] |= 1U << (extraElementsMemberMapIndex & 31);
+                        bitArray.SetMemberIndex(extraElementsMemberMapIndex);
                     }
                     else if (_classMap.IgnoreExtraElements)
                     {
@@ -239,51 +244,38 @@ namespace MongoDB.Bson.Serialization
             bsonReader.ReadEndDocument();
 
             // check any members left over that we didn't have elements for (in blocks of 32 elements at a time)
-            for (var bitArrayIndex = 0; bitArrayIndex < memberMapBitArray.Length; ++bitArrayIndex)
+            var bitArraySpan = bitArray.Span;
+            for (var bitArrayIndex = 0; bitArrayIndex < bitArraySpan.Length; bitArrayIndex++)
             {
                 var memberMapIndex = bitArrayIndex << 5;
-                var memberMapBlock = ~memberMapBitArray[bitArrayIndex]; // notice that bits are flipped so 1's are now the missing elements
+                var memberMapBlock = ~bitArraySpan[bitArrayIndex]; // notice that bits are flipped so 1's are now the missing elements
 
                 // work through this memberMapBlock of 32 elements
-                while (true)
+                for (; memberMapBlock != 0 && memberMapIndex < allMemberMaps.Count; memberMapIndex++, memberMapBlock >>= 1)
                 {
-                    // examine missing elements (memberMapBlock is shifted right as we work through the block)
-                    for (; (memberMapBlock & 1) != 0; ++memberMapIndex, memberMapBlock >>= 1)
+                    if ((memberMapBlock & 1) == 0)
+                        continue;
+
+                    var memberMap = allMemberMaps[memberMapIndex];
+                    if (memberMap.IsReadOnly)
                     {
-                        var memberMap = allMemberMaps[memberMapIndex];
-                        if (memberMap.IsReadOnly)
-                        {
-                            continue;
-                        }
-
-                        if (memberMap.IsRequired)
-                        {
-                            var fieldOrProperty = (memberMap.MemberInfo is FieldInfo) ? "field" : "property";
-                            var message = string.Format(
-                                "Required element '{0}' for {1} '{2}' of class {3} is missing.",
-                                memberMap.ElementName, fieldOrProperty, memberMap.MemberName, _classMap.ClassType.FullName);
-                            throw new FormatException(message);
-                        }
-
-                        if (document != null)
-                        {
-                            memberMap.ApplyDefaultValue(document);
-                        }
-                        else if (memberMap.IsDefaultValueSpecified && !memberMap.IsReadOnly)
-                        {
-                            values[memberMap.ElementName] = memberMap.DefaultValue;
-                        }
+                        continue;
                     }
 
-                    if (memberMapBlock == 0)
+                    if (memberMap.IsRequired)
                     {
-                        break;
+                        var fieldOrProperty = (memberMap.MemberInfo is FieldInfo) ? "field" : "property";
+                        throw new FormatException($"Required element '{memberMap.ElementName}' for {fieldOrProperty} '{memberMap.MemberName}' of class {_classMap.ClassType.FullName} is missing.");
                     }
 
-                    // skip ahead to the next missing element
-                    var leastSignificantBit = FastMemberMapHelper.GetLeastSignificantBit(memberMapBlock);
-                    memberMapIndex += leastSignificantBit;
-                    memberMapBlock >>= leastSignificantBit;
+                    if (document != null)
+                    {
+                        memberMap.ApplyDefaultValue(document);
+                    }
+                    else if (memberMap.IsDefaultValueSpecified && !memberMap.IsReadOnly)
+                    {
+                        values[memberMap.ElementName] = memberMap.DefaultValue;
+                    }
                 }
             }
 
@@ -335,13 +327,11 @@ namespace MongoDB.Bson.Serialization
                 idGenerator = idMemberMap.IdGenerator;
                 return true;
             }
-            else
-            {
-                id = null;
-                idNominalType = null;
-                idGenerator = null;
-                return false;
-            }
+
+            id = null;
+            idNominalType = null;
+            idGenerator = null;
+            return false;
         }
 
         /// <summary>
@@ -694,48 +684,63 @@ namespace MongoDB.Bson.Serialization
 
         // nested classes
         // helper class that implements member map bit array helper functions
-        private static class FastMemberMapHelper
+        internal static class FastMemberMapHelper
         {
-            public static uint[] GetBitArray(int memberCount)
+            internal ref struct MembersBitArray()
             {
-                var bitArrayOffset = memberCount & 31;
-                var bitArrayLength = memberCount >> 5;
-                if (bitArrayOffset == 0)
+                private readonly ArrayPool<uint> _arrayPool;
+                private readonly Span<uint> _bitArray;
+                private readonly uint[] _rentedBuffer;
+                private bool _isDisposed = false;
+
+                public MembersBitArray(Span<uint> bitArray) : this()
                 {
-                    return new uint[bitArrayLength];
+                    _arrayPool = null;
+                    _bitArray = bitArray;
+                    _rentedBuffer = null;
+
+                    _bitArray.Clear();
                 }
-                var bitArray = new uint[bitArrayLength + 1];
-                bitArray[bitArrayLength] = ~0U << bitArrayOffset; // set unused bits to 1
-                return bitArray;
+
+                public MembersBitArray(int lengthInUInts, ArrayPool<uint> arrayPool) : this()
+                {
+                    _arrayPool = arrayPool;
+                    _rentedBuffer = arrayPool.Rent(lengthInUInts);
+                    _bitArray = _rentedBuffer.AsSpan(0, lengthInUInts);
+
+                    _bitArray.Clear();
+                }
+
+                public Span<uint> Span => _bitArray;
+                public ArrayPool<uint> ArrayPool => _arrayPool;
+
+                public void SetMemberIndex(int memberMapIndex) =>
+                    _bitArray[memberMapIndex >> 5] |= 1U << (memberMapIndex & 31);
+
+                public void Dispose()
+                {
+                    if (_isDisposed)
+                        return;
+
+                    if (_rentedBuffer != null)
+                    {
+                        _arrayPool.Return(_rentedBuffer);
+                    }
+                    _isDisposed = true;
+                }
             }
 
-            // see http://graphics.stanford.edu/~seander/bithacks.html#ZerosOnRightBinSearch
-            // also returns 31 if no bits are set; caller must check this case
-            public static int GetLeastSignificantBit(uint bitBlock)
+            public static (int LengthInUInts, bool UseStackAlloc) GetLengthInUInts(int membersCount)
             {
-                var leastSignificantBit = 1;
-                if ((bitBlock & 65535) == 0)
-                {
-                    bitBlock >>= 16;
-                    leastSignificantBit |= 16;
-                }
-                if ((bitBlock & 255) == 0)
-                {
-                    bitBlock >>= 8;
-                    leastSignificantBit |= 8;
-                }
-                if ((bitBlock & 15) == 0)
-                {
-                    bitBlock >>= 4;
-                    leastSignificantBit |= 4;
-                }
-                if ((bitBlock & 3) == 0)
-                {
-                    bitBlock >>= 2;
-                    leastSignificantBit |= 2;
-                }
-                return leastSignificantBit - (int)(bitBlock & 1);
+                var lengthInUInts = (membersCount + 31) >> 5;
+                return (lengthInUInts, lengthInUInts <= 8); // Use stackalloc for up to 256 members
             }
+
+            public static MembersBitArray GetMembersBitArray(Span<uint> span) =>
+                new(span);
+
+            public static MembersBitArray GetMembersBitArray(int lengthInUInts) =>
+                new(lengthInUInts, ArrayPool<uint>.Shared);
         }
     }
 }
