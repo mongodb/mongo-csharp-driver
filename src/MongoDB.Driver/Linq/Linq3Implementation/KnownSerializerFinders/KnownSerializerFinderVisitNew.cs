@@ -23,6 +23,7 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
 using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
+using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.KnownSerializerFinders;
 
@@ -89,10 +90,8 @@ internal partial class KnownSerializerFinderVisitor
             {
                 var collectionExpression = arguments[0];
                 if (IsItemSerializerKnown(collectionExpression, out var itemSerializer) &&
-                    itemSerializer is IKeyValuePairSerializer keyValuePairSerializer)
+                    itemSerializer.IsKeyValuePairSerializer(out _, out _, out var keySerializer, out var valueSerializer))
                 {
-                    var keySerializer = keyValuePairSerializer.KeySerializer;
-                    var valueSerializer = keyValuePairSerializer.ValueSerializer;
                     return DictionarySerializer.Create(keySerializer, valueSerializer);
                 }
             }
@@ -119,7 +118,12 @@ internal partial class KnownSerializerFinderVisitor
                 if (IsKnown(key, out var keySerializer) &&
                     IsKnown(value, out var valueSerializer))
                 {
-                    return KeyValuePairSerializer.Create(BsonType.Document, keySerializer, valueSerializer);
+                    return NewKeyValuePairExpressionToAggregationExpressionTranslator.CreateResultSerializer(
+                        resultType: node.Type,
+                        keySerializer,
+                        valueSerializer,
+                        out _,
+                        out _);
                 }
             }
             else if (TupleOrValueTupleConstructor.IsTupleOrValueTupleConstructor(constructor))
