@@ -44,7 +44,7 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// Initializes a new instance of the BsonTimeOnlyOptionsAttribute class.
         /// </summary>
         /// <param name="representation">The external representation.</param>
-        /// <param name="units">The TimeOnlyUnits.</param>
+        /// <param name="units">The TimeOnlyUnits. Ignored if representation is BsonsType.Document.</param>
         public BsonTimeOnlyOptionsAttribute(BsonType representation, TimeOnlyUnits units)
         {
             _representation = representation;
