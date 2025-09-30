@@ -325,6 +325,17 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         }
 
         [Theory]
+        [InlineData("08:32:05.5946583", """{ "x" : { "Hour" : { "$numberInt" : "8" }, "Minute" : { "$numberInt" : "32" }, "Second" : { "$numberInt" : "5" }, "Millisecond" : { "$numberInt" : "594" }, "Ticks" : { "$numberLong" : "307255946583" } } }""")]
+        [InlineData("00:00:00.0000000", """{ "x" : { "Hour" : { "$numberInt" : "0" }, "Minute" : { "$numberInt" : "0" }, "Second" : { "$numberInt" : "0" }, "Millisecond" : { "$numberInt" : "0" }, "Ticks" : { "$numberLong" : "0" } } }""")]
+        [InlineData("23:59:59.9999999", """{ "x" : { "Hour" : { "$numberInt" : "23" }, "Minute" : { "$numberInt" : "59" }, "Second" : { "$numberInt" : "59" }, "Millisecond" : { "$numberInt" : "999" }, "Ticks" : { "$numberLong" : "863999999999" } } }""")]
+        public void Serialize_with_document_representation_should_have_expected_result(string valueString, string expectedResult)
+        {
+            var subject = new TimeOnlySerializer(BsonType.Document);
+
+            TestSerialize(subject, valueString, expectedResult);
+        }
+
+        [Theory]
         [InlineData(BsonType.String, "08:32:05.5946583", """{ "x" : "08:32:05.5946583" }""")]
         [InlineData(BsonType.String, "00:00:00.0000000", """{ "x" : "00:00:00.0000000" }""")]
         [InlineData(BsonType.String, "23:59:59.9999999", """{ "x" : "23:59:59.9999999" }""")]
@@ -525,7 +536,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             [BsonTimeOnlyOptions(BsonType.Int64, TimeOnlyUnits.Nanoseconds )]
             public TimeOnly Nanoseconds { get; set; }
 
-            [BsonTimeOnlyOptions(BsonType.Document, TimeOnlyUnits.Nanoseconds )]
+            [BsonTimeOnlyOptions(BsonType.Document)]
             public TimeOnly Document { get; set; }
         }
     }
