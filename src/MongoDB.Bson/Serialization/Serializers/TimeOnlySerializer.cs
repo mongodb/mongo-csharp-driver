@@ -14,6 +14,7 @@
  */
 
 using System;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
@@ -32,7 +33,20 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static TimeOnlySerializer Instance => __instance;
 
+        // private constants
+        private static class Flags
+        {
+            public const long Hour = 1;
+            public const long Minute = 2;
+            public const long Second = 4;
+            public const long Millisecond = 8;
+            public const long Microsecond = 16;
+            public const long Nanosecond = 32;
+            public const long Ticks = 64;
+        }
+
         // private fields
+        private readonly SerializerHelper _helper;
         private readonly BsonType _representation;
         private readonly TimeOnlyUnits _units;
 
@@ -58,7 +72,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the <see cref="TimeOnlySerializer"/> class.
         /// </summary>
         /// <param name="representation">The representation.</param>
-        /// <param name="units">The units.</param>
+        /// <param name="units">The units. Ignored if representation is BsonType.Document.</param>
         public TimeOnlySerializer(BsonType representation, TimeOnlyUnits units)
         {
             switch (representation)
@@ -67,6 +81,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 case BsonType.Int32:
                 case BsonType.Int64:
                 case BsonType.String:
+                case BsonType.Document:
                     break;
 
                 default:
@@ -75,6 +90,17 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             _representation = representation;
             _units = units;
+
+            _helper = new SerializerHelper
+            (
+                new SerializerHelper.Member("Hour", Flags.Hour, isOptional: true),
+                new SerializerHelper.Member("Minute", Flags.Minute, isOptional: true),
+                new SerializerHelper.Member("Second", Flags.Second, isOptional: true),
+                new SerializerHelper.Member("Millisecond", Flags.Millisecond, isOptional: true),
+                new SerializerHelper.Member("Microsecond", Flags.Microsecond, isOptional: true),
+                new SerializerHelper.Member("Nanosecond", Flags.Nanosecond, isOptional: true),
+                new SerializerHelper.Member("Ticks", Flags.Ticks, isOptional: false)
+            );
         }
 
         // public properties
@@ -102,6 +128,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 BsonType.Int64 =>  FromInt64(bsonReader.ReadInt64(), _units),
                 BsonType.Int32 =>  FromInt32(bsonReader.ReadInt32(), _units),
                 BsonType.Double =>  FromDouble(bsonReader.ReadDouble(), _units),
+                BsonType.Document => FromDocument(context),
                 _ => throw CreateCannotDeserializeFromBsonTypeException(bsonType)
             };
         }
@@ -143,6 +170,20 @@ namespace MongoDB.Bson.Serialization.Serializers
 
                 case BsonType.String:
                     bsonWriter.WriteString(value.ToString("o"));
+                    break;
+
+                case BsonType.Document:
+                    bsonWriter.WriteStartDocument();
+                    bsonWriter.WriteInt32("Hour", value.Hour);
+                    bsonWriter.WriteInt32("Minute", value.Minute);
+                    bsonWriter.WriteInt32("Second", value.Second);
+                    bsonWriter.WriteInt32("Millisecond", value.Millisecond);
+#if NET7_0_OR_GREATER
+                    bsonWriter.WriteInt32("Microsecond", value.Microsecond);
+                    bsonWriter.WriteInt32("Nanosecond", value.Nanosecond);
+#endif
+                    bsonWriter.WriteInt64("Ticks", value.Ticks);
+                    bsonWriter.WriteEndDocument();
                     break;
 
                 default:
@@ -194,6 +235,29 @@ namespace MongoDB.Bson.Serialization.Serializers
             return units is TimeOnlyUnits.Nanoseconds
                 ? new TimeOnly(value / 100)
                 : new TimeOnly(value * TicksPerUnit(units));
+        }
+
+        private TimeOnly FromDocument(BsonDeserializationContext context)
+        {
+            var bsonReader = context.Reader;
+            var ticks = 0L;
+
+            _helper.DeserializeMembers(context, (_, flag) =>
+            {
+                switch (flag)
+                {
+                    case Flags.Hour:
+                    case Flags.Minute:
+                    case Flags.Second:
+                    case Flags.Millisecond:
+                    case Flags.Microsecond:
+                    case Flags.Nanosecond:
+                        bsonReader.SkipValue();  break; // ignore value (use Ticks instead)
+                    case Flags.Ticks: ticks = Int64Serializer.Instance.Deserialize(context);  break;
+                }
+            });
+
+            return FromInt64(ticks, TimeOnlyUnits.Ticks);
         }
 
         private long TicksPerUnit(TimeOnlyUnits units)
