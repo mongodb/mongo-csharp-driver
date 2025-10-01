@@ -118,12 +118,7 @@ internal partial class KnownSerializerFinderVisitor
                 if (IsKnown(key, out var keySerializer) &&
                     IsKnown(value, out var valueSerializer))
                 {
-                    return NewKeyValuePairExpressionToAggregationExpressionTranslator.CreateResultSerializer(
-                        resultType: node.Type,
-                        keySerializer,
-                        valueSerializer,
-                        out _,
-                        out _);
+                    return KeyValuePairSerializer.Create(BsonType.Document, keySerializer, valueSerializer);
                 }
             }
             else if (TupleOrValueTupleConstructor.IsTupleOrValueTupleConstructor(constructor))
