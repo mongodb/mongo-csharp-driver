@@ -1637,12 +1637,7 @@ internal partial class KnownSerializerFinderVisitor
                 {
                     var keySerializer = argumentSerializers[0];
                     var valueSerializer = argumentSerializers[1];
-                    var keyValuePairSerializer = NewKeyValuePairExpressionToAggregationExpressionTranslator.CreateResultSerializer(
-                        resultType: method.ReturnType,
-                        keySerializer,
-                        valueSerializer,
-                        out _,
-                        out _);
+                    var keyValuePairSerializer = KeyValuePairSerializer.Create(BsonType.Document, keySerializer, valueSerializer);
                     AddKnownSerializer(node, keyValuePairSerializer);
                 }
             }
