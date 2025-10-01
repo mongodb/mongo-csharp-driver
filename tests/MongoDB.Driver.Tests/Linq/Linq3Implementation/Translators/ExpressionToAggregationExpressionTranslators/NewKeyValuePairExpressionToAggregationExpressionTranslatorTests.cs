@@ -37,7 +37,7 @@ public class NewKeyValuePairExpressionToAggregationExpressionTranslatorTests : L
             .Select(d => new KeyValuePair<string,int>("X", d.X));
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { Key : 'X', Value : '$X', _id : 0 } }");
+        AssertStages(stages, "{ $project : { k : 'X', v : '$X', _id : 0 } }");
 
         var result = queryable.Single();
         result.Key.Should().Be("X");
@@ -54,7 +54,7 @@ public class NewKeyValuePairExpressionToAggregationExpressionTranslatorTests : L
             .Select(d => KeyValuePair.Create("X", d.X));
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { Key : 'X', Value : '$X', _id : 0 } }");
+        AssertStages(stages, "{ $project : { k : 'X', v : '$X', _id : 0 } }");
 
         var result = queryable.Single();
         result.Key.Should().Be("X");
