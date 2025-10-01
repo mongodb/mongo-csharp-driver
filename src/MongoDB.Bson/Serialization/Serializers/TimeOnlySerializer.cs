@@ -178,10 +178,9 @@ namespace MongoDB.Bson.Serialization.Serializers
                     bsonWriter.WriteInt32("Minute", value.Minute);
                     bsonWriter.WriteInt32("Second", value.Second);
                     bsonWriter.WriteInt32("Millisecond", value.Millisecond);
-#if NET7_0_OR_GREATER
-                    bsonWriter.WriteInt32("Microsecond", value.Microsecond);
-                    bsonWriter.WriteInt32("Nanosecond", value.Nanosecond);
-#endif
+                    // Microsecond and Nanosecond properties were added in .NET 7
+                    bsonWriter.WriteInt32("Microsecond", GetMicrosecondsComponent(value.Ticks));
+                    bsonWriter.WriteInt32("Nanosecond", GetNanosecondsComponent(value.Ticks));
                     bsonWriter.WriteInt64("Ticks", value.Ticks);
                     bsonWriter.WriteEndDocument();
                     break;
@@ -293,6 +292,18 @@ namespace MongoDB.Bson.Serialization.Serializers
             return units is TimeOnlyUnits.Nanoseconds
                 ? timeOnly.Ticks * 100
                 : timeOnly.Ticks / TicksPerUnit(units);
+        }
+
+        private int GetNanosecondsComponent(long ticks)
+        {
+            // ticks % 10 * 100
+            return (int)(ticks % TicksPerUnit(TimeOnlyUnits.Microseconds) * 100);
+        }
+
+        private int GetMicrosecondsComponent(long ticks)
+        {
+            // ticks / 10 % 1000
+            return (int)(ticks / TicksPerUnit(TimeOnlyUnits.Microseconds) % 1000);
         }
 
         // explicit interface implementations

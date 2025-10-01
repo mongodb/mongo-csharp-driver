@@ -53,7 +53,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             """;
 
             var documentString =  """
-                              { "Hour" : 13, "Minute" : 24, "Second" : 53, "Millisecond" : 0, "Ticks" : 482930000000 }
+                              { "Hour" : 13, "Minute" : 24, "Second" : 53, "Millisecond" : 0, "Microsecond" : 0, "Nanosecond" : 0, "Ticks" : 482930000000 }
                               """;
 
 
@@ -325,9 +325,9 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         }
 
         [Theory]
-        [InlineData("08:32:05.5946583", """{ "x" : { "Hour" : { "$numberInt" : "8" }, "Minute" : { "$numberInt" : "32" }, "Second" : { "$numberInt" : "5" }, "Millisecond" : { "$numberInt" : "594" }, "Ticks" : { "$numberLong" : "307255946583" } } }""")]
-        [InlineData("00:00:00.0000000", """{ "x" : { "Hour" : { "$numberInt" : "0" }, "Minute" : { "$numberInt" : "0" }, "Second" : { "$numberInt" : "0" }, "Millisecond" : { "$numberInt" : "0" }, "Ticks" : { "$numberLong" : "0" } } }""")]
-        [InlineData("23:59:59.9999999", """{ "x" : { "Hour" : { "$numberInt" : "23" }, "Minute" : { "$numberInt" : "59" }, "Second" : { "$numberInt" : "59" }, "Millisecond" : { "$numberInt" : "999" }, "Ticks" : { "$numberLong" : "863999999999" } } }""")]
+        [InlineData("08:32:05.5946583", """{ "x" : { "Hour" : { "$numberInt" : "8" }, "Minute" : { "$numberInt" : "32" }, "Second" : { "$numberInt" : "5" }, "Millisecond" : { "$numberInt" : "594" }, "Microsecond" : { "$numberInt" : "658" }, "Nanosecond" : { "$numberInt" : "300" }, "Ticks" : { "$numberLong" : "307255946583" } } }""")]
+        [InlineData("00:00:00.0000000", """{ "x" : { "Hour" : { "$numberInt" : "0" }, "Minute" : { "$numberInt" : "0" }, "Second" : { "$numberInt" : "0" }, "Millisecond" : { "$numberInt" : "0" }, "Microsecond" : { "$numberInt" : "0" }, "Nanosecond" : { "$numberInt" : "0" }, "Ticks" : { "$numberLong" : "0" } } }""")]
+        [InlineData("23:59:59.9999999", """{ "x" : { "Hour" : { "$numberInt" : "23" }, "Minute" : { "$numberInt" : "59" }, "Second" : { "$numberInt" : "59" }, "Millisecond" : { "$numberInt" : "999" }, "Microsecond" : { "$numberInt" : "999" }, "Nanosecond" : { "$numberInt" : "900" }, "Ticks" : { "$numberLong" : "863999999999" } } }""")]
         public void Serialize_with_document_representation_should_have_expected_result(string valueString, string expectedResult)
         {
             var subject = new TimeOnlySerializer(BsonType.Document);
