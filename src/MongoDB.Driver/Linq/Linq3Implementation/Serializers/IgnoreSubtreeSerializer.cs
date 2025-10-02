@@ -34,5 +34,4 @@ internal interface IIgnoreSubtreeSerializer
 
 internal class IgnoreSubtreeSerializer<TValue> : SerializerBase<TValue>, IIgnoreSubtreeSerializer
 {
-
 }

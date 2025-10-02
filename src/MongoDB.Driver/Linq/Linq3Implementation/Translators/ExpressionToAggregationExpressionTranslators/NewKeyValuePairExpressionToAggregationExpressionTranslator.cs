@@ -44,14 +44,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var keyTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, keyExpression);
             var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
 
-            var ast = AstExpression.ComputedDocument([
-                AstExpression.ComputedField("k", keyTranslation.Ast),
-                AstExpression.ComputedField("v", valueTranslation.Ast)
-            ]);
-
             var keySerializer = keyTranslation.Serializer;
             var valueSerializer = valueTranslation.Serializer;
             var keyValuePairSerializer = KeyValuePairSerializer.Create(BsonType.Document, keySerializer, valueSerializer);
+
+            var ast = AstExpression.ComputedDocument([
+                AstExpression.ComputedField(keyValuePairSerializer.KeyElementName, keyTranslation.Ast),
+                AstExpression.ComputedField(keyValuePairSerializer.ValueElementName, valueTranslation.Ast)
+            ]);
 
             return new TranslatedExpression(expression, ast, keyValuePairSerializer);
         }

@@ -39,34 +39,21 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var collectionTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, collectionExpression);
             var itemSerializer = ArraySerializerHelper.GetItemSerializer(collectionTranslation.Serializer);
 
-            IBsonSerializer keySerializer;
-            IBsonSerializer valueSerializer;
             AstExpression collectionTranslationAst;
 
-            if (itemSerializer is IBsonDocumentSerializer itemDocumentSerializer)
+            if (itemSerializer.IsKeyValuePairSerializer(out var keyElementName, out var valueElementName, out var keySerializer, out var valueSerializer))
             {
-                if (!itemDocumentSerializer.TryGetMemberSerializationInfo("Key", out var keyMemberSerializationInfo))
-                {
-                    throw new ExpressionNotSupportedException(expression, because: $"serializer class {itemSerializer.GetType()} does not have a Key member");
-                }
-                keySerializer = keyMemberSerializationInfo.Serializer;
-
-                if (!itemDocumentSerializer.TryGetMemberSerializationInfo("Value", out var valueMemberSerializationInfo))
-                {
-                    throw new ExpressionNotSupportedException(expression, because: $"serializer class {itemSerializer.GetType()} does not have a Value member");
-                }
-                valueSerializer = valueMemberSerializationInfo.Serializer;
-
-                if (keyMemberSerializationInfo.ElementName == "k" && valueMemberSerializationInfo.ElementName == "v")
+                if (keyElementName == "k" && valueElementName == "v")
                 {
                     collectionTranslationAst = collectionTranslation.Ast;
                 }
                 else
                 {
+                    // map keyElementName and valueElementName to "k" and "v"
                     var pairVar = AstExpression.Var("pair");
                     var computedDocumentAst = AstExpression.ComputedDocument([
-                        AstExpression.ComputedField("k", AstExpression.GetField(pairVar, keyMemberSerializationInfo.ElementName)),
-                        AstExpression.ComputedField("v", AstExpression.GetField(pairVar, valueMemberSerializationInfo.ElementName))
+                        AstExpression.ComputedField("k", AstExpression.GetField(pairVar, keyElementName)),
+                        AstExpression.ComputedField("v", AstExpression.GetField(pairVar, valueElementName))
                     ]);
 
                     collectionTranslationAst = AstExpression.Map(collectionTranslation.Ast, pairVar, computedDocumentAst);

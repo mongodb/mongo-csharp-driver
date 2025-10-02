@@ -40,13 +40,13 @@ internal class KnownSerializerMap
             {
                 var enumType = nodeNonNullableType;
                 var underlyingTypeSerializer = nullableSerializer.ValueSerializer;
-                var enumSerializer = ToUnderlyingTypeEnumSerializer.Create(enumType, underlyingTypeSerializer);
+                var enumSerializer = AsUnderlyingTypeEnumSerializer.Create(enumType, underlyingTypeSerializer);
                 serializer = NullableSerializer.Create(enumSerializer);
             }
             else if (serializerNonNullableType.IsEnum(out var serializerUnderlyingType) && serializerUnderlyingType == nodeNonNullableType)
             {
                 var enumSerializer = nullableSerializer.ValueSerializer;
-                var underlyingTypeSerializer = ToEnumUnderlyingTypeSerializer.Create(enumSerializer);
+                var underlyingTypeSerializer = AsEnumUnderlyingTypeSerializer.Create(enumSerializer);
                 serializer = NullableSerializer.Create(underlyingTypeSerializer);
             }
         }
