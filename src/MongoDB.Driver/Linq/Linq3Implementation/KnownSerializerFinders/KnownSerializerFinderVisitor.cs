@@ -69,7 +69,7 @@ internal partial class KnownSerializerFinderVisitor : ExpressionVisitor
     {
         if (IsKnown(node, out var knownSerializer))
         {
-            if (knownSerializer is IIgnoreSubtreeSerializer or IUnknowableSerializer)
+            if (knownSerializer is IIgnoreSubtreeSerializer or IUnknowableSerializer) // TODO: call base.Visit for IUnknowableSerializer
             {
                 return node; // don't visit subtree
             }

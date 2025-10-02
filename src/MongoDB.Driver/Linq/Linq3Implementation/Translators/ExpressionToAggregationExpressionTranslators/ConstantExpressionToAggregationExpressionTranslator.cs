@@ -25,14 +25,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
     {
         public static TranslatedExpression Translate(TranslationContext context, ConstantExpression constantExpression)
         {
-            var constantType = constantExpression.Type;
-            // TODO: throw if serializer is not known?
-            if (!context.KnownSerializers.IsKnown(constantExpression, out var constantSerializer))
-            {
-                constantSerializer = StandardSerializers.TryGetSerializer(constantType, out var serializer) ? serializer : BsonSerializer.LookupSerializer(constantType);
-            }
+            var constantSerializer = context.KnownSerializers.GetSerializer(constantExpression);
             return Translate(constantExpression, constantSerializer);
-       }
+        }
 
         public static TranslatedExpression Translate(ConstantExpression constantExpression, IBsonSerializer constantSerializer)
         {

@@ -92,14 +92,14 @@ internal static class IBsonSerializerExtensions
     {
         if (serializer is IKeyValuePairSerializer keyValuePairSerializer)
         {
-            keyElementName = "k";
-            valueElementName = "v";
+            keyElementName = keyValuePairSerializer.KeyElementName;
+            valueElementName = keyValuePairSerializer.ValueElementName;
             keySerializer = keyValuePairSerializer.KeySerializer;
             valueSerializer = keyValuePairSerializer.ValueSerializer;
             return true;
         }
 
-        // for backward compatibility not all KeyValuePair serializers implement IKeyValuePairSerializer
+        // support user written custom KeyValuePair serializers that might not implement IKeyValuePairSerializer
         if (serializer.ValueType is var valueType &&
             valueType.IsConstructedGenericType &&
             valueType.GetGenericTypeDefinition() == typeof(KeyValuePair<,>) &&
