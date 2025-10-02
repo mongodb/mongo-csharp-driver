@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             return new TranslatedExpression(expression, ast, serializer);
         }
 
-        private static IBsonSerializer CreateResultSerializer(
+        public static IBsonSerializer CreateResultSerializer(
             Type resultType,
             IBsonSerializer keySerializer,
             IBsonSerializer valueSerializer,
