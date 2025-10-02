@@ -22,6 +22,11 @@ using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
+internal interface IFixedSizeArraySerializer
+{
+    IBsonSerializer GetItemSerializer(int index);
+}
+
 internal static class FixedSizeArraySerializer
 {
     public static IBsonSerializer Create(Type itemType, IEnumerable<IBsonSerializer> itemSerializers)
@@ -29,11 +34,6 @@ internal static class FixedSizeArraySerializer
         var serializerType = typeof(FixedSizeArraySerializer<>).MakeGenericType(itemType);
         return (IBsonSerializer)Activator.CreateInstance(serializerType, itemSerializers);
     }
-}
-
-internal interface IFixedSizeArraySerializer
-{
-    IBsonSerializer GetItemSerializer(int index);
 }
 
 internal sealed class FixedSizeArraySerializer<TItem> : SerializerBase<TItem[]>, IFixedSizeArraySerializer

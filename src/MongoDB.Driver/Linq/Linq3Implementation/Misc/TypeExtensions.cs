@@ -226,7 +226,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 
         public static bool IsBooleanOrNullableBoolean(this Type type)
         {
-            return type.IsNullable(out var valueType) ? IsBoolean(valueType) : IsBoolean(type);
+            return type == typeof(bool) || type.IsNullable(out var valueType) && IsBoolean(valueType);
         }
 
         public static bool IsEnum(this Type type, out Type underlyingType)
@@ -321,7 +321,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 
         public static bool IsNumericOrNullableNumeric(this Type type)
         {
-            return type.IsNullable(out var valueType) ? IsNumeric(valueType) : IsNumeric(type);
+            return IsNumeric(type) || type.IsNullable(out var valueType) && IsNumeric(valueType);
         }
 
         public static bool IsSameAsOrNullableOf(this Type type, Type valueType)
@@ -411,7 +411,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 
         public static bool TryGetIOrderedEnumerableGenericInterface(this Type type, out Type iOrderedEnumerableGenericInterface)
         {
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IOrderedEnumerable<>))
+            if (type.IsConstructedGenericType && type.GetGenericTypeDefinition() == typeof(IOrderedEnumerable<>))
             {
                 iOrderedEnumerableGenericInterface = type;
                 return true;
@@ -419,7 +419,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 
             foreach (var interfaceType in type.GetInterfaces())
             {
-                if (interfaceType.IsGenericType && interfaceType.GetGenericTypeDefinition() == typeof(IOrderedEnumerable<>))
+                if (interfaceType.IsConstructedGenericType && interfaceType.GetGenericTypeDefinition() == typeof(IOrderedEnumerable<>))
                 {
                     iOrderedEnumerableGenericInterface = interfaceType;
                     return true;
@@ -432,7 +432,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 
         public static bool TryGetIOrderedQueryableGenericInterface(this Type type, out Type iorderedQueryableGenericInterface)
         {
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IOrderedQueryable<>))
+            if (type.IsConstructedGenericType && type.GetGenericTypeDefinition() == typeof(IOrderedQueryable<>))
             {
                 iorderedQueryableGenericInterface = type;
                 return true;
@@ -440,7 +440,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 
             foreach (var interfaceType in type.GetInterfaces())
             {
-                if (interfaceType.IsGenericType && interfaceType.GetGenericTypeDefinition() == typeof(IOrderedQueryable<>))
+                if (interfaceType.IsConstructedGenericType && interfaceType.GetGenericTypeDefinition() == typeof(IOrderedQueryable<>))
                 {
                     iorderedQueryableGenericInterface = interfaceType;
                     return true;
@@ -453,7 +453,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 
         public static bool TryGetIQueryableGenericInterface(this Type type, out Type iqueryableGenericInterface)
         {
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IQueryable<>))
+            if (type.IsConstructedGenericType && type.GetGenericTypeDefinition() == typeof(IQueryable<>))
             {
                 iqueryableGenericInterface = type;
                 return true;
@@ -461,7 +461,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 
             foreach (var interfaceType in type.GetInterfaces())
             {
-                if (interfaceType.IsGenericType && interfaceType.GetGenericTypeDefinition() == typeof(IQueryable<>))
+                if (interfaceType.IsConstructedGenericType && interfaceType.GetGenericTypeDefinition() == typeof(IQueryable<>))
                 {
                     iqueryableGenericInterface = interfaceType;
                     return true;

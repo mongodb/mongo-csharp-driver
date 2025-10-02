@@ -736,10 +736,10 @@ internal partial class KnownSerializerFinderVisitor
         var arguments = node.Arguments;
 
         DeduceMethodCallSerializers();
-        if (IsKnown(node, out var knownSerializer) && knownSerializer is IUnknowableSerializer)
-        {
-            return node; // don't visit node any further
-        }
+        // if (IsKnown(node, out var knownSerializer) && knownSerializer is IUnknowableSerializer)
+        // {
+        //     return node; // don't visit node any further
+        // }
         base.VisitMethodCall(node);
         DeduceMethodCallSerializers();
 
@@ -780,6 +780,7 @@ internal partial class KnownSerializerFinderVisitor
                 case "Contains": DeduceContainsMethodSerializers(); break;
                 case "ContainsKey": DeduceContainsKeyMethodSerializers(); break;
                 case "ContainsValue": DeduceContainsValueMethodSerializers(); break;
+                case "Convert": DeduceConvertMethodSerializers(); break;
                 case "Cos": DeduceCosMethodSerializers(); break;
                 case "Cosh": DeduceCoshMethodSerializers(); break;
                 case "Create": DeduceCreateMethodSerializers(); break;
@@ -808,6 +809,7 @@ internal partial class KnownSerializerFinderVisitor
                 case "Range": DeduceRangeMethodSerializers(); break;
                 case "Repeat": DeduceRepeatMethodSerializers(); break;
                 case "Reverse": DeduceReverseMethodSerializers(); break;
+                case "Round": DeduceRoundMethodSerializers(); break;
                 case "Select": DeduceSelectMethodSerializers(); break;
                 case "SelectMany": DeduceSelectManySerializers(); break;
                 case "SequenceEqual": DeduceSequenceEqualMethodSerializers(); break;
@@ -1589,6 +1591,58 @@ internal partial class KnownSerializerFinderVisitor
                 collectionExpression = null;
                 valueExpression = null;
                 return false;
+            }
+        }
+
+        void DeduceConvertMethodSerializers()
+        {
+            if (method.Is(MqlMethod.Convert))
+            {
+                if (IsNotKnown(node))
+                {
+                    var toType = method.GetGenericArguments()[1];
+                    var resultSerializer = GetResultSerializer(node, toType);
+                    AddKnownSerializer(node, resultSerializer);
+                }
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
+
+            static IBsonSerializer GetResultSerializer(Expression expression, Type toType)
+            {
+                var isNullable = toType.IsNullable();
+                var valueType = isNullable ? Nullable.GetUnderlyingType(toType) : toType;
+
+                var valueSerializer = (IBsonSerializer)(Type.GetTypeCode(valueType) switch
+                {
+                    TypeCode.Boolean => BooleanSerializer.Instance,
+                    TypeCode.Byte => ByteSerializer.Instance,
+                    TypeCode.Char => StringSerializer.Instance,
+                    TypeCode.DateTime => DateTimeSerializer.Instance,
+                    TypeCode.Decimal => DecimalSerializer.Instance,
+                    TypeCode.Double => DoubleSerializer.Instance,
+                    TypeCode.Int16 => Int16Serializer.Instance,
+                    TypeCode.Int32 => Int32Serializer.Instance,
+                    TypeCode.Int64 => Int64Serializer.Instance,
+                    TypeCode.SByte => SByteSerializer.Instance,
+                    TypeCode.Single => SingleSerializer.Instance,
+                    TypeCode.String => StringSerializer.Instance,
+                    TypeCode.UInt16 => UInt16Serializer.Instance,
+                    TypeCode.UInt32 => Int32Serializer.Instance,
+                    TypeCode.UInt64 => UInt64Serializer.Instance,
+
+                    _ when valueType == typeof(byte[]) => ByteArraySerializer.Instance,
+                    _ when valueType == typeof(BsonBinaryData) => BsonBinaryDataSerializer.Instance,
+                    _ when valueType == typeof(Decimal128) => Decimal128Serializer.Instance,
+                    _ when valueType == typeof(Guid) => GuidSerializer.StandardInstance,
+                    _ when valueType == typeof(ObjectId) => ObjectIdSerializer.Instance,
+
+                    _ => throw new ExpressionNotSupportedException(expression, because: $"{toType} is not a valid TTo for Convert")
+                });
+
+                return isNullable ? NullableSerializer.Create(valueSerializer) : valueSerializer;
             }
         }
 
@@ -2788,6 +2842,22 @@ internal partial class KnownSerializerFinderVisitor
             {
                 var sourceExpression = arguments[0];
                 DeduceCollectionAndCollectionSerializers(node, sourceExpression);
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
+        }
+
+        void DeduceRoundMethodSerializers()
+        {
+            if (method.IsOneOf(MathMethod.RoundWithDecimal, MathMethod.RoundWithDecimalAndDecimals, MathMethod.RoundWithDouble, MathMethod.RoundWithDoubleAndDigits))
+            {
+                if (IsNotKnown(node))
+                {
+                    var resultSerializer = StandardSerializers.GetSerializer(node.Type);
+                    AddKnownSerializer(node, resultSerializer);
+                }
             }
             else
             {

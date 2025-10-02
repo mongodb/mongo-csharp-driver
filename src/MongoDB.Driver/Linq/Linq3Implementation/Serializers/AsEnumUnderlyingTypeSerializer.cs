@@ -20,12 +20,12 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers
 {
-    internal interface IToEnumUnderlyingTypeSerializer
+    internal interface IAsEnumUnderlyingTypeSerializer
     {
         IBsonSerializer EnumSerializer { get; }
     }
 
-    internal class ToEnumUnderlyingTypeSerializer<TEnum, TUnderlyingType> : StructSerializerBase<TUnderlyingType>, IToEnumUnderlyingTypeSerializer
+    internal class AsEnumUnderlyingTypeSerializer<TEnum, TUnderlyingType> : StructSerializerBase<TUnderlyingType>, IAsEnumUnderlyingTypeSerializer
         where TEnum : Enum
         where TUnderlyingType : struct
     {
@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers
         private readonly IBsonSerializer<TEnum> _enumSerializer;
 
         // constructors
-        public ToEnumUnderlyingTypeSerializer(IBsonSerializer<TEnum> enumSerializer)
+        public AsEnumUnderlyingTypeSerializer(IBsonSerializer<TEnum> enumSerializer)
         {
             if (typeof(TUnderlyingType) != Enum.GetUnderlyingType(typeof(TEnum)))
             {
@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers
         public IBsonSerializer<TEnum> EnumSerializer => _enumSerializer;
 
         // explicitly implemented properties
-        IBsonSerializer IToEnumUnderlyingTypeSerializer.EnumSerializer => EnumSerializer;
+        IBsonSerializer IAsEnumUnderlyingTypeSerializer.EnumSerializer => EnumSerializer;
 
         // public methods
         public override TUnderlyingType Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
@@ -62,7 +62,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers
             if (object.ReferenceEquals(this, obj)) { return true; }
             return
                 base.Equals(obj) &&
-                obj is ToEnumUnderlyingTypeSerializer<TEnum, TUnderlyingType> other &&
+                obj is AsEnumUnderlyingTypeSerializer<TEnum, TUnderlyingType> other &&
                 object.Equals(_enumSerializer, other._enumSerializer);
         }
 
@@ -76,13 +76,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers
         }
     }
 
-    internal static class ToEnumUnderlyingTypeSerializer
+    internal static class AsEnumUnderlyingTypeSerializer
     {
         public static IBsonSerializer Create(IBsonSerializer enumSerializer)
         {
             var enumType = enumSerializer.ValueType;
             var underlyingType = Enum.GetUnderlyingType(enumType);
-            var toEnumUnderlyingTypeSerializerType = typeof(ToEnumUnderlyingTypeSerializer<,>).MakeGenericType(enumType, underlyingType);
+            var toEnumUnderlyingTypeSerializerType = typeof(AsEnumUnderlyingTypeSerializer<,>).MakeGenericType(enumType, underlyingType);
             return (IBsonSerializer)Activator.CreateInstance(toEnumUnderlyingTypeSerializerType, enumSerializer);
         }
     }

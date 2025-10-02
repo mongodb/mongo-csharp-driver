@@ -204,7 +204,7 @@ internal partial class KnownSerializerFinderVisitor
             static IBsonSerializer GetConvertEnumToUnderlyingTypeSerializer(UnaryExpression expression, Type sourceType, Type targetType, IBsonSerializer sourceSerializer)
             {
                 var enumSerializer = sourceSerializer;
-                return ToEnumUnderlyingTypeSerializer.Create(enumSerializer);
+                return AsEnumUnderlyingTypeSerializer.Create(enumSerializer);
             }
 
             static IBsonSerializer GetConvertFromNullableTypeSerializer(UnaryExpression expression, Type sourceType, Type targetType, IBsonSerializer sourceSerializer)
@@ -246,7 +246,7 @@ internal partial class KnownSerializerFinderVisitor
             static IBsonSerializer GetConvertUnderlyingTypeToEnumSerializer(UnaryExpression expression, Type sourceType, Type targetType, IBsonSerializer sourceSerializer)
             {
                 IBsonSerializer targetSerializer;
-                if (sourceSerializer is IToEnumUnderlyingTypeSerializer enumUnderlyingTypeSerializer)
+                if (sourceSerializer is IAsEnumUnderlyingTypeSerializer enumUnderlyingTypeSerializer)
                 {
                     targetSerializer = enumUnderlyingTypeSerializer.EnumSerializer;
                 }

@@ -34,16 +34,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var indexTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, indexExpression);
                 var ast = AstExpression.ArrayElemAt(arrayTranslation.Ast, indexTranslation.Ast);
                 var arraySerializer = arrayTranslation.Serializer;
-                IBsonSerializer itemSerializer;
-                if (arraySerializer is IFixedSizeArraySerializer fixedSizeArraySerializer)
-                {
-                    var index = indexExpression.GetConstantValue<int>(expression);
-                    itemSerializer = fixedSizeArraySerializer.GetItemSerializer(index);
-                }
-                else
-                {
-                    itemSerializer = arraySerializer.GetItemSerializer();
-                }
+                var itemSerializer = arraySerializer.GetItemSerializer(indexExpression, arrayExpression);
                 return new TranslatedExpression(expression, ast, itemSerializer);
             }
 
