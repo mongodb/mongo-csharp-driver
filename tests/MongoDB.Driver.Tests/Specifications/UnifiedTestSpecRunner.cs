@@ -279,12 +279,6 @@ namespace MongoDB.Driver.Tests.Specifications
             "collection.listIndexNames succeeds after retryable handshake network error",
 
             // SDAM
-#if NET472
-            // https://jira.mongodb.org/browse/CSHARP-3165
-            "Connection pool clear uses interruptInUseConnections=true after monitor timeout",
-            "Error returned from connection pool clear with interruptInUseConnections=true is retryable",
-            "Error returned from connection pool clear with interruptInUseConnections=true is retryable for write",
-#endif
             // "Not implemented: https://jira.mongodb.org/browse/CSHARP-3138"
             "connectTimeoutMS=0",
             // https://jira.mongodb.org/browse/CSHARP-4459

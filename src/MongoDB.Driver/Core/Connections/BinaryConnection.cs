@@ -421,7 +421,6 @@ namespace MongoDB.Driver.Core.Connections
             catch (Exception ex)
             {
                 helper.FailedReceivingMessage(ex);
-                ThrowOperationCanceledExceptionIfRequired(ex);
                 throw;
             }
         }
@@ -457,7 +456,6 @@ namespace MongoDB.Driver.Core.Connections
             catch (Exception ex)
             {
                 helper.FailedReceivingMessage(ex);
-                ThrowOperationCanceledExceptionIfRequired(ex);
                 throw;
             }
         }
@@ -540,7 +538,6 @@ namespace MongoDB.Driver.Core.Connections
             catch (Exception ex)
             {
                 helper.FailedSendingMessage(ex);
-                ThrowOperationCanceledExceptionIfRequired(ex);
                 throw;
             }
         }
@@ -577,7 +574,6 @@ namespace MongoDB.Driver.Core.Connections
             catch (Exception ex)
             {
                 helper.FailedSendingMessage(ex);
-                ThrowOperationCanceledExceptionIfRequired(ex);
                 throw;
             }
         }
@@ -685,19 +681,6 @@ namespace MongoDB.Driver.Core.Connections
 
             var message = string.Format("An exception occurred while {0}.", action);
             return new MongoConnectionException(_connectionId, message, ex);
-        }
-
-        private void ThrowOperationCanceledExceptionIfRequired(Exception exception)
-        {
-            if (exception is ObjectDisposedException objectDisposedException)
-            {
-                // We expect two cases here:
-                //      objectDisposedException.ObjectName == GetType().Name
-                //      objectDisposedException.Message == "The semaphore has been disposed."
-                // but since the last one is language-specific, the only option we have is avoiding any additional conditions for ObjectDisposedException
-                // TODO: this logic should be reviewed in the scope of https://jira.mongodb.org/browse/CSHARP-3165
-                throw new OperationCanceledException($"The {nameof(BinaryConnection)} operation has been cancelled.", exception);
-            }
         }
 
         // nested classes
