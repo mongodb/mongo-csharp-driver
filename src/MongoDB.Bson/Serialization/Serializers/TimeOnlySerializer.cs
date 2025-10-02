@@ -77,11 +77,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             switch (representation)
             {
+                case BsonType.Document:
                 case BsonType.Double:
                 case BsonType.Int32:
                 case BsonType.Int64:
                 case BsonType.String:
-                case BsonType.Document:
                     break;
 
                 default:
@@ -124,11 +124,11 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             return bsonType switch
             {
-                BsonType.String => TimeOnly.ParseExact(bsonReader.ReadString(), "o"),
-                BsonType.Int64 =>  FromInt64(bsonReader.ReadInt64(), _units),
-                BsonType.Int32 =>  FromInt32(bsonReader.ReadInt32(), _units),
-                BsonType.Double =>  FromDouble(bsonReader.ReadDouble(), _units),
                 BsonType.Document => FromDocument(context),
+                BsonType.Double =>  FromDouble(bsonReader.ReadDouble(), _units),
+                BsonType.Int32 =>  FromInt32(bsonReader.ReadInt32(), _units),
+                BsonType.Int64 =>  FromInt64(bsonReader.ReadInt64(), _units),
+                BsonType.String => TimeOnly.ParseExact(bsonReader.ReadString(), "o"),
                 _ => throw CreateCannotDeserializeFromBsonTypeException(bsonType)
             };
         }
@@ -156,6 +156,19 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             switch (_representation)
             {
+                case BsonType.Document:
+                    bsonWriter.WriteStartDocument();
+                    bsonWriter.WriteInt32("Hour", value.Hour);
+                    bsonWriter.WriteInt32("Minute", value.Minute);
+                    bsonWriter.WriteInt32("Second", value.Second);
+                    bsonWriter.WriteInt32("Millisecond", value.Millisecond);
+                    // Microsecond and Nanosecond properties were added in .NET 7
+                    bsonWriter.WriteInt32("Microsecond", GetMicrosecondsComponent(value.Ticks));
+                    bsonWriter.WriteInt32("Nanosecond", GetNanosecondsComponent(value.Ticks));
+                    bsonWriter.WriteInt64("Ticks", value.Ticks);
+                    bsonWriter.WriteEndDocument();
+                    break;
+
                 case BsonType.Double:
                     bsonWriter.WriteDouble(ToDouble(value, _units));
                     break;
@@ -172,18 +185,6 @@ namespace MongoDB.Bson.Serialization.Serializers
                     bsonWriter.WriteString(value.ToString("o"));
                     break;
 
-                case BsonType.Document:
-                    bsonWriter.WriteStartDocument();
-                    bsonWriter.WriteInt32("Hour", value.Hour);
-                    bsonWriter.WriteInt32("Minute", value.Minute);
-                    bsonWriter.WriteInt32("Second", value.Second);
-                    bsonWriter.WriteInt32("Millisecond", value.Millisecond);
-                    // Microsecond and Nanosecond properties were added in .NET 7
-                    bsonWriter.WriteInt32("Microsecond", GetMicrosecondsComponent(value.Ticks));
-                    bsonWriter.WriteInt32("Nanosecond", GetNanosecondsComponent(value.Ticks));
-                    bsonWriter.WriteInt64("Ticks", value.Ticks);
-                    bsonWriter.WriteEndDocument();
-                    break;
 
                 default:
                     throw new BsonSerializationException($"'{_representation}' is not a valid TimeOnly representation.");
