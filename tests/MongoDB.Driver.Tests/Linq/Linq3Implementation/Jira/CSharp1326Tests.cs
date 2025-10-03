@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 stages,
                 "{ $match : { ParentId : { $in : [1, 2, 3] }, Gender : 'Male' } }",
                 "{ $group : { _id : '$ParentId', _elements : { $push : '$$ROOT' } } }",
-                "{ $project : { Key : '$_id', Value : '$_elements', _id : 0 } }");
+                "{ $project : { k : '$_id', v : '$_elements', _id : 0 } }");
 
             var results = aggregate.ToList().OrderBy(x => x.Key).ToList();
             results[0].Key.Should().Be(1);
