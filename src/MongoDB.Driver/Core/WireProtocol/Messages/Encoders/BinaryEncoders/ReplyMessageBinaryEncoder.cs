@@ -28,12 +28,14 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
     {
         // fields
         private readonly IBsonSerializer<TDocument> _serializer;
+        private readonly IBsonSerializationDomain _serializationDomain;
 
         // constructors
         public ReplyMessageBinaryEncoder(Stream stream, MessageEncoderSettings encoderSettings, IBsonSerializer<TDocument> serializer)
             : base(stream, encoderSettings)
         {
             _serializer = Ensure.IsNotNull(serializer, nameof(serializer));
+            _serializationDomain = encoderSettings?.GetOrDefault<IBsonSerializationDomain>(MessageEncoderSettingsName.SerializationDomain, null) ?? BsonSerializer.DefaultSerializationDomain;
         }
 
         // methods
@@ -60,7 +62,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 
             if (queryFailure)
             {
-                var context = BsonDeserializationContext.CreateRoot(binaryReader);
+                var context = BsonDeserializationContext.CreateRoot(binaryReader, SerializationDomain);
                 queryFailureDocument = BsonDocumentSerializer.Instance.Deserialize(context);
             }
             else
@@ -69,7 +71,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 for (var i = 0; i < numberReturned; i++)
                 {
                     var allowDuplicateElementNames = typeof(TDocument) == typeof(BsonDocument);
-                    var context = BsonDeserializationContext.CreateRoot(binaryReader, builder =>
+                    var context = BsonDeserializationContext.CreateRoot(binaryReader, SerializationDomain, builder =>
                     {
                         builder.AllowDuplicateElementNames = allowDuplicateElementNames;
                     });
@@ -124,14 +126,14 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             stream.WriteInt32(message.NumberReturned);
             if (message.QueryFailure)
             {
-                var context = BsonSerializationContext.CreateRoot(binaryWriter);
+                var context = BsonSerializationContext.CreateRoot(binaryWriter, _serializationDomain);
                 _serializer.Serialize(context, message.QueryFailureDocument);
             }
             else
             {
                 foreach (var doc in message.Documents)
                 {
-                    var context = BsonSerializationContext.CreateRoot(binaryWriter);
+                    var context = BsonSerializationContext.CreateRoot(binaryWriter, _serializationDomain);
                     _serializer.Serialize(context, doc);
                 }
             }

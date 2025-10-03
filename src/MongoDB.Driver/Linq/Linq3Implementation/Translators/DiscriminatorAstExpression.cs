@@ -16,6 +16,7 @@
 using System;
 using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 
@@ -23,17 +24,17 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators;
 
 internal static class DiscriminatorAstExpression
 {
-    public static AstExpression TypeEquals(AstGetFieldExpression discriminatorField, IDiscriminatorConvention discriminatorConvention, Type nominalType, Type actualType)
+    public static AstExpression TypeEquals(AstGetFieldExpression discriminatorField, IDiscriminatorConvention discriminatorConvention, Type nominalType, Type actualType, IBsonSerializationDomain serializationDomain)
     {
-        var discriminator = discriminatorConvention.GetDiscriminator(nominalType, actualType);
+        var discriminator = discriminatorConvention.GetDiscriminatorInternal(nominalType, actualType, serializationDomain);
         return discriminator == null ?
             AstExpression.IsMissing(discriminatorField) :
             AstExpression.Eq(discriminatorField, discriminator);
     }
 
-    public static AstExpression TypeIs(AstGetFieldExpression discriminatorField, IHierarchicalDiscriminatorConvention discriminatorConvention, Type nominalType, Type actualType)
+    public static AstExpression TypeIs(AstGetFieldExpression discriminatorField, IHierarchicalDiscriminatorConvention discriminatorConvention, Type nominalType, Type actualType, IBsonSerializationDomain serializationDomain)
     {
-        var discriminator = discriminatorConvention.GetDiscriminator(nominalType, actualType);
+        var discriminator = discriminatorConvention.GetDiscriminatorInternal(nominalType, actualType, serializationDomain);
         var lastItem = discriminator is BsonArray array ? array.Last() : discriminator;
         return AstExpression.Cond(
             AstExpression.Eq(AstExpression.Type(discriminatorField), "array"),
@@ -41,9 +42,9 @@ internal static class DiscriminatorAstExpression
             AstExpression.Eq(discriminatorField, lastItem));
     }
 
-    public static AstExpression TypeIs(AstGetFieldExpression discriminatorField, IScalarDiscriminatorConvention discriminatorConvention, Type nominalType, Type actualType)
+    public static AstExpression TypeIs(AstGetFieldExpression discriminatorField, IScalarDiscriminatorConvention discriminatorConvention, Type nominalType, Type actualType, IBsonSerializationDomain serializationDomain)
     {
-        var discriminators = discriminatorConvention.GetDiscriminatorsForTypeAndSubTypes(actualType);
+        var discriminators = discriminatorConvention.GetDiscriminatorsForTypeAndSubTypesInternal(actualType, serializationDomain);
         return discriminators.Length == 1
             ? AstExpression.Eq(discriminatorField, discriminators.Single())
             : AstExpression.In(discriminatorField, new BsonArray(discriminators));

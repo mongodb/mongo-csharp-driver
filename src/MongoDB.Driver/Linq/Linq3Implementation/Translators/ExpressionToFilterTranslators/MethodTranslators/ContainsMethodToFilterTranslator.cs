@@ -76,13 +76,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 var fieldTranslation = ExpressionToFilterFieldTranslator.TranslateEnumerable(context, fieldExpression);
                 var itemSerializer = ArraySerializerHelper.GetItemSerializer(fieldTranslation.Serializer);
                 var value = itemExpression.GetConstantValue<object>(containingExpression: expression);
-                var serializedValue = SerializationHelper.SerializeValue(itemSerializer, value);
+                var serializedValue = SerializationHelper.SerializeValue(context.SerializationDomain, itemSerializer, value);
                 return AstFilter.ElemMatch(fieldTranslation.Ast, AstFilter.Eq(AstFilter.Field("@<elem>"), serializedValue)); // @<elem> represents the implied element
             }
 
             var itemTranslation = ExpressionToFilterFieldTranslator.Translate(context, itemExpression);
             var sourceValues = fieldExpression.GetConstantValue<IEnumerable>(containingExpression: expression);
-            var serializedValues = SerializationHelper.SerializeValues(itemTranslation.Serializer, sourceValues);
+            var serializedValues = SerializationHelper.SerializeValues(context.SerializationDomain, itemTranslation.Serializer, sourceValues);
             return AstFilter.In(itemTranslation.Ast, serializedValues);
         }
 

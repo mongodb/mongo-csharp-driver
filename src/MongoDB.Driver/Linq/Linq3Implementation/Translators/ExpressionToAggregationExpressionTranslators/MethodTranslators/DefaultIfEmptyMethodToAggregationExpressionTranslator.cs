@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 {
                     var sourceItemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
                     var defaultValue = sourceItemSerializer.ValueType.GetDefaultValue();
-                    var serializedDefaultValue = SerializationHelper.SerializeValue(sourceItemSerializer, defaultValue);
+                    var serializedDefaultValue = SerializationHelper.SerializeValue(context.SerializationDomain, sourceItemSerializer, defaultValue);
                     defaultValueAst = AstExpression.Constant(new BsonArray { serializedDefaultValue });
                 }
                 var ast = AstExpression.Let(

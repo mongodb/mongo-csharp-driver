@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 
                 var flagExpression = arguments[0];
                 var flag = flagExpression.GetConstantValue<object>(containingExpression: expression);
-                var serializedFlag = SerializationHelper.SerializeValue(fieldTranslation.Serializer, flag);
+                var serializedFlag = SerializationHelper.SerializeValue(context.SerializationDomain, fieldTranslation.Serializer, flag);
                 return AstFilter.BitsAllSet(fieldTranslation.Ast, serializedFlag);
             }
 

@@ -90,7 +90,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             }
 
             var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, leftExpression);
-            var serializedComparand = SerializationHelper.SerializeValue(fieldTranslation.Serializer, comparandExpression, expression);
+            var serializedComparand = SerializationHelper.SerializeValue(context.SerializationDomain, fieldTranslation.Serializer, comparandExpression, expression);
             return AstFilter.Compare(fieldTranslation.Ast, comparisonOperator, serializedComparand);
         }
 

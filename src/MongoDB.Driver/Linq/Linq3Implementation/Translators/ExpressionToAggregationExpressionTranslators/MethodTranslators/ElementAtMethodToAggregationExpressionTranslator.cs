@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 if (method.IsOneOf(__elementAtOrDefaultMethods))
                 {
                     var defaultValue = itemSerializer.ValueType.GetDefaultValue();
-                    var serializedDefaultValue = SerializationHelper.SerializeValue(itemSerializer, defaultValue);
+                    var serializedDefaultValue = SerializationHelper.SerializeValue(context.SerializationDomain, itemSerializer, defaultValue);
 
                     var (sourceVarBinding, sourceAst) = AstExpression.UseVarIfNotSimple("source", sourceTranslation.Ast);
                     var (indexVarBinding, indexAst) = AstExpression.UseVarIfNotSimple("index", indexTranslation.Ast);

@@ -53,11 +53,41 @@ namespace MongoDB.Driver.Core.Operations
         private readonly int? _limit;
         private readonly TimeSpan? _maxTime;
         private readonly MessageEncoderSettings _messageEncoderSettings;
+        private readonly IBsonSerializationDomain _serializationDomain;
         private readonly long? _operationId;
         private BsonDocument _postBatchResumeToken;
         private readonly IBsonSerializer<TDocument> _serializer;
         private readonly bool _wasFirstBatchEmpty;
 
+        public AsyncCursor(
+            IChannelSource channelSource,
+            CollectionNamespace collectionNamespace,
+            BsonValue comment,
+            IReadOnlyList<TDocument> firstBatch,
+            long cursorId,
+            int? batchSize,
+            int? limit,
+            IBsonSerializer<TDocument> serializer,
+            MessageEncoderSettings messageEncoderSettings,
+            IBsonSerializationDomain serializationDomain,
+            TimeSpan? maxTime = null)
+            : this(
+                channelSource,
+                collectionNamespace,
+                comment,
+                firstBatch,
+                cursorId,
+                null, // postBatchResumeToken
+                batchSize,
+                limit,
+                serializer,
+                messageEncoderSettings,
+                serializationDomain,
+                maxTime)
+        {
+        }
+
+        //EXIT
         public AsyncCursor(
             IChannelSource channelSource,
             CollectionNamespace collectionNamespace,
@@ -75,11 +105,11 @@ namespace MongoDB.Driver.Core.Operations
                 comment,
                 firstBatch,
                 cursorId,
-                null, // postBatchResumeToken
-                batchSize,
+                batchSize, // postBatchResumeToken
                 limit,
                 serializer,
                 messageEncoderSettings,
+                BsonSerializer.DefaultSerializationDomain,
                 maxTime)
         {
         }
@@ -95,6 +125,7 @@ namespace MongoDB.Driver.Core.Operations
             int? limit,
             IBsonSerializer<TDocument> serializer,
             MessageEncoderSettings messageEncoderSettings,
+            IBsonSerializationDomain serializationDomain,
             TimeSpan? maxTime)
         {
             _operationId = EventContext.OperationId;
@@ -108,6 +139,7 @@ namespace MongoDB.Driver.Core.Operations
             _limit = Ensure.IsNullOrGreaterThanOrEqualToZero(limit, nameof(limit));
             _serializer = Ensure.IsNotNull(serializer, nameof(serializer));
             _messageEncoderSettings = messageEncoderSettings;
+            _serializationDomain = Ensure.IsNotNull(serializationDomain, nameof(serializationDomain));
             _maxTime = maxTime;
 
             if (_limit > 0 && _firstBatch.Count > _limit)
@@ -118,6 +150,35 @@ namespace MongoDB.Driver.Core.Operations
             _wasFirstBatchEmpty = firstBatch.Count == 0;
 
             DisposeChannelSourceIfNoLongerNeeded();
+        }
+
+        //EXIT
+        public AsyncCursor(
+            IChannelSource channelSource,
+            CollectionNamespace collectionNamespace,
+            BsonValue comment,
+            IReadOnlyList<TDocument> firstBatch,
+            long cursorId,
+            BsonDocument postBatchResumeToken,
+            int? batchSize,
+            int? limit,
+            IBsonSerializer<TDocument> serializer,
+            MessageEncoderSettings messageEncoderSettings,
+            TimeSpan? maxTime)
+            : this(
+                channelSource,
+                collectionNamespace,
+                comment,
+                firstBatch,
+                cursorId,
+                postBatchResumeToken,
+                batchSize,
+                limit,
+                serializer,
+                messageEncoderSettings,
+                BsonSerializer.DefaultSerializationDomain,
+                maxTime)
+        {
         }
 
         public IEnumerable<TDocument> Current
@@ -183,7 +244,7 @@ namespace MongoDB.Driver.Core.Operations
 
             using (batch)
             {
-                var documents = CursorBatchDeserializationHelper.DeserializeBatch(batch, _serializer, _messageEncoderSettings);
+                var documents = CursorBatchDeserializationHelper.DeserializeBatch(batch, _serializer, _messageEncoderSettings, _serializationDomain);
                 return new CursorBatch<TDocument>(cursorId, postBatchResumeToken, documents);
             }
         }
@@ -233,7 +294,8 @@ namespace MongoDB.Driver.Core.Operations
                     null, // postWriteAction
                     CommandResponseHandling.Return,
                     __getMoreCommandResultSerializer,
-                    _messageEncoderSettings);
+                    _messageEncoderSettings,
+                    _serializationDomain);
             }
             catch (MongoCommandException ex) when (IsMongoCursorNotFoundException(ex))
             {
@@ -263,7 +325,8 @@ namespace MongoDB.Driver.Core.Operations
                     null, // postWriteAction
                     CommandResponseHandling.Return,
                     __getMoreCommandResultSerializer,
-                    _messageEncoderSettings).ConfigureAwait(false);
+                    _messageEncoderSettings,
+                    _serializationDomain).ConfigureAwait(false);
             }
             catch (MongoCommandException ex) when (IsMongoCursorNotFoundException(ex))
             {
@@ -290,7 +353,8 @@ namespace MongoDB.Driver.Core.Operations
                 null, // postWriteAction
                 CommandResponseHandling.Return,
                 BsonDocumentSerializer.Instance,
-                _messageEncoderSettings);
+                _messageEncoderSettings,
+                _serializationDomain);
 
             ThrowIfKillCursorsCommandFailed(result, channel.ConnectionDescription.ConnectionId);
         }
@@ -312,7 +376,8 @@ namespace MongoDB.Driver.Core.Operations
                 null, // postWriteAction
                 CommandResponseHandling.Return,
                 BsonDocumentSerializer.Instance,
-                _messageEncoderSettings)
+                _messageEncoderSettings,
+                _serializationDomain)
                 .ConfigureAwait(false);
 
             ThrowIfKillCursorsCommandFailed(result, channel.ConnectionDescription.ConnectionId);

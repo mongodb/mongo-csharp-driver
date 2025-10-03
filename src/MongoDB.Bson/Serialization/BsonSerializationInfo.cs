@@ -108,6 +108,20 @@ namespace MongoDB.Bson.Serialization
             get { return _nominalType; }
         }
 
+        /* DOMAIN-API Both DeserializeValue and SerializeValue should be changed to accept a domain as input.
+         * DeserializeValue is only used by BsonDocumentBackedClass
+         * SerializeValue is used by BsonDocumentBackedClass and also by GridFS buckets to serialize the Id field.
+         *
+         * BsonDocumentBackedClass is the base for a few classes in the driver (GridFSFileInfo, ChangeStreamPreAndPostImagesOptions, etc).
+         * For those classes we can use the default domain, as no custom serialization is expected.
+         *
+         * GridFS buckets on the other hand allow the user to specify a custom Id serializer, which may require a custom domain.
+         * But looking at the docs it seems that ObjectId is the preferred type for the Id field, and I suppose there won't need to be custom serialization.
+         *
+         * Thus for now I think it's acceptable to use the default domain in SerializeValue too, but we should revisit this decision at a later time.
+         */
+
+        //DOMAIN-API This method should be changed to accept a domain as input.
         /// <summary>
         /// Deserializes the value.
         /// </summary>
@@ -118,7 +132,7 @@ namespace MongoDB.Bson.Serialization
             var tempDocument = new BsonDocument("value", value);
             using (var reader = new BsonDocumentReader(tempDocument))
             {
-                var context = BsonDeserializationContext.CreateRoot(reader);
+                var context = BsonDeserializationContext.CreateRoot(reader, BsonSerializer.DefaultSerializationDomain);
                 reader.ReadStartDocument();
                 reader.ReadName("value");
                 var deserializedValue = _serializer.Deserialize(context);
@@ -144,6 +158,7 @@ namespace MongoDB.Bson.Serialization
         /// <inheritdoc/>
         public override int GetHashCode() => 0;
 
+        //DOMAIN-API This method should be changed to accept a domain as input.
         /// <summary>
         /// Serializes the value.
         /// </summary>
@@ -154,7 +169,7 @@ namespace MongoDB.Bson.Serialization
             var tempDocument = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(tempDocument))
             {
-                var context = BsonSerializationContext.CreateRoot(bsonWriter);
+                var context = BsonSerializationContext.CreateRoot(bsonWriter, BsonSerializer.DefaultSerializationDomain);
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName("value");
                 _serializer.Serialize(context, value);
@@ -163,6 +178,7 @@ namespace MongoDB.Bson.Serialization
             }
         }
 
+        //DOMAIN-API This method should be probably removed, it's never used.
         /// <summary>
         /// Serializes the values.
         /// </summary>
@@ -173,7 +189,7 @@ namespace MongoDB.Bson.Serialization
             var tempDocument = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(tempDocument))
             {
-                var context = BsonSerializationContext.CreateRoot(bsonWriter);
+                var context = BsonSerializationContext.CreateRoot(bsonWriter, BsonSerializer.DefaultSerializationDomain);
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName("values");
                 bsonWriter.WriteStartArray();
@@ -188,6 +204,7 @@ namespace MongoDB.Bson.Serialization
             }
         }
 
+        //DOMAIN-API This method should be probably removed, it's never used.
         /// <summary>
         /// Creates a new BsonSerializationInfo object using the elementName provided and copying all other attributes.
         /// </summary>
