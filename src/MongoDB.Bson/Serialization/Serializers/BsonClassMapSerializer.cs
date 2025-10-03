@@ -29,10 +29,11 @@ namespace MongoDB.Bson.Serialization
     /// Represents a serializer for a class map.
     /// </summary>
     /// <typeparam name="TClass">The type of the class.</typeparam>
-    public sealed class BsonClassMapSerializer<TClass> : SerializerBase<TClass>, IBsonIdProvider, IBsonDocumentSerializer, IBsonPolymorphicSerializer, IHasDiscriminatorConvention
+    public sealed class BsonClassMapSerializer<TClass> : SerializerBase<TClass>, IBsonIdProvider, IBsonDocumentSerializer, IBsonPolymorphicSerializer, IHasDiscriminatorConvention, IHasSerializationDomain
     {
         // private fields
         private readonly BsonClassMap _classMap;
+        private readonly IBsonSerializationDomain _serializationDomain;
 
         // constructors
         /// <summary>
@@ -40,7 +41,16 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <param name="classMap">The class map.</param>
         public BsonClassMapSerializer(BsonClassMap classMap)
+            : this(BsonSerializationDomain.Default, classMap)
         {
+        }
+
+        internal BsonClassMapSerializer(IBsonSerializationDomain serializationDomain, BsonClassMap classMap)
+        {
+            if (serializationDomain == null)
+            {
+                throw new ArgumentNullException(nameof(serializationDomain));
+            }
             if (classMap == null)
             {
                 throw new ArgumentNullException(nameof(classMap));
@@ -55,6 +65,7 @@ namespace MongoDB.Bson.Serialization
                 throw new ArgumentException("Class map is not frozen.", nameof(classMap));
             }
 
+            _serializationDomain = serializationDomain;
             _classMap = classMap;
         }
 
@@ -72,6 +83,8 @@ namespace MongoDB.Bson.Serialization
         {
             get { return true; }
         }
+
+        IBsonSerializationDomain IHasSerializationDomain.SerializationDomain => _serializationDomain;
 
         // public methods
         /// <summary>
@@ -98,8 +111,8 @@ namespace MongoDB.Bson.Serialization
                 return DeserializeClass(context);
             }
 
-            var serializer = BsonSerializer.LookupSerializer(actualType);
-            return (TClass)serializer.Deserialize(context);
+            var actualTypeSerializer = this.GetSerializerForDerivedType(actualType);
+            return (TClass)actualTypeSerializer.Deserialize(context);
         }
 
         /// <summary>
@@ -382,8 +395,8 @@ namespace MongoDB.Bson.Serialization
                 return;
             }
 
-            var serializer = BsonSerializer.LookupSerializer(actualType);
-            serializer.Serialize(context, args, value);
+            var actualTypeSerializer = this.GetSerializerForDerivedType(actualType);
+            actualTypeSerializer.Serialize(context, args, value);
         }
 
         /// <summary>

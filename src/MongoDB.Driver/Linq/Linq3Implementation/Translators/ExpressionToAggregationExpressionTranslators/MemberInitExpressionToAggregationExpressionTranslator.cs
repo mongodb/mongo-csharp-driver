@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var constructorInfo = newExpression.Constructor; // note: can be null when using the default constructor with a struct
             var constructorArguments = newExpression.Arguments;
             var computedFields = new List<AstComputedField>();
-            var classMap = CreateClassMap(newExpression.Type, constructorInfo, out var creatorMap);
+            var classMap = CreateClassMap(context.SerializationDomain, newExpression.Type, constructorInfo, out var creatorMap);
 
             if (constructorInfo != null && creatorMap != null)
             {
@@ -100,17 +100,18 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             return new TranslatedExpression(expression, ast, serializer);
         }
 
-        private static BsonClassMap CreateClassMap(Type classType, ConstructorInfo constructorInfo, out BsonCreatorMap creatorMap)
+        private static BsonClassMap CreateClassMap(IBsonSerializationDomain serializationDomain, Type classType, ConstructorInfo constructorInfo, out BsonCreatorMap creatorMap)
         {
             BsonClassMap baseClassMap = null;
             if (classType.BaseType != null)
             {
-                baseClassMap = CreateClassMap(classType.BaseType, null, out _);
+                baseClassMap = CreateClassMap(serializationDomain, classType.BaseType, null, out _);
             }
 
             var classMapType = typeof(BsonClassMap<>).MakeGenericType(classType);
-            var classMapConstructorInfo = classMapType.GetConstructor(new Type[] { typeof(BsonClassMap) });
-            var classMap = (BsonClassMap)classMapConstructorInfo.Invoke(new object[] { baseClassMap });
+            var bindingAttr = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+            var classMapConstructorInfo = classMapType.GetConstructor(bindingAttr, binder: null, types: [typeof(IBsonSerializationDomain), typeof(BsonClassMap)], modifiers: null);
+            var classMap = (BsonClassMap)classMapConstructorInfo.Invoke([serializationDomain, baseClassMap]);
             if (constructorInfo != null)
             {
                 creatorMap = classMap.MapConstructor(constructorInfo);
