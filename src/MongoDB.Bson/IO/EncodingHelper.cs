@@ -25,22 +25,33 @@ namespace MongoDB.Bson.IO
     {
         public readonly struct DisposableSegment : IDisposable
         {
-            private IDisposable DisposableData { get; }
+            private bool DisposeRentedBuffer { get; }
+            private ThreadStaticBuffer.RentedBuffer RentedBuffer { get; }
             public ArraySegment<byte> Segment { get; }
 
-            public DisposableSegment(IDisposable disposableData, ArraySegment<byte> segment)
+            public DisposableSegment(ThreadStaticBuffer.RentedBuffer rentedBuffer, ArraySegment<byte> segment)
             {
-                DisposableData = disposableData;
+                DisposeRentedBuffer = true;
+                RentedBuffer = rentedBuffer;
+                Segment = segment;
+            }
+
+            public DisposableSegment(ArraySegment<byte> segment)
+            {
+                DisposeRentedBuffer = false;
                 Segment = segment;
             }
 
             public void Dispose()
             {
-                DisposableData?.Dispose();
+                if (DisposeRentedBuffer)
+                {
+                    RentedBuffer.Dispose();
+                }
             }
         }
 
-        private static readonly ArraySegment<byte> __emptySegment = new ArraySegment<byte>(new byte[0]);
+        private static readonly ArraySegment<byte> __emptySegment = new(new byte[0]);
 
         public static DisposableSegment GetBytesUsingThreadStaticBuffer(this Encoding encoding, string value)
         {
@@ -57,7 +68,7 @@ namespace MongoDB.Bson.IO
             var length = value.Length;
             if (length == 0)
             {
-                return new DisposableSegment(null, __emptySegment);
+                return new DisposableSegment(__emptySegment);
             }
 
             var maxSize = encoding.GetMaxByteCount(length);
