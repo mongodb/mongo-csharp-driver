@@ -176,7 +176,17 @@ internal partial class KnownSerializerFinderVisitor
         MongoEnumerableMethod.PercentileNullableSingle,
         MongoEnumerableMethod.PercentileNullableSingleWithSelector,
         MongoEnumerableMethod.PercentileSingle,
-        MongoEnumerableMethod.PercentileSingleWithSelector
+        MongoEnumerableMethod.PercentileSingleWithSelector,
+        WindowMethod.PercentileWithDecimal,
+        WindowMethod.PercentileWithDouble,
+        WindowMethod.PercentileWithInt32,
+        WindowMethod.PercentileWithInt64,
+        WindowMethod.PercentileWithNullableDecimal,
+        WindowMethod.PercentileWithNullableDouble,
+        WindowMethod.PercentileWithNullableInt32,
+        WindowMethod.PercentileWithNullableInt64,
+        WindowMethod.PercentileWithNullableSingle,
+        WindowMethod.PercentileWithSingle
     ];
 
     private static readonly HashSet<MethodInfo> __averageOrMedianOrPercentileWithSelectorMethods =
@@ -220,7 +230,17 @@ internal partial class KnownSerializerFinderVisitor
         MongoEnumerableMethod.PercentileNullableInt32WithSelector,
         MongoEnumerableMethod.PercentileNullableInt64WithSelector,
         MongoEnumerableMethod.PercentileNullableSingleWithSelector,
-        MongoEnumerableMethod.PercentileSingleWithSelector
+        MongoEnumerableMethod.PercentileSingleWithSelector,
+        WindowMethod.PercentileWithDecimal,
+        WindowMethod.PercentileWithDouble,
+        WindowMethod.PercentileWithInt32,
+        WindowMethod.PercentileWithInt64,
+        WindowMethod.PercentileWithNullableDecimal,
+        WindowMethod.PercentileWithNullableDouble,
+        WindowMethod.PercentileWithNullableInt32,
+        WindowMethod.PercentileWithNullableInt64,
+        WindowMethod.PercentileWithNullableSingle,
+        WindowMethod.PercentileWithSingle
     ];
 
     private static readonly HashSet<MethodInfo> __countMethods =
@@ -814,6 +834,8 @@ internal partial class KnownSerializerFinderVisitor
                 case "SelectMany": DeduceSelectManySerializers(); break;
                 case "SequenceEqual": DeduceSequenceEqualMethodSerializers(); break;
                 case "SetEquals": DeduceSetEqualsMethodSerializers(); break;
+                case "SetWindowFields": DeduceSetWindowFieldsMethodSerializers(); break;
+                case "Shift": DeduceShiftMethodSerializers(); break;
                 case "Sin": DeduceSinMethodSerializers(); break;
                 case "Sinh": DeduceSinhMethodSerializers(); break;
                 case "Split": DeduceSplitMethodSerializers(); break;
@@ -2962,6 +2984,43 @@ internal partial class KnownSerializerFinderVisitor
                     declaringType.ImplementsIEnumerable(out var declaringTypeItemType) &&
                     otherParameter.ParameterType.ImplementsIEnumerable(out var otherTypeItemType) &&
                     otherTypeItemType == declaringTypeItemType;
+            }
+        }
+
+        void DeduceSetWindowFieldsMethodSerializers()
+        {
+            if (method.Is(EnumerableMethod.First))
+            {
+                var objectExpression =  node.Object;
+                var otherExpression = arguments[0];
+
+                DeduceCollectionAndCollectionSerializers(objectExpression, otherExpression);
+                DeduceReturnsBooleanSerializer();
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
+        }
+
+        void DeduceShiftMethodSerializers()
+        {
+            if (method.IsOneOf(WindowMethod.Shift, WindowMethod.ShiftWithDefaultValue))
+            {
+                var sourceExpression = arguments[0];
+                var selectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
+                var selectorSourceItemParameter = selectorLambda.Parameters[0];
+
+                DeduceItemAndCollectionSerializers(selectorSourceItemParameter, sourceExpression);
+
+                if (IsNotKnown(node) && IsKnown(selectorLambda.Body, out var resultSerializer))
+                {
+                    AddKnownSerializer(node, resultSerializer);
+                }
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
             }
         }
 
