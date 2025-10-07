@@ -26,8 +26,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
     {
         private static readonly MethodInfo[] __selectManyMethods =
         {
-            EnumerableMethod.SelectMany,
-            QueryableMethod.SelectMany
+            EnumerableMethod.SelectManyWithSelector,
+            QueryableMethod.SelectManyWithSelector
         };
 
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
