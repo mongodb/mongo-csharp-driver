@@ -42,9 +42,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var valueExpression = arguments[0];
             var optionsExpression = arguments[1];
 
-            var toSerializer = context.KnownSerializers.GetSerializer(expression);
-            var toBsonType = GetResultRepresentation(expression, toSerializer);
+            var toBsonType = GetResultRepresentation(expression, toType);
             var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
+            var toSerializer = context.KnownSerializers.GetSerializer(expression);
             var (subType, byteOrder, format, onErrorAst, onNullAst) = TranslateOptions(context, expression, optionsExpression, toSerializer);
 
             var ast = AstExpression.Convert(valueTranslation.Ast, toBsonType.Render(), subType, byteOrder, format, onErrorAst, onNullAst);
@@ -144,14 +144,39 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             return (subType, byteOrder, format, onErrorTranslation?.Ast, onNullTranslation?.Ast);
         }
 
-        private static BsonType GetResultRepresentation(Expression expression, IBsonSerializer resultSerializer)
+        private static BsonType GetResultRepresentation(Expression expression, Type toType)
         {
-            if (resultSerializer is not IHasRepresentationSerializer hasRepresentationSerializer)
-            {
-                throw new ExpressionNotSupportedException(expression, because: $"{resultSerializer.GetType().Name} does not implement {nameof(IHasRepresentationSerializer)}");
-            }
+            var isNullable = toType.IsNullable();
+            var valueType = isNullable ? Nullable.GetUnderlyingType(toType) : toType;
 
-            return hasRepresentationSerializer.Representation;
+            var representation = Type.GetTypeCode(valueType) switch
+            {
+                TypeCode.Boolean => BsonType.Boolean,
+                TypeCode.Byte => BsonType.Int32,
+                TypeCode.Char => BsonType.String,
+                TypeCode.DateTime => BsonType.DateTime,
+                TypeCode.Decimal => BsonType.Decimal128,
+                TypeCode.Double => BsonType.Double,
+                TypeCode.Int16 => BsonType.Int32,
+                TypeCode.Int32 => BsonType.Int32,
+                TypeCode.Int64 => BsonType.Int64,
+                TypeCode.SByte => BsonType.Int32,
+                TypeCode.Single => BsonType.Double,
+                TypeCode.String => BsonType.String,
+                TypeCode.UInt16 => BsonType.Int32,
+                TypeCode.UInt32 => BsonType.Int64,
+                TypeCode.UInt64 => BsonType.Decimal128,
+
+                _ when valueType == typeof(byte[]) => BsonType.Binary,
+                _ when valueType == typeof(BsonBinaryData) => BsonType.Binary,
+                _ when valueType == typeof(Decimal128) => BsonType.Decimal128,
+                _ when valueType == typeof(Guid) => BsonType.Binary,
+                _ when valueType == typeof(ObjectId) => BsonType.ObjectId,
+
+                _ => throw new ExpressionNotSupportedException(expression, because: $"{toType} is not a valid TTo for Convert")
+            };
+
+            return representation;
         }
     }
 }

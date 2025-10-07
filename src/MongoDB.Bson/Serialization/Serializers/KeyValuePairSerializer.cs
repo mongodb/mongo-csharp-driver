@@ -21,32 +21,12 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// An interface implemented by KeyValuePairSerializer.
     /// </summary>
-    public interface IKeyValuePairSerializer : IBsonSerializer
+    public interface IKeyValuePairSerializer
     {
-        /// <summary>
-        /// Gets the key element name.
-        /// </summary>
-        string KeyElementName { get; }
-
-        /// <summary>
-        /// Gets the key serializer.
-        /// </summary>
-        IBsonSerializer KeySerializer { get; }
-
         /// <summary>
         /// Gets the representation.
         /// </summary>
         BsonType Representation { get;  }
-
-        /// <summary>
-        /// Gets the value element name.
-        /// </summary>
-        string ValueElementName { get; }
-
-        /// <summary>
-        /// Gets the value serializer.
-        /// </summary>
-        IBsonSerializer ValueSerializer { get; }
     }
 
     /// <summary>
@@ -61,7 +41,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="keySerializer">The key serializer.</param>
         /// <param name="valueSerializer">The value Serializer.</param>
         /// <returns>A KeyValuePairSerializer.</returns>
-        public static IKeyValuePairSerializer Create(
+        public static IBsonSerializer Create(
             BsonType representation,
             IBsonSerializer keySerializer,
             IBsonSerializer valueSerializer)
@@ -69,7 +49,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             var keyType = keySerializer.ValueType;
             var valueType = valueSerializer.ValueType;
             var keyValuePairSerializerType = typeof(KeyValuePairSerializer<,>).MakeGenericType(keyType, valueType);
-            return (IKeyValuePairSerializer)Activator.CreateInstance(keyValuePairSerializerType, [representation, keySerializer, valueSerializer]);
+            return (IBsonSerializer)Activator.CreateInstance(keyValuePairSerializerType, [representation, keySerializer, valueSerializer]);
         }
     }
 
@@ -172,15 +152,12 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             _helper = new SerializerHelper
             (
-                new SerializerHelper.Member(KeyElementName, Flags.Key),
-                new SerializerHelper.Member(ValueElementName, Flags.Value)
+                new SerializerHelper.Member("k", Flags.Key),
+                new SerializerHelper.Member("v", Flags.Value)
             );
         }
 
         // public properties
-        /// <inheritdoc/>
-        public string KeyElementName => "k"; // might be configurable some day
-
         /// <summary>
         /// Gets the key serializer.
         /// </summary>
@@ -192,16 +169,16 @@ namespace MongoDB.Bson.Serialization.Serializers
             get { return _lazyKeySerializer.Value; }
         }
 
-        IBsonSerializer IKeyValuePairSerializer.KeySerializer => KeySerializer;
-
-        /// <inheritdoc/>
+        /// <summary>
+        /// Gets the representation.
+        /// </summary>
+        /// <value>
+        /// The representation.
+        /// </value>
         public BsonType Representation
         {
             get { return _representation; }
         }
-
-        /// <inheritdoc/>
-        public string ValueElementName => "v"; // might be configurable some day
 
         /// <summary>
         /// Gets the value serializer.
@@ -213,8 +190,6 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             get { return _lazyValueSerializer.Value; }
         }
-
-        IBsonSerializer IKeyValuePairSerializer.ValueSerializer => ValueSerializer;
 
         // public methods
         /// <summary>
@@ -293,10 +268,10 @@ namespace MongoDB.Bson.Serialization.Serializers
             switch (memberName)
             {
                 case "Key":
-                    serializationInfo = new BsonSerializationInfo(KeyElementName, _lazyKeySerializer.Value, _lazyKeySerializer.Value.ValueType);
+                    serializationInfo = new BsonSerializationInfo("k", _lazyKeySerializer.Value, _lazyKeySerializer.Value.ValueType);
                     return true;
                 case "Value":
-                    serializationInfo = new BsonSerializationInfo(ValueElementName, _lazyValueSerializer.Value, _lazyValueSerializer.Value.ValueType);
+                    serializationInfo = new BsonSerializationInfo("v", _lazyValueSerializer.Value, _lazyValueSerializer.Value.ValueType);
                     return true;
             }
 
@@ -343,9 +318,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             var bsonWriter = context.Writer;
             bsonWriter.WriteStartDocument();
-            bsonWriter.WriteName(KeyElementName);
+            bsonWriter.WriteName("k");
             _lazyKeySerializer.Value.Serialize(context, value.Key);
-            bsonWriter.WriteName(ValueElementName);
+            bsonWriter.WriteName("v");
             _lazyValueSerializer.Value.Serialize(context, value.Value);
             bsonWriter.WriteEndDocument();
         }
