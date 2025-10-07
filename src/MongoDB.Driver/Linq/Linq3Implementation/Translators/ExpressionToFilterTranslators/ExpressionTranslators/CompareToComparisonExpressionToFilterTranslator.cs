@@ -14,6 +14,7 @@
 */
 
 using System.Linq.Expressions;
+using System.Reflection;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
 using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
@@ -28,7 +29,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
         {
             return
                 leftExpression is MethodCallExpression leftMethodCallExpression &&
-                IComparableMethod.IsCompareToMethod(leftMethodCallExpression.Method);
+                leftMethodCallExpression.Method is var method &&
+                (IComparableMethod.IsCompareToMethod(method) || IsStaticCompareMethod(method));
         }
 
         // caller is responsible for ensuring constant is on the right
@@ -39,13 +41,27 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             AstComparisonFilterOperator comparisonOperator,
             Expression rightExpression)
         {
-            if (leftExpression is MethodCallExpression leftMethodCallExpression &&
-                IComparableMethod.IsCompareToMethod(leftMethodCallExpression.Method))
+            if (CanTranslate(leftExpression))
             {
-                var fieldExpression = leftMethodCallExpression.Object;
+                var leftMethodCallExpression = (MethodCallExpression)leftExpression;
+                var method= leftMethodCallExpression.Method;
+                var arguments = leftMethodCallExpression.Arguments;
+
+                Expression fieldExpression;
+                Expression valueExpression;
+                if (method.IsStatic)
+                {
+                    fieldExpression = arguments[0];
+                    valueExpression = arguments[1];
+                }
+                else
+                {
+                    fieldExpression = leftMethodCallExpression.Object;
+                    valueExpression = arguments[0];
+                }
+
                 var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
 
-                var valueExpression = leftMethodCallExpression.Arguments[0];
                 var value = valueExpression.GetConstantValue<object>(containingExpression: expression);
                 var serializedValue = SerializationHelper.SerializeValue(fieldTranslation.Serializer, value);
 
@@ -57,6 +73,18 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             }
 
             throw new ExpressionNotSupportedException(expression);
+        }
+
+        private static bool IsStaticCompareMethod(MethodInfo method)
+        {
+            return
+                method.IsStatic &&
+                method.IsPublic &&
+                method.ReturnType == typeof(int) &&
+                method.GetParameters() is var parameters &&
+                parameters.Length == 2 &&
+                parameters[0].ParameterType == method.DeclaringType &&
+                parameters[1].ParameterType == parameters[0].ParameterType;
         }
     }
 }

@@ -72,6 +72,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         private static readonly MethodInfo __startsWithWithString;
         private static readonly MethodInfo __startsWithWithStringAndComparisonType;
         private static readonly MethodInfo __startsWithWithStringAndIgnoreCaseAndCulture;
+        private static readonly MethodInfo __staticCompare;
         private static readonly MethodInfo __stringInWithEnumerable;
         private static readonly MethodInfo __stringInWithParams;
         private static readonly MethodInfo __stringNinWithEnumerable;
@@ -151,6 +152,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             __startsWithWithString = ReflectionInfo.Method((string s, string value) => s.StartsWith(value));
             __startsWithWithStringAndComparisonType = ReflectionInfo.Method((string s, string value, StringComparison comparisonType) => s.StartsWith(value, comparisonType));
             __startsWithWithStringAndIgnoreCaseAndCulture = ReflectionInfo.Method((string s, string value, bool ignoreCase, CultureInfo culture) => s.StartsWith(value, ignoreCase, culture));
+            __staticCompare = ReflectionInfo.Method((string strA, string strB) => String.Compare(strA, strB));
             __stringInWithEnumerable = ReflectionInfo.Method((string s, IEnumerable<StringOrRegularExpression> values) => s.StringIn(values));
             __stringInWithParams = ReflectionInfo.Method((string s, StringOrRegularExpression[] values) => s.StringIn(values));
             __stringNinWithEnumerable = ReflectionInfo.Method((string s, IEnumerable<StringOrRegularExpression> values) => s.StringNin(values));
@@ -220,6 +222,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         public static MethodInfo StartsWithWithString => __startsWithWithString;
         public static MethodInfo StartsWithWithStringAndComparisonType => __startsWithWithStringAndComparisonType;
         public static MethodInfo StartsWithWithStringAndIgnoreCaseAndCulture => __startsWithWithStringAndIgnoreCaseAndCulture;
+        public static MethodInfo StaticCompare => __staticCompare;
         public static MethodInfo StringInWithEnumerable => __stringInWithEnumerable;
         public static MethodInfo StringInWithParams => __stringInWithParams;
         public static MethodInfo StringNinWithEnumerable => __stringNinWithEnumerable;
