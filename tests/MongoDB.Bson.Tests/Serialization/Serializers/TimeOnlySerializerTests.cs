@@ -123,10 +123,10 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             exception.Message.Should().Be("Deserialized TimeOnly components do not match the ticks value.");
         }
 
-        [Theory]
-        [InlineData("""{ "x" : { "Unknown": "test", Ticks: { "$numberDouble" : "307255946583" }  } }""" )]
-        public void Deserialize_with_document_should_throw_when_field_is_unknown(string json)
+        [Fact]
+        public void Deserialize_with_document_should_throw_when_field_is_unknown()
         {
+            const string json = """{ "x" : { "Unknown": "test", Ticks: { "$numberDouble" : "307255946583" }  } }""";
             var subject = new TimeOnlySerializer();
 
             using var reader = new JsonReader(json);
