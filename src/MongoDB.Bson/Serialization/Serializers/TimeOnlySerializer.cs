@@ -93,10 +93,13 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             _helper = new SerializerHelper
             (
-                new SerializerHelper.Member("Hour", Flags.Hour, isOptional: true),
-                new SerializerHelper.Member("Minute", Flags.Minute, isOptional: true),
-                new SerializerHelper.Member("Second", Flags.Second, isOptional: true),
-                new SerializerHelper.Member("Millisecond", Flags.Millisecond, isOptional: true),
+                //TimeOnlySerializer was introduced in version 3.0.0 of the driver. Prior to that, TimeOnly was serialized
+                //as a POCO. Due to that, Microsecond and Nanosecond could be missing, as they were introduced in .NET 7.
+                //To avoid deserialization issues, we treat Microsecond and Nanosecond as optional members.
+                new SerializerHelper.Member("Hour", Flags.Hour, isOptional: false),
+                new SerializerHelper.Member("Minute", Flags.Minute, isOptional: false),
+                new SerializerHelper.Member("Second", Flags.Second, isOptional: false),
+                new SerializerHelper.Member("Millisecond", Flags.Millisecond, isOptional: false),
                 new SerializerHelper.Member("Microsecond", Flags.Microsecond, isOptional: true),
                 new SerializerHelper.Member("Nanosecond", Flags.Nanosecond, isOptional: true),
                 new SerializerHelper.Member("Ticks", Flags.Ticks, isOptional: false)
@@ -240,6 +243,12 @@ namespace MongoDB.Bson.Serialization.Serializers
         private TimeOnly FromDocument(BsonDeserializationContext context)
         {
             var bsonReader = context.Reader;
+            var hour = 0;
+            var minute = 0;
+            var second = 0;
+            var millisecond = 0;
+            int? microsecond = null;
+            int? nanosecond = null;
             var ticks = 0L;
 
             _helper.DeserializeMembers(context, (_, flag) =>
@@ -247,17 +256,41 @@ namespace MongoDB.Bson.Serialization.Serializers
                 switch (flag)
                 {
                     case Flags.Hour:
+                        hour = bsonReader.ReadInt32();
+                        break;
                     case Flags.Minute:
+                        minute = bsonReader.ReadInt32();
+                        break;
                     case Flags.Second:
+                        second = bsonReader.ReadInt32();
+                        break;
                     case Flags.Millisecond:
+                        millisecond = bsonReader.ReadInt32();
+                        break;
                     case Flags.Microsecond:
+                        microsecond = bsonReader.ReadInt32();
+                        break;
                     case Flags.Nanosecond:
-                        bsonReader.SkipValue();  break; // ignore value (use Ticks instead)
-                    case Flags.Ticks: ticks = Int64Serializer.Instance.Deserialize(context);  break;
+                        nanosecond = bsonReader.ReadInt32();
+                        break;
+                    case Flags.Ticks: ticks = bsonReader.ReadInt64();
+                        break;
                 }
             });
 
-            return FromInt64(ticks, TimeOnlyUnits.Ticks);
+            var deserializedTimeOnly = new TimeOnly(ticks);
+
+            if (deserializedTimeOnly.Hour != hour ||
+                deserializedTimeOnly.Minute != minute ||
+                deserializedTimeOnly.Second != second ||
+                deserializedTimeOnly.Millisecond != millisecond ||
+                (microsecond.HasValue && GetMicrosecondsComponent(deserializedTimeOnly.Ticks) != microsecond.Value) ||
+                (nanosecond.HasValue && GetNanosecondsComponent(deserializedTimeOnly.Ticks) != nanosecond.Value))
+            {
+                throw new BsonSerializationException("Deserialized TimeOnly components do not match the ticks value.");
+            }
+
+            return deserializedTimeOnly;
         }
 
         private long TicksPerUnit(TimeOnlyUnits units)
