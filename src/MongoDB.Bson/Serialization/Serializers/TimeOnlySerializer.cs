@@ -218,7 +218,6 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         // private methods
-
         private TimeOnly FromDocument(BsonDeserializationContext context)
         {
             var bsonReader = context.Reader;
@@ -294,18 +293,16 @@ namespace MongoDB.Bson.Serialization.Serializers
                 : new TimeOnly(value * TicksPerUnit(units));
         }
 
-        private int GetNanosecondsComponent(long ticks)
-        {
-            // ticks * 100 % 1000
-            var nanosecondsPerTick = 100;
-            return (int)(ticks * nanosecondsPerTick % 1000);
-        }
-
         private int GetMicrosecondsComponent(long ticks)
         {
-            // ticks / 10 % 1000
             var ticksPerMicrosecond = TicksPerUnit(TimeOnlyUnits.Microseconds);
             return (int)(ticks / ticksPerMicrosecond % 1000);
+        }
+
+        private int GetNanosecondsComponent(long ticks)
+        {
+            var nanosecondsPerTick = 100;
+            return (int)(ticks * nanosecondsPerTick % 1000);
         }
 
         private long TicksPerUnit(TimeOnlyUnits units)
@@ -342,7 +339,6 @@ namespace MongoDB.Bson.Serialization.Serializers
                 ? timeOnly.Ticks * 100
                 : timeOnly.Ticks / TicksPerUnit(units);
         }
-
 
         // explicit interface implementations
         IBsonSerializer IRepresentationConfigurable.WithRepresentation(BsonType representation)
