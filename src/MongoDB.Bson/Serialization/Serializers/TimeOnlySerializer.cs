@@ -93,9 +93,9 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             _helper = new SerializerHelper
             (
-                //TimeOnlySerializer was introduced in version 3.0.0 of the driver. Prior to that, TimeOnly was serialized
-                //as a POCO. Due to that, Microsecond and Nanosecond could be missing, as they were introduced in .NET 7.
-                //To avoid deserialization issues, we treat Microsecond and Nanosecond as optional members.
+                // TimeOnlySerializer was introduced in version 3.0.0 of the driver. Prior to that, TimeOnly was serialized
+                // as a class mapped POCO. Due to that, Microsecond and Nanosecond could be missing, as they were introduced in .NET 7.
+                // To avoid deserialization issues, we treat Microsecond and Nanosecond as optional members.
                 new SerializerHelper.Member("Hour", Flags.Hour, isOptional: false),
                 new SerializerHelper.Member("Minute", Flags.Minute, isOptional: false),
                 new SerializerHelper.Member("Second", Flags.Second, isOptional: false),
@@ -188,7 +188,6 @@ namespace MongoDB.Bson.Serialization.Serializers
                     bsonWriter.WriteString(value.ToString("o"));
                     break;
 
-
                 default:
                     throw new BsonSerializationException($"'{_representation}' is not a valid TimeOnly representation.");
             }
@@ -219,26 +218,6 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         // private methods
-        private TimeOnly FromDouble(double value, TimeOnlyUnits units)
-        {
-            return units is TimeOnlyUnits.Nanoseconds
-                ? new TimeOnly((long)(value / 100.0))
-                : new TimeOnly((long)(value * TicksPerUnit(units)));
-        }
-
-        private TimeOnly FromInt32(int value, TimeOnlyUnits units)
-        {
-            return units is TimeOnlyUnits.Nanoseconds
-                ? new TimeOnly(value / 100)
-                : new TimeOnly(value * TicksPerUnit(units));
-        }
-
-        private TimeOnly FromInt64(long value, TimeOnlyUnits units)
-        {
-            return units is TimeOnlyUnits.Nanoseconds
-                ? new TimeOnly(value / 100)
-                : new TimeOnly(value * TicksPerUnit(units));
-        }
 
         private TimeOnly FromDocument(BsonDeserializationContext context)
         {
@@ -273,7 +252,8 @@ namespace MongoDB.Bson.Serialization.Serializers
                     case Flags.Nanosecond:
                         nanosecond = bsonReader.ReadInt32();
                         break;
-                    case Flags.Ticks: ticks = bsonReader.ReadInt64();
+                    case Flags.Ticks:
+                        ticks = bsonReader.ReadInt64();
                         break;
                 }
             });
@@ -291,6 +271,40 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
 
             return deserializedTimeOnly;
+        }
+
+        private TimeOnly FromDouble(double value, TimeOnlyUnits units)
+        {
+            return units is TimeOnlyUnits.Nanoseconds
+                ? new TimeOnly((long)(value / 100.0))
+                : new TimeOnly((long)(value * TicksPerUnit(units)));
+        }
+
+        private TimeOnly FromInt32(int value, TimeOnlyUnits units)
+        {
+            return units is TimeOnlyUnits.Nanoseconds
+                ? new TimeOnly(value / 100)
+                : new TimeOnly(value * TicksPerUnit(units));
+        }
+
+        private TimeOnly FromInt64(long value, TimeOnlyUnits units)
+        {
+            return units is TimeOnlyUnits.Nanoseconds
+                ? new TimeOnly(value / 100)
+                : new TimeOnly(value * TicksPerUnit(units));
+        }
+
+        private int GetNanosecondsComponent(long ticks)
+        {
+            // ticks % 10 * 100
+            return (int)(ticks % TicksPerUnit(TimeOnlyUnits.Microseconds) * 100);
+        }
+
+        private int GetMicrosecondsComponent(long ticks)
+        {
+            // ticks / 10 % 1000
+            var ticksPerMicrosecond = TicksPerUnit(TimeOnlyUnits.Microseconds);
+            return (int)(ticks / ticksPerMicrosecond % 1000);
         }
 
         private long TicksPerUnit(TimeOnlyUnits units)
@@ -328,17 +342,6 @@ namespace MongoDB.Bson.Serialization.Serializers
                 : timeOnly.Ticks / TicksPerUnit(units);
         }
 
-        private int GetNanosecondsComponent(long ticks)
-        {
-            // ticks % 10 * 100
-            return (int)(ticks % TicksPerUnit(TimeOnlyUnits.Microseconds) * 100);
-        }
-
-        private int GetMicrosecondsComponent(long ticks)
-        {
-            // ticks / 10 % 1000
-            return (int)(ticks / TicksPerUnit(TimeOnlyUnits.Microseconds) % 1000);
-        }
 
         // explicit interface implementations
         IBsonSerializer IRepresentationConfigurable.WithRepresentation(BsonType representation)
