@@ -180,6 +180,7 @@ namespace MongoDB.Driver.Core.Connections
                         try
                         {
                             _stream.Dispose();
+                            _responseHelper.Dispose();
                         }
                         catch
                         {
@@ -367,21 +368,13 @@ namespace MongoDB.Driver.Core.Connections
             try
             {
                 helper.ReceivingMessage();
-                while (true)
-                {
-                    using (var buffer = _responseHelper.ReadResponse(operationContext))
-                    {
-                        if (responseTo != GetResponseTo(buffer))
-                        {
-                            continue;
-                        }
+                using var buffer = _responseHelper.ReadResponse(operationContext);
+                EnsureResponseToIsCorrect(buffer, responseTo);
 
-                        var message = helper.DecodeMessage(operationContext, buffer, encoderSelector);
-                        helper.ReceivedMessage(buffer, message);
-                        _lastUsedAtUtc = DateTime.UtcNow;
-                        return message;
-                    }
-                }
+                var message = helper.DecodeMessage(operationContext, buffer, encoderSelector);
+                helper.ReceivedMessage(buffer, message);
+                _lastUsedAtUtc = DateTime.UtcNow;
+                return message;
             }
             catch (Exception ex)
             {
@@ -392,7 +385,14 @@ namespace MongoDB.Driver.Core.Connections
                 }
 
                 helper.FailedReceivingMessage(ex);
-                if (wrappedException == null) { throw; } else { throw wrappedException; }
+                if (wrappedException == null)
+                {
+                    throw;
+                }
+                else
+                {
+                    throw wrappedException;
+                }
             }
         }
 
@@ -409,21 +409,13 @@ namespace MongoDB.Driver.Core.Connections
             try
             {
                 helper.ReceivingMessage();
-                while (true)
-                {
-                    using (var buffer = await _responseHelper.ReadResponseAsync(operationContext).ConfigureAwait(false))
-                    {
-                        if (responseTo != GetResponseTo(buffer))
-                        {
-                            continue;
-                        }
+                using var buffer = await _responseHelper.ReadResponseAsync(operationContext).ConfigureAwait(false);
+                EnsureResponseToIsCorrect(buffer, responseTo);
 
-                        var message = helper.DecodeMessage(operationContext, buffer, encoderSelector);
-                        helper.ReceivedMessage(buffer, message);
-                        _lastUsedAtUtc = DateTime.UtcNow;
-                        return message;
-                    }
-                }
+                var message = helper.DecodeMessage(operationContext, buffer, encoderSelector);
+                helper.ReceivedMessage(buffer, message);
+                _lastUsedAtUtc = DateTime.UtcNow;
+                return message;
             }
             catch (Exception ex)
             {
@@ -438,10 +430,14 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        private int GetResponseTo(IByteBuffer message)
+        private void EnsureResponseToIsCorrect(IByteBuffer message, int expectedResponseTo)
         {
             var backingBytes = message.AccessBackingBytes(8);
-            return BitConverter.ToInt32(backingBytes.Array, backingBytes.Offset);
+            var receivedResponseTo = BitConverter.ToInt32(backingBytes.Array, backingBytes.Offset);
+            if (receivedResponseTo != expectedResponseTo)
+            {
+                throw new InvalidOperationException($"Expected responseTo to be {expectedResponseTo} but was {receivedResponseTo}."); // should not be reached
+            }
         }
 
         private void SendBuffer(OperationContext operationContext, IByteBuffer buffer)
@@ -728,9 +724,7 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-#pragma warning disable CA1001
-        private sealed class ResponseHelper
-#pragma warning restore CA1001
+        private sealed class ResponseHelper : IDisposable
         {
             private const int MessageSizePrefixLength = 4;
             private static readonly TimeSpan __pendingReadsWindow = TimeSpan.FromSeconds(3);
@@ -738,10 +732,9 @@ namespace MongoDB.Driver.Core.Connections
             private readonly IClock _clock;
             private readonly BinaryConnection _connection;
             private readonly byte[] _responseHeaderBuffer = new byte[MessageSizePrefixLength];
-            private readonly ManualResetEventSlim _manualResetEventSlim = new ManualResetEventSlim();
+            private readonly ManualResetEventSlim _manualResetEventSlim = new();
             private IByteBuffer _byteBuffer;
             private int _bytesRead;
-            private Exception _readException;
             private long _lastReadTimestamp;
             private long? _pendingRequestId;
             private Task _pendingReadTask;
@@ -753,6 +746,13 @@ namespace MongoDB.Driver.Core.Connections
             }
 
             public bool HasPendingReads => _pendingRequestId.HasValue;
+
+            public void Dispose()
+            {
+                _manualResetEventSlim.Dispose();
+                _byteBuffer?.Dispose();
+                _byteBuffer = null;
+            }
 
             public void DiscardPendingReads(OperationContext operationContext)
             {
@@ -829,9 +829,9 @@ namespace MongoDB.Driver.Core.Connections
                 }
                 catch (Exception ex)
                 {
+                    // Should not dispose buffer if timeout, as it is used in ContinueReadAsync
                     if (ex is not (TimeoutException or OperationCanceledException or TaskCanceledException))
                     {
-                        // Should not dispose buffer here, as it is passed into ContinueReadAsync
                         _byteBuffer?.Dispose();
                     }
 
@@ -895,7 +895,6 @@ namespace MongoDB.Driver.Core.Connections
 
             private void ClearPendingReads()
             {
-                _readException = null;
                 _bytesRead = 0;
                 _byteBuffer = null;
                 _pendingRequestId = null;
@@ -918,19 +917,13 @@ namespace MongoDB.Driver.Core.Connections
                 return readTask;
             }
 
-            private async Task<IByteBuffer> ContinueReadAsync(IAsyncResult asyncResult = null)
+            private async Task<IByteBuffer> ContinueReadAsync(Task previousTask = null)
             {
                 try
                 {
-                    if (asyncResult != null)
+                    if (previousTask != null)
                     {
-                        var asyncResultTask = Task.Factory.FromAsync(asyncResult, _ => { });
-                        await asyncResultTask.ConfigureAwait(false);
-
-                        if (_readException != null)
-                        {
-                            throw _readException;
-                        }
+                        await previousTask.ConfigureAwait(false);
                     }
 
                     var messageSize = await ReadMessageSizeAsync().ConfigureAwait(false);
@@ -1018,7 +1011,6 @@ namespace MongoDB.Driver.Core.Connections
             private void ReadBytes(OperationContext operationContext, byte[] destination, int offset, int count)
             {
                 var bytesRead = 0;
-                var initialBytesRead = _bytesRead;
                 while (bytesRead < count)
                 {
                     _manualResetEventSlim.Reset();
@@ -1029,47 +1021,44 @@ namespace MongoDB.Driver.Core.Connections
                         count - bytesRead,
                         result =>
                         {
-                            var responseHelper = (ResponseHelper)result.AsyncState;
-                            int readResult = 0;
-                            try
-                            {
-
-                                readResult = responseHelper._connection._stream.EndRead(result);
-                            }
-                            catch (ObjectDisposedException ex)
-                            {
-                                _readException = new EndOfStreamException(ex.Message, ex);
-                            }
-                            catch (Exception ex)
-                            {
-                                // Async handler should not throw any errors, we mark the current read as failed so appropriate exception could be thrown later.
-                                _readException = ex;
-                            }
-
-                            if (readResult == 0)
-                            {
-                                _readException ??= new EndOfStreamException();
-                            }
-
-                            responseHelper._bytesRead += readResult;
-                            responseHelper._lastReadTimestamp = responseHelper._clock.GetTimestamp();
-                            responseHelper._manualResetEventSlim.Set();
+                            var manualResetEventSlim = (ManualResetEventSlim)result.AsyncState;
+                            manualResetEventSlim.Set();
                         },
-                        this);
+                        _manualResetEventSlim);
 
                     if (!_manualResetEventSlim.Wait(operationContext.RemainingTimeout, operationContext.CancellationToken))
                     {
-                        _pendingReadTask = ConfigurePendingReadsTask(ContinueReadAsync(operation));
+                        var asyncResultTask = Task.Factory.FromAsync(operation, ReadCallback);
+
+                        _pendingReadTask = ConfigurePendingReadsTask(ContinueReadAsync(asyncResultTask));
                         operationContext.CancellationToken.ThrowIfCancellationRequested();
                         throw new TimeoutException();
                     }
 
-                    if (_readException != null)
+                    bytesRead += ReadCallback(operation);
+                }
+
+                int ReadCallback(IAsyncResult result)
+                {
+                    int readResult;
+                    try
                     {
-                        throw _readException;
+
+                        readResult = _connection._stream.EndRead(result);
+                    }
+                    catch (ObjectDisposedException ex)
+                    {
+                        throw new IOException(ex.Message, ex);
                     }
 
-                    bytesRead = _bytesRead - initialBytesRead;
+                    if (readResult == 0)
+                    {
+                        throw new EndOfStreamException();
+                    }
+
+                    _bytesRead += readResult;
+                    _lastReadTimestamp = _clock.GetTimestamp();
+                    return readResult;
                 }
             }
 
@@ -1093,7 +1082,7 @@ namespace MongoDB.Driver.Core.Connections
                 }
                 catch (ObjectDisposedException ex)
                 {
-                    throw new EndOfStreamException(ex.Message, ex);
+                    throw new IOException(ex.Message, ex);
                 }
             }
         }
