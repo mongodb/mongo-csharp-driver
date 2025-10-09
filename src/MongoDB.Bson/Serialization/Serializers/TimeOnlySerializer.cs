@@ -296,8 +296,9 @@ namespace MongoDB.Bson.Serialization.Serializers
 
         private int GetNanosecondsComponent(long ticks)
         {
-            // ticks % 10 * 100
-            return (int)(ticks % TicksPerUnit(TimeOnlyUnits.Microseconds) * 100);
+            // ticks * 100 % 1000
+            var nanosecondsPerTick = 100;
+            return (int)(ticks * nanosecondsPerTick % 1000);
         }
 
         private int GetMicrosecondsComponent(long ticks)
