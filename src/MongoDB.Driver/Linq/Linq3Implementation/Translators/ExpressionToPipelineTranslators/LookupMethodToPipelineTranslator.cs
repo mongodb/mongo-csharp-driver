@@ -290,7 +290,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             var queryable = new MongoQuery<TDocument, TDocument>(provider);
 
             body = ExpressionReplacer.Replace(body, queryableParameter, Expression.Constant(queryable));
-            body = PartialEvaluator.EvaluatePartially(body);
+            body = PartialEvaluator.EvaluatePartially(ClrCompatExpressionRewriter.Rewrite(body));
 
             return ExpressionToPipelineTranslator.Translate(context, body);
         }
@@ -338,7 +338,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             context = context.WithSymbol(localSymbol);
 
             body = ExpressionReplacer.Replace(body, queryableParameter, Expression.Constant(queryable));
-            body = PartialEvaluator.EvaluatePartially(body);
+            body = PartialEvaluator.EvaluatePartially(ClrCompatExpressionRewriter.Rewrite(body));
 
             var pipeline = ExpressionToPipelineTranslator.Translate(context, body);
             return pipeline;

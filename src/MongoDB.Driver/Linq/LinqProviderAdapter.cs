@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Linq
             ExpressionTranslationOptions translationOptions,
             TranslationContextData contextData = null)
         {
-            expression = (Expression<Func<TSource, TResult>>)PartialEvaluator.EvaluatePartially(expression);
+            expression = (Expression<Func<TSource, TResult>>)PartialEvaluator.EvaluatePartially(ClrCompatExpressionRewriter.Rewrite(expression));
             var context = TranslationContext.Create(translationOptions, contextData);
             var translation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, expression, sourceSerializer, asRoot: true);
             var simplifiedAst = AstSimplifier.Simplify(translation.Ast);
@@ -74,7 +74,7 @@ namespace MongoDB.Driver.Linq
             IBsonSerializerRegistry serializerRegistry,
             ExpressionTranslationOptions translationOptions)
         {
-            expression = (LambdaExpression)PartialEvaluator.EvaluatePartially(expression);
+            expression = (LambdaExpression)PartialEvaluator.EvaluatePartially(ClrCompatExpressionRewriter.Rewrite(expression));
             var parameter = expression.Parameters.Single();
             var context = TranslationContext.Create(translationOptions);
             var symbol = context.CreateSymbol(parameter, documentSerializer, isCurrent: true);
@@ -104,7 +104,7 @@ namespace MongoDB.Driver.Linq
             ExpressionTranslationOptions translationOptions,
             bool allowScalarValueForArrayField)
         {
-            expression = (Expression<Func<TDocument, TField>>)PartialEvaluator.EvaluatePartially(expression);
+            expression = (Expression<Func<TDocument, TField>>)PartialEvaluator.EvaluatePartially(ClrCompatExpressionRewriter.Rewrite(expression));
             var parameter = expression.Parameters.Single();
             var context = TranslationContext.Create(translationOptions);
             var symbol = context.CreateSymbol(parameter, documentSerializer, isCurrent: true);
@@ -124,6 +124,7 @@ namespace MongoDB.Driver.Linq
             IBsonSerializerRegistry serializerRegistry,
             ExpressionTranslationOptions translationOptions)
         {
+            expression = (Expression<Func<TElement, bool>>)ClrCompatExpressionRewriter.Rewrite(expression);
             expression = (Expression<Func<TElement, bool>>)PartialEvaluator.EvaluatePartially(expression);
             var context = TranslationContext.Create(translationOptions);
             var parameter = expression.Parameters.Single();
@@ -141,7 +142,7 @@ namespace MongoDB.Driver.Linq
             IBsonSerializerRegistry serializerRegistry,
             ExpressionTranslationOptions translationOptions)
         {
-            expression = (Expression<Func<TDocument, bool>>)PartialEvaluator.EvaluatePartially(expression);
+            expression = (Expression<Func<TDocument, bool>>)PartialEvaluator.EvaluatePartially(ClrCompatExpressionRewriter.Rewrite(expression));
             var context = TranslationContext.Create(translationOptions);
             var filter = ExpressionToFilterTranslator.TranslateLambda(context, expression, documentSerializer, asRoot: true);
             filter = AstSimplifier.SimplifyAndConvert(filter);
@@ -175,7 +176,7 @@ namespace MongoDB.Driver.Linq
                 return new RenderedProjectionDefinition<TOutput>(null, (IBsonSerializer<TOutput>)inputSerializer);
             }
 
-            expression = (Expression<Func<TInput, TOutput>>)PartialEvaluator.EvaluatePartially(expression);
+            expression = (Expression<Func<TInput, TOutput>>)PartialEvaluator.EvaluatePartially(ClrCompatExpressionRewriter.Rewrite(expression));
             var context = TranslationContext.Create(translationOptions);
 
             var simplifier = forFind ? new AstFindProjectionSimplifier() : new AstSimplifier();

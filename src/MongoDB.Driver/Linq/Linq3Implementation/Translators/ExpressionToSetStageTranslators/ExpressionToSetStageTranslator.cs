@@ -102,7 +102,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToSetSta
                 for (var i = 0; i < members.Count; i++)
                 {
                     var member = members[i];
-                    var valueExpression = PartialEvaluator.EvaluatePartially(arguments[i]);
+                    var valueExpression = PartialEvaluator.EvaluatePartially(ClrCompatExpressionRewriter.Rewrite(arguments[i]));
                     var computedField = CreateComputedField(context, documentSerializer, member, valueExpression);
                     fields.Add(computedField);
                 }
@@ -127,7 +127,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToSetSta
                     }
 
                     var member = binding.Member;
-                    var valueExpression = PartialEvaluator.EvaluatePartially(assignment.Expression);
+                    var valueExpression = PartialEvaluator.EvaluatePartially(ClrCompatExpressionRewriter.Rewrite(assignment.Expression));
                     var computedField = CreateComputedField(context, documentSerializer, member, valueExpression);
                     fields.Add(computedField);
                 }
