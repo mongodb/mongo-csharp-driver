@@ -89,6 +89,16 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         public class ConcreteDynamicDocumentBaseSerializer<T> : DynamicDocumentBaseSerializer<T>
             where T : class, IDynamicMetaObjectProvider
         {
+            public ConcreteDynamicDocumentBaseSerializer()
+                : this(BsonSerializationDomain.Default)
+            {
+            }
+
+            internal ConcreteDynamicDocumentBaseSerializer(IBsonSerializationDomain serializationDomain)
+                : base(serializationDomain)
+            {
+            }
+
             protected override void ConfigureDeserializationContext(BsonDeserializationContext.Builder builder) => throw new System.NotImplementedException();
             protected override void ConfigureSerializationContext(BsonSerializationContext.Builder builder) => throw new System.NotImplementedException();
             protected override T CreateDocument() => throw new System.NotImplementedException();

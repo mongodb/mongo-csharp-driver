@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Support
 {
@@ -62,20 +63,21 @@ namespace MongoDB.Driver.Support
             }
         }
 
-        public static bool IsNullable(this Type type)
-        {
-            return type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
-        }
-
-        public static bool IsNullableEnum(this Type type)
-        {
-            if (!IsNullable(type))
-            {
-                return false;
-            }
-
-            return GetNullableUnderlyingType(type).GetTypeInfo().IsEnum;
-        }
+        // Those have been commented out because there are identical methods in Bson assembly.
+        // public static bool IsNullable(this Type type)
+        // {
+        //     return type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
+        // }
+        //
+        // public static bool IsNullableEnum(this Type type)
+        // {
+        //     if (!IsNullable(type))
+        //     {
+        //         return false;
+        //     }
+        //
+        //     return GetNullableUnderlyingType(type).GetTypeInfo().IsEnum;
+        // }
 
         public static bool IsNumeric(this Type type)
         {
@@ -120,7 +122,7 @@ namespace MongoDB.Driver.Support
 
         public static Type GetNullableUnderlyingType(this Type type)
         {
-            if (!IsNullable(type))
+            if (!type.IsNullable())
             {
                 throw new ArgumentException("Type must be nullable.", "type");
             }
