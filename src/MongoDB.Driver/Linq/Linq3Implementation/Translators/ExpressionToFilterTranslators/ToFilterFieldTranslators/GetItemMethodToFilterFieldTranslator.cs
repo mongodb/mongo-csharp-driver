@@ -97,7 +97,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             var keySerializer = dictionarySerializer.KeySerializer;
             var valueSerializer = dictionarySerializer.ValueSerializer;
 
-            var serializedKey = SerializationHelper.SerializeValue(keySerializer, key);
+            var serializedKey = SerializationHelper.SerializeValue(context.SerializationDomain, keySerializer, key);
             if (serializedKey is not BsonString)
             {
                 throw new ExpressionNotSupportedException(expression, because: "key did not serialize as a string");

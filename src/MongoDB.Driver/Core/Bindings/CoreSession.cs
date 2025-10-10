@@ -18,6 +18,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
@@ -453,7 +454,8 @@ namespace MongoDB.Driver.Core.Bindings
         {
             var writeConcern = GetCommitTransactionWriteConcern(operationContext, isCommitRetry);
             var maxCommitTime = _currentTransaction.TransactionOptions.MaxCommitTime;
-            return new CommitTransactionOperation(_currentTransaction.RecoveryToken, writeConcern) { MaxCommitTime = maxCommitTime };
+            //We only use BsonDocumentSerializer with the domain, so using the default one is fine.
+            return new CommitTransactionOperation(_currentTransaction.RecoveryToken, writeConcern, BsonSerializer.DefaultSerializationDomain) { MaxCommitTime = maxCommitTime };
         }
 
         private void EnsureAbortTransactionCanBeCalled(string methodName)

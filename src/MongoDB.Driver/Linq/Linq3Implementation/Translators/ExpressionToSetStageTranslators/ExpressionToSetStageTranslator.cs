@@ -148,7 +148,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToSetSta
                 if (valueExpression is ConstantExpression constantValueExpression)
                 {
                     var value = constantValueExpression.Value;
-                    var serializedValue = SerializationHelper.SerializeValue(memberSerializer, value);
+                    var serializedValue = SerializationHelper.SerializeValue(context.SerializationDomain, memberSerializer, value);
                     valueAst = AstExpression.Constant(serializedValue);
                 }
                 else

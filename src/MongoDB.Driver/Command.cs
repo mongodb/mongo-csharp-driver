@@ -221,12 +221,13 @@ namespace MongoDB.Driver
             get { return _resultSerializer; }
         }
 
+        // DOMAIN-API: We need to pass also the domain here (or only the domain)
         /// <inheritdoc />
         public override RenderedCommand<TResult> Render(IBsonSerializerRegistry serializerRegistry)
         {
             var serializer = serializerRegistry.GetSerializer(_obj.GetType());
             return new RenderedCommand<TResult>(
-                new BsonDocumentWrapper(_obj, serializer),
+                new BsonDocumentWrapper(_obj, serializer, BsonSerializer.DefaultSerializationDomain),
                 _resultSerializer ?? serializerRegistry.GetSerializer<TResult>());
         }
     }

@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         {
             return optionsExpression switch
             {
-                ConstantExpression constantExpression => TranslateOptions(constantExpression, toSerializer),
+                ConstantExpression constantExpression => TranslateOptions(context.SerializationDomain, constantExpression, toSerializer),
                 MemberInitExpression memberInitExpressionExpression => TranslateOptions(context, expression, memberInitExpressionExpression, toSerializer),
                 _ => throw new ExpressionNotSupportedException(optionsExpression, containingExpression: expression, because: "the options argument must be either a constant or a member initialization expression.")
             };
@@ -67,6 +67,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
         private static (BsonBinarySubType? subType, ByteOrder? byteOrder, string format, AstExpression onErrorAst, AstExpression onNullAst)
             TranslateOptions(
+                IBsonSerializationDomain serializationDomain,
                 ConstantExpression optionsExpression,
                 IBsonSerializer toSerializer)
         {
@@ -78,13 +79,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             {
                 if (options.OnErrorWasSet(out var onErrorValue))
                 {
-                    var serializedOnErrorValue = SerializationHelper.SerializeValue(toSerializer, onErrorValue);
+                    var serializedOnErrorValue = SerializationHelper.SerializeValue(serializationDomain, toSerializer, onErrorValue);
                     onErrorAst = AstExpression.Constant(serializedOnErrorValue);
                 }
 
                 if (options.OnNullWasSet(out var onNullValue))
                 {
-                    var serializedOnNullValue = SerializationHelper.SerializeValue(toSerializer, onNullValue);
+                    var serializedOnNullValue = SerializationHelper.SerializeValue(serializationDomain, toSerializer, onNullValue);
                     onNullAst = AstExpression.Constant(serializedOnNullValue);
                 }
             }

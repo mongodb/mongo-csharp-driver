@@ -195,11 +195,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         }
 
         public static BsonValue SerializeValue(IBsonSerializer serializer, ConstantExpression constantExpression, Expression containingExpression)
+            => SerializeValue(BsonSerializer.DefaultSerializationDomain, serializer, constantExpression, containingExpression);
+
+        public static BsonValue SerializeValue(IBsonSerializationDomain serializationDomain, IBsonSerializer serializer, ConstantExpression constantExpression, Expression containingExpression)
         {
             var value = constantExpression.Value;
             if (value == null || serializer.ValueType.IsAssignableFrom(value.GetType()))
             {
-                return SerializeValue(serializer, value);
+                return SerializeValue(serializationDomain, serializer, value);
             }
 
             if (value.GetType().ImplementsIEnumerable(out var itemType) &&
@@ -209,27 +212,32 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                 itemSerializer.ValueType.IsAssignableFrom(itemType))
             {
                 var ienumerableSerializer = IEnumerableSerializer.Create(itemSerializer);
-                return SerializeValue(ienumerableSerializer, value);
+                return SerializeValue(serializationDomain, ienumerableSerializer, value);
             }
 
             throw new ExpressionNotSupportedException(constantExpression, containingExpression, because: "it was not possible to determine how to serialize the constant");
         }
 
+
         public static BsonValue SerializeValue(IBsonSerializer serializer, object value)
+            => SerializeValue(BsonSerializer.DefaultSerializationDomain, serializer, value);
+
+        //FP Isn't this similar to what SerializationInfo does...?
+        public static BsonValue SerializeValue(IBsonSerializationDomain serializationDomain, IBsonSerializer serializer, object value)
         {
             var document = new BsonDocument();
             using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteName("_v");
-                var context = BsonSerializationContext.CreateRoot(writer);
+                var context = BsonSerializationContext.CreateRoot(writer, serializationDomain);
                 serializer.Serialize(context, value);
                 writer.WriteEndDocument();
             }
             return document["_v"];
         }
 
-        public static BsonArray SerializeValues(IBsonSerializer itemSerializer, IEnumerable values)
+        public static BsonArray SerializeValues(IBsonSerializationDomain serializationDomain, IBsonSerializer itemSerializer, IEnumerable values)
         {
             var document = new BsonDocument();
             using (var writer = new BsonDocumentWriter(document))
@@ -237,7 +245,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                 writer.WriteStartDocument();
                 writer.WriteName("_v");
                 writer.WriteStartArray();
-                var context = BsonSerializationContext.CreateRoot(writer);
+                var context = BsonSerializationContext.CreateRoot(writer, serializationDomain);
                 foreach(var value in values)
                 {
                     itemSerializer.Serialize(context, value);

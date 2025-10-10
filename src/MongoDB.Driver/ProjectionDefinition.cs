@@ -277,11 +277,11 @@ namespace MongoDB.Driver
         {
             if (args.RenderForFind)
             {
-                return LinqProviderAdapter.TranslateExpressionToFindProjection(_expression, args.DocumentSerializer, args.SerializerRegistry, args.TranslationOptions);
+                return LinqProviderAdapter.TranslateExpressionToFindProjection(_expression, args.DocumentSerializer, args.SerializationDomain, args.TranslationOptions);
             }
             else
             {
-                return LinqProviderAdapter.TranslateExpressionToProjection(_expression, args.DocumentSerializer, args.SerializerRegistry, args.TranslationOptions);
+                return LinqProviderAdapter.TranslateExpressionToProjection(_expression, args.DocumentSerializer, args.SerializationDomain, args.TranslationOptions);
             }
         }
     }
@@ -393,7 +393,7 @@ namespace MongoDB.Driver
         public override BsonDocument Render(RenderArgs<TSource> args)
         {
             var serializer = args.SerializerRegistry.GetSerializer(_obj.GetType());
-            return new BsonDocumentWrapper(_obj, serializer);
+            return new BsonDocumentWrapper(_obj, serializer, args.SerializationDomain);
         }
     }
 
@@ -439,7 +439,7 @@ namespace MongoDB.Driver
         {
             var serializer = args.SerializerRegistry.GetSerializer(_obj.GetType());
             return new RenderedProjectionDefinition<TProjection>(
-                new BsonDocumentWrapper(_obj, serializer),
+                new BsonDocumentWrapper(_obj, serializer, args.SerializationDomain),
                 _projectionSerializer ?? args.GetSerializer<TProjection>());
         }
     }

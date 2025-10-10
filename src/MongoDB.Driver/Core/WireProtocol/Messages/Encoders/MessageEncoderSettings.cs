@@ -41,6 +41,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
         public const string ShellVersion = nameof(ShellVersion);
 
         // other encoders (if any) might use additional settings
+        public const string SerializationDomain = nameof(SerializationDomain);
+        //QUESTION Should this be removed from here? If so, what do we do with all the Encoders that use it?
     }
 
     internal sealed class MessageEncoderSettings : IEnumerable<KeyValuePair<string, object>>

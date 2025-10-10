@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var nominalType = itemSerializer.ValueType;
                 var nominalTypeSerializer = itemSerializer;
                 var actualType = method.GetGenericArguments().Single();
-                var actualTypeSerializer = BsonSerializer.LookupSerializer(actualType);
+                var actualTypeSerializer = context.SerializationDomain.LookupSerializer(actualType);
 
                 AstExpression ast;
                 if (nominalType == actualType)
@@ -65,14 +65,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 }
                 else
                 {
-                    var discriminatorConvention = nominalTypeSerializer.GetDiscriminatorConvention();
+                    var discriminatorConvention = nominalTypeSerializer.GetDiscriminatorConvention(context.SerializationDomain);
                     var itemVar = AstExpression.Var("item");
                     var discriminatorField = AstExpression.GetField(itemVar, discriminatorConvention.ElementName);
 
                     var ofTypeExpression = discriminatorConvention switch
                     {
-                        IHierarchicalDiscriminatorConvention hierarchicalDiscriminatorConvention => DiscriminatorAstExpression.TypeIs(discriminatorField, hierarchicalDiscriminatorConvention, nominalType, actualType),
-                        IScalarDiscriminatorConvention scalarDiscriminatorConvention => DiscriminatorAstExpression.TypeIs(discriminatorField, scalarDiscriminatorConvention, nominalType, actualType),
+                        IHierarchicalDiscriminatorConvention hierarchicalDiscriminatorConvention => DiscriminatorAstExpression.TypeIs(discriminatorField, hierarchicalDiscriminatorConvention, nominalType, actualType, context.SerializationDomain),
+                        IScalarDiscriminatorConvention scalarDiscriminatorConvention => DiscriminatorAstExpression.TypeIs(discriminatorField, scalarDiscriminatorConvention, nominalType, actualType, context.SerializationDomain),
                         _ => throw new ExpressionNotSupportedException(expression, because: "OfType is not supported with the configured discriminator convention")
                     };
 

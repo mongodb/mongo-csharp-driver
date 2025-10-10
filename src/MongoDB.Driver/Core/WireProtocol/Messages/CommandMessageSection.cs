@@ -36,9 +36,9 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     internal abstract class Type0CommandMessageSection : CommandMessageSection
     {
         // constructors
-        public Type0CommandMessageSection(object document, IBsonSerializer documentSerializer)
+        protected Type0CommandMessageSection(object document, IBsonSerializer documentSerializer)
         {
-            Ensure.IsNotNull((object)document, nameof(document));
+            Ensure.IsNotNull(document, nameof(document));
             Document = document;
             DocumentSerializer = Ensure.IsNotNull(documentSerializer, nameof(documentSerializer));
         }
@@ -86,7 +86,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     internal abstract class Type1CommandMessageSection : BatchableCommandMessageSection
     {
         // constructors
-        public Type1CommandMessageSection(
+        protected Type1CommandMessageSection(
             string identifier,
             IBatchableSource<object> documents,
             IBsonSerializer documentSerializer,
