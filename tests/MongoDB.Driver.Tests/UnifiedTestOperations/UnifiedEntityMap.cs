@@ -811,6 +811,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     throw new TimeoutException("MinPoolSize population took too long");
                 }
 
+                Thread.Sleep(100); // Sleep a little to make sure all events were raised, before cleaning up the captured events.
                 foreach (var eventCapturer in clientEventCapturers.Values)
                 {
                     eventCapturer.Clear();

@@ -143,7 +143,7 @@ namespace MongoDB.Driver
                 return;
             }
 
-            var timeout = RemainingTimeout;
+            var timeout = TimeSpan.FromMilliseconds(Math.Ceiling(RemainingTimeout.TotalMilliseconds));
             if (timeout == TimeSpan.Zero)
             {
                 throw new TimeoutException();
