@@ -24,12 +24,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc;
 /// This visitor rewrites expressions where new features of .NET CLR or
 /// C# compiler interfere with LINQ expression tree translation.
 /// </summary>
-internal class ClrCompatExpressionRewriter : ExpressionVisitor
+internal class ClrCompatExpressionPreprocessor : ExpressionVisitor
 {
-    private static readonly ClrCompatExpressionRewriter s_clrCompatExpressionRewriter = new();
+    private static readonly ClrCompatExpressionPreprocessor s_clrCompatExpressionPreprocessor = new();
 
-    public static Expression Rewrite(Expression expression)
-        => s_clrCompatExpressionRewriter.Visit(expression);
+    public static Expression Preprocess(Expression expression)
+        => s_clrCompatExpressionPreprocessor.Visit(expression);
 
     /// <inheritdoc />
     protected override Expression VisitMethodCall(MethodCallExpression methodCall)
@@ -46,8 +46,8 @@ internal class ClrCompatExpressionRewriter : ExpressionVisitor
             {
                 // Replace MemoryExtensions.Contains<T>(ReadOnlySpan<T>, T) with Enumerable.Contains<T>(IEnumerable<T>, T)
                 case nameof(MemoryExtensions.Contains)
-                    when (methodCall.Arguments.Count == 2
-                          || (methodCall.Arguments.Count == 3 && methodCall.Arguments[2] is ConstantExpression { Value: null }))
+                    when (methodCall.Arguments.Count == 2 || (methodCall.Arguments.Count == 3 &&
+                                                              methodCall.Arguments[2] is ConstantExpression { Value: null }))
                          && TryUnwrapSpanImplicitCast(methodCall.Arguments[0], out var unwrappedSpanArg):
                     return Visit(
                         Call(

@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
             Expression expression,
             ExpressionTranslationOptions translationOptions)
         {
-            expression = PartialEvaluator.EvaluatePartially(ClrCompatExpressionRewriter.Rewrite(expression));
+            expression = LinqExpressionPreprocessor.Preprocess(expression);
 
             var context = TranslationContext.Create(translationOptions);
             var pipeline = ExpressionToPipelineTranslator.Translate(context, expression);
@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
             Expression expression,
             ExpressionTranslationOptions translationOptions)
         {
-            expression = PartialEvaluator.EvaluatePartially(ClrCompatExpressionRewriter.Rewrite(expression));
+            expression = LinqExpressionPreprocessor.Preprocess(expression);
 
             var context = TranslationContext.Create(translationOptions);
             var methodCallExpression = (MethodCallExpression)expression;
