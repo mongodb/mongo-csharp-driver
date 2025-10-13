@@ -1244,7 +1244,7 @@ internal partial class KnownSerializerFinderVisitor
                 var elementExpression = arguments[1];
 
                 DeduceItemAndCollectionSerializers(elementExpression, sourceExpression);
-                DeduceSerializers(node, sourceExpression);
+                DeduceCollectionAndCollectionSerializers(node, sourceExpression);
             }
             else
             {
@@ -1697,7 +1697,7 @@ internal partial class KnownSerializerFinderVisitor
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
             if (method.Is(KeyValuePairMethod.Create))
             {
-                if (AnyAreNotKnown(arguments) && IsKnown(node, out var nodeSerializer))
+                if (AnyIsNotKnown(arguments) && IsKnown(node, out var nodeSerializer))
                 {
                     var keyExpression = arguments[0];
                     var valueExpression = arguments[1];
@@ -1721,7 +1721,7 @@ internal partial class KnownSerializerFinderVisitor
  #endif
             if (method.IsOneOf(__tupleOrValueTupleCreateMethods))
             {
-                if (AnyAreNotKnown(arguments) && IsKnown(node, out var nodeSerializer))
+                if (AnyIsNotKnown(arguments) && IsKnown(node, out var nodeSerializer))
                 {
                     if (nodeSerializer is IBsonTupleSerializer tupleSerializer)
                     {

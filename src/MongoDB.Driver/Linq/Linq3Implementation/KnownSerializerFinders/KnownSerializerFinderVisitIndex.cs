@@ -54,7 +54,6 @@ internal partial class KnownSerializerFinderVisitor
                 DeduceSerializer(node, itemSerializer);
             }
         }
-        // TODO: Deduce UnknowableSerializer???
         // handle generic cases?
 
         return node;

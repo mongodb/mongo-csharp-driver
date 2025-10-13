@@ -57,8 +57,9 @@ internal partial class KnownSerializerFinderVisitor
                 var resultSerializer = unaryOperator switch
                 {
                     ExpressionType.ArrayLength => Int32Serializer.Instance,
-                    ExpressionType.Not => StandardSerializers.GetSerializer(node.Type),
                     ExpressionType.Convert or ExpressionType.TypeAs => GetConvertSerializer(),
+                    ExpressionType.Not => StandardSerializers.GetSerializer(node.Type),
+                    ExpressionType.Quote => IgnoreNodeSerializer.Create(node.Type),
                     _ => null
                 };
 

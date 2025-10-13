@@ -53,25 +53,11 @@ internal class UnknownSerializerFinder : ExpressionVisitor
 
         if (_expressionWithUnknownSerializer == null &&
             node != null &&
-            _knownSerializers.IsNotKnown(node) &&
-            ShouldHaveKnownSerializer(node))
+            _knownSerializers.IsNotKnown(node))
         {
             _expressionWithUnknownSerializer = node;
         }
 
         return node;
-
-        static bool ShouldHaveKnownSerializer(Expression node)
-        {
-            switch (node.NodeType)
-            {
-                case ExpressionType.Lambda:
-                case ExpressionType.Quote:
-                    return false;
-
-                default:
-                    return true;
-            }
-        }
     }
 }

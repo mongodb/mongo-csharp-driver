@@ -196,12 +196,6 @@ namespace MongoDB.Driver.Tests
             clientSettings.TranslationOptions = GetTranslationOptions();
             clientSettings.ClusterSource = DisposingClusterSource.Instance;
 
-            if (System.Diagnostics.Debugger.IsAttached)
-            {
-                clientSettings.HeartbeatTimeout = TimeSpan.FromDays(1);
-                clientSettings.ServerMonitoringMode = ServerMonitoringMode.Poll;
-            }
-
             return clientSettings;
         }
 

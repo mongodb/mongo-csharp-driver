@@ -13,11 +13,7 @@
  * limitations under the License.
  */
 
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 using ExpressionVisitor = System.Linq.Expressions.ExpressionVisitor;
 
@@ -41,8 +37,6 @@ internal partial class KnownSerializerFinderVisitor : ExpressionVisitor
     public int Pass => _pass;
 
     public bool IsMakingProgress => _isMakingProgress;
-
-    public bool UseDefaultSerializerForConstants => _useDefaultSerializerForConstants;
 
     public void EndPass()
     {
@@ -69,7 +63,7 @@ internal partial class KnownSerializerFinderVisitor : ExpressionVisitor
     {
         if (IsKnown(node, out var knownSerializer))
         {
-            if (knownSerializer is IIgnoreSubtreeSerializer or IUnknowableSerializer) // TODO: call base.Visit for IUnknowableSerializer
+            if (knownSerializer is IIgnoreSubtreeSerializer or IUnknowableSerializer)
             {
                 return node; // don't visit subtree
             }

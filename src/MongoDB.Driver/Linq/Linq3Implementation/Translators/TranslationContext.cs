@@ -29,6 +29,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
     internal class TranslationContext
     {
         #region static
+        // TODO: this overload is probably a bug (we probably can't translate an expression if we don't have an initial known node)
         public static TranslationContext Create(
             Expression expression,
             ExpressionTranslationOptions translationOptions,

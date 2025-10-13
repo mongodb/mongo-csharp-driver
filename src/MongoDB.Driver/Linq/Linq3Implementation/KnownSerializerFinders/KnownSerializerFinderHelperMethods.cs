@@ -29,29 +29,24 @@ internal partial class KnownSerializerFinderVisitor
 {
     private void AddKnownSerializer(Expression node, IBsonSerializer serializer) => _knownSerializers.AddSerializer(node, serializer);
 
-    private bool AllAreKnown(IEnumerable<Expression> nodes, out IReadOnlyList<IBsonSerializer> serializers)
+    private bool AllAreKnown(IEnumerable<Expression> nodes, out IReadOnlyList<IBsonSerializer> knownSerializers)
     {
-        var serializersList = new List<IBsonSerializer>();
+        var knownSerializersList = new List<IBsonSerializer>();
         foreach (var node in nodes)
         {
-            if (IsKnown(node, out var knownSerializer))
+            if (IsKnown(node, out var nodeSerializer))
             {
-                serializersList.Add(knownSerializer);
+                knownSerializersList.Add(nodeSerializer);
             }
             else
             {
-                serializers = null;
+                knownSerializers = null;
                 return false;
             }
         }
 
-        serializers = serializersList;
+        knownSerializers = knownSerializersList;
         return true;
-    }
-
-    private bool AnyAreNotKnown(IEnumerable<Expression> nodes)
-    {
-        return nodes.Any(IsNotKnown);
     }
 
     private bool AnyIsKnown(IEnumerable<Expression> nodes, out IBsonSerializer knownSerializer)
@@ -76,19 +71,17 @@ internal partial class KnownSerializerFinderVisitor
 
     private bool CanDeduceSerializer(Expression node1, Expression node2, out Expression unknownNode, out IBsonSerializer knownSerializer)
     {
-        if (IsKnown(node1, out var node1Serializer) &&
-            IsNotKnown(node2))
-        {
-            unknownNode = node2;
-            knownSerializer = node1Serializer;
-            return true;
-        }
-
-        if (IsNotKnown(node1) &&
-            IsKnown(node2, out var node2Serializer))
+        if (IsNotKnown(node1) && IsKnown(node2, out var node2Serializer))
         {
             unknownNode = node1;
             knownSerializer = node2Serializer;
+            return true;
+        }
+
+        if (IsNotKnown(node2) && IsKnown(node1, out var node1Serializer))
+        {
+            unknownNode = node2;
+            knownSerializer = node1Serializer;
             return true;
         }
 
@@ -97,27 +90,52 @@ internal partial class KnownSerializerFinderVisitor
         return false;
     }
 
-    IBsonSerializer CreateCollectionSerializerFromCollectionSerializer(Type type, IBsonSerializer collectionSerializer)
+    IBsonSerializer CreateCollectionSerializerFromCollectionSerializer(Type collectionType, IBsonSerializer collectionSerializer)
     {
-        if (collectionSerializer.ValueType == type)
+        if (collectionSerializer.ValueType == collectionType)
         {
             return collectionSerializer;
         }
 
+        if (collectionSerializer is IUnknowableSerializer)
+        {
+            return UnknowableSerializer.Create(collectionType);
+        }
+
         var itemSerializer = collectionSerializer.GetItemSerializer();
-        return CreateCollectionSerializerFromItemSerializer(type, itemSerializer);
+        return CreateCollectionSerializerFromItemSerializer(collectionType, itemSerializer);
     }
 
-    IBsonSerializer CreateCollectionSerializerFromItemSerializer(Type type, IBsonSerializer itemSerializer)
+    IBsonSerializer CreateCollectionSerializerFromItemSerializer(Type collectionType, IBsonSerializer itemSerializer)
     {
-        return type switch
+        if (itemSerializer is IUnknowableSerializer)
         {
-            _ when type.IsArray => ArraySerializer.Create(itemSerializer),
-            _ when type.IsConstructedGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>) => IEnumerableSerializer.Create(itemSerializer),
-            _ when type.IsConstructedGenericType && type.GetGenericTypeDefinition() == typeof(IOrderedEnumerable<>) => IOrderedEnumerableSerializer.Create(itemSerializer),
-            _ when type.IsConstructedGenericType && type.GetGenericTypeDefinition() == typeof(IQueryable<>) => IQueryableSerializer.Create(itemSerializer),
-            _ => (BsonSerializer.LookupSerializer(type) as IChildSerializerConfigurable)?.WithChildSerializer(itemSerializer)
+            return UnknowableSerializer.Create(collectionType);
+        }
+
+        return collectionType switch
+        {
+            _ when collectionType.IsArray => ArraySerializer.Create(itemSerializer),
+            _ when collectionType.IsConstructedGenericType && collectionType.GetGenericTypeDefinition() == typeof(IEnumerable<>) => IEnumerableSerializer.Create(itemSerializer),
+            _ when collectionType.IsConstructedGenericType && collectionType.GetGenericTypeDefinition() == typeof(IOrderedEnumerable<>) => IOrderedEnumerableSerializer.Create(itemSerializer),
+            _ when collectionType.IsConstructedGenericType && collectionType.GetGenericTypeDefinition() == typeof(IQueryable<>) => IQueryableSerializer.Create(itemSerializer),
+            _ => (BsonSerializer.LookupSerializer(collectionType) as IChildSerializerConfigurable)?.WithChildSerializer(itemSerializer)
         };
+    }
+
+    private void DeduceBaseTypeAndDerivedTypeSerializers(Expression baseTypeExpression, Expression derivedTypeExpression)
+    {
+        if (IsNotKnown(baseTypeExpression) && IsKnown(derivedTypeExpression, out var knownDerivedTypeSerializer))
+        {
+            var baseTypeSerializer = knownDerivedTypeSerializer.GetBaseTypeSerializer(baseTypeExpression.Type);
+            AddKnownSerializer(baseTypeExpression, baseTypeSerializer);
+        }
+
+        if (IsNotKnown(derivedTypeExpression) && IsKnown(baseTypeExpression, out var knownBaseTypeSerializer))
+        {
+            var derivedTypeSerializer = knownBaseTypeSerializer.GetDerivedTypeSerializer(baseTypeExpression.Type);
+            AddKnownSerializer(derivedTypeExpression, derivedTypeSerializer);
+        }
     }
 
     private void DeduceBooleanSerializer(Expression node)
@@ -128,43 +146,19 @@ internal partial class KnownSerializerFinderVisitor
         }
     }
 
-    private void DeduceBsonDocumentSerializer(Expression node)
-    {
-        if (IsNotKnown(node))
-        {
-            AddKnownSerializer(node, BsonDocumentSerializer.Instance);
-        }
-    }
-
-    private void DeduceBsonValueSerializer(Expression node)
-    {
-        if (IsNotKnown(node))
-        {
-            AddKnownSerializer(node, BsonValueSerializer.Instance);
-        }
-    }
-
     private void DeduceCollectionAndCollectionSerializers(Expression collectionExpression1, Expression collectionExpression2)
     {
-        IBsonSerializer collectionSerializer1;
-        IBsonSerializer collectionSerializer2;
-
-        if (IsNotKnown(collectionExpression1) && IsKnown(collectionExpression2, out collectionSerializer2))
+        if (IsNotKnown(collectionExpression1) && IsKnown(collectionExpression2, out var knownCollectionSerializer2))
         {
-            collectionSerializer1 = collectionSerializer2 is IUnknowableSerializer ?
-                UnknowableSerializer.Create(collectionExpression1.Type) :
-                CreateCollectionSerializerFromCollectionSerializer(collectionExpression1.Type, collectionSerializer2);
+            var collectionSerializer1 = CreateCollectionSerializerFromCollectionSerializer(collectionExpression1.Type, knownCollectionSerializer2);
             AddKnownSerializer(collectionExpression1, collectionSerializer1);
         }
 
-        if (IsNotKnown(collectionExpression2) && IsKnown(collectionExpression1, out collectionSerializer1))
+        if (IsNotKnown(collectionExpression2) && IsKnown(collectionExpression1, out var knownCollectionSerializer1))
         {
-            collectionSerializer2 = collectionSerializer1 is IUnknowableSerializer ?
-                UnknowableSerializer.Create(collectionExpression2.Type) :
-                CreateCollectionSerializerFromCollectionSerializer(collectionExpression2.Type, collectionSerializer1);
+            var collectionSerializer2 = CreateCollectionSerializerFromCollectionSerializer(collectionExpression2.Type, knownCollectionSerializer1);
             AddKnownSerializer(collectionExpression2, collectionSerializer2);
         }
-
     }
 
     private void DeduceCollectionAndItemSerializers(Expression collectionExpression, Expression itemExpression)
@@ -181,9 +175,7 @@ internal partial class KnownSerializerFinderVisitor
 
         if (IsNotKnown(collectionExpression) && IsKnown(itemExpression, out itemSerializer))
         {
-            var collectionSerializer = itemSerializer is IUnknowableSerializer ?
-                UnknowableSerializer.Create(collectionExpression.Type) :
-                CreateCollectionSerializerFromItemSerializer(collectionExpression.Type, itemSerializer);
+            var collectionSerializer = CreateCollectionSerializerFromItemSerializer(collectionExpression.Type, itemSerializer);
             if (collectionSerializer != null)
             {
                 AddKnownSerializer(collectionExpression, collectionSerializer);
@@ -201,12 +193,12 @@ internal partial class KnownSerializerFinderVisitor
 
     private void DeduceSerializers(Expression expression1, Expression expression2)
     {
-        if (IsNotKnown(expression1) && IsKnown(expression2, out var expression2Serializer))
+        if (IsNotKnown(expression1) && IsKnown(expression2, out var expression2Serializer) && expression2Serializer.ValueType == expression1.Type)
         {
             AddKnownSerializer(expression1, expression2Serializer);
         }
 
-        if (IsNotKnown(expression2) && IsKnown(expression1, out var expression1Serializer))
+        if (IsNotKnown(expression2) && IsKnown(expression1, out var expression1Serializer)&&  expression1Serializer.ValueType == expression2.Type)
         {
             AddKnownSerializer(expression2, expression1Serializer);
         }
@@ -231,8 +223,8 @@ internal partial class KnownSerializerFinderVisitor
 
     private bool IsItemSerializerKnown(Expression node, out IBsonSerializer itemSerializer)
     {
-        if (IsKnown(node, out var serializer) &&
-            serializer is IBsonArraySerializer arraySerializer &&
+        if (IsKnown(node, out var nodeSerializer) &&
+            nodeSerializer is IBsonArraySerializer arraySerializer &&
             arraySerializer.TryGetItemSerializationInfo(out var itemSerializationInfo))
         {
             itemSerializer = itemSerializationInfo.Serializer;

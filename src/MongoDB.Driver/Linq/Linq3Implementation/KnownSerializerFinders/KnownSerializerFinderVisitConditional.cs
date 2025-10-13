@@ -21,17 +21,20 @@ internal partial class KnownSerializerFinderVisitor
 {
     protected override Expression VisitConditional(ConditionalExpression node)
     {
-        var ifTrue = node.IfTrue;
-        var ifFalse = node.IfFalse;
+        var ifTrueExpression = node.IfTrue;
+        var ifFalseExpression = node.IfFalse;
 
-        DeduceSerializers(ifTrue, node);
-        DeduceSerializers(ifFalse, node);
-
+        DeduceConditionaSerializers();
         base.VisitConditional(node);
-
-        DeduceSerializers(ifTrue, ifFalse);
-        DeduceSerializers(node, ifTrue);
+        DeduceConditionaSerializers();
 
         return node;
+
+        void DeduceConditionaSerializers()
+        {
+            DeduceBaseTypeAndDerivedTypeSerializers(node, ifTrueExpression);
+            DeduceBaseTypeAndDerivedTypeSerializers(node, ifFalseExpression);
+            DeduceBaseTypeAndDerivedTypeSerializers(node, ifTrueExpression); // call a second time in case ifFalse is the only known serializer
+        }
     }
 }
