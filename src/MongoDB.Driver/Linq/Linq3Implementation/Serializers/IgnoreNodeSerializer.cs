@@ -13,21 +13,21 @@
  * limitations under the License.
  */
 
-using System.Linq.Expressions;
-using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
+using System;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 
-namespace MongoDB.Driver.Linq.Linq3Implementation.KnownSerializerFinders;
+namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
-internal partial class KnownSerializerFinderVisitor
+internal static class IgnoreNodeSerializer
 {
-    protected override Expression VisitLambda<T>(Expression<T> node)
+    public static IBsonSerializer Create(Type valueType)
     {
-        if (IsNotKnown(node))
-        {
-            var ignoreNodeSerializer = IgnoreNodeSerializer.Create(node.Type);
-            AddKnownSerializer(node, ignoreNodeSerializer);
-        }
-
-        return base.VisitLambda(node);
+        var serializerType = typeof(IgnoreNodeSerializer<>).MakeGenericType(valueType);
+        return (IBsonSerializer)Activator.CreateInstance(serializerType);
     }
+}
+
+internal class IgnoreNodeSerializer<TValue> : SerializerBase<TValue>
+{
 }

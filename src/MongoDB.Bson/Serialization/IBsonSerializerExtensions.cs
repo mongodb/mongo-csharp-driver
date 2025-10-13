@@ -53,14 +53,19 @@ namespace MongoDB.Bson.Serialization
         /// <summary>
         /// Gets the serializer for a base type starting from a serializer for a derived type.
         /// </summary>
-        /// <param name="serializer">The serializer for the derived type.</param>
+        /// <param name="derivedTypeSerializer">The serializer for the derived type.</param>
         /// <param name="baseType">The base type.</param>
         /// <returns>The serializer for the base type.</returns>
-        public static IBsonSerializer GetBaseTypeSerializer(this IBsonSerializer serializer, Type baseType)
+        public static IBsonSerializer GetBaseTypeSerializer(this IBsonSerializer derivedTypeSerializer, Type baseType)
         {
-            if (!baseType.IsAssignableFrom(serializer.ValueType))
+            if (derivedTypeSerializer.ValueType == baseType)
             {
-                throw new ArgumentException($"{baseType} is not assignable from {serializer.ValueType}.");
+                return derivedTypeSerializer;
+            }
+
+            if (!baseType.IsAssignableFrom(derivedTypeSerializer.ValueType))
+            {
+                throw new ArgumentException($"{baseType} is not assignable from {derivedTypeSerializer.ValueType}.");
             }
 
             return BsonSerializer.LookupSerializer(baseType); // TODO: should be able to navigate from serializer
@@ -69,14 +74,19 @@ namespace MongoDB.Bson.Serialization
         /// <summary>
         /// Gets the serializer for a derived type starting from a serializer for a base type.
         /// </summary>
-        /// <param name="serializer">The serializer for the base type.</param>
+        /// <param name="baseTypeSerializer">The serializer for the base type.</param>
         /// <param name="derivedType">The derived type.</param>
         /// <returns>The serializer for the derived type.</returns>
-        public static IBsonSerializer GetDerivedTypeSerializer(this IBsonSerializer serializer, Type derivedType)
+        public static IBsonSerializer GetDerivedTypeSerializer(this IBsonSerializer baseTypeSerializer, Type derivedType)
         {
-            if (!serializer.ValueType.IsAssignableFrom(derivedType))
+            if (baseTypeSerializer.ValueType == derivedType)
             {
-                throw new ArgumentException($"{serializer.ValueType} is not assignable from {derivedType}.");
+                return baseTypeSerializer;
+            }
+
+            if (!baseTypeSerializer.ValueType.IsAssignableFrom(derivedType))
+            {
+                throw new ArgumentException($"{baseTypeSerializer.ValueType} is not assignable from {derivedType}.");
             }
 
             return BsonSerializer.LookupSerializer(derivedType); // TODO: should be able to navigate from serializer

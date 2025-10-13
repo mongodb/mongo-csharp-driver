@@ -22,50 +22,50 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
 internal static class NumericConversionSerializer
 {
-    public static IBsonSerializer Create(Type fromType, Type toType, IBsonSerializer fromSerializer)
+    public static IBsonSerializer Create(Type sourceType, Type targetType, IBsonSerializer sourceSerializer)
     {
-        var serializerType = typeof(NumericConversionSerializer<,>).MakeGenericType(fromType, toType);
-        return (IBsonSerializer)Activator.CreateInstance(serializerType, fromSerializer);
+        var serializerType = typeof(NumericConversionSerializer<,>).MakeGenericType(sourceType, targetType);
+        return (IBsonSerializer)Activator.CreateInstance(serializerType, sourceSerializer);
     }
 }
 
-internal class NumericConversionSerializer<TFrom, TTo> : SerializerBase<TTo>, IHasRepresentationSerializer
+internal class NumericConversionSerializer<TSource, TTarget> : SerializerBase<TTarget>, IHasRepresentationSerializer
 {
-    private readonly IBsonSerializer<TFrom> _fromSerializer;
+    private readonly IBsonSerializer<TSource> _sourceSerializer;
 
     public BsonType Representation
     {
         get
         {
-            if (_fromSerializer is not IHasRepresentationSerializer hasRepresentationSerializer)
+            if (_sourceSerializer is not IHasRepresentationSerializer hasRepresentationSerializer)
             {
-                throw new NotSupportedException($"Serializer class {_fromSerializer.GetType().Name} does not implement IHasRepresentationSerializer.");
+                throw new NotSupportedException($"Serializer class {_sourceSerializer.GetType().Name} does not implement IHasRepresentationSerializer.");
             }
 
             return hasRepresentationSerializer.Representation;
         }
     }
 
-    public NumericConversionSerializer(IBsonSerializer<TFrom> fromSerializer)
+    public NumericConversionSerializer(IBsonSerializer<TSource> sourceSerializer)
     {
-        _fromSerializer = fromSerializer;
+        _sourceSerializer = sourceSerializer;
     }
 
-    public override TTo Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
+    public override TTarget Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
     {
-        var from = _fromSerializer.Deserialize(context);
-        return (TTo)Convert(typeof(TFrom), typeof(TTo), from);
+        var sourceValue = _sourceSerializer.Deserialize(context);
+        return (TTarget)Convert(typeof(TSource), typeof(TTarget), sourceValue);
     }
 
-    public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TTo value)
+    public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TTarget value)
     {
-        var from = Convert(typeof(TTo), typeof(TFrom), value);
-        _fromSerializer.Serialize(context, args);
+        var sourceValue = Convert(typeof(TTarget), typeof(TSource), value);
+        _sourceSerializer.Serialize(context, args, sourceValue);
     }
 
-    private object Convert(Type from, Type to, object value)
+    private object Convert(Type sourceType, Type targetType, object value)
     {
-        return (Type.GetTypeCode(from), Type.GetTypeCode(to)) switch
+        return (Type.GetTypeCode(sourceType), Type.GetTypeCode(targetType)) switch
         {
             (TypeCode.Decimal, TypeCode.Double) => (object)(double)(decimal)value,
             (TypeCode.Double, TypeCode.Decimal) => (object)(decimal)(double)value,
@@ -75,7 +75,7 @@ internal class NumericConversionSerializer<TFrom, TTo> : SerializerBase<TTo>, IH
             (TypeCode.Int32, TypeCode.Int64) => (object)(long)(int)value,
             (TypeCode.Int64, TypeCode.Int16) => (object)(short)(long)value,
             (TypeCode.Int64, TypeCode.Int32) => (object)(int)(long)value,
-            _ => throw new NotSupportedException($"Cannot convert {from} to {to}"),
+            _ => throw new NotSupportedException($"Cannot convert {sourceType} to {targetType}."),
         };
     }
 }

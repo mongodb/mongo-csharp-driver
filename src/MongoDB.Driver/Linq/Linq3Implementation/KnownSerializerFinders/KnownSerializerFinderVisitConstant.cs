@@ -31,7 +31,6 @@ internal partial class KnownSerializerFinderVisitor
             }
             else
             {
-                // constant => node: registeredSerializer
                 var registeredSerializer = BsonSerializer.LookupSerializer(node.Type); // TODO: don't use static registry
                 AddKnownSerializer(node, registeredSerializer);
             }

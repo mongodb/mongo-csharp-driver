@@ -56,7 +56,6 @@ internal partial class KnownSerializerFinderVisitor
                 {
                     var creatorMapParameter = creatorMapParameters[i];
                     var constructorArgumentExpression = constructorArguments[i];
-                    var constructorArgumentType = constructorArgumentExpression.Type;
                     if (!IsKnown(constructorArgumentExpression, out var constructorArgumentSerializer))
                     {
                         return null;
