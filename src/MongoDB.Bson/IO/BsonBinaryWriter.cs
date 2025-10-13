@@ -30,6 +30,7 @@ namespace MongoDB.Bson.IO
 #pragma warning restore CA2213 // Disposable never disposed
         private readonly BsonStream _bsonStream;
         private BsonBinaryWriterContext _context;
+        private readonly Lazy<Stack<BsonBinaryWriterContext>> _contexts = new(() => new());
 
         // constructors
         /// <summary>
@@ -61,7 +62,7 @@ namespace MongoDB.Bson.IO
             _baseStream = stream;
             _bsonStream = (stream as BsonStream) ?? new BsonStreamAdapter(stream);
 
-            _context = null;
+            _context = new(ContextType.TopLevel, 0);
             State = BsonWriterState.Initial;
         }
 
@@ -115,7 +116,7 @@ namespace MongoDB.Bson.IO
                 {
                     Flush();
                 }
-                _context = null;
+                _context = default;
                 State = BsonWriterState.Closed;
             }
         }
@@ -290,7 +291,7 @@ namespace MongoDB.Bson.IO
             _bsonStream.WriteByte(0);
             BackpatchSize(); // size of document
 
-            _context = _context.ParentContext;
+            _context = _contexts.Value.Pop();
             State = GetNextState();
         }
 
@@ -313,8 +314,8 @@ namespace MongoDB.Bson.IO
             _bsonStream.WriteByte(0);
             BackpatchSize(); // size of document
 
-            _context = _context.ParentContext;
-            if (_context == null)
+            _context = _contexts.Value.Pop();
+            if (_context.ContextType == ContextType.TopLevel)
             {
                 State = BsonWriterState.Done;
             }
@@ -323,7 +324,7 @@ namespace MongoDB.Bson.IO
                 if (_context.ContextType == ContextType.JavaScriptWithScope)
                 {
                     BackpatchSize(); // size of the JavaScript with scope value
-                    _context = _context.ParentContext;
+                    _context = _contexts.Value.Pop();
                 }
                 State = GetNextState();
             }
@@ -400,7 +401,9 @@ namespace MongoDB.Bson.IO
 
             _bsonStream.WriteBsonType(BsonType.JavaScriptWithScope);
             WriteNameHelper();
-            _context = new BsonBinaryWriterContext(_context, ContextType.JavaScriptWithScope, _bsonStream.Position);
+
+            _contexts.Value.Push(_context);
+            _context = new(ContextType.JavaScriptWithScope, _bsonStream.Position);
             _bsonStream.WriteInt32(0); // reserve space for size of JavaScript with scope value
             _bsonStream.WriteString(code, Settings.Encoding);
 
@@ -515,7 +518,7 @@ namespace MongoDB.Bson.IO
             }
             _bsonStream.WriteSlice(slice); // assumes byteBuffer is a valid raw BSON document
 
-            if (_context == null)
+            if (_context.ContextType == ContextType.TopLevel)
             {
                 State = BsonWriterState.Done;
             }
@@ -524,7 +527,7 @@ namespace MongoDB.Bson.IO
                 if (_context.ContextType == ContextType.JavaScriptWithScope)
                 {
                     BackpatchSize(); // size of the JavaScript with scope value
-                    _context = _context.ParentContext;
+                    _context = _contexts.Value.Pop();
                 }
                 State = GetNextState();
             }
@@ -564,7 +567,9 @@ namespace MongoDB.Bson.IO
             base.WriteStartArray();
             _bsonStream.WriteBsonType(BsonType.Array);
             WriteNameHelper();
-            _context = new BsonBinaryWriterContext(_context, ContextType.Array, _bsonStream.Position);
+
+            _contexts.Value.Push(_context);
+            _context = new(ContextType.Array, _bsonStream.Position);
             _bsonStream.WriteInt32(0); // reserve space for size
 
             State = BsonWriterState.Value;
@@ -588,7 +593,8 @@ namespace MongoDB.Bson.IO
                 WriteNameHelper();
             }
             var contextType = (State == BsonWriterState.ScopeDocument) ? ContextType.ScopeDocument : ContextType.Document;
-            _context = new BsonBinaryWriterContext(_context, contextType, _bsonStream.Position);
+            _contexts.Value.Push(_context);
+            _context = new(contextType, _bsonStream.Position);
             _bsonStream.WriteInt32(0); // reserve space for size
 
             State = BsonWriterState.Name;

@@ -13,40 +13,28 @@
 * limitations under the License.
 */
 
-namespace MongoDB.Bson.IO
+namespace MongoDB.Bson.IO;
+
+/// <summary>
+/// Represents a bookmark that can be used to return a reader to the current position and state.
+/// </summary>
+public class BsonBinaryReaderBookmark : BsonReaderBookmark
 {
-    /// <summary>
-    /// Represents a bookmark that can be used to return a reader to the current position and state.
-    /// </summary>
-    public class BsonBinaryReaderBookmark : BsonReaderBookmark
+    internal BsonBinaryReaderBookmark(
+        BsonReaderState state,
+        BsonType currentBsonType,
+        string currentName,
+        BsonBinaryReaderContext currentContext,
+        BsonBinaryReaderContext[] contextsStack,
+        long position)
+        : base(state, currentBsonType, currentName)
     {
-        // private fields
-        private BsonBinaryReaderContext _context;
-        private long _position;
-
-        // constructors
-        internal BsonBinaryReaderBookmark(
-            BsonReaderState state,
-            BsonType currentBsonType,
-            string currentName,
-            BsonBinaryReaderContext context,
-            long position)
-            : base(state, currentBsonType, currentName)
-        {
-            _context = context.Clone();
-            _position = position;
-        }
-
-        // internal properties
-        internal long Position
-        {
-            get { return _position; }
-        }
-
-        // internal methods
-        internal BsonBinaryReaderContext CloneContext()
-        {
-            return _context.Clone();
-        }
+        CurrentContext = currentContext;
+        ContextsStack = contextsStack;
+        Position = position;
     }
+
+    internal BsonBinaryReaderContext CurrentContext { get; }
+    internal BsonBinaryReaderContext[] ContextsStack { get; }
+    internal long Position { get; }
 }
