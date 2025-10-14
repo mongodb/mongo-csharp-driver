@@ -36,10 +36,8 @@ internal class ClrCompatExpressionPreprocessor : ExpressionVisitor
     {
         var method = methodCall.Method;
 
-        // C# 14 introduced implicit casts to ReadOnlySpan<T> and Span<T>
-        // This then binds Contains and SequenceEqual to the MemoryExtensions instead of Enumerable
-        // and we can't just add support for MemoryExtensions elsewhere as it's actually invalid
-        // in an expression tree due to the ref semantics of ReadOnlySpan<T>.
+        // C# 14 compiler changes mean array and list Contains now prefer MemoryExtensions with a ReadOnlySpan<T> cast
+        // instead of the traditional Enumerable methods. This aliases them back to their original Enumerable methods.
         if (method.DeclaringType == typeof(MemoryExtensions) && method.IsGenericMethod)
         {
             switch (method.Name)
