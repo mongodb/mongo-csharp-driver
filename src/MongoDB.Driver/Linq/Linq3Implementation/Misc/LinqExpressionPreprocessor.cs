@@ -26,8 +26,8 @@ internal static class LinqExpressionPreprocessor
 {
     public static Expression Preprocess(Expression expression)
     {
-        expression = ClrCompatExpressionPreprocessor.Preprocess(expression);
         expression = PartialEvaluator.EvaluatePartially(expression);
+        expression = ClrCompatExpressionPreprocessor.Preprocess(expression);
         return expression;
     }
 }
