@@ -203,31 +203,40 @@ namespace MongoDB.Driver.Core.Connections
 
         private async Task ConnectAsync(Socket socket, EndPoint endPoint, CancellationToken cancellationToken)
         {
-            var timeoutTask = Task.Delay(_settings.ConnectTimeout, cancellationToken);
-            var connectTask = socket.ConnectAsync(endPoint);
+            Task connectTask;
 
-            await Task.WhenAny(connectTask, timeoutTask).ConfigureAwait(false);
-
-            if (!connectTask.IsCompleted)
+#if !NET472
+            connectTask = socket.ConnectAsync(endPoint);
+#else
+            var dnsEndPoint = endPoint as DnsEndPoint;
+            if (dnsEndPoint != null)
+            {
+                // mono doesn't support DnsEndPoint in its BeginConnect method.
+                connectTask = Task.Factory.FromAsync(socket.BeginConnect(dnsEndPoint.Host, dnsEndPoint.Port, null, null), socket.EndConnect);
+            }
+            else
+            {
+                connectTask = Task.Factory.FromAsync(socket.BeginConnect(endPoint, null, null), socket.EndConnect);
+            }
+#endif
+            try
+            {
+                await connectTask.WaitAsync(_settings.ConnectTimeout, cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex)
             {
                 try
                 {
                     socket.Dispose();
-                    // should await on the read task to avoid UnobservedTaskException
-                    await connectTask.ConfigureAwait(false);
-                } catch { }
+                    connectTask.IgnoreExceptions();
+                }
+                catch { }
 
-                cancellationToken.ThrowIfCancellationRequested();
-                throw new TimeoutException($"Timed out connecting to {endPoint}. Timeout was {_settings.ConnectTimeout}.");
-            }
+                if (ex is TimeoutException)
+                {
+                    throw new TimeoutException($"Timed out connecting to {endPoint}. Timeout was {_settings.ConnectTimeout}.");
+                }
 
-            try
-            {
-                await connectTask.ConfigureAwait(false);
-            }
-            catch
-            {
-                try { socket.Dispose(); } catch { }
                 throw;
             }
         }
