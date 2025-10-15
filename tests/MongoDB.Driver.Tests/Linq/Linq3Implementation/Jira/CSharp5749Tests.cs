@@ -15,15 +15,20 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Driver.Linq.Linq3Implementation.Misc;
+using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira;
 
+#if NET6_0_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 public class CSharp5749Tests : LinqIntegrationTest<CSharp5749Tests.ClassFixture>
 {
     public CSharp5749Tests(ClassFixture fixture)
@@ -31,89 +36,95 @@ public class CSharp5749Tests : LinqIntegrationTest<CSharp5749Tests.ClassFixture>
     {
     }
 
-#if NET6_0_OR_GREATER
-
     [Fact]
-    public void MemoryExtension_contains_in_where_should_work()
+    public void MemoryExtensions_Contains_in_Where_should_work()
     {
+        var collection = Fixture.Collection;
         var names = new[] { "Two", "Three" };
 
-        var queryable = MangledQueryable().Where(x => names.Contains(x.Name));
+        var queryable = collection.AsQueryable().Where(Rewrite((C x) => names.Contains(x.Name)));
 
-        Assert.Equal(2, queryable.Count());
+        var results = queryable.ToArray();
+        results.Select(x => x.Id).Should().Equal(2, 3);
     }
 
     [Fact]
-    public void MemoryExtension_contains_in_single_should_work()
+    public void MemoryExtensions_Contains_in_Single_should_work()
     {
+        var collection = Fixture.Collection;
         var names = new[] { "Two" };
 
-        var actual = MangledQueryable().Single(x => names.Contains(x.Name));
+        var result = collection.AsQueryable().Single(Rewrite((C x) => names.Contains(x.Name)));
 
-        Assert.Equal("Two", actual.Name);
+        result.Id.Should().Be(2);
     }
 
     [Fact]
-    public void MemoryExtension_contains_in_any_should_work()
+    public void MemoryExtensions_Contains_in_Any_should_work()
     {
+        var collection = Fixture.Collection;
         var ids = new[] { 2 };
 
-        var actual = MangledQueryable().Any(x => ids.Contains(x.Id));
+        var result = collection.AsQueryable().Any(Rewrite((C x) => ids.Contains(x.Id)));
 
-        Assert.True(actual);
+        result.Should().BeTrue();
     }
 
     [Fact]
-    public void MemoryExtension_contains_in_count_should_work()
+    public void MemoryExtensions_Contains_in_Count_should_work()
     {
+        var collection = Fixture.Collection;
         var ids = new[] { 2 };
 
-        var actual = MangledQueryable().Count(x => ids.Contains(x.Id));
+        var result = collection.AsQueryable().Count(Rewrite((C x) => ids.Contains(x.Id)));
 
-        Assert.Equal(1, actual);
+        result.Should().Be(1);
     }
 
     [Fact]
-    public void MemoryExtension_sequenceequal_in_where_should_work()
+    public void MemoryExtensions_SequenceEqual_in_Where_should_work()
     {
+        var collection = Fixture.Collection;
         var ratings = new[] { 1, 9, 6 };
 
-        var queryable = MangledQueryable().Where(x => ratings.SequenceEqual(x.Ratings));
+        var queryable = collection.AsQueryable().Where(Rewrite((C x) => ratings.SequenceEqual(x.Ratings)));
 
-        Assert.Equal(1, queryable.Count());
+        var results = queryable.ToArray();
+        results.Select(x => x.Id).Should().Equal(3);
     }
 
     [Fact]
-    public void MemoryExtension_sequenceequal_in_single_should_work()
+    public void MemoryExtensions_SequenceEqual_in_Single_should_work()
     {
+        var collection = Fixture.Collection;
         var ratings = new[] { 1, 9, 6 };
 
-        var actual = MangledQueryable().Single(x => ratings.SequenceEqual(x.Ratings));
+        var result = collection.AsQueryable().Single(Rewrite((C x) => ratings.SequenceEqual(x.Ratings)));
 
-        Assert.Equal("Three", actual.Name);
+       result.Id.Should().Be(3);
     }
 
     [Fact]
-    public void MemoryExtension_sequenceequas_in_any_should_work()
+    public void MemoryExtensions_SequenceEqual_in_Any_should_work()
     {
+        var collection = Fixture.Collection;
         var ratings = new[] { 1, 2, 3, 4, 5 };
 
-        var actual = MangledQueryable().Any(x => ratings.SequenceEqual(x.Ratings));
+        var result = collection.AsQueryable().Any(Rewrite((C x) => ratings.SequenceEqual(x.Ratings)));
 
-        Assert.True(actual);
+        result.Should().BeTrue();
     }
 
     [Fact]
-    public void MemoryExtension_sequenceequas_in_count_should_work()
+    public void MemoryExtensions_SequenceEqual_in_Count_should_work()
     {
+        var collection = Fixture.Collection;
         var ratings = new[] { 3, 4, 5, 6, 7 };
 
-        var actual = MangledQueryable().Count(x => ratings.SequenceEqual(x.Ratings));
+        var result = collection.AsQueryable().Count(Rewrite((C x) => ratings.SequenceEqual(x.Ratings)));
 
-        Assert.Equal(1, actual);
+        result.Should().Be(1);
     }
-
-#endif
 
     public class C
     {
@@ -126,143 +137,121 @@ public class CSharp5749Tests : LinqIntegrationTest<CSharp5749Tests.ClassFixture>
     {
         protected override IEnumerable<BsonDocument> InitialData =>
         [
-            BsonDocument.Parse("{ _id : 1, Name: \"One\", Ratings: [1,2,3,4,5] }"),
-            BsonDocument.Parse("{ _id : 2, Name: \"Two\", Ratings: [3,4,5,6,7] }"),
-            BsonDocument.Parse("{ _id : 3, Name: \"Three\", Ratings: [1,9,6] }")
+            BsonDocument.Parse("{ _id : 1, Name : \"One\", Ratings : [1, 2, 3, 4, 5] }"),
+            BsonDocument.Parse("{ _id : 2, Name : \"Two\", Ratings : [3, 4, 5, 6, 7] }"),
+            BsonDocument.Parse("{ _id : 3, Name : \"Three\", Ratings : [1, 9, 6] }")
         ];
     }
 
-    public IQueryable<C> MangledQueryable()
-        => new ManglingQueryable<C>(Fixture.Collection.AsQueryable());
-
-    public class ManglingQueryProvider(IQueryProvider innerProvider) : IQueryProvider
+    private Expression<Func<T, bool>> Rewrite<T>(Expression<Func<T, bool>> predicate)
     {
-        public IQueryable CreateQuery(Expression expression)
-            => innerProvider.CreateQuery(EnumerableToMemoryExtensionsMangler.Mangle(expression));
-
-        public IQueryable<TElement> CreateQuery<TElement>(Expression expression)
-        {
-            var mangledExpression = EnumerableToMemoryExtensionsMangler.Mangle(expression);
-            return innerProvider.CreateQuery<TElement>(mangledExpression);
-        }
-
-        public object Execute(Expression expression)
-        {
-            var mangledExpression = EnumerableToMemoryExtensionsMangler.Mangle(expression);
-            return innerProvider.Execute(mangledExpression);
-        }
-
-        public TResult Execute<TResult>(Expression expression)
-        {
-            var mangledExpression = EnumerableToMemoryExtensionsMangler.Mangle(expression);
-            return innerProvider.Execute<TResult>(mangledExpression);
-        }
+        return (Expression<Func<T,bool>>)new EnumerableToMemoryExtensionsRewriter().Visit(predicate);
     }
 
-    public class ManglingQueryable<T>(IQueryable<T> innerQueryable) : IOrderedQueryable<T>
+    public class EnumerableToMemoryExtensionsRewriter : ExpressionVisitor
     {
-        private readonly ManglingQueryProvider _provider = new(innerQueryable.Provider);
-
-        public Type ElementType => innerQueryable.ElementType;
-        public Expression Expression => innerQueryable.Expression;
-        public IQueryProvider Provider => _provider;
-
-        public IEnumerator<T> GetEnumerator()
-        {
-            var mangledExpression = EnumerableToMemoryExtensionsMangler.Mangle(Expression);
-            var query = innerQueryable.Provider.CreateQuery<T>(mangledExpression);
-            return query.GetEnumerator();
-        }
-
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-            => GetEnumerator();
-    }
-
-    public class EnumerableToMemoryExtensionsMangler : ExpressionVisitor
-    {
-        private static readonly EnumerableToMemoryExtensionsMangler s_instance = new();
-
-        public static Expression Mangle(Expression expression)
-            => s_instance.Visit(expression);
-
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            // Check if this is Enumerable.Contains or Enumerable.SequenceEqual
-            if (node.Method.DeclaringType == typeof(Enumerable) &&
-                node.Method.IsGenericMethod &&
-                (node.Method.Name == nameof(Enumerable.Contains) ||
-                 node.Method.Name == nameof(Enumerable.SequenceEqual)))
+            node = (MethodCallExpression)base.VisitMethodCall(node);
+
+            var method = node.Method;
+            var arguments = node.Arguments;
+
+            return method.Name switch
             {
-                var elementType = node.Method.GetGenericArguments()[0];
+                "Contains" => VisitContainsMethod(node, method, arguments),
+                "SequenceEqual" => VisitSequenceEqualMethod(node, method, arguments),
+                _ => node
+            };
 
-                // Get ReadOnlySpan<T>.op_Implicit method
-                var spanType = typeof(ReadOnlySpan<>).MakeGenericType(elementType);
-                var opImplicitMethod = spanType.GetMethod("op_Implicit",
-                    BindingFlags.Public | BindingFlags.Static,
-                    null,
-                    [elementType.MakeArrayType()],
-                    null);
-
-                if (opImplicitMethod == null)
-                    return base.VisitMethodCall(node);
-
-                switch (node.Method.Name)
+            static Expression VisitContainsMethod(MethodCallExpression node, MethodInfo method, ReadOnlyCollection<Expression> arguments)
+            {
+                if (method.Is(EnumerableMethod.Contains))
                 {
-                    case nameof(Enumerable.Contains):
-                        {
-                            var source = node.Arguments[0];
-                            if (!source.Type.IsArray)
-                                return base.VisitMethodCall(node);
+                    var itemType = method.GetGenericArguments().Single();
+                    var source = arguments[0];
+                    var value = arguments[1];
 
-                            var containsMethod = typeof(MemoryExtensions)
-                                                     .GetMethods(BindingFlags.Public | BindingFlags.Static)
-                                                     .FirstOrDefault(m =>
-                                                         m.Name == nameof(MemoryExtensions.Contains) &&
-                                                         m.IsGenericMethod &&
-                                                         m.GetParameters().Length == 2 &&
-                                                         m.GetParameters()[0].ParameterType.IsGenericType &&
-                                                         m.GetParameters()[0].ParameterType.GetGenericTypeDefinition() ==
-                                                         typeof(ReadOnlySpan<>))
-                                                     ?.MakeGenericMethod(elementType)
-                                                 ?? throw new InvalidOperationException(
-                                                     "Could not find MemoryExtensions.Contains method.");
-
-                            return Expression.Call(containsMethod,
-                                Expression.Call(opImplicitMethod, Visit(source)),
-                                Visit(node.Arguments[1]));
-                        }
-
-                    case nameof(Enumerable.SequenceEqual):
-                        {
-                            var first = node.Arguments[0];
-                            var second = node.Arguments[1];
-                            if (!first.Type.IsArray || !second.Type.IsArray)
-                                return base.VisitMethodCall(node);
-
-                            var sequenceEqualMethod = typeof(MemoryExtensions)
-                                                          .GetMethods(BindingFlags.Public | BindingFlags.Static)
-                                                          .FirstOrDefault(m =>
-                                                              m.Name == nameof(MemoryExtensions.SequenceEqual) &&
-                                                              m.IsGenericMethod &&
-                                                              m.GetParameters().Length == 2 &&
-                                                              m.GetParameters()[0].ParameterType.IsGenericType &&
-                                                              m.GetParameters()[0].ParameterType.GetGenericTypeDefinition() ==
-                                                              typeof(ReadOnlySpan<>) &&
-                                                              m.GetParameters()[1].ParameterType.IsGenericType &&
-                                                              m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() ==
-                                                              typeof(ReadOnlySpan<>))
-                                                          ?.MakeGenericMethod(elementType)
-                                                      ?? throw new InvalidOperationException(
-                                                          "Could not find MemoryExtensions.SequenceEquals method.");
-
-                            return Expression.Call(sequenceEqualMethod,
-                                Expression.Call(opImplicitMethod, Visit(first)),
-                                Expression.Call(opImplicitMethod, Visit(second)));
-                        }
+                    if (source.Type.IsArray)
+                    {
+                        var readOnlySpan = ImplicitCastArrayToSpan(source, typeof(ReadOnlySpan<>), itemType);
+                        return
+                            Expression.Call(
+                                MemoryExtensionsMethod.ContainsWithReadOnlySpanAndValue.MakeGenericMethod(itemType),
+                                [readOnlySpan, value]);
+                    }
                 }
+                else if (method.Is(EnumerableMethod.ContainsWithComparer))
+                {
+                    var itemType = method.GetGenericArguments().Single();
+                    var source = arguments[0];
+                    var value = arguments[1];
+                    var comparer = arguments[2];
+
+                    if (source.Type.IsArray)
+                    {
+                        var readOnlySpan = ImplicitCastArrayToSpan(source, typeof(ReadOnlySpan<>), itemType);
+                        return
+                            Expression.Call(
+                                MemoryExtensionsMethod.ContainsWithReadOnlySpanAndValueAndComparer.MakeGenericMethod(itemType),
+                                [readOnlySpan, value, comparer]);
+                    }
+                }
+
+
+                return node;
             }
 
-            return base.VisitMethodCall(node);
+            static Expression VisitSequenceEqualMethod(MethodCallExpression node, MethodInfo method, ReadOnlyCollection<Expression> arguments)
+            {
+                if (method.Is(EnumerableMethod.SequenceEqual))
+                {
+                    var itemType = method.GetGenericArguments().Single();
+                    var first = arguments[0];
+                    var second = arguments[1];
+
+                    if (first.Type.IsArray && second.Type.IsArray)
+                    {
+                        var firstReadOnlySpan = ImplicitCastArrayToSpan(first, typeof(ReadOnlySpan<>), itemType);
+                        var secondReadOnlySpan = ImplicitCastArrayToSpan(second, typeof(ReadOnlySpan<>), itemType);
+                        return
+                            Expression.Call(
+                                MemoryExtensionsMethod.SequenceEqualWithReadOnlySpanAndReadOnlySpan.MakeGenericMethod(itemType),
+                                [firstReadOnlySpan, secondReadOnlySpan]);
+                    }
+                }
+                else if (method.Is(EnumerableMethod.SequenceEqualWithComparer))
+                {
+                    var itemType = method.GetGenericArguments().Single();
+                    var first = arguments[0];
+                    var second = arguments[1];
+                    var comparer = arguments[2];
+
+                    if (first.Type.IsArray && second.Type.IsArray)
+                    {
+                        var firstReadOnlySpan = ImplicitCastArrayToSpan(first, typeof(ReadOnlySpan<>), itemType);
+                        var secondReadOnlySpan = ImplicitCastArrayToSpan(second, typeof(ReadOnlySpan<>), itemType);
+                        return
+                            Expression.Call(
+                                MemoryExtensionsMethod.SequenceEqualWithReadOnlySpanAndReadOnlySpan.MakeGenericMethod(itemType),
+                                [firstReadOnlySpan, secondReadOnlySpan, comparer]);
+                    }
+                }
+
+                return node;
+            }
+
+            static Expression ImplicitCastArrayToSpan(Expression value, Type spanType, Type itemType)
+            {
+                var opImplicitMethod = spanType.MakeGenericType(itemType).GetMethod(
+                    "op_Implicit",
+                    BindingFlags.Public | BindingFlags.Static,
+                    null,
+                    [itemType.MakeArrayType()],
+                    null);
+                return Expression.Call(opImplicitMethod, value);
+            }
         }
     }
 }
+#endif
