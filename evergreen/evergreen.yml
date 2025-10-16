@@ -24,6 +24,11 @@ timeout:
         ls -la
         df -h
 
+# Allows to see evergreen checks in GitHub commits
+github_checks_aliases:
+  - variant: "unit-tests-.*"
+    task: ".*"
+    
 functions:
 
   fetch-source:
