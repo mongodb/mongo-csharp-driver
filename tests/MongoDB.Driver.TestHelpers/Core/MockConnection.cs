@@ -181,6 +181,15 @@ namespace MongoDB.Driver.Core.TestHelpers
             return _sentMessages;
         }
 
+        public void EnsureConnectionReady(OperationContext operationContext)
+        {
+        }
+
+        public Task EnsureConnectionReadyAsync(OperationContext operationContext)
+        {
+            return Task.CompletedTask;
+        }
+
         public void Open(OperationContext operationContext)
         {
             _openingEventHandler?.Invoke(new ConnectionOpeningEvent(_connectionId, _connectionSettings, null));

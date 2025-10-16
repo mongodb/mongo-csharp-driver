@@ -18,6 +18,7 @@ using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.TestHelpers.Logging;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
 {
@@ -34,6 +35,12 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
         {
             if (ignoreExtraLogs)
             {
+                if (actualLogs.Length < expectedLogs.Count)
+                {
+                    Assert.Fail(string.Join(":::", actualLogs.Select(l => l.FormattedMessage)));
+                }
+
+
                 actualLogs.Length.Should().BeGreaterOrEqualTo(expectedLogs.Count);
             }
             else

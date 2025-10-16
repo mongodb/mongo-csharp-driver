@@ -1,0 +1,258 @@
+description: "Connection churn is prevented by reading pending responses during connection checkout"
+schemaVersion: "1.28"
+runOnRequirements:
+  - minServerVersion: "4.4"
+    # TODO(SERVER-96344): When using failpoints, mongos returns MaxTimeMSExpired
+    # after maxTimeMS, whereas mongod returns it after
+    # max(blockTimeMS, maxTimeMS). Until this ticket is resolved, these tests
+    # will not pass on sharded clusters.
+    topologies: ["single", "replicaset"]
+createEntities:
+  - client:
+      id: &failPointClient failPointClient
+      useMultipleMongoses: false
+  - client:
+      id: &client client
+      uriOptions:
+        maxPoolSize: 1
+        minPoolSize: 1
+      awaitMinPoolSizeMS: 10000
+      useMultipleMongoses: false
+      observeEvents:
+        - commandFailedEvent
+        - commandSucceededEvent
+        - connectionCheckOutStartedEvent
+        - connectionCheckedOutEvent
+        - connectionCheckOutFailedEvent
+        - connectionCheckedInEvent
+        - connectionCreatedEvent
+        - connectionReadyEvent
+        - connectionClosedEvent
+        - connectionPendingResponseSucceededEvent
+        - connectionPendingResponseStartedEvent
+        - connectionPendingResponseFailedEvent
+  - database:
+      id: &database test
+      client: *client
+      databaseName: *database
+  - collection:
+      id: &collection coll
+      database: *database
+      collectionName: *collection
+initialData:
+  - collectionName: *collection
+    databaseName: *database
+    documents: []
+tests:
+  # Attempting a pending response read on a non-timeout operation that can
+  # immediately read from the TCP buffer should complete the pending read and
+  # the connection should be checked out.
+  - description: "non-timeout op with response and no error"
+    operations:
+      # Create a failpoint to block the first operation.
+      - name: failPoint
+        object: testRunner
+        arguments:
+          client: *failPointClient
+          failPoint:
+            configureFailPoint: failCommand
+            mode: {times: 1}
+            data:
+              failCommands: ["insert"]
+              blockConnection: true
+              blockTimeMS: 100
+      # Execute operation with timeout less than block time.
+      - name: insertOne
+        object: *collection
+        arguments:
+          timeoutMS: 75
+          document: {_id: 3, x: 1}
+        expectError:
+          isTimeoutError: true
+      # Execute a subsequent operation to complete the read.
+      - name: find
+        object: *collection
+        arguments:
+          filter: {_id: 1}
+    expectEvents:
+      - client: *client
+        events:
+          - commandFailedEvent:
+              commandName: insert
+          - commandSucceededEvent:
+              commandName: find
+      - client: *client
+        eventType: cmap
+        events:
+          - connectionCheckOutStartedEvent: {}
+          - connectionCheckedOutEvent: {}
+          - connectionCheckedInEvent: {} # Insert fails.
+          - connectionCheckOutStartedEvent: {}
+          - connectionPendingResponseStartedEvent: {}
+          - connectionPendingResponseSucceededEvent: {} # Find operation drains connection.
+          - connectionCheckedOutEvent: {}
+          - connectionCheckedInEvent: {} # Find succeeds.
+  # Attempting a pending response read on a non-timeout operation that gets no
+  # response from the server after 3s should close the connection.
+  - description: "non-timeout op with no response"
+    operations:
+      # Create a failpoint to block the first operation.
+      - name: failPoint
+        object: testRunner
+        arguments:
+          client: *failPointClient
+          failPoint:
+            configureFailPoint: failCommand
+            mode: {times: 1}
+            data:
+              failCommands: ["insert"]
+              blockConnection: true
+              blockTimeMS: 3100
+      # Execute operation with timeout less than block time.
+      - name: insertOne
+        object: *collection
+        arguments:
+          timeoutMS: 50
+          document: {_id: 3, x: 1}
+        expectError:
+          isTimeoutError: true
+      # Execute a subsequent operation to complete the read. We expect failure
+      # in the pending read, resulting in a closed connection. However, the
+      # find should retry and succeed.
+      - name: find
+        object: *collection
+        arguments:
+          filter: {_id: 1}
+    expectEvents:
+      - client: *client
+        events:
+          - commandFailedEvent:
+              commandName: insert
+          - commandSucceededEvent:
+              commandName: find
+      - client: *client
+        eventType: cmap
+        events:
+          - connectionCheckOutStartedEvent: {}
+          - connectionCheckedOutEvent: {}
+          - connectionCheckedInEvent: {} # Insert fails.
+          - connectionCheckOutStartedEvent: {}
+          - connectionPendingResponseStartedEvent: {}
+          - connectionPendingResponseFailedEvent:
+              reason: timeout
+          - connectionClosedEvent:
+              reason: error
+          - connectionCreatedEvent: {}
+          - connectionReadyEvent: {}
+          - connectionCheckedOutEvent: {}
+          - connectionCheckedInEvent: {}
+  # Attempting a pending response read on a realistic timeout operation that can
+  # immediately read from the TCP buffer should complete the pending read and
+  # the connection should be checked out.
+  - description: "timeout op with response and no error"
+    operations:
+      # Create a failpoint to block the first operation.
+      - name: failPoint
+        object: testRunner
+        arguments:
+          client: *failPointClient
+          failPoint:
+            configureFailPoint: failCommand
+            mode: {times: 1}
+            data:
+              failCommands: ["insert"]
+              blockConnection: true
+              blockTimeMS: 100
+      # Execute operation with timeout less than block time.
+      - name: insertOne
+        object: *collection
+        arguments:
+          timeoutMS: 75
+          document: {_id: 3, x: 1}
+        expectError:
+          isTimeoutError: true
+      # Execute a subsequent operation to complete the read.
+      - name: find
+        object: *collection
+        arguments:
+          timeoutMS: 100
+          filter: {_id: 1}
+    expectEvents:
+      - client: *client
+        events:
+          - commandFailedEvent:
+              commandName: insert
+          - commandSucceededEvent:
+              commandName: find
+      - client: *client
+        eventType: cmap
+        events:
+          - connectionCheckOutStartedEvent: {}
+          - connectionCheckedOutEvent: {}
+          - connectionCheckedInEvent: {} # Insert fails.
+          - connectionCheckOutStartedEvent: {}
+          - connectionPendingResponseStartedEvent: {}
+          - connectionPendingResponseSucceededEvent: {}
+          - connectionCheckedOutEvent: {}
+          - connectionCheckedInEvent: {} # Find succeeds.
+  # It may take multiple calls to the pending response handler to drain the
+  # inbound buffer.
+  - description: "multiple calls to drain buffer"
+    operations:
+      # Create a failpoint to block the first and second operation.
+      - name: failPoint
+        object: testRunner
+        arguments:
+          client: *failPointClient
+          failPoint:
+            configureFailPoint: failCommand
+            mode: {times: 1}
+            data:
+              failCommands: ["insert"]
+              blockConnection: true
+              blockTimeMS: 200
+      # Execute operation with timeout less than block time.
+      - name: insertOne
+        object: *collection
+        arguments:
+          timeoutMS: 50
+          document: {_id: 3, x: 1}
+        expectError:
+          isTimeoutError: true
+      # Execute a subsequent operation with a timeout less than the block time.
+      - name: find
+        object: *collection
+        arguments:
+          timeoutMS: 50
+          filter: {_id: 1}
+        expectError:
+          isTimeoutError: true
+      # Execute a final operation to drain the buffer.
+      - name: find
+        object: *collection
+        arguments:
+          timeoutMS: 200
+          filter: {_id: 1}
+    expectEvents:
+      - client: *client
+        events:
+          - commandFailedEvent:
+              commandName: insert
+          - commandSucceededEvent:
+              commandName: find
+      - client: *client
+        eventType: cmap
+        events:
+          - connectionCheckOutStartedEvent: {}
+          - connectionCheckedOutEvent: {}
+          - connectionCheckedInEvent: {} # Insert fails.
+          - connectionCheckOutStartedEvent: {}
+          - connectionPendingResponseStartedEvent: {} # First find fails
+          - connectionPendingResponseFailedEvent:
+              reason: timeout
+          - connectionCheckOutFailedEvent: {}
+          - connectionCheckOutStartedEvent: {}
+          - connectionPendingResponseStartedEvent: {} # Second find drains the buffer.
+          - connectionPendingResponseSucceededEvent: {}
+          - connectionCheckedOutEvent: {}
+          - connectionCheckedInEvent: {} # Second find succeeds.

@@ -267,6 +267,15 @@ Task("TestSocks5Proxy")
         action: (BuildConfig buildConfig, Path testProject) =>
             RunTests(buildConfig, testProject, filter: "Category=\"Socks5Proxy\""));
 
+Task("CSOTPendingResponse")
+    .IsDependentOn("Build")
+    .DoesForEach(
+        items: GetFiles("./**/MongoDB.Driver.Tests.csproj"),
+        action: (BuildConfig buildConfig, Path testProject) =>
+           RunTests(buildConfig, testProject, filter: "Category=\"CSOTPendingResponse\""));
+
+Task("CSOTPendingResponseNet60").IsDependentOn("CSOTPendingResponse");
+
 Task("Package")
     .IsDependentOn("PackageNugetPackages");
 

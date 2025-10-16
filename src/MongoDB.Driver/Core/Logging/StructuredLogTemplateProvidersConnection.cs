@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver.Core.Events;
 
@@ -38,6 +39,21 @@ namespace MongoDB.Driver.Core.Logging
                 LogLevel.Debug,
                 ConnectionCommonParams(),
                 (e, _) => GetParams(e.ConnectionId, "Connection added"));
+
+            AddTemplateProvider<ConnectionReadingPendingResponseEvent>(
+                LogLevel.Debug,
+                ConnectionCommonParams(RequestId),
+                (e, _) => GetParams(e.ConnectionId, "Pending response started", e.RequestId));
+
+            AddTemplateProvider<ConnectionReadPendingResponseEvent>(
+                LogLevel.Debug,
+                ConnectionCommonParams(RequestId, DurationMS),
+                (e, _) => GetParams(e.ConnectionId, "Pending response succeeded", e.RequestId, e.Duration.TotalMilliseconds));
+
+            AddTemplateProvider<ConnectionReadingPendingResponseFailedEvent>(
+                LogLevel.Debug,
+                ConnectionCommonParams(RequestId, DurationMS, Reason),
+                (e, _) => GetParams(e.ConnectionId, "Pending response failed", e.RequestId, e.Duration.TotalMilliseconds, MapExceptionToReason(e.Exception)));
 
             AddTemplateProvider<ConnectionOpenedEvent>(
                  LogLevel.Debug,
@@ -103,6 +119,20 @@ namespace MongoDB.Driver.Core.Logging
                  LogLevel.Trace,
                  ConnectionCommonParams(),
                  (e, _) => GetParams(e.ConnectionId, "Sent"));
+
+            static string MapExceptionToReason(Exception exception)
+            {
+                if (exception == null)
+                {
+                    return "";
+                }
+
+                return exception switch
+                {
+                    TimeoutException => "timeout",
+                    _ => "error"
+                };
+            }
         }
     }
 }

@@ -1,0 +1,254 @@
+description: "connection-logging"
+
+schemaVersion: "1.24"
+
+runOnRequirements:
+  - topologies:
+    - single # The number of log messages is different for each topology since there is a connection pool per host.
+
+createEntities:
+  - client:
+      id: &failPointClient failPointClient
+
+tests:
+  - description: "force a pending response read, fail first try, succeed second try"
+    operations:
+      - name: createEntities
+        object: testRunner
+        arguments:
+          entities:
+            - client:
+                id: &client client
+                uriOptions:
+                  retryReads: false
+                  appname: &clientAppName clientAppName
+                  maxPoolSize: 1
+                  # use a high heartbeatFrequencyMS to avoid a successful monitor check marking the pool as
+                  # ready (and emitting another event) during the course of test execution.
+                  heartbeatFrequencyMS: 10000
+                observeLogMessages:
+                  connection: debug
+            - database:
+                id: &database test
+                client: *client
+                databaseName: *database
+            - collection:
+                id: &collection coll
+                database: *database
+                collectionName: *collection
+
+      # Run a ping command to pre-load the pool with a connection.
+      - name: runCommand
+        object: *database
+        arguments:
+          command:
+            ping: 1
+          commandName: ping
+
+      # Create a failpoint to block the first operation
+      - name: failPoint
+        object: testRunner
+        arguments:
+          client: *failPointClient
+          failPoint:
+            configureFailPoint: failCommand
+            mode: { times: 1 }
+            data:
+              failCommands: ["insert"]
+              blockConnection: true
+              blockTimeMS: 300
+
+      # Execute operation with timeout less than block time
+      - name: insertOne
+        object: *collection
+        arguments:
+          timeoutMS: 50
+          document: { _id: 3, x: 1 }
+        expectError:
+          isTimeoutError: true
+
+      # Execute a subsequent operation which should time out during the
+      # pending response read attempt.
+      - name: find
+        object: *collection
+        arguments:
+          filter: { _id: 1 }
+          timeoutMS: 75
+        expectError:
+          isTimeoutError: true
+
+      # Wait for the  blocked connection to free up.
+      - name: wait
+      # operation.
+        object: testRunner
+        arguments:
+          ms: 200
+
+      # Execute a subsequent operation which should completed the pending read.
+      - name: find
+        object: *collection
+        arguments:
+          filter: { _id: 1 }
+
+    expectLogMessages:
+      - client: *client
+        ignoreExtraMessages: true
+        messages:
+          - level: debug
+            component: connection
+            data:
+              message: "Connection pool created"
+              serverHost: { $$type: string }
+              serverPort: { $$type: [int, long] }
+
+          - level: debug
+            component: connection
+            data:
+              message: "Connection pool ready"
+              serverHost: { $$type: string }
+              serverPort: { $$type: [int, long] }
+
+          # Ping
+          - level: debug
+            component: connection
+            data:
+              message: "Connection checkout started"
+              serverHost: { $$type: string }
+              serverPort: { $$type: [int, long] }
+
+          - level: debug
+            component: connection
+            data:
+              message: "Connection created"
+              driverConnectionId: { $$type: [int, long] }
+              serverHost: { $$type: string }
+              serverPort: { $$type: [int, long] }
+
+          - level: debug
+            component: connection
+            data:
+              message: "Connection ready"
+              driverConnectionId: { $$type: [int, long] }
+              serverHost: { $$type: string }
+              serverPort: { $$type: [int, long] }
+              durationMS: { $$type: [double, int, long] }
+
+          - level: debug
+            component: connection
+            data:
+              message: "Connection checked out"
+              driverConnectionId: { $$type: [int, long] }
+              serverHost: { $$type: string }
+              serverPort: { $$type: [int, long] }
+              durationMS: { $$type: [double, int, long] }
+
+          - level: debug
+            component: connection
+            data:
+              message: "Connection checked in"
+              driverConnectionId: { $$type: [int, long] }
+              serverHost: { $$type: string }
+              serverPort: { $$type: [int, long] }
+
+          # Insert
+          - level: debug
+            component: connection
+            data:
+              message: "Connection checkout started"
+              serverHost: { $$type: string }
+              serverPort: { $$type: [int, long] }
+
+          - level: debug
+            component: connection
+            data:
+              message: "Connection checked out"
+              driverConnectionId: { $$type: [int, long] }
+              serverHost: { $$type: string }
+              serverPort: { $$type: [int, long] }
+              durationMS: { $$type: [double, int, long] }
+
+          - level: debug
+            component: connection
+            data:
+              message: "Connection checked in"
+              driverConnectionId: { $$type: [int, long] }
+              serverHost: { $$type: string }
+              serverPort: { $$type: [int, long] }
+
+          # First Find
+          - level: debug
+            component: connection
+            data:
+              message: "Connection checkout started"
+              serverHost: { $$type: string }
+              serverPort: { $$type: [int, long] }
+
+          - level: debug
+            component: connection
+            data:
+              message: "Pending response started"
+              serverHost: { $$type: string }
+              serverPort: { $$type: [int, long] }
+              driverConnectionId: { $$type: [int, long] }
+              requestId: { $$type: [int, long] }
+
+          - level: debug
+            component: connection
+            data:
+              message: "Pending response failed"
+              serverHost: { $$type: string }
+              serverPort: { $$type: [int, long] }
+              driverConnectionId: { $$type: [int, long] }
+              requestId: { $$type: [int, long] }
+              reason: "timeout"
+
+          - level: debug
+            component: connection
+            data:
+              message: "Connection checkout failed"
+              serverHost: { $$type: string }
+              serverPort: { $$type: [ int, long ] }
+
+          # Second Find
+          - level: debug
+            component: connection
+            data:
+              message: "Connection checkout started"
+              serverHost: { $$type: string }
+              serverPort: { $$type: [int, long] }
+
+          - level: debug
+            component: connection
+            data:
+              message: "Pending response started"
+              serverHost: { $$type: string }
+              serverPort: { $$type: [int, long] }
+              driverConnectionId: { $$type: [int, long] }
+              requestId: { $$type: [int, long] }
+
+          - level: debug
+            component: connection
+            data:
+              message: "Pending response succeeded"
+              serverHost: { $$type: string }
+              serverPort: { $$type: [int, long] }
+              driverConnectionId: { $$type: [int, long] }
+              requestId: { $$type: [int, long] }
+              durationMS: { $$type: [double, int, long] }
+
+          - level: debug
+            component: connection
+            data:
+              message: "Connection checked out"
+              driverConnectionId: { $$type: [int, long] }
+              serverHost: { $$type: string }
+              serverPort: { $$type: [int, long] }
+              durationMS: { $$type: [double, int, long] }
+
+          - level: debug
+            component: connection
+            data:
+              message: "Connection checked in"
+              driverConnectionId: { $$type: [int, long] }
+              serverHost: { $$type: string }
+              serverPort: { $$type: [int, long] }

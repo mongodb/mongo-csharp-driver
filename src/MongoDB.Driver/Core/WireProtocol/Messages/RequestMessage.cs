@@ -52,6 +52,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             get { return _requestId; }
         }
 
+        public abstract bool ResponseExpected { get; }
+
         public bool WasSent
         {
             get { return _wasSent; }

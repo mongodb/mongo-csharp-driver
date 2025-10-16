@@ -1,0 +1,180 @@
+{
+  "description": "Connection churn is prevented by reading pending responses during connection checkout",
+  "schemaVersion": "1.28",
+  "runOnRequirements": [
+    {
+      "minServerVersion": "5.0",
+      "topologies": [
+        "single",
+        "replicaset"
+      ]
+    }
+  ],
+  "createEntities": [
+    {
+      "client": {
+        "id": "failPointClient",
+        "useMultipleMongoses": false
+      }
+    },
+    {
+      "client": {
+        "id": "client",
+        "uriOptions": {
+          "maxPoolSize": 1,
+          "minPoolSize": 1
+        },
+        "awaitMinPoolSizeMS": 10000,
+        "useMultipleMongoses": false,
+        "observeEvents": [
+          "commandFailedEvent",
+          "commandSucceededEvent",
+          "connectionCheckOutStartedEvent",
+          "connectionCheckedOutEvent",
+          "connectionCheckOutFailedEvent",
+          "connectionCheckedInEvent",
+          "connectionCreatedEvent",
+          "connectionReadyEvent",
+          "connectionClosedEvent",
+          "connectionPendingResponseSucceededEvent",
+          "connectionPendingResponseStartedEvent",
+          "connectionPendingResponseFailedEvent"
+        ]
+      }
+    },
+    {
+      "database": {
+        "id": "test",
+        "client": "client",
+        "databaseName": "test"
+      }
+    },
+    {
+      "collection": {
+        "id": "coll",
+        "database": "test",
+        "collectionName": "coll"
+      }
+    }
+  ],
+  "initialData": [
+    {
+      "collectionName": "coll",
+      "databaseName": "test",
+      "documents": []
+    }
+  ],
+  "tests": [
+    {
+      "description": "write op retries when connection closes server-side while draining response",
+      "operations": [
+        {
+          "name": "failPoint",
+          "object": "testRunner",
+          "arguments": {
+            "client": "failPointClient",
+            "failPoint": {
+              "configureFailPoint": "failCommand",
+              "mode": {
+                "times": 1
+              },
+              "data": {
+                "failCommands": [
+                  "insert"
+                ],
+                "blockConnection": true,
+                "blockTimeMS": 200,
+                "closeConnection": true
+              }
+            }
+          }
+        },
+        {
+          "name": "insertOne",
+          "object": "coll",
+          "arguments": {
+            "timeoutMS": 50,
+            "document": {
+              "_id": 3,
+              "x": 1
+            }
+          },
+          "expectError": {
+            "isTimeoutError": true
+          }
+        },
+        {
+          "name": "insertOne",
+          "object": "coll",
+          "arguments": {
+            "timeoutMS": 1000,
+            "document": {
+              "_id": 3,
+              "x": 1
+            }
+          }
+        }
+      ],
+      "expectEvents": [
+        {
+          "client": "client",
+          "events": [
+            {
+              "commandFailedEvent": {
+                "commandName": "insert"
+              }
+            },
+            {
+              "commandSucceededEvent": {
+                "commandName": "insert"
+              }
+            }
+          ]
+        },
+        {
+          "client": "client",
+          "eventType": "cmap",
+          "events": [
+            {
+              "connectionCheckOutStartedEvent": {}
+            },
+            {
+              "connectionCheckedOutEvent": {}
+            },
+            {
+              "connectionCheckedInEvent": {}
+            },
+            {
+              "connectionCheckOutStartedEvent": {}
+            },
+            {
+              "connectionPendingResponseStartedEvent": {}
+            },
+            {
+              "connectionPendingResponseFailedEvent": {
+                "reason": "error"
+              }
+            },
+            {
+              "connectionClosedEvent": {
+                "reason": "error"
+              }
+            },
+            {
+              "connectionCreatedEvent": {}
+            },
+            {
+              "connectionReadyEvent": {}
+            },
+            {
+              "connectionCheckedOutEvent": {}
+            },
+            {
+              "connectionCheckedInEvent": {}
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -121,7 +121,7 @@ namespace MongoDB.Driver.Core.Servers
                 // because of OperationCanceledExceptions. We trust that the
                 // implementations of connection don't leave themselves in a state
                 // where they can't be used based on user cancellation.
-                return ex is OperationCanceledException;
+                return ex is OperationCanceledException or TimeoutException;
             }
 
             Exception GetEffectiveException(Exception ex) =>

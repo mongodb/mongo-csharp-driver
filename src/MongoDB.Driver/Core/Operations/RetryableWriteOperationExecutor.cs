@@ -136,13 +136,13 @@ namespace MongoDB.Driver.Core.Operations
 
         public static bool ShouldConnectionAcquireBeRetried(OperationContext operationContext, RetryableWriteContext context, ServerDescription server, Exception exception, int attempt)
         {
-            if (!DoesContextAllowRetries(context, server))
+            // According to the spec error during handshake should be handled according to RetryableReads logic
+            if (!context.RetryRequested || context.Binding.Session.IsInTransaction)
             {
                 return false;
             }
 
             var innerException = exception is MongoAuthenticationException mongoAuthenticationException ? mongoAuthenticationException.InnerException : exception;
-            // According the spec error during handshake should be handle according to RetryableReads logic
             if (!RetryabilityHelper.IsRetryableReadException(innerException))
             {
                 return false;

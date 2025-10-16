@@ -45,7 +45,9 @@ namespace MongoDB.Driver.Core.Operations
             {
                 typeof(MongoNotPrimaryException),
                 typeof(MongoNodeIsRecoveringException),
-                typeof(MongoConnectionPoolPausedException)
+                typeof(MongoConnectionPoolPausedException),
+
+                typeof(TimeoutException)
             };
 
             __resumableChangeStreamExceptions = new HashSet<Type>(resumableAndRetryableExceptions);

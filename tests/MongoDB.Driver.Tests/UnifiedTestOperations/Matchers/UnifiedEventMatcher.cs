@@ -44,6 +44,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
             { "connectionClosedEvent", (EventType.ConnectionClosed, EventSetType.Cmap) },
             { "connectionCreatedEvent", (EventType.ConnectionCreated, EventSetType.Cmap) },
             { "connectionCheckOutFailedEvent", (EventType.ConnectionPoolCheckingOutConnectionFailed, EventSetType.Cmap) },
+            { "connectionPendingResponseStartedEvent", (EventType.ConnectionReadingPendingResponse, EventSetType.Cmap)},
+            { "connectionPendingResponseSucceededEvent", (EventType.ConnectionReadPendingResponse, EventSetType.Cmap)},
+            { "connectionPendingResponseFailedEvent", (EventType.ConnectionReadingPendingResponseFailed, EventSetType.Cmap)},
             { "poolClearedEvent", (EventType.ConnectionPoolCleared, EventSetType.Cmap) },
             { "poolReadyEvent", (EventType.ConnectionPoolReady, EventSetType.Cmap) },
 
@@ -253,6 +256,36 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                         break;
                     case ConnectionOpenedEvent:
                         expectedEventValue.ElementCount.Should().Be(0); // empty document
+                        break;
+                    case ConnectionReadingPendingResponseEvent:
+                        expectedEventValue.ElementCount.Should().Be(0); // empty document
+                        break;
+                    case ConnectionReadPendingResponseEvent:
+                        expectedEventValue.ElementCount.Should().Be(0); // empty document
+                        break;
+                    case ConnectionReadingPendingResponseFailedEvent pendingResponseFailedEvent:
+                        foreach (var element in expectedEventValue)
+                        {
+                            switch (element.Name)
+                            {
+                                case "reason":
+                                    var exception = pendingResponseFailedEvent.Exception;
+                                    switch (element.Value.AsString)
+                                    {
+                                        case "timeout":
+                                            exception.Should().BeOfType<TimeoutException>();
+                                            break;
+                                        case "error":
+                                            exception.Should().NotBeNull();
+                                            break;
+                                        default:
+                                            throw new FormatException($"Unexpected {expectedEventType} '{element.Name}' value: {element.Value}.");
+                                    }
+                                    break;
+                                default:
+                                    throw new FormatException($"Unexpected {expectedEventType} field: '{element.Name}'.");
+                            }
+                        }
                         break;
                     case ConnectionPoolCheckingOutConnectionEvent:
                         expectedEventValue.ElementCount.Should().Be(0); // empty document

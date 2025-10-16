@@ -161,6 +161,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             get { return _queryValidator; }
         }
 
+        public override bool ResponseExpected => ResponseHandling != CommandResponseHandling.NoResponseExpected;
+
         public CommandResponseHandling ResponseHandling
         {
             get { return _responseHandling; }

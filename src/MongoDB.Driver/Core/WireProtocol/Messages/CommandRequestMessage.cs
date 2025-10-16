@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
@@ -35,6 +34,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         public override bool MayBeCompressed => _wrappedMessage.MayBeCompressed;
 
         public override MongoDBMessageType MessageType => _wrappedMessage.MessageType;
+
+        public override bool ResponseExpected => _wrappedMessage.ResponseExpected;
 
         public CommandMessage WrappedMessage => _wrappedMessage;
 

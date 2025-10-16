@@ -1,4 +1,4 @@
-﻿/* Copyright 2019-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Core.Compression
         {
             var uncompressedSize = (int)(input.Length - input.Position);
             var uncompressedBytes = new byte[uncompressedSize]; // does not include uncompressed message headers
-            input.ReadBytes(OperationContext.NoTimeout, uncompressedBytes, offset: 0, count: uncompressedSize, socketTimeout: Timeout.InfiniteTimeSpan);
+            input.ReadBytes(uncompressedBytes, offset: 0, count: uncompressedSize, CancellationToken.None);
             var maxCompressedSize = Snappy.GetMaxCompressedLength(uncompressedSize);
             var compressedBytes = new byte[maxCompressedSize];
             var compressedSize = Snappy.Compress(uncompressedBytes, compressedBytes);
@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Core.Compression
         {
             var compressedSize = (int)(input.Length - input.Position);
             var compressedBytes = new byte[compressedSize];
-            input.ReadBytes(OperationContext.NoTimeout, compressedBytes, offset: 0, count: compressedSize, socketTimeout: Timeout.InfiniteTimeSpan);
+            input.ReadBytes(compressedBytes, offset: 0, count: compressedSize, CancellationToken.None);
             var uncompressedSize = Snappy.GetUncompressedLength(compressedBytes);
             var decompressedBytes = new byte[uncompressedSize];
             var decompressedSize = Snappy.Decompress(compressedBytes, decompressedBytes);
