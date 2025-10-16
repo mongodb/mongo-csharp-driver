@@ -14,16 +14,15 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <LibMongoCryptVersion>r1.15</LibMongoCryptVersion>
-    <LibMongoCryptCommit>059d538126eb2a1cd90103147bc9b1be0d46de92</LibMongoCryptCommit>
+    <LibMongoCryptVersionPath>r1.15/2807bca63631a5b6b8affcb7f4402e351166659e</LibMongoCryptVersionPath>
   </PropertyGroup>
 
   <Target Name="DownloadNativeBinaries_MacOS"
-          BeforeTargets="BeforeBuild" Condition="!Exists('$(MSBuildProjectDirectory)/runtimes/osx/native/libmongocrypt.dylib')">
+          BeforeTargets="BeforeBuild" Condition="!Exists('$(MSBuildProjectDirectory)/$(LibMongoCryptVersionPath)/runtimes/osx/native/libmongocrypt.dylib')">
     <PropertyGroup>
-      <LibMongoCryptSourceUrl>https://mciuploads.s3.amazonaws.com/libmongocrypt-release/macos/$(LibMongoCryptVersion)/$(LibMongoCryptCommit)/libmongocrypt.tar.gz</LibMongoCryptSourceUrl>
+      <LibMongoCryptSourceUrl>https://mciuploads.s3.amazonaws.com/libmongocrypt-release/macos/$(LibMongoCryptVersionPath)/libmongocrypt.tar.gz</LibMongoCryptSourceUrl>
       <LibMongoCryptSourcePath>lib/libmongocrypt.dylib</LibMongoCryptSourcePath>
-      <LibMongoCryptPackagePath>runtimes/osx/native</LibMongoCryptPackagePath>
+      <LibMongoCryptPackagePath>$(LibMongoCryptVersionPath)/runtimes/osx/native</LibMongoCryptPackagePath>
     </PropertyGroup>
 
     <MSBuild Projects ="$(MSBuildProjectFullPath)"
@@ -31,11 +30,11 @@
              Targets="DownloadNativeBinary" />
   </Target>
 
-  <Target Name="DownloadNativeBinaries_UbuntuX64" BeforeTargets="BeforeBuild" Condition="!Exists('$(MSBuildProjectDirectory)/runtimes/linux/native/x64/libmongocrypt.so')">
+  <Target Name="DownloadNativeBinaries_UbuntuX64" BeforeTargets="BeforeBuild" Condition="!Exists('$(MSBuildProjectDirectory)/$(LibMongoCryptVersionPath)/runtimes/linux-x64/native/libmongocrypt.so')">
     <PropertyGroup>
-      <LibMongoCryptSourceUrl>https://mciuploads.s3.amazonaws.com/libmongocrypt-release/ubuntu1804-64/$(LibMongoCryptVersion)/$(LibMongoCryptCommit)/libmongocrypt.tar.gz</LibMongoCryptSourceUrl>
+      <LibMongoCryptSourceUrl>https://mciuploads.s3.amazonaws.com/libmongocrypt-release/ubuntu1804-64/$(LibMongoCryptVersionPath)/libmongocrypt.tar.gz</LibMongoCryptSourceUrl>
       <LibMongoCryptSourcePath>nocrypto/lib/libmongocrypt.so</LibMongoCryptSourcePath>
-      <LibMongoCryptPackagePath>runtimes/linux/native/x64</LibMongoCryptPackagePath>
+      <LibMongoCryptPackagePath>$(LibMongoCryptVersionPath)/runtimes/linux-x64/native/</LibMongoCryptPackagePath>
     </PropertyGroup>
 
     <MSBuild Projects ="$(MSBuildProjectFullPath)"
@@ -43,11 +42,11 @@
              Targets="DownloadNativeBinary" />
   </Target>
 
-  <Target Name="DownloadNativeBinaries_UbuntuARM64" BeforeTargets="BeforeBuild" Condition="!Exists('$(MSBuildProjectDirectory)/runtimes/linux/native/arm64/libmongocrypt.so')">
+  <Target Name="DownloadNativeBinaries_UbuntuARM64" BeforeTargets="BeforeBuild" Condition="!Exists('$(MSBuildProjectDirectory)/$(LibMongoCryptVersionPath)/runtimes/linux-arm64/native/libmongocrypt.so')">
     <PropertyGroup>
-      <LibMongoCryptSourceUrl>https://mciuploads.s3.amazonaws.com/libmongocrypt-release/ubuntu1804-arm64/$(LibMongoCryptVersion)/$(LibMongoCryptCommit)/libmongocrypt.tar.gz</LibMongoCryptSourceUrl>
+      <LibMongoCryptSourceUrl>https://mciuploads.s3.amazonaws.com/libmongocrypt-release/ubuntu1804-arm64/$(LibMongoCryptVersionPath)/libmongocrypt.tar.gz</LibMongoCryptSourceUrl>
       <LibMongoCryptSourcePath>nocrypto/lib/libmongocrypt.so</LibMongoCryptSourcePath>
-      <LibMongoCryptPackagePath>runtimes/linux/native/arm64</LibMongoCryptPackagePath>
+      <LibMongoCryptPackagePath>$(LibMongoCryptVersionPath)/runtimes/linux-arm64/native/</LibMongoCryptPackagePath>
     </PropertyGroup>
 
     <MSBuild Projects ="$(MSBuildProjectFullPath)"
@@ -55,11 +54,24 @@
              Targets="DownloadNativeBinary" />
   </Target>
 
-  <Target Name="DownloadNativeBinaries_Alpine" BeforeTargets="BeforeBuild" Condition="!Exists('$(MSBuildProjectDirectory)/runtimes/linux/native/alpine/libmongocrypt.so')">
+
+  <Target Name="DownloadNativeBinaries_AlpineAMD64" BeforeTargets="BeforeBuild" Condition="!Exists('$(MSBuildProjectDirectory)/$(LibMongoCryptVersionPath)/runtimes/linux-musl-x64/native/libmongocrypt.so')">
     <PropertyGroup>
-      <LibMongoCryptSourceUrl>https://mciuploads.s3.amazonaws.com/libmongocrypt-release/alpine-arm64-earthly/$(LibMongoCryptVersion)/$(LibMongoCryptCommit)/libmongocrypt.tar.gz</LibMongoCryptSourceUrl>
+        <LibMongoCryptSourceUrl>https://mciuploads.s3.amazonaws.com/libmongocrypt-release/alpine-amd64-earthly/$(LibMongoCryptVersionPath)/libmongocrypt.tar.gz</LibMongoCryptSourceUrl>
+        <LibMongoCryptSourcePath>nocrypto/lib/libmongocrypt.so</LibMongoCryptSourcePath>
+        <LibMongoCryptPackagePath>$(LibMongoCryptVersionPath)/runtimes/linux-musl-x64/native/</LibMongoCryptPackagePath>
+    </PropertyGroup>
+
+    <MSBuild Projects ="$(MSBuildProjectFullPath)"
+             Properties="TargetFramework=once;LibMongoCryptSourceUrl=$(LibMongoCryptSourceUrl);LibMongoCryptSourcePath=$(LibMongoCryptSourcePath);LibMongoCryptPackagePath=$(LibMongoCryptPackagePath)"
+             Targets="DownloadNativeBinary" />
+  </Target>
+
+  <Target Name="DownloadNativeBinaries_AlpineARM64" BeforeTargets="BeforeBuild" Condition="!Exists('$(MSBuildProjectDirectory)/$(LibMongoCryptVersionPath)/runtimes/linux-musl-arm64/native/libmongocrypt.so')">
+    <PropertyGroup>
+      <LibMongoCryptSourceUrl>https://mciuploads.s3.amazonaws.com/libmongocrypt-release/alpine-arm64-earthly/$(LibMongoCryptVersionPath)/libmongocrypt.tar.gz</LibMongoCryptSourceUrl>
       <LibMongoCryptSourcePath>nocrypto/lib/libmongocrypt.so</LibMongoCryptSourcePath>
-      <LibMongoCryptPackagePath>runtimes/linux/native/alpine</LibMongoCryptPackagePath>
+      <LibMongoCryptPackagePath>$(LibMongoCryptVersionPath)/runtimes/linux-musl-arm64/native/</LibMongoCryptPackagePath>
     </PropertyGroup>
 
     <MSBuild Projects ="$(MSBuildProjectFullPath)"
@@ -67,11 +79,11 @@
              Targets="DownloadNativeBinary" />
   </Target>
 
-  <Target Name="DownloadNativeBinaries_Windows" BeforeTargets="BeforeBuild" Condition="!Exists('$(MSBuildProjectDirectory)/runtimes/win/native/mongocrypt.dll')">
+  <Target Name="DownloadNativeBinaries_WindowsX64" BeforeTargets="BeforeBuild" Condition="!Exists('$(MSBuildProjectDirectory)/$(LibMongoCryptVersionPath)/runtimes/win-x64/native/mongocrypt.dll')">
     <PropertyGroup>
-      <LibMongoCryptSourceUrl>https://mciuploads.s3.amazonaws.com/libmongocrypt-release/windows-test/$(LibMongoCryptVersion)/$(LibMongoCryptCommit)/libmongocrypt.tar.gz</LibMongoCryptSourceUrl>
+      <LibMongoCryptSourceUrl>https://mciuploads.s3.amazonaws.com/libmongocrypt-release/windows-test/$(LibMongoCryptVersionPath)/libmongocrypt.tar.gz</LibMongoCryptSourceUrl>
       <LibMongoCryptSourcePath>bin/mongocrypt.dll</LibMongoCryptSourcePath>
-      <LibMongoCryptPackagePath>runtimes/win/native</LibMongoCryptPackagePath>
+      <LibMongoCryptPackagePath>$(LibMongoCryptVersionPath)/runtimes/win-x64/native</LibMongoCryptPackagePath>
     </PropertyGroup>
 
     <MSBuild Projects ="$(MSBuildProjectFullPath)"
@@ -90,34 +102,46 @@
   </Target>
 
   <ItemGroup>
-    <Content Include="$(MSBuildProjectDirectory)/runtimes/osx/native/libmongocrypt.dylib">
+    <Content Include="$(MSBuildProjectDirectory)/$(LibMongoCryptVersionPath)/runtimes/osx/native/libmongocrypt.dylib">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Link>runtimes\osx\native\libmongocrypt.dylib</Link>
       <Pack>true</Pack>
       <PackagePath>runtimes\osx\native</PackagePath>
     </Content>
 
-    <Content Include="$(MSBuildProjectDirectory)/runtimes/linux/native/x64/libmongocrypt.so">
+    <Content Include="$(MSBuildProjectDirectory)/$(LibMongoCryptVersionPath)/runtimes/linux-x64/native/libmongocrypt.so">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Link>runtimes\linux-x64\native\libmongocrypt.so</Link>
       <Pack>true</Pack>
-      <PackagePath>runtimes\linux\native\x64</PackagePath>
+      <PackagePath>runtimes\linux-x64\native</PackagePath>
     </Content>
 
-    <Content Include="$(MSBuildProjectDirectory)/runtimes/linux/native/arm64/libmongocrypt.so">
+    <Content Include="$(MSBuildProjectDirectory)/$(LibMongoCryptVersionPath)/runtimes/linux-arm64/native/libmongocrypt.so">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Link>runtimes\linux-arm64\native\libmongocrypt.so</Link>
       <Pack>true</Pack>
-      <PackagePath>runtimes\linux\native\arm64</PackagePath>
+      <PackagePath>runtimes\linux-arm64\native</PackagePath>
     </Content>
 
-    <Content Include="$(MSBuildProjectDirectory)/runtimes/linux/native/alpine/libmongocrypt.so">
+    <Content Include="$(MSBuildProjectDirectory)/$(LibMongoCryptVersionPath)/runtimes/linux-musl-arm64/native/libmongocrypt.so">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Link>runtimes\linux-musl-arm64\native\libmongocrypt.so</Link>
       <Pack>true</Pack>
-      <PackagePath>runtimes\linux\native\alpine</PackagePath>
+      <PackagePath>runtimes\linux-musl-arm64\native</PackagePath>
     </Content>
 
-    <Content Include="$(MSBuildProjectDirectory)/runtimes/win/native/mongocrypt.dll">
+    <Content Include="$(MSBuildProjectDirectory)/$(LibMongoCryptVersionPath)/runtimes/linux-musl-x64/native/libmongocrypt.so">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Link>runtimes\linux-musl-x64\native\libmongocrypt.so</Link>
       <Pack>true</Pack>
-      <PackagePath>runtimes\win\native</PackagePath>
+      <PackagePath>runtimes\linux-musl-x64\native</PackagePath>
+    </Content>
+
+    <Content Include="$(MSBuildProjectDirectory)/$(LibMongoCryptVersionPath)/runtimes/win-x64/native/mongocrypt.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Link>runtimes\win-x64\native\mongocrypt.dll</Link>
+      <Pack>true</Pack>
+      <PackagePath>runtimes\win-x64\native</PackagePath>
     </Content>
   </ItemGroup>
 
