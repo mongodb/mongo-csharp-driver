@@ -103,42 +103,42 @@
 
   <ItemGroup>
     <Content Include="$(MSBuildProjectDirectory)/$(LibMongoCryptVersionPath)/runtimes/osx/native/libmongocrypt.dylib">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <Link>runtimes\osx\native\libmongocrypt.dylib</Link>
       <Pack>true</Pack>
       <PackagePath>runtimes\osx\native</PackagePath>
     </Content>
 
     <Content Include="$(MSBuildProjectDirectory)/$(LibMongoCryptVersionPath)/runtimes/linux-x64/native/libmongocrypt.so">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <Link>runtimes\linux-x64\native\libmongocrypt.so</Link>
       <Pack>true</Pack>
       <PackagePath>runtimes\linux-x64\native</PackagePath>
     </Content>
 
     <Content Include="$(MSBuildProjectDirectory)/$(LibMongoCryptVersionPath)/runtimes/linux-arm64/native/libmongocrypt.so">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <Link>runtimes\linux-arm64\native\libmongocrypt.so</Link>
       <Pack>true</Pack>
       <PackagePath>runtimes\linux-arm64\native</PackagePath>
     </Content>
 
     <Content Include="$(MSBuildProjectDirectory)/$(LibMongoCryptVersionPath)/runtimes/linux-musl-arm64/native/libmongocrypt.so">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <Link>runtimes\linux-musl-arm64\native\libmongocrypt.so</Link>
       <Pack>true</Pack>
       <PackagePath>runtimes\linux-musl-arm64\native</PackagePath>
     </Content>
 
     <Content Include="$(MSBuildProjectDirectory)/$(LibMongoCryptVersionPath)/runtimes/linux-musl-x64/native/libmongocrypt.so">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <Link>runtimes\linux-musl-x64\native\libmongocrypt.so</Link>
       <Pack>true</Pack>
       <PackagePath>runtimes\linux-musl-x64\native</PackagePath>
     </Content>
 
     <Content Include="$(MSBuildProjectDirectory)/$(LibMongoCryptVersionPath)/runtimes/win-x64/native/mongocrypt.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <Link>runtimes\win-x64\native\mongocrypt.dll</Link>
       <Pack>true</Pack>
       <PackagePath>runtimes\win-x64\native</PackagePath>

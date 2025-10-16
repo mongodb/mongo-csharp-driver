@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <ItemGroup Condition="$([MSBuild]::IsOsPlatform('Windows'))">
         <Content Include="$(MSBuildThisFileDirectory)../runtimes/win-x64/native/mongocrypt.dll">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
             <Link>mongocrypt.dll</Link>
         </Content>
     </ItemGroup>
