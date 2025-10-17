@@ -463,7 +463,7 @@ namespace MongoDB.Driver.Core.Connections
         private int GetResponseTo(IByteBuffer message)
         {
             var backingBytes = message.AccessBackingBytes(8);
-            return BitConverter.ToInt32(backingBytes.Array, backingBytes.Offset);
+            return BinaryPrimitives.ReadInt32LittleEndian(backingBytes.Array.AsSpan().Slice(backingBytes.Offset, 4));
         }
 
         private void SendBuffer(OperationContext operationContext, IByteBuffer buffer)
