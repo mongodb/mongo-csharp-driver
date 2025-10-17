@@ -30,7 +30,7 @@ namespace MongoDB.Bson.IO
 #pragma warning restore CA2213 // Disposable never disposed
         private readonly BsonStream _bsonStream;
         private BsonBinaryWriterContext _context;
-        private readonly Lazy<Stack<BsonBinaryWriterContext>> _contexts = new(() => new());
+        private readonly Stack<BsonBinaryWriterContext> _contexts = new(4);
 
         // constructors
         /// <summary>
@@ -291,7 +291,7 @@ namespace MongoDB.Bson.IO
             _bsonStream.WriteByte(0);
             BackpatchSize(); // size of document
 
-            _context = _contexts.Value.Pop();
+            PopContext();
             State = GetNextState();
         }
 
@@ -314,7 +314,7 @@ namespace MongoDB.Bson.IO
             _bsonStream.WriteByte(0);
             BackpatchSize(); // size of document
 
-            _context = _contexts.Value.Pop();
+            PopContext();
             if (_context.ContextType == ContextType.TopLevel)
             {
                 State = BsonWriterState.Done;
@@ -324,7 +324,7 @@ namespace MongoDB.Bson.IO
                 if (_context.ContextType == ContextType.JavaScriptWithScope)
                 {
                     BackpatchSize(); // size of the JavaScript with scope value
-                    _context = _contexts.Value.Pop();
+                    PopContext();
                 }
                 State = GetNextState();
             }
@@ -402,8 +402,7 @@ namespace MongoDB.Bson.IO
             _bsonStream.WriteBsonType(BsonType.JavaScriptWithScope);
             WriteNameHelper();
 
-            _contexts.Value.Push(_context);
-            _context = new(ContextType.JavaScriptWithScope, _bsonStream.Position);
+            PushContext(new(ContextType.JavaScriptWithScope, _bsonStream.Position));
             _bsonStream.WriteInt32(0); // reserve space for size of JavaScript with scope value
             _bsonStream.WriteString(code, Settings.Encoding);
 
@@ -527,7 +526,7 @@ namespace MongoDB.Bson.IO
                 if (_context.ContextType == ContextType.JavaScriptWithScope)
                 {
                     BackpatchSize(); // size of the JavaScript with scope value
-                    _context = _contexts.Value.Pop();
+                    PopContext();
                 }
                 State = GetNextState();
             }
@@ -568,8 +567,7 @@ namespace MongoDB.Bson.IO
             _bsonStream.WriteBsonType(BsonType.Array);
             WriteNameHelper();
 
-            _contexts.Value.Push(_context);
-            _context = new(ContextType.Array, _bsonStream.Position);
+            PushContext(new(ContextType.Array, _bsonStream.Position));
             _bsonStream.WriteInt32(0); // reserve space for size
 
             State = BsonWriterState.Value;
@@ -593,8 +591,7 @@ namespace MongoDB.Bson.IO
                 WriteNameHelper();
             }
             var contextType = (State == BsonWriterState.ScopeDocument) ? ContextType.ScopeDocument : ContextType.Document;
-            _contexts.Value.Push(_context);
-            _context = new(contextType, _bsonStream.Position);
+            PushContext(new(contextType, _bsonStream.Position));
             _bsonStream.WriteInt32(0); // reserve space for size
 
             State = BsonWriterState.Name;
@@ -687,7 +684,7 @@ namespace MongoDB.Bson.IO
                 {
                     Close();
                 }
-                catch { } // ignore exceptions
+                catch { /* ignore exceptions */ }
             }
             base.Dispose(disposing);
         }
@@ -732,6 +729,17 @@ namespace MongoDB.Bson.IO
             {
                 _bsonStream.WriteCString(Name);
             }
+        }
+
+        private void PopContext()
+        {
+            _context = _contexts.Pop();
+        }
+
+        private void PushContext(BsonBinaryWriterContext newContext)
+        {
+            _contexts.Push(_context);
+            _context = newContext;
         }
     }
 }

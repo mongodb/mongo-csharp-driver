@@ -32,7 +32,7 @@ namespace MongoDB.Bson.IO
 #pragma warning restore CA2213 // Disposable never disposed
         private readonly BsonStream _bsonStream;
         private BsonBinaryReaderContext _context;
-        private readonly Lazy<Stack<BsonBinaryReaderContext>> _contexts = new(() => new());
+        private readonly Stack<BsonBinaryReaderContext> _contexts = new(4);
 
         // constructors
         /// <summary>
@@ -113,7 +113,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         /// <returns>A bookmark.</returns>
         public override BsonReaderBookmark GetBookmark() =>
-            new BsonBinaryReaderBookmark(State, CurrentBsonType, CurrentName, _context, _contexts.Value.ToArray(), _bsonStream.Position);
+            new BsonBinaryReaderBookmark(State, CurrentBsonType, CurrentName, _context, _contexts, _bsonStream.Position);
 
         /// <summary>
         /// Determines whether this reader is at end of file.
@@ -342,7 +342,7 @@ namespace MongoDB.Bson.IO
                 ThrowInvalidState("ReadEndArray", BsonReaderState.EndOfArray);
             }
 
-            _context = PopContext();
+            PopContext();
 
             switch (_context.ContextType)
             {
@@ -372,10 +372,10 @@ namespace MongoDB.Bson.IO
                 ThrowInvalidState("ReadEndDocument", BsonReaderState.EndOfDocument);
             }
 
-            _context = PopContext();
+            PopContext();
             if (_context.ContextType == ContextType.JavaScriptWithScope)
             {
-                _context = PopContext(); // JavaScriptWithScope
+                PopContext(); // JavaScriptWithScope
             }
             switch (_context.ContextType)
             {
@@ -434,8 +434,7 @@ namespace MongoDB.Bson.IO
             var startPosition = _bsonStream.Position; // position of size field
             var size = ReadSize();
 
-            PushContext(_context);
-            _context = new BsonBinaryReaderContext(ContextType.JavaScriptWithScope, startPosition, size);
+            PushContext(new(ContextType.JavaScriptWithScope, startPosition, size));
 
             var code = _bsonStream.ReadString(Settings.Encoding);
 
@@ -557,7 +556,7 @@ namespace MongoDB.Bson.IO
 
             if (_context.ContextType == ContextType.JavaScriptWithScope)
             {
-                _context = PopContext(); // JavaScriptWithScope
+                PopContext(); // JavaScriptWithScope
             }
             switch (_context.ContextType)
             {
@@ -595,8 +594,7 @@ namespace MongoDB.Bson.IO
             var startPosition = _bsonStream.Position; // position of size field
             var size = ReadSize();
 
-            PushContext(_context);
-            _context = new(ContextType.Array, startPosition, size);
+            PushContext(new(ContextType.Array, startPosition, size));
 
             State = BsonReaderState.Type;
         }
@@ -612,8 +610,9 @@ namespace MongoDB.Bson.IO
             var contextType = (State == BsonReaderState.ScopeDocument) ? ContextType.ScopeDocument : ContextType.Document;
             var startPosition = _bsonStream.Position; // position of size field
             var size = ReadSize();
-            PushContext(_context);
-            _context = new(contextType, startPosition, size);
+
+            PushContext(new(contextType, startPosition, size));
+
             State = BsonReaderState.Type;
         }
 
@@ -670,18 +669,11 @@ namespace MongoDB.Bson.IO
         public override void ReturnToBookmark(BsonReaderBookmark bookmark)
         {
             var binaryReaderBookmark = (BsonBinaryReaderBookmark)bookmark;
+
             State = binaryReaderBookmark.State;
             CurrentBsonType = binaryReaderBookmark.CurrentBsonType;
             CurrentName = binaryReaderBookmark.CurrentName;
-
-            _context = binaryReaderBookmark.CurrentContext;
-
-            _contexts.Value.Clear();
-            foreach (var context in binaryReaderBookmark.ContextsStack.Reverse())
-            {
-                _contexts.Value.Push(context);
-            }
-
+            _context = binaryReaderBookmark.RestoreContext(_contexts);
             _bsonStream.Position = binaryReaderBookmark.Position;
         }
 
@@ -761,7 +753,7 @@ namespace MongoDB.Bson.IO
                 {
                     Close();
                 }
-                catch { } // ignore exceptions
+                catch { /* ignore exceptions */ }
             }
             base.Dispose(disposing);
         }
@@ -790,7 +782,7 @@ namespace MongoDB.Bson.IO
                 elementName = "?";
             }
 
-            return GenerateDottedElementName(_contexts.Value.ToArray(), 0, elementName);
+            return GenerateDottedElementName(_contexts.ToArray(), 0, elementName);
         }
 
         private string GenerateDottedElementName(BsonBinaryReaderContext[] contexts, int currentContextIndex, string elementName)
@@ -851,7 +843,7 @@ namespace MongoDB.Bson.IO
             return size;
         }
 
-        private BsonBinaryReaderContext PopContext()
+        private void PopContext()
         {
             var actualSize = _bsonStream.Position - _context.StartPosition;
             if (actualSize != _context.Size)
@@ -859,12 +851,13 @@ namespace MongoDB.Bson.IO
                 throw new FormatException($"Expected size to be {_context.Size}, not {actualSize}.");
             }
 
-            return _contexts.Value.Pop();
+            _context =_contexts.Pop();
         }
 
-        private void PushContext(BsonBinaryReaderContext context)
+        private void PushContext(BsonBinaryReaderContext newContext)
         {
-            _contexts.Value.Push(context);
+            _contexts.Push(_context);
+            _context = newContext;
         }
     }
 }
