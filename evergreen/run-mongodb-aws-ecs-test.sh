@@ -21,7 +21,7 @@ if [[ -z "$1" ]]; then
 fi
 export MONGODB_URI="$1"
 
-export FRAMEWORK=net6.0 # TODO: discuss what frameworks should we use
+export FRAMEWORK=net6.0
 . src/.evergreen/install-dotnet.sh  # there is a script to rename our evergreen folder into .evergreen as it is expected by eg-tools script
 
 if echo "$MONGODB_URI" | grep -q "@"; then

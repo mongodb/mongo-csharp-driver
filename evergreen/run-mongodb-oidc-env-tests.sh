@@ -3,7 +3,7 @@
 # Don't trace since the URI contains a password that shouldn't show up in the logs
 set -o errexit # Exit the script with error if any of the commands fail
 
-export FRAMEWORK=net6.0 # TODO: discuss what frameworks should we use
+export FRAMEWORK=net6.0
 . ./evergreen/install-dotnet.sh
 
 if [ "$OIDC_ENV" == "azure" ]; then

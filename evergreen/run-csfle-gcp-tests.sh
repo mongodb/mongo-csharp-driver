@@ -14,7 +14,7 @@ echo "Running GCP Credential Acquisition Test"
 export DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
 export CSFLE_GCP_KMS_TESTS_ENABLED=true
 
-export FRAMEWORK=net6.0 # TODO: discuss what frameworks should we use
+export FRAMEWORK=net6.0
 . ./evergreen/install-dotnet.sh
 
 . ./build.sh --target=TestCsfleWithGcpKms

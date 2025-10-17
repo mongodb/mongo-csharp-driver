@@ -1286,7 +1286,7 @@ tasks:
         - func: assume-aws-test-secrets-role
         - func: configure-framework
           vars:
-            FRAMEWORK: net6.0 # TODO: discuss what frameworks should we use
+            FRAMEWORK: net6.0
         - func: run-atlas-connectivity-tests
 
     - name: test-gssapi-net472
@@ -1341,7 +1341,7 @@ tasks:
       commands:
         - func: configure-framework
           vars:
-            FRAMEWORK: net6.0 # TODO: discuss what frameworks should we use
+            FRAMEWORK: net6.0
         - func: run-plain-auth-tests
 
     - name: aws-auth-tests
@@ -1354,7 +1354,7 @@ tasks:
         - func: add-aws-auth-variables-to-file
         - func: configure-framework
           vars:
-            FRAMEWORK: net6.0 # TODO: discuss what frameworks should we use
+            FRAMEWORK: net6.0
         # This step also creates test related users, so don't avoid this step in order to run other tests
         - func: run-aws-auth-test-with-regular-aws-credentials
         - func: run-aws-auth-test-with-assume-role-credentials
@@ -1409,21 +1409,21 @@ tasks:
         - func: assume-aws-test-secrets-role
         - func: configure-framework
           vars:
-            FRAMEWORK: net6.0 # TODO: discuss what frameworks should we use
+            FRAMEWORK: net6.0
         - func: run-atlas-search-test
 
     - name: atlas-search-index-helpers-test
       commands:
         - func: configure-framework
           vars:
-            FRAMEWORK: net6.0 # TODO: discuss what frameworks should we use
+            FRAMEWORK: net6.0
         - func: run-atlas-search-index-helpers-test
 
     - name: test-oidc-auth
       commands:
         - func: configure-framework
           vars:
-            FRAMEWORK: net6.0 # TODO: discuss what frameworks should we use
+            FRAMEWORK: net6.0
         - func: run-mongodb-oidc-tests
 
     - name: test-oidc-azure
@@ -1496,7 +1496,7 @@ tasks:
             ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-mustStaple.json"
         - func: configure-framework
           vars:
-            FRAMEWORK: net6.0 # TODO: discuss what frameworks should we use
+            FRAMEWORK: net6.0
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -1514,7 +1514,7 @@ tasks:
             ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-mustStaple.json"
         - func: configure-framework
           vars:
-            FRAMEWORK: net6.0 # TODO: discuss what frameworks should we use
+            FRAMEWORK: net6.0
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -1532,7 +1532,7 @@ tasks:
             ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-disableStapling.json"
         - func: configure-framework
           vars:
-            FRAMEWORK: net6.0 # TODO: discuss what frameworks should we use
+            FRAMEWORK: net6.0
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -1550,7 +1550,7 @@ tasks:
             ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-disableStapling.json"
         - func: configure-framework
           vars:
-            FRAMEWORK: net6.0 # TODO: discuss what frameworks should we use
+            FRAMEWORK: net6.0
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -1564,7 +1564,7 @@ tasks:
             ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-disableStapling.json"
         - func: configure-framework
           vars:
-            FRAMEWORK: net6.0 # TODO: discuss what frameworks should we use
+            FRAMEWORK: net6.0
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -1582,7 +1582,7 @@ tasks:
             ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-mustStaple-disableStapling.json"
         - func: configure-framework
           vars:
-            FRAMEWORK: net6.0 # TODO: discuss what frameworks should we use
+            FRAMEWORK: net6.0
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -1596,7 +1596,7 @@ tasks:
             ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-mustStaple-disableStapling.json"
         - func: configure-framework
           vars:
-            FRAMEWORK: net6.0 # TODO: discuss what frameworks should we use
+            FRAMEWORK: net6.0
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -1614,7 +1614,7 @@ tasks:
             ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-mustStaple.json"
         - func: configure-framework
           vars:
-            FRAMEWORK: net6.0 # TODO: discuss what frameworks should we use
+            FRAMEWORK: net6.0
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -1632,7 +1632,7 @@ tasks:
             ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-mustStaple.json"
         - func: configure-framework
           vars:
-            FRAMEWORK: net6.0 # TODO: discuss what frameworks should we use
+            FRAMEWORK: net6.0
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -1650,7 +1650,7 @@ tasks:
             ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-disableStapling.json"
         - func: configure-framework
           vars:
-            FRAMEWORK: net6.0 # TODO: discuss what frameworks should we use
+            FRAMEWORK: net6.0
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -1668,7 +1668,7 @@ tasks:
             ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-disableStapling.json"
         - func: configure-framework
           vars:
-            FRAMEWORK: net6.0 # TODO: discuss what frameworks should we use
+            FRAMEWORK: net6.0
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -1686,7 +1686,7 @@ tasks:
             ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-mustStaple-disableStapling.json"
         - func: configure-framework
           vars:
-            FRAMEWORK: net6.0 # TODO: discuss what frameworks should we use
+            FRAMEWORK: net6.0
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
