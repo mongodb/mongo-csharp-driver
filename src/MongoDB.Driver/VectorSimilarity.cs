@@ -33,7 +33,7 @@ public enum VectorSimilarity
     Cosine,
 
     /// <summary>
-    /// mMasures similarity like cosine, but takes into account the magnitude of the vector.
+    /// Measures similarity like cosine, but takes into account the magnitude of the vector.
     /// </summary>
     DotProduct,
 }
