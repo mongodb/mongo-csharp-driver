@@ -1655,7 +1655,7 @@ namespace MongoDB.Driver
                 _collection = Ensure.IsNotNull(collection, nameof(collection));
             }
 
-            public IEnumerable<string> CreateMany(IEnumerable<CreateSearchIndexModel> models, CancellationToken cancellationToken = default)
+            public IEnumerable<string> CreateMany(IEnumerable<CreateSearchIndexModelBase> models, CancellationToken cancellationToken = default)
             {
                 using var session = _collection._operationExecutor.StartImplicitSession();
                 var operation = CreateCreateIndexesOperation(models);
@@ -1664,7 +1664,7 @@ namespace MongoDB.Driver
                 return GetIndexNames(result);
             }
 
-            public async Task<IEnumerable<string>> CreateManyAsync(IEnumerable<CreateSearchIndexModel> models, CancellationToken cancellationToken = default)
+            public async Task<IEnumerable<string>> CreateManyAsync(IEnumerable<CreateSearchIndexModelBase> models, CancellationToken cancellationToken = default)
             {
                 using var session = _collection._operationExecutor.StartImplicitSession();
                 var operation = CreateCreateIndexesOperation(models);
@@ -1676,7 +1676,7 @@ namespace MongoDB.Driver
             public string CreateOne(BsonDocument definition, string name = null, CancellationToken cancellationToken = default) =>
                 CreateOne(new CreateSearchIndexModel(name, definition), cancellationToken);
 
-            public string CreateOne(CreateSearchIndexModel model, CancellationToken cancellationToken = default)
+            public string CreateOne(CreateSearchIndexModelBase model, CancellationToken cancellationToken = default)
             {
                 var result = CreateMany(new[] { model }, cancellationToken);
                 return result.Single();
@@ -1685,7 +1685,7 @@ namespace MongoDB.Driver
             public Task<string> CreateOneAsync(BsonDocument definition, string name = null, CancellationToken cancellationToken = default) =>
                 CreateOneAsync(new CreateSearchIndexModel(name, definition), cancellationToken);
 
-            public async Task<string> CreateOneAsync(CreateSearchIndexModel model, CancellationToken cancellationToken = default)
+            public async Task<string> CreateOneAsync(CreateSearchIndexModelBase model, CancellationToken cancellationToken = default)
             {
                 var result = await CreateManyAsync(new[] { model }, cancellationToken).ConfigureAwait(false);
                 return result.Single();
@@ -1741,10 +1741,28 @@ namespace MongoDB.Driver
                 return new BsonDocumentStagePipelineDefinition<TDocument, BsonDocument>(new[] { stage });
             }
 
-            private CreateSearchIndexesOperation CreateCreateIndexesOperation(IEnumerable<CreateSearchIndexModel> models) =>
-                new(_collection._collectionNamespace,
-                    models.Select(m => new CreateSearchIndexRequest(m.Name, m.Type, m.Definition)),
+            private CreateSearchIndexesOperation CreateCreateIndexesOperation(
+                IEnumerable<CreateSearchIndexModelBase> models)
+            {
+                var renderArgs = _collection.GetRenderArgs();
+
+                return new CreateSearchIndexesOperation(
+                    _collection._collectionNamespace,
+                    models.Select(model
+                        => new CreateSearchIndexRequest(
+                            model.Name,
+                            model.Type,
+                            model switch
+                            {
+                                CreateSearchIndexModel createSearchIndexModel
+                                    => createSearchIndexModel.Definition,
+                                CreateVectorIndexModel<TDocument> createAtlasVectorIndexModel
+                                    => createAtlasVectorIndexModel.Render(renderArgs),
+                                _ => throw new NotSupportedException(
+                                    $"'{model.GetType().Name}' is not a supported index model type.")
+                            })),
                     _collection._messageEncoderSettings);
+            }
 
             private string[] GetIndexNames(BsonDocument createSearchIndexesResponse) =>
                 createSearchIndexesResponse["indexesCreated"]

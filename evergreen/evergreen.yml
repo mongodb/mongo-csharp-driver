@@ -2099,7 +2099,7 @@ task_groups:
             - "AWS_SESSION_TOKEN"
           env:
             CLUSTER_PREFIX: dbx-csharp-search-index
-            MONGODB_VERSION: "7.0"
+            MONGODB_VERSION: "8.0"
           args:
             - ${DRIVERS_TOOLS}/.evergreen/atlas/setup-atlas-cluster.sh
       - command: expansions.update

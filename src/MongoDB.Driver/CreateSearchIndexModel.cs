@@ -18,38 +18,48 @@ using MongoDB.Bson;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Model for creating a search index.
+    /// Defines a vector search index model using a <see cref="BsonDocument"/> definition. Consider using
+    /// <see cref="CreateVectorIndexModel{TDocument}"/> to build Atlas indexes without specifying the BSON directly.
     /// </summary>
-    public sealed class CreateSearchIndexModel
+    public sealed class CreateSearchIndexModel : CreateSearchIndexModelBase
     {
-        /// <summary>Gets the index name.</summary>
-        /// <value>The index name.</value>
-        public string Name { get; }
-
         /// <summary>Gets the index type.</summary>
         /// <value>The index type.</value>
-        public SearchIndexType? Type { get; }
+        public override SearchIndexType? Type { get; }
 
         /// <summary>Gets the index definition.</summary>
         /// <value>The definition.</value>
         public BsonDocument Definition { get; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CreateSearchIndexModel"/> class.
+        /// Initializes a new instance of the <see cref="CreateSearchIndexModel"/> class, passing the index
+        /// model as a <see cref="BsonDocument"/>.
         /// </summary>
-        /// <param name="name">The name.</param>
-        /// <param name="definition">The definition.</param>
-        public CreateSearchIndexModel(string name, BsonDocument definition) : this(name, null, definition) { }
+        /// <remarks>
+        /// Consider using <see cref="CreateVectorIndexModel{TDocument}"/> to build Atlas indexes without specifying the
+        /// BSON directly.
+        /// </remarks>
+        /// <param name="name">The index name.</param>
+        /// <param name="definition">The index definition.</param>
+        public CreateSearchIndexModel(string name, BsonDocument definition)
+            : this(name, null, definition)
+        {
+        }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CreateSearchIndexModel"/> class.
+        /// Initializes a new instance of the <see cref="CreateSearchIndexModel"/> class, passing the index
+        /// model as a <see cref="BsonDocument"/>.
         /// </summary>
-        /// <param name="name">The name.</param>
-        /// <param name="type">The type.</param>
-        /// <param name="definition">The definition.</param>
+        /// <remarks>
+        /// Consider using <see cref="CreateVectorIndexModel{TDocument}"/> to build indexes without specifying the
+        /// BSON directly.
+        /// </remarks>
+        /// <param name="name">The index name.</param>
+        /// <param name="type">The index type.</param>
+        /// <param name="definition">The index definition.</param>
         public CreateSearchIndexModel(string name, SearchIndexType? type, BsonDocument definition)
+            : base(name)
         {
-            Name = name;
             Type = type;
             Definition = definition;
         }

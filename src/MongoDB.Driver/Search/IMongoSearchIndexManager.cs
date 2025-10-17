@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Search
         /// <returns>
         /// An <see cref="IEnumerable{String}" /> of the names of the indexes that were created.
         /// </returns>
-        IEnumerable<string> CreateMany(IEnumerable<CreateSearchIndexModel> models, CancellationToken cancellationToken = default);
+        IEnumerable<string> CreateMany(IEnumerable<CreateSearchIndexModelBase> models, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Creates multiple indexes.
@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Search
         /// <returns>
         /// A Task whose result is an <see cref="IEnumerable{String}" /> of the names of the indexes that were created.
         /// </returns>
-        Task<IEnumerable<string>> CreateManyAsync(IEnumerable<CreateSearchIndexModel> models, CancellationToken cancellationToken = default);
+        Task<IEnumerable<string>> CreateManyAsync(IEnumerable<CreateSearchIndexModelBase> models, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Creates a search index.
@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Search
         /// <returns>
         /// The name of the index that was created.
         /// </returns>
-        string CreateOne(CreateSearchIndexModel model, CancellationToken cancellationToken = default);
+        string CreateOne(CreateSearchIndexModelBase model, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Creates a search index.
@@ -85,7 +85,7 @@ namespace MongoDB.Driver.Search
         /// <returns>
         /// A Task whose result is the name of the index that was created.
         /// </returns>
-        Task<string> CreateOneAsync(CreateSearchIndexModel model, CancellationToken cancellationToken = default);
+        Task<string> CreateOneAsync(CreateSearchIndexModelBase model, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Drops an index by its name.
