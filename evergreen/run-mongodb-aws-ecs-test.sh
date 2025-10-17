@@ -21,6 +21,9 @@ if [[ -z "$1" ]]; then
 fi
 export MONGODB_URI="$1"
 
+export FRAMEWORK=net6.0 # TODO: discuss what frameworks should we use
+. src/.evergreen/install-dotnet.sh  # there is a script to rename our evergreen folder into .evergreen as it is expected by eg-tools script
+
 if echo "$MONGODB_URI" | grep -q "@"; then
   echo "MONGODB_URI unexpectedly contains user credentials in ECS test!";
   exit 1
@@ -28,7 +31,7 @@ fi
 export AWS_TESTS_ENABLED=true
 export AWS_ECS_ENABLED=true
 
-# EG scripts for ECS assume that a root folder is "src" and all driver side scripts are placed in ".evergreen" folder. 
+# EG scripts for ECS assume that a root folder is "src" and all driver side scripts are placed in ".evergreen" folder.
 # So that script is copied into "src/.evergreen" before running
 cd src
 

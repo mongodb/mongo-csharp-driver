@@ -5,20 +5,16 @@ $DotNetChannel = 'LTS'
 $PSScriptRoot = Split-Path $MyInvocation.MyCommand.Path -Parent
 
 [string] $CakeVersion = ''
-[string] $DotNetVersion= ''
 foreach($line in Get-Content (Join-Path $PSScriptRoot 'build.config'))
 {
   if ($line -like 'CAKE_VERSION=*') {
       $CakeVersion = $line.SubString(13)
   }
-  elseif ($line -like 'DOTNET_VERSION=*') {
-      $DotNetVersion =$line.SubString(15)
-  }
 }
 
 
-if ([string]::IsNullOrEmpty($CakeVersion) -or [string]::IsNullOrEmpty($DotNetVersion)) {
-    'Failed to parse Cake / .NET Core SDK Version'
+if ([string]::IsNullOrEmpty($CakeVersion)) {
+    'Failed to parse Cake Version'
     exit 1
 }
 
@@ -44,81 +40,6 @@ if ($PSVersionTable.PSEdition -ne 'Core') {
       } catch {
         Write-Output 'Unable to set PowerShell to use TLS 1.2 and TLS 1.1 due to old .NET Framework installed. If you see underlying connection closed or trust errors, you may need to upgrade to .NET Framework 4.5+ and PowerShell v3'
       }
-}
-
-###########################################################################
-# INSTALL .NET CORE CLI
-###########################################################################
-
-$env:DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1
-$env:DOTNET_CLI_TELEMETRY_OPTOUT=1
-$env:DOTNET_ROLL_FORWARD_ON_NO_CANDIDATE_FX=2
-
-
-Function Remove-PathVariable([string]$VariableToRemove)
-{
-    $SplitChar = ';'
-    if ($IsMacOS -or $IsLinux) {
-        $SplitChar = ':'
-    }
-
-    $path = [Environment]::GetEnvironmentVariable("PATH", "User")
-    if ($path -ne $null)
-    {
-        $newItems = $path.Split($SplitChar, [StringSplitOptions]::RemoveEmptyEntries) | Where-Object { "$($_)" -inotlike $VariableToRemove }
-        [Environment]::SetEnvironmentVariable("PATH", [System.String]::Join($SplitChar, $newItems), "User")
-    }
-
-    $path = [Environment]::GetEnvironmentVariable("PATH", "Process")
-    if ($path -ne $null)
-    {
-        $newItems = $path.Split($SplitChar, [StringSplitOptions]::RemoveEmptyEntries) | Where-Object { "$($_)" -inotlike $VariableToRemove }
-        [Environment]::SetEnvironmentVariable("PATH", [System.String]::Join($SplitChar, $newItems), "Process")
-    }
-}
-
-# Get .NET Core CLI path if installed.
-$FoundDotNetCliVersion = $null;
-if (Get-Command dotnet -ErrorAction SilentlyContinue) {
-    $FoundDotNetCliVersion = dotnet --version;
-}
-
-if($FoundDotNetCliVersion -ne $DotNetVersion) {
-    $InstallPath = Join-Path $PSScriptRoot ".dotnet"
-    if (!(Test-Path $InstallPath)) {
-        New-Item -Path $InstallPath -ItemType Directory -Force | Out-Null;
-    }
-
-    # N.B. We explicitly install .NET Core 3.1 because .NET 5.0 SDK can build those TFMs
-    #      but will silently upgrade to a more recent runtime to execute tests if the desired runtime
-    #      isn't available. For example, `dotnet run --framework netcoreapp3.0` will silently run
-    #      on .NET 5.0 if .NET Core 3.0 and 3.1 aren't installed.
-    #      This solution is admittedly hacky as .NET Core 3.1 won't be installed if
-    #      $DOTNET_VERSION matches $DOTNET_INSTALLED_VERSION, but it minimizes the changes required
-    #      to install required dependencies on Evergreen.
-    if ($IsMacOS -or $IsLinux) {
-        $ScriptPath = Join-Path $InstallPath 'dotnet-install.sh'
-        (New-Object System.Net.WebClient).DownloadFile($DotNetUnixInstallerUri, $ScriptPath);
-        & bash $ScriptPath --install-dir "$InstallPath" --channel 3.1 --no-path
-        & bash $ScriptPath --install-dir "$InstallPath" --channel 5.0 --no-path
-        & bash $ScriptPath --install-dir "$InstallPath" --channel 6.0 --no-path
-        & bash $ScriptPath --version "$DotNetVersion" --install-dir "$InstallPath" --channel "$DotNetChannel" --no-path
-
-        Remove-PathVariable "$InstallPath"
-        $env:PATH = "$($InstallPath):$env:PATH"
-    }
-    else {
-        $ScriptPath = Join-Path $InstallPath 'dotnet-install.ps1'
-        (New-Object System.Net.WebClient).DownloadFile($DotNetInstallerUri, $ScriptPath);
-        & $ScriptPath -Channel 3.1 -InstallDir $InstallPath;
-        & $ScriptPath -Channel 5.0 -InstallDir $InstallPath;
-        & $ScriptPath -Channel 6.0 -InstallDir $InstallPath;
-        & $ScriptPath -Channel $DotNetChannel -Version $DotNetVersion -InstallDir $InstallPath;
-
-        Remove-PathVariable "$InstallPath"
-        $env:PATH = "$InstallPath;$env:PATH"
-    }
-    $env:DOTNET_ROOT=$InstallPath
 }
 
 ###########################################################################

@@ -21,12 +21,12 @@ if [[ ! "$OS" =~ Ubuntu|ubuntu ]]; then
 fi
 
 
-if [ "$SSL" != "nossl" ]; then 
+if [ "$SSL" != "nossl" ]; then
   SINGLE_MONGOS_LB_URI="${SINGLE_MONGOS_LB_URI}&ssl=true&tlsDisableCertificateRevocationCheck=true"
-  MULTI_MONGOS_LB_URI="${MULTI_MONGOS_LB_URI}&ssl=true&tlsDisableCertificateRevocationCheck=true" 
+  MULTI_MONGOS_LB_URI="${MULTI_MONGOS_LB_URI}&ssl=true&tlsDisableCertificateRevocationCheck=true"
 fi
 
-echo "Running $AUTH tests (${FRAMEWORK}) over $SSL and connecting to SINGLE_MONGOS_LB_URI: $SINGLE_MONGOS_LB_URI or MULTI_MONGOS_LB_URI: $MULTI_MONGOS_LB_URI" 
+echo "Running $AUTH tests (${FRAMEWORK}) over $SSL and connecting to SINGLE_MONGOS_LB_URI: $SINGLE_MONGOS_LB_URI or MULTI_MONGOS_LB_URI: $MULTI_MONGOS_LB_URI"
 
 export MONGODB_URI=${SINGLE_MONGOS_LB_URI}
 export MONGODB_URI_WITH_MULTIPLE_MONGOSES=${MULTI_MONGOS_LB_URI}
@@ -34,4 +34,4 @@ export MONGODB_URI_WITH_MULTIPLE_MONGOSES=${MULTI_MONGOS_LB_URI}
 # show test output
 set -x
 
-./build.sh --target TestLoadBalanced${FRAMEWORK}
+./build.sh --target TestLoadBalanced

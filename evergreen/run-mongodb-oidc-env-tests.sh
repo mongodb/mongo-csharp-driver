@@ -3,13 +3,8 @@
 # Don't trace since the URI contains a password that shouldn't show up in the logs
 set -o errexit # Exit the script with error if any of the commands fail
 
-DOTNET_SDK_PATH="$(pwd)/.dotnet"
-
-echo "Downloading .NET SDK installer into $DOTNET_SDK_PATH folder..."
-curl -Lfo ./dotnet-install.sh https://builds.dotnet.microsoft.com/dotnet/scripts/v1/dotnet-install.sh
-echo "Installing .NET 6.0 SDK..."
-bash ./dotnet-install.sh --channel 6.0 --install-dir "$DOTNET_SDK_PATH" --no-path
-export PATH=$DOTNET_SDK_PATH:$PATH
+export FRAMEWORK=net6.0 # TODO: discuss what frameworks should we use
+. ./evergreen/install-dotnet.sh
 
 if [ "$OIDC_ENV" == "azure" ]; then
   source ./env.sh

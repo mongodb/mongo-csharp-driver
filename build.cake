@@ -31,11 +31,6 @@ var mongoDbDriverPackageName = "MongoDB.Driver";
 
 var solutionFile = solutionDirectory.CombineWithFilePath("CSharpDriver.sln");
 var solutionFullPath = solutionFile.FullPath;
-var srcProjectNames = new[]
-{
-    "MongoDB.Bson",
-    "MongoDB.Driver"
-};
 
 Task("Default")
     .IsDependentOn("Test");
@@ -70,13 +65,6 @@ Task("Build")
            }
         };
 
-        if (buildConfig.IsReleaseMode)
-        {
-            Console.WriteLine("Build continuousIntegration is enabled");
-            settings.MSBuildSettings = new DotNetMSBuildSettings();
-            // configure deterministic build for better compatibility with debug symbols (used in Package/Build tasks). Affects: *.nupkg
-            settings.MSBuildSettings.SetContinuousIntegrationBuild(continuousIntegrationBuild: true);
-        }
         DotNetBuild(solutionFullPath, settings);
     });
 
@@ -132,10 +120,6 @@ Task("Test")
     })
     .DeferOnError();
 
-Task("TestNet472").IsDependentOn("Test");
-Task("TestNetStandard21").IsDependentOn("Test");
-Task("TestNet60").IsDependentOn("Test");
-
 Task("TestAwsAuthentication")
     .IsDependentOn("Build")
     .DoesForEach(
@@ -184,10 +168,6 @@ Task("TestGssapi")
         action: (BuildConfig buildConfig, Path testProject) =>
            RunTests(buildConfig, testProject, filter: "Category=\"GssapiMechanism\""));
 
-Task("TestGssapiNet472").IsDependentOn("TestGssapi");
-Task("TestGssapiNetStandard21").IsDependentOn("TestGssapi");
-Task("TestGssapiNet60").IsDependentOn("TestGssapi");
-
 Task("TestMongoDbOidc")
     .IsDependentOn("Build")
     .DoesForEach(
@@ -208,13 +188,6 @@ Task("TestLoadBalanced")
         action: (BuildConfig buildConfig, Path testProject) =>
             RunTests(buildConfig, testProject, filter: "Category=\"SupportLoadBalancing\""));
 
-Task("TestLoadBalancedNetStandard21").IsDependentOn("TestLoadBalanced");
-Task("TestLoadBalancedNet60").IsDependentOn("TestLoadBalanced");
-
-Task("TestSocks5ProxyNet472").IsDependentOn("TestSocks5Proxy");
-Task("TestSocks5ProxyNetStandard21").IsDependentOn("TestSocks5Proxy");
-Task("TestSocks5ProxyNet60").IsDependentOn("TestSocks5Proxy");
-
 Task("TestCsfleWithMockedKms")
     .IsDependentOn("TestLibMongoCrypt")
     .DoesForEach(
@@ -222,20 +195,12 @@ Task("TestCsfleWithMockedKms")
         action: (BuildConfig buildConfig, Path testProject) =>
             RunTests(buildConfig, testProject, filter: "Category=\"CSFLE\""));
 
-Task("TestCsfleWithMockedKmsNet472").IsDependentOn("TestCsfleWithMockedKms");
-Task("TestCsfleWithMockedKmsNetStandard21").IsDependentOn("TestCsfleWithMockedKms");
-Task("TestCsfleWithMockedKmsNet60").IsDependentOn("TestCsfleWithMockedKms");
-
 Task("TestCsfleWithMongocryptd")
     .IsDependentOn("TestLibMongoCrypt")
     .DoesForEach(
         items: GetFiles("./**/*.Tests.csproj"),
         action: (BuildConfig buildConfig, Path testProject) =>
             RunTests(buildConfig, testProject, filter: "Category=\"CSFLE\""));
-
-Task("TestCsfleWithMongocryptdNet472").IsDependentOn("TestCsfleWithMongocryptd");
-Task("TestCsfleWithMongocryptdNetStandard21").IsDependentOn("TestCsfleWithMongocryptd");
-Task("TestCsfleWithMongocryptdNet60").IsDependentOn("TestCsfleWithMongocryptd");
 
 Task("TestCsfleWithAzureKms")
     .IsDependentOn("TestLibMongoCrypt")
@@ -257,8 +222,6 @@ Task("TestX509")
         items: GetFiles("./**/MongoDB.Driver.Tests.csproj"),
         action: (BuildConfig buildConfig, Path testProject) =>
             RunTests(buildConfig, testProject, filter: "Category=\"X509\""));
-
-Task("TestX509Net60").IsDependentOn("TestX509");
 
 Task("TestSocks5Proxy")
     .IsDependentOn("Build")
@@ -376,12 +339,6 @@ Task("SmokeTests")
             });
     });
 
-Task("SmokeTestsNet472").IsDependentOn("SmokeTests");
-Task("SmokeTestsNetCoreApp31").IsDependentOn("SmokeTests");
-Task("SmokeTestsNet50").IsDependentOn("SmokeTests");
-Task("SmokeTestsNet60").IsDependentOn("SmokeTests");
-Task("SmokeTestsNet80").IsDependentOn("SmokeTests");
-
 Setup<BuildConfig>(
     setupContext =>
     {
@@ -392,37 +349,28 @@ Setup<BuildConfig>(
             var unknownArchitecture => throw new Exception($"Unknown CPU architecture: {unknownArchitecture}.")
         };
 
-        var lowerTarget = target.ToLowerInvariant();
-        var framework = lowerTarget switch
+        var framework = Environment.GetEnvironmentVariable("FRAMEWORK");
+        if (string.Equals(framework, "netstandard2.1", StringComparison.InvariantCultureIgnoreCase))
         {
-            string s when s.EndsWith("netstandard21") || s.EndsWith("netcoreapp31") => "netcoreapp3.1",
-            string s when s.EndsWith("net472") => "net472",
-            string s when s.EndsWith("net50") => "net5.0",
-            string s when s.EndsWith("net60") => "net6.0",
-            string s when s.EndsWith("net80") => "net8.0",
-            _ => null
-        };
+            framework = "netcoreapp3.1";
+        }
 
-        var isReleaseMode = lowerTarget.StartsWith("package") || lowerTarget == "release";
-        var packageVersion = lowerTarget.StartsWith("smoketests") ? Environment.GetEnvironmentVariable("PACKAGE_VERSION") : gitVersion.LegacySemVer;
+        var packageVersion = target.ToLowerInvariant().StartsWith("smoketests") ? Environment.GetEnvironmentVariable("PACKAGE_VERSION") : gitVersion.LegacySemVer;
+        Console.WriteLine($"Framework: {framework ?? "null (not set)"}, TargetPlatform: {targetPlatform}, PackageVersion: {packageVersion}");
 
-        Console.WriteLine($"Framework: {framework ?? "null (not set)"}, TargetPlatform: {targetPlatform}, IsReleaseMode: {isReleaseMode}, PackageVersion: {packageVersion}");
-
-        return new BuildConfig(isReleaseMode, framework, targetPlatform, packageVersion);
+        return new BuildConfig(framework, targetPlatform, packageVersion);
     });
 
 RunTarget(target);
 
 public class BuildConfig
 {
-    public bool IsReleaseMode { get; }
     public string Framework { get; }
     public string PackageVersion { get; }
     public string TargetPlatform { get; }
 
-    public BuildConfig(bool isReleaseMode, string framework, string targetPlatform, string packageVersion)
+    public BuildConfig(string framework, string targetPlatform, string packageVersion)
     {
-        IsReleaseMode = isReleaseMode;
         Framework = framework;
         TargetPlatform = targetPlatform;
         PackageVersion = packageVersion;
