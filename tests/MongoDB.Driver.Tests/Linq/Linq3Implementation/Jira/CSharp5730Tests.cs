@@ -13,8 +13,10 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using MongoDB.Driver.TestHelpers;
 using FluentAssertions;
 using Xunit;
@@ -28,65 +30,70 @@ public class CSharp5730Tests : LinqIntegrationTest<CSharp5730Tests.ClassFixture>
     {
     }
 
-    [Fact]
-    public void Where_String_Compare_greater_than_zero_should_work()
+    [Theory]
+    [InlineData( 1, "{ $match : { A : { $lt : 'B' } } }", new int[] { 1, 2 })]
+    [InlineData( 2, "{ $match : { A : 'B' } }", new int[] { 3 })]
+    [InlineData( 3, "{ $match : { A : { $gt : 'B' } } }", new int[] { 4, 5, 6 })]
+    [InlineData( 4, "{ $match : { A : { $gte : 'B' } } }", new int[] { 3, 4, 5, 6 })]
+    [InlineData( 5, "{ $match : { A : { $ne : 'B' } } }", new int[] { 1, 2, 4, 5, 6 })]
+    [InlineData( 6, "{ $match : { A : { $lte : 'B' } } }", new int[] { 1, 2, 3 })]
+    [InlineData( 7, "{ $match : { A : { $gte : 'B' } } }", new int[] { 3, 4, 5, 6 })]
+    [InlineData( 8, "{ $match : { A : { $gt : 'B' } } }", new int[] { 4, 5, 6 })]
+    [InlineData( 9, "{ $match : { A : { $lt : 'B' } } }", new int[] { 1, 2 })]
+    [InlineData(10, "{ $match : { A : { $lte : 'B' } } }", new int[] { 1, 2, 3 })]
+    [InlineData(11, "{ $match : { A : { $lte : 'B' } } }", new int[] { 1, 2, 3 })]
+    [InlineData(12, "{ $match : { A : { $gte : 'B' } } }", new int[] { 1, 3, 4, 5, 6 })]
+    public void Where_String_Compare_field_to_constant_should_work(int scenario, string expectedStage, int[] expectedResults)
     {
         var collection = Fixture.Collection;
 
-        var queryable = collection.AsQueryable()
-            .Where(d => string.Compare(d.Key, "a4e48b55-0519-4ab3-b6b9-7c532fc65b56") > 0);
+        var queryable = scenario switch
+        {
+            // Compare field to constant
+            1 => collection.AsQueryable().Where(x => string.Compare(x.A, "B") == -1),
+            2 => collection.AsQueryable().Where(x => string.Compare(x.A, "B") == 0),
+            3 => collection.AsQueryable().Where(x => string.Compare(x.A, "B") == 1),
+            4 => collection.AsQueryable().Where(x => string.Compare(x.A, "B") != -1),
+            5 => collection.AsQueryable().Where(x => string.Compare(x.A, "B") != 0),
+            6 => collection.AsQueryable().Where(x => string.Compare(x.A, "B") != 1),
+            7 => collection.AsQueryable().Where(x => string.Compare(x.A, "B") > -1),
+            8 => collection.AsQueryable().Where(x => string.Compare(x.A, "B") > 0),
+            9 => collection.AsQueryable().Where(x => string.Compare(x.A, "B") < 0),
+            10 => collection.AsQueryable().Where(x => string.Compare(x.A, "B") < 1),
+            11 => collection.AsQueryable().Where(x => string.Compare(x.A, "B") <= 0),
+            12 => collection.AsQueryable().Where(x => string.Compare(x.A, "B") >= 0),
+            _ => throw new ArgumentException($"Invalid scenario: {scenario}.")
+        };
 
-        var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $match : { Key : { $gt : 'a4e48b55-0519-4ab3-b6b9-7c532fc65b56' } } }");
-
-        var result = queryable.ToList();
-        result.Select(x => x. Id).Should().Equal(4);
+        Assert(collection, queryable, expectedStage, expectedResults);
     }
 
-    [Fact]
-    public void Where_String_CompareTo_greater_than_zero_should_work()
+    private void Assert(IMongoCollection<C> collection, IQueryable<C> queryable, string expectedStage, int[] expectedResults)
     {
-        var collection = Fixture.Collection;
-
-        var queryable = collection.AsQueryable()
-            .Where(d => d.Key.CompareTo("a4e48b55-0519-4ab3-b6b9-7c532fc65b56") > 0);
-
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $match : { Key : { $gt : 'a4e48b55-0519-4ab3-b6b9-7c532fc65b56' } } }");
-
-        var result = queryable.ToList();
-        result.Select(x => x. Id).Should().Equal(4);
-    }
-
-    [Fact]
-    public void Select_String_Compare_should_work()
-    {
-        var collection = Fixture.Collection;
-
-        var queryable = collection.AsQueryable()
-            .Select(d => string.Compare(d.Key, "a4e48b55-0519-4ab3-b6b9-7c532fc65b56") > 0);
-
-        var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $gt : [{ $cmp : ['$Key', 'a4e48b55-0519-4ab3-b6b9-7c532fc65b56'] }, 0] }, _id : 0 } }");
+        AssertStages(stages, expectedStage);
 
         var results = queryable.ToList();
-        results.Should().Equal(false, false, false, true);
+        results.Select(x => x.Id).Should().Equal(expectedResults);
     }
 
     public class C
     {
         public int Id { get; set; }
-        public string Key { get; set; }
+        public string A { get; set; }
+        public string B { get; set; }
     }
 
     public sealed class ClassFixture : MongoCollectionFixture<C>
     {
         protected override IEnumerable<C> InitialData =>
         [
-            new C { Id = 1, Key = "1b2bc240-ec2a-4a17-8790-8407e3bbb847"},
-            new C { Id = 2, Key = "a4e48b55-0519-4ab3-b6b9-7c532fc65b56"},
-            new C { Id = 3, Key = "9ff72c5d-189e-4511-b7ad-3f83489e4ea4"},
-            new C { Id = 4, Key = "d78ca958-abac-46cd-94a7-fbf7a2ba683d"}
+            new C { Id = 1, A = "A", B = "A" },
+            new C { Id = 2, A = "A", B = "B" },
+            new C { Id = 3, A = "B", B = "A" },
+            new C { Id = 4, A = "a", B = "a" },
+            new C { Id = 5, A = "a", B = "b" },
+            new C { Id = 6, A = "b", B = "a" }
         ];
     }
 }

@@ -139,9 +139,29 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters
             return new AstFilterField(path);
         }
 
+        public static AstFieldOperationFilter Gt(AstFilterField field, BsonValue value)
+        {
+            return new AstFieldOperationFilter(field, new AstComparisonFilterOperation(AstComparisonFilterOperator.Gt, value));
+        }
+
+        public static AstFieldOperationFilter Gte(AstFilterField field, BsonValue value)
+        {
+            return new AstFieldOperationFilter(field, new AstComparisonFilterOperation(AstComparisonFilterOperator.Gte, value));
+        }
+
         public static AstFieldOperationFilter In(AstFilterField field, IEnumerable<BsonValue> values)
         {
             return new AstFieldOperationFilter(field, new AstInFilterOperation(values));
+        }
+
+        public static AstFieldOperationFilter Lt(AstFilterField field, BsonValue value)
+        {
+            return new AstFieldOperationFilter(field, new AstComparisonFilterOperation(AstComparisonFilterOperator.Lt, value));
+        }
+
+        public static AstFieldOperationFilter Lte(AstFilterField field, BsonValue value)
+        {
+            return new AstFieldOperationFilter(field, new AstComparisonFilterOperation(AstComparisonFilterOperator.Lte, value));
         }
 
         public static AstFilter MatchesEverything()

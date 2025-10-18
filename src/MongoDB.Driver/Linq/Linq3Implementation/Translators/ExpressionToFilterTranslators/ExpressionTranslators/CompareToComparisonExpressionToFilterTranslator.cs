@@ -66,10 +66,22 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 var serializedValue = SerializationHelper.SerializeValue(fieldTranslation.Serializer, value);
 
                 var rightValue = rightExpression.GetConstantValue<int>(containingExpression: expression);
-                if (rightValue == 0)
+                return (comparisonOperator, rightValue) switch
                 {
-                    return AstFilter.Compare(fieldTranslation.Ast, comparisonOperator, serializedValue);
-                }
+                    (AstComparisonFilterOperator.Eq, -1) => AstFilter.Lt(fieldTranslation.Ast, serializedValue),
+                    (AstComparisonFilterOperator.Ne, -1) => AstFilter.Gte(fieldTranslation.Ast, serializedValue),
+                    (AstComparisonFilterOperator.Gt, -1) => AstFilter.Gte(fieldTranslation.Ast, serializedValue),
+                    (AstComparisonFilterOperator.Eq, 0) => AstFilter.Eq(fieldTranslation.Ast, serializedValue),
+                    (AstComparisonFilterOperator.Ne, 0) => AstFilter.Ne(fieldTranslation.Ast, serializedValue),
+                    (AstComparisonFilterOperator.Lt, 0) => AstFilter.Lt(fieldTranslation.Ast, serializedValue),
+                    (AstComparisonFilterOperator.Lte, 0) => AstFilter.Lte(fieldTranslation.Ast, serializedValue),
+                    (AstComparisonFilterOperator.Gt, 0) => AstFilter.Gt(fieldTranslation.Ast, serializedValue),
+                    (AstComparisonFilterOperator.Gte, 0) => AstFilter.Gte(fieldTranslation.Ast, serializedValue),
+                    (AstComparisonFilterOperator.Eq, 1) => AstFilter.Gt(fieldTranslation.Ast, serializedValue),
+                    (AstComparisonFilterOperator.Ne, 1) => AstFilter.Lte(fieldTranslation.Ast, serializedValue),
+                    (AstComparisonFilterOperator.Lt, 1) => AstFilter.Lte(fieldTranslation.Ast, serializedValue),
+                    _ => throw new ExpressionNotSupportedException(expression)
+                };
             }
 
             throw new ExpressionNotSupportedException(expression);

@@ -30,10 +30,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             if (method.Is(StringMethod.StaticCompare))
             {
                 var strAExpression = arguments[0];
-                var strATranslation = ExpressionToAggregationExpressionTranslator.Translate(context, strAExpression);
                 var strBExpression = arguments[1];
+
+                var strATranslation = ExpressionToAggregationExpressionTranslator.Translate(context, strAExpression);
                 var strBTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, strBExpression);
+
                 var ast = AstExpression.Cmp(strATranslation.Ast, strBTranslation.Ast);
+
                 return new TranslatedExpression(expression, ast, Int32Serializer.Instance);
             }
 
