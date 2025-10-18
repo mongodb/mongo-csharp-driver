@@ -47,13 +47,13 @@ functions:
           fi
 
           PACKAGE_VERSION=$(bash ./evergreen/get-version.sh)
-          export DOTNET_SDK_PATH="$(pwd)/../.dotnet"
+          export DOTNET_ROOT="$(pwd)/../.dotnet"
           export DRIVERS_TOOLS="$(pwd)/../drivers-tools"
 
           if [ "Windows_NT" = "$OS" ]; then # Magic variable in cygwin
             # Python has cygwin path problems on Windows. Detect prospective mongo-orchestration home directory
             export DRIVERS_TOOLS=$(cygpath -m $DRIVERS_TOOLS)
-            export DOTNET_SDK_PATH=$(cygpath -m $DOTNET_SDK_PATH)
+            export DOTNET_ROOT=$(cygpath -m $DOTNET_ROOT)
           else
             # non windows OSs don't have dotnet in the PATH
             export PATH=$PATH:/usr/share/dotnet
@@ -72,7 +72,7 @@ functions:
           UPLOAD_BUCKET: "$UPLOAD_BUCKET"
           PROJECT_DIRECTORY: "$PROJECT_DIRECTORY"
           PACKAGE_VERSION: "$PACKAGE_VERSION"
-          DOTNET_SDK_PATH: "$DOTNET_SDK_PATH"
+          DOTNET_ROOT: "$DOTNET_ROOT"
           TEST_RESULTS_PATH: "./mongo-csharp-driver/build/test-results/TEST-*.xml"
           PREPARE_SHELL: |
             set -o errexit
@@ -83,7 +83,8 @@ functions:
             export PROJECT_DIRECTORY="$PROJECT_DIRECTORY"
             export PACKAGE_VERSION="$PACKAGE_VERSION"
             export TMPDIR="$MONGO_ORCHESTRATION_HOME/db"
-            export PATH="$DOTNET_SDK_PATH:$MONGODB_BINARIES:$PATH"
+            export PATH="$DOTNET_ROOT:$MONGODB_BINARIES:$PATH"
+            export DOTNET_ROOT="$DOTNET_ROOT"
             export PROJECT="${project}"
           EOT
           # See what we've done
@@ -94,8 +95,14 @@ functions:
       params:
         file: mongo-csharp-driver/expansion.yml
 
-  install-dotnet:
+  configure-framework:
+    - command: expansions.update
+      params:
+        updates:
+          - key: 'FRAMEWORK'
+            value: ${FRAMEWORK}
     - command: shell.exec
+      type: system
       params:
         include_expansions_in_env:
           - "OS"
@@ -456,7 +463,9 @@ functions:
           - "AWS_ACCESS_KEY_ID"
           - "AWS_SECRET_ACCESS_KEY"
           - "AWS_SESSION_TOKEN"
+          - "FRAMEWORK"
         script: |
+          ${PREPARE_SHELL}
           . ${DRIVERS_TOOLS}/.evergreen/secrets_handling/setup-secrets.sh drivers/atlas_connect
           . evergreen/run-atlas-connectivity-tests.sh
 
@@ -468,16 +477,18 @@ functions:
         include_expansions_in_env:
           - "AUTH_GSSAPI"
           - "AUTH_HOST"
+          - "FRAMEWORK"
         script: |
-          PROJECT_DIRECTORY=${PROJECT_DIRECTORY} \
-            FRAMEWORK=${FRAMEWORK} \
-            evergreen/run-gssapi-auth-tests.sh
+          ${PREPARE_SHELL}
+          PROJECT_DIRECTORY=${PROJECT_DIRECTORY} evergreen/run-gssapi-auth-tests.sh
 
   run-plain-auth-tests:
     - command: shell.exec
       type: test
       params:
         working_dir: mongo-csharp-driver
+        include_expansions_in_env:
+          - "FRAMEWORK"
         env:
           MONGODB_URI: ${plain_auth_mongodb_uri}
         script: |
@@ -553,11 +564,14 @@ functions:
     - command: shell.exec
       type: test
       params:
+        include_expansions_in_env:
+          - "FRAMEWORK"
         env:
           IAM_AUTH_ECS_ACCOUNT: ${iam_auth_ecs_account}
           IAM_AUTH_ECS_SECRET_ACCESS_KEY: ${iam_auth_ecs_secret_access_key}
         working_dir: mongo-csharp-driver
         script: |
+          ${PREPARE_SHELL}
           DRIVERS_TOOLS=${DRIVERS_TOOLS} OS=${OS} evergreen/run-mongodb-aws-test.sh regular
 
   run-aws-auth-test-with-assume-role-credentials:
@@ -565,7 +579,10 @@ functions:
       type: test
       params:
         working_dir: mongo-csharp-driver
+        include_expansions_in_env:
+          - "FRAMEWORK"
         script: |
+          ${PREPARE_SHELL}
           DRIVERS_TOOLS=${DRIVERS_TOOLS} OS=${OS} evergreen/run-mongodb-aws-test.sh assume-role
 
   run-aws-auth-test-with-aws-EC2-credentials:
@@ -573,6 +590,8 @@ functions:
       type: test
       params:
         working_dir: mongo-csharp-driver
+        include_expansions_in_env:
+          - "FRAMEWORK"
         script: |
           ${PREPARE_SHELL}
           if [ "${skip_EC2_auth_test}" = "true" ]; then
@@ -587,6 +606,8 @@ functions:
       params:
         shell: "bash"
         working_dir: mongo-csharp-driver
+        include_expansions_in_env:
+          - "FRAMEWORK"
         script: |
           ${PREPARE_SHELL}
           if [ "${skip_ECS_auth_test}" = "true" ]; then
@@ -601,6 +622,7 @@ functions:
           # Workaround. EG_TOOLS scripts for ECS assume that a folder with EG scripts in the driver is named ".evergreen"
           mkdir $SRC_DIRECTORY/.evergreen
           cp -r $SRC_DIRECTORY/evergreen/run-mongodb-aws-ecs-test.sh $SRC_DIRECTORY/.evergreen/run-mongodb-aws-ecs-test.sh
+          cp -r $SRC_DIRECTORY/evergreen/install-dotnet.sh $SRC_DIRECTORY/.evergreen/install-dotnet.sh
 
           export PROJECT_DIRECTORY="$SRC_DIRECTORY"
           ${DRIVERS_TOOLS}/.evergreen/auth_aws/aws_setup.sh ecs
@@ -609,7 +631,10 @@ functions:
     - command: shell.exec
       type: test
       params:
+        shell: "bash"
         working_dir: mongo-csharp-driver
+        include_expansions_in_env:
+          - "FRAMEWORK"
         script: |
           ${PREPARE_SHELL}
           if [ "${skip_web_identity_auth_test}" = "true" ]; then
@@ -622,6 +647,8 @@ functions:
       params:
         shell: "bash"
         working_dir: mongo-csharp-driver
+        include_expansions_in_env:
+          - "FRAMEWORK"
         script: |
           ${PREPARE_SHELL}
           if [ "${skip_web_identity_auth_test}" = "true" ]; then
@@ -635,11 +662,14 @@ functions:
     - command: shell.exec
       type: test
       params:
+        include_expansions_in_env:
+          - "FRAMEWORK"
         env:
           IAM_AUTH_ECS_ACCOUNT: ${iam_auth_ecs_account}
           IAM_AUTH_ECS_SECRET_ACCESS_KEY: ${iam_auth_ecs_secret_access_key}
         working_dir: mongo-csharp-driver
         script: |
+          ${PREPARE_SHELL}
           DRIVERS_TOOLS=${DRIVERS_TOOLS} OS=${OS} ASSERT_NO_URI_CREDS=true evergreen/run-mongodb-aws-test.sh env-creds
 
   run-aws-auth-test-with-aws-credentials-and-session-token-as-environment-variables:
@@ -647,7 +677,10 @@ functions:
       type: test
       params:
         working_dir: mongo-csharp-driver
+        include_expansions_in_env:
+          - "FRAMEWORK"
         script: |
+          ${PREPARE_SHELL}
           DRIVERS_TOOLS=${DRIVERS_TOOLS} OS=${OS} ASSERT_NO_URI_CREDS=true evergreen/run-mongodb-aws-test.sh session-creds
 
   run-atlas-search-test:
@@ -659,6 +692,7 @@ functions:
           - "AWS_ACCESS_KEY_ID"
           - "AWS_SECRET_ACCESS_KEY"
           - "AWS_SESSION_TOKEN"
+          - "FRAMEWORK"
         script: |
           ${PREPARE_SHELL}
           . ${DRIVERS_TOOLS}/.evergreen/secrets_handling/setup-secrets.sh drivers/atlas-qa
@@ -669,6 +703,8 @@ functions:
       type: test
       params:
         working_dir: mongo-csharp-driver
+        include_expansions_in_env:
+          - "FRAMEWORK"
         script: |
           ${PREPARE_SHELL}
           MONGODB_URI="${MONGODB_URI}" evergreen/run-atlas-search-index-helpers-test.sh
@@ -703,7 +739,7 @@ functions:
           OCSP_ALGORITHM=${OCSP_ALGORITHM} SERVER_TYPE=${SERVER_TYPE} ${DRIVERS_TOOLS}/.evergreen/ocsp/setup.sh
 
   run-mongodb-oidc-tests:
-    - command: subprocess.exec
+    - command: shell.exec
       type: test
       params:
         working_dir: mongo-csharp-driver
@@ -712,8 +748,9 @@ functions:
           - "DRIVERS_TOOLS"
           - "OS"
           - "FRAMEWORK"
-        args:
-          - evergreen/run-mongodb-oidc-tests.sh
+        script: |
+          ${PREPARE_SHELL}
+          evergreen/run-mongodb-oidc-tests.sh
 
   run-smoke-tests:
     - command: shell.exec
@@ -1117,108 +1154,108 @@ post:
 tasks:
     - name: unit-tests-net472
       commands:
-        - command: expansions.update
-          params:
-            updates:
-              - key: 'FRAMEWORK'
-                value: 'net472'
-        - func: install-dotnet
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net472
         - func: run-unit-tests
 
     - name: unit-tests-netstandard21
       commands:
-        - command: expansions.update
-          params:
-            updates:
-              - key: 'FRAMEWORK'
-                value: 'netstandard2.1'
-        - func: install-dotnet
+        - func: configure-framework
+          vars:
+            FRAMEWORK: netstandard2.1
         - func: run-unit-tests
 
     - name: unit-tests-net60
       commands:
-        - command: expansions.update
-          params:
-            updates:
-              - key: 'FRAMEWORK'
-                value: 'net6.0'
-        - func: install-dotnet
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net6.0
         - func: run-unit-tests
 
     - name: test-net472
       commands:
         - func: setup-csfle-secrets
         - func: bootstrap-mongo-orchestration
-        - func: run-tests
+        - func: configure-framework
           vars:
             FRAMEWORK: net472
+        - func: run-tests
 
     - name: test-netstandard21
       commands:
         - func: setup-csfle-secrets
         - func: bootstrap-mongo-orchestration
-        - func: run-tests
+        - func: configure-framework
           vars:
-            FRAMEWORK: netstandard21
+            FRAMEWORK: netstandard2.1
+        - func: run-tests
 
     - name: test-net60
       commands:
         - func: setup-csfle-secrets
         - func: bootstrap-mongo-orchestration
-        - func: run-tests
+        - func: configure-framework
           vars:
-            FRAMEWORK: net60
+            FRAMEWORK: net6.0
+        - func: run-tests
 
     - name: test-csfle-with-mongocryptd-net472
       commands:
         - func: setup-csfle-secrets
         - func: bootstrap-mongo-orchestration
-        - func: run-csfle-with-mongocryptd-tests
+        - func: configure-framework
           vars:
             FRAMEWORK: net472
+        - func: run-csfle-with-mongocryptd-tests
 
     - name: test-csfle-with-mongocryptd-netstandard21
       commands:
         - func: setup-csfle-secrets
         - func: bootstrap-mongo-orchestration
-        - func: run-csfle-with-mongocryptd-tests
+        - func: configure-framework
           vars:
-            FRAMEWORK: netstandard21
+            FRAMEWORK: netstandard2.1
+        - func: run-csfle-with-mongocryptd-tests
 
     - name: test-csfle-with-mongocryptd-net60
       commands:
         - func: setup-csfle-secrets
         - func: bootstrap-mongo-orchestration
-        - func: run-csfle-with-mongocryptd-tests
+        - func: configure-framework
           vars:
-            FRAMEWORK: net60
+            FRAMEWORK: net6.0
+        - func: run-csfle-with-mongocryptd-tests
 
     - name: test-csfle-with-mocked-kms-tls-net472
       commands:
         - func: setup-csfle-secrets
         - func: start-cse-servers
         - func: bootstrap-mongo-orchestration
-        - func: run-csfle-with-mocked-kms-tests
+        - func: configure-framework
           vars:
             FRAMEWORK: net472
+        - func: run-csfle-with-mocked-kms-tests
 
     - name: test-csfle-with-mocked-kms-tls-netstandard21
       commands:
         - func: setup-csfle-secrets
         - func: start-cse-servers
         - func: bootstrap-mongo-orchestration
-        - func: run-csfle-with-mocked-kms-tests
+        - func: configure-framework
           vars:
-            FRAMEWORK: netstandard21
+            FRAMEWORK: netstandard2.1
+        - func: run-csfle-with-mocked-kms-tests
 
     - name: test-csfle-with-mocked-kms-tls-net60
       commands:
         - func: setup-csfle-secrets
         - func: start-cse-servers
         - func: bootstrap-mongo-orchestration
-        - func: run-csfle-with-mocked-kms-tests
+        - func: configure-framework
           vars:
-            FRAMEWORK: net60
+            FRAMEWORK: net6.0
+        - func: run-csfle-with-mocked-kms-tests
 
     - name: test-load-balancer-netstandard21
       commands:
@@ -1226,9 +1263,10 @@ tasks:
           vars:
             LOAD_BALANCER: 'true'
         - func: run-load-balancer
-        - func: run-load-balancer-tests
+        - func: configure-framework
           vars:
-            FRAMEWORK: netstandard21
+            FRAMEWORK: netstandard2.1
+        - func: run-load-balancer-tests
         - func: stop-load-balancer
 
     - name: test-load-balancer-net60
@@ -1237,64 +1275,73 @@ tasks:
           vars:
             LOAD_BALANCER: 'true'
         - func: run-load-balancer
-        - func: run-load-balancer-tests
+        - func: configure-framework
           vars:
-            FRAMEWORK: net60
+            FRAMEWORK: net6.0
+        - func: run-load-balancer-tests
         - func: stop-load-balancer
 
     - name: atlas-connectivity-tests
       commands:
         - func: assume-aws-test-secrets-role
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net6.0
         - func: run-atlas-connectivity-tests
-
-    - name: test-gssapi
-      commands:
-        - func: run-gssapi-auth-tests
 
     - name: test-gssapi-net472
       commands:
-        - func: run-gssapi-auth-tests
+        - func: configure-framework
           vars:
             FRAMEWORK: net472
+        - func: run-gssapi-auth-tests
 
     - name: test-gssapi-netstandard21
       commands:
-        - func: run-gssapi-auth-tests
+        - func: configure-framework
           vars:
-            FRAMEWORK: netstandard21
+            FRAMEWORK: netstandard2.1
+        - func: run-gssapi-auth-tests
 
     - name: test-gssapi-net60
       commands:
-        - func: run-gssapi-auth-tests
+        - func: configure-framework
           vars:
-            FRAMEWORK: net60
+            FRAMEWORK: net6.0
+        - func: run-gssapi-auth-tests
 
     - name: test-socks5-proxy-net472
       commands:
         - func: bootstrap-mongo-orchestration
         - func: setup-socks5-proxy
-        - func: run-socks5-proxy-tests
+        - func: configure-framework
           vars:
             FRAMEWORK: net472
+        - func: run-socks5-proxy-tests
 
     - name: test-socks5-proxy-netstandard21
       commands:
         - func: bootstrap-mongo-orchestration
         - func: setup-socks5-proxy
-        - func: run-socks5-proxy-tests
+        - func: configure-framework
           vars:
             FRAMEWORK: netstandard21
+        - func: run-socks5-proxy-tests
 
     - name: test-socks5-proxy-net60
       commands:
         - func: bootstrap-mongo-orchestration
         - func: setup-socks5-proxy
-        - func: run-socks5-proxy-tests
+        - func: configure-framework
           vars:
             FRAMEWORK: net60
+        - func: run-socks5-proxy-tests
 
     - name: plain-auth-tests
       commands:
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net6.0
         - func: run-plain-auth-tests
 
     - name: aws-auth-tests
@@ -1305,6 +1352,9 @@ tasks:
             ORCHESTRATION_FILE: "auth-aws.json"
             TOPOLOGY: "server"
         - func: add-aws-auth-variables-to-file
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net6.0
         # This step also creates test related users, so don't avoid this step in order to run other tests
         - func: run-aws-auth-test-with-regular-aws-credentials
         - func: run-aws-auth-test-with-assume-role-credentials
@@ -1321,9 +1371,11 @@ tasks:
         - func: bootstrap-mongo-orchestration
           vars:
             REQUIRE_API_VERSION: true
-        - func: run-tests
+        - func: configure-framework
           vars:
             FRAMEWORK: net472
+        - func: run-tests
+          vars:
             REQUIRE_API_VERSION: true
 
     - name: stable-api-tests-netstandard21
@@ -1332,9 +1384,11 @@ tasks:
         - func: bootstrap-mongo-orchestration
           vars:
             REQUIRE_API_VERSION: true
+        - func: configure-framework
+          vars:
+            FRAMEWORK: netstandard2.1
         - func: run-tests
           vars:
-            FRAMEWORK: netstandard21
             REQUIRE_API_VERSION: true
 
     - name: stable-api-tests-net60
@@ -1343,22 +1397,33 @@ tasks:
         - func: bootstrap-mongo-orchestration
           vars:
             REQUIRE_API_VERSION: true
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net6.0
         - func: run-tests
           vars:
-            FRAMEWORK: net60
             REQUIRE_API_VERSION: true
 
     - name: atlas-search-test
       commands:
         - func: assume-aws-test-secrets-role
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net6.0
         - func: run-atlas-search-test
 
     - name: atlas-search-index-helpers-test
       commands:
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net6.0
         - func: run-atlas-search-index-helpers-test
 
     - name: test-oidc-auth
       commands:
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net6.0
         - func: run-mongodb-oidc-tests
 
     - name: test-oidc-azure
@@ -1372,7 +1437,7 @@ tasks:
               ${PREPARE_SHELL}
 
               dotnet build
-              tar czf /tmp/mongo-csharp-driver.tgz tests/*.Tests/bin/Debug/net6.0/ ./evergreen/run-mongodb-oidc-env-tests.sh
+              tar czf /tmp/mongo-csharp-driver.tgz tests/*.Tests/bin/Debug/net6.0/ evergreen/run-mongodb-oidc-env-tests.sh evergreen/install-dotnet.sh
 
               export AZUREOIDC_DRIVERS_TAR_FILE=/tmp/mongo-csharp-driver.tgz
               export AZUREOIDC_TEST_CMD="OIDC_ENV=azure ./evergreen/run-mongodb-oidc-env-tests.sh"
@@ -1392,7 +1457,7 @@ tasks:
               cp $DRIVERS_TOOLS/.evergreen/auth_oidc/gcp/secrets-export.sh ./secrets-export.sh
 
               dotnet build
-              tar czf /tmp/mongo-csharp-driver.tgz tests/*.Tests/bin/Debug/net6.0/ ./evergreen/run-mongodb-oidc-env-tests.sh ./secrets-export.sh
+              tar czf /tmp/mongo-csharp-driver.tgz tests/*.Tests/bin/Debug/net6.0/ evergreen/run-mongodb-oidc-env-tests.sh evergreen/install-dotnet.sh secrets-export.sh
 
               export GCPOIDC_DRIVERS_TAR_FILE=/tmp/mongo-csharp-driver.tgz
               export GCPOIDC_TEST_CMD="OIDC_ENV=gcp ./evergreen/run-mongodb-oidc-env-tests.sh"
@@ -1407,7 +1472,7 @@ tasks:
             script: |-
               ${PREPARE_SHELL}
               dotnet build
-              tar czf /tmp/mongo-csharp-driver.tgz tests/*.Tests/bin/Debug/net6.0/ ./evergreen/run-mongodb-oidc-env-tests.sh
+              tar czf /tmp/mongo-csharp-driver.tgz tests/*.Tests/bin/Debug/net6.0/ evergreen/run-mongodb-oidc-env-tests.sh evergreen/install-dotnet.sh
         - func: assume-aws-test-secrets-role
         - func: run_oidc_k8s_tests
           vars:
@@ -1429,6 +1494,9 @@ tasks:
         - func: bootstrap-mongo-orchestration
           vars:
             ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-mustStaple.json"
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net6.0
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -1444,6 +1512,9 @@ tasks:
         - func: bootstrap-mongo-orchestration
           vars:
             ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-mustStaple.json"
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net6.0
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -1459,6 +1530,9 @@ tasks:
         - func: bootstrap-mongo-orchestration
           vars:
             ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-disableStapling.json"
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net6.0
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -1474,6 +1548,9 @@ tasks:
         - func: bootstrap-mongo-orchestration
           vars:
             ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-disableStapling.json"
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net6.0
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -1485,6 +1562,9 @@ tasks:
         - func: bootstrap-mongo-orchestration
           vars:
             ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-disableStapling.json"
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net6.0
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -1500,6 +1580,9 @@ tasks:
         - func: bootstrap-mongo-orchestration
           vars:
             ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-mustStaple-disableStapling.json"
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net6.0
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -1511,6 +1594,9 @@ tasks:
         - func: bootstrap-mongo-orchestration
           vars:
             ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-mustStaple-disableStapling.json"
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net6.0
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -1526,6 +1612,9 @@ tasks:
         - func: bootstrap-mongo-orchestration
           vars:
             ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-mustStaple.json"
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net6.0
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -1541,6 +1630,9 @@ tasks:
         - func: bootstrap-mongo-orchestration
           vars:
             ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-mustStaple.json"
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net6.0
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -1556,6 +1648,9 @@ tasks:
         - func: bootstrap-mongo-orchestration
           vars:
             ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-disableStapling.json"
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net6.0
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -1571,6 +1666,9 @@ tasks:
         - func: bootstrap-mongo-orchestration
           vars:
             ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-disableStapling.json"
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net6.0
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -1586,6 +1684,9 @@ tasks:
         - func: bootstrap-mongo-orchestration
           vars:
             ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-mustStaple-disableStapling.json"
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net6.0
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -1593,6 +1694,7 @@ tasks:
 
     - name: test-smoke-tests
       commands:
+        - func: configure-framework
         - func: bootstrap-mongo-orchestration
         - func: run-smoke-tests
 
@@ -1605,7 +1707,7 @@ tasks:
             SSL: "nossl"
             AUTH: "noauth"
             SKIP_LEGACY_SHELL: "true"
-        - func: install-dotnet
+        - func: configure-framework
         - func: run-performance-tests
 
     - name: test-aws-lambda-deployed
@@ -1614,9 +1716,7 @@ tasks:
           params:
             role_arn: ${LAMBDA_AWS_ROLE_ARN}
             duration_seconds: 3600
-        - func: install-dotnet
-          vars:
-            DOTNET_SDK_VERSION: 8.0
+        - func: configure-framework
         - command: shell.exec
           params:
             working_dir: mongo-csharp-driver
@@ -1689,18 +1789,18 @@ tasks:
 
     - name: test-SK
       commands:
-        - func: install-dotnet
+        - func: configure-framework
         - func: run-test-SK
 
     - name: build-packages
       commands:
-        - func: install-dotnet
+        - func: configure-framework
         - func: build-packages
         - func: upload-packages
 
     - name: validate-apicompat
       commands:
-        - func: install-dotnet
+        - func: configure-framework
           vars:
             DOTNET_SDK_VERSION: 6.0
         - func: download-packages
@@ -1715,7 +1815,7 @@ tasks:
 
     - name: push-packages-nuget
       commands:
-        - func: install-dotnet
+        - func: configure-framework
         - func: download-packages
         - func: sign-packages
         - func: push-packages
@@ -1725,7 +1825,7 @@ tasks:
 
     - name: push-packages-myget
       commands:
-        - func: install-dotnet
+        - func: configure-framework
         - func: download-packages
         - func: sign-packages
         - func: push-packages
@@ -1735,7 +1835,7 @@ tasks:
 
     - name: generate-apidocs
       commands:
-        - func: install-dotnet
+        - func: configure-framework
         - func: build-apidocs
         - func: upload-apidocs
 
@@ -1755,7 +1855,7 @@ tasks:
 
     - name: validate-apidocs
       commands:
-        - func: install-dotnet
+        - func: configure-framework
         - func: build-apidocs
 
     - name: test-odata
@@ -1772,7 +1872,7 @@ tasks:
             LOCAL_PATH: ${workdir}/odata
             SCRIPT: |
               ${PREPARE_SHELL}
-              DOTNET_SDK_PATH="${DOTNET_SDK_PATH}" bash ./evergreen/install-dependencies.sh
+              DOTNET_SDK_PATH="${DOTNET_ROOT}" bash ./evergreen/install-dependencies.sh
               DRIVER_VERSION="${PACKAGE_VERSION}" bash ./evergreen/run-tests.sh
 
     - name: test-analyzer
@@ -1788,12 +1888,12 @@ tasks:
             LOCAL_PATH: ${workdir}/analyzer
             SCRIPT: |
               ${PREPARE_SHELL}
-              DOTNET_SDK_PATH="${DOTNET_SDK_PATH}" bash ./evergreen/install-dependencies.sh
+              DOTNET_SDK_PATH="${DOTNET_ROOT}" bash ./evergreen/install-dependencies.sh
               DRIVER_VERSION="${PACKAGE_VERSION}" TARGET_FRAMEWORK=netcoreapp3.1 bash ./evergreen/run-tests.sh
 
     - name: test-efcore
       commands:
-        - func: install-dotnet
+        - func: configure-framework
           vars:
             DOTNET_SDK_VERSION: 9.0
             FRAMEWORK: net8.0
@@ -1819,9 +1919,10 @@ tasks:
       commands:
         - func: assume-aws-test-secrets-role
         - func: setup-x509-tests
-        - func: run-x509-tests
+        - func: configure-framework
           vars:
-            FRAMEWORK: net60
+            FRAMEWORK: net6.0
+        - func: run-x509-tests
 
 axes:
   - id: version
@@ -1961,13 +2062,13 @@ axes:
         variables:
           FRAMEWORK: net472
       - id: "netstandard21"
-        display_name: netstandard21
+        display_name: netstandard2.1
         variables:
-          FRAMEWORK: netstandard21
+          FRAMEWORK: netstandard2.1
       - id: "net60"
-        display_name: net60
+        display_name: net6.0
         variables:
-          FRAMEWORK: net60
+          FRAMEWORK: net6.0
 
   - id: runtime_framework
     display_name: Runtime .net
@@ -1977,16 +2078,16 @@ axes:
           FRAMEWORK: net472
       - id: "netcoreapp31"
         variables:
-          FRAMEWORK: netcoreapp31
+          FRAMEWORK: netcoreapp3.1
       - id: "net50"
         variables:
-          FRAMEWORK: net50
+          FRAMEWORK: net5.0
       - id: "net60"
         variables:
-          FRAMEWORK: net60
+          FRAMEWORK: net6.0
       - id: "net80"
         variables:
-          FRAMEWORK: net80
+          FRAMEWORK: net8.0
 
 task_groups:
   - name: testazurekms-task-group
@@ -2185,7 +2286,7 @@ task_groups:
       - func: fix-absolute-paths
       - func: make-files-executable
       - func: assume-aws-test-secrets-role
-      - func: install-dotnet
+      - func: configure-framework
       - command: subprocess.exec
         params:
           binary: bash
@@ -2216,7 +2317,7 @@ task_groups:
       - func: fix-absolute-paths
       - func: make-files-executable
       - func: assume-aws-test-secrets-role
-      - func: install-dotnet
+      - func: configure-framework
       - command: subprocess.exec
         params:
           binary: bash
@@ -2245,8 +2346,8 @@ task_groups:
       - func: prepare-resources
       - func: fix-absolute-paths
       - func: make-files-executable
-      - func: install-dotnet
       - func: assume-aws-test-secrets-role
+      - func: configure-framework
       - command: subprocess.exec
         params:
           binary: bash
@@ -2273,7 +2374,7 @@ task_groups:
       - func: prepare-resources
       - func: fix-absolute-paths
       - func: make-files-executable
-      - func: install-dotnet
+      - func: configure-framework
     teardown_group:
       - command: s3.put
         params:
@@ -2576,14 +2677,14 @@ buildvariants:
 - name: atlas-connectivity-tests
   display_name: "Atlas Connectivity Tests"
   run_on:
-    - windows-64-vs2017-test
+    - windows-64-vs2017-test # Why on windows?
   tasks:
     - name: atlas-connectivity-tests
 
 - name: atlas-search-test
   display_name: "Atlas Search Tests"
   run_on:
-    - windows-64-vs2017-test
+    - windows-64-vs2017-test # Why on windows?
   tasks:
     - name: atlas-search-test
 

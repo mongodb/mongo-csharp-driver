@@ -103,10 +103,6 @@ if [ ! -z "$REQUIRE_API_VERSION" ]; then
   echo "Server API version is set to $MONGODB_API_VERSION"
 fi
 
-if [[ $FRAMEWORK != "nil" ]] && [[ $TARGET != *${FRAMEWORK} ]]; then
-  TARGET="${TARGET}${FRAMEWORK}"
-fi
-
 export TARGET
 if [[ "$OS" =~ Windows|windows ]]; then
   if [ "$OCSP_TLS_SHOULD_SUCCEED" != "nil" ]; then

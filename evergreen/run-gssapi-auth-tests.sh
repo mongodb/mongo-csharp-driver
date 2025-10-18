@@ -17,8 +17,6 @@ echo "Running GSSAPI authentication tests"
 
 export GSSAPI_TESTS_ENABLED=true
 
-TARGET="TestGssapi${FRAMEWORK}"
-
 if [ "Windows_NT" = "$OS" ]; then
   cmd /c "REG ADD HKLM\SYSTEM\ControlSet001\Control\Lsa\Kerberos\Domains\LDAPTEST.10GEN.CC /v KdcNames /d ldaptest.10gen.cc /t REG_MULTI_SZ /f"
   echo "LDAPTEST.10GEN.CC registry has been added"
@@ -31,7 +29,7 @@ if [ "Windows_NT" = "$OS" ]; then
     export $var=z:\\data\\tmp
   done
 
-  powershell.exe .\\build.ps1 --target $TARGET
+  powershell.exe .\\build.ps1 --target TestGssapi
 else
   echo "Setting krb5 config file"
   touch ${PROJECT_DIRECTORY}/evergreen/krb5.conf.empty
@@ -47,5 +45,5 @@ else
     export $var=/data/tmp;
   done
 
-  ./build.sh --target=$TARGET
+  ./build.sh --target=TestGssapi
 fi;
