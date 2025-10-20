@@ -43,7 +43,7 @@ public class CSharp5730Tests : LinqIntegrationTest<CSharp5730Tests.ClassFixture>
     [InlineData(10, "{ $match : { A : { $lte : 'B' } } }", new int[] { 1, 2, 3 })]
     [InlineData(11, "{ $match : { A : { $lte : 'B' } } }", new int[] { 1, 2, 3 })]
     [InlineData(12, "{ $match : { A : { $gte : 'B' } } }", new int[] { 3, 4, 5, 6 })]
-    public void Where_String_Compare_field_to_constant_should_work(int scenario, string expectedStage, int[] expectedResults)
+    public void Where_String_Compare_field_to_constant_should_work(int scenario, string expectedStage, int[] expectedIds)
     {
         var collection = Fixture.Collection;
 
@@ -65,7 +65,7 @@ public class CSharp5730Tests : LinqIntegrationTest<CSharp5730Tests.ClassFixture>
             _ => throw new ArgumentException($"Invalid scenario: {scenario}.")
         };
 
-        Assert(collection, queryable, expectedStage, expectedResults);
+        AssertIds(collection, queryable, expectedStage, expectedIds);
     }
 
     [Theory]
@@ -81,7 +81,7 @@ public class CSharp5730Tests : LinqIntegrationTest<CSharp5730Tests.ClassFixture>
     [InlineData(10, "{ $match : { B : { $gte : 'A' } } }", new int[] { 1, 2, 3, 4, 5, 6 })]
     [InlineData(11, "{ $match : { B : { $gte : 'A' } } }", new int[] { 1, 2, 3, 4, 5, 6 })]
     [InlineData(12, "{ $match : { B : { $lte : 'A' } } }", new int[] { 1, 3 })]
-    public void Where_String_Compare_constant_to_field_should_work(int scenario, string expectedStage, int[] expectedResults)
+    public void Where_String_Compare_constant_to_field_should_work(int scenario, string expectedStage, int[] expectedIds)
     {
         var collection = Fixture.Collection;
 
@@ -103,16 +103,101 @@ public class CSharp5730Tests : LinqIntegrationTest<CSharp5730Tests.ClassFixture>
             _ => throw new ArgumentException($"Invalid scenario: {scenario}.")
         };
 
+        AssertIds(collection, queryable, expectedStage, expectedIds);
+    }
+
+    [Theory]
+    [InlineData( 1, "{ $project : { _v : { $eq : [{ $cmp : ['$A', 'B'] }, -1] }, _id : 0 } }", new bool[] { true, true, false, false, false, false })]
+    [InlineData( 2, "{ $project : { _v : { $eq : [{ $cmp : ['$A', 'B'] }, 0] }, _id : 0 } }", new bool[] { false, false, true, false, false, false })]
+    [InlineData( 3, "{ $project : { _v : { $eq : [{ $cmp : ['$A', 'B'] }, 1] }, _id : 0 } }", new bool[] { false, false, false, true, true, true })]
+    [InlineData( 4, "{ $project : { _v : { $ne : [{ $cmp : ['$A', 'B'] }, -1] }, _id : 0 } }", new bool[] { false, false, true, true, true, true })]
+    [InlineData( 5, "{ $project : { _v : { $ne : [{ $cmp : ['$A', 'B'] }, 0] }, _id : 0 } }", new bool[] { true, true, false, true, true, true })]
+    [InlineData( 6, "{ $project : { _v : { $ne : [{ $cmp : ['$A', 'B'] }, 1] }, _id : 0 } }", new bool[] { true, true, true, false, false, false })]
+    [InlineData( 7, "{ $project : { _v : { $gt : [{ $cmp : ['$A', 'B'] }, -1] }, _id : 0 } }", new bool[] { false, false, true, true, true, true })]
+    [InlineData( 8, "{ $project : { _v : { $gt : [{ $cmp : ['$A', 'B'] }, 0] }, _id : 0 } }", new bool[] { false, false, false, true, true, true })]
+    [InlineData( 9, "{ $project : { _v : { $lt : [{ $cmp : ['$A', 'B'] }, 0] }, _id : 0 } }", new bool[] { true, true, false, false, false, false })]
+    [InlineData( 10, "{ $project : { _v : { $lt : [{ $cmp : ['$A', 'B'] }, 1] }, _id : 0 } }", new bool[] { true, true, true, false, false, false })]
+    [InlineData( 11, "{ $project : { _v : { $lte : [{ $cmp : ['$A', 'B'] }, 0] }, _id : 0 } }", new bool[] { true, true, true, false, false, false })]
+    [InlineData( 12, "{ $project : { _v : { $gte : [{ $cmp : ['$A', 'B'] }, 0] }, _id : 0 } }", new bool[] { false, false, true, true, true, true })]
+    public void Select_String_Compare_field_to_constant_should_work(int scenario, string expectedStage, bool[] expectedResults)
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = scenario switch
+        {
+            // Compare field to constant
+            1 => collection.AsQueryable().Select(x => string.Compare(x.A, "B") == -1),
+            2 => collection.AsQueryable().Select(x => string.Compare(x.A, "B") == 0),
+            3 => collection.AsQueryable().Select(x => string.Compare(x.A, "B") == 1),
+            4 => collection.AsQueryable().Select(x => string.Compare(x.A, "B") != -1),
+            5 => collection.AsQueryable().Select(x => string.Compare(x.A, "B") != 0),
+            6 => collection.AsQueryable().Select(x => string.Compare(x.A, "B") != 1),
+            7 => collection.AsQueryable().Select(x => string.Compare(x.A, "B") > -1),
+            8 => collection.AsQueryable().Select(x => string.Compare(x.A, "B") > 0),
+            9 => collection.AsQueryable().Select(x => string.Compare(x.A, "B") < 0),
+            10 => collection.AsQueryable().Select(x => string.Compare(x.A, "B") < 1),
+            11 => collection.AsQueryable().Select(x => string.Compare(x.A, "B") <= 0),
+            12 => collection.AsQueryable().Select(x => string.Compare(x.A, "B") >= 0),
+            _ => throw new ArgumentException($"Invalid scenario: {scenario}.")
+        };
+
         Assert(collection, queryable, expectedStage, expectedResults);
     }
 
-    private void Assert(IMongoCollection<C> collection, IQueryable<C> queryable, string expectedStage, int[] expectedResults)
+    [Theory]
+    [InlineData( 1, "{ $project : { _v : { $eq : [{ $cmp : ['A', '$B'] }, -1] }, _id : 0 } }", new bool[] { false, true, false, true, true, true })]
+    [InlineData( 2, "{ $project : { _v : { $eq : [{ $cmp : ['A', '$B'] }, 0] }, _id : 0 } }", new bool[] { true, false, true, false, false, false })]
+    [InlineData( 3, "{ $project : { _v : { $eq : [{ $cmp : ['A', '$B'] }, 1] }, _id : 0 } }", new bool[] { false, false, false, false, false, false })]
+    [InlineData( 4, "{ $project : { _v : { $ne : [{ $cmp : ['A', '$B'] }, -1] }, _id : 0 } }", new bool[] { true, false, true, false, false, false })]
+    [InlineData( 5, "{ $project : { _v : { $ne : [{ $cmp : ['A', '$B'] }, 0] }, _id : 0 } }", new bool[] { false, true, false, true, true, true })]
+    [InlineData( 6, "{ $project : { _v : { $ne : [{ $cmp : ['A', '$B'] }, 1] }, _id : 0 } }", new bool[] { true, true, true, true, true, true })]
+    [InlineData( 7, "{ $project : { _v : { $gt : [{ $cmp : ['A', '$B'] }, -1] }, _id : 0 } }", new bool[] { true, false, true, false, false, false })]
+    [InlineData( 8, "{ $project : { _v : { $gt : [{ $cmp : ['A', '$B'] }, 0] }, _id : 0 } }", new bool[] { false, false, false, false, false, false })]
+    [InlineData( 9, "{ $project : { _v : { $lt : [{ $cmp : ['A', '$B'] }, 0] }, _id : 0 } }", new bool[] { false, true, false, true, true, true })]
+    [InlineData( 10, "{ $project : { _v : { $lt : [{ $cmp : ['A', '$B'] }, 1] }, _id : 0 } }", new bool[] { true, true, true, true, true, true })]
+    [InlineData( 11, "{ $project : { _v : { $lte : [{ $cmp : ['A', '$B'] }, 0] }, _id : 0 } }", new bool[] { true, true, true, true, true, true })]
+    [InlineData( 12, "{ $project : { _v : { $gte : [{ $cmp : ['A', '$B'] }, 0] }, _id : 0 } }", new bool[] { true, false, true, false, false, false })]
+    public void Select_String_Compare_constant_to_field_should_work(int scenario, string expectedStage, bool[] expectedResults)
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = scenario switch
+        {
+            // Compare field to constant
+            1 => collection.AsQueryable().Select(x => string.Compare ("A", x.B) == -1),
+            2 => collection.AsQueryable().Select(x => string.Compare ("A", x.B) == 0),
+            3 => collection.AsQueryable().Select(x => string.Compare ("A", x.B) == 1),
+            4 => collection.AsQueryable().Select(x => string.Compare ("A", x.B) != -1),
+            5 => collection.AsQueryable().Select(x => string.Compare ("A", x.B) != 0),
+            6 => collection.AsQueryable().Select(x => string.Compare ("A", x.B) != 1),
+            7 => collection.AsQueryable().Select(x => string.Compare ("A", x.B) > -1),
+            8 => collection.AsQueryable().Select(x => string.Compare ("A", x.B) > 0),
+            9 => collection.AsQueryable().Select(x => string.Compare ("A", x.B) < 0),
+            10 => collection.AsQueryable().Select(x => string.Compare("A", x.B) < 1),
+            11 => collection.AsQueryable().Select(x => string.Compare("A", x.B) <= 0),
+            12 => collection.AsQueryable().Select(x => string.Compare("A", x.B) >= 0),
+            _ => throw new ArgumentException($"Invalid scenario: {scenario}.")
+        };
+
+        Assert(collection, queryable, expectedStage, expectedResults);
+    }
+
+    private void Assert<TResult>(IMongoCollection<C> collection, IQueryable<TResult> queryable, string expectedStage, TResult[] expectedResults)
     {
         var stages = Translate(collection, queryable);
         AssertStages(stages, expectedStage);
 
         var results = queryable.ToList();
-        results.Select(x => x.Id).Should().Equal(expectedResults);
+        results.Should().Equal(expectedResults);
+    }
+
+    private void AssertIds(IMongoCollection<C> collection, IQueryable<C> queryable, string expectedStage, int[] expectedIds)
+    {
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, expectedStage);
+
+        var results = queryable.ToList();
+        results.Select(x => x.Id).Should().Equal(expectedIds);
     }
 
     public class C
