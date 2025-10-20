@@ -13,35 +13,44 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson;
 
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Defines a vector search index model using a <see cref="BsonDocument"/> definition. Consider using
-    /// <see cref="CreateVectorIndexModel{TDocument}"/> to build Atlas indexes without specifying the BSON directly.
+    /// Defines a search index model using a <see cref="BsonDocument"/> definition. Consider using
+    /// <see cref="CreateVectorIndexModel{TDocument}"/> to build vector indexes without specifying the BSON directly.
     /// </summary>
     public class CreateSearchIndexModel
     {
+        private readonly BsonDocument _definition;
+        private readonly SearchIndexType? _type;
+        private readonly string _name;
+
         /// <summary>Gets the index name.</summary>
         /// <value>The index name.</value>
-        public string Name { get; }
+        public string Name => _name;
 
         /// <summary>Gets the index type.</summary>
         /// <value>The index type.</value>
-        public SearchIndexType? Type { get; }
+        public SearchIndexType? Type => _type;
 
-        /// <summary>Gets the index definition.</summary>
+        /// <summary>
+        /// Gets the index definition, if one was passed to a constructor of this class, otherwise throws.
+        /// </summary>
         /// <value>The definition.</value>
-        public virtual BsonDocument Definition { get; }
+        public BsonDocument Definition
+            => _definition ?? throw new NotSupportedException(
+                "This method should not be called on this subtype. Instead, call 'Render' to create a BSON document for the index model.");
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateSearchIndexModel"/> class, passing the index
         /// model as a <see cref="BsonDocument"/>.
         /// </summary>
         /// <remarks>
-        /// Consider using <see cref="CreateVectorIndexModel{TDocument}"/> to build Atlas indexes without specifying the
-        /// BSON directly.
+        /// Consider using <see cref="CreateVectorIndexModel{TDocument}"/> to build vector indexes without specifying
+        /// the BSON directly.
         /// </remarks>
         /// <param name="name">The index name.</param>
         /// <param name="definition">The index definition.</param>
@@ -55,18 +64,17 @@ namespace MongoDB.Driver
         /// model as a <see cref="BsonDocument"/>.
         /// </summary>
         /// <remarks>
-        /// Consider using <see cref="CreateVectorIndexModel{TDocument}"/> to build indexes without specifying the
-        /// BSON directly.
+        /// Consider using <see cref="CreateVectorIndexModel{TDocument}"/> to build vector indexes without specifying
+        /// the BSON directly.
         /// </remarks>
         /// <param name="name">The index name.</param>
         /// <param name="type">The index type.</param>
         /// <param name="definition">The index definition.</param>
         public CreateSearchIndexModel(string name, SearchIndexType? type, BsonDocument definition)
         {
-            Name = name;
-            Type = type;
-            Definition = definition;
-
+            _name = name;
+            _type = type;
+            _definition = definition;
         }
 
         /// <summary>
@@ -76,8 +84,8 @@ namespace MongoDB.Driver
         /// <param name="type">The index type.</param>
         protected CreateSearchIndexModel(string name, SearchIndexType? type)
         {
-            Name = name;
-            Type = type;
+            _name = name;
+            _type = type;
         }
     }
 }

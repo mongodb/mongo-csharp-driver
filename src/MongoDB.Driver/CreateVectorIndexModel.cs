@@ -62,14 +62,6 @@ public sealed class CreateVectorIndexModel<TDocument> : CreateSearchIndexModel
     public int? HnswNumEdgeCandidates { get; init; }
 
     /// <summary>
-    /// This method should not be called on this subtype. Instead, call <see cref="Render"/> to create a BSON
-    /// document for the index model.
-    /// </summary>
-    public override BsonDocument Definition
-        => throw new NotSupportedException(
-            "This method should not be called on this subtype. Instead, call 'Render' to create a BSON document for the index model.");
-
-    /// <summary>
     /// Initializes a new instance of the <see cref="CreateVectorIndexModel{TDocument}"/> class, passing the
     /// required options for <see cref="VectorSimilarity"/> and the number of vector dimensions to the constructor.
     /// </summary>
