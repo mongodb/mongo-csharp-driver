@@ -42,7 +42,7 @@ public class CSharp5730Tests : LinqIntegrationTest<CSharp5730Tests.ClassFixture>
     [InlineData( 9, "{ $match : { A : { $lt : 'B' } } }", new int[] { 1, 2 })]
     [InlineData(10, "{ $match : { A : { $lte : 'B' } } }", new int[] { 1, 2, 3 })]
     [InlineData(11, "{ $match : { A : { $lte : 'B' } } }", new int[] { 1, 2, 3 })]
-    [InlineData(12, "{ $match : { A : { $gte : 'B' } } }", new int[] { 1, 3, 4, 5, 6 })]
+    [InlineData(12, "{ $match : { A : { $gte : 'B' } } }", new int[] { 3, 4, 5, 6 })]
     public void Where_String_Compare_field_to_constant_should_work(int scenario, string expectedStage, int[] expectedResults)
     {
         var collection = Fixture.Collection;
@@ -62,6 +62,44 @@ public class CSharp5730Tests : LinqIntegrationTest<CSharp5730Tests.ClassFixture>
             10 => collection.AsQueryable().Where(x => string.Compare(x.A, "B") < 1),
             11 => collection.AsQueryable().Where(x => string.Compare(x.A, "B") <= 0),
             12 => collection.AsQueryable().Where(x => string.Compare(x.A, "B") >= 0),
+            _ => throw new ArgumentException($"Invalid scenario: {scenario}.")
+        };
+
+        Assert(collection, queryable, expectedStage, expectedResults);
+    }
+
+    [Theory]
+    [InlineData( 1, "{ $match : { B : { $gt : 'A' } } }", new int[] { 2, 4, 5, 6 })]
+    [InlineData( 2, "{ $match : { B : 'A' } }", new int[] { 1, 3 })]
+    [InlineData( 3, "{ $match : { B : { $lt : 'A' } } }", new int[] { })]
+    [InlineData( 4, "{ $match : { B : { $lte : 'A' } } }", new int[] { 1, 3 })]
+    [InlineData( 5, "{ $match : { B : { $ne : 'A' } } }", new int[] { 2, 4, 5, 6 })]
+    [InlineData( 6, "{ $match : { B : { $gte : 'A' } } }", new int[] { 1, 2, 3, 4, 5, 6 })]
+    [InlineData( 7, "{ $match : { B : { $lte : 'A' } } }", new int[] { 1, 3 })]
+    [InlineData( 8, "{ $match : { B : { $lt : 'A' } } }", new int[] { })]
+    [InlineData( 9, "{ $match : { B : { $gt : 'A' } } }", new int[] { 2, 4, 5, 6 })]
+    [InlineData(10, "{ $match : { B : { $gte : 'A' } } }", new int[] { 1, 2, 3, 4, 5, 6 })]
+    [InlineData(11, "{ $match : { B : { $gte : 'A' } } }", new int[] { 1, 2, 3, 4, 5, 6 })]
+    [InlineData(12, "{ $match : { B : { $lte : 'A' } } }", new int[] { 1, 3 })]
+    public void Where_String_Compare_constant_to_field_should_work(int scenario, string expectedStage, int[] expectedResults)
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = scenario switch
+        {
+            // Compare field to constant
+            1 => collection.AsQueryable().Where(x => string.Compare ("A", x.B) == -1),
+            2 => collection.AsQueryable().Where(x => string.Compare ("A", x.B) == 0),
+            3 => collection.AsQueryable().Where(x => string.Compare ("A", x.B) == 1),
+            4 => collection.AsQueryable().Where(x => string.Compare ("A", x.B) != -1),
+            5 => collection.AsQueryable().Where(x => string.Compare ("A", x.B) != 0),
+            6 => collection.AsQueryable().Where(x => string.Compare ("A", x.B) != 1),
+            7 => collection.AsQueryable().Where(x => string.Compare ("A", x.B) > -1),
+            8 => collection.AsQueryable().Where(x => string.Compare ("A", x.B) > 0),
+            9 => collection.AsQueryable().Where(x => string.Compare ("A", x.B) < 0),
+            10 => collection.AsQueryable().Where(x => string.Compare("A", x.B) < 1),
+            11 => collection.AsQueryable().Where(x => string.Compare("A", x.B) <= 0),
+            12 => collection.AsQueryable().Where(x => string.Compare("A", x.B) >= 0),
             _ => throw new ArgumentException($"Invalid scenario: {scenario}.")
         };
 
