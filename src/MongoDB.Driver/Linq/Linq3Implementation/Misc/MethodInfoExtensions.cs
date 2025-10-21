@@ -38,6 +38,19 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             return false;
         }
 
+        public static bool IsInstanceCompareToMethod(this MethodInfo method)
+        {
+            return
+                method.IsPublic &&
+                !method.IsStatic &&
+                method.ReturnType == typeof(int) &&
+                method.Name == "CompareTo" &&
+                method.GetParameters() is var parameters &&
+                parameters.Length == 1 &&
+                parameters[0].ParameterType is var parameterType &&
+                (parameterType == method.DeclaringType || parameterType == typeof(object));
+        }
+
         public static bool IsOneOf(this MethodInfo method, MethodInfo comparand1, MethodInfo comparand2)
         {
             return method.Is(comparand1) || method.Is(comparand2);
@@ -77,6 +90,19 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             }
 
             return false;
+        }
+
+        public static bool IsStaticCompareMethod(this MethodInfo method)
+        {
+            return
+                method.IsPublic &&
+                method.IsStatic &&
+                method.ReturnType == typeof(int) &&
+                method.Name == "Compare" &&
+                method.GetParameters() is var parameters &&
+                parameters.Length == 2 &&
+                parameters[0].ParameterType == method.DeclaringType &&
+                parameters[1].ParameterType == method.DeclaringType;
         }
     }
 }

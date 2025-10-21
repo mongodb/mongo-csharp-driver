@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             return
                 leftExpression is MethodCallExpression leftMethodCallExpression &&
                 leftMethodCallExpression.Method is var method &&
-                (IsStaticCompareMethod(method) || IsInstanceCompareToMethod(method));
+                (method.IsStaticCompareMethod() || method.IsInstanceCompareToMethod() || method.Is(StringMethod.StaticCompareWithIgnoreCase));
         }
 
         // caller is responsible for ensuring constant is on the right
@@ -58,6 +58,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 {
                     fieldExpression = compareMethodCallExpression.Object;
                     innerValueExpression = compareArguments[0];
+                }
+
+                if (compareMethod.Is(StringMethod.StaticCompareWithIgnoreCase))
+                {
+                    var ignoreCaseExpression = compareArguments[2];
+                    var ignoreCase = ignoreCaseExpression.GetConstantValue<bool>(containingExpression: compareMethodCallExpression);
+                    if (ignoreCase)
+                    {
+                        throw new ExpressionNotSupportedException(compareMethodCallExpression, because: "ignoreCase must be false");
+                    }
                 }
 
                 var fieldComparisonOperator = (outerComparisonOperator, outerValue) switch
@@ -91,32 +101,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             }
 
             throw new ExpressionNotSupportedException(expression);
-        }
-
-        private static bool IsInstanceCompareToMethod(MethodInfo method)
-        {
-            return
-                method.IsPublic &&
-                !method.IsStatic &&
-                method.ReturnType == typeof(int) &&
-                method.Name == "CompareTo" &&
-                method.GetParameters() is var parameters &&
-                parameters.Length == 1 &&
-                parameters[0].ParameterType is var parameterType &&
-                (parameterType == method.DeclaringType || parameterType == typeof(object));
-        }
-
-        private static bool IsStaticCompareMethod(MethodInfo method)
-        {
-            return
-                method.IsPublic &&
-                method.IsStatic &&
-                method.ReturnType == typeof(int) &&
-                method.Name == "Compare" &&
-                method.GetParameters() is var parameters &&
-                parameters.Length == 2 &&
-                parameters[0].ParameterType == method.DeclaringType &&
-                parameters[1].ParameterType == method.DeclaringType;
         }
     }
 }

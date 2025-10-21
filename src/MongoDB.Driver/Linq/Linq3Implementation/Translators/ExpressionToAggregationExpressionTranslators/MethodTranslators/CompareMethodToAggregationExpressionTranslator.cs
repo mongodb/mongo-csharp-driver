@@ -14,28 +14,58 @@
  */
 
 using System.Linq.Expressions;
+using System.Reflection;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
+using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
     internal static class CompareMethodToAggregationExpressionTranslator
     {
+        private static readonly MethodInfo[] __stringCompareMethods =
+        [
+            StringMethod.StaticCompare,
+            StringMethod.StaticCompareWithIgnoreCase
+        ];
+
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.Is(StringMethod.StaticCompare))
+            if (method.IsStaticCompareMethod() || method.IsInstanceCompareToMethod() || method.IsOneOf(__stringCompareMethods))
             {
-                var strAExpression = arguments[0];
-                var strBExpression = arguments[1];
+                Expression value1Expression;
+                Expression value2Expression;
+                if (method.IsStatic)
+                {
+                    value1Expression = arguments[0];
+                    value2Expression = arguments[1];
+                }
+                else
+                {
+                    value1Expression = expression.Object;
+                    value2Expression = arguments[0];
+                }
 
-                var strATranslation = ExpressionToAggregationExpressionTranslator.Translate(context, strAExpression);
-                var strBTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, strBExpression);
+                var value1Translation = ExpressionToAggregationExpressionTranslator.Translate(context, value1Expression);
+                var value2Translation = ExpressionToAggregationExpressionTranslator.Translate(context, value2Expression);
 
-                var ast = AstExpression.Cmp(strATranslation.Ast, strBTranslation.Ast);
+                AstExpression ast;
+                if (method.Is(StringMethod.StaticCompareWithIgnoreCase))
+                {
+                    var ignoreCaseExpression = arguments[2];
+                    var ignoreCase = ignoreCaseExpression.GetConstantValue<bool>(containingExpression: expression);
+                    ast = ignoreCase
+                        ? AstExpression.StrCaseCmp(value1Translation.Ast, value2Translation.Ast)
+                        : AstExpression.Cmp(value1Translation.Ast, value2Translation.Ast);
+                }
+                else
+                {
+                    ast = AstExpression.Cmp(value1Translation.Ast, value2Translation.Ast);
+                }
 
                 return new TranslatedExpression(expression, ast, Int32Serializer.Instance);
             }
