@@ -1692,9 +1692,58 @@ tasks:
             OCSP_ALGORITHM: "rsa"
             OCSP_TLS_SHOULD_SUCCEED: "false"
 
-    - name: test-smoke-tests
+    - name: test-smoke-tests-net472
+      depends_on:
+        - name: push-packages-myget
+          variant: ".push-packages-myget"
       commands:
         - func: configure-framework
+          vars:
+            FRAMEWORK: net472
+        - func: bootstrap-mongo-orchestration
+        - func: run-smoke-tests
+
+    - name: test-smoke-tests-netcoreapp31
+      depends_on:
+        - name: push-packages-myget
+          variant: ".push-packages-myget"
+      commands:
+        - func: configure-framework
+          vars:
+            FRAMEWORK: netcoreapp3.1
+        - func: bootstrap-mongo-orchestration
+        - func: run-smoke-tests
+
+    - name: test-smoke-tests-net50
+      depends_on:
+        - name: push-packages-myget
+          variant: ".push-packages-myget"
+      commands:
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net5.0
+        - func: bootstrap-mongo-orchestration
+        - func: run-smoke-tests
+
+    - name: test-smoke-tests-net60
+      depends_on:
+        - name: push-packages-myget
+          variant: ".push-packages-myget"
+      commands:
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net6.0
+        - func: bootstrap-mongo-orchestration
+        - func: run-smoke-tests
+
+    - name: test-smoke-tests-net80
+      depends_on:
+        - name: push-packages-myget
+          variant: ".push-packages-myget"
+      commands:
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net8.0
         - func: bootstrap-mongo-orchestration
         - func: run-smoke-tests
 
@@ -2065,25 +2114,6 @@ axes:
         display_name: net6.0
         variables:
           FRAMEWORK: net6.0
-
-  - id: runtime_framework
-    display_name: Runtime .net
-    values:
-      - id: "net472"
-        variables:
-          FRAMEWORK: net472
-      - id: "netcoreapp31"
-        variables:
-          FRAMEWORK: netcoreapp3.1
-      - id: "net50"
-        variables:
-          FRAMEWORK: net5.0
-      - id: "net60"
-        variables:
-          FRAMEWORK: net6.0
-      - id: "net80"
-        variables:
-          FRAMEWORK: net8.0
 
 task_groups:
   - name: testazurekms-task-group
@@ -2786,21 +2816,19 @@ buildvariants:
     ssl: "nossl"
     version: ["5.0", "6.0", "7.0", "8.0", "latest"]
     topology: ["replicaset"]
-    runtime_framework: "*"
-  exclude_spec:
-    # We do not support net472 for non-Windows platforms
-    - os: ["ubuntu-2004", "macos-14"]
-      ssl: "*"
-      version: "*"
-      topology: "*"
-      runtime_framework: "net472"
-  display_name: "smoke-tests ${version} on ${os} ${runtime_framework}"
+  display_name: "smoke-tests ${version} on ${os}"
   batchtime: 1440 # 1 day
   tasks:
-    - name: test-smoke-tests
-      depends_on:
-        - name: push-packages-myget
-          variant: ".push-packages-myget"
+    - name: test-smoke-tests-net472
+    - name: test-smoke-tests-netcoreapp31
+    - name: test-smoke-tests-net50
+    - name: test-smoke-tests-net60
+    - name: test-smoke-tests-net80
+  rules:
+    - if: { version: "*", topology: "*", ssl: "*", os: ["ubuntu-2004", "macos-14"] }
+      then:
+        remove_tasks:
+          - test-smoke-tests-net472 # net472 is supported on Windows only.
 
 # Package release variants
 - matrix_name: build-packages
