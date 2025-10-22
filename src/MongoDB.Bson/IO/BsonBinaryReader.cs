@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 
 namespace MongoDB.Bson.IO
 {
@@ -32,7 +31,7 @@ namespace MongoDB.Bson.IO
 #pragma warning restore CA2213 // Disposable never disposed
         private readonly BsonStream _bsonStream;
         private BsonBinaryReaderContext _context;
-        private readonly Stack<BsonBinaryReaderContext> _contexts = new(4);
+        private readonly Stack<BsonBinaryReaderContext> _contextStack = new(4);
 
         // constructors
         /// <summary>
@@ -113,7 +112,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         /// <returns>A bookmark.</returns>
         public override BsonReaderBookmark GetBookmark() =>
-            new BsonBinaryReaderBookmark(State, CurrentBsonType, CurrentName, _context, _contexts, _bsonStream.Position);
+            new BsonBinaryReaderBookmark(State, CurrentBsonType, CurrentName, _context, _contextStack, _bsonStream.Position);
 
         /// <summary>
         /// Determines whether this reader is at end of file.
@@ -673,7 +672,7 @@ namespace MongoDB.Bson.IO
             State = binaryReaderBookmark.State;
             CurrentBsonType = binaryReaderBookmark.CurrentBsonType;
             CurrentName = binaryReaderBookmark.CurrentName;
-            _context = binaryReaderBookmark.RestoreContext(_contexts);
+            _context = binaryReaderBookmark.RestoreContext(_contextStack);
             _bsonStream.Position = binaryReaderBookmark.Position;
         }
 
@@ -782,7 +781,7 @@ namespace MongoDB.Bson.IO
                 elementName = "?";
             }
 
-            return GenerateDottedElementName(_contexts.ToArray(), 0, elementName);
+            return GenerateDottedElementName(_contextStack.ToArray(), 0, elementName);
         }
 
         private string GenerateDottedElementName(BsonBinaryReaderContext[] contexts, int currentContextIndex, string elementName)
@@ -827,6 +826,23 @@ namespace MongoDB.Bson.IO
             }
         }
 
+        private void PopContext()
+        {
+            var actualSize = _bsonStream.Position - _context.StartPosition;
+            if (actualSize != _context.Size)
+            {
+                throw new FormatException($"Expected size to be {_context.Size}, not {actualSize}.");
+            }
+
+            _context =_contextStack.Pop();
+        }
+
+        private void PushContext(BsonBinaryReaderContext newContext)
+        {
+            _contextStack.Push(_context);
+            _context = newContext;
+        }
+
         private int ReadSize()
         {
             int size = _bsonStream.ReadInt32();
@@ -841,23 +857,6 @@ namespace MongoDB.Bson.IO
                 throw new FormatException(message);
             }
             return size;
-        }
-
-        private void PopContext()
-        {
-            var actualSize = _bsonStream.Position - _context.StartPosition;
-            if (actualSize != _context.Size)
-            {
-                throw new FormatException($"Expected size to be {_context.Size}, not {actualSize}.");
-            }
-
-            _context =_contexts.Pop();
-        }
-
-        private void PushContext(BsonBinaryReaderContext newContext)
-        {
-            _contexts.Push(_context);
-            _context = newContext;
         }
     }
 }

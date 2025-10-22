@@ -30,7 +30,7 @@ namespace MongoDB.Bson.IO
 #pragma warning restore CA2213 // Disposable never disposed
         private readonly BsonStream _bsonStream;
         private BsonBinaryWriterContext _context;
-        private readonly Stack<BsonBinaryWriterContext> _contexts = new(4);
+        private readonly Stack<BsonBinaryWriterContext> _contextStack = new(4);
 
         // constructors
         /// <summary>
@@ -717,6 +717,17 @@ namespace MongoDB.Bson.IO
             }
         }
 
+        private void PopContext()
+        {
+            _context = _contextStack.Pop();
+        }
+
+        private void PushContext(BsonBinaryWriterContext newContext)
+        {
+            _contextStack.Push(_context);
+            _context = newContext;
+        }
+
         private void WriteNameHelper()
         {
             if (_context.ContextType == ContextType.Array)
@@ -729,17 +740,6 @@ namespace MongoDB.Bson.IO
             {
                 _bsonStream.WriteCString(Name);
             }
-        }
-
-        private void PopContext()
-        {
-            _context = _contexts.Pop();
-        }
-
-        private void PushContext(BsonBinaryWriterContext newContext)
-        {
-            _contexts.Push(_context);
-            _context = newContext;
         }
     }
 }

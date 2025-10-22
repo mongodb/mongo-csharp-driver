@@ -30,12 +30,12 @@ public class BsonBinaryReaderBookmark : BsonReaderBookmark
         BsonType currentBsonType,
         string currentName,
         BsonBinaryReaderContext currentContext,
-        Stack<BsonBinaryReaderContext> contextsStack,
+        Stack<BsonBinaryReaderContext> contextStack,
         long position)
         : base(state, currentBsonType, currentName)
     {
         _context = currentContext;
-        _contextArray = contextsStack.ToArray();
+        _contextArray = contextStack.ToArray();
         _position = position;
     }
 
