@@ -145,6 +145,7 @@ def publish_release_notes(opts, title, content):
     if response.status_code != 404:
         raise SystemExit("Release with the tag already exists")
 
+    url = '{github_api_base_url}{repo}/releases/'.format(github_api_base_url=opts.github_api_base_url, repo=opts.repo)
     post_data = {
         "tag_name": opts.version_tag,
         "name": title,
