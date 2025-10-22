@@ -166,7 +166,7 @@ namespace MongoDB.Driver.Core.Connections
         private void Connect(Socket socket, EndPoint endPoint, CancellationToken cancellationToken)
         {
             IAsyncResult connectOperation;
-
+#if NET472
             if (endPoint is DnsEndPoint dnsEndPoint)
             {
                 // mono doesn't support DnsEndPoint in its BeginConnect method.
@@ -176,6 +176,9 @@ namespace MongoDB.Driver.Core.Connections
             {
                 connectOperation = socket.BeginConnect(endPoint, null, null);
             }
+#else
+            connectOperation = socket.BeginConnect(endPoint, null, null);
+#endif
 
             WaitHandle.WaitAny([connectOperation.AsyncWaitHandle, cancellationToken.WaitHandle], _settings.ConnectTimeout);
 
@@ -203,31 +206,38 @@ namespace MongoDB.Driver.Core.Connections
 
         private async Task ConnectAsync(Socket socket, EndPoint endPoint, CancellationToken cancellationToken)
         {
-            var timeoutTask = Task.Delay(_settings.ConnectTimeout, cancellationToken);
-            var connectTask = socket.ConnectAsync(endPoint);
-
-            await Task.WhenAny(connectTask, timeoutTask).ConfigureAwait(false);
-
-            if (!connectTask.IsCompleted)
+            Task connectTask;
+#if NET472
+            if (endPoint is DnsEndPoint dnsEndPoint)
+            {
+                // mono doesn't support DnsEndPoint in its ConnectAsync method.
+                connectTask = socket.ConnectAsync(dnsEndPoint.Host, dnsEndPoint.Port);
+            }
+            else
+            {
+                connectTask = socket.ConnectAsync(endPoint);
+            }
+#else
+            connectTask = socket.ConnectAsync(endPoint);
+#endif
+            try
+            {
+                await connectTask.WaitAsync(_settings.ConnectTimeout, cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex)
             {
                 try
                 {
                     socket.Dispose();
-                    // should await on the read task to avoid UnobservedTaskException
-                    await connectTask.ConfigureAwait(false);
-                } catch { }
+                    connectTask.IgnoreExceptions();
+                }
+                catch { }
 
-                cancellationToken.ThrowIfCancellationRequested();
-                throw new TimeoutException($"Timed out connecting to {endPoint}. Timeout was {_settings.ConnectTimeout}.");
-            }
+                if (ex is TimeoutException)
+                {
+                    throw new TimeoutException($"Timed out connecting to {endPoint}. Timeout was {_settings.ConnectTimeout}.");
+                }
 
-            try
-            {
-                await connectTask.ConfigureAwait(false);
-            }
-            catch
-            {
-                try { socket.Dispose(); } catch { }
                 throw;
             }
         }
