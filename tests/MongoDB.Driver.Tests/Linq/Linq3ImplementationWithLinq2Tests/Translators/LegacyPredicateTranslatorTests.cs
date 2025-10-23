@@ -1180,7 +1180,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
 
         private void Assert<TDocument>(Expression<Func<TDocument, bool>> expression, int expectedCount, string expectedFilter)
         {
-            expression = (Expression<Func<TDocument, bool>>)PartialEvaluator.EvaluatePartially(expression);
+            expression = (Expression<Func<TDocument, bool>>)LinqExpressionPreprocessor.Preprocess(expression);
 
             var parameter = expression.Parameters.Single();
             var serializer = BsonSerializer.LookupSerializer<TDocument>();
