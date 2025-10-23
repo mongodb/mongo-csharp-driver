@@ -37,8 +37,8 @@ public class CSharp1913Tests : LinqIntegrationTest<CSharp1913Tests.ClassFixture>
 
         var queryable = collection.AsQueryable()
             .OfType<C>()
-            .Where( to => to.Name == "TestName" )
-            .Select( to => to.DictionaryWithArrayOfArraysRepresentation.SelectMany(kvp => new KeyValuePair<string, string>[] { kvp }) );
+            .Where(to => to.Name == "TestName")
+            .Select(to => to.DictionaryWithArrayOfArraysRepresentation.SelectMany(kvp => new KeyValuePair<string, string>[] { kvp }));
 
         var stages = Translate(collection, queryable);
         AssertStages(
@@ -57,8 +57,8 @@ public class CSharp1913Tests : LinqIntegrationTest<CSharp1913Tests.ClassFixture>
 
         var queryable = collection.AsQueryable()
             .OfType<C>()
-            .Where( to => to.Name == "TestName" )
-            .Select( to => to.DictionaryWithArrayOfDocumentsRepresentation.SelectMany(kvp => new KeyValuePair<string, string>[] { kvp }) );
+            .Where(to => to.Name == "TestName")
+            .Select(to => to.DictionaryWithArrayOfDocumentsRepresentation.SelectMany(kvp => new KeyValuePair<string, string>[] { kvp }));
 
         var stages = Translate(collection, queryable);
         AssertStages(
@@ -77,8 +77,8 @@ public class CSharp1913Tests : LinqIntegrationTest<CSharp1913Tests.ClassFixture>
 
         var queryable = collection.AsQueryable()
             .OfType<C>()
-            .Where( to => to.Name == "TestName" )
-            .Select( to => to.DictionaryWithDocumentRepresentation.SelectMany(kvp => new KeyValuePair<string, string>[] { kvp }) );
+            .Where(to => to.Name == "TestName")
+            .Select(to => to.DictionaryWithDocumentRepresentation.SelectMany(kvp => new KeyValuePair<string, string>[] { kvp }));
 
         var stages = Translate(collection, queryable);
         AssertStages(
@@ -97,8 +97,8 @@ public class CSharp1913Tests : LinqIntegrationTest<CSharp1913Tests.ClassFixture>
 
         var queryable = collection.AsQueryable()
             .OfType<C>()
-            .Where( to => to.Name == "TestName" )
-            .SelectMany( to => to.DictionaryWithArrayOfArraysRepresentation );
+            .Where(to => to.Name == "TestName")
+            .SelectMany(to => to.DictionaryWithArrayOfArraysRepresentation);
 
         var stages = Translate(collection, queryable);
         AssertStages(
@@ -124,8 +124,8 @@ public class CSharp1913Tests : LinqIntegrationTest<CSharp1913Tests.ClassFixture>
 
         var queryable = collection.AsQueryable()
             .OfType<C>()
-            .Where( to => to.Name == "TestName" )
-            .SelectMany( to => to.DictionaryWithArrayOfDocumentsRepresentation );
+            .Where(to => to.Name == "TestName")
+            .SelectMany(to => to.DictionaryWithArrayOfDocumentsRepresentation);
 
         var stages = Translate(collection, queryable);
         AssertStages(
@@ -151,8 +151,8 @@ public class CSharp1913Tests : LinqIntegrationTest<CSharp1913Tests.ClassFixture>
 
         var queryable = collection.AsQueryable()
             .OfType<C>()
-            .Where( to => to.Name == "TestName" )
-            .SelectMany( to => to.DictionaryWithDocumentRepresentation);
+            .Where(to => to.Name == "TestName")
+            .SelectMany(to => to.DictionaryWithDocumentRepresentation);
 
         var stages = Translate(collection, queryable);
         AssertStages(
@@ -176,14 +176,14 @@ public class CSharp1913Tests : LinqIntegrationTest<CSharp1913Tests.ClassFixture>
         public int Id {  get; set; }
         public string Name {get;set;}
 
-        [BsonDictionaryOptions( DictionaryRepresentation.ArrayOfArrays )]
+        [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfArrays)]
         public Dictionary<string,string> DictionaryWithArrayOfArraysRepresentation { get; set; } = new Dictionary<string, string>();
 
 
-        [BsonDictionaryOptions( DictionaryRepresentation.ArrayOfDocuments )]
+        [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfDocuments)]
         public Dictionary<string,string> DictionaryWithArrayOfDocumentsRepresentation { get; set; } = new Dictionary<string, string>();
 
-        [BsonDictionaryOptions( DictionaryRepresentation.Document )]
+        [BsonDictionaryOptions(DictionaryRepresentation.Document)]
         public Dictionary<string,string> DictionaryWithDocumentRepresentation { get; set; } = new Dictionary<string, string>();
     }
 
