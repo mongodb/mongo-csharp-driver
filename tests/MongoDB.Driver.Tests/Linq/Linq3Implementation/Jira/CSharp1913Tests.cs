@@ -31,7 +31,67 @@ public class CSharp1913Tests : LinqIntegrationTest<CSharp1913Tests.ClassFixture>
     }
 
     [Fact]
-    public void SelectMany_with_ArrayOfArrays_representation_should_work()
+    public void Nested__SelectMany_with_ArrayOfArrays_representation_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .OfType<C>()
+            .Where( to => to.Name == "TestName" )
+            .Select( to => to.DictionaryWithArrayOfArraysRepresentation.SelectMany(kvp => new KeyValuePair<string, string>[] { kvp }) );
+
+        var stages = Translate(collection, queryable);
+        AssertStages(
+            stages,
+            "{ $match : { Name : 'TestName' } }",
+            "{ $project : { _v : { $reduce : { input : { $map : { input : '$DictionaryWithArrayOfArraysRepresentation', as : 'kvp', in : ['$$kvp'] } }, initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } } }, _id : 0 } }");
+
+        var result = queryable.Single();
+        result.Select(kvp => kvp.Key).Should().Equal("A", "B", "C");
+    }
+
+    [Fact]
+    public void Nested__SelectMany_with_ArrayOfDocuments_representation_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .OfType<C>()
+            .Where( to => to.Name == "TestName" )
+            .Select( to => to.DictionaryWithArrayOfDocumentsRepresentation.SelectMany(kvp => new KeyValuePair<string, string>[] { kvp }) );
+
+        var stages = Translate(collection, queryable);
+        AssertStages(
+            stages,
+            "{ $match : { Name : 'TestName' } }",
+            "{ $project : { _v : { $reduce : { input : { $map : { input : '$DictionaryWithArrayOfDocumentsRepresentation', as : 'kvp', in : ['$$kvp'] } }, initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } } }, _id : 0 } }");
+
+        var result = queryable.Single();
+        result.Select(kvp => kvp.Key).Should().Equal("A", "B", "C");
+    }
+
+    [Fact]
+    public void Nested_SelectMany_with_Document_representation_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .OfType<C>()
+            .Where( to => to.Name == "TestName" )
+            .Select( to => to.DictionaryWithDocumentRepresentation.SelectMany(kvp => new KeyValuePair<string, string>[] { kvp }) );
+
+        var stages = Translate(collection, queryable);
+        AssertStages(
+            stages,
+            "{ $match : { Name : 'TestName' } }",
+            "{ $project : { _v : { $reduce : { input : { $map : { input : { $objectToArray : '$DictionaryWithDocumentRepresentation' }, as : 'kvp', in : ['$$kvp'] } }, initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } } }, _id : 0 } }");
+
+        var result = queryable.Single();
+        result.Select(kvp => kvp.Key).Should().Equal("A", "B", "C");
+    }
+
+    [Fact]
+    public void Top_level_SelectMany_with_ArrayOfArrays_representation_should_work()
     {
         var collection = Fixture.Collection;
 
@@ -58,7 +118,7 @@ public class CSharp1913Tests : LinqIntegrationTest<CSharp1913Tests.ClassFixture>
     }
 
     [Fact]
-    public void SelectMany_with_ArrayOfDocuments_representation_should_work()
+    public void Top_level_SelectMany_with_ArrayOfDocuments_representation_should_work()
     {
         var collection = Fixture.Collection;
 
@@ -85,7 +145,7 @@ public class CSharp1913Tests : LinqIntegrationTest<CSharp1913Tests.ClassFixture>
     }
 
     [Fact]
-    public void SelectMany_with_Document_representation_should_work()
+    public void Top_level_SelectMany_with_Document_representation_should_work()
     {
         var collection = Fixture.Collection;
 
