@@ -179,7 +179,6 @@ public class CSharp1913Tests : LinqIntegrationTest<CSharp1913Tests.ClassFixture>
         [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfArrays)]
         public Dictionary<string,string> DictionaryWithArrayOfArraysRepresentation { get; set; } = new Dictionary<string, string>();
 
-
         [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfDocuments)]
         public Dictionary<string,string> DictionaryWithArrayOfDocumentsRepresentation { get; set; } = new Dictionary<string, string>();
 
