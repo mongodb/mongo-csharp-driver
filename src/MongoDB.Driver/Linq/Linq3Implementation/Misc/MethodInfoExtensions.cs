@@ -13,6 +13,8 @@
 * limitations under the License.
 */
 
+using System;
+using System.Linq;
 using System.Reflection;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
@@ -40,15 +42,26 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 
         public static bool IsInstanceCompareToMethod(this MethodInfo method)
         {
-            return
-                method.IsPublic &&
+            if (method.IsPublic &&
                 !method.IsStatic &&
                 method.ReturnType == typeof(int) &&
                 method.Name == "CompareTo" &&
                 method.GetParameters() is var parameters &&
-                parameters.Length == 1 &&
-                parameters[0].ParameterType is var parameterType &&
-                (parameterType == method.DeclaringType || parameterType == typeof(object));
+                parameters.Length == 1)
+            {
+                var declaringType = method.DeclaringType;
+                var comparandType = declaringType switch
+                {
+                    _ when declaringType == typeof(IComparable) => typeof(object),
+                    _ when declaringType.IsConstructedGenericType && declaringType.GetGenericTypeDefinition() == typeof(IComparable<>) => declaringType.GetGenericArguments().Single(),
+                    _ => declaringType
+                };
+
+                var parameterType = parameters[0].ParameterType;
+                return parameterType == comparandType;
+            }
+
+            return false;
         }
 
         public static bool IsOneOf(this MethodInfo method, MethodInfo comparand1, MethodInfo comparand2)
