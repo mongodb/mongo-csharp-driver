@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 switch (dictionaryRepresentation)
                 {
                     case DictionaryRepresentation.Document:
-                        var key = GetKeyStringConstant(expression, keyExpression, dictionarySerializer.KeySerializer);
+                        var key = GetKeyStringConstant(context.SerializationDomain, expression, keyExpression, dictionarySerializer.KeySerializer);
                         var keyField = fieldTranslation.Ast.SubField(key);
                         return AstFilter.Exists(keyField);
 
@@ -65,12 +65,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             throw new ExpressionNotSupportedException(expression, because: $"class {field.Serializer.GetType().FullName} does not implement the IBsonDictionarySerializer interface");
         }
 
-        private static string GetKeyStringConstant(Expression expression, Expression keyExpression, IBsonSerializer keySerializer)
+        private static string GetKeyStringConstant(IBsonSerializationDomain serializationDomain, Expression expression, Expression keyExpression, IBsonSerializer keySerializer)
         {
             if (keyExpression is ConstantExpression keyConstantExpression)
             {
                 var keyValue = keyConstantExpression.Value;
-                var serializedKeyValue = SerializationHelper.SerializeValue(keySerializer, keyValue);
+                var serializedKeyValue = SerializationHelper.SerializeValue(serializationDomain, keySerializer, keyValue);
                 if (serializedKeyValue.BsonType == BsonType.String)
                 {
                     return serializedKeyValue.AsString;

@@ -1,4 +1,4 @@
-/* Copyright 2010-present MongoDB Inc.
+/* Copyright 2013-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 using System;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
@@ -31,16 +32,29 @@ namespace MongoDB.Driver.Core.Operations
         private bool? _dropTarget;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly CollectionNamespace _newCollectionNamespace;
+        private readonly IBsonSerializationDomain _serializationDomain;
         private WriteConcern _writeConcern;
 
         public RenameCollectionOperation(
             CollectionNamespace collectionNamespace,
             CollectionNamespace newCollectionNamespace,
-            MessageEncoderSettings messageEncoderSettings)
+            MessageEncoderSettings messageEncoderSettings,
+            IBsonSerializationDomain serializationDomain)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
             _newCollectionNamespace = Ensure.IsNotNull(newCollectionNamespace, nameof(newCollectionNamespace));
             _messageEncoderSettings = messageEncoderSettings;
+            _serializationDomain = Ensure.IsNotNull(serializationDomain, nameof(serializationDomain));
+        }
+
+        //EXIT
+        public RenameCollectionOperation(
+            CollectionNamespace collectionNamespace,
+            CollectionNamespace newCollectionNamespace,
+            MessageEncoderSettings messageEncoderSettings)
+            : this(collectionNamespace, newCollectionNamespace, messageEncoderSettings,
+                BsonSerializer.DefaultSerializationDomain)
+        {
         }
 
         public CollectionNamespace CollectionNamespace
@@ -115,7 +129,7 @@ namespace MongoDB.Driver.Core.Operations
         private WriteCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription)
         {
             var command = CreateCommand(operationContext, session, connectionDescription);
-            return new WriteCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            return new WriteCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, _messageEncoderSettings, _serializationDomain);
         }
     }
 }

@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 {
                     var serializer = symbol.Serializer;
                     var field = AstFilter.Field(symbol.Name);
-                    var serializedTrue = SerializationHelper.SerializeValue(serializer, true);
+                    var serializedTrue = SerializationHelper.SerializeValue(context.SerializationDomain, serializer, true);
                     return AstFilter.Eq(field, serializedTrue);
                 }
             }

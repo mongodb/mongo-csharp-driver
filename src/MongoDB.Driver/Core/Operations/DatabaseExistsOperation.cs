@@ -15,6 +15,7 @@
 
 using System.Linq;
 using System.Threading.Tasks;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -26,12 +27,21 @@ namespace MongoDB.Driver.Core.Operations
         private DatabaseNamespace _databaseNamespace;
         private MessageEncoderSettings _messageEncoderSettings;
         private bool _retryRequested;
+        private IBsonSerializationDomain _serializationDomain;
 
-        public DatabaseExistsOperation(DatabaseNamespace databaseNamespace, MessageEncoderSettings messageEncoderSettings)
+        public DatabaseExistsOperation(DatabaseNamespace databaseNamespace, MessageEncoderSettings messageEncoderSettings, IBsonSerializationDomain serializationDomain)
         {
             _databaseNamespace = Ensure.IsNotNull(databaseNamespace, nameof(databaseNamespace));
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
+            _serializationDomain = Ensure.IsNotNull(serializationDomain, nameof(serializationDomain));
         }
+
+        // EXIT
+        public DatabaseExistsOperation(DatabaseNamespace databaseNamespace, MessageEncoderSettings messageEncoderSettings)
+            : this(databaseNamespace, messageEncoderSettings, BsonSerializer.DefaultSerializationDomain)
+        {
+        }
+
 
         public DatabaseNamespace DatabaseNamespace
         {
@@ -71,7 +81,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private ListDatabasesOperation CreateOperation()
         {
-            return new ListDatabasesOperation(_messageEncoderSettings)
+            return new ListDatabasesOperation(_messageEncoderSettings, _serializationDomain)
             {
                 RetryRequested = _retryRequested
             };

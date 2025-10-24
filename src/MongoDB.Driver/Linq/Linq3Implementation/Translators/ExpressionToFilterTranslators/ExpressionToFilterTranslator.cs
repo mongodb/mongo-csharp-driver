@@ -120,7 +120,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             if (expression.Type == typeof(bool))
             {
                 var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, expression);
-                var serializedTrue = SerializationHelper.SerializeValue(fieldTranslation.Serializer, true);
+                var serializedTrue = SerializationHelper.SerializeValue(context.SerializationDomain, fieldTranslation.Serializer, true);
                 return AstFilter.Eq(fieldTranslation.Ast, serializedTrue);
             }
 

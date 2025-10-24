@@ -1644,7 +1644,7 @@ namespace MongoDB.Driver
         public override RenderedPipelineDefinition<TOutput> Render(RenderArgs<TInput> args)
         {
             var renderedPipeline = _pipeline.Render(args);
-            var renderedStage = _stage.Render(new(renderedPipeline.OutputSerializer, args.SerializerRegistry, translationOptions: args.TranslationOptions));
+            var renderedStage = _stage.Render(new(renderedPipeline.OutputSerializer, args.SerializationDomain, translationOptions: args.TranslationOptions));
             var documents = renderedPipeline.Documents.Concat(renderedStage.Documents);
             var outputSerializer = _outputSerializer ?? renderedStage.OutputSerializer;
             return new RenderedPipelineDefinition<TOutput>(documents, outputSerializer);
@@ -1720,7 +1720,7 @@ namespace MongoDB.Driver
         public override RenderedPipelineDefinition<TOutput> Render(RenderArgs<TInput> args)
         {
             var renderedStage = _stage.Render(args);
-            var renderedPipeline = _pipeline.Render(new(renderedStage.OutputSerializer, args.SerializerRegistry, translationOptions: args.TranslationOptions));
+            var renderedPipeline = _pipeline.Render(new(renderedStage.OutputSerializer, args.SerializationDomain, translationOptions: args.TranslationOptions));
             var documents = renderedStage.Documents.Concat(renderedPipeline.Documents);
             var outputSerializer = _outputSerializer ?? renderedPipeline.OutputSerializer;
             return new RenderedPipelineDefinition<TOutput>(documents, outputSerializer);

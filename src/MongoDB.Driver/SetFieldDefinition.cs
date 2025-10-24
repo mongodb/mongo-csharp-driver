@@ -61,7 +61,7 @@ namespace MongoDB.Driver
         public override BsonElement Render(RenderArgs<TDocument> args)
         {
             var renderedField = _field.Render(args);
-            var serializedValue = SerializationHelper.SerializeValue(renderedField.ValueSerializer, _value);
+            var serializedValue = SerializationHelper.SerializeValue(args.SerializationDomain, renderedField.ValueSerializer, _value);
 
             return new BsonElement(renderedField.FieldName, serializedValue);
         }

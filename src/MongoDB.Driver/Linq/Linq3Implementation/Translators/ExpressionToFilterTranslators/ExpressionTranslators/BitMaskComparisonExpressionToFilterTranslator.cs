@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 
                 var bitMaskExpression = leftBinaryExpression.Right;
                 var bitMask = bitMaskExpression.GetConstantValue<object>(containingExpression: expression);
-                var serializedBitMask = SerializationHelper.SerializeValue(fieldTranslation.Serializer, bitMask);
+                var serializedBitMask = SerializationHelper.SerializeValue(context.SerializationDomain, fieldTranslation.Serializer, bitMask);
 
                 var rightValue = rightExpression.GetConstantValue<object>(containingExpression: expression);
                 var zeroValue = Activator.CreateInstance(bitMask.GetType());

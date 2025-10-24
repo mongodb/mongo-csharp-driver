@@ -25,10 +25,13 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 {
     internal sealed class QueryMessageBinaryEncoder : MessageBinaryEncoderBase, IMessageEncoder
     {
+        private readonly IBsonSerializationDomain _serializationDomain;
+
         // constructors
         public QueryMessageBinaryEncoder(Stream stream, MessageEncoderSettings encoderSettings)
             : base(stream, encoderSettings)
         {
+            _serializationDomain = encoderSettings?.GetOrDefault<IBsonSerializationDomain>(MessageEncoderSettingsName.SerializationDomain, null) ?? BsonSerializer.DefaultSerializationDomain;
         }
 
         // methods
@@ -85,7 +88,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             var fullCollectionName = stream.ReadCString(Encoding);
             var skip = stream.ReadInt32();
             var batchSize = stream.ReadInt32();
-            var context = BsonDeserializationContext.CreateRoot(binaryReader);
+            var context = BsonDeserializationContext.CreateRoot(binaryReader, SerializationDomain);
             var query = serializer.Deserialize(context);
             BsonDocument fields = null;
             if (stream.Position < startPosition + messageSize)
@@ -156,7 +159,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         {
             if (fields != null)
             {
-                var context = BsonSerializationContext.CreateRoot(binaryWriter);
+                var context = BsonSerializationContext.CreateRoot(binaryWriter, BsonSerializer.DefaultSerializationDomain);
                 BsonDocumentSerializer.Instance.Serialize(context, fields);
             }
         }
@@ -169,7 +172,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             binaryWriter.PushElementNameValidator(queryValidator);
             try
             {
-                var context = BsonSerializationContext.CreateRoot(binaryWriter);
+                var context = BsonSerializationContext.CreateRoot(binaryWriter, _serializationDomain);
                 BsonDocumentSerializer.Instance.Serialize(context, query ?? new BsonDocument());
             }
             finally

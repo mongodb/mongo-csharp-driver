@@ -13,20 +13,21 @@
 * limitations under the License.
 */
 
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver
 {
     internal static class BsonSerializerExtensions
     {
-        public static object SetDocumentIdIfMissing<TDocument>(this IBsonSerializer<TDocument> serializer, object container, TDocument document)
+        public static object SetDocumentIdIfMissing<TDocument>(this IBsonSerializer<TDocument> serializer, object container, TDocument document, IBsonSerializationDomain serializationDomain)
         {
             var idProvider = serializer as IBsonIdProvider;
             if (idProvider != null)
             {
                 object id;
                 IIdGenerator idGenerator;
-                if (idProvider.GetDocumentId(document, out id, out _, out idGenerator))
+                if (idProvider.GetDocumentIdInternal(document, serializationDomain, out id, out _, out idGenerator))
                 {
                     if (idGenerator != null && idGenerator.IsEmpty(id))
                     {
