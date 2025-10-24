@@ -16,7 +16,9 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
@@ -95,15 +97,28 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         {
             var aggregateExpression = Translate(context, expression);
 
-            var serializer = aggregateExpression.Serializer;
-            if (serializer is IWrappedEnumerableSerializer wrappedEnumerableSerializer)
+            if (aggregateExpression.Serializer is IWrappedEnumerableSerializer wrappedEnumerableSerializer)
             {
                 var enumerableFieldName = wrappedEnumerableSerializer.EnumerableFieldName;
                 var enumerableElementSerializer = wrappedEnumerableSerializer.EnumerableElementSerializer;
-                var enumerableSerializer = IEnumerableSerializer.Create(enumerableElementSerializer);
-                var ast = AstExpression.GetField(aggregateExpression.Ast, enumerableFieldName);
 
-                return new TranslatedExpression(aggregateExpression.Expression, ast, enumerableSerializer);
+                var ast = AstExpression.GetField(aggregateExpression.Ast, enumerableFieldName);
+                var ienumerableSerializer = IEnumerableSerializer.Create(enumerableElementSerializer);
+
+                aggregateExpression = new TranslatedExpression(expression, ast, ienumerableSerializer);
+            }
+
+            if (aggregateExpression.Serializer is IBsonDictionarySerializer dictionarySerializer &&
+                dictionarySerializer.DictionaryRepresentation == DictionaryRepresentation.Document)
+            {
+                var keySerializer = dictionarySerializer.KeySerializer;
+                var valueSerializer = dictionarySerializer.ValueSerializer;
+                var keyValuePairSerializer = KeyValuePairSerializer.Create(BsonType.Document, keySerializer, valueSerializer);
+
+                var ast  = AstExpression.ObjectToArray(aggregateExpression.Ast);
+                var ienumerableSerializer = ArraySerializerHelper.CreateSerializer(keyValuePairSerializer);
+
+                aggregateExpression = new TranslatedExpression(expression, ast, ienumerableSerializer);
             }
 
             return aggregateExpression;
