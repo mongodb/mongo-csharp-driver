@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 
@@ -30,6 +31,7 @@ namespace MongoDB.Bson.IO
 #pragma warning restore CA2213 // Disposable never disposed
         private readonly BsonStream _bsonStream;
         private BsonBinaryReaderContext _context;
+        private readonly Stack<BsonBinaryReaderContext> _contextStack = new(4);
 
         // constructors
         /// <summary>
@@ -61,7 +63,7 @@ namespace MongoDB.Bson.IO
             _baseStream = stream;
             _bsonStream = (stream as BsonStream) ?? new BsonStreamAdapter(stream);
 
-            _context = new BsonBinaryReaderContext(null, ContextType.TopLevel, 0, 0);
+            _context = new BsonBinaryReaderContext(ContextType.TopLevel, 0, 0);
         }
 
         // public properties
@@ -109,10 +111,8 @@ namespace MongoDB.Bson.IO
         /// Gets a bookmark to the reader's current position and state.
         /// </summary>
         /// <returns>A bookmark.</returns>
-        public override BsonReaderBookmark GetBookmark()
-        {
-            return new BsonBinaryReaderBookmark(State, CurrentBsonType, CurrentName, _context, _bsonStream.Position);
-        }
+        public override BsonReaderBookmark GetBookmark() =>
+            new BsonBinaryReaderBookmark(State, CurrentBsonType, CurrentName, _context, _contextStack, _bsonStream.Position);
 
         /// <summary>
         /// Determines whether this reader is at end of file.
@@ -201,12 +201,11 @@ namespace MongoDB.Bson.IO
 
             if (_context.ContextType == ContextType.Array)
             {
-                _context.CurrentArrayIndex++;
+                _context.ArrayIndex++;
             }
 
             try
             {
-
                 CurrentBsonType = _bsonStream.ReadBsonType();
             }
             catch (FormatException ex)
@@ -342,7 +341,8 @@ namespace MongoDB.Bson.IO
                 ThrowInvalidState("ReadEndArray", BsonReaderState.EndOfArray);
             }
 
-            _context = _context.PopContext(_bsonStream.Position);
+            PopContext();
+
             switch (_context.ContextType)
             {
                 case ContextType.Array: State = BsonReaderState.Type; break;
@@ -371,10 +371,10 @@ namespace MongoDB.Bson.IO
                 ThrowInvalidState("ReadEndDocument", BsonReaderState.EndOfDocument);
             }
 
-            _context = _context.PopContext(_bsonStream.Position);
+            PopContext();
             if (_context.ContextType == ContextType.JavaScriptWithScope)
             {
-                _context = _context.PopContext(_bsonStream.Position); // JavaScriptWithScope
+                PopContext(); // JavaScriptWithScope
             }
             switch (_context.ContextType)
             {
@@ -432,7 +432,9 @@ namespace MongoDB.Bson.IO
 
             var startPosition = _bsonStream.Position; // position of size field
             var size = ReadSize();
-            _context = new BsonBinaryReaderContext(_context, ContextType.JavaScriptWithScope, startPosition, size);
+
+            PushContext(new(ContextType.JavaScriptWithScope, startPosition, size));
+
             var code = _bsonStream.ReadString(Settings.Encoding);
 
             State = BsonReaderState.ScopeDocument;
@@ -486,7 +488,7 @@ namespace MongoDB.Bson.IO
 
             if (_context.ContextType == ContextType.Document)
             {
-                _context.CurrentElementName = CurrentName;
+                _context.ElementName = CurrentName;
             }
 
             return CurrentName;
@@ -553,7 +555,7 @@ namespace MongoDB.Bson.IO
 
             if (_context.ContextType == ContextType.JavaScriptWithScope)
             {
-                _context = _context.PopContext(_bsonStream.Position); // JavaScriptWithScope
+                PopContext(); // JavaScriptWithScope
             }
             switch (_context.ContextType)
             {
@@ -590,7 +592,9 @@ namespace MongoDB.Bson.IO
 
             var startPosition = _bsonStream.Position; // position of size field
             var size = ReadSize();
-            _context = new BsonBinaryReaderContext(_context, ContextType.Array, startPosition, size);
+
+            PushContext(new(ContextType.Array, startPosition, size));
+
             State = BsonReaderState.Type;
         }
 
@@ -605,7 +609,9 @@ namespace MongoDB.Bson.IO
             var contextType = (State == BsonReaderState.ScopeDocument) ? ContextType.ScopeDocument : ContextType.Document;
             var startPosition = _bsonStream.Position; // position of size field
             var size = ReadSize();
-            _context = new BsonBinaryReaderContext(_context, contextType, startPosition, size);
+
+            PushContext(new(contextType, startPosition, size));
+
             State = BsonReaderState.Type;
         }
 
@@ -662,10 +668,11 @@ namespace MongoDB.Bson.IO
         public override void ReturnToBookmark(BsonReaderBookmark bookmark)
         {
             var binaryReaderBookmark = (BsonBinaryReaderBookmark)bookmark;
+
             State = binaryReaderBookmark.State;
             CurrentBsonType = binaryReaderBookmark.CurrentBsonType;
             CurrentName = binaryReaderBookmark.CurrentName;
-            _context = binaryReaderBookmark.CloneContext();
+            _context = binaryReaderBookmark.RestoreContext(_contextStack);
             _bsonStream.Position = binaryReaderBookmark.Position;
         }
 
@@ -686,7 +693,7 @@ namespace MongoDB.Bson.IO
 
             if (_context.ContextType == ContextType.Document)
             {
-                _context.CurrentElementName = CurrentName;
+                _context.ElementName = CurrentName;
             }
         }
 
@@ -745,7 +752,7 @@ namespace MongoDB.Bson.IO
                 {
                     Close();
                 }
-                catch { } // ignore exceptions
+                catch { /* ignore exceptions */ }
             }
             base.Dispose(disposing);
         }
@@ -767,35 +774,41 @@ namespace MongoDB.Bson.IO
             }
             else if (_context.ContextType == ContextType.Array)
             {
-                elementName = _context.CurrentArrayIndex.ToString(NumberFormatInfo.InvariantInfo);
+                elementName = _context.ArrayIndex.ToString(NumberFormatInfo.InvariantInfo);
             }
             else
             {
                 elementName = "?";
             }
 
-            return GenerateDottedElementName(_context.ParentContext, elementName);
+            return GenerateDottedElementName(_contextStack.ToArray(), 0, elementName);
         }
 
-        private string GenerateDottedElementName(BsonBinaryReaderContext context, string elementName)
+        private string GenerateDottedElementName(BsonBinaryReaderContext[] contexts, int currentContextIndex, string elementName)
         {
+            if (currentContextIndex >= contexts.Length)
+                return elementName;
+
+            var context = contexts[currentContextIndex];
+            var nextIndex = currentContextIndex + 1;
+
             if (context.ContextType == ContextType.Document)
             {
-                return GenerateDottedElementName(context.ParentContext, (context.CurrentElementName ?? "?") + "." + elementName);
+                return GenerateDottedElementName(contexts,  nextIndex, (context.ElementName ?? "?") + "." + elementName);
             }
-            else if (context.ContextType == ContextType.Array)
+
+            if (context.ContextType == ContextType.Array)
             {
-                var indexElementName = context.CurrentArrayIndex.ToString(NumberFormatInfo.InvariantInfo);
-                return GenerateDottedElementName(context.ParentContext, indexElementName + "." + elementName);
+                var indexElementName = context.ArrayIndex.ToString(NumberFormatInfo.InvariantInfo);
+                return GenerateDottedElementName(contexts,  nextIndex, indexElementName + "." + elementName);
             }
-            else if (context.ParentContext != null)
+
+            if (nextIndex < contexts.Length)
             {
-                return GenerateDottedElementName(context.ParentContext, "?." + elementName);
+                return GenerateDottedElementName(contexts, nextIndex, "?." + elementName);
             }
-            else
-            {
-                return elementName;
-            }
+
+            return elementName;
         }
 
         private BsonReaderState GetNextState()
@@ -811,6 +824,23 @@ namespace MongoDB.Bson.IO
                 default:
                     throw new BsonInternalException("Unexpected ContextType.");
             }
+        }
+
+        private void PopContext()
+        {
+            var actualSize = _bsonStream.Position - _context.StartPosition;
+            if (actualSize != _context.Size)
+            {
+                throw new FormatException($"Expected size to be {_context.Size}, not {actualSize}.");
+            }
+
+            _context =_contextStack.Pop();
+        }
+
+        private void PushContext(BsonBinaryReaderContext newContext)
+        {
+            _contextStack.Push(_context);
+            _context = newContext;
         }
 
         private int ReadSize()
