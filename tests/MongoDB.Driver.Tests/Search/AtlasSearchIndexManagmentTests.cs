@@ -259,7 +259,7 @@ namespace MongoDB.Driver.Tests.Search
         {
             var indexName = async ? "test-index-vector-optional-async" : "test-index-vector-optional";
 
-            var indexModel = new CreateVectorIndexModel<EntityWithVector>(
+            var indexModel = new CreateVectorSearchIndexModel<EntityWithVector>(
                 e => e.Floats, indexName, VectorSimilarity.Cosine, dimensions: 2)
             {
                 HnswMaxEdges = 18, HnswNumEdgeCandidates = 102, Quantization = VectorQuantization.Scalar
@@ -295,7 +295,7 @@ namespace MongoDB.Driver.Tests.Search
         {
             var indexName = async ? "test-index-vector-required-async" : "test-index-vector-required";
 
-            var indexModel = new CreateVectorIndexModel<EntityWithVector>("vectors", indexName, VectorSimilarity.Euclidean, dimensions: 4);
+            var indexModel = new CreateVectorSearchIndexModel<EntityWithVector>("vectors", indexName, VectorSimilarity.Euclidean, dimensions: 4);
 
             var collection = _database.GetCollection<EntityWithVector>(_collection.CollectionNamespace.CollectionName);
             var createdName = async
@@ -327,7 +327,7 @@ namespace MongoDB.Driver.Tests.Search
         {
             var indexName = async ? "test-index-vector-typed-filters-async" : "test-index-typed-filters";
 
-            var indexModel = new CreateVectorIndexModel<EntityWithVector>(
+            var indexModel = new CreateVectorSearchIndexModel<EntityWithVector>(
                 e => e.Floats,
                 indexName,
                 VectorSimilarity.Cosine,
@@ -376,7 +376,7 @@ namespace MongoDB.Driver.Tests.Search
         {
             var indexName = async ? "test-index-untyped-filters-async" : "test-index-untyped-filters";
 
-            var indexModel = new CreateVectorIndexModel<EntityWithVector>(
+            var indexModel = new CreateVectorSearchIndexModel<EntityWithVector>(
                 "vectors",
                 indexName,
                 VectorSimilarity.Euclidean,

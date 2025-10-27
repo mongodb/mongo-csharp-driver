@@ -1752,8 +1752,8 @@ namespace MongoDB.Driver
                         => new CreateSearchIndexRequest(
                             model.Name,
                             model.Type,
-                            model is CreateVectorIndexModel<TDocument> createVectorIndexModel
-                                ? createVectorIndexModel.Render(renderArgs)
+                            model is CreateVectorSearchIndexModel<TDocument> createVectorSearchIndexModel
+                                ? createVectorSearchIndexModel.Render(renderArgs)
                                 : model.Definition)),
                     _collection._messageEncoderSettings);
             }

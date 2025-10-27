@@ -24,7 +24,7 @@ namespace MongoDB.Driver;
 /// <summary>
 /// Defines a vector index model using strongly-typed C# APIs.
 /// </summary>
-public sealed class CreateVectorIndexModel<TDocument> : CreateSearchIndexModel
+public sealed class CreateVectorSearchIndexModel<TDocument> : CreateSearchIndexModel
 {
     /// <summary>
     /// The field containing the vectors to index.
@@ -62,7 +62,7 @@ public sealed class CreateVectorIndexModel<TDocument> : CreateSearchIndexModel
     public int? HnswNumEdgeCandidates { get; init; }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="CreateVectorIndexModel{TDocument}"/> class, passing the
+    /// Initializes a new instance of the <see cref="CreateVectorSearchIndexModel{TDocument}"/> class, passing the
     /// required options for <see cref="VectorSimilarity"/> and the number of vector dimensions to the constructor.
     /// </summary>
     /// <param name="name">The index name.</param>
@@ -70,7 +70,7 @@ public sealed class CreateVectorIndexModel<TDocument> : CreateSearchIndexModel
     /// <param name="similarity">The <see cref="VectorSimilarity"/> to use to search for top K-nearest neighbors.</param>
     /// <param name="dimensions">Number of vector dimensions that vector search enforces at index-time and query-time.</param>
     /// <param name="filterFields">Fields that may be used as filters in the vector query.</param>
-    public CreateVectorIndexModel(
+    public CreateVectorSearchIndexModel(
         FieldDefinition<TDocument> field,
         string name,
         VectorSimilarity similarity,
@@ -85,7 +85,7 @@ public sealed class CreateVectorIndexModel<TDocument> : CreateSearchIndexModel
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="CreateVectorIndexModel{TDocument}"/> class, passing the
+    /// Initializes a new instance of the <see cref="CreateVectorSearchIndexModel{TDocument}"/> class, passing the
     /// required options for <see cref="VectorSimilarity"/> and the number of vector dimensions to the constructor.
     /// </summary>
     /// <param name="name">The index name.</param>
@@ -93,7 +93,7 @@ public sealed class CreateVectorIndexModel<TDocument> : CreateSearchIndexModel
     /// <param name="similarity">The <see cref="VectorSimilarity"/> to use to search for top K-nearest neighbors.</param>
     /// <param name="dimensions">Number of vector dimensions that vector search enforces at index-time and query-time.</param>
     /// <param name="filterFields">Expressions pointing to fields that may be used as filters in the vector query.</param>
-    public CreateVectorIndexModel(
+    public CreateVectorSearchIndexModel(
         Expression<Func<TDocument, object>> field,
         string name,
         VectorSimilarity similarity,
@@ -160,6 +160,6 @@ public sealed class CreateVectorIndexModel<TDocument> : CreateSearchIndexModel
             }
         }
 
-        return new BsonDocument { { "fields", BsonArray.Create(fieldDocuments) } };
+        return new BsonDocument { { "fields", new BsonArray(fieldDocuments) } };
     }
 }

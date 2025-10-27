@@ -20,7 +20,7 @@ namespace MongoDB.Driver
 {
     /// <summary>
     /// Defines a search index model using a <see cref="BsonDocument"/> definition. Consider using
-    /// <see cref="CreateVectorIndexModel{TDocument}"/> to build vector indexes without specifying the BSON directly.
+    /// <see cref="CreateVectorSearchIndexModel{TDocument}"/> to build vector indexes without specifying the BSON directly.
     /// </summary>
     public class CreateSearchIndexModel
     {
@@ -49,7 +49,7 @@ namespace MongoDB.Driver
         /// model as a <see cref="BsonDocument"/>.
         /// </summary>
         /// <remarks>
-        /// Consider using <see cref="CreateVectorIndexModel{TDocument}"/> to build vector indexes without specifying
+        /// Consider using <see cref="CreateVectorSearchIndexModel{TDocument}"/> to build vector indexes without specifying
         /// the BSON directly.
         /// </remarks>
         /// <param name="name">The index name.</param>
@@ -64,7 +64,7 @@ namespace MongoDB.Driver
         /// model as a <see cref="BsonDocument"/>.
         /// </summary>
         /// <remarks>
-        /// Consider using <see cref="CreateVectorIndexModel{TDocument}"/> to build vector indexes without specifying
+        /// Consider using <see cref="CreateVectorSearchIndexModel{TDocument}"/> to build vector indexes without specifying
         /// the BSON directly.
         /// </remarks>
         /// <param name="name">The index name.</param>
