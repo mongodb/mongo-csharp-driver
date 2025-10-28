@@ -140,7 +140,7 @@ namespace MongoDB.Driver
         public override BsonValue Render(RenderArgs<TSource> args)
         {
             var contextData = _contextData?.With("SerializerRegistry", args.SerializerRegistry);
-            return LinqProviderAdapter.TranslateExpressionToAggregateExpression(_expression, args.DocumentSerializer, args.SerializerRegistry, args.TranslationOptions, contextData);
+            return LinqProviderAdapter.TranslateExpressionToAggregateExpression(_expression, args.DocumentSerializer, args.SerializationDomain, args.TranslationOptions, contextData);
         }
     }
 
@@ -174,7 +174,7 @@ namespace MongoDB.Driver
         public override BsonValue Render(RenderArgs<NoPipelineInput> args)
         {
             var documentSerializer = _documentSerializer ?? args.SerializerRegistry.GetSerializer<TDocument>();
-            return SerializationHelper.SerializeValues(documentSerializer, _documents);
+            return SerializationHelper.SerializeValues(args.SerializationDomain, documentSerializer, _documents);
         }
     }
 }

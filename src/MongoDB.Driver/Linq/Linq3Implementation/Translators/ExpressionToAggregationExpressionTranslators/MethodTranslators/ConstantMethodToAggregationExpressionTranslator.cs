@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 {
                     var representationExpression = arguments[1];
                     var representation = representationExpression.GetConstantValue<BsonType>(expression);
-                    var registeredSerializer = BsonSerializer.LookupSerializer(valueExpression.Type);
+                    var registeredSerializer = context.SerializationDomain.LookupSerializer(valueExpression.Type);
                     if (registeredSerializer is IRepresentationConfigurable representationConfigurableSerializer)
                     {
                         serializer = representationConfigurableSerializer.WithRepresentation(representation);
@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                 if (serializer != null)
                 {
-                    var serializedValue = SerializationHelper.SerializeValue(serializer, value);
+                    var serializedValue = SerializationHelper.SerializeValue(context.SerializationDomain, serializer, value);
                     var ast = AstExpression.Constant(serializedValue);
                     return new TranslatedExpression(expression, ast, serializer);
                 }

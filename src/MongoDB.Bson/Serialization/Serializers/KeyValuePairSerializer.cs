@@ -77,6 +77,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         private readonly Lazy<IBsonSerializer<TValue>> _lazyValueSerializer;
 
         // constructors
+        //DOMAIN-API This should be removed in the future.
         /// <summary>
         /// Initializes a new instance of the <see cref="KeyValuePairSerializer{TKey, TValue}"/> class.
         /// </summary>
@@ -85,6 +86,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
         }
 
+        //DOMAIN-API This should be removed in the future.
         /// <summary>
         /// Initializes a new instance of the <see cref="KeyValuePairSerializer{TKey, TValue}"/> class.
         /// </summary>

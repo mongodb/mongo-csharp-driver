@@ -147,7 +147,7 @@ namespace MongoDB.Driver.Search
                     _ => fieldSerializer
                 };
 
-                serializedValue = SerializationHelper.SerializeValue(valueSerializer, _value);
+                serializedValue = SerializationHelper.SerializeValue(args.SerializationDomain, valueSerializer, _value);
             }
             else
             {
@@ -263,7 +263,7 @@ namespace MongoDB.Driver.Search
                     _ => new ArraySerializer<TField>((IBsonSerializer<TField>)fieldSerializer)
                 };
 
-                serializedValues = SerializationHelper.SerializeValue(arraySerializer, _values);
+                serializedValues = SerializationHelper.SerializeValue(args.SerializationDomain, arraySerializer, _values);
             }
             else
             {
@@ -400,8 +400,8 @@ namespace MongoDB.Driver.Search
                     _ => fieldSerializer
                 };
 
-                serializedMin = _range.Min == null ? null : SerializationHelper.SerializeValue(valueSerializer, _range.Min.Value);
-                serializedMax = _range.Max == null ? null : SerializationHelper.SerializeValue(valueSerializer, _range.Max.Value);
+                serializedMin = _range.Min == null ? null : SerializationHelper.SerializeValue(args.SerializationDomain, valueSerializer, _range.Min.Value);
+                serializedMax = _range.Max == null ? null : SerializationHelper.SerializeValue(args.SerializationDomain, valueSerializer, _range.Max.Value);
             }
             else
             {

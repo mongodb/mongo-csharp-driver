@@ -15,8 +15,8 @@
 
 using System.IO;
 using System.Text;
-using MongoDB.Bson;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
@@ -81,6 +81,9 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 return _encoderSettings?.GetOrDefault<int?>(MessageEncoderSettingsName.MaxWireDocumentSize, null);
             }
         }
+
+        protected IBsonSerializationDomain SerializationDomain
+            => _encoderSettings?.GetOrDefault<IBsonSerializationDomain>(MessageEncoderSettingsName.SerializationDomain, null)  ?? BsonSerializer.DefaultSerializationDomain;
 
         // methods
         public BsonBinaryReader CreateBinaryReader()

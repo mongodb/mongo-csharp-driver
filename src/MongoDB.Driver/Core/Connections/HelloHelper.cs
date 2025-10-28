@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Authentication;
 using MongoDB.Driver.Core.Compression;
@@ -79,7 +80,8 @@ namespace MongoDB.Driver.Core.Connections
                 commandResponseHandling: commandResponseHandling,
                 resultSerializer: BsonDocumentSerializer.Instance,
                 messageEncoderSettings: null,
-                serverApi);
+                serverApi,
+                serializationDomain: BsonSerializer.DefaultSerializationDomain); //Here and in similar cases using the default serialization domain is ok because we only serialize/deserialize BsonDocuments
         }
 
         internal static HelloResult GetResult(

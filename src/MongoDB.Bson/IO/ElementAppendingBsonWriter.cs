@@ -60,7 +60,7 @@ namespace MongoDB.Bson.IO
                 Wrapped.PushSettings(_settingsConfigurator);
                 try
                 {
-                    var context = BsonSerializationContext.CreateRoot(Wrapped);
+                    var context = BsonSerializationContext.CreateRoot(Wrapped, BsonSerializer.DefaultSerializationDomain);
                     foreach (var element in _elements)
                     {
                         Wrapped.WriteName(element.Name);

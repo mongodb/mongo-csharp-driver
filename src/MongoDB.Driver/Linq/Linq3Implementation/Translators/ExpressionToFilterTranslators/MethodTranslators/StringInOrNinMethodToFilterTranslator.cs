@@ -72,12 +72,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                         if (value?.Type == typeof(BsonRegularExpression))
                         {
                             var regularExpression = value.RegularExpression;
-                            serializedValue = SerializationHelper.SerializeValue(regularExpressionSerializer, regularExpression);
+                            serializedValue = SerializationHelper.SerializeValue(context.SerializationDomain, regularExpressionSerializer, regularExpression);
                         }
                         else
                         {
                             var @string = value?.String;
-                            serializedValue = SerializationHelper.SerializeValue(stringSerializer, @string);
+                            serializedValue = SerializationHelper.SerializeValue(context.SerializationDomain, stringSerializer, @string);
                         }
                         serializedValues.Add(serializedValue);
                     }

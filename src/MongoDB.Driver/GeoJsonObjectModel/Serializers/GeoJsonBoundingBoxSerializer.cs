@@ -73,7 +73,7 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
 
             using (var documentReader = new BsonDocumentReader(document))
             {
-                var documentContext = BsonDeserializationContext.CreateRoot(documentReader);
+                var documentContext = BsonDeserializationContext.CreateRoot(documentReader, context.SerializationDomain);
                 documentReader.ReadStartDocument();
                 documentReader.ReadName("min");
                 var min = _coordinatesSerializer.Deserialize(documentContext);
@@ -93,13 +93,12 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         /// <param name="value">The value.</param>
         protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, GeoJsonBoundingBox<TCoordinates> value)
         {
-            var bsonWriter = context.Writer;
-
             // serialize min and max to a dummy document and then flatten the two arrays and serialize that
             var document = new BsonDocument();
             using (var documentWriter = new BsonDocumentWriter(document))
             {
-                var documentContext = BsonSerializationContext.CreateRoot(documentWriter);
+                var documentContext =
+                    BsonSerializationContext.CreateRoot(documentWriter, context.SerializationDomain);
                 documentWriter.WriteStartDocument();
                 documentWriter.WriteName("min");
                 _coordinatesSerializer.Serialize(documentContext, value.Min);

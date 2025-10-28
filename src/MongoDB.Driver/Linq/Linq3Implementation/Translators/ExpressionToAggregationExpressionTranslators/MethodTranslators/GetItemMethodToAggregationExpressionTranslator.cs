@@ -130,7 +130,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             if (keyExpression is ConstantExpression constantKeyExpression)
             {
                 var key = constantKeyExpression.Value;
-                var serializedKey = SerializationHelper.SerializeValue(keySerializer, key);
+                var serializedKey = SerializationHelper.SerializeValue(context.SerializationDomain, keySerializer, key);
 
                 if (!(serializedKey is BsonString))
                 {
