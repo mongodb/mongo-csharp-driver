@@ -1741,10 +1741,22 @@ namespace MongoDB.Driver
                 return new BsonDocumentStagePipelineDefinition<TDocument, BsonDocument>(new[] { stage });
             }
 
-            private CreateSearchIndexesOperation CreateCreateIndexesOperation(IEnumerable<CreateSearchIndexModel> models) =>
-                new(_collection._collectionNamespace,
-                    models.Select(m => new CreateSearchIndexRequest(m.Name, m.Type, m.Definition)),
+            private CreateSearchIndexesOperation CreateCreateIndexesOperation(
+                IEnumerable<CreateSearchIndexModel> models)
+            {
+                var renderArgs = _collection.GetRenderArgs();
+
+                return new CreateSearchIndexesOperation(
+                    _collection._collectionNamespace,
+                    models.Select(model
+                        => new CreateSearchIndexRequest(
+                            model.Name,
+                            model.Type,
+                            model is CreateVectorSearchIndexModel<TDocument> createVectorSearchIndexModel
+                                ? createVectorSearchIndexModel.Render(renderArgs)
+                                : model.Definition)),
                     _collection._messageEncoderSettings);
+            }
 
             private string[] GetIndexNames(BsonDocument createSearchIndexesResponse) =>
                 createSearchIndexesResponse["indexesCreated"]
