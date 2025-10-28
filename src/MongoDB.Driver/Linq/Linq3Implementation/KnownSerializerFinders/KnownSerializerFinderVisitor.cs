@@ -24,7 +24,6 @@ internal partial class KnownSerializerFinderVisitor : ExpressionVisitor
     private bool _isMakingProgress = true;
     private readonly KnownSerializerMap _knownSerializers;
     private int _oldKnownSerializersCount = 0;
-    private int _pass = 0;
     private readonly ExpressionTranslationOptions _translationOptions;
     private bool _useDefaultSerializerForConstants = false; // make as much progress as possible before setting this to true
 
@@ -33,8 +32,6 @@ internal partial class KnownSerializerFinderVisitor : ExpressionVisitor
         _knownSerializers = knownSerializers;
         _translationOptions = translationOptions;
     }
-
-    public int Pass => _pass;
 
     public bool IsMakingProgress => _isMakingProgress;
 
