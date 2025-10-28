@@ -13,12 +13,59 @@
 * limitations under the License.
 */
 
+using System;
 using System.Reflection;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 {
     internal static class MethodInfoExtensions
     {
+        public static bool Has1GenericArgument(this MethodInfo method, out Type genericArgument)
+        {
+            if (method.IsGenericMethod &&
+                method.GetGenericArguments() is var genericArguments &&
+                genericArguments.Length == 1)
+            {
+                genericArgument = genericArguments[0];
+                return true;
+            }
+
+            genericArgument = null;
+            return false;
+        }
+
+        public static bool Has2Parameters(this MethodInfo method, out ParameterInfo parameter1, out ParameterInfo parameter2)
+        {
+            if (method.GetParameters() is var parameters &&
+                parameters.Length == 2)
+            {
+                parameter1 = parameters[0];
+                parameter2 = parameters[1];
+                return true;
+            }
+
+            parameter1 = null;
+            parameter2 = null;
+            return false;
+        }
+
+        public static bool Has3Parameters(this MethodInfo method, out ParameterInfo parameter1, out ParameterInfo parameter2, out ParameterInfo parameter3)
+        {
+            if (method.GetParameters() is var parameters &&
+                parameters.Length == 3)
+            {
+                parameter1 = parameters[0];
+                parameter2 = parameters[1];
+                parameter3 = parameters[2];
+                return true;
+            }
+
+            parameter1 = null;
+            parameter2 = null;
+            parameter3 = null;
+            return false;
+        }
+
         public static bool Is(this MethodInfo method, MethodInfo comparand)
         {
             if (comparand != null)
