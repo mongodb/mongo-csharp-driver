@@ -75,42 +75,52 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 
             protected override Expression VisitBinary(BinaryExpression node)
             {
-                if (node.NodeType == ExpressionType.AndAlso)
+                var leftExpression = node.Left;
+                var rightExpression =  node.Right;
+
+                if (leftExpression.Type == typeof(bool) && rightExpression.Type == typeof(bool))
                 {
-                    var leftExpression = Visit(node.Left);
-                    if (leftExpression is ConstantExpression constantLeftExpression )
+                    if (node.NodeType == ExpressionType.AndAlso)
                     {
-                        var value = (bool)constantLeftExpression.Value;
-                        return value ? Visit(node.Right) : Expression.Constant(false);
+                        leftExpression = Visit(leftExpression);
+                        if (IsConstant<bool>(leftExpression, out var leftValue))
+                        {
+                            // true && Q => Q
+                            // false && Q => false
+                            return leftValue ? Visit(rightExpression) : Expression.Constant(false);
+                        }
+
+                        rightExpression = Visit(rightExpression);
+                        if (IsConstant<bool>(rightExpression, out var rightValue))
+                        {
+                            // P && true => P
+                            // P && false => false
+                            return rightValue ? leftExpression : Expression.Constant(false);
+                        }
+
+                        return node.Update(leftExpression, conversion: null, rightExpression);
                     }
 
-                    var rightExpression = Visit(node.Right);
-                    if (rightExpression is ConstantExpression constantRightExpression)
+                    if (node.NodeType == ExpressionType.OrElse)
                     {
-                        var value = (bool)constantRightExpression.Value;
-                        return value ? leftExpression : Expression.Constant(false);
+                        leftExpression = Visit(leftExpression);
+                        if (IsConstant<bool>(leftExpression, out var leftValue))
+                        {
+                            // true || Q => true
+                            // false || Q => Q
+                            return leftValue ? Expression.Constant(true) : Visit(rightExpression);
+                        }
+
+                        rightExpression = Visit(rightExpression);
+                        if (IsConstant<bool>(rightExpression, out var rightValue))
+                        {
+                            // P || true => true
+                            // P || false => P
+                            return rightValue ? Expression.Constant(true) : leftExpression;
+                        }
+
+                        return node.Update(leftExpression, conversion: null, rightExpression);
                     }
-
-                    return node.Update(leftExpression, conversion: null, rightExpression);
-                }
-
-                if (node.NodeType == ExpressionType.OrElse)
-                {
-                    var leftExpression = Visit(node.Left);
-                    if (leftExpression is ConstantExpression constantLeftExpression)
-                    {
-                        var value = (bool)constantLeftExpression.Value;
-                        return value ? Expression.Constant(true) : Visit(node.Right);
-                    }
-
-                    var rightExpression = Visit(node.Right);
-                    if (rightExpression is ConstantExpression constantRightExpression)
-                    {
-                        var value = (bool)constantRightExpression.Value;
-                        return value ? Expression.Constant(true) : leftExpression;
-                    }
-
-                    return node.Update(leftExpression, conversion: null, rightExpression);
                 }
 
                 return base.VisitBinary(node);
@@ -119,16 +129,83 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             protected override Expression VisitConditional(ConditionalExpression node)
             {
                 var test = Visit(node.Test);
-                if (test is ConstantExpression constantTestExpression)
+
+                if (IsConstant<bool>(test, out var testValue))
                 {
-                    var value = (bool)constantTestExpression.Value;
-                    return value ? Visit(node.IfTrue) : Visit(node.IfFalse);
+                    // true ? A : B => A
+                    // false ? A : B => B
+                    return testValue ? Visit(node.IfTrue) : Visit(node.IfFalse);
                 }
 
-                return node.Update(test, Visit(node.IfTrue), Visit(node.IfFalse));
+                var ifTrue = Visit(node.IfTrue);
+                var ifFalse =  Visit(node.IfFalse);
+
+                if (BothAreConstant<bool>(ifTrue, ifFalse, out var ifTrueValue, out var ifFalseValue))
+                {
+                    return (ifTrueValue, ifFalseValue) switch
+                    {
+                        (false, false) => Expression.Constant(false), // T ? false : false => false
+                        (false, true) => Expression.Not(test), // T ? false : true => !T
+                        (true, false) => test, // T ? true : false => T
+                        (true, true) => Expression.Constant(true) // T ? true : true => true
+                    };
+                }
+                else if (IsConstant<bool>(ifTrue, out ifTrueValue))
+                {
+                    // T ? true : Q => T || Q
+                    // T ? false : Q => !T && Q
+                    return ifTrueValue
+                        ? Visit(Expression.Or(test, ifFalse))
+                        : Visit(Expression.And(Expression.Not(test), ifFalse));
+                }
+                else if (IsConstant<bool>(ifFalse, out ifFalseValue))
+                {
+                    // T ? P : true => !T || P
+                    // T ? P : false => T && P
+                    return ifFalseValue
+                        ? Visit(Expression.Or(Expression.Not(test), ifTrue))
+                        : Visit(Expression.And(test, ifTrue));
+                }
+
+                return node.Update(test, ifTrue, ifFalse);
+            }
+
+            protected override Expression VisitUnary(UnaryExpression node)
+            {
+                var operand = Visit(node.Operand);
+
+                if (node.Type == typeof(bool) &&
+                    node.NodeType == ExpressionType.Not)
+                {
+                    if (operand is UnaryExpression innerUnaryExpressionOperand &&
+                        innerUnaryExpressionOperand.NodeType == ExpressionType.Not)
+                    {
+                        // !!P => P
+                        return innerUnaryExpressionOperand.Operand;
+                    }
+                }
+
+                return node.Update(operand);
             }
 
             // private methods
+            private bool BothAreConstant<T>(Expression expression1, Expression expression2, out T constantValue1, out T constantValue2)
+            {
+                if (expression1 is ConstantExpression constantExpression1 &&
+                    expression2 is ConstantExpression constantExpression2 &&
+                    constantExpression1.Type == typeof(T) &&
+                    constantExpression2.Type == typeof(T))
+                {
+                    constantValue1 = (T)constantExpression1.Value;
+                    constantValue2 = (T)constantExpression2.Value;
+                    return true;
+                }
+
+                constantValue1 = default;
+                constantValue2 = default;
+                return false;
+            }
+
             private Expression Evaluate(Expression expression)
             {
                 if (expression.NodeType == ExpressionType.Constant)
@@ -138,6 +215,19 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                 LambdaExpression lambda = Expression.Lambda(expression);
                 Delegate fn = lambda.Compile();
                 return Expression.Constant(fn.DynamicInvoke(null), expression.Type);
+            }
+
+            private bool IsConstant<T>(Expression expression, out T constantValue)
+            {
+                if (expression is ConstantExpression constantExpression1 &&
+                    constantExpression1.Type == typeof(T))
+                {
+                    constantValue = (T)constantExpression1.Value;
+                    return true;
+                }
+
+                constantValue = default;
+                return false;
             }
         }
 
