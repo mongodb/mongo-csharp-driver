@@ -29,7 +29,7 @@ namespace MongoDB.Driver
     /// Encapsulates settings needed for rendering Builder definitions.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public record struct RenderArgs<TDocument>
+    public record struct RenderArgs<TDocument> : IHasSerializationDomain
     {
         private readonly IBsonSerializer<TDocument> _documentSerializer = default;
         private readonly PathRenderArgs _pathRenderArgs = default;
@@ -38,7 +38,9 @@ namespace MongoDB.Driver
         private readonly bool _renderForFind = false;
         private readonly IBsonSerializerRegistry _serializerRegistry = default;
         private readonly ExpressionTranslationOptions _translationOptions = default;
+        private readonly IBsonSerializationDomain _serializationDomain = default;
 
+        //DOMAIN-API We need to stop using this constructor, and use the one with the serialization domain instead.
         /// <summary>
         /// Initializes a new instance of the <see cref="RenderArgs{TDocument}"/> record.
         /// </summary>
@@ -65,6 +67,36 @@ namespace MongoDB.Driver
             _renderForFind = renderForFind;
             _renderForElemMatch = renderForElemMatch;
             _translationOptions = translationOptions; // can be null
+            _serializationDomain = BsonSerializer.DefaultSerializationDomain;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RenderArgs{TDocument}"/> record.
+        /// </summary>
+        /// <param name="documentSerializer">The document serializer.</param>
+        /// <param name="pathRenderArgs">The path render arguments.</param>
+        /// <param name="renderDollarForm">Value that specifies whether full dollar for should be rendered.</param>
+        /// <param name="renderForFind">Value that specifies whether rendering a find operation.</param>
+        /// <param name="renderForElemMatch">Value that specifies whether rendering an $elemMatch.</param>
+        /// <param name="translationOptions">The translation options.</param>
+        /// <param name="serializationDomain">//TODO</param>
+        internal RenderArgs(
+            IBsonSerializer<TDocument> documentSerializer,
+            IBsonSerializationDomain serializationDomain,
+            PathRenderArgs pathRenderArgs = default,
+            bool renderDollarForm = default,
+            bool renderForFind = false,
+            bool renderForElemMatch = false,
+            ExpressionTranslationOptions translationOptions = null)
+        {
+            DocumentSerializer = documentSerializer;
+            PathRenderArgs = pathRenderArgs;
+            RenderDollarForm = renderDollarForm;
+            _serializationDomain = serializationDomain ?? BsonSerializer.DefaultSerializationDomain;
+            _renderForFind = renderForFind;
+            _renderForElemMatch = renderForElemMatch;
+            _translationOptions = translationOptions; // can be null
+            SerializerRegistry = _serializationDomain.SerializerRegistry;
         }
 
         /// <summary>
@@ -99,11 +131,19 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the serializer registry.
         /// </summary>
-        public readonly IBsonSerializerRegistry SerializerRegistry
+        public readonly IBsonSerializerRegistry SerializerRegistry  //TODO: we should probably remove this property
         {
             get => _serializerRegistry;
             init => _serializerRegistry = Ensure.IsNotNull(value, nameof(value));
         }
+
+        internal readonly IBsonSerializationDomain SerializationDomain
+        {
+            get => _serializationDomain;
+            init => _serializationDomain = Ensure.IsNotNull(value, nameof(value));
+        }
+
+        IBsonSerializationDomain IHasSerializationDomain.SerializationDomain => _serializationDomain;
 
         /// <summary>
         /// Gets the translation options used when translation Expressions to MQL.
@@ -129,6 +169,6 @@ namespace MongoDB.Driver
         /// A new RenderArgs{TNewDocument} instance.
         /// </returns>
         public readonly RenderArgs<TNewDocument> WithNewDocumentType<TNewDocument>(IBsonSerializer<TNewDocument> serializer) =>
-            new(serializer, _serializerRegistry, _pathRenderArgs, _renderDollarForm, _renderForFind, _renderForElemMatch, _translationOptions);
+            new(serializer, _serializationDomain, _pathRenderArgs, _renderDollarForm, _renderForFind, _renderForElemMatch, _translationOptions);
     }
 }

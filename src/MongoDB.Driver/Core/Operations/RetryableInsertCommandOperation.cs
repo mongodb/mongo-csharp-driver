@@ -139,7 +139,7 @@ namespace MongoDB.Driver.Core.Operations
                 {
                     if (_cachedSerializer.ValueType != actualType)
                     {
-                        _cachedSerializer = BsonSerializer.LookupSerializer(actualType);
+                        _cachedSerializer = _documentSerializer.GetSerializerForDerivedType(actualType);
                     }
                     serializer = _cachedSerializer;
                 }

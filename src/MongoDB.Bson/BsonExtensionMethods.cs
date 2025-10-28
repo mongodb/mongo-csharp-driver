@@ -84,7 +84,7 @@ namespace MongoDB.Bson
 
             if (serializer == null)
             {
-                serializer = BsonSerializer.LookupSerializer(nominalType);
+                serializer = BsonSerializationDomain.Default.LookupSerializer(nominalType);
             }
             if (serializer.ValueType != nominalType)
             {
@@ -165,7 +165,7 @@ namespace MongoDB.Bson
                     return convertibleToBsonDocument.ToBsonDocument(); // use the provided ToBsonDocument method
                 }
 
-                serializer = BsonSerializer.LookupSerializer(nominalType);
+                serializer = BsonSerializationDomain.Default.LookupSerializer(nominalType);
             }
             if (serializer.ValueType != nominalType)
             {
@@ -236,7 +236,7 @@ namespace MongoDB.Bson
 
             if (serializer == null)
             {
-                serializer = BsonSerializer.LookupSerializer(nominalType);
+                serializer = BsonSerializationDomain.Default.LookupSerializer(nominalType);
             }
             if (serializer.ValueType != nominalType)
             {
