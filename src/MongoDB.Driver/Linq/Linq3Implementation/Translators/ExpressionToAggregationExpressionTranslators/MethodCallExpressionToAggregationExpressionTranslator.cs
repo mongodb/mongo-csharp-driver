@@ -33,7 +33,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case "AsQueryable": return AsQueryableMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Average": return AverageMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Ceiling": return CeilingMethodToAggregationExpressionTranslator.Translate(context, expression);
-                case "CompareTo": return CompareToMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Concat": return ConcatMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Constant": return ConstantMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Contains": return ContainsMethodToAggregationExpressionTranslator.Translate(context, expression);
@@ -137,6 +136,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case "Top":
                 case "TopN":
                     return PickMethodToAggregationExpressionTranslator.Translate(context, expression);
+
+                case "Compare":
+                case "CompareTo":
+                    return CompareMethodToAggregationExpressionTranslator.Translate(context, expression);
 
                 case "Count":
                 case "LongCount":
