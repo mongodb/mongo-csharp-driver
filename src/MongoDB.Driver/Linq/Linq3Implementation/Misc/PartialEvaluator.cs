@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             protected override Expression VisitBinary(BinaryExpression node)
             {
                 var leftExpression = node.Left;
-                var rightExpression =  node.Right;
+                var rightExpression = node.Right;
 
                 if (leftExpression.Type == typeof(bool) && rightExpression.Type == typeof(bool))
                 {
@@ -138,7 +138,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                 }
 
                 var ifTrue = Visit(node.IfTrue);
-                var ifFalse =  Visit(node.IfFalse);
+                var ifFalse = Visit(node.IfFalse);
 
                 if (BothAreConstant<bool>(ifTrue, ifFalse, out var ifTrueValue, out var ifFalseValue))
                 {
@@ -155,16 +155,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                     // T ? true : Q => T || Q
                     // T ? false : Q => !T && Q
                     return ifTrueValue
-                        ? Visit(Expression.Or(test, ifFalse))
-                        : Visit(Expression.And(Expression.Not(test), ifFalse));
+                        ? Visit(Expression.OrElse(test, ifFalse))
+                        : Visit(Expression.AndAlso(Expression.Not(test), ifFalse));
                 }
                 else if (IsConstant<bool>(ifFalse, out ifFalseValue))
                 {
                     // T ? P : true => !T || P
                     // T ? P : false => T && P
                     return ifFalseValue
-                        ? Visit(Expression.Or(Expression.Not(test), ifTrue))
-                        : Visit(Expression.And(test, ifTrue));
+                        ? Visit(Expression.OrElse(Expression.Not(test), ifTrue))
+                        : Visit(Expression.AndAlso(test, ifTrue));
                 }
 
                 return node.Update(test, ifTrue, ifFalse);

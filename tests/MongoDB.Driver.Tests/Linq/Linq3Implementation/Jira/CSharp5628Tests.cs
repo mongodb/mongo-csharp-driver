@@ -129,7 +129,7 @@ public class CSharp5628Tests : LinqIntegrationTest<CSharp5628Tests.ClassFixture>
         var collection = Fixture.Collection;
 
         // see: https://codeql.github.com/codeql-query-help/csharp/cs-simplifiable-boolean-expression/#recommendation
-        // not all simplifciations listed there are safe for a database (because of possibly missing fields or tri-valued logic)
+        // not all simplifications listed there are safe for a database (because of possibly missing fields or tri-valued logic)
         var queryable = testCase switch
         {
             1 => collection.AsQueryable().Where(x => x.P == true), // not safe
