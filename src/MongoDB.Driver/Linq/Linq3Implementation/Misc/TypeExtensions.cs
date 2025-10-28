@@ -248,9 +248,25 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             return type.IsNullable(out var nullableValueType) && nullableValueType == valueType;
         }
 
+        public static bool IsReadOnlySpanOf(this Type type, Type itemType)
+        {
+            return
+                type.IsGenericType &&
+                type.GetGenericTypeDefinition() == typeof(ReadOnlySpan<>) &&
+                type.GetGenericArguments()[0] == itemType;
+        }
+
         public static bool IsSameAsOrNullableOf(this Type type, Type valueType)
         {
             return type == valueType || type.IsNullableOf(valueType);
+        }
+
+        public static bool IsSpanOf(this Type type, Type itemType)
+        {
+            return
+                type.IsGenericType &&
+                type.GetGenericTypeDefinition() == typeof(Span<>) &&
+                type.GetGenericArguments()[0] == itemType;
         }
 
         public static bool IsSubclassOfOrImplements(this Type type, Type baseTypeOrInterface)
