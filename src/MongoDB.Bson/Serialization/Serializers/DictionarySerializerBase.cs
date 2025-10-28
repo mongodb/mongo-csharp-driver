@@ -513,17 +513,8 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <inheritdoc/>
         public bool TryGetMemberSerializationInfo(string memberName, out BsonSerializationInfo serializationInfo)
         {
-            if (_dictionaryRepresentation != DictionaryRepresentation.Document)
-            {
-                serializationInfo = null;
-                return false;
-            }
-
-            serializationInfo = new BsonSerializationInfo(
-                memberName,
-                _lazyValueSerializer.Value,
-                _lazyValueSerializer.Value.ValueType);
-            return true;
+            serializationInfo = null;
+            return false;
         }
 
         // protected methods
