@@ -22,25 +22,25 @@ using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
-internal interface IFixedSizeArraySerializer
+internal interface IPolymorphicArraySerializer
 {
     IBsonSerializer GetItemSerializer(int index);
 }
 
-internal static class FixedSizeArraySerializer
+internal static class PolymorphicArraySerializer
 {
     public static IBsonSerializer Create(Type itemType, IEnumerable<IBsonSerializer> itemSerializers)
     {
-        var serializerType = typeof(FixedSizeArraySerializer<>).MakeGenericType(itemType);
+        var serializerType = typeof(PolymorphicArraySerializer<>).MakeGenericType(itemType);
         return (IBsonSerializer)Activator.CreateInstance(serializerType, itemSerializers);
     }
 }
 
-internal sealed class FixedSizeArraySerializer<TItem> : SerializerBase<TItem[]>, IFixedSizeArraySerializer
+internal sealed class PolymorphicArraySerializer<TItem> : SerializerBase<TItem[]>, IPolymorphicArraySerializer
 {
     private readonly IReadOnlyList<IBsonSerializer> _itemSerializers;
 
-    public FixedSizeArraySerializer(IEnumerable<IBsonSerializer> itemSerializers)
+    public PolymorphicArraySerializer(IEnumerable<IBsonSerializer> itemSerializers)
     {
         var itemSerializersArray = itemSerializers.ToArray();
         foreach (var itemSerializer in itemSerializersArray)
@@ -57,10 +57,10 @@ internal sealed class FixedSizeArraySerializer<TItem> : SerializerBase<TItem[]>,
     public override TItem[] Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
     {
         var reader = context.Reader;
-        var array = new TItem[_itemSerializers.Count];
 
         reader.ReadStartArray();
         var i = 0;
+        var array = new TItem[_itemSerializers.Count];
         while (reader.ReadBsonType() != BsonType.EndOfDocument)
         {
             if (i < array.Length)
@@ -78,7 +78,7 @@ internal sealed class FixedSizeArraySerializer<TItem> : SerializerBase<TItem[]>,
         return array;
     }
 
-    IBsonSerializer IFixedSizeArraySerializer.GetItemSerializer(int index) => _itemSerializers[index];
+    IBsonSerializer IPolymorphicArraySerializer.GetItemSerializer(int index) => _itemSerializers[index];
 
     public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TItem[] value)
     {

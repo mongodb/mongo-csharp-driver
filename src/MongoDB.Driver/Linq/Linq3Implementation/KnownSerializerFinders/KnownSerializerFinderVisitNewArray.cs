@@ -59,14 +59,14 @@ internal partial class KnownSerializerFinderVisitor
 
             if (AnyIsNotKnown(itemExpressions) && IsKnown(node, out var arraySerializer))
             {
-                if (arraySerializer is IFixedSizeArraySerializer fixedSizeArraySerializer)
+                if (arraySerializer is IPolymorphicArraySerializer polymorphicArraySerializer)
                 {
                     for (var i = 0; i < itemExpressions.Count; i++)
                     {
                         var itemExpression = itemExpressions[i];
                         if (IsNotKnown(itemExpression))
                         {
-                            var itemSerializer = fixedSizeArraySerializer.GetItemSerializer(i);
+                            var itemSerializer = polymorphicArraySerializer.GetItemSerializer(i);
                             AddKnownSerializer(itemExpression, itemSerializer);
                         }
                     }
@@ -110,7 +110,7 @@ internal partial class KnownSerializerFinderVisitor
                     else
                     {
                         var itemType = node.Type.GetElementType();
-                        arraySerializer = FixedSizeArraySerializer.Create(itemType, itemSerializers);
+                        arraySerializer = PolymorphicArraySerializer.Create(itemType, itemSerializers);
                     }
                     AddKnownSerializer(node, arraySerializer);
                 }

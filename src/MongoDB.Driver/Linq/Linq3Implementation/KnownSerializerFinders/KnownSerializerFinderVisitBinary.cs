@@ -55,10 +55,10 @@ internal partial class KnownSerializerFinderVisitor
                 IsKnown(leftExpression, out var leftSerializer))
             {
                 IBsonSerializer itemSerializer;
-                if (leftSerializer is IFixedSizeArraySerializer fixedSizeArraySerializer)
+                if (leftSerializer is IPolymorphicArraySerializer polymorphicArraySerializer)
                 {
                     var index = rightExpression.GetConstantValue<int>(node);
-                    itemSerializer = fixedSizeArraySerializer.GetItemSerializer(index);
+                    itemSerializer = polymorphicArraySerializer.GetItemSerializer(index);
                 }
                 else
                 {

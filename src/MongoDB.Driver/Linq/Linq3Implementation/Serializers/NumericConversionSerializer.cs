@@ -31,24 +31,20 @@ internal static class NumericConversionSerializer
 
 internal class NumericConversionSerializer<TSource, TTarget> : SerializerBase<TTarget>, IHasRepresentationSerializer
 {
+    private readonly BsonType _representation;
     private readonly IBsonSerializer<TSource> _sourceSerializer;
 
-    public BsonType Representation
-    {
-        get
-        {
-            if (_sourceSerializer is not IHasRepresentationSerializer hasRepresentationSerializer)
-            {
-                throw new NotSupportedException($"Serializer class {_sourceSerializer.GetType().Name} does not implement IHasRepresentationSerializer.");
-            }
-
-            return hasRepresentationSerializer.Representation;
-        }
-    }
+    public BsonType Representation => _representation;
 
     public NumericConversionSerializer(IBsonSerializer<TSource> sourceSerializer)
     {
+        if (sourceSerializer is not IHasRepresentationSerializer hasRepresentationSerializer)
+        {
+            throw new NotSupportedException($"Serializer class {sourceSerializer.GetType().Name} does not implement IHasRepresentationSerializer.");
+        }
+
         _sourceSerializer = sourceSerializer;
+        _representation = hasRepresentationSerializer.Representation;
     }
 
     public override TTarget Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)

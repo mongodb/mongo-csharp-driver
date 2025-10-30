@@ -82,8 +82,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers
         {
             var enumType = enumSerializer.ValueType;
             var underlyingType = Enum.GetUnderlyingType(enumType);
-            var toEnumUnderlyingTypeSerializerType = typeof(AsEnumUnderlyingTypeSerializer<,>).MakeGenericType(enumType, underlyingType);
-            return (IBsonSerializer)Activator.CreateInstance(toEnumUnderlyingTypeSerializerType, enumSerializer);
+            var asEnumUnderlyingTypeSerializerType = typeof(AsEnumUnderlyingTypeSerializer<,>).MakeGenericType(enumType, underlyingType);
+            return (IBsonSerializer)Activator.CreateInstance(asEnumUnderlyingTypeSerializerType, enumSerializer);
         }
     }
 }

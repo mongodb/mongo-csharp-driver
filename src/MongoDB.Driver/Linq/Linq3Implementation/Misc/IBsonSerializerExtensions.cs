@@ -51,9 +51,9 @@ internal static class IBsonSerializerExtensions
 
     public static IBsonSerializer GetItemSerializer(this IBsonSerializer serializer, int index)
     {
-        if (serializer is IFixedSizeArraySerializer fixedSizeArraySerializer)
+        if (serializer is IPolymorphicArraySerializer polymorphicArraySerializer)
         {
-            return fixedSizeArraySerializer.GetItemSerializer(index);
+            return polymorphicArraySerializer.GetItemSerializer(index);
         }
         else
         {
@@ -63,10 +63,10 @@ internal static class IBsonSerializerExtensions
 
     public static IBsonSerializer GetItemSerializer(this IBsonSerializer serializer, Expression indexExpression, Expression containingExpression)
     {
-        if (serializer is IFixedSizeArraySerializer fixedSizeArraySerializer)
+        if (serializer is IPolymorphicArraySerializer polymorphicArraySerializer)
         {
             var index = indexExpression.GetConstantValue<int>(containingExpression);
-            return fixedSizeArraySerializer.GetItemSerializer(index);
+            return polymorphicArraySerializer.GetItemSerializer(index);
         }
         else
         {

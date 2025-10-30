@@ -226,7 +226,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 
         public static bool IsBooleanOrNullableBoolean(this Type type)
         {
-            return type == typeof(bool) || type.IsNullable(out var valueType) && IsBoolean(valueType);
+            return IsBoolean(type) || type.IsNullable(out var valueType) && IsBoolean(valueType);
         }
 
         public static bool IsEnum(this Type type, out Type underlyingType)
