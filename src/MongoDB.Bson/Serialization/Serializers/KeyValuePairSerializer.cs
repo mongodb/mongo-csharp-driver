@@ -30,6 +30,22 @@ namespace MongoDB.Bson.Serialization.Serializers
     }
 
     /// <summary>
+    /// An extended interface for KeyValuePairSerializer that provides access to key and value serializers.
+    /// </summary>
+    public interface IKeyValuePairSerializerV2 : IKeyValuePairSerializer
+    {
+        /// <summary>
+        /// Gets the key serializer.
+        /// </summary>
+        IBsonSerializer KeySerializer { get; }
+
+        /// <summary>
+        /// Gets the value serializer.
+        /// </summary>
+        IBsonSerializer ValueSerializer { get; }
+    }
+
+    /// <summary>
     /// Static factory class for KeyValuePairSerializers.
     /// </summary>
     public static class KeyValuePairSerializer
@@ -61,7 +77,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public sealed class KeyValuePairSerializer<TKey, TValue> :
         StructSerializerBase<KeyValuePair<TKey, TValue>>,
         IBsonDocumentSerializer,
-        IKeyValuePairSerializer
+        IKeyValuePairSerializerV2
     {
         // private constants
         private static class Flags
@@ -190,6 +206,16 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             get { return _lazyValueSerializer.Value; }
         }
+
+        /// <summary>
+        /// Gets the key serializer.
+        /// </summary>
+        IBsonSerializer IKeyValuePairSerializerV2.KeySerializer => KeySerializer;
+
+        /// <summary>
+        /// Gets the value serializer.
+        /// </summary>
+        IBsonSerializer IKeyValuePairSerializerV2.ValueSerializer => ValueSerializer;
 
         // public methods
         /// <summary>

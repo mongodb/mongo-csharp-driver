@@ -35,24 +35,40 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             {
                 var fieldExpression = expression.Object;
                 var keyExpression = arguments[0];
-
-                var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
-                var dictionarySerializer = GetDictionarySerializer(expression, fieldTranslation);
-                var dictionaryRepresentation = dictionarySerializer.DictionaryRepresentation;
-
-                switch (dictionaryRepresentation)
-                {
-                    case DictionaryRepresentation.Document:
-                        var key = GetKeyStringConstant(expression, keyExpression, dictionarySerializer.KeySerializer);
-                        var keyField = fieldTranslation.Ast.SubField(key);
-                        return AstFilter.Exists(keyField);
-
-                    default:
-                        throw new ExpressionNotSupportedException(expression, because: $"ContainsKey is not supported when DictionaryRepresentation is: {dictionaryRepresentation}");
-                }
+                return TranslateContainsKey(context, expression, fieldExpression, keyExpression);
             }
 
             throw new ExpressionNotSupportedException(expression);
+        }
+
+        public static AstFilter TranslateContainsKey(TranslationContext context, Expression expression, Expression fieldExpression, Expression keyExpression)
+        {
+            var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
+            var dictionarySerializer = GetDictionarySerializer(expression, fieldTranslation);
+            var dictionaryRepresentation = dictionarySerializer.DictionaryRepresentation;
+
+            switch (dictionaryRepresentation)
+            {
+                case DictionaryRepresentation.Document:
+                    {
+                        var key = GetKeyStringConstant(expression, keyExpression, dictionarySerializer.KeySerializer);
+                        var keyField = fieldTranslation.Ast.SubField(key);
+                        return AstFilter.Exists(keyField);
+                    }
+
+                case DictionaryRepresentation.ArrayOfDocuments:
+                case DictionaryRepresentation.ArrayOfArrays:
+                    {
+                        var key = GetKeyStringConstant(expression, keyExpression, dictionarySerializer.KeySerializer);
+                        var fieldName = dictionaryRepresentation == DictionaryRepresentation.ArrayOfDocuments ? "k" : "0";
+                        var keyField = AstFilter.Field(fieldName);
+                        var keyMatchFilter = AstFilter.Eq(keyField, key);
+                        return AstFilter.ElemMatch(fieldTranslation.Ast, keyMatchFilter);
+                    }
+
+                default:
+                    throw new ExpressionNotSupportedException(expression, because: $"DictionaryRepresentation: {dictionaryRepresentation} is not supported for ContainsKey method.");
+            }
         }
 
         private static IBsonDictionarySerializer GetDictionarySerializer(Expression expression, TranslatedFilterField field)

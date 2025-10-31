@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -71,9 +70,19 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
             if (!DocumentSerializerHelper.AreMembersRepresentedAsFields(containerTranslation.Serializer, out _))
             {
-                if (member is PropertyInfo propertyInfo  && propertyInfo.Name == "Length")
+                if (member is PropertyInfo propertyInfo && propertyInfo.Name == "Length")
                 {
                     return LengthPropertyToAggregationExpressionTranslator.Translate(context, expression);
+                }
+
+                if (TryTranslateDictionaryProperty(expression, containerTranslation, member, out var translatedDictionaryProperty))
+                {
+                    return translatedDictionaryProperty;
+                }
+
+                if (TryTranslateKeyValuePairProperty(expression, containerTranslation, member, out var translatedKeyValuePairProperty))
+                {
+                    return translatedKeyValuePairProperty;
                 }
 
                 if (TryTranslateCollectionCountProperty(expression, containerTranslation, member, out var translatedCount))
@@ -126,11 +135,20 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         {
             if (EnumerableProperty.IsCountProperty(expression))
             {
-                SerializationHelper.EnsureRepresentationIsArray(expression, container.Serializer);
+                AstExpression ast;
 
-                var ast = AstExpression.Size(container.Ast);
+                if (container.Serializer is IBsonDictionarySerializer dictionarySerializer &&
+                    dictionarySerializer.DictionaryRepresentation == DictionaryRepresentation.Document)
+                {
+                    ast = AstExpression.Size(AstExpression.ObjectToArray(container.Ast));
+                }
+                else
+                {
+                    SerializationHelper.EnsureRepresentationIsArray(expression, container.Serializer);
+                    ast = AstExpression.Size(container.Ast);
+                }
+
                 var serializer = Int32Serializer.Instance;
-
                 result = new TranslatedExpression(expression, ast, serializer);
                 return true;
             }
@@ -259,6 +277,142 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             }
 
             translatedDictionaryProperty = null;
+            return false;
+        }
+
+        private static bool TryTranslateKeyValuePairProperty(MemberExpression expression, TranslatedExpression container, MemberInfo memberInfo, out TranslatedExpression result)
+        {
+            result = null;
+
+            if (container.Expression.Type.IsGenericType &&
+                container.Expression.Type.GetGenericTypeDefinition() == typeof(KeyValuePair<,>) &&
+                container.Serializer is IKeyValuePairSerializerV2 { Representation: BsonType.Array } kvpSerializer)
+            {
+                AstExpression ast;
+                IBsonSerializer serializer;
+
+                switch (memberInfo.Name)
+                {
+                    case "Key":
+                        ast = AstExpression.ArrayElemAt(container.Ast, 0);
+                        serializer = kvpSerializer.KeySerializer;
+                        break;
+                    case "Value":
+                        ast = AstExpression.ArrayElemAt(container.Ast, 1);
+                        serializer = kvpSerializer.ValueSerializer;
+                        break;
+                    default:
+                        throw new ExpressionNotSupportedException(expression);
+                }
+                result = new TranslatedExpression(expression, ast, serializer);
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool TryTranslateDictionaryProperty(MemberExpression expression, TranslatedExpression container, MemberInfo memberInfo, out TranslatedExpression result)
+        {
+            result = null;
+
+            if (memberInfo is PropertyInfo propertyInfo &&
+                propertyInfo.DeclaringType.IsGenericType &&
+                (propertyInfo.DeclaringType.GetGenericTypeDefinition() == typeof(Dictionary<,>) ||
+                 propertyInfo.DeclaringType.GetGenericTypeDefinition() == typeof(IDictionary<,>)))
+            {
+                if (container.Serializer is IBsonDictionarySerializer dictionarySerializer)
+                {
+                    switch (propertyInfo.Name)
+                    {
+                        case "Count":
+                            {
+                                AstExpression countAst;
+                                switch (dictionarySerializer.DictionaryRepresentation)
+                                {
+                                    case DictionaryRepresentation.Document:
+                                        countAst = AstExpression.Size(AstExpression.ObjectToArray(container.Ast));
+                                        break;
+                                    case DictionaryRepresentation.ArrayOfArrays:
+                                    case DictionaryRepresentation.ArrayOfDocuments:
+                                        countAst = AstExpression.Size(container.Ast);
+                                        break;
+                                    default:
+                                        throw new ExpressionNotSupportedException(expression);
+                                }
+
+                                var serializer = Int32Serializer.Instance;
+                                result = new TranslatedExpression(expression, countAst, serializer);
+                                return true;
+                            }
+
+                        case "Keys":
+                            {
+                                AstExpression keysAst;
+                                switch (dictionarySerializer.DictionaryRepresentation)
+                                {
+                                    case DictionaryRepresentation.Document:
+                                        keysAst = AstExpression.GetField(AstExpression.ObjectToArray(container.Ast), "k");
+                                        break;
+                                    case DictionaryRepresentation.ArrayOfArrays:
+                                        {
+                                            var kvp = AstExpression.Var("kvp");
+                                            keysAst = AstExpression.Map(
+                                                input: container.Ast,
+                                                @as: kvp,
+                                                @in: AstExpression.ArrayElemAt(kvp, 0));
+                                            break;
+                                        }
+                                    case DictionaryRepresentation.ArrayOfDocuments:
+                                        keysAst = AstExpression.GetField(container.Ast, "k");
+                                        break;
+
+                                    default:
+                                        throw new ExpressionNotSupportedException(expression);
+                                }
+
+                                var serializer = ArraySerializerHelper.CreateSerializer(dictionarySerializer.KeySerializer);
+                                result = new TranslatedExpression(expression, keysAst, serializer);
+                                return true;
+                            }
+
+                        case "Values":
+                            {
+                                AstExpression valuesAst;
+                                switch (dictionarySerializer.DictionaryRepresentation)
+                                {
+                                    case DictionaryRepresentation.Document:
+                                        valuesAst = AstExpression.GetField(AstExpression.ObjectToArray(container.Ast), "v");
+                                        break;
+                                    case DictionaryRepresentation.ArrayOfArrays:
+                                        {
+                                            var kvp = AstExpression.Var("kvp");
+                                            valuesAst = AstExpression.Map(
+                                                input: container.Ast,
+                                                @as: kvp,
+                                                @in: AstExpression.ArrayElemAt(kvp, 1));
+                                            break;
+                                        }
+                                    case DictionaryRepresentation.ArrayOfDocuments:
+                                        valuesAst = AstExpression.GetField(container.Ast, "v");
+                                        break;
+
+                                    default:
+                                        throw new ExpressionNotSupportedException(expression);
+                                }
+
+                                var serializer = ArraySerializerHelper.CreateSerializer(dictionarySerializer.ValueSerializer);
+                                result = new TranslatedExpression(expression, valuesAst, serializer);
+                                return true;
+                            }
+
+                        default:
+                            throw new ExpressionNotSupportedException(expression);
+                    }
+                }
+
+                throw new ExpressionNotSupportedException(expression, because: "serializer does not implement IBsonDictionarySerializer");
+            }
+
             return false;
         }
     }

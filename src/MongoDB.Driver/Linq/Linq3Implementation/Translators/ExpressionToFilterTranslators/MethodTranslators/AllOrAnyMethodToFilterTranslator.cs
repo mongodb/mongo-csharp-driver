@@ -13,13 +13,12 @@
 * limitations under the License.
 */
 
-using System;
 using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
-using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.Serialization.Options;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
@@ -49,6 +48,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             {
                 var sourceExpression = method.IsStatic ? arguments[0] : expression.Object;
                 var (fieldTranslation, filter) = FilteredEnumerableFilterFieldTranslator.Translate(context, sourceExpression);
+
+                if (fieldTranslation.Serializer is IBsonDictionarySerializer { DictionaryRepresentation: DictionaryRepresentation.Document })
+                {
+                    throw new ExpressionNotSupportedException(expression);
+                }
 
                 if (method.IsOneOf(EnumerableMethod.All, EnumerableMethod.AnyWithPredicate, ArrayMethod.Exists) || ListMethod.IsExistsMethod(method))
                 {

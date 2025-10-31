@@ -119,10 +119,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             {
                 throw new ExpressionNotSupportedException(expression, because: $"dictionary serializer class {dictionaryTranslation.Serializer.GetType()} does not implement {nameof(IBsonDictionarySerializer)}");
             }
-            if (dictionarySerializer.DictionaryRepresentation != DictionaryRepresentation.Document)
-            {
-                throw new ExpressionNotSupportedException(expression, because: "dictionary is not represented as a document");
-            }
 
             var keySerializer = dictionarySerializer.KeySerializer;
             AstExpression keyFieldNameAst;
@@ -159,7 +155,27 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 keyFieldNameAst = keyTranslation.Ast;
             }
 
-            var ast = AstExpression.GetField(dictionaryTranslation.Ast, keyFieldNameAst);
+            var dictionaryRepresentation = dictionarySerializer.DictionaryRepresentation;
+            AstExpression ast;
+            switch (dictionaryRepresentation)
+            {
+                case DictionaryRepresentation.Document:
+                    ast = AstExpression.GetField(dictionaryTranslation.Ast, keyFieldNameAst);
+                    break;
+
+                case DictionaryRepresentation.ArrayOfArrays:
+                    ast = AstExpression.GetField(AstExpression.ArrayToObject(dictionaryTranslation.Ast), keyFieldNameAst);
+                    break;
+
+                case DictionaryRepresentation.ArrayOfDocuments:
+                    var filter = AstExpression.Filter(dictionaryTranslation.Ast,
+                        AstExpression.Eq(AstExpression.GetField(AstExpression.Var("kvp"), "k"), keyFieldNameAst), "kvp");
+                    ast = AstExpression.GetField(AstExpression.ArrayElemAt(filter, 0), "v");
+                    break;
+                default:
+                    throw new ExpressionNotSupportedException(expression, because: $"Indexer access is not supported when DictionaryRepresentation is: {dictionaryRepresentation}");
+            }
+
             return new TranslatedExpression(expression, ast, dictionarySerializer.ValueSerializer);
         }
     }
