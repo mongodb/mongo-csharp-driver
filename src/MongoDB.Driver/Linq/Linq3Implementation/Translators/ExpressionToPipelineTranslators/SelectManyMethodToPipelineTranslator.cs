@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
         {
             __selectManyMethods = new[]
             {
-                QueryableMethod.SelectMany,
+                QueryableMethod.SelectManyWithSelector,
                 QueryableMethod.SelectManyWithCollectionSelectorAndResultSelector
             };
         }
@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
                 ClientSideProjectionHelper.ThrowIfClientSideProjection(expression, pipeline, method);
 
-                if (method.Is(QueryableMethod.SelectMany))
+                if (method.Is(QueryableMethod.SelectManyWithSelector))
                 {
                     return TranslateSelectMany(context, pipeline, arguments);
                 }

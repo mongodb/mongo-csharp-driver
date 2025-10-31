@@ -60,5 +60,17 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods
             var message = $"Expression must be a constant: {expression} in {containingExpression}.";
             throw new ExpressionNotSupportedException(message);
         }
+
+        public static bool IsConvert(this Expression expression, out Expression operand)
+        {
+            if (expression is UnaryExpression { NodeType: ExpressionType.Convert } unaryExpression)
+            {
+                operand = unaryExpression.Operand;
+                return true;
+            }
+
+            operand = null;
+            return false;
+        }
     }
 }

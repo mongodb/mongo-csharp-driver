@@ -13,11 +13,15 @@
 * limitations under the License.
 */
 
+using System;
+using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
+using MongoDB.Driver.Linq.Linq3Implementation.KnownSerializerFinders;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
+using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
 {
@@ -25,28 +29,116 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
     {
         #region static
         public static TranslationContext Create(
+            IQueryable queryable,
             ExpressionTranslationOptions translationOptions,
+            TranslationContextData data = null)
+        {
+            var expression = queryable.Expression;
+            var provider = (IMongoQueryProviderInternal)queryable.Provider;
+            return Create(expression, provider, translationOptions, data);
+        }
+
+        public static TranslationContext Create(
+            Expression expression,
+            IMongoQueryProviderInternal provider,
+            ExpressionTranslationOptions translationOptions,
+            TranslationContextData data = null)
+        {
+            var ultimateSourceExpression = GetUltimateSource(expression);
+            var ultimateSourceSerializer = IQueryableSerializer.Create(provider.PipelineInputSerializer);
+            return Create(expression, ultimateSourceExpression, ultimateSourceSerializer, translationOptions, data);
+        }
+
+        public static TranslationContext Create(
+            Expression expression,
+            Expression initialNode,
+            IBsonSerializer initialSerializer,
+            ExpressionTranslationOptions translationOptions,
+            TranslationContextData data = null)
+        {
+            var knownSerializers = new KnownSerializerMap();
+            knownSerializers.AddSerializer(initialNode, initialSerializer);
+            KnownSerializerFinder.FindKnownSerializers(expression, translationOptions, knownSerializers);
+            return Create(translationOptions, knownSerializers, data);
+        }
+
+        public static TranslationContext Create(
+            Expression expression,
+            (Expression Node, IBsonSerializer Serializer)[] initialKnownSerializers,
+            ExpressionTranslationOptions translationOptions,
+            TranslationContextData data = null)
+        {
+            var knownSerializers = new KnownSerializerMap();
+            foreach (var (node, serializer) in initialKnownSerializers)
+            {
+                knownSerializers.AddSerializer(node, serializer);
+            }
+            KnownSerializerFinder.FindKnownSerializers(expression, translationOptions, knownSerializers);
+            return Create(translationOptions, knownSerializers, data);
+        }
+
+        public static TranslationContext Create(
+            ExpressionTranslationOptions translationOptions,
+            KnownSerializerMap knownSerializers,
             TranslationContextData data = null)
         {
             var symbolTable = new SymbolTable();
             var nameGenerator = new NameGenerator();
-            return new TranslationContext(translationOptions, data, symbolTable, nameGenerator);
+            return new TranslationContext(translationOptions, knownSerializers, data, symbolTable, nameGenerator);
+        }
+
+        public static Expression GetUltimateSource(Expression expression)
+        {
+            if (expression is ConstantExpression constantExpression &&
+                constantExpression.Value is IQueryable queryable &&
+                queryable.Provider is IMongoQueryProvider provider &&
+                queryable.Expression is ConstantExpression queryableConstantExpression &&
+                queryableConstantExpression.Value == constantExpression.Value)
+            {
+                return expression;
+            }
+
+            if (expression is MethodCallExpression methodCallExpression &&
+                methodCallExpression.Method is var method &&
+                method.GetParameters() is var parameters &&
+                parameters.Length >= 1)
+            {
+                var sourceParameter = parameters[0];
+                var sourceParameterType = sourceParameter.ParameterType;
+                if (sourceParameterType.IsConstructedGenericType)
+                {
+                    sourceParameterType = sourceParameterType.GetGenericTypeDefinition();
+                }
+
+                if (sourceParameterType == typeof(IQueryable) ||
+                    sourceParameterType == typeof(IQueryable<>) ||
+                    sourceParameterType == typeof(IOrderedQueryable) ||
+                    sourceParameterType == typeof(IOrderedQueryable<>))
+                {
+                    return GetUltimateSource(methodCallExpression.Arguments[0]);
+                }
+            }
+
+            throw new ArgumentException($"No ultimate source found: {expression}.");
         }
         #endregion
 
         // private fields
         private readonly TranslationContextData _data;
+        private readonly KnownSerializerMap _knownSerializers;
         private readonly NameGenerator _nameGenerator;
         private readonly SymbolTable _symbolTable;
         private readonly ExpressionTranslationOptions _translationOptions;
 
         private TranslationContext(
             ExpressionTranslationOptions translationOptions,
+            KnownSerializerMap knownSerializers,
             TranslationContextData data,
             SymbolTable symbolTable,
             NameGenerator nameGenerator)
         {
             _translationOptions = translationOptions ?? new ExpressionTranslationOptions();
+            _knownSerializers = Ensure.IsNotNull(knownSerializers, nameof(knownSerializers));
             _data = data; // can be null
             _symbolTable = Ensure.IsNotNull(symbolTable, nameof(symbolTable));
             _nameGenerator = Ensure.IsNotNull(nameGenerator, nameof(nameGenerator));
@@ -54,6 +146,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
 
         // public properties
         public TranslationContextData Data => _data;
+        public KnownSerializerMap KnownSerializers => _knownSerializers;
         public NameGenerator NameGenerator => _nameGenerator;
         public SymbolTable SymbolTable => _symbolTable;
         public ExpressionTranslationOptions TranslationOptions => _translationOptions;
@@ -99,6 +192,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
             return CreateSymbol(parameter, name: parameterName, varName, serializer, isCurrent);
         }
 
+        public IBsonSerializer GetKnownSerializer(Expression parameter)
+        {
+            return _knownSerializers.GetSerializer(parameter);
+        }
+
         public override string ToString()
         {
             return $"{{ SymbolTable : {_symbolTable} }}";
@@ -124,7 +222,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
 
         public TranslationContext WithSymbolTable(SymbolTable symbolTable)
         {
-            return new TranslationContext(_translationOptions, _data, symbolTable, _nameGenerator);
+            return new TranslationContext(_translationOptions, _knownSerializers, _data, symbolTable, _nameGenerator);
         }
     }
 }

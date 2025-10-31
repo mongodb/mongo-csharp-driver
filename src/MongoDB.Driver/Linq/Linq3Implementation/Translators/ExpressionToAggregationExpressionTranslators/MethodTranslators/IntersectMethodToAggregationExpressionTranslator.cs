@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         private static readonly MethodInfo[] __intersectMethods =
         {
             EnumerableMethod.Intersect,
-            QueryableMethod.Interset
+            QueryableMethod.Intersect
         };
 
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
