@@ -134,6 +134,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return new AstBinaryExpression(AstBinaryOperator.ArrayElemAt, array, index);
         }
 
+        public static AstExpression ArrayToObject(AstExpression arg)
+        {
+            return new AstUnaryExpression(AstUnaryOperator.ArrayToObject, arg);
+        }
+
         public static AstExpression Avg(AstExpression array)
         {
             return new AstUnaryExpression(AstUnaryOperator.Avg, array);
