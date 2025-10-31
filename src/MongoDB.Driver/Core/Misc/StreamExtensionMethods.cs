@@ -38,41 +38,12 @@ namespace MongoDB.Driver.Core.Misc
 
         public static int Read(this Stream stream, byte[] buffer, int offset, int count, TimeSpan timeout, CancellationToken cancellationToken)
         {
-            try
-            {
-                using var manualResetEvent = new ManualResetEventSlim();
-                var readOperation = stream.BeginRead(
-                    buffer,
-                    offset,
-                    count,
-                    state => ((ManualResetEventSlim)state.AsyncState).Set(),
-                    manualResetEvent);
-
-                if (readOperation.IsCompleted || manualResetEvent.Wait(timeout, cancellationToken))
-                {
-                    return stream.EndRead(readOperation);
-                }
-            }
-            catch (OperationCanceledException)
-            {
-                // Have to suppress OperationCanceledException here, it will be thrown after the stream will be disposed.
-            }
-            catch (ObjectDisposedException)
-            {
-                throw new IOException();
-            }
-
-            try
-            {
-                stream.Dispose();
-            }
-            catch
-            {
-                // Ignore any exceptions
-            }
-
-            cancellationToken.ThrowIfCancellationRequested();
-            throw new TimeoutException();
+            return UseStreamWithTimeout(
+                stream,
+                (str, state) => str.Read(state.buffer, state.offset, state.count),
+                (buffer, offset, count),
+                timeout,
+                cancellationToken);
         }
 
         public static async Task<int> ReadAsync(this Stream stream, byte[] buffer, int offset, int count, TimeSpan timeout, CancellationToken cancellationToken)
@@ -219,43 +190,16 @@ namespace MongoDB.Driver.Core.Misc
 
         public static void Write(this Stream stream, byte[] buffer, int offset, int count, TimeSpan timeout, CancellationToken cancellationToken)
         {
-            try
-            {
-                using var manualResetEvent = new ManualResetEventSlim();
-                var writeOperation = stream.BeginWrite(
-                    buffer,
-                    offset,
-                    count,
-                    state => ((ManualResetEventSlim)state.AsyncState).Set(),
-                    manualResetEvent);
-
-                if (writeOperation.IsCompleted || manualResetEvent.Wait(timeout, cancellationToken))
+            UseStreamWithTimeout(
+                stream,
+                (str, state) =>
                 {
-                    stream.EndWrite(writeOperation);
-                    return;
-                }
-            }
-            catch (OperationCanceledException)
-            {
-                // Have to suppress OperationCanceledException here, it will be thrown after the stream will be disposed.
-            }
-            catch (ObjectDisposedException)
-            {
-                // It's possible to get ObjectDisposedException when the connection pool was closed with interruptInUseConnections set to true.
-                throw new IOException();
-            }
-
-            try
-            {
-                stream.Dispose();
-            }
-            catch
-            {
-                // Ignore any exceptions
-            }
-
-            cancellationToken.ThrowIfCancellationRequested();
-            throw new TimeoutException();
+                    str.Write(state.buffer, state.offset, state.count);
+                    return true;
+                },
+                (buffer, offset, count),
+                timeout,
+                cancellationToken);
         }
 
         public static async Task WriteAsync(this Stream stream, byte[] buffer, int offset, int count, TimeSpan timeout, CancellationToken cancellationToken)
@@ -324,6 +268,90 @@ namespace MongoDB.Driver.Core.Misc
                 offset += bytesToWrite;
                 count -= bytesToWrite;
             }
+        }
+
+        private static TResult UseStreamWithTimeout<TResult, TState>(Stream stream, Func<Stream, TState, TResult> method, TState state, TimeSpan timeout, CancellationToken cancellationToken)
+        {
+            StreamDisposeCallbackState callbackState = null;
+            Timer timer = null;
+            CancellationTokenRegistration cancellationSubscription = default;
+            if (timeout != Timeout.InfiniteTimeSpan)
+            {
+                callbackState = new StreamDisposeCallbackState(stream);
+                timer = new Timer(DisposeStreamCallback, callbackState, timeout, Timeout.InfiniteTimeSpan);
+            }
+
+            if (cancellationToken.CanBeCanceled)
+            {
+                callbackState ??= new StreamDisposeCallbackState(stream);
+                cancellationSubscription = cancellationToken.Register(DisposeStreamCallback, callbackState);
+            }
+
+            try
+            {
+                var result = method(stream, state);
+                if (callbackState?.TryChangeState(OperationState.Done) == false)
+                {
+                    // if cannot change the state - then the stream was/will be disposed, throw here
+                    throw new IOException();
+                }
+
+                return result;
+            }
+            catch (IOException)
+            {
+                if (callbackState?.OperationState == OperationState.Cancelled)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    throw new TimeoutException();
+                }
+
+                throw;
+            }
+            finally
+            {
+                timer?.Dispose();
+                cancellationSubscription.Dispose();
+            }
+
+            static void DisposeStreamCallback(object state)
+            {
+                var disposeCallbackState = (StreamDisposeCallbackState)state;
+                if (!disposeCallbackState.TryChangeState(OperationState.Cancelled))
+                {
+                    // if cannot change the state - then I/O was already succeeded
+                    return;
+                }
+
+                try
+                {
+                    disposeCallbackState.Stream.Dispose();
+                }
+                catch (Exception)
+                {
+                    // callbacks should not fail, suppress any exceptions here
+                }
+            }
+        }
+
+        private record StreamDisposeCallbackState(Stream Stream)
+        {
+            private int _operationState = 0;
+
+            public OperationState OperationState
+            {
+                get => (OperationState)_operationState;
+            }
+
+            public bool TryChangeState(OperationState newState) =>
+                Interlocked.CompareExchange(ref _operationState, (int)newState, (int)OperationState.InProgress) == (int)OperationState.InProgress;
+        }
+
+        private enum OperationState
+        {
+            InProgress = 0,
+            Done,
+            Cancelled,
         }
     }
 }

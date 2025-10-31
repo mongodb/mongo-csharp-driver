@@ -90,20 +90,18 @@ namespace MongoDB.Driver.Core.Misc
             var bytes = new byte[] { 1, 2, 3 };
             var n = 0;
             var position = 0;
-            Task<int> ReadPartial (byte[] buffer, int offset, int count)
+            int ReadPartial (byte[] buffer, int offset, int count)
             {
                 var length = partition[n++];
                 Buffer.BlockCopy(bytes, position, buffer, offset, length);
                 position += length;
-                return Task.FromResult(length);
+                return length;
             }
 
             mockStream.Setup(s => s.ReadAsync(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
-                .Returns((byte[] buffer, int offset, int count, CancellationToken cancellationToken) => ReadPartial(buffer, offset, count));
-            mockStream.Setup(s => s.BeginRead(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<AsyncCallback>(), It.IsAny<object>()))
-                .Returns((byte[] buffer, int offset, int count, AsyncCallback callback, object state) => ReadPartial(buffer, offset, count));
-            mockStream.Setup(s => s.EndRead(It.IsAny<IAsyncResult>()))
-                .Returns<IAsyncResult>(x => ((Task<int>)x).GetAwaiter().GetResult());
+                .Returns((byte[] buffer, int offset, int count, CancellationToken cancellationToken) => Task.FromResult(ReadPartial(buffer, offset, count)));
+            mockStream.Setup(s => s.Read(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>()))
+                .Returns((byte[] buffer, int offset, int count) => ReadPartial(buffer, offset, count));
             var destination = new byte[3];
 
             if (async)
@@ -267,20 +265,18 @@ namespace MongoDB.Driver.Core.Misc
             var destination = new ByteArrayBuffer(new byte[3], 3);
             var n = 0;
             var position = 0;
-            Task<int> ReadPartial (byte[] buffer, int offset, int count)
+            int ReadPartial (byte[] buffer, int offset, int count)
             {
                 var length = partition[n++];
                 Buffer.BlockCopy(bytes, position, buffer, offset, length);
                 position += length;
-                return Task.FromResult(length);
+                return length;
             }
 
             mockStream.Setup(s => s.ReadAsync(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
-                .Returns((byte[] buffer, int offset, int count, CancellationToken cancellationToken) => ReadPartial(buffer, offset, count));
-            mockStream.Setup(s => s.BeginRead(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<AsyncCallback>(), It.IsAny<object>()))
-                .Returns((byte[] buffer, int offset, int count, AsyncCallback callback, object state) => ReadPartial(buffer, offset, count));
-            mockStream.Setup(s => s.EndRead(It.IsAny<IAsyncResult>()))
-                .Returns<IAsyncResult>(x => ((Task<int>)x).GetAwaiter().GetResult());
+                .Returns((byte[] buffer, int offset, int count, CancellationToken cancellationToken) => Task.FromResult(ReadPartial(buffer, offset, count)));
+            mockStream.Setup(s => s.Read(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>()))
+                .Returns((byte[] buffer, int offset, int count) => ReadPartial(buffer, offset, count));
 
             if (async)
             {

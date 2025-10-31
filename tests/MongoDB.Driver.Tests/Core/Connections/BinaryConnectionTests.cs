@@ -811,19 +811,8 @@ namespace MongoDB.Driver.Core.Connections
 
         private void SetupStreamRead(Mock<Stream> streamMock, TaskCompletionSource<int> tcs)
         {
-            streamMock.Setup(s => s.BeginRead(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<AsyncCallback>(), It.IsAny<object>()))
-                .Returns((byte[] _, int __, int ___, AsyncCallback callback, object state) =>
-                {
-                    var innerTcs = new TaskCompletionSource<int>(state);
-                    tcs.Task.ContinueWith(t =>
-                    {
-                        innerTcs.TrySetException(t.Exception.InnerException);
-                        callback(innerTcs.Task);
-                    });
-                    return innerTcs.Task;
-                });
-            streamMock.Setup(s => s.EndRead(It.IsAny<IAsyncResult>()))
-                .Returns<IAsyncResult>(x => ((Task<int>)x).GetAwaiter().GetResult());
+            streamMock.Setup(s => s.Read(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>()))
+                .Returns((byte[] _, int __, int ___) => tcs.Task.GetAwaiter().GetResult());
             streamMock.Setup(s => s.ReadAsync(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
                 .Returns(tcs.Task);
             streamMock.Setup(s => s.Close()).Callback(() => tcs.TrySetException(new ObjectDisposedException("stream")));
