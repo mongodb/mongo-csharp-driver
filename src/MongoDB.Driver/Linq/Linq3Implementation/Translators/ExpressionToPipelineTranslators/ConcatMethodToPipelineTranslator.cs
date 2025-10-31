@@ -20,6 +20,7 @@ using MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages;
 using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
+using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipelineTranslators
 {
@@ -44,7 +45,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                     secondCollectionNamespace != null)
                 {
                     var secondCollectionName = secondCollectionNamespace.CollectionName;
-                    var secondContext = TranslationContext.Create(secondQueryable.Expression, context.TranslationOptions);
+                    var secondCollectionUltimateSource = TranslationContext.GetUltimateSource(secondQueryable.Expression);
+                    var secondCollectionUltimateSourceSerializer = IQueryableSerializer.Create(secondProvider.PipelineInputSerializer);
+                    var secondContext = TranslationContext.Create(secondQueryable.Expression, secondCollectionUltimateSource, secondCollectionUltimateSourceSerializer, context.TranslationOptions);
                     var secondPipeline = ExpressionToPipelineTranslator.Translate(secondContext, secondQueryable.Expression);
                     if (secondPipeline.Ast.Stages.Count == 0)
                     {

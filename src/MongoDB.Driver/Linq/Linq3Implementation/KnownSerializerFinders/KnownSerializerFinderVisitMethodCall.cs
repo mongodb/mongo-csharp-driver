@@ -814,6 +814,7 @@ internal partial class KnownSerializerFinderVisitor
                 case "Exp": DeduceExpMethodSerializers(); break;
                 case "Field": DeduceFieldMethodSerializers(); break;
                 case "get_Item": DeduceGetItemMethodSerializers(); break;
+                case "get_Chars": DeduceGetCharsMethodSerializers(); break;
                 case "GroupBy": DeduceGroupByMethodSerializers(); break;
                 case "GroupJoin": DeduceGroupJoinMethodSerializers(); break;
                 case "Inject": DeduceInjectMethodSerializers(); break;
@@ -2065,6 +2066,16 @@ internal partial class KnownSerializerFinderVisitor
                 indexExpression = null;
                 return false;
             }
+        }
+
+        void DeduceGetCharsMethodSerializers()
+        {
+            if (method.Is(StringMethod.GetChars))
+            {
+                DeduceCharSerializer(node);
+            }
+
+            DeduceUnknowableSerializer(node);
         }
 
         void DeduceGroupByMethodSerializers()

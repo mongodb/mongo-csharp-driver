@@ -14,46 +14,12 @@
  */
 
 using System.Linq.Expressions;
-using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.KnownSerializerFinders;
 
 internal static class KnownSerializerFinder
 {
-    public static KnownSerializerMap FindKnownSerializers(
-        Expression expression,
-        ExpressionTranslationOptions translationOptions)
-    {
-        var knownSerializers = new KnownSerializerMap();
-        return FindKnownSerializers(expression, translationOptions, knownSerializers);
-    }
-
-    public static KnownSerializerMap FindKnownSerializers(
-        Expression expression,
-        ExpressionTranslationOptions translationOptions,
-        Expression initialNode,
-        IBsonSerializer knownSerializer)
-    {
-        var knownSerializers = new KnownSerializerMap();
-        knownSerializers.AddSerializer(initialNode, knownSerializer);
-        return FindKnownSerializers(expression, translationOptions, knownSerializers);
-    }
-
-    public static KnownSerializerMap FindKnownSerializers(
-        Expression expression,
-        ExpressionTranslationOptions translationOptions,
-        (Expression Node, IBsonSerializer KnownSerializer)[] initialNodes)
-    {
-        var knownSerializers = new KnownSerializerMap();
-        foreach (var (initialNode, knownSerializer) in initialNodes)
-        {
-            knownSerializers.AddSerializer(initialNode, knownSerializer);
-
-        }
-        return FindKnownSerializers(expression, translationOptions, knownSerializers);
-    }
-
-    public static KnownSerializerMap FindKnownSerializers(
+    public static void FindKnownSerializers(
         Expression expression,
         ExpressionTranslationOptions translationOptions,
         KnownSerializerMap knownSerializers)
@@ -75,7 +41,5 @@ internal static class KnownSerializerFinder
             throw new ExpressionNotSupportedException(expressionWithUnknownSerializer, because: "we were unable to determine which serializer to use for the result");
         }
         //#endif
-
-        return knownSerializers;
     }
 }

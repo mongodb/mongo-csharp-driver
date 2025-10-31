@@ -146,6 +146,14 @@ internal partial class KnownSerializerFinderVisitor
         }
     }
 
+    private void DeduceCharSerializer(Expression node)
+    {
+        if (IsNotKnown(node))
+        {
+            AddKnownSerializer(node, CharSerializer.Instance);
+        }
+    }
+
     private void DeduceCollectionAndCollectionSerializers(Expression collectionExpression1, Expression collectionExpression2)
     {
         if (IsNotKnown(collectionExpression1) && IsKnown(collectionExpression2, out var knownCollectionSerializer2))

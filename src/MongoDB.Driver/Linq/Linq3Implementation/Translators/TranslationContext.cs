@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.CodeDom;
 using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
@@ -29,14 +28,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
     internal class TranslationContext
     {
         #region static
-        // TODO: this overload is probably a bug (we probably can't translate an expression if we don't have an initial known node)
         public static TranslationContext Create(
-            Expression expression,
+            IQueryable queryable,
             ExpressionTranslationOptions translationOptions,
             TranslationContextData data = null)
         {
-            var knownSerializers = KnownSerializerFinder.FindKnownSerializers(expression, translationOptions);
-            return Create(translationOptions, knownSerializers, data);
+            var expression = queryable.Expression;
+            var provider = (IMongoQueryProviderInternal)queryable.Provider;
+            return Create(expression, provider, translationOptions, data);
         }
 
         public static TranslationContext Create(
@@ -57,7 +56,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
             ExpressionTranslationOptions translationOptions,
             TranslationContextData data = null)
         {
-            var knownSerializers = KnownSerializerFinder.FindKnownSerializers(expression, translationOptions, initialNode, initialSerializer);
+            var knownSerializers = new KnownSerializerMap();
+            knownSerializers.AddSerializer(initialNode, initialSerializer);
+            KnownSerializerFinder.FindKnownSerializers(expression, translationOptions, knownSerializers);
             return Create(translationOptions, knownSerializers, data);
         }
 
@@ -67,7 +68,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
             ExpressionTranslationOptions translationOptions,
             TranslationContextData data = null)
         {
-            var knownSerializers = KnownSerializerFinder.FindKnownSerializers(expression, translationOptions, initialKnownSerializers);
+            var knownSerializers = new KnownSerializerMap();
+            foreach (var (node, serializer) in initialKnownSerializers)
+            {
+                knownSerializers.AddSerializer(node, serializer);
+            }
+            KnownSerializerFinder.FindKnownSerializers(expression, translationOptions, knownSerializers);
             return Create(translationOptions, knownSerializers, data);
         }
 
@@ -81,7 +87,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
             return new TranslationContext(translationOptions, knownSerializers, data, symbolTable, nameGenerator);
         }
 
-        private static Expression GetUltimateSource(Expression expression)
+        public static Expression GetUltimateSource(Expression expression)
         {
             if (expression is ConstantExpression constantExpression &&
                 constantExpression.Value is IQueryable queryable &&
