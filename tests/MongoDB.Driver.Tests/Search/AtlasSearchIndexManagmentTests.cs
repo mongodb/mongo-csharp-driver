@@ -36,9 +36,15 @@ namespace MongoDB.Driver.Tests.Search
         private readonly IMongoCollection<BsonDocument> _collection;
         private readonly IMongoDatabase _database;
         private readonly IMongoClient _mongoClient;
-        private readonly BsonDocument _indexDefinition = BsonDocument.Parse("{ mappings: { dynamic: false } }");
-        private readonly BsonDocument _indexDefinitionWithFields = BsonDocument.Parse("{ mappings: { dynamic: false, fields: { } } }");
-        private readonly BsonDocument _vectorIndexDefinition = BsonDocument.Parse("{ fields: [ { type: 'vector', path: 'plot_embedding', numDimensions: 1536, similarity: 'euclidean' } ] }");
+
+        private readonly BsonDocument _indexDefinition
+            = BsonDocument.Parse("{ mappings: { dynamic: true, fields: { } } }");
+
+        private readonly BsonDocument _indexDefinitionWithFields
+            = BsonDocument.Parse("{ mappings: { dynamic: false, fields: { 'name': { type: 'string', indexOptions: 'offsets', store : true, norms : 'include' } } } }");
+
+        private readonly BsonDocument _vectorIndexDefinition
+            = BsonDocument.Parse("{ fields: [ { type: 'vector', path: 'plot_embedding', numDimensions: 1536, similarity: 'euclidean' } ] }");
 
         public AtlasSearchIndexManagementTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
@@ -72,13 +78,15 @@ namespace MongoDB.Driver.Tests.Search
             [Values(false, true)] bool async,
             [Values(false, true)] bool includeFields)
         {
+            var indexDefinitionBson = includeFields ? _indexDefinitionWithFields : _indexDefinition;
+
             var indexDefinition1 = new CreateSearchIndexModel(
-                async ? "test-search-index-1-async" : "test-search-index-1",
-                includeFields ? _indexDefinitionWithFields : _indexDefinition);
+                CreateIndexName("test-search-index-1", async, includeFields),
+                indexDefinitionBson);
 
             var indexDefinition2 = new CreateSearchIndexModel(
-                async ? "test-search-index-2-async" : "test-search-index-2",
-                includeFields ? _indexDefinitionWithFields : _indexDefinition);
+                CreateIndexName("test-search-index-2", async, includeFields),
+                indexDefinitionBson);
 
             var indexNamesActual = async
                 ? await _collection.SearchIndexes.CreateManyAsync(new[] { indexDefinition1, indexDefinition2 })
@@ -88,8 +96,8 @@ namespace MongoDB.Driver.Tests.Search
 
             var indexes = await GetIndexes(async, indexDefinition1.Name, indexDefinition2.Name);
 
-            indexes[0]["latestDefinition"].AsBsonDocument.Should().Be(_indexDefinitionWithFields);
-            indexes[1]["latestDefinition"].AsBsonDocument.Should().Be(_indexDefinitionWithFields);
+            indexes[0]["latestDefinition"].AsBsonDocument.Should().Be(indexDefinitionBson);
+            indexes[1]["latestDefinition"].AsBsonDocument.Should().Be(indexDefinitionBson);
         }
 
         [Theory(Timeout = Timeout)]
@@ -176,25 +184,21 @@ namespace MongoDB.Driver.Tests.Search
             [Values(false, true)] bool async,
             [Values(false, true)] bool includeFields)
         {
-            var indexName = async ? "test-search-index-case6-async" : "test-search-index-case6";
+            var indexName = CreateIndexName("test-search-index-case6", async, includeFields);
+            var indexDefinitionBson = includeFields ? _indexDefinitionWithFields : _indexDefinition;
 
             var collection = _collection
                 .WithReadConcern(ReadConcern.Majority)
                 .WithWriteConcern(WriteConcern.WMajority);
 
             var indexNameCreated = async
-                ? await collection.SearchIndexes.CreateOneAsync(includeFields
-                    ? _indexDefinitionWithFields
-                    : _indexDefinition, indexName)
-                : collection.SearchIndexes.CreateOne(
-                    includeFields
-                        ? _indexDefinitionWithFields
-                        : _indexDefinition, indexName);
+                ? await collection.SearchIndexes.CreateOneAsync(indexDefinitionBson, indexName)
+                : collection.SearchIndexes.CreateOne(indexDefinitionBson, indexName);
 
             indexNameCreated.Should().Be(indexName);
 
             var indexes = await GetIndexes(async, indexName);
-            indexes[0]["latestDefinition"].AsBsonDocument.Should().Be(_indexDefinitionWithFields);
+            indexes[0]["latestDefinition"].AsBsonDocument.Should().Be(indexDefinitionBson);
         }
 
         [Theory(Timeout = Timeout)]
@@ -420,6 +424,22 @@ namespace MongoDB.Driver.Tests.Search
             public bool Filter1 { get; set; }
             public string Filter2 { get; set; }
             public int Filter3 { get; set; }
+        }
+
+        private static string CreateIndexName(string baseName, bool async, bool includeFields)
+        {
+            if (async)
+            {
+                baseName += "-async";
+            }
+
+
+            if (includeFields)
+            {
+                baseName += "-fields";
+            }
+
+            return baseName;
         }
 
         private async Task<BsonDocument> CreateIndexAndValidate(string indexName, BsonDocument indexDefinition, bool async)
