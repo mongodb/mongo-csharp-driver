@@ -224,6 +224,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return new AstComputedDocumentExpression(fields);
         }
 
+        public static AstExpression ComputedDocument(IEnumerable<(string Name, AstExpression Value)> fields)
+        {
+            return new AstComputedDocumentExpression(fields.Select(f => AstExpression.ComputedField(f.Name, f.Value)));
+        }
+
         public static AstComputedField ComputedField(string name, AstExpression value)
         {
             return new AstComputedField(name, value);
