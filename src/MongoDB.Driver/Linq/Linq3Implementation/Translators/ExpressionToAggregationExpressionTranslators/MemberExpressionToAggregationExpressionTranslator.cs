@@ -216,7 +216,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                             case "Keys":
                                 var keysAst = dictionaryRepresentation switch
                                 {
-                                    DictionaryRepresentation.Document or DictionaryRepresentation.ArrayOfDocuments => AstExpression.Map(containerAst, kvpVar, AstExpression.GetField(kvpVar, "k")),
+                                    DictionaryRepresentation.ArrayOfDocuments => AstExpression.Map(containerAst, kvpVar, AstExpression.GetField(kvpVar, "k")),
                                     DictionaryRepresentation.ArrayOfArrays  => AstExpression.Map(containerAst, kvpVar, AstExpression.ArrayElemAt(kvpVar, 0)),
                                     _ => throw new ExpressionNotSupportedException(expression, $"Unexpected dictionary representation: {dictionaryRepresentation}")
                                 };
@@ -231,7 +231,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                                 {
                                     var kvpPairsAst = dictionaryRepresentation switch
                                     {
-                                        DictionaryRepresentation.Document or DictionaryRepresentation.ArrayOfDocuments => containerAst,
+                                        DictionaryRepresentation.ArrayOfDocuments => containerAst,
                                         DictionaryRepresentation.ArrayOfArrays => AstExpression.Map(containerAst, kvpVar, AstExpression.ComputedDocument([("k", AstExpression.ArrayElemAt(kvpVar, 0)), ("v", AstExpression.ArrayElemAt(kvpVar, 1))])),
                                         _ => throw new ExpressionNotSupportedException(expression, $"Unexpected dictionary representation: {dictionaryRepresentation}")
                                     };
@@ -243,7 +243,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                                 {
                                     var valuesAst = dictionaryRepresentation switch
                                     {
-                                        DictionaryRepresentation.Document => AstExpression.Map(AstExpression.ObjectToArray(containerAst), kvpVar, AstExpression.GetField(kvpVar, "v")),
                                         DictionaryRepresentation.ArrayOfArrays => AstExpression.Map(containerAst, kvpVar, AstComputedArrayExpression.ArrayElemAt(kvpVar, 1)),
                                         DictionaryRepresentation.ArrayOfDocuments => AstExpression.Map(containerAst, kvpVar, AstExpression.GetField(kvpVar, "v")),
                                         _ => throw new ExpressionNotSupportedException(expression, $"Unexpected dictionary representation: {dictionaryRepresentation}")
