@@ -50,6 +50,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         // nested types
         private class SubtreeEvaluator : ExpressionVisitor
         {
+            // private static fields
+            private static readonly Expression __falseConstantExpression = Expression.Constant(false, typeof(bool));
+            private static readonly Expression __trueConstantExpression = Expression.Constant(true, typeof(bool));
+
             // private fields
             private readonly HashSet<Expression> _candidates;
 
@@ -87,7 +91,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                         {
                             // true && Q => Q
                             // false && Q => false
-                            return leftValue ? Visit(rightExpression) : Expression.Constant(false);
+                            return leftValue ? Visit(rightExpression) : __falseConstantExpression;
                         }
 
                         rightExpression = Visit(rightExpression);
@@ -95,7 +99,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                         {
                             // P && true => P
                             // P && false => false
-                            return rightValue ? leftExpression : Expression.Constant(false);
+                            return rightValue ? leftExpression : __falseConstantExpression;
                         }
 
                         return node.Update(leftExpression, conversion: null, rightExpression);
@@ -108,7 +112,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                         {
                             // true || Q => true
                             // false || Q => Q
-                            return leftValue ? Expression.Constant(true) : Visit(rightExpression);
+                            return leftValue ? __trueConstantExpression : Visit(rightExpression);
                         }
 
                         rightExpression = Visit(rightExpression);
@@ -116,7 +120,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                         {
                             // P || true => true
                             // P || false => P
-                            return rightValue ? Expression.Constant(true) : leftExpression;
+                            return rightValue ? __trueConstantExpression : leftExpression;
                         }
 
                         return node.Update(leftExpression, conversion: null, rightExpression);
@@ -144,10 +148,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                 {
                     return (ifTrueValue, ifFalseValue) switch
                     {
-                        (false, false) => Expression.Constant(false), // T ? false : false => false
+                        (false, false) => __falseConstantExpression, // T ? false : false => false
                         (false, true) => Expression.Not(test), // T ? false : true => !T
                         (true, false) => test, // T ? true : false => T
-                        (true, true) => Expression.Constant(true) // T ? true : true => true
+                        (true, true) => __trueConstantExpression // T ? true : true => true
                     };
                 }
                 else if (IsConstant<bool>(ifTrue, out ifTrueValue))
