@@ -101,7 +101,7 @@ public class CSharp5749Tests : LinqIntegrationTest<CSharp5749Tests.ClassFixture>
 
         var result = collection.AsQueryable().Single(Rewrite((C x) => ratings.SequenceEqual(x.Ratings)));
 
-       result.Id.Should().Be(3);
+        result.Id.Should().Be(3);
     }
 
     [Fact]

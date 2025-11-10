@@ -23,7 +23,7 @@ using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
 namespace MongoDB.Driver.Linq.Linq3Implementation.Misc;
 
 /// <summary>
-/// This visitor rewrites expressions where new features of .NET CLR or
+/// This visitor rewrites expressions where features of .NET CLR or
 /// C# compiler interfere with LINQ expression tree translation.
 /// </summary>
 internal class ClrCompatExpressionRewriter : ExpressionVisitor
