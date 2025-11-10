@@ -13,10 +13,29 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
+    /// <summary>
+    /// A static factory class for ArraySerializers.
+    /// </summary>
+    public static class ArraySerializer
+    {
+        /// <summary>
+        /// Creates an ArraySerializer.
+        /// </summary>
+        /// <param name="itemSerializer">The item serializer.</param>
+        /// <returns>An ArraySerializer.</returns>
+        public static IBsonSerializer Create(IBsonSerializer itemSerializer)
+        {
+            var itemType = itemSerializer.ValueType;
+            var arraySerializerType = typeof(ArraySerializer<>).MakeGenericType(itemType);
+            return (IBsonSerializer)Activator.CreateInstance(arraySerializerType, itemSerializer);
+        }
+    }
+
     /// <summary>
     /// Represents a serializer for one-dimensional arrays.
     /// </summary>
