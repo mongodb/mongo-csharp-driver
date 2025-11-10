@@ -264,7 +264,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
             .Select(x => x.IDictionaryAsArrayOfArrays.Values.First(v => v == 2));
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $arrayElemAt : [{ $filter : { input : { $map : { input : '$IDictionaryAsArrayOfArrays', as : 'kvp', in : { $arrayElemAt : ['$$kvp', 1] } } } , as : 'v', cond : { $eq : ['$$v', 2] } } }, 0] }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $arrayElemAt : [{ $filter : { input : { $map : { input : '$IDictionaryAsArrayOfArrays', as : 'kvp', in : { $arrayElemAt : ['$$kvp', 1] } } }, as : 'v', cond : { $eq : ['$$v', 2] } } }, 0] }, _id : 0 } }");
 
         var result = queryable.Single();
         result.Should().Be(2);

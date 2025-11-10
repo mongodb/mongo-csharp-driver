@@ -27,7 +27,7 @@ internal static class DictionaryValueCollectionSerializer
     {
         var keyType = keySerializer.ValueType;
         var valueType = valueSerializer.ValueType;
-        var serializerType  = typeof(DictionaryValueCollectionSerializer<,>).MakeGenericType(keyType, valueType);
+        var serializerType = typeof(DictionaryValueCollectionSerializer<,>).MakeGenericType(keyType, valueType);
         return (IBsonSerializer)Activator.CreateInstance(serializerType, [keySerializer, valueSerializer]);
     }
 }

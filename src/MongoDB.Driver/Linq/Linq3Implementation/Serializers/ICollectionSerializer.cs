@@ -26,7 +26,7 @@ internal static class ICollectionSerializer
     public static IBsonSerializer Create(IBsonSerializer itemSerializer)
     {
         var itemType = itemSerializer.ValueType;
-        var serializerType  = typeof(ICollectionSerializer<>).MakeGenericType(itemType);
+        var serializerType = typeof(ICollectionSerializer<>).MakeGenericType(itemType);
         return (IBsonSerializer)Activator.CreateInstance(serializerType, [itemSerializer]);
     }
 }

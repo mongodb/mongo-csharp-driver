@@ -243,7 +243,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                                 {
                                     var valuesAst = dictionaryRepresentation switch
                                     {
-                                        DictionaryRepresentation.ArrayOfArrays => AstExpression.Map(containerAst, kvpVar, AstComputedArrayExpression.ArrayElemAt(kvpVar, 1)),
+                                        DictionaryRepresentation.ArrayOfArrays => AstExpression.Map(containerAst, kvpVar, AstExpression.ArrayElemAt(kvpVar, 1)),
                                         DictionaryRepresentation.ArrayOfDocuments => AstExpression.Map(containerAst, kvpVar, AstExpression.GetField(kvpVar, "v")),
                                         _ => throw new ExpressionNotSupportedException(expression, $"Unexpected dictionary representation: {dictionaryRepresentation}")
                                     };

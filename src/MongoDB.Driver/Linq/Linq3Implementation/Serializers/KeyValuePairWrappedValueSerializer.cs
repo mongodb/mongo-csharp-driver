@@ -27,7 +27,7 @@ internal static class KeyValuePairWrappedValueSerializer
     {
         var keyType = keySerializer.ValueType;
         var valueType = valueSerializer.ValueType;
-        var serializerType  = typeof(KeyValuePairWrappedValueSerializer<,>).MakeGenericType(keyType, valueType);
+        var serializerType = typeof(KeyValuePairWrappedValueSerializer<,>).MakeGenericType(keyType, valueType);
         return (IBsonSerializer)Activator.CreateInstance(serializerType, [keySerializer, valueSerializer]);
     }
 }
