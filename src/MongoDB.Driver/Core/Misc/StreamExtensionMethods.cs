@@ -38,10 +38,12 @@ namespace MongoDB.Driver.Core.Misc
 
         public static int Read(this Stream stream, byte[] buffer, int offset, int count, TimeSpan timeout, CancellationToken cancellationToken)
         {
-            return UseStreamWithTimeout(
+            return ExecuteOperationWithTimeout(
                 stream,
-                (str, state) => str.Read(state.buffer, state.offset, state.count),
-                (buffer, offset, count),
+                (str, state) => str.Read(state.Buffer, state.Offset, state.Count),
+                buffer,
+                offset,
+                count,
                 timeout,
                 cancellationToken);
         }
@@ -190,14 +192,16 @@ namespace MongoDB.Driver.Core.Misc
 
         public static void Write(this Stream stream, byte[] buffer, int offset, int count, TimeSpan timeout, CancellationToken cancellationToken)
         {
-            UseStreamWithTimeout(
+            ExecuteOperationWithTimeout(
                 stream,
                 (str, state) =>
                 {
-                    str.Write(state.buffer, state.offset, state.count);
+                    str.Write(state.Buffer, state.Offset, state.Count);
                     return true;
                 },
-                (buffer, offset, count),
+                buffer,
+                offset,
+                count,
                 timeout,
                 cancellationToken);
         }
@@ -270,7 +274,7 @@ namespace MongoDB.Driver.Core.Misc
             }
         }
 
-        private static TResult UseStreamWithTimeout<TResult, TState>(Stream stream, Func<Stream, TState, TResult> method, TState state, TimeSpan timeout, CancellationToken cancellationToken)
+        private static TResult ExecuteOperationWithTimeout<TResult>(Stream stream, Func<Stream, (byte[] Buffer, int Offset, int Count), TResult> operation, byte[] buffer, int offset, int count, TimeSpan timeout, CancellationToken cancellationToken)
         {
             StreamDisposeCallbackState callbackState = null;
             Timer timer = null;
@@ -289,8 +293,8 @@ namespace MongoDB.Driver.Core.Misc
 
             try
             {
-                var result = method(stream, state);
-                if (callbackState?.TryChangeState(OperationState.Done) == false)
+                var result = operation(stream, (buffer, offset, count));
+                if (callbackState?.TryChangeStateFromInProgress(OperationState.Done) == false)
                 {
                     // if cannot change the state - then the stream was/will be disposed, throw here
                     throw new IOException();
@@ -317,7 +321,7 @@ namespace MongoDB.Driver.Core.Misc
             static void DisposeStreamCallback(object state)
             {
                 var disposeCallbackState = (StreamDisposeCallbackState)state;
-                if (!disposeCallbackState.TryChangeState(OperationState.Cancelled))
+                if (!disposeCallbackState.TryChangeStateFromInProgress(OperationState.Cancelled))
                 {
                     // if cannot change the state - then I/O was already succeeded
                     return;
@@ -338,12 +342,9 @@ namespace MongoDB.Driver.Core.Misc
         {
             private int _operationState = 0;
 
-            public OperationState OperationState
-            {
-                get => (OperationState)_operationState;
-            }
+            public OperationState OperationState => (OperationState)_operationState;
 
-            public bool TryChangeState(OperationState newState) =>
+            public bool TryChangeStateFromInProgress(OperationState newState) =>
                 Interlocked.CompareExchange(ref _operationState, (int)newState, (int)OperationState.InProgress) == (int)OperationState.InProgress;
         }
 
