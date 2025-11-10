@@ -14,6 +14,7 @@
 */
 
 using System.Linq.Expressions;
+using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators
@@ -22,7 +23,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
     {
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
-            switch (expression.Method.Name)
+            var method = expression.Method;
+            var declaringType = method.DeclaringType;
+
+            switch (method.Name)
             {
                 case "Abs": return AbsMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Add": return AddMethodToAggregationExpressionTranslator.Translate(context, expression);
@@ -207,6 +211,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case "TrimEnd":
                 case "TrimStart":
                     return TrimMethodToAggregationExpressionTranslator.Translate(context, expression);
+            }
+
+            if (expression.IsNonDeterministic())
+            {
+                throw new ExpressionNotSupportedException(expression, because: $"non-deterministic method '{declaringType.Name}.{method.Name}' should not be evaluated client-side and is not currently supported server-side");
             }
 
             throw new ExpressionNotSupportedException(expression);

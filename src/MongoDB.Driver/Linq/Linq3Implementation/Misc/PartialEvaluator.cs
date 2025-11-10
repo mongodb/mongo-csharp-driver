@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
@@ -207,6 +208,18 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                 return node;
             }
 
+            protected override Expression VisitMember(MemberExpression node)
+            {
+                var result = base.VisitMember(node);
+
+                if (result.IsNonDeterministic())
+                {
+                    _cannotBeEvaluated = true;
+                }
+
+                return result;
+            }
+
             protected override Expression VisitMemberInit(MemberInitExpression node)
             {
                 // Bindings must be visited before NewExpression
@@ -231,7 +244,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 
                 var method = node.Method;
                 if (IsCustomLinqExtensionMethod(method) ||
-                    method.Is(QueryableMethod.AsQueryable))
+                    method.Is(QueryableMethod.AsQueryable) ||
+                    result.IsNonDeterministic())
                 {
                     _cannotBeEvaluated = true;
                 }

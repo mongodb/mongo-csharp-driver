@@ -23,6 +23,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
+using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
 using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
@@ -36,6 +37,20 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         {
             var containerExpression = expression.Expression;
             var member = expression.Member;
+            var declaringType = expression.Member.DeclaringType;
+            var memberName = expression.Member.Name;
+
+            if (containerExpression == null)
+            {
+                // TODO: add support for static properties here
+
+                if (expression.IsNonDeterministic())
+                {
+                    throw new ExpressionNotSupportedException(expression, because: $"non-deterministic field or property '{declaringType.Name}.{memberName}' should not be evaluated client-side and is not currently supported server-side");
+                }
+
+                throw new ExpressionNotSupportedException(expression);
+            }
 
             if (member is PropertyInfo property && property.DeclaringType.IsNullable())
             {

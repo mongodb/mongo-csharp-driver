@@ -16,12 +16,29 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Linq.Linq3Implementation.Misc;
+using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods
 {
     internal static class ExpressionExtensions
     {
+        private readonly static MethodInfo[] __nonDeterministicMethods =
+        [
+            GuidMethod.NewGuid,
+            RandomMethod.Next
+        ];
+
+        private readonly static PropertyInfo[] __nonDeterministicProperties =
+        [
+            DateTimeProperty.Now,
+            DateTimeProperty.Today,
+            DateTimeProperty.UtcNow,
+            DateTimeOffsetProperty.Now,
+            DateTimeOffsetProperty.UtcNow
+        ];
         public static object Evaluate(this Expression expression)
         {
             if (expression is ConstantExpression constantExpression)
@@ -59,6 +76,21 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods
 
             var message = $"Expression must be a constant: {expression} in {containingExpression}.";
             throw new ExpressionNotSupportedException(message);
+        }
+
+        public static bool IsNonDeterministic(this Expression expression)
+        {
+            if (expression is MemberExpression memberExpression &&
+                memberExpression.Member is PropertyInfo propertyInfo)
+            {
+                return propertyInfo.IsOneOf(__nonDeterministicProperties);
+            }
+            else if (expression is MethodCallExpression methodCallExpression)
+            {
+                return methodCallExpression.Method.IsOneOf(__nonDeterministicMethods);
+            }
+
+            return false;
         }
     }
 }

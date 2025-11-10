@@ -62,6 +62,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             return ExtractConstructorInfoFromLambda(lambda);
         }
 
+        public static MethodInfo Method<TResult>(Expression<Func<TResult>> lambda)
+        {
+            return ExtractMethodInfoFromLambda(lambda);
+        }
+
         public static MethodInfo Method<T1, TResult>(Expression<Func<T1, TResult>> lambda)
         {
             return ExtractMethodInfoFromLambda(lambda);
@@ -100,6 +105,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo Method<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(Expression<Func<T1, T2, T3, T4, T5, T6, T7, T8, TResult>> lambda)
         {
             return ExtractMethodInfoFromLambda(lambda);
+        }
+
+        public static PropertyInfo Property<TProperty>(Expression<Func<TProperty>> lambda)
+        {
+            return ExtractPropertyInfoFromLambda(lambda);
         }
 
         public static PropertyInfo Property<TObject, TProperty>(Expression<Func<TObject, TProperty>> lambda)
