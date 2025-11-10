@@ -433,7 +433,6 @@ namespace MongoDB.Driver.Tests.Search
                 baseName += "-async";
             }
 
-
             if (includeFields)
             {
                 baseName += "-fields";
