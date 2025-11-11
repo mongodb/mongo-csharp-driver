@@ -17,14 +17,29 @@ using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Driver.TestHelpers;
 using FluentAssertions;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
+using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira;
 
 public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
 {
+    static CSharp5779Tests()
+    {
+        BsonClassMap.RegisterClassMap<C>(cm =>
+        {
+            cm.AutoMap();
+
+            var innerDictionarySerializer = DictionarySerializer.Create(DictionaryRepresentation.ArrayOfArrays, StringSerializer.Instance, Int32Serializer.Instance);
+            var outerDictionarySerializer = DictionarySerializer.Create(DictionaryRepresentation.Document, StringSerializer.Instance, innerDictionarySerializer);
+            cm.MapMember(c => c.DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays).SetSerializer(outerDictionarySerializer);
+        });
+    }
+
     public CSharp5779Tests(ClassFixture fixture)
         : base(fixture)
     {
@@ -486,6 +501,82 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
         results[3].Should().Be(2);
     }
 
+    [Fact]
+    public void DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays_Values_SelectMany_Keys_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Select(x => x.DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays.Values.SelectMany(n => n.Keys));
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : { $reduce : { input : { $map : { input : { $objectToArray : '$DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays' }, as : 'n', in : { $map : { input : '$$n.v', as : 'kvp', in : { $arrayElemAt : ['$$kvp', 0] } } }  } }, initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } }  }, _id : 0 } }");
+
+        var results = queryable.ToList();
+        results.Count.Should().Be(4);
+        results[0].Should().Equal();
+        results[1].Should().Equal("a");
+        results[2].Should().Equal("a", "a", "b");
+        results[3].Should().Equal("a", "a", "b", "a", "b", "c");
+    }
+
+    [Fact]
+    public void DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays_Values_SelectMany_Keys_Where_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Select(x => x.DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays.Values.SelectMany(n => n.Keys.Where(k => k != "a")));
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : { $reduce : { input : { $map : { input : { $objectToArray : '$DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays' }, as : 'n', in : { $filter : { input : { $map : { input : '$$n.v', as : 'kvp', in : { $arrayElemAt : ['$$kvp', 0] } } }, as : 'k', cond : { $ne : ['$$k', 'a'] } } } } }, initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } } }, _id : 0 } }");
+
+        var results = queryable.ToList();
+        results.Count.Should().Be(4);
+        results[0].Should().Equal();
+        results[1].Should().Equal();
+        results[2].Should().Equal("b");
+        results[3].Should().Equal("b", "b", "c");
+    }
+
+    [Fact]
+    public void DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays_Values_SelectMany_Values_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Select(x => x.DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays.Values.SelectMany(n => n.Values));
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : { $reduce : { input : { $map : { input : { $objectToArray : '$DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays' }, as : 'n', in : { $map : { input : '$$n.v', as : 'kvp', in : { k : { $arrayElemAt : ['$$kvp', 0] }, v : { $arrayElemAt : ['$$kvp', 1] } } } } } }, initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } } }, _id : 0 } }");
+
+        var results = queryable.ToList();
+        results.Count.Should().Be(4);
+        results[0].Should().Equal();
+        results[1].Should().Equal(1);
+        results[2].Should().Equal(1, 1, 2);
+        results[3].Should().Equal(1, 1, 2, 1, 2, 3);
+    }
+
+    [Fact]
+    public void DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays_Values_SelectMany_Values_Where_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Select(x => x.DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays.Values.SelectMany(n => n.Values.Where(v => v > 1)));
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : { $reduce : { input : { $map : { input : { $objectToArray : '$DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays' }, as : 'n', in : { $filter : { input : { $map : { input : '$$n.v', as : 'kvp', in : { k : { $arrayElemAt : ['$$kvp', 0] }, v : { $arrayElemAt : ['$$kvp', 1] } } } }, as : 'v', cond : { $gt : ['$$v.v', 1] } } } } }, initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } } }, _id : 0 } }");
+
+        var results = queryable.ToList();
+        results.Count.Should().Be(4);
+        results[0].Should().Equal();
+        results[1].Should().Equal();
+        results[2].Should().Equal(2);
+        results[3].Should().Equal(2, 2, 3);
+    }
+
     public class C
     {
         public int Id { get; set; }
@@ -495,6 +586,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
         [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfArrays)] public IDictionary<string, int> IDictionaryAsArrayOfArrays { get; set; }
         [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfDocuments)] public IDictionary<string, int> IDictionaryAsArrayOfDocuments { get; set; }
         [BsonDictionaryOptions(DictionaryRepresentation.Document)] public IDictionary<string, int> IDictionaryAsDocument { get; set; }
+        public Dictionary<string, Dictionary<string, int>> DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays { get; set; }
     }
 
     public sealed class ClassFixture : MongoCollectionFixture<C>
@@ -509,7 +601,8 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
                 DictionaryAsDocument = new Dictionary<string, int>(),
                 IDictionaryAsArrayOfArrays = new Dictionary<string, int>(),
                 IDictionaryAsArrayOfDocuments = new Dictionary<string, int>(),
-                IDictionaryAsDocument = new Dictionary<string, int>()
+                IDictionaryAsDocument = new Dictionary<string, int>(),
+                DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays = new Dictionary<string, Dictionary<string, int>>()
             },
             new C
             {
@@ -519,7 +612,12 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
                 DictionaryAsDocument = new Dictionary<string, int> { { "a", 1 } },
                 IDictionaryAsArrayOfArrays = new Dictionary<string, int> { { "a", 1 } },
                 IDictionaryAsArrayOfDocuments = new Dictionary<string, int> { { "a", 1 } },
-                IDictionaryAsDocument = new Dictionary<string, int> { { "a", 1 } }
+                IDictionaryAsDocument = new Dictionary<string, int> { { "a", 1 } },
+                DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays = new Dictionary<string, Dictionary<string, int>>
+                {
+                    { "", new Dictionary<string, int>() },
+                    { "a", new Dictionary<string, int> { { "a", 1 } } }
+                }
             },
             new C
             {
@@ -529,7 +627,13 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
                 DictionaryAsDocument = new Dictionary<string, int> { { "a", 1 },  { "b", 2 } },
                 IDictionaryAsArrayOfArrays = new Dictionary<string, int> { { "a", 1 },  { "b", 2 } },
                 IDictionaryAsArrayOfDocuments = new Dictionary<string, int> { { "a", 1 },  { "b", 2 } },
-                IDictionaryAsDocument = new Dictionary<string, int> { { "a", 1 },  { "b", 2 }, }
+                IDictionaryAsDocument = new Dictionary<string, int> { { "a", 1 },  { "b", 2 }, },
+                DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays = new Dictionary<string, Dictionary<string, int>>
+                {
+                    { "", new Dictionary<string, int>() },
+                    { "a", new Dictionary<string, int> { { "a", 1 } } },
+                    { "b", new Dictionary<string, int> { { "a", 1 },  { "b", 2 } } }
+                }
             },
             new C
             {
@@ -539,7 +643,14 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
                 DictionaryAsDocument = new Dictionary<string, int> { { "a", 1 },  { "b", 2 },  { "c", 3 } },
                 IDictionaryAsArrayOfArrays = new Dictionary<string, int> { { "a", 1 },  { "b", 2 },  { "c", 3 } },
                 IDictionaryAsArrayOfDocuments = new Dictionary<string, int> { { "a", 1 },  { "b", 2 },  { "c", 3 } },
-                IDictionaryAsDocument = new Dictionary<string, int> { { "a", 1 },  { "b", 2 },  { "c", 3 } }
+                IDictionaryAsDocument = new Dictionary<string, int> { { "a", 1 },  { "b", 2 },  { "c", 3 } },
+                DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays = new Dictionary<string, Dictionary<string, int>>
+                {
+                    { "", new Dictionary<string, int>() },
+                    { "a", new Dictionary<string, int> { { "a", 1 } } },
+                    { "b", new Dictionary<string, int> { { "a", 1 },  { "b", 2 } } },
+                    { "c", new Dictionary<string, int> { { "a", 1 },  { "b", 2 },  { "c", 3 } } }
+                }
             },
         ];
     }

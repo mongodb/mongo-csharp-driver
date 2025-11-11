@@ -19,6 +19,7 @@ using MongoDB.Bson;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
+using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
@@ -47,6 +48,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var selectorParameterSymbol = context.CreateSymbol(selectorParameter, selectorParameterSerializer);
                 var selectorContext = context.WithSymbol(selectorParameterSymbol);
                 var selectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(selectorContext, selectorLambda.Body);
+                var itemSerializer = ArraySerializerHelper.GetItemSerializer(selectorTranslation.Serializer);
 
                 var asVar = selectorParameterSymbol.Var;
                 var valueVar = AstExpression.Var("value");
@@ -59,7 +61,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     initialValue: new BsonArray(),
                     @in: AstExpression.ConcatArrays(valueVar, thisVar));
 
-                return new TranslatedExpression(expression, ast, selectorTranslation.Serializer);
+                var ienumerableSerializer = IEnumerableSerializer.Create(itemSerializer);
+                return new TranslatedExpression(expression, ast, ienumerableSerializer);
             }
 
             throw new ExpressionNotSupportedException(expression);
