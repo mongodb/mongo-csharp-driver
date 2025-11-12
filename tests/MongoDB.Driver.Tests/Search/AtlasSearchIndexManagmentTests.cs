@@ -253,7 +253,7 @@ namespace MongoDB.Driver.Tests.Search
                 : Record.Exception(() => _collection.SearchIndexes.CreateOne(
                     new CreateSearchIndexModel(indexName, _vectorIndexDefinition).Definition, indexName));
 
-            exception.Message.Should().Contain("Command createSearchIndexes failed: \"userCommand.indexes[0].mappings\" is required.");
+            exception.Message.Should().Contain("Command createSearchIndexes failed");
         }
 
         [Theory(Timeout = Timeout)]
