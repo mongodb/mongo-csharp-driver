@@ -47,6 +47,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 }
             }
 
+            if (TryTranslateDictionaryProperty(context, expression, containerExpression, member, out var translatedDictionaryProperty))
+            {
+                return translatedDictionaryProperty;
+            }
+
             if (typeof(BsonValue).IsAssignableFrom(containerExpression.Type))
             {
                 throw new ExpressionNotSupportedException(expression); // TODO: support BsonValue properties
@@ -185,6 +190,75 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 return true;
             }
 
+            return false;
+        }
+
+        private static bool TryTranslateDictionaryProperty(TranslationContext context, MemberExpression expression, Expression containerExpression, MemberInfo memberInfo, out TranslatedExpression translatedDictionaryProperty)
+        {
+            if (memberInfo is PropertyInfo propertyInfo)
+            {
+                var declaringType = propertyInfo.DeclaringType;
+                var declaringTypeDefinition = declaringType.IsConstructedGenericType ? declaringType.GetGenericTypeDefinition() : null;
+                if (declaringTypeDefinition == typeof(Dictionary<,>) || declaringTypeDefinition == typeof(IDictionary<,>))
+                {
+                    var containerTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, containerExpression);
+                    var containerAst = containerTranslation.Ast;
+
+                    if (containerTranslation.Serializer is IBsonDictionarySerializer dictionarySerializer)
+                    {
+                        var dictionaryRepresentation = dictionarySerializer.DictionaryRepresentation;
+                        var keySerializer = dictionarySerializer.KeySerializer;
+                        var valueSerializer = dictionarySerializer.ValueSerializer;
+                        var kvpVar = AstExpression.Var("kvp");
+
+                        switch (propertyInfo.Name)
+                        {
+                            case "Keys":
+                                var keysAst = dictionaryRepresentation switch
+                                {
+                                    DictionaryRepresentation.ArrayOfDocuments => AstExpression.Map(containerAst, kvpVar, AstExpression.GetField(kvpVar, "k")),
+                                    DictionaryRepresentation.ArrayOfArrays  => AstExpression.Map(containerAst, kvpVar, AstExpression.ArrayElemAt(kvpVar, 0)),
+                                    _ => throw new ExpressionNotSupportedException(expression, $"Unexpected dictionary representation: {dictionaryRepresentation}")
+                                };
+                                var keysSerializer = declaringTypeDefinition == typeof(Dictionary<,>)
+                                    ? DictionaryKeyCollectionSerializer.Create(keySerializer, valueSerializer)
+                                    : ICollectionSerializer.Create(keySerializer);
+                                translatedDictionaryProperty = new TranslatedExpression(expression, keysAst, keysSerializer);
+                                return true;
+
+                            case "Values":
+                                if (declaringTypeDefinition == typeof(Dictionary<,>))
+                                {
+                                    var kvpPairsAst = dictionaryRepresentation switch
+                                    {
+                                        DictionaryRepresentation.ArrayOfDocuments => containerAst,
+                                        DictionaryRepresentation.ArrayOfArrays => AstExpression.Map(containerAst, kvpVar, AstExpression.ComputedDocument([("k", AstExpression.ArrayElemAt(kvpVar, 0)), ("v", AstExpression.ArrayElemAt(kvpVar, 1))])),
+                                        _ => throw new ExpressionNotSupportedException(expression, $"Unexpected dictionary representation: {dictionaryRepresentation}")
+                                    };
+                                    var valuesSerializer = DictionaryValueCollectionSerializer.Create(keySerializer, valueSerializer);
+                                    translatedDictionaryProperty = new TranslatedExpression(expression, kvpPairsAst, valuesSerializer);
+                                    return true;
+                                }
+                                else if (declaringTypeDefinition == typeof(IDictionary<,>))
+                                {
+                                    var valuesAst = dictionaryRepresentation switch
+                                    {
+                                        DictionaryRepresentation.ArrayOfArrays => AstExpression.Map(containerAst, kvpVar, AstExpression.ArrayElemAt(kvpVar, 1)),
+                                        DictionaryRepresentation.ArrayOfDocuments => AstExpression.Map(containerAst, kvpVar, AstExpression.GetField(kvpVar, "v")),
+                                        _ => throw new ExpressionNotSupportedException(expression, $"Unexpected dictionary representation: {dictionaryRepresentation}")
+                                    };
+                                    var valuesSerializer = ICollectionSerializer.Create(valueSerializer);
+                                    translatedDictionaryProperty = new TranslatedExpression(expression, valuesAst, valuesSerializer);
+                                    return true;
+                                }
+                                break;
+                        }
+
+                    }
+                }
+            }
+
+            translatedDictionaryProperty = null;
             return false;
         }
     }

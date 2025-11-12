@@ -1,0 +1,657 @@
+﻿/* Copyright 2010-present MongoDB Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
+using System.Collections.Generic;
+using System.Linq;
+using MongoDB.Driver.TestHelpers;
+using FluentAssertions;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Options;
+using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
+using Xunit;
+
+namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira;
+
+public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
+{
+    static CSharp5779Tests()
+    {
+        BsonClassMap.RegisterClassMap<C>(cm =>
+        {
+            cm.AutoMap();
+
+            var innerDictionarySerializer = DictionarySerializer.Create(DictionaryRepresentation.ArrayOfArrays, StringSerializer.Instance, Int32Serializer.Instance);
+            var outerDictionarySerializer = DictionarySerializer.Create(DictionaryRepresentation.Document, StringSerializer.Instance, innerDictionarySerializer);
+            cm.MapMember(c => c.DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays).SetSerializer(outerDictionarySerializer);
+        });
+    }
+
+    public CSharp5779Tests(ClassFixture fixture)
+        : base(fixture)
+    {
+    }
+
+    [Fact]
+    public void DictionaryAsArrayOfArrays_Keys_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Select(x => x.DictionaryAsArrayOfArrays.Keys);
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : { $map : { input : '$DictionaryAsArrayOfArrays', as : 'kvp', in : { $arrayElemAt : ['$$kvp', 0] } } }, _id : 0 } }");
+
+        var results = queryable.ToList();
+        results.Count.Should().Be(4);
+        results[0].Should().Equal();
+        results[1].Should().Equal("a");
+        results[2].Should().Equal("a", "b");
+        results[3].Should().Equal("a", "b", "c");
+    }
+
+    [Fact]
+    public void DictionaryAsArrayOfArrays_Keys_First_with_predicate_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Select(x => x.DictionaryAsArrayOfArrays.Keys.First(k => k == "b"));
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : { $arrayElemAt : [{ $filter : { input : { $map : { input : '$DictionaryAsArrayOfArrays', as : 'kvp', in : { $arrayElemAt : ['$$kvp', 0] } } }, as : 'k', cond : { $eq : ['$$k', 'b'] } } }, 0] }, _id : 0 } }");
+
+        var results = queryable.ToList();
+        results.Count.Should().Be(4);
+        results[0].Should().Be(null);
+        results[1].Should().Be(null);
+        results[2].Should().Be("b");
+        results[3].Should().Be("b");
+    }
+
+    [Fact]
+    public void DictionaryAsArrayOfArrays_Values_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Select(x => x.DictionaryAsArrayOfArrays.Values);
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : { $map : { input : '$DictionaryAsArrayOfArrays', as : 'kvp' in : { k : { $arrayElemAt : ['$$kvp', 0] }, v : { $arrayElemAt : ['$$kvp', 1] } } } } , _id : 0 } }");
+
+        var results = queryable.ToList();
+        results.Count.Should().Be(4);
+        results[0].Should().Equal();
+        results[1].Should().Equal(1);
+        results[2].Should().Equal(1, 2);
+        results[3].Should().Equal(1, 2, 3);
+    }
+
+    [Fact]
+    public void DictionaryAsArrayOfArrays_Values_First_with_predicate_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Select(x => x.DictionaryAsArrayOfArrays.Values.First(v => v == 2));
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : { $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : { $map : { input : '$DictionaryAsArrayOfArrays', as : 'kvp', in : { k : { $arrayElemAt : ['$$kvp', 0] }, v : { $arrayElemAt : ['$$kvp', 1] } } } }, as : 'v', cond : { $eq : ['$$v.v', 2] } } }, 0] } }, in : '$$this.v' } }, _id : 0 } }");
+
+        var results = queryable.ToList();
+        results.Count.Should().Be(4);
+        results[0].Should().Be(0);
+        results[1].Should().Be(0);
+        results[2].Should().Be(2);
+        results[3].Should().Be(2);
+    }
+
+    [Fact]
+    public void DictionaryAsArrayOfDocuments_Keys_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Select(x => x.DictionaryAsArrayOfDocuments.Keys);
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : '$DictionaryAsArrayOfDocuments.k', _id : 0 } }");
+
+        var results = queryable.ToList();
+        results.Count.Should().Be(4);
+        results[0].Should().Equal();
+        results[1].Should().Equal("a");
+        results[2].Should().Equal("a", "b");
+        results[3].Should().Equal("a", "b", "c");
+    }
+
+    [Fact]
+    public void DictionaryAsArrayOfDocuments_Keys_First_with_predicate_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Select(x => x.DictionaryAsArrayOfDocuments.Keys.First(k => k == "b"));
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : { $arrayElemAt : [{ $filter : { input : '$DictionaryAsArrayOfDocuments.k', as : 'k', cond : { $eq : ['$$k', 'b'] } } }, 0] }, _id : 0 } }");
+
+        var results = queryable.ToList();
+        results.Count.Should().Be(4);
+        results[0].Should().Be(null);
+        results[1].Should().Be(null);
+        results[2].Should().Be("b");
+        results[3].Should().Be("b");
+    }
+
+    [Fact]
+    public void DictionaryAsArrayOfDocuments_Values_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Select(x => x.DictionaryAsArrayOfDocuments.Values);
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : '$DictionaryAsArrayOfDocuments', _id : 0 } }");
+
+        var results = queryable.ToList();
+        results.Count.Should().Be(4);
+        results[0].Should().Equal();
+        results[1].Should().Equal(1);
+        results[2].Should().Equal(1, 2);
+        results[3].Should().Equal(1, 2, 3);
+    }
+
+    [Fact]
+    public void DictionaryAsArrayOfDocuments_Values_First_with_predicate_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Select(x => x.DictionaryAsArrayOfDocuments.Values.First(v => v == 2));
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : { $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$DictionaryAsArrayOfDocuments', as : 'v', cond : { $eq : ['$$v.v', 2] } } }, 0] } }, in : '$$this.v' } }, _id : 0 } }");
+
+        var results = queryable.ToList();
+        results.Count.Should().Be(4);
+        results[0].Should().Be(0);
+        results[1].Should().Be(0);
+        results[2].Should().Be(2);
+        results[3].Should().Be(2);
+    }
+
+    [Fact]
+    public void DictionaryAsDocument_Keys_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Select(x => x.DictionaryAsDocument.Keys);
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : { $map : { input : { $objectToArray : '$DictionaryAsDocument' }, as : 'kvp', in : '$$kvp.k' } }, _id : 0 } }");
+
+        var results = queryable.ToList();
+        results.Count.Should().Be(4);
+        results[0].Should().Equal();
+        results[1].Should().Equal("a");
+        results[2].Should().Equal("a", "b");
+        results[3].Should().Equal("a", "b", "c");
+    }
+
+    [Fact]
+    public void DictionaryAsDocument_Keys_First_with_predicate_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Select(x => x.DictionaryAsDocument.Keys.First(k => k == "b"));
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : { $arrayElemAt : [{ $filter : { input : { $map : { input : { $objectToArray : '$DictionaryAsDocument' }, as : 'kvp', in : '$$kvp.k' } }, as : 'k', cond : { $eq : ['$$k', 'b'] } } }, 0] }, _id : 0 } }");
+
+        var results = queryable.ToList();
+        results.Count.Should().Be(4);
+        results[0].Should().Be(null);
+        results[1].Should().Be(null);
+        results[2].Should().Be("b");
+        results[3].Should().Be("b");
+    }
+
+    [Fact]
+    public void DictionaryAsDocument_Values_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Select(x => x.DictionaryAsDocument.Values);
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : { $objectToArray : '$DictionaryAsDocument' }, _id : 0 } }");
+
+        var results = queryable.ToList();
+        results.Count.Should().Be(4);
+        results[0].Should().Equal();
+        results[1].Should().Equal(1);
+        results[2].Should().Equal(1, 2);
+        results[3].Should().Equal(1, 2, 3);
+    }
+
+    [Fact]
+    public void DictionaryAsDocument_Values_First_with_predicate_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Select(x => x.DictionaryAsDocument.Values.First(v => v == 2));
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : { $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : { $objectToArray : '$DictionaryAsDocument' }, as : 'v', cond : { $eq : ['$$v.v', 2] } } }, 0] } }, in : '$$this.v' } }, _id : 0 } }");
+
+        var results = queryable.ToList();
+        results.Count.Should().Be(4);
+        results[0].Should().Be(0);
+        results[1].Should().Be(0);
+        results[2].Should().Be(2);
+        results[3].Should().Be(2);
+    }
+
+    [Fact]
+    public void IDictionaryAsArrayOfArrays_Keys_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Select(x => x.IDictionaryAsArrayOfArrays.Keys);
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : { $map : { input : '$IDictionaryAsArrayOfArrays', as : 'kvp', in : { $arrayElemAt : ['$$kvp', 0] } } }, _id : 0 } }");
+
+        var results = queryable.ToList();
+        results.Count.Should().Be(4);
+        results[0].Should().Equal();
+        results[1].Should().Equal("a");
+        results[2].Should().Equal("a", "b");
+        results[3].Should().Equal("a", "b", "c");
+    }
+
+    [Fact]
+    public void IDictionaryAsArrayOfArrays_Keys_First_with_predicate_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Select(x => x.IDictionaryAsArrayOfArrays.Keys.First(k => k == "b"));
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : { $arrayElemAt : [{ $filter : { input : { $map : { input : '$IDictionaryAsArrayOfArrays', as : 'kvp', in : { $arrayElemAt : ['$$kvp', 0] } } }, as : 'k', cond : { $eq : ['$$k', 'b'] } } }, 0] }, _id : 0 } }");
+
+        var results = queryable.ToList();
+        results.Count.Should().Be(4);
+        results[0].Should().Be(null);
+        results[1].Should().Be(null);
+        results[2].Should().Be("b");
+        results[3].Should().Be("b");
+    }
+
+    [Fact]
+    public void IDictionaryAsArrayOfArrays_Values_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Select(x => x.IDictionaryAsArrayOfArrays.Values);
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : { $map : { input : '$IDictionaryAsArrayOfArrays', as : 'kvp', in : { $arrayElemAt : ['$$kvp', 1] } } }, _id : 0 } }");
+
+        var results = queryable.ToList();
+        results.Count.Should().Be(4);
+        results[0].Should().Equal();
+        results[1].Should().Equal(1);
+        results[2].Should().Equal(1, 2);
+        results[3].Should().Equal(1, 2, 3);
+    }
+
+    [Fact]
+    public void IDictionaryAsArrayOfArrays_Values_First_with_predicate_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Select(x => x.IDictionaryAsArrayOfArrays.Values.First(v => v == 2));
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : { $arrayElemAt : [{ $filter : { input : { $map : { input : '$IDictionaryAsArrayOfArrays', as : 'kvp', in : { $arrayElemAt : ['$$kvp', 1] } } }, as : 'v', cond : { $eq : ['$$v', 2] } } }, 0] }, _id : 0 } }");
+
+        var results = queryable.ToList();
+        results.Count.Should().Be(4);
+        results[0].Should().Be(0);
+        results[1].Should().Be(0);
+        results[2].Should().Be(2);
+        results[3].Should().Be(2);
+    }
+
+    [Fact]
+    public void IDictionaryAsArrayOfDocuments_Keys_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Select(x => x.IDictionaryAsArrayOfDocuments.Keys);
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : '$IDictionaryAsArrayOfDocuments.k', _id : 0 } }");
+
+        var results = queryable.ToList();
+        results.Count.Should().Be(4);
+        results[0].Should().Equal();
+        results[1].Should().Equal("a");
+        results[2].Should().Equal("a", "b");
+        results[3].Should().Equal("a", "b", "c");
+    }
+
+    [Fact]
+    public void IDictionaryAsArrayOfDocuments_Keys_First_with_predicate_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Select(x => x.IDictionaryAsArrayOfDocuments.Keys.First(k => k == "b"));
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : { $arrayElemAt : [{ $filter : { input : '$IDictionaryAsArrayOfDocuments.k', as : 'k', cond : { $eq : ['$$k', 'b'] } } }, 0] }, _id : 0 } }");
+
+        var results = queryable.ToList();
+        results.Count.Should().Be(4);
+        results[0].Should().Be(null);
+        results[1].Should().Be(null);
+        results[2].Should().Be("b");
+        results[3].Should().Be("b");
+    }
+
+    [Fact]
+    public void IDictionaryAsArrayOfDocuments_Values_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Select(x => x.IDictionaryAsArrayOfDocuments.Values);
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : '$IDictionaryAsArrayOfDocuments.v', _id : 0 } }");
+
+        var results = queryable.ToList();
+        results.Count.Should().Be(4);
+        results[0].Should().Equal();
+        results[1].Should().Equal(1);
+        results[2].Should().Equal(1, 2);
+        results[3].Should().Equal(1, 2, 3);
+    }
+
+    [Fact]
+    public void IDictionaryAsArrayOfDocuments_Values_First_with_predicate_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Select(x => x.IDictionaryAsArrayOfDocuments.Values.First(v => v == 2));
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : { $arrayElemAt : [{ $filter : { input : '$IDictionaryAsArrayOfDocuments.v', as : 'v', cond : { $eq : ['$$v', 2] } } }, 0] }, _id : 0 } }");
+
+        var results = queryable.ToList();
+        results.Count.Should().Be(4);
+        results[0].Should().Be(0);
+        results[1].Should().Be(0);
+        results[2].Should().Be(2);
+        results[3].Should().Be(2);
+    }
+
+    [Fact]
+    public void IDictionaryAsDocument_Keys_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Select(x => x.IDictionaryAsDocument.Keys);
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : { $map : { input : { $objectToArray : '$IDictionaryAsDocument' }, as : 'kvp', in : '$$kvp.k' } }, _id : 0 } }");
+
+        var results = queryable.ToList();
+        results.Count.Should().Be(4);
+        results[0].Should().Equal();
+        results[1].Should().Equal("a");
+        results[2].Should().Equal("a", "b");
+        results[3].Should().Equal("a", "b", "c");
+    }
+
+    [Fact]
+    public void IDictionaryAsDocument_Keys_First_with_predicate_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Select(x => x.IDictionaryAsDocument.Keys.First(k => k == "b"));
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : { $arrayElemAt : [{ $filter : { input : { $map : { input : { $objectToArray : '$IDictionaryAsDocument' }, as : 'kvp', in : '$$kvp.k' } }, as : 'k', cond : { $eq : ['$$k', 'b'] } } }, 0] }, _id : 0 } }");
+
+        var results = queryable.ToList();
+        results.Count.Should().Be(4);
+        results[0].Should().Be(null);
+        results[1].Should().Be(null);
+        results[2].Should().Be("b");
+        results[3].Should().Be("b");
+    }
+
+    [Fact]
+    public void IDictionaryAsDocument_Values_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Select(x => x.IDictionaryAsDocument.Values);
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : { $map : { input : { $objectToArray : '$IDictionaryAsDocument' }, as : 'kvp', in : '$$kvp.v' } }, _id : 0 } }");
+
+        var results = queryable.ToList();
+        results.Count.Should().Be(4);
+        results[0].Should().Equal();
+        results[1].Should().Equal(1);
+        results[2].Should().Equal(1, 2);
+        results[3].Should().Equal(1, 2, 3);
+    }
+
+    [Fact]
+    public void IDictionaryAsDocument_Values_First_with_predicate_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Select(x => x.IDictionaryAsDocument.Values.First(v => v == 2));
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : { $arrayElemAt : [{ $filter : { input : { $map : { input : { $objectToArray : '$IDictionaryAsDocument' }, as : 'kvp', in : '$$kvp.v' } }, as : 'v', cond : { $eq : ['$$v', 2] } } }, 0] }, _id : 0 } }");
+
+        var results = queryable.ToList();
+        results.Count.Should().Be(4);
+        results[0].Should().Be(0);
+        results[1].Should().Be(0);
+        results[2].Should().Be(2);
+        results[3].Should().Be(2);
+    }
+
+    [Fact]
+    public void DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays_Values_SelectMany_Keys_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Select(x => x.DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays.Values.SelectMany(n => n.Keys));
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : { $reduce : { input : { $map : { input : { $objectToArray : '$DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays' }, as : 'n', in : { $map : { input : '$$n.v', as : 'kvp', in : { $arrayElemAt : ['$$kvp', 0] } } }  } }, initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } }  }, _id : 0 } }");
+
+        var results = queryable.ToList();
+        results.Count.Should().Be(4);
+        results[0].Should().Equal();
+        results[1].Should().Equal("a");
+        results[2].Should().Equal("a", "a", "b");
+        results[3].Should().Equal("a", "a", "b", "a", "b", "c");
+    }
+
+    [Fact]
+    public void DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays_Values_SelectMany_Keys_Where_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Select(x => x.DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays.Values.SelectMany(n => n.Keys.Where(k => k != "a")));
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : { $reduce : { input : { $map : { input : { $objectToArray : '$DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays' }, as : 'n', in : { $filter : { input : { $map : { input : '$$n.v', as : 'kvp', in : { $arrayElemAt : ['$$kvp', 0] } } }, as : 'k', cond : { $ne : ['$$k', 'a'] } } } } }, initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } } }, _id : 0 } }");
+
+        var results = queryable.ToList();
+        results.Count.Should().Be(4);
+        results[0].Should().Equal();
+        results[1].Should().Equal();
+        results[2].Should().Equal("b");
+        results[3].Should().Equal("b", "b", "c");
+    }
+
+    [Fact]
+    public void DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays_Values_SelectMany_Values_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Select(x => x.DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays.Values.SelectMany(n => n.Values));
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : { $reduce : { input : { $map : { input : { $objectToArray : '$DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays' }, as : 'n', in : { $map : { input : '$$n.v', as : 'kvp', in : { k : { $arrayElemAt : ['$$kvp', 0] }, v : { $arrayElemAt : ['$$kvp', 1] } } } } } }, initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } } }, _id : 0 } }");
+
+        var results = queryable.ToList();
+        results.Count.Should().Be(4);
+        results[0].Should().Equal();
+        results[1].Should().Equal(1);
+        results[2].Should().Equal(1, 1, 2);
+        results[3].Should().Equal(1, 1, 2, 1, 2, 3);
+    }
+
+    [Fact]
+    public void DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays_Values_SelectMany_Values_Where_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Select(x => x.DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays.Values.SelectMany(n => n.Values.Where(v => v > 1)));
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : { $reduce : { input : { $map : { input : { $objectToArray : '$DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays' }, as : 'n', in : { $filter : { input : { $map : { input : '$$n.v', as : 'kvp', in : { k : { $arrayElemAt : ['$$kvp', 0] }, v : { $arrayElemAt : ['$$kvp', 1] } } } }, as : 'v', cond : { $gt : ['$$v.v', 1] } } } } }, initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } } }, _id : 0 } }");
+
+        var results = queryable.ToList();
+        results.Count.Should().Be(4);
+        results[0].Should().Equal();
+        results[1].Should().Equal();
+        results[2].Should().Equal(2);
+        results[3].Should().Equal(2, 2, 3);
+    }
+
+    public class C
+    {
+        public int Id { get; set; }
+        [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfArrays)] public Dictionary<string, int> DictionaryAsArrayOfArrays { get; set; }
+        [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfDocuments)] public Dictionary<string, int> DictionaryAsArrayOfDocuments { get; set; }
+        [BsonDictionaryOptions(DictionaryRepresentation.Document)] public Dictionary<string, int> DictionaryAsDocument { get; set; }
+        [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfArrays)] public IDictionary<string, int> IDictionaryAsArrayOfArrays { get; set; }
+        [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfDocuments)] public IDictionary<string, int> IDictionaryAsArrayOfDocuments { get; set; }
+        [BsonDictionaryOptions(DictionaryRepresentation.Document)] public IDictionary<string, int> IDictionaryAsDocument { get; set; }
+        public Dictionary<string, Dictionary<string, int>> DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays { get; set; }
+    }
+
+    public sealed class ClassFixture : MongoCollectionFixture<C>
+    {
+        protected override IEnumerable<C> InitialData =>
+        [
+            new C
+            {
+                Id = 1,
+                DictionaryAsArrayOfArrays = new Dictionary<string, int>(),
+                DictionaryAsArrayOfDocuments = new Dictionary<string, int>(),
+                DictionaryAsDocument = new Dictionary<string, int>(),
+                IDictionaryAsArrayOfArrays = new Dictionary<string, int>(),
+                IDictionaryAsArrayOfDocuments = new Dictionary<string, int>(),
+                IDictionaryAsDocument = new Dictionary<string, int>(),
+                DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays = new Dictionary<string, Dictionary<string, int>>()
+            },
+            new C
+            {
+                Id = 2,
+                DictionaryAsArrayOfArrays = new Dictionary<string, int> { { "a", 1 } },
+                DictionaryAsArrayOfDocuments = new Dictionary<string, int> { { "a", 1 } },
+                DictionaryAsDocument = new Dictionary<string, int> { { "a", 1 } },
+                IDictionaryAsArrayOfArrays = new Dictionary<string, int> { { "a", 1 } },
+                IDictionaryAsArrayOfDocuments = new Dictionary<string, int> { { "a", 1 } },
+                IDictionaryAsDocument = new Dictionary<string, int> { { "a", 1 } },
+                DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays = new Dictionary<string, Dictionary<string, int>>
+                {
+                    { "", new Dictionary<string, int>() },
+                    { "a", new Dictionary<string, int> { { "a", 1 } } }
+                }
+            },
+            new C
+            {
+                Id = 3,
+                DictionaryAsArrayOfArrays = new Dictionary<string, int> { { "a", 1 },  { "b", 2 } },
+                DictionaryAsArrayOfDocuments = new Dictionary<string, int> { { "a", 1 },  { "b", 2 } },
+                DictionaryAsDocument = new Dictionary<string, int> { { "a", 1 },  { "b", 2 } },
+                IDictionaryAsArrayOfArrays = new Dictionary<string, int> { { "a", 1 },  { "b", 2 } },
+                IDictionaryAsArrayOfDocuments = new Dictionary<string, int> { { "a", 1 },  { "b", 2 } },
+                IDictionaryAsDocument = new Dictionary<string, int> { { "a", 1 },  { "b", 2 }, },
+                DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays = new Dictionary<string, Dictionary<string, int>>
+                {
+                    { "", new Dictionary<string, int>() },
+                    { "a", new Dictionary<string, int> { { "a", 1 } } },
+                    { "b", new Dictionary<string, int> { { "a", 1 },  { "b", 2 } } }
+                }
+            },
+            new C
+            {
+                Id = 4,
+                DictionaryAsArrayOfArrays = new Dictionary<string, int> { { "a", 1 },  { "b", 2 },  { "c", 3 } },
+                DictionaryAsArrayOfDocuments = new Dictionary<string, int> { { "a", 1 },  { "b", 2 },  { "c", 3 } },
+                DictionaryAsDocument = new Dictionary<string, int> { { "a", 1 },  { "b", 2 },  { "c", 3 } },
+                IDictionaryAsArrayOfArrays = new Dictionary<string, int> { { "a", 1 },  { "b", 2 },  { "c", 3 } },
+                IDictionaryAsArrayOfDocuments = new Dictionary<string, int> { { "a", 1 },  { "b", 2 },  { "c", 3 } },
+                IDictionaryAsDocument = new Dictionary<string, int> { { "a", 1 },  { "b", 2 },  { "c", 3 } },
+                DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays = new Dictionary<string, Dictionary<string, int>>
+                {
+                    { "", new Dictionary<string, int>() },
+                    { "a", new Dictionary<string, int> { { "a", 1 } } },
+                    { "b", new Dictionary<string, int> { { "a", 1 },  { "b", 2 } } },
+                    { "c", new Dictionary<string, int> { { "a", 1 },  { "b", 2 },  { "c", 3 } } }
+                }
+            },
+        ];
+    }
+}

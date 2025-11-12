@@ -31,6 +31,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         // public static methods
         public static TranslatedExpression Translate(TranslationContext context, Expression expression)
         {
+            var translatedExpression = TranslateWithoutUnwrapping(context, expression);
+            return UnwrapIfWrapped(expression, translatedExpression);
+        }
+
+        public static TranslatedExpression TranslateWithoutUnwrapping(TranslationContext context, Expression expression)
+        {
             switch (expression.NodeType)
             {
                 case ExpressionType.Convert:
@@ -113,12 +119,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             {
                 var keySerializer = dictionarySerializer.KeySerializer;
                 var valueSerializer = dictionarySerializer.ValueSerializer;
-                var keyValuePairSerializer = KeyValuePairSerializer.Create(BsonType.Document, keySerializer, valueSerializer);
 
                 var ast  = AstExpression.ObjectToArray(aggregateExpression.Ast);
-                var ienumerableSerializer = ArraySerializerHelper.CreateSerializer(keyValuePairSerializer);
+                var arrayOfDocumentsDictionarySerializer = DictionarySerializer.Create(DictionaryRepresentation.ArrayOfDocuments, keySerializer, valueSerializer);
 
-                aggregateExpression = new TranslatedExpression(expression, ast, ienumerableSerializer);
+                aggregateExpression = new TranslatedExpression(expression, ast, arrayOfDocumentsDictionarySerializer);
             }
 
             return aggregateExpression;
@@ -168,6 +173,17 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             }
 
             return translatedBody;
+        }
+
+        private static TranslatedExpression UnwrapIfWrapped(Expression expression, TranslatedExpression translatedExpression)
+        {
+            if (translatedExpression.Serializer is IWrappedValueSerializer wrappedValueSerializer)
+            {
+                var unwrappedAst = AstExpression.GetField(translatedExpression.Ast, wrappedValueSerializer.FieldName);
+                return new TranslatedExpression(expression, unwrappedAst, wrappedValueSerializer.ValueSerializer);
+            }
+
+            return translatedExpression;
         }
     }
 }
