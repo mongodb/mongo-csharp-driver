@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -199,6 +199,49 @@ namespace MongoDB.Driver.Core.Misc
 
             exception.Should().BeOfType<ArgumentNullException>().Subject
                 .ParamName.Should().Be("stream");
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task ReadBytes_with_byte_array_throws_on_timeout([Values(true, false)]bool async)
+        {
+            var streamMock = new Mock<Stream>();
+            SetupStreamRead(streamMock);
+            var stream = streamMock.Object;
+
+            var destination = new byte[2];
+            var timeout = TimeSpan.FromMilliseconds(10);
+
+            var exception = async ?
+                await Record.ExceptionAsync(() => stream.ReadAsync(destination, 0, 2, timeout, CancellationToken.None)) :
+                Record.Exception(() => stream.Read(destination, 0, 2, timeout, CancellationToken.None));
+
+            exception.Should().BeOfType<TimeoutException>();
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task ReadBytes_with_byte_array_throws_on_cancellation([Values(true, false)]bool async)
+        {
+            var streamMock = new Mock<Stream>();
+            SetupStreamRead(streamMock);
+            var stream = streamMock.Object;
+
+            var destination = new byte[2];
+            using var cancellationTokenSource = new CancellationTokenSource(10);
+
+            var exception = async ?
+                await Record.ExceptionAsync(() => stream.ReadAsync(destination, 0, 2, Timeout.InfiniteTimeSpan, cancellationTokenSource.Token)) :
+                Record.Exception(() => stream.Read(destination, 0, 2, Timeout.InfiniteTimeSpan, cancellationTokenSource.Token));
+
+            if (async)
+            {
+                exception.Should().BeOfType<TaskCanceledException>();
+            }
+            else
+            {
+                exception.Should().BeOfType<OperationCanceledException>();
+            }
         }
 
         [Theory]
@@ -528,6 +571,19 @@ namespace MongoDB.Driver.Core.Misc
             var mockBuffer = new Mock<IByteBuffer>();
             mockBuffer.SetupGet(b => b.Length).Returns(length);
             return mockBuffer;
+        }
+
+        private void SetupStreamRead(Mock<Stream> streamMock, TaskCompletionSource<int> readTaskCompletionSource = null)
+        {
+            readTaskCompletionSource ??= new TaskCompletionSource<int>();
+            streamMock.Setup(s => s.Close()).Callback(() =>
+            {
+                readTaskCompletionSource.SetException(new IOException());
+            });
+            streamMock.Setup(s => s.Read(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>())).Returns(() =>
+                readTaskCompletionSource.Task.GetAwaiter().GetResult());
+            streamMock.Setup(s => s.ReadAsync(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>())).Returns(() =>
+                readTaskCompletionSource.Task);
         }
     }
 }

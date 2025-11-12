@@ -36,9 +36,8 @@ namespace MongoDB.Driver.Core.Misc
             }
         }
 
-        public static int Read(this Stream stream, byte[] buffer, int offset, int count, TimeSpan timeout, CancellationToken cancellationToken)
-        {
-            return ExecuteOperationWithTimeout(
+        public static int Read(this Stream stream, byte[] buffer, int offset, int count, TimeSpan timeout, CancellationToken cancellationToken) =>
+            ExecuteOperationWithTimeout(
                 stream,
                 (str, state) => str.Read(state.Buffer, state.Offset, state.Count),
                 buffer,
@@ -46,7 +45,6 @@ namespace MongoDB.Driver.Core.Misc
                 count,
                 timeout,
                 cancellationToken);
-        }
 
         public static async Task<int> ReadAsync(this Stream stream, byte[] buffer, int offset, int count, TimeSpan timeout, CancellationToken cancellationToken)
         {
@@ -190,8 +188,7 @@ namespace MongoDB.Driver.Core.Misc
             }
         }
 
-        public static void Write(this Stream stream, byte[] buffer, int offset, int count, TimeSpan timeout, CancellationToken cancellationToken)
-        {
+        public static void Write(this Stream stream, byte[] buffer, int offset, int count, TimeSpan timeout, CancellationToken cancellationToken) =>
             ExecuteOperationWithTimeout(
                 stream,
                 (str, state) =>
@@ -204,7 +201,6 @@ namespace MongoDB.Driver.Core.Misc
                 count,
                 timeout,
                 cancellationToken);
-        }
 
         public static async Task WriteAsync(this Stream stream, byte[] buffer, int offset, int count, TimeSpan timeout, CancellationToken cancellationToken)
         {
@@ -304,7 +300,7 @@ namespace MongoDB.Driver.Core.Misc
             }
             catch (IOException)
             {
-                if (callbackState?.OperationState == OperationState.Cancelled)
+                if (callbackState?.OperationState == OperationState.Interrupted)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
                     throw new TimeoutException();
@@ -321,9 +317,9 @@ namespace MongoDB.Driver.Core.Misc
             static void DisposeStreamCallback(object state)
             {
                 var disposeCallbackState = (StreamDisposeCallbackState)state;
-                if (!disposeCallbackState.TryChangeStateFromInProgress(OperationState.Cancelled))
+                if (!disposeCallbackState.TryChangeStateFromInProgress(OperationState.Interrupted))
                 {
-                    // if cannot change the state - then I/O was already succeeded
+                    // If the state can't be changed - then I/O had already succeeded
                     return;
                 }
 
@@ -352,7 +348,7 @@ namespace MongoDB.Driver.Core.Misc
         {
             InProgress = 0,
             Done,
-            Cancelled,
+            Interrupted,
         }
     }
 }
