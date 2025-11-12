@@ -96,7 +96,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
 
             var mockStream = new Mock<Stream>();
             mockStream
-                .Setup(s => s.BeginWrite(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<AsyncCallback>(), It.IsAny<object>()))
+                .Setup(s => s.Write(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>()))
                 .Callback(() => EnqueueEvent(HelloReceivedEvent))
                 .Throws(new Exception("Stream is closed."));
 
