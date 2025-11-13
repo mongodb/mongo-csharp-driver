@@ -2212,12 +2212,6 @@ namespace MongoDB.Driver
                     throw new NotSupportedException(message);
                 }
 
-                var discriminator = discriminatorConvention.GetDiscriminator(typeof(TDocument), typeof(TDerived));
-                if (discriminator == null)
-                {
-                    throw new NotSupportedException($"OfType requires that documents of type {BsonUtils.GetFriendlyTypeName(typeof(TDerived))} have a discriminator value.");
-                }
-
                 var discriminatorField = new AstFilterField(discriminatorConvention.ElementName);
                 ofTypeFilter= discriminatorConvention switch
                 {

@@ -55,6 +55,11 @@ internal static class DiscriminatorAstFilter
     public static AstFieldOperationFilter TypeIs(AstFilterField discriminatorField, IHierarchicalDiscriminatorConvention discriminatorConvention, Type nominalType, Type actualType)
     {
         var discriminator = discriminatorConvention.GetDiscriminator(nominalType, actualType);
+        if (discriminator == null)
+        {
+            throw new NotSupportedException($"Hierarchical discriminator convention requires that documents of type {BsonUtils.GetFriendlyTypeName(actualType)} have a discriminator value.");
+        }
+
         var lastItem = discriminator is BsonArray array ? array.Last() : discriminator;
         return AstFilter.Eq(discriminatorField, lastItem); // will match subclasses also
     }
