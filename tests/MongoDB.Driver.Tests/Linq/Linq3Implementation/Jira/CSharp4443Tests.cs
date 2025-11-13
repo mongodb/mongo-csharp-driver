@@ -19,7 +19,6 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
-using MongoDB.Driver.Linq;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira;
@@ -29,84 +28,6 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
     public CSharp4443Tests(ClassFixture fixture)
         : base(fixture)
     {
-    }
-
-    [Fact]
-    public void Projecting_dictionary_keys_with_arrayOfArrays_should_throw()
-    {
-        var exception = Record.Exception(() =>
-        {
-            _ = Fixture.ArrayOfArraysCollection.AsQueryable()
-                .Select(x => x.Dictionary.Keys)
-                .ToList();
-        });
-
-        exception.Should().BeOfType<ExpressionNotSupportedException>();
-    }
-
-    [Fact]
-    public void Projecting_dictionary_keys_with_arrayOfDocs_should_throw()
-    {
-        var exception = Record.Exception(() =>
-        {
-            _ = Fixture.ArrayOfDocsCollection.AsQueryable()
-                .Select(x => x.Dictionary.Keys)
-                .ToList();
-        });
-
-        exception.Should().BeOfType<ExpressionNotSupportedException>();
-    }
-
-    [Fact]
-    public void Projecting_dictionary_keys_with_document_should_throw()
-    {
-        var exception = Record.Exception(() =>
-        {
-            _ = Fixture.DocCollection.AsQueryable()
-                .Select(x => x.Dictionary.Keys)
-                .ToList();
-        });
-
-        exception.Should().BeOfType<ExpressionNotSupportedException>();
-    }
-
-    [Fact]
-    public void Projecting_dictionary_values_with_arrayOfArrays_should_throw()
-    {
-        var exception = Record.Exception(() =>
-        {
-            _ = Fixture.ArrayOfArraysCollection.AsQueryable()
-                .Select(x => x.Dictionary.Values)
-                .ToList();
-        });
-
-        exception.Should().BeOfType<ExpressionNotSupportedException>();
-    }
-
-    [Fact]
-    public void Projecting_dictionary_values_with_arrayOfDocs_should_throw()
-    {
-        var exception = Record.Exception(() =>
-        {
-            _ = Fixture.ArrayOfDocsCollection.AsQueryable()
-                .Select(x => x.Dictionary.Values)
-                .ToList();
-        });
-
-        exception.Should().BeOfType<ExpressionNotSupportedException>();
-    }
-
-    [Fact]
-    public void Projecting_dictionary_values_with_document_should_throw()
-    {
-        var exception = Record.Exception(() =>
-        {
-            _ = Fixture.DocCollection.AsQueryable()
-                .Select(x => x.Dictionary.Values)
-                .ToList();
-        });
-
-        exception.Should().BeOfType<ExpressionNotSupportedException>();
     }
 
     [Fact]
@@ -148,7 +69,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
             .Select(x => x.Dictionary.Values.Average());
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $avg : { $map : { input : '$Dictionary', as : 'kvp', in : { $arrayElemAt : ['$$kvp', 1] } } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $avg : { $map : { input : { $map : { input : '$Dictionary', as : 'kvp', in : { k : { $arrayElemAt : ['$$kvp', 0] }, v : { $arrayElemAt : ['$$kvp', 1] } } } }, as : 'item', in : '$$item.v' } } }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(55.666666666666664, 52.0, 67.5, 165.0);
@@ -283,7 +204,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
             .Select(x => x.Dictionary.Values.Max());
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $max : { $map : { input : '$Dictionary', as : 'kvp', in : { $arrayElemAt : ['$$kvp', 1] } } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $max : { $map : { input : { $map : { input : '$Dictionary', as : 'kvp', in : { k : { $arrayElemAt : ['$$kvp', 0] }, v : { $arrayElemAt : ['$$kvp', 1] } } } }, as : 'item', in : '$$item.v' } } }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(100, 85, 100, 200);
@@ -632,7 +553,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
             .Select(x => x.Dictionary.Values.Average());
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $avg : { $let : { vars : { this : { $objectToArray : '$Dictionary' } }, in : '$$this.v' } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $avg : { $map : { input : { $objectToArray : '$Dictionary' }, as : 'item', in : '$$item.v' } } }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(55.666666666666664, 52.0, 67.5, 165.0);
@@ -767,7 +688,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
             .Select(x => x.Dictionary.Values.Max());
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $max : { $let : { vars : { this : { $objectToArray : '$Dictionary' } }, in : '$$this.v' } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $max : { $map : { input : { $objectToArray : '$Dictionary' }, as : 'item', in : '$$item.v' } } }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(100, 85, 100, 200);
@@ -1328,7 +1249,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
             .Select(x => x.DictionaryInterface.Values.Average());
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $avg : { $let : { vars : { this : { $objectToArray : '$DictionaryInterface' } }, in : '$$this.v' } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $avg : { $map : { input : { $objectToArray : '$DictionaryInterface' }, as : 'kvp', in : '$$kvp.v' } } }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(55.666666666666664, 52.0, 67.5, 165.0);
@@ -1448,7 +1369,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
             .Select(x => x.DictionaryInterface.Values.Max());
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $max : { $let : { vars : { this : { $objectToArray : '$DictionaryInterface' } }, in : '$$this.v' } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $max : { $map : { input : { $objectToArray : '$DictionaryInterface' }, as : 'kvp', in : '$$kvp.v' } } }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(100, 85, 100, 200);
