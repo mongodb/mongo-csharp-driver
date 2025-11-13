@@ -164,14 +164,26 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     break;
 
                 case DictionaryRepresentation.ArrayOfArrays:
-                    ast = AstExpression.GetField(AstExpression.ArrayToObject(dictionaryTranslation.Ast), keyFieldNameAst);
-                    break;
+                    {
+                        var filter = AstExpression.Filter(
+                            dictionaryTranslation.Ast,
+                            AstExpression.Eq(AstExpression.ArrayElemAt(AstExpression.Var("kvp"), 0), keyFieldNameAst),
+                            "kvp",
+                            limit: 1);
+                        ast = AstExpression.ArrayElemAt(AstExpression.ArrayElemAt(filter, 0), 1);
+                        break;
+                    }
 
                 case DictionaryRepresentation.ArrayOfDocuments:
-                    var filter = AstExpression.Filter(dictionaryTranslation.Ast,
-                        AstExpression.Eq(AstExpression.GetField(AstExpression.Var("kvp"), "k"), keyFieldNameAst), "kvp");
-                    ast = AstExpression.GetField(AstExpression.ArrayElemAt(filter, 0), "v");
-                    break;
+                    {
+                        var filter = AstExpression.Filter(
+                            dictionaryTranslation.Ast,
+                            AstExpression.Eq(AstExpression.GetField(AstExpression.Var("kvp"), "k"), keyFieldNameAst),
+                            "kvp",
+                            limit: 1);
+                        ast = AstExpression.GetField(AstExpression.ArrayElemAt(filter, 0), "v");
+                        break;
+                    }
                 default:
                     throw new ExpressionNotSupportedException(expression, because: $"Indexer access is not supported when DictionaryRepresentation is: {dictionaryRepresentation}");
             }

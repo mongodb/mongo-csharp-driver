@@ -42,54 +42,39 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
         public static TranslatedExpression TranslateContainsValue(TranslationContext context, Expression expression, Expression dictionaryExpression, Expression valueExpression)
         {
-            var dictionaryTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, dictionaryExpression);
+            var dictionaryTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, dictionaryExpression);
             var dictionarySerializer = GetDictionarySerializer(expression, dictionaryTranslation);
             var dictionaryRepresentation = dictionarySerializer.DictionaryRepresentation;
 
             var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
-            var (valueBinding, valueAst) = AstExpression.UseVarIfNotSimple("value", valueTranslation.Ast);
+            var valueAst = valueTranslation.Ast;
 
+            var kvpVar = AstExpression.Var("kvp");
             AstExpression ast;
             switch (dictionaryRepresentation)
             {
-                case DictionaryRepresentation.Document:
-                    ast = AstExpression.Let(
-                        var: valueBinding,
-                        @in: AstExpression.Reduce(
-                            input: AstExpression.ObjectToArray(dictionaryTranslation.Ast),
-                            initialValue: false,
-                            @in: AstExpression.Cond(
-                                @if: AstExpression.Var("value"),
-                                @then: true,
-                                @else: AstExpression.Eq(AstExpression.GetField(AstExpression.Var("this"), "v"), valueAst))));
-                    break;
-
                 case DictionaryRepresentation.ArrayOfArrays:
-                    ast = AstExpression.Let(
-                        var: valueBinding,
-                        @in: AstExpression.Reduce(
+                    {
+                        var valuesArray = AstExpression.Map(
                             input: dictionaryTranslation.Ast,
-                            initialValue: false,
-                            @in: AstExpression.Cond(
-                                @if: AstExpression.Var("value"),
-                                @then: true,
-                                @else: AstExpression.Eq(AstExpression.ArrayElemAt(AstExpression.Var("this"), 1), valueAst))));
-                    break;
+                            @as: kvpVar,
+                            @in: AstExpression.ArrayElemAt(kvpVar, 1));
+                        ast = AstExpression.In(valueAst, valuesArray);
+                        break;
+                    }
 
                 case DictionaryRepresentation.ArrayOfDocuments:
-                    ast = AstExpression.Let(
-                        var: valueBinding,
-                        @in: AstExpression.Reduce(
+                    {
+                        var valuesArray = AstExpression.Map(
                             input: dictionaryTranslation.Ast,
-                            initialValue: false,
-                            @in: AstExpression.Cond(
-                                @if: AstExpression.Var("value"),
-                                @then: true,
-                                @else: AstExpression.Eq(AstExpression.GetField(AstExpression.Var("this"), "v"), valueAst))));
-                    break;
+                            @as: kvpVar,
+                            @in: AstExpression.GetField(kvpVar, "v"));
+                        ast = AstExpression.In(valueAst, valuesArray);
+                        break;
+                    }
 
                 default:
-                    throw new ExpressionNotSupportedException(expression, because: $"DictionaryRepresentation: {dictionaryRepresentation} is not supported.");
+                    throw new ExpressionNotSupportedException(expression, because: $"Unexpected dictionary representation: {dictionaryRepresentation}");
             }
 
             return new TranslatedExpression(expression, ast, BooleanSerializer.Instance);

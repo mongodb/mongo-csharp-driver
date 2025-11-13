@@ -84,7 +84,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
             .Select(x => x.Dictionary.ContainsKey("life"));
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $reduce : { input : '$Dictionary', initialValue : false, in : { $cond : { if : '$$value', then : true, else : { $eq : [{ $arrayElemAt : ['$$this', 0] }, 'life'] } } } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $in : ['life', { $map : { input : '$Dictionary', as : 'kvp', in : { $arrayElemAt : ['$$kvp', 0] } } }] }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(true, true, false, false);
@@ -99,7 +99,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
             .Select(x => x.Dictionary.ContainsValue(25));
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $reduce : { input : '$Dictionary', initialValue : false, in : { $cond : { if : '$$value', then : true, else : { $eq : [{ $arrayElemAt : ['$$this', 1] }, 25] } } } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $in : [25, { $map : { input : '$Dictionary', as : 'kvp', in : { $arrayElemAt : ['$$kvp', 1] } } }] }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(true, false, false, false);
@@ -174,7 +174,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
             .Select(x => x.Dictionary["age"]);
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $let : { vars : { this : { $arrayToObject : '$Dictionary' } }, in : '$$this.age' } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $arrayElemAt : [{ $arrayElemAt : [{ $filter : { input : '$Dictionary', as : 'kvp', cond : { $eq : [{ $arrayElemAt : ['$$kvp', 0] }, 'age'] }, limit : 1 } }, 0] }, 1] }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(25, 30, 35, 130);
@@ -189,7 +189,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
             .Select(x => x.Dictionary.Keys.Contains("life"));
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $reduce : { input : '$Dictionary', initialValue : false, in : { $cond : { if : '$$value', then : true, else : { $eq : [{ $arrayElemAt : ['$$this', 0] }, 'life'] } } } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $in : ['life', { $map : { input : '$Dictionary', as : 'kvp', in : { $arrayElemAt : ['$$kvp', 0] } } }] }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(true, true, false, false);
@@ -251,7 +251,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
             .Select(x => x.Dictionary.Values.Contains(42));
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $reduce : { input : '$Dictionary', initialValue : false, in : { $cond : { if : '$$value', then : true, else : { $eq : [{ $arrayElemAt : ['$$this', 1] }, 42] } } } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $in : [42, { $map : { input : '$Dictionary', as : 'kvp', in : { $arrayElemAt : ['$$kvp', 1] } } }] }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(true, false, false, false);
@@ -326,7 +326,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
             .Select(x => x.Dictionary.ContainsKey("life"));
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $reduce : { input : '$Dictionary', initialValue : false, in : { $cond : { if : '$$value', then : true, else : { $eq : ['$$this.k', 'life'] } } } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $in : ['life', '$Dictionary.k'] }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(true, true, false, false);
@@ -341,7 +341,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
             .Select(x => x.Dictionary.ContainsValue(25));
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $reduce : { input : '$Dictionary', initialValue : false, in : { $cond : { if : '$$value', then : true, else : { $eq : ['$$this.v', 25] } } } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $in : [25, '$Dictionary.v'] }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(true, false, false, false);
@@ -416,7 +416,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
             .Select(x => x.Dictionary["age"]);
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$Dictionary', as : 'kvp', cond : { $eq : ['$$kvp.k', 'age'] } } }, 0] } }, in : '$$this.v' } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$Dictionary', as : 'kvp', cond : { $eq : ['$$kvp.k', 'age'] }, limit : 1 } }, 0] } }, in : '$$this.v' } }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(25, 30, 35, 130);
@@ -431,7 +431,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
             .Select(x => x.Dictionary.Keys.Contains("life"));
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $reduce : { input : '$Dictionary', initialValue : false, in : { $cond : { if : '$$value', then : true, else : { $eq : ['$$this.k', 'life'] } } } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $in : ['life', '$Dictionary.k'] }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(true, true, false, false);
@@ -493,7 +493,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
             .Select(x => x.Dictionary.Values.Contains(42));
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $reduce : { input : '$Dictionary', initialValue : false, in : { $cond : { if : '$$value', then : true, else : { $eq : ['$$this.v', 42] } } } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $in : [42, '$Dictionary.v'] }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(true, false, false, false);
@@ -583,7 +583,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
             .Select(x => x.Dictionary.ContainsValue(25));
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $reduce : { input : { $objectToArray : '$Dictionary' }, initialValue : false, in : { $cond : { if : '$$value', then : true, else : { $eq : ['$$this.v', 25] } } } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $in : [25, { $map : { input : { $objectToArray : '$Dictionary' }, as : 'kvp', in : '$$kvp.v' } }] }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(true, false, false, false);
@@ -735,7 +735,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
             .Select(x => x.Dictionary.Values.Contains(42));
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $reduce : { input : { $objectToArray : '$Dictionary' }, initialValue : false, in : { $cond : { if : '$$value', then : true, else : { $eq : ['$$this.v', 42] } } } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $in : [42, { $map : { input : { $objectToArray : '$Dictionary' }, as : 'kvp', in : '$$kvp.v' } }] }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(true, false, false, false);
@@ -810,7 +810,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
             .Select(x => x.DictionaryInterface.ContainsKey("life"));
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $reduce : { input : '$DictionaryInterface', initialValue : false, in : { $cond : { if : '$$value', then : true, else : { $eq : [{ $arrayElemAt : ['$$this', 0] }, 'life'] } } } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $in : ['life', { $map : { input : '$DictionaryInterface', as : 'kvp', in : { $arrayElemAt : ['$$kvp', 0] } } }] }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(true, true, false, false);
@@ -885,7 +885,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
             .Select(x => x.DictionaryInterface["age"]);
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $let : { vars : { this : { $arrayToObject : '$DictionaryInterface' } }, in : '$$this.age' } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $arrayElemAt : [{ $arrayElemAt : [{ $filter : { input : '$DictionaryInterface', as : 'kvp', cond : { $eq : [{ $arrayElemAt : ['$$kvp', 0] }, 'age'] }, limit : 1 } }, 0] }, 1] }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(25, 30, 35, 130);
@@ -900,7 +900,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
             .Select(x => x.DictionaryInterface.Keys.Contains("life"));
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $reduce : { input : '$DictionaryInterface', initialValue : false, in : { $cond : { if : '$$value', then : true, else : { $eq : [{ $arrayElemAt : ['$$this', 0] }, 'life'] } } } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $in : ['life', { $map : { input : '$DictionaryInterface', as : 'kvp', in : { $arrayElemAt : ['$$kvp', 0] } } }] }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(true, true, false, false);
@@ -962,7 +962,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
             .Select(x => x.DictionaryInterface.Values.Contains(42));
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $reduce : { input : '$DictionaryInterface', initialValue : false, in : { $cond : { if : '$$value', then : true, else : { $eq : [{ $arrayElemAt : ['$$this', 1] }, 42] } } } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $in : [42, { $map : { input : '$DictionaryInterface', as : 'kvp', in : { $arrayElemAt : ['$$kvp', 1] } } }] }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(true, false, false, false);
@@ -1037,7 +1037,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
             .Select(x => x.DictionaryInterface.ContainsKey("life"));
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $reduce : { input : '$DictionaryInterface', initialValue : false, in : { $cond : { if : '$$value', then : true, else : { $eq : ['$$this.k', 'life'] } } } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $in : ['life', '$DictionaryInterface.k'] }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(true, true, false, false);
@@ -1112,7 +1112,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
             .Select(x => x.DictionaryInterface["age"]);
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$DictionaryInterface', as : 'kvp', cond : { $eq : ['$$kvp.k', 'age'] } } }, 0] } }, in : '$$this.v' } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$DictionaryInterface', as : 'kvp', cond : { $eq : ['$$kvp.k', 'age'] }, limit : 1 } }, 0] } }, in : '$$this.v' } }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(25, 30, 35, 130);
@@ -1127,7 +1127,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
             .Select(x => x.DictionaryInterface.Keys.Contains("life"));
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $reduce : { input : '$DictionaryInterface', initialValue : false, in : { $cond : { if : '$$value', then : true, else : { $eq : ['$$this.k', 'life'] } } } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $in : ['life', '$DictionaryInterface.k'] }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(true, true, false, false);
@@ -1189,7 +1189,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
             .Select(x => x.DictionaryInterface.Values.Contains(42));
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $reduce : { input : '$DictionaryInterface', initialValue : false, in : { $cond : { if : '$$value', then : true, else : { $eq : ['$$this.v', 42] } } } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $in : [42, '$DictionaryInterface.v'] }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(true, false, false, false);
@@ -1416,7 +1416,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
             .Select(x => x.DictionaryInterface.Values.Contains(42));
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $reduce : { input : { $objectToArray : '$DictionaryInterface' }, initialValue : false, in : { $cond : { if : '$$value', then : true, else : { $eq : ['$$this.v', 42] } } } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $in : [42, { $map : { input : { $objectToArray : '$DictionaryInterface' }, as : 'kvp', in : '$$kvp.v' } }] }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(true, false, false, false);
@@ -1510,7 +1510,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
             .Where(x => x.Dictionary.Count > threshold);
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, $"{{ $match : {{ 'Dictionary.{threshold}' : {{ $exists : true }} }} }}");
+        AssertStages(stages, $$"""{ $match : { 'Dictionary.{{threshold}}' : { $exists : true } } }""");
 
         var result = queryable.ToList();
         result.Should().HaveCount(expectedCount);
@@ -1556,7 +1556,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
             .Where(x => x.Dictionary["life"] == 42);
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $match : { $expr : { $eq : [{ $let : { vars : { this : { $arrayToObject : '$Dictionary' } }, in : '$$this.life' } }, 42] } } }");
+        AssertStages(stages, "{ $match : { $expr : { $eq : [{ $arrayElemAt : [{ $arrayElemAt : [{ $filter : { input : '$Dictionary', as : 'kvp', cond : { $eq : [{ $arrayElemAt : ['$$kvp', 0] }, 'life'] }, limit : 1 } }, 0] }, 1] }, 42] } } }");
 
         var result = queryable.ToList();
         result.Should().ContainSingle();
@@ -1591,7 +1591,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
         var stages = Translate(collection, queryable);
         AssertStages(stages,
             "{ $match : { Dictionary : { $elemMatch : { '0' : 'age' } } } }",
-            "{ $project : { _id : 0, _document : '$$ROOT', _key1 : { $let : { vars : { this : { $arrayToObject : '$Dictionary' } }, in : '$$this.age' } } } }",
+            "{ $project : { _id : 0, _document : '$$ROOT', _key1 : { $arrayElemAt : [{ $arrayElemAt : [{ $filter : { input : '$Dictionary', as : 'kvp', cond : { $eq : [{ $arrayElemAt : ['$$kvp', 0] }, 'age'] }, limit : 1 } }, 0] }, 1] } } }",
             "{ $sort : { _key1 : 1 } }",
             "{ $replaceRoot : { newRoot : '$_document' } }");
 
@@ -1612,7 +1612,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
         var stages = Translate(collection, queryable);
         AssertStages(stages,
             "{ $match : { Dictionary : { $elemMatch : { '0' : 'age' } } } }",
-            "{ $project : { _id : 0, _document : '$$ROOT', _key1 : { $let : { vars : { this : { $arrayToObject : '$Dictionary' } }, in : '$$this.age' } } } }",
+            "{ $project : { _id : 0, _document : '$$ROOT', _key1 : { $arrayElemAt : [{ $arrayElemAt : [{ $filter : { input : '$Dictionary', as : 'kvp', cond : { $eq : [{ $arrayElemAt : ['$$kvp', 0] }, 'age'] }, limit : 1 } }, 0] }, 1] } } }",
             "{ $sort : { _key1 : -1 } }",
             "{ $replaceRoot : { newRoot : '$_document' } }");
 
@@ -1709,7 +1709,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
             .Where(x => x.Dictionary.Count > threshold);
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, $"{{ $match : {{ 'Dictionary.{threshold}' : {{ $exists : true }} }} }}");
+        AssertStages(stages, $$"""{ $match : { 'Dictionary.{{threshold}}' : { $exists : true } } }""");
 
         var result = queryable.ToList();
         result.Should().HaveCount(expectedCount);
@@ -1755,7 +1755,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
             .Where(x => x.Dictionary["life"] == 42);
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $match : { $expr : { $eq : [{ $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$Dictionary', as : 'kvp', cond : { $eq : ['$$kvp.k', 'life'] } } }, 0] } }, in : '$$this.v' } }, 42] } } }");
+        AssertStages(stages, "{ $match : { $expr : { $eq : [{ $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$Dictionary', as : 'kvp', cond : { $eq : ['$$kvp.k', 'life'] }, limit : 1 } }, 0] } }, in : '$$this.v' } }, 42] } } }");
 
         var result = queryable.ToList();
         result.Should().ContainSingle();
@@ -1790,7 +1790,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
         var stages = Translate(collection, queryable);
         AssertStages(stages,
             "{ $match : { Dictionary : { $elemMatch : { k : 'age' } } } }",
-            "{ $project : { _id : 0, _document : '$$ROOT', _key1 : { $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$Dictionary', as : 'kvp', cond : { $eq : ['$$kvp.k', 'age'] } } }, 0] } }, in : '$$this.v' } } } }",
+            "{ $project : { _id : 0, _document : '$$ROOT', _key1 : { $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$Dictionary', as : 'kvp', cond : { $eq : ['$$kvp.k', 'age'] }, limit : 1 } }, 0] } }, in : '$$this.v' } } } }",
             "{ $sort : { _key1 : 1 } }",
             "{ $replaceRoot : { newRoot : '$_document' } }");
 
@@ -1811,7 +1811,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
         var stages = Translate(collection, queryable);
         AssertStages(stages,
             "{ $match : { Dictionary : { $elemMatch : { k : 'age' } } } }",
-            "{ $project : { _id : 0, _document : '$$ROOT', _key1 : { $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$Dictionary', as : 'kvp', cond : { $eq : ['$$kvp.k', 'age'] } } }, 0] } }, in : '$$this.v' } } } }",
+            "{ $project : { _id : 0, _document : '$$ROOT', _key1 : { $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$Dictionary', as : 'kvp', cond : { $eq : ['$$kvp.k', 'age'] }, limit : 1 } }, 0] } }, in : '$$this.v' } } } }",
             "{ $sort : { _key1 : -1 } }",
             "{ $replaceRoot : { newRoot : '$_document' } }");
 
@@ -1890,7 +1890,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
             .Where(x => x.Dictionary.ContainsValue(25));
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $match : { $expr : { $reduce : { input : { $objectToArray : '$Dictionary' }, initialValue : false, in : { $cond : { if : '$$value', then : true, else : { $eq : ['$$this.v', 25] } } } } } } }");
+        AssertStages(stages, "{ $match : { $expr : { $in : [25, { $map : { input : { $objectToArray : '$Dictionary' }, as : 'kvp', in : '$$kvp.v' } }] } } }");
 
         var result = queryable.ToList();
         result.Should().ContainSingle()
@@ -1908,7 +1908,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
             .Where(x => x.Dictionary.Count > threshold);
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, $"{{ $match : {{ $expr : {{ $gt : [{{ $size : {{ $objectToArray : '$Dictionary' }} }}, {threshold}] }} }} }}");
+        AssertStages(stages, $$"""{ $match : { $expr : { $gt : [{ $size : { $objectToArray : '$Dictionary' } }, {{threshold}}] } } }""");
 
         var result = queryable.ToList();
         result.Should().HaveCount(expectedCount);
@@ -2024,7 +2024,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
             .Where(x => x.Dictionary.Values.Contains(42));
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $match : { $expr : { $reduce : { input : { $objectToArray : '$Dictionary' }, initialValue : false, in : { $cond : { if : '$$value', then : true, else : { $eq : ['$$this.v', 42] } } } } } } }");
+        AssertStages(stages, "{ $match : { $expr : { $in : [42, { $map : { input : { $objectToArray : '$Dictionary' }, as : 'kvp', in : '$$kvp.v' } }] } } }");
 
         var result = queryable.ToList();
         result.Should().ContainSingle();
@@ -2131,7 +2131,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
             .Where(x => x.DictionaryInterface["life"] == 42);
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $match : { $expr : { $eq : [{ $let : { vars : { this : { $arrayToObject : '$DictionaryInterface' } }, in : '$$this.life' } }, 42] } } }");
+        AssertStages(stages, "{ $match : { $expr : { $eq : [{ $arrayElemAt : [{ $arrayElemAt : [{ $filter : { input : '$DictionaryInterface', as : 'kvp', cond : { $eq : [{ $arrayElemAt : ['$$kvp', 0] }, 'life'] }, limit : 1 } }, 0] }, 1] }, 42] } } }");
 
         var result = queryable.ToList();
         result.Should().ContainSingle();
@@ -2166,7 +2166,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
         var stages = Translate(collection, queryable);
         AssertStages(stages,
             "{ $match : { DictionaryInterface : { $elemMatch : { '0' : 'age' } } } }",
-            "{ $project : { _id : 0, _document : '$$ROOT', _key1 : { $let : { vars : { this : { $arrayToObject : '$DictionaryInterface' } }, in : '$$this.age' } } } }",
+            "{ $project : { _id : 0, _document : '$$ROOT', _key1 : { $arrayElemAt : [{ $arrayElemAt : [{ $filter : { input : '$DictionaryInterface', as : 'kvp', cond : { $eq : [{ $arrayElemAt : ['$$kvp', 0] }, 'age'] }, limit : 1 } }, 0] }, 1] } } }",
             "{ $sort : { _key1 : 1 } }",
             "{ $replaceRoot : { newRoot : '$_document' } }");
 
@@ -2187,7 +2187,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
         var stages = Translate(collection, queryable);
         AssertStages(stages,
             "{ $match : { DictionaryInterface : { $elemMatch : { '0' : 'age' } } } }",
-            "{ $project : { _id : 0, _document : '$$ROOT', _key1 : { $let : { vars : { this : { $arrayToObject : '$DictionaryInterface' } }, in : '$$this.age' } } } }",
+            "{ $project : { _id : 0, _document : '$$ROOT', _key1 : { $arrayElemAt : [{ $arrayElemAt : [{ $filter : { input : '$DictionaryInterface', as : 'kvp', cond : { $eq : [{ $arrayElemAt : ['$$kvp', 0] }, 'age'] }, limit : 1 } }, 0] }, 1] } } }",
             "{ $sort : { _key1 : -1 } }",
             "{ $replaceRoot : { newRoot : '$_document' } }");
 
@@ -2312,7 +2312,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
             .Where(x => x.DictionaryInterface["life"] == 42);
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $match : { $expr : { $eq : [{ $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$DictionaryInterface', as : 'kvp', cond : { $eq : ['$$kvp.k', 'life'] } } }, 0] } }, in : '$$this.v' } }, 42] } } }");
+        AssertStages(stages, "{ $match : { $expr : { $eq : [{ $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$DictionaryInterface', as : 'kvp', cond : { $eq : ['$$kvp.k', 'life'] }, limit : 1 } }, 0] } }, in : '$$this.v' } }, 42] } } }");
 
         var result = queryable.ToList();
         result.Should().ContainSingle();
@@ -2347,7 +2347,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
         var stages = Translate(collection, queryable);
         AssertStages(stages,
             "{ $match : { DictionaryInterface : { $elemMatch : { k : 'age' } } } }",
-            "{ $project : { _id : 0, _document : '$$ROOT', _key1 : { $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$DictionaryInterface', as : 'kvp', cond : { $eq : ['$$kvp.k', 'age'] } } }, 0] } }, in : '$$this.v' } } } }",
+            "{ $project : { _id : 0, _document : '$$ROOT', _key1 : { $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$DictionaryInterface', as : 'kvp', cond : { $eq : ['$$kvp.k', 'age'] }, limit : 1 } }, 0] } }, in : '$$this.v' } } } }",
             "{ $sort : { _key1 : 1 } }",
             "{ $replaceRoot : { newRoot : '$_document' } }");
 
@@ -2368,7 +2368,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
         var stages = Translate(collection, queryable);
         AssertStages(stages,
             "{ $match : { DictionaryInterface : { $elemMatch : { k : 'age' } } } }",
-            "{ $project : { _id : 0, _document : '$$ROOT', _key1 : { $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$DictionaryInterface', as : 'kvp', cond : { $eq : ['$$kvp.k', 'age'] } } }, 0] } }, in : '$$this.v' } } } }",
+            "{ $project : { _id : 0, _document : '$$ROOT', _key1 : { $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$DictionaryInterface', as : 'kvp', cond : { $eq : ['$$kvp.k', 'age'] }, limit : 1 } }, 0] } }, in : '$$this.v' } } } }",
             "{ $sort : { _key1 : -1 } }",
             "{ $replaceRoot : { newRoot : '$_document' } }");
 
@@ -2563,7 +2563,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
             .Where(x => x.DictionaryInterface.Values.Contains(42));
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $match : { $expr : { $reduce : { input : { $objectToArray : '$DictionaryInterface' }, initialValue : false, in : { $cond : { if : '$$value', then : true, else : { $eq : ['$$this.v', 42] } } } } } } }");
+        AssertStages(stages, "{ $match : { $expr : { $in : [42, { $map : { input : { $objectToArray : '$DictionaryInterface' }, as : 'kvp', in : '$$kvp.v' } }] } } }");
 
         var result = queryable.ToList();
         result.Should().ContainSingle();

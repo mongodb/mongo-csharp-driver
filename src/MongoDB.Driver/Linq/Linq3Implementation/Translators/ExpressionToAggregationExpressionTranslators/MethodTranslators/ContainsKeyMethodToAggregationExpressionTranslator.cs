@@ -61,32 +61,24 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case DictionaryRepresentation.ArrayOfDocuments:
                     {
                         var keyFieldName = GetKeyFieldName(context, expression, keyExpression, dictionarySerializer.KeySerializer);
-                        var (valueBinding, valueAst) = AstExpression.UseVarIfNotSimple("value", keyFieldName);
-                        ast = AstExpression.Let(
-                            var: valueBinding,
-                            @in: AstExpression.Reduce(
-                                input: dictionaryTranslation.Ast,
-                                initialValue: false,
-                                @in: AstExpression.Cond(
-                                    @if: AstExpression.Var("value"),
-                                    @then: true,
-                                    @else: AstExpression.Eq(AstExpression.GetField(AstExpression.Var("this"), "k"), valueAst))));
+                        var kvpVar = AstExpression.Var("kvp");
+                        var keysArray = AstExpression.Map(
+                            input: dictionaryTranslation.Ast,
+                            @as: kvpVar,
+                            @in: AstExpression.GetField(kvpVar, "k"));
+                        ast = AstExpression.In(keyFieldName, keysArray);
                         break;
                     }
 
                 case DictionaryRepresentation.ArrayOfArrays:
                     {
                         var keyFieldName = GetKeyFieldName(context, expression, keyExpression, dictionarySerializer.KeySerializer);
-                        var (valueBinding, valueAst) = AstExpression.UseVarIfNotSimple("value", keyFieldName);
-                        ast = AstExpression.Let(
-                            var: valueBinding,
-                            @in: AstExpression.Reduce(
-                                input: dictionaryTranslation.Ast,
-                                initialValue: false,
-                                @in: AstExpression.Cond(
-                                    @if: AstExpression.Var("value"),
-                                    @then: true,
-                                    @else: AstExpression.Eq(AstExpression.ArrayElemAt(AstExpression.Var("this"), 0), valueAst))));
+                        var kvpVar = AstExpression.Var("kvp");
+                        var keysArray = AstExpression.Map(
+                            input: dictionaryTranslation.Ast,
+                            @as: kvpVar,
+                            @in: AstExpression.ArrayElemAt(kvpVar, 0));
+                        ast = AstExpression.In(keyFieldName, keysArray);
                         break;
                     }
 
