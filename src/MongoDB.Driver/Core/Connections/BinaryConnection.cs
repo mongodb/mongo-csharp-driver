@@ -543,6 +543,7 @@ namespace MongoDB.Driver.Core.Connections
 
         private void SendBuffer(OperationContext operationContext, IByteBuffer buffer)
         {
+            ThrowIfCancelledOrDisposed(operationContext);
             _sendLock.Wait(operationContext.RemainingTimeout, operationContext.CancellationToken);
             try
             {
@@ -571,6 +572,7 @@ namespace MongoDB.Driver.Core.Connections
 
         private async Task SendBufferAsync(OperationContext operationContext, IByteBuffer buffer)
         {
+            ThrowIfCancelledOrDisposed(operationContext);
             await _sendLock.WaitAsync(operationContext.RemainingTimeout, operationContext.CancellationToken).ConfigureAwait(false);
             try
             {
