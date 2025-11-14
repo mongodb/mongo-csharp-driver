@@ -616,7 +616,7 @@ namespace MongoDB.Driver.Core.Misc
         public async Task WriteBytes_with_byte_buffer_should_throw_when_buffer_is_null([Values(true, false)]bool async)
         {
             var stream = new Mock<Stream>().Object;
-            byte[] buffer = null;
+            IByteBuffer buffer = null;
 
             var exception = async ?
                 await Record.ExceptionAsync(() => stream.WriteBytesAsync(buffer, 0, 0)) :
