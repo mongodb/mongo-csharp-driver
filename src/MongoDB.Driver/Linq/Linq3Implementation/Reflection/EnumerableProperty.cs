@@ -38,9 +38,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
 
             static bool ImplementsCollectionInterface(Type type)
                 =>
-                    type.Implements(typeof(ICollection)) ||
-                    type.Implements(typeof(ICollection<>)) ||
-                    type.Implements(typeof(IReadOnlyCollection<>));
+                    type.ImplementsInterface(typeof(ICollection)) ||
+                    type.ImplementsInterface(typeof(ICollection<>)) ||
+                    type.ImplementsInterface(typeof(IReadOnlyCollection<>));
         }
     }
 }
