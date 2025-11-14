@@ -259,15 +259,23 @@ namespace MongoDB.Driver.Core.Misc
                 var completedTask = await Task.WhenAny(operationTask, cancellationTask).ConfigureAwait(false);
                 if (completedTask == operationTask)
                 {
-
-                        await operationTask.ConfigureAwait(false); // Will re-throw exception if any
-                        return;
+                    await operationTask.ConfigureAwait(false); // Will re-throw exception if any
+                    return;
                 }
             }
-            catch (ObjectDisposedException)
+            catch (Exception ex)
             {
-                // It's possible to get ObjectDisposedException when the connection pool was closed with interruptInUseConnections set to true.
-                throw new IOException();
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    throw new TaskCanceledException();
+                }
+
+                if (ex is ObjectDisposedException)
+                {
+                    throw new IOException();
+                }
+
+                throw;
             }
 
             // if we reach here - then operation was either cancelled or timed out
@@ -319,17 +327,17 @@ namespace MongoDB.Driver.Core.Misc
                     throw new IOException();
                 }
             }
-            catch (ObjectDisposedException)
-            {
-                // It's possible to get ObjectDisposedException when the connection pool was closed with interruptInUseConnections set to true.
-                throw new IOException();
-            }
-            catch (IOException)
+            catch (Exception ex)
             {
                 if (callbackState?.OperationState == OperationState.Interrupted)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
                     throw new TimeoutException();
+                }
+
+                if (ex is ObjectDisposedException)
+                {
+                    throw new IOException();
                 }
 
                 throw;
