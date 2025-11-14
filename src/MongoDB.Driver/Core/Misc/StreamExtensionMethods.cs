@@ -246,26 +246,28 @@ namespace MongoDB.Driver.Core.Misc
                 cancellationTask = Task.Delay(timeoutMs, cancellationToken);
             }
 
-            var operationTask = operation(stream, state);
-            if (cancellationTask == null)
+            Task operationTask;
+            try
             {
-                await operationTask.ConfigureAwait(false);
-                return;
-            }
-
-            var completedTask = await Task.WhenAny(operationTask, cancellationTask).ConfigureAwait(false);
-            if (completedTask == operationTask)
-            {
-                try
+                operationTask = operation(stream, state);
+                if (cancellationTask == null)
                 {
-                    await operationTask.ConfigureAwait(false); // Will re-throw exception if any
+                    await operationTask.ConfigureAwait(false);
                     return;
                 }
-                catch (ObjectDisposedException)
+
+                var completedTask = await Task.WhenAny(operationTask, cancellationTask).ConfigureAwait(false);
+                if (completedTask == operationTask)
                 {
-                    // It's possible to get ObjectDisposedException when the connection pool was closed with interruptInUseConnections set to true.
-                    throw new IOException();
+
+                        await operationTask.ConfigureAwait(false); // Will re-throw exception if any
+                        return;
                 }
+            }
+            catch (ObjectDisposedException)
+            {
+                // It's possible to get ObjectDisposedException when the connection pool was closed with interruptInUseConnections set to true.
+                throw new IOException();
             }
 
             // if we reach here - then operation was either cancelled or timed out
