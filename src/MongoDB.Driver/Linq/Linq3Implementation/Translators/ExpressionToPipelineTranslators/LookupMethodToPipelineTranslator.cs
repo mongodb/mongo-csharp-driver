@@ -281,7 +281,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             var queryableParameter = parameters[1];
             var body = pipelineLambda.Body;
 
-            context = TranslationContext.Create(context.TranslationOptions);
+            var initialKnownSerializers = new (Expression, IBsonSerializer)[]
+            {
+                (localParameter, localSerializer),
+                (queryableParameter, IQueryableSerializer.Create(documentSerializer)),
+            };
+
+            context = TranslationContext.Create(pipelineLambda, initialKnownSerializers, context.TranslationOptions);
             var localAst = AstExpression.Var("local");
             var localSymbol = context.CreateSymbol(localParameter, localAst, localSerializer);
             context = context.WithSymbol(localSymbol);
@@ -332,7 +338,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             var queryableParameter = parameters[1];
             var body = pipelineLambda.Body;
 
-            context = TranslationContext.Create(context.TranslationOptions);
+            (Expression, IBsonSerializer)[] knownSerializers =
+            [
+                (localParameter, context.GetKnownSerializer(localParameter)),
+                (queryableParameter, context.GetKnownSerializer(queryableParameter))
+            ];
+
+            context = TranslationContext.Create(pipelineLambda, knownSerializers, context.TranslationOptions);
             var localAst = AstExpression.Var("local");
             var localSymbol = context.CreateSymbol(localParameter, localAst, localSerializer);
             context = context.WithSymbol(localSymbol);

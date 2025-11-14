@@ -24,6 +24,7 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages;
+using MongoDB.Driver.Linq.Linq3Implementation.KnownSerializerFinders;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators;
@@ -61,7 +62,8 @@ namespace MongoDB.Driver.Linq
             TranslationContextData contextData = null)
         {
             expression = (Expression<Func<TSource, TResult>>)LinqExpressionPreprocessor.Preprocess(expression);
-            var context = TranslationContext.Create(translationOptions, contextData);
+            var parameter = expression.Parameters.Single();
+            var context = TranslationContext.Create(expression, initialNode: parameter, initialSerializer: sourceSerializer, translationOptions: translationOptions, data: contextData);
             var translation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, expression, sourceSerializer, asRoot: true);
             var simplifiedAst = AstSimplifier.Simplify(translation.Ast);
 
@@ -76,7 +78,7 @@ namespace MongoDB.Driver.Linq
         {
             expression = (LambdaExpression)LinqExpressionPreprocessor.Preprocess(expression);
             var parameter = expression.Parameters.Single();
-            var context = TranslationContext.Create(translationOptions);
+            var context = TranslationContext.Create(expression, initialNode: parameter, initialSerializer: documentSerializer, translationOptions: translationOptions);
             var symbol = context.CreateSymbol(parameter, documentSerializer, isCurrent: true);
             context = context.WithSymbol(symbol);
             var body = RemovePossibleConvertToObject(expression.Body);
@@ -106,7 +108,7 @@ namespace MongoDB.Driver.Linq
         {
             expression = (Expression<Func<TDocument, TField>>)LinqExpressionPreprocessor.Preprocess(expression);
             var parameter = expression.Parameters.Single();
-            var context = TranslationContext.Create(translationOptions);
+            var context = TranslationContext.Create(expression, initialNode: parameter, initialSerializer: documentSerializer, translationOptions: translationOptions);
             var symbol = context.CreateSymbol(parameter, documentSerializer, isCurrent: true);
             context = context.WithSymbol(symbol);
             var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, expression.Body);
@@ -125,8 +127,8 @@ namespace MongoDB.Driver.Linq
             ExpressionTranslationOptions translationOptions)
         {
             expression = (Expression<Func<TElement, bool>>)LinqExpressionPreprocessor.Preprocess(expression);
-            var context = TranslationContext.Create(translationOptions);
             var parameter = expression.Parameters.Single();
+            var context = TranslationContext.Create(expression, initialNode: parameter, initialSerializer: elementSerializer, translationOptions: translationOptions);
             var symbol = context.CreateSymbol(parameter, "@<elem>", elementSerializer);  // @<elem> represents the implied element
             context = context.WithSingleSymbol(symbol); // @<elem> is the only symbol visible inside an $elemMatch
             var filter = ExpressionToFilterTranslator.Translate(context, expression.Body, exprOk: false);
@@ -142,7 +144,8 @@ namespace MongoDB.Driver.Linq
             ExpressionTranslationOptions translationOptions)
         {
             expression = (Expression<Func<TDocument, bool>>)LinqExpressionPreprocessor.Preprocess(expression);
-            var context = TranslationContext.Create(translationOptions);
+            var parameter = expression.Parameters.Single();
+            var context = TranslationContext.Create(expression,  initialNode: parameter, initialSerializer: documentSerializer, translationOptions: translationOptions);
             var filter = ExpressionToFilterTranslator.TranslateLambda(context, expression, documentSerializer, asRoot: true);
             filter = AstSimplifier.SimplifyAndConvert(filter);
 
@@ -176,7 +179,8 @@ namespace MongoDB.Driver.Linq
             }
 
             expression = (Expression<Func<TInput, TOutput>>)LinqExpressionPreprocessor.Preprocess(expression);
-            var context = TranslationContext.Create(translationOptions);
+            var parameter = expression.Parameters.Single();
+            var context = TranslationContext.Create(expression, initialNode: parameter, initialSerializer: inputSerializer, translationOptions: translationOptions);
 
             var simplifier = forFind ? new AstFindProjectionSimplifier() : new AstSimplifier();
             try
@@ -215,8 +219,18 @@ namespace MongoDB.Driver.Linq
             IBsonSerializerRegistry serializerRegistry,
             ExpressionTranslationOptions translationOptions)
         {
-            var context = TranslationContext.Create(translationOptions); // do not partially evaluate expression
             var parameter = expression.Parameters.Single();
+            var body = expression.Body;
+
+            var knownSerializers = new KnownSerializerMap();
+            knownSerializers.AddSerializer(parameter, documentSerializer);
+            if (body.Type == typeof(TDocument))
+            {
+                knownSerializers.AddSerializer(body, documentSerializer);
+            }
+            KnownSerializerFinder.FindKnownSerializers(expression, translationOptions, knownSerializers);
+
+            var context = TranslationContext.Create(translationOptions, knownSerializers); // do not partially evaluate expression
             var symbol = context.CreateRootSymbol(parameter, documentSerializer);
             context = context.WithSymbol(symbol);
             var setStage = ExpressionToSetStageTranslator.Translate(context, documentSerializer, expression);
