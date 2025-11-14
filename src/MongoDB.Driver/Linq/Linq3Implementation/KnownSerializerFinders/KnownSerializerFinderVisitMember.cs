@@ -17,13 +17,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Reflection;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
-using MongoDB.Driver.Support;
+using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.KnownSerializerFinders;
 
@@ -50,6 +49,8 @@ internal partial class KnownSerializerFinderVisitor
                     _ when declaringType == typeof(BsonValue) => GetBsonValuePropertySerializer(),
                     _ when IsCollectionCountOrLengthProperty() => GetCollectionCountOrLengthPropertySerializer(),
                     _ when declaringType == typeof(DateTime) => GetDateTimePropertySerializer(),
+                    _ when declaringType.IsConstructedGenericType && declaringType.GetGenericTypeDefinition() == typeof(Dictionary<,>) => GetDictionaryPropertySerializer(),
+                    _ when declaringType.IsConstructedGenericType && declaringType.GetGenericTypeDefinition() == typeof(IDictionary<,>) => GetIDictionaryPropertySerializer(),
                     _ when declaringType.IsNullable() => GetNullablePropertySerializer(),
                     _ when IsTupleOrValueTuple(declaringType) => GetTupleOrValueTuplePropertySerializer(),
                     _ => GetPropertySerializer()
@@ -132,6 +133,42 @@ internal partial class KnownSerializerFinderVisitor
                 "UtcNow" => DateTimeSerializer.Instance,
                 "Year" => Int32Serializer.Instance,
                 // TODO: return UnknowableSerializer???
+                _ => throw new ExpressionNotSupportedException(node, because: $"Unexpected member name: {memberName}")
+            };
+        }
+
+        IBsonSerializer GetDictionaryPropertySerializer()
+        {
+            if (containingSerializer.Unwrapped() is not IBsonDictionarySerializer dictionarySerializer)
+            {
+                throw new ExpressionNotSupportedException(node, because: "DictionarySerializer does not implement IBsonDictionarySerializer");
+            }
+
+            var keySerializer =  dictionarySerializer.KeySerializer;
+            var valueSerializer = dictionarySerializer.ValueSerializer;
+
+            return memberName switch
+            {
+                "Keys" => DictionaryKeyCollectionSerializer.Create(keySerializer, valueSerializer),
+                "Values" => DictionaryValueCollectionSerializer.Create(keySerializer, valueSerializer),
+                _ => throw new ExpressionNotSupportedException(node, because: $"Unexpected member name: {memberName}")
+            };
+        }
+
+        IBsonSerializer GetIDictionaryPropertySerializer()
+        {
+            if (containingSerializer is not IBsonDictionarySerializer dictionarySerializer)
+            {
+                throw new ExpressionNotSupportedException(node, because: "IDictionarySerializer does not implement IBsonDictionarySerializer");
+            }
+
+            var keySerializer =  dictionarySerializer.KeySerializer;
+            var valueSerializer = dictionarySerializer.ValueSerializer;
+
+            return memberName switch
+            {
+                "Keys" => ICollectionSerializer.Create(keySerializer),
+                "Values" => ICollectionSerializer.Create(valueSerializer),
                 _ => throw new ExpressionNotSupportedException(node, because: $"Unexpected member name: {memberName}")
             };
         }
