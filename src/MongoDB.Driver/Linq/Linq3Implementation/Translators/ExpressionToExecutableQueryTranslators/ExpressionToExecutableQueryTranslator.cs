@@ -13,6 +13,8 @@
 * limitations under the License.
 */
 
+using System;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -31,7 +33,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
         {
             expression = LinqExpressionPreprocessor.Preprocess(expression);
 
-            var context = TranslationContext.Create(translationOptions);
+            var context = TranslationContext.Create(expression, provider, translationOptions);
             var pipeline = ExpressionToPipelineTranslator.Translate(context, expression);
 
             return ExecutableQuery.Create(
@@ -47,7 +49,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
         {
             expression = LinqExpressionPreprocessor.Preprocess(expression);
 
-            var context = TranslationContext.Create(translationOptions);
+            var context = TranslationContext.Create(expression, provider, translationOptions);
             var methodCallExpression = (MethodCallExpression)expression;
             switch (methodCallExpression.Method.Name)
             {

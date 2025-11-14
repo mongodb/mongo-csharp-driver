@@ -179,9 +179,36 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __sumSingleWithSelectorAsync;
         private static readonly MethodInfo __takeWithLong;
 
+        // sets of methods
+        private static readonly IReadOnlyMethodInfoSet __averageOverloads;
+        private static readonly IReadOnlyMethodInfoSet __averageWithSelectorOverloads;
+        private static readonly IReadOnlyMethodInfoSet __countOverloads;
+        private static readonly IReadOnlyMethodInfoSet __firstOverloads;
+        private static readonly IReadOnlyMethodInfoSet __firstWithPredicateOverloads;
+        private static readonly IReadOnlyMethodInfoSet __longCountOverloads;
+        private static readonly IReadOnlyMethodInfoSet __lookupOverloads;
+        private static readonly IReadOnlyMethodInfoSet __lookupWithDocumentsOverloads;
+        private static readonly IReadOnlyMethodInfoSet __lookupWithDocumentsAndPipelineOverloads;
+        private static readonly IReadOnlyMethodInfoSet __lookupWithFromOverloads;
+        private static readonly IReadOnlyMethodInfoSet __lookupWithFromAndPipelineOverloads;
+        private static readonly IReadOnlyMethodInfoSet __lookupWithLocalFieldAndForeignFieldOverloads;
+        private static readonly IReadOnlyMethodInfoSet __maxOverloads;
+        private static readonly IReadOnlyMethodInfoSet __minOverloads;
+        private static readonly IReadOnlyMethodInfoSet __singleOverloads;
+        private static readonly IReadOnlyMethodInfoSet __singleOrDefaultOverloads;
+        private static readonly IReadOnlyMethodInfoSet __singleWithPredicateOverloads;
+        private static readonly IReadOnlyMethodInfoSet __skipOrTakeWithLong;
+        private static readonly IReadOnlyMethodInfoSet __standardDeviationOverloads;
+        private static readonly IReadOnlyMethodInfoSet __standardDeviationNullableOverloads;
+        private static readonly IReadOnlyMethodInfoSet __standardDeviationPopulationOverloads;
+        private static readonly IReadOnlyMethodInfoSet __standardDeviationWithSelectorOverloads;
+        private static readonly IReadOnlyMethodInfoSet __sumOverloads;
+        private static readonly IReadOnlyMethodInfoSet __sumWithSelectorOverloads;
+
         // static constructor
         static MongoQueryableMethod()
         {
+            // initialize methods before sets of methods
             __anyAsync = ReflectionInfo.Method((IQueryable<object> source, CancellationToken cancellationToken) => source.AnyAsync(cancellationToken));
             __anyWithPredicateAsync = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, bool>> predicate, CancellationToken cancellationToken) => source.AnyAsync(predicate, cancellationToken));
             __appendStage = ReflectionInfo.Method((IQueryable<object> source, PipelineStageDefinition<object, object> stage, IBsonSerializer<object> resultSerializer) => source.AppendStage(stage, resultSerializer));
@@ -334,7 +361,408 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __sumSingleAsync = ReflectionInfo.Method((IQueryable<float> source, CancellationToken cancellationToken) => source.SumAsync(cancellationToken));
             __sumSingleWithSelectorAsync = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, float>> selector, CancellationToken cancellationToken) => source.SumAsync(selector, cancellationToken));
             __takeWithLong = ReflectionInfo.Method((IQueryable<object> source, long count) => source.Take(count));
-        }
+
+            // initialize sets of methods after methods
+            __averageOverloads = MethodInfoSet.Create(
+            [
+                __averageDecimalAsync,
+                __averageDecimalWithSelectorAsync,
+                __averageDoubleAsync,
+                __averageDoubleWithSelectorAsync,
+                __averageInt32Async,
+                __averageInt32WithSelectorAsync,
+                __averageInt64Async,
+                __averageInt64WithSelectorAsync,
+                __averageNullableDecimalAsync,
+                __averageNullableDecimalWithSelectorAsync,
+                __averageNullableDoubleAsync,
+                __averageNullableDoubleWithSelectorAsync,
+                __averageNullableInt32Async,
+                __averageNullableInt32WithSelectorAsync,
+                __averageNullableInt64Async,
+                __averageNullableInt64WithSelectorAsync,
+                __averageNullableSingleAsync,
+                __averageNullableSingleWithSelectorAsync,
+                __averageSingleAsync,
+                __averageSingleWithSelectorAsync
+            ]);
+
+            __averageWithSelectorOverloads = MethodInfoSet.Create(
+            [
+                __averageDecimalWithSelectorAsync,
+                __averageDoubleWithSelectorAsync,
+                __averageInt32WithSelectorAsync,
+                __averageInt64WithSelectorAsync,
+                __averageNullableDecimalWithSelectorAsync,
+                __averageNullableDoubleWithSelectorAsync,
+                __averageNullableInt32WithSelectorAsync,
+                __averageNullableInt64WithSelectorAsync,
+                __averageNullableSingleWithSelectorAsync,
+                __averageSingleWithSelectorAsync
+            ]);
+
+            __countOverloads = MethodInfoSet.Create(
+            [
+                __countAsync,
+                __countWithPredicateAsync
+            ]);
+
+            __firstOverloads = MethodInfoSet.Create(
+            [
+                __firstAsync,
+                __firstOrDefaultAsync,
+                __firstOrDefaultWithPredicateAsync,
+                __firstWithPredicateAsync
+            ]);
+
+            __firstWithPredicateOverloads = MethodInfoSet.Create(
+            [
+                __firstOrDefaultWithPredicateAsync,
+                __firstWithPredicateAsync
+            ]);
+
+            __longCountOverloads = MethodInfoSet.Create(
+            [
+                __longCountAsync,
+                __longCountWithPredicateAsync
+            ]);
+
+            __lookupOverloads = MethodInfoSet.Create(
+            [
+                __lookupWithDocumentsAndLocalFieldAndForeignField,
+                __lookupWithDocumentsAndLocalFieldAndForeignFieldAndPipeline,
+                __lookupWithDocumentsAndPipeline,
+                __lookupWithFromAndLocalFieldAndForeignField,
+                __lookupWithFromAndLocalFieldAndForeignFieldAndPipeline,
+                __lookupWithFromAndPipeline
+            ]);
+
+            __lookupWithDocumentsOverloads = MethodInfoSet.Create(
+            [
+                __lookupWithDocumentsAndLocalFieldAndForeignField,
+                __lookupWithDocumentsAndLocalFieldAndForeignFieldAndPipeline,
+                __lookupWithDocumentsAndPipeline
+            ]);
+
+            __lookupWithDocumentsAndPipelineOverloads = MethodInfoSet.Create(
+            [
+                __lookupWithDocumentsAndLocalFieldAndForeignFieldAndPipeline,
+                __lookupWithDocumentsAndPipeline
+            ]);
+
+            __lookupWithFromOverloads = MethodInfoSet.Create(
+            [
+                __lookupWithFromAndLocalFieldAndForeignField,
+                __lookupWithFromAndLocalFieldAndForeignFieldAndPipeline,
+                __lookupWithFromAndPipeline
+            ]);
+
+            __lookupWithFromAndPipelineOverloads = MethodInfoSet.Create(
+            [
+                __lookupWithFromAndLocalFieldAndForeignFieldAndPipeline,
+                __lookupWithFromAndPipeline
+            ]);
+
+            __lookupWithLocalFieldAndForeignFieldOverloads = MethodInfoSet.Create(
+            [
+                __lookupWithDocumentsAndLocalFieldAndForeignField,
+                __lookupWithDocumentsAndLocalFieldAndForeignFieldAndPipeline,
+                __lookupWithFromAndLocalFieldAndForeignField,
+                __lookupWithFromAndLocalFieldAndForeignFieldAndPipeline
+            ]);
+
+            __maxOverloads = MethodInfoSet.Create(
+            [
+                __maxAsync,
+                __maxWithSelectorAsync
+            ]);
+
+            __minOverloads = MethodInfoSet.Create(
+            [
+                __minAsync,
+                __minWithSelectorAsync
+            ]);
+
+            __singleOverloads = MethodInfoSet.Create(
+            [
+                __singleAsync,
+                __singleOrDefaultAsync,
+                __singleOrDefaultWithPredicateAsync,
+                __singleWithPredicateAsync
+            ]);
+
+            __singleOrDefaultOverloads = MethodInfoSet.Create(
+            [
+                __singleOrDefaultAsync,
+                __singleOrDefaultWithPredicateAsync
+            ]);
+
+            __singleWithPredicateOverloads = MethodInfoSet.Create(
+            [
+                __singleOrDefaultWithPredicateAsync,
+                __singleWithPredicateAsync
+            ]);
+
+            __skipOrTakeWithLong = MethodInfoSet.Create(
+            [
+                __skipWithLong,
+                __takeWithLong
+            ]);
+
+             __standardDeviationOverloads = MethodInfoSet.Create(
+            [
+                __standardDeviationPopulationDecimal,
+                __standardDeviationPopulationDecimalAsync,
+                __standardDeviationPopulationDecimalWithSelector,
+                __standardDeviationPopulationDecimalWithSelectorAsync,
+                __standardDeviationPopulationDouble,
+                __standardDeviationPopulationDoubleAsync,
+                __standardDeviationPopulationDoubleWithSelector,
+                __standardDeviationPopulationDoubleWithSelectorAsync,
+                __standardDeviationPopulationInt32,
+                __standardDeviationPopulationInt32Async,
+                __standardDeviationPopulationInt32WithSelector,
+                __standardDeviationPopulationInt32WithSelectorAsync,
+                __standardDeviationPopulationInt64,
+                __standardDeviationPopulationInt64Async,
+                __standardDeviationPopulationInt64WithSelector,
+                __standardDeviationPopulationInt64WithSelectorAsync,
+                __standardDeviationPopulationNullableDecimal,
+                __standardDeviationPopulationNullableDecimalAsync,
+                __standardDeviationPopulationNullableDecimalWithSelector,
+                __standardDeviationPopulationNullableDecimalWithSelectorAsync,
+                __standardDeviationPopulationNullableDouble,
+                __standardDeviationPopulationNullableDoubleAsync,
+                __standardDeviationPopulationNullableDoubleWithSelector,
+                __standardDeviationPopulationNullableDoubleWithSelectorAsync,
+                __standardDeviationPopulationNullableInt32,
+                __standardDeviationPopulationNullableInt32Async,
+                __standardDeviationPopulationNullableInt32WithSelector,
+                __standardDeviationPopulationNullableInt32WithSelectorAsync,
+                __standardDeviationPopulationNullableInt64,
+                __standardDeviationPopulationNullableInt64Async,
+                __standardDeviationPopulationNullableInt64WithSelector,
+                __standardDeviationPopulationNullableInt64WithSelectorAsync,
+                __standardDeviationPopulationNullableSingle,
+                __standardDeviationPopulationNullableSingleAsync,
+                __standardDeviationPopulationNullableSingleWithSelector,
+                __standardDeviationPopulationNullableSingleWithSelectorAsync,
+                __standardDeviationPopulationSingle,
+                __standardDeviationPopulationSingleAsync,
+                __standardDeviationPopulationSingleWithSelector,
+                __standardDeviationPopulationSingleWithSelectorAsync,
+                __standardDeviationSampleDecimal,
+                __standardDeviationSampleDecimalAsync,
+                __standardDeviationSampleDecimalWithSelector,
+                __standardDeviationSampleDecimalWithSelectorAsync,
+                __standardDeviationSampleDouble,
+                __standardDeviationSampleDoubleAsync,
+                __standardDeviationSampleDoubleWithSelector,
+                __standardDeviationSampleDoubleWithSelectorAsync,
+                __standardDeviationSampleInt32,
+                __standardDeviationSampleInt32Async,
+                __standardDeviationSampleInt32WithSelector,
+                __standardDeviationSampleInt32WithSelectorAsync,
+                __standardDeviationSampleInt64,
+                __standardDeviationSampleInt64Async,
+                __standardDeviationSampleInt64WithSelector,
+                __standardDeviationSampleInt64WithSelectorAsync,
+                __standardDeviationSampleNullableDecimal,
+                __standardDeviationSampleNullableDecimalAsync,
+                __standardDeviationSampleNullableDecimalWithSelector,
+                __standardDeviationSampleNullableDecimalWithSelectorAsync,
+                __standardDeviationSampleNullableDouble,
+                __standardDeviationSampleNullableDoubleAsync,
+                __standardDeviationSampleNullableDoubleWithSelector,
+                __standardDeviationSampleNullableDoubleWithSelectorAsync,
+                __standardDeviationSampleNullableInt32,
+                __standardDeviationSampleNullableInt32Async,
+                __standardDeviationSampleNullableInt32WithSelector,
+                __standardDeviationSampleNullableInt32WithSelectorAsync,
+                __standardDeviationSampleNullableInt64,
+                __standardDeviationSampleNullableInt64Async,
+                __standardDeviationSampleNullableInt64WithSelector,
+                __standardDeviationSampleNullableInt64WithSelectorAsync,
+                __standardDeviationSampleNullableSingle,
+                __standardDeviationSampleNullableSingleAsync,
+                __standardDeviationSampleNullableSingleWithSelector,
+                __standardDeviationSampleNullableSingleWithSelectorAsync,
+                __standardDeviationSampleSingle,
+                __standardDeviationSampleSingleAsync,
+                __standardDeviationSampleSingleWithSelector,
+                __standardDeviationSampleSingleWithSelectorAsync
+            ]);
+
+            __standardDeviationNullableOverloads = MethodInfoSet.Create(
+            [
+                __standardDeviationPopulationNullableDecimal,
+                __standardDeviationPopulationNullableDecimalAsync,
+                __standardDeviationPopulationNullableDecimalWithSelector,
+                __standardDeviationPopulationNullableDecimalWithSelectorAsync,
+                __standardDeviationPopulationNullableDouble,
+                __standardDeviationPopulationNullableDoubleAsync,
+                __standardDeviationPopulationNullableDoubleWithSelector,
+                __standardDeviationPopulationNullableDoubleWithSelectorAsync,
+                __standardDeviationPopulationNullableInt32,
+                __standardDeviationPopulationNullableInt32Async,
+                __standardDeviationPopulationNullableInt32WithSelector,
+                __standardDeviationPopulationNullableInt32WithSelectorAsync,
+                __standardDeviationPopulationNullableInt64,
+                __standardDeviationPopulationNullableInt64Async,
+                __standardDeviationPopulationNullableInt64WithSelector,
+                __standardDeviationPopulationNullableInt64WithSelectorAsync,
+                __standardDeviationPopulationNullableSingle,
+                __standardDeviationPopulationNullableSingleAsync,
+                __standardDeviationPopulationNullableSingleWithSelector,
+                __standardDeviationPopulationNullableSingleWithSelectorAsync,
+                __standardDeviationSampleNullableDecimal,
+                __standardDeviationSampleNullableDecimalAsync,
+                __standardDeviationSampleNullableDecimalWithSelector,
+                __standardDeviationSampleNullableDecimalWithSelectorAsync,
+                __standardDeviationSampleNullableDouble,
+                __standardDeviationSampleNullableDoubleAsync,
+                __standardDeviationSampleNullableDoubleWithSelector,
+                __standardDeviationSampleNullableDoubleWithSelectorAsync,
+                __standardDeviationSampleNullableInt32,
+                __standardDeviationSampleNullableInt32Async,
+                __standardDeviationSampleNullableInt32WithSelector,
+                __standardDeviationSampleNullableInt32WithSelectorAsync,
+                __standardDeviationSampleNullableInt64,
+                __standardDeviationSampleNullableInt64Async,
+                __standardDeviationSampleNullableInt64WithSelector,
+                __standardDeviationSampleNullableInt64WithSelectorAsync,
+                __standardDeviationSampleNullableSingle,
+                __standardDeviationSampleNullableSingleAsync,
+                __standardDeviationSampleNullableSingleWithSelector,
+                __standardDeviationSampleNullableSingleWithSelectorAsync
+            ]);
+
+            __standardDeviationPopulationOverloads = MethodInfoSet.Create(
+            [
+                __standardDeviationPopulationDecimal,
+                __standardDeviationPopulationDecimalAsync,
+                __standardDeviationPopulationDecimalWithSelector,
+                __standardDeviationPopulationDecimalWithSelectorAsync,
+                __standardDeviationPopulationDouble,
+                __standardDeviationPopulationDoubleAsync,
+                __standardDeviationPopulationDoubleWithSelector,
+                __standardDeviationPopulationDoubleWithSelectorAsync,
+                __standardDeviationPopulationInt32,
+                __standardDeviationPopulationInt32Async,
+                __standardDeviationPopulationInt32WithSelector,
+                __standardDeviationPopulationInt32WithSelectorAsync,
+                __standardDeviationPopulationInt64,
+                __standardDeviationPopulationInt64Async,
+                __standardDeviationPopulationInt64WithSelector,
+                __standardDeviationPopulationInt64WithSelectorAsync,
+                __standardDeviationPopulationNullableDecimal,
+                __standardDeviationPopulationNullableDecimalAsync,
+                __standardDeviationPopulationNullableDecimalWithSelector,
+                __standardDeviationPopulationNullableDecimalWithSelectorAsync,
+                __standardDeviationPopulationNullableDouble,
+                __standardDeviationPopulationNullableDoubleAsync,
+                __standardDeviationPopulationNullableDoubleWithSelector,
+                __standardDeviationPopulationNullableDoubleWithSelectorAsync,
+                __standardDeviationPopulationNullableInt32,
+                __standardDeviationPopulationNullableInt32Async,
+                __standardDeviationPopulationNullableInt32WithSelector,
+                __standardDeviationPopulationNullableInt32WithSelectorAsync,
+                __standardDeviationPopulationNullableInt64,
+                __standardDeviationPopulationNullableInt64Async,
+                __standardDeviationPopulationNullableInt64WithSelector,
+                __standardDeviationPopulationNullableInt64WithSelectorAsync,
+                __standardDeviationPopulationNullableSingle,
+                __standardDeviationPopulationNullableSingleAsync,
+                __standardDeviationPopulationNullableSingleWithSelector,
+                __standardDeviationPopulationNullableSingleWithSelectorAsync,
+                __standardDeviationPopulationSingle,
+                __standardDeviationPopulationSingleAsync,
+                __standardDeviationPopulationSingleWithSelector,
+                __standardDeviationPopulationSingleWithSelectorAsync
+            ]);
+
+            __standardDeviationWithSelectorOverloads = MethodInfoSet.Create(
+            [
+                __standardDeviationPopulationDecimalWithSelector,
+                __standardDeviationPopulationDecimalWithSelectorAsync,
+                __standardDeviationPopulationDoubleWithSelector,
+                __standardDeviationPopulationDoubleWithSelectorAsync,
+                __standardDeviationPopulationInt32WithSelector,
+                __standardDeviationPopulationInt32WithSelectorAsync,
+                __standardDeviationPopulationInt64WithSelector,
+                __standardDeviationPopulationInt64WithSelectorAsync,
+                __standardDeviationPopulationNullableDecimalWithSelector,
+                __standardDeviationPopulationNullableDecimalWithSelectorAsync,
+                __standardDeviationPopulationNullableDoubleWithSelector,
+                __standardDeviationPopulationNullableDoubleWithSelectorAsync,
+                __standardDeviationPopulationNullableInt32WithSelector,
+                __standardDeviationPopulationNullableInt32WithSelectorAsync,
+                __standardDeviationPopulationNullableInt64WithSelector,
+                __standardDeviationPopulationNullableInt64WithSelectorAsync,
+                __standardDeviationPopulationNullableSingleWithSelector,
+                __standardDeviationPopulationNullableSingleWithSelectorAsync,
+                __standardDeviationPopulationSingleWithSelector,
+                __standardDeviationPopulationSingleWithSelectorAsync,
+                __standardDeviationSampleDecimalWithSelector,
+                __standardDeviationSampleDecimalWithSelectorAsync,
+                __standardDeviationSampleDoubleWithSelector,
+                __standardDeviationSampleDoubleWithSelectorAsync,
+                __standardDeviationSampleInt32WithSelector,
+                __standardDeviationSampleInt32WithSelectorAsync,
+                __standardDeviationSampleInt64WithSelector,
+                __standardDeviationSampleInt64WithSelectorAsync,
+                __standardDeviationSampleNullableDecimalWithSelector,
+                __standardDeviationSampleNullableDecimalWithSelectorAsync,
+                __standardDeviationSampleNullableDoubleWithSelector,
+                __standardDeviationSampleNullableDoubleWithSelectorAsync,
+                __standardDeviationSampleNullableInt32WithSelector,
+                __standardDeviationSampleNullableInt32WithSelectorAsync,
+                __standardDeviationSampleNullableInt64WithSelector,
+                __standardDeviationSampleNullableInt64WithSelectorAsync,
+                __standardDeviationSampleNullableSingleWithSelector,
+                __standardDeviationSampleNullableSingleWithSelectorAsync,
+                __standardDeviationSampleSingleWithSelector,
+                __standardDeviationSampleSingleWithSelectorAsync
+            ]);
+
+            __sumOverloads = MethodInfoSet.Create(
+            [
+                __sumDecimalAsync,
+                __sumDecimalWithSelectorAsync,
+                __sumDoubleAsync,
+                __sumDoubleWithSelectorAsync,
+                __sumInt32Async,
+                __sumInt32WithSelectorAsync,
+                __sumInt64Async,
+                __sumInt64WithSelectorAsync,
+                __sumNullableDecimalAsync,
+                __sumNullableDecimalWithSelectorAsync,
+                __sumNullableDoubleAsync,
+                __sumNullableDoubleWithSelectorAsync,
+                __sumNullableInt32Async,
+                __sumNullableInt32WithSelectorAsync,
+                __sumNullableInt64Async,
+                __sumNullableInt64WithSelectorAsync,
+                __sumNullableSingleAsync,
+                __sumNullableSingleWithSelectorAsync,
+                __sumSingleAsync,
+                __sumSingleWithSelectorAsync
+            ]);
+
+            __sumWithSelectorOverloads = MethodInfoSet.Create(
+            [
+                __sumDecimalWithSelectorAsync,
+                __sumDoubleWithSelectorAsync,
+                __sumInt32WithSelectorAsync,
+                __sumInt64WithSelectorAsync,
+                __sumNullableDecimalWithSelectorAsync,
+                __sumNullableDoubleWithSelectorAsync,
+                __sumNullableInt32WithSelectorAsync,
+                __sumNullableInt64WithSelectorAsync,
+                __sumNullableSingleWithSelectorAsync,
+                __sumSingleWithSelectorAsync
+            ]);
+       }
 
         // public properties
         public static MethodInfo AnyAsync => __anyAsync;
@@ -489,5 +917,31 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo SumSingleAsync => __sumSingleAsync;
         public static MethodInfo SumSingleWithSelectorAsync => __sumSingleWithSelectorAsync;
         public static MethodInfo TakeWithLong => __takeWithLong;
+
+        // sets of methods
+        public static IReadOnlyMethodInfoSet AverageOverloads => __averageOverloads;
+        public static IReadOnlyMethodInfoSet AverageWithSelectorOverloads => __averageWithSelectorOverloads;
+        public static IReadOnlyMethodInfoSet CountOverloads => __countOverloads;
+        public static IReadOnlyMethodInfoSet FirstOverloads => __firstOverloads;
+        public static IReadOnlyMethodInfoSet FirstWithPredicateOverloads => __firstWithPredicateOverloads;
+        public static IReadOnlyMethodInfoSet LongCountOverloads => __longCountOverloads;
+        public static IReadOnlyMethodInfoSet LookupOverloads => __lookupOverloads;
+        public static IReadOnlyMethodInfoSet LookupWithDocumentsOverloads => __lookupWithDocumentsOverloads;
+        public static IReadOnlyMethodInfoSet LookupWithDocumentsAndPipelineOverloads => __lookupWithDocumentsAndPipelineOverloads;
+        public static IReadOnlyMethodInfoSet LookupWithFromOverloads => __lookupWithFromOverloads;
+        public static IReadOnlyMethodInfoSet LookupWithFromAndPipelineOverloads => __lookupWithFromAndPipelineOverloads;
+        public static IReadOnlyMethodInfoSet LookupWithLocalFieldAndForeignFieldOverloads => __lookupWithLocalFieldAndForeignFieldOverloads;
+        public static IReadOnlyMethodInfoSet MaxOverloads => __maxOverloads;
+        public static IReadOnlyMethodInfoSet MinOverloads => __minOverloads;
+        public static IReadOnlyMethodInfoSet SingleOverloads => __singleOverloads;
+        public static IReadOnlyMethodInfoSet SingleOrDefaultOverloads => __singleOrDefaultOverloads;
+        public static IReadOnlyMethodInfoSet SingleWithPredicateOverloads => __singleWithPredicateOverloads;
+        public static IReadOnlyMethodInfoSet SkipOrTakeWithLong => __skipOrTakeWithLong;
+        public static IReadOnlyMethodInfoSet StandardDeviationOverloads => __standardDeviationOverloads;
+        public static IReadOnlyMethodInfoSet StandardDeviationNullableOverloads => __standardDeviationNullableOverloads;
+        public static IReadOnlyMethodInfoSet StandardDeviationPopulationOverloads => __standardDeviationPopulationOverloads;
+        public static IReadOnlyMethodInfoSet StandardDeviationWithSelectorOverloads => __standardDeviationWithSelectorOverloads;
+        public static IReadOnlyMethodInfoSet SumOverloads => __sumOverloads;
+        public static IReadOnlyMethodInfoSet SumWithSelectorOverloads => __sumWithSelectorOverloads;
     }
 }

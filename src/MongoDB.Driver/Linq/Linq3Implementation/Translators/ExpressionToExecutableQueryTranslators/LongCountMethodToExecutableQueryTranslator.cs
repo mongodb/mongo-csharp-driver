@@ -30,27 +30,25 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
     internal static class LongCountMethodToExecutableQueryTranslator
     {
         // private static fields
-        private static readonly MethodInfo[] __longCountMethods;
-        private static readonly MethodInfo[] __longCountWithPredicateMethods;
+        private static readonly IReadOnlyMethodInfoSet __longCountOverloads;
+        private static readonly IReadOnlyMethodInfoSet __longCountWithPredicateOverloads;
         private static readonly IExecutableQueryFinalizer<long, long> _finalizer = new SingleOrDefaultFinalizer<long>();
         private static readonly IBsonSerializer<long> __wrappedInt64Serializer = new WrappedValueSerializer<long>("_v", new Int64Serializer());
 
         // static constructor
         static LongCountMethodToExecutableQueryTranslator()
         {
-            __longCountMethods = new[]
-            {
-                QueryableMethod.LongCount,
-                QueryableMethod.LongCountWithPredicate,
-                MongoQueryableMethod.LongCountAsync,
-                MongoQueryableMethod.LongCountWithPredicateAsync
-            };
+            __longCountOverloads = MethodInfoSet.Create(
+            [
+                QueryableMethod.LongCountOverloads,
+                MongoQueryableMethod.LongCountOverloads
+            ]);
 
-            __longCountWithPredicateMethods = new[]
-            {
+            __longCountWithPredicateOverloads = MethodInfoSet.Create(
+            [
                 QueryableMethod.LongCountWithPredicate,
                 MongoQueryableMethod.LongCountWithPredicateAsync
-            };
+            ]);
         }
 
         // public static methods
@@ -59,12 +57,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__longCountMethods))
+            if (method.IsOneOf(__longCountOverloads))
             {
                 var sourceExpression = arguments[0];
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
 
-                if (method.IsOneOf(__longCountWithPredicateMethods))
+                if (method.IsOneOf(__longCountWithPredicateOverloads))
                 {
                     var predicateLambda = ExpressionHelper.UnquoteLambda(arguments[1]);
                     var predicateFilter = ExpressionToFilterTranslator.TranslateLambda(context, predicateLambda, parameterSerializer: pipeline.OutputSerializer, asRoot: true);
