@@ -256,11 +256,20 @@ namespace MongoDB.Driver.Core.Misc
             var completedTask = await Task.WhenAny(operationTask, cancellationTask).ConfigureAwait(false);
             if (completedTask == operationTask)
             {
-                await operationTask.ConfigureAwait(false); // Will re-throw exception if any
-                return;
+                try
+                {
+                    await operationTask.ConfigureAwait(false); // Will re-throw exception if any
+                    return;
+                }
+                catch (ObjectDisposedException)
+                {
+                    // It's possible to get ObjectDisposedException when the connection pool was closed with interruptInUseConnections set to true.
+                    throw new IOException();
+                }
             }
 
             // if we reach here - then operation was either cancelled or timed out
+            operationTask.IgnoreExceptions();
             try
             {
                 stream.Dispose();
@@ -269,7 +278,6 @@ namespace MongoDB.Driver.Core.Misc
             {
                 // suppress any exception
             }
-            operationTask.IgnoreExceptions();
 
             if (cancellationToken.IsCancellationRequested)
             {
@@ -308,6 +316,11 @@ namespace MongoDB.Driver.Core.Misc
                     // If the state can't be changed - then the stream was/will be disposed, throw here
                     throw new IOException();
                 }
+            }
+            catch (ObjectDisposedException)
+            {
+                // It's possible to get ObjectDisposedException when the connection pool was closed with interruptInUseConnections set to true.
+                throw new IOException();
             }
             catch (IOException)
             {
