@@ -22,14 +22,20 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
     {
         // private static fields
         private static readonly MethodInfo __addWithNameAndValue;
+        private static readonly MethodInfo __getItemWithIndex;
+        private static readonly MethodInfo __getItemWithName;
 
         // static constructor
         static BsonDocumentMethod()
         {
             __addWithNameAndValue = ReflectionInfo.Method((BsonDocument document, string name, BsonValue value) => document.Add(name, value));
+            __getItemWithIndex = ReflectionInfo.Method((BsonDocument document, int index) => document[index]);
+            __getItemWithName = ReflectionInfo.Method((BsonDocument document, string name) => document[name]);
         }
 
         // public static properties
         public static MethodInfo AddWithNameAndValue => __addWithNameAndValue;
+        public static MethodInfo GetItemWithIndex => __getItemWithIndex;
+        public static MethodInfo GetItemWithName => __getItemWithName;
     }
 }

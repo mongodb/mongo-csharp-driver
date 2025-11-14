@@ -25,23 +25,23 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class ToStringMethodToAggregationExpressionTranslator
     {
-        private static readonly MethodInfo[] __dateTimeToStringMethods = new[]
-        {
+        private static readonly IReadOnlyMethodInfoSet __dateTimeToStringOverloads = MethodInfoSet.Create(
+        [
             DateTimeMethod.ToStringWithFormat,
             DateTimeMethod.ToStringWithFormatAndTimezone,
             NullableDateTimeMethod.ToStringWithFormatAndTimezoneAndOnNull,
-        };
+        ]);
 
-        private static readonly MethodInfo[] __dateTimeToStringMethodsWithTimezone = new[]
-        {
+        private static readonly IReadOnlyMethodInfoSet __dateTimeToStringWithTimezoneOverloads = MethodInfoSet.Create(
+        [
             DateTimeMethod.ToStringWithFormatAndTimezone,
             NullableDateTimeMethod.ToStringWithFormatAndTimezoneAndOnNull,
-        };
+        ]);
 
-        private static readonly MethodInfo[] __dateTimeToStringMethodsWithOnNull = new[]
-        {
+        private static readonly IReadOnlyMethodInfoSet __dateTimeToStringWithOnNullOverloads = MethodInfoSet.Create(
+        [
             NullableDateTimeMethod.ToStringWithFormatAndTimezoneAndOnNull,
-        };
+        ]);
 
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 return TranslateInstanceToStringMethodWithNoArguments(context, expression);
             }
 
-            if (method.IsOneOf(__dateTimeToStringMethods))
+            if (method.IsOneOf(__dateTimeToStringOverloads))
             {
                 return TranslateDateTimeToStringMethod(context, expression, method, arguments);
             }
@@ -86,7 +86,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             }
 
             AstExpression timezoneAst = null;
-            if (method.IsOneOf(__dateTimeToStringMethodsWithTimezone))
+            if (method.IsOneOf(__dateTimeToStringWithTimezoneOverloads))
             {
                 var timezoneExpression = arguments[2];
                 if (!(timezoneExpression is ConstantExpression constantExpression) || constantExpression.Value != null)
@@ -97,7 +97,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             }
 
             AstExpression onNullAst = null;
-            if (method.IsOneOf(__dateTimeToStringMethodsWithOnNull))
+            if (method.IsOneOf(__dateTimeToStringWithOnNullOverloads))
             {
                 var onNullExpression = arguments[3];
                 var onNullTranslataion = ExpressionToAggregationExpressionTranslator.Translate(context, onNullExpression);

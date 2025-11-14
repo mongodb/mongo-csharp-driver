@@ -30,42 +30,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
 {
     internal static class GroupByMethodToPipelineTranslator
     {
-        // private static fields
-        private static readonly MethodInfo[] __groupByMethods;
-        private static readonly MethodInfo[] __groupByWithElementSelectorMethods;
-        private static readonly MethodInfo[] __groupByWithResultSelectorMethods;
-
-        // static constructor
-        static GroupByMethodToPipelineTranslator()
-        {
-            __groupByMethods = new[]
-            {
-                QueryableMethod.GroupByWithKeySelector,
-                QueryableMethod.GroupByWithKeySelectorAndElementSelector,
-                QueryableMethod.GroupByWithKeySelectorAndResultSelector,
-                QueryableMethod.GroupByWithKeySelectorElementSelectorAndResultSelector
-            };
-
-            __groupByWithElementSelectorMethods = new[]
-            {
-                QueryableMethod.GroupByWithKeySelectorAndElementSelector,
-                QueryableMethod.GroupByWithKeySelectorElementSelectorAndResultSelector
-            };
-
-            __groupByWithResultSelectorMethods = new[]
-            {
-                QueryableMethod.GroupByWithKeySelectorAndResultSelector,
-                QueryableMethod.GroupByWithKeySelectorElementSelectorAndResultSelector
-            };
-        }
-
         // public static methods
         public static TranslatedPipeline Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__groupByMethods))
+            if (method.IsOneOf(QueryableMethod.GroupByOverloads))
             {
                 var sourceExpression = arguments[0];
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
@@ -85,7 +56,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                         fields: AstExpression.AccumulatorField("_elements", AstUnaryAccumulatorOperator.Push, elementAst)),
                     groupingSerializer);
 
-                if (method.IsOneOf(__groupByWithResultSelectorMethods))
+                if (method.IsOneOf(QueryableMethod.GroupByWithResultSelectorOverloads))
                 {
                     pipeline = TranslateResultSelector(context, pipeline, arguments, keySerializer, elementSerializer);
                 }
@@ -104,7 +75,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
         {
             AstExpression elementAst;
             IBsonSerializer elementSerializer;
-            if (method.IsOneOf(__groupByWithElementSelectorMethods))
+            if (method.IsOneOf(QueryableMethod.GroupByWithElementSelectorOverloads))
             {
                 var elementLambda = ExpressionHelper.UnquoteLambda(arguments[2]);
                 var elementTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, elementLambda, sourceSerializer, asRoot: true);

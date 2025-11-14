@@ -23,12 +23,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class ConstantExpressionToAggregationExpressionTranslator
     {
-        public static TranslatedExpression Translate(ConstantExpression constantExpression)
+        public static TranslatedExpression Translate(TranslationContext context, ConstantExpression constantExpression)
         {
-            var constantType = constantExpression.Type;
-            var constantSerializer = StandardSerializers.TryGetSerializer(constantType, out var serializer) ? serializer : BsonSerializer.LookupSerializer(constantType);
+            var constantSerializer = context.NodeSerializers.GetSerializer(constantExpression);
             return Translate(constantExpression, constantSerializer);
-       }
+        }
 
         public static TranslatedExpression Translate(ConstantExpression constantExpression, IBsonSerializer constantSerializer)
         {

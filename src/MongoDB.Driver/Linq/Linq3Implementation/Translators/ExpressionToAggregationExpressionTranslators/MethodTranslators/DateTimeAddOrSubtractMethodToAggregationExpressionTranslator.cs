@@ -29,81 +29,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class DateTimeAddOrSubtractMethodToAggregationExpressionTranslator
     {
-        private static MethodInfo[] __dateTimeAddOrSubtractMethods = new[]
-        {
-            DateTimeMethod.Add,
-            DateTimeMethod.AddDays,
-            DateTimeMethod.AddDaysWithTimezone,
-            DateTimeMethod.AddHours,
-            DateTimeMethod.AddHoursWithTimezone,
-            DateTimeMethod.AddMilliseconds,
-            DateTimeMethod.AddMillisecondsWithTimezone,
-            DateTimeMethod.AddMinutes,
-            DateTimeMethod.AddMinutesWithTimezone,
-            DateTimeMethod.AddMonths,
-            DateTimeMethod.AddMonthsWithTimezone,
-            DateTimeMethod.AddQuarters,
-            DateTimeMethod.AddQuartersWithTimezone,
-            DateTimeMethod.AddSeconds,
-            DateTimeMethod.AddSecondsWithTimezone,
-            DateTimeMethod.AddTicks,
-            DateTimeMethod.AddWeeks,
-            DateTimeMethod.AddWeeksWithTimezone,
-            DateTimeMethod.AddWithTimezone,
-            DateTimeMethod.AddWithUnit,
-            DateTimeMethod.AddWithUnitAndTimezone,
-            DateTimeMethod.AddYears,
-            DateTimeMethod.AddYearsWithTimezone,
-            DateTimeMethod.SubtractWithTimeSpan,
-            DateTimeMethod.SubtractWithTimeSpanAndTimezone,
-            DateTimeMethod.SubtractWithUnit,
-            DateTimeMethod.SubtractWithUnitAndTimezone
-        };
-
-        private static MethodInfo[] __dateTimeAddOrSubtractWithTimeSpanMethods = new[]
-        {
-            DateTimeMethod.Add,
-            DateTimeMethod.AddWithTimezone,
-            DateTimeMethod.SubtractWithTimeSpan,
-            DateTimeMethod.SubtractWithTimeSpanAndTimezone
-        };
-
-        private static MethodInfo[] __dateTimeAddOrSubtractWithUnitMethods = new[]
-        {
-            DateTimeMethod.AddWithUnit,
-            DateTimeMethod.AddWithUnitAndTimezone,
-            DateTimeMethod.SubtractWithUnit,
-            DateTimeMethod.SubtractWithUnitAndTimezone
-        };
-
-        private static MethodInfo[] __dateTimeAddOrSubtractWithTimezoneMethods = new[]
-        {
-            DateTimeMethod.AddDaysWithTimezone,
-            DateTimeMethod.AddHoursWithTimezone,
-            DateTimeMethod.AddMillisecondsWithTimezone,
-            DateTimeMethod.AddMinutesWithTimezone,
-            DateTimeMethod.AddMonthsWithTimezone,
-            DateTimeMethod.AddQuartersWithTimezone,
-            DateTimeMethod.AddSecondsWithTimezone,
-            DateTimeMethod.AddWeeksWithTimezone,
-            DateTimeMethod.AddWithTimezone,
-            DateTimeMethod.AddWithUnitAndTimezone,
-            DateTimeMethod.AddYearsWithTimezone,
-            DateTimeMethod.SubtractWithTimeSpanAndTimezone,
-            DateTimeMethod.SubtractWithUnitAndTimezone
-       };
-
-        private static MethodInfo[] __dateTimeSubtractMethods = new[]
-        {
-            DateTimeMethod.SubtractWithTimeSpan,
-            DateTimeMethod.SubtractWithTimeSpanAndTimezone,
-            DateTimeMethod.SubtractWithUnit,
-            DateTimeMethod.SubtractWithUnitAndTimezone
-       };
-
         public static bool CanTranslate(MethodCallExpression expression)
         {
-            return expression.Method.IsOneOf(__dateTimeAddOrSubtractMethods);
+            return expression.Method.IsOneOf(DateTimeMethod.AddOrSubtractOverloads);
         }
 
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
@@ -111,7 +39,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__dateTimeAddOrSubtractMethods))
+            if (method.IsOneOf(DateTimeMethod.AddOrSubtractOverloads))
             {
                 Expression thisExpression, valueExpression;
                 if (method.IsStatic)
@@ -128,7 +56,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var thisTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, thisExpression);
 
                 AstExpression unit, amount;
-                if (method.IsOneOf(__dateTimeAddOrSubtractWithTimeSpanMethods))
+                if (method.IsOneOf(DateTimeMethod.AddOrSubtractWithTimeSpanOverloads))
                 {
                     if (valueExpression is ConstantExpression constantValueExpression)
                     {
@@ -161,7 +89,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                         };
                     }
                 }
-                else if (method.IsOneOf(__dateTimeAddOrSubtractWithUnitMethods))
+                else if (method.IsOneOf(DateTimeMethod.AddOrSubtractWithUnitOverloads))
                 {
                     var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
                     var valueAst = ConvertHelper.RemoveWideningConvert(valueTranslation);
@@ -192,14 +120,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 }
 
                 AstExpression timezone = null;
-                if (method.IsOneOf(__dateTimeAddOrSubtractWithTimezoneMethods))
+                if (method.IsOneOf(DateTimeMethod.AddOrSubtractWithTimezoneOverloads))
                 {
                     var timezoneExpression = arguments.Last();
                     var timezoneTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, timezoneExpression);
                     timezone = timezoneTranslation.Ast;
                 }
 
-                var ast = method.IsOneOf(__dateTimeSubtractMethods) ?
+                var ast = method.IsOneOf(DateTimeMethod.SubtractReturningDateTimeOverloads) ?
                     AstExpression.DateSubtract(thisTranslation.Ast, unit, amount, timezone) :
                     AstExpression.DateAdd(thisTranslation.Ast, unit, amount, timezone);
                 var serializer = DateTimeSerializer.UtcInstance;

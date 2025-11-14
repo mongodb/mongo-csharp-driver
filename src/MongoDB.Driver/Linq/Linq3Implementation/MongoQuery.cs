@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         public MongoQuery(MongoQueryProvider<TDocument> provider)
         {
             _provider = provider;
-            _expression = Expression.Constant(this);
+            _expression = Expression.Constant(this, typeof(IQueryable<>).MakeGenericType(typeof(TDocument)));
         }
 
         public MongoQuery(MongoQueryProvider<TDocument> provider, Expression expression)

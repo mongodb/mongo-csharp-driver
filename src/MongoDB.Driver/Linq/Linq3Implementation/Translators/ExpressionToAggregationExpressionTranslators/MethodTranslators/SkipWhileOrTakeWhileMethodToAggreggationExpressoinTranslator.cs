@@ -27,32 +27,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class SkipWhileOrTakeWhileMethodToAggregationExpressionTranslator
     {
-        private static MethodInfo[] __skipWhileOrTakeWhileMethods =
-        {
-            EnumerableMethod.SkipWhile,
-            EnumerableMethod.TakeWhile,
-            QueryableMethod.SkipWhile,
-            QueryableMethod.TakeWhile
-        };
-
-        private static MethodInfo[] __skipWhileMethods =
-        {
-            EnumerableMethod.SkipWhile,
-            QueryableMethod.SkipWhile
-        };
-
-        private static MethodInfo[] __takeWhileMethods =
-        {
-            EnumerableMethod.TakeWhile,
-            QueryableMethod.TakeWhile
-        };
-
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__skipWhileOrTakeWhileMethods))
+            if (method.IsOneOf(EnumerableOrQueryableMethod.SkipWhileOrTakeWhile))
             {
                 var sourceExpression = arguments[0];
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
@@ -88,8 +68,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                 var sliceAst = method switch
                 {
-                    _ when method.IsOneOf(__skipWhileMethods) => AstExpression.Slice(sourceAst, whileCountField, int.MaxValue),
-                    _ when method.IsOneOf(__takeWhileMethods) => AstExpression.Slice(sourceAst, whileCountField),
+                    _ when method.IsOneOf(EnumerableOrQueryableMethod.SkipWhile) => AstExpression.Slice(sourceAst, whileCountField, int.MaxValue),
+                    _ when method.IsOneOf(EnumerableOrQueryableMethod.TakeWhile) => AstExpression.Slice(sourceAst, whileCountField),
                     _ => throw new ExpressionNotSupportedException(expression)
                 };
 

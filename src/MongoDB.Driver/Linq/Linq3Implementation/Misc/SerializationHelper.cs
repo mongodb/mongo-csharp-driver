@@ -97,7 +97,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                 return GetRepresentation(downcastingSerializer.DerivedSerializer);
             }
 
-            if (serializer is IEnumAsIntegralTypeSerializer enumUnderlyingTypeSerializer)
+            if (serializer is IConvertIntegralTypeToEnumSerializer enumUnderlyingTypeSerializer)
             {
                 return GetRepresentation(enumUnderlyingTypeSerializer.EnumSerializer);
             }

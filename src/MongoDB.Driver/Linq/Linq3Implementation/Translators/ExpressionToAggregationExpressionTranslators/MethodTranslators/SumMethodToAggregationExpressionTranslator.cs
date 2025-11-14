@@ -24,56 +24,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class SumMethodToAggregationExpressionTranslator
     {
-        private static readonly MethodInfo[] __sumMethods =
-        {
-            EnumerableMethod.SumDecimal,
-            EnumerableMethod.SumDecimalWithSelector,
-            EnumerableMethod.SumDouble,
-            EnumerableMethod.SumDoubleWithSelector,
-            EnumerableMethod.SumInt32,
-            EnumerableMethod.SumInt32WithSelector,
-            EnumerableMethod.SumInt64,
-            EnumerableMethod.SumInt64WithSelector,
-            EnumerableMethod.SumNullableDecimal,
-            EnumerableMethod.SumNullableDecimalWithSelector,
-            EnumerableMethod.SumNullableDouble,
-            EnumerableMethod.SumNullableDoubleWithSelector,
-            EnumerableMethod.SumNullableInt32,
-            EnumerableMethod.SumNullableInt32WithSelector,
-            EnumerableMethod.SumNullableInt64,
-            EnumerableMethod.SumNullableInt64WithSelector,
-            EnumerableMethod.SumNullableSingle,
-            EnumerableMethod.SumNullableSingleWithSelector,
-            EnumerableMethod.SumSingle,
-            EnumerableMethod.SumSingleWithSelector,
-            QueryableMethod.SumDecimal,
-            QueryableMethod.SumDecimalWithSelector,
-            QueryableMethod.SumDouble,
-            QueryableMethod.SumDoubleWithSelector,
-            QueryableMethod.SumInt32,
-            QueryableMethod.SumInt32WithSelector,
-            QueryableMethod.SumInt64,
-            QueryableMethod.SumInt64WithSelector,
-            QueryableMethod.SumNullableDecimal,
-            QueryableMethod.SumNullableDecimalWithSelector,
-            QueryableMethod.SumNullableDouble,
-            QueryableMethod.SumNullableDoubleWithSelector,
-            QueryableMethod.SumNullableInt32,
-            QueryableMethod.SumNullableInt32WithSelector,
-            QueryableMethod.SumNullableInt64,
-            QueryableMethod.SumNullableInt64WithSelector,
-            QueryableMethod.SumNullableSingle,
-            QueryableMethod.SumNullableSingleWithSelector,
-            QueryableMethod.SumSingle,
-            QueryableMethod.SumSingleWithSelector
-        };
-
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__sumMethods))
+            if (method.IsOneOf(EnumerableOrQueryableMethod.SumOverloads))
             {
                 var sourceExpression = arguments[0];
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);

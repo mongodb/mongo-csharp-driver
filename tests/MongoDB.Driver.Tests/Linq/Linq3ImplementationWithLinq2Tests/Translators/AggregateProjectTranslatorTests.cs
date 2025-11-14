@@ -19,6 +19,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
@@ -1756,9 +1757,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
             var query = __collection.AsQueryable().Select(projector);
 
             var provider = (MongoQueryProvider<Root>)query.Provider;
+            var inputSerializer = (IBsonSerializer<Root>)provider.PipelineInputSerializer;
+            var serializerRegistry = provider.Collection.Settings.SerializerRegistry;
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = false };
-            var executableQuery = ExpressionToExecutableQueryTranslator.Translate<Root, TResult>(provider, query.Expression, translationOptions);
-            var projection = executableQuery.Pipeline.Ast.Stages.First().Render()["$project"].AsBsonDocument;
+            var renderedProjection = LinqProviderAdapter.TranslateExpressionToProjection(
+                projector,
+                inputSerializer,
+                serializerRegistry,
+                translationOptions);
+
+            var projection = renderedProjection.Document;
             var value = query.Take(1).FirstOrDefault();
 
             return new ProjectedResult<TResult>

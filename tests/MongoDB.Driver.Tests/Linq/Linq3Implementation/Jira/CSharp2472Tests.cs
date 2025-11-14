@@ -17,6 +17,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
@@ -79,7 +81,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         private class MyDTO
         {
             public DateTime timestamp { get; set; }
-            public decimal sqrt_calc { get; set; }
+            [BsonRepresentation(BsonType.Decimal128)] public decimal sqrt_calc { get; set; }
         }
 
         public sealed class ClassFixture : MongoCollectionFixture<C>

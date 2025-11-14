@@ -98,6 +98,20 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers
 
         public bool TryGetMemberSerializationInfo(string memberName, out BsonSerializationInfo serializationInfo)
         {
+            if (_valueSerializer is IBsonDocumentSerializer documentSerializer)
+            {
+                if (documentSerializer.TryGetMemberSerializationInfo(memberName, out serializationInfo))
+                {
+                    serializationInfo = BsonSerializationInfo.CreateWithPath(
+                        [_fieldName, serializationInfo.ElementName],
+                        serializationInfo.Serializer,
+                        serializationInfo.NominalType);
+                    return true;
+                }
+
+                return false;
+            }
+
             throw new InvalidOperationException();
         }
     }

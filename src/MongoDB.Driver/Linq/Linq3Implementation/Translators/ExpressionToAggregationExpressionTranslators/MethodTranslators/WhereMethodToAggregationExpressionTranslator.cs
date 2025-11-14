@@ -24,19 +24,19 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class WhereMethodToAggregationExpressionTranslator
     {
-        private static MethodInfo[] __whereMethods =
-        {
+        private static readonly IReadOnlyMethodInfoSet __whereOverloads = MethodInfoSet.Create(
+        [
             EnumerableMethod.Where,
             MongoEnumerableMethod.WhereWithLimit,
             QueryableMethod.Where
-        };
+        ]);
 
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__whereMethods))
+            if (method.IsOneOf(__whereOverloads))
             {
                 var sourceExpression = arguments[0];
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
@@ -70,7 +70,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     @as: predicateSymbol.Var.Name,
                     limitTranslation?.Ast);
 
-                var resultSerializer = NestedAsQueryableSerializer.CreateIEnumerableOrNestedAsQueryableSerializer(expression.Type, itemSerializer);
+                var resultSerializer = context.NodeSerializers.GetSerializer(expression);
                 return new TranslatedExpression(expression, ast, resultSerializer);
             }
 

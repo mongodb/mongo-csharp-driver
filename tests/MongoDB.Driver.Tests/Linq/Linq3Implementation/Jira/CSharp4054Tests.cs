@@ -43,6 +43,17 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 join movie in movies.AsQueryable() on movieId equals movie.Id
                 select new { person, movie };
 
+            // equivalement method call syntax
+            // var queryable = people.AsQueryable()
+            //     .SelectMany(
+            //         person => person.MovieIds,
+            //         (person, movieId) => new { person = person, movieId = movieId })
+            //     .Join(
+            //         movies.AsQueryable(),
+            //         transparentIdentifier => transparentIdentifier.movieId,
+            //         movie => movie.Id,
+            //         (transparentIdentifier, movie) => new { person = transparentIdentifier.person, movie = movie });
+
             var stages = Translate(people, queryable);
             AssertStages(
                 stages,

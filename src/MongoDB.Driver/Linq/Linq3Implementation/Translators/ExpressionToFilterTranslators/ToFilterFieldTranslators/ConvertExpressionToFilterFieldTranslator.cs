@@ -148,11 +148,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 enumSerializer = fieldSerializer;
             }
 
-            var enumType = enumSerializer.ValueType;
-            var enumUnderlyingType =  enumType.GetEnumUnderlyingType();
-            var nonNullableTargetType = targetType.IsNullable() ? Nullable.GetUnderlyingType(targetType) : targetType;
+            var integralType = targetType.IsNullable() ? Nullable.GetUnderlyingType(targetType) : targetType;
 
-            var targetSerializer = EnumAsIntegralTypeSerializer.Create(enumSerializer, enumUnderlyingType, integralType: nonNullableTargetType);
+            // the serializer converts in the opposite direction as the C# expression
+            var targetSerializer = ConvertIntegralTypeToEnumSerializer.Create(integralType, enumSerializer);
             if (targetType.IsNullable())
             {
                 targetSerializer = NullableSerializer.Create(targetSerializer);
@@ -190,7 +189,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             }
 
             IBsonSerializer targetSerializer;
-            if (valueSerializer is IEnumAsIntegralTypeSerializer enumUnderlyingTypeSerializer)
+            if (valueSerializer is IConvertIntegralTypeToEnumSerializer enumUnderlyingTypeSerializer)
             {
                 targetSerializer = enumUnderlyingTypeSerializer.EnumSerializer;
             }
