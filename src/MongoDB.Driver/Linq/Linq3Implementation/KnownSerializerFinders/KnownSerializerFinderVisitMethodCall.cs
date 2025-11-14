@@ -794,7 +794,6 @@ internal partial class KnownSerializerFinderVisitor
                 case "Atan": DeduceAtanMethodSerializers(); break;
                 case "Atanh": DeduceAtanhMethodSerializers(); break;
                 case "Atan2": DeduceAtan2MethodSerializers(); break;
-                case "CompareTo": DeduceCompareToMethodSerializers(); break;
                 case "Concat": DeduceConcatMethodSerializers(); break;
                 case "Constant": DeduceConstantMethodSerializers(); break;
                 case "Contains": DeduceContainsMethodSerializers(); break;
@@ -887,6 +886,11 @@ internal partial class KnownSerializerFinderVisitor
                 case "Ceiling":
                 case "Floor":
                     DeduceCeilingOrFloorMethodSerializers();
+                    break;
+
+                case "Compare":
+                case "CompareTo":
+                    DeduceCompareOrCompareToMethodSerializers();
                     break;
 
                 case "Count":
@@ -1440,30 +1444,20 @@ internal partial class KnownSerializerFinderVisitor
             }
         }
 
-        void DeduceCompareToMethodSerializers()
+        void DeduceCompareOrCompareToMethodSerializers()
         {
-            if (IsCompareToMethod())
+            if (method.IsStaticCompareMethod() ||
+                method.IsInstanceCompareToMethod() ||
+                method.IsOneOf(StringMethod.StaticCompare, StringMethod.StaticCompareWithIgnoreCase))
             {
-                var objectExpression = node.Object;
-                var valueExpression = arguments[0];
-
-                DeduceSerializers(objectExpression, valueExpression);
+                var valueExpression = method.IsStatic ? arguments[0] : node.Object;
+                var comparandExpression = method.IsStatic ? arguments[1] : arguments[0];
+                DeduceSerializers(valueExpression, comparandExpression);
                 DeduceReturnsInt32Serializer();
             }
             else
             {
                 DeduceUnknownMethodSerializer();
-            }
-
-            bool IsCompareToMethod()
-            {
-                return
-                    method.IsPublic &&
-                    method.IsStatic == false &&
-                    method.ReturnType == typeof(int) &&
-                    method.Name == "CompareTo" &&
-                    arguments.Count == 1 &&
-                    arguments[0].Type == node.Object.Type;
             }
         }
 
