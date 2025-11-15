@@ -87,6 +87,11 @@ namespace MongoDB.Bson.Tests
             Assert.Equal(BsonConstants.UnixEpoch.AddSeconds(0x01020304), objectId.CreationTime);
             Assert.Equal("0102030405060708090a0b0c", objectId.ToString());
             Assert.True(bytes.SequenceEqual(objectId.ToByteArray()));
+#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            Span<byte> span = new byte[12];
+            objectId.ToByteSpan(span);
+            Assert.True(span.SequenceEqual(bytes));
+#endif
         }
 
         [Fact]
@@ -101,6 +106,11 @@ namespace MongoDB.Bson.Tests
             Assert.Equal(BsonConstants.UnixEpoch.AddSeconds(0x01020304), objectId.CreationTime);
             Assert.Equal("0102030405060708090a0b0c", objectId.ToString());
             Assert.True(bytes.SequenceEqual(objectId.ToByteArray()));
+#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            Span<char> span = new char[24];
+            objectId.ToCharSpan(span);
+            Assert.True(span.SequenceEqual("0102030405060708090a0b0c"));
+#endif
         }
 
         [Fact]

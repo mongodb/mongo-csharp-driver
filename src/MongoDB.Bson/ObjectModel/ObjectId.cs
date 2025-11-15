@@ -449,12 +449,86 @@ namespace MongoDB.Bson
             destination[offset + 11] = (byte)(_c);
         }
 
+#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+        /// <summary>
+        /// Converts the ObjectId to a byte buffer provided by the input span.
+        /// </summary>
+        /// <param name="destination">The destination byte span.</param>
+        /// <exception cref="ArgumentException">Not enough room in destination span.</exception>
+        public void ToByteSpan(Span<byte> destination)
+        {
+            if (destination.Length < 12)
+            {
+                throw new ArgumentException("Not enough room in destination span.", "destination");
+            }
+
+            destination[0] = (byte)(_a >> 24);
+            destination[1] = (byte)(_a >> 16);
+            destination[2] = (byte)(_a >> 8);
+            destination[3] = (byte)(_a);
+            destination[4] = (byte)(_b >> 24);
+            destination[5] = (byte)(_b >> 16);
+            destination[6] = (byte)(_b >> 8);
+            destination[7] = (byte)(_b);
+            destination[8] = (byte)(_c >> 24);
+            destination[9] = (byte)(_c >> 16);
+            destination[10] = (byte)(_c >> 8);
+            destination[11] = (byte)(_c);
+        }
+
+        /// <summary>
+        /// Fills a character span with the characters corresponding to the string representation of the value.
+        /// </summary>
+        /// <param name="destination">The span to fill the characters in.</param>
+        /// <exception cref="ArgumentException">Not enough room in destination span.</exception>
+        public void ToCharSpan(Span<char> destination)
+        {
+            if (destination.Length < 24)
+            {
+                throw new ArgumentException("Not enough room in destination span.", "destination");
+            }
+
+            Span<byte> span = stackalloc byte[12];
+            ToByteSpan(span);
+            destination[0] = BsonUtils.ToHexChar(span[0] >> 4);
+            destination[1] = BsonUtils.ToHexChar(span[0] & 0xF);
+            destination[2] = BsonUtils.ToHexChar(span[1] >> 4);
+            destination[3] = BsonUtils.ToHexChar(span[1] & 0xF);
+            destination[4] = BsonUtils.ToHexChar(span[2] >> 4);
+            destination[5] = BsonUtils.ToHexChar(span[2] & 0xF);
+            destination[6] = BsonUtils.ToHexChar(span[3] >> 4);
+            destination[7] = BsonUtils.ToHexChar(span[3] & 0xF);
+            destination[8] = BsonUtils.ToHexChar(span[4] >> 4);
+            destination[9] = BsonUtils.ToHexChar(span[4] & 0xF);
+            destination[10] = BsonUtils.ToHexChar(span[5] >> 4);
+            destination[11] = BsonUtils.ToHexChar(span[5] & 0xF);
+            destination[12] = BsonUtils.ToHexChar(span[6] >> 4);
+            destination[13] = BsonUtils.ToHexChar(span[6] & 0xF);
+            destination[14] = BsonUtils.ToHexChar(span[7] >> 4);
+            destination[15] = BsonUtils.ToHexChar(span[7] & 0xF);
+            destination[16] = BsonUtils.ToHexChar(span[8] >> 4);
+            destination[17] = BsonUtils.ToHexChar(span[8] & 0xF);
+            destination[18] = BsonUtils.ToHexChar(span[9] >> 4);
+            destination[19] = BsonUtils.ToHexChar(span[9] & 0xF);
+            destination[20] = BsonUtils.ToHexChar(span[10] >> 4);
+            destination[21] = BsonUtils.ToHexChar(span[10] & 0xF);
+            destination[22] = BsonUtils.ToHexChar(span[11] >> 4);
+            destination[23] = BsonUtils.ToHexChar(span[11] & 0xF);
+        }
+#endif
+
         /// <summary>
         /// Returns a string representation of the value.
         /// </summary>
         /// <returns>A string representation of the value.</returns>
         public override string ToString()
         {
+#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            return string.Create(24, this, static (span, input) =>
+            {
+                input.ToCharSpan(span);
+            });
+#else
             var c = new char[24];
             c[0] = BsonUtils.ToHexChar((_a >> 28) & 0x0f);
             c[1] = BsonUtils.ToHexChar((_a >> 24) & 0x0f);
@@ -481,6 +555,7 @@ namespace MongoDB.Bson
             c[22] = BsonUtils.ToHexChar((_c >> 4) & 0x0f);
             c[23] = BsonUtils.ToHexChar(_c & 0x0f);
             return new string(c);
+#endif
         }
 
         // explicit IConvertible implementation
