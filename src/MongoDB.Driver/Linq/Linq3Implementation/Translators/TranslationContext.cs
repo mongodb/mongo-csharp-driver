@@ -21,31 +21,35 @@ using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
 {
-    internal class TranslationContext
+    internal class TranslationContext : IHasSerializationDomain
     {
         #region static
         public static TranslationContext Create(
+            IBsonSerializationDomain serializationDomain,
             ExpressionTranslationOptions translationOptions,
             TranslationContextData data = null)
         {
             var symbolTable = new SymbolTable();
             var nameGenerator = new NameGenerator();
-            return new TranslationContext(translationOptions, data, symbolTable, nameGenerator);
+            return new TranslationContext(serializationDomain, translationOptions, data, symbolTable, nameGenerator);
         }
         #endregion
 
         // private fields
         private readonly TranslationContextData _data;
         private readonly NameGenerator _nameGenerator;
+        private readonly IBsonSerializationDomain _serializationDomain;
         private readonly SymbolTable _symbolTable;
         private readonly ExpressionTranslationOptions _translationOptions;
 
         private TranslationContext(
+            IBsonSerializationDomain serializationDomain,
             ExpressionTranslationOptions translationOptions,
             TranslationContextData data,
             SymbolTable symbolTable,
             NameGenerator nameGenerator)
         {
+            _serializationDomain = serializationDomain;
             _translationOptions = translationOptions ?? new ExpressionTranslationOptions();
             _data = data; // can be null
             _symbolTable = Ensure.IsNotNull(symbolTable, nameof(symbolTable));
@@ -55,6 +59,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
         // public properties
         public TranslationContextData Data => _data;
         public NameGenerator NameGenerator => _nameGenerator;
+        public IBsonSerializationDomain SerializationDomain => _serializationDomain;
         public SymbolTable SymbolTable => _symbolTable;
         public ExpressionTranslationOptions TranslationOptions => _translationOptions;
 
@@ -124,7 +129,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
 
         public TranslationContext WithSymbolTable(SymbolTable symbolTable)
         {
-            return new TranslationContext(_translationOptions, _data, symbolTable, _nameGenerator);
+            return new TranslationContext(_serializationDomain, _translationOptions, _data, symbolTable, _nameGenerator);
         }
     }
 }

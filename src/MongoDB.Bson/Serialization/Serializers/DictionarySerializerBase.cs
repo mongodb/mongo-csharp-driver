@@ -58,7 +58,12 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="dictionaryRepresentation">The dictionary representation.</param>
         public DictionarySerializerBase(DictionaryRepresentation dictionaryRepresentation)
-            : this(dictionaryRepresentation, BsonSerializer.LookupSerializer<object>(), BsonSerializer.LookupSerializer<object>())
+            : this(BsonSerializationDomain.Default, dictionaryRepresentation)
+        {
+        }
+
+        internal DictionarySerializerBase(IBsonSerializationDomain serializationDomain, DictionaryRepresentation dictionaryRepresentation)
+            : this(dictionaryRepresentation, serializationDomain.LookupSerializer<object>(), serializationDomain.LookupSerializer<object>())
         {
         }
 
@@ -386,7 +391,12 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="dictionaryRepresentation">The dictionary representation.</param>
         public DictionarySerializerBase(DictionaryRepresentation dictionaryRepresentation)
-            : this(dictionaryRepresentation, BsonSerializer.SerializerRegistry)
+            : this(BsonSerializationDomain.Default, dictionaryRepresentation)
+        {
+        }
+
+        internal DictionarySerializerBase(IBsonSerializationDomain serializationDomain, DictionaryRepresentation dictionaryRepresentation)
+            : this(dictionaryRepresentation, serializationDomain.SerializerRegistry)
         {
         }
 

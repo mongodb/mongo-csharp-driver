@@ -121,9 +121,10 @@ namespace MongoDB.Bson.Serialization
                 }
                 else
                 {
+                    var bsonDefaults = BsonSerializationDomain.Default.BsonDefaults;
                     _isDynamicType = t =>
-                        (BsonDefaults.DynamicArraySerializer != null && t == BsonDefaults.DynamicArraySerializer.ValueType) ||
-                        (BsonDefaults.DynamicDocumentSerializer != null && t == BsonDefaults.DynamicDocumentSerializer.ValueType);
+                        (bsonDefaults.DynamicArraySerializer != null && t == bsonDefaults.DynamicArraySerializer.ValueType) ||
+                        (bsonDefaults.DynamicDocumentSerializer != null && t == bsonDefaults.DynamicDocumentSerializer.ValueType);
                 }
             }
 

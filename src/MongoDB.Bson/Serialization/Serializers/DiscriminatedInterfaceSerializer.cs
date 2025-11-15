@@ -37,19 +37,26 @@ namespace MongoDB.Bson.Serialization.Serializers
     public sealed class DiscriminatedInterfaceSerializer<TInterface> :
         SerializerBase<TInterface>,
         IBsonDocumentSerializer,
-        IDiscriminatedInterfaceSerializer
+        IDiscriminatedInterfaceSerializer,
+        IHasSerializationDomain
             // where TInterface is an interface
     {
         #region static
         private static IBsonSerializer<TInterface> CreateInterfaceSerializer()
         {
+            return CreateInterfaceSerializer(BsonSerializationDomain.Default);
+        }
+
+        internal static IBsonSerializer<TInterface> CreateInterfaceSerializer(IBsonSerializationDomain serializationDomain)
+        {
             var classMapDefinition = typeof(BsonClassMap<>);
             var classMapType = classMapDefinition.MakeGenericType(typeof(TInterface));
-            var classMap = (BsonClassMap)Activator.CreateInstance(classMapType);
+            var bindingAttr = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+            var classMap = (BsonClassMap)Activator.CreateInstance(classMapType, bindingAttr, binder: null, args: [serializationDomain], culture: null);
             classMap.AutoMap();
-            classMap.SetDiscriminatorConvention(BsonSerializer.LookupDiscriminatorConvention(typeof(TInterface)));
+            classMap.SetDiscriminatorConvention(serializationDomain.LookupDiscriminatorConvention(typeof(TInterface)));
             classMap.Freeze();
-            return new BsonClassMapSerializer<TInterface>(classMap);
+            return new BsonClassMapSerializer<TInterface>(serializationDomain, classMap);
         }
         #endregion
 
@@ -58,13 +65,19 @@ namespace MongoDB.Bson.Serialization.Serializers
         private readonly IDiscriminatorConvention _discriminatorConvention;
         private readonly IBsonSerializer<TInterface> _interfaceSerializer;
         private readonly IBsonSerializer<object> _objectSerializer;
+        private readonly IBsonSerializationDomain _serializationDomain;
 
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="DiscriminatedInterfaceSerializer{TInterface}" /> class.
         /// </summary>
         public DiscriminatedInterfaceSerializer()
-            : this(discriminatorConvention: null)
+            : this(BsonSerializationDomain.Default)
+        {
+        }
+
+        internal DiscriminatedInterfaceSerializer(IBsonSerializationDomain serializationDomain)
+            : this(serializationDomain, discriminatorConvention: null)
         {
         }
 
@@ -75,7 +88,12 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <exception cref="System.ArgumentException">interfaceType</exception>
         /// <exception cref="System.ArgumentNullException">interfaceType</exception>
         public DiscriminatedInterfaceSerializer(IDiscriminatorConvention discriminatorConvention)
-            : this(discriminatorConvention, CreateInterfaceSerializer(), objectSerializer: null)
+            : this(BsonSerializationDomain.Default, discriminatorConvention)
+        {
+        }
+
+        internal DiscriminatedInterfaceSerializer(IBsonSerializationDomain serializationDomain, IDiscriminatorConvention discriminatorConvention)
+            : this(serializationDomain, discriminatorConvention, CreateInterfaceSerializer(serializationDomain), objectSerializer: null)
         {
         }
 
@@ -87,7 +105,12 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <exception cref="System.ArgumentException">interfaceType</exception>
         /// <exception cref="System.ArgumentNullException">interfaceType</exception>
         public DiscriminatedInterfaceSerializer(IDiscriminatorConvention discriminatorConvention, IBsonSerializer<TInterface> interfaceSerializer)
-            : this(discriminatorConvention, interfaceSerializer, objectSerializer: null)
+            : this(BsonSerializationDomain.Default, discriminatorConvention, interfaceSerializer)
+        {
+        }
+
+        internal DiscriminatedInterfaceSerializer(IBsonSerializationDomain serializationDomain, IDiscriminatorConvention discriminatorConvention, IBsonSerializer<TInterface> interfaceSerializer)
+            : this(serializationDomain, discriminatorConvention, interfaceSerializer, objectSerializer: null)
         {
         }
 
@@ -100,6 +123,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <exception cref="System.ArgumentException">interfaceType</exception>
         /// <exception cref="System.ArgumentNullException">interfaceType</exception>
         public DiscriminatedInterfaceSerializer(IDiscriminatorConvention discriminatorConvention, IBsonSerializer<TInterface> interfaceSerializer, IBsonSerializer<object> objectSerializer)
+            : this(BsonSerializationDomain.Default, discriminatorConvention, interfaceSerializer, objectSerializer)
+        {
+        }
+
+        internal DiscriminatedInterfaceSerializer(IBsonSerializationDomain serializationDomain, IDiscriminatorConvention discriminatorConvention, IBsonSerializer<TInterface> interfaceSerializer, IBsonSerializer<object> objectSerializer)
         {
             var interfaceTypeInfo = typeof(TInterface).GetTypeInfo();
             if (!interfaceTypeInfo.IsInterface)
@@ -109,12 +137,13 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
 
             _interfaceType = typeof(TInterface);
+            _serializationDomain =  serializationDomain;
             _discriminatorConvention = discriminatorConvention ?? interfaceSerializer.GetDiscriminatorConvention();
             _interfaceSerializer = interfaceSerializer;
 
             if (objectSerializer == null)
             {
-                objectSerializer = BsonSerializer.LookupSerializer<object>();
+                objectSerializer = _serializationDomain.LookupSerializer<object>();
                 if (objectSerializer is ObjectSerializer standardObjectSerializer)
                 {
                     Func<Type, bool> allowedTypes = (Type type) => typeof(TInterface).IsAssignableFrom(type);
@@ -138,6 +167,8 @@ namespace MongoDB.Bson.Serialization.Serializers
         public IBsonSerializer<TInterface> InterfaceSerializer => _interfaceSerializer;
 
         IBsonSerializer IDiscriminatedInterfaceSerializer.InterfaceSerializer => _interfaceSerializer;
+
+        IBsonSerializationDomain IHasSerializationDomain.SerializationDomain => _serializationDomain;
 
         // public methods
         /// <summary>
@@ -165,7 +196,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     throw new FormatException(message);
                 }
 
-                var serializer = BsonSerializer.LookupSerializer(actualType);
+                var serializer = this.GetSerializerForDerivedType(actualType);
                 return (TInterface)serializer.Deserialize(context, args);
             }
         }

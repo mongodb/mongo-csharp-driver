@@ -19,17 +19,25 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// Represents a serializer for interfaces and base classes that delegates to the actual type interface without writing a discriminator.
     /// </summary>
     /// <typeparam name="TValue">Type type of the value.</typeparam>
-    public sealed class UndiscriminatedActualTypeSerializer<TValue> : SerializerBase<TValue>
+    public sealed class UndiscriminatedActualTypeSerializer<TValue> : SerializerBase<TValue>, IHasSerializationDomain
     {
         // private static fields
         private static readonly UndiscriminatedActualTypeSerializer<TValue> __instance = new UndiscriminatedActualTypeSerializer<TValue>();
+
+        private readonly IBsonSerializationDomain _serializationDomain;
 
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="UndiscriminatedActualTypeSerializer{TValue}"/> class.
         /// </summary>
         public UndiscriminatedActualTypeSerializer()
+            : this(BsonSerializationDomain.Default)
         {
+        }
+
+        internal UndiscriminatedActualTypeSerializer(IBsonSerializationDomain serializationDomain)
+        {
+            _serializationDomain = serializationDomain;
         }
 
         // public static properties
@@ -43,6 +51,8 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             get { return __instance; }
         }
+
+        IBsonSerializationDomain IHasSerializationDomain.SerializationDomain => _serializationDomain;
 
         // public methods
         /// <summary>
@@ -62,7 +72,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             else
             {
                 var actualType = value.GetType();
-                var serializer = BsonSerializer.LookupSerializer(actualType);
+                var serializer = _serializationDomain.LookupSerializer(actualType);
                 args.NominalType = actualType;
                 serializer.Serialize(context, args, value);
             }
