@@ -42,11 +42,11 @@ namespace MongoDB.Driver.Core.Misc
 
             if (async)
             {
-                await stream.ReadBytesAsync(OperationContext.NoTimeout, destination, 0, count, Timeout.InfiniteTimeSpan);
+                await stream.ReadBytesAsync(destination, 0, count);
             }
             else
             {
-                stream.ReadBytes(OperationContext.NoTimeout, destination, 0, count, Timeout.InfiniteTimeSpan);
+                stream.ReadBytes(destination, 0, count);
             }
 
             destination.Should().Equal(expectedBytes);
@@ -65,11 +65,11 @@ namespace MongoDB.Driver.Core.Misc
 
             if (async)
             {
-                await stream.ReadBytesAsync(OperationContext.NoTimeout, destination, offset, 1, Timeout.InfiniteTimeSpan);
+                await stream.ReadBytesAsync(destination, offset, 1);
             }
             else
             {
-                stream.ReadBytes(OperationContext.NoTimeout, destination, offset, 1, Timeout.InfiniteTimeSpan);
+                stream.ReadBytes(destination, offset, 1);
             }
 
             destination.Should().Equal(expectedBytes);
@@ -106,11 +106,11 @@ namespace MongoDB.Driver.Core.Misc
 
             if (async)
             {
-                await mockStream.Object.ReadBytesAsync(OperationContext.NoTimeout, destination, 0, 3, Timeout.InfiniteTimeSpan);
+                await mockStream.Object.ReadBytesAsync(destination, 0, 3);
             }
             else
             {
-                mockStream.Object.ReadBytes(OperationContext.NoTimeout, destination, 0, 3, Timeout.InfiniteTimeSpan);
+                mockStream.Object.ReadBytes(destination, 0, 3);
             }
 
             destination.Should().Equal(bytes);
@@ -128,8 +128,8 @@ namespace MongoDB.Driver.Core.Misc
                 .Returns(Task.FromResult(0));
 
             var exception = async ?
-                await Record.ExceptionAsync(() => mockStream.Object.ReadBytesAsync(OperationContext.NoTimeout, destination, 0, 1, Timeout.InfiniteTimeSpan)) :
-                Record.Exception(() => mockStream.Object.ReadBytes(OperationContext.NoTimeout, destination, 0, 1, Timeout.InfiniteTimeSpan));
+                await Record.ExceptionAsync(() => mockStream.Object.ReadBytesAsync(destination, 0, 1)) :
+                Record.Exception(() => mockStream.Object.ReadBytes(destination, 0, 1));
 
             exception.Should().BeOfType<EndOfStreamException>();
         }
@@ -142,8 +142,8 @@ namespace MongoDB.Driver.Core.Misc
             byte[] destination = null;
 
             var exception = async ?
-                await Record.ExceptionAsync(() => stream.ReadBytesAsync(OperationContext.NoTimeout, destination, 0, 0, Timeout.InfiniteTimeSpan)) :
-                Record.Exception(() => stream.ReadBytes(OperationContext.NoTimeout, destination, 0, 0, Timeout.InfiniteTimeSpan));
+                await Record.ExceptionAsync(() => stream.ReadBytesAsync(destination, 0, 0)) :
+                Record.Exception(() => stream.ReadBytes(destination, 0, 0));
 
             exception.Should().BeOfType<ArgumentNullException>().Subject
                 .ParamName.Should().Be("buffer");
@@ -162,8 +162,8 @@ namespace MongoDB.Driver.Core.Misc
             var destination = new byte[2];
 
             var exception = async ?
-                await Record.ExceptionAsync(() => stream.ReadBytesAsync(OperationContext.NoTimeout, destination, offset, count, Timeout.InfiniteTimeSpan)) :
-                Record.Exception(() => stream.ReadBytes(OperationContext.NoTimeout, destination, offset, count, Timeout.InfiniteTimeSpan));
+                await Record.ExceptionAsync(() => stream.ReadBytesAsync(destination, offset, count)) :
+                Record.Exception(() => stream.ReadBytes(destination, offset, count));
 
             exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject
                 .ParamName.Should().Be("count");
@@ -179,8 +179,8 @@ namespace MongoDB.Driver.Core.Misc
             var destination = new byte[2];
 
             var exception = async ?
-                await Record.ExceptionAsync(() => stream.ReadBytesAsync(OperationContext.NoTimeout, destination, offset, 0, Timeout.InfiniteTimeSpan)) :
-                Record.Exception(() => stream.ReadBytes(OperationContext.NoTimeout, destination, offset, 0, Timeout.InfiniteTimeSpan));
+                await Record.ExceptionAsync(() => stream.ReadBytesAsync(destination, offset, 0)) :
+                Record.Exception(() => stream.ReadBytes(destination, offset, 0));
 
             exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject
                 .ParamName.Should().Be("offset");
@@ -194,8 +194,8 @@ namespace MongoDB.Driver.Core.Misc
             var destination = new byte[0];
 
             var exception = async ?
-                await Record.ExceptionAsync(() => stream.ReadBytesAsync(OperationContext.NoTimeout, destination, 0, 0, Timeout.InfiniteTimeSpan)) :
-                Record.Exception(() => stream.ReadBytes(OperationContext.NoTimeout, destination, 0, 0, Timeout.InfiniteTimeSpan));
+                await Record.ExceptionAsync(() => stream.ReadBytesAsync(destination, 0, 0)) :
+                Record.Exception(() => stream.ReadBytes(destination, 0, 0));
 
             exception.Should().BeOfType<ArgumentNullException>().Subject
                 .ParamName.Should().Be("stream");
@@ -203,18 +203,17 @@ namespace MongoDB.Driver.Core.Misc
 
         [Theory]
         [ParameterAttributeData]
-        public async Task ReadBytes_with_byte_array_throws_on_timeout([Values(true, false)]bool async)
+        public async Task ReadBytes_with_byte_array_throws_on_timeout([Values(true, false)]bool async, [Values(0, 10)]int timeout)
         {
             var streamMock = new Mock<Stream>();
             SetupStreamRead(streamMock);
             var stream = streamMock.Object;
 
             var destination = new byte[2];
-            var timeout = TimeSpan.FromMilliseconds(10);
 
             var exception = async ?
-                await Record.ExceptionAsync(() => stream.ReadAsync(destination, 0, 2, timeout, CancellationToken.None)) :
-                Record.Exception(() => stream.Read(destination, 0, 2, timeout, CancellationToken.None));
+                await Record.ExceptionAsync(() => stream.ReadBytesAsync(destination, 0, 2, timeout, CancellationToken.None)) :
+                Record.Exception(() => stream.ReadBytes(destination, 0, 2, timeout, CancellationToken.None));
 
             exception.Should().BeOfType<TimeoutException>();
         }
@@ -231,8 +230,8 @@ namespace MongoDB.Driver.Core.Misc
             using var cancellationTokenSource = new CancellationTokenSource(10);
 
             var exception = async ?
-                await Record.ExceptionAsync(() => stream.ReadAsync(destination, 0, 2, Timeout.InfiniteTimeSpan, cancellationTokenSource.Token)) :
-                Record.Exception(() => stream.Read(destination, 0, 2, Timeout.InfiniteTimeSpan, cancellationTokenSource.Token));
+                await Record.ExceptionAsync(() => stream.ReadBytesAsync(destination, 0, 2, cancellationToken: cancellationTokenSource.Token)) :
+                Record.Exception(() => stream.ReadBytes(destination, 0, 2, cancellationToken: cancellationTokenSource.Token));
 
             if (async)
             {
@@ -259,11 +258,11 @@ namespace MongoDB.Driver.Core.Misc
 
             if (async)
             {
-                await stream.ReadBytesAsync(OperationContext.NoTimeout, destination, 0, count, Timeout.InfiniteTimeSpan);
+                await stream.ReadBytesAsync(destination, 0, count);
             }
             else
             {
-                stream.ReadBytes(OperationContext.NoTimeout, destination, 0, count, Timeout.InfiniteTimeSpan);
+                stream.ReadBytes(destination, 0, count);
             }
 
             destination.AccessBackingBytes(0).Array.Should().Equal(expectedBytes);
@@ -282,11 +281,11 @@ namespace MongoDB.Driver.Core.Misc
 
             if (async)
             {
-                await stream.ReadBytesAsync(OperationContext.NoTimeout, destination, offset, 1, Timeout.InfiniteTimeSpan);
+                await stream.ReadBytesAsync(destination, offset, 1);
             }
             else
             {
-                stream.ReadBytes(OperationContext.NoTimeout, destination, offset, 1, Timeout.InfiniteTimeSpan);
+                stream.ReadBytes(destination, offset, 1);
             }
 
             destination.AccessBackingBytes(0).Array.Should().Equal(expectedBytes);
@@ -323,11 +322,11 @@ namespace MongoDB.Driver.Core.Misc
 
             if (async)
             {
-                await mockStream.Object.ReadBytesAsync(OperationContext.NoTimeout, destination, 0, 3, Timeout.InfiniteTimeSpan);
+                await mockStream.Object.ReadBytesAsync(destination, 0, 3);
             }
             else
             {
-                mockStream.Object.ReadBytes(OperationContext.NoTimeout, destination, 0, 3, Timeout.InfiniteTimeSpan);
+                mockStream.Object.ReadBytes(destination, 0, 3);
             }
 
             destination.AccessBackingBytes(0).Array.Should().Equal(bytes);
@@ -345,8 +344,8 @@ namespace MongoDB.Driver.Core.Misc
                 .Returns(Task.FromResult(0));
 
             var exception = async ?
-                await Record.ExceptionAsync(() => mockStream.Object.ReadBytesAsync(OperationContext.NoTimeout, destination, 0, 1, Timeout.InfiniteTimeSpan)) :
-                Record.Exception(() => mockStream.Object.ReadBytes(OperationContext.NoTimeout, destination, 0, 1, Timeout.InfiniteTimeSpan));
+                await Record.ExceptionAsync(() => mockStream.Object.ReadBytesAsync(destination, 0, 1)) :
+                Record.Exception(() => mockStream.Object.ReadBytes(destination, 0, 1));
 
             exception.Should().BeOfType<EndOfStreamException>();
         }
@@ -359,8 +358,8 @@ namespace MongoDB.Driver.Core.Misc
             IByteBuffer destination = null;
 
             var exception = async ?
-                await Record.ExceptionAsync(() => stream.ReadBytesAsync(OperationContext.NoTimeout, destination, 0, 0, Timeout.InfiniteTimeSpan)) :
-                Record.Exception(() => stream.ReadBytes(OperationContext.NoTimeout, destination, 0, 0, Timeout.InfiniteTimeSpan));
+                await Record.ExceptionAsync(() => stream.ReadBytesAsync(destination, 0, 0)) :
+                Record.Exception(() => stream.ReadBytes(destination, 0, 0));
 
             exception.Should().BeOfType<ArgumentNullException>().Subject
                 .ParamName.Should().Be("buffer");
@@ -379,8 +378,8 @@ namespace MongoDB.Driver.Core.Misc
             var destination = CreateMockByteBuffer(2).Object;
 
             var exception = async ?
-                await Record.ExceptionAsync(() => stream.ReadBytesAsync(OperationContext.NoTimeout, destination, offset, count, Timeout.InfiniteTimeSpan)) :
-                Record.Exception(() => stream.ReadBytes(OperationContext.NoTimeout, destination, offset, count, Timeout.InfiniteTimeSpan));
+                await Record.ExceptionAsync(() => stream.ReadBytesAsync(destination, offset, count)) :
+                Record.Exception(() => stream.ReadBytes(destination, offset, count));
 
             exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject
                 .ParamName.Should().Be("count");
@@ -396,8 +395,8 @@ namespace MongoDB.Driver.Core.Misc
             var destination = CreateMockByteBuffer(2).Object;
 
             var exception = async ?
-                await Record.ExceptionAsync(() => stream.ReadBytesAsync(OperationContext.NoTimeout, destination, offset, 0, Timeout.InfiniteTimeSpan)) :
-                Record.Exception(() => stream.ReadBytes(OperationContext.NoTimeout, destination, offset, 0, Timeout.InfiniteTimeSpan));
+                await Record.ExceptionAsync(() => stream.ReadBytesAsync(destination, offset, 0)) :
+                Record.Exception(() => stream.ReadBytes(destination, offset, 0));
 
             exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject
                 .ParamName.Should().Be("offset");
@@ -411,8 +410,8 @@ namespace MongoDB.Driver.Core.Misc
             var destination = new Mock<IByteBuffer>().Object;
 
             var exception = async ?
-                await Record.ExceptionAsync(() => stream.ReadBytesAsync(OperationContext.NoTimeout, destination, 0, 0, Timeout.InfiniteTimeSpan)) :
-                Record.Exception(() => stream.ReadBytes(OperationContext.NoTimeout, destination, 0, 0, Timeout.InfiniteTimeSpan));
+                await Record.ExceptionAsync(() => stream.ReadBytesAsync(destination, 0, 0)) :
+                Record.Exception(() => stream.ReadBytes(destination, 0, 0));
 
             exception.Should().BeOfType<ArgumentNullException>().Subject
                 .ParamName.Should().Be("stream");
@@ -425,18 +424,18 @@ namespace MongoDB.Driver.Core.Misc
         [InlineData(false, 0, new byte[] { })]
         [InlineData(false, 1, new byte[] { 1 })]
         [InlineData(false, 2, new byte[] { 1, 2 })]
-        public async Task WriteBytes_should_have_expected_effect_for_count(bool async, int count, byte[] expectedBytes)
+        public async Task WriteBytes_with_byte_array_should_have_expected_effect_for_count(bool async, int count, byte[] expectedBytes)
         {
             var stream = new MemoryStream();
-            var source = new ByteArrayBuffer(new byte[] { 1, 2 });
+            var source = new byte[] { 1, 2 };
 
             if (async)
             {
-                await stream.WriteBytesAsync(OperationContext.NoTimeout, source, 0, count, Timeout.InfiniteTimeSpan);
+                await stream.WriteBytesAsync(source, 0, count);
             }
             else
             {
-                stream.WriteBytes(OperationContext.NoTimeout, source, 0, count, Timeout.InfiniteTimeSpan);
+                stream.WriteBytes(source, 0, count);
             }
 
             stream.ToArray().Should().Equal(expectedBytes);
@@ -447,18 +446,131 @@ namespace MongoDB.Driver.Core.Misc
         [InlineData(true, 2, new byte[] { 3 })]
         [InlineData(false, 1, new byte[] { 2 })]
         [InlineData(false, 2, new byte[] { 3 })]
-        public async Task WriteBytes_should_have_expected_effect_for_offset(bool async, int offset, byte[] expectedBytes)
+        public async Task WriteBytes_with_byte_array_should_have_expected_effect_for_offset(bool async, int offset, byte[] expectedBytes)
+        {
+            var stream = new MemoryStream();
+            var source = new byte[] { 1, 2, 3 };
+
+            if (async)
+            {
+                await stream.WriteBytesAsync(source, offset, 1);
+            }
+            else
+            {
+                stream.WriteBytes(source, offset, 1);
+            }
+
+            stream.ToArray().Should().Equal(expectedBytes);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task WriteBytes_with_byte_array_should_throw_when_buffer_is_null([Values(true, false)]bool async)
+        {
+            var stream = new Mock<Stream>().Object;
+            byte[] buffer = null;
+
+            var exception = async ?
+                await Record.ExceptionAsync(() => stream.WriteBytesAsync(buffer, 0, 0)) :
+                Record.Exception(() => stream.WriteBytes(buffer, 0, 0));
+
+            exception.Should().BeOfType<ArgumentNullException>().Subject
+                .ParamName.Should().Be("buffer");
+        }
+
+        [Theory]
+        [InlineData(true, 0, -1)]
+        [InlineData(true, 1, 2)]
+        [InlineData(true, 2, 1)]
+        [InlineData(false, 0, -1)]
+        [InlineData(false, 1, 2)]
+        [InlineData(false, 2, 1)]
+        public async Task WriteBytes_with_byte_array_should_throw_when_count_is_invalid(bool async, int offset, int count)
+        {
+            var stream = new Mock<Stream>().Object;
+            var source = new byte[] { 1, 2 };
+
+            var exception = async ?
+                await Record.ExceptionAsync(() => stream.WriteBytesAsync(source, offset, count)) :
+                Record.Exception(() => stream.WriteBytes(source, offset, count));
+
+            exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject
+                .ParamName.Should().Be("count");
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task WriteBytes_with_byte_array_should_throw_when_offset_is_invalid(
+            [Values(true, false)]bool async,
+            [Values(-1, 3)]int offset)
+        {
+            var stream = new Mock<Stream>().Object;
+            var source = new byte[] { 1, 2 };
+
+            var exception = async ?
+                await Record.ExceptionAsync(() => stream.WriteBytesAsync(source, offset, 0)) :
+                Record.Exception(() => stream.WriteBytes(source, offset, 0));
+
+            exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject
+                .ParamName.Should().Be("offset");
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task WriteBytes_with_byte_array_should_throw_when_stream_is_null([Values(true, false)]bool async)
+        {
+            Stream stream = null;
+            var source = new byte[] { 1, 2 };
+
+            var exception = async ?
+                await Record.ExceptionAsync(() => stream.WriteBytesAsync(source, 0, 0)) :
+                Record.Exception(() => stream.WriteBytes(source, 0, 0));
+
+            exception.Should().BeOfType<ArgumentNullException>().Subject
+                .ParamName.Should().Be("stream");
+        }
+
+        [Theory]
+        [InlineData(true, 0, new byte[] { })]
+        [InlineData(true, 1, new byte[] { 1 })]
+        [InlineData(true, 2, new byte[] { 1, 2 })]
+        [InlineData(false, 0, new byte[] { })]
+        [InlineData(false, 1, new byte[] { 1 })]
+        [InlineData(false, 2, new byte[] { 1, 2 })]
+        public async Task WriteBytes_with_byte_buffer_should_have_expected_effect_for_count(bool async, int count, byte[] expectedBytes)
+        {
+            var stream = new MemoryStream();
+            var source = new ByteArrayBuffer(new byte[] { 1, 2 });
+
+            if (async)
+            {
+                await stream.WriteBytesAsync(source, 0, count);
+            }
+            else
+            {
+                stream.WriteBytes(source, 0, count);
+            }
+
+            stream.ToArray().Should().Equal(expectedBytes);
+        }
+
+        [Theory]
+        [InlineData(true, 1, new byte[] { 2 })]
+        [InlineData(true, 2, new byte[] { 3 })]
+        [InlineData(false, 1, new byte[] { 2 })]
+        [InlineData(false, 2, new byte[] { 3 })]
+        public async Task WriteBytes_with_byte_buffer_should_have_expected_effect_for_offset(bool async, int offset, byte[] expectedBytes)
         {
             var stream = new MemoryStream();
             var source = new ByteArrayBuffer(new byte[] { 1, 2, 3 });
 
             if (async)
             {
-                await stream.WriteBytesAsync(OperationContext.NoTimeout, source, offset, 1, Timeout.InfiniteTimeSpan);
+                await stream.WriteBytesAsync(source, offset, 1);
             }
             else
             {
-                stream.WriteBytes(OperationContext.NoTimeout, source, offset, 1, Timeout.InfiniteTimeSpan);
+                stream.WriteBytes(source, offset, 1);
             }
 
             stream.ToArray().Should().Equal(expectedBytes);
@@ -473,7 +585,7 @@ namespace MongoDB.Driver.Core.Misc
         [InlineData(false, 2, new[] { 1, 2 })]
         [InlineData(false, 3, new[] { 2, 1 })]
         [InlineData(false, 4, new[] { 1, 1, 1 })]
-        public async Task WriteBytes_should_have_expected_effect_for_partial_writes(bool async, int testCase, int[] partition)
+        public async Task WriteBytes_with_byte_buffer_should_have_expected_effect_for_partial_writes(bool async, int testCase, int[] partition)
         {
             var stream = new MemoryStream();
             var mockSource = new Mock<IByteBuffer>();
@@ -489,11 +601,11 @@ namespace MongoDB.Driver.Core.Misc
 
             if (async)
             {
-                await stream.WriteBytesAsync(OperationContext.NoTimeout, mockSource.Object, 0, 3, Timeout.InfiniteTimeSpan);
+                await stream.WriteBytesAsync(mockSource.Object, 0, 3);
             }
             else
             {
-                stream.WriteBytes(OperationContext.NoTimeout, mockSource.Object, 0, 3, Timeout.InfiniteTimeSpan);
+                stream.WriteBytes(mockSource.Object, 0, 3);
             }
 
             stream.ToArray().Should().Equal(bytes);
@@ -501,13 +613,14 @@ namespace MongoDB.Driver.Core.Misc
 
         [Theory]
         [ParameterAttributeData]
-        public async Task WriteBytes_should_throw_when_buffer_is_null([Values(true, false)]bool async)
+        public async Task WriteBytes_with_byte_buffer_should_throw_when_buffer_is_null([Values(true, false)]bool async)
         {
             var stream = new Mock<Stream>().Object;
+            IByteBuffer buffer = null;
 
             var exception = async ?
-                await Record.ExceptionAsync(() => stream.WriteBytesAsync(OperationContext.NoTimeout, null, 0, 0, Timeout.InfiniteTimeSpan)) :
-                Record.Exception(() => stream.WriteBytes(OperationContext.NoTimeout, null, 0, 0, Timeout.InfiniteTimeSpan));
+                await Record.ExceptionAsync(() => stream.WriteBytesAsync(buffer, 0, 0)) :
+                Record.Exception(() => stream.WriteBytes(buffer, 0, 0));
 
             exception.Should().BeOfType<ArgumentNullException>().Subject
                 .ParamName.Should().Be("buffer");
@@ -520,14 +633,14 @@ namespace MongoDB.Driver.Core.Misc
         [InlineData(false, 0, -1)]
         [InlineData(false, 1, 2)]
         [InlineData(false, 2, 1)]
-        public async Task WriteBytes_should_throw_when_count_is_invalid(bool async, int offset, int count)
+        public async Task WriteBytes_with_byte_buffer_should_throw_when_count_is_invalid(bool async, int offset, int count)
         {
             var stream = new Mock<Stream>().Object;
             var source = CreateMockByteBuffer(2).Object;
 
             var exception = async ?
-                await Record.ExceptionAsync(() => stream.WriteBytesAsync(OperationContext.NoTimeout, source, offset, count, Timeout.InfiniteTimeSpan)) :
-                Record.Exception(() => stream.WriteBytes(OperationContext.NoTimeout, source, offset, count, Timeout.InfiniteTimeSpan));
+                await Record.ExceptionAsync(() => stream.WriteBytesAsync(source, offset, count)) :
+                Record.Exception(() => stream.WriteBytes(source, offset, count));
 
             exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject
                 .ParamName.Should().Be("count");
@@ -535,7 +648,7 @@ namespace MongoDB.Driver.Core.Misc
 
         [Theory]
         [ParameterAttributeData]
-        public async Task WriteBytes_should_throw_when_offset_is_invalid(
+        public async Task WriteBytes_with_byte_buffer_should_throw_when_offset_is_invalid(
             [Values(true, false)]bool async,
             [Values(-1, 3)]int offset)
         {
@@ -543,8 +656,8 @@ namespace MongoDB.Driver.Core.Misc
             var source = CreateMockByteBuffer(2).Object;
 
             var exception = async ?
-                await Record.ExceptionAsync(() => stream.WriteBytesAsync(OperationContext.NoTimeout, source, offset, 0, Timeout.InfiniteTimeSpan)) :
-                Record.Exception(() => stream.WriteBytes(OperationContext.NoTimeout, source, offset, 0, Timeout.InfiniteTimeSpan));
+                await Record.ExceptionAsync(() => stream.WriteBytesAsync(source, offset, 0)) :
+                Record.Exception(() => stream.WriteBytes(source, offset, 0));
 
             exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject
                 .ParamName.Should().Be("offset");
@@ -552,14 +665,14 @@ namespace MongoDB.Driver.Core.Misc
 
         [Theory]
         [ParameterAttributeData]
-        public async Task WriteBytes_should_throw_when_stream_is_null([Values(true, false)]bool async)
+        public async Task WriteBytes_with_byte_buffer_should_throw_when_stream_is_null([Values(true, false)]bool async)
         {
             Stream stream = null;
             var source = new Mock<IByteBuffer>().Object;
 
             var exception = async ?
-                await Record.ExceptionAsync(() => stream.WriteBytesAsync(OperationContext.NoTimeout, source, 0, 0, Timeout.InfiniteTimeSpan)) :
-                Record.Exception(() => stream.WriteBytes(OperationContext.NoTimeout, source, 0, 0, Timeout.InfiniteTimeSpan));
+                await Record.ExceptionAsync(() => stream.WriteBytesAsync(source, 0, 0)) :
+                Record.Exception(() => stream.WriteBytes(source, 0, 0));
 
             exception.Should().BeOfType<ArgumentNullException>().Subject
                 .ParamName.Should().Be("stream");
