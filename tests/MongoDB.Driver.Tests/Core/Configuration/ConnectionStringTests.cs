@@ -441,7 +441,9 @@ namespace MongoDB.Driver.Core.Configuration
                 "socketTimeout=40ms;" +
                 "ssl=false;" +
                 "sslVerifyCertificate=true;" +
+#if DEBUG // TODO: CSOT: Make it public when CSOT will be ready for GA
                 "timeout=42ms;" +
+#endif
                 "waitQueueMultiple=10;" +
                 "waitQueueSize=30;" +
                 "waitQueueTimeout=60ms;" +
@@ -490,7 +492,9 @@ namespace MongoDB.Driver.Core.Configuration
             subject.Ssl.Should().BeFalse();
             subject.SslVerifyCertificate.Should().Be(true);
 #pragma warning restore 618
+#if DEBUG // TODO: CSOT: Make it public when CSOT will be ready for GA
             subject.Timeout.Should().Be(TimeSpan.FromMilliseconds(42));
+#endif
             subject.Tls.Should().BeFalse();
             subject.TlsInsecure.Should().Be(false);
             subject.Username.Should().Be("user");
@@ -1063,6 +1067,7 @@ namespace MongoDB.Driver.Core.Configuration
 #pragma warning restore 618
         }
 
+#if DEBUG // TODO: CSOT: Make it public when CSOT will be ready for GA
         [Theory]
         [InlineData("mongodb://localhost?timeoutMS=0", -1)]
         [InlineData("mongodb://localhost?timeout=0", -1)]
@@ -1078,6 +1083,7 @@ namespace MongoDB.Driver.Core.Configuration
 
             subject.Timeout.Should().Be(TimeSpan.FromMilliseconds(milliseconds));
         }
+#endif
 
         [Theory]
         [InlineData("mongodb://localhost?tls=true", true)]

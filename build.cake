@@ -25,9 +25,6 @@ var artifactsPackagesDirectory = artifactsDirectory.Combine("packages");
 var srcDirectory = solutionDirectory.Combine("src");
 var testsDirectory = solutionDirectory.Combine("tests");
 var outputDirectory = solutionDirectory.Combine("build");
-var toolsDirectory = solutionDirectory.Combine("tools");
-var toolsHugoDirectory = toolsDirectory.Combine("Hugo");
-var mongoDbDriverPackageName = "MongoDB.Driver";
 
 var solutionFile = solutionDirectory.CombineWithFilePath("CSharpDriver.sln");
 var solutionFullPath = solutionFile.FullPath;
@@ -35,72 +32,7 @@ var solutionFullPath = solutionFile.FullPath;
 Task("Default")
     .IsDependentOn("Test");
 
-Task("Release")
-    .IsDependentOn("Build")
-    .IsDependentOn("Package");
-
-Task("Restore")
-    .Does(() =>
-    {
-        // disable parallel restore to work around apparent bugs in restore
-        var restoreSettings = new DotNetRestoreSettings
-        {
-            DisableParallel = true
-        };
-        DotNetRestore(solutionFullPath, restoreSettings);
-    });
-
-Task("Build")
-    .IsDependentOn("Restore")
-    .Does<BuildConfig>((buildConfig) =>
-    {
-       var settings = new DotNetBuildSettings
-       {
-           NoRestore = true,
-           Configuration = configuration,
-           EnvironmentVariables = new Dictionary<string, string>
-           {
-               { "Version", gitVersion.LegacySemVer },
-               { "SourceRevisionId", gitVersion.Sha }
-           }
-        };
-
-        DotNetBuild(solutionFullPath, settings);
-    });
-
-Task("BuildArtifacts")
-    .IsDependentOn("Build")
-    .Does(() =>
-    {
-        foreach (var targetFramework in new[] { "net472", "netstandard2.0", "netstandard2.1" })
-        {
-            var toDirectory = artifactsBinDirectory.Combine(targetFramework);
-            CleanDirectory(toDirectory);
-
-            var projects = new[] { "MongoDB.Bson", "MongoDB.Driver" };
-            foreach (var project in projects)
-            {
-                var fromDirectory = srcDirectory.Combine(project).Combine("bin").Combine(configuration).Combine(targetFramework);
-
-                var fileNames = new List<string>();
-                foreach (var extension in new[] { "dll", "pdb", "xml" })
-                {
-                    var fileName = $"{project}.{extension}";
-                    fileNames.Add(fileName);
-                }
-
-                foreach (var fileName in fileNames)
-                {
-                    var fromFile = fromDirectory.CombineWithFilePath(fileName);
-                    var toFile = toDirectory.CombineWithFilePath(fileName);
-                    CopyFile(fromFile, toFile);
-                }
-            }
-        }
-    });
-
 Task("Test")
-    .IsDependentOn("Build")
     .DoesForEach(
         items: GetFiles("./**/*.Tests.csproj").Where(name => !name.ToString().Contains("Atlas")),
         action: (BuildConfig buildConfig, Path testProject) =>
@@ -121,68 +53,58 @@ Task("Test")
     .DeferOnError();
 
 Task("TestAwsAuthentication")
-    .IsDependentOn("Build")
     .DoesForEach(
         items: GetFiles("./**/MongoDB.Driver.Tests.csproj"),
         action: (BuildConfig buildConfig, Path testProject) =>
             RunTests(buildConfig, testProject, filter: "Category=\"AwsMechanism\""));
 
 Task("TestPlainAuthentication")
-    .IsDependentOn("Build")
     .DoesForEach(
         items: GetFiles("./**/MongoDB.Driver.Tests.csproj"),
         action: (BuildConfig buildConfig, Path testProject) =>
             RunTests(buildConfig, testProject, filter: "Category=\"PlainMechanism\""));
 
 Task("TestAtlasConnectivity")
-    .IsDependentOn("Build")
     .DoesForEach(
         items: GetFiles("./**/AtlasConnectivity.Tests.csproj"),
         action: (BuildConfig buildConfig, Path testProject) => RunTests(buildConfig, testProject));
 
 Task("TestAtlasSearch")
-    .IsDependentOn("Build")
     .DoesForEach(
         items: GetFiles("./**/MongoDB.Driver.Tests.csproj"),
         action: (BuildConfig buildConfig, Path testProject) =>
            RunTests(buildConfig, testProject, filter: "Category=\"AtlasSearch\""));
 
 Task("TestAtlasSearchIndexHelpers")
-    .IsDependentOn("Build")
     .DoesForEach(
         items: GetFiles("./**/MongoDB.Driver.Tests.csproj"),
         action: (BuildConfig buildConfig, Path testProject) =>
            RunTests(buildConfig, testProject, filter: "Category=\"AtlasSearchIndexHelpers\""));
 
 Task("TestOcsp")
-    .IsDependentOn("Build")
     .DoesForEach(
         items: GetFiles("./**/MongoDB.Driver.Tests.csproj"),
         action: (BuildConfig buildConfig, Path testProject) =>
             RunTests(buildConfig, testProject, filter: "Category=\"OCSP\""));
 
 Task("TestGssapi")
-    .IsDependentOn("Build")
     .DoesForEach(
         items: GetFiles("./**/MongoDB.Driver.Tests.csproj"),
         action: (BuildConfig buildConfig, Path testProject) =>
            RunTests(buildConfig, testProject, filter: "Category=\"GssapiMechanism\""));
 
 Task("TestMongoDbOidc")
-    .IsDependentOn("Build")
     .DoesForEach(
         items: GetFiles("./**/MongoDB.Driver.Tests.csproj"),
         action: (BuildConfig buildConfig, Path testProject) =>
             RunTests(buildConfig, testProject, filter: "Category=\"MongoDbOidc\""));
 
 Task("TestLibMongoCrypt")
-    .IsDependentOn("Build")
     .DoesForEach(
         items: GetFiles("./**/MongoDB.Driver.Encryption.Tests.csproj"),
         action: (BuildConfig buildConfig, Path testProject) => RunTests(buildConfig, testProject));
 
 Task("TestLoadBalanced")
-    .IsDependentOn("Build")
     .DoesForEach(
         items: GetFiles("./**/*.Tests.csproj"),
         action: (BuildConfig buildConfig, Path testProject) =>
@@ -217,90 +139,16 @@ Task("TestCsfleWithGcpKms")
             RunTests(buildConfig, testProject, filter: "Category=\"CsfleGCPKMS\""));
 
 Task("TestX509")
-    .IsDependentOn("Build")
     .DoesForEach(
         items: GetFiles("./**/MongoDB.Driver.Tests.csproj"),
         action: (BuildConfig buildConfig, Path testProject) =>
             RunTests(buildConfig, testProject, filter: "Category=\"X509\""));
 
 Task("TestSocks5Proxy")
-    .IsDependentOn("Build")
     .DoesForEach(
         items: GetFiles("./**/*.Tests.csproj"),
         action: (BuildConfig buildConfig, Path testProject) =>
             RunTests(buildConfig, testProject, filter: "Category=\"Socks5Proxy\""));
-
-Task("Package")
-    .IsDependentOn("PackageNugetPackages");
-
-Task("PackageNugetPackages")
-    .IsDependentOn("Build")
-    .Does<BuildConfig>((buildConfig) =>
-    {
-        EnsureDirectoryExists(artifactsPackagesDirectory);
-        CleanDirectory(artifactsPackagesDirectory);
-
-        var projects = new[]
-        {
-            "MongoDB.Bson",
-            "MongoDB.Driver",
-            "MongoDB.Driver.Encryption"
-        };
-
-        foreach (var project in projects)
-        {
-            var projectPath = $"{srcDirectory}\\{project}\\{project}.csproj";
-            var settings = new DotNetPackSettings
-            {
-                Configuration = configuration,
-                OutputDirectory = artifactsPackagesDirectory,
-                NoBuild = true, // SetContinuousIntegrationBuild is enabled for nupkg on the Build step
-                IncludeSymbols = true,
-                MSBuildSettings = new DotNetMSBuildSettings()
-                    // configure deterministic build for better compatibility with debug symbols (used in Package/Build tasks). Affects: *.snupkg
-                    .SetContinuousIntegrationBuild(continuousIntegrationBuild: true)
-                    .WithProperty("PackageVersion", buildConfig.PackageVersion)
-            };
-            DotNetPack(projectPath, settings);
-        }
-    });
-
-Task("PushToNuGet")
-    .Does(() =>
-    {
-        var nugetApiKey = EnvironmentVariable("NUGETAPIKEY");
-        if (nugetApiKey == null)
-        {
-            throw new Exception("NUGETAPIKEY environment variable missing");
-        }
-
-        var packageFiles = new List<FilePath>();
-
-        var projects = new[]
-        {
-            "MongoDB.Bson",
-            "MongoDB.Driver"
-        };
-
-        foreach (var project in projects)
-        {
-            var packageFileName = $"{project}.{gitVersion.LegacySemVer}.nupkg";
-            var packageFile = artifactsPackagesDirectory.CombineWithFilePath(packageFileName);
-            packageFiles.Add(packageFile);
-        }
-
-        NuGetPush(packageFiles, new NuGetPushSettings
-        {
-            ApiKey = nugetApiKey,
-            Source = "https://api.nuget.org/v3/index.json"
-        });
-    });
-
-Task("DumpGitVersion")
-    .Does(() =>
-    {
-        Information(gitVersion.Dump());
-    });
 
 Task("SmokeTests")
     .DoesForEach(

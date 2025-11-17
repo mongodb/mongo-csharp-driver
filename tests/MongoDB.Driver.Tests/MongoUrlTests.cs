@@ -186,7 +186,9 @@ namespace MongoDB.Driver.Tests
                 ServerMonitoringMode = ServerMonitoringMode.Poll,
                 ServerSelectionTimeout = TimeSpan.FromSeconds(10),
                 SocketTimeout = TimeSpan.FromSeconds(7),
+#if DEBUG // TODO: CSOT: Make it public when CSOT will be ready for GA
                 Timeout = TimeSpan.FromSeconds(13),
+#endif
                 Username = "username",
                 UseTls = true,
                 W = 2,
@@ -226,7 +228,9 @@ namespace MongoDB.Driver.Tests
                 "serverMonitoringMode=Poll",
                 "serverSelectionTimeout=10s",
                 "socketTimeout=7s",
+#if DEBUG // TODO: CSOT: Make it public when CSOT will be ready for GA
                 "timeout=13s",
+#endif
                 "waitQueueSize=123",
                 "waitQueueTimeout=8s",
                 "retryReads=false",
@@ -270,7 +274,9 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(ServerMonitoringMode.Poll, url.ServerMonitoringMode);
                 Assert.Equal(TimeSpan.FromSeconds(10), url.ServerSelectionTimeout);
                 Assert.Equal(TimeSpan.FromSeconds(7), url.SocketTimeout);
+#if DEBUG // TODO: CSOT: Make it public when CSOT will be ready for GA
                 Assert.Equal(TimeSpan.FromSeconds(13), url.Timeout);
+#endif
                 Assert.Equal(true, url.TlsDisableCertificateRevocationCheck);
                 Assert.Equal("username", url.Username);
 #pragma warning disable 618

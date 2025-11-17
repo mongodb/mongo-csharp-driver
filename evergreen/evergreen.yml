@@ -104,13 +104,14 @@ functions:
     - command: shell.exec
       type: system
       params:
+        working_dir: mongo-csharp-driver
         include_expansions_in_env:
           - "OS"
           - "DOTNET_SDK_VERSION"
           - "FRAMEWORK"
         script: |
           ${PREPARE_SHELL}
-          bash ${PROJECT_DIRECTORY}/evergreen/install-dotnet.sh
+          bash evergreen/install-dotnet.sh
 
   prepare-resources:
     - command: shell.exec
@@ -196,40 +197,6 @@ functions:
         content_type: ${content_type|text/plain}
         display_name: "orchestration.log"
 
-  upload-working-dir:
-    - command: archive.targz_pack
-      params:
-        target: "working-dir.tar.gz"
-        source_dir: ${PROJECT_DIRECTORY}/
-        include:
-          - "./**"
-    - command: s3.put
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: working-dir.tar.gz
-        remote_file: ${UPLOAD_BUCKET}/${build_variant}/${revision}/${version_id}/${build_id}/artifacts/${task_id}-${execution}-working-dir.tar.gz
-        bucket: mciuploads
-        permissions: public-read
-        content_type: ${content_type|application/x-gzip}
-        display_name: "working-dir.tar.gz"
-    - command: archive.targz_pack
-      params:
-        target: "drivers-dir.tar.gz"
-        source_dir: ${DRIVERS_TOOLS}
-        include:
-          - "./**"
-    - command: s3.put
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: drivers-dir.tar.gz
-        remote_file: ${UPLOAD_BUCKET}/${build_variant}/${revision}/${version_id}/${build_id}/artifacts/${task_id}-${execution}-drivers-dir.tar.gz
-        bucket: mciuploads
-        permissions: public-read
-        content_type: ${content_type|application/x-gzip}
-        display_name: "drivers-dir.tar.gz"
-
   upload-test-results:
     - command: attach.xunit_results
       params:
@@ -255,6 +222,16 @@ functions:
     - command: expansions.update
       params:
         file: mo-expansion.yml
+
+  compile-sources:
+    - command: shell.exec
+      type: system
+      params:
+        working_dir: "mongo-csharp-driver"
+        shell: "bash"
+        script: |
+          ${PREPARE_SHELL}
+          bash ./evergreen/compile-sources.sh
 
   download-and-promote-augmented-sbom-to-s3-bucket:
     - command: ec2.assume_role
@@ -376,7 +353,7 @@ functions:
           - "FRAMEWORK"
         script: |
           ${PREPARE_SHELL}
-          bash evergreen/run-unit-tests.sh
+          bash ./evergreen/run-unit-tests.sh
 
   run-tests:
     - command: shell.exec
@@ -1151,6 +1128,7 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net472
+        - func: compile-sources
         - func: run-unit-tests
 
     - name: unit-tests-netstandard21
@@ -1158,6 +1136,7 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: netstandard2.1
+        - func: compile-sources
         - func: run-unit-tests
 
     - name: unit-tests-net60
@@ -1165,6 +1144,7 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net6.0
+        - func: compile-sources
         - func: run-unit-tests
 
     - name: test-net472
@@ -1174,6 +1154,7 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net472
+        - func: compile-sources
         - func: run-tests
 
     - name: test-netstandard21
@@ -1183,6 +1164,7 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: netstandard2.1
+        - func: compile-sources
         - func: run-tests
 
     - name: test-net60
@@ -1192,6 +1174,7 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net6.0
+        - func: compile-sources
         - func: run-tests
 
     - name: test-csfle-with-mongocryptd-net472
@@ -1201,6 +1184,7 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net472
+        - func: compile-sources
         - func: run-csfle-with-mongocryptd-tests
 
     - name: test-csfle-with-mongocryptd-netstandard21
@@ -1210,6 +1194,7 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: netstandard2.1
+        - func: compile-sources
         - func: run-csfle-with-mongocryptd-tests
 
     - name: test-csfle-with-mongocryptd-net60
@@ -1219,6 +1204,7 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net6.0
+        - func: compile-sources
         - func: run-csfle-with-mongocryptd-tests
 
     - name: test-csfle-with-mocked-kms-tls-net472
@@ -1229,6 +1215,7 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net472
+        - func: compile-sources
         - func: run-csfle-with-mocked-kms-tests
 
     - name: test-csfle-with-mocked-kms-tls-netstandard21
@@ -1239,6 +1226,7 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: netstandard2.1
+        - func: compile-sources
         - func: run-csfle-with-mocked-kms-tests
 
     - name: test-csfle-with-mocked-kms-tls-net60
@@ -1249,6 +1237,7 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net6.0
+        - func: compile-sources
         - func: run-csfle-with-mocked-kms-tests
 
     - name: test-load-balancer-netstandard21
@@ -1260,6 +1249,7 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: netstandard2.1
+        - func: compile-sources
         - func: run-load-balancer-tests
         - func: stop-load-balancer
 
@@ -1272,6 +1262,7 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net6.0
+        - func: compile-sources
         - func: run-load-balancer-tests
         - func: stop-load-balancer
 
@@ -1281,6 +1272,7 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net6.0
+        - func: compile-sources
         - func: run-atlas-connectivity-tests
 
     - name: test-gssapi-net472
@@ -1288,6 +1280,7 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net472
+        - func: compile-sources
         - func: run-gssapi-auth-tests
 
     - name: test-gssapi-netstandard21
@@ -1295,6 +1288,7 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: netstandard2.1
+        - func: compile-sources
         - func: run-gssapi-auth-tests
 
     - name: test-gssapi-net60
@@ -1302,6 +1296,7 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net6.0
+        - func: compile-sources
         - func: run-gssapi-auth-tests
 
     - name: test-socks5-proxy-net472
@@ -1311,6 +1306,7 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net472
+        - func: compile-sources
         - func: run-socks5-proxy-tests
 
     - name: test-socks5-proxy-netstandard21
@@ -1320,6 +1316,7 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: netstandard21
+        - func: compile-sources
         - func: run-socks5-proxy-tests
 
     - name: test-socks5-proxy-net60
@@ -1329,6 +1326,7 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net60
+        - func: compile-sources
         - func: run-socks5-proxy-tests
 
     - name: plain-auth-tests
@@ -1336,6 +1334,7 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net6.0
+        - func: compile-sources
         - func: run-plain-auth-tests
 
     - name: aws-auth-tests
@@ -1349,6 +1348,7 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net6.0
+        - func: compile-sources
         # This step also creates test related users, so don't avoid this step in order to run other tests
         - func: run-aws-auth-test-with-regular-aws-credentials
         - func: run-aws-auth-test-with-assume-role-credentials
@@ -1368,6 +1368,7 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net472
+        - func: compile-sources
         - func: run-tests
           vars:
             REQUIRE_API_VERSION: true
@@ -1381,6 +1382,7 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: netstandard2.1
+        - func: compile-sources
         - func: run-tests
           vars:
             REQUIRE_API_VERSION: true
@@ -1394,6 +1396,7 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net6.0
+        - func: compile-sources
         - func: run-tests
           vars:
             REQUIRE_API_VERSION: true
@@ -1404,6 +1407,7 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net6.0
+        - func: compile-sources
         - func: run-atlas-search-test
 
     - name: atlas-search-index-helpers-test
@@ -1411,6 +1415,7 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net6.0
+        - func: compile-sources
         - func: run-atlas-search-index-helpers-test
 
     - name: test-oidc-auth
@@ -1418,6 +1423,7 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net6.0
+        - func: compile-sources
         - func: run-mongodb-oidc-tests
 
     - name: test-oidc-azure
@@ -1491,6 +1497,7 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net6.0
+        - func: compile-sources
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -1509,6 +1516,7 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net6.0
+        - func: compile-sources
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -1527,6 +1535,7 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net6.0
+        - func: compile-sources
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -1545,6 +1554,7 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net6.0
+        - func: compile-sources
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -1559,6 +1569,7 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net6.0
+        - func: compile-sources
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -1577,6 +1588,7 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net6.0
+        - func: compile-sources
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -1591,6 +1603,7 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net6.0
+        - func: compile-sources
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -1609,6 +1622,7 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net6.0
+        - func: compile-sources
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -1627,6 +1641,7 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net6.0
+        - func: compile-sources
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -1645,6 +1660,7 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net6.0
+        - func: compile-sources
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -1663,6 +1679,7 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net6.0
+        - func: compile-sources
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -1681,6 +1698,7 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net6.0
+        - func: compile-sources
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"

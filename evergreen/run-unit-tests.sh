@@ -7,5 +7,4 @@ if [ "$FRAMEWORK" = "netstandard2.1" ]; then
   FRAMEWORK="netcoreapp3.1"
 fi
 
-dotnet build
-dotnet test --no-build --filter "Category!=Integration"  -f "$FRAMEWORK" --results-directory ./build/test-results --logger  "junit;verbosity=detailed;LogFileName=TEST-{assembly}.xml;FailureBodyFormat=Verbose" --logger "console;verbosity=detailed"
+dotnet test -c Release --no-build --filter "Category!=Integration"  -f "$FRAMEWORK" --results-directory ./build/test-results --logger  "junit;verbosity=detailed;LogFileName=TEST-{assembly}.xml;FailureBodyFormat=Verbose" --logger "console;verbosity=detailed"
