@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -o errexit  # Exit the script with error if any of the commands fail
 
+if [ -z "$PACKAGE_VERSION" ]; then
+  PACKAGE_VERSION=$(bash ./evergreen/get-version.sh)
+  echo Calculated PACKAGE_VERSION value: "$PACKAGE_VERSION"
+fi
+
 RESTORE_MAX_RETRIES=5
 RESTORE_RETRY_DELAY_SECONDS_MULTIPLIER=10
 
@@ -24,4 +29,4 @@ do
   sleep $DELAY
 done
 
-dotnet build -c Release --no-restore
+dotnet build -c Release --no-restore -p:Version="$PACKAGE_VERSION"
