@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env bash
+#!/usr/bin/env bash
 set -o errexit  # Exit the script with error if any of the commands fail
 
 RESTORE_MAX_RETRIES=5
@@ -7,6 +7,7 @@ RESTORE_RETRY_DELAY_SECONDS_MULTIPLIER=10
 for (( ATTEMPT=1; ATTEMPT<=RESTORE_MAX_RETRIES; ATTEMPT++ ))
 do
   echo "Attempt $ATTEMPT of $RESTORE_MAX_RETRIES to run dotnet restore..."
+  exit_status=0
   dotnet restore || exit_status=$?
   if [[ "$exit_status" -eq 0 ]]; then
     echo "dotnet restore succeeded."
