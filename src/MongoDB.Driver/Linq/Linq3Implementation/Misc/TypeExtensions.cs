@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 {
     internal static class TypeExtensions
     {
-        private static readonly Type[] __dictionaryInterfaces =
+        private static readonly Type[] __dictionaryInterfaceDefinitions =
         {
             typeof(IDictionary<,>),
             typeof(IReadOnlyDictionary<,>)
@@ -102,7 +102,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 
         public static bool ImplementsDictionaryInterface(this Type type, out Type keyType, out Type valueType)
         {
-            if (TryGetGenericInterface(type, __dictionaryInterfaces, out var dictionaryInterface))
+            if (TryGetGenericInterface(type, __dictionaryInterfaceDefinitions, out var dictionaryInterface))
             {
                 var genericArguments = dictionaryInterface.GetGenericArguments();
                 keyType = genericArguments[0];
@@ -226,11 +226,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                 underlyingType = Enum.GetUnderlyingType(type);
                 return true;
             }
-            else
-            {
-                underlyingType = null;
-                return false;
-            }
+
+            underlyingType = null;
+            return false;
         }
 
         public static bool IsEnumOrNullableEnum(this Type type, out Type enumType, out Type underlyingType)
@@ -256,11 +254,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                 valueType = type.GetGenericArguments()[0];
                 return true;
             }
-            else
-            {
-                valueType = null;
-                return false;
-            }
+
+            valueType = null;
+            return false;
         }
 
         public static bool IsNullableEnum(this Type type)
@@ -366,77 +362,32 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                 __valueTupleTypeDefinitions.Contains(typeDefinition);
         }
 
-        public static bool TryGetGenericInterface(this Type type, Type[] interfaceDefinitions, out Type genericInterface)
+        public static bool TryGetGenericInterface(this Type type, Type genericInterfaceDefintion, out Type genericInterface)
         {
             genericInterface =
-                type.IsConstructedGenericType && interfaceDefinitions.Contains(type.GetGenericTypeDefinition()) ?
+                type.IsConstructedGenericType && type.GetGenericTypeDefinition() == genericInterfaceDefintion ?
                     type :
-                    type.GetInterfaces().FirstOrDefault(i => i.IsConstructedGenericType && interfaceDefinitions.Contains(i.GetGenericTypeDefinition()));
+                    type.GetInterfaces().FirstOrDefault(i => i.IsConstructedGenericType && i.GetGenericTypeDefinition() == genericInterfaceDefintion);
+            return genericInterface != null;
+        }
+
+        public static bool TryGetGenericInterface(this Type type, Type[] genericInterfaceDefinitions, out Type genericInterface)
+        {
+            genericInterface =
+                type.IsConstructedGenericType && genericInterfaceDefinitions.Contains(type.GetGenericTypeDefinition()) ?
+                    type :
+                    type.GetInterfaces().FirstOrDefault(i => i.IsConstructedGenericType && genericInterfaceDefinitions.Contains(i.GetGenericTypeDefinition()));
             return genericInterface != null;
         }
 
         public static bool TryGetIEnumerableGenericInterface(this Type type, out Type ienumerableGenericInterface)
-        {
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-            {
-                ienumerableGenericInterface = type;
-                return true;
-            }
-
-            foreach (var interfaceType in type.GetInterfaces())
-            {
-                if (interfaceType.IsGenericType && interfaceType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-                {
-                    ienumerableGenericInterface = interfaceType;
-                    return true;
-                }
-            }
-
-            ienumerableGenericInterface = null;
-            return false;
-        }
+            => TryGetGenericInterface(type, typeof(IEnumerable<>), out ienumerableGenericInterface);
 
         public static bool TryGetIListGenericInterface(this Type type, out Type ilistGenericInterface)
-        {
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IList<>))
-            {
-                ilistGenericInterface = type;
-                return true;
-            }
-
-            foreach (var interfaceType in type.GetInterfaces())
-            {
-                if (interfaceType.IsGenericType && interfaceType.GetGenericTypeDefinition() == typeof(IList<>))
-                {
-                    ilistGenericInterface = interfaceType;
-                    return true;
-                }
-            }
-
-            ilistGenericInterface = null;
-            return false;
-        }
+            => TryGetGenericInterface(type, typeof(IList<>), out ilistGenericInterface);
 
         public static bool TryGetIQueryableGenericInterface(this Type type, out Type iqueryableGenericInterface)
-        {
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IQueryable<>))
-            {
-                iqueryableGenericInterface = type;
-                return true;
-            }
-
-            foreach (var interfaceType in type.GetInterfaces())
-            {
-                if (interfaceType.IsGenericType && interfaceType.GetGenericTypeDefinition() == typeof(IQueryable<>))
-                {
-                    iqueryableGenericInterface = interfaceType;
-                    return true;
-                }
-            }
-
-            iqueryableGenericInterface = null;
-            return false;
-        }
+            => TryGetGenericInterface(type, typeof(IQueryable<>), out iqueryableGenericInterface);
 
         private static TValue GetDefaultValueGeneric<TValue>()
         {
