@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                             Meta : '$$meta',
                             Property : {
                                 $arrayElemAt : [
-                                    { $filter : { input : '$Properties', as : 'p', cond : { $eq : ['$$p._id', '$$meta.PropertyId'] } } },
+                                    { $filter : { input : '$Properties', as : 'p', cond : { $eq : ['$$p._id', '$$meta.PropertyId'] }, limit : 1 } },
                                     0
                                 ]
                             }
