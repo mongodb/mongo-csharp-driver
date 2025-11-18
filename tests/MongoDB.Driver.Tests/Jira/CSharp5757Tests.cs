@@ -45,10 +45,11 @@ public class CSharp5757Tests : LinqIntegrationTest<CSharp5757Tests.ClassFixture>
     [Fact]
     public void HierarchicalDiscriminator_with_Filter_OfType_HealthCareWorker_should_throw()
     {
+        var collection = Fixture.PersonCollection;
         var filter = Builders<Person>.Filter.OfType<HealthCareWorker>();
 
         var renderedArgs =
-            new RenderArgs<Person>(BsonSerializer.LookupSerializer<Person>(), BsonSerializer.SerializerRegistry);
+            new RenderArgs<Person>(collection.DocumentSerializer, BsonSerializer.SerializerRegistry);
 
         var exception = Record.Exception(() => filter.Render(renderedArgs));
         exception.Should().BeOfType<NotSupportedException>();
@@ -58,10 +59,9 @@ public class CSharp5757Tests : LinqIntegrationTest<CSharp5757Tests.ClassFixture>
     [Fact]
     public void HierarchicalDiscriminator_with_Queryable_OfType_HealthCareWorker_should_throw()
     {
-        var collection = Fixture.Database.GetCollection<Person>("person");
+        var collection = Fixture.PersonCollection;
         var queryable = collection.AsQueryable()
             .OfType<HealthCareWorker>();
-
 
         var exception = Record.Exception(() => Translate(collection, queryable));
         exception.Should().BeOfType<NotSupportedException>();
@@ -71,7 +71,7 @@ public class CSharp5757Tests : LinqIntegrationTest<CSharp5757Tests.ClassFixture>
     [Fact]
     public void ScalarDiscriminator_with_Filter_OfType_Mammal_should_work()
     {
-        var collection = Fixture.Collection;
+        var collection = Fixture.AnimalCollection;
         var filter = Builders<Animal>.Filter.OfType<Mammal>();
 
         var renderedFilter = filter.Render(new RenderArgs<Animal>(collection.DocumentSerializer, BsonSerializer.SerializerRegistry));
@@ -84,7 +84,7 @@ public class CSharp5757Tests : LinqIntegrationTest<CSharp5757Tests.ClassFixture>
     [Fact]
     public void ScalarDiscriminator_with_Queryable_OfType_Mammal_should_work()
     {
-        var collection = Fixture.Collection;
+        var collection = Fixture.AnimalCollection;
 
         var queryable = collection.AsQueryable()
             .OfType<Mammal>();
@@ -194,12 +194,19 @@ public class CSharp5757Tests : LinqIntegrationTest<CSharp5757Tests.ClassFixture>
         }
     }
 
-    public sealed class ClassFixture : MongoCollectionFixture<Animal>
+    public sealed class ClassFixture : MongoDatabaseFixture
     {
-        protected override IEnumerable<Animal> InitialData =>
-        [
-            new Cat { Id = 1 },
-            new Dog { Id = 2 }
-        ];
+        public IMongoCollection<Animal> AnimalCollection { get; private set; }
+        public IMongoCollection<Person> PersonCollection { get; private set; }
+
+        protected override void InitializeFixture()
+        {
+            AnimalCollection = CreateCollection<Animal>("animalCollection");
+            AnimalCollection.InsertMany([
+                new Cat { Id = 1 },
+                new Dog { Id = 2 }]);
+
+            PersonCollection = CreateCollection<Person>("personCollection");
+        }
     }
 }
