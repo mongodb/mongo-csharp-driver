@@ -52,7 +52,7 @@ public class CSharp5757Tests : LinqIntegrationTest<CSharp5757Tests.ClassFixture>
 
         var exception = Record.Exception(() => filter.Render(renderedArgs));
         exception.Should().BeOfType<NotSupportedException>();
-        exception.Message.Should().Be("Hierarchical discriminator convention requires that documents of type HealthCareWorker have a discriminator value.");
+        exception.Message.Should().Be("Discriminator value for type HealthCareWorker is null which is not allowed with hierarchical discriminator conventions.");
     }
 
     [Fact]
@@ -65,7 +65,7 @@ public class CSharp5757Tests : LinqIntegrationTest<CSharp5757Tests.ClassFixture>
 
         var exception = Record.Exception(() => Translate(collection, queryable));
         exception.Should().BeOfType<NotSupportedException>();
-        exception.Message.Should().Be("Hierarchical discriminator convention requires that documents of type HealthCareWorker have a discriminator value.");
+        exception.Message.Should().Be("Discriminator value for type HealthCareWorker is null which is not allowed with hierarchical discriminator conventions.");
     }
 
     [Fact]

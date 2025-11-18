@@ -57,7 +57,7 @@ internal static class DiscriminatorAstFilter
         var discriminator = discriminatorConvention.GetDiscriminator(nominalType, actualType);
         if (discriminator == null)
         {
-            throw new NotSupportedException($"Hierarchical discriminator convention requires that documents of type {BsonUtils.GetFriendlyTypeName(actualType)} have a discriminator value.");
+            throw new NotSupportedException($"Discriminator value for type {BsonUtils.GetFriendlyTypeName(actualType)} is null which is not allowed with hierarchical discriminator conventions.");
         }
 
         var lastItem = discriminator is BsonArray array ? array.Last() : discriminator;
