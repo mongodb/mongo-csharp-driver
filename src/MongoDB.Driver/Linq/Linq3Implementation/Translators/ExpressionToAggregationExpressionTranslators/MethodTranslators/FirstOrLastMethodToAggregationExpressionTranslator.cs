@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -95,16 +95,20 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var sourceAst = sourceTranslation.Ast;
                 var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
 
+                var isFirstMethod = method.Name.StartsWith("First");
+
                 if (method.IsOneOf(__withPredicateMethods))
                 {
                     var predicateLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
                     var parameterExpression = predicateLambda.Parameters.Single();
                     var parameterSymbol = context.CreateSymbol(parameterExpression, itemSerializer, isCurrent: false);
                     var predicateTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, predicateLambda, parameterSymbol);
+                    var limit = isFirstMethod ? AstExpression.Constant(1) : null;
                     sourceAst = AstExpression.Filter(
                         input: sourceAst,
                         cond: predicateTranslation.Ast,
-                        @as: parameterSymbol.Var.Name);
+                        @as: parameterSymbol.Var.Name,
+                        limit: limit);
                 }
 
                 AstExpression ast;
@@ -119,11 +123,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                         @in: AstExpression.Cond(
                             @if: AstExpression.Eq(AstExpression.Size(valuesAst), 0),
                             then: serializedDefaultValue,
-                            @else: method.IsOneOf(__firstMethods) ? AstExpression.First(valuesAst) : AstExpression.Last(valuesAst)));
+                            @else: isFirstMethod ? AstExpression.First(valuesAst) : AstExpression.Last(valuesAst)));
                 }
                 else
                 {
-                    ast = method.Name == "First" ? AstExpression.First(sourceAst) : AstExpression.Last(sourceAst);
+                    ast = isFirstMethod ? AstExpression.First(sourceAst) : AstExpression.Last(sourceAst);
                 }
 
                 return new TranslatedExpression(expression, ast, itemSerializer);

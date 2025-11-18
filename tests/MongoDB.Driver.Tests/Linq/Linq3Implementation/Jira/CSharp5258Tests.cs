@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 .Select(_x => _x.List.First(_y => _y > 2));
 
             var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $project : { _v : { $arrayElemAt : [{ $filter : { input : '$List', as : 'v__0', cond : { $gt : ['$$v__0', 2] } } }, 0]  }, _id : 0 } }");
+            AssertStages(stages, "{ $project : { _v : { $arrayElemAt : [{ $filter : { input : '$List', as : 'v__0', cond : { $gt : ['$$v__0', 2] }, limit : 1 } }, 0] }, _id : 0 } }");
 
             var results = queryable.ToList();
             results.Should().Equal(3, 4);

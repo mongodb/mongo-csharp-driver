@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                 collection.AsQueryable().Select(x => x.A.First(x => x > 1));
 
             var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $project : { _v : { $arrayElemAt : [{ $filter : { input : '$A', as : 'x', cond : { $gt : ['$$x', 1] } } }, 0] }, _id : 0 } }");
+            AssertStages(stages, "{ $project : { _v : { $arrayElemAt : [{ $filter : { input : '$A', as : 'x', cond : { $gt : ['$$x', 1] }, limit : 1 } }, 0] }, _id : 0 } }");
 
             var results = queryable.ToList();
             results.Should().Equal(0, 0, 2, 2);
@@ -95,7 +95,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                 collection.AsQueryable().Select(x => x.A.FirstOrDefault(x => x > 1));
 
             var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $project : { _v : { $let : { vars : { values : { $filter : { input : '$A', as : 'x', cond : { $gt : ['$$x', 1] } } } }, in : { $cond : { if : { $eq : [{ $size : '$$values' }, 0] }, then : 0, else : { $arrayElemAt : ['$$values', 0] } } } } }, _id : 0 } }");
+            AssertStages(stages, "{ $project : { _v : { $let : { vars : { values : { $filter : { input : '$A', as : 'x', cond : { $gt : ['$$x', 1] }, limit : 1 } } }, in : { $cond : { if : { $eq : [{ $size : '$$values' }, 0] }, then : 0, else : { $arrayElemAt : ['$$values', 0] } } } } }, _id : 0 } }");
 
             var results = queryable.ToList();
             results.Should().Equal(0, 0, 2, 2);
