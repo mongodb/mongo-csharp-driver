@@ -1527,6 +1527,25 @@ namespace MongoDB.Bson
         /// Initializes a new instance of the <see cref="Decimal128"/> struct.
         /// </summary>
         /// <param name="value">The value.</param>
+        [CLSCompliant(false)]
+        public Decimal128(sbyte value)
+        {
+            if (value >= 0)
+            {
+                _highBits = 0;
+                _lowBits = (ulong)value;
+            }
+            else
+            {
+                _highBits = Flags.SignBit;
+                _lowBits = value == sbyte.MinValue ? (ulong)sbyte.MaxValue + 1 : (ulong)-value;
+            }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Decimal128"/> struct.
+        /// </summary>
+        /// <param name="value">The value.</param>
         public Decimal128(int value)
         {
             if (value >= 0)
@@ -1557,6 +1576,16 @@ namespace MongoDB.Bson
                 _highBits = Flags.SignBit;
                 _lowBits = value == long.MinValue ? (ulong)long.MaxValue + 1 : (ulong)-value;
             }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Decimal128"/> struct.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        public Decimal128(byte value)
+        {
+            _highBits = 0;
+            _lowBits = value;
         }
 
         /// <summary>
