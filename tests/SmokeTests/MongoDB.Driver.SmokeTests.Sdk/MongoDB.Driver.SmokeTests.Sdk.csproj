@@ -10,15 +10,11 @@
     <CodeAnalysisRuleSet>..\..\..\MongoDBTest.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(SmokeTestsPackageSha)' != ''">
-    <UsePackageReferences>true</UsePackageReferences>
-  </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="MongoDB.Driver" Version="[0.0.0.0]" Condition="'$(UsePackageReferences)' == 'true'" />
-    <PackageReference Include="MongoDB.Driver.Encryption" Version="[0.0.0.0]" Condition="'$(UsePackageReferences)' == 'true'" />
-    <ProjectReference Include="..\..\..\src\MongoDB.Driver\MongoDB.Driver.csproj" Condition="'$(UsePackageReferences)' != 'true'" />
-    <ProjectReference Include="..\..\..\src\MongoDB.Driver.Encryption\MongoDB.Driver.Encryption.csproj" Condition="'$(UsePackageReferences)' != 'true'" />
+    <PackageReference Include="MongoDB.Driver" Version="$(DRIVER_PACKAGE_VERSION)" Condition="'$(DRIVER_PACKAGE_VERSION)' != ''" />
+    <PackageReference Include="MongoDB.Driver.Encryption" Version="$(DRIVER_PACKAGE_VERSION)" Condition="'$(DRIVER_PACKAGE_VERSION)' != ''" />
+    <ProjectReference Include="..\..\..\src\MongoDB.Driver\MongoDB.Driver.csproj" Condition="'$(DRIVER_PACKAGE_VERSION)' == ''" />
+    <ProjectReference Include="..\..\..\src\MongoDB.Driver.Encryption\MongoDB.Driver.Encryption.csproj" Condition="'$(DRIVER_PACKAGE_VERSION)' == ''" />
   </ItemGroup>
 
   <ItemGroup>

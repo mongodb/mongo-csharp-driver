@@ -150,43 +150,6 @@ Task("TestSocks5Proxy")
         action: (BuildConfig buildConfig, Path testProject) =>
             RunTests(buildConfig, testProject, filter: "Category=\"Socks5Proxy\""));
 
-Task("SmokeTests")
-    .DoesForEach(
-        GetFiles("./**/SmokeTests/**/*.SmokeTests*.csproj"),
-        action: (BuildConfig buildConfig, Path testProject) =>
-    {
-        var environmentVariables = new Dictionary<string, string>
-        {
-           { "SmokeTestsPackageSha", gitVersion.Sha }
-        };
-
-        var toolSettings = new DotNetToolSettings { EnvironmentVariables = environmentVariables };
-
-        Information($"Updating MongoDB package: {buildConfig.PackageVersion} sha: {gitVersion.Sha}");
-
-        DotNetTool(
-            testProject.FullPath,
-            "add package MongoDB.Driver",
-            $"--no-restore --version [{buildConfig.PackageVersion}]",
-            toolSettings);
-
-        DotNetTool(
-            testProject.FullPath,
-            "add package MongoDB.Driver.Encryption",
-            $"--no-restore --version [{buildConfig.PackageVersion}]",
-            toolSettings);
-
-        RunTests(
-            buildConfig,
-            testProject,
-            settings =>
-            {
-                settings.NoBuild = false;
-                settings.NoRestore = false;
-                settings.EnvironmentVariables = environmentVariables;
-            });
-    });
-
 Setup<BuildConfig>(
     setupContext =>
     {
