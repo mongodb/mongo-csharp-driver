@@ -16,6 +16,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
 
@@ -37,7 +38,15 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 .Select(_x => _x.List.First(_y => _y > 2));
 
             var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $project : { _v : { $arrayElemAt : [{ $filter : { input : '$List', as : 'v__0', cond : { $gt : ['$$v__0', 2] }, limit : 1 } }, 0] }, _id : 0 } }");
+
+            if (Feature.FilterLimit.IsSupported(CoreTestConfiguration.MaxWireVersion))
+            {
+                AssertStages(stages, "{ $project : { _v : { $arrayElemAt : [{ $filter : { input : '$List', as : 'v__0', cond : { $gt : ['$$v__0', 2] }, limit : 1 } }, 0] }, _id : 0 } }");
+            }
+            else
+            {
+                AssertStages(stages, "{ $project : { _v : { $arrayElemAt : [{ $filter : { input : '$List', as : 'v__0', cond : { $gt : ['$$v__0', 2] } } }, 0] }, _id : 0 } }");
+            }
 
             var results = queryable.ToList();
             results.Should().Equal(3, 4);

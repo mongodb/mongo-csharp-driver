@@ -103,7 +103,18 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     var parameterExpression = predicateLambda.Parameters.Single();
                     var parameterSymbol = context.CreateSymbol(parameterExpression, itemSerializer, isCurrent: false);
                     var predicateTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, predicateLambda, parameterSymbol);
-                    var limit = isFirstMethod ? AstExpression.Constant(1) : null;
+
+                    // The $filter limit parameter was introduced in MongoDB 6.0
+                    AstExpression limit = null;
+                    if (isFirstMethod)
+                    {
+                        var compatibilityLevel = context.TranslationOptions.CompatibilityLevel;
+                        if (compatibilityLevel is >= ServerVersion.Server60)
+                        {
+                            limit = AstExpression.Constant(1);
+                        }
+                    }
+
                     sourceAst = AstExpression.Filter(
                         input: sourceAst,
                         cond: predicateTranslation.Ast,
