@@ -161,6 +161,7 @@ EOL
     fi
 fi
 
+. ./evergreen/compile-sources.sh
 if [[ "$OS" =~ Windows|windows ]]; then
   powershell.exe .\\build.ps1 --target=$TARGET
 else
