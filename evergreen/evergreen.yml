@@ -104,13 +104,14 @@ functions:
     - command: shell.exec
       type: system
       params:
+        working_dir: mongo-csharp-driver
         include_expansions_in_env:
           - "OS"
           - "DOTNET_SDK_VERSION"
           - "FRAMEWORK"
         script: |
           ${PREPARE_SHELL}
-          bash ${PROJECT_DIRECTORY}/evergreen/install-dotnet.sh
+          bash evergreen/install-dotnet.sh
 
   prepare-resources:
     - command: shell.exec
@@ -195,40 +196,6 @@ functions:
         permissions: public-read
         content_type: ${content_type|text/plain}
         display_name: "orchestration.log"
-
-  upload-working-dir:
-    - command: archive.targz_pack
-      params:
-        target: "working-dir.tar.gz"
-        source_dir: ${PROJECT_DIRECTORY}/
-        include:
-          - "./**"
-    - command: s3.put
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: working-dir.tar.gz
-        remote_file: ${UPLOAD_BUCKET}/${build_variant}/${revision}/${version_id}/${build_id}/artifacts/${task_id}-${execution}-working-dir.tar.gz
-        bucket: mciuploads
-        permissions: public-read
-        content_type: ${content_type|application/x-gzip}
-        display_name: "working-dir.tar.gz"
-    - command: archive.targz_pack
-      params:
-        target: "drivers-dir.tar.gz"
-        source_dir: ${DRIVERS_TOOLS}
-        include:
-          - "./**"
-    - command: s3.put
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: drivers-dir.tar.gz
-        remote_file: ${UPLOAD_BUCKET}/${build_variant}/${revision}/${version_id}/${build_id}/artifacts/${task_id}-${execution}-drivers-dir.tar.gz
-        bucket: mciuploads
-        permissions: public-read
-        content_type: ${content_type|application/x-gzip}
-        display_name: "drivers-dir.tar.gz"
 
   upload-test-results:
     - command: attach.xunit_results
@@ -376,7 +343,7 @@ functions:
           - "FRAMEWORK"
         script: |
           ${PREPARE_SHELL}
-          bash evergreen/run-unit-tests.sh
+          bash ./evergreen/run-unit-tests.sh
 
   run-tests:
     - command: shell.exec
@@ -614,6 +581,7 @@ functions:
              echo "This platform does not support the ECS auth test, skipping..."
              exit 0
           fi
+          . ./evergreen/compile-sources.sh
           echo "Project Directory: $PROJECT_DIRECTORY"
           # SRC_DIRECTORY is workaround since EG_TOOLS expects "src" folder as a root
           SRC_DIRECTORY=$(dirname $PROJECT_DIRECTORY)/src

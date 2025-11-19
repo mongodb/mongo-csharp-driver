@@ -94,7 +94,9 @@ namespace MongoDB.Driver.Tests
                 ServerMonitoringMode = ServerMonitoringMode.Poll,
                 ServerSelectionTimeout = TimeSpan.FromSeconds(10),
                 SocketTimeout = TimeSpan.FromSeconds(7),
+#if DEBUG // TODO: CSOT: Make it public when CSOT will be ready for GA
                 Timeout = TimeSpan.FromSeconds(13),
+#endif
                 Username = "username",
 #pragma warning disable 618
                 UseSsl = true,
@@ -141,7 +143,9 @@ namespace MongoDB.Driver.Tests
                 "serverMonitoringMode=Poll",
                 "serverSelectionTimeout=10s",
                 "socketTimeout=7s",
+#if DEBUG // TODO: CSOT: Make it public when CSOT will be ready for GA
                 "timeout=13s",
+#endif
                 "waitQueueSize=123",
                 "waitQueueTimeout=8s",
                 "retryReads=false",
@@ -187,7 +191,9 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(ServerMonitoringMode.Poll, builder.ServerMonitoringMode);
                 Assert.Equal(TimeSpan.FromSeconds(10), builder.ServerSelectionTimeout);
                 Assert.Equal(TimeSpan.FromSeconds(7), builder.SocketTimeout);
+#if DEBUG // TODO: CSOT: Make it public when CSOT will be ready for GA
                 Assert.Equal(TimeSpan.FromSeconds(13), builder.Timeout);
+#endif
                 Assert.Equal("username", builder.Username);
 #pragma warning disable 618
                 Assert.Equal(true, builder.UseSsl);
@@ -1140,6 +1146,7 @@ namespace MongoDB.Driver.Tests
             builder.SocketTimeout = TimeSpan.FromSeconds(1);
         }
 
+#if DEBUG // TODO: CSOT: Make it public when CSOT will be ready for GA
         [Theory]
         [InlineData(null, "mongodb://localhost", new[] { "" })]
         [InlineData(-1, "mongodb://localhost/?timeout{0}", new[] { "=0", "MS=0" })]
@@ -1161,6 +1168,7 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(canonicalConnectionString, builder.ToString());
             }
         }
+#endif
 
         [Fact]
         public void TestSrvServiceName()

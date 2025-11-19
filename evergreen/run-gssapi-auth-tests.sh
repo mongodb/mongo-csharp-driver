@@ -29,6 +29,7 @@ if [ "Windows_NT" = "$OS" ]; then
     export $var=z:\\data\\tmp
   done
 
+  . ./evergreen/compile-sources.sh
   powershell.exe .\\build.ps1 --target TestGssapi
 else
   echo "Setting krb5 config file"
@@ -45,5 +46,6 @@ else
     export $var=/data/tmp;
   done
 
+  . ./evergreen/compile-sources.sh
   ./build.sh --target=TestGssapi
 fi;

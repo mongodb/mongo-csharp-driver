@@ -24,4 +24,5 @@ export CSFLE_AZURE_KMS_TESTS_ENABLED=true
 export FRAMEWORK=net6.0
 . ./evergreen/install-dotnet.sh
 
+. ./evergreen/compile-sources.sh
 . ./build.sh --target=TestCsfleWithAzureKms
