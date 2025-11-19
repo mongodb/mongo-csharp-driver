@@ -25,7 +25,7 @@ do
   fi
 
   DELAY=$((ATTEMPT * RESTORE_RETRY_DELAY_SECONDS_MULTIPLIER))
-  echo "dotnet restore failed. Retrying in $DELAY seconds..."
+  echo "dotnet restore attempt $ATTEMPT failed. Retrying in $DELAY seconds..."
   sleep $DELAY
 done
 
