@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env bash
+#!/usr/bin/env bash
 set -o errexit  # Exit the script with error if any of the commands fail
 
 FRAMEWORK=${FRAMEWORK:-net6.0}
