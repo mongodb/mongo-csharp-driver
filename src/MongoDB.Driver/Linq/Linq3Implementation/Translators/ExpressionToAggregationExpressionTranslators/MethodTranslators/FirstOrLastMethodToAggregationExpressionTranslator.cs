@@ -16,6 +16,7 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
@@ -95,7 +96,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var sourceAst = sourceTranslation.Ast;
                 var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
 
-                var isFirstMethod = method.Name.StartsWith("First");
+                var isFirstMethod = method.IsOneOf(__firstMethods);
 
                 if (method.IsOneOf(__withPredicateMethods))
                 {
@@ -104,12 +105,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     var parameterSymbol = context.CreateSymbol(parameterExpression, itemSerializer, isCurrent: false);
                     var predicateTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, predicateLambda, parameterSymbol);
 
-                    // The $filter limit parameter was introduced in MongoDB 6.0
                     AstExpression limit = null;
                     if (isFirstMethod)
                     {
                         var compatibilityLevel = context.TranslationOptions.CompatibilityLevel;
-                        if (compatibilityLevel is >= ServerVersion.Server60)
+                        if (Feature.FilterLimit.IsSupported(compatibilityLevel.ToWireVersion()))
                         {
                             limit = AstExpression.Constant(1);
                         }
