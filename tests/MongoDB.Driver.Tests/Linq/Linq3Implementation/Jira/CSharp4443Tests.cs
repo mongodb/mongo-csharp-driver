@@ -1556,7 +1556,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
             .Where(x => x.Dictionary["life"] == 42);
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $match : { $expr : { $eq : [{ $arrayElemAt : [{ $arrayElemAt : [{ $filter : { input : '$Dictionary', as : 'kvp', cond : { $eq : [{ $arrayElemAt : ['$$kvp', 0] }, 'life'] }, limit : 1 } }, 0] }, 1] }, 42] } } }");
+        AssertStages(stages, "{ $match : { Dictionary : { $elemMatch : { '0' : 'life', '1' : 42 } } } }");
 
         var result = queryable.ToList();
         result.Should().ContainSingle();
@@ -1755,7 +1755,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
             .Where(x => x.Dictionary["life"] == 42);
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $match : { $expr : { $eq : [{ $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$Dictionary', as : 'kvp', cond : { $eq : ['$$kvp.k', 'life'] }, limit : 1 } }, 0] } }, in : '$$this.v' } }, 42] } } }");
+        AssertStages(stages, "{ $match : { Dictionary : { $elemMatch : { k : 'life', v : 42 } } } }");
 
         var result = queryable.ToList();
         result.Should().ContainSingle();
@@ -2131,7 +2131,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
             .Where(x => x.DictionaryInterface["life"] == 42);
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $match : { $expr : { $eq : [{ $arrayElemAt : [{ $arrayElemAt : [{ $filter : { input : '$DictionaryInterface', as : 'kvp', cond : { $eq : [{ $arrayElemAt : ['$$kvp', 0] }, 'life'] }, limit : 1 } }, 0] }, 1] }, 42] } } }");
+        AssertStages(stages, "{ $match : { DictionaryInterface : { $elemMatch : { '0' : 'life', '1' : 42 } } } }");
 
         var result = queryable.ToList();
         result.Should().ContainSingle();
@@ -2312,7 +2312,7 @@ public class CSharp4443Tests : LinqIntegrationTest<CSharp4443Tests.ClassFixture>
             .Where(x => x.DictionaryInterface["life"] == 42);
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $match : { $expr : { $eq : [{ $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$DictionaryInterface', as : 'kvp', cond : { $eq : ['$$kvp.k', 'life'] }, limit : 1 } }, 0] } }, in : '$$this.v' } }, 42] } } }");
+        AssertStages(stages, "{ $match : { DictionaryInterface : { $elemMatch : { k : 'life', v : 42 } } } }");
 
         var result = queryable.ToList();
         result.Should().ContainSingle();
