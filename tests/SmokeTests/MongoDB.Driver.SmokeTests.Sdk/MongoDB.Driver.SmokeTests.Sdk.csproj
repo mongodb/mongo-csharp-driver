@@ -15,6 +15,7 @@
     <PackageReference Include="MongoDB.Driver.Encryption" Version="$(DRIVER_PACKAGE_VERSION)" Condition="'$(DRIVER_PACKAGE_VERSION)' != ''" />
     <ProjectReference Include="..\..\..\src\MongoDB.Driver\MongoDB.Driver.csproj" Condition="'$(DRIVER_PACKAGE_VERSION)' == ''" />
     <ProjectReference Include="..\..\..\src\MongoDB.Driver.Encryption\MongoDB.Driver.Encryption.csproj" Condition="'$(DRIVER_PACKAGE_VERSION)' == ''" />
+    <ProjectReference Include="..\..\MongoDB.TestHelpers\MongoDB.TestHelpers.csproj" />
   </ItemGroup>
 
   <ItemGroup>
