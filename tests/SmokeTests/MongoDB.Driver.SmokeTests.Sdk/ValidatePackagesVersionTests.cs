@@ -29,11 +29,6 @@ namespace MongoDB.Driver.SmokeTests.Sdk
         public ValidatePackagesVersionTests()
         {
             _packageVersion = Environment.GetEnvironmentVariable("DRIVER_PACKAGE_VERSION");
-
-            if (string.IsNullOrEmpty(_packageVersion))
-            {
-                throw new SkipException("Packages version validation skipped if project references is being used.");
-            }
         }
 
         [Fact]
@@ -46,6 +41,11 @@ namespace MongoDB.Driver.SmokeTests.Sdk
 
         private static void ValidateAssemblyInformationalVersion(Assembly assembly, string expectedVersion)
         {
+            if (string.IsNullOrEmpty(expectedVersion))
+            {
+                return;
+            }
+
             var assemblyInformationAttribute = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
             assemblyInformationAttribute.Should().NotBeNull();
             assemblyInformationAttribute.InformationalVersion.Should().StartWith(expectedVersion);
