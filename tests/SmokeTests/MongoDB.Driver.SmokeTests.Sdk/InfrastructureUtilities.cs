@@ -17,11 +17,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using MongoDB.Driver.Encryption;
 
 namespace MongoDB.Driver.SmokeTests.Sdk
 {
@@ -30,23 +28,6 @@ namespace MongoDB.Driver.SmokeTests.Sdk
         public static readonly string MongoUri = Environment.GetEnvironmentVariable("MONGODB_URI") ??
                                         Environment.GetEnvironmentVariable("MONGO_URI") ??
                                         "mongodb://localhost";
-
-        public static void ValidateMongoDBPackageVersion()
-        {
-            var packageShaExpected = Environment.GetEnvironmentVariable("SmokeTestsPackageSha");
-
-            if (!string.IsNullOrEmpty(packageShaExpected))
-            {
-                var driverFileVersionInfo = FileVersionInfo.GetVersionInfo(typeof(MongoClient).Assembly.Location);
-                var libmongocryptFileVersionInfo = FileVersionInfo.GetVersionInfo(typeof(ClientEncryption).Assembly.Location);
-
-                driverFileVersionInfo.ProductVersion?.Contains(packageShaExpected)
-                    .Should().BeTrue("Expected package sha {0} in {1} for driver package version.", packageShaExpected, driverFileVersionInfo.ProductVersion);
-
-                libmongocryptFileVersionInfo.ProductVersion?.Contains(packageShaExpected)
-                    .Should().BeTrue("Expected package sha {0} in {1} for libmongocrypt package version.", packageShaExpected, libmongocryptFileVersionInfo.ProductVersion);
-            }
-        }
 
         public static void AssertLogs(LogEntry[] expectedLogs, LogEntry[] actualLogs)
         {

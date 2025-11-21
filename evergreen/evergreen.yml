@@ -728,17 +728,9 @@ functions:
         script: |
           set +x
           ${PREPARE_SHELL}
-          AUTH=${AUTH} \
-          SSL=${SSL} \
           MONGODB_URI="${MONGODB_URI}" \
-          TOPOLOGY=${TOPOLOGY} \
-          OS=${OS} \
-          COMPRESSOR=${COMPRESSOR} \
-          CLIENT_PEM=${DRIVERS_TOOLS}/.evergreen/x509gen/client.pem \
-          REQUIRE_API_VERSION=${REQUIRE_API_VERSION} \
-          TARGET="SmokeTests" \
           FRAMEWORK=${FRAMEWORK} \
-            evergreen/run-tests.sh
+            evergreen/run-smoke-tests.sh "${PACKAGE_VERSION}"
 
   run-test-SK:
     - command: shell.exec

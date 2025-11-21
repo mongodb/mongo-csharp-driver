@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -o errexit  # Exit the script with error if any of the commands fail
 
+SOURCE_PROJECT=${1:-CSharpDriver.sln}
 if [ -z "$PACKAGE_VERSION" ]; then
   PACKAGE_VERSION=$(bash ./evergreen/get-version.sh)
   echo Calculated PACKAGE_VERSION value: "$PACKAGE_VERSION"
@@ -13,7 +14,7 @@ for (( ATTEMPT=1; ATTEMPT<=RESTORE_MAX_RETRIES; ATTEMPT++ ))
 do
   echo "Attempt $ATTEMPT of $RESTORE_MAX_RETRIES to run dotnet restore..."
   exit_status=0
-  dotnet restore || exit_status=$?
+  dotnet restore "${SOURCE_PROJECT}" --verbosity normal || exit_status=$?
   if [[ "$exit_status" -eq 0 ]]; then
     echo "dotnet restore succeeded."
     break
@@ -29,4 +30,4 @@ do
   sleep $DELAY
 done
 
-dotnet build -c Release --no-restore -p:Version="$PACKAGE_VERSION"
+dotnet build "${SOURCE_PROJECT}" -c Release --no-restore -p:Version="$PACKAGE_VERSION"
