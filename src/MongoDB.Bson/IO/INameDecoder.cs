@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.IO;
 using System.Text;
 
 namespace MongoDB.Bson.IO
@@ -39,5 +38,10 @@ namespace MongoDB.Bson.IO
         /// </summary>
         /// <param name="name">The name.</param>
         void Inform(string name);
+    }
+
+    internal interface INameDecoderInternal
+    {
+        string Decode(ReadOnlySpan<byte> span, UTF8Encoding encoding);
     }
 }
