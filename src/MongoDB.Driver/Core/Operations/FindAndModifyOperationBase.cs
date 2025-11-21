@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Text;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
@@ -125,10 +124,9 @@ namespace MongoDB.Driver.Core.Operations
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
                 var operation = CreateOperation(operationContext, channelBinding.Session, channel.ConnectionDescription, transactionNumber);
-                using (var rawBsonDocument = operation.Execute(operationContext, channelBinding))
-                {
-                    return ProcessCommandResult(channel.ConnectionDescription.ConnectionId, rawBsonDocument);
-                }
+                using var rawBsonDocument = operation.Execute(operationContext, channelBinding);
+
+                return ProcessCommandResult(rawBsonDocument);
             }
         }
 
@@ -141,10 +139,9 @@ namespace MongoDB.Driver.Core.Operations
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
                 var operation = CreateOperation(operationContext, channelBinding.Session, channel.ConnectionDescription, transactionNumber);
-                using (var rawBsonDocument = await operation.ExecuteAsync(operationContext, channelBinding).ConfigureAwait(false))
-                {
-                    return ProcessCommandResult(channel.ConnectionDescription.ConnectionId, rawBsonDocument);
-                }
+                using var rawBsonDocument = await operation.ExecuteAsync(operationContext, channelBinding).ConfigureAwait(false);
+
+                return ProcessCommandResult(rawBsonDocument);
             }
         }
 
@@ -163,20 +160,16 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]
-        private TResult ProcessCommandResult(ConnectionId connectionId, RawBsonDocument rawBsonDocument)
+        private TResult ProcessCommandResult(RawBsonDocument rawBsonDocument)
         {
             var binaryReaderSettings = new BsonBinaryReaderSettings
             {
-                Encoding = _messageEncoderSettings.GetOrDefault<UTF8Encoding>(MessageEncoderSettingsName.ReadEncoding, Utf8Encodings.Strict)
+                Encoding = _messageEncoderSettings.GetOrDefault(MessageEncoderSettingsName.ReadEncoding, Utf8Encodings.Strict)
             };
 
-            using (var stream = new ByteBufferStream(rawBsonDocument.Slice, ownsBuffer: false))
-            using (var reader = new BsonBinaryReader(stream, binaryReaderSettings))
-            {
-                var context = BsonDeserializationContext.CreateRoot(reader);
-                return _resultSerializer.Deserialize(context);
-            }
+            using var reader = BsonBinaryReaderUtils.CreateBinaryReader(rawBsonDocument.Slice, binaryReaderSettings);
+            var context = BsonDeserializationContext.CreateRoot(reader);
+            return _resultSerializer.Deserialize(context);
         }
     }
 }

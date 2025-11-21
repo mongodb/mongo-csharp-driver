@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Text;
 
 namespace MongoDB.Bson.IO
@@ -21,7 +22,7 @@ namespace MongoDB.Bson.IO
     /// Represents a Trie-based name decoder that also provides a value.
     /// </summary>
     /// <typeparam name="TValue">The type of the value.</typeparam>
-    public class TrieNameDecoder<TValue> : INameDecoder
+    public class TrieNameDecoder<TValue> : INameDecoder, INameDecoderInternal
     {
         // private fields
         private bool _found;
@@ -90,6 +91,30 @@ namespace MongoDB.Bson.IO
             _value = default;
 
             return stream.ReadCString(encoding);
+        }
+
+        /// <summary>
+        /// Reads the name.
+        /// </summary>
+        /// <param name="span">The span.</param>
+        /// <param name="encoding">The encoding.</param>
+        /// <returns>
+        /// The name.
+        /// </returns>
+        public string Decode(ReadOnlySpan<byte> span, UTF8Encoding encoding)
+        {
+            BsonTrieNode<TValue> node;
+            if (_trie.TryGetNode(span, out node) && node.HasValue)
+            {
+                _found = true;
+                _value = node.Value;
+                return node.ElementName;
+            }
+
+            _found = false;
+            _value = default;
+
+            return encoding.GetString(span);
         }
 
         /// <summary>

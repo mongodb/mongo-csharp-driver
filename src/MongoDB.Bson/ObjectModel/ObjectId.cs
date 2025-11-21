@@ -44,14 +44,14 @@ namespace MongoDB.Bson
         {
             if (bytes == null)
             {
-                throw new ArgumentNullException("bytes");
+                throw new ArgumentNullException(nameof(bytes));
             }
             if (bytes.Length != 12)
             {
-                throw new ArgumentException("Byte array must be 12 bytes long", "bytes");
+                throw new ArgumentException("Byte array must be 12 bytes long", nameof(bytes));
             }
 
-            FromByteArray(bytes, 0, out _a, out _b, out _c);
+            FromByteArray(bytes, out _a, out _b, out _c);
         }
 
         /// <summary>
@@ -61,7 +61,12 @@ namespace MongoDB.Bson
         /// <param name="index">The index into the byte array where the ObjectId starts.</param>
         internal ObjectId(byte[] bytes, int index)
         {
-            FromByteArray(bytes, index, out _a, out _b, out _c);
+            FromByteArray(new ReadOnlySpan<byte>(bytes, index, 12), out _a, out _b, out _c);
+        }
+
+        internal ObjectId(ReadOnlySpan<byte> span)
+        {
+            FromByteArray(span, out _a, out _b, out _c);
         }
 
         /// <summary>
@@ -72,11 +77,11 @@ namespace MongoDB.Bson
         {
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
 
             var bytes = BsonUtils.ParseHexString(value);
-            FromByteArray(bytes, 0, out _a, out _b, out _c);
+            FromByteArray(bytes, out _a, out _b, out _c);
         }
 
         private ObjectId(int a, int b, int c)
@@ -338,16 +343,16 @@ namespace MongoDB.Bson
             var secondsSinceEpoch = (long)Math.Floor((BsonUtils.ToUniversalTime(timestamp) - BsonConstants.UnixEpoch).TotalSeconds);
             if (secondsSinceEpoch < uint.MinValue || secondsSinceEpoch > uint.MaxValue)
             {
-                throw new ArgumentOutOfRangeException("timestamp");
+                throw new ArgumentOutOfRangeException(nameof(timestamp));
             }
             return (int)(uint)secondsSinceEpoch;
         }
 
-        private static void FromByteArray(byte[] bytes, int offset, out int a, out int b, out int c)
+        private static void FromByteArray(ReadOnlySpan<byte> span, out int a, out int b, out int c)
         {
-            a = (bytes[offset] << 24) | (bytes[offset + 1] << 16) | (bytes[offset + 2] << 8) | bytes[offset + 3];
-            b = (bytes[offset + 4] << 24) | (bytes[offset + 5] << 16) | (bytes[offset + 6] << 8) | bytes[offset + 7];
-            c = (bytes[offset + 8] << 24) | (bytes[offset + 9] << 16) | (bytes[offset + 10] << 8) | bytes[offset + 11];
+            a = (span[0] << 24) | (span[1] << 16) | (span[2] << 8) | span[3];
+            b = (span[4] << 24) | (span[5] << 16) | (span[6] << 8) | span[7];
+            c = (span[8] << 24) | (span[9] << 16) | (span[10] << 8) | span[11];
         }
 
         // public methods
