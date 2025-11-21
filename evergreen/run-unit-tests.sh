@@ -7,5 +7,5 @@ if [ "$FRAMEWORK" = "netstandard2.1" ]; then
   FRAMEWORK="netcoreapp3.1"
 fi
 
-. ./evergreen/compile-sources.sh
+./evergreen/compile-sources.sh
 dotnet test -c Release --no-build --filter "Category!=Integration"  -f "$FRAMEWORK" --results-directory ./build/test-results --logger  "junit;verbosity=detailed;LogFileName=TEST-{assembly}.xml;FailureBodyFormat=Verbose" --logger "console;verbosity=detailed"

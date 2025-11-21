@@ -8,5 +8,5 @@ set -o errexit  # Exit the script with error if any of the commands fail
 
 # Provision the correct connection string and set up SSL if needed
 for var in TMP TEMP NUGET_PACKAGES NUGET_HTTP_CACHE_PATH APPDATA; do setx $var z:\\data\\tmp; export $var=z:\\data\\tmp; done
-. ./evergreen/compile-sources.sh
+./evergreen/compile-sources.sh
 powershell.exe .\\build.ps1 --target TestAtlasConnectivity
