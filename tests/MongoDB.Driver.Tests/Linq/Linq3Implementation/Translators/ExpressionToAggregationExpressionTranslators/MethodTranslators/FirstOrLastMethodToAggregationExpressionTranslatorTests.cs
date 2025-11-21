@@ -16,6 +16,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
@@ -24,6 +25,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
 {
     public class FirstOrLastMethodToAggregationExpressionTranslatorTests : LinqIntegrationTest<FirstOrLastMethodToAggregationExpressionTranslatorTests.ClassFixture>
     {
+        private static readonly bool FilterLimitIsSupported = Feature.FilterLimit.IsSupported(CoreTestConfiguration.MaxWireVersion);
+
         public FirstOrLastMethodToAggregationExpressionTranslatorTests(ClassFixture fixture)
             : base(fixture)
         {
@@ -59,7 +62,15 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                 collection.AsQueryable().Select(x => x.A.First(x => x > 1));
 
             var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $project : { _v : { $arrayElemAt : [{ $filter : { input : '$A', as : 'x', cond : { $gt : ['$$x', 1] } } }, 0] }, _id : 0 } }");
+
+            if (FilterLimitIsSupported)
+            {
+                AssertStages(stages, "{ $project : { _v : { $arrayElemAt : [{ $filter : { input : '$A', as : 'x', cond : { $gt : ['$$x', 1] }, limit : 1 } }, 0] }, _id : 0 } }");
+            }
+            else
+            {
+                AssertStages(stages, "{ $project : { _v : { $arrayElemAt : [{ $filter : { input : '$A', as : 'x', cond : { $gt : ['$$x', 1] } } }, 0] }, _id : 0 } }");
+            }
 
             var results = queryable.ToList();
             results.Should().Equal(0, 0, 2, 2);
@@ -95,7 +106,15 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                 collection.AsQueryable().Select(x => x.A.FirstOrDefault(x => x > 1));
 
             var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $project : { _v : { $let : { vars : { values : { $filter : { input : '$A', as : 'x', cond : { $gt : ['$$x', 1] } } } }, in : { $cond : { if : { $eq : [{ $size : '$$values' }, 0] }, then : 0, else : { $arrayElemAt : ['$$values', 0] } } } } }, _id : 0 } }");
+
+            if (FilterLimitIsSupported)
+            {
+                AssertStages(stages, "{ $project : { _v : { $let : { vars : { values : { $filter : { input : '$A', as : 'x', cond : { $gt : ['$$x', 1] }, limit : 1 } } }, in : { $cond : { if : { $eq : [{ $size : '$$values' }, 0] }, then : 0, else : { $arrayElemAt : ['$$values', 0] } } } } }, _id : 0 } }");
+            }
+            else
+            {
+                AssertStages(stages, "{ $project : { _v : { $let : { vars : { values : { $filter : { input : '$A', as : 'x', cond : { $gt : ['$$x', 1] } } } }, in : { $cond : { if : { $eq : [{ $size : '$$values' }, 0] }, then : 0, else : { $arrayElemAt : ['$$values', 0] } } } } }, _id : 0 } }");
+            }
 
             var results = queryable.ToList();
             results.Should().Equal(0, 0, 2, 2);

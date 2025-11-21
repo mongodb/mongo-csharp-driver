@@ -16,6 +16,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
@@ -24,6 +25,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
     public class CSharp4048Tests : LinqIntegrationTest<CSharp4048Tests.ClassFixture>
     {
+        private static readonly bool FilterLimitIsSupported = Feature.FilterLimit.IsSupported(CoreTestConfiguration.MaxWireVersion);
+
         public CSharp4048Tests(ClassFixture fixture)
             : base(fixture)
         {
@@ -118,7 +121,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var expectedStages = new[]
             {
                 "{ $group : { _id : '$_id', _elements : { $push: '$X' } } }",
-                "{ $project : { _id : '$_id' Result : { $arrayElemAt : ['$_elements', 0] } } }",
+                "{ $project : { _id : '$_id', Result : { $arrayElemAt : ['$_elements', 0] } } }",
                 "{ $sort : { _id : 1 } }"
             };
             AssertStages(stages, expectedStages);
@@ -1040,12 +1043,21 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 .OrderBy(x => x.Id);
 
             var stages = Translate(collection, queryable);
-            var expectedStages = new[]
-            {
-                "{ $group : { _id : '$_id', _elements : { $push : '$$ROOT' } } }",
-                "{ $project : { _id : '$_id', Result : { $arrayElemAt : [{ $filter : { input : '$_elements', as : 'e', cond : { $ne : ['$$e.X', 1] } } }, 0] } } }",
-                "{ $sort : { _id : 1 } }"
-            };
+
+            var expectedStages = FilterLimitIsSupported
+                ? new[]
+                {
+                    "{ $group : { _id : '$_id', _elements : { $push : '$$ROOT' } } }",
+                    "{ $project : { _id : '$_id', Result : { $arrayElemAt : [{ $filter : { input : '$_elements', as : 'e', cond : { $ne : ['$$e.X', 1] }, limit : 1 } }, 0] } } }",
+                    "{ $sort : { _id : 1 } }"
+                }
+                : new[]
+                {
+                    "{ $group : { _id : '$_id', _elements : { $push : '$$ROOT' } } }",
+                    "{ $project : { _id : '$_id', Result : { $arrayElemAt : [{ $filter : { input : '$_elements', as : 'e', cond : { $ne : ['$$e.X', 1] } } }, 0] } } }",
+                    "{ $sort : { _id : 1 } }"
+                };
+
             AssertStages(stages, expectedStages);
 
             var results = queryable.ToList();
@@ -1065,12 +1077,21 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 .OrderBy(x => x.Id);
 
             var stages = Translate(collection, queryable);
-            var expectedStages = new[]
-            {
-                "{ $group : { _id : '$_id', _elements : { $push : '$X' } } }",
-                "{ $project : { _id : '$_id', Result : { $arrayElemAt : [{ $filter : { input : '$_elements', as : 'e', cond : { $ne : ['$$e', 1] } } }, 0] } } }",
-                "{ $sort : { _id : 1 } }"
-            };
+
+            var expectedStages = FilterLimitIsSupported
+                ? new[]
+                {
+                    "{ $group : { _id : '$_id', _elements : { $push : '$X' } } }",
+                    "{ $project : { _id : '$_id', Result : { $arrayElemAt : [{ $filter : { input : '$_elements', as : 'e', cond : { $ne : ['$$e', 1] }, limit : 1 } }, 0] } } }",
+                    "{ $sort : { _id : 1 } }"
+                }
+                : new[]
+                {
+                    "{ $group : { _id : '$_id', _elements : { $push : '$X' } } }",
+                    "{ $project : { _id : '$_id', Result : { $arrayElemAt : [{ $filter : { input : '$_elements', as : 'e', cond : { $ne : ['$$e', 1] } } }, 0] } } }",
+                    "{ $sort : { _id : 1 } }"
+                };
+
             AssertStages(stages, expectedStages);
 
             var results = queryable.ToList();
@@ -1140,12 +1161,21 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 .OrderBy(x => x.Id);
 
             var stages = Translate(collection, queryable);
-            var expectedStages = new[]
-            {
-                "{ $group : { _id : '$_id', _elements : { $push : '$$ROOT' } } }",
-                "{ $project : { _id : '$_id', Result : { $let : { vars : { values : { $filter : { input : '$_elements', as : 'e', cond : { $ne : ['$$e.X', 1] } } } }, in : { $cond : { if : { $eq : [{ $size : '$$values' }, 0] }, then : null, else : { $arrayElemAt : ['$$values', 0] } } } } } } }",
-                "{ $sort : { _id : 1 } }"
-            };
+
+            var expectedStages = FilterLimitIsSupported
+                ? new[]
+                {
+                    "{ $group : { _id : '$_id', _elements : { $push : '$$ROOT' } } }",
+                    "{ $project : { _id : '$_id', Result : { $let : { vars : { values : { $filter : { input : '$_elements', as : 'e', cond : { $ne : ['$$e.X', 1] }, limit : 1 } } }, in : { $cond : { if : { $eq : [{ $size : '$$values' }, 0] }, then : null, else : { $arrayElemAt : ['$$values', 0] } } } } } } }",
+                    "{ $sort : { _id : 1 } }"
+                }
+                : new[]
+                {
+                    "{ $group : { _id : '$_id', _elements : { $push : '$$ROOT' } } }",
+                    "{ $project : { _id : '$_id', Result : { $let : { vars : { values : { $filter : { input : '$_elements', as : 'e', cond : { $ne : ['$$e.X', 1] } } } }, in : { $cond : { if : { $eq : [{ $size : '$$values' }, 0] }, then : null, else : { $arrayElemAt : ['$$values', 0] } } } } } } }",
+                    "{ $sort : { _id : 1 } }"
+                };
+
             AssertStages(stages, expectedStages);
 
             var results = queryable.ToList();
@@ -1166,12 +1196,21 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 .OrderBy(x => x.Id);
 
             var stages = Translate(collection, queryable);
-            var expectedStages = new[]
-            {
-                "{ $group : { _id : '$_id', _elements : { $push : '$X' } } }",
-                "{ $project : { _id : '$_id', Result : { $let : { vars : { values : { $filter : { input : '$_elements', as : 'e', cond : { $ne : ['$$e', 1] } } } }, in : { $cond : { if : { $eq : [{ $size : '$$values' }, 0] }, then : 0, else : { $arrayElemAt : ['$$values', 0] } } } } } } }",
-                "{ $sort : { _id : 1 } }"
-            };
+
+            var expectedStages = FilterLimitIsSupported
+                ? new[]
+                {
+                    "{ $group : { _id : '$_id', _elements : { $push : '$X' } } }",
+                    "{ $project : { _id : '$_id', Result : { $let : { vars : { values : { $filter : { input : '$_elements', as : 'e', cond : { $ne : ['$$e', 1] }, limit : 1 } } }, in : { $cond : { if : { $eq : [{ $size : '$$values' }, 0] }, then : 0, else : { $arrayElemAt : ['$$values', 0] } } } } } } }",
+                    "{ $sort : { _id : 1 } }"
+                }
+                : new[]
+                {
+                    "{ $group : { _id : '$_id', _elements : { $push : '$X' } } }",
+                    "{ $project : { _id : '$_id', Result : { $let : { vars : { values : { $filter : { input : '$_elements', as : 'e', cond : { $ne : ['$$e', 1] } } } }, in : { $cond : { if : { $eq : [{ $size : '$$values' }, 0] }, then : 0, else : { $arrayElemAt : ['$$values', 0] } } } } } } }",
+                    "{ $sort : { _id : 1 } }"
+                };
+
             AssertStages(stages, expectedStages);
 
             var results = queryable.ToList();

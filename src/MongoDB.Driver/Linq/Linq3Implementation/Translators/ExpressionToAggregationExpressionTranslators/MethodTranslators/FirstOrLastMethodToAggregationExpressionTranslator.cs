@@ -16,6 +16,7 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
@@ -94,16 +95,30 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var sourceAst = sourceTranslation.Ast;
                 var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
 
+                var isFirstMethod = method.IsOneOf(__firstMethods);
+
                 if (method.IsOneOf(__withPredicateMethods))
                 {
                     var predicateLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
                     var parameterExpression = predicateLambda.Parameters.Single();
                     var parameterSymbol = context.CreateSymbol(parameterExpression, itemSerializer, isCurrent: false);
                     var predicateTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, predicateLambda, parameterSymbol);
+
+                    AstExpression limit = null;
+                    if (isFirstMethod)
+                    {
+                        var compatibilityLevel = context.TranslationOptions.CompatibilityLevel;
+                        if (Feature.FilterLimit.IsSupported(compatibilityLevel.ToWireVersion()))
+                        {
+                            limit = AstExpression.Constant(1);
+                        }
+                    }
+
                     sourceAst = AstExpression.Filter(
                         input: sourceAst,
                         cond: predicateTranslation.Ast,
-                        @as: parameterSymbol.Var.Name);
+                        @as: parameterSymbol.Var.Name,
+                        limit: limit);
                 }
 
                 AstExpression ast;
@@ -118,11 +133,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                         @in: AstExpression.Cond(
                             @if: AstExpression.Eq(AstExpression.Size(valuesAst), 0),
                             then: serializedDefaultValue,
-                            @else: method.IsOneOf(__firstMethods) ? AstExpression.First(valuesAst) : AstExpression.Last(valuesAst)));
+                            @else: isFirstMethod ? AstExpression.First(valuesAst) : AstExpression.Last(valuesAst)));
                 }
                 else
                 {
-                    ast = method.Name == "First" ? AstExpression.First(sourceAst) : AstExpression.Last(sourceAst);
+                    ast = isFirstMethod ? AstExpression.First(sourceAst) : AstExpression.Last(sourceAst);
                 }
 
                 return new TranslatedExpression(expression, ast, itemSerializer);
