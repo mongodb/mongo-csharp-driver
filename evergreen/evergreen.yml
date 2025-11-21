@@ -581,7 +581,7 @@ functions:
              echo "This platform does not support the ECS auth test, skipping..."
              exit 0
           fi
-          . ./evergreen/compile-sources.sh
+          ./evergreen/compile-sources.sh
           echo "Project Directory: $PROJECT_DIRECTORY"
           # SRC_DIRECTORY is workaround since EG_TOOLS expects "src" folder as a root
           SRC_DIRECTORY=$(dirname $PROJECT_DIRECTORY)/src

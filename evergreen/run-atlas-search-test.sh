@@ -13,5 +13,5 @@ echo "Running Atlas Search driver tests"
 
 export ATLAS_SEARCH_TESTS_ENABLED=true
 
-. ./evergreen/compile-sources.sh
+./evergreen/compile-sources.sh
 powershell.exe .\\build.ps1 --target=TestAtlasSearch

@@ -141,7 +141,7 @@ if [ -f "$DRIVERS_TOOLS/.evergreen/csfle/secrets-export.sh" ]; then
   source $DRIVERS_TOOLS/.evergreen/csfle/secrets-export.sh
 fi
 
-. ./evergreen/compile-sources.sh
+./evergreen/compile-sources.sh
 if [[ "$OS" =~ Windows|windows ]]; then
   powershell.exe .\\build.ps1 --target=$TARGET
 else

@@ -11,6 +11,6 @@ fi
 . ./evergreen/append-myget-package-source.sh
 
 export DRIVER_PACKAGE_VERSION="${DRIVER_PACKAGE_VERSION}"
-. ./evergreen/compile-sources.sh "$SMOKE_TESTS_PROJECT"
+./evergreen/compile-sources.sh "$SMOKE_TESTS_PROJECT"
 
 dotnet test "$SMOKE_TESTS_PROJECT" -c Release --no-build -f "$FRAMEWORK" --results-directory ./build/test-results --logger  "junit;verbosity=detailed;LogFileName=TEST-{assembly}.xml;FailureBodyFormat=Verbose" --logger "console;verbosity=detailed"
