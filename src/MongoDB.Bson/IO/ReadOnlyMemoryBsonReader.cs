@@ -447,7 +447,7 @@ public sealed class ReadOnlyMemoryBsonReader : BsonReader
     }
 
     /// <summary>
-    /// Reads a raw BSON array. WARNING TODO
+    /// Reads a raw BSON array.
     /// </summary>
     /// <returns>
     /// The raw BSON array.
@@ -656,7 +656,7 @@ public sealed class ReadOnlyMemoryBsonReader : BsonReader
             throw new FormatException($"Expected size to be {_context.Size}, not {actualSize}.");
         }
 
-        _context =_contextStack.Pop();
+        _context = _contextStack.Pop();
     }
 
     private void PushContext(BsonBinaryReaderContext newContext)

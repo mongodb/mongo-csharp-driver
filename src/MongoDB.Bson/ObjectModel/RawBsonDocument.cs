@@ -69,7 +69,6 @@ namespace MongoDB.Bson
             {
                 ThrowIfDisposed();
                 using var bsonReader = BsonBinaryReaderUtils.CreateBinaryReader(_slice, _readerSettings);
-                var context = BsonDeserializationContext.CreateRoot(bsonReader);
 
                 var elementCount = 0;
 

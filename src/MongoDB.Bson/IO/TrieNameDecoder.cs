@@ -104,14 +104,11 @@ namespace MongoDB.Bson.IO
         public string Decode(ReadOnlySpan<byte> span, UTF8Encoding encoding)
         {
             BsonTrieNode<TValue> node;
-            if (_trie.TryGetNode(span, out node))
+            if (_trie.TryGetNode(span, out node) && node.HasValue)
             {
-                if (node.HasValue)
-                {
-                    _found = true;
-                    _value = node.Value;
-                    return node.ElementName;
-                }
+                _found = true;
+                _value = node.Value;
+                return node.ElementName;
             }
 
             _found = false;
