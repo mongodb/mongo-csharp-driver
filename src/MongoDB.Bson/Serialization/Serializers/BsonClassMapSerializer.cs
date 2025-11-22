@@ -581,7 +581,7 @@ namespace MongoDB.Bson.Serialization
 
             if (ShouldSerializeDiscriminator(args.NominalType))
             {
-                SerializeDiscriminator(context, args.NominalType, document);
+                SerializeDiscriminator(context, args.NominalType, document.GetType());
             }
 
             foreach (var memberMap in _classMap.AllMemberMaps)
@@ -625,12 +625,11 @@ namespace MongoDB.Bson.Serialization
             }
         }
 
-        private void SerializeDiscriminator(BsonSerializationContext context, Type nominalType, object obj)
+        private void SerializeDiscriminator(BsonSerializationContext context, Type nominalType, Type actualType)
         {
             var discriminatorConvention = _classMap.GetDiscriminatorConvention();
             if (discriminatorConvention != null)
             {
-                var actualType = obj.GetType();
                 var discriminator = discriminatorConvention.GetDiscriminator(nominalType, actualType);
                 if (discriminator != null)
                 {
@@ -642,6 +641,14 @@ namespace MongoDB.Bson.Serialization
 
         private void SerializeMember(BsonSerializationContext context, object obj, BsonMemberMap memberMap)
         {
+            if (memberMap == _classMap.DiscriminatorMemberMap)
+            {
+                // the discriminator has already been serialized
+                // verify that the value of the read-only property matches the discriminator value returned by the discriminator convention
+                VerifyDiscriminatorMemberValue(obj, memberMap);
+                return;
+            }
+
             try
             {
                 if (memberMap != _classMap.ExtraElementsMemberMap)
@@ -680,6 +687,26 @@ namespace MongoDB.Bson.Serialization
         private bool ShouldSerializeDiscriminator(Type nominalType)
         {
             return (nominalType != _classMap.ClassType || _classMap.DiscriminatorIsRequired || _classMap.HasRootClass) && !_classMap.IsAnonymous;
+        }
+
+        private void VerifyDiscriminatorMemberValue(object obj, BsonMemberMap discriminatorMemberMap)
+        {
+            var discriminatorConvention = _classMap.GetDiscriminatorConvention();
+            if (discriminatorConvention != null)
+            {
+                var discriminatorMemberSerializer = discriminatorMemberMap.GetSerializer();
+                var discriminatorMemberValue = discriminatorMemberMap.Getter(obj);
+                var serializedDiscriminatorMemberValue = discriminatorMemberSerializer.ToBsonValue(discriminatorMemberValue);
+
+                var nominalType = _classMap.ClassType;
+                var actualType = obj.GetType();
+                var conventionDiscriminatorValue = discriminatorConvention.GetDiscriminator(nominalType, actualType);
+
+                if (!object.Equals(serializedDiscriminatorMemberValue, conventionDiscriminatorValue))
+                {
+                    throw new BsonSerializationException("Discriminator member value does not match discriminator convention GetDiscriminator return value.");
+                }
+            }
         }
 
         // nested classes
