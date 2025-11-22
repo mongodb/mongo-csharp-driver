@@ -104,7 +104,7 @@ internal static class Socks5Helper
             var greetingRequestLength = CreateGreetingRequest(buffer, useAuth);
             stream.Write(buffer, 0, greetingRequestLength);
 
-            stream.ReadBytes(buffer, 0, 2, cancellationToken);
+            stream.ReadBytes(buffer, 0, 2, cancellationToken: cancellationToken);
             var requiresAuthenticationStep = ProcessGreetingResponse(buffer, useAuth);
 
             // If we have username and password, but the proxy doesn't need them, we skip the authentication step.
@@ -113,16 +113,16 @@ internal static class Socks5Helper
                 var authenticationRequestLength = CreateAuthenticationRequest(buffer, authenticationSettings);
                 stream.Write(buffer, 0, authenticationRequestLength);
 
-                stream.ReadBytes(buffer, 0, 2, cancellationToken);
+                stream.ReadBytes(buffer, 0, 2, cancellationToken: cancellationToken);
                 ProcessAuthenticationResponse(buffer);
             }
 
             var connectRequestLength = CreateConnectRequest(buffer, targetHost, targetPort);
             stream.Write(buffer, 0, connectRequestLength);
 
-            stream.ReadBytes(buffer, 0, 5, cancellationToken);
+            stream.ReadBytes(buffer, 0, 5, cancellationToken: cancellationToken);
             var skip = ProcessConnectResponse(buffer);
-            stream.ReadBytes(buffer, 0, skip, cancellationToken);
+            stream.ReadBytes(buffer, 0, skip, cancellationToken: cancellationToken);
         }
         finally
         {
@@ -141,7 +141,7 @@ internal static class Socks5Helper
             var greetingRequestLength = CreateGreetingRequest(buffer, useAuth);
             await stream.WriteAsync(buffer, 0, greetingRequestLength, cancellationToken).ConfigureAwait(false);
 
-            await stream.ReadBytesAsync(buffer, 0, 2, cancellationToken).ConfigureAwait(false);
+            await stream.ReadBytesAsync(buffer, 0, 2, cancellationToken: cancellationToken).ConfigureAwait(false);
             var requiresAuthenticationStep = ProcessGreetingResponse(buffer, useAuth);
 
             // If we have username and password, but the proxy doesn't need them, we skip the authentication step.
@@ -150,16 +150,16 @@ internal static class Socks5Helper
                 var authenticationRequestLength = CreateAuthenticationRequest(buffer, authenticationSettings);
                 await stream.WriteAsync(buffer, 0, authenticationRequestLength, cancellationToken).ConfigureAwait(false);
 
-                await stream.ReadBytesAsync(buffer, 0, 2, cancellationToken).ConfigureAwait(false);
+                await stream.ReadBytesAsync(buffer, 0, 2, cancellationToken: cancellationToken).ConfigureAwait(false);
                 ProcessAuthenticationResponse(buffer);
             }
 
             var connectRequestLength = CreateConnectRequest(buffer, targetHost, targetPort);
             await stream.WriteAsync(buffer, 0, connectRequestLength, cancellationToken).ConfigureAwait(false);
 
-            await stream.ReadBytesAsync(buffer, 0, 5, cancellationToken).ConfigureAwait(false);
+            await stream.ReadBytesAsync(buffer, 0, 5, cancellationToken: cancellationToken).ConfigureAwait(false);
             var skip = ProcessConnectResponse(buffer);
-            await stream.ReadBytesAsync(buffer, 0, skip, cancellationToken).ConfigureAwait(true);
+            await stream.ReadBytesAsync(buffer, 0, skip, cancellationToken: cancellationToken).ConfigureAwait(true);
         }
         finally
         {

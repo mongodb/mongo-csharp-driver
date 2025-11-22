@@ -345,14 +345,14 @@ namespace MongoDB.Driver.Core.Connections
             try
             {
                 var messageSizeBytes = new byte[4];
-                _stream.ReadBytes(operationContext, messageSizeBytes, 0, 4, _socketReadTimeout);
+                _stream.ReadBytes(messageSizeBytes, 0, 4, (int)operationContext.RemainingTimeoutOrDefault(_socketReadTimeout).TotalMilliseconds, operationContext.CancellationToken);
                 var messageSize = BinaryPrimitives.ReadInt32LittleEndian(messageSizeBytes);
                 EnsureMessageSizeIsValid(messageSize);
                 var inputBufferChunkSource = new InputBufferChunkSource(BsonChunkPool.Default);
                 var buffer = ByteBufferFactory.Create(inputBufferChunkSource, messageSize);
                 buffer.Length = messageSize;
                 buffer.SetBytes(0, messageSizeBytes, 0, 4);
-                _stream.ReadBytes(operationContext, buffer, 4, messageSize - 4, _socketReadTimeout);
+                _stream.ReadBytes(buffer, 4, messageSize - 4, (int)operationContext.RemainingTimeoutOrDefault(_socketReadTimeout).TotalMilliseconds, operationContext.CancellationToken);
                 _lastUsedAtUtc = DateTime.UtcNow;
                 buffer.MakeReadOnly();
                 return buffer;
@@ -370,14 +370,14 @@ namespace MongoDB.Driver.Core.Connections
             try
             {
                 var messageSizeBytes = new byte[4];
-                await _stream.ReadBytesAsync(operationContext, messageSizeBytes, 0, 4, _socketReadTimeout).ConfigureAwait(false);
+                await _stream.ReadBytesAsync(messageSizeBytes, 0, 4, (int)operationContext.RemainingTimeoutOrDefault(_socketReadTimeout).TotalMilliseconds, operationContext.CancellationToken).ConfigureAwait(false);
                 var messageSize = BinaryPrimitives.ReadInt32LittleEndian(messageSizeBytes);
                 EnsureMessageSizeIsValid(messageSize);
                 var inputBufferChunkSource = new InputBufferChunkSource(BsonChunkPool.Default);
                 var buffer = ByteBufferFactory.Create(inputBufferChunkSource, messageSize);
                 buffer.Length = messageSize;
                 buffer.SetBytes(0, messageSizeBytes, 0, 4);
-                await _stream.ReadBytesAsync(operationContext, buffer, 4, messageSize - 4, _socketReadTimeout).ConfigureAwait(false);
+                await _stream.ReadBytesAsync(buffer, 4, messageSize - 4, (int)operationContext.RemainingTimeoutOrDefault(_socketReadTimeout).TotalMilliseconds, operationContext.CancellationToken).ConfigureAwait(false);
                 _lastUsedAtUtc = DateTime.UtcNow;
                 buffer.MakeReadOnly();
                 return buffer;
@@ -475,7 +475,8 @@ namespace MongoDB.Driver.Core.Connections
 
             try
             {
-                _stream.WriteBytes(operationContext, buffer, 0, buffer.Length, _socketWriteTimeout);
+                var timeout = operationContext.RemainingTimeoutOrDefault(_socketWriteTimeout);
+                _stream.WriteBytes(buffer, 0, buffer.Length, (int)timeout.TotalMilliseconds, operationContext.CancellationToken);
                 _lastUsedAtUtc = DateTime.UtcNow;
             }
             catch (Exception ex)
@@ -495,7 +496,8 @@ namespace MongoDB.Driver.Core.Connections
 
             try
             {
-                await _stream.WriteBytesAsync(operationContext, buffer, 0, buffer.Length, _socketWriteTimeout).ConfigureAwait(false);
+                var timeout = operationContext.RemainingTimeoutOrDefault(_socketWriteTimeout);
+                await _stream.WriteBytesAsync(buffer, 0, buffer.Length, (int)timeout.TotalMilliseconds, operationContext.CancellationToken).ConfigureAwait(false);
                 _lastUsedAtUtc = DateTime.UtcNow;
             }
             catch (Exception ex)

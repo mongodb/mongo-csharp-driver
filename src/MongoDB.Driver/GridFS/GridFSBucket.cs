@@ -830,8 +830,7 @@ namespace MongoDB.Driver.GridFS
                 while (count > 0)
                 {
                     var partialCount = (int)Math.Min(buffer.Length, count);
-                    source.ReadBytes(buffer, 0, partialCount, cancellationToken);
-                    //((Stream)source).ReadBytes(buffer, 0, partialCount, cancellationToken);
+                    source.ReadBytes(buffer, 0, partialCount, cancellationToken: cancellationToken);
                     destination.Write(buffer, 0, partialCount);
                     count -= partialCount;
                 }
@@ -849,7 +848,7 @@ namespace MongoDB.Driver.GridFS
                 while (count > 0)
                 {
                     var partialCount = (int)Math.Min(buffer.Length, count);
-                    await source.ReadBytesAsync(buffer, 0, partialCount, cancellationToken).ConfigureAwait(false);
+                    await source.ReadBytesAsync(buffer, 0, partialCount, cancellationToken: cancellationToken).ConfigureAwait(false);
                     await destination.WriteAsync(buffer, 0, partialCount, cancellationToken).ConfigureAwait(false);
                     count -= partialCount;
                 }
