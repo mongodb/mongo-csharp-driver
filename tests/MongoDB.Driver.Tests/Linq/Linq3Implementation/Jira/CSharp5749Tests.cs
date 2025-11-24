@@ -49,6 +49,20 @@ public class CSharp5749Tests : LinqIntegrationTest<CSharp5749Tests.ClassFixture>
     }
 
     [Fact]
+    public void MemoryExtensions_Contains_in_Where_should_work_with_enum()
+    {
+        var collection = Fixture.Collection;
+        var daysOfWeek = new[] { DayOfWeek.Monday, DayOfWeek.Tuesday };
+
+        // Can't actually rewrite/fake these with MemoryExtensions.Contains overload with 3 args from .NET 10
+        // This test will activate correctly on .NET 10+
+        var queryable = collection.AsQueryable().Where(x => daysOfWeek.Contains(x.Day));
+
+        var results = queryable.ToArray();
+        results.Select(x => x.Id).Should().Equal(2, 3);
+    }
+
+    [Fact]
     public void MemoryExtensions_Contains_in_Single_should_work()
     {
         var collection = Fixture.Collection;
@@ -94,6 +108,20 @@ public class CSharp5749Tests : LinqIntegrationTest<CSharp5749Tests.ClassFixture>
     }
 
     [Fact]
+    public void MemoryExtensions_SequenceEqual_in_Where_should_work_with_enum()
+    {
+        var collection = Fixture.Collection;
+        var daysOfWeek = new[] { DayOfWeek.Monday, DayOfWeek.Tuesday };
+
+        // Can't actually rewrite/fake these with MemoryExtensions.Contains overload with 3 args from .NET 10
+        // This test will activate correctly on .NET 10+
+        var queryable = collection.AsQueryable().Where(x => daysOfWeek.SequenceEqual(x.Days));
+
+        var results = queryable.ToArray();
+        results.Select(x => x.Id).Should().Equal(1);
+    }
+
+    [Fact]
     public void MemoryExtensions_SequenceEqual_in_Single_should_work()
     {
         var collection = Fixture.Collection;
@@ -129,17 +157,19 @@ public class CSharp5749Tests : LinqIntegrationTest<CSharp5749Tests.ClassFixture>
     public class C
     {
         public int Id { get; set; }
+        public DayOfWeek Day { get; set; }
         public string Name { get; set; }
         public int[] Ratings { get; set; }
+        public DayOfWeek[] Days { get; set; }
     }
 
     public sealed class ClassFixture : MongoCollectionFixture<C, BsonDocument>
     {
         protected override IEnumerable<BsonDocument> InitialData =>
         [
-            BsonDocument.Parse("{ _id : 1, Name : \"One\", Ratings : [1, 2, 3, 4, 5] }"),
-            BsonDocument.Parse("{ _id : 2, Name : \"Two\", Ratings : [3, 4, 5, 6, 7] }"),
-            BsonDocument.Parse("{ _id : 3, Name : \"Three\", Ratings : [1, 9, 6] }")
+            BsonDocument.Parse("{ _id : 1, Name : \"One\", Day : 0, Ratings : [1, 2, 3, 4, 5], Days : [1, 2] }"),
+            BsonDocument.Parse("{ _id : 2, Name : \"Two\", Day : 1, Ratings : [3, 4, 5, 6, 7], Days: [1, 2, 3] }"),
+            BsonDocument.Parse("{ _id : 3, Name : \"Three\", Day : 2, Ratings : [1, 9, 6], Days: [2, 3, 4] }")
         ];
     }
 
@@ -175,10 +205,13 @@ public class CSharp5749Tests : LinqIntegrationTest<CSharp5749Tests.ClassFixture>
                     if (source.Type.IsArray)
                     {
                         var readOnlySpan = ImplicitCastArrayToSpan(source, typeof(ReadOnlySpan<>), itemType);
-                        return
-                            Expression.Call(
-                                MemoryExtensionsMethod.ContainsWithReadOnlySpanAndValue.MakeGenericMethod(itemType),
-                                [readOnlySpan, value]);
+
+                        // Not worth checking for IEquatable<T> and generating 3 args overload as that requires .NET 10
+                        // which if we had we could run the tests on natively without this visitor.
+
+                        return Expression.Call(
+                            MemoryExtensionsMethod.ContainsWithReadOnlySpanAndValue.MakeGenericMethod(itemType),
+                            [readOnlySpan, value]);
                     }
                 }
                 else if (method.Is(EnumerableMethod.ContainsWithComparer))
