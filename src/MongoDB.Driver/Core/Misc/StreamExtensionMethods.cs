@@ -46,18 +46,20 @@ namespace MongoDB.Driver.Core.Misc
             ExecuteOperationWithTimeout(
                 stream,
                 (buffer, offset, count),
-                (str, state) =>
+                (currentStream, state) =>
                 {
                     var bytesRead = 0;
-                    while (bytesRead < state.count)
+                    var remainingBytes = state.count;
+                    while (remainingBytes > 0)
                     {
-                        var readResult = str.Read(state.buffer, state.offset + bytesRead, state.count - bytesRead);
+                        var readResult = currentStream.Read(state.buffer, state.offset + bytesRead, remainingBytes);
                         if (readResult == 0)
                         {
                             throw new EndOfStreamException();
                         }
 
                         bytesRead += readResult;
+                        remainingBytes -= readResult;
                     }
                 },
                 timeoutMs,
@@ -74,20 +76,22 @@ namespace MongoDB.Driver.Core.Misc
             ExecuteOperationWithTimeout(
                 stream,
                 (buffer, offset, count),
-                (str, state) =>
+                (currentStream, state) =>
                 {
                     var bytesRead = 0;
-                    while (bytesRead < state.count)
+                    var remainingBytes = state.count;
+                    while (remainingBytes > 0)
                     {
-                        var backingBytes = state.buffer.AccessBackingBytes(bytesRead + state.offset);
-                        var bytesToRead = Math.Min(state.count - bytesRead, backingBytes.Count);
-                        var readResult = str.Read(backingBytes.Array, backingBytes.Offset, bytesToRead);
+                        var backingBytes = state.buffer.AccessBackingBytes(state.offset + bytesRead);
+                        var bytesToRead = Math.Min(remainingBytes, backingBytes.Count);
+                        var readResult = currentStream.Read(backingBytes.Array, backingBytes.Offset, bytesToRead);
                         if (readResult == 0)
                         {
                             throw new EndOfStreamException();
                         }
 
                         bytesRead += readResult;
+                        remainingBytes -= readResult;
                     }
                 },
                 timeoutMs,
@@ -104,18 +108,20 @@ namespace MongoDB.Driver.Core.Misc
             return ExecuteOperationWithTimeoutAsync(
                 stream,
                 (buffer, offset, count),
-                async (str, state) =>
+                async (currentStream, state) =>
                 {
                     var bytesRead = 0;
+                    var remainingBytes = state.count;
                     while (bytesRead < state.count)
                     {
-                        var readResult = await str.ReadAsync(state.buffer, state.offset + bytesRead, state.count - bytesRead).ConfigureAwait(false);
+                        var readResult = await currentStream.ReadAsync(state.buffer, state.offset + bytesRead, remainingBytes).ConfigureAwait(false);
                         if (readResult == 0)
                         {
                             throw new EndOfStreamException();
                         }
 
                         bytesRead += readResult;
+                        remainingBytes -= readResult;
                     }
                 },
                 timeoutMs,
@@ -133,20 +139,22 @@ namespace MongoDB.Driver.Core.Misc
             return ExecuteOperationWithTimeoutAsync(
                 stream,
                 (buffer, offset, count),
-                async (str, state) =>
+                async (currentStream, state) =>
                 {
                     var bytesRead = 0;
-                    while (bytesRead < state.count)
+                    var remainingBytes = state.count;
+                    while (remainingBytes > 0)
                     {
-                        var backingBytes = state.buffer.AccessBackingBytes(bytesRead + state.offset);
-                        var bytesToRead = Math.Min(state.count - bytesRead, backingBytes.Count);
-                        var readResult = await str.ReadAsync(backingBytes.Array, backingBytes.Offset, bytesToRead).ConfigureAwait(false);
+                        var backingBytes = state.buffer.AccessBackingBytes(state.offset + bytesRead);
+                        var bytesToRead = Math.Min(remainingBytes, backingBytes.Count);
+                        var readResult = await currentStream.ReadAsync(backingBytes.Array, backingBytes.Offset, bytesToRead).ConfigureAwait(false);
                         if (readResult == 0)
                         {
                             throw new EndOfStreamException();
                         }
 
                         bytesRead += readResult;
+                        remainingBytes -= readResult;
                     }
                 },
                 timeoutMs,
@@ -163,7 +171,7 @@ namespace MongoDB.Driver.Core.Misc
             ExecuteOperationWithTimeout(
                 stream,
                 (buffer, offset, count),
-                (str, state) => str.Write(state.buffer, state.offset, state.count),
+                (currentStream, state) => currentStream.Write(state.buffer, state.offset, state.count),
                 timeoutMs,
                 cancellationToken);
         }
@@ -178,15 +186,17 @@ namespace MongoDB.Driver.Core.Misc
             ExecuteOperationWithTimeout(
                 stream,
                 (buffer, offset, count),
-                (str, state) =>
+                (currentStream, state) =>
                 {
                     var bytesWritten = 0;
-                    while (bytesWritten < state.count)
+                    var remainingBytes = state.count;
+                    while (remainingBytes > 0)
                     {
                         var backingBytes = state.buffer.AccessBackingBytes(state.offset + bytesWritten);
-                        var bytesToWrite = Math.Min(state.count - bytesWritten, backingBytes.Count);
-                        str.Write(backingBytes.Array, backingBytes.Offset, bytesToWrite);
+                        var bytesToWrite = Math.Min(remainingBytes, backingBytes.Count);
+                        currentStream.Write(backingBytes.Array, backingBytes.Offset, bytesToWrite);
                         bytesWritten += bytesToWrite;
+                        remainingBytes -= bytesToWrite;
                     }
                 },
                 timeoutMs,
@@ -203,7 +213,7 @@ namespace MongoDB.Driver.Core.Misc
             return ExecuteOperationWithTimeoutAsync(
                 stream,
                 (buffer, offset, count),
-                (str, state) => str.WriteAsync(state.buffer, state.offset, state.count),
+                (currentStream, state) => currentStream.WriteAsync(state.buffer, state.offset, state.count),
                 timeoutMs,
                 cancellationToken);
         }
@@ -218,15 +228,17 @@ namespace MongoDB.Driver.Core.Misc
             return ExecuteOperationWithTimeoutAsync(
                 stream,
                 (buffer, offset, count),
-                async (str, state) =>
+                async (currentStream, state) =>
                 {
                     var bytesWritten = 0;
-                    while (bytesWritten < state.count)
+                    var remainingBytes = state.count;
+                    while (remainingBytes > 0)
                     {
                         var backingBytes = state.buffer.AccessBackingBytes(state.offset + bytesWritten);
-                        var bytesToWrite = Math.Min(state.count - bytesWritten, backingBytes.Count);
-                        await str.WriteAsync(backingBytes.Array, backingBytes.Offset, bytesToWrite).ConfigureAwait(false);
+                        var bytesToWrite = Math.Min(remainingBytes, backingBytes.Count);
+                        await currentStream.WriteAsync(backingBytes.Array, backingBytes.Offset, bytesToWrite).ConfigureAwait(false);
                         bytesWritten += bytesToWrite;
+                        remainingBytes -= bytesToWrite;
                     }
                 },
                 timeoutMs,
@@ -240,60 +252,27 @@ namespace MongoDB.Driver.Core.Misc
                 throw new TimeoutException();
             }
 
-            Task cancellationTask = null;
-            if (timeoutMs > 0 || cancellationToken.CanBeCanceled)
-            {
-                cancellationTask = Task.Delay(timeoutMs, cancellationToken);
-            }
+            var timeout = TimeSpan.FromMilliseconds(timeoutMs);
+            var operationTask = operation(stream, state);
 
-            Task operationTask;
             try
             {
-                operationTask = operation(stream, state);
-                if (cancellationTask == null)
-                {
-                    await operationTask.ConfigureAwait(false);
-                    return;
-                }
-
-                var completedTask = await Task.WhenAny(operationTask, cancellationTask).ConfigureAwait(false);
-                if (completedTask == operationTask)
-                {
-                    await operationTask.ConfigureAwait(false); // Will re-throw exception if any
-                    return;
-                }
+                await operationTask.WaitAsync(timeout, cancellationToken).ConfigureAwait(false);
             }
-            catch (Exception ex)
+            catch (Exception e) when (e is TaskCanceledException or TimeoutException)
             {
-                if (cancellationToken.IsCancellationRequested)
+                operationTask.IgnoreExceptions();
+                try
                 {
-                    throw new TaskCanceledException();
+                    stream.Dispose();
                 }
-
-                if (ex is ObjectDisposedException)
+                catch (Exception)
                 {
-                    throw new IOException();
+                    // suppress any exception
                 }
 
                 throw;
             }
-
-            // if we reach here - then operation was either cancelled or timed out
-            operationTask.IgnoreExceptions();
-            try
-            {
-                stream.Dispose();
-            }
-            catch (Exception)
-            {
-                // suppress any exception
-            }
-
-            if (cancellationToken.IsCancellationRequested)
-            {
-                throw new TaskCanceledException();
-            }
-            throw new TimeoutException();
         }
 
         private static void ExecuteOperationWithTimeout<TState>(Stream stream, TState state, Action<Stream, TState> operation, int timeoutMs, CancellationToken cancellationToken)
