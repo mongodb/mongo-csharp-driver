@@ -1337,6 +1337,11 @@ namespace MongoDB.Bson.Serialization
 
             void EnsureNoMemberMapConflicts(string elementName)
             {
+                if (AppContext.TryGetSwitch("DisableCSharp4040Validation", out bool disableCSharp4040Validation) && disableCSharp4040Validation)
+                {
+                    return;
+                }
+
                 var conflictingMemberMap = _allMemberMaps.FirstOrDefault(memberMap => memberMap.ElementName == elementName);
 
                 if (conflictingMemberMap != null)
