@@ -253,15 +253,20 @@ namespace MongoDB.Driver.Core.Misc
             }
 
             var timeout = TimeSpan.FromMilliseconds(timeoutMs);
-            var operationTask = operation(stream, state);
+            Task operationTask = null;
 
             try
             {
+                operationTask = operation(stream, state);
                 await operationTask.WaitAsync(timeout, cancellationToken).ConfigureAwait(false);
+            }
+            catch (ObjectDisposedException)
+            {
+                throw new IOException();
             }
             catch (Exception e) when (e is TaskCanceledException or TimeoutException)
             {
-                operationTask.IgnoreExceptions();
+                operationTask?.IgnoreExceptions();
                 try
                 {
                     stream.Dispose();
