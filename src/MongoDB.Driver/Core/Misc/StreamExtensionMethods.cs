@@ -48,17 +48,17 @@ namespace MongoDB.Driver.Core.Misc
                 (buffer, offset, count),
                 (currentStream, state) =>
                 {
-                    var bytesRead = 0;
+                    var position = state.offset;
                     var remainingBytes = state.count;
                     while (remainingBytes > 0)
                     {
-                        var readResult = currentStream.Read(state.buffer, state.offset + bytesRead, remainingBytes);
+                        var readResult = currentStream.Read(state.buffer, position, remainingBytes);
                         if (readResult == 0)
                         {
                             throw new EndOfStreamException();
                         }
 
-                        bytesRead += readResult;
+                        position += readResult;
                         remainingBytes -= readResult;
                     }
                 },
@@ -78,11 +78,11 @@ namespace MongoDB.Driver.Core.Misc
                 (buffer, offset, count),
                 (currentStream, state) =>
                 {
-                    var bytesRead = 0;
+                    var position = state.offset;
                     var remainingBytes = state.count;
                     while (remainingBytes > 0)
                     {
-                        var backingBytes = state.buffer.AccessBackingBytes(state.offset + bytesRead);
+                        var backingBytes = state.buffer.AccessBackingBytes(position);
                         var bytesToRead = Math.Min(remainingBytes, backingBytes.Count);
                         var readResult = currentStream.Read(backingBytes.Array, backingBytes.Offset, bytesToRead);
                         if (readResult == 0)
@@ -90,7 +90,7 @@ namespace MongoDB.Driver.Core.Misc
                             throw new EndOfStreamException();
                         }
 
-                        bytesRead += readResult;
+                        position += readResult;
                         remainingBytes -= readResult;
                     }
                 },
@@ -110,17 +110,17 @@ namespace MongoDB.Driver.Core.Misc
                 (buffer, offset, count),
                 async (currentStream, state) =>
                 {
-                    var bytesRead = 0;
+                    var position = state.offset;
                     var remainingBytes = state.count;
-                    while (bytesRead < state.count)
+                    while (remainingBytes > 0)
                     {
-                        var readResult = await currentStream.ReadAsync(state.buffer, state.offset + bytesRead, remainingBytes).ConfigureAwait(false);
+                        var readResult = await currentStream.ReadAsync(state.buffer, position, remainingBytes).ConfigureAwait(false);
                         if (readResult == 0)
                         {
                             throw new EndOfStreamException();
                         }
 
-                        bytesRead += readResult;
+                        position += readResult;
                         remainingBytes -= readResult;
                     }
                 },
@@ -141,11 +141,11 @@ namespace MongoDB.Driver.Core.Misc
                 (buffer, offset, count),
                 async (currentStream, state) =>
                 {
-                    var bytesRead = 0;
+                    var position = state.offset;
                     var remainingBytes = state.count;
                     while (remainingBytes > 0)
                     {
-                        var backingBytes = state.buffer.AccessBackingBytes(state.offset + bytesRead);
+                        var backingBytes = state.buffer.AccessBackingBytes(position);
                         var bytesToRead = Math.Min(remainingBytes, backingBytes.Count);
                         var readResult = await currentStream.ReadAsync(backingBytes.Array, backingBytes.Offset, bytesToRead).ConfigureAwait(false);
                         if (readResult == 0)
@@ -153,7 +153,7 @@ namespace MongoDB.Driver.Core.Misc
                             throw new EndOfStreamException();
                         }
 
-                        bytesRead += readResult;
+                        position += readResult;
                         remainingBytes -= readResult;
                     }
                 },
@@ -188,14 +188,14 @@ namespace MongoDB.Driver.Core.Misc
                 (buffer, offset, count),
                 (currentStream, state) =>
                 {
-                    var bytesWritten = 0;
+                    var position = state.offset;
                     var remainingBytes = state.count;
                     while (remainingBytes > 0)
                     {
-                        var backingBytes = state.buffer.AccessBackingBytes(state.offset + bytesWritten);
+                        var backingBytes = state.buffer.AccessBackingBytes(position);
                         var bytesToWrite = Math.Min(remainingBytes, backingBytes.Count);
                         currentStream.Write(backingBytes.Array, backingBytes.Offset, bytesToWrite);
-                        bytesWritten += bytesToWrite;
+                        position += bytesToWrite;
                         remainingBytes -= bytesToWrite;
                     }
                 },
@@ -230,14 +230,14 @@ namespace MongoDB.Driver.Core.Misc
                 (buffer, offset, count),
                 async (currentStream, state) =>
                 {
-                    var bytesWritten = 0;
+                    var position = state.offset;
                     var remainingBytes = state.count;
                     while (remainingBytes > 0)
                     {
-                        var backingBytes = state.buffer.AccessBackingBytes(state.offset + bytesWritten);
+                        var backingBytes = state.buffer.AccessBackingBytes(position);
                         var bytesToWrite = Math.Min(remainingBytes, backingBytes.Count);
                         await currentStream.WriteAsync(backingBytes.Array, backingBytes.Offset, bytesToWrite).ConfigureAwait(false);
-                        bytesWritten += bytesToWrite;
+                        position += bytesToWrite;
                         remainingBytes -= bytesToWrite;
                     }
                 },
