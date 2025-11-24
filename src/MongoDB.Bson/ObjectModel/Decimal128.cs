@@ -42,16 +42,28 @@ namespace MongoDB.Bson
 
         // public static properties
         /// <summary>
-        /// Gets the maximum value.
+        /// Gets the maximum Decimal128 value.
         /// </summary>
         public static Decimal128 MaxValue =>
             __maxValue;
 
         /// <summary>
-        /// Gets the minimum value.
+        /// Gets the minimum Decimal128 value.
         /// </summary>
         public static Decimal128 MinValue =>
             __minValue;
+
+        /// <summary>
+        /// Gets the maximum System.Decimal value.
+        /// </summary>
+        public static Decimal128 MaxDecimalValue =>
+            __maxDecimalValue;
+
+        /// <summary>
+        /// Gets the minimum System.Decimal value.
+        /// </summary>
+        public static Decimal128 MinDecimalValue =>
+            __minDecimalValue;
 
         /// <summary>
         /// Represents negative infinity.
