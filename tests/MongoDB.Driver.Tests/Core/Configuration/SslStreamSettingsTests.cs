@@ -18,6 +18,7 @@ using System.Net.Security;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using FluentAssertions;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Configuration
@@ -63,8 +64,7 @@ namespace MongoDB.Driver.Core.Configuration
         [Fact]
         public void constructor_with_clientCertificates_should_initialize_instance()
         {
-            var certificate = Array.Empty<byte>();
-            var clientCertificates = new[] { new X509Certificate(certificate) };
+            var clientCertificates = new [] { X509CertificateLoader.LoadCertificate(__testCert) };
 
             var subject = new SslStreamSettings(clientCertificates: clientCertificates);
 
@@ -136,10 +136,8 @@ namespace MongoDB.Driver.Core.Configuration
         [Fact]
         public void With_clientCertificates_should_return_expected_result()
         {
-            var oldCertificate = Array.Empty<byte>();
-            var newCertificate = Array.Empty<byte>();
-            var oldClientCertificates = new[] { new X509Certificate(oldCertificate) };
-            var newClientCertificates = new[] { new X509Certificate(newCertificate) };
+            var oldClientCertificates = new[] { X509CertificateLoader.LoadCertificate(__testCert) };
+            var newClientCertificates = new[] { X509CertificateLoader.LoadCertificate(__testCert) };
             var subject = new SslStreamSettings(clientCertificates: oldClientCertificates);
 
             var result = subject.With(clientCertificates: newClientCertificates);
@@ -198,5 +196,34 @@ namespace MongoDB.Driver.Core.Configuration
             result.EnabledSslProtocols.Should().Be(subject.EnabledSslProtocols);
             result.ServerCertificateValidationCallback.Should().Be(newServerCertificateValidationCallback);
         }
+
+        private static readonly byte[] __testCert =
+        [
+            48, 130, 2, 120, 48, 130, 1, 225, 160, 3, 2, 1, 2, 2, 9, 0, 206, 136, 148, 86, 218, 120, 139, 228, 48, 13,
+            6, 9, 42, 134, 72, 134, 247, 13, 1, 1, 5, 5, 0, 48, 85, 49, 11, 48, 9, 6, 3, 85, 4, 6, 19, 2, 85, 83, 49,
+            16, 48, 14, 6, 3, 85, 4, 8, 12, 7, 71, 101, 111, 114, 103, 105, 97, 49, 16, 48, 14, 6, 3, 85, 4, 7, 12, 7,
+            65, 116, 108, 97, 110, 116, 97, 49, 17, 48, 15, 6, 3, 85, 4, 10, 12, 8, 84, 101, 115, 116, 32, 73, 110, 99,
+            49, 15, 48, 13, 6, 3, 85, 4, 3, 12, 6, 84, 101, 115, 116, 101, 114, 48, 30, 23, 13, 49, 51, 48, 49, 50, 52,
+            50, 50, 51, 49, 53, 55, 90, 23, 13, 52, 48, 48, 54, 49, 48, 50, 50, 51, 49, 53, 55, 90, 48, 85, 49, 11, 48,
+            9, 6, 3, 85, 4, 6, 19, 2, 85, 83, 49, 16, 48, 14, 6, 3, 85, 4, 8, 12, 7, 71, 101, 111, 114, 103, 105, 97,
+            49, 16, 48, 14, 6, 3, 85, 4, 7, 12, 7, 65, 116, 108, 97, 110, 116, 97, 49, 17, 48, 15, 6, 3, 85, 4, 10, 12,
+            8, 84, 101, 115, 116, 32, 73, 110, 99, 49, 15, 48, 13, 6, 3, 85, 4, 3, 12, 6, 84, 101, 115, 116, 101, 114,
+            48, 129, 159, 48, 13, 6, 9, 42, 134, 72, 134, 247, 13, 1, 1, 1, 5, 0, 3, 129, 141, 0, 48, 129, 137, 2, 129,
+            129, 0, 232, 50, 71, 90, 149, 7, 66, 154, 146, 17, 101, 153, 240, 201, 205, 17, 59, 156, 61, 172, 41, 163,
+            80, 81, 177, 1, 14, 50, 152, 220, 19, 52, 114, 60, 93, 140, 66, 234, 182, 65, 56, 206, 53, 40, 67, 46, 69,
+            120, 51, 245, 144, 87, 56, 115, 177, 152, 173, 157, 2, 44, 91, 53, 32, 128, 97, 145, 37, 68, 109, 122, 31,
+            161, 19, 141, 73, 202, 231, 201, 251, 237, 201, 100, 104, 200, 174, 94, 50, 176, 101, 223, 70, 34, 22, 172,
+            46, 171, 254, 90, 63, 56, 242, 75, 66, 31, 208, 99, 48, 144, 47, 118, 205, 76, 100, 230, 44, 28, 240, 2,
+            149, 8, 21, 34, 221, 130, 204, 31, 64, 115, 2, 3, 1, 0, 1, 163, 80, 48, 78, 48, 29, 6, 3, 85, 29, 14, 4, 22,
+            4, 20, 176, 240, 6, 4, 223, 189, 160, 18, 104, 18, 37, 81, 177, 25, 156, 225, 223, 154, 251, 188, 48, 31, 6,
+            3, 85, 29, 35, 4, 24, 48, 22, 128, 20, 176, 240, 6, 4, 223, 189, 160, 18, 104, 18, 37, 81, 177, 25, 156,
+            225, 223, 154, 251, 188, 48, 12, 6, 3, 85, 29, 19, 4, 5, 48, 3, 1, 1, 255, 48, 13, 6, 9, 42, 134, 72, 134,
+            247, 13, 1, 1, 5, 5, 0, 3, 129, 129, 0, 125, 197, 226, 141, 46, 105, 97, 45, 124, 3, 78, 240, 183, 242, 135,
+            46, 163, 108, 116, 43, 13, 140, 99, 162, 16, 163, 139, 110, 46, 46, 210, 140, 243, 52, 11, 37, 221, 96, 97,
+            210, 147, 235, 98, 212, 72, 62, 195, 67, 209, 144, 74, 31, 187, 93, 102, 214, 132, 153, 150, 206, 32, 157,
+            233, 124, 210, 12, 248, 64, 62, 65, 32, 18, 111, 211, 78, 51, 231, 117, 205, 93, 80, 41, 8, 190, 22, 236,
+            50, 245, 140, 56, 54, 17, 12, 58, 56, 78, 33, 102, 200, 32, 134, 70, 223, 253, 226, 161, 221, 125, 203, 177,
+            119, 225, 144, 250, 197, 202, 165, 142, 200, 144, 209, 170, 84, 179, 15, 56, 10, 194
+        ];
     }
 }

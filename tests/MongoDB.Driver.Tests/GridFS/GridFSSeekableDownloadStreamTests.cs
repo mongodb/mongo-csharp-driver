@@ -139,7 +139,9 @@ namespace MongoDB.Driver.Tests.GridFS
         {
             var subject = CreateSubject();
 
+#pragma warning disable CA2022
             Action action = () => subject.Read(null, 0, 0);
+#pragma warning restore CA2022
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("buffer");
         }
@@ -171,7 +173,9 @@ namespace MongoDB.Driver.Tests.GridFS
             }
             else
             {
+#pragma warning disable CA2022
                 action = () => subject.Read(buffer, offset, count);
+#pragma warning restore CA2022
             }
 
             action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("count");
@@ -196,7 +200,9 @@ namespace MongoDB.Driver.Tests.GridFS
             }
             else
             {
+#pragma warning disable CA2022
                 action = () => subject.Read(buffer, offset, 0);
+#pragma warning restore CA2022
             }
 
             action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("offset");

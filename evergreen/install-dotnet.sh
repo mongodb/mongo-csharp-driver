@@ -2,7 +2,7 @@
 set -o errexit  # Exit the script with error if any of the commands fail
 
 DOTNET_ROOT="${DOTNET_ROOT:-./.dotnet}"
-DOTNET_SDK_VERSION="${DOTNET_SDK_VERSION:-8.0}"
+DOTNET_SDK_VERSION="${DOTNET_SDK_VERSION:-10.0}"
 
 echo "runtime: $FRAMEWORK"
 
@@ -13,6 +13,8 @@ if [ -n "$FRAMEWORK" ]; then
     RUNTIME_VERSION="6.0"
   elif [ "$FRAMEWORK" = "net8.0" ]; then
     RUNTIME_VERSION="8.0"
+  elif [ "$FRAMEWORK" = "net10.0" ]; then
+    RUNTIME_VERSION="10.0"
   elif [ "$FRAMEWORK" = "netstandard2.1" ]; then
     RUNTIME_VERSION="3.1"
   elif [ "$FRAMEWORK" = "netcoreapp3.1" ]; then

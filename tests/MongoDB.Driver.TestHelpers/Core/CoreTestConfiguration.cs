@@ -151,11 +151,11 @@ namespace MongoDB.Driver
                         X509Certificate cert;
                         if (password == null)
                         {
-                            cert = new X509Certificate2(certificateFilename);
+                            cert = X509CertificateLoader.LoadCertificateFromFile(certificateFilename);
                         }
                         else
                         {
-                            cert = new X509Certificate2(certificateFilename, password);
+                            cert = X509CertificateLoader.LoadPkcs12FromFile(certificateFilename, password);
                         }
                         return ssl.With(
                             clientCertificates: new[] { cert });

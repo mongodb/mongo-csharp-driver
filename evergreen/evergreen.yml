@@ -1127,6 +1127,13 @@ tasks:
             FRAMEWORK: net6.0
         - func: run-unit-tests
 
+    - name: unit-tests-net100
+      commands:
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net10.0
+        - func: run-unit-tests
+
     - name: test-net472
       commands:
         - func: setup-csfle-secrets
@@ -1698,6 +1705,17 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net8.0
+        - func: bootstrap-mongo-orchestration
+        - func: run-smoke-tests
+
+    - name: test-smoke-tests-net100
+      depends_on:
+        - name: push-packages-myget
+          variant: ".push-packages-myget"
+      commands:
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net10.0
         - func: bootstrap-mongo-orchestration
         - func: run-smoke-tests
 
@@ -2380,6 +2398,7 @@ buildvariants:
     - name: unit-tests-net472
     - name: unit-tests-netstandard21
     - name: unit-tests-net60
+    - name: unit-tests-net100
 
 - name: unit-tests-ubuntu
   display_name: Unit Tests on Ubuntu
@@ -2389,6 +2408,7 @@ buildvariants:
   tasks:
     - name: unit-tests-netstandard21
     - name: unit-tests-net60
+    - name: unit-tests-net100
 
 - name: unit-tests-macos
   display_name: Unit Tests on MacOs
@@ -2398,6 +2418,7 @@ buildvariants:
   tasks:
     - name: unit-tests-netstandard21
     - name: unit-tests-net60
+    - name: unit-tests-net100
 
 - name: unit-tests-macos-arm
   display_name: Unit Tests on MacOs Arm
@@ -2406,6 +2427,7 @@ buildvariants:
     OS: "macos-14-arm64"
   tasks:
     - name: unit-tests-net60
+    - name: unit-tests-net100
 
 - matrix_name: stable-api-tests
   matrix_spec: { version: ["5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: ["standalone", "sharded-cluster"], auth: "auth", ssl: "nossl", os: "windows-64" }
@@ -2778,6 +2800,7 @@ buildvariants:
     - name: test-smoke-tests-net50
     - name: test-smoke-tests-net60
     - name: test-smoke-tests-net80
+    - name: test-smoke-tests-net100
   rules:
     - if: { version: "*", topology: "*", ssl: "*", os: ["ubuntu-2004", "macos-14"] }
       then:
