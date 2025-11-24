@@ -30,7 +30,7 @@ public class CSharp4040SwitchTests : LinqIntegrationTest<CSharp4040SwitchTests.C
 {
     static CSharp4040SwitchTests()
     {
-        AppContext.SetSwitch("DisableCSharp4040Validation", true);
+        AppContext.SetSwitch("Switch.MongoDB.Driver.DisableDiscriminatorFieldConflictCheck", true);
 
         var discriminatorConvention = new HierarchicalDiscriminatorConvention("TypeNames");
 
@@ -46,7 +46,7 @@ public class CSharp4040SwitchTests : LinqIntegrationTest<CSharp4040SwitchTests.C
 
     public void Dispose()
     {
-        AppContext.SetSwitch("DisableCSharp4040Validation", false);
+        AppContext.SetSwitch("Switch.MongoDB.Driver.DisableDiscriminatorFieldConflictCheck", false);
     }
 
     public CSharp4040SwitchTests(ClassFixture fixture)

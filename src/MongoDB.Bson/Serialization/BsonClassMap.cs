@@ -1337,7 +1337,7 @@ namespace MongoDB.Bson.Serialization
 
             void EnsureNoMemberMapConflicts(string elementName)
             {
-                if (AppContext.TryGetSwitch("DisableCSharp4040Validation", out bool disableCSharp4040Validation) && disableCSharp4040Validation)
+                if (AppContext.TryGetSwitch("Switch.MongoDB.Driver.DisableDiscriminatorFieldConflictCheck", out bool disableConflictCheck) && disableConflictCheck)
                 {
                     return;
                 }
