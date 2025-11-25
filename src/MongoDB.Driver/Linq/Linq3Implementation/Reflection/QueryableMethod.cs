@@ -55,6 +55,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __cast;
         private static readonly MethodInfo __concat;
         private static readonly MethodInfo __contains;
+        private static readonly MethodInfo __containsWithComparer;
         private static readonly MethodInfo __count;
         private static readonly MethodInfo __countWithPredicate;
         private static readonly MethodInfo __defaultIfEmpty;
@@ -96,6 +97,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __selectManyWithSelectorTakingIndex;
         private static readonly MethodInfo __selectWithSelectorTakingIndex;
         private static readonly MethodInfo __sequenceEqual;
+        private static readonly MethodInfo __sequenceEqualWithComparer;
         private static readonly MethodInfo __single;
         private static readonly MethodInfo __singleOrDefault;
         private static readonly MethodInfo __singleOrDefaultWithPredicate;
@@ -165,6 +167,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __cast = ReflectionInfo.Method((IQueryable<object> source) => source.Cast<object>());
             __concat = ReflectionInfo.Method((IQueryable<object> source1, IEnumerable<object> source2) => source1.Concat(source2));
             __contains = ReflectionInfo.Method((IQueryable<object> source, object item) => source.Contains(item));
+            __containsWithComparer = ReflectionInfo.Method((IQueryable<object> source, object item, IEqualityComparer<object> comparer) => source.Contains(item, comparer));
             __count = ReflectionInfo.Method((IQueryable<object> source) => source.Count());
             __countWithPredicate = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, bool>> predicate) => source.Count(predicate));
             __defaultIfEmpty = ReflectionInfo.Method((IQueryable<object> source) => source.DefaultIfEmpty());
@@ -206,6 +209,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __selectManyWithSelectorTakingIndex = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, int, IEnumerable<object>>> selector) => source.SelectMany(selector));
             __selectWithSelectorTakingIndex = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, int, object>> selector) => source.Select(selector));
             __sequenceEqual = ReflectionInfo.Method((IQueryable<object> source1, IEnumerable<object> source2) => source1.SequenceEqual(source2));
+            __sequenceEqualWithComparer = ReflectionInfo.Method((IQueryable<object> source1, IEnumerable<object> source2, IEqualityComparer<object> comparer) => source1.SequenceEqual(source2, comparer));
             __single = ReflectionInfo.Method((IQueryable<object> source) => source.Single());
             __singleOrDefault = ReflectionInfo.Method((IQueryable<object> source) => source.SingleOrDefault());
             __singleOrDefaultWithPredicate = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, bool>> predicate) => source.SingleOrDefault(predicate));
@@ -274,6 +278,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo Cast => __cast;
         public static MethodInfo Concat => __concat;
         public static MethodInfo Contains => __contains;
+        public static MethodInfo ContainsWithComparer => __containsWithComparer;
         public static MethodInfo Count => __count;
         public static MethodInfo CountWithPredicate => __countWithPredicate;
         public static MethodInfo DefaultIfEmpty => __defaultIfEmpty;
@@ -315,6 +320,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo SelectManyWithSelectorTakingIndex => __selectManyWithSelectorTakingIndex;
         public static MethodInfo SelectWithSelectorTakingIndex => __selectWithSelectorTakingIndex;
         public static MethodInfo SequenceEqual => __sequenceEqual;
+        public static MethodInfo SequenceEqualWithComparer => __sequenceEqualWithComparer;
         public static MethodInfo Single => __single;
         public static MethodInfo SingleOrDefault => __singleOrDefault;
         public static MethodInfo SingleOrDefaultWithPredicate => __singleOrDefaultWithPredicate;

@@ -50,11 +50,7 @@ internal class ClrCompatExpressionRewriter : ExpressionVisitor
 
         static Expression VisitContainsMethod(MethodCallExpression node, MethodInfo method, ReadOnlyCollection<Expression> arguments)
         {
-            var hasNoComparer = method.IsOneOf(MemoryExtensionsMethod.ContainsWithReadOnlySpanAndValue, MemoryExtensionsMethod.ContainsWithSpanAndValue);
-            var hasNullComparer = method.Is(MemoryExtensionsMethod.ContainsWithReadOnlySpanAndValueAndComparer) && arguments[2] is ConstantExpression { Value: null };
-
-            // C# 14 targets MemoryExtensionsMethod.Contains, rewrite it back to Enumerable.Contains
-            if (hasNoComparer || hasNullComparer)
+            if (method.IsOneOf(MemoryExtensionsMethod.ContainsWithReadOnlySpanAndValue, MemoryExtensionsMethod.ContainsWithSpanAndValue))
             {
                 var itemType = method.GetGenericArguments().Single();
                 var span = arguments[0];
@@ -69,17 +65,29 @@ internal class ClrCompatExpressionRewriter : ExpressionVisitor
                             [unwrappedSpan, value]);
                 }
             }
+            else if (method.Is(MemoryExtensionsMethod.ContainsWithReadOnlySpanAndValueAndComparer))
+            {
+                var itemType = method.GetGenericArguments().Single();
+                var span = arguments[0];
+                var value = arguments[1];
+                var comparer = arguments[2];
+
+                if (TryUnwrapSpanImplicitCast(span, out var unwrappedSpan) &&
+                    unwrappedSpan.Type.ImplementsIEnumerableOf(itemType))
+                {
+                    return
+                        Expression.Call(
+                            EnumerableMethod.ContainsWithComparer.MakeGenericMethod(itemType),
+                            [unwrappedSpan, value, comparer]);
+                }
+            }
 
             return node;
         }
 
         static Expression VisitSequenceEqualMethod(MethodCallExpression node, MethodInfo method, ReadOnlyCollection<Expression> arguments)
         {
-            var hasNoComparer = method.IsOneOf(MemoryExtensionsMethod.SequenceEqualWithReadOnlySpanAndReadOnlySpan, MemoryExtensionsMethod.SequenceEqualWithSpanAndReadOnlySpan);
-            var hasNullComparer = method.IsOneOf(MemoryExtensionsMethod.SequenceEqualWithReadOnlySpanAndReadOnlySpanAndComparer, MemoryExtensionsMethod.SequenceEqualWithSpanAndReadOnlySpanAndComparer) && arguments[2] is ConstantExpression { Value: null };
-
-            // C# 14 targets MemoryExtensionsMethod.SequenceEquals, rewrite it back to Enumerable.SequenceEquals
-            if (hasNoComparer || hasNullComparer)
+            if (method.IsOneOf(MemoryExtensionsMethod.SequenceEqualWithReadOnlySpanAndReadOnlySpan, MemoryExtensionsMethod.SequenceEqualWithSpanAndReadOnlySpan))
             {
                 var itemType = method.GetGenericArguments().Single();
                 var span = arguments[0];
@@ -94,6 +102,24 @@ internal class ClrCompatExpressionRewriter : ExpressionVisitor
                         Expression.Call(
                             EnumerableMethod.SequenceEqual.MakeGenericMethod(itemType),
                             [unwrappedSpan, unwrappedOther]);
+                }
+            }
+            else if (method.IsOneOf(MemoryExtensionsMethod.SequenceEqualWithReadOnlySpanAndReadOnlySpanAndComparer, MemoryExtensionsMethod.SequenceEqualWithSpanAndReadOnlySpanAndComparer))
+            {
+                var itemType = method.GetGenericArguments().Single();
+                var span = arguments[0];
+                var other = arguments[1];
+                var comparer = arguments[2];
+
+                if (TryUnwrapSpanImplicitCast(span, out var unwrappedSpan) &&
+                    TryUnwrapSpanImplicitCast(other, out var unwrappedOther) &&
+                    unwrappedSpan.Type.ImplementsIEnumerableOf(itemType) &&
+                    unwrappedOther.Type.ImplementsIEnumerableOf(itemType))
+                {
+                    return
+                        Expression.Call(
+                            EnumerableMethod.SequenceEqualWithComparer.MakeGenericMethod(itemType),
+                            [unwrappedSpan, unwrappedOther, comparer]);
                 }
             }
 

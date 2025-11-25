@@ -154,6 +154,51 @@ public class CSharp5749Tests : LinqIntegrationTest<CSharp5749Tests.ClassFixture>
         result.Should().Be(1);
     }
 
+    [Fact]
+    public void Enumerable_Contains_with_null_comparer_should_work()
+    {
+        var collection = Fixture.Collection;
+        var names = new[] { "Two", "Three" };
+
+        var queryable = collection.AsQueryable().Where(x => names.Contains(x.Name, null));
+
+        var results = queryable.ToArray();
+        results.Select(x => x.Id).Should().Equal(2, 3);
+    }
+
+    [Fact]
+    public void Enumerable_SequenceEquals_with_null_comparer_should_work()
+    {
+        var collection = Fixture.Collection;
+        var ratings = new[] { 1, 9, 6 };
+
+        var queryable = collection.AsQueryable().Where(x => ratings.SequenceEqual(x.Ratings, null));
+
+        var results = queryable.ToArray();
+        results.Select(x => x.Id).Should().Equal(3);
+    }
+
+    [Fact]
+    public void Queryable_Contains_with_null_comparer_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable().Where(x => x.Days.AsQueryable().Contains(x.Day, null));
+
+        var results = queryable.ToArray();
+        results.Select(x => x.Id).Should().Equal(2, 3);
+    }
+
+    [Fact]
+    public void Queryable_SequenceEqual_with_null_comparer_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var result = collection.AsQueryable().Count(x => x.Ratings.SequenceEqual(x.Ratings, null));
+
+        result.Should().Be(3);
+    }
+
     public class C
     {
         public int Id { get; set; }
