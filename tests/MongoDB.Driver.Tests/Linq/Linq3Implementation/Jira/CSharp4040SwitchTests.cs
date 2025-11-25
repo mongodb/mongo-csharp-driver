@@ -26,36 +26,15 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira;
 
-public class CSharp4040SwitchTests : LinqIntegrationTest<CSharp4040SwitchTests.ClassFixture>, IDisposable
+public class CSharp4040SwitchTests : LinqIntegrationTest<CSharp4040SwitchTests.ClassFixture>
 {
-    static CSharp4040SwitchTests()
-    {
-        AppContext.SetSwitch("Switch.MongoDB.Driver.DisableDiscriminatorFieldConflictCheck", true);
-
-        var discriminatorConvention = new HierarchicalDiscriminatorConvention("TypeNames");
-
-        BsonClassMap.RegisterClassMap<C>(cm =>
-        {
-            cm.AutoMap();
-            cm.SetIsRootClass(true);
-            cm.SetDiscriminatorIsRequired(true);
-            cm.MapMember(x => x.TypeNames).SetShouldSerializeMethod(_ => false);
-            cm.SetDiscriminatorConvention(discriminatorConvention);
-        });
-    }
-
-    public void Dispose()
-    {
-        AppContext.SetSwitch("Switch.MongoDB.Driver.DisableDiscriminatorFieldConflictCheck", false);
-    }
-
     public CSharp4040SwitchTests(ClassFixture fixture)
         : base(fixture)
     {
     }
 
     [Fact]
-    public void Documents_should_serializer_as_expected()
+    public void Documents_should_serialize_as_expected()
     {
         var collection = Fixture.Collection;
 
@@ -174,10 +153,32 @@ public class CSharp4040SwitchTests : LinqIntegrationTest<CSharp4040SwitchTests.C
 
     public sealed class ClassFixture : MongoCollectionFixture<C>
     {
+        public ClassFixture()
+        {
+            AppContext.SetSwitch("Switch.MongoDB.Driver.DisableDiscriminatorFieldConflictCheck", true);
+
+            var discriminatorConvention = new HierarchicalDiscriminatorConvention("TypeNames");
+            BsonSerializer.RegisterDiscriminatorConvention(typeof(C), discriminatorConvention);
+
+            BsonClassMap.RegisterClassMap<C>(cm =>
+            {
+                cm.AutoMap();
+                cm.SetIsRootClass(true);
+                cm.SetDiscriminatorIsRequired(true);
+                cm.MapMember(x => x.TypeNames).SetShouldSerializeMethod(_ => false);
+            });
+        }
+
         protected override IEnumerable<C> InitialData =>
         [
             new D { Id = 1 },
             new E { Id = 2 }
         ];
+
+        public override void Dispose()
+        {
+            base.Dispose();
+            AppContext.SetSwitch("Switch.MongoDB.Driver.DisableDiscriminatorFieldConflictCheck", false);
+        }
     }
 }
