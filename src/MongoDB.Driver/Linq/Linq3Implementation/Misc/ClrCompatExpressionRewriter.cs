@@ -30,6 +30,29 @@ internal class ClrCompatExpressionRewriter : ExpressionVisitor
 {
     private static readonly ClrCompatExpressionRewriter __instance = new();
 
+    private static readonly MethodInfo[] __memoryExtensionsContainsMethods =
+    [
+        MemoryExtensionsMethod.ContainsWithReadOnlySpanAndValue,
+        MemoryExtensionsMethod.ContainsWithSpanAndValue
+    ];
+
+    private static readonly MethodInfo[] __memoryExtensionsContainsWithComparerMethods =
+    [
+        MemoryExtensionsMethod.ContainsWithReadOnlySpanAndValueAndComparer
+    ];
+
+    private static readonly MethodInfo[] __memoryExtensionsSequenceMethods =
+    [
+        MemoryExtensionsMethod.SequenceEqualWithReadOnlySpanAndReadOnlySpan,
+        MemoryExtensionsMethod.SequenceEqualWithSpanAndReadOnlySpan
+    ];
+
+    private static readonly MethodInfo[] __memoryExtensionsSequenceWithComparerMethods =
+    [
+        MemoryExtensionsMethod.SequenceEqualWithReadOnlySpanAndReadOnlySpanAndComparer,
+        MemoryExtensionsMethod.SequenceEqualWithSpanAndReadOnlySpanAndComparer
+    ];
+
     public static Expression Rewrite(Expression expression)
         => __instance.Visit(expression);
 
@@ -50,7 +73,7 @@ internal class ClrCompatExpressionRewriter : ExpressionVisitor
 
         static Expression VisitContainsMethod(MethodCallExpression node, MethodInfo method, ReadOnlyCollection<Expression> arguments)
         {
-            if (method.IsOneOf(MemoryExtensionsMethod.ContainsWithReadOnlySpanAndValue, MemoryExtensionsMethod.ContainsWithSpanAndValue))
+            if (method.IsOneOf(__memoryExtensionsContainsMethods))
             {
                 var itemType = method.GetGenericArguments().Single();
                 var span = arguments[0];
@@ -65,7 +88,7 @@ internal class ClrCompatExpressionRewriter : ExpressionVisitor
                             [unwrappedSpan, value]);
                 }
             }
-            else if (method.Is(MemoryExtensionsMethod.ContainsWithReadOnlySpanAndValueAndComparer))
+            else if (method.IsOneOf(__memoryExtensionsContainsWithComparerMethods))
             {
                 var itemType = method.GetGenericArguments().Single();
                 var span = arguments[0];
@@ -87,7 +110,7 @@ internal class ClrCompatExpressionRewriter : ExpressionVisitor
 
         static Expression VisitSequenceEqualMethod(MethodCallExpression node, MethodInfo method, ReadOnlyCollection<Expression> arguments)
         {
-            if (method.IsOneOf(MemoryExtensionsMethod.SequenceEqualWithReadOnlySpanAndReadOnlySpan, MemoryExtensionsMethod.SequenceEqualWithSpanAndReadOnlySpan))
+            if (method.IsOneOf(__memoryExtensionsSequenceMethods))
             {
                 var itemType = method.GetGenericArguments().Single();
                 var span = arguments[0];
@@ -104,7 +127,7 @@ internal class ClrCompatExpressionRewriter : ExpressionVisitor
                             [unwrappedSpan, unwrappedOther]);
                 }
             }
-            else if (method.IsOneOf(MemoryExtensionsMethod.SequenceEqualWithReadOnlySpanAndReadOnlySpanAndComparer, MemoryExtensionsMethod.SequenceEqualWithSpanAndReadOnlySpanAndComparer))
+            else if (method.IsOneOf(__memoryExtensionsSequenceWithComparerMethods))
             {
                 var itemType = method.GetGenericArguments().Single();
                 var span = arguments[0];
