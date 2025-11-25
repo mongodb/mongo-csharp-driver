@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__containsMethods) || method.IsOneOf(__containsWithComparerMethods) && arguments[2] is ConstantExpression { Value: null })
+            if (method.IsOneOf(__containsMethods) || (method.IsOneOf(__containsWithComparerMethods) && arguments[2] is ConstantExpression { Value: null }))
             {
                 sourceExpression = arguments[0];
                 valueExpression = arguments[1];
