@@ -113,7 +113,7 @@ public class CSharp5749Tests : LinqIntegrationTest<CSharp5749Tests.ClassFixture>
         var collection = Fixture.Collection;
         var daysOfWeek = new[] { DayOfWeek.Monday, DayOfWeek.Tuesday };
 
-        // Can't actually rewrite/fake these with MemoryExtensions.Contains overload with 3 args from .NET 10
+        // Can't actually rewrite/fake these with MemoryExtensions.SequenceEqual overload with 3 args from .NET 10
         // This test will activate correctly on .NET 10+
         var queryable = collection.AsQueryable().Where(x => daysOfWeek.SequenceEqual(x.Days));
 
