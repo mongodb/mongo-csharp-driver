@@ -21,6 +21,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
@@ -72,6 +73,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             }
 
             throw new InvalidOperationException($"Unable to determine value serializer for dictionary serializer: {serializer.GetType().FullName}.");
+        }
+
+        private static AstExpression GetLimitIfSupported(TranslationContext context)
+        {
+            var compatibilityLevel = context.TranslationOptions.CompatibilityLevel;
+            if (Feature.FilterLimit.IsSupported(compatibilityLevel.ToWireVersion()))
+            {
+                return AstExpression.Constant(1);
+            }
+            return null;
         }
 
         private static TranslatedExpression TranslateBsonValueGetItemWithInt(TranslationContext context, Expression expression, Expression sourceExpression, Expression indexExpression)
@@ -169,7 +180,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                             dictionaryTranslation.Ast,
                             AstExpression.Eq(AstExpression.ArrayElemAt(AstExpression.Var("kvp"), 0), keyFieldNameAst),
                             "kvp",
-                            limit: 1);
+                            limit: GetLimitIfSupported(context));
                         ast = AstExpression.ArrayElemAt(AstExpression.ArrayElemAt(filter, 0), 1);
                         break;
                     }
@@ -180,7 +191,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                             dictionaryTranslation.Ast,
                             AstExpression.Eq(AstExpression.GetField(AstExpression.Var("kvp"), "k"), keyFieldNameAst),
                             "kvp",
-                            limit: 1);
+                            limit: GetLimitIfSupported(context));
                         ast = AstExpression.GetField(AstExpression.ArrayElemAt(filter, 0), "v");
                         break;
                     }
