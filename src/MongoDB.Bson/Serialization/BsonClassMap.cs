@@ -1329,20 +1329,30 @@ namespace MongoDB.Bson.Serialization
 
                 if (discriminatorConvention != null)
                 {
-                    var conflictingMemberMap = _allMemberMaps.FirstOrDefault(memberMap => memberMap.ElementName == discriminatorConvention.ElementName);
-
-                    if (conflictingMemberMap != null)
-                    {
-                        var fieldOrProperty = conflictingMemberMap.MemberInfo is FieldInfo ? "field" : "property";
-
-                        throw new BsonSerializationException(
-                            $"The discriminator element name cannot be {discriminatorConvention.ElementName} " +
-                            $"because it is already being used by the {fieldOrProperty} {conflictingMemberMap.MemberName} of type {_classType.FullName}");
-                    }
+                    EnsureNoMemberMapConflicts(discriminatorConvention.ElementName);
                 }
             }
 
             return discriminatorConvention;
+
+            void EnsureNoMemberMapConflicts(string elementName)
+            {
+                if (AppContext.TryGetSwitch("Switch.MongoDB.Driver.DisableDiscriminatorFieldConflictCheck", out bool disableConflictCheck) && disableConflictCheck)
+                {
+                    return;
+                }
+
+                var conflictingMemberMap = _allMemberMaps.FirstOrDefault(memberMap => memberMap.ElementName == elementName);
+
+                if (conflictingMemberMap != null)
+                {
+                    var fieldOrProperty = conflictingMemberMap.MemberInfo is FieldInfo ? "field" : "property";
+
+                    throw new BsonSerializationException(
+                        $"The discriminator element name cannot be {discriminatorConvention.ElementName} " +
+                        $"because it is already being used by the {fieldOrProperty} {conflictingMemberMap.MemberName} of type {_classType.FullName}");
+                }
+            }
 
             IDiscriminatorConvention LookupDiscriminatorConvention()
             {
