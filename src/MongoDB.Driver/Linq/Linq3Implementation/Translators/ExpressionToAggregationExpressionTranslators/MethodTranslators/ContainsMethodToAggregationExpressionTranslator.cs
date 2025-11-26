@@ -14,7 +14,6 @@
 */
 
 using System.Linq.Expressions;
-using System.Reflection;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
@@ -24,18 +23,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class ContainsMethodToAggregationExpressionTranslator
     {
-        private static readonly MethodInfo[] __containsMethods =
-        [
-            EnumerableMethod.Contains,
-            QueryableMethod.Contains
-        ];
-
-        private static readonly MethodInfo[] __containsWithComparerMethods =
-        [
-            EnumerableMethod.ContainsWithComparer,
-            QueryableMethod.ContainsWithComparer
-        ];
-
         // public methods
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
@@ -44,25 +31,24 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 return StartsWithContainsOrEndsWithMethodToAggregationExpressionTranslator.Translate(context, expression);
             }
 
-            if (IsEnumerableContainsMethod(expression, out var sourceExpression, out var valueExpression, out var comparerExpression))
+            if (IsEnumerableContainsMethod(expression, out var sourceExpression, out var valueExpression))
             {
-                return TranslateEnumerableContains(context, expression, sourceExpression, valueExpression, comparerExpression);
+                return TranslateEnumerableContains(context, expression, sourceExpression, valueExpression);
             }
 
             throw new ExpressionNotSupportedException(expression);
         }
 
         // private methods
-        private static bool IsEnumerableContainsMethod(MethodCallExpression expression, out Expression sourceExpression, out Expression valueExpression, out Expression comparerExpression)
+        private static bool IsEnumerableContainsMethod(MethodCallExpression expression, out Expression sourceExpression, out Expression valueExpression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__containsMethods, __containsWithComparerMethods))
+            if (method.IsOneOf(EnumerableMethod.Contains, QueryableMethod.Contains))
             {
                 sourceExpression = arguments[0];
                 valueExpression = arguments[1];
-                comparerExpression = method.IsOneOf(__containsWithComparerMethods) ? arguments[2] : null;
                 return true;
             }
 
@@ -70,7 +56,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             {
                 sourceExpression = expression.Object;
                 valueExpression = arguments[0];
-                comparerExpression = null;
 
                 if (sourceExpression.Type.TryGetIEnumerableGenericInterface(out var ienumerableInterface))
                 {
@@ -85,27 +70,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
             sourceExpression = null;
             valueExpression = null;
-            comparerExpression = null;
             return false;
         }
 
-        private static TranslatedExpression TranslateEnumerableContains(
-            TranslationContext context,
-            MethodCallExpression expression,
-            Expression sourceExpression,
-            Expression valueExpression,
-            Expression comparerExpression)
+        private static TranslatedExpression TranslateEnumerableContains(TranslationContext context, MethodCallExpression expression, Expression sourceExpression, Expression valueExpression)
         {
             var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
             NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsQueryableSource(expression, sourceTranslation);
 
             var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
-
-            if (comparerExpression != null && comparerExpression is not ConstantExpression { Value : null })
-            {
-                throw new ExpressionNotSupportedException(expression, because: "comparer value must be null");
-            }
-
             var ast = AstExpression.In(valueTranslation.Ast, sourceTranslation.Ast);
 
             return new TranslatedExpression(expression, ast, BooleanSerializer.Instance);

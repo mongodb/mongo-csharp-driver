@@ -14,7 +14,6 @@
 */
 
 using System.Linq.Expressions;
-using System.Reflection;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
@@ -24,35 +23,18 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class SequenceEqualMethodToAggregationExpressionTranslator
     {
-        private static readonly MethodInfo[] __sequenceEqualMethods =
-        [
-            EnumerableMethod.SequenceEqual,
-            QueryableMethod.SequenceEqual
-        ];
-
-        private static readonly MethodInfo[] __sequenceEqualWithComparerMethods =
-        [
-            EnumerableMethod.SequenceEqualWithComparer,
-            QueryableMethod.SequenceEqualWithComparer
-        ];
-
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__sequenceEqualMethods, __sequenceEqualWithComparerMethods))
+            if (method.IsOneOf(EnumerableMethod.SequenceEqual, QueryableMethod.SequenceEqual))
             {
                 var firstExpression = arguments[0];
                 var secondExpression = arguments[1];
-                var comparerExpression = method.IsOneOf(__sequenceEqualWithComparerMethods) ? arguments[2] : null;
 
                 var firstTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, firstExpression);
                 var secondTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, secondExpression);
-                if (comparerExpression != null && comparerExpression is not ConstantExpression { Value : null })
-                {
-                    throw new ExpressionNotSupportedException(expression, because: "comparer value must be null");
-                }
 
                 var (firstVarBinding, firstAst) = AstExpression.UseVarIfNotSimple("first", firstTranslation.Ast);
                 var (secondVarBinding, secondAst) = AstExpression.UseVarIfNotSimple("second", secondTranslation.Ast);
