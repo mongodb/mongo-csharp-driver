@@ -19,12 +19,15 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
+using MongoDB.Driver.Core.Misc;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira;
 
 public class CSharp4443ArrayOfDocumentsTests : LinqIntegrationTest<CSharp4443ArrayOfDocumentsTests.ClassFixture>
 {
+    private static readonly bool FilterLimitIsSupported = Feature.FilterLimit.IsSupported(CoreTestConfiguration.MaxWireVersion);
+
     public CSharp4443ArrayOfDocumentsTests(ClassFixture fixture)
         : base(fixture)
     {
@@ -129,7 +132,15 @@ public class CSharp4443ArrayOfDocumentsTests : LinqIntegrationTest<CSharp4443Arr
             .Select(x => x.Dictionary.First(kvp => kvp.Key == "age").Value);
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$Dictionary', as : 'kvp', cond : { $eq : ['$$kvp.k', 'age'] } } }, 0] } }, in : '$$this.v' } }, _id : 0 } }");
+
+        if (FilterLimitIsSupported)
+        {
+            AssertStages(stages, "{ $project : { _v : { $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$Dictionary', as : 'kvp', cond : { $eq : ['$$kvp.k', 'age'] }, limit : 1 } }, 0] } }, in : '$$this.v' } }, _id : 0 } }");
+        }
+        else
+        {
+            AssertStages(stages, "{ $project : { _v : { $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$Dictionary', as : 'kvp', cond : { $eq : ['$$kvp.k', 'age'] } } }, 0] } }, in : '$$this.v' } }, _id : 0 } }");
+        }
 
         var results = queryable.ToList();
         results.Should().Equal(25, 30, 35, 130);
@@ -144,7 +155,15 @@ public class CSharp4443ArrayOfDocumentsTests : LinqIntegrationTest<CSharp4443Arr
             .Select(x => x.Dictionary.FirstOrDefault(kvp => kvp.Key.StartsWith("l")).Value);
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $let : { vars : { this : { $let : { vars : { values : { $filter : { input : '$Dictionary', as : 'kvp', cond : { $eq : [{ $indexOfCP : ['$$kvp.k', 'l'] }, 0] } } } }, in : { $cond : { if : { $eq : [{ $size : '$$values' }, 0] }, then : { k : null, v : 0 }, else : { $arrayElemAt : ['$$values', 0] } } } } } }, in : '$$this.v' } }, _id : 0 } }");
+
+        if (FilterLimitIsSupported)
+        {
+            AssertStages(stages, "{ $project : { _v : { $let : { vars : { this : { $let : { vars : { values : { $filter : { input : '$Dictionary', as : 'kvp', cond : { $eq : [{ $indexOfCP : ['$$kvp.k', 'l'] }, 0] }, limit : 1 } } }, in : { $cond : { if : { $eq : [{ $size : '$$values' }, 0] }, then : { k : null, v : 0 }, else : { $arrayElemAt : ['$$values', 0] } } } } } }, in : '$$this.v' } }, _id : 0 } }");
+        }
+        else
+        {
+            AssertStages(stages, "{ $project : { _v : { $let : { vars : { this : { $let : { vars : { values : { $filter : { input : '$Dictionary', as : 'kvp', cond : { $eq : [{ $indexOfCP : ['$$kvp.k', 'l'] }, 0] } } } }, in : { $cond : { if : { $eq : [{ $size : '$$values' }, 0] }, then : { k : null, v : 0 }, else : { $arrayElemAt : ['$$values', 0] } } } } } }, in : '$$this.v' } }, _id : 0 } }");
+        }
 
         var results = queryable.ToList();
         results.Should().Equal(42, 41, 0, 0);
@@ -159,7 +178,15 @@ public class CSharp4443ArrayOfDocumentsTests : LinqIntegrationTest<CSharp4443Arr
             .Select(x => x.Dictionary["age"]);
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$Dictionary', as : 'kvp', cond : { $eq : ['$$kvp.k', 'age'] }, limit : 1 } }, 0] } }, in : '$$this.v' } }, _id : 0 } }");
+
+        if (FilterLimitIsSupported)
+        {
+            AssertStages(stages, "{ $project : { _v : { $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$Dictionary', as : 'kvp', cond : { $eq : ['$$kvp.k', 'age'] }, limit : 1 } }, 0] } }, in : '$$this.v' } }, _id : 0 } }");
+        }
+        else
+        {
+            AssertStages(stages, "{ $project : { _v : { $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$Dictionary', as : 'kvp', cond : { $eq : ['$$kvp.k', 'age'] } } }, 0] } }, in : '$$this.v' } }, _id : 0 } }");
+        }
 
         var results = queryable.ToList();
         results.Should().Equal(25, 30, 35, 130);
@@ -311,7 +338,15 @@ public class CSharp4443ArrayOfDocumentsTests : LinqIntegrationTest<CSharp4443Arr
             .Select(x => x.DictionaryInterface.First(kvp => kvp.Key == "age").Value);
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$DictionaryInterface', as : 'kvp', cond : { $eq : ['$$kvp.k', 'age'] } } }, 0] } }, in : '$$this.v' } }, _id : 0 } }");
+
+        if (FilterLimitIsSupported)
+        {
+            AssertStages(stages, "{ $project : { _v : { $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$DictionaryInterface', as : 'kvp', cond : { $eq : ['$$kvp.k', 'age'] }, limit : 1 } }, 0] } }, in : '$$this.v' } }, _id : 0 } }");
+        }
+        else
+        {
+            AssertStages(stages, "{ $project : { _v : { $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$DictionaryInterface', as : 'kvp', cond : { $eq : ['$$kvp.k', 'age'] } } }, 0] } }, in : '$$this.v' } }, _id : 0 } }");
+        }
 
         var results = queryable.ToList();
         results.Should().Equal(25, 30, 35, 130);
@@ -326,7 +361,15 @@ public class CSharp4443ArrayOfDocumentsTests : LinqIntegrationTest<CSharp4443Arr
             .Select(x => x.DictionaryInterface.FirstOrDefault(kvp => kvp.Key.StartsWith("l")).Value);
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $let : { vars : { this : { $let : { vars : { values : { $filter : { input : '$DictionaryInterface', as : 'kvp', cond : { $eq : [{ $indexOfCP : ['$$kvp.k', 'l'] }, 0] } } } }, in : { $cond : { if : { $eq : [{ $size : '$$values' }, 0] }, then : { k : null, v : 0 }, else : { $arrayElemAt : ['$$values', 0] } } } } } }, in : '$$this.v' } }, _id : 0 } }");
+
+        if (FilterLimitIsSupported)
+        {
+            AssertStages(stages, "{ $project : { _v : { $let : { vars : { this : { $let : { vars : { values : { $filter : { input : '$DictionaryInterface', as : 'kvp', cond : { $eq : [{ $indexOfCP : ['$$kvp.k', 'l'] }, 0] }, limit : 1 } } }, in : { $cond : { if : { $eq : [{ $size : '$$values' }, 0] }, then : { k : null, v : 0 }, else : { $arrayElemAt : ['$$values', 0] } } } } } }, in : '$$this.v' } }, _id : 0 } }");
+        }
+        else
+        {
+            AssertStages(stages, "{ $project : { _v : { $let : { vars : { this : { $let : { vars : { values : { $filter : { input : '$DictionaryInterface', as : 'kvp', cond : { $eq : [{ $indexOfCP : ['$$kvp.k', 'l'] }, 0] } } } }, in : { $cond : { if : { $eq : [{ $size : '$$values' }, 0] }, then : { k : null, v : 0 }, else : { $arrayElemAt : ['$$values', 0] } } } } } }, in : '$$this.v' } }, _id : 0 } }");
+        }
 
         var results = queryable.ToList();
         results.Should().Equal(42, 41, 0, 0);
@@ -341,7 +384,15 @@ public class CSharp4443ArrayOfDocumentsTests : LinqIntegrationTest<CSharp4443Arr
             .Select(x => x.DictionaryInterface["age"]);
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$DictionaryInterface', as : 'kvp', cond : { $eq : ['$$kvp.k', 'age'] }, limit : 1 } }, 0] } }, in : '$$this.v' } }, _id : 0 } }");
+
+        if (FilterLimitIsSupported)
+        {
+            AssertStages(stages, "{ $project : { _v : { $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$DictionaryInterface', as : 'kvp', cond : { $eq : ['$$kvp.k', 'age'] }, limit : 1 } }, 0] } }, in : '$$this.v' } }, _id : 0 } }");
+        }
+        else
+        {
+            AssertStages(stages, "{ $project : { _v : { $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$DictionaryInterface', as : 'kvp', cond : { $eq : ['$$kvp.k', 'age'] } } }, 0] } }, in : '$$this.v' } }, _id : 0 } }");
+        }
 
         var results = queryable.ToList();
         results.Should().Equal(25, 30, 35, 130);
@@ -512,7 +563,15 @@ public class CSharp4443ArrayOfDocumentsTests : LinqIntegrationTest<CSharp4443Arr
             .Where(x => x.Dictionary.First(kvp => kvp.Key.StartsWith("l")).Value > 40);
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $match : { $expr : { $gt : [{ $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$Dictionary', as : 'kvp', cond : { $eq : [{ $indexOfCP : ['$$kvp.k', 'l'] }, 0] } } }, 0] } }, in : '$$this.v' } }, 40] } } }");
+
+        if (FilterLimitIsSupported)
+        {
+            AssertStages(stages, "{ $match : { $expr : { $gt : [{ $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$Dictionary', as : 'kvp', cond : { $eq : [{ $indexOfCP : ['$$kvp.k', 'l'] }, 0] }, limit : 1 } }, 0] } }, in : '$$this.v' } }, 40] } } }");
+        }
+        else
+        {
+            AssertStages(stages, "{ $match : { $expr : { $gt : [{ $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$Dictionary', as : 'kvp', cond : { $eq : [{ $indexOfCP : ['$$kvp.k', 'l'] }, 0] } } }, 0] } }, in : '$$this.v' } }, 40] } } }");
+        }
 
         var result = queryable.ToList();
         result.Should().HaveCount(2);
@@ -641,11 +700,23 @@ public class CSharp4443ArrayOfDocumentsTests : LinqIntegrationTest<CSharp4443Arr
             .OrderBy(x => x.Dictionary["age"]);
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages,
-            "{ $match : { Dictionary : { $elemMatch : { k : 'age' } } } }",
-            "{ $project : { _id : 0, _document : '$$ROOT', _key1 : { $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$Dictionary', as : 'kvp', cond : { $eq : ['$$kvp.k', 'age'] }, limit : 1 } }, 0] } }, in : '$$this.v' } } } }",
-            "{ $sort : { _key1 : 1 } }",
-            "{ $replaceRoot : { newRoot : '$_document' } }");
+
+        if (FilterLimitIsSupported)
+        {
+            AssertStages(stages,
+                "{ $match : { Dictionary : { $elemMatch : { k : 'age' } } } }",
+                "{ $project : { _id : 0, _document : '$$ROOT', _key1 : { $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$Dictionary', as : 'kvp', cond : { $eq : ['$$kvp.k', 'age'] }, limit : 1 } }, 0] } }, in : '$$this.v' } } } }",
+                "{ $sort : { _key1 : 1 } }",
+                "{ $replaceRoot : { newRoot : '$_document' } }");
+        }
+        else
+        {
+            AssertStages(stages,
+                "{ $match : { Dictionary : { $elemMatch : { k : 'age' } } } }",
+                "{ $project : { _id : 0, _document : '$$ROOT', _key1 : { $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$Dictionary', as : 'kvp', cond : { $eq : ['$$kvp.k', 'age'] } } }, 0] } }, in : '$$this.v' } } } }",
+                "{ $sort : { _key1 : 1 } }",
+                "{ $replaceRoot : { newRoot : '$_document' } }");
+        }
 
         var result = queryable.ToList();
         result.Should().HaveCount(4);
@@ -662,11 +733,23 @@ public class CSharp4443ArrayOfDocumentsTests : LinqIntegrationTest<CSharp4443Arr
             .OrderByDescending(x => x.Dictionary["age"]);
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages,
-            "{ $match : { Dictionary : { $elemMatch : { k : 'age' } } } }",
-            "{ $project : { _id : 0, _document : '$$ROOT', _key1 : { $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$Dictionary', as : 'kvp', cond : { $eq : ['$$kvp.k', 'age'] }, limit : 1 } }, 0] } }, in : '$$this.v' } } } }",
-            "{ $sort : { _key1 : -1 } }",
-            "{ $replaceRoot : { newRoot : '$_document' } }");
+
+        if (FilterLimitIsSupported)
+        {
+            AssertStages(stages,
+                "{ $match : { Dictionary : { $elemMatch : { k : 'age' } } } }",
+                "{ $project : { _id : 0, _document : '$$ROOT', _key1 : { $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$Dictionary', as : 'kvp', cond : { $eq : ['$$kvp.k', 'age'] }, limit : 1 } }, 0] } }, in : '$$this.v' } } } }",
+                "{ $sort : { _key1 : -1 } }",
+                "{ $replaceRoot : { newRoot : '$_document' } }");
+        }
+        else
+        {
+            AssertStages(stages,
+                "{ $match : { Dictionary : { $elemMatch : { k : 'age' } } } }",
+                "{ $project : { _id : 0, _document : '$$ROOT', _key1 : { $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$Dictionary', as : 'kvp', cond : { $eq : ['$$kvp.k', 'age'] } } }, 0] } }, in : '$$this.v' } } } }",
+                "{ $sort : { _key1 : -1 } }",
+                "{ $replaceRoot : { newRoot : '$_document' } }");
+        }
 
         var result = queryable.ToList();
         result.Should().HaveCount(4);
@@ -758,7 +841,15 @@ public class CSharp4443ArrayOfDocumentsTests : LinqIntegrationTest<CSharp4443Arr
             .Where(x => x.DictionaryInterface.First(kvp => kvp.Key.StartsWith("l")).Value > 40);
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $match : { $expr : { $gt : [{ $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$DictionaryInterface', as : 'kvp', cond : { $eq : [{ $indexOfCP : ['$$kvp.k', 'l'] }, 0] } } }, 0] } }, in : '$$this.v' } }, 40] } } }");
+
+        if (FilterLimitIsSupported)
+        {
+            AssertStages(stages, "{ $match : { $expr : { $gt : [{ $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$DictionaryInterface', as : 'kvp', cond : { $eq : [{ $indexOfCP : ['$$kvp.k', 'l'] }, 0] }, limit : 1 } }, 0] } }, in : '$$this.v' } }, 40] } } }");
+        }
+        else
+        {
+            AssertStages(stages, "{ $match : { $expr : { $gt : [{ $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$DictionaryInterface', as : 'kvp', cond : { $eq : [{ $indexOfCP : ['$$kvp.k', 'l'] }, 0] } } }, 0] } }, in : '$$this.v' } }, 40] } } }");
+        }
 
         var result = queryable.ToList();
         result.Should().HaveCount(2);
@@ -887,11 +978,23 @@ public class CSharp4443ArrayOfDocumentsTests : LinqIntegrationTest<CSharp4443Arr
             .OrderBy(x => x.DictionaryInterface["age"]);
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages,
-            "{ $match : { DictionaryInterface : { $elemMatch : { k : 'age' } } } }",
-            "{ $project : { _id : 0, _document : '$$ROOT', _key1 : { $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$DictionaryInterface', as : 'kvp', cond : { $eq : ['$$kvp.k', 'age'] }, limit : 1 } }, 0] } }, in : '$$this.v' } } } }",
-            "{ $sort : { _key1 : 1 } }",
-            "{ $replaceRoot : { newRoot : '$_document' } }");
+
+        if (FilterLimitIsSupported)
+        {
+            AssertStages(stages,
+                "{ $match : { DictionaryInterface : { $elemMatch : { k : 'age' } } } }",
+                "{ $project : { _id : 0, _document : '$$ROOT', _key1 : { $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$DictionaryInterface', as : 'kvp', cond : { $eq : ['$$kvp.k', 'age'] }, limit : 1 } }, 0] } }, in : '$$this.v' } } } }",
+                "{ $sort : { _key1 : 1 } }",
+                "{ $replaceRoot : { newRoot : '$_document' } }");
+        }
+        else
+        {
+            AssertStages(stages,
+                "{ $match : { DictionaryInterface : { $elemMatch : { k : 'age' } } } }",
+                "{ $project : { _id : 0, _document : '$$ROOT', _key1 : { $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$DictionaryInterface', as : 'kvp', cond : { $eq : ['$$kvp.k', 'age'] } } }, 0] } }, in : '$$this.v' } } } }",
+                "{ $sort : { _key1 : 1 } }",
+                "{ $replaceRoot : { newRoot : '$_document' } }");
+        }
 
         var result = queryable.ToList();
         result.Should().HaveCount(4);
@@ -908,11 +1011,23 @@ public class CSharp4443ArrayOfDocumentsTests : LinqIntegrationTest<CSharp4443Arr
             .OrderByDescending(x => x.DictionaryInterface["age"]);
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages,
-            "{ $match : { DictionaryInterface : { $elemMatch : { k : 'age' } } } }",
-            "{ $project : { _id : 0, _document : '$$ROOT', _key1 : { $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$DictionaryInterface', as : 'kvp', cond : { $eq : ['$$kvp.k', 'age'] }, limit : 1 } }, 0] } }, in : '$$this.v' } } } }",
-            "{ $sort : { _key1 : -1 } }",
-            "{ $replaceRoot : { newRoot : '$_document' } }");
+
+        if (FilterLimitIsSupported)
+        {
+            AssertStages(stages,
+                "{ $match : { DictionaryInterface : { $elemMatch : { k : 'age' } } } }",
+                "{ $project : { _id : 0, _document : '$$ROOT', _key1 : { $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$DictionaryInterface', as : 'kvp', cond : { $eq : ['$$kvp.k', 'age'] }, limit : 1 } }, 0] } }, in : '$$this.v' } } } }",
+                "{ $sort : { _key1 : -1 } }",
+                "{ $replaceRoot : { newRoot : '$_document' } }");
+        }
+        else
+        {
+            AssertStages(stages,
+                "{ $match : { DictionaryInterface : { $elemMatch : { k : 'age' } } } }",
+                "{ $project : { _id : 0, _document : '$$ROOT', _key1 : { $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$DictionaryInterface', as : 'kvp', cond : { $eq : ['$$kvp.k', 'age'] } } }, 0] } }, in : '$$this.v' } } } }",
+                "{ $sort : { _key1 : -1 } }",
+                "{ $replaceRoot : { newRoot : '$_document' } }");
+        }
 
         var result = queryable.ToList();
         result.Should().HaveCount(4);
