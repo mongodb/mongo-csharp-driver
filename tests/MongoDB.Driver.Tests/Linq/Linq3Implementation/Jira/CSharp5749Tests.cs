@@ -167,7 +167,7 @@ public class CSharp5749Tests : LinqIntegrationTest<CSharp5749Tests.ClassFixture>
     }
 
     [Fact]
-    public void Enumerable_SequenceEquals_with_null_comparer_should_work()
+    public void Enumerable_SequenceEqual_with_null_comparer_should_work()
     {
         var collection = Fixture.Collection;
         var ratings = new[] { 1, 9, 6 };
