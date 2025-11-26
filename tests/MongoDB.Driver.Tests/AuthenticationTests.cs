@@ -21,6 +21,7 @@ using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -300,7 +301,7 @@ namespace MongoDB.Driver.Tests
 
             var pathToClientCertificate = Environment.GetEnvironmentVariable("MONGO_X509_CLIENT_CERTIFICATE_PATH");
             var password = Environment.GetEnvironmentVariable("MONGO_X509_CLIENT_CERTIFICATE_PASSWORD");
-            var clientCertificate = new X509Certificate2(pathToClientCertificate, password);
+            var clientCertificate = X509CertificateLoader.LoadPkcs12FromFile(pathToClientCertificate, password);
 
             var userName = GetRfc2253FormattedUsernameFromX509ClientCertificate(clientCertificate);
             DropDatabaseUser(DriverTestConfiguration.Client, database: "$external", userName);

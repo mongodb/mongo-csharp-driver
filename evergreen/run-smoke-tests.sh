@@ -10,6 +10,7 @@ fi
 
 . ./evergreen/append-myget-package-source.sh
 
+export ADD_NET10_TFM="1" # Remove after cake removal
 export DRIVER_PACKAGE_VERSION="${DRIVER_PACKAGE_VERSION}"
 ./evergreen/compile-sources.sh "$SMOKE_TESTS_PROJECT"
 

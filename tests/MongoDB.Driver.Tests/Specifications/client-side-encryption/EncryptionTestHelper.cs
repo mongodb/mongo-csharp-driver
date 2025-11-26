@@ -281,9 +281,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
             {
                 var certificateFilename = Environment.GetEnvironmentVariable("MONGO_X509_CLIENT_CERTIFICATE_PATH");
                 var password = Environment.GetEnvironmentVariable("MONGO_X509_CLIENT_CERTIFICATE_PASSWORD");
-                var clientCertificate = new X509Certificate2(Ensure.IsNotNull(certificateFilename, nameof(certificateFilename)), Ensure.IsNotNull(password, nameof(password)));
-                var effectiveClientCertificates = clientCertificate != null ? new[] { clientCertificate } : Enumerable.Empty<X509Certificate2>();
-                return new SslSettings { ClientCertificates = effectiveClientCertificates };
+                var clientCertificate = X509CertificateLoader.LoadPkcs12FromFile(Ensure.IsNotNull(certificateFilename, nameof(certificateFilename)), Ensure.IsNotNull(password, nameof(password)));
+
+                return new SslSettings { ClientCertificates = [ clientCertificate ] };
             }
 
             return null;

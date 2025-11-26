@@ -13,6 +13,8 @@ if [ -n "$FRAMEWORK" ]; then
     RUNTIME_VERSION="6.0"
   elif [ "$FRAMEWORK" = "net8.0" ]; then
     RUNTIME_VERSION="8.0"
+  elif [ "$FRAMEWORK" = "net10.0" ]; then
+    RUNTIME_VERSION="10.0"
   elif [ "$FRAMEWORK" = "netstandard2.1" ]; then
     RUNTIME_VERSION="3.1"
   elif [ "$FRAMEWORK" = "netcoreapp3.1" ]; then

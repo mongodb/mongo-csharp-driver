@@ -599,7 +599,7 @@ namespace MongoDB.Bson.Tests
             var count = 2;
             subject.Dispose();
 
-            Action action = () => subject.Read(buffer, offset, count);
+            Action action = () => _ = subject.Read(buffer, offset, count);
 
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
