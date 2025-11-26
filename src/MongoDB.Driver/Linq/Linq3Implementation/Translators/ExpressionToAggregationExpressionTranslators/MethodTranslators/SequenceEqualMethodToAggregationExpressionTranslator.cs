@@ -24,13 +24,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class SequenceEqualMethodToAggregationExpressionTranslator
     {
-        private static readonly MethodInfo[] __sequenceMethods =
+        private static readonly MethodInfo[] __sequenceEqualsMethods =
         [
             EnumerableMethod.SequenceEqual,
             QueryableMethod.SequenceEqual
         ];
 
-        private static readonly MethodInfo[] __sequenceWithComparerMethods =
+        private static readonly MethodInfo[] __sequenceEqualsWithComparerMethods =
         [
             EnumerableMethod.SequenceEqualWithComparer,
             QueryableMethod.SequenceEqualWithComparer
@@ -41,7 +41,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__sequenceMethods) || (method.IsOneOf(__sequenceWithComparerMethods) && arguments[2] is ConstantExpression { Value: null }))
+            if (method.IsOneOf(__sequenceEqualsMethods)
+                || (method.IsOneOf(__sequenceEqualsWithComparerMethods) && arguments[2] is ConstantExpression { Value: null }))
             {
                 var firstExpression = arguments[0];
                 var secondExpression = arguments[1];
