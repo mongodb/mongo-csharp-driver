@@ -362,9 +362,7 @@ namespace MongoDB.Bson.Tests.IO
         {
             var subject = CreateSubject();
 
-#pragma warning disable CA2022
-            Action action = () => subject.Read(null, 0, 0);
-#pragma warning restore CA2022
+            Action action = () => _ = subject.Read(null!, 0, 0);
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("buffer");
         }
@@ -381,9 +379,7 @@ namespace MongoDB.Bson.Tests.IO
             var subject = CreateSubject();
             var destination = new byte[destinationSize];
 
-#pragma warning disable CA2022
-            Action action = () => subject.Read(destination, offset, count);
-#pragma warning restore CA2022
+            Action action = () => _ = subject.Read(destination, offset, count);
 
             action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("count");
         }
@@ -398,9 +394,7 @@ namespace MongoDB.Bson.Tests.IO
             var subject = CreateSubject();
             var destination = new byte[destinationSize];
 
-#pragma warning disable CA2022
-            Action action = () => subject.Read(destination, offset, 0);
-#pragma warning restore CA2022
+            Action action = () => _ = subject.Read(destination, offset, 0);
 
             action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("offset");
         }
@@ -411,9 +405,7 @@ namespace MongoDB.Bson.Tests.IO
             var subject = CreateDisposedSubject();
             var destination = new byte[1];
 
-#pragma warning disable CA2022
-            Action action = () => subject.Read(destination, 0, 1);
-#pragma warning restore CA2022
+            Action action = () => _ = subject.Read(destination, 0, 1);
 
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("ByteBufferStream");
         }

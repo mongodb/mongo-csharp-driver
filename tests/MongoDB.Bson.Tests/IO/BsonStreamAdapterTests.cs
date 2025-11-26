@@ -599,9 +599,7 @@ namespace MongoDB.Bson.Tests
             var count = 2;
             subject.Dispose();
 
-#pragma warning disable CA2022
-            Action action = () => subject.Read(buffer, offset, count);
-#pragma warning restore CA2022
+            Action action = () => _ = subject.Read(buffer, offset, count);
 
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }

@@ -131,20 +131,40 @@ namespace MongoDB.Bson
         /// <param name="configurator">The serialization context configurator.</param>
         /// <param name="args">The serialization args.</param>
         /// <returns>A BsonDocument.</returns>
-        /// <exception cref="System.ArgumentNullException">nominalType</exception>
-        /// <exception cref="System.ArgumentException">serializer</exception>
         public static BsonDocument ToBsonDocument(
             this object obj,
             Type nominalType,
+            IBsonSerializer serializer = null,
+            Action<BsonSerializationContext.Builder> configurator = null,
+            BsonSerializationArgs args = default(BsonSerializationArgs)) =>
+            ToBsonDocument(obj, nominalType, BsonDocumentWriterSettings.Defaults, serializer, configurator, args);
+
+        internal static BsonDocument ToBsonDocument<TNominalType>(
+            this TNominalType obj,
+            BsonDocumentWriterSettings bsonDocumentWriterSettings,
+            IBsonSerializer serializer = null,
+            Action<BsonSerializationContext.Builder> configurator = null,
+            BsonSerializationArgs args = default) =>
+            ToBsonDocument(obj, typeof(TNominalType), bsonDocumentWriterSettings, serializer, configurator, args);
+
+        internal static BsonDocument ToBsonDocument(
+            this object obj,
+            Type nominalType,
+            BsonDocumentWriterSettings bsonDocumentWriterSettings,
             IBsonSerializer serializer = null,
             Action<BsonSerializationContext.Builder> configurator = null,
             BsonSerializationArgs args = default(BsonSerializationArgs))
         {
             if (nominalType == null)
             {
-                throw new ArgumentNullException("nominalType");
+                throw new ArgumentNullException(nameof(nominalType));
             }
             args.SetOrValidateNominalType(nominalType, "nominalType");
+
+            if (bsonDocumentWriterSettings == null)
+            {
+                throw new ArgumentNullException(nameof(bsonDocumentWriterSettings));
+            }
 
             if (obj == null)
             {
@@ -175,11 +195,11 @@ namespace MongoDB.Bson
 
             // otherwise serialize into a new BsonDocument
             var document = new BsonDocument();
-            using (var bsonWriter = new BsonDocumentWriter(document))
-            {
-                var context = BsonSerializationContext.CreateRoot(bsonWriter, configurator);
-                serializer.Serialize(context, args, obj);
-            }
+            using var bsonWriter = new BsonDocumentWriter(document, bsonDocumentWriterSettings);
+
+            var context = BsonSerializationContext.CreateRoot(bsonWriter, configurator);
+            serializer.Serialize(context, args, obj);
+
             return document;
         }
 
