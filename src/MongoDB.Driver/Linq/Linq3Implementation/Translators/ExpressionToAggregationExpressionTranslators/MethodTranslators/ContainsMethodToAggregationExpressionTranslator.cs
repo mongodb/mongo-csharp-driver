@@ -44,24 +44,25 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 return StartsWithContainsOrEndsWithMethodToAggregationExpressionTranslator.Translate(context, expression);
             }
 
-            if (IsEnumerableContainsMethod(expression, out var sourceExpression, out var valueExpression))
+            if (IsEnumerableContainsMethod(expression, out var sourceExpression, out var valueExpression, out var comparerExpression))
             {
-                return TranslateEnumerableContains(context, expression, sourceExpression, valueExpression);
+                return TranslateEnumerableContains(context, expression, sourceExpression, valueExpression, comparerExpression);
             }
 
             throw new ExpressionNotSupportedException(expression);
         }
 
         // private methods
-        private static bool IsEnumerableContainsMethod(MethodCallExpression expression, out Expression sourceExpression, out Expression valueExpression)
+        private static bool IsEnumerableContainsMethod(MethodCallExpression expression, out Expression sourceExpression, out Expression valueExpression, out Expression comparerExpression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__containsMethods) || (method.IsOneOf(__containsWithComparerMethods) && arguments[2] is ConstantExpression { Value: null }))
+            if (method.IsOneOf(__containsMethods, __containsWithComparerMethods))
             {
                 sourceExpression = arguments[0];
                 valueExpression = arguments[1];
+                comparerExpression = method.IsOneOf(__containsWithComparerMethods) ? arguments[2] : null;
                 return true;
             }
 
@@ -69,6 +70,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             {
                 sourceExpression = expression.Object;
                 valueExpression = arguments[0];
+                comparerExpression = null;
 
                 if (sourceExpression.Type.TryGetIEnumerableGenericInterface(out var ienumerableInterface))
                 {
@@ -83,15 +85,27 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
             sourceExpression = null;
             valueExpression = null;
+            comparerExpression = null;
             return false;
         }
 
-        private static TranslatedExpression TranslateEnumerableContains(TranslationContext context, MethodCallExpression expression, Expression sourceExpression, Expression valueExpression)
+        private static TranslatedExpression TranslateEnumerableContains(
+            TranslationContext context,
+            MethodCallExpression expression,
+            Expression sourceExpression,
+            Expression valueExpression,
+            Expression comparerExpression)
         {
             var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
             NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsQueryableSource(expression, sourceTranslation);
 
             var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
+
+            if (comparerExpression != null && comparerExpression is not ConstantExpression { Value : null })
+            {
+                throw new ExpressionNotSupportedException(expression, because: "comparer value must be null");
+            }
+
             var ast = AstExpression.In(valueTranslation.Ast, sourceTranslation.Ast);
 
             return new TranslatedExpression(expression, ast, BooleanSerializer.Instance);

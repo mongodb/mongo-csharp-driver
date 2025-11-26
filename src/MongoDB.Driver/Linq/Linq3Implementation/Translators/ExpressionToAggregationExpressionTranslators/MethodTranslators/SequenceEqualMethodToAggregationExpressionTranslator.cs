@@ -41,14 +41,18 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__sequenceEqualMethods)
-                || (method.IsOneOf(__sequenceEqualWithComparerMethods) && arguments[2] is ConstantExpression { Value: null }))
+            if (method.IsOneOf(__sequenceEqualMethods, __sequenceEqualWithComparerMethods))
             {
                 var firstExpression = arguments[0];
                 var secondExpression = arguments[1];
+                var comparerExpression = method.IsOneOf(__sequenceEqualWithComparerMethods) ? arguments[2] : null;
 
                 var firstTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, firstExpression);
                 var secondTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, secondExpression);
+                if (comparerExpression != null && comparerExpression is not ConstantExpression { Value : null })
+                {
+                    throw new ExpressionNotSupportedException(expression, because: "comparer value must be null");
+                }
 
                 var (firstVarBinding, firstAst) = AstExpression.UseVarIfNotSimple("first", firstTranslation.Ast);
                 var (secondVarBinding, secondAst) = AstExpression.UseVarIfNotSimple("second", secondTranslation.Ast);
