@@ -34,26 +34,36 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             {
                 var fieldExpression = expression.Object;
                 var valueExpression = arguments[0];
+                return TranslateContainsValue(context, expression, fieldExpression, valueExpression);
+            }
 
-                var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
-                var dictionarySerializer = GetDictionarySerializer(expression, fieldTranslation);
-                var dictionaryRepresentation = dictionarySerializer.DictionaryRepresentation;
-                var valueSerializer = dictionarySerializer.ValueSerializer;
+            throw new ExpressionNotSupportedException(expression);
+        }
 
-                if (valueExpression is ConstantExpression constantValueExpression)
+        public static AstFilter TranslateContainsValue(TranslationContext context, Expression expression, Expression fieldExpression, Expression valueExpression)
+        {
+            var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
+            var dictionarySerializer = GetDictionarySerializer(expression, fieldTranslation);
+            var dictionaryRepresentation = dictionarySerializer.DictionaryRepresentation;
+            var valueSerializer = dictionarySerializer.ValueSerializer;
+
+            if (valueExpression is ConstantExpression constantValueExpression)
+            {
+                var value = constantValueExpression.Value;
+                var serializedValue = SerializationHelper.SerializeValue(valueSerializer, value);
+
+                switch (dictionaryRepresentation)
                 {
-                    var valueField = AstFilter.Field("v");
-                    var value = constantValueExpression.Value;
-                    var serializedValue = SerializationHelper.SerializeValue(valueSerializer, value);
-
-                    switch (dictionaryRepresentation)
-                    {
-                        case DictionaryRepresentation.ArrayOfDocuments:
+                    case DictionaryRepresentation.ArrayOfDocuments:
+                    case DictionaryRepresentation.ArrayOfArrays:
+                        {
+                            var fieldName = dictionaryRepresentation == DictionaryRepresentation.ArrayOfDocuments ? "v" : "1";
+                            var valueField = AstFilter.Field(fieldName);
                             return AstFilter.ElemMatch(fieldTranslation.Ast, AstFilter.Eq(valueField, serializedValue));
+                        }
 
-                        default:
-                            throw new ExpressionNotSupportedException(expression, because: $"ContainsValue is not supported when DictionaryRepresentation is: {dictionaryRepresentation}");
-                    }
+                    default:
+                        throw new ExpressionNotSupportedException(expression, because: $"DictionaryRepresentation: {dictionaryRepresentation} is not supported for ContainsValue method.");
                 }
             }
 
