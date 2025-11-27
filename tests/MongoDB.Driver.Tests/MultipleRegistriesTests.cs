@@ -197,7 +197,7 @@ namespace MongoDB.Driver.Tests
             customDomain.RegisterIdGenerator(typeof(ObjectId), new CustomObjectIdGenerator());
 
             //Register a convention to use lowercase for all fields on the Person class
-            var pack = new ConventionPack();
+            var pack = new ConventionPack(customDomain);
             pack.AddMemberMapConvention(
                 "LowerCaseElementName",
                 m => m.SetElementName(m.MemberName.ToLower()));
