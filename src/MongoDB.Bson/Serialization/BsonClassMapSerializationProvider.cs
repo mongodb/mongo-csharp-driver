@@ -21,8 +21,17 @@ namespace MongoDB.Bson.Serialization
     /// <summary>
     /// Represents the class map serialization provider.
     /// </summary>
-    internal class BsonClassMapSerializationProvider : BsonSerializationProviderBase
+    internal class BsonClassMapSerializationProvider : BsonSerializationProviderBase, IHasSerializationDomain
     {
+        private readonly IBsonSerializationDomain _serializationDomain;
+
+        public BsonClassMapSerializationProvider(IBsonSerializationDomain serializationDomain)
+        {
+            _serializationDomain = serializationDomain;
+        }
+
+        public IBsonSerializationDomain SerializationDomain { get; }
+
         /// <inheritdoc/>
         public override IBsonSerializer GetSerializer(Type type, IBsonSerializerRegistry serializerRegistry)
         {
@@ -41,10 +50,11 @@ namespace MongoDB.Bson.Serialization
                 !typeof(Array).GetTypeInfo().IsAssignableFrom(type) &&
                 !typeof(Enum).GetTypeInfo().IsAssignableFrom(type))
             {
-                var classMap = BsonClassMap.LookupClassMap(type);
+                var classMap = _serializationDomain.ClassMapRegistry.LookupClassMap(type);
                 var classMapSerializerDefinition = typeof(BsonClassMapSerializer<>);
                 var classMapSerializerType = classMapSerializerDefinition.MakeGenericType(type);
-                return (IBsonSerializer)Activator.CreateInstance(classMapSerializerType, classMap);
+                var bindingAttr =  BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+                return (IBsonSerializer)Activator.CreateInstance(classMapSerializerType, bindingAttr, binder: null, args: [_serializationDomain, classMap], culture: null);
             }
 
             return null;
