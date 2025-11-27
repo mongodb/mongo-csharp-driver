@@ -15,6 +15,7 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
@@ -25,20 +26,50 @@ namespace MongoDB.TestHelpers.XunitExtensions.TimeoutEnforcing
     [DebuggerStepThrough]
     internal sealed class TimeoutEnforcingXunitTestAssemblyRunner : XunitTestAssemblyRunner
     {
+        private readonly UnobservedExceptionTrackingTestCase _unobservedExceptionTrackingTestCase;
+
         public TimeoutEnforcingXunitTestAssemblyRunner(
             ITestAssembly testAssembly,
             IEnumerable<IXunitTestCase> testCases,
             IMessageSink diagnosticMessageSink,
             IMessageSink executionMessageSink,
             ITestFrameworkExecutionOptions executionOptions)
-                : base(testAssembly, testCases, diagnosticMessageSink, executionMessageSink, executionOptions)
-        { }
+            : base(testAssembly, testCases.Where(t => t is not UnobservedExceptionTrackingTestCase), diagnosticMessageSink, executionMessageSink, executionOptions)
+        {
+            _unobservedExceptionTrackingTestCase = (UnobservedExceptionTrackingTestCase)testCases.SingleOrDefault(t => t is UnobservedExceptionTrackingTestCase);
+        }
 
         protected override Task<RunSummary> RunTestCollectionAsync(
             IMessageBus messageBus,
             ITestCollection testCollection,
             IEnumerable<IXunitTestCase> testCases,
-            CancellationTokenSource cancellationTokenSource) =>
-            new TimeoutEnforcingXunitTestCollectionRunner(testCollection, testCases,DiagnosticMessageSink, messageBus, TestCaseOrderer, new ExceptionAggregator(Aggregator), cancellationTokenSource).RunAsync();
+            CancellationTokenSource cancellationTokenSource)
+        {
+            return new TimeoutEnforcingXunitTestCollectionRunner(testCollection, testCases, DiagnosticMessageSink, messageBus, TestCaseOrderer, new ExceptionAggregator(Aggregator), cancellationTokenSource).RunAsync();
+        }
+
+        protected override async Task<RunSummary> RunTestCollectionsAsync(IMessageBus messageBus, CancellationTokenSource cancellationTokenSource)
+        {
+            var baseSummary = await base.RunTestCollectionsAsync(messageBus, cancellationTokenSource);
+
+            if (_unobservedExceptionTrackingTestCase == null)
+            {
+                return baseSummary;
+            }
+
+            var unobservedExceptionTestCaseRunSummary = await RunTestCollectionAsync(
+                messageBus,
+                _unobservedExceptionTrackingTestCase.TestMethod.TestClass.TestCollection,
+                [_unobservedExceptionTrackingTestCase],
+                cancellationTokenSource);
+
+            return new RunSummary
+            {
+                Total = baseSummary.Total + unobservedExceptionTestCaseRunSummary.Total,
+                Failed = baseSummary.Failed + unobservedExceptionTestCaseRunSummary.Failed,
+                Skipped = baseSummary.Skipped + unobservedExceptionTestCaseRunSummary.Skipped,
+                Time = baseSummary.Time + unobservedExceptionTestCaseRunSummary.Time
+            };
+        }
     }
 }
