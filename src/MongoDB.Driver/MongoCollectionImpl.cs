@@ -1307,13 +1307,13 @@ namespace MongoDB.Driver
         private RenderArgs<TDocument> GetRenderArgs()
         {
             var translationOptions = _database.Client.Settings.TranslationOptions;
-            return new RenderArgs<TDocument>(_documentSerializer, _settings.SerializerRegistry, translationOptions: translationOptions);
+            return new RenderArgs<TDocument>(_documentSerializer, _settings.SerializationDomain, translationOptions: translationOptions);
         }
 
         private RenderArgs<TDocument> GetRenderArgs(ExpressionTranslationOptions translationOptions)
         {
             translationOptions = translationOptions.AddMissingOptionsFrom(_database.Client.Settings.TranslationOptions);
-            return new RenderArgs<TDocument>(_documentSerializer, _settings.SerializerRegistry, translationOptions: translationOptions);
+            return new RenderArgs<TDocument>(_documentSerializer, _settings.SerializationDomain, translationOptions: translationOptions);
         }
 
         private IEnumerable<BsonDocument> RenderArrayFilters(IEnumerable<ArrayFilterDefinition> arrayFilters)

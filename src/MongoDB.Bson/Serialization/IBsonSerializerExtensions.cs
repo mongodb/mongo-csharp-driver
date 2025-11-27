@@ -50,15 +50,44 @@ namespace MongoDB.Bson.Serialization
             return serializer.Deserialize(context, args);
         }
 
+        internal static IBsonSerializer GetSerializerForBaseType(this IBsonSerializer serializer, Type baseType)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal static IBsonSerializer GetSerializerForDerivedType(this IBsonSerializer serializer, Type derivedType)
+        {
+            if (serializer is IHasSerializationDomain domainSpecificSerializer)
+            {
+                return domainSpecificSerializer.SerializationDomain.LookupSerializer(derivedType);
+            }
+            else
+            {
+                return BsonSerializationDomain.Default.LookupSerializer(derivedType);
+            }
+        }
+
         /// <summary>
         /// Gets the discriminator convention for a serializer.
         /// </summary>
         /// <param name="serializer">The serializer.</param>
         /// <returns>The discriminator convention.</returns>
-        public static IDiscriminatorConvention GetDiscriminatorConvention(this IBsonSerializer serializer) =>
-            serializer is IHasDiscriminatorConvention hasDiscriminatorConvention
-                ? hasDiscriminatorConvention.DiscriminatorConvention
-                : BsonSerializer.LookupDiscriminatorConvention(serializer.ValueType);
+        public static IDiscriminatorConvention GetDiscriminatorConvention(this IBsonSerializer serializer)
+        {
+            if (serializer is IHasDiscriminatorConvention hasDiscriminatorConvention)
+            {
+                return hasDiscriminatorConvention.DiscriminatorConvention;
+            }
+            else if (serializer is IHasSerializationDomain hasSerializationDomain)
+            {
+                var serializationDomain = hasSerializationDomain.SerializationDomain;
+                return serializationDomain.LookupDiscriminatorConvention(serializer.ValueType);
+            }
+            else
+            {
+                return NonPolymorphicDiscriminatorConvention.Instance;
+            }
+        }
 
         /// <summary>
         /// Serializes a value.

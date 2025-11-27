@@ -21,6 +21,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
+using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
 namespace MongoDB.Driver
 {
@@ -51,7 +52,7 @@ namespace MongoDB.Driver
             // serialize numeric values without converting them
             if (fieldType.IsNumeric() && valueType.IsNumeric())
             {
-                var valueSerializer = BsonSerializer.SerializerRegistry.GetSerializer(valueType);
+                var valueSerializer = StandardSerializers.GetSerializer(valueType);
                 if (HasStringRepresentation(fieldSerializer))
                 {
                     valueSerializer = WithStringRepresentation(valueSerializer);
