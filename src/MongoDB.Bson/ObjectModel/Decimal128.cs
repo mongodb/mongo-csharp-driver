@@ -42,28 +42,16 @@ namespace MongoDB.Bson
 
         // public static properties
         /// <summary>
-        /// Gets the maximum Decimal128 value.
+        /// Gets the maximum value.
         /// </summary>
         public static Decimal128 MaxValue =>
             __maxValue;
 
         /// <summary>
-        /// Gets the minimum Decimal128 value.
+        /// Gets the minimum value.
         /// </summary>
         public static Decimal128 MinValue =>
             __minValue;
-
-        /// <summary>
-        /// Gets the maximum System.Decimal value.
-        /// </summary>
-        public static Decimal128 MaxDecimalValue =>
-            __maxDecimalValue;
-
-        /// <summary>
-        /// Gets the minimum System.Decimal value.
-        /// </summary>
-        public static Decimal128 MinDecimalValue =>
-            __minDecimalValue;
 
         /// <summary>
         /// Represents negative infinity.
@@ -751,6 +739,14 @@ namespace MongoDB.Bson
         /// <returns>A <see cref="decimal"/> equivalent to <paramref name="d" />.</returns>
         public static decimal ToDecimal(Decimal128 d)
         {
+            if (d == Decimal128.MaxValue)
+            {
+                return decimal.MaxValue;
+            }
+            else if (d == Decimal128.MinValue)
+            {
+                return decimal.MinValue;
+            }
             if (Flags.IsFirstForm(d._highBits))
             {
                 if (Decimal128.Compare(d, __minDecimalValue) < 0 || Decimal128.Compare(d, __maxDecimalValue) > 0)

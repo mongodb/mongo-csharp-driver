@@ -76,6 +76,8 @@ namespace MongoDB.Bson.Tests
         [InlineData("1E-99", "0")]
         [InlineData("1E-6111", "0")]
         [InlineData("10000.0000000000000000000000001", "10000.000000000000000000000000")] // see: CSHARP-2001
+        [InlineData("9999999999999999999999999999999999E+6111", "79228162514264337593543950335")] // see: CSHARP-5792
+        [InlineData("-9999999999999999999999999999999999E+6111", "-79228162514264337593543950335")]
         public void ToDecimal_should_return_expected_result(string valueString, string expectedResultString)
         {
             var subject = Decimal128.Parse(valueString);

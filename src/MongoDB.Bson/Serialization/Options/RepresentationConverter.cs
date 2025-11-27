@@ -78,13 +78,11 @@ namespace MongoDB.Bson.Serialization.Options
         /// <returns>A Decimal.</returns>
         public decimal ToDecimal(Decimal128 value)
         {
-            // comparison against Decimal128.MaxValue remains valid for backwards compat.
-            if (value == Decimal128.MaxValue || value == Decimal128.MaxDecimalValue)
+            if (value == Decimal128.MaxValue)
             {
                 return decimal.MaxValue;
             }
-            // comparison against Decimal128.MinValue remains valid for backwards compat.
-            else if (value == Decimal128.MinValue || value == Decimal128.MinDecimalValue)
+            else if (value == Decimal128.MinValue)
             {
                 return decimal.MinValue;
             }
@@ -168,11 +166,11 @@ namespace MongoDB.Bson.Serialization.Options
         {
             if (value == decimal.MaxValue)
             {
-                return Decimal128.MaxDecimalValue;
+                return Decimal128.MaxValue;
             }
             else if (value == decimal.MinValue)
             {
-                return Decimal128.MinDecimalValue;
+                return Decimal128.MinValue;
             }
 
             // conversion from decimal to Decimal128 is lossless so need to check for overflow or truncation
