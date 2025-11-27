@@ -445,6 +445,7 @@ namespace MongoDB.Driver.Core.Clusters
             private readonly InterlockedInt32 _rapidHeartbeatTimerCallbackState;
 
             private int _serverSelectionWaitQueueSize;
+            private bool _disposed;
 
             public ServerSelectionWaitQueue(Cluster cluster)
             {
@@ -455,6 +456,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             public void Dispose()
             {
+                _disposed = true;
                 _rapidHeartbeatTimer.Dispose();
             }
 
@@ -489,6 +491,11 @@ namespace MongoDB.Driver.Core.Clusters
                 {
                     if (--_serverSelectionWaitQueueSize == 0)
                     {
+                        if (_disposed)
+                        {
+                            return;
+                        }
+
                         _rapidHeartbeatTimer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
                     }
                 }
