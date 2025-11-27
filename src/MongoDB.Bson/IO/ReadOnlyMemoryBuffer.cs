@@ -14,6 +14,7 @@
  */
 
 using System;
+using System.Runtime.InteropServices;
 
 namespace MongoDB.Bson.IO;
 
@@ -42,8 +43,16 @@ internal sealed class ReadOnlyMemoryBuffer : IByteBuffer
     public ReadOnlyMemory<byte> Memory => _memory;
 
     /// <inheritdoc/>
-    public ArraySegment<byte> AccessBackingBytes(int position) =>
-        new ArraySegment<byte>(_memory.Slice(position).ToArray());
+    public ArraySegment<byte> AccessBackingBytes(int position)
+    {
+        var slice = _memory.Slice(position);
+         if (!MemoryMarshal.TryGetArray(slice, out var segment))
+         {
+             segment = new(slice.ToArray());
+         }
+
+        return segment;
+    }
 
     /// <inheritdoc/>
     public void Clear(int position, int count) =>

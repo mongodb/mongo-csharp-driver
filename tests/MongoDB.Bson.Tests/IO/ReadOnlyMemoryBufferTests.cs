@@ -51,8 +51,8 @@ public class ReadOnlyMemoryBufferTests
 
         var result = subject.AccessBackingBytes(position);
 
-        result.Array.Should().BeEquivalentTo(bytes.Skip(position).ToArray());
-        result.Offset.Should().Be(0);
+        result.ToArray().ShouldBeEquivalentTo(bytes.Skip(position).ToArray());
+        result.Offset.Should().Be(position);
         result.Count.Should().Be(expectedCount);
     }
 
@@ -62,9 +62,8 @@ public class ReadOnlyMemoryBufferTests
     {
         var subject = CreateSubject(2);
 
-        Action action = () => subject.AccessBackingBytes(position);
-
-        action.ShouldThrow<ArgumentOutOfRangeException>();
+        var exception = Record.Exception(() => subject.AccessBackingBytes(position));
+        exception.Should().BeOfType<ArgumentOutOfRangeException>();
     }
 
     [Theory]
@@ -85,9 +84,7 @@ public class ReadOnlyMemoryBufferTests
         var bytes = new byte[] { 1, 2 };
         var subject = CreateSubject(bytes);
 
-        var e = Record.Exception(() => subject.Clear(0, 0));
-        e.Should().BeOfType<InvalidOperationException>();
-        e.Message.Should().Contain("is not writable.");
+        ValidateWritableException(() => subject.Clear(0, 0));
     }
 
     [Theory]
@@ -140,9 +137,8 @@ public class ReadOnlyMemoryBufferTests
     {
         var subject = CreateSubject(2);
 
-        Action action = () => subject.GetByte(position);
-
-        action.ShouldThrow<IndexOutOfRangeException>();
+        var exception = Record.Exception(() => subject.GetByte(position));
+        exception.Should().BeOfType<IndexOutOfRangeException>();
     }
 
     [Theory]
@@ -197,9 +193,8 @@ public class ReadOnlyMemoryBufferTests
         var subject = CreateSubject(2);
         var destination = new byte[3];
 
-        Action action = () => subject.GetBytes(position, destination, 0, count);
-
-        action.ShouldThrow<ArgumentOutOfRangeException>();
+        var ex = Record.Exception(() => subject.GetBytes(position, destination, 0, count));
+        ex.Should().BeOfType<ArgumentOutOfRangeException>();
     }
 
     [Theory]
@@ -212,9 +207,8 @@ public class ReadOnlyMemoryBufferTests
         var subject = CreateSubject([1, 2, 3]);
         var destination = new byte[2];
 
-        Action action = () => subject.GetBytes(0, destination, offset, count);
-
-        action.ShouldThrow<ArgumentOutOfRangeException>();
+        var ex = Record.Exception(() => subject.GetBytes(0, destination, offset, count));
+        ex.Should().BeOfType<ArgumentOutOfRangeException>();
     }
 
     [Fact]
@@ -222,9 +216,8 @@ public class ReadOnlyMemoryBufferTests
     {
         var subject = CreateSubject([1, 2]);
 
-        Action action = () => subject.GetBytes(0, null, 0, 2);
-
-        action.ShouldThrow<ArgumentOutOfRangeException>();
+        var ex = Record.Exception(() => subject.GetBytes(0, null, 0, 2));
+        ex.Should().BeOfType<ArgumentOutOfRangeException>();
     }
 
     [Theory]
@@ -234,9 +227,8 @@ public class ReadOnlyMemoryBufferTests
         var subject = CreateSubject([1, 2, 3, 4]);
         var destination = new byte[2];
 
-        Action action = () => subject.GetBytes(0, destination, offset, 0);
-
-        action.ShouldThrow<ArgumentOutOfRangeException>();
+        var ex = Record.Exception(() => subject.GetBytes(0, destination, offset, 0));
+        ex.Should().BeOfType<ArgumentOutOfRangeException>();
     }
 
     [Theory]
@@ -246,11 +238,10 @@ public class ReadOnlyMemoryBufferTests
         int position)
     {
         var subject = CreateSubject([1, 2]);
-        var destination = new byte[0];
+        var destination = Array.Empty<byte>();
 
-        Action action = () => subject.GetBytes(position, destination, 0, 0);
-
-        action.ShouldThrow<ArgumentOutOfRangeException>();
+        var ex = Record.Exception(() => subject.GetBytes(position, destination, 0, 0));
+        ex.Should().BeOfType<ArgumentOutOfRangeException>();
     }
 
     [Theory]
@@ -264,7 +255,7 @@ public class ReadOnlyMemoryBufferTests
 
         var result = subject.GetSlice(position, length);
 
-        result.AccessBackingBytes(0).Offset.Should().Be(0);
+        result.AccessBackingBytes(0).Offset.Should().Be(position);
         result.AccessBackingBytes(0).Count.Should().Be(length);
     }
 
@@ -301,9 +292,8 @@ public class ReadOnlyMemoryBufferTests
     {
         var subject = CreateSubject(2);
 
-        Action action = () => subject.GetSlice(position, length);
-
-        action.ShouldThrow<ArgumentOutOfRangeException>();
+        var ex = Record.Exception(() => subject.GetSlice(position, length));
+        ex.Should().BeOfType<ArgumentOutOfRangeException>();
     }
 
     [Theory]
@@ -312,9 +302,8 @@ public class ReadOnlyMemoryBufferTests
     {
         var subject = CreateSubject(2);
 
-        Action action = () => subject.GetSlice(position, 0);
-
-        action.ShouldThrow<ArgumentOutOfRangeException>();
+        var ex = Record.Exception(() => subject.GetSlice(position, 0));
+        ex.Should().BeOfType<ArgumentOutOfRangeException>();
     }
 
     [Fact]
