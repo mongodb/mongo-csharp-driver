@@ -440,7 +440,6 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]
         private TCommandResult ProcessResponse(ConnectionId connectionId, CommandMessage responseMessage)
         {
             using (new CommandMessageDisposer(responseMessage))
@@ -532,14 +531,9 @@ namespace MongoDB.Driver.Core.WireProtocol
                     throw new MongoWriteConcernException(connectionId, message, writeConcernResult);
                 }
 
-                using (var stream = new ByteBufferStream(rawDocument.Slice, ownsBuffer: false))
-                {
-                    using (var reader = new BsonBinaryReader(stream, binaryReaderSettings))
-                    {
-                        var context = BsonDeserializationContext.CreateRoot(reader);
-                        return _resultSerializer.Deserialize(context);
-                    }
-                }
+                using var reader = BsonBinaryReaderUtils.CreateBinaryReader(rawDocument.Slice, binaryReaderSettings);
+                var context = BsonDeserializationContext.CreateRoot(reader);
+                return _resultSerializer.Deserialize(context);
             }
         }
 
