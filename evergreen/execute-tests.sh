@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env bash
+#!/usr/bin/env bash
 
 set -o errexit  # Exit the script with error if any of the commands fail
 
@@ -8,7 +8,7 @@ set -o errexit  # Exit the script with error if any of the commands fail
 #   TEST_PROJECT_PATH               Set glob filter to find test projects.
 
 FRAMEWORK=${FRAMEWORK:-}
-TEST_CATEGORY=${TEST_CATEGORY:-}
+TEST_CATEGORY=${TEST_CATEGORY:-Integration}
 TEST_PROJECT_PATH=${TEST_PROJECT_PATH:-./tests/**/[!Atlas]*.Tests.csproj}
 
 if [ "$FRAMEWORK" = "netstandard2.1" ]; then
@@ -16,6 +16,7 @@ if [ "$FRAMEWORK" = "netstandard2.1" ]; then
 fi
 
 FILTER_PARAMETER=""
+echo TEST_CATEGORY: ${TEST_CATEGORY}
 if [[ -n "${TEST_CATEGORY}" ]]; then
   if [[ "${TEST_CATEGORY}" == "!"* ]]; then
     FILTER_PARAMETER="--filter \"Category!=${TEST_CATEGORY:1}\""

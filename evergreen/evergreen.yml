@@ -343,9 +343,6 @@ functions:
         working_dir: mongo-csharp-driver
         shell: "bash"
         script: |
-          if [ -z "${TEST_CATEGORY}" ]; then
-            TEST_CATEGORY=Integration
-          fi
           DRIVERS_TOOLS=${DRIVERS_TOOLS} . ./evergreen/set-temp-fle-aws-creds.sh
           ${PREPARE_SHELL}
           OS=${OS} \
