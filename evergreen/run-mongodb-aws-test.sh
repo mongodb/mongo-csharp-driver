@@ -42,8 +42,4 @@ export AWS_TESTS_ENABLED=true
 set -x
 
 ./evergreen/compile-sources.sh
-if [[ "$OS" =~ Windows|windows ]]; then
-  powershell.exe .\\build.ps1 --target=TestAwsAuthentication
-else
-  ./build.sh --target=TestAwsAuthentication
-fi
+TEST_CATEGORY=AwsMechanism ./evergreen/execute-tests.sh

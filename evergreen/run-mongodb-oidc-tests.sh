@@ -49,8 +49,4 @@ export OIDC_ENV=$OIDC_ENV
 export MONGODB_URI=$MONGODB_URI
 
 ./evergreen/compile-sources.sh
-if [ "Windows_NT" = "$OS" ]; then
-  powershell.exe .\\build.ps1 --target "TestMongoDbOidc"
-else
-  ./build.sh --target="TestMongoDbOidc"
-fi
+TEST_CATEGORY=MongoDbOidc ./evergreen/execute-tests.sh

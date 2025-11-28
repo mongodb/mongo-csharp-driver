@@ -35,4 +35,4 @@ export MONGODB_URI_WITH_MULTIPLE_MONGOSES=${MULTI_MONGOS_LB_URI}
 set -x
 
 ./evergreen/compile-sources.sh
-./build.sh --target TestLoadBalanced
+TEST_CATEGORY=SupportLoadBalancing ./evergreen/execute-tests.sh

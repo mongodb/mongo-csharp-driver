@@ -2,7 +2,7 @@
 set -o errexit  # Exit the script with error if any of the commands fail
 
 DOTNET_ROOT="${DOTNET_ROOT:-./.dotnet}"
-DOTNET_SDK_VERSION="${DOTNET_SDK_VERSION:-8.0}"
+DOTNET_SDK_VERSION="${DOTNET_SDK_VERSION:-10.0}"
 
 echo "runtime: $FRAMEWORK"
 

@@ -28,9 +28,6 @@ if [ "Windows_NT" = "$OS" ]; then
     setx $var z:\\data\\tmp
     export $var=z:\\data\\tmp
   done
-
-  ./evergreen/compile-sources.sh
-  powershell.exe .\\build.ps1 --target TestGssapi
 else
   echo "Setting krb5 config file"
   touch ${PROJECT_DIRECTORY}/evergreen/krb5.conf.empty
@@ -45,7 +42,7 @@ else
   for var in TMP TEMP NUGET_PACKAGES NUGET_HTTP_CACHE_PATH APPDATA; do
     export $var=/data/tmp;
   done
-
-  . ./evergreen/compile-sources.sh
-  ./build.sh --target=TestGssapi
 fi;
+
+./evergreen/compile-sources.sh
+TEST_CATEGORY=GssapiMechanism ./evergreen/execute-tests.sh

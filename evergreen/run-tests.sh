@@ -14,7 +14,8 @@ set -o errexit  # Exit the script with error if any of the commands fail
 #   MONGODB_X509_CLIENT_P12_PATH    Absolute path to client certificate in p12 format
 #   MONGO_X509_CLIENT_CERTIFICATE_PASSWORD  password for client certificate
 #   FRAMEWORK                       Set to specify .NET framework to test against. Values: "Net472", "NetStandard21",
-#   TARGET                          Set to specify a custom test target. Default: "nil"
+#   TEST_CATEGORY                   Set to specify a test category to filter by.
+#   TEST_PROJECT_PATH               Set glob filter to find test projects.
 #   DRIVERS_TOOLS                   Set base path to evergreen-drivers-tools project
 #
 # Environment variables produced as output:
@@ -29,9 +30,7 @@ TOPOLOGY=${TOPOLOGY:-server}
 COMPRESSOR=${COMPRESSOR:-none}
 OCSP_TLS_SHOULD_SUCCEED=${OCSP_TLS_SHOULD_SUCCEED:-nil}
 CLIENT_PEM=${CLIENT_PEM:-nil}
-PLATFORM=${PLATFORM:-nil}
-TARGET=${TARGET:-Test}
-FRAMEWORK=${FRAMEWORK:-nil}
+FRAMEWORK=${FRAMEWORK:-}
 
 ############################################
 #            Functions                     #
@@ -103,15 +102,12 @@ if [ ! -z "$REQUIRE_API_VERSION" ]; then
   echo "Server API version is set to $MONGODB_API_VERSION"
 fi
 
-export TARGET
 if [[ "$OS" =~ Windows|windows ]]; then
   if [ "$OCSP_TLS_SHOULD_SUCCEED" != "nil" ]; then
-    export TARGET="TestOcsp"
+    export TEST_CATEGORY="OCSP"
     certutil.exe -urlcache localhost delete # clear the OS-level cache of all entries with the URL "localhost"
   fi
 fi
-
-echo "Test target: $TARGET"
 
 echo "Final MongoDB_URI: $MONGODB_URI"
 if [ "$TOPOLOGY" == "sharded_cluster" ]; then
@@ -142,8 +138,4 @@ if [ -f "$DRIVERS_TOOLS/.evergreen/csfle/secrets-export.sh" ]; then
 fi
 
 ./evergreen/compile-sources.sh
-if [[ "$OS" =~ Windows|windows ]]; then
-  powershell.exe .\\build.ps1 --target=$TARGET
-else
-  ./build.sh --target=$TARGET
-fi
+./evergreen/execute-tests.sh
