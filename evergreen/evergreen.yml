@@ -145,15 +145,6 @@ functions:
         permissions: public-read
         content_type: ${content_type|application/x-gzip}
 
-  exec-script:
-    - command: shell.exec
-      type: test
-      params:
-        working_dir: mongo-csharp-driver
-        script: |
-          ${PREPARE_SHELL}
-          ${PROJECT_DIRECTORY}/${file}
-
   run-external-script:
     - command: shell.exec
       type: test
@@ -352,7 +343,9 @@ functions:
         working_dir: mongo-csharp-driver
         shell: "bash"
         script: |
-          . ./evergreen/set-virtualenv.sh
+          if [ -z "${TEST_CATEGORY}" ]; then
+            TEST_CATEGORY=Integration
+          fi
           DRIVERS_TOOLS=${DRIVERS_TOOLS} . ./evergreen/set-temp-fle-aws-creds.sh
           ${PREPARE_SHELL}
           OS=${OS} \
@@ -367,6 +360,7 @@ functions:
           REQUIRE_API_VERSION=${REQUIRE_API_VERSION} \
           FRAMEWORK=${FRAMEWORK} \
           CRYPT_SHARED_LIB_PATH=${CRYPT_SHARED_LIB_PATH} \
+          TEST_CATEGORY=${TEST_CATEGORY} \
             evergreen/run-tests.sh
           echo "Skipping certificate removal..."
 
@@ -390,7 +384,7 @@ functions:
           OS=${OS} \
           CLIENT_PEM=${DRIVERS_TOOLS}/.evergreen/x509gen/client.pem \
           FRAMEWORK=${FRAMEWORK} \
-          TARGET="TestCsfleWithMockedKms" \
+          TEST_CATEGORY="CSFLE" \
           CRYPT_SHARED_LIB_PATH=${CRYPT_SHARED_LIB_PATH} \
             evergreen/run-tests.sh
 
@@ -401,7 +395,6 @@ functions:
         working_dir: mongo-csharp-driver
         shell: "bash"
         script: |
-          . ./evergreen/set-virtualenv.sh
           DRIVERS_TOOLS=${DRIVERS_TOOLS} . ./evergreen/set-temp-fle-aws-creds.sh
           ${PREPARE_SHELL}
           OS=${OS} \
@@ -414,7 +407,7 @@ functions:
           COMPRESSOR=${COMPRESSOR} \
           CLIENT_PEM=${DRIVERS_TOOLS}/.evergreen/x509gen/client.pem \
           REQUIRE_API_VERSION=${REQUIRE_API_VERSION} \
-          TARGET="TestCsfleWithMongocryptd" \
+          TEST_CATEGORY="CSFLE" \
           FRAMEWORK=${FRAMEWORK} \
           CRYPT_SHARED_LIB_PATH="" \
             evergreen/run-tests.sh
@@ -590,7 +583,6 @@ functions:
           # Workaround. EG_TOOLS scripts for ECS assume that a folder with EG scripts in the driver is named ".evergreen"
           mkdir $SRC_DIRECTORY/.evergreen
           cp -r $SRC_DIRECTORY/evergreen/run-mongodb-aws-ecs-test.sh $SRC_DIRECTORY/.evergreen/run-mongodb-aws-ecs-test.sh
-          cp -r $SRC_DIRECTORY/evergreen/install-dotnet.sh $SRC_DIRECTORY/.evergreen/install-dotnet.sh
 
           export PROJECT_DIRECTORY="$SRC_DIRECTORY"
           ${DRIVERS_TOOLS}/.evergreen/auth_aws/aws_setup.sh ecs
@@ -1051,7 +1043,7 @@ functions:
           TOPOLOGY=${TOPOLOGY} \
           OS=${OS} \
           FRAMEWORK=${FRAMEWORK} \
-          TARGET="TestX509" \
+          TEST_CATEGORY="X509" \
             evergreen/run-tests.sh
 
   setup-socks5-proxy:
@@ -1089,7 +1081,7 @@ functions:
           TOPOLOGY=${TOPOLOGY} \
           OS=${OS} \
           FRAMEWORK=${FRAMEWORK} \
-          TARGET="TestSocks5Proxy" \
+          TEST_CATEGORY="Socks5Proxy" \
             evergreen/run-tests.sh
 
 pre:

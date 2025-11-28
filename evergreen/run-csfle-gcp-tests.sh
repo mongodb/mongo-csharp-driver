@@ -18,4 +18,4 @@ export FRAMEWORK=net6.0
 . ./evergreen/install-dotnet.sh
 
 ./evergreen/compile-sources.sh
-. ./build.sh --target=TestCsfleWithGcpKms
+TEST_CATEGORY=CsfleGCPKMS ./evergreen/execute-tests.sh

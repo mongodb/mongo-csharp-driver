@@ -14,4 +14,4 @@ echo "Running Atlas Search Index Helpers driver tests"
 export ATLAS_SEARCH_INDEX_HELPERS_TESTS_ENABLED=true
 
 ./evergreen/compile-sources.sh
-./build.sh --target=TestAtlasSearchIndexHelpers
+TEST_CATEGORY=AtlasSearchIndexHelpers ./evergreen/execute-tests.sh
