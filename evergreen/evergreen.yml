@@ -1103,7 +1103,6 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net472
-            DOTNET_SDK_VERSION: 10.0
         - func: run-unit-tests
 
     - name: unit-tests-netstandard21
@@ -1111,7 +1110,6 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: netstandard2.1
-            DOTNET_SDK_VERSION: 10.0
         - func: run-unit-tests
 
     - name: unit-tests-net60
@@ -1119,7 +1117,6 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net6.0
-            DOTNET_SDK_VERSION: 10.0
         - func: run-unit-tests
 
     - name: unit-tests-net100
@@ -1127,7 +1124,6 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net10.0
-            DOTNET_SDK_VERSION: 10.0
         - func: run-unit-tests
 
     - name: test-net472
@@ -1657,7 +1653,6 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net472
-            DOTNET_SDK_VERSION: 10.0
         - func: bootstrap-mongo-orchestration
         - func: run-smoke-tests
 
@@ -1669,7 +1664,6 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: netcoreapp3.1
-            DOTNET_SDK_VERSION: 10.0
         - func: bootstrap-mongo-orchestration
         - func: run-smoke-tests
 
@@ -1681,7 +1675,6 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net5.0
-            DOTNET_SDK_VERSION: 10.0
         - func: bootstrap-mongo-orchestration
         - func: run-smoke-tests
 
@@ -1693,7 +1686,6 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net6.0
-            DOTNET_SDK_VERSION: 10.0
         - func: bootstrap-mongo-orchestration
         - func: run-smoke-tests
 
@@ -1705,7 +1697,6 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net8.0
-            DOTNET_SDK_VERSION: 10.0
         - func: bootstrap-mongo-orchestration
         - func: run-smoke-tests
 
@@ -1717,7 +1708,6 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net10.0
-            DOTNET_SDK_VERSION: 10.0
         - func: bootstrap-mongo-orchestration
         - func: run-smoke-tests
 
