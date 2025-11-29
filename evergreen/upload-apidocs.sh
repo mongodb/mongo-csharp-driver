@@ -14,6 +14,7 @@ cd ./gh-pages
 
 echo "Generating redirection page..."
 # setup simple redirection to the latest version.
+
 rm -f ./api.html
 cat > "api.html" << EOL
 <!DOCTYPE html>
@@ -21,11 +22,11 @@ cat > "api.html" << EOL
   <head>
     <title>Redirecting...</title>
     <meta charset="utf-8">
-    <link rel="canonical" href="${PACKAGE_VERSION}/api/index.html" />
-    <meta http-equiv="refresh" content="0; url=${PACKAGE_VERSION}/api/index.html" />
+    <link rel="canonical" href="https://mongodb.github.io/mongo-csharp-driver/${PACKAGE_VERSION}/api/index.html" />
+    <meta http-equiv="refresh" content="0; url=https://mongodb.github.io/mongo-csharp-driver/${PACKAGE_VERSION}/api/index.html" />
   </head>
   <body>
-    <p>Redirecting you to the <a href="${PACKAGE_VERSION}/api/index.html">latest API Docs</a>...</p>
+    <p>Redirecting you to the <a href="https://mongodb.github.io/mongo-csharp-driver/${PACKAGE_VERSION}/api/index.html">latest API Docs</a>...</p>
   </body>
 </html>
 
