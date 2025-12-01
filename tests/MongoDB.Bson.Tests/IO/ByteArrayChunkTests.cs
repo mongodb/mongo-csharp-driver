@@ -179,8 +179,8 @@ namespace MongoDB.Bson.Tests.IO
             {
                 get
                 {
-                    var field = typeof(ByteArrayChunk).GetField("_disposed", BindingFlags.Instance | BindingFlags.NonPublic);
-                    return (bool)field.GetValue(_instance);
+                    var @field = typeof(ByteArrayChunk).GetField("_disposed", BindingFlags.Instance | BindingFlags.NonPublic);
+                    return (bool)@field.GetValue(_instance);
                 }
             }
         }

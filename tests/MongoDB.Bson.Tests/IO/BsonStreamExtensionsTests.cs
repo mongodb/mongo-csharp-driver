@@ -774,8 +774,8 @@ namespace MongoDB.Bson.Tests.IO
             {
                 get
                 {
-                    var field = typeof(BsonStreamExtensions).GetField("__validBsonTypes", BindingFlags.Static | BindingFlags.NonPublic);
-                    return (bool[])field.GetValue(null);
+                    var @field = typeof(BsonStreamExtensions).GetField("__validBsonTypes", BindingFlags.Static | BindingFlags.NonPublic);
+                    return (bool[])@field.GetValue(null);
                 }
             }
         }

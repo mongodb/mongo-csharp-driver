@@ -1668,8 +1668,8 @@ namespace MongoDB.Bson.Tests.IO
             {
                 get
                 {
-                    var field = typeof(ByteBufferStream).GetField("_disposed", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (bool)field.GetValue(_instance);
+                    var @field = typeof(ByteBufferStream).GetField("_disposed", BindingFlags.NonPublic | BindingFlags.Instance);
+                    return (bool)@field.GetValue(_instance);
                 }
             }
 
@@ -1677,8 +1677,8 @@ namespace MongoDB.Bson.Tests.IO
             {
                 get
                 {
-                    var field = typeof(ByteBufferStream).GetField("_ownsBuffer", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (bool)field.GetValue(_instance);
+                    var @field = typeof(ByteBufferStream).GetField("_ownsBuffer", BindingFlags.NonPublic | BindingFlags.Instance);
+                    return (bool)@field.GetValue(_instance);
                 }
             }
         }

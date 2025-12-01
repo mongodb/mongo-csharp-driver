@@ -332,6 +332,7 @@ functions:
         shell: "bash"
         include_expansions_in_env:
           - "FRAMEWORK"
+          - "CONFIGURATION"
         script: |
           ${PREPARE_SHELL}
           bash ./evergreen/run-unit-tests.sh
@@ -1122,6 +1123,16 @@ tasks:
           vars:
             FRAMEWORK: net10.0
         - func: run-unit-tests
+
+    - name: unit-tests-net100-v14
+      commands:
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net10.0
+            DOTNET_SDK_VERSION: 10.0
+        - func: run-unit-tests
+          vars:
+            CONFIGURATION: "Release_CSharp_14"
 
     - name: test-net472
       commands:
@@ -2390,6 +2401,7 @@ buildvariants:
     - name: unit-tests-netstandard21
     - name: unit-tests-net60
     - name: unit-tests-net100
+    - name: unit-tests-net100-v14
 
 - name: unit-tests-ubuntu
   display_name: Unit Tests on Ubuntu
@@ -2400,6 +2412,7 @@ buildvariants:
     - name: unit-tests-netstandard21
     - name: unit-tests-net60
     - name: unit-tests-net100
+    - name: unit-tests-net100-v14
 
 - name: unit-tests-macos
   display_name: Unit Tests on MacOs
@@ -2410,6 +2423,7 @@ buildvariants:
     - name: unit-tests-netstandard21
     - name: unit-tests-net60
     - name: unit-tests-net100
+    - name: unit-tests-net100-v14
 
 - name: unit-tests-macos-arm
   display_name: Unit Tests on MacOs Arm
@@ -2419,6 +2433,7 @@ buildvariants:
   tasks:
     - name: unit-tests-net60
     - name: unit-tests-net100
+    - name: unit-tests-net100-v14
 
 - matrix_name: stable-api-tests
   matrix_spec: { version: ["5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: ["standalone", "sharded-cluster"], auth: "auth", ssl: "nossl", os: "windows-64" }

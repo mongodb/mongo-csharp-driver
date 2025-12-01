@@ -141,7 +141,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         {
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
-                .Where(i => string.Concat(i.A, ";", i.B, ";", i.C) == "A1;B1;C1");
+                .Where(i => string.Concat(new[] { i.A, ";", i.B, ";", i.C }) == "A1;B1;C1");
 
             var stages = Translate(collection, queryable);
             AssertStages(
@@ -159,7 +159,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
 
             var queryable = collection.AsQueryable()
                 .Where(i => i.Id == 1)
-                .Select(i => new { T = string.Concat(i.A, ";", i.B, ";", i.C) });
+                .Select(i => new { T = string.Concat(new[] { i.A, ";", i.B, ";", i.C }) });
 
             var stages = Translate(collection, queryable);
             AssertStages(

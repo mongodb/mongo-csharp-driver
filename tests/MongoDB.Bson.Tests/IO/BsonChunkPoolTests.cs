@@ -190,8 +190,8 @@ namespace MongoDB.Bson.Tests.IO
             {
                 get
                 {
-                    var field = typeof(BsonChunkPool).GetField("_disposed", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (bool)field.GetValue(_instance);
+                    var @field = typeof(BsonChunkPool).GetField("_disposed", BindingFlags.NonPublic | BindingFlags.Instance);
+                    return (bool)@field.GetValue(_instance);
                 }
             }
         }
@@ -331,8 +331,8 @@ namespace MongoDB.Bson.Tests.IO
             {
                 get
                 {
-                    var field = _instance.GetType().GetField("_disposed", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (bool)field.GetValue(_instance);
+                    var @field = _instance.GetType().GetField("_disposed", BindingFlags.NonPublic | BindingFlags.Instance);
+                    return (bool)@field.GetValue(_instance);
                 }
             }
         }

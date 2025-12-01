@@ -302,8 +302,8 @@ namespace MongoDB.Bson.Tests.IO
             {
                 get
                 {
-                    var field = typeof(OutputBufferChunkSource).GetField("DefaultInitialUnpooledChunkSize", BindingFlags.NonPublic | BindingFlags.Static);
-                    return (int)field.GetValue(null);
+                    var @field = typeof(OutputBufferChunkSource).GetField("DefaultInitialUnpooledChunkSize", BindingFlags.NonPublic | BindingFlags.Static);
+                    return (int)@field.GetValue(null);
                 }
             }
 
@@ -311,8 +311,8 @@ namespace MongoDB.Bson.Tests.IO
             {
                 get
                 {
-                    var field = typeof(OutputBufferChunkSource).GetField("DefaultMaxChunkSize", BindingFlags.NonPublic | BindingFlags.Static);
-                    return (int)field.GetValue(null);
+                    var @field = typeof(OutputBufferChunkSource).GetField("DefaultMaxChunkSize", BindingFlags.NonPublic | BindingFlags.Static);
+                    return (int)@field.GetValue(null);
                 }
             }
 
@@ -320,8 +320,8 @@ namespace MongoDB.Bson.Tests.IO
             {
                 get
                 {
-                    var field = typeof(OutputBufferChunkSource).GetField("DefaultMinChunkSize", BindingFlags.NonPublic | BindingFlags.Static);
-                    return (int)field.GetValue(null);
+                    var @field = typeof(OutputBufferChunkSource).GetField("DefaultMinChunkSize", BindingFlags.NonPublic | BindingFlags.Static);
+                    return (int)@field.GetValue(null);
                 }
             }
             #endregion
@@ -337,8 +337,8 @@ namespace MongoDB.Bson.Tests.IO
             {
                 get
                 {
-                    var field = typeof(OutputBufferChunkSource).GetField("_disposed", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (bool)field.GetValue(_instance);
+                    var @field = typeof(OutputBufferChunkSource).GetField("_disposed", BindingFlags.NonPublic | BindingFlags.Instance);
+                    return (bool)@field.GetValue(_instance);
                 }
             }
         }

@@ -1062,8 +1062,8 @@ namespace MongoDB.Bson.Tests.IO
             {
                 get
                 {
-                    var field = typeof(MultiChunkBuffer).GetField("_chunks", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (List<IBsonChunk>)field.GetValue(_instance);
+                    var @field = typeof(MultiChunkBuffer).GetField("_chunks", BindingFlags.NonPublic | BindingFlags.Instance);
+                    return (List<IBsonChunk>)@field.GetValue(_instance);
                 }
             }
 
@@ -1071,8 +1071,8 @@ namespace MongoDB.Bson.Tests.IO
             {
                 get
                 {
-                    var field = typeof(MultiChunkBuffer).GetField("_disposed", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (bool)field.GetValue(_instance);
+                    var @field = typeof(MultiChunkBuffer).GetField("_disposed", BindingFlags.NonPublic | BindingFlags.Instance);
+                    return (bool)@field.GetValue(_instance);
                 }
             }
 
@@ -1080,8 +1080,8 @@ namespace MongoDB.Bson.Tests.IO
             {
                 get
                 {
-                    var field = typeof(MultiChunkBuffer).GetField("_positions", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (List<int>)field.GetValue(_instance);
+                    var @field = typeof(MultiChunkBuffer).GetField("_positions", BindingFlags.NonPublic | BindingFlags.Instance);
+                    return (List<int>)@field.GetValue(_instance);
                 }
             }
         }

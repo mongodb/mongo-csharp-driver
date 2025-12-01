@@ -502,8 +502,8 @@ namespace MongoDB.Bson.Tests.IO
             {
                 get
                 {
-                    var field = typeof(ByteBufferSlice).GetField("_disposed", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (bool)field.GetValue(_instance);
+                    var @field = typeof(ByteBufferSlice).GetField("_disposed", BindingFlags.NonPublic | BindingFlags.Instance);
+                    return (bool)@field.GetValue(_instance);
                 }
             }
 
@@ -511,8 +511,8 @@ namespace MongoDB.Bson.Tests.IO
             {
                 get
                 {
-                    var field = typeof(ByteBufferSlice).GetField("_length", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (int)field.GetValue(_instance);
+                    var @field = typeof(ByteBufferSlice).GetField("_length", BindingFlags.NonPublic | BindingFlags.Instance);
+                    return (int)@field.GetValue(_instance);
                 }
             }
 
@@ -520,8 +520,8 @@ namespace MongoDB.Bson.Tests.IO
             {
                 get
                 {
-                    var field = typeof(ByteBufferSlice).GetField("_offset", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (int)field.GetValue(_instance);
+                    var @field = typeof(ByteBufferSlice).GetField("_offset", BindingFlags.NonPublic | BindingFlags.Instance);
+                    return (int)@field.GetValue(_instance);
                 }
             }
         }

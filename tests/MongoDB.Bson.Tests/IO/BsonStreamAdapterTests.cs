@@ -1701,8 +1701,8 @@ namespace MongoDB.Bson.Tests
             {
                 get
                 {
-                    var field = typeof(BsonStreamAdapter).GetField("_disposed", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (bool)field.GetValue(_instance);
+                    var @field = typeof(BsonStreamAdapter).GetField("_disposed", BindingFlags.NonPublic | BindingFlags.Instance);
+                    return (bool)@field.GetValue(_instance);
                 }
             }
 
@@ -1710,8 +1710,8 @@ namespace MongoDB.Bson.Tests
             {
                 get
                 {
-                    var field = typeof(BsonStreamAdapter).GetField("_ownsStream", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (bool)field.GetValue(_instance);
+                    var @field = typeof(BsonStreamAdapter).GetField("_ownsStream", BindingFlags.NonPublic | BindingFlags.Instance);
+                    return (bool)@field.GetValue(_instance);
                 }
             }
 
@@ -1719,8 +1719,8 @@ namespace MongoDB.Bson.Tests
             {
                 get
                 {
-                    var field = typeof(BsonStreamAdapter).GetField("_stream", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (Stream)field.GetValue(_instance);
+                    var @field = typeof(BsonStreamAdapter).GetField("_stream", BindingFlags.NonPublic | BindingFlags.Instance);
+                    return (Stream)@field.GetValue(_instance);
                 }
             }
 
@@ -1728,8 +1728,8 @@ namespace MongoDB.Bson.Tests
             {
                 get
                 {
-                    var field = typeof(BsonStreamAdapter).GetField("_temp", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (byte[])field.GetValue(_instance);
+                    var @field = typeof(BsonStreamAdapter).GetField("_temp", BindingFlags.NonPublic | BindingFlags.Instance);
+                    return (byte[])@field.GetValue(_instance);
                 }
             }
         }

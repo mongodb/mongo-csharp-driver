@@ -882,8 +882,8 @@ namespace MongoDB.Bson.Tests.IO
             {
                 get
                 {
-                    var field = typeof(ByteArrayBuffer).GetField("_bytes", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (byte[])field.GetValue(_instance);
+                    var @field = typeof(ByteArrayBuffer).GetField("_bytes", BindingFlags.NonPublic | BindingFlags.Instance);
+                    return (byte[])@field.GetValue(_instance);
                 }
             }
 
@@ -891,8 +891,8 @@ namespace MongoDB.Bson.Tests.IO
             {
                 get
                 {
-                    var field = typeof(ByteArrayBuffer).GetField("_disposed", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (bool)field.GetValue(_instance);
+                    var @field = typeof(ByteArrayBuffer).GetField("_disposed", BindingFlags.NonPublic | BindingFlags.Instance);
+                    return (bool)@field.GetValue(_instance);
                 }
             }
         }
