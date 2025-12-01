@@ -32,15 +32,6 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
-<!--  <PropertyGroup Condition="'$(LANG_VERSION)'=='14'">-->
-<!--    <DefineConstants>$(DefineConstants);CSHARP_14</DefineConstants>-->
-<!--    <LangVersion>14</LangVersion>-->
-<!--  </PropertyGroup>-->
-
-<!--  <PropertyGroup Condition="'$(LANG_VERSION)'==''">-->
-<!--    <LangVersion>12</LangVersion>-->
-<!--  </PropertyGroup>-->
-
   <PropertyGroup Condition="'$(Version)'==''">
     <Version>0.0.0-local</Version>
   </PropertyGroup>
