@@ -15,8 +15,8 @@ cd ./gh-pages
 echo "Generating redirection page..."
 # setup simple redirection to the latest version.
 
-rm -f ./api.html
-cat > "api.html" << EOL
+rm -f ./latest.html
+cat > "latest.html" << EOL
 <!DOCTYPE html>
 <html>
   <head>
