@@ -14,36 +14,35 @@
  */
 
 using System.Linq.Expressions;
-using MongoDB.Bson;
 using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 using ExpressionVisitor = System.Linq.Expressions.ExpressionVisitor;
 
-namespace MongoDB.Driver.Linq.Linq3Implementation.KnownSerializerFinders;
+namespace MongoDB.Driver.Linq.Linq3Implementation.SerializerFinders;
 
-internal class UnknownSerializerFinder : ExpressionVisitor
+internal class MissingSerializerFinder : ExpressionVisitor
 {
-    public static Expression FindExpressionWithUnknownSerializer(Expression expression, KnownSerializerMap knownSerializers)
+    public static Expression FindExpressionWithMissingSerializer(Expression expression, SerializerMap nodeSerializers)
     {
-        var visitor = new UnknownSerializerFinder(knownSerializers);
+        var visitor = new MissingSerializerFinder(nodeSerializers);
         visitor.Visit(expression);
-        return visitor._expressionWithUnknownSerializer;
+        return visitor._expressionWithMissingSerializer;
     }
 
-    private Expression _expressionWithUnknownSerializer = null;
-    private readonly KnownSerializerMap _knownSerializers;
+    private Expression _expressionWithMissingSerializer = null;
+    private readonly SerializerMap _nodeSerializers;
 
-    public UnknownSerializerFinder(KnownSerializerMap knownSerializers)
+    public MissingSerializerFinder(SerializerMap nodeSerializers)
     {
-        _knownSerializers = knownSerializers;
+        _nodeSerializers = nodeSerializers;
     }
 
-    public Expression ExpressionWithUnknownSerializer => _expressionWithUnknownSerializer;
+    public Expression ExpressionWithMissingSerializer => _expressionWithMissingSerializer;
 
     public override Expression Visit(Expression node)
     {
-        if (_knownSerializers.IsKnown(node, out var knownSerializer))
+        if (_nodeSerializers.IsKnown(node, out var nodeSerializer))
         {
-            if (knownSerializer is IIgnoreSubtreeSerializer or IUnknowableSerializer)
+            if (nodeSerializer is IIgnoreSubtreeSerializer or IUnknowableSerializer)
             {
                 return node; // don't visit subtree
             }
@@ -51,11 +50,11 @@ internal class UnknownSerializerFinder : ExpressionVisitor
 
         base.Visit(node);
 
-        if (_expressionWithUnknownSerializer == null &&
+        if (_expressionWithMissingSerializer == null &&
             node != null &&
-            _knownSerializers.IsNotKnown(node))
+            _nodeSerializers.IsNotKnown(node))
         {
-            _expressionWithUnknownSerializer = node;
+            _expressionWithMissingSerializer = node;
         }
 
         return node;

@@ -15,16 +15,16 @@
 
 using System.Linq.Expressions;
 
-namespace MongoDB.Driver.Linq.Linq3Implementation.KnownSerializerFinders;
+namespace MongoDB.Driver.Linq.Linq3Implementation.SerializerFinders;
 
-internal static class KnownSerializerFinder
+internal static class SerializerFinder
 {
-    public static void FindKnownSerializers(
+    public static void FindSerializers(
         Expression expression,
         ExpressionTranslationOptions translationOptions,
-        KnownSerializerMap knownSerializers)
+        SerializerMap nodeSerializers)
     {
-        var visitor = new KnownSerializerFinderVisitor(translationOptions, knownSerializers);
+        var visitor = new SerializerFinderVisitor(translationOptions, nodeSerializers);
 
         do
         {
@@ -35,10 +35,10 @@ internal static class KnownSerializerFinder
         while (visitor.IsMakingProgress);
 
         //#if DEBUG
-        var expressionWithUnknownSerializer = UnknownSerializerFinder.FindExpressionWithUnknownSerializer(expression, knownSerializers);
-        if (expressionWithUnknownSerializer != null)
+        var expressionWithMissingSerializer = MissingSerializerFinder.FindExpressionWithMissingSerializer(expression, nodeSerializers);
+        if (expressionWithMissingSerializer != null)
         {
-            throw new ExpressionNotSupportedException(expressionWithUnknownSerializer, because: "we were unable to determine which serializer to use for the result");
+            throw new ExpressionNotSupportedException(expressionWithMissingSerializer, because: "we were unable to determine which serializer to use for the result");
         }
         //#endif
     }

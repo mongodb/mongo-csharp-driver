@@ -15,9 +15,9 @@
 
 using System.Linq.Expressions;
 
-namespace MongoDB.Driver.Linq.Linq3Implementation.KnownSerializerFinders;
+namespace MongoDB.Driver.Linq.Linq3Implementation.SerializerFinders;
 
-internal partial class KnownSerializerFinderVisitor
+internal partial class SerializerFinderVisitor
 {
     protected override Expression VisitConditional(ConditionalExpression node)
     {

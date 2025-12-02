@@ -23,9 +23,9 @@ using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators;
 
-namespace MongoDB.Driver.Linq.Linq3Implementation.KnownSerializerFinders;
+namespace MongoDB.Driver.Linq.Linq3Implementation.SerializerFinders;
 
-internal partial class KnownSerializerFinderVisitor
+internal partial class SerializerFinderVisitor
 {
     public IBsonSerializer CreateNewExpressionSerializer(
         Expression expression,

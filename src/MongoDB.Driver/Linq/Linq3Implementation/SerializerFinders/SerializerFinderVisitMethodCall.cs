@@ -30,9 +30,9 @@ using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
 using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators;
 
-namespace MongoDB.Driver.Linq.Linq3Implementation.KnownSerializerFinders;
+namespace MongoDB.Driver.Linq.Linq3Implementation.SerializerFinders;
 
-internal partial class KnownSerializerFinderVisitor
+internal partial class SerializerFinderVisitor
 {
     private static readonly HashSet<MethodInfo> __absMethods =
     [
@@ -756,10 +756,6 @@ internal partial class KnownSerializerFinderVisitor
         var arguments = node.Arguments;
 
         DeduceMethodCallSerializers();
-        // if (IsKnown(node, out var knownSerializer) && knownSerializer is IUnknowableSerializer)
-        // {
-        //     return node; // don't visit node any further
-        // }
         base.VisitMethodCall(node);
         DeduceMethodCallSerializers();
 
@@ -1277,7 +1273,7 @@ internal partial class KnownSerializerFinderVisitor
                     }
 
                     var resultSerializer = IEnumerableOrIQueryableSerializer.Create(node.Type, resultItemSerializer);
-                    AddKnownSerializer(node, resultSerializer);
+                    AddNodeSerializer(node, resultSerializer);
                 }
             }
             else
@@ -1319,7 +1315,7 @@ internal partial class KnownSerializerFinderVisitor
                     if (resultItemSerializer != null)
                     {
                         var resultSerializer = IEnumerableOrIQueryableSerializer.Create(node.Type, resultItemSerializer);
-                        AddKnownSerializer(node, resultSerializer);
+                        AddNodeSerializer(node, resultSerializer);
                     }
                 }
             }
@@ -1350,7 +1346,7 @@ internal partial class KnownSerializerFinderVisitor
                 if (IsNotKnown(node) && IsItemSerializerKnown(sourceExpression, out var sourceItemSerializer))
                 {
                     var resultSerializer = NestedAsQueryableSerializer.Create(sourceItemSerializer);
-                    AddKnownSerializer(node, resultSerializer);
+                    AddNodeSerializer(node, resultSerializer);
                 }
             }
             else
@@ -1423,7 +1419,7 @@ internal partial class KnownSerializerFinderVisitor
                 if (IsNotKnown(node))
                 {
                     var nodeSerializer = StandardSerializers.GetSerializer(node.Type);
-                    AddKnownSerializer(node, nodeSerializer);
+                    AddNodeSerializer(node, nodeSerializer);
                 }
             }
             else
@@ -1525,7 +1521,7 @@ internal partial class KnownSerializerFinderVisitor
                 if (IsNotKnown(keyExpression) && IsKnown(dictionaryExpression, out var dictionarySerializer))
                 {
                     var keySerializer = (dictionarySerializer as IBsonDictionarySerializer)?.KeySerializer;
-                    AddKnownSerializer(keyExpression, keySerializer);
+                    AddNodeSerializer(keyExpression, keySerializer);
                 }
 
                 DeduceReturnsBooleanSerializer();
@@ -1563,7 +1559,7 @@ internal partial class KnownSerializerFinderVisitor
                     if (collectionSerializer is IBsonDictionarySerializer dictionarySerializer)
                     {
                         var valueSerializer = dictionarySerializer.ValueSerializer;
-                        AddKnownSerializer(valueExpression, valueSerializer);
+                        AddNodeSerializer(valueExpression, valueSerializer);
                     }
                 }
 
@@ -1602,7 +1598,7 @@ internal partial class KnownSerializerFinderVisitor
                 {
                     var toType = method.GetGenericArguments()[1];
                     var resultSerializer = GetResultSerializer(node, toType);
-                    AddKnownSerializer(node, resultSerializer);
+                    AddNodeSerializer(node, resultSerializer);
                 }
             }
             else
@@ -1692,7 +1688,7 @@ internal partial class KnownSerializerFinderVisitor
                     var keySerializer = argumentSerializers[0];
                     var valueSerializer = argumentSerializers[1];
                     var keyValuePairSerializer = KeyValuePairSerializer.Create(BsonType.Document, keySerializer, valueSerializer);
-                    AddKnownSerializer(node, keyValuePairSerializer);
+                    AddNodeSerializer(node, keyValuePairSerializer);
                 }
             }
             else
@@ -1713,7 +1709,7 @@ internal partial class KnownSerializerFinderVisitor
                                 {
                                     itemSerializer = (itemSerializer as IBsonTupleSerializer)?.GetItemSerializer(1);
                                 }
-                                AddKnownSerializer(argumentExpression, itemSerializer);
+                                AddNodeSerializer(argumentExpression, itemSerializer);
                             }
                         }
                     }
@@ -1733,7 +1729,7 @@ internal partial class KnownSerializerFinderVisitor
                     var resultSerializer = method.ReturnType.Name.StartsWith("ValueTuple") ?
                         ValueTupleSerializer.Create(argumentSerializers) :
                         TupleSerializer.Create(argumentSerializers);
-                    AddKnownSerializer(node, resultSerializer);
+                    AddNodeSerializer(node, resultSerializer);
                 }
             }
             else
@@ -1827,7 +1823,7 @@ internal partial class KnownSerializerFinderVisitor
                     }
 
                     var nodeSerializer = IQueryableSerializer.Create(documentSerializer);
-                    AddKnownSerializer(node, nodeSerializer);
+                    AddNodeSerializer(node, nodeSerializer);
                 }
             }
             else
@@ -1964,7 +1960,7 @@ internal partial class KnownSerializerFinderVisitor
                         throw new ExpressionNotSupportedException(node, because: "fieldSerializer is null");
                     }
 
-                    AddKnownSerializer(node, fieldSerializer);
+                    AddNodeSerializer(node, fieldSerializer);
                 }
             }
             else
@@ -1999,7 +1995,7 @@ internal partial class KnownSerializerFinderVisitor
             {
                 if (BsonValueMethod.IsGetItemWithIntMethod(method) || BsonValueMethod.IsGetItemWithStringMethod(method))
                 {
-                    AddKnownSerializer(node, BsonValueSerializer.Instance);
+                    AddNodeSerializer(node, BsonValueSerializer.Instance);
                 }
                 else if (IsInstanceGetItemMethod(out var collectionExpression, out var indexExpression))
                 {
@@ -2010,7 +2006,7 @@ internal partial class KnownSerializerFinderVisitor
                             arraySerializer.GetItemSerializer() is var itemSerializer &&
                             itemSerializer.ValueType == method.ReturnType)
                         {
-                            AddKnownSerializer(node, itemSerializer);
+                            AddNodeSerializer(node, itemSerializer);
                         }
                         else if (
                             collectionSerializer is IBsonDictionarySerializer dictionarySerializer &&
@@ -2019,7 +2015,7 @@ internal partial class KnownSerializerFinderVisitor
                             keySerializer.ValueType == indexExpression.Type &&
                             valueSerializer.ValueType == method.ReturnType)
                         {
-                            AddKnownSerializer(node, valueSerializer);
+                            AddNodeSerializer(node, valueSerializer);
                         }
                     }
                 }
@@ -2071,7 +2067,7 @@ internal partial class KnownSerializerFinderVisitor
                     {
                         var groupingSerializer = IGroupingSerializer.Create(keySerializer, elementSerializer);
                         var nodeSerializer = IEnumerableOrIQueryableSerializer.Create(node.Type, groupingSerializer);
-                        AddKnownSerializer(node, nodeSerializer);
+                        AddNodeSerializer(node, nodeSerializer);
                     }
                 }
                 else if (method.IsOneOf(EnumerableMethod.GroupByWithKeySelectorAndElementSelector, QueryableMethod.GroupByWithKeySelectorAndElementSelector))
@@ -2083,7 +2079,7 @@ internal partial class KnownSerializerFinderVisitor
                     {
                         var groupingSerializer = IGroupingSerializer.Create(keySerializer, elementSerializer);
                         var nodeSerializer = IEnumerableOrIQueryableSerializer.Create(node.Type, groupingSerializer);
-                        AddKnownSerializer(node, nodeSerializer);
+                        AddNodeSerializer(node, nodeSerializer);
                     }
                 }
                 else if (method.IsOneOf(EnumerableMethod.GroupByWithKeySelectorAndResultSelector, QueryableMethod.GroupByWithKeySelectorAndResultSelector))
@@ -2115,7 +2111,7 @@ internal partial class KnownSerializerFinderVisitor
                     if (IsNotKnown(node) && IsKnown(resultExpression, out var resultSerializer))
                     {
                         var nodeSerializer = IEnumerableOrIQueryableSerializer.Create(node.Type, resultSerializer);
-                        AddKnownSerializer(node, nodeSerializer);
+                        AddNodeSerializer(node, nodeSerializer);
                     }
                 }
             }
@@ -2318,7 +2314,7 @@ internal partial class KnownSerializerFinderVisitor
                         IsItemSerializerKnown(documentsLambda.Body, out var documentSerializer))
                     {
                         var lookupResultSerializer = LookupResultSerializer.Create(sourceItemSerializer, documentSerializer);
-                        AddKnownSerializer(node, IQueryableSerializer.Create(lookupResultSerializer));
+                        AddNodeSerializer(node, IQueryableSerializer.Create(lookupResultSerializer));
                     }
                 }
                 else if (method.Is(MongoQueryableMethod.LookupWithDocumentsAndLocalFieldAndForeignFieldAndPipeline))
@@ -2344,7 +2340,7 @@ internal partial class KnownSerializerFinderVisitor
                         IsItemSerializerKnown(pipelineLambda.Body, out var pipelineDocumentSerializer))
                     {
                         var lookupResultSerializer = LookupResultSerializer.Create(sourceItemSerializer, pipelineDocumentSerializer);
-                        AddKnownSerializer(node, IQueryableSerializer.Create(lookupResultSerializer));
+                        AddNodeSerializer(node, IQueryableSerializer.Create(lookupResultSerializer));
                     }
                 }
                 else if (method.Is(MongoQueryableMethod.LookupWithDocumentsAndPipeline))
@@ -2364,7 +2360,7 @@ internal partial class KnownSerializerFinderVisitor
                         IsItemSerializerKnown(pipelineLambda.Body, out var pipelineItemSerializer))
                     {
                         var lookupResultSerializer = LookupResultSerializer.Create(sourceItemSerializer, pipelineItemSerializer);
-                        AddKnownSerializer(node, IQueryableSerializer.Create(lookupResultSerializer));
+                        AddNodeSerializer(node, IQueryableSerializer.Create(lookupResultSerializer));
                     }
                 }
 
@@ -2385,7 +2381,7 @@ internal partial class KnownSerializerFinderVisitor
                         IsItemSerializerKnown(sourceExpression, out var sourceItemSerializer))
                     {
                         var lookupResultSerializer = LookupResultSerializer.Create(sourceItemSerializer, foreignDocumentSerializer);
-                        AddKnownSerializer(node, IQueryableSerializer.Create(lookupResultSerializer));
+                        AddNodeSerializer(node, IQueryableSerializer.Create(lookupResultSerializer));
                     }
                 }
                 else if (method.Is(MongoQueryableMethod.LookupWithFromAndLocalFieldAndForeignFieldAndPipeline))
@@ -2408,7 +2404,7 @@ internal partial class KnownSerializerFinderVisitor
                     if (IsNotKnown(pipelineLamdbaForeignQueryableParameter))
                     {
                         var foreignQueryableSerializer = IQueryableSerializer.Create(foreignDocumentSerializer);
-                        AddKnownSerializer(pipelineLamdbaForeignQueryableParameter, foreignQueryableSerializer);
+                        AddNodeSerializer(pipelineLamdbaForeignQueryableParameter, foreignQueryableSerializer);
                     }
 
                     if (IsNotKnown(node) &&
@@ -2416,7 +2412,7 @@ internal partial class KnownSerializerFinderVisitor
                         IsItemSerializerKnown(pipelineLambda.Body, out var pipelineItemSerializer))
                     {
                         var lookupResultsSerializer = LookupResultSerializer.Create(sourceItemSerializer, pipelineItemSerializer);
-                        AddKnownSerializer(node, IQueryableSerializer.Create(lookupResultsSerializer));
+                        AddNodeSerializer(node, IQueryableSerializer.Create(lookupResultsSerializer));
                     }
                 }
                 else if (method.Is(MongoQueryableMethod.LookupWithFromAndPipeline))
@@ -2432,7 +2428,7 @@ internal partial class KnownSerializerFinderVisitor
                     if (IsNotKnown(pipelineLamdbaForeignQueryableParameter))
                     {
                         var foreignQueryableSerializer = IQueryableSerializer.Create(foreignDocumentSerializer);
-                        AddKnownSerializer(pipelineLamdbaForeignQueryableParameter, foreignQueryableSerializer);
+                        AddNodeSerializer(pipelineLamdbaForeignQueryableParameter, foreignQueryableSerializer);
                     }
 
                     if (IsNotKnown(node) &&
@@ -2440,7 +2436,7 @@ internal partial class KnownSerializerFinderVisitor
                         IsItemSerializerKnown(pipelineLambda.Body, out var pipelineItemSerializer))
                     {
                         var lookupResultSerializer = LookupResultSerializer.Create(sourceItemSerializer, pipelineItemSerializer);
-                        AddKnownSerializer(node, IQueryableSerializer.Create(lookupResultSerializer));
+                        AddNodeSerializer(node, IQueryableSerializer.Create(lookupResultSerializer));
                     }
                 }
             }
@@ -2497,7 +2493,7 @@ internal partial class KnownSerializerFinderVisitor
                 {
                     var resultItemSerializer = sourceItemSerializer.GetDerivedTypeSerializer(resultType);
                     var resultSerializer = IEnumerableOrIQueryableSerializer.Create(node.Type, resultItemSerializer);
-                    AddKnownSerializer(node, resultSerializer);
+                    AddNodeSerializer(node, resultSerializer);
                 }
             }
             else
@@ -2541,7 +2537,7 @@ internal partial class KnownSerializerFinderVisitor
                     if (IsNotKnown(sortByExpression))
                     {
                         var ignoreSubTreeSerializer = IgnoreSubtreeSerializer.Create(sortByExpression.Type);
-                        AddKnownSerializer(sortByExpression, ignoreSubTreeSerializer);
+                        AddNodeSerializer(sortByExpression, ignoreSubTreeSerializer);
                     }
                 }
 
@@ -2555,7 +2551,7 @@ internal partial class KnownSerializerFinderVisitor
                     var selectorSourceItemParameter = selectorLambda.Parameters.Single();
                     if (IsNotKnown(selectorSourceItemParameter))
                     {
-                        AddKnownSerializer(selectorSourceItemParameter, sourceItemSerializer);
+                        AddNodeSerializer(selectorSourceItemParameter, sourceItemSerializer);
                     }
                 }
 
@@ -2570,7 +2566,7 @@ internal partial class KnownSerializerFinderVisitor
 
                         if (IsNotKnown(nLambdaKeyParameter))
                         {
-                            AddKnownSerializer(nLambdaKeyParameter, keySerializer);
+                            AddNodeSerializer(nLambdaKeyParameter, keySerializer);
                         }
                     }
                 }
@@ -2602,7 +2598,7 @@ internal partial class KnownSerializerFinderVisitor
                         var nodeSerializer = method.IsOneOf(EnumerableMethod.Bottom, EnumerableMethod.Top) ?
                             selectorItemSerializer :
                             IEnumerableSerializer.Create(selectorItemSerializer);
-                        AddKnownSerializer(node, nodeSerializer);
+                        AddNodeSerializer(node, nodeSerializer);
                     }
                 }
             }
@@ -2619,7 +2615,7 @@ internal partial class KnownSerializerFinderVisitor
                 if (IsParseMethod(method))
                 {
                     var nodeSerializer = GetParseResultSerializer(method.DeclaringType);
-                    AddKnownSerializer(node, nodeSerializer);
+                    AddNodeSerializer(node, nodeSerializer);
                 }
                 else
                 {
@@ -2680,7 +2676,7 @@ internal partial class KnownSerializerFinderVisitor
         {
             if (IsNotKnown(node))
             {
-                AddKnownSerializer(node, BooleanSerializer.Instance);
+                AddNodeSerializer(node, BooleanSerializer.Instance);
             }
         }
 
@@ -2688,7 +2684,7 @@ internal partial class KnownSerializerFinderVisitor
         {
             if (IsNotKnown(node))
             {
-                AddKnownSerializer(node, DateTimeSerializer.UtcInstance);
+                AddNodeSerializer(node, DateTimeSerializer.UtcInstance);
             }
         }
 
@@ -2696,7 +2692,7 @@ internal partial class KnownSerializerFinderVisitor
         {
             if (IsNotKnown(node))
             {
-                AddKnownSerializer(node, DecimalSerializer.Instance);
+                AddNodeSerializer(node, DecimalSerializer.Instance);
             }
         }
 
@@ -2704,7 +2700,7 @@ internal partial class KnownSerializerFinderVisitor
         {
             if (IsNotKnown(node))
             {
-                AddKnownSerializer(node, DoubleSerializer.Instance);
+                AddNodeSerializer(node, DoubleSerializer.Instance);
             }
         }
 
@@ -2712,7 +2708,7 @@ internal partial class KnownSerializerFinderVisitor
         {
             if (IsNotKnown(node))
             {
-                AddKnownSerializer(node, Int32Serializer.Instance);
+                AddNodeSerializer(node, Int32Serializer.Instance);
             }
         }
 
@@ -2720,7 +2716,7 @@ internal partial class KnownSerializerFinderVisitor
         {
             if (IsNotKnown(node))
             {
-                AddKnownSerializer(node, Int64Serializer.Instance);
+                AddNodeSerializer(node, Int64Serializer.Instance);
             }
         }
 
@@ -2728,7 +2724,7 @@ internal partial class KnownSerializerFinderVisitor
         {
             if (IsNotKnown(node))
             {
-                AddKnownSerializer(node, NullableSerializer.NullableDecimalInstance);
+                AddNodeSerializer(node, NullableSerializer.NullableDecimalInstance);
             }
         }
 
@@ -2736,7 +2732,7 @@ internal partial class KnownSerializerFinderVisitor
         {
             if (IsNotKnown(node))
             {
-                AddKnownSerializer(node, NullableSerializer.NullableDoubleInstance);
+                AddNodeSerializer(node, NullableSerializer.NullableDoubleInstance);
             }
         }
 
@@ -2744,7 +2740,7 @@ internal partial class KnownSerializerFinderVisitor
         {
             if (IsNotKnown(node))
             {
-                AddKnownSerializer(node, NullableSerializer.NullableInt32Instance);
+                AddNodeSerializer(node, NullableSerializer.NullableInt32Instance);
             }
         }
 
@@ -2752,7 +2748,7 @@ internal partial class KnownSerializerFinderVisitor
         {
             if (IsNotKnown(node))
             {
-                AddKnownSerializer(node, NullableSerializer.NullableInt64Instance);
+                AddNodeSerializer(node, NullableSerializer.NullableInt64Instance);
             }
         }
 
@@ -2760,7 +2756,7 @@ internal partial class KnownSerializerFinderVisitor
         {
             if (IsNotKnown(node))
             {
-                AddKnownSerializer(node, NullableSerializer.NullableSingleInstance);
+                AddNodeSerializer(node, NullableSerializer.NullableSingleInstance);
             }
         }
 
@@ -2769,7 +2765,7 @@ internal partial class KnownSerializerFinderVisitor
             if (IsNotKnown(node) && node.Type.IsNumeric())
             {
                 var numericSerializer = StandardSerializers.GetSerializer(node.Type);
-                AddKnownSerializer(node, numericSerializer);
+                AddNodeSerializer(node, numericSerializer);
             }
         }
 
@@ -2778,7 +2774,7 @@ internal partial class KnownSerializerFinderVisitor
             if (IsNotKnown(node) && node.Type.IsNumericOrNullableNumeric())
             {
                 var numericSerializer = StandardSerializers.GetSerializer(node.Type);
-                AddKnownSerializer(node, numericSerializer);
+                AddNodeSerializer(node, numericSerializer);
             }
         }
 
@@ -2791,7 +2787,7 @@ internal partial class KnownSerializerFinderVisitor
                 var nodeSerializer = sourceSerializer is IUnknowableSerializer ?
                     UnknowableSerializer.Create(node.Type) :
                     ArraySerializerHelper.GetItemSerializer(sourceSerializer);
-                AddKnownSerializer(node, nodeSerializer);
+                AddNodeSerializer(node, nodeSerializer);
             }
         }
 
@@ -2799,7 +2795,7 @@ internal partial class KnownSerializerFinderVisitor
         {
             if (IsNotKnown(node))
             {
-                AddKnownSerializer(node, SingleSerializer.Instance);
+                AddNodeSerializer(node, SingleSerializer.Instance);
             }
         }
 
@@ -2807,7 +2803,7 @@ internal partial class KnownSerializerFinderVisitor
         {
             if (IsNotKnown(node))
             {
-                AddKnownSerializer(node, StringSerializer.Instance);
+                AddNodeSerializer(node, StringSerializer.Instance);
             }
         }
 
@@ -2816,7 +2812,7 @@ internal partial class KnownSerializerFinderVisitor
             if (IsNotKnown(node))
             {
                 var resultSerializer = new TimeSpanSerializer(BsonType.Int64, units);
-                AddKnownSerializer(node, resultSerializer);
+                AddNodeSerializer(node, resultSerializer);
             }
         }
 
@@ -2866,7 +2862,7 @@ internal partial class KnownSerializerFinderVisitor
                 if (IsNotKnown(node))
                 {
                     var resultSerializer = StandardSerializers.GetSerializer(node.Type);
-                    AddKnownSerializer(node, resultSerializer);
+                    AddNodeSerializer(node, resultSerializer);
                 }
             }
             else
@@ -3003,7 +2999,7 @@ internal partial class KnownSerializerFinderVisitor
 
                 if (IsNotKnown(node) && IsKnown(selectorLambda.Body, out var resultSerializer))
                 {
-                    AddKnownSerializer(node, resultSerializer);
+                    AddNodeSerializer(node, resultSerializer);
                 }
             }
             else
@@ -3043,7 +3039,7 @@ internal partial class KnownSerializerFinderVisitor
                 if (IsNotKnown(node))
                 {
                     var nodeSerializer = ArraySerializer.Create(StringSerializer.Instance);
-                    AddKnownSerializer(node, nodeSerializer);
+                    AddNodeSerializer(node, nodeSerializer);
                 }
             }
             else
@@ -3267,7 +3263,7 @@ internal partial class KnownSerializerFinderVisitor
                 {
                     var sourceItemSerializer = ArraySerializerHelper.GetItemSerializer(sourceSerializer);
                     var resultSerializer = ListSerializer.Create(sourceItemSerializer);
-                    AddKnownSerializer(node, resultSerializer);
+                    AddNodeSerializer(node, resultSerializer);
                 }
             }
         }
@@ -3329,7 +3325,7 @@ internal partial class KnownSerializerFinderVisitor
             {
                 if (IsNotKnown(node))
                 {
-                    AddKnownSerializer(node, Int32Serializer.Instance);
+                    AddNodeSerializer(node, Int32Serializer.Instance);
                 }
             }
             else
@@ -3367,19 +3363,19 @@ internal partial class KnownSerializerFinderVisitor
                 if (IsNotKnown(resultSelectorFirstParameter) && IsKnown(firstExpression, out var firstSerializer))
                 {
                     var firstItemSerializer =  ArraySerializerHelper.GetItemSerializer(firstSerializer);
-                    AddKnownSerializer(resultSelectorFirstParameter, firstItemSerializer);
+                    AddNodeSerializer(resultSelectorFirstParameter, firstItemSerializer);
                 }
 
                 if (IsNotKnown(resultSelectorSecondParameter) && IsKnown(secondExpression, out var secondSerializer))
                 {
                     var secondItemSerializer =  ArraySerializerHelper.GetItemSerializer(secondSerializer);
-                    AddKnownSerializer(resultSelectorSecondParameter, secondItemSerializer);
+                    AddNodeSerializer(resultSelectorSecondParameter, secondItemSerializer);
                 }
 
                 if (IsNotKnown(node) && IsKnown(resultSelectorLambda.Body, out var resultItemSerializer))
                 {
                     var resultSerializer = IEnumerableOrIQueryableSerializer.Create(node.Type, resultItemSerializer);
-                    AddKnownSerializer(node, resultSerializer);
+                    AddNodeSerializer(node, resultSerializer);
                 }
             }
             else

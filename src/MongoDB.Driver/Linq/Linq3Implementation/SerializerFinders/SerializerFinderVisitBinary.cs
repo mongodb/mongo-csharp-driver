@@ -21,9 +21,9 @@ using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
-namespace MongoDB.Driver.Linq.Linq3Implementation.KnownSerializerFinders;
+namespace MongoDB.Driver.Linq.Linq3Implementation.SerializerFinders;
 
-internal partial class KnownSerializerFinderVisitor
+internal partial class SerializerFinderVisitor
 {
     protected override Expression VisitBinary(BinaryExpression node)
     {
@@ -40,12 +40,12 @@ internal partial class KnownSerializerFinderVisitor
         }
 
         if (IsSymmetricalBinaryOperator(@operator) &&
-            CanDeduceSerializer(leftExpression, rightExpression, out var unknownNode, out var knownSerializer))
+            CanDeduceSerializer(leftExpression, rightExpression, out var unknownNode, out var otherNodeSerializer))
         {
             // expr1 op expr2 => expr1: expr2Serializer or expr2: expr1Serializer
-            if (knownSerializer.ValueType == unknownNode.Type)
+            if (otherNodeSerializer.ValueType == unknownNode.Type)
             {
-                AddKnownSerializer(unknownNode, knownSerializer);
+                AddNodeSerializer(unknownNode, otherNodeSerializer);
             }
         }
 
@@ -66,7 +66,7 @@ internal partial class KnownSerializerFinderVisitor
                 }
 
                 // expr[index] => node: itemSerializer
-                AddKnownSerializer(node, itemSerializer);
+                AddNodeSerializer(node, itemSerializer);
             }
         }
 
@@ -77,14 +77,14 @@ internal partial class KnownSerializerFinderVisitor
             {
                 if (leftSerializer.ValueType == node.Type)
                 {
-                    AddKnownSerializer(node, leftSerializer);
+                    AddNodeSerializer(node, leftSerializer);
                 }
                 else if (
                     leftSerializer is INullableSerializer nullableSerializer &&
                     nullableSerializer.ValueSerializer is var nullableSerializerValueSerializer &&
                     nullableSerializerValueSerializer.ValueType == node.Type)
                 {
-                    AddKnownSerializer(node, nullableSerializerValueSerializer);
+                    AddNodeSerializer(node, nullableSerializerValueSerializer);
                 }
                 else
                 {
@@ -98,10 +98,10 @@ internal partial class KnownSerializerFinderVisitor
             leftConvertOperand.Type == rightConvertOperand.Type)
         {
             // TODO: verify left and right operands are same type
-            if (CanDeduceSerializer(leftConvertOperand, rightConvertOperand, out unknownNode, out knownSerializer))
+            if (CanDeduceSerializer(leftConvertOperand, rightConvertOperand, out unknownNode, out otherNodeSerializer))
             {
                 // Convert(expr1, T) op Convert(expr2, T) => expr1: expr2Serializer or expr2: expr1Serializer
-                AddKnownSerializer(unknownNode, knownSerializer);
+                AddNodeSerializer(unknownNode, otherNodeSerializer);
             }
         }
 
@@ -110,7 +110,7 @@ internal partial class KnownSerializerFinderVisitor
             var resultSerializer = GetResultSerializer(node, @operator);
             if (resultSerializer != null)
             {
-                AddKnownSerializer(node, resultSerializer);
+                AddNodeSerializer(node, resultSerializer);
             }
         }
 

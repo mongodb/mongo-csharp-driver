@@ -22,9 +22,9 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
-namespace MongoDB.Driver.Linq.Linq3Implementation.KnownSerializerFinders;
+namespace MongoDB.Driver.Linq.Linq3Implementation.SerializerFinders;
 
-internal class KnownSerializerMap
+internal class SerializerMap
 {
     private readonly Dictionary<Expression, IBsonSerializer> _map = new();
 
@@ -80,9 +80,9 @@ internal class KnownSerializerMap
 
     public IBsonSerializer GetSerializer(Expression node)
     {
-        if (_map.TryGetValue(node, out var knownSerializer))
+        if (_map.TryGetValue(node, out var nodeSerializer))
         {
-            return knownSerializer;
+            return nodeSerializer;
         }
 
         throw new ExpressionNotSupportedException(node, because: "unable to determine which serializer to use");

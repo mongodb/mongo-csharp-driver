@@ -25,16 +25,17 @@ using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
 using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
-namespace MongoDB.Driver.Linq.Linq3Implementation.KnownSerializerFinders;
+namespace MongoDB.Driver.Linq.Linq3Implementation.SerializerFinders;
 
-internal partial class KnownSerializerFinderVisitor
+internal partial class SerializerFinderVisitor
 {
     protected override Expression VisitNew(NewExpression node)
     {
         var constructor = node.Constructor;
         var arguments = node.Arguments;
+        IBsonSerializer nodeSerializer;
 
-        if (IsKnown(node, out var nodeSerializer) &&
+        if (IsKnown(node, out nodeSerializer) &&
             arguments.Any(IsNotKnown))
         {
             if (!typeof(BsonValue).IsAssignableFrom(node.Type) &&
@@ -49,7 +50,7 @@ internal partial class KnownSerializerFinderVisitor
                     if (IsNotKnown(argument))
                     {
                         // arg => arg: matchingMemberSerializer
-                        AddKnownSerializer(argument, matchingMemberSerializationInfo.Serializer);
+                        AddNodeSerializer(argument, matchingMemberSerializationInfo.Serializer);
                     }
                 }
             }
@@ -59,16 +60,16 @@ internal partial class KnownSerializerFinderVisitor
 
         if (IsNotKnown(node))
         {
-            var knownSerializer = GetKnownSerializer(constructor);
-            if (knownSerializer != null)
+            nodeSerializer = CreateSerializer(constructor);
+            if (nodeSerializer != null)
             {
-                AddKnownSerializer(node, knownSerializer);
+                AddNodeSerializer(node, nodeSerializer);
             }
         }
 
         return node;
 
-        IBsonSerializer GetKnownSerializer(ConstructorInfo constructor)
+        IBsonSerializer CreateSerializer(ConstructorInfo constructor)
         {
             if (constructor == null)
             {

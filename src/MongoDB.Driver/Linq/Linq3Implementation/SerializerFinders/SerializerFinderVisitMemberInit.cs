@@ -18,28 +18,28 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 
-namespace MongoDB.Driver.Linq.Linq3Implementation.KnownSerializerFinders;
+namespace MongoDB.Driver.Linq.Linq3Implementation.SerializerFinders;
 
-internal partial class KnownSerializerFinderVisitor
+internal partial class SerializerFinderVisitor
 {
     protected override Expression VisitMemberInit(MemberInitExpression node)
     {
-        if (IsKnown(node, out var knownSerializer))
+        if (IsKnown(node, out var nodeSerializer))
         {
             var newExpression = node.NewExpression;
             if (newExpression != null)
             {
                 if (IsNotKnown(newExpression))
                 {
-                    AddKnownSerializer(newExpression, knownSerializer);
+                    AddNodeSerializer(newExpression, nodeSerializer);
                 }
             }
 
             if (node.Bindings.Count > 0)
             {
-                if (knownSerializer is not IBsonDocumentSerializer documentSerializer)
+                if (nodeSerializer is not IBsonDocumentSerializer documentSerializer)
                 {
-                    throw new ExpressionNotSupportedException(node, because:  $"serializer type {knownSerializer.GetType()} does not implement IBsonDocumentSerializer interface");
+                    throw new ExpressionNotSupportedException(node, because:  $"serializer type {nodeSerializer.GetType()} does not implement IBsonDocumentSerializer interface");
                 }
 
                 foreach (var binding in node.Bindings)
@@ -63,7 +63,7 @@ internal partial class KnownSerializerFinderVisitor
                             }
 
                             // member = expression => expression: memberSerializer (or derivedTypeSerializer)
-                            AddKnownSerializer(memberAssignment.Expression, expressionSerializer);
+                            AddNodeSerializer(memberAssignment.Expression, expressionSerializer);
                         }
                     }
                 }
@@ -77,7 +77,7 @@ internal partial class KnownSerializerFinderVisitor
             var resultSerializer = GetResultSerializer();
             if (resultSerializer != null)
             {
-                AddKnownSerializer(node, resultSerializer);
+                AddNodeSerializer(node, resultSerializer);
             }
         }
 

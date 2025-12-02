@@ -17,9 +17,9 @@ using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
-namespace MongoDB.Driver.Linq.Linq3Implementation.KnownSerializerFinders;
+namespace MongoDB.Driver.Linq.Linq3Implementation.SerializerFinders;
 
-internal partial class KnownSerializerFinderVisitor
+internal partial class SerializerFinderVisitor
 {
     protected override Expression VisitConstant(ConstantExpression node)
     {
@@ -27,12 +27,12 @@ internal partial class KnownSerializerFinderVisitor
         {
             if (StandardSerializers.TryGetSerializer(node.Type, out var standardSerializer))
             {
-                AddKnownSerializer(node, standardSerializer);
+                AddNodeSerializer(node, standardSerializer);
             }
             else
             {
                 var registeredSerializer = BsonSerializer.LookupSerializer(node.Type); // TODO: don't use static registry
-                AddKnownSerializer(node, registeredSerializer);
+                AddNodeSerializer(node, registeredSerializer);
             }
         }
 

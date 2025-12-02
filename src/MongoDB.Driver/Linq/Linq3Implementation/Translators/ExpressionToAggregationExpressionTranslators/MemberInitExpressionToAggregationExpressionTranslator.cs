@@ -42,14 +42,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             NewExpression newExpression,
             IReadOnlyList<MemberBinding> bindings)
         {
-            var knownSerializer = context.KnownSerializers.GetSerializer(expression);
+            var nodeSerializer = context.NodeSerializers.GetSerializer(expression);
             var constructorInfo = newExpression.Constructor; // note: can be null when using the default constructor with a struct
             var constructorArguments = newExpression.Arguments;
 
             var computedFields = new List<AstComputedField>();
             if (constructorInfo != null && constructorArguments.Count > 0)
             {
-                var matchingMemberSerializationInfos = knownSerializer.GetMatchingMemberSerializationInfosForConstructorParameters(expression, constructorInfo);
+                var matchingMemberSerializationInfos = nodeSerializer.GetMatchingMemberSerializationInfosForConstructorParameters(expression, constructorInfo);
 
                 for (var i = 0; i < constructorArguments.Count; i++)
                 {
@@ -69,9 +69,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
             if (bindings.Count > 0)
             {
-                if (knownSerializer is not IBsonDocumentSerializer documentSerializer)
+                if (nodeSerializer is not IBsonDocumentSerializer documentSerializer)
                 {
-                    throw new ExpressionNotSupportedException(expression, because: $"serializer type {knownSerializer.GetType()} does not implement IBsonDocumentSerializer");
+                    throw new ExpressionNotSupportedException(expression, because: $"serializer type {nodeSerializer.GetType()} does not implement IBsonDocumentSerializer");
                 }
 
                 foreach (var binding in bindings)
@@ -98,7 +98,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             }
 
             var ast = AstExpression.ComputedDocument(computedFields);
-            return new TranslatedExpression(expression, ast, knownSerializer);
+            return new TranslatedExpression(expression, ast, nodeSerializer);
         }
     }
 }

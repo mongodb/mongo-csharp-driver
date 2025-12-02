@@ -22,9 +22,9 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
-namespace MongoDB.Driver.Linq.Linq3Implementation.KnownSerializerFinders;
+namespace MongoDB.Driver.Linq.Linq3Implementation.SerializerFinders;
 
-internal partial class KnownSerializerFinderVisitor
+internal partial class SerializerFinderVisitor
 {
     protected override Expression VisitNewArray(NewArrayExpression node)
     {
@@ -56,6 +56,7 @@ internal partial class KnownSerializerFinderVisitor
         void DeduceNewArrayInitSerializers()
         {
             var itemExpressions = node.Expressions;
+            IBsonSerializer itemSerializer;
 
             if (IsAnyNotKnown(itemExpressions) && IsKnown(node, out var arraySerializer))
             {
@@ -66,25 +67,25 @@ internal partial class KnownSerializerFinderVisitor
                         var itemExpression = itemExpressions[i];
                         if (IsNotKnown(itemExpression))
                         {
-                            var itemSerializer = polymorphicArraySerializer.GetItemSerializer(i);
-                            AddKnownSerializer(itemExpression, itemSerializer);
+                            itemSerializer = polymorphicArraySerializer.GetItemSerializer(i);
+                            AddNodeSerializer(itemExpression, itemSerializer);
                         }
                     }
                 }
                 else
                 {
-                    var itemSerializer = arraySerializer.GetItemSerializer();
+                    itemSerializer = arraySerializer.GetItemSerializer();
                     foreach (var itemExpression in itemExpressions)
                     {
                         if (IsNotKnown(itemExpression))
                         {
-                            AddKnownSerializer(itemExpression, itemSerializer);
+                            AddNodeSerializer(itemExpression, itemSerializer);
                         }
                     }
                 }
             }
 
-            if (IsAnyNotKnown(itemExpressions) && IsAnyKnown(itemExpressions, out var knownItemSerializer))
+            if (IsAnyNotKnown(itemExpressions) && IsAnyKnown(itemExpressions, out itemSerializer))
             {
                 var firstItemType = itemExpressions.First().Type;
                 if (itemExpressions.All(e => e.Type == firstItemType))
@@ -93,7 +94,7 @@ internal partial class KnownSerializerFinderVisitor
                     {
                         if (IsNotKnown(itemExpression))
                         {
-                            AddKnownSerializer(itemExpression, knownItemSerializer);
+                            AddNodeSerializer(itemExpression, itemSerializer);
                         }
                     }
                 }
@@ -103,7 +104,7 @@ internal partial class KnownSerializerFinderVisitor
             {
                 if (AreAllKnown(itemExpressions, out var itemSerializers))
                 {
-                    if (AllItemSerializersAreEqual(itemSerializers, out var itemSerializer))
+                    if (AllItemSerializersAreEqual(itemSerializers, out itemSerializer))
                     {
                         arraySerializer = ArraySerializer.Create(itemSerializer);
                     }
@@ -112,7 +113,7 @@ internal partial class KnownSerializerFinderVisitor
                         var itemType = node.Type.GetElementType();
                         arraySerializer = PolymorphicArraySerializer.Create(itemType, itemSerializers);
                     }
-                    AddKnownSerializer(node, arraySerializer);
+                    AddNodeSerializer(node, arraySerializer);
                 }
             }
 

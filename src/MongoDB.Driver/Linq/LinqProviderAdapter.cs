@@ -14,18 +14,16 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages;
-using MongoDB.Driver.Linq.Linq3Implementation.KnownSerializerFinders;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
+using MongoDB.Driver.Linq.Linq3Implementation.SerializerFinders;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilterTranslators;
@@ -222,15 +220,15 @@ namespace MongoDB.Driver.Linq
             var parameter = expression.Parameters.Single();
             var body = expression.Body;
 
-            var knownSerializers = new KnownSerializerMap();
-            knownSerializers.AddSerializer(parameter, documentSerializer);
+            var nodeSerializers = new SerializerMap();
+            nodeSerializers.AddSerializer(parameter, documentSerializer);
             if (body.Type == typeof(TDocument))
             {
-                knownSerializers.AddSerializer(body, documentSerializer);
+                nodeSerializers.AddSerializer(body, documentSerializer);
             }
-            KnownSerializerFinder.FindKnownSerializers(expression, translationOptions, knownSerializers);
+            SerializerFinder.FindSerializers(expression, translationOptions, nodeSerializers);
 
-            var context = TranslationContext.Create(translationOptions, knownSerializers); // do not partially evaluate expression
+            var context = TranslationContext.Create(translationOptions, nodeSerializers); // do not partially evaluate expression
             var symbol = context.CreateRootSymbol(parameter, documentSerializer);
             context = context.WithSymbol(symbol);
             var setStage = ExpressionToSetStageTranslator.Translate(context, documentSerializer, expression);

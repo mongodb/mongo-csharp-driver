@@ -24,9 +24,9 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
-namespace MongoDB.Driver.Linq.Linq3Implementation.KnownSerializerFinders;
+namespace MongoDB.Driver.Linq.Linq3Implementation.SerializerFinders;
 
-internal partial class KnownSerializerFinderVisitor
+internal partial class SerializerFinderVisitor
 {
     protected override Expression VisitMember(MemberExpression node)
     {
@@ -56,7 +56,7 @@ internal partial class KnownSerializerFinderVisitor
                     _ => GetPropertySerializer()
                 };
 
-                AddKnownSerializer(node, resultSerializer);
+                AddNodeSerializer(node, resultSerializer);
             }
         }
 
