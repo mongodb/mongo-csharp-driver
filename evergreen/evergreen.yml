@@ -1718,6 +1718,8 @@ tasks:
             AUTH: "noauth"
             SKIP_LEGACY_SHELL: "true"
         - func: configure-framework
+          vars:
+            FRAMEWORK: net8.0
         - func: run-performance-tests
 
     - name: test-aws-lambda-deployed
