@@ -281,13 +281,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             var queryableParameter = parameters[1];
             var body = pipelineLambda.Body;
 
-            var initialKnownSerializers = new (Expression, IBsonSerializer)[]
+            var initialNodeSerializers = new (Expression, IBsonSerializer)[]
             {
                 (localParameter, localSerializer),
                 (queryableParameter, IQueryableSerializer.Create(documentSerializer)),
             };
 
-            context = TranslationContext.Create(pipelineLambda, initialKnownSerializers, context.TranslationOptions);
+            context = TranslationContext.Create(pipelineLambda, initialNodeSerializers, context.TranslationOptions);
             var localAst = AstExpression.Var("local");
             var localSymbol = context.CreateSymbol(localParameter, localAst, localSerializer);
             context = context.WithSymbol(localSymbol);
@@ -338,13 +338,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             var queryableParameter = parameters[1];
             var body = pipelineLambda.Body;
 
-            (Expression, IBsonSerializer)[] knownSerializers =
+            (Expression, IBsonSerializer)[] initialNodeSerializers =
             [
-                (localParameter, context.GetKnownSerializer(localParameter)),
-                (queryableParameter, context.GetKnownSerializer(queryableParameter))
+                (localParameter, context.GetSerializer(localParameter)),
+                (queryableParameter, context.GetSerializer(queryableParameter))
             ];
 
-            context = TranslationContext.Create(pipelineLambda, knownSerializers, context.TranslationOptions);
+            context = TranslationContext.Create(pipelineLambda, initialNodeSerializers, context.TranslationOptions);
             var localAst = AstExpression.Var("local");
             var localSymbol = context.CreateSymbol(localParameter, localAst, localSerializer);
             context = context.WithSymbol(localSymbol);

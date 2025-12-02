@@ -14,20 +14,25 @@
  */
 
 using System.Linq.Expressions;
-using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
-namespace MongoDB.Driver.Linq.Linq3Implementation.KnownSerializerFinders;
+namespace MongoDB.Driver.Linq.Linq3Implementation.SerializerFinders;
 
-internal partial class KnownSerializerFinderVisitor
+internal partial class SerializerFinderVisitor
 {
-    protected override Expression VisitLambda<T>(Expression<T> node)
+    protected override Expression VisitListInit(ListInitExpression node)
     {
-        if (IsNotKnown(node))
-        {
-            var ignoreNodeSerializer = IgnoreNodeSerializer.Create(node.Type);
-            AddKnownSerializer(node, ignoreNodeSerializer);
-        }
+        var newExpression = node.NewExpression;
+        var initializers = node.Initializers;
 
-        return base.VisitLambda(node);
+        DeduceListInitSerializers();
+        base.VisitListInit(node);
+        DeduceListInitSerializers();
+
+        return node;
+
+        void DeduceListInitSerializers()
+        {
+            DeduceSerializers(node, newExpression);
+        }
     }
 }

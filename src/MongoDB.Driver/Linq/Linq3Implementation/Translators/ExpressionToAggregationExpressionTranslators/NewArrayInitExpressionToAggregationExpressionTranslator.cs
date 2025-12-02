@@ -36,7 +36,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             }
             var ast = AstExpression.ComputedArray(items);
 
-            var arraySerializer = context.KnownSerializers.GetSerializer(expression);
+            var arraySerializer = context.NodeSerializers.GetSerializer(expression);
             return new TranslatedExpression(expression, ast, arraySerializer);
         }
     }

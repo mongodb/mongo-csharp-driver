@@ -17,19 +17,19 @@ using System.Linq.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 using ExpressionVisitor = System.Linq.Expressions.ExpressionVisitor;
 
-namespace MongoDB.Driver.Linq.Linq3Implementation.KnownSerializerFinders;
+namespace MongoDB.Driver.Linq.Linq3Implementation.SerializerFinders;
 
-internal partial class KnownSerializerFinderVisitor : ExpressionVisitor
+internal partial class SerializerFinderVisitor : ExpressionVisitor
 {
     private bool _isMakingProgress = true;
-    private readonly KnownSerializerMap _knownSerializers;
-    private int _oldKnownSerializersCount = 0;
+    private readonly SerializerMap _nodeSerializers;
+    private int _oldNodeSerializersCount = 0;
     private readonly ExpressionTranslationOptions _translationOptions;
     private bool _useDefaultSerializerForConstants = false; // make as much progress as possible before setting this to true
 
-    public KnownSerializerFinderVisitor(ExpressionTranslationOptions translationOptions, KnownSerializerMap knownSerializers)
+    public SerializerFinderVisitor(ExpressionTranslationOptions translationOptions, SerializerMap nodeSerializers)
     {
-        _knownSerializers = knownSerializers;
+        _nodeSerializers = nodeSerializers;
         _translationOptions = translationOptions;
     }
 
@@ -37,8 +37,8 @@ internal partial class KnownSerializerFinderVisitor : ExpressionVisitor
 
     public void EndPass()
     {
-        var newKnownSerializersCount = _knownSerializers.Count;
-        if (newKnownSerializersCount == _oldKnownSerializersCount)
+        var newNodeSerializersCount = _nodeSerializers.Count;
+        if (newNodeSerializersCount == _oldNodeSerializersCount)
         {
             if (_useDefaultSerializerForConstants)
             {
@@ -53,14 +53,14 @@ internal partial class KnownSerializerFinderVisitor : ExpressionVisitor
 
     public void StartPass()
     {
-        _oldKnownSerializersCount = _knownSerializers.Count;
+        _oldNodeSerializersCount = _nodeSerializers.Count;
     }
 
     public override Expression Visit(Expression node)
     {
-        if (IsKnown(node, out var knownSerializer))
+        if (IsKnown(node, out var nodeSerializer))
         {
-            if (knownSerializer is IIgnoreSubtreeSerializer or IUnknowableSerializer)
+            if (nodeSerializer is IIgnoreSubtreeSerializer or IUnknowableSerializer)
             {
                 return node; // don't visit subtree
             }

@@ -19,8 +19,8 @@ using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
-using MongoDB.Driver.Linq.Linq3Implementation.KnownSerializerFinders;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
+using MongoDB.Driver.Linq.Linq3Implementation.SerializerFinders;
 using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
@@ -56,35 +56,35 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
             ExpressionTranslationOptions translationOptions,
             TranslationContextData data = null)
         {
-            var knownSerializers = new KnownSerializerMap();
-            knownSerializers.AddSerializer(initialNode, initialSerializer);
-            KnownSerializerFinder.FindKnownSerializers(expression, translationOptions, knownSerializers);
-            return Create(translationOptions, knownSerializers, data);
+            var nodeSerializers = new SerializerMap();
+            nodeSerializers.AddSerializer(initialNode, initialSerializer);
+            SerializerFinder.FindSerializers(expression, translationOptions, nodeSerializers);
+            return Create(translationOptions, nodeSerializers, data);
         }
 
         public static TranslationContext Create(
             Expression expression,
-            (Expression Node, IBsonSerializer Serializer)[] initialKnownSerializers,
+            (Expression Node, IBsonSerializer Serializer)[] initialNodeSerializers,
             ExpressionTranslationOptions translationOptions,
             TranslationContextData data = null)
         {
-            var knownSerializers = new KnownSerializerMap();
-            foreach (var (node, serializer) in initialKnownSerializers)
+            var nodeSerializers = new SerializerMap();
+            foreach (var (node, serializer) in initialNodeSerializers)
             {
-                knownSerializers.AddSerializer(node, serializer);
+                nodeSerializers.AddSerializer(node, serializer);
             }
-            KnownSerializerFinder.FindKnownSerializers(expression, translationOptions, knownSerializers);
-            return Create(translationOptions, knownSerializers, data);
+            SerializerFinder.FindSerializers(expression, translationOptions, nodeSerializers);
+            return Create(translationOptions, nodeSerializers, data);
         }
 
         public static TranslationContext Create(
             ExpressionTranslationOptions translationOptions,
-            KnownSerializerMap knownSerializers,
+            SerializerMap nodeSerializers,
             TranslationContextData data = null)
         {
             var symbolTable = new SymbolTable();
             var nameGenerator = new NameGenerator();
-            return new TranslationContext(translationOptions, knownSerializers, data, symbolTable, nameGenerator);
+            return new TranslationContext(translationOptions, nodeSerializers, data, symbolTable, nameGenerator);
         }
 
         private static Expression GetUltimateSource(Expression expression)
@@ -125,20 +125,20 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
 
         // private fields
         private readonly TranslationContextData _data;
-        private readonly KnownSerializerMap _knownSerializers;
+        private readonly SerializerMap _nodeSerializers;
         private readonly NameGenerator _nameGenerator;
         private readonly SymbolTable _symbolTable;
         private readonly ExpressionTranslationOptions _translationOptions;
 
         private TranslationContext(
             ExpressionTranslationOptions translationOptions,
-            KnownSerializerMap knownSerializers,
+            SerializerMap nodeSerializers,
             TranslationContextData data,
             SymbolTable symbolTable,
             NameGenerator nameGenerator)
         {
             _translationOptions = translationOptions ?? new ExpressionTranslationOptions();
-            _knownSerializers = Ensure.IsNotNull(knownSerializers, nameof(knownSerializers));
+            _nodeSerializers = Ensure.IsNotNull(nodeSerializers, nameof(nodeSerializers));
             _data = data; // can be null
             _symbolTable = Ensure.IsNotNull(symbolTable, nameof(symbolTable));
             _nameGenerator = Ensure.IsNotNull(nameGenerator, nameof(nameGenerator));
@@ -146,7 +146,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
 
         // public properties
         public TranslationContextData Data => _data;
-        public KnownSerializerMap KnownSerializers => _knownSerializers;
+        public SerializerMap NodeSerializers => _nodeSerializers;
         public NameGenerator NameGenerator => _nameGenerator;
         public SymbolTable SymbolTable => _symbolTable;
         public ExpressionTranslationOptions TranslationOptions => _translationOptions;
@@ -192,9 +192,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
             return CreateSymbol(parameter, name: parameterName, varName, serializer, isCurrent);
         }
 
-        public IBsonSerializer GetKnownSerializer(Expression parameter)
+        public IBsonSerializer GetSerializer(Expression parameter)
         {
-            return _knownSerializers.GetSerializer(parameter);
+            return _nodeSerializers.GetSerializer(parameter);
         }
 
         public override string ToString()
@@ -222,7 +222,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
 
         public TranslationContext WithSymbolTable(SymbolTable symbolTable)
         {
-            return new TranslationContext(_translationOptions, _knownSerializers, _data, symbolTable, _nameGenerator);
+            return new TranslationContext(_translationOptions, _nodeSerializers, _data, symbolTable, _nameGenerator);
         }
     }
 }
