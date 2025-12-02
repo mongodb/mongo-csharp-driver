@@ -57,7 +57,7 @@ internal partial class KnownSerializerFinderVisitor
         {
             var itemExpressions = node.Expressions;
 
-            if (AnyIsNotKnown(itemExpressions) && IsKnown(node, out var arraySerializer))
+            if (IsAnyNotKnown(itemExpressions) && IsKnown(node, out var arraySerializer))
             {
                 if (arraySerializer is IPolymorphicArraySerializer polymorphicArraySerializer)
                 {
@@ -84,7 +84,7 @@ internal partial class KnownSerializerFinderVisitor
                 }
             }
 
-            if (AnyIsNotKnown(itemExpressions) && AnyIsKnown(itemExpressions, out var knownItemSerializer))
+            if (IsAnyNotKnown(itemExpressions) && IsAnyKnown(itemExpressions, out var knownItemSerializer))
             {
                 var firstItemType = itemExpressions.First().Type;
                 if (itemExpressions.All(e => e.Type == firstItemType))
@@ -101,7 +101,7 @@ internal partial class KnownSerializerFinderVisitor
 
             if (IsNotKnown(node))
             {
-                if (AllAreKnown(itemExpressions, out var itemSerializers))
+                if (AreAllKnown(itemExpressions, out var itemSerializers))
                 {
                     if (AllItemSerializersAreEqual(itemSerializers, out var itemSerializer))
                     {

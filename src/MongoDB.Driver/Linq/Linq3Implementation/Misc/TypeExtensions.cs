@@ -102,6 +102,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 
         public static bool ImplementsDictionaryInterface(this Type type, out Type keyType, out Type valueType)
         {
+            // note: returns true for IReadOnlyDictionary also
             if (TryGetGenericInterface(type, __dictionaryInterfaceDefinitions, out var dictionaryInterface))
             {
                 var genericArguments = dictionaryInterface.GetGenericArguments();

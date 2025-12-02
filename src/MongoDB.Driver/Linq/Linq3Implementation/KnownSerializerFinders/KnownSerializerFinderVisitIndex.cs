@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -79,8 +81,11 @@ internal partial class KnownSerializerFinderVisitor
         bool IsDictionaryIndexer()
         {
             return
-                indexer.DeclaringType.Name.Contains("Dictionary") &&
-                arguments.Count == 1;
+                collectionExpression.Type.ImplementsDictionaryInterface(out var keyType, out var valueType) &&
+                arguments.Count == 1 &&
+                arguments[0] is var indexExpression &&
+                indexExpression.Type == keyType &&
+                indexer.PropertyType == valueType;
         }
     }
 }

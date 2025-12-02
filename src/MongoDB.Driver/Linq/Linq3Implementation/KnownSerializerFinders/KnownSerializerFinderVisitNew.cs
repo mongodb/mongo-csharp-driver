@@ -123,7 +123,7 @@ internal partial class KnownSerializerFinderVisitor
             }
             else if (TupleOrValueTupleConstructor.IsTupleOrValueTupleConstructor(constructor))
             {
-                if (AllAreKnown(arguments, out var argumentSerializers))
+                if (AreAllKnown(arguments, out var argumentSerializers))
                 {
                     return TupleOrValueTupleSerializer.Create(constructor.DeclaringType, argumentSerializers);
                 }

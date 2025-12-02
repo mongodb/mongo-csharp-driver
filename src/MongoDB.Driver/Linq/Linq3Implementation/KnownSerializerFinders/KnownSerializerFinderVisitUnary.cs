@@ -98,7 +98,7 @@ internal partial class KnownSerializerFinderVisitor
                     return sourceSerializer;
                 }
 
-                // handle conversionsn to BsonValue before any others
+                // handle conversion to BsonValue before any others
                 if (targetType == typeof(BsonValue))
                 {
                     return GetConvertToBsonValueSerializer(node, sourceSerializer);
@@ -193,6 +193,7 @@ internal partial class KnownSerializerFinderVisitor
                     throw new ExpressionNotSupportedException(expression, because: "target type is not an enum");
                 }
 
+                // TODO: throwing here breaks client-side projections
                 // if (sourceSerializer is IHasRepresentationSerializer sourceHasRepresentationSerializer &&
                 //     !SerializationHelper.IsNumericRepresentation(sourceHasRepresentationSerializer.Representation))
                 // {
