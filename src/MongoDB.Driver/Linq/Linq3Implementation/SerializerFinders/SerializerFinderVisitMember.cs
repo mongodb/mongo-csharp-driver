@@ -52,7 +52,7 @@ internal partial class SerializerFinderVisitor
                     _ when declaringType.IsConstructedGenericType && declaringType.GetGenericTypeDefinition() == typeof(Dictionary<,>) => GetDictionaryPropertySerializer(),
                     _ when declaringType.IsConstructedGenericType && declaringType.GetGenericTypeDefinition() == typeof(IDictionary<,>) => GetIDictionaryPropertySerializer(),
                     _ when declaringType.IsNullable() => GetNullablePropertySerializer(),
-                    _ when IsTupleOrValueTuple(declaringType) => GetTupleOrValueTuplePropertySerializer(),
+                    _ when declaringType.IsTupleOrValueTuple() => GetTupleOrValueTuplePropertySerializer(),
                     _ => GetPropertySerializer()
                 };
 
@@ -229,16 +229,6 @@ internal partial class SerializerFinderVisitor
                 (declaringType.ImplementsInterface(typeof(IEnumerable)) || declaringType == typeof(BitArray)) &&
                 node.Type == typeof(int) &&
                 (member.Name == "Count" || member.Name == "Length");
-        }
-
-        bool IsTupleOrValueTuple(Type type)
-        {
-            return
-                type.Namespace == "System" &&
-                (type.Name.StartsWith("Tuple") || type.Name.StartsWith("ValueTuple")) &&
-                type.IsPublic &&
-                type.IsConstructedGenericType &&
-                type.GetGenericArguments().Length is >= 1 and <= 8;
         }
     }
 }
