@@ -15,10 +15,12 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using MongoDB.Driver.TestHelpers;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver.Core.Misc;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira;
@@ -66,7 +68,7 @@ public class CSharp5532Tests : LinqIntegrationTest<CSharp5532Tests.ClassFixture>
 
         var projectionTranslation = TranslateFindProjection(collection, find);
 
-        projectionTranslation.Should().Be(
+        var expectedTranslation =
             """
             {
                 _id :
@@ -132,7 +134,13 @@ public class CSharp5532Tests : LinqIntegrationTest<CSharp5532Tests.ClassFixture>
                     }
                 }
             }
-            """);
+            """;
+        if (!Feature.FilterLimit.IsSupported(CoreTestConfiguration.MaxWireVersion))
+        {
+            expectedTranslation = Regex.Replace(expectedTranslation, @",\s+limit : 1", "");
+        }
+
+        projectionTranslation.Should().Be(expectedTranslation);
     }
 
     public class Document
