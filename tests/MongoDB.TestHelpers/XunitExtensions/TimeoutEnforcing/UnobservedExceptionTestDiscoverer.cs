@@ -14,6 +14,7 @@
  */
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -24,9 +25,30 @@ namespace MongoDB.TestHelpers.XunitExtensions.TimeoutEnforcing;
 public class UnobservedExceptionTrackingFactAttribute: FactAttribute
 {}
 
-public class UnobservedExceptionTestDiscoverer(IMessageSink DiagnosticsMessageSink) : IXunitTestCaseDiscoverer
+public class UnobservedExceptionTestDiscoverer : IXunitTestCaseDiscoverer
 {
-    public IEnumerable<IXunitTestCase> Discover(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo factAttribute) =>
-        [new UnobservedExceptionTrackingTestCase(DiagnosticsMessageSink, testMethod)];
+    private readonly IMessageSink _diagnosticsMessageSink;
+
+    public UnobservedExceptionTestDiscoverer(IMessageSink diagnosticsMessageSink)
+    {
+        _diagnosticsMessageSink = diagnosticsMessageSink;
+        TaskScheduler.UnobservedTaskException += UnobservedTaskExceptionEventHandler;
+    }
+
+    public static readonly List<string> UnobservedExceptions = new();
+
+    public IEnumerable<IXunitTestCase> Discover(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo factAttribute)
+    {
+        return [new XunitTestCase(_diagnosticsMessageSink, TestMethodDisplay.Method, TestMethodDisplayOptions.All, testMethod)
+        {
+            Traits =
+            {
+                { "Category", ["UnobservedExceptionTracking"] }
+            }
+        }];
+    }
+
+    void UnobservedTaskExceptionEventHandler(object sender, UnobservedTaskExceptionEventArgs unobservedException) =>
+        UnobservedExceptions.Add(unobservedException.Exception.ToString());
 }
 

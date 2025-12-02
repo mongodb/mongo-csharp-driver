@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Core.Connections
     {
         [Theory]
         [ParameterAttributeData]
-        public void Connect_should_dispose_socket_if_socket_fails([Values(false, true)] bool async)
+        public async Task Connect_should_dispose_socket_if_socket_fails([Values(false, true)] bool async)
         {
             RequireServer.Check();
 
@@ -43,20 +43,9 @@ namespace MongoDB.Driver.Core.Connections
 
             using (var testSocket = new TestSocket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
             {
-                Exception exception;
-                if (async)
-                {
-                    exception = Record.Exception(
-                        () =>
-                            subject
-                                .ConnectAsync(testSocket, endpoint, CancellationToken.None)
-                                .GetAwaiter()
-                                .GetResult());
-                }
-                else
-                {
-                    exception = Record.Exception(() => subject.Connect(testSocket, endpoint, CancellationToken.None));
-                }
+                var exception = async ?
+                    await Record.ExceptionAsync(() => subject.ConnectAsync(testSocket, endpoint, CancellationToken.None)) :
+                    Record.Exception(() => subject.Connect(testSocket, endpoint, CancellationToken.None));
 
                 exception.Should().NotBeNull();
                 testSocket.DisposeAttempts.Should().Be(1);
@@ -66,83 +55,64 @@ namespace MongoDB.Driver.Core.Connections
         [Fact]
         public void Constructor_should_throw_an_ArgumentNullException_when_tcpStreamSettings_is_null()
         {
-            Action act = () => new TcpStreamFactory(null);
+            var exception = Record.Exception(() => new TcpStreamFactory(null));
 
-            act.ShouldThrow<ArgumentNullException>();
+            exception.Should().BeOfType<ArgumentNullException>().Subject
+                .ParamName.Should().Be("settings");
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void CreateStream_should_throw_a_SocketException_when_the_endpoint_could_not_be_resolved(
-            [Values(false, true)]
-            bool async)
+        public async Task CreateStream_should_throw_a_SocketException_when_the_endpoint_could_not_be_resolved([Values(false, true)]bool async)
         {
             var subject = new TcpStreamFactory();
 
-            Action act;
-            if (async)
-            {
-                act = () => subject.CreateStreamAsync(new DnsEndPoint("not-gonna-exist-i-hope", 27017), CancellationToken.None).GetAwaiter().GetResult();
-            }
-            else
-            {
-                act = () => subject.CreateStream(new DnsEndPoint("not-gonna-exist-i-hope", 27017), CancellationToken.None);
-            }
+            var exception = async ?
+                await Record.ExceptionAsync(() => subject.CreateStreamAsync(new DnsEndPoint("not-gonna-exist-i-hope", 27017), CancellationToken.None)) :
+                Record.Exception(() => subject.CreateStream(new DnsEndPoint("not-gonna-exist-i-hope", 27017), CancellationToken.None));
 
-            act.ShouldThrow<SocketException>();
+            exception.Should().BeAssignableTo<SocketException>();
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void CreateStream_should_throw_when_cancellation_is_requested(
-            [Values(false, true)]
-            bool async)
+        public async Task CreateStream_should_throw_when_cancellation_is_requested([Values(false, true)]bool async)
         {
             var subject = new TcpStreamFactory();
             var endPoint = new IPEndPoint(new IPAddress(0x01010101), 12345); // a non-existent host and port
             var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromMilliseconds(20));
 
-            Action action;
+            var exception = async ?
+                await Record.ExceptionAsync(() => subject.CreateStreamAsync(endPoint, cancellationTokenSource.Token)) :
+                Record.Exception(() => subject.CreateStream(endPoint, cancellationTokenSource.Token));
             if (async)
             {
-                action = () => subject.CreateStreamAsync(endPoint, cancellationTokenSource.Token).GetAwaiter().GetResult();
+                exception.Should().BeOfType<TaskCanceledException>();
             }
             else
             {
-                action = () => subject.CreateStream(endPoint, cancellationTokenSource.Token);
+                exception.Should().BeOfType<OperationCanceledException>();
             }
-
-            action.ShouldThrow<OperationCanceledException>();
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void CreateStream_should_throw_when_connect_timeout_has_expired(
-            [Values(false, true)]
-            bool async)
+        public async Task CreateStream_should_throw_when_connect_timeout_has_expired([Values(false, true)]bool async)
         {
             var settings = new TcpStreamSettings(connectTimeout: TimeSpan.FromMilliseconds(20));
             var subject = new TcpStreamFactory(settings);
             var endPoint = new IPEndPoint(new IPAddress(0x01010101), 12345); // a non-existent host and port
 
-            Action action;
-            if (async)
-            {
-                action = () => subject.CreateStreamAsync(endPoint, CancellationToken.None).GetAwaiter().GetResult(); ;
-            }
-            else
-            {
-                action = () => subject.CreateStream(endPoint, CancellationToken.None);
-            }
+            var exception = async ?
+                await Record.ExceptionAsync(() => subject.CreateStreamAsync(endPoint, CancellationToken.None)) :
+                Record.Exception(() => subject.CreateStream(endPoint, CancellationToken.None));
 
-            action.ShouldThrow<TimeoutException>();
+            exception.Should().BeOfType<TimeoutException>();
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void CreateStream_should_call_the_socketConfigurator(
-            [Values(false, true)]
-            bool async)
+        public async Task CreateStream_should_call_the_socketConfigurator([Values(false, true)]bool async)
         {
             RequireServer.Check();
             var socketConfiguratorWasCalled = false;
@@ -153,7 +123,7 @@ namespace MongoDB.Driver.Core.Connections
 
             if (async)
             {
-                subject.CreateStreamAsync(endPoint, CancellationToken.None).GetAwaiter().GetResult();
+                await subject.CreateStreamAsync(endPoint, CancellationToken.None);
             }
             else
             {
@@ -165,9 +135,7 @@ namespace MongoDB.Driver.Core.Connections
 
         [Theory]
         [ParameterAttributeData]
-        public void CreateStream_should_connect_to_a_running_server_and_return_a_non_null_stream(
-            [Values(false, true)]
-            bool async)
+        public async Task CreateStream_should_connect_to_a_running_server_and_return_a_non_null_stream([Values(false, true)]bool async)
         {
             RequireServer.Check();
             var subject = new TcpStreamFactory();
@@ -176,7 +144,7 @@ namespace MongoDB.Driver.Core.Connections
             Stream stream;
             if (async)
             {
-                stream = subject.CreateStreamAsync(endPoint, CancellationToken.None).GetAwaiter().GetResult();
+                stream = await subject.CreateStreamAsync(endPoint, CancellationToken.None);
             }
             else
             {
@@ -188,9 +156,7 @@ namespace MongoDB.Driver.Core.Connections
 
         [Theory]
         [ParameterAttributeData]
-        public void SocketConfigurator_can_be_used_to_set_keepAlive(
-            [Values(false, true)]
-            bool async)
+        public async Task SocketConfigurator_can_be_used_to_set_keepAlive([Values(false, true)]bool async)
         {
             RequireServer.Check();
             Action<Socket> socketConfigurator = s => s.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
@@ -201,7 +167,7 @@ namespace MongoDB.Driver.Core.Connections
             Stream stream;
             if (async)
             {
-                stream = subject.CreateStreamAsync(endPoint, CancellationToken.None).GetAwaiter().GetResult();
+                stream = await subject.CreateStreamAsync(endPoint, CancellationToken.None);
             }
             else
             {

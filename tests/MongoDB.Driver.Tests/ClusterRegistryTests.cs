@@ -27,7 +27,6 @@ using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
-using MongoDB.Driver.TestHelpers;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -73,7 +72,6 @@ namespace MongoDB.Driver.Tests
             ClusterRegistry.Instance._registry().Keys.Should().NotContain(clusterKey);
         }
 
-#if WINDOWS
         [Fact]
         public void Instance_should_return_the_same_instance_every_time()
         {
@@ -221,7 +219,6 @@ namespace MongoDB.Driver.Tests
             subject._registry().Count.Should().Be(0);
             cluster._state().Should().Be(2);
         }
-#endif
     }
 
     internal static class ClusterRegistryReflector

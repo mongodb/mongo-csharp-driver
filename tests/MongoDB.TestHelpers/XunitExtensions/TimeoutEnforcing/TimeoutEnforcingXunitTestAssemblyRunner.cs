@@ -26,7 +26,7 @@ namespace MongoDB.TestHelpers.XunitExtensions.TimeoutEnforcing
     [DebuggerStepThrough]
     internal sealed class TimeoutEnforcingXunitTestAssemblyRunner : XunitTestAssemblyRunner
     {
-        private readonly UnobservedExceptionTrackingTestCase _unobservedExceptionTrackingTestCase;
+        private readonly IXunitTestCase _unobservedExceptionTrackingTestCase;
 
         public TimeoutEnforcingXunitTestAssemblyRunner(
             ITestAssembly testAssembly,
@@ -34,9 +34,14 @@ namespace MongoDB.TestHelpers.XunitExtensions.TimeoutEnforcing
             IMessageSink diagnosticMessageSink,
             IMessageSink executionMessageSink,
             ITestFrameworkExecutionOptions executionOptions)
-            : base(testAssembly, testCases.Where(t => t is not UnobservedExceptionTrackingTestCase), diagnosticMessageSink, executionMessageSink, executionOptions)
+            : base(
+                testAssembly,
+                testCases.Where(t => !IsUnobservedExceptionTrackingTestCase(t)),
+                diagnosticMessageSink,
+                executionMessageSink,
+                executionOptions)
         {
-            _unobservedExceptionTrackingTestCase = (UnobservedExceptionTrackingTestCase)testCases.SingleOrDefault(t => t is UnobservedExceptionTrackingTestCase);
+            _unobservedExceptionTrackingTestCase = testCases.SingleOrDefault(IsUnobservedExceptionTrackingTestCase);
         }
 
         protected override Task<RunSummary> RunTestCollectionAsync(
@@ -71,5 +76,8 @@ namespace MongoDB.TestHelpers.XunitExtensions.TimeoutEnforcing
                 Time = baseSummary.Time + unobservedExceptionTestCaseRunSummary.Time
             };
         }
+
+        private static bool IsUnobservedExceptionTrackingTestCase(IXunitTestCase testCase)
+            => testCase.Traits.TryGetValue("Category", out var categories) && categories.Contains("UnobservedExceptionTracking");
     }
 }

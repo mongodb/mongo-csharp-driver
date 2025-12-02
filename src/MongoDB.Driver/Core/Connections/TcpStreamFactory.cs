@@ -165,41 +165,57 @@ namespace MongoDB.Driver.Core.Connections
 
         private void Connect(Socket socket, EndPoint endPoint, CancellationToken cancellationToken)
         {
-            IAsyncResult connectOperation;
-#if NET472
-            if (endPoint is DnsEndPoint dnsEndPoint)
-            {
-                // mono doesn't support DnsEndPoint in its BeginConnect method.
-                connectOperation = socket.BeginConnect(dnsEndPoint.Host, dnsEndPoint.Port, null, null);
-            }
-            else
-            {
-                connectOperation = socket.BeginConnect(endPoint, null, null);
-            }
-#else
-            connectOperation = socket.BeginConnect(endPoint, null, null);
-#endif
-
-            WaitHandle.WaitAny([connectOperation.AsyncWaitHandle, cancellationToken.WaitHandle], _settings.ConnectTimeout);
-
-            if (!connectOperation.IsCompleted)
+            var wasCallbackExecuted = false;
+            using var timeoutCancellationTokenSource = new CancellationTokenSource(_settings.ConnectTimeout);
+            using var combinedCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCancellationTokenSource.Token);
+            using var cancellationSubscription = combinedCancellationTokenSource.Token.Register(() =>
             {
                 try
                 {
+                    wasCallbackExecuted = true;
                     socket.Dispose();
-                } catch { }
-
-                cancellationToken.ThrowIfCancellationRequested();
-                throw new TimeoutException($"Timed out connecting to {endPoint}. Timeout was {_settings.ConnectTimeout}.");
-            }
+                }
+                catch
+                {
+                    // Ignore any exception here, as we should avoid throwing in callback.
+                }
+            });
 
             try
             {
-                socket.EndConnect(connectOperation);
+#if NET472
+                if (endPoint is DnsEndPoint dnsEndPoint)
+                {
+                    // mono doesn't support DnsEndPoint in its Connect method.
+                    socket.Connect(dnsEndPoint.Host, dnsEndPoint.Port);
+                }
+                else
+                {
+                    socket.Connect(endPoint);
+                }
+#else
+                socket.Connect(endPoint);
+#endif
             }
-            catch
+            catch (Exception)
             {
-                try { socket.Dispose(); } catch { }
+                if (!wasCallbackExecuted)
+                {
+                    try
+                    {
+                        socket.Dispose();
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }
+
+                cancellationToken.ThrowIfCancellationRequested();
+                if (timeoutCancellationTokenSource.IsCancellationRequested)
+                {
+                    throw new TimeoutException($"Timed out connecting to {endPoint}. Timeout was {_settings.ConnectTimeout}.");
+                }
+
                 throw;
             }
         }

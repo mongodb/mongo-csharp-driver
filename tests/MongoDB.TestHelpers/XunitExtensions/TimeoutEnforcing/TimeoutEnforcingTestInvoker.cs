@@ -80,6 +80,9 @@ namespace MongoDB.TestHelpers.XunitExtensions.TimeoutEnforcing
 
         protected override async Task<decimal> InvokeTestMethodAsync(object testClassInstance)
         {
+#if UNOBSERVED_TASK_EXCEPTION_DEBUGGING
+            Exception unobservedException = null;
+#endif
             var xUnitTestCase = Test.TestCase as IXunitTestCase;
             var timeoutMS = xUnitTestCase?.Timeout ?? 0;
             var timeout = Debugger.IsAttached
@@ -92,8 +95,23 @@ namespace MongoDB.TestHelpers.XunitExtensions.TimeoutEnforcing
             decimal result;
             try
             {
+#if UNOBSERVED_TASK_EXCEPTION_DEBUGGING
+                TaskScheduler.UnobservedTaskException += UnobservedTaskExceptionEventHandler;
+#endif
+
                 var baseTask = InvokeBaseOnTaskScheduler(testClassInstance);
                 var resultTask = await Task.WhenAny(baseTask, Task.Delay(timeout));
+
+#if UNOBSERVED_TASK_EXCEPTION_DEBUGGING
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                TaskScheduler.UnobservedTaskException -= UnobservedTaskExceptionEventHandler;
+
+                if (unobservedException != null)
+                {
+                    throw unobservedException;
+                }
+#endif
 
                 if (resultTask != baseTask)
                 {
@@ -120,6 +138,13 @@ namespace MongoDB.TestHelpers.XunitExtensions.TimeoutEnforcing
             }
 
             return result;
+
+#if UNOBSERVED_TASK_EXCEPTION_DEBUGGING
+            void UnobservedTaskExceptionEventHandler(object sender, UnobservedTaskExceptionEventArgs unobservedExceptionArgs)
+            {
+                unobservedException = unobservedExceptionArgs.Exception;
+            }
+#endif
         }
     }
 }

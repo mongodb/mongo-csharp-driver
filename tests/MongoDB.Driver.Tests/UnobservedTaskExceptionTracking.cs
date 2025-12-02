@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+using System;
 using FluentAssertions;
 using MongoDB.TestHelpers.XunitExtensions.TimeoutEnforcing;
 
@@ -23,7 +24,10 @@ public class UnobservedTaskExceptionTracking
     [UnobservedExceptionTrackingFact]
     public void EnsureNoUnobservedTaskException()
     {
-        UnobservedExceptionTrackingTestCase.__unobservedExceptions.Should().BeEmpty();
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
+
+        UnobservedExceptionTestDiscoverer.UnobservedExceptions.Should().BeEmpty();
     }
 }
 

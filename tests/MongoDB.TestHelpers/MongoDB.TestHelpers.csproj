@@ -12,4 +12,8 @@
     <Description>Helper classes applicable to all test projects.</Description>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <DefineConstants>$(DefineConstants);UNOBSERVED_TASK_EXCEPTION_DEBUGGING</DefineConstants>
+  </PropertyGroup>
+
 </Project>
