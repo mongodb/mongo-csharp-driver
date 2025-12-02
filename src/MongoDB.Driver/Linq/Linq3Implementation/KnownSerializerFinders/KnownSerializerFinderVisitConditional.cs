@@ -24,13 +24,13 @@ internal partial class KnownSerializerFinderVisitor
         var ifTrueExpression = node.IfTrue;
         var ifFalseExpression = node.IfFalse;
 
-        DeduceConditionaSerializers();
+        DeduceConditionalSerializers();
         base.VisitConditional(node);
-        DeduceConditionaSerializers();
+        DeduceConditionalSerializers();
 
         return node;
 
-        void DeduceConditionaSerializers()
+        void DeduceConditionalSerializers()
         {
             DeduceBaseTypeAndDerivedTypeSerializers(node, ifTrueExpression);
             DeduceBaseTypeAndDerivedTypeSerializers(node, ifFalseExpression);

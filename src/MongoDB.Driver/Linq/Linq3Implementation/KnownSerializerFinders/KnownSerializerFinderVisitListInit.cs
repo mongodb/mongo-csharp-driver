@@ -24,13 +24,13 @@ internal partial class KnownSerializerFinderVisitor
         var newExpression = node.NewExpression;
         var initializers = node.Initializers;
 
-        DeduceSerialiers();
+        DeduceListInitSerializers();
         base.VisitListInit(node);
-        DeduceSerialiers();
+        DeduceListInitSerializers();
 
         return node;
 
-        void DeduceSerialiers()
+        void DeduceListInitSerializers()
         {
             DeduceSerializers(node, newExpression);
         }

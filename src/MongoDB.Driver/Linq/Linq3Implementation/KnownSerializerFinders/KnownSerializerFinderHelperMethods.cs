@@ -29,7 +29,7 @@ internal partial class KnownSerializerFinderVisitor
 {
     private void AddKnownSerializer(Expression node, IBsonSerializer serializer) => _knownSerializers.AddSerializer(node, serializer);
 
-    private bool AllAreKnown(IEnumerable<Expression> nodes, out IReadOnlyList<IBsonSerializer> knownSerializers)
+    private bool AreAllKnown(IEnumerable<Expression> nodes, out IReadOnlyList<IBsonSerializer> knownSerializers)
     {
         var knownSerializersList = new List<IBsonSerializer>();
         foreach (var node in nodes)
@@ -49,7 +49,7 @@ internal partial class KnownSerializerFinderVisitor
         return true;
     }
 
-    private bool AnyIsKnown(IEnumerable<Expression> nodes, out IBsonSerializer knownSerializer)
+    private bool IsAnyKnown(IEnumerable<Expression> nodes, out IBsonSerializer knownSerializer)
     {
         foreach (var node in nodes)
         {
@@ -64,7 +64,7 @@ internal partial class KnownSerializerFinderVisitor
         return false;
     }
 
-    private bool AnyIsNotKnown(IEnumerable<Expression> nodes)
+    private bool IsAnyNotKnown(IEnumerable<Expression> nodes)
     {
         return nodes.Any(IsNotKnown);
     }

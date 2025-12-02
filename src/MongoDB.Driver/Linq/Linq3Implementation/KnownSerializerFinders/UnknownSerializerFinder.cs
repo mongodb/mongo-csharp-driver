@@ -37,7 +37,7 @@ internal class UnknownSerializerFinder : ExpressionVisitor
         _knownSerializers = knownSerializers;
     }
 
-    public Expression ExpressionWithUnknownSerialier => _expressionWithUnknownSerializer;
+    public Expression ExpressionWithUnknownSerializer => _expressionWithUnknownSerializer;
 
     public override Expression Visit(Expression node)
     {
