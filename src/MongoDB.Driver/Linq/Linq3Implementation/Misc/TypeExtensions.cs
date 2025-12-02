@@ -190,6 +190,18 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                 actualItemType == itemType;
         }
 
+        public static bool ImplementsISet(this Type type, out Type itemType)
+        {
+            if (TryGetISetGenericInterface(type, out var isetType))
+            {
+                itemType = isetType.GetGenericArguments()[0];
+                return true;
+            }
+
+            itemType = null;
+            return false;
+        }
+
         public static bool Is(this Type type, Type comparand)
         {
             if (type == comparand)
@@ -435,6 +447,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 
         public static bool TryGetIQueryableGenericInterface(this Type type, out Type iqueryableGenericInterface)
             => TryGetGenericInterface(type, typeof(IQueryable<>), out iqueryableGenericInterface);
+
+        public static bool TryGetISetGenericInterface(this Type type, out Type isetGenericInterface)
+            => TryGetGenericInterface(type, typeof(ISet<>), out isetGenericInterface);
 
         private static TValue GetDefaultValueGeneric<TValue>()
         {
