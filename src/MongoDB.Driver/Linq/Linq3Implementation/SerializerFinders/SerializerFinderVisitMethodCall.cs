@@ -2939,7 +2939,7 @@ internal partial class SerializerFinderVisitor
 
         void DeduceSetEqualsMethodSerializers()
         {
-            if (IsSetEqualsMethod(method))
+            if (ISetMethod.IsSetEqualsMethod(method))
             {
                 var objectExpression =  node.Object;
                 var otherExpression = arguments[0];
@@ -2950,22 +2950,6 @@ internal partial class SerializerFinderVisitor
             else
             {
                 DeduceUnknownMethodSerializer();
-            }
-
-            static bool IsSetEqualsMethod(MethodInfo method)
-            {
-                var declaringType = method.DeclaringType;
-                var parameters = method.GetParameters();
-                return
-                    method.IsPublic &&
-                    method.IsStatic == false &&
-                    method.ReturnType == typeof(bool) &&
-                    method.Name == "SetEquals" &&
-                    parameters.Length == 1 &&
-                    parameters[0] is var otherParameter &&
-                    declaringType.ImplementsIEnumerable(out var declaringTypeItemType) &&
-                    otherParameter.ParameterType.ImplementsIEnumerable(out var otherTypeItemType) &&
-                    otherTypeItemType == declaringTypeItemType;
             }
         }
 
