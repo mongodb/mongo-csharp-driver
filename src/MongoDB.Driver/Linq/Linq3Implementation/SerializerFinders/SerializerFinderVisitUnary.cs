@@ -193,13 +193,6 @@ internal partial class SerializerFinderVisitor
                     throw new ExpressionNotSupportedException(expression, because: "target type is not an enum");
                 }
 
-                // TODO: throwing here breaks client-side projections
-                // if (sourceSerializer is IHasRepresentationSerializer sourceHasRepresentationSerializer &&
-                //     !SerializationHelper.IsNumericRepresentation(sourceHasRepresentationSerializer.Representation))
-                // {
-                //     throw new ExpressionNotSupportedException(expression, because: "source enum is not represented as a number");
-                // }
-
                 return EnumSerializer.Create(targetType);
             }
 
