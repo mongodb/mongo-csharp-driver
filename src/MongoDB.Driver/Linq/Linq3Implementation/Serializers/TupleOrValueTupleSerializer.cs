@@ -17,18 +17,19 @@ using System;
 using System.Collections.Generic;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
 internal static class TupleOrValueTupleSerializer
 {
-    public static IBsonSerializer Create(Type type, IEnumerable<IBsonSerializer> itemSerializers)
+    public static IBsonSerializer Create(Type tupleType, IEnumerable<IBsonSerializer> itemSerializers)
     {
-        return type.Name switch
+        return tupleType.Name switch
         {
-            _ when type.Name.StartsWith("Tuple") => TupleSerializer.Create(itemSerializers),
-            _ when type.Name.StartsWith("ValueTuple") => ValueTupleSerializer.Create(itemSerializers),
-            _ => throw new ArgumentException($"Unexpected type: {type.Name}", nameof(type))
+            _ when tupleType.IsTuple() => TupleSerializer.Create(itemSerializers),
+            _ when tupleType.IsValueTuple() => ValueTupleSerializer.Create(itemSerializers),
+            _ => throw new ArgumentException($"Unexpected tuple type: {tupleType.Name}", nameof(tupleType))
         };
     }
 }

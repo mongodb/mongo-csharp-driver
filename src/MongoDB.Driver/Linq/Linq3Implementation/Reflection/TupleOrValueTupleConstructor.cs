@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-using System;
 using System.Reflection;
+using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection;
 
@@ -24,8 +24,6 @@ internal static class TupleOrValueTupleConstructor
     {
         return
             constructor != null &&
-            constructor.DeclaringType is var declaringType &&
-            declaringType.Namespace == "System" &&
-            (declaringType.Name.StartsWith("Tuple") || declaringType.Name.StartsWith("ValueTuple"));
+            constructor.DeclaringType.IsTupleOrValueTuple();
     }
 }

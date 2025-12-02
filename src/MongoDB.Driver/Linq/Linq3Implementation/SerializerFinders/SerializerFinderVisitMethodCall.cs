@@ -14,8 +14,6 @@
  */
 
 using System;
-using System.CodeDom;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -28,7 +26,6 @@ using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
 using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
-using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.SerializerFinders;
 
@@ -1717,19 +1714,20 @@ internal partial class SerializerFinderVisitor
 
                 if (IsNotKnown(node) && AreAllKnown(arguments, out var argumentSerializers))
                 {
+                    var tupleType = method.ReturnType;
+
                     if (arguments.Count == 8)
                     {
-                        var tempList = new List<IBsonSerializer>(argumentSerializers);
-                        tempList[7] = method.ReturnType.Name.StartsWith("ValueTuple") ?
-                            ValueTupleSerializer.Create([argumentSerializers[7]]) :
-                            TupleSerializer.Create([argumentSerializers[7]]);
-                        argumentSerializers = tempList;
+                        var item8Expression = arguments[7];
+                        var item8Type = item8Expression.Type;
+                        var item8Serializer = argumentSerializers[7];
+                        var restTupleType = (tupleType.IsTuple() ? typeof(Tuple<>) : typeof(ValueTuple<>)).MakeGenericType(item8Type);
+                        var restSerializer = TupleOrValueTupleSerializer.Create(restTupleType, [item8Serializer]);
+                        argumentSerializers = argumentSerializers.Take(7).Append(restSerializer).ToArray();
                     }
 
-                    var resultSerializer = method.ReturnType.Name.StartsWith("ValueTuple") ?
-                        ValueTupleSerializer.Create(argumentSerializers) :
-                        TupleSerializer.Create(argumentSerializers);
-                    AddNodeSerializer(node, resultSerializer);
+                    var tupleSerializer = TupleOrValueTupleSerializer.Create(tupleType, argumentSerializers);
+                    AddNodeSerializer(node, tupleSerializer);
                 }
             }
             else
