@@ -145,15 +145,6 @@ functions:
         permissions: public-read
         content_type: ${content_type|application/x-gzip}
 
-  exec-script:
-    - command: shell.exec
-      type: test
-      params:
-        working_dir: mongo-csharp-driver
-        script: |
-          ${PREPARE_SHELL}
-          ${PROJECT_DIRECTORY}/${file}
-
   run-external-script:
     - command: shell.exec
       type: test
@@ -352,7 +343,6 @@ functions:
         working_dir: mongo-csharp-driver
         shell: "bash"
         script: |
-          . ./evergreen/set-virtualenv.sh
           DRIVERS_TOOLS=${DRIVERS_TOOLS} . ./evergreen/set-temp-fle-aws-creds.sh
           ${PREPARE_SHELL}
           OS=${OS} \
@@ -367,6 +357,7 @@ functions:
           REQUIRE_API_VERSION=${REQUIRE_API_VERSION} \
           FRAMEWORK=${FRAMEWORK} \
           CRYPT_SHARED_LIB_PATH=${CRYPT_SHARED_LIB_PATH} \
+          TEST_CATEGORY=${TEST_CATEGORY} \
             evergreen/run-tests.sh
           echo "Skipping certificate removal..."
 
@@ -390,7 +381,7 @@ functions:
           OS=${OS} \
           CLIENT_PEM=${DRIVERS_TOOLS}/.evergreen/x509gen/client.pem \
           FRAMEWORK=${FRAMEWORK} \
-          TARGET="TestCsfleWithMockedKms" \
+          TEST_CATEGORY="CSFLE" \
           CRYPT_SHARED_LIB_PATH=${CRYPT_SHARED_LIB_PATH} \
             evergreen/run-tests.sh
 
@@ -401,7 +392,6 @@ functions:
         working_dir: mongo-csharp-driver
         shell: "bash"
         script: |
-          . ./evergreen/set-virtualenv.sh
           DRIVERS_TOOLS=${DRIVERS_TOOLS} . ./evergreen/set-temp-fle-aws-creds.sh
           ${PREPARE_SHELL}
           OS=${OS} \
@@ -414,7 +404,7 @@ functions:
           COMPRESSOR=${COMPRESSOR} \
           CLIENT_PEM=${DRIVERS_TOOLS}/.evergreen/x509gen/client.pem \
           REQUIRE_API_VERSION=${REQUIRE_API_VERSION} \
-          TARGET="TestCsfleWithMongocryptd" \
+          TEST_CATEGORY="CSFLE" \
           FRAMEWORK=${FRAMEWORK} \
           CRYPT_SHARED_LIB_PATH="" \
             evergreen/run-tests.sh
@@ -590,7 +580,6 @@ functions:
           # Workaround. EG_TOOLS scripts for ECS assume that a folder with EG scripts in the driver is named ".evergreen"
           mkdir $SRC_DIRECTORY/.evergreen
           cp -r $SRC_DIRECTORY/evergreen/run-mongodb-aws-ecs-test.sh $SRC_DIRECTORY/.evergreen/run-mongodb-aws-ecs-test.sh
-          cp -r $SRC_DIRECTORY/evergreen/install-dotnet.sh $SRC_DIRECTORY/.evergreen/install-dotnet.sh
 
           export PROJECT_DIRECTORY="$SRC_DIRECTORY"
           ${DRIVERS_TOOLS}/.evergreen/auth_aws/aws_setup.sh ecs
@@ -1051,7 +1040,7 @@ functions:
           TOPOLOGY=${TOPOLOGY} \
           OS=${OS} \
           FRAMEWORK=${FRAMEWORK} \
-          TARGET="TestX509" \
+          TEST_CATEGORY="X509" \
             evergreen/run-tests.sh
 
   setup-socks5-proxy:
@@ -1089,7 +1078,7 @@ functions:
           TOPOLOGY=${TOPOLOGY} \
           OS=${OS} \
           FRAMEWORK=${FRAMEWORK} \
-          TARGET="TestSocks5Proxy" \
+          TEST_CATEGORY="Socks5Proxy" \
             evergreen/run-tests.sh
 
 pre:
@@ -1111,7 +1100,6 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net472
-            DOTNET_SDK_VERSION: 10.0
         - func: run-unit-tests
 
     - name: unit-tests-netstandard21
@@ -1119,7 +1107,6 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: netstandard2.1
-            DOTNET_SDK_VERSION: 10.0
         - func: run-unit-tests
 
     - name: unit-tests-net60
@@ -1127,7 +1114,6 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net6.0
-            DOTNET_SDK_VERSION: 10.0
         - func: run-unit-tests
 
     - name: unit-tests-net100
@@ -1135,7 +1121,6 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net10.0
-            DOTNET_SDK_VERSION: 10.0
         - func: run-unit-tests
 
     - name: test-net472
@@ -1401,8 +1386,8 @@ tasks:
               set -o errexit
               ${PREPARE_SHELL}
 
-              dotnet build
-              tar czf /tmp/mongo-csharp-driver.tgz tests/*.Tests/bin/Debug/net6.0/ evergreen/run-mongodb-oidc-env-tests.sh evergreen/install-dotnet.sh
+              evergreen/compile-sources.sh
+              tar czf /tmp/mongo-csharp-driver.tgz tests/*.Tests/bin/Release/net6.0/ evergreen/run-mongodb-oidc-env-tests.sh evergreen/install-dotnet.sh
 
               export AZUREOIDC_DRIVERS_TAR_FILE=/tmp/mongo-csharp-driver.tgz
               export AZUREOIDC_TEST_CMD="OIDC_ENV=azure ./evergreen/run-mongodb-oidc-env-tests.sh"
@@ -1421,8 +1406,8 @@ tasks:
               # Copy secrets-export.sh created by '${DRIVERS_TOOLS}/.evergreen/auth_oidc/gcp/setup.sh' script to read secrets inside the vm
               cp $DRIVERS_TOOLS/.evergreen/auth_oidc/gcp/secrets-export.sh ./secrets-export.sh
 
-              dotnet build
-              tar czf /tmp/mongo-csharp-driver.tgz tests/*.Tests/bin/Debug/net6.0/ evergreen/run-mongodb-oidc-env-tests.sh evergreen/install-dotnet.sh secrets-export.sh
+              evergreen/compile-sources.sh
+              tar czf /tmp/mongo-csharp-driver.tgz tests/*.Tests/bin/Release/net6.0/ evergreen/run-mongodb-oidc-env-tests.sh evergreen/install-dotnet.sh secrets-export.sh
 
               export GCPOIDC_DRIVERS_TAR_FILE=/tmp/mongo-csharp-driver.tgz
               export GCPOIDC_TEST_CMD="OIDC_ENV=gcp ./evergreen/run-mongodb-oidc-env-tests.sh"
@@ -1436,8 +1421,8 @@ tasks:
             working_dir: mongo-csharp-driver
             script: |-
               ${PREPARE_SHELL}
-              dotnet build
-              tar czf /tmp/mongo-csharp-driver.tgz tests/*.Tests/bin/Debug/net6.0/ evergreen/run-mongodb-oidc-env-tests.sh evergreen/install-dotnet.sh
+              evergreen/compile-sources.sh
+              tar czf /tmp/mongo-csharp-driver.tgz tests/*.Tests/bin/Release/net6.0/ evergreen/run-mongodb-oidc-env-tests.sh evergreen/install-dotnet.sh
         - func: assume-aws-test-secrets-role
         - func: run_oidc_k8s_tests
           vars:
@@ -1665,7 +1650,6 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net472
-            DOTNET_SDK_VERSION: 10.0
         - func: bootstrap-mongo-orchestration
         - func: run-smoke-tests
 
@@ -1677,7 +1661,6 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: netcoreapp3.1
-            DOTNET_SDK_VERSION: 10.0
         - func: bootstrap-mongo-orchestration
         - func: run-smoke-tests
 
@@ -1689,7 +1672,6 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net5.0
-            DOTNET_SDK_VERSION: 10.0
         - func: bootstrap-mongo-orchestration
         - func: run-smoke-tests
 
@@ -1701,7 +1683,6 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net6.0
-            DOTNET_SDK_VERSION: 10.0
         - func: bootstrap-mongo-orchestration
         - func: run-smoke-tests
 
@@ -1713,7 +1694,6 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net8.0
-            DOTNET_SDK_VERSION: 10.0
         - func: bootstrap-mongo-orchestration
         - func: run-smoke-tests
 
@@ -1725,7 +1705,6 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net10.0
-            DOTNET_SDK_VERSION: 10.0
         - func: bootstrap-mongo-orchestration
         - func: run-smoke-tests
 
@@ -1739,6 +1718,8 @@ tasks:
             AUTH: "noauth"
             SKIP_LEGACY_SHELL: "true"
         - func: configure-framework
+          vars:
+            FRAMEWORK: net8.0
         - func: run-performance-tests
 
     - name: test-aws-lambda-deployed

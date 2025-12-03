@@ -33,4 +33,4 @@ sleep 60 # sleep for 1 minute to let cluster make the master election
 # need set DOTNET_SYSTEM_GLOBALIZATION_INVARIANT to avoid "Couldn't find a valid ICU package installed on the system." error
 export DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
 
-dotnet test --no-build --framework net6.0 --filter Category=MongoDbOidc -e OIDC_ENV="$OIDC_ENV" -e TOKEN_RESOURCE="$TOKEN_RESOURCE" -e MONGODB_URI="$MONGODB_URI" --results-directory ./build/test-results --logger "console;verbosity=detailed" ./tests/**/*.Tests.dll
+dotnet test --no-build -c Release --framework net6.0 --filter Category=MongoDbOidc -e OIDC_ENV="$OIDC_ENV" -e TOKEN_RESOURCE="$TOKEN_RESOURCE" -e MONGODB_URI="$MONGODB_URI" --results-directory ./build/test-results --logger "console;verbosity=detailed" ./tests/**/*.Tests.dll
