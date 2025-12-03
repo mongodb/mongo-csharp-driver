@@ -344,8 +344,9 @@ namespace MongoDB.Bson.Serialization
         /// </returns>
         public bool TryGetMemberSerializationInfo(string memberName, out BsonSerializationInfo serializationInfo)
         {
-            foreach (var memberMap in _classMap.AllMemberMaps)
+            for (var i = 0; i < _classMap.AllMemberMaps.Count; i++)
             {
+                var memberMap = _classMap.AllMemberMaps[i];
                 if (memberMap.MemberName == memberName)
                 {
                     var elementName = memberMap.ElementName;
@@ -584,8 +585,9 @@ namespace MongoDB.Bson.Serialization
                 SerializeDiscriminator(context, args.NominalType, document);
             }
 
-            foreach (var memberMap in _classMap.AllMemberMaps)
+            for (var i = 0; i < _classMap.AllMemberMaps.Count; i++)
             {
+                var memberMap = _classMap.AllMemberMaps[i];
                 if (memberMap != idMemberMap || !args.SerializeIdFirst)
                 {
                     SerializeMember(context, document, memberMap);
