@@ -21,13 +21,11 @@ using System.Text;
 
 namespace MongoDB.Bson.IO;
 
-/// <summary>
-/// Represents a BSON reader for a ReadOnlyMemory containing a binary BSON byte array.
-/// </summary>
-public sealed class ReadOnlyMemoryBsonReader : BsonReader
+internal sealed class ReadOnlyMemoryBsonReader : BsonReader
 {
     private static readonly BsonReaderState[] __stateMap;
 
+    private readonly IByteBufferSlicer _byteBufferSlicer;
     private readonly ReadOnlyMemory<byte> _memory;
     private int _position;
 
@@ -44,24 +42,26 @@ public sealed class ReadOnlyMemoryBsonReader : BsonReader
         __stateMap[(int)ContextType.TopLevel] = BsonReaderState.Initial;
     }
 
-    /// <summary>
-    /// Initializes a new instance of the ReadOnlyMemoryBsonReader class.
-    /// </summary>
-    /// <param name="memory">Memory containing binary BSON.</param>
     public ReadOnlyMemoryBsonReader(ReadOnlyMemory<byte> memory)
         : this(memory, ReadOnlyMemoryReaderSettings.Defaults)
     {
     }
 
-    /// <summary>
-    /// Initializes a new instance of the ReadOnlyMemoryBsonReader class.
-    /// </summary>
-    /// <param name="memory">Memory containing binary BSON.</param>
-    /// <param name="settings">A ReadOnlyMemoryReaderSettings.</param>
     public ReadOnlyMemoryBsonReader(ReadOnlyMemory<byte> memory, ReadOnlyMemoryReaderSettings settings)
+        : this(memory, new ReadOnlyMemorySlicer(memory), settings)
+    {
+    }
+
+    public ReadOnlyMemoryBsonReader(ReadOnlyMemory<byte> memory, IByteBufferSlicer byteBufferSlicer, ReadOnlyMemoryReaderSettings settings)
         : base(settings)
     {
+        if (byteBufferSlicer == null)
+        {
+            throw new ArgumentNullException(nameof(byteBufferSlicer));
+        }
+
         _memory = memory;
+        _byteBufferSlicer = byteBufferSlicer;
         _position = 0;
 
         _context = new BsonBinaryReaderContext(ContextType.TopLevel, 0, 0);
@@ -700,8 +700,7 @@ public sealed class ReadOnlyMemoryBsonReader : BsonReader
         var memoryAtPosition = _memory.Slice(_position);
         var length = BinaryPrimitives.ReadInt32LittleEndian(memoryAtPosition.Span);
 
-        var result = new ReadOnlyMemoryBuffer(memoryAtPosition.Slice(0, length));
-
+        var result = _byteBufferSlicer.GetSlice(_position, length);
         _position += length;
 
         return result;

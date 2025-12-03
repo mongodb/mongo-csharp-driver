@@ -18,6 +18,7 @@ using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.TestHelpers.XunitExtensions;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.IO;
@@ -262,25 +263,31 @@ public class ReadOnlyMemoryBufferTests
     [Fact]
     public void GetSlice_should_return_slice_that_does_not_dispose_subject_when_slice_is_disposed()
     {
-        var bytes = new byte[] { 1, 2, 3 };
-        var subject = CreateSubject(bytes);
-        var slice = subject.GetSlice(1, 1);
+        var chunk = new ByteArrayChunk([0, 1, 2, 3, 4]);
+        var buffer = new SingleChunkBuffer(chunk, chunk.Bytes.Count, true);
 
+        using var subject = new ReadOnlyMemoryBuffer(buffer.AccessBackingBytes(0).Array, new ByteBufferSlicer(buffer));
+        var slice = subject.GetSlice(0, 4);
+
+        slice.Should().BeOfType<ByteBufferSlice>();
         slice.Dispose();
 
-        subject.GetByte(1).Should().Be(2);
+        using var sliceSecond = subject.GetSlice(1, 1);
     }
 
     [Fact]
     public void GetSlice_should_return_slice_that_is_not_disposed_when_subject_is_disposed()
     {
-        var bytes = new byte[] { 1, 2, 3 };
-        var subject = CreateSubject(bytes);
-        var slice = subject.GetSlice(1, 1);
+        var chunk = new ByteArrayChunk([0, 1, 2, 3, 4]);
+        var buffer = new SingleChunkBuffer(chunk, chunk.Bytes.Count, true);
+
+        var subject = new ReadOnlyMemoryBuffer(buffer.AccessBackingBytes(0).Array, new ByteBufferSlicer(buffer));
+        using var slice = subject.GetSlice(0, 4);
 
         subject.Dispose();
 
-        slice.GetByte(0).Should().Be(2);
+        slice.GetByte(2).Should().Be(2);
+        slice.Should().BeOfType<ByteBufferSlice>();
     }
 
     [Theory]
@@ -304,6 +311,22 @@ public class ReadOnlyMemoryBufferTests
 
         var ex = Record.Exception(() => subject.GetSlice(position, 0));
         ex.Should().BeOfType<ArgumentOutOfRangeException>();
+    }
+
+    [Fact]
+    public void GetSlice_should_use_bytebuffer_slicer()
+    {
+        var buffer = new byte[] { 1, 2, 3 };
+        var bufferSliceExpected = new ByteArrayBuffer([3, 4, 5]);
+        var slicer = new Mock<IByteBufferSlicer>();
+        slicer.Setup(s => s.GetSlice(It.IsAny<int>(), It.IsAny<int>())).Returns(bufferSliceExpected);
+
+        var subject = new ReadOnlyMemoryBuffer(buffer, slicer.Object);
+
+        var slice = subject.GetSlice(1, 1);
+
+        slice.Should().BeSameAs(bufferSliceExpected);
+        slicer.Verify(s => s.GetSlice(1, 1), Times.Once);
     }
 
     [Fact]
@@ -338,9 +361,9 @@ public class ReadOnlyMemoryBufferTests
         return subject;
     }
 
-    private ReadOnlyMemoryBuffer CreateSubject(int length) => new(Enumerable.Range(0, length).Select(i => (byte)i).ToArray());
+    private ReadOnlyMemoryBuffer CreateSubject(int length) => CreateSubject(Enumerable.Range(0, length).Select(i => (byte)i).ToArray());
 
-    private ReadOnlyMemoryBuffer CreateSubject(byte[] bytes) => new(bytes);
+    private ReadOnlyMemoryBuffer CreateSubject(byte[] bytes) => new(bytes, new ReadOnlyMemorySlicer(bytes));
 
     private void ValidateWritableException(Action action)
     {

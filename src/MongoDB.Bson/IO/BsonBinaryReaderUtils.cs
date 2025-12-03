@@ -25,6 +25,7 @@ public static class BsonBinaryReaderUtils
 {
     /// <summary>
     /// Creates an instance of <see cref="IBsonReader"/> for the given byte buffer and reader settings.
+    /// The result <see cref="IBsonReader"/> instance does not own the byte buffer, and will not Dispose it.
     /// For continuous single chunk buffers an optimized implementation of <see cref="IBsonReader"/> is created.
     /// </summary>
     /// <param name="byteBuffer">The byte buffer containing BSON data.</param>
@@ -40,7 +41,7 @@ public static class BsonBinaryReaderUtils
         var backingBytes = byteBuffer.AccessBackingBytes(0);
         if (backingBytes.Count == byteBuffer.Length)
         {
-            return new ReadOnlyMemoryBsonReader(backingBytes, new ReadOnlyMemoryReaderSettings(settings));
+            return new ReadOnlyMemoryBsonReader(backingBytes, new ByteBufferSlicer(byteBuffer), new ReadOnlyMemoryReaderSettings(settings));
         }
 
         var stream = new ByteBufferStream(byteBuffer, ownsBuffer: false);

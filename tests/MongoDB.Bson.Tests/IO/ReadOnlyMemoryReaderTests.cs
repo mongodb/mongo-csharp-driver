@@ -16,11 +16,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.TestHelpers.XunitExtensions;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.IO;
@@ -289,6 +291,33 @@ public class ReadOnlyMemoryReaderTests
         document.A[0].AsInt32.Should().Be(1);
         document.A[1].AsInt32.Should().Be(2);
         bson.ShouldBeEquivalentTo(document.ToBson());
+
+        var slice = document.A.Slice.Should().BeOfType<ReadOnlyMemoryBuffer>().Subject;
+        MemoryMarshal.TryGetArray(slice.Memory, out var arraySegment).Should().BeTrue();
+        arraySegment.Array.Should().BeSameAs(bson);
+    }
+
+    [Fact]
+    public void ReadRawBsonArray_should_read_slice_from_byteBuffer_slicer()
+    {
+        var bsonDocument = new BsonDocument { { "_id", 1 }, { "A", new BsonArray { 1, 2 } } };
+        var bson = bsonDocument.ToBson();
+        var slicer = new ReadOnlyMemorySlicerMock(bson);
+
+        using var reader = new ReadOnlyMemoryBsonReader(bson, slicer, new());
+        using var document = BsonSerializer.Deserialize<CWithRawBsonArray>(reader);
+
+        document.Id.Should().Be(1);
+        document.A.Count.Should().Be(2);
+        document.A[0].AsInt32.Should().Be(1);
+        document.A[1].AsInt32.Should().Be(2);
+        bson.ShouldBeEquivalentTo(document.ToBson());
+
+        slicer.GetSliceCalledCount.Should().Be(1);
+
+        var slice = document.A.Slice.Should().BeOfType<ReadOnlyMemoryBuffer>().Subject;
+        MemoryMarshal.TryGetArray(slice.Memory, out var arraySegment).Should().BeTrue();
+        arraySegment.Array.Should().NotBeSameAs(bson);
     }
 
     [Fact]
@@ -305,6 +334,33 @@ public class ReadOnlyMemoryReaderTests
         document.A["x"].AsInt32.Should().Be(1);
         document.A["y"].AsString.Should().Be("2");
         bson.ShouldBeEquivalentTo(document.ToBson());
+
+        var slice = document.A.Slice.Should().BeOfType<ReadOnlyMemoryBuffer>().Subject;
+        MemoryMarshal.TryGetArray(slice.Memory, out var arraySegment).Should().BeTrue();
+        arraySegment.Array.Should().BeSameAs(bson);
+    }
+
+    [Fact]
+    public void ReadRawBsonDocument_should_read_slice_from_byteBuffer_slicer()
+    {
+        var bsonDocument = new BsonDocument { { "_id", 1 }, { "A", new BsonDocument { { "x", 1 }, { "y", "2" } } } };
+        var bson = bsonDocument.ToBson();
+        var slicer = new ReadOnlyMemorySlicerMock(bson);
+
+        using var reader = new ReadOnlyMemoryBsonReader(bson, slicer, new());
+        using var document = BsonSerializer.Deserialize<CWithRawBsonDocument>(reader);
+
+        document.Id.Should().Be(1);
+        document.A.Values.Count().Should().Be(2);
+        document.A["x"].AsInt32.Should().Be(1);
+        document.A["y"].AsString.Should().Be("2");
+        bson.ShouldBeEquivalentTo(document.ToBson());
+
+        slicer.GetSliceCalledCount.Should().Be(1);
+
+        var slice = document.A.Slice.Should().BeOfType<ReadOnlyMemoryBuffer>().Subject;
+        MemoryMarshal.TryGetArray(slice.Memory, out var arraySegment).Should().BeTrue();
+        arraySegment.Array.Should().NotBeSameAs(bson);
     }
 
     private void RehydrateAndValidate(BsonDocument expectedDocument)
@@ -352,4 +408,18 @@ public class ReadOnlyMemoryReaderTests
             }
         }
     }
+
+    internal sealed class ReadOnlyMemorySlicerMock(ReadOnlyMemory<byte> ReadOnlyMemory) : IByteBufferSlicer
+    {
+        public int GetSliceCalledCount { get; private set; }
+
+        public IByteBuffer GetSlice(int position, int length)
+        {
+            GetSliceCalledCount++;
+
+            var slice = ReadOnlyMemory.Slice(position, length).ToArray();
+            return new ReadOnlyMemoryBuffer(slice, new ReadOnlyMemorySlicerMock(slice));
+        }
+    }
 }
+

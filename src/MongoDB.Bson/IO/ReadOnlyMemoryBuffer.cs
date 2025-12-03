@@ -21,10 +21,17 @@ namespace MongoDB.Bson.IO;
 internal sealed class ReadOnlyMemoryBuffer : IByteBuffer
 {
     private readonly ReadOnlyMemory<byte> _memory;
+    private readonly IByteBufferSlicer _bufferSlicer;
 
-    public ReadOnlyMemoryBuffer(ReadOnlyMemory<byte> memory)
+    public ReadOnlyMemoryBuffer(ReadOnlyMemory<byte> memory, IByteBufferSlicer bufferSlicer)
     {
+        if (bufferSlicer == null)
+        {
+            throw new ArgumentNullException(nameof(bufferSlicer));
+        }
+
         _memory = memory;
+        _bufferSlicer = bufferSlicer;
     }
 
     /// <inheritdoc/>
@@ -77,7 +84,7 @@ internal sealed class ReadOnlyMemoryBuffer : IByteBuffer
 
     /// <inheritdoc/>
     public IByteBuffer GetSlice(int position, int length) =>
-        new ReadOnlyMemoryBuffer(_memory.Slice(position, length));
+        _bufferSlicer.GetSlice(position, length);
 
     /// <inheritdoc/>
     public void MakeReadOnly()
