@@ -3,13 +3,13 @@
 set -o errexit  # Exit the script with error if any of the commands fail
 
 # Environment variables used as input:
-#   FRAMEWORK                       Set to specify .NET framework to test against. Values: "Net472", "NetStandard21",
+#   FRAMEWORK                       Set to specify .NET framework to test against. Use Target Framework Moniker values.
 #   TEST_CATEGORY                   Set to specify a test category to filter by.
 #   TEST_PROJECT_PATH               Set glob filter to find test projects.
 
 FRAMEWORK=${FRAMEWORK:-}
 TEST_CATEGORY=${TEST_CATEGORY:-Integration}
-TEST_PROJECT_PATH=${TEST_PROJECT_PATH:-./tests/**/[!Atlas]*.Tests.csproj}
+TEST_PROJECT_PATH=${TEST_PROJECT_PATH:-./tests/**/[!AtlasConnectivity]*.Tests.csproj}
 
 if [ "$FRAMEWORK" = "netstandard2.1" ]; then
   FRAMEWORK="netcoreapp3.1"
