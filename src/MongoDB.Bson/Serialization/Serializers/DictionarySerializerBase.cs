@@ -27,6 +27,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <typeparam name="TDictionary">The type of the dictionary.</typeparam>
     public abstract class DictionarySerializerBase<TDictionary> :
         ClassSerializerBase<TDictionary>,
+        IBsonDocumentSerializer,
         IBsonDictionarySerializer
         where TDictionary : class, IDictionary
     {
@@ -130,6 +131,22 @@ namespace MongoDB.Bson.Serialization.Serializers
 
         /// <inheritdoc/>
         public override int GetHashCode() => 0;
+
+        /// <inheritdoc/>
+        public bool TryGetMemberSerializationInfo(string memberName, out BsonSerializationInfo serializationInfo)
+        {
+            if (_dictionaryRepresentation != DictionaryRepresentation.Document)
+            {
+                serializationInfo = null;
+                return false;
+            }
+
+            serializationInfo = new BsonSerializationInfo(
+                memberName,
+                _valueSerializer,
+                _valueSerializer.ValueType);
+            return true;
+        }
 
         // protected methods
         /// <summary>
@@ -338,6 +355,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public abstract class DictionarySerializerBase<TDictionary, TKey, TValue> :
         ClassSerializerBase<TDictionary>,
         IBsonArraySerializer,
+        IBsonDocumentSerializer,
         IBsonDictionarySerializer
         where TDictionary : class, IEnumerable<KeyValuePair<TKey, TValue>>
     {
@@ -489,6 +507,22 @@ namespace MongoDB.Bson.Serialization.Serializers
             var keyValuePairSerializer = new KeyValuePairSerializer<TKey, TValue>(representation, keySerializer, valueSerializer);
 
             serializationInfo = new BsonSerializationInfo(null, keyValuePairSerializer, keyValuePairSerializer.ValueType);
+            return true;
+        }
+
+        /// <inheritdoc/>
+        public bool TryGetMemberSerializationInfo(string memberName, out BsonSerializationInfo serializationInfo)
+        {
+            if (_dictionaryRepresentation != DictionaryRepresentation.Document)
+            {
+                serializationInfo = null;
+                return false;
+            }
+
+            serializationInfo = new BsonSerializationInfo(
+                memberName,
+                _lazyValueSerializer.Value,
+                _lazyValueSerializer.Value.ValueType);
             return true;
         }
 
