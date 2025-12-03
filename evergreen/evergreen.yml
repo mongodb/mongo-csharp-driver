@@ -1386,8 +1386,8 @@ tasks:
               set -o errexit
               ${PREPARE_SHELL}
 
-              dotnet build
-              tar czf /tmp/mongo-csharp-driver.tgz tests/*.Tests/bin/Debug/net6.0/ evergreen/run-mongodb-oidc-env-tests.sh evergreen/install-dotnet.sh
+              evergreen/compile-sources.sh
+              tar czf /tmp/mongo-csharp-driver.tgz tests/*.Tests/bin/Release/net6.0/ evergreen/run-mongodb-oidc-env-tests.sh evergreen/install-dotnet.sh
 
               export AZUREOIDC_DRIVERS_TAR_FILE=/tmp/mongo-csharp-driver.tgz
               export AZUREOIDC_TEST_CMD="OIDC_ENV=azure ./evergreen/run-mongodb-oidc-env-tests.sh"
@@ -1406,8 +1406,8 @@ tasks:
               # Copy secrets-export.sh created by '${DRIVERS_TOOLS}/.evergreen/auth_oidc/gcp/setup.sh' script to read secrets inside the vm
               cp $DRIVERS_TOOLS/.evergreen/auth_oidc/gcp/secrets-export.sh ./secrets-export.sh
 
-              dotnet build
-              tar czf /tmp/mongo-csharp-driver.tgz tests/*.Tests/bin/Debug/net6.0/ evergreen/run-mongodb-oidc-env-tests.sh evergreen/install-dotnet.sh secrets-export.sh
+              evergreen/compile-sources.sh
+              tar czf /tmp/mongo-csharp-driver.tgz tests/*.Tests/bin/Release/net6.0/ evergreen/run-mongodb-oidc-env-tests.sh evergreen/install-dotnet.sh secrets-export.sh
 
               export GCPOIDC_DRIVERS_TAR_FILE=/tmp/mongo-csharp-driver.tgz
               export GCPOIDC_TEST_CMD="OIDC_ENV=gcp ./evergreen/run-mongodb-oidc-env-tests.sh"
@@ -1421,8 +1421,8 @@ tasks:
             working_dir: mongo-csharp-driver
             script: |-
               ${PREPARE_SHELL}
-              dotnet build
-              tar czf /tmp/mongo-csharp-driver.tgz tests/*.Tests/bin/Debug/net6.0/ evergreen/run-mongodb-oidc-env-tests.sh evergreen/install-dotnet.sh
+              evergreen/compile-sources.sh
+              tar czf /tmp/mongo-csharp-driver.tgz tests/*.Tests/bin/Release/net6.0/ evergreen/run-mongodb-oidc-env-tests.sh evergreen/install-dotnet.sh
         - func: assume-aws-test-secrets-role
         - func: run_oidc_k8s_tests
           vars:
