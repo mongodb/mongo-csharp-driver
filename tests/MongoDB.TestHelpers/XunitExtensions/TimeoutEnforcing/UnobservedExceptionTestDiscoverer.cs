@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
@@ -27,6 +28,8 @@ public class UnobservedExceptionTrackingFactAttribute: FactAttribute
 
 public class UnobservedExceptionTestDiscoverer : IXunitTestCaseDiscoverer
 {
+    private static readonly ConcurrentBag<string> __unobservedExceptions = new();
+
     private readonly IMessageSink _diagnosticsMessageSink;
 
     public UnobservedExceptionTestDiscoverer(IMessageSink diagnosticsMessageSink)
@@ -35,7 +38,7 @@ public class UnobservedExceptionTestDiscoverer : IXunitTestCaseDiscoverer
         TaskScheduler.UnobservedTaskException += UnobservedTaskExceptionEventHandler;
     }
 
-    public static readonly List<string> UnobservedExceptions = new();
+    public static IReadOnlyCollection<string> UnobservedExceptions => __unobservedExceptions;
 
     public IEnumerable<IXunitTestCase> Discover(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo factAttribute)
     {
@@ -49,6 +52,6 @@ public class UnobservedExceptionTestDiscoverer : IXunitTestCaseDiscoverer
     }
 
     void UnobservedTaskExceptionEventHandler(object sender, UnobservedTaskExceptionEventArgs unobservedException) =>
-        UnobservedExceptions.Add(unobservedException.Exception.ToString());
+        __unobservedExceptions.Add(unobservedException.Exception.ToString());
 }
 

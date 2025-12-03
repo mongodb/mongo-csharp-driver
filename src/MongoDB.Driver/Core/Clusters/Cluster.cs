@@ -456,8 +456,11 @@ namespace MongoDB.Driver.Core.Clusters
 
             public void Dispose()
             {
-                _disposed = true;
-                _rapidHeartbeatTimer.Dispose();
+                lock (_serverSelectionWaitQueueLock)
+                {
+                    _disposed = true;
+                    _rapidHeartbeatTimer.Dispose();
+                }
             }
 
             public IDisposable Enter(OperationContext operationContext, IServerSelector selector, ClusterDescription clusterDescription, long? operationId)
