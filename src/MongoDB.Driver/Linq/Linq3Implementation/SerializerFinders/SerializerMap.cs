@@ -24,7 +24,12 @@ using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.SerializerFinders;
 
-internal class SerializerMap
+internal interface IReadOnlySerializerMap
+{
+    IBsonSerializer GetSerializer(Expression node);
+}
+
+internal class SerializerMap : IReadOnlySerializerMap
 {
     private readonly Dictionary<Expression, IBsonSerializer> _map = new();
 
