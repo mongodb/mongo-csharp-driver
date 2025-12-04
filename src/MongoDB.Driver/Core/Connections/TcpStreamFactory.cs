@@ -165,14 +165,14 @@ namespace MongoDB.Driver.Core.Connections
 
         private void Connect(Socket socket, EndPoint endPoint, CancellationToken cancellationToken)
         {
-            var wasCallbackExecuted = false;
+            var cancelledOrTimedOut = false;
             using var timeoutCancellationTokenSource = new CancellationTokenSource(_settings.ConnectTimeout);
             using var combinedCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCancellationTokenSource.Token);
             using var cancellationSubscription = combinedCancellationTokenSource.Token.Register(() =>
             {
                 try
                 {
-                    wasCallbackExecuted = true;
+                    cancelledOrTimedOut = true;
                     socket.Dispose();
                 }
                 catch
@@ -199,14 +199,15 @@ namespace MongoDB.Driver.Core.Connections
             }
             catch (Exception)
             {
-                if (!wasCallbackExecuted)
+                if (!cancelledOrTimedOut)
                 {
                     try
                     {
                         socket.Dispose();
                     }
-                    catch (Exception)
+                    catch
                     {
+                        // Ignore any exceptions. Connection was failed, we do not need the socket anyway.
                     }
                 }
 
@@ -244,8 +245,8 @@ namespace MongoDB.Driver.Core.Connections
             {
                 try
                 {
-                    socket.Dispose();
                     connectTask.IgnoreExceptions();
+                    socket.Dispose();
                 }
                 catch { }
 

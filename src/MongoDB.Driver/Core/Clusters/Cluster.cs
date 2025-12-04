@@ -445,7 +445,6 @@ namespace MongoDB.Driver.Core.Clusters
             private readonly InterlockedInt32 _rapidHeartbeatTimerCallbackState;
 
             private int _serverSelectionWaitQueueSize;
-            private bool _disposed;
 
             public ServerSelectionWaitQueue(Cluster cluster)
             {
@@ -456,11 +455,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             public void Dispose()
             {
-                lock (_serverSelectionWaitQueueLock)
-                {
-                    _disposed = true;
-                    _rapidHeartbeatTimer.Dispose();
-                }
+                _rapidHeartbeatTimer.Dispose();
             }
 
             public IDisposable Enter(OperationContext operationContext, IServerSelector selector, ClusterDescription clusterDescription, long? operationId)
@@ -494,12 +489,14 @@ namespace MongoDB.Driver.Core.Clusters
                 {
                     if (--_serverSelectionWaitQueueSize == 0)
                     {
-                        if (_disposed)
+                        try
                         {
-                            return;
+                            _rapidHeartbeatTimer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
                         }
-
-                        _rapidHeartbeatTimer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+                        catch (ObjectDisposedException)
+                        {
+                            // Ignore ObjectDisposedException here, as ExitServerSelectionWaitQueue could be done after the WaitQueue was disposed.
+                        }
                     }
                 }
             }

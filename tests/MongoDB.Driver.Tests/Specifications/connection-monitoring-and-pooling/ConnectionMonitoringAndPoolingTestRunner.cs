@@ -387,6 +387,7 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
                     else
                     {
                         tasks[target] = CreateTask(() => CheckOut(operation, connectionPool, map));
+                        tasks[target].IgnoreExceptions();
                     }
                 }
             }

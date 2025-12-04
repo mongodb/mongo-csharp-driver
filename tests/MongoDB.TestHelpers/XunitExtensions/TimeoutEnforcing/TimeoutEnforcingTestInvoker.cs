@@ -80,9 +80,6 @@ namespace MongoDB.TestHelpers.XunitExtensions.TimeoutEnforcing
 
         protected override async Task<decimal> InvokeTestMethodAsync(object testClassInstance)
         {
-#if UNOBSERVED_TASK_EXCEPTION_DEBUGGING
-            Exception unobservedException = null;
-#endif
             var xUnitTestCase = Test.TestCase as IXunitTestCase;
             var timeoutMS = xUnitTestCase?.Timeout ?? 0;
             var timeout = Debugger.IsAttached
@@ -93,26 +90,11 @@ namespace MongoDB.TestHelpers.XunitExtensions.TimeoutEnforcing
             var testExceptionHandler = testClassInstance as ITestExceptionHandler;
 
             decimal result;
+            using var unobservedExceptionDebugger = UnobservedExceptionDebugger.Create();
             try
             {
-#if UNOBSERVED_TASK_EXCEPTION_DEBUGGING
-                TaskScheduler.UnobservedTaskException += UnobservedTaskExceptionEventHandler;
-#endif
-
                 var baseTask = InvokeBaseOnTaskScheduler(testClassInstance);
                 var resultTask = await Task.WhenAny(baseTask, Task.Delay(timeout));
-
-#if UNOBSERVED_TASK_EXCEPTION_DEBUGGING
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
-                TaskScheduler.UnobservedTaskException -= UnobservedTaskExceptionEventHandler;
-
-                if (unobservedException != null)
-                {
-                    throw unobservedException;
-                }
-#endif
-
                 if (resultTask != baseTask)
                 {
                     throw new TestTimeoutException((int)timeout.TotalMilliseconds);
@@ -138,13 +120,42 @@ namespace MongoDB.TestHelpers.XunitExtensions.TimeoutEnforcing
             }
 
             return result;
+        }
 
-#if UNOBSERVED_TASK_EXCEPTION_DEBUGGING
-            void UnobservedTaskExceptionEventHandler(object sender, UnobservedTaskExceptionEventArgs unobservedExceptionArgs)
+        private class UnobservedExceptionDebugger : IDisposable
+        {
+            private Exception _unobservedException;
+
+            private UnobservedExceptionDebugger()
             {
-                unobservedException = unobservedExceptionArgs.Exception;
+                TaskScheduler.UnobservedTaskException += UnobservedTaskExceptionEventHandler;
             }
+
+            public static UnobservedExceptionDebugger Create()
+            {
+#if UNOBSERVED_TASK_EXCEPTION_DEBUGGING
+                return new UnobservedExceptionDebugger();
+#else
+                return null;
 #endif
+            }
+
+            public void Dispose()
+            {
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                TaskScheduler.UnobservedTaskException -= UnobservedTaskExceptionEventHandler;
+
+                if (_unobservedException != null)
+                {
+                    throw _unobservedException;
+                }
+            }
+
+            private void UnobservedTaskExceptionEventHandler(object sender, UnobservedTaskExceptionEventArgs unobservedExceptionArgs)
+            {
+                _unobservedException = unobservedExceptionArgs.Exception;
+            }
         }
     }
 }

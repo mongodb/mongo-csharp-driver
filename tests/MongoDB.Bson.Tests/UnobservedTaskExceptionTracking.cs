@@ -16,22 +16,13 @@
 using System;
 using FluentAssertions;
 using MongoDB.TestHelpers.XunitExtensions.TimeoutEnforcing;
-using Xunit;
 
-namespace MongoDB.Driver.Tests;
+namespace MongoDB.Bson.Tests;
 
 public class UnobservedTaskExceptionTracking
 {
     [UnobservedExceptionTrackingFact]
-    public void EnsureNoUnobservedTaskException() =>
-        EnsureNoUnobservedTaskExceptionImpl();
-
-    [UnobservedExceptionTrackingFact]
-    [Trait("Category", "Integration")]
-    public void EnsureNoUnobservedTaskException_Integration() =>
-        EnsureNoUnobservedTaskExceptionImpl();
-
-    private void EnsureNoUnobservedTaskExceptionImpl()
+    public void EnsureNoUnobservedTaskException()
     {
         GC.Collect();
         GC.WaitForPendingFinalizers();
