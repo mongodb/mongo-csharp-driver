@@ -165,21 +165,10 @@ namespace MongoDB.Driver.Core.Connections
 
         private void Connect(Socket socket, EndPoint endPoint, CancellationToken cancellationToken)
         {
-            var cancelledOrTimedOut = false;
+            var isSocketDisposed = false;
             using var timeoutCancellationTokenSource = new CancellationTokenSource(_settings.ConnectTimeout);
             using var combinedCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCancellationTokenSource.Token);
-            using var cancellationSubscription = combinedCancellationTokenSource.Token.Register(() =>
-            {
-                try
-                {
-                    cancelledOrTimedOut = true;
-                    socket.Dispose();
-                }
-                catch
-                {
-                    // Ignore any exception here, as we should avoid throwing in callback.
-                }
-            });
+            using var cancellationSubscription = combinedCancellationTokenSource.Token.Register(DisposeSocket);
 
             try
             {
@@ -199,16 +188,9 @@ namespace MongoDB.Driver.Core.Connections
             }
             catch (Exception)
             {
-                if (!cancelledOrTimedOut)
+                if (!isSocketDisposed)
                 {
-                    try
-                    {
-                        socket.Dispose();
-                    }
-                    catch
-                    {
-                        // Ignore any exceptions. Connection was failed, we do not need the socket anyway.
-                    }
+                    DisposeSocket();
                 }
 
                 cancellationToken.ThrowIfCancellationRequested();
@@ -218,6 +200,19 @@ namespace MongoDB.Driver.Core.Connections
                 }
 
                 throw;
+            }
+
+            void DisposeSocket()
+            {
+                isSocketDisposed = true;
+                try
+                {
+                    socket.Dispose();
+                }
+                catch
+                {
+                    // Ignore any exceptions.
+                }
             }
         }
 
