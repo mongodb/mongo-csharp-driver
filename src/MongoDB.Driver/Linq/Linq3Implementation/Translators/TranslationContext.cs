@@ -79,7 +79,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
 
         public static TranslationContext Create(
             ExpressionTranslationOptions translationOptions,
-            SerializerMap nodeSerializers,
+            IReadOnlySerializerMap nodeSerializers,
             TranslationContextData data = null)
         {
             var symbolTable = new SymbolTable();
@@ -125,14 +125,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
 
         // private fields
         private readonly TranslationContextData _data;
-        private readonly SerializerMap _nodeSerializers;
+        private readonly IReadOnlySerializerMap _nodeSerializers;
         private readonly NameGenerator _nameGenerator;
         private readonly SymbolTable _symbolTable;
         private readonly ExpressionTranslationOptions _translationOptions;
 
         private TranslationContext(
             ExpressionTranslationOptions translationOptions,
-            SerializerMap nodeSerializers,
+            IReadOnlySerializerMap nodeSerializers,
             TranslationContextData data,
             SymbolTable symbolTable,
             NameGenerator nameGenerator)
@@ -146,7 +146,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
 
         // public properties
         public TranslationContextData Data => _data;
-        public SerializerMap NodeSerializers => _nodeSerializers;
+        public IReadOnlySerializerMap NodeSerializers => _nodeSerializers;
         public NameGenerator NameGenerator => _nameGenerator;
         public SymbolTable SymbolTable => _symbolTable;
         public ExpressionTranslationOptions TranslationOptions => _translationOptions;
