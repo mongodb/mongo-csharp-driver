@@ -226,8 +226,7 @@ public class CSharp5749Tests : LinqIntegrationTest<CSharp5749Tests.ClassFixture>
                         var readOnlySpan = ImplicitCastArrayToSpan(source, typeof(ReadOnlySpan<>), itemType);
                         return
                             Expression.Call(
-                                MemoryExtensionsMethod.ContainsWithReadOnlySpanAndValueAndComparer.MakeGenericMethod(
-                                    itemType),
+                                MemoryExtensionsMethod.ContainsWithReadOnlySpanAndValueAndComparer.MakeGenericMethod(itemType),
                                 [readOnlySpan, value, comparer]);
                     }
                 }
@@ -236,8 +235,7 @@ public class CSharp5749Tests : LinqIntegrationTest<CSharp5749Tests.ClassFixture>
                 return node;
             }
 
-            static Expression VisitSequenceEqualMethod(MethodCallExpression node, MethodInfo method,
-                ReadOnlyCollection<Expression> arguments)
+            static Expression VisitSequenceEqualMethod(MethodCallExpression node, MethodInfo method, ReadOnlyCollection<Expression> arguments)
             {
                 if (method.Is(EnumerableMethod.SequenceEqual))
                 {
@@ -251,8 +249,7 @@ public class CSharp5749Tests : LinqIntegrationTest<CSharp5749Tests.ClassFixture>
                         var secondReadOnlySpan = ImplicitCastArrayToSpan(second, typeof(ReadOnlySpan<>), itemType);
                         return
                             Expression.Call(
-                                MemoryExtensionsMethod.SequenceEqualWithReadOnlySpanAndReadOnlySpan.MakeGenericMethod(
-                                    itemType),
+                                MemoryExtensionsMethod.SequenceEqualWithReadOnlySpanAndReadOnlySpan.MakeGenericMethod(itemType),
                                 [firstReadOnlySpan, secondReadOnlySpan]);
                     }
                 }
@@ -269,8 +266,7 @@ public class CSharp5749Tests : LinqIntegrationTest<CSharp5749Tests.ClassFixture>
                         var secondReadOnlySpan = ImplicitCastArrayToSpan(second, typeof(ReadOnlySpan<>), itemType);
                         return
                             Expression.Call(
-                                MemoryExtensionsMethod.SequenceEqualWithReadOnlySpanAndReadOnlySpan.MakeGenericMethod(
-                                    itemType),
+                                MemoryExtensionsMethod.SequenceEqualWithReadOnlySpanAndReadOnlySpan.MakeGenericMethod(itemType),
                                 [firstReadOnlySpan, secondReadOnlySpan, comparer]);
                     }
                 }
