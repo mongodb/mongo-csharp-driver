@@ -21,6 +21,7 @@ using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -46,10 +47,9 @@ namespace MongoDB.Bson.Tests.IO
 
             var subject = new BsonChunkPool(maxChunkCount, chunkSize);
 
-            var reflector = new Reflector(subject);
             subject.MaxChunkCount.Should().Be(maxChunkCount);
             subject.ChunkSize.Should().Be(chunkSize);
-            reflector._disposed.Should().BeFalse();
+            Reflector.GetFieldValue(subject, "_disposed").Should().Be(false);
         }
 
         [Theory]
@@ -122,8 +122,7 @@ namespace MongoDB.Bson.Tests.IO
 
             subject.Dispose();
 
-            var reflector = new Reflector(subject);
-            reflector._disposed.Should().BeTrue();
+            Reflector.GetFieldValue(subject, "_disposed").Should().Be(true);
         }
 
         [Theory]
@@ -175,26 +174,6 @@ namespace MongoDB.Bson.Tests.IO
 
             result.Should().Be(1);
         }
-
-        // nested types
-        private class Reflector
-        {
-            private readonly BsonChunkPool _instance;
-
-            public Reflector(BsonChunkPool instance)
-            {
-                _instance = instance;
-            }
-
-            public bool _disposed
-            {
-                get
-                {
-                    var @field = typeof(BsonChunkPool).GetField("_disposed", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (bool)@field.GetValue(_instance);
-                }
-            }
-        }
     }
 
     public class BsonChunkPool_DisposableChunkTests
@@ -242,8 +221,7 @@ namespace MongoDB.Bson.Tests.IO
 
             subject.Dispose();
 
-            var reflector = new Reflector(subject);
-            reflector._disposed.Should().BeTrue();
+            Reflector.GetFieldValue(subject, "_disposed").Should().Be(true);
         }
 
         [Fact]
@@ -315,26 +293,6 @@ namespace MongoDB.Bson.Tests.IO
             Action action = () => subject.Fork();
 
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("DisposableChunk");
-        }
-
-        // nested types
-        private class Reflector
-        {
-            private readonly IBsonChunk _instance;
-
-            public Reflector(IBsonChunk instance)
-            {
-                _instance = instance;
-            }
-
-            public bool _disposed
-            {
-                get
-                {
-                    var @field = _instance.GetType().GetField("_disposed", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (bool)@field.GetValue(_instance);
-                }
-            }
         }
     }
 }

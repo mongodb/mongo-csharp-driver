@@ -4,5 +4,5 @@ set -o errexit  # Exit the script with error if any of the commands fail
 FRAMEWORK=${FRAMEWORK:-net6.0}
 CONFIGURATION=${CONFIGURATION:-'Release'}
 
-./evergreen/compile-sources.sh
-TEST_CATEGORY="!Integration" ./evergreen/execute-tests.sh
+CONFIGURATION=${CONFIGURATION} ./evergreen/compile-sources.sh
+CONFIGURATION=${CONFIGURATION} TEST_CATEGORY="!Integration" ./evergreen/execute-tests.sh

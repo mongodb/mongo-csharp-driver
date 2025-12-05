@@ -1,22 +1,21 @@
 /* Copyright 2010-present MongoDB Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.TestHelpers;
@@ -235,8 +234,7 @@ namespace MongoDB.Bson.Tests.IO
 
             var subject = new MultiChunkBuffer(chunks);
 
-            var reflector = new Reflector(subject);
-            reflector._positions.Should().Equal(expectedPositions);
+            (Reflector.GetFieldValue(subject, "_positions") as List<int>).Should().BeEquivalentTo(expectedPositions);
         }
 
         [Fact]
@@ -270,14 +268,13 @@ namespace MongoDB.Bson.Tests.IO
 
             var subject = new MultiChunkBuffer(chunks, 0, false);
 
-            var reflector = new Reflector(subject);
             subject.Capacity.Should().Be(0);
             subject.ChunkSource.Should().BeNull();
             subject.IsReadOnly.Should().BeFalse();
             subject.Length.Should().Be(0);
-            reflector._chunks.Should().HaveCount(0);
-            reflector._disposed.Should().BeFalse();
-            reflector._positions.Should().Equal(new[] { 0 });
+            (Reflector.GetFieldValue(subject, "_chunks") as IList<IBsonChunk>).Count.Should().Be(0);
+            Reflector.GetFieldValue(subject, "_disposed").Should().Be(false);
+            (Reflector.GetFieldValue(subject, "_positions") as List<int>).ShouldBeEquivalentTo(new[] { 0 });
         }
 
         [Fact]
@@ -285,7 +282,7 @@ namespace MongoDB.Bson.Tests.IO
         {
             IEnumerable<IBsonChunk> chunks = null;
 
-            Action action = () => new MultiChunkBuffer(chunks);
+            Action action = () => _ = new MultiChunkBuffer(chunks);
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("chunks");
         }
@@ -311,14 +308,13 @@ namespace MongoDB.Bson.Tests.IO
 
             var subject = new MultiChunkBuffer(mockChunkSource.Object);
 
-            var reflector = new Reflector(subject);
             subject.Capacity.Should().Be(0);
             subject.ChunkSource.Should().BeSameAs(mockChunkSource.Object);
             subject.IsReadOnly.Should().BeFalse();
             subject.Length.Should().Be(0);
-            reflector._chunks.Should().HaveCount(0);
-            reflector._disposed.Should().BeFalse();
-            reflector._positions.Should().Equal(new[] { 0 });
+            (Reflector.GetFieldValue(subject, "_chunks") as IList<IBsonChunk>).Count.Should().Be(0);
+            Reflector.GetFieldValue(subject, "_disposed").Should().Be(false);
+            (Reflector.GetFieldValue(subject, "_positions") as List<int>).ShouldBeEquivalentTo(new[] { 0 });
         }
 
         [Fact]
@@ -365,8 +361,7 @@ namespace MongoDB.Bson.Tests.IO
 
             subject.Dispose();
 
-            var reflector = new Reflector(subject);
-            reflector._disposed.Should().BeTrue();
+            Reflector.GetFieldValue(subject, "_disposed").Should().Be(true);
         }
 
         [Theory]
@@ -387,9 +382,10 @@ namespace MongoDB.Bson.Tests.IO
 
             subject.EnsureCapacity(minimumCapacity);
 
-            var reflector = new Reflector(subject);
             subject.Capacity.Should().BeGreaterOrEqualTo(minimumCapacity);
-            reflector._chunks.Select(c => c.Bytes.Count).Should().Equal(expectedChunkSizes);
+
+            var _chunks = Reflector.GetFieldValue(subject, "_chunks") as List<IBsonChunk>;
+            _chunks.Select(c => c.Bytes.Count).Should().Equal(expectedChunkSizes);
         }
 
         [Fact]
@@ -1046,44 +1042,6 @@ namespace MongoDB.Bson.Tests.IO
             var bytes = new byte[buffer.Length];
             buffer.GetBytes(0, bytes, 0, buffer.Length);
             return bytes;
-        }
-
-        // nested types
-        private class Reflector
-        {
-            private readonly MultiChunkBuffer _instance;
-
-            public Reflector(MultiChunkBuffer instance)
-            {
-                _instance = instance;
-            }
-
-            public List<IBsonChunk> _chunks
-            {
-                get
-                {
-                    var @field = typeof(MultiChunkBuffer).GetField("_chunks", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (List<IBsonChunk>)@field.GetValue(_instance);
-                }
-            }
-
-            public bool _disposed
-            {
-                get
-                {
-                    var @field = typeof(MultiChunkBuffer).GetField("_disposed", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (bool)@field.GetValue(_instance);
-                }
-            }
-
-            public List<int> _positions
-            {
-                get
-                {
-                    var @field = typeof(MultiChunkBuffer).GetField("_positions", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (List<int>)@field.GetValue(_instance);
-                }
-            }
         }
     }
 }

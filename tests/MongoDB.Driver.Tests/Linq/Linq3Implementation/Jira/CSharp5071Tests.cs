@@ -217,7 +217,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 "stringconstant+stringproperty+stringconstant" => collection.AsQueryable().Select(x => string.Concat(new[] { "X" + x.B + "Z" })),
                 "stringconstant+stringproperty+stringproperty" => collection.AsQueryable().Select(x => string.Concat(new[] { "X" + x.B + x.C })),
                 "stringproperty+intconstant+stringproperty" => collection.AsQueryable().Select(x => string.Concat(new[] { x.A + 2 + x.C })),
-                "stringproperty+intproperty+stringproperty" => collection.AsQueryable().Select(x => string.Concat(new[] { x.A + x.J + x.C})),
+                "stringproperty+intproperty+stringproperty" => collection.AsQueryable().Select(x => string.Concat(new[] { x.A + x.J + x.C })),
                 "stringproperty+stringconstant+stringproperty" => collection.AsQueryable().Select(x => string.Concat(new[] { x.A + "Y" + x.C })),
                 "stringproperty+stringproperty+intconstant" => collection.AsQueryable().Select(x => string.Concat(new[] { x.A + x.B + 3 })),
                 "stringproperty+stringproperty+intproperty" => collection.AsQueryable().Select(x => string.Concat(new[] { x.A + x.B + x.K })),

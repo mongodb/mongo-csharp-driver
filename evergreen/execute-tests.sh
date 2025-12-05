@@ -10,6 +10,7 @@ set -o errexit  # Exit the script with error if any of the commands fail
 FRAMEWORK=${FRAMEWORK:-}
 TEST_CATEGORY=${TEST_CATEGORY:-Integration}
 TEST_PROJECT_PATH=${TEST_PROJECT_PATH:-./tests/**/[!AtlasConnectivity]*.Tests.csproj}
+CONFIGURATION=${CONFIGURATION:-'Release'}
 
 if [ "$FRAMEWORK" = "netstandard2.1" ]; then
   FRAMEWORK="netcoreapp3.1"
@@ -31,5 +32,5 @@ if [[ -n "${FRAMEWORK}" ]]; then
 fi
 
 for file in $TEST_PROJECT_PATH; do
-  dotnet test "${file}" -c Release --no-build ${FILTER_PARAMETER} ${FRAMEWORK_PARAMETER} --results-directory ./build/test-results --logger  "junit;verbosity=detailed;LogFileName=TEST-{assembly}.xml;FailureBodyFormat=Verbose" --logger "console;verbosity=detailed"
+  dotnet test "${file}" -c ${CONFIGURATION} --no-build ${FILTER_PARAMETER} ${FRAMEWORK_PARAMETER} --results-directory ./build/test-results --logger  "junit;verbosity=detailed;LogFileName=TEST-{assembly}.xml;FailureBodyFormat=Verbose" --logger "console;verbosity=detailed"
 done

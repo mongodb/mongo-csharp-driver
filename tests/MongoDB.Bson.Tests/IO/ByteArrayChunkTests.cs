@@ -1,22 +1,22 @@
 /* Copyright 2010-present MongoDB Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 using System;
-using System.Reflection;
 using FluentAssertions;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -112,8 +112,7 @@ namespace MongoDB.Bson.Tests.IO
 
             forked.Dispose();
 
-            var reflector = new Reflector(subject);
-            reflector._disposed.Should().BeFalse();
+            Reflector.GetFieldValue(subject, "_disposed").Should().Be(false);
         }
 
         [Fact]
@@ -123,8 +122,7 @@ namespace MongoDB.Bson.Tests.IO
 
             subject.Dispose();
 
-            var reflector = new Reflector(subject);
-            reflector._disposed.Should().BeTrue();
+            Reflector.GetFieldValue(subject, "_disposed").Should().Be(true);
         }
 
         [Fact]
@@ -135,8 +133,7 @@ namespace MongoDB.Bson.Tests.IO
 
             subject.Dispose();
 
-            var reflector = new Reflector((ByteArrayChunk)forked);
-            reflector._disposed.Should().BeFalse();
+            Reflector.GetFieldValue(forked, "_disposed").Should().Be(false);
         }
 
         [Fact]
@@ -163,26 +160,6 @@ namespace MongoDB.Bson.Tests.IO
             Action action = () => subject.Fork();
 
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("ByteArrayChunk");
-        }
-
-        // nested types
-        private class Reflector
-        {
-            private readonly ByteArrayChunk _instance;
-
-            public Reflector(ByteArrayChunk instance)
-            {
-                _instance = instance;
-            }
-
-            public bool _disposed
-            {
-                get
-                {
-                    var @field = typeof(ByteArrayChunk).GetField("_disposed", BindingFlags.Instance | BindingFlags.NonPublic);
-                    return (bool)@field.GetValue(_instance);
-                }
-            }
         }
     }
 }

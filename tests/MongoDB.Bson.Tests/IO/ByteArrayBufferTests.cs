@@ -18,6 +18,7 @@ using System.Linq;
 using System.Reflection;
 using FluentAssertions;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -188,11 +189,10 @@ namespace MongoDB.Bson.Tests.IO
 
             var subject = new ByteArrayBuffer(bytes, length, isReadOnly);
 
-            var reflector = new Reflector(subject);
             subject.IsReadOnly.Should().Be(isReadOnly);
             subject.Length.Should().Be(length);
-            reflector._bytes.Should().BeSameAs(bytes);
-            reflector._disposed.Should().BeFalse();
+            Reflector.GetFieldValue(subject, "_bytes").Should().Be(bytes);
+            Reflector.GetFieldValue(subject, "_disposed").Should().Be(false);
         }
 
         [Fact]
@@ -226,11 +226,10 @@ namespace MongoDB.Bson.Tests.IO
 
             var subject = new ByteArrayBuffer(bytes, isReadOnly);
 
-            var reflector = new Reflector(subject);
             subject.IsReadOnly.Should().Be(isReadOnly);
             subject.Length.Should().Be(bytes.Length);
-            reflector._bytes.Should().BeSameAs(bytes);
-            reflector._disposed.Should().BeFalse();
+            Reflector.GetFieldValue(subject, "_bytes").Should().Be(bytes);
+            Reflector.GetFieldValue(subject, "_disposed").Should().Be(false);
         }
 
         [Fact]
@@ -257,8 +256,7 @@ namespace MongoDB.Bson.Tests.IO
 
             subject.Dispose();
 
-            var reflector = new Reflector(subject);
-            reflector._disposed.Should().BeTrue();
+            Reflector.GetFieldValue(subject, "_disposed").Should().Be(true);
         }
 
         [Theory]
@@ -276,10 +274,11 @@ namespace MongoDB.Bson.Tests.IO
 
             subject.EnsureCapacity(minimumCapacity);
 
-            var reflector = new Reflector(subject);
             subject.Capacity.Should().Be(expectedCapacity);
-            reflector._bytes.Take(size).Should().Equal(bytes);
-            reflector._bytes.Skip(size).Should().Equal(Enumerable.Repeat<byte>(0, expectedCapacity - size));
+
+            var _bytes = Reflector.GetFieldValue(subject, "_bytes") as byte[];
+            _bytes.Take(size).Should().Equal(bytes);
+            _bytes.Skip(size).Should().Equal(Enumerable.Repeat<byte>(0, expectedCapacity - size));
         }
 
         [Fact]
@@ -866,35 +865,6 @@ namespace MongoDB.Bson.Tests.IO
         {
             var bytes = new byte[size];
             return new ByteArrayBuffer(bytes, length ?? size, isReadOnly);
-        }
-
-        // nested types
-        private class Reflector
-        {
-            private readonly ByteArrayBuffer _instance;
-
-            public Reflector(ByteArrayBuffer instance)
-            {
-                _instance = instance;
-            }
-
-            public byte[] _bytes
-            {
-                get
-                {
-                    var @field = typeof(ByteArrayBuffer).GetField("_bytes", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (byte[])@field.GetValue(_instance);
-                }
-            }
-
-            public bool _disposed
-            {
-                get
-                {
-                    var @field = typeof(ByteArrayBuffer).GetField("_disposed", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (bool)@field.GetValue(_instance);
-                }
-            }
         }
     }
 }

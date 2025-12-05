@@ -1,29 +1,29 @@
 /* Copyright 2010-present MongoDB Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 using System;
+using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using FluentAssertions;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
-using System.Buffers.Binary;
 
 namespace MongoDB.Bson.Tests.IO
 {
@@ -131,12 +131,12 @@ namespace MongoDB.Bson.Tests.IO
 
             var subject = new ByteBufferStream(mockBuffer.Object, ownsBuffer);
 
-            var reflector = new Reflector(subject);
             subject.Buffer.Should().BeSameAs(mockBuffer.Object);
             subject.Length.Should().Be(length);
             subject.Position.Should().Be(0);
-            reflector._disposed.Should().BeFalse();
-            reflector._ownsBuffer.Should().Be(ownsBuffer);
+
+            Reflector.GetFieldValue(subject, "_disposed").Should().Be(false);
+            Reflector.GetFieldValue(subject, "_ownsBuffer").Should().Be(ownsBuffer);
         }
 
         [Fact]
@@ -163,8 +163,7 @@ namespace MongoDB.Bson.Tests.IO
 
             subject.Dispose();
 
-            var reflector = new Reflector(subject);
-            reflector._disposed.Should().BeTrue();
+            Reflector.GetFieldValue(subject, "_disposed").Should().Be(true);
         }
 
         [Theory]
@@ -1652,35 +1651,6 @@ namespace MongoDB.Bson.Tests.IO
         private ByteBufferStream CreateSubject(int length, int numberOfChunks)
         {
             return CreateSubject(length, CalculateChunkSizes(length, numberOfChunks));
-        }
-
-        // nested types
-        private class Reflector
-        {
-            private readonly ByteBufferStream _instance;
-
-            public Reflector(ByteBufferStream instance)
-            {
-                _instance = instance;
-            }
-
-            public bool _disposed
-            {
-                get
-                {
-                    var @field = typeof(ByteBufferStream).GetField("_disposed", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (bool)@field.GetValue(_instance);
-                }
-            }
-
-            public bool _ownsBuffer
-            {
-                get
-                {
-                    var @field = typeof(ByteBufferStream).GetField("_ownsBuffer", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (bool)@field.GetValue(_instance);
-                }
-            }
         }
     }
 }
