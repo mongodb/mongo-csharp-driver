@@ -739,6 +739,14 @@ namespace MongoDB.Bson
         /// <returns>A <see cref="decimal"/> equivalent to <paramref name="d" />.</returns>
         public static decimal ToDecimal(Decimal128 d)
         {
+            if (d == Decimal128.MaxValue)
+            {
+                return decimal.MaxValue;
+            }
+            else if (d == Decimal128.MinValue)
+            {
+                return decimal.MinValue;
+            }
             if (Flags.IsFirstForm(d._highBits))
             {
                 if (Decimal128.Compare(d, __minDecimalValue) < 0 || Decimal128.Compare(d, __maxDecimalValue) > 0)
