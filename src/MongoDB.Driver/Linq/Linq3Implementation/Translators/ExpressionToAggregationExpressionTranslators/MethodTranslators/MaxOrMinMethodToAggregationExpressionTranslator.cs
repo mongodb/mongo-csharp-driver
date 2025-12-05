@@ -19,6 +19,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
+using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
@@ -91,9 +92,24 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 IBsonSerializer serializer;
                 if (arguments.Count == 1)
                 {
-                    var array = sourceTranslation.Ast;
-                    ast = method.Name == "Max" ? AstExpression.Max(array) : AstExpression.Min(array);
-                    serializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
+                    var sourceItemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
+                    if (sourceItemSerializer is IWrappedValueSerializer wrappedValueSerializer)
+                    {
+                        var itemVar = AstExpression.Var("item");
+                        var unwrappedItemAst = AstExpression.GetField(itemVar, wrappedValueSerializer.FieldName);
+                        var mappedArray = AstExpression.Map(
+                            input: sourceTranslation.Ast,
+                            @as: itemVar,
+                            @in: unwrappedItemAst);
+                        ast = method.Name == "Max" ? AstExpression.Max(mappedArray) : AstExpression.Min(mappedArray);
+                        serializer = wrappedValueSerializer.ValueSerializer;
+                    }
+                    else
+                    {
+                        var array = sourceTranslation.Ast;
+                        ast = method.Name == "Max" ? AstExpression.Max(array) : AstExpression.Min(array);
+                        serializer = sourceItemSerializer;
+                    }
                 }
                 else
                 {

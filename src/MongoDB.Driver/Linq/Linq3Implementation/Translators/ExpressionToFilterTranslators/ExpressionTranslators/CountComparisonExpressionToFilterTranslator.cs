@@ -15,7 +15,8 @@
 
 using System.Linq.Expressions;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Options;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
@@ -62,10 +63,36 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
         public static AstFilter Translate(TranslationContext context, BinaryExpression expression, AstComparisonFilterOperator comparisonOperator, Expression enumerableExpression, Expression sizeExpression)
         {
             var fieldTranslation = ExpressionToFilterFieldTranslator.TranslateEnumerable(context, enumerableExpression);
-            SerializationHelper.EnsureRepresentationIsArray(enumerableExpression, fieldTranslation.Serializer);
 
-            if (TryConvertSizeExpressionToBsonValue(sizeExpression, out var size))
+            if (!TryConvertSizeExpressionToBsonValue(sizeExpression, out var size))
             {
+                throw new ExpressionNotSupportedException(expression);
+            }
+
+            // Handle dictionary document representation for simple empty/not-empty checks
+            if (fieldTranslation.Serializer is IBsonDictionarySerializer { DictionaryRepresentation: DictionaryRepresentation.Document })
+            {
+                var sizeValue = size.ToInt64();
+
+                switch (comparisonOperator)
+                {
+                    // Check for "not empty" patterns: Count > 0, Count >= 1, Count != 0
+                    case AstComparisonFilterOperator.Gt when sizeValue == 0:
+                    case AstComparisonFilterOperator.Gte when sizeValue == 1:
+                    case AstComparisonFilterOperator.Ne when sizeValue == 0:
+                        return AstFilter.Ne(fieldTranslation.Ast, new BsonDocument());
+
+                    // Check for "empty" patterns: Count == 0, Count <= 0, Count < 1
+                    case AstComparisonFilterOperator.Eq when sizeValue == 0:
+                    case AstComparisonFilterOperator.Lte when sizeValue == 0:
+                    case AstComparisonFilterOperator.Lt when sizeValue == 1:
+                        return AstFilter.Eq(fieldTranslation.Ast, new BsonDocument());
+                }
+            }
+            else
+            {
+                SerializationHelper.EnsureRepresentationIsArray(enumerableExpression, fieldTranslation.Serializer);
+
                 switch (comparisonOperator)
                 {
                     case AstComparisonFilterOperator.Eq:

@@ -16,7 +16,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
 using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
@@ -45,6 +47,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 var fieldType = fieldExpression.Type;
                 var itemExpression = arguments[1];
                 var itemType = itemExpression.Type;
+
+                if (TryTranslateDictionaryKeysOrValuesContains(context, expression, fieldExpression, itemExpression, out var dictionaryFilter))
+                {
+                    return dictionaryFilter;
+                }
+
                 if (TypeImplementsIEnumerable(fieldType, itemType))
                 {
                     return Translate(context, expression, fieldExpression, itemExpression);
@@ -57,8 +65,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 arguments.Count == 1)
             {
                 var fieldExpression = expression.Object;
-                var fieldType = fieldExpression.Type;
                 var itemExpression = arguments[0];
+
+                if (TryTranslateDictionaryKeysOrValuesContains(context, expression, fieldExpression, itemExpression, out var dictionaryFilter))
+                {
+                    return dictionaryFilter;
+                }
+
+                // Otherwise, handle as regular Contains on IEnumerable
+                var fieldType = fieldExpression.Type;
                 var itemType = itemExpression.Type;
                 if (TypeImplementsIEnumerable(fieldType, itemType))
                 {
@@ -90,6 +105,49 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
         {
             var ienumerableType = typeof(IEnumerable<>).MakeGenericType(itemType);
             return ienumerableType.IsAssignableFrom(type);
+        }
+
+        private static bool TryTranslateDictionaryKeysOrValuesContains(
+            TranslationContext context,
+            Expression expression,
+            Expression fieldExpression,
+            Expression itemExpression,
+            out AstFilter filter)
+        {
+            filter = null;
+
+            if (fieldExpression is not MemberExpression memberExpression)
+            {
+                return false;
+            }
+
+            var memberName = memberExpression.Member.Name;
+            var declaringType = memberExpression.Member.DeclaringType;
+
+            if (!declaringType.IsGenericType ||
+                (declaringType.GetGenericTypeDefinition() != typeof(Dictionary<,>) &&
+                declaringType.GetGenericTypeDefinition() != typeof(IDictionary<,>)))
+            {
+                return false;
+            }
+
+            switch (memberName)
+            {
+                case "Keys":
+                {
+                    var dictionaryExpression = memberExpression.Expression;
+                    filter = ContainsKeyMethodToFilterTranslator.TranslateContainsKey(context, expression, dictionaryExpression, itemExpression);
+                    return true;
+                }
+                case "Values":
+                {
+                    var dictionaryExpression = memberExpression.Expression;
+                    filter = ContainsValueMethodToFilterTranslator.TranslateContainsValue(context, expression, dictionaryExpression, itemExpression);
+                    return true;
+                }
+                default:
+                    return false;
+            }
         }
     }
 }
