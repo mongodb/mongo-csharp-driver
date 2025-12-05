@@ -186,7 +186,7 @@ namespace MongoDB.Driver.Core.Connections
                 socket.Connect(endPoint);
 #endif
             }
-            catch (Exception)
+            catch
             {
                 if (!isSocketDisposed)
                 {
