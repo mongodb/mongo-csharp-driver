@@ -1111,7 +1111,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
         {
             RequireServer.Check();
 
-            var result = Project(x => new { Result = x.M.Reverse() });
+            var result = Project(x => new { Result = ((IEnumerable<int>)x.M).Reverse() });
 
             result.Projection.Should().Be("{ Result: { \"$reverseArray\": \"$M\" }, _id: 0 }");
 

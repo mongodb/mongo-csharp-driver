@@ -1,22 +1,22 @@
 /* Copyright 2010-present MongoDB Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 using System;
+using System.Buffers.Binary;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -24,7 +24,7 @@ using MongoDB.Bson.IO;
 using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
-using System.Buffers.Binary;
+using Reflector = MongoDB.Bson.TestHelpers.Reflector;
 
 namespace MongoDB.Bson.Tests
 {
@@ -247,8 +247,7 @@ namespace MongoDB.Bson.Tests
             subject.Close();
             subject.Close();
 
-            var subjectReflector = new Reflector(subject);
-            subjectReflector._disposed.Should().BeTrue();
+            Reflector.GetFieldValue(subject, "_disposed").Should().Be(true);
         }
 
         [Fact]
@@ -259,8 +258,7 @@ namespace MongoDB.Bson.Tests
 
             subject.Close();
 
-            var subjectReflector = new Reflector(subject);
-            subjectReflector._disposed.Should().BeTrue();
+            Reflector.GetFieldValue(subject, "_disposed").Should().Be(true);
         }
 
         [Fact]
@@ -270,8 +268,7 @@ namespace MongoDB.Bson.Tests
 
             var subject = new BsonStreamAdapter(mockStream.Object);
 
-            var subjectReflector = new Reflector(subject);
-            subjectReflector._ownsStream.Should().BeFalse();
+            Reflector.GetFieldValue(subject, "_ownsStream").Should().Be(false);
         }
 
         [Theory]
@@ -284,11 +281,10 @@ namespace MongoDB.Bson.Tests
 
             var subject = new BsonStreamAdapter(mockStream.Object, ownsStream: ownsStream);
 
-            var subjectReflector = new Reflector(subject);
-            subjectReflector._disposed.Should().BeFalse();
-            subjectReflector._ownsStream.Should().Be(ownsStream);
-            subjectReflector._stream.Should().Be(mockStream.Object);
-            subjectReflector._temp.Should().NotBeNull();
+            Reflector.GetFieldValue(subject, "_disposed").Should().Be(false);
+            Reflector.GetFieldValue(subject, "_ownsStream").Should().Be(ownsStream);
+            Reflector.GetFieldValue(subject, "_stream").Should().Be(mockStream.Object);
+            Reflector.GetFieldValue(subject, "_temp").Should().NotBeNull();
         }
 
         [Fact]
@@ -342,8 +338,7 @@ namespace MongoDB.Bson.Tests
             subject.Dispose();
             subject.Dispose();
 
-            var subjectReflector = new Reflector(subject);
-            subjectReflector._disposed.Should().BeTrue();
+            Reflector.GetFieldValue(subject, "_disposed").Should().Be(true);
         }
 
         [Fact]
@@ -380,8 +375,7 @@ namespace MongoDB.Bson.Tests
 
             subject.Dispose();
 
-            var subjectReflector = new Reflector(subject);
-            subjectReflector._disposed.Should().BeTrue();
+            Reflector.GetFieldValue(subject, "_disposed").Should().Be(true);
         }
 
         [Fact]
@@ -635,7 +629,7 @@ namespace MongoDB.Bson.Tests
             var cancellationToken = cancellationTokenSource.Token;
             subject.Dispose();
 
-            Action action = () => subject.ReadAsync(buffer, offset, count, cancellationToken);
+            Action action = () => _ = subject.ReadAsync(buffer, offset, count, cancellationToken);
 
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
@@ -1682,56 +1676,6 @@ namespace MongoDB.Bson.Tests
             Action action = () => { subject.WriteTimeout = 0; };
 
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
-        }
-
-        // nested types
-        private class Reflector
-        {
-            // fields
-            private readonly BsonStreamAdapter _instance;
-
-            // constructors
-            public Reflector(BsonStreamAdapter instance)
-            {
-                _instance = instance;
-            }
-
-            // properties
-            public bool _disposed
-            {
-                get
-                {
-                    var field = typeof(BsonStreamAdapter).GetField("_disposed", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (bool)field.GetValue(_instance);
-                }
-            }
-
-            public bool _ownsStream
-            {
-                get
-                {
-                    var field = typeof(BsonStreamAdapter).GetField("_ownsStream", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (bool)field.GetValue(_instance);
-                }
-            }
-
-            public Stream _stream
-            {
-                get
-                {
-                    var field = typeof(BsonStreamAdapter).GetField("_stream", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (Stream)field.GetValue(_instance);
-                }
-            }
-
-            public byte[] _temp
-            {
-                get
-                {
-                    var field = typeof(BsonStreamAdapter).GetField("_temp", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (byte[])field.GetValue(_instance);
-                }
-            }
         }
     }
 }
