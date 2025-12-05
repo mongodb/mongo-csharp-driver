@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Text;
 
 namespace MongoDB.Bson.IO
@@ -62,6 +63,33 @@ namespace MongoDB.Bson.IO
             }
 
             return encoding.GetString(bytes, index, count);
+        }
+
+        /// <summary>
+        /// Decodes a UTF8 string.
+        /// </summary>
+        /// <param name="span">The span.</param>
+        /// <param name="encoding">The encoding.</param>
+        /// <returns>The decoded string.</returns>
+        public static string DecodeUtf8String(ReadOnlySpan<byte> span, UTF8Encoding encoding)
+        {
+            switch (span.Length)
+            {
+                // special case empty strings
+                case 0:
+                    return "";
+
+                // special case single character strings
+                case 1:
+                    var byte1 = (int)span[0];
+                    if (byte1 < __asciiStringTable.Length)
+                    {
+                        return __asciiStringTable[byte1];
+                    }
+                    break;
+            }
+
+            return encoding.GetString(span);
         }
     }
 }
