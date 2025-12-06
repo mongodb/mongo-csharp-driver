@@ -15,6 +15,7 @@
 
 using System;
 using System.Linq;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
@@ -105,6 +106,24 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 
                 var parameterType = parameters[0].ParameterType;
                 return parameterType == comparandType;
+            }
+
+            return false;
+        }
+
+        public static bool IsOneOf(this MethodInfo method, HashSet<MethodInfo> comparands)
+        {
+            if (comparands != null)
+            {
+                if (method.IsGenericMethod)
+                {
+                    var methodDefinition = method.GetGenericMethodDefinition();
+                    return comparands.Contains(methodDefinition);
+                }
+                else
+                {
+                    return comparands.Contains(method);
+                }
             }
 
             return false;

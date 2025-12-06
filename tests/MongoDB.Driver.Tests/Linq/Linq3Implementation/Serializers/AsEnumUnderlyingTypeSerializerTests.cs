@@ -22,7 +22,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Serializers
 {
-    public class EnumUnderlyingTypeSerializerTests
+    public class AsEnumUnderlyingTypeSerializerTests
     {
         private static readonly IBsonSerializer<E> __enumSerializer1 = new ESerializer1();
         private static readonly IBsonSerializer<E> __enumSerializer2 = new ESerializer2();
@@ -30,8 +30,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Serializers
         [Fact]
         public void Equals_derived_should_return_false()
         {
-            var x = new EnumUnderlyingTypeSerializer<E, int>(__enumSerializer1);
-            var y = new DerivedFromEnumUnderlyingTypeSerializer<E, int>(__enumSerializer1);
+            var x = new AsEnumUnderlyingTypeSerializer<E, int>(__enumSerializer1);
+            var y = new DerivedFromAsEnumUnderlyingTypeSerializer<E, int>(__enumSerializer1);
 
             var result = x.Equals(y);
 
@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Serializers
         [Fact]
         public void Equals_null_should_return_false()
         {
-            var x = new EnumUnderlyingTypeSerializer<E, int>(__enumSerializer1);
+            var x = new AsEnumUnderlyingTypeSerializer<E, int>(__enumSerializer1);
 
             var result = x.Equals(null);
 
@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Serializers
         [Fact]
         public void Equals_object_should_return_false()
         {
-            var x = new EnumUnderlyingTypeSerializer<E, int>(__enumSerializer1);
+            var x = new AsEnumUnderlyingTypeSerializer<E, int>(__enumSerializer1);
             var y = new object();
 
             var result = x.Equals(y);
@@ -62,7 +62,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Serializers
         [Fact]
         public void Equals_self_should_return_true()
         {
-            var x = new EnumUnderlyingTypeSerializer<E, int>(__enumSerializer1);
+            var x = new AsEnumUnderlyingTypeSerializer<E, int>(__enumSerializer1);
 
             var result = x.Equals(x);
 
@@ -72,8 +72,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Serializers
         [Fact]
         public void Equals_with_equal_fields_should_return_true()
         {
-            var x = new EnumUnderlyingTypeSerializer<E, int>(__enumSerializer1);
-            var y = new EnumUnderlyingTypeSerializer<E, int>(__enumSerializer1);
+            var x = new AsEnumUnderlyingTypeSerializer<E, int>(__enumSerializer1);
+            var y = new AsEnumUnderlyingTypeSerializer<E, int>(__enumSerializer1);
 
             var result = x.Equals(y);
 
@@ -83,8 +83,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Serializers
         [Fact]
         public void Equals_with_not_equal_field_should_return_false()
         {
-            var x = new EnumUnderlyingTypeSerializer<E, int>(__enumSerializer1);
-            var y = new EnumUnderlyingTypeSerializer<E, int>(__enumSerializer2);
+            var x = new AsEnumUnderlyingTypeSerializer<E, int>(__enumSerializer1);
+            var y = new AsEnumUnderlyingTypeSerializer<E, int>(__enumSerializer2);
 
             var result = x.Equals(y);
 
@@ -94,18 +94,18 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Serializers
         [Fact]
         public void GetHashCode_should_return_zero()
         {
-            var x = new EnumUnderlyingTypeSerializer<E, int>(__enumSerializer1);
+            var x = new AsEnumUnderlyingTypeSerializer<E, int>(__enumSerializer1);
 
             var result = x.GetHashCode();
 
             result.Should().Be(0);
         }
 
-        internal class DerivedFromEnumUnderlyingTypeSerializer<TEnum, TEnumUnderlyingType> : EnumUnderlyingTypeSerializer<TEnum, TEnumUnderlyingType>
+        internal class DerivedFromAsEnumUnderlyingTypeSerializer<TEnum, TEnumUnderlyingType> : AsEnumUnderlyingTypeSerializer<TEnum, TEnumUnderlyingType>
             where TEnum : Enum
             where TEnumUnderlyingType : struct
         {
-            public DerivedFromEnumUnderlyingTypeSerializer(IBsonSerializer<TEnum> enumSerializer) : base(enumSerializer)
+            public DerivedFromAsEnumUnderlyingTypeSerializer(IBsonSerializer<TEnum> enumSerializer) : base(enumSerializer)
             {
             }
         }

@@ -214,7 +214,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         private static TranslatedExpression TranslateConvertEnumToUnderlyingType(UnaryExpression expression, Type sourceType, Type targetType, TranslatedExpression sourceTranslation)
         {
             var enumSerializer = sourceTranslation.Serializer;
-            var targetSerializer = EnumUnderlyingTypeSerializer.Create(enumSerializer);
+            var targetSerializer = AsEnumUnderlyingTypeSerializer.Create(enumSerializer);
             return new TranslatedExpression(expression, sourceTranslation.Ast, targetSerializer);
         }
 
@@ -265,7 +265,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var valueSerializer = sourceTranslation.Serializer;
 
             IBsonSerializer targetSerializer;
-            if (valueSerializer is IEnumUnderlyingTypeSerializer enumUnderlyingTypeSerializer)
+            if (valueSerializer is IAsEnumUnderlyingTypeSerializer enumUnderlyingTypeSerializer)
             {
                 targetSerializer = enumUnderlyingTypeSerializer.EnumSerializer;
             }

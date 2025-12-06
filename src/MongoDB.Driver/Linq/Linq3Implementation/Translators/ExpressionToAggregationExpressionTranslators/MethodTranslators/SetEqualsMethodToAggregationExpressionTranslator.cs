@@ -17,6 +17,7 @@ using System.Linq.Expressions;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
+using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
@@ -24,8 +25,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
     {
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
-            if (IsSetEqualsMethod(expression, out var objectExpression, out var otherExpression))
+            if (ISetMethod.IsSetEqualsMethod(expression.Method))
             {
+                var objectExpression = expression.Object;
+                var otherExpression = expression.Arguments[0];
+
                 var objectTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, objectExpression);
                 var otherTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, otherExpression);
                 var ast = AstExpression.SetEquals(objectTranslation.Ast, otherTranslation.Ast);
@@ -33,35 +37,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 return new TranslatedExpression(expression, ast, new BooleanSerializer());
             }
             throw new ExpressionNotSupportedException(expression);
-        }
-
-        private static bool IsSetEqualsMethod(MethodCallExpression expression, out Expression objectExpression, out Expression otherExpression)
-        {
-            var method = expression.Method;
-            var arguments = expression.Arguments;
-
-            if (!method.IsStatic &&
-                method.ReturnType == typeof(bool) &&
-                method.Name == "SetEquals" &&
-                arguments.Count == 1)
-            {
-                objectExpression = expression.Object;
-                otherExpression = arguments[0];
-                if (objectExpression.Type.TryGetIEnumerableGenericInterface(out var objectEnumerableInterface) &&
-                    otherExpression.Type.TryGetIEnumerableGenericInterface(out var otherEnumerableInterface))
-                {
-                    var objectItemType = objectEnumerableInterface.GetGenericArguments()[0];
-                    var otherItemType = otherEnumerableInterface.GetGenericArguments()[0];
-                    if (objectItemType == otherItemType)
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            objectExpression = null;
-            otherExpression = null;
-            return false;
         }
     }
 }
