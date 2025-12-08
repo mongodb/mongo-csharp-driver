@@ -226,10 +226,10 @@ namespace MongoDB.Driver.Core.Connections
             static void EnsureConnected(Socket socket)
             {
                 bool originalBlockingState = socket.Blocking;
-                socket.Blocking = false;
 
                 try
                 {
+                    socket.Blocking = false;
                     // Try to use the socket to ensure it's connected. On MacOS with net6.0 sometimes Connect is completed successfully even after the socket disposal.
                     socket.Send(__ensureConnectedBuffer, 0, 0);
                 }
