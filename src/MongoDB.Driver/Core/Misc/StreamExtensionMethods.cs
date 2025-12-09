@@ -287,25 +287,25 @@ namespace MongoDB.Driver.Core.Misc
                 throw new TimeoutException();
             }
 
-            StreamDisposeCallbackState callbackState = null;
+            OperationCallbackState<Stream> callbackState = null;
             Timer timer = null;
             CancellationTokenRegistration cancellationSubscription = default;
             if (timeoutMs > 0)
             {
-                callbackState = new StreamDisposeCallbackState(stream);
+                callbackState = new OperationCallbackState<Stream>(stream);
                 timer = new Timer(DisposeStreamCallback, callbackState, timeoutMs, Timeout.Infinite);
             }
 
             if (cancellationToken.CanBeCanceled)
             {
-                callbackState ??= new StreamDisposeCallbackState(stream);
+                callbackState ??= new OperationCallbackState<Stream>(stream);
                 cancellationSubscription = cancellationToken.Register(DisposeStreamCallback, callbackState);
             }
 
             try
             {
                 operation(stream, state);
-                if (callbackState?.TryChangeStateFromInProgress(OperationState.Done) == false)
+                if (callbackState?.TryChangeStatusFromInProgress(OperationCallbackState<Stream>.OperationStatus.Done) == false)
                 {
                     // If the state can't be changed - then the stream was/will be disposed, throw here
                     throw new IOException();
@@ -313,7 +313,7 @@ namespace MongoDB.Driver.Core.Misc
             }
             catch (Exception ex)
             {
-                if (callbackState?.OperationState == OperationState.Interrupted)
+                if (callbackState?.Status == OperationCallbackState<Stream>.OperationStatus.Interrupted)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
                     throw new TimeoutException();
@@ -334,8 +334,8 @@ namespace MongoDB.Driver.Core.Misc
 
             static void DisposeStreamCallback(object state)
             {
-                var disposeCallbackState = (StreamDisposeCallbackState)state;
-                if (!disposeCallbackState.TryChangeStateFromInProgress(OperationState.Interrupted))
+                var disposeCallbackState = (OperationCallbackState<Stream>)state;
+                if (!disposeCallbackState.TryChangeStatusFromInProgress(OperationCallbackState<Stream>.OperationStatus.Interrupted))
                 {
                     // If the state can't be changed - then I/O had already succeeded
                     return;
@@ -343,30 +343,13 @@ namespace MongoDB.Driver.Core.Misc
 
                 try
                 {
-                    disposeCallbackState.Stream.Dispose();
+                    disposeCallbackState.Subject.Dispose();
                 }
                 catch (Exception)
                 {
                     // callbacks should not fail, suppress any exceptions here
                 }
             }
-        }
-
-        private record StreamDisposeCallbackState(Stream Stream)
-        {
-            private int _operationState = (int)OperationState.InProgress;
-
-            public OperationState OperationState => (OperationState)_operationState;
-
-            public bool TryChangeStateFromInProgress(OperationState newState) =>
-                Interlocked.CompareExchange(ref _operationState, (int)newState, (int)OperationState.InProgress) == (int)OperationState.InProgress;
-        }
-
-        private enum OperationState
-        {
-            InProgress = 0,
-            Done,
-            Interrupted,
         }
     }
 }

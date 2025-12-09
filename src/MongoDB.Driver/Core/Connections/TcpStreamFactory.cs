@@ -165,10 +165,17 @@ namespace MongoDB.Driver.Core.Connections
 
         private void Connect(Socket socket, EndPoint endPoint, CancellationToken cancellationToken)
         {
-            var isSocketDisposed = false;
+            var callbackState = new OperationCallbackState<Socket>(socket);
             using var timeoutCancellationTokenSource = new CancellationTokenSource(_settings.ConnectTimeout);
             using var combinedCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCancellationTokenSource.Token);
-            using var cancellationSubscription = combinedCancellationTokenSource.Token.Register(DisposeSocket);
+            using var cancellationSubscription = combinedCancellationTokenSource.Token.Register(state =>
+            {
+                var operationState = (OperationCallbackState<Socket>)state;
+                if (operationState.TryChangeStatusFromInProgress(OperationCallbackState<Socket>.OperationStatus.Interrupted))
+                {
+                    DisposeSocket(operationState.Subject);
+                }
+            }, callbackState);
 
             try
             {
@@ -185,13 +192,14 @@ namespace MongoDB.Driver.Core.Connections
 #else
                 socket.Connect(endPoint);
 #endif
+                if (!callbackState.TryChangeStatusFromInProgress(OperationCallbackState<Socket>.OperationStatus.Done))
+                {
+                    throw new ObjectDisposedException(nameof(Socket));
+                }
             }
             catch
             {
-                if (!isSocketDisposed)
-                {
-                    DisposeSocket();
-                }
+                DisposeSocket(socket);
 
                 cancellationToken.ThrowIfCancellationRequested();
                 if (timeoutCancellationTokenSource.IsCancellationRequested)
@@ -202,9 +210,8 @@ namespace MongoDB.Driver.Core.Connections
                 throw;
             }
 
-            void DisposeSocket()
+            static void DisposeSocket(Socket socket)
             {
-                isSocketDisposed = true;
                 try
                 {
                     socket.Dispose();
