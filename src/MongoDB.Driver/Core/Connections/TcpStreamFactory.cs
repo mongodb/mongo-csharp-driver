@@ -167,17 +167,16 @@ namespace MongoDB.Driver.Core.Connections
 
         private void Connect(Socket socket, EndPoint endPoint, CancellationToken cancellationToken)
         {
-            var callbackState = new ConnectOperationState(socket);
+            var callbackState = new OperationCallbackState<Socket>(socket);
             using var timeoutCancellationTokenSource = new CancellationTokenSource(_settings.ConnectTimeout);
             using var combinedCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCancellationTokenSource.Token);
             using var cancellationSubscription = combinedCancellationTokenSource.Token.Register(state =>
             {
-                var operationState = (ConnectOperationState)state;
-                if (operationState.IsSucceeded)
+                var operationState = (OperationCallbackState<Socket>)state;
+                if (operationState.TryChangeStatusFromInProgress(OperationCallbackState<Socket>.OperationStatus.Interrupted))
                 {
-                    return;
+                    DisposeSocket(operationState.Subject);
                 }
-                DisposeSocket(operationState.Socket);
             }, callbackState);
 
             try
@@ -195,8 +194,10 @@ namespace MongoDB.Driver.Core.Connections
 #else
                 socket.Connect(endPoint);
 #endif
-                EnsureConnected(socket);
-                callbackState.IsSucceeded = true;
+                if (!callbackState.TryChangeStatusFromInProgress(OperationCallbackState<Socket>.OperationStatus.Done))
+                {
+                    throw new ObjectDisposedException(nameof(Socket));
+                }
             }
             catch
             {
@@ -220,23 +221,6 @@ namespace MongoDB.Driver.Core.Connections
                 catch
                 {
                     // Ignore any exceptions.
-                }
-            }
-
-            static void EnsureConnected(Socket socket)
-            {
-                bool originalBlockingState = socket.Blocking;
-
-                try
-                {
-                    socket.Blocking = false;
-                    // Try to use the socket to ensure it's connected. On MacOS with net6.0 sometimes Connect is completed successfully even after the socket disposal.
-                    socket.Send(__ensureConnectedBuffer, 0, 0);
-                }
-                finally
-                {
-                    // Restore original blocking state
-                    socket.Blocking = originalBlockingState;
                 }
             }
         }
@@ -400,11 +384,6 @@ namespace MongoDB.Driver.Core.Connections
 
                 return 0;
             }
-        }
-
-        private sealed record ConnectOperationState(Socket Socket)
-        {
-            public bool IsSucceeded { get; set; }
         }
     }
 }
