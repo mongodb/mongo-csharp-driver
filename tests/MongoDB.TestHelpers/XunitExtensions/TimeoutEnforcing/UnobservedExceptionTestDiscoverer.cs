@@ -42,13 +42,16 @@ public class UnobservedExceptionTestDiscoverer : IXunitTestCaseDiscoverer
 
     public IEnumerable<IXunitTestCase> Discover(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo factAttribute)
     {
-        return [new XunitTestCase(_diagnosticsMessageSink, TestMethodDisplay.Method, TestMethodDisplayOptions.All, testMethod)
+        var testCase = new XunitTestCase(_diagnosticsMessageSink, TestMethodDisplay.Method, TestMethodDisplayOptions.All, testMethod);
+        if (!testCase.Traits.TryGetValue("Category", out var categories))
         {
-            Traits =
-            {
-                { "Category", ["UnobservedExceptionTracking"] }
-            }
-        }];
+            categories = new List<string>();
+            testCase.Traits.Add("Category", categories);
+        }
+
+        categories.Add("UnobservedExceptionTracking");
+
+        return [testCase];
     }
 
     void UnobservedTaskExceptionEventHandler(object sender, UnobservedTaskExceptionEventArgs unobservedException) =>
