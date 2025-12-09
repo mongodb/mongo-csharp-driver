@@ -17,37 +17,36 @@ using System.Collections.Generic;
 using BenchmarkDotNet.Reports;
 using MongoDB.Benchmarks.Bson;
 
-namespace MongoDB.Benchmarks
+namespace MongoDB.Benchmarks;
+
+public sealed class BenchmarkResult
 {
-    public sealed class BenchmarkResult
+    public HashSet<string> Categories { get; }
+    public string Name { get; }
+    public double Score { get; }
+
+    public BenchmarkResult(BenchmarkReport benchmarkReport)
     {
-        public HashSet<string> Categories { get; }
-        public string Name { get; }
-        public double Score { get; }
+        Categories = new HashSet<string>(benchmarkReport.BenchmarkCase.Descriptor.Categories);
 
-        public BenchmarkResult(BenchmarkReport benchmarkReport)
+        int dataSetSize;
+        if (Categories.Contains(DriverBenchmarkCategory.BsonBench))
         {
-            Categories = new HashSet<string>(benchmarkReport.BenchmarkCase.Descriptor.Categories);
-
-            int dataSetSize;
-            if (Categories.Contains(DriverBenchmarkCategory.BsonBench))
-            {
-                var bsonBenchmarkData = (BsonBenchmarkData)benchmarkReport.BenchmarkCase.Parameters["BenchmarkData"];
-                Name = bsonBenchmarkData.DataSetName + benchmarkReport.BenchmarkCase.Descriptor.Type.Name;
-                dataSetSize = bsonBenchmarkData.DataSetSize;
-            }
-            else
-            {
-                Name = Categories.Contains(DriverBenchmarkCategory.BulkWriteBench)
-                    ? benchmarkReport.BenchmarkCase.Descriptor.WorkloadMethod.Name
-                    : benchmarkReport.BenchmarkCase.Descriptor.Type.Name;
-
-                dataSetSize = (int)benchmarkReport.BenchmarkCase.Parameters["BenchmarkDataSetSize"];
-            }
-
-            // change the median from nanoseconds to seconds for calculating the score.
-            // since dataSetSize is in bytes, divide the score to convert to MB/s
-            Score = (dataSetSize / (benchmarkReport.ResultStatistics.Median / 1_000_000_000D)) / 1_000_000D;
+            var bsonBenchmarkData = (BsonBenchmarkData)benchmarkReport.BenchmarkCase.Parameters["BenchmarkData"];
+            Name = bsonBenchmarkData.DataSetName + benchmarkReport.BenchmarkCase.Descriptor.Type.Name;
+            dataSetSize = bsonBenchmarkData.DataSetSize;
         }
+        else
+        {
+            Name = Categories.Contains(DriverBenchmarkCategory.BulkWriteBench)
+                ? benchmarkReport.BenchmarkCase.Descriptor.WorkloadMethod.Name
+                : benchmarkReport.BenchmarkCase.Descriptor.Type.Name;
+
+            dataSetSize = (int)benchmarkReport.BenchmarkCase.Parameters["BenchmarkDataSetSize"];
+        }
+
+        // change the median from nanoseconds to seconds for calculating the score.
+        // since dataSetSize is in bytes, divide the score to convert to MB/s
+        Score = (dataSetSize / (benchmarkReport.ResultStatistics.Median / 1_000_000_000D)) / 1_000_000D;
     }
 }

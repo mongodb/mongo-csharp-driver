@@ -22,51 +22,50 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using static MongoDB.Benchmarks.BenchmarkHelper;
 
-namespace MongoDB.Benchmarks.Bson
+namespace MongoDB.Benchmarks.Bson;
+
+[IterationTime(3000)]
+[BenchmarkCategory(DriverBenchmarkCategory.BsonBench)]
+public class BsonEncodingBenchmark
 {
-    [IterationTime(3000)]
-    [BenchmarkCategory(DriverBenchmarkCategory.BsonBench)]
-    public class BsonEncodingBenchmark
+    private BsonSerializationContext _context;
+    private BsonDocument _document;
+    private MemoryStream _stream;
+    private BsonBinaryWriter _writer;
+
+    [ParamsSource(nameof(BenchmarkDataSources))]
+    public BsonBenchmarkData BenchmarkData { get; set; }
+
+    [GlobalSetup]
+    public void Setup()
     {
-        private BsonSerializationContext _context;
-        private BsonDocument _document;
-        private MemoryStream _stream;
-        private BsonBinaryWriter _writer;
-
-        [ParamsSource(nameof(BenchmarkDataSources))]
-        public BsonBenchmarkData BenchmarkData { get; set; }
-
-        [GlobalSetup]
-        public void Setup()
-        {
-            _stream = new MemoryStream();
-            _writer = new BsonBinaryWriter(_stream);
-            _context = BsonSerializationContext.CreateRoot(_writer);
-            _document = ReadExtendedJson(BenchmarkData.FilePath);
-        }
-
-        [Benchmark]
-        public void BsonEncoding()
-        {
-            for (int i = 0; i < 10000; i++)
-            {
-                BsonDocumentSerializer.Instance.Serialize(_context, _document);
-                _stream.Position = 0;
-            }
-        }
-
-        [GlobalCleanup]
-        public void Cleanup()
-        {
-            _writer.Dispose();
-            _stream.Dispose();
-        }
-
-        public IEnumerable<BsonBenchmarkData> BenchmarkDataSources() => new BsonBenchmarkData[]
-        {
-            new("extended_bson/flat_bson.json", "Flat", 75_310_000),
-            new("extended_bson/full_bson.json", "Full", 57_340_000),
-            new("extended_bson/deep_bson.json", "Deep", 19_640_000)
-        };
+        _stream = new MemoryStream();
+        _writer = new BsonBinaryWriter(_stream);
+        _context = BsonSerializationContext.CreateRoot(_writer);
+        _document = ReadExtendedJson(BenchmarkData.FilePath);
     }
+
+    [Benchmark]
+    public void BsonEncoding()
+    {
+        for (int i = 0; i < 10000; i++)
+        {
+            BsonDocumentSerializer.Instance.Serialize(_context, _document);
+            _stream.Position = 0;
+        }
+    }
+
+    [GlobalCleanup]
+    public void Cleanup()
+    {
+        _writer.Dispose();
+        _stream.Dispose();
+    }
+
+    public IEnumerable<BsonBenchmarkData> BenchmarkDataSources() => new BsonBenchmarkData[]
+    {
+        new("extended_bson/flat_bson.json", "Flat", 75_310_000),
+        new("extended_bson/full_bson.json", "Full", 57_340_000),
+        new("extended_bson/deep_bson.json", "Deep", 19_640_000)
+    };
 }

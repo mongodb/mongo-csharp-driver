@@ -21,74 +21,73 @@ using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
 using static MongoDB.Benchmarks.BenchmarkHelper;
 
-namespace MongoDB.Benchmarks.ParallelBench
+namespace MongoDB.Benchmarks.ParallelBench;
+
+[IterationCount(100)]
+[BenchmarkCategory(DriverBenchmarkCategory.ParallelBench, DriverBenchmarkCategory.ReadBench, DriverBenchmarkCategory.DriverBench)]
+public class GridFSMultiFileDownloadBenchmark
 {
-    [IterationCount(100)]
-    [BenchmarkCategory(DriverBenchmarkCategory.ParallelBench, DriverBenchmarkCategory.ReadBench, DriverBenchmarkCategory.DriverBench)]
-    public class GridFSMultiFileDownloadBenchmark
+    private IMongoClient _client;
+    private GridFSBucket _gridFsBucket;
+    private string _tmpDirectoryPath;
+    private ConcurrentQueue<(string, int)> _filesToDownload;
+
+    [Params(262_144_000)]
+    public int BenchmarkDataSetSize { get; set; } // used in BenchmarkResult.cs
+
+    [GlobalSetup]
+    public void Setup()
     {
-        private IMongoClient _client;
-        private GridFSBucket _gridFsBucket;
-        private string _tmpDirectoryPath;
-        private ConcurrentQueue<(string, int)> _filesToDownload;
+        _client = MongoConfiguration.CreateClient();
+        _gridFsBucket = new GridFSBucket(_client.GetDatabase(MongoConfiguration.PerfTestDatabaseName));
+        _gridFsBucket.Drop();
+        _tmpDirectoryPath = $"{DataFolderPath}parallel/tmpGridFS";
+        _filesToDownload = new ConcurrentQueue<(string, int)>();
 
-        [Params(262_144_000)]
-        public int BenchmarkDataSetSize { get; set; } // used in BenchmarkResult.cs
+        PopulateDatabase();
+    }
 
-        [GlobalSetup]
-        public void Setup()
+    [IterationSetup]
+    public void BeforeTask()
+    {
+        CreateEmptyDirectory(_tmpDirectoryPath);
+        AddFilesToQueue(_filesToDownload, _tmpDirectoryPath, "file", 50);
+    }
+
+    [Benchmark]
+    public void GridFsMultiDownload()
+    {
+        ThreadingUtilities.ExecuteOnNewThreads(16, _ =>
         {
-            _client = MongoConfiguration.CreateClient();
-            _gridFsBucket = new GridFSBucket(_client.GetDatabase(MongoConfiguration.PerfTestDatabaseName));
-            _gridFsBucket.Drop();
-            _tmpDirectoryPath = $"{DataFolderPath}parallel/tmpGridFS";
-            _filesToDownload = new ConcurrentQueue<(string, int)>();
-
-            PopulateDatabase();
-        }
-
-        [IterationSetup]
-        public void BeforeTask()
-        {
-            CreateEmptyDirectory(_tmpDirectoryPath);
-            AddFilesToQueue(_filesToDownload, _tmpDirectoryPath, "file", 50);
-        }
-
-        [Benchmark]
-        public void GridFsMultiDownload()
-        {
-            ThreadingUtilities.ExecuteOnNewThreads(16, _ =>
+            while (_filesToDownload.TryDequeue(out var fileToDownloadInfo))
             {
-                while (_filesToDownload.TryDequeue(out var fileToDownloadInfo))
+                var filename = $"file{fileToDownloadInfo.Item2:D2}.txt";
+                var resourcePath = fileToDownloadInfo.Item1;
+
+                using (var file = File.Create(resourcePath))
                 {
-                    var filename = $"file{fileToDownloadInfo.Item2:D2}.txt";
-                    var resourcePath = fileToDownloadInfo.Item1;
-
-                    using (var file = File.Create(resourcePath))
-                    {
-                        _gridFsBucket.DownloadToStreamByName(filename, file);
-                    }
+                    _gridFsBucket.DownloadToStreamByName(filename, file);
                 }
-            });
-        }
-
-        [GlobalCleanup]
-        public void Teardown()
-        {
-            Directory.Delete(_tmpDirectoryPath, true);
-            _client.Dispose();
-        }
-
-        private void PopulateDatabase()
-        {
-            for (int i = 0; i < 50; i++)
-            {
-                var filename = $"file{i:D2}.txt";
-                var resourcePath = $"{DataFolderPath}parallel/gridfs_multi/{filename}";
-
-                using var file = File.Open(resourcePath, FileMode.Open);
-                _gridFsBucket.UploadFromStream(filename, file);
             }
+        });
+    }
+
+    [GlobalCleanup]
+    public void Teardown()
+    {
+        Directory.Delete(_tmpDirectoryPath, true);
+        _client.Dispose();
+    }
+
+    private void PopulateDatabase()
+    {
+        for (int i = 0; i < 50; i++)
+        {
+            var filename = $"file{i:D2}.txt";
+            var resourcePath = $"{DataFolderPath}parallel/gridfs_multi/{filename}";
+
+            using var file = File.Open(resourcePath, FileMode.Open);
+            _gridFsBucket.UploadFromStream(filename, file);
         }
     }
 }

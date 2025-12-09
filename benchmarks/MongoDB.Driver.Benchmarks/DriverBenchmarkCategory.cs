@@ -15,21 +15,20 @@
 
 using System.Collections.Generic;
 
-namespace MongoDB.Benchmarks
+namespace MongoDB.Benchmarks;
+
+public static class DriverBenchmarkCategory
 {
-    public static class DriverBenchmarkCategory
-    {
-        public const string BsonBench = "BSONBench";
-        public const string DriverBench = "DriverBench";
-        public const string MultiBench = "MultiBench";
-        public const string ParallelBench = "ParallelBench";
-        public const string ReadBench = "ReadBench";
-        public const string SingleBench = "SingleBench";
-        public const string WriteBench = "WriteBench";
+    public const string BsonBench = "BSONBench";
+    public const string DriverBench = "DriverBench";
+    public const string MultiBench = "MultiBench";
+    public const string ParallelBench = "ParallelBench";
+    public const string ReadBench = "ReadBench";
+    public const string SingleBench = "SingleBench";
+    public const string WriteBench = "WriteBench";
 
-        // not included in AllCategories as it's not part of the benchmarking spec
-        public const string BulkWriteBench = "BulkWriteBench";
+    // not included in AllCategories as it's not part of the benchmarking spec
+    public const string BulkWriteBench = "BulkWriteBench";
 
-        public static readonly IEnumerable<string> AllCategories = new[] {BsonBench, ReadBench, WriteBench, MultiBench, SingleBench, ParallelBench, DriverBench};
-    }
+    public static readonly IEnumerable<string> AllCategories = new[] {BsonBench, ReadBench, WriteBench, MultiBench, SingleBench, ParallelBench, DriverBench};
 }

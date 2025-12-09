@@ -20,49 +20,48 @@ using MongoDB.Driver;
 using MongoDB.Driver.TestHelpers;
 using static MongoDB.Benchmarks.BenchmarkHelper;
 
-namespace MongoDB.Benchmarks.SingleDoc
+namespace MongoDB.Benchmarks.SingleDoc;
+
+[IterationTime(3000)]
+[BenchmarkCategory(DriverBenchmarkCategory.SingleBench, DriverBenchmarkCategory.ReadBench, DriverBenchmarkCategory.DriverBench)]
+public class FindOneBenchmark
 {
-    [IterationTime(3000)]
-    [BenchmarkCategory(DriverBenchmarkCategory.SingleBench, DriverBenchmarkCategory.ReadBench, DriverBenchmarkCategory.DriverBench)]
-    public class FindOneBenchmark
+    private IMongoClient _client;
+    private IMongoCollection<BsonDocument> _collection;
+    private BsonDocument _tweetDocument;
+
+    [Params(16_220_000)]
+    public int BenchmarkDataSetSize { get; set; } // used in BenchmarkResult.cs
+
+    [GlobalSetup]
+    public void Setup()
     {
-        private IMongoClient _client;
-        private IMongoCollection<BsonDocument> _collection;
-        private BsonDocument _tweetDocument;
+        _client = MongoConfiguration.CreateClient();
+        _collection = _client.GetDatabase(MongoConfiguration.PerfTestDatabaseName).GetCollection<BsonDocument>(MongoConfiguration.PerfTestCollectionName);
+        _tweetDocument = ReadExtendedJson("single_and_multi_document/tweet.json");
 
-        [Params(16_220_000)]
-        public int BenchmarkDataSetSize { get; set; } // used in BenchmarkResult.cs
+        PopulateCollection();
+    }
 
-        [GlobalSetup]
-        public void Setup()
+    [Benchmark]
+    public void FindOne()
+    {
+        for (int i = 0; i < 10000; i++)
         {
-            _client = MongoConfiguration.CreateClient();
-            _collection = _client.GetDatabase(MongoConfiguration.PerfTestDatabaseName).GetCollection<BsonDocument>(MongoConfiguration.PerfTestCollectionName);
-            _tweetDocument = ReadExtendedJson("single_and_multi_document/tweet.json");
-
-            PopulateCollection();
+            _collection.Find(new BsonDocument("_id", i)).First();
         }
+    }
 
-        [Benchmark]
-        public void FindOne()
-        {
-            for (int i = 0; i < 10000; i++)
-            {
-                _collection.Find(new BsonDocument("_id", i)).First();
-            }
-        }
+    [GlobalCleanup]
+    public void Teardown()
+    {
+        _client.Dispose();
+    }
 
-        [GlobalCleanup]
-        public void Teardown()
-        {
-            _client.Dispose();
-        }
-
-        private void PopulateCollection()
-        {
-            var documents = Enumerable.Range(0, 10000)
-                .Select(i => _tweetDocument.DeepClone().AsBsonDocument.Add("_id", i));
-            _collection.InsertMany(documents);
-        }
+    private void PopulateCollection()
+    {
+        var documents = Enumerable.Range(0, 10000)
+            .Select(i => _tweetDocument.DeepClone().AsBsonDocument.Add("_id", i));
+        _collection.InsertMany(documents);
     }
 }

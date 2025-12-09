@@ -23,56 +23,55 @@ using MongoDB.Driver;
 using MongoDB.Driver.TestHelpers;
 using static MongoDB.Benchmarks.BenchmarkHelper;
 
-namespace MongoDB.Benchmarks.ParallelBench
+namespace MongoDB.Benchmarks.ParallelBench;
+
+[WarmupCount(2)]
+[IterationCount(4)]
+[BenchmarkCategory(DriverBenchmarkCategory.ParallelBench, DriverBenchmarkCategory.WriteBench, DriverBenchmarkCategory.DriverBench)]
+public class MultiFileImportBenchmark
 {
-    [WarmupCount(2)]
-    [IterationCount(4)]
-    [BenchmarkCategory(DriverBenchmarkCategory.ParallelBench, DriverBenchmarkCategory.WriteBench, DriverBenchmarkCategory.DriverBench)]
-    public class MultiFileImportBenchmark
+    private IMongoClient _client;
+    private IMongoCollection<BsonDocument> _collection;
+    private IMongoDatabase _database;
+    private ConcurrentQueue<(string, int)> _filesToUpload;
+
+    [Params(565_000_000)]
+    public int BenchmarkDataSetSize { get; set; } // used in BenchmarkResult.cs
+
+    [GlobalSetup]
+    public void Setup()
     {
-        private IMongoClient _client;
-        private IMongoCollection<BsonDocument> _collection;
-        private IMongoDatabase _database;
-        private ConcurrentQueue<(string, int)> _filesToUpload;
+        _client = MongoConfiguration.CreateClient();
+        _database = _client.GetDatabase(MongoConfiguration.PerfTestDatabaseName);
+        _filesToUpload = new ConcurrentQueue<(string, int)>();
+    }
 
-        [Params(565_000_000)]
-        public int BenchmarkDataSetSize { get; set; } // used in BenchmarkResult.cs
+    [IterationSetup]
+    public void BeforeTask()
+    {
+        _database.DropCollection(MongoConfiguration.PerfTestCollectionName);
+        _collection = _database.GetCollection<BsonDocument>(MongoConfiguration.PerfTestCollectionName);
 
-        [GlobalSetup]
-        public void Setup()
+        AddFilesToQueue(_filesToUpload, $"{DataFolderPath}parallel/ldjson_multi", "ldjson", 100);
+    }
+
+    [Benchmark]
+    public void MultiFileImport()
+    {
+        ThreadingUtilities.ExecuteOnNewThreads(16, _ =>
         {
-            _client = MongoConfiguration.CreateClient();
-            _database = _client.GetDatabase(MongoConfiguration.PerfTestDatabaseName);
-            _filesToUpload = new ConcurrentQueue<(string, int)>();
-        }
-
-        [IterationSetup]
-        public void BeforeTask()
-        {
-            _database.DropCollection(MongoConfiguration.PerfTestCollectionName);
-            _collection = _database.GetCollection<BsonDocument>(MongoConfiguration.PerfTestCollectionName);
-
-            AddFilesToQueue(_filesToUpload, $"{DataFolderPath}parallel/ldjson_multi", "ldjson", 100);
-        }
-
-        [Benchmark]
-        public void MultiFileImport()
-        {
-            ThreadingUtilities.ExecuteOnNewThreads(16, _ =>
+            while (_filesToUpload.TryDequeue(out var filesToUploadInfo))
             {
-                while (_filesToUpload.TryDequeue(out var filesToUploadInfo))
-                {
-                    var resourcePath = filesToUploadInfo.Item1;
-                    var documents = File.ReadLines(resourcePath).Select(BsonDocument.Parse).ToArray();
-                    _collection.InsertMany(documents);
-                }
-            }, 100_000);
-        }
+                var resourcePath = filesToUploadInfo.Item1;
+                var documents = File.ReadLines(resourcePath).Select(BsonDocument.Parse).ToArray();
+                _collection.InsertMany(documents);
+            }
+        }, 100_000);
+    }
 
-        [GlobalCleanup]
-        public void Teardown()
-        {
-            _client.Dispose();
-        }
+    [GlobalCleanup]
+    public void Teardown()
+    {
+        _client.Dispose();
     }
 }

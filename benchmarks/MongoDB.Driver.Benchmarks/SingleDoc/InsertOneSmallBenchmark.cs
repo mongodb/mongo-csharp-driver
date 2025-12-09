@@ -19,49 +19,48 @@ using MongoDB.Driver;
 using MongoDB.Driver.TestHelpers;
 using static MongoDB.Benchmarks.BenchmarkHelper;
 
-namespace MongoDB.Benchmarks.SingleDoc
+namespace MongoDB.Benchmarks.SingleDoc;
+
+[IterationCount(100)]
+[BenchmarkCategory(DriverBenchmarkCategory.SingleBench, DriverBenchmarkCategory.WriteBench, DriverBenchmarkCategory.DriverBench)]
+public class InsertOneSmallBenchmark
 {
-    [IterationCount(100)]
-    [BenchmarkCategory(DriverBenchmarkCategory.SingleBench, DriverBenchmarkCategory.WriteBench, DriverBenchmarkCategory.DriverBench)]
-    public class InsertOneSmallBenchmark
+    private IMongoClient _client;
+    private IMongoCollection<BsonDocument> _collection;
+    private IMongoDatabase _database;
+    private BsonDocument _smallDocument;
+
+    [Params(2_750_000)]
+    public int BenchmarkDataSetSize { get; set; } // used in BenchmarkResult.cs
+
+    [GlobalSetup]
+    public void Setup()
     {
-        private IMongoClient _client;
-        private IMongoCollection<BsonDocument> _collection;
-        private IMongoDatabase _database;
-        private BsonDocument _smallDocument;
+        _client = MongoConfiguration.CreateClient();
+        _database = _client.GetDatabase(MongoConfiguration.PerfTestDatabaseName);
+        _smallDocument = ReadExtendedJson("single_and_multi_document/small_doc.json");
+    }
 
-        [Params(2_750_000)]
-        public int BenchmarkDataSetSize { get; set; } // used in BenchmarkResult.cs
+    [IterationSetup]
+    public void BeforeTask()
+    {
+        _database.DropCollection(MongoConfiguration.PerfTestCollectionName);
+        _collection = _database.GetCollection<BsonDocument>(MongoConfiguration.PerfTestCollectionName);
+    }
 
-        [GlobalSetup]
-        public void Setup()
+    [Benchmark]
+    public void InsertOneSmall()
+    {
+        for (int i = 0; i < 10000; i++)
         {
-            _client = MongoConfiguration.CreateClient();
-            _database = _client.GetDatabase(MongoConfiguration.PerfTestDatabaseName);
-            _smallDocument = ReadExtendedJson("single_and_multi_document/small_doc.json");
+            _smallDocument.Remove("_id");
+            _collection.InsertOne(_smallDocument);
         }
+    }
 
-        [IterationSetup]
-        public void BeforeTask()
-        {
-            _database.DropCollection(MongoConfiguration.PerfTestCollectionName);
-            _collection = _database.GetCollection<BsonDocument>(MongoConfiguration.PerfTestCollectionName);
-        }
-
-        [Benchmark]
-        public void InsertOneSmall()
-        {
-            for (int i = 0; i < 10000; i++)
-            {
-                _smallDocument.Remove("_id");
-                _collection.InsertOne(_smallDocument);
-            }
-        }
-
-        [GlobalCleanup]
-        public void Teardown()
-        {
-            _client.Dispose();
-        }
+    [GlobalCleanup]
+    public void Teardown()
+    {
+        _client.Dispose();
     }
 }
