@@ -84,6 +84,7 @@ namespace MongoDB.Driver.Tests.Specifications.mongodb_handshake
                 connectionInitializer: mockConnectionInitializer.Object,
                 eventSubscriber: capturedEvents,
                 LoggerFactory,
+                null,
                 socketReadTimeout: Timeout.InfiniteTimeSpan,
                 socketWriteTimeout: Timeout.InfiniteTimeSpan);
 
