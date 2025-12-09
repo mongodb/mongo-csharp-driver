@@ -62,7 +62,8 @@ namespace MongoDB.Driver
                 .ConfigureConnectionPool(settings => ConfigureConnectionPool(settings, clusterKey))
                 .ConfigureConnection(settings => ConfigureConnection(settings, clusterKey))
                 .ConfigureTcp(settings => ConfigureTcp(settings, clusterKey))
-                .ConfigureLoggingSettings(_ => clusterKey.LoggingSettings);
+                .ConfigureLoggingSettings(_ => clusterKey.LoggingSettings)
+                .ConfigureTracingOptions(_ => clusterKey.TracingOptions);
 #pragma warning restore CS0618 // Type or member is obsolete
 
             if (clusterKey.UseTls)

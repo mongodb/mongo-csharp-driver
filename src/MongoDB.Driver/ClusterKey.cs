@@ -42,6 +42,7 @@ namespace MongoDB.Driver
         private readonly bool _loadBalanced;
         private readonly TimeSpan _localThreshold;
         private readonly LoggingSettings _loggingSettings;
+        private readonly TracingOptions _tracingOptions;
         private readonly int _maxConnecting;
         private readonly TimeSpan _maxConnectionIdleTime;
         private readonly TimeSpan _maxConnectionLifeTime;
@@ -81,6 +82,7 @@ namespace MongoDB.Driver
             bool loadBalanced,
             TimeSpan localThreshold,
             LoggingSettings loggingSettings,
+            TracingOptions tracingOptions,
             int maxConnecting,
             TimeSpan maxConnectionIdleTime,
             TimeSpan maxConnectionLifeTime,
@@ -118,6 +120,7 @@ namespace MongoDB.Driver
             _loadBalanced = loadBalanced;
             _localThreshold = localThreshold;
             _loggingSettings = loggingSettings;
+            _tracingOptions = tracingOptions;
             _maxConnecting = maxConnecting;
             _maxConnectionIdleTime = maxConnectionIdleTime;
             _maxConnectionLifeTime = maxConnectionLifeTime;
@@ -159,6 +162,7 @@ namespace MongoDB.Driver
         public bool LoadBalanced => _loadBalanced;
         public TimeSpan LocalThreshold { get { return _localThreshold; } }
         public LoggingSettings LoggingSettings { get { return _loggingSettings; } }
+        public TracingOptions TracingOptions { get { return _tracingOptions; } }
         public int MaxConnecting{ get { return _maxConnecting; } }
         public TimeSpan MaxConnectionIdleTime { get { return _maxConnectionIdleTime; } }
         public TimeSpan MaxConnectionLifeTime { get { return _maxConnectionLifeTime; } }
