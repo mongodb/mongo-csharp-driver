@@ -33,5 +33,3 @@ internal sealed class OperationCallbackState<T>(T subject)
         Interrupted,
     }
 }
-
-

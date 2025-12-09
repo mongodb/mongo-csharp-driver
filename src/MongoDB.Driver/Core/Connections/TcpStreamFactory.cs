@@ -31,8 +31,6 @@ namespace MongoDB.Driver.Core.Connections
     /// </summary>
     internal sealed class TcpStreamFactory : IStreamFactory
     {
-        private static readonly byte[] __ensureConnectedBuffer = new byte[1];
-
         // fields
         private readonly TcpStreamSettings _settings;
 
