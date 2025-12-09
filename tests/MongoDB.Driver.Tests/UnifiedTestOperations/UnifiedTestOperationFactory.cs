@@ -99,6 +99,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     "deleteOne" => new UnifiedDeleteOneOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "distinct" => new UnifiedDistinctOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "dropIndex" => new UnifiedDropIndexOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "dropIndexes" => new UnifiedDropIndexesOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "dropSearchIndex" => new UnifiedDropSearchIndexOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "estimatedDocumentCount" => new UnifiedEstimatedDocumentCountOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "find" => new UnifiedFindOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),

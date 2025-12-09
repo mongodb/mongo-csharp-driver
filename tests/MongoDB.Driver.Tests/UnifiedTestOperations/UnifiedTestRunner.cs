@@ -81,10 +81,11 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             var operations = testCase.Test["operations"].AsBsonArray; // cannot be null
             var expectEvents = testCase.Test.GetValue("expectEvents", null)?.AsBsonArray;
             var expectedLogs = testCase.Test.GetValue("expectLogMessages", null)?.AsBsonArray;
+            var expectTracingMessages = testCase.Test.GetValue("expectTracingMessages", null)?.AsBsonArray;
             var outcome = testCase.Test.GetValue("outcome", null)?.AsBsonArray;
             var async = testCase.Test["async"].AsBoolean; // cannot be null
 
-            Run(schemaVersion, testSetRunOnRequirements, entities, initialData, runOnRequirements, skipReason, operations, expectEvents, expectedLogs, outcome, async);
+            Run(schemaVersion, testSetRunOnRequirements, entities, initialData, runOnRequirements, skipReason, operations, expectEvents, expectedLogs, expectTracingMessages, outcome, async);
         }
 
         public void Run(
@@ -97,6 +98,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             BsonArray operations,
             BsonArray expectedEvents,
             BsonArray expectedLogs,
+            BsonArray expectTracingMessages,
             BsonArray outcome,
             bool async)
         {
@@ -108,7 +110,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
             var schemaSemanticVersion = SemanticVersion.Parse(schemaVersion);
             if (schemaSemanticVersion < new SemanticVersion(1, 0, 0) ||
-                schemaSemanticVersion > new SemanticVersion(1, 26, 0))
+                schemaSemanticVersion > new SemanticVersion(1, 27, 0))
             {
                 throw new FormatException($"Schema version '{schemaVersion}' is not supported.");
             }
@@ -142,6 +144,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             if (expectedLogs != null)
             {
                 AssertLogs(expectedLogs, _entityMap);
+            }
+            if (expectTracingMessages != null)
+            {
+                AssertSpans(expectTracingMessages, _entityMap);
             }
             if (outcome != null)
             {
@@ -240,6 +246,22 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 _eventsProcessor?.PostProcessEvents(actualEvents, eventType);
 
                 unifiedEventMatcher.AssertEventsMatch(actualEvents, eventItem["events"].AsBsonArray, ignoreExtraEvents);
+            }
+        }
+
+        private void AssertSpans(BsonArray spanItems, UnifiedEntityMap entityMap)
+        {
+            _logger.LogDebug("Asserting spans");
+
+            var unifiedSpanMatcher = new UnifiedSpanMatcher(new UnifiedValueMatcher(entityMap));
+            foreach (var spanItem in spanItems.Cast<BsonDocument>())
+            {
+                var clientId = spanItem["client"].AsString;
+                var ignoreExtraSpans = spanItem.GetValue("ignoreExtraSpans", false).AsBoolean;
+                var spanCapturer = entityMap.SpanCapturers[clientId];
+                var actualSpans = spanCapturer.Spans;
+
+                unifiedSpanMatcher.AssertSpansMatch(actualSpans, spanItem["spans"].AsBsonArray, ignoreExtraSpans);
             }
         }
 
