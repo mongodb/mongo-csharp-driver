@@ -14,10 +14,12 @@
 */
 
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Driver;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
@@ -190,6 +192,20 @@ namespace MongoDB.Driver.Core.Bindings
                 _currentTransaction.SetState(CoreTransactionState.Aborted);
                 // The transaction is aborted.The session MUST be unpinned regardless
                 // of whether the abortTransaction command succeeds or fails
+                if (_currentTransaction.TransactionActivity != null)
+                {
+                    var transactionActivity = _currentTransaction.TransactionActivity;
+                    _currentTransaction.TransactionActivity = null;
+
+                    // Set status to Ok for successfully aborted transaction
+                    transactionActivity.SetStatus(ActivityStatusCode.Ok);
+
+                    // Dispose the transaction activity. Note: Activity.Current was already restored to the
+                    // parent in StartTransaction() to prevent AsyncLocal flow issues, so the transaction
+                    // activity was never persisted in Activity.Current. Set it explicitly to be defensive.
+                    Activity.Current = _currentTransaction.ParentActivity;
+                    transactionActivity.Dispose();
+                }
                 _currentTransaction.UnpinAll();
             }
         }
@@ -244,6 +260,20 @@ namespace MongoDB.Driver.Core.Bindings
                 _currentTransaction.SetState(CoreTransactionState.Aborted);
                 // The transaction is aborted.The session MUST be unpinned regardless
                 // of whether the abortTransaction command succeeds or fails
+                if (_currentTransaction.TransactionActivity != null)
+                {
+                    var transactionActivity = _currentTransaction.TransactionActivity;
+                    _currentTransaction.TransactionActivity = null;
+
+                    // Set status to Ok for successfully aborted transaction
+                    transactionActivity.SetStatus(ActivityStatusCode.Ok);
+
+                    // Dispose the transaction activity. Note: Activity.Current was already restored to the
+                    // parent in StartTransaction() to prevent AsyncLocal flow issues, so the transaction
+                    // activity was never persisted in Activity.Current. Set it explicitly to be defensive.
+                    Activity.Current = _currentTransaction.ParentActivity;
+                    transactionActivity.Dispose();
+                }
                 _currentTransaction.UnpinAll();
             }
         }
@@ -334,6 +364,21 @@ namespace MongoDB.Driver.Core.Bindings
             {
                 _isCommitTransactionInProgress = false;
                 _currentTransaction.SetState(CoreTransactionState.Committed);
+                // Stop the transaction span immediately so it's captured for testing
+                if (_currentTransaction.TransactionActivity != null)
+                {
+                    var transactionActivity = _currentTransaction.TransactionActivity;
+                    _currentTransaction.TransactionActivity = null;
+
+                    // Set status to Ok for successfully committed transaction
+                    transactionActivity.SetStatus(ActivityStatusCode.Ok);
+
+                    // Dispose the transaction activity. Note: Activity.Current was already restored to the
+                    // parent in StartTransaction() to prevent AsyncLocal flow issues, so the transaction
+                    // activity was never persisted in Activity.Current. Set it explicitly to be defensive.
+                    Activity.Current = _currentTransaction.ParentActivity;
+                    transactionActivity.Dispose();
+                }
             }
         }
 
@@ -374,6 +419,21 @@ namespace MongoDB.Driver.Core.Bindings
             {
                 _isCommitTransactionInProgress = false;
                 _currentTransaction.SetState(CoreTransactionState.Committed);
+                // Stop the transaction span immediately so it's captured for testing
+                if (_currentTransaction.TransactionActivity != null)
+                {
+                    var transactionActivity = _currentTransaction.TransactionActivity;
+                    _currentTransaction.TransactionActivity = null;
+
+                    // Set status to Ok for successfully committed transaction
+                    transactionActivity.SetStatus(ActivityStatusCode.Ok);
+
+                    // Dispose the transaction activity. Note: Activity.Current was already restored to the
+                    // parent in StartTransaction() to prevent AsyncLocal flow issues, so the transaction
+                    // activity was never persisted in Activity.Current. Set it explicitly to be defensive.
+                    Activity.Current = _currentTransaction.ParentActivity;
+                    transactionActivity.Dispose();
+                }
             }
         }
 
@@ -414,6 +474,9 @@ namespace MongoDB.Driver.Core.Bindings
 
         /// <inheritdoc />
         public void StartTransaction(TransactionOptions transactionOptions = null)
+            => ((ICoreSessionInternal)this).StartTransaction(transactionOptions, isTracingEnabled: false);
+
+        void ICoreSessionInternal.StartTransaction(TransactionOptions transactionOptions, bool isTracingEnabled)
         {
             EnsureStartTransactionCanBeCalled();
 
@@ -425,7 +488,19 @@ namespace MongoDB.Driver.Core.Bindings
             }
 
             _currentTransaction?.UnpinAll(); // unpin data if any when a new transaction is started
-            _currentTransaction = new CoreTransaction(transactionNumber, effectiveTransactionOptions);
+            _currentTransaction = new CoreTransaction(transactionNumber, effectiveTransactionOptions, isTracingEnabled);
+
+            // Start transaction span for OpenTelemetry tracing (if enabled)
+            if (isTracingEnabled)
+            {
+                // Store the parent activity to restore later
+                _currentTransaction.ParentActivity = Activity.Current;
+                _currentTransaction.TransactionActivity = MongoTelemetry.StartTransactionActivity();
+
+                // Immediately restore Activity.Current to the parent to prevent AsyncLocal flow issues.
+                // The transaction activity will be explicitly set as parent for operations within the transaction.
+                Activity.Current = _currentTransaction.ParentActivity;
+            }
         }
 
         /// <inheritdoc />
@@ -559,19 +634,87 @@ namespace MongoDB.Driver.Core.Bindings
 
         private TResult ExecuteEndTransactionOnPrimary<TResult>(OperationContext operationContext, IReadOperation<TResult> operation)
         {
-            using (var sessionHandle = new NonDisposingCoreSessionHandle(this))
-            using (var binding = ChannelPinningHelper.CreateReadWriteBinding(_cluster, sessionHandle))
+            // Determine operation name and create operation-level span if tracing is enabled
+            string operationName = operation switch
             {
-                return operation.Execute(operationContext, binding);
+                CommitTransactionOperation => "commitTransaction",
+                AbortTransactionOperation => "abortTransaction",
+                _ => null
+            };
+
+            // Temporarily set Activity.Current to transaction activity so the operation nests under it
+            var transactionActivity = _currentTransaction?.TransactionActivity;
+            var previousActivity = Activity.Current;
+            if (transactionActivity != null)
+            {
+                Activity.Current = transactionActivity;
+            }
+
+            using var activity = _currentTransaction?.IsTracingEnabled == true && operationName != null
+                ? MongoTelemetry.StartOperationActivity(operationName, "admin", collectionName: null)
+                : null;
+
+            // Don't restore Activity.Current yet - let it stay as the operation activity
+            // so command activities nest under it. We'll restore after the operation completes.
+
+            try
+            {
+                using (var sessionHandle = new NonDisposingCoreSessionHandle(this))
+                using (var binding = ChannelPinningHelper.CreateReadWriteBinding(_cluster, sessionHandle))
+                {
+                    return operation.Execute(operationContext, binding);
+                }
+            }
+            finally
+            {
+                // Restore Activity.Current after operation completes
+                if (transactionActivity != null)
+                {
+                    Activity.Current = previousActivity;
+                }
             }
         }
 
         private async Task<TResult> ExecuteEndTransactionOnPrimaryAsync<TResult>(OperationContext operationContext, IReadOperation<TResult> operation)
         {
-            using (var sessionHandle = new NonDisposingCoreSessionHandle(this))
-            using (var binding = ChannelPinningHelper.CreateReadWriteBinding(_cluster, sessionHandle))
+            // Determine operation name and create operation-level span if tracing is enabled
+            string operationName = operation switch
             {
-                return await operation.ExecuteAsync(operationContext, binding).ConfigureAwait(false);
+                CommitTransactionOperation => "commitTransaction",
+                AbortTransactionOperation => "abortTransaction",
+                _ => null
+            };
+
+            // Temporarily set Activity.Current to transaction activity so the operation nests under it
+            var transactionActivity = _currentTransaction?.TransactionActivity;
+            var previousActivity = Activity.Current;
+            if (transactionActivity != null)
+            {
+                Activity.Current = transactionActivity;
+            }
+
+            using var activity = _currentTransaction?.IsTracingEnabled == true && operationName != null
+                ? MongoTelemetry.StartOperationActivity(operationName, "admin", collectionName: null)
+                : null;
+
+            // Don't restore Activity.Current yet - let it stay as the operation activity
+            // so command activities nest under it. We'll restore after the operation completes.
+
+            try
+            {
+                using (var sessionHandle = new NonDisposingCoreSessionHandle(this))
+                using (var binding = ChannelPinningHelper.CreateReadWriteBinding(_cluster, sessionHandle))
+                {
+                    return await operation.ExecuteAsync(operationContext, binding).ConfigureAwait(false);
+                }
+            }
+            finally
+            {
+                // Restore Activity.Current after operation completes
+                if (transactionActivity != null)
+                {
+                    Activity.Current = previousActivity;
+                }
             }
         }
 
