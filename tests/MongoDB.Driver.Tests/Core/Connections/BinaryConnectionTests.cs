@@ -96,6 +96,7 @@ namespace MongoDB.Driver.Core.Connections
                 connectionInitializer: _mockConnectionInitializer.Object,
                 eventSubscriber: _capturedEvents,
                 loggerFactory: LoggerFactory,
+                tracingOptions: null,
                 socketReadTimeout: TimeSpan.FromMilliseconds(1000),
                 socketWriteTimeout: TimeSpan.FromMilliseconds(1000));
         }
@@ -185,6 +186,7 @@ namespace MongoDB.Driver.Core.Connections
                 connectionInitializer: connectionInitializer,
                 eventSubscriber: _capturedEvents,
                 loggerFactory: LoggerFactory,
+                tracingOptions: null,
                 socketReadTimeout: Timeout.InfiniteTimeSpan,
                 socketWriteTimeout: Timeout.InfiniteTimeSpan);
 
