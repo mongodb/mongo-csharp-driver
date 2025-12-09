@@ -51,6 +51,12 @@ namespace MongoDB.Driver
 
         public OperationContext RootContext { get; private init; }
 
+        // OpenTelemetry operation metadata
+        internal string OperationName { get; init; }
+        internal string DatabaseName { get; init; }
+        internal string CollectionName { get; init; }
+        internal bool IsTracingEnabled { get; init; }
+
         public TimeSpan RemainingTimeout
         {
             get
@@ -183,6 +189,18 @@ namespace MongoDB.Driver
             return new OperationContext(Clock, timeout, CancellationToken)
             {
                 RootContext = RootContext
+            };
+        }
+
+        internal OperationContext WithOperationMetadata(string operationName, string databaseName, string collectionName, bool isTracingEnabled)
+        {
+            return new OperationContext(Clock, InitialTimestamp, Timeout, CancellationToken)
+            {
+                RootContext = RootContext,
+                OperationName = operationName,
+                DatabaseName = databaseName,
+                CollectionName = collectionName,
+                IsTracingEnabled = isTracingEnabled
             };
         }
     }

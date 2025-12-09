@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
@@ -50,8 +51,41 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(readPreference, nameof(readPreference));
             ThrowIfDisposed();
 
-            using var binding = CreateReadBinding(session, readPreference, allowChannelPinning);
-            return operation.Execute(operationContext, binding);
+            using var activityScope = TransactionActivityScope.CreateIfNeeded(session);
+            using var activity = operationContext.IsTracingEnabled
+                ? MongoTelemetry.StartOperationActivity(
+                    operationContext.OperationName,
+                    operationContext.DatabaseName,
+                    operationContext.CollectionName)
+                : null;
+
+            try
+            {
+                using var binding = CreateReadBinding(session, readPreference, allowChannelPinning);
+                var result = operation.Execute(operationContext, binding);
+                activity?.SetStatus(ActivityStatusCode.Ok);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                // Only record exceptions that originate at the operation level
+                // Command-level exceptions (MongoCommandException, MongoWriteException, etc.)
+                // are already recorded by CommandEventHelper on the command span
+                if (activity != null)
+                {
+                    if (!IsCommandLevelException(ex))
+                    {
+                        MongoTelemetry.RecordException(activity, ex);
+                    }
+                    else
+                    {
+                        // For command-level exceptions, only set error status without recording details
+                        activity.SetStatus(ActivityStatusCode.Error);
+                    }
+                }
+
+                throw;
+            }
         }
 
         public async Task<TResult> ExecuteReadOperationAsync<TResult>(
@@ -67,8 +101,41 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(readPreference, nameof(readPreference));
             ThrowIfDisposed();
 
-            using var binding = CreateReadBinding(session, readPreference, allowChannelPinning);
-            return await operation.ExecuteAsync(operationContext, binding).ConfigureAwait(false);
+            using var activityScope = TransactionActivityScope.CreateIfNeeded(session);
+            using var activity = operationContext.IsTracingEnabled
+                ? MongoTelemetry.StartOperationActivity(
+                    operationContext.OperationName,
+                    operationContext.DatabaseName,
+                    operationContext.CollectionName)
+                : null;
+
+            try
+            {
+                using var binding = CreateReadBinding(session, readPreference, allowChannelPinning);
+                var result = await operation.ExecuteAsync(operationContext, binding).ConfigureAwait(false);
+                activity?.SetStatus(ActivityStatusCode.Ok);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                // Only record exceptions that originate at the operation level
+                // Command-level exceptions (MongoCommandException, MongoWriteException, etc.)
+                // are already recorded by CommandEventHelper on the command span
+                if (activity != null)
+                {
+                    if (!IsCommandLevelException(ex))
+                    {
+                        MongoTelemetry.RecordException(activity, ex);
+                    }
+                    else
+                    {
+                        // For command-level exceptions, only set error status without recording details
+                        activity.SetStatus(ActivityStatusCode.Error);
+                    }
+                }
+
+                throw;
+            }
         }
 
         public TResult ExecuteWriteOperation<TResult>(
@@ -82,8 +149,41 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(operation, nameof(operation));
             ThrowIfDisposed();
 
-            using var binding = CreateReadWriteBinding(session, allowChannelPinning);
-            return operation.Execute(operationContext, binding);
+            using var activityScope = TransactionActivityScope.CreateIfNeeded(session);
+            using var activity = operationContext.IsTracingEnabled
+                ? MongoTelemetry.StartOperationActivity(
+                    operationContext.OperationName,
+                    operationContext.DatabaseName,
+                    operationContext.CollectionName)
+                : null;
+
+            try
+            {
+                using var binding = CreateReadWriteBinding(session, allowChannelPinning);
+                var result = operation.Execute(operationContext, binding);
+                activity?.SetStatus(ActivityStatusCode.Ok);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                // Only record exceptions that originate at the operation level
+                // Command-level exceptions (MongoCommandException, MongoWriteException, etc.)
+                // are already recorded by CommandEventHelper on the command span
+                if (activity != null)
+                {
+                    if (!IsCommandLevelException(ex))
+                    {
+                        MongoTelemetry.RecordException(activity, ex);
+                    }
+                    else
+                    {
+                        // For command-level exceptions, only set error status without recording details
+                        activity.SetStatus(ActivityStatusCode.Error);
+                    }
+                }
+
+                throw;
+            }
         }
 
         public async Task<TResult> ExecuteWriteOperationAsync<TResult>(
@@ -97,8 +197,41 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(operation, nameof(operation));
             ThrowIfDisposed();
 
-            using var binding = CreateReadWriteBinding(session, allowChannelPinning);
-            return await operation.ExecuteAsync(operationContext, binding).ConfigureAwait(false);
+            using var activityScope = TransactionActivityScope.CreateIfNeeded(session);
+            using var activity = operationContext.IsTracingEnabled
+                ? MongoTelemetry.StartOperationActivity(
+                    operationContext.OperationName,
+                    operationContext.DatabaseName,
+                    operationContext.CollectionName)
+                : null;
+
+            try
+            {
+                using var binding = CreateReadWriteBinding(session, allowChannelPinning);
+                var result = await operation.ExecuteAsync(operationContext, binding).ConfigureAwait(false);
+                activity?.SetStatus(ActivityStatusCode.Ok);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                // Only record exceptions that originate at the operation level
+                // Command-level exceptions (MongoCommandException, MongoWriteException, etc.)
+                // are already recorded by CommandEventHelper on the command span
+                if (activity != null)
+                {
+                    if (!IsCommandLevelException(ex))
+                    {
+                        MongoTelemetry.RecordException(activity, ex);
+                    }
+                    else
+                    {
+                        // For command-level exceptions, only set error status without recording details
+                        activity.SetStatus(ActivityStatusCode.Error);
+                    }
+                }
+
+                throw;
+            }
         }
 
         public IClientSessionHandle StartImplicitSession()
@@ -141,6 +274,41 @@ namespace MongoDB.Driver
             if (_isDisposed)
             {
                 throw new ObjectDisposedException(nameof(OperationExecutor));
+            }
+        }
+
+        private static bool IsCommandLevelException(Exception ex)
+        {
+            // Command-level exceptions are those that originate from MongoDB server
+            return ex is MongoServerException;
+        }
+
+        /// <summary>
+        /// Manages Activity.Current scope when executing operations within a transaction.
+        /// Temporarily sets Activity.Current to the transaction activity so operation activities nest correctly,
+        /// then restores to the original value to prevent AsyncLocal flow issues.
+        /// </summary>
+        private sealed class TransactionActivityScope : IDisposable
+        {
+            private readonly Activity _originalActivity;
+
+            private TransactionActivityScope(Activity transactionActivity)
+            {
+                _originalActivity = Activity.Current;
+                Activity.Current = transactionActivity;
+            }
+
+            public static TransactionActivityScope CreateIfNeeded(IClientSessionHandle session)
+            {
+                var transactionActivity = session?.WrappedCoreSession?.CurrentTransaction?.TransactionActivity;
+                return transactionActivity != null
+                    ? new TransactionActivityScope(transactionActivity)
+                    : null;
+            }
+
+            public void Dispose()
+            {
+                Activity.Current = _originalActivity;
             }
         }
     }
