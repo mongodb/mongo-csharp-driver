@@ -162,7 +162,7 @@ namespace MongoDB.Driver
             var effectiveTransactionOptions = GetEffectiveTransactionOptions(transactionOptions);
 
             // Check if tracing is enabled for this client
-            var tracingOptions = _client.Settings.TracingOptions;
+            var tracingOptions = _client?.Settings?.TracingOptions;
             var isTracingEnabled = tracingOptions == null || !tracingOptions.Disabled;
 
             ((ICoreSessionInternal)_coreSession).StartTransaction(effectiveTransactionOptions, isTracingEnabled);
