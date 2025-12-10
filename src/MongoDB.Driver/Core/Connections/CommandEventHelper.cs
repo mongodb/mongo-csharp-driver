@@ -306,7 +306,7 @@ namespace MongoDB.Driver.Core.Connections
                         ShouldRedactReply = shouldRedactCommand
                     };
 
-                    if (_shouldTrace && !ShouldRedactCommand(command))
+                    if (_shouldTrace && !shouldRedactCommand)
                     {
                         commandState.CommandActivity = MongoTelemetry.StartCommandActivity(
                             commandName,
@@ -416,7 +416,7 @@ namespace MongoDB.Driver.Core.Connections
                         ShouldRedactReply = shouldRedactCommand
                     };
 
-                    if (_shouldTrace && !ShouldRedactCommand(command))
+                    if (_shouldTrace && !shouldRedactCommand)
                     {
                         commandState.CommandActivity = MongoTelemetry.StartCommandActivity(
                             commandName,
