@@ -17,6 +17,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
+using MongoDB.Driver.Core.Configuration;
 using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Logging;
@@ -56,7 +57,8 @@ namespace MongoDB.Driver.Core.Connections
         public void ShouldTrackState_should_be_correct(
             [Values(false, true)] bool logCommands,
             [Values(false, true)] bool captureCommandSucceeded,
-            [Values(false, true)] bool captureCommandFailed)
+            [Values(false, true)] bool captureCommandFailed,
+            [Values(false, true)] bool traceCommands)
         {
             var mockLogger = new Mock<ILogger<LogCategories.Command>>();
             mockLogger.Setup(m => m.IsEnabled(LogLevel.Debug)).Returns(logCommands);
@@ -74,9 +76,10 @@ namespace MongoDB.Driver.Core.Connections
             }
 
             var eventLogger = new EventLogger<LogCategories.Command>(eventCapturer, mockLogger.Object);
-            var commandHelper = new CommandEventHelper(eventLogger);
+            var tracingOptions = traceCommands ? new TracingOptions() : new TracingOptions { Disabled = true };
+            var commandHelper = new CommandEventHelper(eventLogger, tracingOptions);
 
-            commandHelper._shouldTrackState().Should().Be(logCommands || captureCommandSucceeded || captureCommandFailed);
+            commandHelper._shouldTrackState().Should().Be(logCommands || captureCommandSucceeded || captureCommandFailed || traceCommands);
         }
     }
 
