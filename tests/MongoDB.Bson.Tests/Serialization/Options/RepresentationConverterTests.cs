@@ -123,6 +123,7 @@ namespace MongoDB.Bson.Tests.Serialization
             // general decimal <-> Decimal128 checks
             Assert.Equal(123.45m, converter.ToDecimal(new Decimal128(123.45m)));
             Assert.Equal(-123.45m, converter.ToDecimal(new Decimal128(-123.45m)));
+
             // System.Decimal should be mapped to Decimal128.MaxValue and vice versa
             Assert.Equal(Decimal128.MaxValue, converter.ToDecimal128(decimal.MaxValue));
             Assert.Equal(Decimal128.MinValue, converter.ToDecimal128(decimal.MinValue));
