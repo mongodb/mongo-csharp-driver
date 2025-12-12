@@ -42,6 +42,11 @@ namespace MongoDB.Driver.TestHelpers.Core
         private readonly List<Activity> _completedActivities;
         private readonly ActivityListener _listener;
 
+        static SpanCapturer()
+        {
+            Activity.DefaultIdFormat =  ActivityIdFormat.W3C;
+        }
+
         public SpanCapturer()
         {
             _completedActivities = new List<Activity>();
