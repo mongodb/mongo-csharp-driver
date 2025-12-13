@@ -107,6 +107,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __standardDeviationSampleSingleWithSelector;
         private static readonly MethodInfo __whereWithLimit;
 
+        // sets of methods
+        private static readonly HashSet<MethodInfo> __medianOverloads;
+        private static readonly HashSet<MethodInfo> __medianWithSelectorOverloads;
+        private static readonly HashSet<MethodInfo> __percentileOverloads;
+        private static readonly HashSet<MethodInfo> __percentileWithSelectorOverloads;
+        private static readonly HashSet<MethodInfo> __standardDeviationOverloads;
+        private static readonly HashSet<MethodInfo> __standardDeviationWithSelectorOverloads;
+
         // static constructor
         static MongoEnumerableMethod()
         {
@@ -194,6 +202,151 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __standardDeviationSampleSingle = ReflectionInfo.Method((IEnumerable<float> source) => source.StandardDeviationSample());
             __standardDeviationSampleSingleWithSelector = ReflectionInfo.Method((IEnumerable<object> source, Func<object, float> selector) => source.StandardDeviationSample(selector));
             __whereWithLimit = ReflectionInfo.Method((IEnumerable<object> source, Func<object, bool> predicate, int limit) => source.Where(predicate, limit));
+
+            // initialize sets of methods after individual methods
+            __medianOverloads =
+            [
+                __medianDecimal,
+                __medianDecimalWithSelector,
+                __medianDouble,
+                __medianDoubleWithSelector,
+                __medianInt32,
+                __medianInt32WithSelector,
+                __medianInt64,
+                __medianInt64WithSelector,
+                __medianNullableDecimal,
+                __medianNullableDecimalWithSelector,
+                __medianNullableDouble,
+                __medianNullableDoubleWithSelector,
+                __medianNullableInt32,
+                __medianNullableInt32WithSelector,
+                __medianNullableInt64,
+                __medianNullableInt64WithSelector,
+                __medianNullableSingle,
+                __medianNullableSingleWithSelector,
+                __medianSingle,
+                __medianSingleWithSelector
+            ];
+
+            __medianWithSelectorOverloads =
+            [
+                __medianDecimalWithSelector,
+                __medianDoubleWithSelector,
+                __medianInt32WithSelector,
+                __medianInt64WithSelector,
+                __medianNullableDecimalWithSelector,
+                __medianNullableDoubleWithSelector,
+                __medianNullableInt32WithSelector,
+                __medianNullableInt64WithSelector,
+                __medianNullableSingleWithSelector,
+                __medianSingleWithSelector
+            ];
+
+            __percentileOverloads =
+            [
+                __percentileDecimal,
+                __percentileDecimalWithSelector,
+                __percentileDouble,
+                __percentileDoubleWithSelector,
+                __percentileInt32,
+                __percentileInt32WithSelector,
+                __percentileInt64,
+                __percentileInt64WithSelector,
+                __percentileNullableDecimal,
+                __percentileNullableDecimalWithSelector,
+                __percentileNullableDouble,
+                __percentileNullableDoubleWithSelector,
+                __percentileNullableInt32,
+                __percentileNullableInt32WithSelector,
+                __percentileNullableInt64,
+                __percentileNullableInt64WithSelector,
+                __percentileNullableSingle,
+                __percentileNullableSingleWithSelector,
+                __percentileSingle,
+                __percentileSingleWithSelector
+            ];
+
+            __percentileWithSelectorOverloads =
+            [
+                __percentileDecimalWithSelector,
+                __percentileDoubleWithSelector,
+                __percentileInt32WithSelector,
+                __percentileInt64WithSelector,
+                __percentileNullableDecimalWithSelector,
+                __percentileNullableDoubleWithSelector,
+                __percentileNullableInt32WithSelector,
+                __percentileNullableInt64WithSelector,
+                __percentileNullableSingleWithSelector,
+                __percentileSingleWithSelector
+            ];
+
+            __standardDeviationOverloads =
+            [
+                __standardDeviationPopulationDecimal,
+                __standardDeviationPopulationDecimalWithSelector,
+                __standardDeviationPopulationDouble,
+                __standardDeviationPopulationDoubleWithSelector,
+                __standardDeviationPopulationInt32,
+                __standardDeviationPopulationInt32WithSelector,
+                __standardDeviationPopulationInt64,
+                __standardDeviationPopulationInt64WithSelector,
+                __standardDeviationPopulationNullableDecimal,
+                __standardDeviationPopulationNullableDecimalWithSelector,
+                __standardDeviationPopulationNullableDouble,
+                __standardDeviationPopulationNullableDoubleWithSelector,
+                __standardDeviationPopulationNullableInt32,
+                __standardDeviationPopulationNullableInt32WithSelector,
+                __standardDeviationPopulationNullableInt64,
+                __standardDeviationPopulationNullableInt64WithSelector,
+                __standardDeviationPopulationNullableSingle,
+                __standardDeviationPopulationNullableSingleWithSelector,
+                __standardDeviationPopulationSingle,
+                __standardDeviationPopulationSingleWithSelector,
+                __standardDeviationSampleDecimal,
+                __standardDeviationSampleDecimalWithSelector,
+                __standardDeviationSampleDouble,
+                __standardDeviationSampleDoubleWithSelector,
+                __standardDeviationSampleInt32,
+                __standardDeviationSampleInt32WithSelector,
+                __standardDeviationSampleInt64,
+                __standardDeviationSampleInt64WithSelector,
+                __standardDeviationSampleNullableDecimal,
+                __standardDeviationSampleNullableDecimalWithSelector,
+                __standardDeviationSampleNullableDouble,
+                __standardDeviationSampleNullableDoubleWithSelector,
+                __standardDeviationSampleNullableInt32,
+                __standardDeviationSampleNullableInt32WithSelector,
+                __standardDeviationSampleNullableInt64,
+                __standardDeviationSampleNullableInt64WithSelector,
+                __standardDeviationSampleNullableSingle,
+                __standardDeviationSampleNullableSingleWithSelector,
+                __standardDeviationSampleSingle,
+                __standardDeviationSampleSingleWithSelector,
+            ];
+
+            __standardDeviationWithSelectorOverloads =
+            [
+                __standardDeviationPopulationDecimalWithSelector,
+                __standardDeviationPopulationDoubleWithSelector,
+                __standardDeviationPopulationInt32WithSelector,
+                __standardDeviationPopulationInt64WithSelector,
+                __standardDeviationPopulationNullableDecimalWithSelector,
+                __standardDeviationPopulationNullableDoubleWithSelector,
+                __standardDeviationPopulationNullableInt32WithSelector,
+                __standardDeviationPopulationNullableInt64WithSelector,
+                __standardDeviationPopulationNullableSingleWithSelector,
+                __standardDeviationPopulationSingleWithSelector,
+                __standardDeviationSampleDecimalWithSelector,
+                __standardDeviationSampleDoubleWithSelector,
+                __standardDeviationSampleInt32WithSelector,
+                __standardDeviationSampleInt64WithSelector,
+                __standardDeviationSampleNullableDecimalWithSelector,
+                __standardDeviationSampleNullableDoubleWithSelector,
+                __standardDeviationSampleNullableInt32WithSelector,
+                __standardDeviationSampleNullableInt64WithSelector,
+                __standardDeviationSampleNullableSingleWithSelector,
+                __standardDeviationSampleSingleWithSelector,
+            ];
         }
 
         // public properties
@@ -281,5 +434,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo StandardDeviationSampleSingle => __standardDeviationSampleSingle;
         public static MethodInfo StandardDeviationSampleSingleWithSelector => __standardDeviationSampleSingleWithSelector;
         public static MethodInfo WhereWithLimit => __whereWithLimit;
+
+        // sets of methods
+        public static HashSet<MethodInfo> MedianOverloads => __medianOverloads;
+        public static HashSet<MethodInfo> MedianWithSelectorOverloads => __medianWithSelectorOverloads;
+        public static HashSet<MethodInfo> PercentileOverloads => __percentileOverloads;
+        public static HashSet<MethodInfo> PercentileWithSelectorOverloads => __percentileWithSelectorOverloads;
+        public static HashSet<MethodInfo> StandardDeviationOverloads => __standardDeviationOverloads;
+        public static HashSet<MethodInfo> StandardDeviationWithSelectorOverloads => __standardDeviationWithSelectorOverloads;
     }
 }

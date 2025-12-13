@@ -25,68 +25,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class FirstOrLastMethodToAggregationExpressionTranslator
     {
-        private static readonly MethodInfo[] __firstOrLastMethods =
-        {
-            EnumerableMethod.First,
-            EnumerableMethod.FirstWithPredicate,
-            EnumerableMethod.FirstOrDefault,
-            EnumerableMethod.FirstOrDefaultWithPredicate,
-            EnumerableMethod.Last,
-            EnumerableMethod.LastWithPredicate,
-            EnumerableMethod.LastOrDefault,
-            EnumerableMethod.LastOrDefaultWithPredicate,
-            QueryableMethod.First,
-            QueryableMethod.FirstWithPredicate,
-            QueryableMethod.FirstOrDefault,
-            QueryableMethod.FirstOrDefaultWithPredicate,
-            QueryableMethod.Last,
-            QueryableMethod.LastWithPredicate,
-            QueryableMethod.LastOrDefault,
-            QueryableMethod.LastOrDefaultWithPredicate
-        };
-
-        private static readonly MethodInfo[] __firstMethods =
-        {
-            EnumerableMethod.First,
-            EnumerableMethod.FirstWithPredicate,
-            EnumerableMethod.FirstOrDefault,
-            EnumerableMethod.FirstOrDefaultWithPredicate,
-            QueryableMethod.First,
-            QueryableMethod.FirstWithPredicate,
-            QueryableMethod.FirstOrDefault,
-            QueryableMethod.FirstOrDefaultWithPredicate
-        };
-
-        private static readonly MethodInfo[] __orDefaultMethods =
-        {
-            EnumerableMethod.FirstOrDefault,
-            EnumerableMethod.FirstOrDefaultWithPredicate,
-            EnumerableMethod.LastOrDefault,
-            EnumerableMethod.LastOrDefaultWithPredicate,
-            QueryableMethod.FirstOrDefault,
-            QueryableMethod.FirstOrDefaultWithPredicate,
-            QueryableMethod.LastOrDefault,
-            QueryableMethod.LastOrDefaultWithPredicate
-        };
-
-        private static readonly MethodInfo[] __withPredicateMethods =
-        {
-            EnumerableMethod.FirstWithPredicate,
-            EnumerableMethod.FirstOrDefaultWithPredicate,
-            EnumerableMethod.LastWithPredicate,
-            EnumerableMethod.LastOrDefaultWithPredicate,
-            QueryableMethod.FirstWithPredicate,
-            QueryableMethod.FirstOrDefaultWithPredicate,
-            QueryableMethod.LastWithPredicate,
-            QueryableMethod.LastOrDefaultWithPredicate
-        };
-
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__firstOrLastMethods))
+            if (method.IsOneOf(EnumerableOrQueryableMethod.FirstOrLastOverloads))
             {
                 var sourceExpression = arguments[0];
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
@@ -95,9 +39,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var sourceAst = sourceTranslation.Ast;
                 var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
 
-                var isFirstMethod = method.IsOneOf(__firstMethods);
+                var isFirstMethod = method.IsOneOf(EnumerableOrQueryableMethod.FirstOverloads);
 
-                if (method.IsOneOf(__withPredicateMethods))
+                if (method.IsOneOf(EnumerableOrQueryableMethod.FirstOrLastWithPredicateOverloads))
                 {
                     var predicateLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
                     var parameterExpression = predicateLambda.Parameters.Single();
@@ -122,7 +66,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 }
 
                 AstExpression ast;
-                if (method.IsOneOf(__orDefaultMethods))
+                if (method.IsOneOf(EnumerableOrQueryableMethod.FirstOrDefaultOverloads, EnumerableOrQueryableMethod.LastOrDefaultOverloads))
                 {
                     var defaultValue = itemSerializer.ValueType.GetDefaultValue();
                     var serializedDefaultValue = SerializationHelper.SerializeValue(itemSerializer, defaultValue);

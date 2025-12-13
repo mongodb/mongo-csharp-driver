@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -36,6 +37,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __isNullOrMissing;
         private static readonly MethodInfo __sigmoid;
 
+        // sets of methods
+        private static readonly HashSet<MethodInfo> __dateFromStringOverloads;
+        private static readonly HashSet<MethodInfo> __dateFromStringWithFormatOverloads;
+        private static readonly HashSet<MethodInfo> __dateFromStringWithTimezoneOverloads;
+
         // static constructor
         static MqlMethod()
         {
@@ -51,6 +57,28 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __isMissing = ReflectionInfo.Method((object field) => Mql.IsMissing(field));
             __isNullOrMissing = ReflectionInfo.Method((object field) => Mql.IsNullOrMissing(field));
             __sigmoid = ReflectionInfo.Method((double value) => Mql.Sigmoid(value));
+
+            // initialize sets of methods after individual methods
+            __dateFromStringOverloads =
+            [
+                __dateFromString,
+                __dateFromStringWithFormat,
+                __dateFromStringWithFormatAndTimezone,
+                __dateFromStringWithFormatAndTimezoneAndOnErrorAndOnNull
+            ];
+
+            __dateFromStringWithFormatOverloads =
+            [
+               __dateFromStringWithFormat,
+               __dateFromStringWithFormatAndTimezone,
+               __dateFromStringWithFormatAndTimezoneAndOnErrorAndOnNull
+            ];
+
+            __dateFromStringWithTimezoneOverloads =
+            [
+                __dateFromStringWithFormatAndTimezone,
+                __dateFromStringWithFormatAndTimezoneAndOnErrorAndOnNull
+            ];
         }
 
         // public properties
@@ -66,5 +94,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo IsMissing => __isMissing;
         public static MethodInfo IsNullOrMissing => __isNullOrMissing;
         public static MethodInfo Sigmoid => __sigmoid;
+
+        // sets of methods
+        public static HashSet<MethodInfo> DateFromStringOverloads => __dateFromStringOverloads;
+        public static HashSet<MethodInfo> DateFromStringWithFormatOverloads => __dateFromStringWithFormatOverloads;
+        public static HashSet<MethodInfo> DateFromStringWithTimezoneOverloads => __dateFromStringWithTimezoneOverloads;
     }
 }

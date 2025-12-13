@@ -193,6 +193,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __whereWithPredicateTakingIndex;
         private static readonly MethodInfo __zip;
 
+        // sets of methods
+        private static readonly HashSet<MethodInfo> __pickOverloads;
+        private static readonly HashSet<MethodInfo> __pickWithComputedNOverloads;
+        private static readonly HashSet<MethodInfo> __pickWithSortDefinitionOverloads;
+
         // static constructor
         static EnumerableMethod()
         {
@@ -362,6 +367,45 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __where = ReflectionInfo.Method((IEnumerable<object> source, Func<object, bool> predicate) => source.Where(predicate));
             __whereWithPredicateTakingIndex = ReflectionInfo.Method((IEnumerable<object> source, Func<object, int, bool> predicate) => source.Where(predicate));
             __zip = ReflectionInfo.Method((IEnumerable<object> first, IEnumerable<object> second, Func<object, object, object> resultSelector) => first.Zip(second, resultSelector));
+
+            // initialize sets of methods after individual methods
+            __pickOverloads =
+            [
+                __bottom,
+                __bottomN,
+                __bottomNWithComputedN,
+                __firstN,
+                __firstNWithComputedN,
+                __lastN,
+                __lastNWithComputedN,
+                __maxN,
+                __maxNWithComputedN,
+                __minN,
+                __minNWithComputedN,
+                __top,
+                __topN,
+                __topNWithComputedN
+            ];
+
+            __pickWithComputedNOverloads =
+            [
+                __bottomNWithComputedN,
+                __firstNWithComputedN,
+                __lastNWithComputedN,
+                __maxNWithComputedN,
+                __minNWithComputedN,
+                __topNWithComputedN
+            ];
+
+            __pickWithSortDefinitionOverloads =
+            [
+                __bottom,
+                __bottomN,
+                __bottomNWithComputedN,
+                __top,
+                __topN,
+                __topNWithComputedN
+            ];
         }
 
         // public properties
@@ -531,6 +575,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo Where => __where;
         public static MethodInfo WhereWithPredicateTakingIndex => __whereWithPredicateTakingIndex;
         public static MethodInfo Zip => __zip;
+
+        // sets of methods
+        public static HashSet<MethodInfo> PickOverloads => __pickOverloads;
+        public static HashSet<MethodInfo> PickWithComputedNOverloads => __pickWithComputedNOverloads;
+        public static HashSet<MethodInfo> PickWithSortDefinitionOverloads => __pickWithSortDefinitionOverloads;
 
         // public methods
         public static bool IsContainsMethod(MethodCallExpression methodCallExpression, out Expression sourceExpression, out Expression valueExpression)

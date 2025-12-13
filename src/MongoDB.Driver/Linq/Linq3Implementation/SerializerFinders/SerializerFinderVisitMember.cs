@@ -42,7 +42,7 @@ internal partial class SerializerFinderVisitor
             var containingExpression = node.Expression;
             if (IsKnown(containingExpression, out containingSerializer))
             {
-                // TODO: handle special cases like DateTime.Year etc.
+                // TODO: are there are other cases that still need to be handled?
 
                 var resultSerializer = node.Member switch
                 {

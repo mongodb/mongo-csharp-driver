@@ -129,6 +129,19 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             return false;
         }
 
+        public static bool IsOneOf(this MethodInfo method, params HashSet<MethodInfo>[] comparands)
+        {
+            for (var i = 0; i < comparands.Length; i++)
+            {
+                if (method.IsOneOf(comparands[i]))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public static bool IsOneOf(this MethodInfo method, MethodInfo comparand1, MethodInfo comparand2)
         {
             return method.Is(comparand1) || method.Is(comparand2);

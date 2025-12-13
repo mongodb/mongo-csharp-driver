@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             return
                 leftExpression is MethodCallExpression leftMethodCallExpression &&
                 leftMethodCallExpression.Method is var method &&
-                (method.IsStaticCompareMethod() || method.IsInstanceCompareToMethod() || method.Is(StringMethod.StaticCompareWithIgnoreCase));
+                (method.IsStaticCompareMethod() || method.IsInstanceCompareToMethod() || method.Is(StringMethod.CompareWithIgnoreCase));
         }
 
         // caller is responsible for ensuring constant is on the right
@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                     innerValueExpression = compareArguments[0];
                 }
 
-                if (compareMethod.Is(StringMethod.StaticCompareWithIgnoreCase))
+                if (compareMethod.Is(StringMethod.CompareWithIgnoreCase))
                 {
                     var ignoreCaseExpression = compareArguments[2];
                     var ignoreCase = ignoreCaseExpression.GetConstantValue<bool>(containingExpression: compareMethodCallExpression);

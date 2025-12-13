@@ -25,33 +25,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class DateFromStringMethodToAggregationExpressionTranslator
     {
-        private static readonly MethodInfo[] __dateFromStringMethods =
-        {
-            MqlMethod.DateFromString,
-            MqlMethod.DateFromStringWithFormat,
-            MqlMethod.DateFromStringWithFormatAndTimezone,
-            MqlMethod.DateFromStringWithFormatAndTimezoneAndOnErrorAndOnNull
-        };
-
-        private static readonly MethodInfo[] __withFormatMethods =
-        {
-            MqlMethod.DateFromStringWithFormat,
-            MqlMethod.DateFromStringWithFormatAndTimezone,
-            MqlMethod.DateFromStringWithFormatAndTimezoneAndOnErrorAndOnNull
-        };
-
-        private static readonly MethodInfo[] __withTimezoneMethods =
-        {
-            MqlMethod.DateFromStringWithFormatAndTimezone,
-            MqlMethod.DateFromStringWithFormatAndTimezoneAndOnErrorAndOnNull
-        };
-
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__dateFromStringMethods))
+            if (method.IsOneOf(MqlMethod.DateFromStringOverloads))
             {
                 var dateStringExpression = arguments[0];
                 var dateStringTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, dateStringExpression);
@@ -59,7 +38,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 IBsonSerializer resultSerializer = DateTimeSerializer.Instance;
 
                 AstExpression format = null;
-                if (method.IsOneOf(__withFormatMethods))
+                if (method.IsOneOf(MqlMethod.DateFromStringWithFormatOverloads))
                 {
                     var formatExpression = arguments[1];
                     var formatTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, formatExpression);
@@ -67,7 +46,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 }
 
                 AstExpression timezoneAst = null;
-                if (method.IsOneOf(__withTimezoneMethods))
+                if (method.IsOneOf(MqlMethod.DateFromStringWithTimezoneOverloads))
                 {
                     var timezoneExpression = arguments[2];
                     var timezoneTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, timezoneExpression);

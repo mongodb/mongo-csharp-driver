@@ -32,6 +32,7 @@ internal partial class SerializerFinderVisitor
 
         void DeduceListInitSerializers()
         {
+            // TODO: handle initializers?
             DeduceSerializers(node, newExpression);
         }
     }
