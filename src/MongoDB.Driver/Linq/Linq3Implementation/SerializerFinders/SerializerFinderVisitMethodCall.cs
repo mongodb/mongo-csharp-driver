@@ -31,720 +31,26 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.SerializerFinders;
 
 internal partial class SerializerFinderVisitor
 {
-    private static readonly HashSet<MethodInfo> __absMethods =
+    private static HashSet<MethodInfo>[] __averageOrMedianOrPercentileOverloads =
     [
-        MathMethod.AbsDecimal,
-        MathMethod.AbsDouble,
-        MathMethod.AbsInt16,
-        MathMethod.AbsInt32,
-        MathMethod.AbsInt64,
-        MathMethod.AbsSByte,
-        MathMethod.AbsSingle
+        EnumerableOrQueryableMethod.AverageOverloads,
+        MongoEnumerableMethod.MedianOverloads,
+        MongoEnumerableMethod.PercentileOverloads,
+        WindowMethod.PercentileOverloads
     ];
 
-    private static readonly HashSet<MethodInfo> __aggregateMethods =
+    private static HashSet<MethodInfo>[] __averageOrMedianOrPercentileWithSelectorOverloads =
     [
-        EnumerableMethod.AggregateWithFunc,
-        EnumerableMethod.AggregateWithSeedAndFunc,
-        EnumerableMethod.AggregateWithSeedFuncAndResultSelector,
-        QueryableMethod.AggregateWithFunc,
-        QueryableMethod.AggregateWithSeedAndFunc,
-        QueryableMethod.AggregateWithSeedFuncAndResultSelector
+        EnumerableOrQueryableMethod.AverageWithSelectorOverloads,
+        MongoEnumerableMethod.MedianWithSelectorOverloads,
+        MongoEnumerableMethod.PercentileWithSelectorOverloads,
+        WindowMethod.PercentileOverloads
     ];
 
-    private static readonly HashSet<MethodInfo> __aggregateWithFuncMethods =
+    private static readonly HashSet<MethodInfo>[] __whereOverloads =
     [
-        EnumerableMethod.AggregateWithFunc,
-        QueryableMethod.AggregateWithFunc
-    ];
-
-    private static readonly HashSet<MethodInfo> __aggregateWithSeedAndFuncMethods =
-    [
-        EnumerableMethod.AggregateWithSeedAndFunc,
-        QueryableMethod.AggregateWithSeedAndFunc
-    ];
-
-    private static readonly HashSet<MethodInfo> __aggregateWithSeedFuncAdResultSelectorMethods =
-    [
-        EnumerableMethod.AggregateWithSeedFuncAndResultSelector,
-        QueryableMethod.AggregateWithSeedFuncAndResultSelector
-    ];
-
-    private static readonly HashSet<MethodInfo> __anyMethods =
-    [
-        EnumerableMethod.Any,
-        EnumerableMethod.AnyWithPredicate,
-        QueryableMethod.Any,
-        QueryableMethod.AnyWithPredicate
-    ];
-
-    private static readonly HashSet<MethodInfo> __anyWithPredicateMethods =
-    [
-        EnumerableMethod.AnyWithPredicate,
-        QueryableMethod.AnyWithPredicate
-    ];
-
-    private static readonly HashSet<MethodInfo> __appendOrPrependMethods =
-    [
-        EnumerableMethod.Append,
-        EnumerableMethod.Prepend,
-        QueryableMethod.Append,
-        QueryableMethod.Prepend
-    ];
-
-    private static readonly HashSet<MethodInfo> __averageOrMedianOrPercentileMethods =
-    [
-        EnumerableMethod.AverageDecimal,
-        EnumerableMethod.AverageDecimalWithSelector,
-        EnumerableMethod.AverageDouble,
-        EnumerableMethod.AverageDoubleWithSelector,
-        EnumerableMethod.AverageInt32,
-        EnumerableMethod.AverageInt32WithSelector,
-        EnumerableMethod.AverageInt64,
-        EnumerableMethod.AverageInt64WithSelector,
-        EnumerableMethod.AverageNullableDecimal,
-        EnumerableMethod.AverageNullableDecimalWithSelector,
-        EnumerableMethod.AverageNullableDouble,
-        EnumerableMethod.AverageNullableDoubleWithSelector,
-        EnumerableMethod.AverageNullableInt32,
-        EnumerableMethod.AverageNullableInt32WithSelector,
-        EnumerableMethod.AverageNullableInt64,
-        EnumerableMethod.AverageNullableInt64WithSelector,
-        EnumerableMethod.AverageNullableSingle,
-        EnumerableMethod.AverageNullableSingleWithSelector,
-        EnumerableMethod.AverageSingle,
-        EnumerableMethod.AverageSingleWithSelector,
-        QueryableMethod.AverageDecimal,
-        QueryableMethod.AverageDecimalWithSelector,
-        QueryableMethod.AverageDouble,
-        QueryableMethod.AverageDoubleWithSelector,
-        QueryableMethod.AverageInt32,
-        QueryableMethod.AverageInt32WithSelector,
-        QueryableMethod.AverageInt64,
-        QueryableMethod.AverageInt64WithSelector,
-        QueryableMethod.AverageNullableDecimal,
-        QueryableMethod.AverageNullableDecimalWithSelector,
-        QueryableMethod.AverageNullableDouble,
-        QueryableMethod.AverageNullableDoubleWithSelector,
-        QueryableMethod.AverageNullableInt32,
-        QueryableMethod.AverageNullableInt32WithSelector,
-        QueryableMethod.AverageNullableInt64,
-        QueryableMethod.AverageNullableInt64WithSelector,
-        QueryableMethod.AverageNullableSingle,
-        QueryableMethod.AverageNullableSingleWithSelector,
-        QueryableMethod.AverageSingle,
-        QueryableMethod.AverageSingleWithSelector,
-        MongoEnumerableMethod.MedianDecimal,
-        MongoEnumerableMethod.MedianDecimalWithSelector,
-        MongoEnumerableMethod.MedianDouble,
-        MongoEnumerableMethod.MedianDoubleWithSelector,
-        MongoEnumerableMethod.MedianInt32,
-        MongoEnumerableMethod.MedianInt32WithSelector,
-        MongoEnumerableMethod.MedianInt64,
-        MongoEnumerableMethod.MedianInt64WithSelector,
-        MongoEnumerableMethod.MedianNullableDecimal,
-        MongoEnumerableMethod.MedianNullableDecimalWithSelector,
-        MongoEnumerableMethod.MedianNullableDouble,
-        MongoEnumerableMethod.MedianNullableDoubleWithSelector,
-        MongoEnumerableMethod.MedianNullableInt32,
-        MongoEnumerableMethod.MedianNullableInt32WithSelector,
-        MongoEnumerableMethod.MedianNullableInt64,
-        MongoEnumerableMethod.MedianNullableInt64WithSelector,
-        MongoEnumerableMethod.MedianNullableSingle,
-        MongoEnumerableMethod.MedianNullableSingleWithSelector,
-        MongoEnumerableMethod.MedianSingle,
-        MongoEnumerableMethod.MedianSingleWithSelector,
-        MongoEnumerableMethod.PercentileDecimal,
-        MongoEnumerableMethod.PercentileDecimalWithSelector,
-        MongoEnumerableMethod.PercentileDouble,
-        MongoEnumerableMethod.PercentileDoubleWithSelector,
-        MongoEnumerableMethod.PercentileInt32,
-        MongoEnumerableMethod.PercentileInt32WithSelector,
-        MongoEnumerableMethod.PercentileInt64,
-        MongoEnumerableMethod.PercentileInt64WithSelector,
-        MongoEnumerableMethod.PercentileNullableDecimal,
-        MongoEnumerableMethod.PercentileNullableDecimalWithSelector,
-        MongoEnumerableMethod.PercentileNullableDouble,
-        MongoEnumerableMethod.PercentileNullableDoubleWithSelector,
-        MongoEnumerableMethod.PercentileNullableInt32,
-        MongoEnumerableMethod.PercentileNullableInt32WithSelector,
-        MongoEnumerableMethod.PercentileNullableInt64,
-        MongoEnumerableMethod.PercentileNullableInt64WithSelector,
-        MongoEnumerableMethod.PercentileNullableSingle,
-        MongoEnumerableMethod.PercentileNullableSingleWithSelector,
-        MongoEnumerableMethod.PercentileSingle,
-        MongoEnumerableMethod.PercentileSingleWithSelector,
-        WindowMethod.PercentileWithDecimal,
-        WindowMethod.PercentileWithDouble,
-        WindowMethod.PercentileWithInt32,
-        WindowMethod.PercentileWithInt64,
-        WindowMethod.PercentileWithNullableDecimal,
-        WindowMethod.PercentileWithNullableDouble,
-        WindowMethod.PercentileWithNullableInt32,
-        WindowMethod.PercentileWithNullableInt64,
-        WindowMethod.PercentileWithNullableSingle,
-        WindowMethod.PercentileWithSingle
-    ];
-
-    private static readonly HashSet<MethodInfo> __averageOrMedianOrPercentileWithSelectorMethods =
-    [
-        EnumerableMethod.AverageDecimalWithSelector,
-        EnumerableMethod.AverageDoubleWithSelector,
-        EnumerableMethod.AverageInt32WithSelector,
-        EnumerableMethod.AverageInt64WithSelector,
-        EnumerableMethod.AverageNullableDecimalWithSelector,
-        EnumerableMethod.AverageNullableDoubleWithSelector,
-        EnumerableMethod.AverageNullableInt32WithSelector,
-        EnumerableMethod.AverageNullableInt64WithSelector,
-        EnumerableMethod.AverageNullableSingleWithSelector,
-        EnumerableMethod.AverageSingleWithSelector,
-        QueryableMethod.AverageDecimalWithSelector,
-        QueryableMethod.AverageDoubleWithSelector,
-        QueryableMethod.AverageInt32WithSelector,
-        QueryableMethod.AverageInt64WithSelector,
-        QueryableMethod.AverageNullableDecimalWithSelector,
-        QueryableMethod.AverageNullableDoubleWithSelector,
-        QueryableMethod.AverageNullableInt32WithSelector,
-        QueryableMethod.AverageNullableInt64WithSelector,
-        QueryableMethod.AverageNullableSingleWithSelector,
-        QueryableMethod.AverageSingleWithSelector,
-        MongoEnumerableMethod.MedianDecimalWithSelector,
-        MongoEnumerableMethod.MedianDoubleWithSelector,
-        MongoEnumerableMethod.MedianInt32WithSelector,
-        MongoEnumerableMethod.MedianInt64WithSelector,
-        MongoEnumerableMethod.MedianNullableDecimalWithSelector,
-        MongoEnumerableMethod.MedianNullableDoubleWithSelector,
-        MongoEnumerableMethod.MedianNullableInt32WithSelector,
-        MongoEnumerableMethod.MedianNullableInt64WithSelector,
-        MongoEnumerableMethod.MedianNullableSingleWithSelector,
-        MongoEnumerableMethod.MedianSingleWithSelector,
-        MongoEnumerableMethod.PercentileDecimalWithSelector,
-        MongoEnumerableMethod.PercentileDoubleWithSelector,
-        MongoEnumerableMethod.PercentileInt32WithSelector,
-        MongoEnumerableMethod.PercentileInt64WithSelector,
-        MongoEnumerableMethod.PercentileNullableDecimalWithSelector,
-        MongoEnumerableMethod.PercentileNullableDoubleWithSelector,
-        MongoEnumerableMethod.PercentileNullableInt32WithSelector,
-        MongoEnumerableMethod.PercentileNullableInt64WithSelector,
-        MongoEnumerableMethod.PercentileNullableSingleWithSelector,
-        MongoEnumerableMethod.PercentileSingleWithSelector,
-        WindowMethod.PercentileWithDecimal,
-        WindowMethod.PercentileWithDouble,
-        WindowMethod.PercentileWithInt32,
-        WindowMethod.PercentileWithInt64,
-        WindowMethod.PercentileWithNullableDecimal,
-        WindowMethod.PercentileWithNullableDouble,
-        WindowMethod.PercentileWithNullableInt32,
-        WindowMethod.PercentileWithNullableInt64,
-        WindowMethod.PercentileWithNullableSingle,
-        WindowMethod.PercentileWithSingle
-    ];
-
-    private static readonly HashSet<MethodInfo> __countMethods =
-    [
-        EnumerableMethod.Count,
-        EnumerableMethod.CountWithPredicate,
-        EnumerableMethod.LongCount,
-        EnumerableMethod.LongCountWithPredicate,
-        QueryableMethod.Count,
-        QueryableMethod.CountWithPredicate,
-        QueryableMethod.LongCount,
-        QueryableMethod.LongCountWithPredicate
-    ];
-
-    private static readonly HashSet<MethodInfo> __countWithPredicateMethods =
-    [
-        EnumerableMethod.CountWithPredicate,
-        EnumerableMethod.LongCountWithPredicate,
-        QueryableMethod.CountWithPredicate,
-        QueryableMethod.LongCountWithPredicate
-    ];
-
-    private static readonly HashSet<MethodInfo> __groupByMethods =
-    [
-        EnumerableMethod.GroupByWithKeySelector,
-        EnumerableMethod.GroupByWithKeySelectorAndElementSelector,
-        EnumerableMethod.GroupByWithKeySelectorAndResultSelector,
-        EnumerableMethod.GroupByWithKeySelectorElementSelectorAndResultSelector,
-        QueryableMethod.GroupByWithKeySelector,
-        QueryableMethod.GroupByWithKeySelectorAndElementSelector,
-        QueryableMethod.GroupByWithKeySelectorAndResultSelector,
-        QueryableMethod.GroupByWithKeySelectorElementSelectorAndResultSelector
-    ];
-
-    private static readonly HashSet<MethodInfo> __indexOfMethods =
-    [
-        StringMethod.IndexOfAny,
-        StringMethod.IndexOfAnyWithStartIndex,
-        StringMethod.IndexOfAnyWithStartIndexAndCount,
-        StringMethod.IndexOfBytesWithValue,
-        StringMethod.IndexOfBytesWithValueAndStartIndex,
-        StringMethod.IndexOfBytesWithValueAndStartIndexAndCount,
-        StringMethod.IndexOfWithChar,
-        StringMethod.IndexOfWithCharAndStartIndex,
-        StringMethod.IndexOfWithCharAndStartIndexAndCount,
-        StringMethod.IndexOfWithString,
-        StringMethod.IndexOfWithStringAndComparisonType,
-        StringMethod.IndexOfWithStringAndStartIndex,
-        StringMethod.IndexOfWithStringAndStartIndexAndComparisonType,
-        StringMethod.IndexOfWithStringAndStartIndexAndCount,
-        StringMethod.IndexOfWithStringAndStartIndexAndCountAndComparisonType,
-    ];
-
-    private static readonly HashSet<MethodInfo> __tupleOrValueTupleCreateMethods =
-    [
-        TupleMethod.Create1,
-        TupleMethod.Create2,
-        TupleMethod.Create3,
-        TupleMethod.Create4,
-        TupleMethod.Create5,
-        TupleMethod.Create6,
-        TupleMethod.Create7,
-        TupleMethod.Create8,
-        ValueTupleMethod.Create1,
-        ValueTupleMethod.Create2,
-        ValueTupleMethod.Create3,
-        ValueTupleMethod.Create4,
-        ValueTupleMethod.Create5,
-        ValueTupleMethod.Create6,
-        ValueTupleMethod.Create7,
-        ValueTupleMethod.Create8
-    ];
-
-    private static readonly HashSet<MethodInfo> __firstOrLastMethods =
-    [
-        EnumerableMethod.First,
-        EnumerableMethod.FirstOrDefault,
-        EnumerableMethod.FirstOrDefaultWithPredicate,
-        EnumerableMethod.FirstWithPredicate,
-        EnumerableMethod.Last,
-        EnumerableMethod.LastOrDefault,
-        EnumerableMethod.LastOrDefaultWithPredicate,
-        EnumerableMethod.LastWithPredicate,
-        EnumerableMethod.Single,
-        EnumerableMethod.SingleOrDefault,
-        EnumerableMethod.SingleOrDefaultWithPredicate,
-        EnumerableMethod.SingleWithPredicate,
-        QueryableMethod.First,
-        QueryableMethod.FirstOrDefault,
-        QueryableMethod.FirstOrDefaultWithPredicate,
-        QueryableMethod.FirstWithPredicate,
-        QueryableMethod.Last,
-        QueryableMethod.LastOrDefault,
-        QueryableMethod.LastOrDefaultWithPredicate,
-        QueryableMethod.LastWithPredicate,
-        QueryableMethod.Single,
-        QueryableMethod.SingleOrDefault,
-        QueryableMethod.SingleOrDefaultWithPredicate,
-        QueryableMethod.SingleWithPredicate
-    ];
-
-    private static readonly HashSet<MethodInfo> __firstOrLastWithPredicateMethods =
-    [
-        EnumerableMethod.FirstOrDefaultWithPredicate,
-        EnumerableMethod.FirstWithPredicate,
-        EnumerableMethod.LastOrDefaultWithPredicate,
-        EnumerableMethod.LastWithPredicate,
-        EnumerableMethod.SingleOrDefaultWithPredicate,
-        EnumerableMethod.SingleWithPredicate,
-        QueryableMethod.LastOrDefaultWithPredicate,
-        QueryableMethod.LastWithPredicate,
-        QueryableMethod.LastOrDefaultWithPredicate,
-        QueryableMethod.LastWithPredicate,
-        QueryableMethod.SingleOrDefaultWithPredicate,
-        QueryableMethod.SingleWithPredicate
-    ];
-
-    private static readonly HashSet<MethodInfo> __logMethods =
-    [
-        MathMethod.Log,
-        MathMethod.Log10,
-        MathMethod.LogWithNewBase
-    ];
-
-    private static readonly HashSet<MethodInfo> __lookupMethods =
-    [
-        MongoQueryableMethod.LookupWithDocumentsAndLocalFieldAndForeignField,
-        MongoQueryableMethod.LookupWithDocumentsAndLocalFieldAndForeignFieldAndPipeline,
-        MongoQueryableMethod.LookupWithDocumentsAndPipeline,
-        MongoQueryableMethod.LookupWithFromAndLocalFieldAndForeignField,
-        MongoQueryableMethod.LookupWithFromAndLocalFieldAndForeignFieldAndPipeline,
-        MongoQueryableMethod.LookupWithFromAndPipeline
-    ];
-
-    private static readonly HashSet<MethodInfo> __maxOrMinMethods =
-    [
-        EnumerableMethod.Max,
-        EnumerableMethod.MaxDecimal,
-        EnumerableMethod.MaxDecimalWithSelector,
-        EnumerableMethod.MaxDouble,
-        EnumerableMethod.MaxDoubleWithSelector,
-        EnumerableMethod.MaxInt32,
-        EnumerableMethod.MaxInt32WithSelector,
-        EnumerableMethod.MaxInt64,
-        EnumerableMethod.MaxInt64WithSelector,
-        EnumerableMethod.MaxNullableDecimal,
-        EnumerableMethod.MaxNullableDecimalWithSelector,
-        EnumerableMethod.MaxNullableDouble,
-        EnumerableMethod.MaxNullableDoubleWithSelector,
-        EnumerableMethod.MaxNullableInt32,
-        EnumerableMethod.MaxNullableInt32WithSelector,
-        EnumerableMethod.MaxNullableInt64,
-        EnumerableMethod.MaxNullableInt64WithSelector,
-        EnumerableMethod.MaxNullableSingle,
-        EnumerableMethod.MaxNullableSingleWithSelector,
-        EnumerableMethod.MaxSingle,
-        EnumerableMethod.MaxSingleWithSelector,
-        EnumerableMethod.MaxWithSelector,
-        EnumerableMethod.Min,
-        EnumerableMethod.MinDecimal,
-        EnumerableMethod.MinDecimalWithSelector,
-        EnumerableMethod.MinDouble,
-        EnumerableMethod.MinDoubleWithSelector,
-        EnumerableMethod.MinInt32,
-        EnumerableMethod.MinInt32WithSelector,
-        EnumerableMethod.MinInt64,
-        EnumerableMethod.MinInt64WithSelector,
-        EnumerableMethod.MinNullableDecimal,
-        EnumerableMethod.MinNullableDecimalWithSelector,
-        EnumerableMethod.MinNullableDouble,
-        EnumerableMethod.MinNullableDoubleWithSelector,
-        EnumerableMethod.MinNullableInt32,
-        EnumerableMethod.MinNullableInt32WithSelector,
-        EnumerableMethod.MinNullableInt64,
-        EnumerableMethod.MinNullableInt64WithSelector,
-        EnumerableMethod.MinNullableSingle,
-        EnumerableMethod.MinNullableSingleWithSelector,
-        EnumerableMethod.MinSingle,
-        EnumerableMethod.MinSingleWithSelector,
-        EnumerableMethod.MinWithSelector,
-        QueryableMethod.Max,
-        QueryableMethod.MaxWithSelector,
-        QueryableMethod.Min,
-        QueryableMethod.MinWithSelector,
-    ];
-
-    private static readonly HashSet<MethodInfo> __maxOrMinWithSelectorMethods =
-    [
-        EnumerableMethod.MaxDecimalWithSelector,
-        EnumerableMethod.MaxDoubleWithSelector,
-        EnumerableMethod.MaxInt32WithSelector,
-        EnumerableMethod.MaxInt64WithSelector,
-        EnumerableMethod.MaxNullableDecimalWithSelector,
-        EnumerableMethod.MaxNullableDoubleWithSelector,
-        EnumerableMethod.MaxNullableInt32WithSelector,
-        EnumerableMethod.MaxNullableInt64WithSelector,
-        EnumerableMethod.MaxNullableSingleWithSelector,
-        EnumerableMethod.MaxSingleWithSelector,
-        EnumerableMethod.MaxWithSelector,
-        EnumerableMethod.MinDecimalWithSelector,
-        EnumerableMethod.MinDoubleWithSelector,
-        EnumerableMethod.MinInt32WithSelector,
-        EnumerableMethod.MinInt64WithSelector,
-        EnumerableMethod.MinNullableDecimalWithSelector,
-        EnumerableMethod.MinNullableDoubleWithSelector,
-        EnumerableMethod.MinNullableInt32WithSelector,
-        EnumerableMethod.MinNullableInt64WithSelector,
-        EnumerableMethod.MinNullableSingleWithSelector,
-        EnumerableMethod.MinSingleWithSelector,
-        EnumerableMethod.MinWithSelector,
-        QueryableMethod.MaxWithSelector,
-        QueryableMethod.MinWithSelector,
-    ];
-
-    private static readonly MethodInfo[] __pickMethods = new[]
-    {
-        EnumerableMethod.Bottom,
-        EnumerableMethod.BottomN,
-        EnumerableMethod.BottomNWithComputedN,
-        EnumerableMethod.FirstN,
-        EnumerableMethod.FirstNWithComputedN,
-        EnumerableMethod.LastN,
-        EnumerableMethod.LastNWithComputedN,
-        EnumerableMethod.MaxN,
-        EnumerableMethod.MaxNWithComputedN,
-        EnumerableMethod.MinN,
-        EnumerableMethod.MinNWithComputedN,
-        EnumerableMethod.Top,
-        EnumerableMethod.TopN,
-        EnumerableMethod.TopNWithComputedN
-    };
-
-    private static readonly MethodInfo[] __pickWithComputedNMethods = new[]
-    {
-        EnumerableMethod.BottomNWithComputedN,
-        EnumerableMethod.FirstNWithComputedN,
-        EnumerableMethod.LastNWithComputedN,
-        EnumerableMethod.MaxNWithComputedN,
-        EnumerableMethod.MinNWithComputedN,
-        EnumerableMethod.TopNWithComputedN
-    };
-
-    private static readonly MethodInfo[] __pickWithSortDefinitionMethods = new[]
-    {
-        EnumerableMethod.Bottom,
-        EnumerableMethod.BottomN,
-        EnumerableMethod.BottomNWithComputedN,
-        EnumerableMethod.Top,
-        EnumerableMethod.TopN,
-        EnumerableMethod.TopNWithComputedN
-    };
-
-    private static readonly HashSet<MethodInfo> __selectManyMethods =
-    [
-        EnumerableMethod.SelectManyWithSelector,
-        EnumerableMethod.SelectManyWithCollectionSelectorAndResultSelector,
-        QueryableMethod.SelectManyWithSelector,
-        QueryableMethod.SelectManyWithCollectionSelectorAndResultSelector
-    ];
-
-    private static readonly HashSet<MethodInfo> __selectManyWithCollectionSelectorAndResultSelectorMethods =
-    [
-        EnumerableMethod.SelectManyWithCollectionSelectorAndResultSelector,
-        QueryableMethod.SelectManyWithCollectionSelectorAndResultSelector
-    ];
-
-    private static readonly HashSet<MethodInfo> __selectManyWithResultSelectorMethods =
-    [
-        EnumerableMethod.SelectManyWithSelector,
-        QueryableMethod.SelectManyWithSelector
-    ];
-
-    private static readonly HashSet<MethodInfo> __skipOrTakeMethods =
-    [
-        EnumerableMethod.Skip,
-        EnumerableMethod.SkipWhile,
-        EnumerableMethod.Take,
-        EnumerableMethod.TakeWhile,
-        QueryableMethod.Skip,
-        QueryableMethod.SkipWhile,
-        QueryableMethod.Take,
-        QueryableMethod.TakeWhile,
-        MongoQueryableMethod.SkipWithLong,
-        MongoQueryableMethod.TakeWithLong
-    ];
-
-    private static readonly HashSet<MethodInfo> __skipOrTakeWhileMethods =
-    [
-        EnumerableMethod.SkipWhile,
-        EnumerableMethod.TakeWhile,
-        QueryableMethod.SkipWhile,
-        QueryableMethod.TakeWhile
-    ];
-
-    private static readonly HashSet<MethodInfo> __splitMethods =
-    [
-        StringMethod.SplitWithChars,
-        StringMethod.SplitWithCharsAndCount,
-        StringMethod.SplitWithCharsAndCountAndOptions,
-        StringMethod.SplitWithCharsAndOptions,
-        StringMethod.SplitWithStringsAndCountAndOptions,
-        StringMethod.SplitWithStringsAndOptions
-    ];
-
-    private static readonly HashSet<MethodInfo> __standardDeviationMethods =
-    [
-        MongoEnumerableMethod.StandardDeviationPopulationDecimal,
-        MongoEnumerableMethod.StandardDeviationPopulationDecimalWithSelector,
-        MongoEnumerableMethod.StandardDeviationPopulationDouble,
-        MongoEnumerableMethod.StandardDeviationPopulationDoubleWithSelector,
-        MongoEnumerableMethod.StandardDeviationPopulationInt32,
-        MongoEnumerableMethod.StandardDeviationPopulationInt32WithSelector,
-        MongoEnumerableMethod.StandardDeviationPopulationInt64,
-        MongoEnumerableMethod.StandardDeviationPopulationInt64WithSelector,
-        MongoEnumerableMethod.StandardDeviationPopulationNullableDecimal,
-        MongoEnumerableMethod.StandardDeviationPopulationNullableDecimalWithSelector,
-        MongoEnumerableMethod.StandardDeviationPopulationNullableDouble,
-        MongoEnumerableMethod.StandardDeviationPopulationNullableDoubleWithSelector,
-        MongoEnumerableMethod.StandardDeviationPopulationNullableInt32,
-        MongoEnumerableMethod.StandardDeviationPopulationNullableInt32WithSelector,
-        MongoEnumerableMethod.StandardDeviationPopulationNullableInt64,
-        MongoEnumerableMethod.StandardDeviationPopulationNullableInt64WithSelector,
-        MongoEnumerableMethod.StandardDeviationPopulationNullableSingle,
-        MongoEnumerableMethod.StandardDeviationPopulationNullableSingleWithSelector,
-        MongoEnumerableMethod.StandardDeviationPopulationSingle,
-        MongoEnumerableMethod.StandardDeviationPopulationSingleWithSelector,
-        MongoEnumerableMethod.StandardDeviationSampleDecimal,
-        MongoEnumerableMethod.StandardDeviationSampleDecimalWithSelector,
-        MongoEnumerableMethod.StandardDeviationSampleDouble,
-        MongoEnumerableMethod.StandardDeviationSampleDoubleWithSelector,
-        MongoEnumerableMethod.StandardDeviationSampleInt32,
-        MongoEnumerableMethod.StandardDeviationSampleInt32WithSelector,
-        MongoEnumerableMethod.StandardDeviationSampleInt64,
-        MongoEnumerableMethod.StandardDeviationSampleInt64WithSelector,
-        MongoEnumerableMethod.StandardDeviationSampleNullableDecimal,
-        MongoEnumerableMethod.StandardDeviationSampleNullableDecimalWithSelector,
-        MongoEnumerableMethod.StandardDeviationSampleNullableDouble,
-        MongoEnumerableMethod.StandardDeviationSampleNullableDoubleWithSelector,
-        MongoEnumerableMethod.StandardDeviationSampleNullableInt32,
-        MongoEnumerableMethod.StandardDeviationSampleNullableInt32WithSelector,
-        MongoEnumerableMethod.StandardDeviationSampleNullableInt64,
-        MongoEnumerableMethod.StandardDeviationSampleNullableInt64WithSelector,
-        MongoEnumerableMethod.StandardDeviationSampleNullableSingle,
-        MongoEnumerableMethod.StandardDeviationSampleNullableSingleWithSelector,
-        MongoEnumerableMethod.StandardDeviationSampleSingle,
-        MongoEnumerableMethod.StandardDeviationSampleSingleWithSelector,
-    ];
-
-    private static readonly HashSet<MethodInfo> __standardDeviationWithSelectorMethods =
-    [
-        MongoEnumerableMethod.StandardDeviationPopulationDecimalWithSelector,
-        MongoEnumerableMethod.StandardDeviationPopulationDoubleWithSelector,
-        MongoEnumerableMethod.StandardDeviationPopulationInt32WithSelector,
-        MongoEnumerableMethod.StandardDeviationPopulationInt64WithSelector,
-        MongoEnumerableMethod.StandardDeviationPopulationNullableDecimalWithSelector,
-        MongoEnumerableMethod.StandardDeviationPopulationNullableDoubleWithSelector,
-        MongoEnumerableMethod.StandardDeviationPopulationNullableInt32WithSelector,
-        MongoEnumerableMethod.StandardDeviationPopulationNullableInt64WithSelector,
-        MongoEnumerableMethod.StandardDeviationPopulationNullableSingleWithSelector,
-        MongoEnumerableMethod.StandardDeviationPopulationSingleWithSelector,
-        MongoEnumerableMethod.StandardDeviationSampleDecimalWithSelector,
-        MongoEnumerableMethod.StandardDeviationSampleDoubleWithSelector,
-        MongoEnumerableMethod.StandardDeviationSampleInt32WithSelector,
-        MongoEnumerableMethod.StandardDeviationSampleInt64WithSelector,
-        MongoEnumerableMethod.StandardDeviationSampleNullableDecimalWithSelector,
-        MongoEnumerableMethod.StandardDeviationSampleNullableDoubleWithSelector,
-        MongoEnumerableMethod.StandardDeviationSampleNullableInt32WithSelector,
-        MongoEnumerableMethod.StandardDeviationSampleNullableInt64WithSelector,
-        MongoEnumerableMethod.StandardDeviationSampleNullableSingleWithSelector,
-        MongoEnumerableMethod.StandardDeviationSampleSingleWithSelector,
-    ];
-
-    private static readonly HashSet<MethodInfo> __stringConcatMethods =
-    [
-        StringMethod.ConcatWith1Object,
-        StringMethod.ConcatWith2Objects,
-        StringMethod.ConcatWith2Strings,
-        StringMethod.ConcatWith3Objects,
-        StringMethod.ConcatWith3Strings,
-        StringMethod.ConcatWith4Strings,
-        StringMethod.ConcatWithObjectArray,
-        StringMethod.ConcatWithStringArray
-    ];
-
-    private static readonly HashSet<MethodInfo> __stringContainsMethods =
-    [
-        StringMethod.ContainsWithChar,
-        StringMethod.ContainsWithCharAndComparisonType,
-        StringMethod.ContainsWithString,
-        StringMethod.ContainsWithStringAndComparisonType
-    ];
-
-    private static readonly HashSet<MethodInfo> __stringEndsWithOrStartsWithMethods =
-    [
-        StringMethod.EndsWithWithChar,
-        StringMethod.EndsWithWithString,
-        StringMethod.EndsWithWithStringAndComparisonType,
-        StringMethod.EndsWithWithStringAndIgnoreCaseAndCulture,
-        StringMethod.StartsWithWithChar,
-        StringMethod.StartsWithWithString,
-        StringMethod.StartsWithWithStringAndComparisonType,
-        StringMethod.StartsWithWithStringAndIgnoreCaseAndCulture
-    ];
-
-    private static readonly HashSet<MethodInfo> __subtractReturningDateTimeMethods =
-    [
-        DateTimeMethod.SubtractWithTimeSpan,
-        DateTimeMethod.SubtractWithTimeSpanAndTimezone,
-        DateTimeMethod.SubtractWithUnit,
-        DateTimeMethod.SubtractWithUnitAndTimezone
-    ];
-
-    private static readonly HashSet<MethodInfo> __subtractReturningInt64Methods =
-    [
-        DateTimeMethod.SubtractWithDateTimeAndUnit,
-        DateTimeMethod.SubtractWithDateTimeAndUnitAndTimezone
-    ];
-
-    private static readonly HashSet<MethodInfo> __subtractReturningTimeSpanWithMillisecondsUnitsMethods =
-    [
-        DateTimeMethod.SubtractWithDateTime,
-        DateTimeMethod.SubtractWithDateTimeAndTimezone
-    ];
-
-    private static readonly HashSet<MethodInfo> __sumMethods =
-    [
-        EnumerableMethod.SumDecimal,
-        EnumerableMethod.SumDecimalWithSelector,
-        EnumerableMethod.SumDouble,
-        EnumerableMethod.SumDoubleWithSelector,
-        EnumerableMethod.SumInt32,
-        EnumerableMethod.SumInt32WithSelector,
-        EnumerableMethod.SumInt64,
-        EnumerableMethod.SumInt64WithSelector,
-        EnumerableMethod.SumNullableDecimal,
-        EnumerableMethod.SumNullableDecimalWithSelector,
-        EnumerableMethod.SumNullableDouble,
-        EnumerableMethod.SumNullableDoubleWithSelector,
-        EnumerableMethod.SumNullableInt32,
-        EnumerableMethod.SumNullableInt32WithSelector,
-        EnumerableMethod.SumNullableInt64,
-        EnumerableMethod.SumNullableInt64WithSelector,
-        EnumerableMethod.SumNullableSingle,
-        EnumerableMethod.SumNullableSingleWithSelector,
-        EnumerableMethod.SumSingle,
-        EnumerableMethod.SumSingleWithSelector,
-        QueryableMethod.SumDecimal,
-        QueryableMethod.SumDecimalWithSelector,
-        QueryableMethod.SumDouble,
-        QueryableMethod.SumDoubleWithSelector,
-        QueryableMethod.SumInt32,
-        QueryableMethod.SumInt32WithSelector,
-        QueryableMethod.SumInt64,
-        QueryableMethod.SumInt64WithSelector,
-        QueryableMethod.SumNullableDecimal,
-        QueryableMethod.SumNullableDecimalWithSelector,
-        QueryableMethod.SumNullableDouble,
-        QueryableMethod.SumNullableDoubleWithSelector,
-        QueryableMethod.SumNullableInt32,
-        QueryableMethod.SumNullableInt32WithSelector,
-        QueryableMethod.SumNullableInt64,
-        QueryableMethod.SumNullableInt64WithSelector,
-        QueryableMethod.SumNullableSingle,
-        QueryableMethod.SumNullableSingleWithSelector,
-        QueryableMethod.SumSingle,
-        QueryableMethod.SumSingleWithSelector
-    ];
-
-    private static readonly HashSet<MethodInfo> __sumWithSelectorMethods =
-    [
-        EnumerableMethod.SumDecimalWithSelector,
-        EnumerableMethod.SumDoubleWithSelector,
-        EnumerableMethod.SumInt32WithSelector,
-        EnumerableMethod.SumInt64WithSelector,
-        EnumerableMethod.SumNullableDecimalWithSelector,
-        EnumerableMethod.SumNullableDoubleWithSelector,
-        EnumerableMethod.SumNullableInt32WithSelector,
-        EnumerableMethod.SumNullableInt64WithSelector,
-        EnumerableMethod.SumNullableSingleWithSelector,
-        EnumerableMethod.SumSingleWithSelector,
-        QueryableMethod.SumDecimalWithSelector,
-        QueryableMethod.SumDoubleWithSelector,
-        QueryableMethod.SumInt32WithSelector,
-        QueryableMethod.SumInt64WithSelector,
-        QueryableMethod.SumNullableDecimalWithSelector,
-        QueryableMethod.SumNullableDoubleWithSelector,
-        QueryableMethod.SumNullableInt32WithSelector,
-        QueryableMethod.SumNullableInt64WithSelector,
-        QueryableMethod.SumNullableSingleWithSelector,
-        QueryableMethod.SumSingleWithSelector,
-    ];
-
-    private static readonly HashSet<MethodInfo> __toLowerOrToUpperMethods =
-    [
-        StringMethod.ToLower,
-        StringMethod.ToLowerInvariant,
-        StringMethod.ToLowerWithCulture,
-        StringMethod.ToUpper,
-        StringMethod.ToUpperInvariant,
-        StringMethod.ToUpperWithCulture,
-    ];
-
-    private static readonly HashSet<MethodInfo> __whereMethods =
-    [
-        EnumerableMethod.Where,
-        MongoEnumerableMethod.WhereWithLimit,
-        QueryableMethod.Where,
+        EnumerableOrQueryableMethod.Where,
+        [MongoEnumerableMethod.WhereWithLimit]
     ];
 
     protected override Expression VisitMethodCall(MethodCallExpression node)
@@ -763,8 +69,6 @@ internal partial class SerializerFinderVisitor
             switch (node.Method.Name)
             {
                 case "Abs": DeduceAbsMethodSerializers(); break;
-                case "Acos": DeduceAcosMethodSerializers(); break;
-                case "Acosh": DeduceAcoshMethodSerializers(); break;
                 case "Add": DeduceAddMethodSerializers(); break;
                 case "AddDays": DeduceAddDaysMethodSerializers(); break;
                 case "AddHours": DeduceAddHoursMethodSerializers(); break;
@@ -781,20 +85,13 @@ internal partial class SerializerFinderVisitor
                 case "Any": DeduceAnyMethodSerializers(); break;
                 case "AppendStage": DeduceAppendStageMethodSerializers(); break;
                 case "As": DeduceAsMethodSerializers(); break;
-                case "Asin": DeduceAsinMethodSerializers(); break;
-                case "Asinh": DeduceAsinhMethodSerializers(); break;
                 case "AsQueryable": DeduceAsQueryableMethodSerializers(); break;
-                case "Atan": DeduceAtanMethodSerializers(); break;
-                case "Atanh": DeduceAtanhMethodSerializers(); break;
-                case "Atan2": DeduceAtan2MethodSerializers(); break;
                 case "Concat": DeduceConcatMethodSerializers(); break;
                 case "Constant": DeduceConstantMethodSerializers(); break;
                 case "Contains": DeduceContainsMethodSerializers(); break;
                 case "ContainsKey": DeduceContainsKeyMethodSerializers(); break;
                 case "ContainsValue": DeduceContainsValueMethodSerializers(); break;
                 case "Convert": DeduceConvertMethodSerializers(); break;
-                case "Cos": DeduceCosMethodSerializers(); break;
-                case "Cosh": DeduceCoshMethodSerializers(); break;
                 case "Create": DeduceCreateMethodSerializers(); break;
                 case "DefaultIfEmpty": DeduceDefaultIfEmptyMethodSerializers(); break;
                 case "DegreesToRadians": DeduceDegreesToRadiansMethodSerializers(); break;
@@ -829,16 +126,12 @@ internal partial class SerializerFinderVisitor
                 case "SetEquals": DeduceSetEqualsMethodSerializers(); break;
                 case "SetWindowFields": DeduceSetWindowFieldsMethodSerializers(); break;
                 case "Shift": DeduceShiftMethodSerializers(); break;
-                case "Sin": DeduceSinMethodSerializers(); break;
-                case "Sinh": DeduceSinhMethodSerializers(); break;
                 case "Split": DeduceSplitMethodSerializers(); break;
                 case "Sqrt": DeduceSqrtMethodSerializers(); break;
                 case "StringIn": DeduceStringInMethodSerializers(); break;
                 case "StrLenBytes": DeduceStrLenBytesMethodSerializers(); break;
                 case "Subtract": DeduceSubtractMethodSerializers(); break;
                 case "Sum": DeduceSumMethodSerializers(); break;
-                case "Tan": DeduceTanMethodSerializers(); break;
-                case "Tanh": DeduceTanhMethodSerializers(); break;
                 case "ToArray": DeduceToArrayMethodSerializers(); break;
                 case "ToList": DeduceToListSerializers(); break;
                 case "ToString": DeduceToStringSerializers(); break;
@@ -847,6 +140,22 @@ internal partial class SerializerFinderVisitor
                 case "Week": DeduceWeekSerializers(); break;
                 case "Where": DeduceWhereSerializers(); break;
                 case "Zip": DeduceZipSerializers(); break;
+
+                case "Acos":
+                case "Acosh":
+                case "Asin":
+                case "Asinh":
+                case "Atan":
+                case "Atanh":
+                case "Atan2":
+                case "Cos":
+                case "Cosh":
+                case "Sin":
+                case "Sinh":
+                case "Tan":
+                case "Tanh":
+                    DeduceTrigonometricMethodSerializers();
+                    break;
 
                 case "AllElements":
                 case "AllMatchingElements":
@@ -907,7 +216,7 @@ internal partial class SerializerFinderVisitor
                 case "LastOrDefault":
                 case "Single":
                 case "SingleOrDefault":
-                    DeduceFirstOrLastMethodsSerializers();
+                    DeduceFirstOrLastOrSingleMethodsSerializers();
                     break;
 
                 case "IndexOf":
@@ -975,34 +284,10 @@ internal partial class SerializerFinderVisitor
 
         void DeduceAbsMethodSerializers()
         {
-            if (method.IsOneOf(__absMethods))
+            if (method.IsOneOf(MathMethod.AbsOverloads))
             {
                 var valueExpression = arguments[0];
                 DeduceSerializers(node, valueExpression);
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceAcosMethodSerializers()
-        {
-            if (method.Is(MathMethod.Acos))
-            {
-                DeduceReturnsDoubleSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceAcoshMethodSerializers()
-        {
-            if (method.Is(MathMethod.Acosh))
-            {
-                DeduceReturnsDoubleSerializer();
             }
             else
             {
@@ -1144,12 +429,12 @@ internal partial class SerializerFinderVisitor
 
         void DeduceAggregateMethodSerializers()
         {
-            if (method.IsOneOf(__aggregateMethods))
+            if (method.IsOneOf(EnumerableOrQueryableMethod.AggregateOverloads))
             {
                 var sourceExpression = arguments[0];
                 _ = IsItemSerializerKnown(sourceExpression, out var sourceItemSerializer);
 
-                if (method.IsOneOf(__aggregateWithFuncMethods))
+                if (method.IsOneOf(EnumerableOrQueryableMethod.AggregateWithFunc))
                 {
                     var funcLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
                     var funcAccumulatorParameter = funcLambda.Parameters[0];
@@ -1161,7 +446,7 @@ internal partial class SerializerFinderVisitor
                     DeduceSerializers(node, funcLambda.Body);
                 }
 
-                if (method.IsOneOf(__aggregateWithSeedAndFuncMethods))
+                if (method.IsOneOf(EnumerableOrQueryableMethod.AggregateWithSeedAndFunc))
                 {
                     var seedExpression =  arguments[1];
                     var funcLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[2]);
@@ -1174,7 +459,7 @@ internal partial class SerializerFinderVisitor
                     DeduceSerializers(node, funcLambda.Body);
                 }
 
-                if (method.IsOneOf(__aggregateWithSeedFuncAdResultSelectorMethods))
+                if (method.IsOneOf(EnumerableOrQueryableMethod.AggregateWithSeedFuncAndResultSelector))
                 {
                     var seedExpression = arguments[1];
                     var funcLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[2]);
@@ -1215,9 +500,9 @@ internal partial class SerializerFinderVisitor
 
         void DeduceAnyMethodSerializers()
         {
-            if (method.IsOneOf(__anyMethods))
+            if (method.IsOneOf(EnumerableOrQueryableMethod.AnyOverloads))
             {
-                if (method.IsOneOf(__anyWithPredicateMethods))
+                if (method.IsOneOf(EnumerableOrQueryableMethod.AnyWithPredicate))
                 {
                     var sourceExpression = arguments[0];
                     var predicateLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
@@ -1236,7 +521,7 @@ internal partial class SerializerFinderVisitor
 
         void DeduceAppendOrPrependMethodSerializers()
         {
-            if (method.IsOneOf(__appendOrPrependMethods))
+            if (method.IsOneOf(EnumerableOrQueryableMethod.AppendOrPrepend))
             {
                 var sourceExpression = arguments[0];
                 var elementExpression = arguments[1];
@@ -1322,18 +607,6 @@ internal partial class SerializerFinderVisitor
             }
         }
 
-        void DeduceAsinMethodSerializers()
-        {
-            if (method.Is(MathMethod.Asin))
-            {
-                DeduceReturnsDoubleSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
         void DeduceAsQueryableMethodSerializers()
         {
             if (method.Is(QueryableMethod.AsQueryable))
@@ -1352,59 +625,11 @@ internal partial class SerializerFinderVisitor
             }
         }
 
-        void DeduceAsinhMethodSerializers()
-        {
-            if (method.Is(MathMethod.Asinh))
-            {
-                DeduceReturnsDoubleSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceAtanMethodSerializers()
-        {
-            if (method.Is(MathMethod.Atan))
-            {
-                DeduceReturnsDoubleSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceAtanhMethodSerializers()
-        {
-            if (method.Is(MathMethod.Atanh))
-            {
-                DeduceReturnsDoubleSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceAtan2MethodSerializers()
-        {
-            if (method.Is(MathMethod.Atan2))
-            {
-                DeduceReturnsDoubleSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
         void DeduceAverageOrMedianOrPercentileMethodSerializers()
         {
-            if (method.IsOneOf(__averageOrMedianOrPercentileMethods))
+            if (method.IsOneOf(__averageOrMedianOrPercentileOverloads))
             {
-                if (method.IsOneOf(__averageOrMedianOrPercentileWithSelectorMethods))
+                if (method.IsOneOf(__averageOrMedianOrPercentileWithSelectorOverloads))
                 {
                     var sourceExpression = arguments[0];
                     var selectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
@@ -1441,7 +666,7 @@ internal partial class SerializerFinderVisitor
         {
             if (method.IsStaticCompareMethod() ||
                 method.IsInstanceCompareToMethod() ||
-                method.IsOneOf(StringMethod.StaticCompare, StringMethod.StaticCompareWithIgnoreCase))
+                method.IsOneOf(StringMethod.CompareOverloads))
             {
                 var valueExpression = method.IsStatic ? arguments[0] : node.Object;
                 var comparandExpression = method.IsStatic ? arguments[1] : arguments[0];
@@ -1464,7 +689,7 @@ internal partial class SerializerFinderVisitor
                 DeduceCollectionAndCollectionSerializers(firstExpression, secondExpression);
                 DeduceCollectionAndCollectionSerializers(node, firstExpression);
             }
-            else if (method.IsOneOf(__stringConcatMethods))
+            else if (method.IsOneOf(StringMethod.ConcatOverloads))
             {
                 DeduceReturnsStringSerializer();
             }
@@ -1512,7 +737,7 @@ internal partial class SerializerFinderVisitor
 
         void DeduceContainsKeyMethodSerializers()
         {
-            if (IsDictionaryContainsKeyMethod(out var keyExpression))
+            if (IsDictionaryContainsKeyExpression(out var keyExpression))
             {
                 var dictionaryExpression = node.Object;
                 if (IsNotKnown(keyExpression) && IsKnown(dictionaryExpression, out var dictionarySerializer))
@@ -1531,7 +756,7 @@ internal partial class SerializerFinderVisitor
 
         void DeduceContainsMethodSerializers()
         {
-            if (method.IsOneOf(__stringContainsMethods))
+            if (method.IsOneOf(StringMethod.ContainsOverloads))
             {
                 DeduceReturnsBooleanSerializer();
             }
@@ -1605,6 +830,8 @@ internal partial class SerializerFinderVisitor
 
             static IBsonSerializer GetResultSerializer(Expression expression, Type toType)
             {
+                // TODO: should we use StandardSerializers at least for the subset of types where it would return the correct serializer?
+
                 var isNullable = toType.IsNullable();
                 var valueType = isNullable ? Nullable.GetUnderlyingType(toType) : toType;
 
@@ -1639,30 +866,6 @@ internal partial class SerializerFinderVisitor
             }
         }
 
-        void DeduceCosMethodSerializers()
-        {
-            if (method.Is(MathMethod.Cos))
-            {
-                DeduceReturnsDoubleSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceCoshMethodSerializers()
-        {
-            if (method.Is(MathMethod.Cosh))
-            {
-                DeduceReturnsDoubleSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
         void DeduceCreateMethodSerializers()
         {
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
@@ -1690,7 +893,7 @@ internal partial class SerializerFinderVisitor
             }
             else
  #endif
-            if (method.IsOneOf(__tupleOrValueTupleCreateMethods))
+            if (method.IsOneOf(TupleOrValueTupleMethod.CreateOverloads))
             {
                 if (IsAnyNotKnown(arguments) && IsKnown(node, out var nodeSerializer))
                 {
@@ -1738,9 +941,9 @@ internal partial class SerializerFinderVisitor
 
         void DeduceCountMethodSerializers()
         {
-            if (method.IsOneOf(__countMethods))
+            if (method.IsOneOf(EnumerableOrQueryableMethod.CountOverloads))
             {
-                if (method.IsOneOf(__countWithPredicateMethods))
+                if (method.IsOneOf(EnumerableOrQueryableMethod.CountWithPredicateOverloads))
                 {
                     var sourceExpression = arguments[0];
                     var predicateLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
@@ -1967,11 +1170,11 @@ internal partial class SerializerFinderVisitor
             }
         }
 
-        void DeduceFirstOrLastMethodsSerializers()
+        void DeduceFirstOrLastOrSingleMethodsSerializers()
         {
-            if (method.IsOneOf(__firstOrLastMethods))
+            if (method.IsOneOf(EnumerableOrQueryableMethod.FirstOrLastOrSingleOverloads))
             {
-                if (method.IsOneOf(__firstOrLastWithPredicateMethods))
+                if (method.IsOneOf(EnumerableOrQueryableMethod.FirstOrLastOrSingleWithPredicateOverloads))
                 {
                     var sourceExpression = arguments[0];
                     var predicateLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
@@ -2051,7 +1254,7 @@ internal partial class SerializerFinderVisitor
 
         void DeduceGroupByMethodSerializers()
         {
-            if (method.IsOneOf(__groupByMethods))
+            if (method.IsOneOf(EnumerableOrQueryableMethod.GroupByOverloads))
             {
                 var sourceExpression = arguments[0];
                 var keySelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
@@ -2059,7 +1262,7 @@ internal partial class SerializerFinderVisitor
 
                 DeduceItemAndCollectionSerializers(keySelectorParameter, sourceExpression);
 
-                if (method.IsOneOf(EnumerableMethod.GroupByWithKeySelector, QueryableMethod.GroupByWithKeySelector))
+                if (method.IsOneOf(EnumerableOrQueryableMethod.GroupByWithKeySelector))
                 {
                     if (IsNotKnown(node) && IsKnown(keySelectorLambda.Body, out var keySerializer) && IsItemSerializerKnown(sourceExpression, out var elementSerializer))
                     {
@@ -2068,7 +1271,7 @@ internal partial class SerializerFinderVisitor
                         AddNodeSerializer(node, nodeSerializer);
                     }
                 }
-                else if (method.IsOneOf(EnumerableMethod.GroupByWithKeySelectorAndElementSelector, QueryableMethod.GroupByWithKeySelectorAndElementSelector))
+                else if (method.IsOneOf(EnumerableOrQueryableMethod.GroupByWithKeySelectorAndElementSelector))
                 {
                     var elementSelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[2]);
                     var elementSelectorParameter = elementSelectorLambda.Parameters.Single();
@@ -2080,7 +1283,7 @@ internal partial class SerializerFinderVisitor
                         AddNodeSerializer(node, nodeSerializer);
                     }
                 }
-                else if (method.IsOneOf(EnumerableMethod.GroupByWithKeySelectorAndResultSelector, QueryableMethod.GroupByWithKeySelectorAndResultSelector))
+                else if (method.IsOneOf(EnumerableOrQueryableMethod.GroupByWithKeySelectorAndResultSelector))
                 {
                     var resultSelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[2]);
                     var resultSelectorKeyParameter = resultSelectorLambda.Parameters[0];
@@ -2090,7 +1293,7 @@ internal partial class SerializerFinderVisitor
                     DeduceCollectionAndCollectionSerializers(resultSelectorElementsParameter, sourceExpression);
                     DeduceResultSerializer(resultSelectorLambda.Body);
                 }
-                else if (method.IsOneOf(EnumerableMethod.GroupByWithKeySelectorElementSelectorAndResultSelector, QueryableMethod.GroupByWithKeySelectorElementSelectorAndResultSelector))
+                else if (method.IsOneOf(EnumerableOrQueryableMethod.GroupByWithKeySelectorElementSelectorAndResultSelector))
                 {
                     var elementSelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[2]);
                     var elementSelectorParameter = elementSelectorLambda.Parameters.Single();
@@ -2147,7 +1350,7 @@ internal partial class SerializerFinderVisitor
 
         void DeduceIndexOfMethodSerializers()
         {
-            if (method.IsOneOf(__indexOfMethods))
+            if (method.IsOneOf(StringMethod.IndexOfOverloads))
             {
                 DeduceReturnsInt32Serializer();
             }
@@ -2278,7 +1481,7 @@ internal partial class SerializerFinderVisitor
 
         void DeduceLogMethodSerializers()
         {
-            if (method.IsOneOf(__logMethods))
+            if (method.IsOneOf(MathMethod.LogOverloads))
             {
                 DeduceReturnsDoubleSerializer();
             }
@@ -2290,7 +1493,7 @@ internal partial class SerializerFinderVisitor
 
         void DeduceLookupMethodSerializers()
         {
-            if (method.IsOneOf(__lookupMethods))
+            if (method.IsOneOf(MongoQueryableMethod.LookupOverloads))
             {
                 var sourceExpression = arguments[0];
 
@@ -2458,9 +1661,9 @@ internal partial class SerializerFinderVisitor
 
         void DeduceMaxOrMinMethodSerializers()
         {
-            if (method.IsOneOf(__maxOrMinMethods))
+            if (method.IsOneOf(EnumerableOrQueryableMethod.MaxOrMinOverloads))
             {
-                if (method.IsOneOf(__maxOrMinWithSelectorMethods))
+                if (method.IsOneOf(EnumerableOrQueryableMethod.MaxOrMinWithSelectorOverloads))
                 {
                     var sourceExpression = arguments[0];
                     var selectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
@@ -2527,9 +1730,9 @@ internal partial class SerializerFinderVisitor
 
         void DeducePickMethodSerializers()
         {
-            if (method.IsOneOf(__pickMethods))
+            if (method.IsOneOf(EnumerableMethod.PickOverloads))
             {
-                if (method.IsOneOf(__pickWithSortDefinitionMethods))
+                if (method.IsOneOf(EnumerableMethod.PickWithSortDefinitionOverloads))
                 {
                     var sortByExpression = arguments[1];
                     if (IsNotKnown(sortByExpression))
@@ -2544,7 +1747,7 @@ internal partial class SerializerFinderVisitor
                 {
                     var sourceItemSerializer =  ArraySerializerHelper.GetItemSerializer(sourceSerializer);
 
-                    var selectorExpression = arguments[method.IsOneOf(__pickWithSortDefinitionMethods) ? 2 : 1];
+                    var selectorExpression = arguments[method.IsOneOf(EnumerableMethod.PickWithSortDefinitionOverloads) ? 2 : 1];
                     var selectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, selectorExpression);
                     var selectorSourceItemParameter = selectorLambda.Parameters.Single();
                     if (IsNotKnown(selectorSourceItemParameter))
@@ -2553,12 +1756,12 @@ internal partial class SerializerFinderVisitor
                     }
                 }
 
-                if (method.IsOneOf(__pickWithComputedNMethods))
+                if (method.IsOneOf(EnumerableMethod.PickWithComputedNOverloads))
                 {
-                    var keyExpression = arguments[method.IsOneOf(__pickWithSortDefinitionMethods) ? 3 : 2];
+                    var keyExpression = arguments[method.IsOneOf(EnumerableMethod.PickWithSortDefinitionOverloads) ? 3 : 2];
                     if (IsKnown(keyExpression, out var keySerializer))
                     {
-                        var nExpression = arguments[method.IsOneOf(__pickWithSortDefinitionMethods) ? 4 : 3];
+                        var nExpression = arguments[method.IsOneOf(EnumerableMethod.PickWithSortDefinitionOverloads) ? 4 : 3];
                         var nLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, nExpression);
                         var nLambdaKeyParameter = nLambda.Parameters.Single();
 
@@ -2887,11 +2090,11 @@ internal partial class SerializerFinderVisitor
 
         void DeduceSelectManySerializers()
         {
-            if (method.IsOneOf(__selectManyMethods))
+            if (method.IsOneOf(EnumerableOrQueryableMethod.SelectManyOverloads))
             {
                 var sourceExpression = arguments[0];
 
-                if (method.IsOneOf(__selectManyWithResultSelectorMethods))
+                if (method.IsOneOf(EnumerableOrQueryableMethod.SelectManyWithSelector))
                 {
                     var selectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
                     var selectorSourceParameter = selectorLambda.Parameters.Single();
@@ -2900,7 +2103,7 @@ internal partial class SerializerFinderVisitor
                     DeduceCollectionAndCollectionSerializers(node, selectorLambda.Body);
                 }
 
-                if (method.IsOneOf(__selectManyWithCollectionSelectorAndResultSelectorMethods))
+                if (method.IsOneOf(EnumerableOrQueryableMethod.SelectManyWithCollectionSelectorAndResultSelector))
                 {
                     var collectionSelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
                     var resultSelectorLambda =  ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[2]);
@@ -2990,33 +2193,9 @@ internal partial class SerializerFinderVisitor
             }
         }
 
-        void DeduceSinMethodSerializers()
-        {
-            if (method.Is(MathMethod.Sin))
-            {
-                DeduceReturnsDoubleSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceSinhMethodSerializers()
-        {
-            if (method.Is(MathMethod.Sinh))
-            {
-                DeduceReturnsDoubleSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
         void DeduceSplitMethodSerializers()
         {
-            if (method.IsOneOf(__splitMethods))
+            if (method.IsOneOf(StringMethod.SplitOverloads))
             {
                 if (IsNotKnown(node))
                 {
@@ -3044,9 +2223,9 @@ internal partial class SerializerFinderVisitor
 
         void DeduceStandardDeviationMethodSerializers()
         {
-            if (method.IsOneOf(__standardDeviationMethods))
+            if (method.IsOneOf(MongoEnumerableMethod.StandardDeviationOverloads))
             {
-                if (method.IsOneOf(__standardDeviationWithSelectorMethods))
+                if (method.IsOneOf(MongoEnumerableMethod.StandardDeviationWithSelectorOverloads))
                 {
                     var sourceExpression = arguments[0];
                     var selectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
@@ -3064,7 +2243,7 @@ internal partial class SerializerFinderVisitor
 
         void DeduceEndsWithOrStartsWithMethodSerializers()
         {
-            if (method.IsOneOf(__stringEndsWithOrStartsWithMethods))
+            if (method.IsOneOf(StringMethod.EndsWithOrStartsWithOverloads))
             {
                 DeduceReturnsBooleanSerializer();
             }
@@ -3112,15 +2291,15 @@ internal partial class SerializerFinderVisitor
 
         void DeduceSubtractMethodSerializers()
         {
-            if (method.IsOneOf(__subtractReturningDateTimeMethods))
+            if (method.IsOneOf(DateTimeMethod.SubtractReturningDateTimeOverloads))
             {
                 DeduceReturnsDateTimeSerializer();
             }
-            else if (method.IsOneOf(__subtractReturningInt64Methods))
+            else if (method.IsOneOf(DateTimeMethod.SubtractReturningInt64Overloads))
             {
                 DeduceReturnsInt64Serializer();
             }
-            else if (method.IsOneOf(__subtractReturningTimeSpanWithMillisecondsUnitsMethods))
+            else if (method.IsOneOf(DateTimeMethod.SubtractReturningTimeSpanWithMillisecondsUnitsOverloads))
             {
                 var units = TimeSpanUnits.Milliseconds;
                 DeduceReturnsTimeSpanSerializer(units);
@@ -3133,9 +2312,9 @@ internal partial class SerializerFinderVisitor
 
         void DeduceSumMethodSerializers()
         {
-            if (method.IsOneOf(__sumMethods))
+            if (method.IsOneOf(EnumerableOrQueryableMethod.SumOverloads))
             {
-                if (method.IsOneOf(__sumWithSelectorMethods))
+                if (method.IsOneOf(EnumerableOrQueryableMethod.SumWithSelectorOverloads))
                 {
                     var sourceExpression = arguments[0];
                     var selectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
@@ -3167,11 +2346,11 @@ internal partial class SerializerFinderVisitor
 
         void DeduceSkipOrTakeMethodSerializers()
         {
-            if (method.IsOneOf(__skipOrTakeMethods))
+            if (method.IsOneOf(EnumerableOrQueryableMethod.SkipOrTakeOverloads))
             {
                 var sourceExpression = arguments[0];
 
-                if (method.IsOneOf(__skipOrTakeWhileMethods))
+                if (method.IsOneOf(EnumerableOrQueryableMethod.SkipOrTakeWhile))
                 {
                     var predicateLambda =  ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
                     var predicateParameter = predicateLambda.Parameters.Single();
@@ -3179,30 +2358,6 @@ internal partial class SerializerFinderVisitor
                 }
 
                 DeduceCollectionAndCollectionSerializers(node, sourceExpression);
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceTanMethodSerializers()
-        {
-            if (method.Is(MathMethod.Tan))
-            {
-                DeduceReturnsDoubleSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceTanhMethodSerializers()
-        {
-            if (method.Is(MathMethod.Tanh))
-            {
-                DeduceReturnsDoubleSerializer();
             }
             else
             {
@@ -3252,7 +2407,7 @@ internal partial class SerializerFinderVisitor
 
         void DeduceToLowerOrToUpperSerializers()
         {
-            if (method.IsOneOf(__toLowerOrToUpperMethods))
+            if (method.IsOneOf(StringMethod.ToLowerOrToUpperOverloads))
             {
                 DeduceReturnsStringSerializer();
             }
@@ -3265,6 +2420,18 @@ internal partial class SerializerFinderVisitor
         void DeduceToStringSerializers()
         {
             DeduceReturnsStringSerializer();
+        }
+
+        void DeduceTrigonometricMethodSerializers()
+        {
+            if (method.IsOneOf(MathMethod.TrigonometricMethods))
+            {
+                DeduceReturnsDoubleSerializer();
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
         }
 
         void DeduceTruncateSerializers()
@@ -3318,7 +2485,7 @@ internal partial class SerializerFinderVisitor
 
         void DeduceWhereSerializers()
         {
-            if (method.IsOneOf(__whereMethods))
+            if (method.IsOneOf(__whereOverloads))
             {
                 var sourceExpression = arguments[0];
                 var predicateLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
@@ -3366,14 +2533,9 @@ internal partial class SerializerFinderVisitor
             }
         }
 
-        bool IsDictionaryContainsKeyMethod(out Expression keyExpression)
+        bool IsDictionaryContainsKeyExpression(out Expression keyExpression)
         {
-            if (method.DeclaringType.Name.Contains("Dictionary") &&
-                method.IsPublic &&
-                method.IsStatic == false &&
-                method.ReturnType == typeof(bool) &&
-                method.Name == "ContainsKey" &&
-                method.GetParameters().Length == 1)
+            if (DictionaryMethod.IsContainsKeyMethod(method))
             {
                 keyExpression = arguments[0];
                 return true;

@@ -141,6 +141,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __sumWithNullableSingle;
         private static readonly MethodInfo __sumWithSingle;
 
+        private static readonly HashSet<MethodInfo> __percentileOverloads;
+
         // static constructor
         static WindowMethod()
         {
@@ -262,6 +264,21 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __sumWithNullableInt64 = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, long?> selector, SetWindowFieldsWindow window) => partition.Sum(selector, window));
             __sumWithNullableSingle = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, float?> selector, SetWindowFieldsWindow window) => partition.Sum(selector, window));
             __sumWithSingle = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, float> selector, SetWindowFieldsWindow window) => partition.Sum(selector, window));
+
+            __percentileOverloads =
+            [
+                __percentileWithDecimal,
+                __percentileWithDouble,
+                __percentileWithInt32,
+                __percentileWithInt64,
+                __percentileWithNullableDecimal,
+                __percentileWithNullableDouble,
+                __percentileWithNullableInt32,
+                __percentileWithNullableInt64,
+                __percentileWithNullableSingle,
+                __percentileWithSingle
+            ];
+
         }
 
         // public properties
@@ -383,5 +400,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo SumWithNullableInt64 => __sumWithNullableInt64;
         public static MethodInfo SumWithNullableSingle => __sumWithNullableSingle;
         public static MethodInfo SumWithSingle => __sumWithSingle;
+
+        public static HashSet<MethodInfo> PercentileOverloads => __percentileOverloads;
     }
 }

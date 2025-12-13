@@ -24,18 +24,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class CompareMethodToAggregationExpressionTranslator
     {
-        private static readonly MethodInfo[] __stringCompareMethods =
-        [
-            StringMethod.StaticCompare,
-            StringMethod.StaticCompareWithIgnoreCase
-        ];
-
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsStaticCompareMethod() || method.IsInstanceCompareToMethod() || method.IsOneOf(__stringCompareMethods))
+            if (method.IsStaticCompareMethod() || method.IsInstanceCompareToMethod() || method.IsOneOf(StringMethod.CompareOverloads))
             {
                 Expression value1Expression;
                 Expression value2Expression;
@@ -54,7 +48,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var value2Translation = ExpressionToAggregationExpressionTranslator.Translate(context, value2Expression);
 
                 AstExpression ast;
-                if (method.Is(StringMethod.StaticCompareWithIgnoreCase))
+                if (method.Is(StringMethod.CompareWithIgnoreCase))
                 {
                     var ignoreCaseExpression = arguments[2];
                     var ignoreCase = ignoreCaseExpression.GetConstantValue<bool>(containingExpression: expression);

@@ -39,14 +39,10 @@ internal partial class SerializerFinderVisitor
             return node;
         }
 
-        if (IsSymmetricalBinaryOperator(@operator) &&
-            CanDeduceSerializer(leftExpression, rightExpression, out var unknownNode, out var otherNodeSerializer))
+        if (IsSymmetricalBinaryOperator(@operator))
         {
             // expr1 op expr2 => expr1: expr2Serializer or expr2: expr1Serializer
-            if (otherNodeSerializer.ValueType == unknownNode.Type)
-            {
-                AddNodeSerializer(unknownNode, otherNodeSerializer);
-            }
+           DeduceSerializers(leftExpression, rightExpression);
         }
 
         if (@operator == ExpressionType.ArrayIndex)
@@ -88,7 +84,7 @@ internal partial class SerializerFinderVisitor
                 }
                 else
                 {
-                    DeduceUnknowableSerializer(node);
+                    DeduceUnknowableSerializer(node); // coalesce will be executed client-side
                 }
             }
         }
@@ -97,12 +93,7 @@ internal partial class SerializerFinderVisitor
             rightExpression.IsConvert(out var rightConvertOperand) &&
             leftConvertOperand.Type == rightConvertOperand.Type)
         {
-            // TODO: verify left and right operands are same type
-            if (CanDeduceSerializer(leftConvertOperand, rightConvertOperand, out unknownNode, out otherNodeSerializer))
-            {
-                // Convert(expr1, T) op Convert(expr2, T) => expr1: expr2Serializer or expr2: expr1Serializer
-                AddNodeSerializer(unknownNode, otherNodeSerializer);
-            }
+            DeduceSerializers(leftConvertOperand, rightConvertOperand);
         }
 
         if (IsNotKnown(node))

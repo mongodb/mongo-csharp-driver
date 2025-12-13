@@ -69,27 +69,6 @@ internal partial class SerializerFinderVisitor
         return nodes.Any(IsNotKnown);
     }
 
-    private bool CanDeduceSerializer(Expression node1, Expression node2, out Expression unknownNode, out IBsonSerializer otherNodeSerializer)
-    {
-        if (IsNotKnown(node1) && IsKnown(node2, out var node2Serializer))
-        {
-            unknownNode = node1;
-            otherNodeSerializer = node2Serializer;
-            return true;
-        }
-
-        if (IsNotKnown(node2) && IsKnown(node1, out var node1Serializer))
-        {
-            unknownNode = node2;
-            otherNodeSerializer = node1Serializer;
-            return true;
-        }
-
-        unknownNode = null;
-        otherNodeSerializer = null;
-        return false;
-    }
-
     IBsonSerializer CreateCollectionSerializerFromCollectionSerializer(Type collectionType, IBsonSerializer collectionSerializer)
     {
         if (collectionSerializer.ValueType == collectionType)

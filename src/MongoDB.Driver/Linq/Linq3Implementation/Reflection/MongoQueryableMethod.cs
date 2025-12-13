@@ -179,6 +179,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __sumSingleWithSelectorAsync;
         private static readonly MethodInfo __takeWithLong;
 
+        private static readonly HashSet<MethodInfo> __lookupOverloads;
+        private static readonly HashSet<MethodInfo> __skipOrTakeWithLong;
+
         // static constructor
         static MongoQueryableMethod()
         {
@@ -334,6 +337,22 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __sumSingleAsync = ReflectionInfo.Method((IQueryable<float> source, CancellationToken cancellationToken) => source.SumAsync(cancellationToken));
             __sumSingleWithSelectorAsync = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, float>> selector, CancellationToken cancellationToken) => source.SumAsync(selector, cancellationToken));
             __takeWithLong = ReflectionInfo.Method((IQueryable<object> source, long count) => source.Take(count));
+
+            __lookupOverloads =
+            [
+                __lookupWithDocumentsAndLocalFieldAndForeignField,
+                __lookupWithDocumentsAndLocalFieldAndForeignFieldAndPipeline,
+                __lookupWithDocumentsAndPipeline,
+                __lookupWithFromAndLocalFieldAndForeignField,
+                __lookupWithFromAndLocalFieldAndForeignFieldAndPipeline,
+                __lookupWithFromAndPipeline
+            ];
+
+            __skipOrTakeWithLong =
+            [
+                __skipWithLong,
+                __takeWithLong
+            ];
         }
 
         // public properties
@@ -489,5 +508,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo SumSingleAsync => __sumSingleAsync;
         public static MethodInfo SumSingleWithSelectorAsync => __sumSingleWithSelectorAsync;
         public static MethodInfo TakeWithLong => __takeWithLong;
+
+        // sets of methods
+        public static HashSet<MethodInfo> LookupOverloads => __lookupOverloads;
+        public static HashSet<MethodInfo> SkipOrTakeWithLong => __skipOrTakeWithLong;
     }
 }

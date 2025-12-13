@@ -21,6 +21,18 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
     internal static class DictionaryMethod
     {
         // public static methods
+        public static bool IsContainsKeyMethod(MethodInfo method)
+        {
+            return
+                !method.IsStatic &&
+                method.Name == "ContainsKey" &&
+                method.DeclaringType.ImplementsDictionaryInterface(out var keyType, out _) &&
+                method.GetParameters() is var parameters &&
+                parameters.Length == 1 &&
+                parameters[0].ParameterType == keyType &&
+                method.ReturnType == typeof(bool);
+        }
+
         public static bool IsGetItemWithKeyMethod(MethodInfo method)
         {
             return

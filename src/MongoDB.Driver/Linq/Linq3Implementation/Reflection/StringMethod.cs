@@ -28,6 +28,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         private static readonly MethodInfo __anyStringInWithParams;
         private static readonly MethodInfo __anyStringNinWithEnumerable;
         private static readonly MethodInfo __anyStringNinWithParams;
+        private static readonly MethodInfo __compare;
+        private static readonly MethodInfo __compareWithIgnoreCase;
         private static readonly MethodInfo __concatWith1Object;
         private static readonly MethodInfo __concatWith2Objects;
         private static readonly MethodInfo __concatWith3Objects;
@@ -73,8 +75,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         private static readonly MethodInfo __startsWithWithString;
         private static readonly MethodInfo __startsWithWithStringAndComparisonType;
         private static readonly MethodInfo __startsWithWithStringAndIgnoreCaseAndCulture;
-        private static readonly MethodInfo __staticCompare;
-        private static readonly MethodInfo __staticCompareWithIgnoreCase;
         private static readonly MethodInfo __staticEqualsWithComparisonType;
         private static readonly MethodInfo __stringInWithEnumerable;
         private static readonly MethodInfo __stringInWithParams;
@@ -94,6 +94,25 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         private static readonly MethodInfo __trimEnd;
         private static readonly MethodInfo __trimStart;
         private static readonly MethodInfo __trimWithChars;
+
+        // sets of methods
+        private static readonly HashSet<MethodInfo> __compareOverloads;
+        private static readonly HashSet<MethodInfo> __concatOverloads;
+        private static readonly HashSet<MethodInfo> __containsOverloads;
+        private static readonly HashSet<MethodInfo> __endsWithOverloads;
+        private static readonly HashSet<MethodInfo> __indexOfOverloads;
+        private static readonly HashSet<MethodInfo> __indexOfBytesOverloads;
+        private static readonly HashSet<MethodInfo> __indexOfWithCountOverloads;
+        private static readonly HashSet<MethodInfo> __indexOfWithStartIndexOverloads;
+        private static readonly HashSet<MethodInfo> __indexOfWithStringComparisonOverloads;
+        private static readonly HashSet<MethodInfo> __splitOverloads;
+        private static readonly HashSet<MethodInfo> __startsWithOverloads;
+        private static readonly HashSet<MethodInfo> __toLowerOverloads;
+        private static readonly HashSet<MethodInfo> __toUpperOverloads;
+
+        // arrays of sets of methods
+        private static readonly HashSet<MethodInfo>[] __endsWithOrStartsWithOverloads;
+        private static readonly HashSet<MethodInfo>[] __toLowerOrToUpperOverloads;
 
         // static constructor
         static StringMethod()
@@ -116,6 +135,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             __anyStringInWithParams = ReflectionInfo.Method((IEnumerable<string> s, StringOrRegularExpression[] values) => s.AnyStringIn(values));
             __anyStringNinWithEnumerable = ReflectionInfo.Method((IEnumerable<string> s, IEnumerable<StringOrRegularExpression> values) => s.AnyStringNin(values));
             __anyStringNinWithParams = ReflectionInfo.Method((IEnumerable<string> s, StringOrRegularExpression[] values) => s.AnyStringNin(values));
+            __compare = ReflectionInfo.Method((string strA, string strB) => String.Compare(strA, strB));
+            __compareWithIgnoreCase = ReflectionInfo.Method((string strA, string strB, bool ignoreCase) => String.Compare(strA, strB, ignoreCase));
             __concatWith1Object = ReflectionInfo.Method((object arg) => string.Concat(arg));
             __concatWith2Objects = ReflectionInfo.Method((object arg0, object arg1) => string.Concat(arg0, arg1));
             __concatWith3Objects = ReflectionInfo.Method((object arg0, object arg1, object arg2) => string.Concat(arg0, arg1, arg2));
@@ -156,8 +177,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             __startsWithWithString = ReflectionInfo.Method((string s, string value) => s.StartsWith(value));
             __startsWithWithStringAndComparisonType = ReflectionInfo.Method((string s, string value, StringComparison comparisonType) => s.StartsWith(value, comparisonType));
             __startsWithWithStringAndIgnoreCaseAndCulture = ReflectionInfo.Method((string s, string value, bool ignoreCase, CultureInfo culture) => s.StartsWith(value, ignoreCase, culture));
-            __staticCompare = ReflectionInfo.Method((string strA, string strB) => String.Compare(strA, strB));
-            __staticCompareWithIgnoreCase = ReflectionInfo.Method((string strA, string strB, bool ignoreCase) => String.Compare(strA, strB, ignoreCase));
             __staticEqualsWithComparisonType = ReflectionInfo.Method((string a, string b, StringComparison comparisonType) => string.Equals(a, b, comparisonType));
             __stringInWithEnumerable = ReflectionInfo.Method((string s, IEnumerable<StringOrRegularExpression> values) => s.StringIn(values));
             __stringInWithParams = ReflectionInfo.Method((string s, StringOrRegularExpression[] values) => s.StringIn(values));
@@ -177,6 +196,139 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             __trimEnd = ReflectionInfo.Method((string s, char[] trimChars) => s.TrimEnd(trimChars));
             __trimStart = ReflectionInfo.Method((string s, char[] trimChars) => s.TrimStart(trimChars));
             __trimWithChars = ReflectionInfo.Method((string s, char[] trimChars) => s.Trim(trimChars));
+
+            // initialize sets of methods after individual methods
+            __compareOverloads =
+            [
+                __compare,
+                __compareWithIgnoreCase
+            ];
+
+            __concatOverloads =
+            [
+                __concatWith1Object,
+                __concatWith2Objects,
+                __concatWith2Strings,
+                __concatWith3Objects,
+                __concatWith3Strings,
+                __concatWith4Strings,
+                __concatWithObjectArray,
+                __concatWithStringArray
+            ];
+
+            __containsOverloads =
+            [
+                __containsWithChar,
+                __containsWithCharAndComparisonType,
+                __containsWithString,
+                __containsWithStringAndComparisonType
+            ];
+
+            __endsWithOverloads =
+            [
+                __endsWithWithChar,
+                __endsWithWithString,
+                __endsWithWithStringAndComparisonType,
+                __endsWithWithStringAndIgnoreCaseAndCulture,
+            ];
+
+            __indexOfOverloads =
+            [
+                __indexOfAny,
+                __indexOfAnyWithStartIndex,
+                __indexOfAnyWithStartIndexAndCount,
+                __indexOfBytesWithValue,
+                __indexOfBytesWithValueAndStartIndex,
+                __indexOfBytesWithValueAndStartIndexAndCount,
+                __indexOfWithChar,
+                __indexOfWithCharAndStartIndex,
+                __indexOfWithCharAndStartIndexAndCount,
+                __indexOfWithString,
+                __indexOfWithStringAndComparisonType,
+                __indexOfWithStringAndStartIndex,
+                __indexOfWithStringAndStartIndexAndComparisonType,
+                __indexOfWithStringAndStartIndexAndCount,
+                __indexOfWithStringAndStartIndexAndCountAndComparisonType,
+            ];
+
+            __indexOfBytesOverloads =
+            [
+                __indexOfBytesWithValue,
+                __indexOfBytesWithValueAndStartIndex,
+                __indexOfBytesWithValueAndStartIndexAndCount
+            ];
+
+            __indexOfWithStartIndexOverloads =
+            [
+                __indexOfBytesWithValueAndStartIndex,
+                __indexOfBytesWithValueAndStartIndexAndCount,
+                __indexOfWithCharAndStartIndex,
+                __indexOfWithCharAndStartIndexAndCount,
+                __indexOfWithStringAndStartIndex,
+                __indexOfWithStringAndStartIndexAndCount,
+                __indexOfWithStringAndStartIndexAndComparisonType,
+                __indexOfWithStringAndStartIndexAndCountAndComparisonType
+            ];
+
+            __indexOfWithCountOverloads =
+            [
+                __indexOfBytesWithValueAndStartIndexAndCount,
+                __indexOfWithCharAndStartIndexAndCount,
+                __indexOfWithStringAndStartIndexAndCount,
+                __indexOfWithStringAndStartIndexAndCountAndComparisonType
+            ];
+
+            __indexOfWithStringComparisonOverloads =
+            [
+                __indexOfWithStringAndComparisonType,
+                __indexOfWithStringAndStartIndexAndComparisonType,
+                __indexOfWithStringAndStartIndexAndCountAndComparisonType
+            ];
+
+            __splitOverloads =
+            [
+                __splitWithChars,
+                __splitWithCharsAndCount,
+                __splitWithCharsAndCountAndOptions,
+                __splitWithCharsAndOptions,
+                __splitWithStringsAndCountAndOptions,
+                __splitWithStringsAndOptions
+            ];
+
+            __startsWithOverloads =
+            [
+                __startsWithWithChar,
+                __startsWithWithString,
+                __startsWithWithStringAndComparisonType,
+                __startsWithWithStringAndIgnoreCaseAndCulture
+            ];
+
+            __toLowerOverloads =
+            [
+                __toLower,
+                __toLowerInvariant,
+                __toLowerWithCulture,
+            ];
+
+            __toUpperOverloads =
+            [
+                __toUpper,
+                __toUpperInvariant,
+                __toUpperWithCulture,
+            ];
+
+            // initialize sets of methods after individual methods
+            __endsWithOrStartsWithOverloads =
+            [
+                __endsWithOverloads,
+                __startsWithOverloads
+            ];
+
+            __toLowerOrToUpperOverloads =
+            [
+                __toLowerOverloads,
+                __toUpperOverloads
+            ];
         }
 
         // public properties
@@ -184,6 +336,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         public static MethodInfo AnyStringInWithParams => __anyStringInWithParams;
         public static MethodInfo AnyStringNinWithEnumerable => __anyStringNinWithEnumerable;
         public static MethodInfo AnyStringNinWithParams => __anyStringNinWithParams;
+        public static MethodInfo Compare => __compare;
+        public static MethodInfo CompareWithIgnoreCase => __compareWithIgnoreCase;
         public static MethodInfo ConcatWith1Object => __concatWith1Object;
         public static MethodInfo ConcatWith2Objects => __concatWith2Objects;
         public static MethodInfo ConcatWith3Objects => __concatWith3Objects;
@@ -229,8 +383,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         public static MethodInfo StartsWithWithString => __startsWithWithString;
         public static MethodInfo StartsWithWithStringAndComparisonType => __startsWithWithStringAndComparisonType;
         public static MethodInfo StartsWithWithStringAndIgnoreCaseAndCulture => __startsWithWithStringAndIgnoreCaseAndCulture;
-        public static MethodInfo StaticCompare => __staticCompare;
-        public static MethodInfo StaticCompareWithIgnoreCase => __staticCompareWithIgnoreCase;
         public static MethodInfo StaticEqualsWithComparisonType => __staticEqualsWithComparisonType;
         public static MethodInfo StringInWithEnumerable => __stringInWithEnumerable;
         public static MethodInfo StringInWithParams => __stringInWithParams;
@@ -250,5 +402,24 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         public static MethodInfo TrimEnd => __trimEnd;
         public static MethodInfo TrimStart => __trimStart;
         public static MethodInfo TrimWithChars => __trimWithChars;
+
+        // sets of methods
+        public static HashSet<MethodInfo> ConcatOverloads => __concatOverloads;
+        public static HashSet<MethodInfo> ContainsOverloads => __containsOverloads;
+        public static HashSet<MethodInfo> EndsWithOverloads => __endsWithOverloads;
+        public static HashSet<MethodInfo> IndexOfOverloads => __indexOfOverloads;
+        public static HashSet<MethodInfo> IndexOfBytesOverloads => __indexOfBytesOverloads;
+        public static HashSet<MethodInfo> IndexOfWithCountOverloads => __indexOfWithCountOverloads;
+        public static HashSet<MethodInfo> IndexOfWithStartIndexOverloads => __indexOfWithStartIndexOverloads;
+        public static HashSet<MethodInfo> IndexOfWithStringComparisonOverloads => __indexOfWithStringComparisonOverloads;
+        public static HashSet<MethodInfo> SplitOverloads => __splitOverloads;
+        public static HashSet<MethodInfo> CompareOverloads => __compareOverloads;
+        public static HashSet<MethodInfo> StartsWithOverloads => __startsWithOverloads;
+        public static HashSet<MethodInfo> ToLowerOverloads => __toLowerOverloads;
+        public static HashSet<MethodInfo> ToUpperOverloads => __toUpperOverloads;
+
+        // arrays of sets of methods
+        public static HashSet<MethodInfo>[] EndsWithOrStartsWithOverloads => __endsWithOrStartsWithOverloads;
+        public static HashSet<MethodInfo>[] ToLowerOrToUpperOverloads => __toLowerOrToUpperOverloads;
     }
 }
