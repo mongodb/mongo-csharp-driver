@@ -153,14 +153,14 @@ tests:
             mode: { times: 1 }
             data:
               failCommands: [isMaster, hello]
-              closeConnection: true
+              errorCode: 11600
               appName: *singleClientAppName
       - name: insertOne
         object: *singleColl
         arguments:
           document: { x: 1 }
         expectError:
-          isClientError: true
+          isError: true
     expectEvents:
       - client: *singleClient
         eventType: cmap

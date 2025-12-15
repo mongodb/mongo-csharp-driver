@@ -1,14 +1,12 @@
 {
-  "description": "pool-clear-on-error-checkout",
-  "schemaVersion": "1.4",
+  "description": "backpressure-server-description-unchanged-on-min-pool-size-population-error",
+  "schemaVersion": "1.17",
   "runOnRequirements": [
     {
       "minServerVersion": "4.4",
       "serverless": "forbid",
       "topologies": [
-        "single",
-        "replicaset",
-        "sharded"
+        "single"
       ]
     }
   ],
@@ -22,12 +20,7 @@
   ],
   "tests": [
     {
-      "description": "Pool is cleared before connection is closed (authentication error)",
-      "runOnRequirements": [
-        {
-          "auth": true
-        }
-      ],
+      "description": "the server description is not changed on handshake error during minPoolSize population",
       "operations": [
         {
           "name": "failPoint",
@@ -37,14 +30,15 @@
             "failPoint": {
               "configureFailPoint": "failCommand",
               "mode": {
-                "times": 1
+                "skip": 1
               },
               "data": {
                 "failCommands": [
-                  "saslContinue"
+                  "hello",
+                  "isMaster"
                 ],
                 "appName": "authErrorTest",
-                "errorCode": 18
+                "closeConnection": true
               }
             }
           }
@@ -57,50 +51,20 @@
               {
                 "client": {
                   "id": "client",
-                  "useMultipleMongoses": false,
                   "observeEvents": [
-                    "connectionCheckOutStartedEvent",
-                    "poolClearedEvent",
+                    "serverDescriptionChangedEvent",
                     "connectionClosedEvent"
                   ],
                   "uriOptions": {
-                    "retryWrites": false,
-                    "appname": "authErrorTest"
+                    "appname": "authErrorTest",
+                    "minPoolSize": 5,
+                    "maxConnecting": 1,
+                    "serverMonitoringMode": "poll",
+                    "heartbeatFrequencyMS": 1000000
                   }
                 }
-              },
-              {
-                "database": {
-                  "id": "database",
-                  "client": "client",
-                  "databaseName": "foo"
-                }
-              },
-              {
-                "collection": {
-                  "id": "collection",
-                  "database": "database",
-                  "collectionName": "bar"
-                }
               }
             ]
-          }
-        },
-        {
-          "name": "insertMany",
-          "object": "collection",
-          "arguments": {
-            "documents": [
-              {
-                "_id": 3
-              },
-              {
-                "_id": 4
-              }
-            ]
-          },
-          "expectError": {
-            "isError": true
           }
         },
         {
@@ -109,7 +73,7 @@
           "arguments": {
             "client": "client",
             "event": {
-              "poolClearedEvent": {}
+              "serverDescriptionChangedEvent": {}
             },
             "count": 1
           }
@@ -129,16 +93,10 @@
       "expectEvents": [
         {
           "client": "client",
-          "eventType": "cmap",
+          "eventType": "sdam",
           "events": [
             {
-              "connectionCheckOutStartedEvent": {}
-            },
-            {
-              "poolClearedEvent": {}
-            },
-            {
-              "connectionClosedEvent": {}
+              "serverDescriptionChangedEvent": {}
             }
           ]
         }

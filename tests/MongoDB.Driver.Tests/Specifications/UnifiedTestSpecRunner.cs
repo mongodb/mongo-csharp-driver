@@ -180,15 +180,8 @@ namespace MongoDB.Driver.Tests.Specifications
 
         [Category("SDAM", "SupportLoadBalancing")]
         [UnifiedTestsTheory("server_discovery_and_monitoring.tests.unified")]
-        public void ServerDiscoveryAndMonitoring(JsonDrivenTestCase testCase)
-        {
-            if (testCase.Name.Contains("pool-clear-"))
-            {
-                throw new SkipException("This test is flaky and is skipped while being investigated.");
-            }
-
+        public void ServerDiscoveryAndMonitoring(JsonDrivenTestCase testCase) =>
             Run(testCase, IsSdamLogValid, new SdamRunnerEventsProcessor(testCase.Name));
-        }
 
         [Category("SupportLoadBalancing")]
         [UnifiedTestsTheory("server_selection.tests.logging")]

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "style": "unit",
-  "description": "Pool clear SHOULD schedule the next background thread run immediately",
+  "description": "Pool clear SHOULD schedule the next background thread run immediately (interruptInUseConnections = false)",
   "poolOptions": {
     "backgroundThreadIntervalMS": 10000
   },
@@ -17,19 +17,23 @@
       "label": "conn"
     },
     {
+      "name": "checkIn",
+      "connection": "conn"
+    },
+    {
       "name": "clear",
-      "closeInUseConnections": true
+      "interruptInUseConnections": false
     },
     {
       "name": "waitForEvent",
       "event": "ConnectionPoolCleared",
       "count": 1,
-      "timeout": 1000      
+      "timeout": 1000
     },
     {
       "name": "waitForEvent",
       "event": "ConnectionClosed",
-      "count": 2,
+      "count": 1,
       "timeout": 1000
     },
     {
@@ -48,10 +52,13 @@
       "address": 42
     },
     {
-      "type": "ConnectionClosed",
-      "connectionId": 1,
-      "reason": "stale",
+      "type": "ConnectionCheckedIn",
+      "connectionId": 2,
       "address": 42
+    },
+    {
+      "type": "ConnectionPoolCleared",
+      "interruptInUseConnections": false
     },
     {
       "type": "ConnectionClosed",
@@ -69,7 +76,6 @@
     "ConnectionPoolReady",
     "ConnectionReady",
     "ConnectionCheckOutStarted",
-    "ConnectionPoolCreated",
-    "ConnectionPoolCleared"
+    "ConnectionPoolCreated"
   ]
 }

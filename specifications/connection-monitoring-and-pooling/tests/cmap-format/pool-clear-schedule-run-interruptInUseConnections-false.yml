@@ -1,21 +1,25 @@
 version: 1
 style: unit
-description: Pool clear MUST support lazily closing in use connections
+description: Pool clear SHOULD schedule the next background thread run immediately (interruptInUseConnections = false)
 poolOptions:
-  backgroundThreadIntervalMS: 100
+  # ensure it's not involved by default
+  backgroundThreadIntervalMS: 10000
 operations:
   - name: ready
   - name: checkOut
   - name: checkOut
+    label: conn
+  - name: checkIn
+    connection: conn
   - name: clear
-    closeInUseConnections: true
+    interruptInUseConnections: false
   - name: waitForEvent
     event: ConnectionPoolCleared
     count: 1
     timeout: 1000
   - name: waitForEvent
     event: ConnectionClosed
-    count: 2
+    count: 1
     timeout: 1000
   - name: close
 events:
@@ -25,10 +29,13 @@ events:
   - type: ConnectionCheckedOut
     connectionId: 2
     address: 42
-  - type: ConnectionClosed
-    reason: stale
+  - type: ConnectionCheckedIn
+    connectionId: 2
     address: 42
+  - type: ConnectionPoolCleared
+    interruptInUseConnections: false
   - type: ConnectionClosed
+    connectionId: 2
     reason: stale
     address: 42
   - type: ConnectionPoolClosed
@@ -39,4 +46,3 @@ ignore:
   - ConnectionReady
   - ConnectionCheckOutStarted
   - ConnectionPoolCreated
-  - ConnectionPoolCleared

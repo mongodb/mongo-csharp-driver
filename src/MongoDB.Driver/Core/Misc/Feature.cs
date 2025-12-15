@@ -76,6 +76,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __hintForDeleteOperations = new Feature("HintForDeleteOperations", WireVersion.Server44);
         private static readonly HintForFindAndModifyFeature __hintForFindAndModifyFeature = new HintForFindAndModifyFeature("HintForFindAndModify", WireVersion.Server44);
         private static readonly Feature __hintForUpdateAndReplaceOperations = new Feature("HintForUpdateAndReplaceOperations", WireVersion.Server42);
+        private static readonly Feature __ingressConnectionEstablishmentRateLimiter = new Feature("IngressConnectionEstablishmentRateLimiter", WireVersion.Server80);
         private static readonly Feature __keepConnectionPoolWhenNotPrimaryConnectionException = new Feature("KeepConnectionPoolWhenNotWritablePrimaryConnectionException", WireVersion.Server42);
         private static readonly Feature __keepConnectionPoolWhenReplSetStepDown = new Feature("KeepConnectionPoolWhenReplSetStepDown", WireVersion.Server42);
         private static readonly Feature __legacyWireProtocol = new Feature("LegacyWireProtocol", WireVersion.Zero, WireVersion.Server51);
@@ -367,6 +368,11 @@ namespace MongoDB.Driver.Core.Misc
         /// </summary>
         [Obsolete("This property will be removed in a later release.")]
         public static Feature HintForUpdateAndReplaceOperations => __hintForUpdateAndReplaceOperations;
+
+        /// <summary>
+        /// Ingress Connection Establishment Rate Limiter feature
+        /// </summary>
+        public static Feature IngressConnectionEstablishmentRateLimiter => __ingressConnectionEstablishmentRateLimiter;
 
         /// <summary>
         /// Gets the keep connection pool when NotPrimary connection exception feature.

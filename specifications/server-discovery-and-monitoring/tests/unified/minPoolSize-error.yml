@@ -1,7 +1,7 @@
 ---
 description: minPoolSize-error
 
-schemaVersion: "1.10"
+schemaVersion: "1.4"
 
 runOnRequirements:
   # Require SERVER-49336 for failCommand + appName on the initial handshake.
@@ -21,7 +21,7 @@ initialData: &initialData
     documents: []
 
 tests:
-  - description: Network error on minPoolSize background creation
+  - description: Server error on minPoolSize background creation
     operations:
       # Configure the initial monitor handshake to succeed but the
       # first or second background minPoolSize establishments to fail.
@@ -38,7 +38,7 @@ tests:
                 - hello
                 - isMaster
               appName: SDAMminPoolSizeError
-              closeConnection: true
+              errorCode: 91
       - name: createEntities
         object: testRunner
         arguments:
