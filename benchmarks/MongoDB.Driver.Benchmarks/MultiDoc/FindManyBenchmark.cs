@@ -17,7 +17,6 @@ using System.Linq;
 using BenchmarkDotNet.Attributes;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using MongoDB.Driver.TestHelpers;
 using static MongoDB.Benchmarks.BenchmarkHelper;
 
 namespace MongoDB.Benchmarks.MultiDoc;
@@ -28,6 +27,7 @@ public class FindManyBenchmark
 {
     private IMongoClient _client;
     private IMongoCollection<BsonDocument> _collection;
+    private IMongoCollection<Tweet> _collectionPoco;
     private BsonDocument _tweetDocument;
 
     [Params(16_220_000)]
@@ -38,7 +38,10 @@ public class FindManyBenchmark
     {
         _client = MongoConfiguration.CreateClient();
         _tweetDocument = ReadExtendedJson("single_and_multi_document/tweet.json");
-        _collection = _client.GetDatabase(MongoConfiguration.PerfTestDatabaseName).GetCollection<BsonDocument>(MongoConfiguration.PerfTestCollectionName);
+        var db = _client.GetDatabase(MongoConfiguration.PerfTestDatabaseName);
+
+        _collection = db.GetCollection<BsonDocument>(MongoConfiguration.PerfTestCollectionName);
+        _collectionPoco = db.GetCollection<Tweet>(MongoConfiguration.PerfTestCollectionName);
 
         PopulateCollection();
     }
@@ -46,7 +49,13 @@ public class FindManyBenchmark
     [Benchmark]
     public void FindManyAndEmptyCursor()
     {
-        _collection.Find(Builders<BsonDocument>.Filter.Empty).ToList();
+       _ = _collection.Find(Builders<BsonDocument>.Filter.Empty).ToList();
+    }
+
+    [Benchmark]
+    public void FindManyAndEmptyCursorPoco()
+    {
+        _ = _collectionPoco.Find(Builders<Tweet>.Filter.Empty).ToList();
     }
 
     [GlobalCleanup]

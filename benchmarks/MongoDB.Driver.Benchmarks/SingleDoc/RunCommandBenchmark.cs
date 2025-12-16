@@ -16,7 +16,6 @@
 using BenchmarkDotNet.Attributes;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using MongoDB.Driver.TestHelpers;
 
 namespace MongoDB.Benchmarks.SingleDoc;
 

@@ -27,10 +27,13 @@ namespace MongoDB.Benchmarks.Bson;
 [BenchmarkCategory(DriverBenchmarkCategory.BsonBench)]
 public class BsonDecodingBenchmark
 {
+    private const int Iterations = 10_000;
+
     private byte[] _bytes;
     private BsonDeserializationContext _context;
     private BsonBinaryReader _reader;
     private MemoryStream _stream;
+    private IBsonSerializer _pocoSerializer;
 
     [ParamsSource(nameof(BenchmarkDataSources))]
     public BsonBenchmarkData BenchmarkData { get; set; }
@@ -42,14 +45,26 @@ public class BsonDecodingBenchmark
         _stream = new MemoryStream(_bytes);
         _reader = new BsonBinaryReader(_stream);
         _context = BsonDeserializationContext.CreateRoot(_reader);
+        _pocoSerializer = BsonSerializer.LookupSerializer(BenchmarkData.PocoType);
     }
 
     [Benchmark]
     public void BsonDecoding()
     {
-        for (int i = 0; i < 10000; i++)
+        for (int i = 0; i < Iterations; i++)
         {
-            BsonDocumentSerializer.Instance.Deserialize(_context);
+            _ = BsonDocumentSerializer.Instance.Deserialize(_context);
+            _stream.Position = 0;
+        }
+    }
+
+    [Benchmark]
+    public void BsonDecodingPoco()
+    {
+        var args = new BsonDeserializationArgs() { NominalType = BenchmarkData.PocoType };
+        for (int i = 0; i < Iterations; i++)
+        {
+            _ = _pocoSerializer.Deserialize(_context, args);
             _stream.Position = 0;
         }
     }
@@ -61,10 +76,10 @@ public class BsonDecodingBenchmark
         _stream.Dispose();
     }
 
-    public IEnumerable<BsonBenchmarkData> BenchmarkDataSources() => new BsonBenchmarkData[]
-    {
-        new("extended_bson/flat_bson.json", "Flat", 75_310_000),
-        new("extended_bson/full_bson.json", "Full", 57_340_000),
-        new("extended_bson/deep_bson.json", "Deep", 19_640_000)
-    };
+    public IEnumerable<BsonBenchmarkData> BenchmarkDataSources() =>
+    [
+        new("extended_bson/flat_bson.json", "Flat", 75_310_000, typeof(FlatPoco)),
+        new("extended_bson/full_bson.json", "Full", 57_340_000, typeof(FullPoco)),
+        new("extended_bson/deep_bson.json", "Deep", 19_640_000, typeof(DeepPocoRoot))
+    ];
 }

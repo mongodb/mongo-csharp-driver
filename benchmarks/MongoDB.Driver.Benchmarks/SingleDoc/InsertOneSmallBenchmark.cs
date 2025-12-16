@@ -14,9 +14,10 @@
  */
 
 using BenchmarkDotNet.Attributes;
+using MongoDB.Benchmarks.MultiDoc;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
-using MongoDB.Driver.TestHelpers;
 using static MongoDB.Benchmarks.BenchmarkHelper;
 
 namespace MongoDB.Benchmarks.SingleDoc;
@@ -25,10 +26,14 @@ namespace MongoDB.Benchmarks.SingleDoc;
 [BenchmarkCategory(DriverBenchmarkCategory.SingleBench, DriverBenchmarkCategory.WriteBench, DriverBenchmarkCategory.DriverBench)]
 public class InsertOneSmallBenchmark
 {
+    private const int Iterations = 10_000;
+
     private IMongoClient _client;
     private IMongoCollection<BsonDocument> _collection;
+    private IMongoCollection<SmallDocPoco> _collectionPoco;
     private IMongoDatabase _database;
     private BsonDocument _smallDocument;
+    private SmallDocPoco _smallDocumentPoco;
 
     [Params(2_750_000)]
     public int BenchmarkDataSetSize { get; set; } // used in BenchmarkResult.cs
@@ -39,6 +44,7 @@ public class InsertOneSmallBenchmark
         _client = MongoConfiguration.CreateClient();
         _database = _client.GetDatabase(MongoConfiguration.PerfTestDatabaseName);
         _smallDocument = ReadExtendedJson("single_and_multi_document/small_doc.json");
+        _smallDocumentPoco = BsonSerializer.Deserialize<SmallDocPoco>(_smallDocument);
     }
 
     [IterationSetup]
@@ -46,15 +52,25 @@ public class InsertOneSmallBenchmark
     {
         _database.DropCollection(MongoConfiguration.PerfTestCollectionName);
         _collection = _database.GetCollection<BsonDocument>(MongoConfiguration.PerfTestCollectionName);
+        _collectionPoco = _database.GetCollection<SmallDocPoco>(MongoConfiguration.PerfTestCollectionName);
     }
 
     [Benchmark]
     public void InsertOneSmall()
     {
-        for (int i = 0; i < 10000; i++)
+        for (int i = 0; i < Iterations; i++)
         {
             _smallDocument.Remove("_id");
             _collection.InsertOne(_smallDocument);
+        }
+    }
+
+    [Benchmark]
+    public void InsertOneSmallPoco()
+    {
+        for (int i = 0; i < Iterations; i++)
+        {
+            _collectionPoco.InsertOne(_smallDocumentPoco);
         }
     }
 

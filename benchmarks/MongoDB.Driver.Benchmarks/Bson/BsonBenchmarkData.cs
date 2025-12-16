@@ -13,9 +13,11 @@
  * limitations under the License.
  */
 
+using System;
+
 namespace MongoDB.Benchmarks.Bson;
 
-public readonly record struct BsonBenchmarkData(string FilePath, string DataSetName, int DataSetSize)
+public readonly record struct BsonBenchmarkData(string FilePath, string DataSetName, int DataSetSize, Type PocoType)
 {
     public override string ToString() => $"{DataSetName}";
 }

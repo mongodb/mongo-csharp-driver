@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BenchmarkDotNet.Attributes;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using static MongoDB.Benchmarks.BenchmarkHelper;
 
@@ -28,9 +29,12 @@ public class BulkWriteMixedOpsBenchmark
 {
     private IMongoClient _client;
     private IMongoCollection<BsonDocument> _collection;
+    private IMongoCollection<SmallDocPoco> _collectionPoco;
     private IMongoDatabase _database;
     private readonly List<BulkWriteModel> _clientBulkWriteMixedOpsModels = [];
+    private readonly List<BulkWriteModel> _clientBulkWriteMixedOpsPocoModels = [];
     private readonly List<WriteModel<BsonDocument>> _collectionBulkWriteMixedOpsModels = [];
+    private readonly List<WriteModel<SmallDocPoco>> _collectionBulkWriteMixedOpsPocoModels = [];
 
     private static readonly string[] __collectionNamespaces = Enumerable.Range(0, 10)
         .Select(i => $"{MongoConfiguration.PerfTestDatabaseName}.{MongoConfiguration.PerfTestCollectionName}_{i}")
@@ -56,6 +60,14 @@ public class BulkWriteMixedOpsBenchmark
             _collectionBulkWriteMixedOpsModels.Add(new InsertOneModel<BsonDocument>(smallDocument.DeepClone().AsBsonDocument));
             _collectionBulkWriteMixedOpsModels.Add(new ReplaceOneModel<BsonDocument>(FilterDefinition<BsonDocument>.Empty, smallDocument.DeepClone().AsBsonDocument));
             _collectionBulkWriteMixedOpsModels.Add(new DeleteOneModel<BsonDocument>(FilterDefinition<BsonDocument>.Empty));
+
+            _clientBulkWriteMixedOpsPocoModels.Add(new BulkWriteInsertOneModel<SmallDocPoco>(collectionName, BsonSerializer.Deserialize<SmallDocPoco>(smallDocument)));
+            _clientBulkWriteMixedOpsPocoModels.Add(new BulkWriteReplaceOneModel<SmallDocPoco>(collectionName, FilterDefinition<SmallDocPoco>.Empty, BsonSerializer.Deserialize<SmallDocPoco>(smallDocument)));
+            _clientBulkWriteMixedOpsPocoModels.Add(new BulkWriteDeleteOneModel<SmallDocPoco>(collectionName, FilterDefinition<SmallDocPoco>.Empty));
+
+            _collectionBulkWriteMixedOpsPocoModels.Add(new InsertOneModel<SmallDocPoco>(BsonSerializer.Deserialize<SmallDocPoco>(smallDocument)));
+            _collectionBulkWriteMixedOpsPocoModels.Add(new ReplaceOneModel<SmallDocPoco>(FilterDefinition<SmallDocPoco>.Empty, BsonSerializer.Deserialize<SmallDocPoco>(smallDocument)));
+            _collectionBulkWriteMixedOpsPocoModels.Add(new DeleteOneModel<SmallDocPoco>(FilterDefinition<SmallDocPoco>.Empty));
         }
     }
 
@@ -71,6 +83,7 @@ public class BulkWriteMixedOpsBenchmark
         }
 
         _collection = _database.GetCollection<BsonDocument>(MongoConfiguration.PerfTestCollectionName);
+        _collectionPoco = _database.GetCollection<SmallDocPoco>(MongoConfiguration.PerfTestCollectionName);
     }
 
     [Benchmark]
@@ -80,9 +93,21 @@ public class BulkWriteMixedOpsBenchmark
     }
 
     [Benchmark]
+    public void SmallDocCollectionBulkWriteMixedOpsPocoBenchmark()
+    {
+        _collectionPoco.BulkWrite(_collectionBulkWriteMixedOpsPocoModels, new());
+    }
+
+    [Benchmark]
     public void SmallDocClientBulkWriteMixedOpsBenchmark()
     {
         _client.BulkWrite(_clientBulkWriteMixedOpsModels, new());
+    }
+
+    [Benchmark]
+    public void SmallDocClientBulkWriteMixedPocoOpsBenchmark()
+    {
+        _client.BulkWrite(_clientBulkWriteMixedOpsPocoModels, new());
     }
 
     [GlobalCleanup]
