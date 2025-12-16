@@ -24,6 +24,10 @@ namespace MongoDB.Bson
     /// </summary>
     public static class BsonDefaults
     {
+        /* DOMAIN-API DynamicSerializers are used by ExpandoObjectSerializer to create a SerializationContext for ObjectSerializers. We need to remove those from the public API maybe..?
+         And from the BsonDefaults too.
+         */
+
         // public static properties
         /// <summary>
         /// Gets or sets the dynamic array serializer.
@@ -43,9 +47,8 @@ namespace MongoDB.Bson
             set => BsonSerializationDomain.Default.BsonDefaults.DynamicDocumentSerializer = value;
         }
 
-        /* DOMAIN-API DynamicSerializer are used only in a handful of serializers, so they should be removed from here (and possibly from the public API altogether).
-         * MaxDocumentSize should probably be removed from the public API too, as it should come from the server.
-         * MaxSerializationDepth is definitely useful. Does it make sense to keep it global...?
+        /* DOMAIN-API MaxDocumentSize should probably be removed from the public API too, as it should come from the server.
+         * MaxSerializationDepth is useful. Does it make sense to keep it global...?
          */
 
         /// <summary>

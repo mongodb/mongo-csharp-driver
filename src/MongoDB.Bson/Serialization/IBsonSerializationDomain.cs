@@ -22,7 +22,7 @@ using MongoDB.Bson.Serialization.Conventions;
 namespace MongoDB.Bson.Serialization
 {
     /// <summary>
-    /// //TODO
+    /// Represents a BSON serialization domain.
     /// </summary>
     internal interface IBsonSerializationDomain
     {
@@ -302,17 +302,17 @@ namespace MongoDB.Bson.Serialization
             BsonSerializationArgs args = default(BsonSerializationArgs));
 
         /// <summary>
-        /// //TODO
+        /// Gets the class map registry.
         /// </summary>
         IBsonClassMapRegistry ClassMapRegistry { get; }
 
         /// <summary>
-        /// //TODO
+        /// Gets the convention registry.
         /// </summary>
         IConventionRegistry ConventionRegistry { get; }
 
         /// <summary>
-        /// //TODO
+        /// Gets the BSON defaults.
         /// </summary>
         IBsonDefaults BsonDefaults { get; }
 
