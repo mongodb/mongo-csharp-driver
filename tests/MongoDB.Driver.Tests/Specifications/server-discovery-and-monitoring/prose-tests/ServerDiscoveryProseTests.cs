@@ -95,7 +95,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring.pr
         [ParameterAttributeData]
         public async Task Connection_Pool_Backpressure([Values(true, false)]bool async)
         {
-            RequireServer.Check().Supports(Feature.IngressConnectionEstablishmentRateLimiter);
+            RequireServer.Check().VersionGreaterThanOrEqualTo("7.0.23");
 
             var setupClient = DriverTestConfiguration.Client;
             var adminDatabase = setupClient.GetDatabase(DatabaseNamespace.Admin.DatabaseName);
