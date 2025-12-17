@@ -74,7 +74,7 @@ public class SmallDocBulkInsertBenchmark
     }
 
     [Benchmark]
-    public void InsertManySmallBenchmarkPoco()
+    public void InsertManySmallPocoBenchmark()
     {
         _collectionPocos.InsertMany(_smallPocos, new());
     }
@@ -86,7 +86,7 @@ public class SmallDocBulkInsertBenchmark
     }
 
     [Benchmark]
-    public void SmallDocCollectionBulkWriteInsertBenchmarkPoco()
+    public void SmallDocCollectionBulkWriteInsertPocoBenchmark()
     {
         _collectionPocos.BulkWrite(_collectionBulkWriteInsertModelsPoco, new());
     }
@@ -98,7 +98,7 @@ public class SmallDocBulkInsertBenchmark
     }
 
     [Benchmark]
-    public void SmallDocClientBulkWriteInsertBenchmarkPoco()
+    public void SmallDocClientBulkWriteInsertPocoBenchmark()
     {
         _client.BulkWrite(_clientBulkWriteInsertModelsPoco, new());
     }

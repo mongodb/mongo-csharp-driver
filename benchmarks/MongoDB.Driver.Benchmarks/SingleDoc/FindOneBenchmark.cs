@@ -43,6 +43,7 @@ public class FindOneBenchmark
     {
         _client = MongoConfiguration.CreateClient();
         var db = _client.GetDatabase(MongoConfiguration.PerfTestDatabaseName);
+        db.DropCollection(MongoConfiguration.PerfTestCollectionName);
         _collection = db.GetCollection<BsonDocument>(MongoConfiguration.PerfTestCollectionName);
         _collectionPoco = db.GetCollection<Tweet>(MongoConfiguration.PerfTestCollectionName);
         _tweetDocument = ReadExtendedJson("single_and_multi_document/tweet.json");
@@ -56,7 +57,7 @@ public class FindOneBenchmark
     {
         for (int i = 0; i < Iterations; i++)
         {
-            _collection.Find(new BsonDocument("_id", i)).First();
+            _ = _collection.Find(new BsonDocument("_id", i)).First();
         }
     }
 
@@ -65,7 +66,7 @@ public class FindOneBenchmark
     {
         for (int i = 0; i < Iterations; i++)
         {
-            _collection.Find(new BsonDocument("_id", i)).First();
+            _ = _collectionPoco.Find(t => t.Id == i).First();
         }
     }
 

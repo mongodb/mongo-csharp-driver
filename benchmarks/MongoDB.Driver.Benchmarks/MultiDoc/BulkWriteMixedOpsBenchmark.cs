@@ -105,7 +105,7 @@ public class BulkWriteMixedOpsBenchmark
     }
 
     [Benchmark]
-    public void SmallDocClientBulkWriteMixedPocoOpsBenchmark()
+    public void SmallDocClientBulkWriteMixedOpsPocoBenchmark()
     {
         _client.BulkWrite(_clientBulkWriteMixedOpsPocoModels, new());
     }

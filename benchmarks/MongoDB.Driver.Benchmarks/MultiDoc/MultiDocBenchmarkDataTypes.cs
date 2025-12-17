@@ -41,7 +41,7 @@ public sealed class SmallDocPoco
 public sealed class Tweet
 {
     [BsonId]
-    public ObjectId Id { get; set; }
+    public long Id { get; set; }
 
     public long id { get; set; }
 

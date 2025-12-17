@@ -27,22 +27,30 @@ public sealed class BenchmarkResult
 
     public BenchmarkResult(BenchmarkReport benchmarkReport)
     {
-        Categories = new HashSet<string>(benchmarkReport.BenchmarkCase.Descriptor.Categories);
+        var benchmarkCaseDescriptor = benchmarkReport.BenchmarkCase.Descriptor;
+        var methodName = benchmarkCaseDescriptor.WorkloadMethod.Name;
+        Categories = new HashSet<string>(benchmarkCaseDescriptor.Categories);
 
         int dataSetSize;
         if (Categories.Contains(DriverBenchmarkCategory.BsonBench))
         {
             var bsonBenchmarkData = (BsonBenchmarkData)benchmarkReport.BenchmarkCase.Parameters["BenchmarkData"];
-            Name = bsonBenchmarkData.DataSetName + benchmarkReport.BenchmarkCase.Descriptor.Type.Name;
+            Name = bsonBenchmarkData.DataSetName + benchmarkCaseDescriptor.Type.Name;
+
             dataSetSize = bsonBenchmarkData.DataSetSize;
         }
         else
         {
             Name = Categories.Contains(DriverBenchmarkCategory.BulkWriteBench)
-                ? benchmarkReport.BenchmarkCase.Descriptor.WorkloadMethod.Name
-                : benchmarkReport.BenchmarkCase.Descriptor.Type.Name;
+                ? methodName
+                : benchmarkCaseDescriptor.Type.Name;
 
             dataSetSize = (int)benchmarkReport.BenchmarkCase.Parameters["BenchmarkDataSetSize"];
+        }
+
+        if (methodName.EndsWith("Poco") || methodName.EndsWith("PocoBenchmark"))
+        {
+            Name = Name.Replace("Benchmark", "PocoBenchmark");
         }
 
         // change the median from nanoseconds to seconds for calculating the score.

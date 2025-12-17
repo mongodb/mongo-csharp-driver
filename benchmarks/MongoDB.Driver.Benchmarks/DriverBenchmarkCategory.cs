@@ -30,5 +30,5 @@ public static class DriverBenchmarkCategory
     // not included in AllCategories as it's not part of the benchmarking spec
     public const string BulkWriteBench = "BulkWriteBench";
 
-    public static readonly IEnumerable<string> AllCategories = new[] {BsonBench, ReadBench, WriteBench, MultiBench, SingleBench, ParallelBench, DriverBench};
+    public static readonly IEnumerable<string> AllCategories = [BsonBench, ReadBench, WriteBench, MultiBench, SingleBench, ParallelBench, DriverBench];
 }
