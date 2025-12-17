@@ -343,19 +343,28 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 
         public static bool IsNumeric(this Type type)
         {
-            return Type.GetTypeCode(type) is
-                TypeCode.Byte or
-                TypeCode.Char or // TODO: should we really treat char as numeric?
-                TypeCode.Decimal or
-                TypeCode.Double or
-                TypeCode.Int16 or
-                TypeCode.Int32 or
-                TypeCode.Int64 or
-                TypeCode.SByte or
-                TypeCode.Single or
-                TypeCode.UInt16 or
-                TypeCode.UInt32 or
-                TypeCode.UInt64;
+            // return Type.GetTypeCode(type) is
+            //     TypeCode.Byte or
+            //     TypeCode.Char or // TODO: should we really treat char as numeric?
+            //     TypeCode.Decimal or
+            //     TypeCode.Double or
+            //     TypeCode.Int16 or
+            //     TypeCode.Int32 or
+            //     TypeCode.Int64 or
+            //     TypeCode.SByte or
+            //     TypeCode.Single or
+            //     TypeCode.UInt16 or
+            //     TypeCode.UInt32 or
+            //     TypeCode.UInt64; // TODO: what about the additional types here that weren't considered numeric before?
+            return
+                type == typeof(char) ||  // TODO: should we really treat char as numeric?
+                type == typeof(decimal) ||
+                type == typeof(Decimal128) ||
+                type == typeof(double) ||
+                type == typeof(float) ||
+                type == typeof(int) ||
+                type == typeof(long) ||
+                type == typeof(short);
         }
 
         public static bool IsNumericOrNullableNumeric(this Type type)
