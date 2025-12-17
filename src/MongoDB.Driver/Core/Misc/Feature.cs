@@ -370,7 +370,7 @@ namespace MongoDB.Driver.Core.Misc
         public static Feature HintForUpdateAndReplaceOperations => __hintForUpdateAndReplaceOperations;
 
         /// <summary>
-        /// Ingress Connection Establishment Rate Limiter feature
+        /// Gets the Ingress Connection Establishment Rate Limiter feature.
         /// </summary>
         public static Feature IngressConnectionEstablishmentRateLimiter => __ingressConnectionEstablishmentRateLimiter;
 

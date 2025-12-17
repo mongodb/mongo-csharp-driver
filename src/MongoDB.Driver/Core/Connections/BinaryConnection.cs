@@ -595,6 +595,11 @@ namespace MongoDB.Driver.Core.Connections
         // private methods
         private void AddBackpressureErrorLabelsIfRequired(MongoConnectionException exception)
         {
+            if (exception == null)
+            {
+                return;
+            }
+
             if (exception.ContainsTimeoutException || exception.InnerException is IOException)
             {
                 exception.AddErrorLabel("SystemOverloadedError");
