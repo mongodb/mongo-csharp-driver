@@ -66,7 +66,7 @@ public class FindManyBenchmark
 
     private void PopulateCollection()
     {
-        var documents = Enumerable.Range(0, 10000).Select(_ => _tweetDocument.DeepClone().AsBsonDocument);
+        var documents = Enumerable.Range(0, 10000).Select(i => _tweetDocument.DeepClone().AsBsonDocument.AsBsonDocument.Add("_id", i));
         _collection.InsertMany(documents);
     }
 }
