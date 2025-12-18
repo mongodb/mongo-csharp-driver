@@ -432,7 +432,6 @@ internal partial class SerializerFinderVisitor
             if (method.IsOneOf(EnumerableOrQueryableMethod.AggregateOverloads))
             {
                 var sourceExpression = arguments[0];
-                _ = IsItemSerializerKnown(sourceExpression, out var sourceItemSerializer);
 
                 if (method.IsOneOf(EnumerableOrQueryableMethod.AggregateWithFunc))
                 {
