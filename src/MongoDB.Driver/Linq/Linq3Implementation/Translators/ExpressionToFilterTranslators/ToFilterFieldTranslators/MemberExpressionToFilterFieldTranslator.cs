@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 (memberExpression.Type.GetGenericTypeDefinition() == typeof(Dictionary<,>.KeyCollection) ||
                  memberExpression.Type.GetGenericTypeDefinition() == typeof(Dictionary<,>.ValueCollection)))
             {
-                throw new ExpressionNotSupportedException(memberExpression);
+                throw new ExpressionNotSupportedException(memberExpression, because: "Dictionary.KeyCollection and Dictionary.ValueCollection cannot be translated using filters");
             }
 
             if (fieldSerializer.GetType() == typeof(BsonValueSerializer))

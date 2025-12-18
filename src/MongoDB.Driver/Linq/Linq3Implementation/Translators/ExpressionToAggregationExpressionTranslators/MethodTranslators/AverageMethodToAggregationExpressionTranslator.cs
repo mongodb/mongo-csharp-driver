@@ -125,20 +125,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 else
                 {
                     var sourceItemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
-                    if (sourceItemSerializer is IWrappedValueSerializer wrappedValueSerializer)
-                    {
-                        var itemVar = AstExpression.Var("item");
-                        var unwrappedItemAst = AstExpression.GetField(itemVar, wrappedValueSerializer.FieldName);
-                        ast = AstExpression.Avg(
-                            AstExpression.Map(
-                                input: sourceTranslation.Ast,
-                                @as: itemVar,
-                                @in: unwrappedItemAst));
-                    }
-                    else
-                    {
-                        ast = AstExpression.Avg(sourceTranslation.Ast);
-                    }
+                    ast = ExpressionToAggregationExpressionTranslatorHelper.CreateAggregationAstWithUnwrapping(
+                        sourceTranslation,
+                        sourceItemSerializer,
+                        AstExpression.Avg,
+                        out _);
                 }
                 IBsonSerializer serializer = expression.Type switch
                 {

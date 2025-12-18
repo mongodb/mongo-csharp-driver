@@ -29,9 +29,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
     {
         public static bool CanTranslate(Expression leftExpression, Expression rightExpression)
         {
-            return leftExpression is MethodCallExpression methodCallExpression &&
-                   rightExpression is ConstantExpression &&
-                   DictionaryMethod.IsGetItemWithKeyMethod(methodCallExpression.Method);
+            return
+                leftExpression is MethodCallExpression methodCallExpression &&
+                rightExpression is ConstantExpression &&
+                DictionaryMethod.IsGetItemWithKeyMethod(methodCallExpression.Method);
         }
 
         public static AstFilter Translate(TranslationContext context, Expression containingExpression, AstComparisonFilterOperator comparisonOperator, MethodCallExpression indexerExpression, ConstantExpression valueExpression)
@@ -53,25 +54,21 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             switch (dictionaryRepresentation)
             {
                 case DictionaryRepresentation.Document:
-                    {
-                        var subField = fieldTranslation.SubField(key, dictionarySerializer.ValueSerializer);
-                        return AstFilter.Compare(subField.Ast, comparisonOperator, serializedValue);
-                    }
+                    var subField = fieldTranslation.SubField(key, dictionarySerializer.ValueSerializer);
+                    return AstFilter.Compare(subField.Ast, comparisonOperator, serializedValue);
 
                 case DictionaryRepresentation.ArrayOfArrays:
                 case DictionaryRepresentation.ArrayOfDocuments:
-                    {
-                        var keyFieldName = dictionaryRepresentation == DictionaryRepresentation.ArrayOfArrays ? "0" : "k";
-                        var valueFieldName = dictionaryRepresentation == DictionaryRepresentation.ArrayOfArrays ? "1" : "v";
+                    var keyFieldName = dictionaryRepresentation == DictionaryRepresentation.ArrayOfArrays ? "0" : "k";
+                    var valueFieldName = dictionaryRepresentation == DictionaryRepresentation.ArrayOfArrays ? "1" : "v";
 
-                        var keyField = AstFilter.Field(keyFieldName);
-                        var valueField = AstFilter.Field(valueFieldName);
-                        var keyMatchFilter = AstFilter.Eq(keyField, key);
-                        var valueMatchFilter = AstFilter.Compare(valueField, comparisonOperator, serializedValue);
-                        var combinedFilter = AstFilter.And(keyMatchFilter, valueMatchFilter);
+                    var keyField = AstFilter.Field(keyFieldName);
+                    var valueField = AstFilter.Field(valueFieldName);
+                    var keyMatchFilter = AstFilter.Eq(keyField, key);
+                    var valueMatchFilter = AstFilter.Compare(valueField, comparisonOperator, serializedValue);
+                    var combinedFilter = AstFilter.And(keyMatchFilter, valueMatchFilter);
 
-                        return AstFilter.ElemMatch(fieldTranslation.Ast, combinedFilter);
-                    }
+                    return AstFilter.ElemMatch(fieldTranslation.Ast, combinedFilter);
 
                 default:
                     throw new ExpressionNotSupportedException(containingExpression, because: $"Unexpected dictionary representation: {dictionaryRepresentation}");

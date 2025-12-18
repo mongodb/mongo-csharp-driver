@@ -85,22 +85,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 IBsonSerializer serializer;
                 if (arguments.Count == 1)
                 {
-                    if (sourceItemSerializer is IWrappedValueSerializer wrappedValueSerializer)
-                    {
-                        var itemVar = AstExpression.Var("item");
-                        var unwrappedItemAst = AstExpression.GetField(itemVar, wrappedValueSerializer.FieldName);
-                        ast = AstExpression.Sum(
-                            AstExpression.Map(
-                                input: sourceTranslation.Ast,
-                                @as: itemVar,
-                                @in: unwrappedItemAst));
-                        serializer = wrappedValueSerializer.ValueSerializer;
-                    }
-                    else
-                    {
-                        ast = AstExpression.Sum(sourceTranslation.Ast);
-                        serializer = sourceItemSerializer;
-                    }
+                    ast = ExpressionToAggregationExpressionTranslatorHelper.CreateAggregationAstWithUnwrapping(
+                        sourceTranslation,
+                        sourceItemSerializer,
+                        AstExpression.Sum,
+                        out var unwrappedSerializer);
+
+                    serializer = unwrappedSerializer ?? sourceItemSerializer;
                 }
                 else
                 {

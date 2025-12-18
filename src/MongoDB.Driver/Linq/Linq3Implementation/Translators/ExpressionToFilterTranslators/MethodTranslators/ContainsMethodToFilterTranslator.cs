@@ -131,20 +131,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 return false;
             }
 
+            var dictionaryExpression = memberExpression.Expression;
+
             switch (memberName)
             {
                 case "Keys":
-                {
-                    var dictionaryExpression = memberExpression.Expression;
                     filter = ContainsKeyMethodToFilterTranslator.TranslateContainsKey(context, expression, dictionaryExpression, itemExpression);
                     return true;
-                }
                 case "Values":
-                {
-                    var dictionaryExpression = memberExpression.Expression;
                     filter = ContainsValueMethodToFilterTranslator.TranslateContainsValue(context, expression, dictionaryExpression, itemExpression);
                     return true;
-                }
                 default:
                     return false;
             }

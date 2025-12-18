@@ -287,8 +287,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
         private static bool TryTranslateKeyValuePairProperty(MemberExpression expression, TranslatedExpression container, MemberInfo memberInfo, out TranslatedExpression result)
         {
-            result = null;
-
             if (container.Expression.Type.IsGenericType &&
                 container.Expression.Type.GetGenericTypeDefinition() == typeof(KeyValuePair<,>) &&
                 container.Serializer is IKeyValuePairSerializerV2 { Representation: BsonType.Array } kvpSerializer)
@@ -313,6 +311,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 return true;
             }
 
+            result = null;
             return false;
         }
     }

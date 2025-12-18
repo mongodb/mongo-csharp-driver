@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 
                 if (fieldTranslation.Serializer is IBsonDictionarySerializer { DictionaryRepresentation: DictionaryRepresentation.Document })
                 {
-                    throw new ExpressionNotSupportedException(expression);
+                    throw new ExpressionNotSupportedException(expression, because: "dictionary is represented as a document");
                 }
 
                 if (method.IsOneOf(EnumerableMethod.All, EnumerableMethod.AnyWithPredicate, ArrayMethod.Exists) || ListMethod.IsExistsMethod(method))

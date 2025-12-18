@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 
             if (!TryConvertSizeExpressionToBsonValue(sizeExpression, out var size))
             {
-                throw new ExpressionNotSupportedException(expression);
+                throw new ExpressionNotSupportedException(expression, because: "size is not an integer constant");
             }
 
             // Handle dictionary document representation for simple empty/not-empty checks
@@ -82,9 +82,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                     case AstComparisonFilterOperator.Ne when sizeValue == 0:
                         return AstFilter.Ne(fieldTranslation.Ast, new BsonDocument());
 
-                    // Check for "empty" patterns: Count == 0, Count <= 0, Count < 1
+                    // Check for "empty" patterns: Count == 0, Count < 1
                     case AstComparisonFilterOperator.Eq when sizeValue == 0:
-                    case AstComparisonFilterOperator.Lte when sizeValue == 0:
                     case AstComparisonFilterOperator.Lt when sizeValue == 1:
                         return AstFilter.Eq(fieldTranslation.Ast, new BsonDocument());
                 }

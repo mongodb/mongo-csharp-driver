@@ -47,24 +47,20 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             var dictionarySerializer = GetDictionarySerializer(expression, fieldTranslation);
             var dictionaryRepresentation = dictionarySerializer.DictionaryRepresentation;
 
+            var key = GetKeyStringConstant(expression, keyExpression, dictionarySerializer.KeySerializer);
+
             switch (dictionaryRepresentation)
             {
                 case DictionaryRepresentation.Document:
-                    {
-                        var key = GetKeyStringConstant(expression, keyExpression, dictionarySerializer.KeySerializer);
-                        var keyField = fieldTranslation.Ast.SubField(key);
-                        return AstFilter.Exists(keyField);
-                    }
+                    var keyField = fieldTranslation.Ast.SubField(key);
+                    return AstFilter.Exists(keyField);
 
                 case DictionaryRepresentation.ArrayOfDocuments:
                 case DictionaryRepresentation.ArrayOfArrays:
-                    {
-                        var key = GetKeyStringConstant(expression, keyExpression, dictionarySerializer.KeySerializer);
-                        var fieldName = dictionaryRepresentation == DictionaryRepresentation.ArrayOfDocuments ? "k" : "0";
-                        var keyField = AstFilter.Field(fieldName);
-                        var keyMatchFilter = AstFilter.Eq(keyField, key);
-                        return AstFilter.ElemMatch(fieldTranslation.Ast, keyMatchFilter);
-                    }
+                    var fieldName = dictionaryRepresentation == DictionaryRepresentation.ArrayOfDocuments ? "k" : "0";
+                    var keyFieldInArray = AstFilter.Field(fieldName);
+                    var keyMatchFilter = AstFilter.Eq(keyFieldInArray, key);
+                    return AstFilter.ElemMatch(fieldTranslation.Ast, keyMatchFilter);
 
                 default:
                     throw new ExpressionNotSupportedException(expression, because: $"DictionaryRepresentation: {dictionaryRepresentation} is not supported for ContainsKey method.");
