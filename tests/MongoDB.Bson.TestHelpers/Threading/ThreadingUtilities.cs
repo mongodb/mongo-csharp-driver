@@ -102,6 +102,7 @@ namespace MongoDB.Bson.TestHelpers
                         throw new TimeoutException();
                     }
 
+                    await Task.Yield();
                     await action(i);
                 }
                 catch (Exception ex)

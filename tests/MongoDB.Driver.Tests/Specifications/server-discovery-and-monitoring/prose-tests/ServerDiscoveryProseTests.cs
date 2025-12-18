@@ -125,12 +125,10 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring.pr
                 var collection = client.GetDatabase("test").GetCollection<BsonDocument>("test");
                 collection.InsertOne(new BsonDocument());
 
-                _ = await ThreadingUtilities.ExecuteTasksOnNewThreadsCollectExceptions(100, async i =>
-                {
-                    await Task.Yield();
-                    var filter = "{ $where : \"function() { sleep(2000); return true; }\" }";
-                    _ = async ? await collection.FindAsync(filter) : collection.FindSync(filter);
-                }, Timeout.Infinite);
+                var filter = "{ $where : \"function() { sleep(2000); return true; }\" }";
+                _ = await ThreadingUtilities.ExecuteTasksOnNewThreadsCollectExceptions(
+                    100,
+                    _ => async ? collection.FindAsync(filter) : Task.FromResult(collection.FindSync(filter)), Timeout.Infinite);
 
                 eventCapturer.Events.Count(e => e is ConnectionPoolCheckingOutConnectionFailedEvent).Should().BeGreaterOrEqualTo(10);
                 eventCapturer.Events.Should().NotContain(e => e is ConnectionPoolClearedEvent);
