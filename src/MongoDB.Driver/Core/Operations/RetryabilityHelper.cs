@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Core.Operations
         private const string RetryableWriteErrorLabel = "RetryableWriteError";
 
         // private static fields
+        private static readonly Random __backoffRandom = new Random();
         private static readonly HashSet<ServerErrorCode> __resumableChangeStreamErrorCodes;
         private static readonly HashSet<Type> __resumableChangeStreamExceptions;
         private static readonly HashSet<Type> __retryableReadExceptions;
@@ -106,6 +107,17 @@ namespace MongoDB.Driver.Core.Operations
             {
                 exception.AddErrorLabel(RetryableWriteErrorLabel);
             }
+        }
+
+        public static int GetRetryDelayMs(int attempt, double backoffBase = 2, int backoffInitial = 100, int backoffMax = 10_000)
+        {
+            Ensure.IsGreaterThanZero(attempt, nameof(attempt));
+            Ensure.IsGreaterThanZero(backoffBase, nameof(backoffBase));
+            Ensure.IsGreaterThanZero(backoffInitial, nameof(backoffInitial));
+            Ensure.IsGreaterThan(backoffMax, backoffInitial, nameof(backoffMax));
+
+            var j = __backoffRandom.NextDouble();
+            return (int)(j * Math.Min(backoffMax, backoffInitial * Math.Pow(backoffBase, attempt - 1)));
         }
 
         public static bool IsCommandRetryable(BsonDocument command)
