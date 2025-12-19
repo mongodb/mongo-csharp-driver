@@ -23,6 +23,8 @@ namespace MongoDB.Benchmarks.SingleDoc;
 [BenchmarkCategory("RunBench")]
 public class RunCommandBenchmark
 {
+    private const int Iterations = 10_000;
+
     private IMongoClient _client;
     private IMongoDatabase _database;
 
@@ -39,9 +41,9 @@ public class RunCommandBenchmark
     [Benchmark]
     public void RunCommand()
     {
-        for (int i = 0; i < 10000; i++)
+        for (int i = 0; i < Iterations; i++)
         {
-            _database.RunCommand<BsonDocument>(new BsonDocument("hello", true));
+            _ = _database.RunCommand<BsonDocument>(new BsonDocument("hello", true));
         }
     }
 

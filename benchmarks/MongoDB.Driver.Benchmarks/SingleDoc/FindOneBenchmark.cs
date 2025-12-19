@@ -33,7 +33,6 @@ public class FindOneBenchmark
     private IMongoCollection<BsonDocument> _collection;
     private IMongoCollection<Tweet> _collectionPoco;
     private BsonDocument _tweetDocument;
-    private Tweet _tweetDocumentPoco;
 
     [Params(16_220_000)]
     public int BenchmarkDataSetSize { get; set; } // used in BenchmarkResult.cs
@@ -43,11 +42,9 @@ public class FindOneBenchmark
     {
         _client = MongoConfiguration.CreateClient();
         var db = _client.GetDatabase(MongoConfiguration.PerfTestDatabaseName);
-        db.DropCollection(MongoConfiguration.PerfTestCollectionName);
         _collection = db.GetCollection<BsonDocument>(MongoConfiguration.PerfTestCollectionName);
         _collectionPoco = db.GetCollection<Tweet>(MongoConfiguration.PerfTestCollectionName);
         _tweetDocument = ReadExtendedJson("single_and_multi_document/tweet.json");
-        _tweetDocumentPoco = BsonSerializer.Deserialize<Tweet>(_tweetDocument);
 
         PopulateCollection();
     }

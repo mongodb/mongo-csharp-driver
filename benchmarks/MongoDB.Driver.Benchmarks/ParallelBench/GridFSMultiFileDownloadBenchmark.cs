@@ -57,7 +57,7 @@ public class GridFSMultiFileDownloadBenchmark
     [Benchmark]
     public void GridFsMultiDownload()
     {
-        ThreadingUtilities.ExecuteOnNewThreads(16, _ =>
+        ThreadingUtilities.ExecuteOnNewThreads(16, __ =>
         {
             while (_filesToDownload.TryDequeue(out var fileToDownloadInfo))
             {
@@ -87,7 +87,7 @@ public class GridFSMultiFileDownloadBenchmark
             var resourcePath = $"{DataFolderPath}parallel/gridfs_multi/{filename}";
 
             using var file = File.Open(resourcePath, FileMode.Open);
-            _gridFsBucket.UploadFromStream(filename, file);
+            _ = _gridFsBucket.UploadFromStream(filename, file);
         }
     }
 }

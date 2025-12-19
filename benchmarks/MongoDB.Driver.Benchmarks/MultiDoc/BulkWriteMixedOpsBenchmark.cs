@@ -89,25 +89,25 @@ public class BulkWriteMixedOpsBenchmark
     [Benchmark]
     public void SmallDocCollectionBulkWriteMixedOpsBenchmark()
     {
-        _collection.BulkWrite(_collectionBulkWriteMixedOpsModels, new());
+        _ = _collection.BulkWrite(_collectionBulkWriteMixedOpsModels, new());
     }
 
     [Benchmark]
     public void SmallDocCollectionBulkWriteMixedOpsPocoBenchmark()
     {
-        _collectionPoco.BulkWrite(_collectionBulkWriteMixedOpsPocoModels, new());
+        _ = _collectionPoco.BulkWrite(_collectionBulkWriteMixedOpsPocoModels, new());
     }
 
     [Benchmark]
     public void SmallDocClientBulkWriteMixedOpsBenchmark()
     {
-        _client.BulkWrite(_clientBulkWriteMixedOpsModels, new());
+        _ = _client.BulkWrite(_clientBulkWriteMixedOpsModels, new());
     }
 
     [Benchmark]
     public void SmallDocClientBulkWriteMixedOpsPocoBenchmark()
     {
-        _client.BulkWrite(_clientBulkWriteMixedOpsPocoModels, new());
+        _ = _client.BulkWrite(_clientBulkWriteMixedOpsPocoModels, new());
     }
 
     [GlobalCleanup]

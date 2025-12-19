@@ -44,7 +44,7 @@ public class GridFsDownloadBenchmark
     [Benchmark]
     public void GridFsDownload()
     {
-        _gridFsBucket.DownloadAsBytes(_fileId);
+        _ = _gridFsBucket.DownloadAsBytes(_fileId);
     }
 
     [GlobalCleanup]

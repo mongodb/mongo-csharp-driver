@@ -66,13 +66,13 @@ public class LargeDocBulkInsertBenchmark
     [Benchmark]
     public void LargeDocCollectionBulkWriteInsertBenchmark()
     {
-        _collection.BulkWrite(_collectionBulkWriteInsertModels, new());
+        _ = _collection.BulkWrite(_collectionBulkWriteInsertModels, new());
     }
 
     [Benchmark]
     public void LargeDocClientBulkWriteInsertBenchmark()
     {
-        _client.BulkWrite(_clientBulkWriteInsertModels, new());
+        _ = _client.BulkWrite(_clientBulkWriteInsertModels, new());
     }
 
     [GlobalCleanup]

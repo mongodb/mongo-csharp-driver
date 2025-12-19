@@ -54,7 +54,7 @@ public class GridFSMultiFileUploadBenchmark
     [Benchmark]
     public void GridFsMultiUpload()
     {
-        ThreadingUtilities.ExecuteOnNewThreads(16, _ =>
+        ThreadingUtilities.ExecuteOnNewThreads(16, __ =>
         {
             while (_filesToUpload.TryDequeue(out var filesToUploadInfo))
             {
@@ -62,7 +62,7 @@ public class GridFSMultiFileUploadBenchmark
                 var resourcePath = filesToUploadInfo.Item1;
 
                 using var file = File.Open(resourcePath, FileMode.Open);
-                _gridFsBucket.UploadFromStream(filename, file);
+                _ = _gridFsBucket.UploadFromStream(filename, file);
             }
         });
     }

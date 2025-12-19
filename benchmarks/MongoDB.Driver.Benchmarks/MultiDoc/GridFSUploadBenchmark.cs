@@ -44,13 +44,13 @@ public class GridFsUploadBenchmark
     public void BeforeTask()
     {
         _gridFsBucket.Drop();
-        _gridFsBucket.UploadFromBytes("smallfile", new byte[1]);
+        _ = _gridFsBucket.UploadFromBytes("smallfile", new byte[1]);
     }
 
     [Benchmark]
     public void GridFsUpload()
     {
-        _gridFsBucket.UploadFromBytes("gridfstest", _fileBytes);
+        _ = _gridFsBucket.UploadFromBytes("gridfstest", _fileBytes);
     }
 
     [GlobalCleanup]

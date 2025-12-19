@@ -98,11 +98,11 @@ public class LibmongocryptBindingBenchmark
     [Benchmark]
     public void BulkDecryptionUsingBinding()
     {
-        ThreadingUtilities.ExecuteOnNewThreads(ThreadsCount, _ =>
+        ThreadingUtilities.ExecuteOnNewThreads(ThreadsCount, __ =>
         {
             for (int i = 0; i < RepeatCount; i++)
             {
-                _libMongoCryptController.DecryptFields(_encryptedValuesDocumentBytes, CancellationToken.None);
+                _ = _libMongoCryptController.DecryptFields(_encryptedValuesDocumentBytes, CancellationToken.None);
             }
         }, 20000);
     }
