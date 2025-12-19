@@ -34,5 +34,16 @@ namespace MongoDB.Driver.Core.Misc
 
             return random.Next(maxValue);
         }
+
+        public static double NextDouble()
+        {
+            var random = __threadStaticRandom;
+            if (random == null)
+            {
+                random = __threadStaticRandom = new Random();
+            }
+
+            return random.NextDouble();
+        }
     }
 }

@@ -118,7 +118,7 @@ namespace MongoDB.Driver.Core.Operations
 #if NET6_0_OR_GREATER
             var j = Random.Shared.NextDouble();
 #else
-            var j = (new Random()).NextDouble();
+            var j = ThreadStaticRandom.NextDouble();
 #endif
             return (int)(j * Math.Min(backoffMax, backoffInitial * Math.Pow(backoffBase, attempt - 1)));
         }
