@@ -126,14 +126,14 @@ tests:
             commandSucceededEvent:
               reply:
                 cursor:
-                  id: { $$type: long }
+                  id: { $$type: [ int, long ] }
                   firstBatch: { $$type: array }
                   ns: { $$type: string }
               commandName: find
           - &getMoreStarted
             commandStartedEvent:
               command:
-                getMore: { $$type: long }
+                getMore: { $$type: [ int, long ] }
                 collection: *collection0Name
               commandName: getMore
           - &getMoreSucceeded
@@ -386,7 +386,7 @@ tests:
           # is not equal to *collection0Name as the command is not executed against a collection.
           - commandStartedEvent:
               command:
-                getMore: { $$type: long }
+                getMore: { $$type: [ int, long ] }
                 collection: { $$type: string }
               commandName: getMore
           - *getMoreSucceeded
