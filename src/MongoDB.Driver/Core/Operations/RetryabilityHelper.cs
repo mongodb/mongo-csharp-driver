@@ -30,7 +30,6 @@ namespace MongoDB.Driver.Core.Operations
         private const string RetryableWriteErrorLabel = "RetryableWriteError";
 
         // private static fields
-        private static readonly Random __backoffRandom = new Random();
         private static readonly HashSet<ServerErrorCode> __resumableChangeStreamErrorCodes;
         private static readonly HashSet<Type> __resumableChangeStreamExceptions;
         private static readonly HashSet<Type> __retryableReadExceptions;
@@ -116,7 +115,11 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsGreaterThanZero(backoffInitial, nameof(backoffInitial));
             Ensure.IsGreaterThan(backoffMax, backoffInitial, nameof(backoffMax));
 
-            var j = __backoffRandom.NextDouble();
+#if NET6_0_OR_GREATER
+            var j = Random.Shared.NextDouble();
+#else
+            var j = (new Random()).NextDouble();
+#endif
             return (int)(j * Math.Min(backoffMax, backoffInitial * Math.Pow(backoffBase, attempt - 1)));
         }
 
