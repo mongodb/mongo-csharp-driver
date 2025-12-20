@@ -131,7 +131,7 @@ namespace MongoDB.Driver
                 return operationContext.Elapsed + delay >= operationContext.Timeout;
             }
 
-            return operationContext.RootContext.Elapsed + delay > __transactionTimeout;
+            return operationContext.RootContext.Elapsed + delay >= __transactionTimeout;
         }
 
         private static TResult ExecuteCallback<TResult>(OperationContext operationContext, IClientSessionHandle clientSession, Func<IClientSessionHandle, CancellationToken, TResult> callback, CancellationToken cancellationToken)
