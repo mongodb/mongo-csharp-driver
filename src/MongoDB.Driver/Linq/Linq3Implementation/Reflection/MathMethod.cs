@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
@@ -58,9 +59,20 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __truncateDecimal;
         private static readonly MethodInfo __truncateDouble;
 
+        // sets of methods
+        private static readonly HashSet<MethodInfo> __absOverloads;
+        private static readonly HashSet<MethodInfo> __logOverloads;
+        private static readonly HashSet<MethodInfo> __trigonometricMethods;
+
         // static constructor
         static MathMethod()
         {
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+            __acosh = ReflectionInfo.Method((double d) => Math.Acosh(d));
+            __asinh = ReflectionInfo.Method((double d) => Math.Asinh(d));
+            __atanh = ReflectionInfo.Method((double d) => Math.Atanh(d));
+#endif
+
             __absDecimal = ReflectionInfo.Method((decimal value) => Math.Abs(value));
             __absDouble = ReflectionInfo.Method((double value) => Math.Abs(value));
             __absInt16 = ReflectionInfo.Method((short value) => Math.Abs(value));
@@ -69,18 +81,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __absSByte = ReflectionInfo.Method((sbyte value) => Math.Abs(value));
             __absSingle = ReflectionInfo.Method((float value) => Math.Abs(value));
             __acos = ReflectionInfo.Method((double d) => Math.Acos(d));
-#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
-            __acosh = ReflectionInfo.Method((double d) => Math.Acosh(d));
-#endif
             __asin = ReflectionInfo.Method((double d) => Math.Asin(d));
-#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
-            __asinh = ReflectionInfo.Method((double d) => Math.Asinh(d));
-#endif
             __atan = ReflectionInfo.Method((double d) => Math.Atan(d));
             __atan2 = ReflectionInfo.Method((double x, double y) => Math.Atan2(x, y));
-#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
-            __atanh = ReflectionInfo.Method((double d) => Math.Atanh(d));
-#endif
             __ceilingWithDecimal = ReflectionInfo.Method((decimal d) => Math.Ceiling(d));
             __ceilingWithDouble = ReflectionInfo.Method((double a) => Math.Ceiling(a));
             __cos = ReflectionInfo.Method((double d) => Math.Cos(d));
@@ -103,6 +106,42 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __tanh = ReflectionInfo.Method((double a) => Math.Tanh(a));
             __truncateDecimal = ReflectionInfo.Method((decimal d) => Math.Truncate(d));
             __truncateDouble = ReflectionInfo.Method((double d) => Math.Truncate(d));
+
+            // sets of methods
+            __absOverloads =
+            [
+                __absDecimal,
+                __absDouble,
+                __absInt16,
+                __absInt32,
+                __absInt64,
+                __absSByte,
+                __absSingle
+            ];
+
+            __logOverloads =
+            [
+                __log,
+                __log10, // it's convenient to treat Log10 as if it was an overload
+                __logWithNewBase
+            ];
+
+            __trigonometricMethods =
+            [
+                __acos,
+                __acosh,
+                __asin,
+                __asinh,
+                __atan,
+                __atanh,
+                __atan2,
+                __cos,
+                __cosh,
+                __sin,
+                __sinh,
+                __tan,
+                __tanh
+            ];
         }
 
         // public properties
@@ -142,5 +181,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo Tanh => __tanh;
         public static MethodInfo TruncateDecimal => __truncateDecimal;
         public static MethodInfo TruncateDouble => __truncateDouble;
+
+        // sets of methods
+        public static HashSet<MethodInfo> AbsOverloads => __absOverloads;
+        public static HashSet<MethodInfo> LogOverloads => __logOverloads;
+        public static HashSet<MethodInfo> TrigonometricMethods => __trigonometricMethods;
     }
 }

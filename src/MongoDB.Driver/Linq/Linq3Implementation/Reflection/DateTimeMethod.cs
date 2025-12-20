@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
@@ -61,6 +62,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __week;
         private static readonly MethodInfo __weekWithTimezone;
 
+        // sets of methods
+        private static readonly HashSet<MethodInfo> __addOrSubtractOverloads;
+        private static readonly HashSet<MethodInfo> __addOrSubtractWithTimeSpanOverloads;
+        private static readonly HashSet<MethodInfo> __addOrSubtractWithTimezoneOverloads;
+        private static readonly HashSet<MethodInfo> __addOrSubtractWithUnitOverloads;
+        private static readonly HashSet<MethodInfo> __subtractReturningDateTimeOverloads;
+        private static readonly HashSet<MethodInfo> __subtractReturningInt64Overloads;
+        private static readonly HashSet<MethodInfo> __subtractReturningTimeSpanWithMillisecondsUnitsOverloads;
+
         // static constructor
         static DateTimeMethod()
         {
@@ -103,6 +113,91 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __truncateWithBinSizeAndTimezone = ReflectionInfo.Method((DateTime @this, DateTimeUnit unit, long binSize, string timezone) => @this.Truncate(unit, binSize, timezone));
             __week = ReflectionInfo.Method((DateTime @this) => @this.Week());
             __weekWithTimezone = ReflectionInfo.Method((DateTime @this, string timezone) => @this.Week(timezone));
+
+            // initialize sets of methods after individual methods
+            __addOrSubtractOverloads =
+            [
+                __add,
+                __addDays,
+                __addDaysWithTimezone,
+                __addHours,
+                __addHoursWithTimezone,
+                __addMilliseconds,
+                __addMillisecondsWithTimezone,
+                __addMinutes,
+                __addMinutesWithTimezone,
+                __addMonths,
+                __addMonthsWithTimezone,
+                __addQuarters,
+                __addQuartersWithTimezone,
+                __addSeconds,
+                __addSecondsWithTimezone,
+                __addTicks,
+                __addWeeks,
+                __addWeeksWithTimezone,
+                __addWithTimezone,
+                __addWithUnit,
+                __addWithUnitAndTimezone,
+                __addYears,
+                __addYearsWithTimezone,
+                __subtractWithTimeSpan,
+                __subtractWithTimeSpanAndTimezone,
+                __subtractWithUnit,
+                __subtractWithUnitAndTimezone
+            ];
+
+            __addOrSubtractWithTimeSpanOverloads =
+            [
+                __add,
+                __addWithTimezone,
+                __subtractWithTimeSpan,
+                __subtractWithTimeSpanAndTimezone
+            ];
+
+            __addOrSubtractWithTimezoneOverloads =
+            [
+                __addDaysWithTimezone,
+                __addHoursWithTimezone,
+                __addMillisecondsWithTimezone,
+                __addMinutesWithTimezone,
+                __addMonthsWithTimezone,
+                __addQuartersWithTimezone,
+                __addSecondsWithTimezone,
+                __addWeeksWithTimezone,
+                __addWithTimezone,
+                __addWithUnitAndTimezone,
+                __addYearsWithTimezone,
+                __subtractWithTimeSpanAndTimezone,
+                __subtractWithUnitAndTimezone
+            ];
+
+            __addOrSubtractWithUnitOverloads =
+            [
+                __addWithUnit,
+                __addWithUnitAndTimezone,
+                __subtractWithUnit,
+                __subtractWithUnitAndTimezone
+            ];
+
+            __subtractReturningDateTimeOverloads =
+            [
+                __subtractWithTimeSpan,
+                __subtractWithTimeSpanAndTimezone,
+                __subtractWithUnit,
+                __subtractWithUnitAndTimezone
+            ];
+
+            __subtractReturningInt64Overloads =
+            [
+                __subtractWithDateTimeAndUnit,
+                __subtractWithDateTimeAndUnitAndTimezone
+            ];
+
+            __subtractReturningTimeSpanWithMillisecondsUnitsOverloads =
+            [
+                __subtractWithDateTime,
+                __subtractWithDateTimeAndTimezone
+            ];
         }
 
         // public properties
@@ -145,5 +240,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo TruncateWithBinSizeAndTimezone => __truncateWithBinSizeAndTimezone;
         public static MethodInfo Week => __week;
         public static MethodInfo WeekWithTimezone => __weekWithTimezone;
+
+        // sets of methods
+        public static HashSet<MethodInfo> AddOrSubtractOverloads => __addOrSubtractOverloads;
+        public static HashSet<MethodInfo> AddOrSubtractWithTimeSpanOverloads => __addOrSubtractWithTimeSpanOverloads;
+        public static HashSet<MethodInfo> AddOrSubtractWithTimezoneOverloads => __addOrSubtractWithTimezoneOverloads;
+        public static HashSet<MethodInfo> AddOrSubtractWithUnitOverloads => __addOrSubtractWithUnitOverloads;
+        public static HashSet<MethodInfo> SubtractReturningDateTimeOverloads => __subtractReturningDateTimeOverloads;
+        public static HashSet<MethodInfo> SubtractReturningInt64Overloads => __subtractReturningInt64Overloads;
+        public static HashSet<MethodInfo> SubtractReturningTimeSpanWithMillisecondsUnitsOverloads => __subtractReturningTimeSpanWithMillisecondsUnitsOverloads;
     }
 }

@@ -20,24 +20,24 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers
 {
-    internal interface IEnumUnderlyingTypeSerializer
+    internal interface IAsEnumUnderlyingTypeSerializer
     {
         IBsonSerializer EnumSerializer { get; }
     }
 
-    internal class EnumUnderlyingTypeSerializer<TEnum, TEnumUnderlyingType> : StructSerializerBase<TEnumUnderlyingType>, IEnumUnderlyingTypeSerializer
+    internal class AsEnumUnderlyingTypeSerializer<TEnum, TUnderlyingType> : StructSerializerBase<TUnderlyingType>, IAsEnumUnderlyingTypeSerializer
         where TEnum : Enum
-        where TEnumUnderlyingType : struct
+        where TUnderlyingType : struct
     {
         // private fields
         private readonly IBsonSerializer<TEnum> _enumSerializer;
 
         // constructors
-        public EnumUnderlyingTypeSerializer(IBsonSerializer<TEnum> enumSerializer)
+        public AsEnumUnderlyingTypeSerializer(IBsonSerializer<TEnum> enumSerializer)
         {
-            if (typeof(TEnumUnderlyingType) != Enum.GetUnderlyingType(typeof(TEnum)))
+            if (typeof(TUnderlyingType) != Enum.GetUnderlyingType(typeof(TEnum)))
             {
-                throw new ArgumentException($"{typeof(TEnumUnderlyingType).FullName} is not the underlying type of {typeof(TEnum).FullName}.");
+                throw new ArgumentException($"{typeof(TUnderlyingType).FullName} is not the underlying type of {typeof(TEnum).FullName}.");
             }
             _enumSerializer = Ensure.IsNotNull(enumSerializer, nameof(enumSerializer));
         }
@@ -46,13 +46,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers
         public IBsonSerializer<TEnum> EnumSerializer => _enumSerializer;
 
         // explicitly implemented properties
-        IBsonSerializer IEnumUnderlyingTypeSerializer.EnumSerializer => EnumSerializer;
+        IBsonSerializer IAsEnumUnderlyingTypeSerializer.EnumSerializer => EnumSerializer;
 
         // public methods
-        public override TEnumUnderlyingType Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
+        public override TUnderlyingType Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var enumValue = _enumSerializer.Deserialize(context);
-            return (TEnumUnderlyingType)(object)enumValue;
+            return (TUnderlyingType)(object)enumValue;
         }
 
         /// <inheritdoc/>
@@ -62,28 +62,28 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers
             if (object.ReferenceEquals(this, obj)) { return true; }
             return
                 base.Equals(obj) &&
-                obj is EnumUnderlyingTypeSerializer<TEnum, TEnumUnderlyingType> other &&
+                obj is AsEnumUnderlyingTypeSerializer<TEnum, TUnderlyingType> other &&
                 object.Equals(_enumSerializer, other._enumSerializer);
         }
 
         /// <inheritdoc/>
         public override int GetHashCode() => _enumSerializer.GetHashCode();
 
-        public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TEnumUnderlyingType value)
+        public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TUnderlyingType value)
         {
             var enumValue = (TEnum)(object)value;
             _enumSerializer.Serialize(context, enumValue);
         }
     }
 
-    internal static class EnumUnderlyingTypeSerializer
+    internal static class AsEnumUnderlyingTypeSerializer
     {
         public static IBsonSerializer Create(IBsonSerializer enumSerializer)
         {
             var enumType = enumSerializer.ValueType;
             var underlyingType = Enum.GetUnderlyingType(enumType);
-            var enumUnderlyingTypeSerializerType = typeof(EnumUnderlyingTypeSerializer<,>).MakeGenericType(enumType, underlyingType);
-            return (IBsonSerializer)Activator.CreateInstance(enumUnderlyingTypeSerializerType, enumSerializer);
+            var asEnumUnderlyingTypeSerializerType = typeof(AsEnumUnderlyingTypeSerializer<,>).MakeGenericType(enumType, underlyingType);
+            return (IBsonSerializer)Activator.CreateInstance(asEnumUnderlyingTypeSerializerType, enumSerializer);
         }
     }
 }

@@ -31,8 +31,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_with_byte_arguments()
         {
-            var (parameter, expression) = CreateExpression((C c) => c.Byte % 2 == 1);
-            var context = CreateContext(parameter);
+            var (lambdaExpression, expression) = CreateExpression((C c) => c.Byte % 2 == 1);
+            var context = CreateContext(lambdaExpression);
             var canTranslate = ModuloComparisonExpressionToFilterTranslator.CanTranslate(expression.Left, expression.Right, out var moduloExpression, out var remainderExpression);
             canTranslate.Should().BeTrue();
 
@@ -44,8 +44,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_with_decimal_arguments()
         {
-            var (parameter, expression) = CreateExpression((C c) => c.Decimal % 2 == 1);
-            var context = CreateContext(parameter);
+            var (lambdaExpression, expression) = CreateExpression((C c) => c.Decimal % 2 == 1);
+            var context = CreateContext(lambdaExpression);
             var canTranslate = ModuloComparisonExpressionToFilterTranslator.CanTranslate(expression.Left, expression.Right, out var moduloExpression, out var remainderExpression);
             canTranslate.Should().BeTrue();
 
@@ -57,8 +57,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_with_double_arguments()
         {
-            var (parameter, expression) = CreateExpression((C c) => c.Double % 2 == 1);
-            var context = CreateContext(parameter);
+            var (lambdaExpression, expression) = CreateExpression((C c) => c.Double % 2 == 1);
+            var context = CreateContext(lambdaExpression);
             var canTranslate = ModuloComparisonExpressionToFilterTranslator.CanTranslate(expression.Left, expression.Right, out var moduloExpression, out var remainderExpression);
             canTranslate.Should().BeTrue();
 
@@ -70,8 +70,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_with_float_arguments()
         {
-            var (parameter, expression) = CreateExpression((C c) => c.Float % 2 == 1);
-            var context = CreateContext(parameter);
+            var (lambdaExpression, expression) = CreateExpression((C c) => c.Float % 2 == 1);
+            var context = CreateContext(lambdaExpression);
             var canTranslate = ModuloComparisonExpressionToFilterTranslator.CanTranslate(expression.Left, expression.Right, out var moduloExpression, out var remainderExpression);
             canTranslate.Should().BeTrue();
 
@@ -83,8 +83,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_with_int16_arguments()
         {
-            var (parameter, expression) = CreateExpression((C c) => c.Int16 % 2 == 1);
-            var context = CreateContext(parameter);
+            var (lambdaExpression, expression) = CreateExpression((C c) => c.Int16 % 2 == 1);
+            var context = CreateContext(lambdaExpression);
             var canTranslate = ModuloComparisonExpressionToFilterTranslator.CanTranslate(expression.Left, expression.Right, out var moduloExpression, out var remainderExpression);
             canTranslate.Should().BeTrue();
 
@@ -96,8 +96,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_with_int32_arguments()
         {
-            var (parameter, expression) = CreateExpression((C c) => c.Int32 % 2 == 1);
-            var context = CreateContext(parameter);
+            var (lambdaExpression, expression) = CreateExpression((C c) => c.Int32 % 2 == 1);
+            var context = CreateContext(lambdaExpression);
             var canTranslate = ModuloComparisonExpressionToFilterTranslator.CanTranslate(expression.Left, expression.Right, out var moduloExpression, out var remainderExpression);
             canTranslate.Should().BeTrue();
 
@@ -109,8 +109,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_with_int64_arguments()
         {
-            var (parameter, expression) = CreateExpression((C c) => c.Int64 % 2 == 1);
-            var context = CreateContext(parameter);
+            var (lambdaExpression, expression) = CreateExpression((C c) => c.Int64 % 2 == 1);
+            var context = CreateContext(lambdaExpression);
             var canTranslate = ModuloComparisonExpressionToFilterTranslator.CanTranslate(expression.Left, expression.Right, out var moduloExpression, out var remainderExpression);
             canTranslate.Should().BeTrue();
 
@@ -122,8 +122,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_with_sbyte_arguments()
         {
-            var (parameter, expression) = CreateExpression((C c) => c.SByte % 2 == 1);
-            var context = CreateContext(parameter);
+            var (lambdaExpression, expression) = CreateExpression((C c) => c.SByte % 2 == 1);
+            var context = CreateContext(lambdaExpression);
             var canTranslate = ModuloComparisonExpressionToFilterTranslator.CanTranslate(expression.Left, expression.Right, out var moduloExpression, out var remainderExpression);
             canTranslate.Should().BeTrue();
 
@@ -135,8 +135,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_with_uint16_arguments()
         {
-            var (parameter, expression) = CreateExpression((C c) => c.UInt16 % 2 == 1);
-            var context = CreateContext(parameter);
+            var (lambdaExpression, expression) = CreateExpression((C c) => c.UInt16 % 2 == 1);
+            var context = CreateContext(lambdaExpression);
             var canTranslate = ModuloComparisonExpressionToFilterTranslator.CanTranslate(expression.Left, expression.Right, out var moduloExpression, out var remainderExpression);
             canTranslate.Should().BeTrue();
 
@@ -148,8 +148,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_with_uint32_arguments()
         {
-            var (parameter, expression) = CreateExpression((C c) => c.UInt32 % 2 == 1);
-            var context = CreateContext(parameter);
+            var (lambdaExpression, expression) = CreateExpression((C c) => c.UInt32 % 2 == 1);
+            var context = CreateContext(lambdaExpression);
             var canTranslate = ModuloComparisonExpressionToFilterTranslator.CanTranslate(expression.Left, expression.Right, out var moduloExpression, out var remainderExpression);
             canTranslate.Should().BeTrue();
 
@@ -161,8 +161,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_with_uint64_arguments()
         {
-            var (parameter, expression) = CreateExpression((C c) => c.UInt64 % 2 == 1);
-            var context = CreateContext(parameter);
+            var (lambdaExpression, expression) = CreateExpression((C c) => c.UInt64 % 2 == 1);
+            var context = CreateContext(lambdaExpression);
             var canTranslate = ModuloComparisonExpressionToFilterTranslator.CanTranslate(expression.Left, expression.Right, out var moduloExpression, out var remainderExpression);
             canTranslate.Should().BeTrue();
 
@@ -180,19 +180,19 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             modFilterOperation.Remainder.Should().Be(remainder);
         }
 
-        private TranslationContext CreateContext(ParameterExpression parameter)
+        private TranslationContext CreateContext(LambdaExpression lambda)
         {
+            var parameter = lambda.Parameters.Single();
             var serializer = BsonSerializer.LookupSerializer(parameter.Type);
-            var context = TranslationContext.Create(translationOptions: null);
+            var context = TranslationContext.Create(lambda, parameter, serializer, translationOptions: null);
             var symbol = context.CreateSymbol(parameter, serializer, isCurrent: true);
             return context.WithSymbol(symbol);
         }
 
-        private (ParameterExpression, BinaryExpression) CreateExpression<TField>(Expression<Func<TField, bool>> lambda)
+        private (LambdaExpression, BinaryExpression) CreateExpression<TField>(Expression<Func<TField, bool>> lambda)
         {
-            var parameter = lambda.Parameters.Single();
             var expression = (BinaryExpression)lambda.Body;
-            return (parameter, expression);
+            return (lambda, expression);
         }
 
         private class C
