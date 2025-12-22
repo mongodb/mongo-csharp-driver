@@ -108,6 +108,21 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
+        public static int GetRetryDelayMs(int attempt, double backoffBase = 2, int backoffInitial = 100, int backoffMax = 10_000)
+        {
+            Ensure.IsGreaterThanZero(attempt, nameof(attempt));
+            Ensure.IsGreaterThanZero(backoffBase, nameof(backoffBase));
+            Ensure.IsGreaterThanZero(backoffInitial, nameof(backoffInitial));
+            Ensure.IsGreaterThan(backoffMax, backoffInitial, nameof(backoffMax));
+
+#if NET6_0_OR_GREATER
+            var j = Random.Shared.NextDouble();
+#else
+            var j = ThreadStaticRandom.NextDouble();
+#endif
+            return (int)(j * Math.Min(backoffMax, backoffInitial * Math.Pow(backoffBase, attempt - 1)));
+        }
+
         public static bool IsCommandRetryable(BsonDocument command)
         {
             return
