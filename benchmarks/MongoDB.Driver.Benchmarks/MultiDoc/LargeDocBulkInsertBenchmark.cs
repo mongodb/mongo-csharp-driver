@@ -13,73 +13,71 @@
  * limitations under the License.
  */
 
-using System.Collections.Generic;
 using System.Linq;
 using BenchmarkDotNet.Attributes;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using static MongoDB.Benchmarks.BenchmarkHelper;
 
-namespace MongoDB.Benchmarks.MultiDoc
+namespace MongoDB.Benchmarks.MultiDoc;
+
+[IterationCount(100)]
+[BenchmarkCategory(DriverBenchmarkCategory.BulkWriteBench, DriverBenchmarkCategory.MultiBench, DriverBenchmarkCategory.WriteBench, DriverBenchmarkCategory.DriverBench)]
+public class LargeDocBulkInsertBenchmark
 {
-    [IterationCount(100)]
-    [BenchmarkCategory(DriverBenchmarkCategory.BulkWriteBench, DriverBenchmarkCategory.MultiBench, DriverBenchmarkCategory.WriteBench, DriverBenchmarkCategory.DriverBench)]
-    public class LargeDocBulkInsertBenchmark
+    private IMongoClient _client;
+    private IMongoCollection<BsonDocument> _collection;
+    private IMongoDatabase _database;
+    private BsonDocument[] _largeDocuments;
+    private InsertOneModel<BsonDocument>[] _collectionBulkWriteInsertModels;
+    private BulkWriteInsertOneModel<BsonDocument>[] _clientBulkWriteInsertModels;
+
+    private static readonly CollectionNamespace __collectionNamespace =
+        CollectionNamespace.FromFullName($"{MongoConfiguration.PerfTestDatabaseName}.{MongoConfiguration.PerfTestCollectionName}");
+
+    [Params(27_310_890)]
+    public int BenchmarkDataSetSize { get; set; } // used in BenchmarkResult.cs
+
+    [GlobalSetup]
+    public void Setup()
     {
-        private IMongoClient _client;
-        private IMongoCollection<BsonDocument> _collection;
-        private IMongoDatabase _database;
-        private BsonDocument[] _largeDocuments;
-        private InsertOneModel<BsonDocument>[] _collectionBulkWriteInsertModels;
-        private BulkWriteInsertOneModel<BsonDocument>[] _clientBulkWriteInsertModels;
+        _client = MongoConfiguration.CreateClient();
+        _database = _client.GetDatabase(MongoConfiguration.PerfTestDatabaseName);
 
-        private static readonly CollectionNamespace __collectionNamespace =
-            CollectionNamespace.FromFullName($"{MongoConfiguration.PerfTestDatabaseName}.{MongoConfiguration.PerfTestCollectionName}");
+        var largeDocument = ReadExtendedJson("single_and_multi_document/large_doc.json");
+        _largeDocuments = Enumerable.Range(0, 10).Select(_ => largeDocument.DeepClone().AsBsonDocument).ToArray();
+        _collectionBulkWriteInsertModels = _largeDocuments.Select(x => new InsertOneModel<BsonDocument>(x.DeepClone().AsBsonDocument)).ToArray();
+        _clientBulkWriteInsertModels = _largeDocuments.Select(x => new BulkWriteInsertOneModel<BsonDocument>(__collectionNamespace, x.DeepClone().AsBsonDocument)).ToArray();
+    }
 
-        [Params(27_310_890)]
-        public int BenchmarkDataSetSize { get; set; } // used in BenchmarkResult.cs
+    [IterationSetup]
+    public void BeforeTask()
+    {
+        _database.DropCollection(MongoConfiguration.PerfTestCollectionName);
+        _collection = _database.GetCollection<BsonDocument>(MongoConfiguration.PerfTestCollectionName);
+    }
 
-        [GlobalSetup]
-        public void Setup()
-        {
-            _client = MongoConfiguration.CreateClient();
-            _database = _client.GetDatabase(MongoConfiguration.PerfTestDatabaseName);
+    [Benchmark]
+    public void InsertManyLargeBenchmark()
+    {
+        _collection.InsertMany(_largeDocuments, new());
+    }
 
-            var largeDocument = ReadExtendedJson("single_and_multi_document/large_doc.json");
-            _largeDocuments = Enumerable.Range(0, 10).Select(_ => largeDocument.DeepClone().AsBsonDocument).ToArray();
-            _collectionBulkWriteInsertModels = _largeDocuments.Select(x => new InsertOneModel<BsonDocument>(x.DeepClone().AsBsonDocument)).ToArray();
-            _clientBulkWriteInsertModels = _largeDocuments.Select(x => new BulkWriteInsertOneModel<BsonDocument>(__collectionNamespace, x.DeepClone().AsBsonDocument)).ToArray();
-        }
+    [Benchmark]
+    public void LargeDocCollectionBulkWriteInsertBenchmark()
+    {
+        _ = _collection.BulkWrite(_collectionBulkWriteInsertModels, new());
+    }
 
-        [IterationSetup]
-        public void BeforeTask()
-        {
-            _database.DropCollection(MongoConfiguration.PerfTestCollectionName);
-            _collection = _database.GetCollection<BsonDocument>(MongoConfiguration.PerfTestCollectionName);
-        }
+    [Benchmark]
+    public void LargeDocClientBulkWriteInsertBenchmark()
+    {
+        _ = _client.BulkWrite(_clientBulkWriteInsertModels, new());
+    }
 
-        [Benchmark]
-        public void InsertManyLargeBenchmark()
-        {
-            _collection.InsertMany(_largeDocuments, new());
-        }
-
-        [Benchmark]
-        public void LargeDocCollectionBulkWriteInsertBenchmark()
-        {
-            _collection.BulkWrite(_collectionBulkWriteInsertModels, new());
-        }
-
-        [Benchmark]
-        public void LargeDocClientBulkWriteInsertBenchmark()
-        {
-            _client.BulkWrite(_clientBulkWriteInsertModels, new());
-        }
-
-        [GlobalCleanup]
-        public void Teardown()
-        {
-            _client.Dispose();
-        }
+    [GlobalCleanup]
+    public void Teardown()
+    {
+        _client.Dispose();
     }
 }

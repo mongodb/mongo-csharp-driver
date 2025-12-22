@@ -20,37 +20,36 @@ using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
 using static MongoDB.Benchmarks.BenchmarkHelper;
 
-namespace MongoDB.Benchmarks.MultiDoc
+namespace MongoDB.Benchmarks.MultiDoc;
+
+[IterationTime(3000)]
+[BenchmarkCategory(DriverBenchmarkCategory.MultiBench, DriverBenchmarkCategory.ReadBench, DriverBenchmarkCategory.DriverBench)]
+public class GridFsDownloadBenchmark
 {
-    [IterationTime(3000)]
-    [BenchmarkCategory(DriverBenchmarkCategory.MultiBench, DriverBenchmarkCategory.ReadBench, DriverBenchmarkCategory.DriverBench)]
-    public class GridFsDownloadBenchmark
+    private IMongoClient _client;
+    private ObjectId _fileId;
+    private GridFSBucket _gridFsBucket;
+
+    [Params(52_428_800)]
+    public int BenchmarkDataSetSize { get; set; } // used in BenchmarkResult.cs
+
+    [GlobalSetup]
+    public void Setup()
     {
-        private IMongoClient _client;
-        private ObjectId _fileId;
-        private GridFSBucket _gridFsBucket;
+        _client = MongoConfiguration.CreateClient();
+        _gridFsBucket = new GridFSBucket(_client.GetDatabase(MongoConfiguration.PerfTestDatabaseName));
+        _fileId = _gridFsBucket.UploadFromStream("gridfstest", File.OpenRead($"{DataFolderPath}single_and_multi_document/gridfs_large.bin"));
+    }
 
-        [Params(52_428_800)]
-        public int BenchmarkDataSetSize { get; set; } // used in BenchmarkResult.cs
+    [Benchmark]
+    public void GridFsDownload()
+    {
+        _ = _gridFsBucket.DownloadAsBytes(_fileId);
+    }
 
-        [GlobalSetup]
-        public void Setup()
-        {
-            _client = MongoConfiguration.CreateClient();
-            _gridFsBucket = new GridFSBucket(_client.GetDatabase(MongoConfiguration.PerfTestDatabaseName));
-            _fileId = _gridFsBucket.UploadFromStream("gridfstest", File.OpenRead($"{DataFolderPath}single_and_multi_document/gridfs_large.bin"));
-        }
-
-        [Benchmark]
-        public void GridFsDownload()
-        {
-            _gridFsBucket.DownloadAsBytes(_fileId);
-        }
-
-        [GlobalCleanup]
-        public void Teardown()
-        {
-            _client.Dispose();
-        }
+    [GlobalCleanup]
+    public void Teardown()
+    {
+        _client.Dispose();
     }
 }
