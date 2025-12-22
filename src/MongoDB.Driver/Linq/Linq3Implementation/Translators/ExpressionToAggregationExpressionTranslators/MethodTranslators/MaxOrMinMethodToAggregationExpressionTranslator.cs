@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using MongoDB.Bson.Serialization;
@@ -91,9 +92,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 IBsonSerializer serializer;
                 if (arguments.Count == 1)
                 {
-                    var array = sourceTranslation.Ast;
-                    ast = method.Name == "Max" ? AstExpression.Max(array) : AstExpression.Min(array);
-                    serializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
+                    var sourceItemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
+
+                    Func<AstExpression, AstExpression> aggregationFunc = method.Name == "Max" ? AstExpression.Max : AstExpression.Min;
+                    ast = ExpressionToAggregationExpressionTranslatorHelper.CreateAggregationAstWithUnwrapping(
+                        sourceTranslation,
+                        sourceItemSerializer,
+                        aggregationFunc,
+                        out var unwrappedSerializer);
+
+                    serializer = unwrappedSerializer ?? sourceItemSerializer;
                 }
                 else
                 {

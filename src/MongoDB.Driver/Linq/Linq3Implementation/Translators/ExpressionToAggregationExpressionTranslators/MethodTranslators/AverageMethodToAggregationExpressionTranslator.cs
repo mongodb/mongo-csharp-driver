@@ -21,6 +21,7 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
+using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
@@ -123,7 +124,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 }
                 else
                 {
-                    ast = AstExpression.Avg(sourceTranslation.Ast);
+                    var sourceItemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
+                    ast = ExpressionToAggregationExpressionTranslatorHelper.CreateAggregationAstWithUnwrapping(
+                        sourceTranslation,
+                        sourceItemSerializer,
+                        AstExpression.Avg,
+                        out _);
                 }
                 IBsonSerializer serializer = expression.Type switch
                 {
