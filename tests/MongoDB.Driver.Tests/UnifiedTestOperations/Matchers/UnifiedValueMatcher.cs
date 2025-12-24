@@ -74,11 +74,20 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                     case "$$matchAsRoot":
                         AssertValuesMatch(actual, operatorValue, true);
                         break;
+                    case "$$matchAsDocument":
+                        var parsedDocument = BsonDocument.Parse(actual.AsString);
+                        AssertValuesMatch(parsedDocument, operatorValue, false);
+                        break;
                     case "$$unsetOrMatches":
                         if (actual != null)
                         {
                             AssertValuesMatch(actual, operatorValue, true);
                         }
+                        break;
+                    case "$$sessionLsid":
+                        var sessionId = operatorValue.AsString;
+                        var expectedSessionLsid = _entityMap.SessionIds[sessionId];
+                        AssertValuesMatch(actual, expectedSessionLsid, isRoot: false);
                         break;
                     default:
                         throw new FormatException($"Unrecognized root level special operator: '{operatorName}'.");

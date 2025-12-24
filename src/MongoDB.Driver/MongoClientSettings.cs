@@ -76,6 +76,7 @@ namespace MongoDB.Driver
         private string _srvServiceName;
         private SslSettings _sslSettings;
         private TimeSpan? _timeout;
+        private TracingOptions _tracingOptions;
         private ExpressionTranslationOptions _translationOptions;
         private bool _useTls;
         private int _waitQueueSize;
@@ -364,6 +365,19 @@ namespace MongoDB.Driver
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
                 _loggingSettings = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the tracing options for OpenTelemetry instrumentation.
+        /// </summary>
+        public TracingOptions TracingOptions
+        {
+            get { return _tracingOptions; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
+                _tracingOptions = value;
             }
         }
 
@@ -952,6 +966,7 @@ namespace MongoDB.Driver
             clone._loadBalanced = _loadBalanced;
             clone._localThreshold = _localThreshold;
             clone._loggingSettings = _loggingSettings;
+            clone._tracingOptions = _tracingOptions?.Clone();
             clone._maxConnecting = _maxConnecting;
             clone._maxConnectionIdleTime = _maxConnectionIdleTime;
             clone._maxConnectionLifeTime = _maxConnectionLifeTime;
@@ -1023,6 +1038,7 @@ namespace MongoDB.Driver
                 _loadBalanced == rhs._loadBalanced &&
                 _localThreshold == rhs._localThreshold &&
                 _loggingSettings == rhs._loggingSettings &&
+                object.Equals(_tracingOptions, rhs._tracingOptions) &&
                 _maxConnecting == rhs._maxConnecting &&
                 _maxConnectionIdleTime == rhs._maxConnectionIdleTime &&
                 _maxConnectionLifeTime == rhs._maxConnectionLifeTime &&
@@ -1258,6 +1274,7 @@ namespace MongoDB.Driver
                 _loadBalanced,
                 _localThreshold,
                 _loggingSettings,
+                _tracingOptions,
                 _maxConnecting,
                 _maxConnectionIdleTime,
                 _maxConnectionLifeTime,
