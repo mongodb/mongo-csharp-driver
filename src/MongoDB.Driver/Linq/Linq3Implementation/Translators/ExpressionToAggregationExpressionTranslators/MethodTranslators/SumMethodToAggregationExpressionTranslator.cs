@@ -19,7 +19,6 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
-using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
@@ -85,13 +84,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 IBsonSerializer serializer;
                 if (arguments.Count == 1)
                 {
-                    ast = ExpressionToAggregationExpressionTranslatorHelper.CreateAggregationAstWithUnwrapping(
-                        sourceTranslation,
-                        sourceItemSerializer,
-                        AstExpression.Sum,
-                        out var unwrappedSerializer);
-
-                    serializer = unwrappedSerializer ?? sourceItemSerializer;
+                    ast = AstExpression.Sum(sourceTranslation.Ast);
+                    serializer = sourceItemSerializer;
                 }
                 else
                 {

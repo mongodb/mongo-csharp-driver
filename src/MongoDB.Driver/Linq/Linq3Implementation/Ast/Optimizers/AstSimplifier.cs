@@ -452,34 +452,36 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
 
             // { $map : { input : { $map : { input : <innerInput>, as : "inner", in : { A : <exprA>, B : <exprB>, ... } } }, as: "outer", in : { F : '$$outer.A', G : "$$outer.B", ... } } }
             // => { $map : { input : <innerInput>, as: "inner", in : { F : <exprA>, G : <exprB>, ... } } }
-            if (node.Input is AstMapExpression innerMapExpression &&
-                node.As is var outerVar &&
-                node.In is AstComputedDocumentExpression outerComputedDocumentExpression &&
-                innerMapExpression.Input is var innerInput &&
-                innerMapExpression.As is var innerVar &&
-                innerMapExpression.In is AstComputedDocumentExpression innerComputedDocumentExpression &&
-                outerComputedDocumentExpression.Fields.All(outerField =>
-                    outerField.Value is AstGetFieldExpression outerGetFieldExpression &&
-                    outerGetFieldExpression.Input == outerVar &&
-                    outerGetFieldExpression.FieldName is AstConstantExpression { Value : BsonString { Value : var matchingFieldName } } &&
-                    innerComputedDocumentExpression.Fields.Any(innerField => innerField.Path == matchingFieldName)))
             {
-                var rewrittenOuterFields = new List<AstComputedField>();
-                foreach (var outerField in outerComputedDocumentExpression.Fields)
+                if (node.Input is AstMapExpression innerMapExpression &&
+                    node.As is var outerVar &&
+                    node.In is AstComputedDocumentExpression outerComputedDocumentExpression &&
+                    innerMapExpression.Input is var innerInput &&
+                    innerMapExpression.As is var innerVar &&
+                    innerMapExpression.In is AstComputedDocumentExpression innerComputedDocumentExpression &&
+                    outerComputedDocumentExpression.Fields.All(outerField =>
+                        outerField.Value is AstGetFieldExpression outerGetFieldExpression &&
+                        outerGetFieldExpression.Input == outerVar &&
+                        outerGetFieldExpression.FieldName is AstConstantExpression { Value : BsonString { Value : var matchingFieldName } } &&
+                        innerComputedDocumentExpression.Fields.Any(innerField => innerField.Path == matchingFieldName)))
                 {
-                    var outerGetFieldExpression = (AstGetFieldExpression)outerField.Value;
-                    var matchingFieldName = ((AstConstantExpression)outerGetFieldExpression.FieldName).Value.AsString;
-                    var matchingInnerField = innerComputedDocumentExpression.Fields.Single(innerField => innerField.Path == matchingFieldName);
-                    var rewrittenOuterField = AstExpression.ComputedField(outerField.Path, matchingInnerField.Value);
-                    rewrittenOuterFields.Add(rewrittenOuterField);
+                    var rewrittenOuterFields = new List<AstComputedField>();
+                    foreach (var outerField in outerComputedDocumentExpression.Fields)
+                    {
+                        var outerGetFieldExpression = (AstGetFieldExpression)outerField.Value;
+                        var matchingFieldName = ((AstConstantExpression)outerGetFieldExpression.FieldName).Value.AsString;
+                        var matchingInnerField = innerComputedDocumentExpression.Fields.Single(innerField => innerField.Path == matchingFieldName);
+                        var rewrittenOuterField = AstExpression.ComputedField(outerField.Path, matchingInnerField.Value);
+                        rewrittenOuterFields.Add(rewrittenOuterField);
+                    }
+
+                    var simplified = AstExpression.Map(
+                        input: innerInput,
+                        @as: innerVar,
+                        @in: AstExpression.ComputedDocument(rewrittenOuterFields));
+
+                    return Visit(simplified);
                 }
-
-                var simplified = AstExpression.Map(
-                    input: innerInput,
-                    @as: innerVar,
-                    @in: AstExpression.ComputedDocument(rewrittenOuterFields));
-
-                return Visit(simplified);
             }
 
             // { $map : { input : [{ A : <exprA1>, B : <exprB1>, ... }, { A : <exprA2>, B : <exprB2>, ... }, ...], as : "item", in: { F : "$$item.A", G : "$$item.B", ... } } }
@@ -521,6 +523,32 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
                 var simplified = AstExpression.ComputedArray(rewrittenItems);
 
                 return Visit(simplified);
+            }
+
+            // { $map : { input : { $map : { input : <array>Expr, as : <innerVar>, in : { ..., fieldName : <fieldExpr>, ... } } }, as : <outerVar>, in : "$$<outerVar>.fieldName" } }
+            // => { $map : { input : <arrayExpr>, as : <innerVar>, in : <fieldExpr> } }
+            {
+                if (node.Input is AstMapExpression innerMap &&
+                    node.As is var outerVar &&
+                    node.In is AstGetFieldExpression outerGetFieldExpression &&
+                    outerGetFieldExpression.Input == outerVar &&
+                    outerGetFieldExpression.FieldName is AstConstantExpression { Value : { BsonType : BsonType.String } } fieldNameExpression &&
+                    fieldNameExpression.Value.AsString is var fieldName &&
+                    innerMap.Input is var arrayExpression &&
+                    innerMap.As is var innerVar &&
+                    innerMap.In is AstComputedDocumentExpression innerComputedDocument &&
+                    innerComputedDocument.Fields.SingleOrDefault(f => f.Path == fieldName) is var computedField &&
+                    computedField != null &&
+                    computedField.Value is var fieldExpr)
+                {
+                    var simplified =
+                        AstExpression.Map(
+                            input: arrayExpression,
+                            @as: innerVar,
+                            @in: fieldExpr);
+
+                    return Visit(simplified);
+                }
             }
 
             return base.VisitMapExpression(node);

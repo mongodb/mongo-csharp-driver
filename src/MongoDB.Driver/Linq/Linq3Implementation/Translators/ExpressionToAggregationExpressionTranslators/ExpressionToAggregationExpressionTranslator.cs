@@ -126,6 +126,21 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 aggregateExpression = new TranslatedExpression(expression, ast, arrayOfDocumentsDictionarySerializer);
             }
 
+            if (aggregateExpression.Serializer is IBsonArraySerializer arraySerializer &&
+                arraySerializer.TryGetItemSerializationInfo(out var itemSerializationInfo) &&
+                itemSerializationInfo.Serializer is IWrappedValueSerializer wrappedItemSerializer)
+            {
+                var itemVar = AstExpression.Var("item");
+                var unwrappedItemsAst = AstExpression.Map(
+                    input: aggregateExpression.Ast,
+                    @as: itemVar,
+                    @in: AstExpression.GetField(itemVar, wrappedItemSerializer.FieldName));
+                var unwrappedItemSerializer = wrappedItemSerializer.ValueSerializer;
+                var unwrappedItemsSerializer = ArraySerializerHelper.CreateSerializer(unwrappedItemSerializer);
+
+                aggregateExpression = new TranslatedExpression(expression, unwrappedItemsAst, unwrappedItemsSerializer);
+            }
+
             return aggregateExpression;
         }
 
