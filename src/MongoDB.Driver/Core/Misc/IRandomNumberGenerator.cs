@@ -17,6 +17,6 @@ namespace MongoDB.Driver.Core.Misc;
 
 internal interface IRandomNumberGenerator
 {
-    double Next();
+    double NextDouble();
 }
 

@@ -18,7 +18,7 @@ internal sealed class RandomNumberGenerator : IRandomNumberGenerator
 {
     public static IRandomNumberGenerator Instance { get; } = new RandomNumberGenerator();
 
-    public double Next()
+    public double NextDouble()
     {
 #if NET6_0_OR_GREATER
         return System.Random.Shared.NextDouble();
