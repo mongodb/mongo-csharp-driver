@@ -177,7 +177,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
         var stages = Translate(collection, queryable);
         AssertStages(stages,
             "{ $match : { 'DictionaryAsArrayOfArrays.0' : { $exists : true } } }",
-            "{ $project : { _v : { $avg : { $map : { input : { $map : { input : '$DictionaryAsArrayOfArrays', as : 'kvp', in : { k : { $arrayElemAt : ['$$kvp', 0] }, v : { $arrayElemAt : ['$$kvp', 1] } } } }, as : 'item', in : '$$item.v' } } }, _id : 0 } }");
+            "{ $project : { _v : { $avg : { $map : { input : '$DictionaryAsArrayOfArrays', as : 'kvp', in : { $arrayElemAt : ['$$kvp', 1] } } } }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(1.0, 1.5, 2.0);
@@ -296,7 +296,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
         var stages = Translate(collection, queryable);
         AssertStages(stages,
             "{ $match : { 'DictionaryAsArrayOfArrays.0' : { $exists : true } } }",
-            "{ $project : { _v : { $max : { $map : { input : { $map : { input : '$DictionaryAsArrayOfArrays', as : 'kvp', in : { k : { $arrayElemAt : ['$$kvp', 0] }, v : { $arrayElemAt : ['$$kvp', 1] } } } }, as : 'item', in : '$$item.v' } } }, _id : 0 } }");
+            "{ $project : { _v : { $max : { $map : { input : '$DictionaryAsArrayOfArrays', as : 'kvp', in : { $arrayElemAt : ['$$kvp', 1] } } } }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(1, 2, 3);
@@ -314,7 +314,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
         var stages = Translate(collection, queryable);
         AssertStages(stages,
             "{ $match : { 'DictionaryAsArrayOfArrays.0' : { $exists : true } } }",
-            "{ $project : { _v : { $max : { $map : { input : { $map : { input : '$DictionaryAsArrayOfArrays', as : 'kvp', in : { k : { $arrayElemAt : ['$$kvp', 0] }, v : { $arrayElemAt : ['$$kvp', 1] } } } }, as : 'v', in : { $multiply : ['$$v.v', 10] } } } }, _id : 0 } }");
+            "{ $project : { _v : { $max : { $map : { input : { $map : { input : '$DictionaryAsArrayOfArrays', as : 'kvp', in : { $arrayElemAt : ['$$kvp', 1] } } }, as : 'v', in : { $multiply : ['$$v', 10] } } } }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(10, 20, 30);
@@ -329,7 +329,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
             .Select(x => x.DictionaryAsArrayOfArrays.Values.Select(v => v * 10).Sum());
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $sum : { $map : { input : { $map : { input : '$DictionaryAsArrayOfArrays', as : 'kvp', in : { k : { $arrayElemAt : ['$$kvp', 0] }, v : { $arrayElemAt : ['$$kvp', 1] } } } }, as : 'v', in : { $multiply : ['$$v.v', 10] } } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $sum : { $map : { input : { $map : { input : '$DictionaryAsArrayOfArrays', as : 'kvp', in : { $arrayElemAt : ['$$kvp', 1] } } }, as : 'v', in : { $multiply : ['$$v', 10] } } } }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(0, 10, 30, 60);
@@ -363,7 +363,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
             .Select(x => x.DictionaryAsArrayOfArrays.Values.Sum());
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $sum : { $map : { input : { $map : { input : '$DictionaryAsArrayOfArrays', as : 'kvp', in : { k : { $arrayElemAt : ['$$kvp', 0] }, v : { $arrayElemAt : ['$$kvp', 1] } } } }, as : 'item', in : '$$item.v' } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $sum : { $map : { input : '$DictionaryAsArrayOfArrays', as : 'kvp', in : { $arrayElemAt : ['$$kvp', 1] } } } }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(0, 1, 3, 6);
@@ -378,7 +378,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
             .Select(x => x.DictionaryAsArrayOfArrays.Values.Sum(v => v * 10));
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $sum : { $map : { input : { $map : { input : '$DictionaryAsArrayOfArrays', as : 'kvp', in : { k : { $arrayElemAt : ['$$kvp', 0] }, v : { $arrayElemAt : ['$$kvp', 1] } } } }, as : 'v', in : { $multiply : ['$$v.v', 10] } } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $sum : { $map : { input : { $map : { input : '$DictionaryAsArrayOfArrays', as : 'kvp', in : { $arrayElemAt : ['$$kvp', 1] } } }, as : 'v', in : { $multiply : ['$$v', 10] } } } }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(0, 10, 30, 60);
@@ -393,7 +393,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
             .Select(x => x.DictionaryAsArrayOfArrays.Values.Where(v => v > 1).Count());
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $size : { $filter : { input : { $map : { input : '$DictionaryAsArrayOfArrays', as : 'kvp', in : { k : { $arrayElemAt : ['$$kvp', 0] }, v : { $arrayElemAt : ['$$kvp', 1] } } } }, as : 'v', cond : { $gt : ['$$v.v', 1] } } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $size : { $filter : { input : { $map : { input : '$DictionaryAsArrayOfArrays', as : 'kvp', in : { $arrayElemAt : ['$$kvp', 1] } } }, as : 'v', cond : { $gt : ['$$v', 1] } } } }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(0, 0, 1, 2);
@@ -480,7 +480,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
             .Select(x => x.DictionaryAsArrayOfDocuments.Values.All(v => v > 0));
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $allElementsTrue : { $map : { input : '$DictionaryAsArrayOfDocuments', as : 'v', in : { $gt : ['$$v.v', 0] } } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $allElementsTrue : { $map : { input : '$DictionaryAsArrayOfDocuments.v', as : 'v', in : { $gt : ['$$v', 0] } } } }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(true, true, true, true);
@@ -495,7 +495,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
             .Select(x => x.DictionaryAsArrayOfDocuments.Values.Any(v => v == 2));
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $anyElementTrue : { $map : { input : '$DictionaryAsArrayOfDocuments', as : 'v', in : { $eq : ['$$v.v', 2] } } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $anyElementTrue : { $map : { input : '$DictionaryAsArrayOfDocuments.v', as : 'v', in : { $eq : ['$$v', 2] } } } }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(false, false, true, true);
@@ -510,7 +510,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
             .Select(x => x.DictionaryAsArrayOfDocuments.Values.Any());
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $gt : [{ $size : '$DictionaryAsArrayOfDocuments' }, 0] }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $gt : [{ $size : '$DictionaryAsArrayOfDocuments.v' }, 0] }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(false, true, true, true);
@@ -546,7 +546,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
         var stages = Translate(collection, queryable);
         AssertStages(stages,
             "{ $match : { 'DictionaryAsArrayOfDocuments.0' : { $exists : true } } }",
-            "{ $project : { _v : { $avg : { $map : { input : '$DictionaryAsArrayOfDocuments', as : 'v', in : { $multiply : ['$$v.v', 10] } } } }, _id : 0 } }");
+            "{ $project : { _v : { $avg : { $map : { input : '$DictionaryAsArrayOfDocuments.v', as : 'v', in : { $multiply : ['$$v', 10] } } } }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(10.0, 15.0, 20.0);
@@ -591,7 +591,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
             .Select(x => x.DictionaryAsArrayOfDocuments.Values.Count());
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $size : '$DictionaryAsArrayOfDocuments' }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $size : '$DictionaryAsArrayOfDocuments.v' }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(0, 1, 2, 3);
@@ -606,7 +606,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
             .Select(x => x.DictionaryAsArrayOfDocuments.Values.Count(v => v > 1));
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $sum : { $map : { input : '$DictionaryAsArrayOfDocuments', as : 'v', in : { $cond : { if : { $gt : ['$$v.v', 1] }, then : 1, else : 0 } } } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $sum : { $map : { input : '$DictionaryAsArrayOfDocuments.v', as : 'v', in : { $cond : { if : { $gt : ['$$v', 1] }, then : 1, else : 0 } } } } }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(0, 0, 1, 2);
@@ -624,11 +624,11 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
 
         if (FilterLimitIsSupported)
         {
-            AssertStages(stages, "{ $project : { _v : { $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$DictionaryAsArrayOfDocuments', as : 'v', cond : { $eq : ['$$v.v', 2] }, limit : 1 } }, 0] } }, in : '$$this.v' } }, _id : 0 } }");
+            AssertStages(stages, "{ $project : { _v : { $arrayElemAt : [{ $filter : { input : '$DictionaryAsArrayOfDocuments.v', as : 'v', cond : { $eq : ['$$v', 2] }, limit : 1 } }, 0] }, _id : 0 } }");
         }
         else
         {
-            AssertStages(stages, "{ $project : { _v : { $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$DictionaryAsArrayOfDocuments', as : 'v', cond : { $eq : ['$$v.v', 2] } } }, 0] } }, in : '$$this.v' } }, _id : 0 } }");
+            AssertStages(stages, "{ $project : { _v : { $arrayElemAt : [{ $filter : { input : '$DictionaryAsArrayOfDocuments.v', as : 'v', cond : { $eq : ['$$v', 2] } } }, 0] }, _id : 0 } }");
         }
 
         var results = queryable.ToList();
@@ -665,7 +665,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
         var stages = Translate(collection, queryable);
         AssertStages(stages,
             "{ $match : { 'DictionaryAsArrayOfDocuments.0' : { $exists : true } } }",
-            "{ $project : { _v : { $max : { $map : { input : '$DictionaryAsArrayOfDocuments', as : 'v', in : { $multiply : ['$$v.v', 10] } } } }, _id : 0 } }");
+            "{ $project : { _v : { $max : { $map : { input : '$DictionaryAsArrayOfDocuments.v', as : 'v', in : { $multiply : ['$$v', 10] } } } }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(10, 20, 30);
@@ -680,7 +680,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
             .Select(x => x.DictionaryAsArrayOfDocuments.Values.Select(v => v * 10).Sum());
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $sum : { $map : { input : '$DictionaryAsArrayOfDocuments', as : 'v', in : { $multiply : ['$$v.v', 10] } } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $sum : { $map : { input : '$DictionaryAsArrayOfDocuments.v', as : 'v', in : { $multiply : ['$$v', 10] } } } }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(0, 10, 30, 60);
@@ -729,7 +729,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
             .Select(x => x.DictionaryAsArrayOfDocuments.Values.Sum(v => v * 10));
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $sum : { $map : { input : '$DictionaryAsArrayOfDocuments', as : 'v', in : { $multiply : ['$$v.v', 10] } } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $sum : { $map : { input : '$DictionaryAsArrayOfDocuments.v', as : 'v', in : { $multiply : ['$$v', 10] } } } }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(0, 10, 30, 60);
@@ -744,7 +744,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
             .Select(x => x.DictionaryAsArrayOfDocuments.Values.Where(v => v > 1).Count());
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $size : { $filter : { input : '$DictionaryAsArrayOfDocuments', as : 'v', cond : { $gt : ['$$v.v', 1] } } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $size : { $filter : { input : '$DictionaryAsArrayOfDocuments.v', as : 'v', cond : { $gt : ['$$v', 1] } } } }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(0, 0, 1, 2);
@@ -831,7 +831,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
             .Select(x => x.DictionaryAsDocument.Values.All(v => v > 0));
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $allElementsTrue : { $map : { input : { $objectToArray : '$DictionaryAsDocument' }, as : 'v', in : { $gt : ['$$v.v', 0] } } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $allElementsTrue : { $map : { input : { $map : { input : { $objectToArray : '$DictionaryAsDocument' }, as : 'item', in : '$$item.v' } }, as : 'v', in : { $gt : ['$$v', 0] } } } }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(true, true, true, true);
@@ -846,7 +846,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
             .Select(x => x.DictionaryAsDocument.Values.Any(v => v == 2));
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $anyElementTrue : { $map : { input : { $objectToArray : '$DictionaryAsDocument' }, as : 'v', in : { $eq : ['$$v.v', 2] } } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $anyElementTrue : { $map : { input : { $map : { input : { $objectToArray : '$DictionaryAsDocument' }, as : 'item', in : '$$item.v' } }, as : 'v', in : { $eq : ['$$v', 2] } } } }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(false, false, true, true);
@@ -861,7 +861,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
             .Select(x => x.DictionaryAsDocument.Values.Any());
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $gt : [{ $size : { $objectToArray : '$DictionaryAsDocument' } }, 0] }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $gt : [{ $size : { $map : { input : { $objectToArray : '$DictionaryAsDocument' }, as : 'item', in : '$$item.v' } } }, 0] }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(false, true, true, true);
@@ -897,7 +897,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
         var stages = Translate(collection, queryable);
         AssertStages(stages,
             "{ $match : { DictionaryAsDocument : { $ne : { } } } }",
-            "{ $project : { _v : { $avg : { $map : { input : { $objectToArray : '$DictionaryAsDocument' }, as : 'v', in : { $multiply : ['$$v.v', 10] } } } }, _id : 0 } }");
+            "{ $project : { _v : { $avg : { $map : { input : { $map : { input : { $objectToArray : '$DictionaryAsDocument' }, as : 'item', in : '$$item.v' } }, as : 'v', in : { $multiply : ['$$v', 10] } } } }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(10.0, 15.0, 20.0);
@@ -942,7 +942,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
             .Select(x => x.DictionaryAsDocument.Values.Count());
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $size : { $objectToArray : '$DictionaryAsDocument' } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $size : { $map : { input : { $objectToArray : '$DictionaryAsDocument' }, as : 'item', in : '$$item.v' } } }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(0, 1, 2, 3);
@@ -957,7 +957,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
             .Select(x => x.DictionaryAsDocument.Values.Count(v => v > 1));
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $sum : { $map : { input : { $objectToArray : '$DictionaryAsDocument' }, as : 'v', in : { $cond : { if : { $gt : ['$$v.v', 1] }, then : 1, else : 0 } } } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $sum : { $map : { input : { $map : { input : { $objectToArray : '$DictionaryAsDocument' }, as : 'item', in : '$$item.v' } }, as : 'v', in : { $cond : { if : { $gt : ['$$v', 1] }, then : 1, else : 0 } } } } }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(0, 0, 1, 2);
@@ -975,11 +975,11 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
 
         if (FilterLimitIsSupported)
         {
-            AssertStages(stages, "{ $project : { _v : { $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : { $objectToArray : '$DictionaryAsDocument' }, as : 'v', cond : { $eq : ['$$v.v', 2] }, limit : 1 } }, 0] } }, in : '$$this.v' } }, _id : 0 } }");
+            AssertStages(stages, "{ $project : { _v : { $arrayElemAt : [{ $filter : { input : { $map : { input : { $objectToArray : '$DictionaryAsDocument' }, as : 'item', in : '$$item.v' } }, as : 'v', cond : { $eq : ['$$v', 2] }, limit : 1 } }, 0] }, _id : 0 } }");
         }
         else
         {
-            AssertStages(stages, "{ $project : { _v : { $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : { $objectToArray : '$DictionaryAsDocument' }, as : 'v', cond : { $eq : ['$$v.v', 2] } } }, 0] } }, in : '$$this.v' } }, _id : 0 } }");
+            AssertStages(stages, "{ $project : { _v : { $arrayElemAt : [{ $filter : { input : { $map : { input : { $objectToArray : '$DictionaryAsDocument' }, as : 'item', in : '$$item.v' } }, as : 'v', cond : { $eq : ['$$v', 2] } } }, 0] }, _id : 0 } }");
         }
 
         var results = queryable.ToList();
@@ -1016,7 +1016,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
         var stages = Translate(collection, queryable);
         AssertStages(stages,
             "{ $match : { DictionaryAsDocument : { $ne : { } } } }",
-            "{ $project : { _v : { $max : { $map : { input : { $objectToArray : '$DictionaryAsDocument' }, as : 'v', in : { $multiply : ['$$v.v', 10] } } } }, _id : 0 } }");
+            "{ $project : { _v : { $max : { $map : { input : { $map : { input : { $objectToArray : '$DictionaryAsDocument' }, as : 'item', in : '$$item.v' } }, as : 'v', in : { $multiply : ['$$v', 10] } } } }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(10, 20, 30);
@@ -1031,7 +1031,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
             .Select(x => x.DictionaryAsDocument.Values.Select(v => v * 10).Sum());
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $sum : { $map : { input : { $objectToArray : '$DictionaryAsDocument' }, as : 'v', in : { $multiply : ['$$v.v', 10] } } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $sum : { $map : { input : { $map : { input : { $objectToArray : '$DictionaryAsDocument' }, as : 'item', in : '$$item.v' } }, as : 'v', in : { $multiply : ['$$v', 10] } } } }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(0, 10, 30, 60);
@@ -1080,7 +1080,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
             .Select(x => x.DictionaryAsDocument.Values.Sum(v => v * 10));
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $sum : { $map : { input : { $objectToArray : '$DictionaryAsDocument' }, as : 'v', in : { $multiply : ['$$v.v', 10] } } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $sum : { $map : { input : { $map : { input : { $objectToArray : '$DictionaryAsDocument' }, as : 'item', in : '$$item.v' } }, as : 'v', in : { $multiply : ['$$v', 10] } } } }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(0, 10, 30, 60);
@@ -1095,7 +1095,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
             .Select(x => x.DictionaryAsDocument.Values.Where(v => v > 1).Count());
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $size : { $filter : { input : { $objectToArray : '$DictionaryAsDocument' }, as : 'v', cond : { $gt : ['$$v.v', 1] } } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $size : { $filter : { input : { $map : { input : { $objectToArray : '$DictionaryAsDocument' }, as : 'item', in : '$$item.v' } }, as : 'v', cond : { $gt : ['$$v', 1] } } } }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(0, 0, 1, 2);
@@ -1110,7 +1110,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
             .Select(x => x.DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays.Values.SelectMany(n => n.Keys.Where(k => k != "a")));
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $reduce : { input : { $map : { input : { $objectToArray : '$DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays' }, as : 'n', in : { $filter : { input : { $map : { input : '$$n.v', as : 'kvp', in : { $arrayElemAt : ['$$kvp', 0] } } }, as : 'k', cond : { $ne : ['$$k', 'a'] } } } } }, initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $reduce : { input : { $map : { input : { $map : { input : { $objectToArray : '$DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays' }, as : 'item', in : '$$item.v' } }, as : 'n', in : { $filter : { input : { $map : { input : '$$n', as : 'kvp', in : { $arrayElemAt : ['$$kvp', 0] } } }, as : 'k', cond : { $ne : ['$$k', 'a'] } } } } }, initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } } }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Count.Should().Be(4);
@@ -1129,7 +1129,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
             .Select(x => x.DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays.Values.SelectMany(n => n.Keys));
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $reduce : { input : { $map : { input : { $objectToArray : '$DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays' }, as : 'n', in : { $map : { input : '$$n.v', as : 'kvp', in : { $arrayElemAt : ['$$kvp', 0] } } }  } }, initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } }  }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $reduce : { input : { $map : { input : { $map : { input : { $objectToArray : '$DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays' }, as : 'item', in : '$$item.v' } }, as : 'n', in : { $map : { input : '$$n', as : 'kvp', in : { $arrayElemAt : ['$$kvp', 0] } } }  } }, initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } }  }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Count.Should().Be(4);
@@ -1148,7 +1148,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
             .Select(x => x.DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays.Values.SelectMany(n => n.Values.Where(v => v > 1)));
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $reduce : { input : { $map : { input : { $objectToArray : '$DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays' }, as : 'n', in : { $filter : { input : { $map : { input : '$$n.v', as : 'kvp', in : { k : { $arrayElemAt : ['$$kvp', 0] }, v : { $arrayElemAt : ['$$kvp', 1] } } } }, as : 'v', cond : { $gt : ['$$v.v', 1] } } } } }, initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $reduce : { input : { $map : { input : { $map : { input : { $objectToArray : '$DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays' }, as : 'item', in : '$$item.v' } }, as : 'n', in : { $filter : { input : { $map : { input : '$$n', as : 'kvp', in : { $arrayElemAt : ['$$kvp', 1] } } }, as : 'v', cond : { $gt : ['$$v', 1] } } } } }, initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } } }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Count.Should().Be(4);
@@ -1167,7 +1167,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
             .Select(x => x.DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays.Values.SelectMany(n => n.Values));
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $reduce : { input : { $map : { input : { $objectToArray : '$DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays' }, as : 'n', in : { $map : { input : '$$n.v', as : 'kvp', in : { k : { $arrayElemAt : ['$$kvp', 0] }, v : { $arrayElemAt : ['$$kvp', 1] } } } } } }, initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $reduce : { input : { $map : { input : { $map : { input : { $objectToArray : '$DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays' }, as : 'item', in : '$$item.v' } }, as : 'n', in : { $map : { input : '$$n', as : 'kvp', in : { k : { $arrayElemAt : ['$$kvp', 0] }, v : { $arrayElemAt : ['$$kvp', 1] } } } } } }, initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } } }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Count.Should().Be(4);
