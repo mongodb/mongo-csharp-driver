@@ -534,7 +534,6 @@ namespace MongoDB.Driver.Tests
             }
 
             var subject = CreateSubject(coreSession: mockCoreSession.Object, clock: mockClock.Object);
-            SetupTransactionState(subject, true);
 
             if (async)
             {
