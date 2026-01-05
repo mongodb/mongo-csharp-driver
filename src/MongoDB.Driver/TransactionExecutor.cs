@@ -66,7 +66,7 @@ namespace MongoDB.Driver
                     }
 
                     var delay = GetRetryDelay(randomNumberGenerator, attempt);
-                    if (HasTimedOut(operationContext, delay))
+                    if (IsTimedOut(operationContext, delay))
                     {
                         throw;
                     }
@@ -113,7 +113,7 @@ namespace MongoDB.Driver
                     }
 
                     var delay = GetRetryDelay(randomNumberGenerator, attempt);
-                    if (HasTimedOut(operationContext, delay))
+                    if (IsTimedOut(operationContext, delay))
                     {
                         throw;
                     }
@@ -126,7 +126,7 @@ namespace MongoDB.Driver
         private static TimeSpan GetRetryDelay(IRandomNumberGenerator randomNumberGenerator, int attempt)
             => TimeSpan.FromMilliseconds(RetryabilityHelper.GetRetryDelayMs(randomNumberGenerator, attempt, 1.5, 5, 500));
 
-        private static bool HasTimedOut(OperationContext operationContext, TimeSpan delay = default)
+        private static bool IsTimedOut(OperationContext operationContext, TimeSpan delay = default)
         {
             if (operationContext.Timeout.HasValue)
             {
@@ -282,7 +282,7 @@ namespace MongoDB.Driver
         {
             return
                 HasErrorLabel(ex, UnknownTransactionCommitResultLabel) &&
-                !HasTimedOut(operationContext) &&
+                !IsTimedOut(operationContext) &&
                 !IsMaxTimeMSExpiredException(ex);
         }
     }

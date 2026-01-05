@@ -650,7 +650,7 @@ namespace MongoDB.Driver.Tests
             {
                 var sw = Stopwatch.StartNew();
                 randomNumberGeneratorMock.Reset();
-                randomNumberGeneratorMock.Setup(r => r.Next()).Returns(randomValue);
+                randomNumberGeneratorMock.Setup(r => r.NextDouble()).Returns(randomValue);
                 ConfigureCoreSessionMock(coreSessionMock);
 
                 _ = async ?
