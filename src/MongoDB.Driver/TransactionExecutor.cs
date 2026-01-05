@@ -34,6 +34,7 @@ namespace MongoDB.Driver
             Func<IClientSessionHandle, CancellationToken, TResult> callback,
             TransactionOptions transactionOptions,
             IClock clock,
+            IRandomNumberGenerator randomNumberGenerator,
             CancellationToken cancellationToken)
         {
             var attempt = 0;
@@ -64,7 +65,7 @@ namespace MongoDB.Driver
                         throw;
                     }
 
-                    var delay = GetRetryDelay(attempt);
+                    var delay = GetRetryDelay(randomNumberGenerator, attempt);
                     if (HasTimedOut(operationContext, delay))
                     {
                         throw;
@@ -80,6 +81,7 @@ namespace MongoDB.Driver
             Func<IClientSessionHandle, CancellationToken, Task<TResult>> callbackAsync,
             TransactionOptions transactionOptions,
             IClock clock,
+            IRandomNumberGenerator randomNumberGenerator,
             CancellationToken cancellationToken)
         {
             var attempt = 0;
@@ -110,7 +112,7 @@ namespace MongoDB.Driver
                         throw;
                     }
 
-                    var delay = GetRetryDelay(attempt);
+                    var delay = GetRetryDelay(randomNumberGenerator, attempt);
                     if (HasTimedOut(operationContext, delay))
                     {
                         throw;
@@ -121,8 +123,8 @@ namespace MongoDB.Driver
             }
         }
 
-        private static TimeSpan GetRetryDelay(int attempt)
-            => TimeSpan.FromMilliseconds(RetryabilityHelper.GetRetryDelayMs(attempt, 1.5, 5, 500));
+        private static TimeSpan GetRetryDelay(IRandomNumberGenerator randomNumberGenerator, int attempt)
+            => TimeSpan.FromMilliseconds(RetryabilityHelper.GetRetryDelayMs(randomNumberGenerator, attempt, 1.5, 5, 500));
 
         private static bool HasTimedOut(OperationContext operationContext, TimeSpan delay = default)
         {
