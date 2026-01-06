@@ -193,6 +193,29 @@ public class CSharp4443ArrayOfArraysTests : LinqIntegrationTest<CSharp4443ArrayO
     }
 
     [Fact]
+    public void Select_DictionaryAsArrayOfArrays_IntKey_IndexerAccess_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Select(x => x.DictionaryWithIntKeys[20]);
+
+        var stages = Translate(collection, queryable);
+
+        if (FilterLimitIsSupported)
+        {
+            AssertStages(stages, "{ $project : { _v : { $arrayElemAt : [{ $arrayElemAt : [{ $filter : { input : '$DictionaryWithIntKeys', as : 'kvp', cond : { $eq : [{ $arrayElemAt : ['$$kvp', 0] }, 20] }, limit : 1 } }, 0] }, 1] }, _id : 0 } }");
+        }
+        else
+        {
+            AssertStages(stages, "{ $project : { _v : { $arrayElemAt : [{ $arrayElemAt : [{ $filter : { input : '$DictionaryWithIntKeys', as : 'kvp', cond : { $eq : [{ $arrayElemAt : ['$$kvp', 0] }, 20] } } }, 0] }, 1] }, _id : 0 } }");
+        }
+
+        var result = queryable.First();
+        result.Should().Be("B");
+    }
+
+    [Fact]
     public void Select_DictionaryAsArrayOfArrays_KeysContains_should_work()
     {
         var collection = Fixture.Collection;
@@ -676,6 +699,22 @@ public class CSharp4443ArrayOfArraysTests : LinqIntegrationTest<CSharp4443ArrayO
     }
 
     [Fact]
+    public void Where_DictionaryAsArrayOfArrays_IntKey_IndexerAccess_Equal_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Where(x => x.DictionaryWithIntKeys[20] == "B");
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $match : { DictionaryWithIntKeys : { $elemMatch : { '0' : 20, '1' : 'B' } } } }");
+
+        var result = queryable.ToList();
+        result.Should().ContainSingle();
+        result.First().Name.Should().Be("A");
+    }
+
+    [Fact]
     public void Where_DictionaryAsArrayOfArrays_KeysContains_should_work()
     {
         var collection = Fixture.Collection;
@@ -1044,6 +1083,9 @@ public class CSharp4443ArrayOfArraysTests : LinqIntegrationTest<CSharp4443ArrayO
 
         [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfArrays)]
         public IDictionary<string, int> DictionaryInterface { get; set; }
+
+        [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfArrays)]
+        public Dictionary<int, string> DictionaryWithIntKeys { get; set; }
     }
 
     public sealed class ClassFixture : MongoDatabaseFixture
@@ -1066,7 +1108,8 @@ public class CSharp4443ArrayOfArraysTests : LinqIntegrationTest<CSharp4443ArrayO
                 {
                     Name = "A",
                     Dictionary = new Dictionary<string, int> { { "life", 42 }, { "age", 25 }, { "score", 100 } },
-                    DictionaryInterface = new Dictionary<string, int> { { "life", 42 }, { "age", 25 }, { "score", 100 } }
+                    DictionaryInterface = new Dictionary<string, int> { { "life", 42 }, { "age", 25 }, { "score", 100 } },
+                    DictionaryWithIntKeys = new Dictionary<int, string> { { 10, "A" }, { 20, "B" }, { 30, "C" } }
                 },
                 new()
                 {

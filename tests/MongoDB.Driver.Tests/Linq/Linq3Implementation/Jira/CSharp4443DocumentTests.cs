@@ -20,6 +20,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Linq;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira;
@@ -182,6 +183,20 @@ public class CSharp4443DocumentTests : LinqIntegrationTest<CSharp4443DocumentTes
 
         var results = queryable.ToList();
         results.Should().Equal(25, 30, 35, 130);
+    }
+
+    [Fact]
+    public void Select_DictionaryAsDocument_IntKey_IndexerAccess_should_throw()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Select(x => x.DictionaryWithIntKeys[10]);
+
+        var exception = Record.Exception(() => Translate(collection, queryable));
+
+        exception.Should().BeOfType<ExpressionNotSupportedException>();
+        exception.Message.Should().Contain("Document representation requires keys to serialize as strings");
     }
 
     [Fact]
@@ -660,6 +675,20 @@ public class CSharp4443DocumentTests : LinqIntegrationTest<CSharp4443DocumentTes
     }
 
     [Fact]
+    public void Where_DictionaryAsDocument_IntKey_IndexerAccess_should_throw()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Where(x => x.DictionaryWithIntKeys[10] == "A");
+
+        var exception = Record.Exception(() => Translate(collection, queryable));
+
+        exception.Should().BeOfType<ExpressionNotSupportedException>();
+        exception.Message.Should().Contain("Document representation requires keys to serialize as strings");
+    }
+
+    [Fact]
     public void Where_DictionaryAsDocument_KeysContains_should_work()
     {
         var collection = Fixture.Collection;
@@ -972,6 +1001,9 @@ public class CSharp4443DocumentTests : LinqIntegrationTest<CSharp4443DocumentTes
 
         [BsonDictionaryOptions(DictionaryRepresentation.Document)]
         public IDictionary<string, int> DictionaryInterface { get; set; }
+
+        [BsonDictionaryOptions(DictionaryRepresentation.Document)]
+        public Dictionary<int, string> DictionaryWithIntKeys { get; set; }
     }
 
     public sealed class ClassFixture : MongoDatabaseFixture

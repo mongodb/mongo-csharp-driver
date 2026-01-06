@@ -132,6 +132,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             }
 
             var keySerializer = dictionarySerializer.KeySerializer;
+            var dictionaryRepresentation = dictionarySerializer.DictionaryRepresentation;
             AstExpression keyFieldNameAst;
 
             if (keyExpression is ConstantExpression constantKeyExpression)
@@ -139,22 +140,25 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var key = constantKeyExpression.Value;
                 var serializedKey = SerializationHelper.SerializeValue(keySerializer, key);
 
-                if (!(serializedKey is BsonString))
+                if (dictionaryRepresentation == DictionaryRepresentation.Document && serializedKey is not BsonString)
                 {
-                    throw new ExpressionNotSupportedException(expression, because: "key did not serialize as a string");
+                    throw new ExpressionNotSupportedException(expression, because: "Document representation requires keys to serialize as strings");
                 }
 
                 keyFieldNameAst = AstExpression.Constant(serializedKey);
             }
             else
             {
-                if (!(keySerializer is IHasRepresentationSerializer hasRepresentationSerializer))
+                if (dictionaryRepresentation == DictionaryRepresentation.Document)
                 {
-                    throw new ExpressionNotSupportedException(expression, because: $"key serializer class {keySerializer.GetType()} does not implement {nameof(IHasRepresentationSerializer)}");
-                }
-                if (hasRepresentationSerializer.Representation != BsonType.String)
-                {
-                    throw new ExpressionNotSupportedException(expression, because: $"key serializer class {keySerializer.GetType()} does not serialize as a string");
+                    if (keySerializer is not IHasRepresentationSerializer hasRepresentationSerializer)
+                    {
+                        throw new ExpressionNotSupportedException(expression, because: $"key serializer class {keySerializer.GetType()} does not implement {nameof(IHasRepresentationSerializer)}");
+                    }
+                    if (hasRepresentationSerializer.Representation != BsonType.String)
+                    {
+                        throw new ExpressionNotSupportedException(expression, because: $"key serializer class {keySerializer.GetType()} does not serialize as a string");
+                    }
                 }
 
                 var keyTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, keyExpression);
@@ -166,7 +170,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 keyFieldNameAst = keyTranslation.Ast;
             }
 
-            var dictionaryRepresentation = dictionarySerializer.DictionaryRepresentation;
             AstExpression ast;
             switch (dictionaryRepresentation)
             {

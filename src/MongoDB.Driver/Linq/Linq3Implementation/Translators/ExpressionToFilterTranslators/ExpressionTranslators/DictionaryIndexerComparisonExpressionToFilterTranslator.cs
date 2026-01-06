@@ -48,13 +48,17 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             }
 
             var dictionaryRepresentation = dictionarySerializer.DictionaryRepresentation;
-            var key = GetKeyStringConstant(containingExpression, keyExpression, dictionarySerializer.KeySerializer);
+            var serializedKey = GetSerializedKey(containingExpression, keyExpression, dictionarySerializer.KeySerializer);
             var serializedValue = SerializationHelper.SerializeValue(dictionarySerializer.ValueSerializer, valueExpression, containingExpression);
 
             switch (dictionaryRepresentation)
             {
                 case DictionaryRepresentation.Document:
-                    var subField = fieldTranslation.SubField(key, dictionarySerializer.ValueSerializer);
+                    if (serializedKey is not BsonString)
+                    {
+                        throw new ExpressionNotSupportedException(containingExpression, because: "Document representation requires keys to serialize as strings");
+                    }
+                    var subField = fieldTranslation.SubField(serializedKey.AsString, dictionarySerializer.ValueSerializer);
                     return AstFilter.Compare(subField.Ast, comparisonOperator, serializedValue);
 
                 case DictionaryRepresentation.ArrayOfArrays:
@@ -64,7 +68,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 
                     var keyField = AstFilter.Field(keyFieldName);
                     var valueField = AstFilter.Field(valueFieldName);
-                    var keyMatchFilter = AstFilter.Eq(keyField, key);
+                    var keyMatchFilter = AstFilter.Eq(keyField, serializedKey);
                     var valueMatchFilter = AstFilter.Compare(valueField, comparisonOperator, serializedValue);
                     var combinedFilter = AstFilter.And(keyMatchFilter, valueMatchFilter);
 
@@ -75,16 +79,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             }
         }
 
-        private static string GetKeyStringConstant(Expression expression, Expression keyExpression, IBsonSerializer keySerializer)
+        private static BsonValue GetSerializedKey(Expression expression, Expression keyExpression, IBsonSerializer keySerializer)
         {
             var key = keyExpression.GetConstantValue<object>(containingExpression: expression);
-            var serializedKey = SerializationHelper.SerializeValue(keySerializer, key);
-            if (serializedKey is not BsonString)
-            {
-                throw new ExpressionNotSupportedException(expression, because: "key did not serialize as a string");
-            }
-
-            return serializedKey.AsString;
+            return SerializationHelper.SerializeValue(keySerializer, key);
         }
     }
 }
