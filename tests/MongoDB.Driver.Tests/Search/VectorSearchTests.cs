@@ -224,7 +224,7 @@ namespace MongoDB.Driver.Tests.Search
             public string Title { get; set; }
 
             [BsonElement("plot")]
-            public double[] Plot { get; set; }
+            public string Plot { get; set; }
 
             [BsonElement("score")]
             public double Score { get; set; }

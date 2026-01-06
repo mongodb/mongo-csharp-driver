@@ -44,7 +44,7 @@ public sealed class CreateVectorSearchIndexModel<TDocument> : CreateSearchIndexM
     public int Dimensions { get; init; }
 
     /// <summary>
-    /// The name of the embedding model to use, such as "voyage-4", voyage-4-large", etc. Only used for auto-embedding
+    /// The name of the embedding model to use, such as "voyage-4", "voyage-4-large", etc. Only used for auto-embedding
     /// vector indexes.
     /// </summary>
     public string AutoEmbeddingModelName { get; }
@@ -142,7 +142,7 @@ public sealed class CreateVectorSearchIndexModel<TDocument> : CreateSearchIndexM
     /// </summary>
     /// <param name="name">The index name.</param>
     /// <param name="field">The field containing the vectors to index.</param>
-    /// <param name="embeddingModelName">The name of the embedding model to use, such as "voyage-4", voyage-4-large", etc.</param>
+    /// <param name="embeddingModelName">The name of the embedding model to use, such as "voyage-4", "voyage-4-large", etc.</param>
     /// <param name="filterFields">Fields that may be used as filters in the vector query.</param>
     public CreateVectorSearchIndexModel(
         FieldDefinition<TDocument> field,
@@ -165,7 +165,7 @@ public sealed class CreateVectorSearchIndexModel<TDocument> : CreateSearchIndexM
     /// </summary>
     /// <param name="name">The index name.</param>
     /// <param name="field">An expression pointing to the field containing the vectors to index.</param>
-    /// <param name="embeddingModelName">The name of the embedding model to use, such as "voyage-4", voyage-4-large", etc.</param>
+    /// <param name="embeddingModelName">The name of the embedding model to use, such as "voyage-4", "voyage-4-large", etc.</param>
     /// <param name="filterFields">Expressions pointing to fields that may be used as filters in the vector query.</param>
     public CreateVectorSearchIndexModel(
         Expression<Func<TDocument, object>> field,
