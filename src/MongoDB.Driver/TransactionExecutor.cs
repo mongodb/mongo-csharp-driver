@@ -34,7 +34,7 @@ namespace MongoDB.Driver
             Func<IClientSessionHandle, CancellationToken, TResult> callback,
             TransactionOptions transactionOptions,
             IClock clock,
-            IRandomNumberGenerator randomNumberGenerator,
+            IRandom random,
             CancellationToken cancellationToken)
         {
             var attempt = 0;
@@ -65,7 +65,7 @@ namespace MongoDB.Driver
                         throw;
                     }
 
-                    var delay = GetRetryDelay(randomNumberGenerator, attempt);
+                    var delay = GetRetryDelay(random, attempt);
                     if (IsTimedOut(operationContext, delay))
                     {
                         throw;
@@ -81,7 +81,7 @@ namespace MongoDB.Driver
             Func<IClientSessionHandle, CancellationToken, Task<TResult>> callbackAsync,
             TransactionOptions transactionOptions,
             IClock clock,
-            IRandomNumberGenerator randomNumberGenerator,
+            IRandom random,
             CancellationToken cancellationToken)
         {
             var attempt = 0;
@@ -112,7 +112,7 @@ namespace MongoDB.Driver
                         throw;
                     }
 
-                    var delay = GetRetryDelay(randomNumberGenerator, attempt);
+                    var delay = GetRetryDelay(random, attempt);
                     if (IsTimedOut(operationContext, delay))
                     {
                         throw;
@@ -123,8 +123,8 @@ namespace MongoDB.Driver
             }
         }
 
-        private static TimeSpan GetRetryDelay(IRandomNumberGenerator randomNumberGenerator, int attempt)
-            => TimeSpan.FromMilliseconds(RetryabilityHelper.GetRetryDelayMs(randomNumberGenerator, attempt, 1.5, 5, 500));
+        private static TimeSpan GetRetryDelay(IRandom random, int attempt)
+            => TimeSpan.FromMilliseconds(RetryabilityHelper.GetRetryDelayMs(random, attempt, 1.5, 5, 500));
 
         private static bool IsTimedOut(OperationContext operationContext, TimeSpan delay = default)
         {

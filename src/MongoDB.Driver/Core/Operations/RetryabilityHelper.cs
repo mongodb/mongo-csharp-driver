@@ -108,15 +108,15 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public static int GetRetryDelayMs(IRandomNumberGenerator randomNumberGenerator, int attempt, double backoffBase, int backoffInitial, int backoffMax)
+        public static int GetRetryDelayMs(IRandom random, int attempt, double backoffBase, int backoffInitial, int backoffMax)
         {
-            Ensure.IsNotNull(randomNumberGenerator, nameof(randomNumberGenerator));
+            Ensure.IsNotNull(random, nameof(random));
             Ensure.IsGreaterThanZero(attempt, nameof(attempt));
             Ensure.IsGreaterThanZero(backoffBase, nameof(backoffBase));
             Ensure.IsGreaterThanZero(backoffInitial, nameof(backoffInitial));
             Ensure.IsGreaterThan(backoffMax, backoffInitial, nameof(backoffMax));
 
-            var j = randomNumberGenerator.NextDouble();
+            var j = random.NextDouble();
             return (int)(j * Math.Min(backoffMax, backoffInitial * Math.Pow(backoffBase, attempt - 1)));
         }
 
