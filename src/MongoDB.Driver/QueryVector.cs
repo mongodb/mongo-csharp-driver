@@ -92,7 +92,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Performs an implicit conversion from <see cref="string"/>[] to <see cref="QueryVector"/>.
+        /// Performs an implicit conversion from <see cref="string"/> to <see cref="QueryVector"/>.
         /// </summary>
         /// <param name="text">The query text, for use with an auto-embedding index.</param>
         /// <returns>

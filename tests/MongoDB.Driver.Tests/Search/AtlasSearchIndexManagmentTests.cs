@@ -554,7 +554,7 @@ namespace MongoDB.Driver.Tests.Search
         public async Task Can_create_autoEmbed_vector_index_for_all_options_with_explicit_compression(
             [Values(false, true)] bool async)
         {
-            var indexName = "auto-embed-all-profile" + (async ? "-async" : "");
+            var indexName = "auto-embed-all-explicit" + (async ? "-async" : "");
 
             var indexModel = new CreateVectorSearchIndexModel<EntityWithVector>(
                 e => e.SomeText, indexName, "voyage-3")
@@ -731,7 +731,7 @@ namespace MongoDB.Driver.Tests.Search
         private async Task<BsonDocument[]> GetIndexes(bool async, bool expectTimeout, string[] indexNames)
         {
             BsonDocument[] indexesFiltered = null!;
-            var timeoutCount = 2;
+            var timeoutCount = 4;
             bool? expectTimeout = null;
             while (expectTimeout != true || --timeoutCount >= 0)
             {
