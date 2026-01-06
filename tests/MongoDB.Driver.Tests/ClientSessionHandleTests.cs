@@ -636,9 +636,9 @@ namespace MongoDB.Driver.Tests
         [ParameterAttributeData]
         public async Task WithTransaction_retry_backoff_is_enforced([Values(true, false)] bool async)
         {
-            var randomNumberGeneratorMock = new Mock<IRandomNumberGenerator>();
+            var randomNumberGeneratorMock = new Mock<IRandom>();
             var coreSessionMock = CreateCoreSessionMock();
-            var subject = CreateSubject(coreSession: coreSessionMock.Object, randomNumberGenerator: randomNumberGeneratorMock.Object);
+            var subject = CreateSubject(coreSession: coreSessionMock.Object, random: randomNumberGeneratorMock.Object);
 
             var noBackoffTime = await ExecuteWithTransactionAsync(0);
             var backoffTime = await ExecuteWithTransactionAsync(1);
@@ -703,14 +703,14 @@ namespace MongoDB.Driver.Tests
             ClientSessionOptions options = null,
             ICoreSessionHandle coreSession = null,
             IClock clock = null,
-            IRandomNumberGenerator randomNumberGenerator = null)
+            IRandom random = null)
         {
             client ??= Mock.Of<IMongoClient>();
             options ??= new ClientSessionOptions();
             coreSession ??= CreateCoreSession(options: options.ToCore());
             clock ??= SystemClock.Instance;
-            randomNumberGenerator ??= RandomNumberGenerator.Instance;
-            return new ClientSessionHandle(client, options, coreSession, clock, randomNumberGenerator);
+            random ??= DefaultRandom.Instance;
+            return new ClientSessionHandle(client, options, coreSession, clock, random);
         }
 
         private MongoException PrepareException(WithTransactionErrorState state)

@@ -13,10 +13,12 @@
 * limitations under the License.
 */
 
-namespace MongoDB.Driver.Core.Misc
+namespace MongoDB.Driver.Core.Misc;
+
+internal interface IRandom
 {
-    internal interface IRandomStringGenerator
-    {
-        string Generate(int length, string legalCharacters);
-    }
+    string GenerateString(int length, string legalCharacters);
+
+    double NextDouble();
 }
+

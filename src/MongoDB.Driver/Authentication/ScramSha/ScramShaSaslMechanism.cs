@@ -26,25 +26,25 @@ namespace MongoDB.Driver.Authentication.ScramSha
         public const string ScramSha256MechanismName = "SCRAM-SHA-256";
 
         public static ScramShaSaslMechanism CreateScramSha1Mechanism(SaslContext context)
-            => CreateScramSha1Mechanism(context, DefaultRandomStringGenerator.Instance);
+            => CreateScramSha1Mechanism(context, DefaultRandom.Instance);
 
-        internal static ScramShaSaslMechanism CreateScramSha1Mechanism(SaslContext context, IRandomStringGenerator randomStringGenerator)
-            => Create(context, ScramSha1MechanismName, new ScramSha1Algorithm(), randomStringGenerator);
+        internal static ScramShaSaslMechanism CreateScramSha1Mechanism(SaslContext context, IRandom random)
+            => Create(context, ScramSha1MechanismName, new ScramSha1Algorithm(), random);
 
         public static ScramShaSaslMechanism CreateScramSha256Mechanism(SaslContext context)
-            => CreateScramSha256Mechanism(context, DefaultRandomStringGenerator.Instance);
+            => CreateScramSha256Mechanism(context, DefaultRandom.Instance);
 
-        internal static ScramShaSaslMechanism CreateScramSha256Mechanism(SaslContext context, IRandomStringGenerator randomStringGenerator)
-            => Create(context, ScramSha256MechanismName, new ScramSha256Algorithm(), randomStringGenerator);
+        internal static ScramShaSaslMechanism CreateScramSha256Mechanism(SaslContext context, IRandom random)
+            => Create(context, ScramSha256MechanismName, new ScramSha256Algorithm(), random);
 
         private static ScramShaSaslMechanism Create(
             SaslContext context,
             string mechanismName,
             IScramShaAlgorithm algorithm,
-            IRandomStringGenerator randomStringGenerator)
+            IRandom random)
         {
             Ensure.IsNotNull(context, nameof(context));
-            Ensure.IsNotNull(randomStringGenerator, nameof(randomStringGenerator));
+            Ensure.IsNotNull(random, nameof(random));
             if (context.Mechanism != mechanismName)
             {
                 throw new InvalidOperationException($"Unexpected authentication mechanism: {context.Mechanism}");
@@ -63,25 +63,25 @@ namespace MongoDB.Driver.Authentication.ScramSha
                 throw new NotSupportedException($"{mechanismName} auth mechanism require password.");
             }
 
-            return new ScramShaSaslMechanism(mechanismName, algorithm, credential, randomStringGenerator, new ScramCache());
+            return new ScramShaSaslMechanism(mechanismName, algorithm, credential, random, new ScramCache());
         }
 
         private readonly IScramShaAlgorithm _algorithm;
         private readonly ScramCache _cache;
         private readonly UsernamePasswordCredential _credential;
-        private readonly IRandomStringGenerator _randomStringGenerator;
+        private readonly IRandom _random;
 
         private ScramShaSaslMechanism(
             string mechanismName,
             IScramShaAlgorithm algorithm,
             UsernamePasswordCredential credential,
-            IRandomStringGenerator randomStringGenerator,
+            IRandom random,
             ScramCache cache)
         {
             Name = mechanismName;
             _algorithm = algorithm;
             _credential = credential;
-            _randomStringGenerator = randomStringGenerator;
+            _random = random;
             _cache = cache;
         }
 
@@ -99,7 +99,7 @@ namespace MongoDB.Driver.Authentication.ScramSha
         }
 
         public ISaslStep Initialize(SaslConversation conversation, ConnectionDescription description)
-            => new ScramShaFirstSaslStep(_algorithm, _credential, _randomStringGenerator, _cache);
+            => new ScramShaFirstSaslStep(_algorithm, _credential, _random, _cache);
 
         public void OnReAuthenticationRequired()
         {
