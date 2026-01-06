@@ -2167,9 +2167,10 @@ namespace MongoDB.Driver
                 args =>
                 {
                     ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
+                    var queryData = queryVector.Vector;
                     var vectorSearchOperator = new BsonDocument
                     {
-                        { "queryVector", queryVector.Vector },
+                        { queryData is BsonString ? "query" : "queryVector", queryData },
                         { "path", field.Render(args).FieldName },
                         { "limit", limit },
                         { "numCandidates", options?.NumberOfCandidates ?? limit * 10, options?.Exact != true },

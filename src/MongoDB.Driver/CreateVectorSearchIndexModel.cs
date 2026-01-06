@@ -32,14 +32,28 @@ public sealed class CreateVectorSearchIndexModel<TDocument> : CreateSearchIndexM
     public FieldDefinition<TDocument> Field { get; }
 
     /// <summary>
-    /// The <see cref="VectorSimilarity"/> to use to search for top K-nearest neighbors.
+    /// The <see cref="VectorSimilarity"/> to use to search for top K-nearest neighbors. Not used for auto-embedding
+    /// vector indexes.
     /// </summary>
     public VectorSimilarity Similarity { get; }
 
     /// <summary>
-    /// Number of vector dimensions that vector search enforces at index-time and query-time.
+    /// Number of vector dimensions that vector search enforces at index-time and query-time. For auto-embedding
+    /// indexes, this is only used when specifying explicit field compression using <see cref="Quantization"/>.
     /// </summary>
-    public int Dimensions { get; }
+    public int Dimensions { get; init; }
+
+    /// <summary>
+    /// The name of the embedding model to use, such as "voyage-4", voyage-4-large", etc. Only used for auto-embedding
+    /// vector indexes.
+    /// </summary>
+    public string AutoEmbeddingModelName { get; }
+
+    /// <summary>
+    /// Indicates the type of data that will be embedded for an auto-embedding index. Only used for auto-embedding
+    /// vector indexes. Defaults to <see cref="VectorEmbeddingModality.Text"/>.
+    /// </summary>
+    public VectorEmbeddingModality Modality { get; init; } = VectorEmbeddingModality.Text;
 
     /// <summary>
     /// Fields that may be used as filters in the vector query.
@@ -47,7 +61,8 @@ public sealed class CreateVectorSearchIndexModel<TDocument> : CreateSearchIndexM
     public IReadOnlyList<FieldDefinition<TDocument>> FilterFields { get; }
 
     /// <summary>
-    /// Type of automatic vector quantization for your vectors.
+    /// Type of automatic vector quantization for your vectors. At most one of <see cref="Quantization"/> and
+    /// <see cref="CompressionProfileName"/> can be used on any given index.
     /// </summary>
     public VectorQuantization? Quantization { get; init; }
 
@@ -62,8 +77,16 @@ public sealed class CreateVectorSearchIndexModel<TDocument> : CreateSearchIndexM
     public int? HnswNumEdgeCandidates { get; init; }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="CreateVectorSearchIndexModel{TDocument}"/> class, passing the
-    /// required options for <see cref="VectorSimilarity"/> and the number of vector dimensions to the constructor.
+    /// Specifies the compression profile to use for auto-embedding indexes. For example, "storage_optimized",
+    /// "balanced", or "accuracy_optimized". Only used by auto-embedding indexes. At most one
+    /// of <see cref="Quantization"/> and <see cref="CompressionProfileName"/> can be used on any given index.
+    /// </summary>
+    public string CompressionProfileName { get; init; }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="CreateVectorSearchIndexModel{TDocument}"/> class for a vector
+    /// index where the vector embeddings are created manually. The required options for <see cref="VectorSimilarity"/>
+    /// and the number of vector dimensions are passed to the constructor.
     /// </summary>
     /// <param name="name">The index name.</param>
     /// <param name="field">The field containing the vectors to index.</param>
@@ -81,12 +104,14 @@ public sealed class CreateVectorSearchIndexModel<TDocument> : CreateSearchIndexM
         Field = field;
         Similarity = similarity;
         Dimensions = dimensions;
+        AutoEmbeddingModelName = null;
         FilterFields = filterFields?.ToList() ?? [];
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="CreateVectorSearchIndexModel{TDocument}"/> class, passing the
-    /// required options for <see cref="VectorSimilarity"/> and the number of vector dimensions to the constructor.
+    /// Initializes a new instance of the <see cref="CreateVectorSearchIndexModel{TDocument}"/> class for a vector
+    /// index where the vector embeddings are created manually. The required options for <see cref="VectorSimilarity"/>
+    /// and the number of vector dimensions are passed to the constructor.
     /// </summary>
     /// <param name="name">The index name.</param>
     /// <param name="field">An expression pointing to the field containing the vectors to index.</param>
@@ -111,37 +136,119 @@ public sealed class CreateVectorSearchIndexModel<TDocument> : CreateSearchIndexM
     }
 
     /// <summary>
+    /// Initializes a new instance of the <see cref="CreateVectorSearchIndexModel{TDocument}"/> for a vector index
+    /// that will automatically create embeddings from a given field in the document. The embedding model to use must
+    /// be passed to this constructor.
+    /// </summary>
+    /// <param name="name">The index name.</param>
+    /// <param name="field">The field containing the vectors to index.</param>
+    /// <param name="embeddingModelName">The name of the embedding model to use, such as "voyage-4", voyage-4-large", etc.</param>
+    /// <param name="filterFields">Fields that may be used as filters in the vector query.</param>
+    public CreateVectorSearchIndexModel(
+        FieldDefinition<TDocument> field,
+        string name,
+        string embeddingModelName,
+        params FieldDefinition<TDocument>[] filterFields)
+        : base(name, SearchIndexType.VectorSearch)
+    {
+        Field = field;
+        Similarity = default;
+        Dimensions = -1;
+        AutoEmbeddingModelName = embeddingModelName;
+        FilterFields = filterFields?.ToList() ?? [];
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="CreateVectorSearchIndexModel{TDocument}"/> for a vector index
+    /// that will automatically create embeddings from a given field in the document. The embedding model to use must
+    /// be passed to this constructor.
+    /// </summary>
+    /// <param name="name">The index name.</param>
+    /// <param name="field">An expression pointing to the field containing the vectors to index.</param>
+    /// <param name="embeddingModelName">The name of the embedding model to use, such as "voyage-4", voyage-4-large", etc.</param>
+    /// <param name="filterFields">Expressions pointing to fields that may be used as filters in the vector query.</param>
+    public CreateVectorSearchIndexModel(
+        Expression<Func<TDocument, object>> field,
+        string name,
+        string embeddingModelName,
+        params Expression<Func<TDocument, object>>[] filterFields)
+        : this(
+            new ExpressionFieldDefinition<TDocument>(field),
+            name,
+            embeddingModelName,
+            filterFields?
+                .Select(f => (FieldDefinition<TDocument>)new ExpressionFieldDefinition<TDocument>(f))
+                .ToArray())
+    {
+    }
+
+    /// <summary>
     /// Renders the index model to a <see cref="BsonDocument"/>.
     /// </summary>
     /// <param name="renderArgs">The render arguments.</param>
     /// <returns>A <see cref="BsonDocument" />.</returns>
     public BsonDocument Render(RenderArgs<TDocument> renderArgs)
     {
-        var similarityValue = Similarity == VectorSimilarity.DotProduct
-            ? "dotProduct" // Because neither "DotProduct" or "dotproduct" are allowed.
-            : Similarity.ToString().ToLowerInvariant();
+        var vectorField = new BsonDocument { { "path", Field.Render(renderArgs).FieldName }, };
 
-        var vectorField = new BsonDocument
+        if (AutoEmbeddingModelName == null)
         {
-            { "type", BsonString.Create("vector") },
-            { "path", Field.Render(renderArgs).FieldName },
-            { "numDimensions", BsonInt32.Create(Dimensions) },
-            { "similarity", BsonString.Create(similarityValue) },
-        };
+            vectorField.Add("type", "vector");
 
-        if (Quantization.HasValue)
+            var similarityValue = Similarity == VectorSimilarity.DotProduct
+                ? "dotProduct" // Because neither "DotProduct" or "dotproduct" are allowed.
+                : Similarity.ToString().ToLowerInvariant();
+
+            vectorField.Add("numDimensions", Dimensions);
+            vectorField.Add("similarity", similarityValue);
+
+            if (Quantization.HasValue)
+            {
+                vectorField.Add("quantization", Quantization.ToString()?.ToLowerInvariant());
+            }
+        }
+        else
         {
-            vectorField.Add("quantization", BsonString.Create(Quantization.ToString()?.ToLower()));
+            vectorField.Add("type", "autoEmbed");
+            vectorField.Add("modality", Modality.ToString().ToLowerInvariant());
+            vectorField.Add("model", AutoEmbeddingModelName);
+
+            if (CompressionProfileName != null)
+            {
+                if (Quantization != null)
+                {
+                    throw new NotSupportedException(
+                        $"Both compression profile and explicit compression options have been set for this index. Either set '{nameof(CompressionProfileName)}' or set '{nameof(Quantization)}' and '{nameof(Dimensions)}', but not both.");
+                }
+
+                // TODO: CSHARP-5763
+                // Currently throws "Command createSearchIndexes failed: "userCommand.indexes[0].fields[0]" unrecognized field "compression"."
+                // vectorField.Add("compression", CompressionProfileName);
+            }
+            else if (Quantization != null)
+            {
+                // TODO: CSHARP-5763
+                // Currently throws "Command createSearchIndexes failed: "userCommand.indexes[0].fields[0]" unrecognized field "compression"."
+                // vectorField.Add("compression", new BsonDocument
+                // {
+                //     { "quantization", Quantization.ToString()?.ToLowerInvariant() },
+                //     { "dimensions", Dimensions }
+                // });
+            }
         }
 
         if (HnswMaxEdges != null || HnswNumEdgeCandidates != null)
         {
-            var hnswDocument = new BsonDocument
+            // TODO: CSHARP-5763
+            // Currently throws "Command createSearchIndexes failed: "userCommand.indexes[0].fields[0]" unrecognized field "hnswOptions"."
+            if (AutoEmbeddingModelName == null)
             {
-                { "maxEdges", BsonInt32.Create(HnswMaxEdges ?? 16) },
-                { "numEdgeCandidates", BsonInt32.Create(HnswNumEdgeCandidates ?? 100) }
-            };
-            vectorField.Add("hnswOptions", hnswDocument);
+                vectorField.Add("hnswOptions",
+                    new BsonDocument
+                    {
+                        { "maxEdges", HnswMaxEdges ?? 16 }, { "numEdgeCandidates", HnswNumEdgeCandidates ?? 100 }
+                    });
+            }
         }
 
         var fieldDocuments = new List<BsonDocument> { vectorField };
@@ -152,8 +259,8 @@ public sealed class CreateVectorSearchIndexModel<TDocument> : CreateSearchIndexM
             {
                 var fieldDocument = new BsonDocument
                 {
-                    { "type", BsonString.Create("filter") },
-                    { "path", BsonString.Create(filterPath.Render(renderArgs).FieldName) }
+                    { "type", "filter" },
+                    { "path", filterPath.Render(renderArgs).FieldName }
                 };
 
                 fieldDocuments.Add(fieldDocument);
