@@ -41,6 +41,18 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="QueryVector"/> class with un-vectorized text for use with
+        /// an auto-embedding vector index, which will create the actual vector from this text.
+        /// </summary>
+        /// <param name="bsonText">The bson text to search for.</param>
+        public QueryVector(BsonString bsonText)
+        {
+            Ensure.IsNotNull(bsonText, nameof(bsonText));
+
+            Vector = bsonText;
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="QueryVector"/> class.
         /// </summary>
         /// <param name="bsonBinaryData">The bson binary data.</param>
@@ -78,6 +90,15 @@ namespace MongoDB.Driver
             this(new QueryVectorBsonArray<int>(readOnlyMemory))
         {
         }
+
+        /// <summary>
+        /// Performs an implicit conversion from <see cref="string"/>[] to <see cref="QueryVector"/>.
+        /// </summary>
+        /// <param name="text">The query text, for use with an auto-embedding index.</param>
+        /// <returns>
+        /// The result of the conversion.
+        /// </returns>
+        public static implicit operator QueryVector(string text) => new(text);
 
         /// <summary>
         /// Performs an implicit conversion from <see cref="double"/>[] to <see cref="QueryVector"/>.
