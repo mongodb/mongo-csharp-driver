@@ -72,7 +72,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
             .Select(x => x.DictionaryAsArrayOfArrays.Keys.Count);
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $size : { $map : { input : '$DictionaryAsArrayOfArrays', as : 'kvp', in : { $arrayElemAt : ['$$kvp', 0] } } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $size : '$DictionaryAsArrayOfArrays' }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(0, 1, 2, 3);
@@ -159,7 +159,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
             .Select(x => x.DictionaryAsArrayOfArrays.Values.Any());
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $gt : [{ $size : { $map : { input : '$DictionaryAsArrayOfArrays', as : 'kvp', in : { $arrayElemAt : ['$$kvp', 1] } } } }, 0] }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $gt : [{ $size : '$DictionaryAsArrayOfArrays' }, 0] }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(false, true, true, true);
@@ -225,7 +225,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
             .Select(x => x.DictionaryAsArrayOfArrays.Values.Count);
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $size : { $map : { input : '$DictionaryAsArrayOfArrays', as : 'kvp', in : { k : { $arrayElemAt : ['$$kvp', 0] }, v : { $arrayElemAt : ['$$kvp', 1] } } } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $size : '$DictionaryAsArrayOfArrays' }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(0, 1, 2, 3);
@@ -240,7 +240,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
             .Select(x => x.DictionaryAsArrayOfArrays.Values.Count());
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $size : { $map : { input : '$DictionaryAsArrayOfArrays', as : 'kvp', in : { $arrayElemAt : ['$$kvp', 1] } } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $size : '$DictionaryAsArrayOfArrays' }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(0, 1, 2, 3);
@@ -774,7 +774,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
             .Select(x => x.DictionaryAsDocument.Keys.Count);
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $size : { $map : { input : { $objectToArray : '$DictionaryAsDocument' }, as : 'kvp', in : '$$kvp.k' } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $size : { $objectToArray : '$DictionaryAsDocument' } }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(0, 1, 2, 3);
@@ -861,7 +861,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
             .Select(x => x.DictionaryAsDocument.Values.Any());
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $gt : [{ $size : { $map : { input : { $objectToArray : '$DictionaryAsDocument' }, as : 'item', in : '$$item.v' } } }, 0] }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $gt : [{ $size : { $objectToArray : '$DictionaryAsDocument' } }, 0] }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(false, true, true, true);
@@ -942,7 +942,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
             .Select(x => x.DictionaryAsDocument.Values.Count());
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $size : { $map : { input : { $objectToArray : '$DictionaryAsDocument' }, as : 'item', in : '$$item.v' } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $size : { $objectToArray : '$DictionaryAsDocument' } }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(0, 1, 2, 3);
@@ -1201,7 +1201,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
             .Select(x => x.IDictionaryAsArrayOfArrays.Keys.Count);
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $size : { $map : { input : '$IDictionaryAsArrayOfArrays', as : 'kvp', in : { $arrayElemAt : ['$$kvp', 0] } } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $size : '$IDictionaryAsArrayOfArrays' }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(0, 1, 2, 3);
@@ -1288,7 +1288,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
             .Select(x => x.IDictionaryAsArrayOfArrays.Values.Any());
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $gt : [{ $size : { $map : { input : '$IDictionaryAsArrayOfArrays', as : 'kvp', in : { $arrayElemAt : ['$$kvp', 1] } } } }, 0] }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $gt : [{ $size : '$IDictionaryAsArrayOfArrays' }, 0] }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(false, true, true, true);
@@ -1354,7 +1354,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
             .Select(x => x.IDictionaryAsArrayOfArrays.Values.Count);
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $size : { $map : { input : '$IDictionaryAsArrayOfArrays', as : 'kvp', in : { $arrayElemAt : ['$$kvp', 1] } } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $size : '$IDictionaryAsArrayOfArrays' }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(0, 1, 2, 3);
@@ -1369,7 +1369,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
             .Select(x => x.IDictionaryAsArrayOfArrays.Values.Count());
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $size : { $map : { input : '$IDictionaryAsArrayOfArrays', as : 'kvp', in : { $arrayElemAt : ['$$kvp', 1] } } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $size : '$IDictionaryAsArrayOfArrays' }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(0, 1, 2, 3);
@@ -1903,7 +1903,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
             .Select(x => x.IDictionaryAsDocument.Keys.Count);
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $size : { $map : { input : { $objectToArray : '$IDictionaryAsDocument' }, as : 'kvp', in : '$$kvp.k' } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $size : { $objectToArray : '$IDictionaryAsDocument' } }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(0, 1, 2, 3);
@@ -1990,7 +1990,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
             .Select(x => x.IDictionaryAsDocument.Values.Any());
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $gt : [{ $size : { $map : { input : { $objectToArray : '$IDictionaryAsDocument' }, as : 'kvp', in : '$$kvp.v' } } }, 0] }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $gt : [{ $size : { $objectToArray : '$IDictionaryAsDocument' } }, 0] }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(false, true, true, true);
@@ -2056,7 +2056,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
             .Select(x => x.IDictionaryAsDocument.Values.Count);
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $size : { $map : { input : { $objectToArray : '$IDictionaryAsDocument' }, as : 'kvp', in : '$$kvp.v' } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $size : { $objectToArray : '$IDictionaryAsDocument' } }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(0, 1, 2, 3);
@@ -2071,7 +2071,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
             .Select(x => x.IDictionaryAsDocument.Values.Count());
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $size : { $map : { input : { $objectToArray : '$IDictionaryAsDocument' }, as : 'kvp', in : '$$kvp.v' } } }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $size : { $objectToArray : '$IDictionaryAsDocument' } }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().Equal(0, 1, 2, 3);
