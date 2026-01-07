@@ -60,6 +60,11 @@ public class DefaultRandomTests
             .ParamName.Should().Be("legalCharacters");
     }
 
-
+    [Fact]
+    public void NextDouble_should_return_expected_result()
+    {
+        var result = DefaultRandom.Instance.NextDouble();
+        result.Should().BeInRange(0, 1);
+    }
 }
 

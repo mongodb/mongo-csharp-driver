@@ -57,11 +57,7 @@ internal sealed class DefaultRandom : IRandom
         });
 #endif
 
-        static char GetResultChar(string charset, byte randomValue)
-        {
-            var pos = randomValue % charset.Length;
-            return charset[pos];
-        }
+        static char GetResultChar(string charset, byte randomValue) => charset[randomValue % charset.Length];
     }
 
     public double NextDouble()

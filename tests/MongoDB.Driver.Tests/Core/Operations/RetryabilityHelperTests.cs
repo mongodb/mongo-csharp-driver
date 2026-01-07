@@ -106,12 +106,11 @@ namespace MongoDB.Driver.Core.Operations
         [InlineData(2, 2, 100, 10000, 0, 200)]
         [InlineData(3, 2, 100, 10000, 0, 400)]
         [InlineData(9999, 2, 100, 10000, 0, 10000)]
-
         [InlineData(1, 1.5, 100, 10000, 0, 100)]
         [InlineData(2, 1.5, 100, 10000, 0, 150)]
         [InlineData(3, 1.5, 100, 10000, 0, 225)]
         [InlineData(9999, 1.5, 100, 10000, 0, 10000)]
-        public void GetRetryDelayMs_should_return_expected_results(int attempt, double backoffBase, int backoffInitial, int backoffMax, int expectedRangeMin, int expectedRangeMax)
+        public void GetRetryDelayMs_should_return_expected_result(int attempt, double backoffBase, int backoffInitial, int backoffMax, int expectedRangeMin, int expectedRangeMax)
         {
             var result = RetryabilityHelper.GetRetryDelayMs(DefaultRandom.Instance, attempt, backoffBase, backoffInitial, backoffMax);
 
@@ -128,7 +127,6 @@ namespace MongoDB.Driver.Core.Operations
         [InlineData(1, 2, 100, -1, "backoffMax")]
         [InlineData(1, 2, 100, 0, "backoffMax")]
         [InlineData(1, 2, 100, 50, "backoffMax")]
-
         public void GetRetryDelayMs_throws_on_wrong_parameters(int attempt, double backoffBase, int backoffInitial, int backoffMax, string expectedParameterName)
         {
             var exception = Record.Exception(() => RetryabilityHelper.GetRetryDelayMs(DefaultRandom.Instance, attempt, backoffBase, backoffInitial, backoffMax));
