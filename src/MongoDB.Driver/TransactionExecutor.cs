@@ -49,7 +49,7 @@ namespace MongoDB.Driver
 
                 try
                 {
-                    var result = ExecuteCallback(operationContext, clientSession, callback, cancellationToken);
+                    var result = callback(clientSession, cancellationToken);
                     // Transaction could be completed by user's code inside the callback, skipping commit in such case.
                     if (IsTransactionInStartingOrInProgressState(clientSession))
                     {
@@ -60,13 +60,18 @@ namespace MongoDB.Driver
                 }
                 catch (Exception ex)
                 {
-                    if (!HasErrorLabel(ex, TransientTransactionErrorLabel))
+                    if (IsTransactionInStartingOrInProgressState(clientSession))
                     {
-                        throw;
+                        AbortTransactionOptions abortOptions = null;
+                        if (operationContext.IsRootContextTimeoutConfigured())
+                        {
+                            abortOptions = new AbortTransactionOptions(operationContext.RootContext.Timeout);
+                        }
+
+                        clientSession.AbortTransaction(abortOptions, cancellationToken);
                     }
 
-                    var delay = GetRetryDelay(random, attempt);
-                    if (IsTimedOut(operationContext, delay))
+                    if (!ShouldRetryTransaction(operationContext, ex, random, attempt, out var delay))
                     {
                         throw;
                     }
@@ -96,7 +101,7 @@ namespace MongoDB.Driver
 
                 try
                 {
-                    var result = await ExecuteCallbackAsync(operationContext, clientSession, callbackAsync, cancellationToken).ConfigureAwait(false);
+                    var result = await callbackAsync(clientSession, cancellationToken).ConfigureAwait(false);
                     // Transaction could be completed by user's code inside the callback, skipping commit in such case.
                     if (IsTransactionInStartingOrInProgressState(clientSession))
                     {
@@ -107,13 +112,18 @@ namespace MongoDB.Driver
                 }
                 catch (Exception ex)
                 {
-                    if (!HasErrorLabel(ex, TransientTransactionErrorLabel))
+                    if (IsTransactionInStartingOrInProgressState(clientSession))
                     {
-                        throw;
+                        AbortTransactionOptions abortOptions = null;
+                        if (operationContext.IsRootContextTimeoutConfigured())
+                        {
+                            abortOptions = new AbortTransactionOptions(operationContext.RootContext.Timeout);
+                        }
+
+                        await clientSession.AbortTransactionAsync(abortOptions, cancellationToken).ConfigureAwait(false);
                     }
 
-                    var delay = GetRetryDelay(random, attempt);
-                    if (IsTimedOut(operationContext, delay))
+                    if (!ShouldRetryTransaction(operationContext, ex, random, attempt, out var delay))
                     {
                         throw;
                     }
@@ -123,8 +133,23 @@ namespace MongoDB.Driver
             }
         }
 
-        private static TimeSpan GetRetryDelay(IRandom random, int attempt)
-            => TimeSpan.FromMilliseconds(RetryabilityHelper.GetRetryDelayMs(random, attempt, 1.5, 5, 500));
+        private static bool ShouldRetryTransaction(OperationContext operationContext, Exception ex, IRandom random, int attempt, out TimeSpan delay)
+        {
+            if (!HasErrorLabel(ex, TransientTransactionErrorLabel))
+            {
+                delay = TimeSpan.Zero;
+                return false;
+            }
+
+            delay = TimeSpan.FromMilliseconds(RetryabilityHelper.GetRetryDelayMs(random, attempt, 1.5, 5, 500));
+            if (IsTimedOut(operationContext, delay))
+            {
+                delay = TimeSpan.Zero;
+                return false;
+            }
+
+            return true;
+        }
 
         private static bool IsTimedOut(OperationContext operationContext, TimeSpan delay = default)
         {
@@ -134,46 +159,6 @@ namespace MongoDB.Driver
             }
 
             return operationContext.RootContext.Elapsed + delay >= __transactionTimeout;
-        }
-
-        private static TResult ExecuteCallback<TResult>(OperationContext operationContext, IClientSessionHandle clientSession, Func<IClientSessionHandle, CancellationToken, TResult> callback, CancellationToken cancellationToken)
-        {
-            try
-            {
-                return callback(clientSession, cancellationToken);
-            }
-            catch (Exception) when (IsTransactionInStartingOrInProgressState(clientSession))
-            {
-                AbortTransactionOptions abortOptions = null;
-                if (operationContext.IsRootContextTimeoutConfigured())
-                {
-                    abortOptions = new AbortTransactionOptions(operationContext.RootContext.Timeout);
-                }
-
-                clientSession.AbortTransaction(abortOptions, cancellationToken);
-
-                throw;
-            }
-        }
-
-        private static async Task<TResult> ExecuteCallbackAsync<TResult>(OperationContext operationContext, IClientSessionHandle clientSession, Func<IClientSessionHandle, CancellationToken, Task<TResult>> callbackAsync, CancellationToken cancellationToken)
-        {
-            try
-            {
-                return await callbackAsync(clientSession, cancellationToken).ConfigureAwait(false);
-            }
-            catch (Exception) when (IsTransactionInStartingOrInProgressState(clientSession))
-            {
-                AbortTransactionOptions abortOptions = null;
-                if (operationContext.IsRootContextTimeoutConfigured())
-                {
-                    abortOptions = new AbortTransactionOptions(operationContext.RootContext.Timeout);
-                }
-
-                await clientSession.AbortTransactionAsync(abortOptions, cancellationToken).ConfigureAwait(false);
-
-                throw;
-            }
         }
 
         private static void CommitWithRetries(OperationContext operationContext, IClientSessionHandle clientSession, CancellationToken cancellationToken)

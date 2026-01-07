@@ -640,13 +640,12 @@ namespace MongoDB.Driver.Tests
             var coreSessionMock = CreateCoreSessionMock();
             var subject = CreateSubject(coreSession: coreSessionMock.Object, random: randomNumberGeneratorMock.Object);
 
-            var noBackoffTime = await ExecuteWithTransactionAsync(0);
-            var backoffTime = await ExecuteWithTransactionAsync(1);
+            var noBackoffTimeMs = await ExecuteWithTransactionAsync(0);
+            var backoffTimeMs = await ExecuteWithTransactionAsync(1);
 
-            var difference = backoffTime - noBackoffTime - TimeSpan.FromSeconds(2.2);
-            difference.Should().BeLessThan(TimeSpan.FromMilliseconds(1));
+            backoffTimeMs.Should().BeApproximately(noBackoffTimeMs + 2200, 1);
 
-            async Task<TimeSpan> ExecuteWithTransactionAsync(double randomValue)
+            async Task<double> ExecuteWithTransactionAsync(double randomValue)
             {
                 var sw = Stopwatch.StartNew();
                 randomNumberGeneratorMock.Reset();
@@ -657,7 +656,7 @@ namespace MongoDB.Driver.Tests
                     await subject.WithTransactionAsync((_, _) => Task.FromResult(true)) :
                     subject.WithTransaction((_, _) => true);
 
-                return sw.Elapsed;
+                return sw.Elapsed.TotalMilliseconds;
             }
 
             void ConfigureCoreSessionMock(Mock<ICoreSessionHandle> coreSession)
