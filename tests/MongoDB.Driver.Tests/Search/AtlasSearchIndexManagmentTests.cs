@@ -508,7 +508,7 @@ namespace MongoDB.Driver.Tests.Search
             var indexName = "auto-embed-all-profile" + (async ? "-async" : "");
 
             var indexModel = new CreateVectorSearchIndexModel<EntityWithVector>(
-                e => e.SomeText, indexName, "voyage-3")
+                e => e.SomeText, indexName, "voyage-4")
             {
                 HnswMaxEdges = 18,
                 HnswNumEdgeCandidates = 102,
@@ -532,7 +532,7 @@ namespace MongoDB.Driver.Tests.Search
             var indexField = fields[0].AsBsonDocument;
             indexField["type"].AsString.Should().Be("autoEmbed");
             indexField["path"].AsString.Should().Be("SomeText");
-            indexField["model"].AsString.Should().Be("voyage-3");
+            indexField["model"].AsString.Should().Be("voyage-4");
             indexField["modality"].AsString.Should().Be("text");
 
             // TODO: CSHARP-5763
@@ -557,7 +557,7 @@ namespace MongoDB.Driver.Tests.Search
             var indexName = "auto-embed-all-explicit" + (async ? "-async" : "");
 
             var indexModel = new CreateVectorSearchIndexModel<EntityWithVector>(
-                e => e.SomeText, indexName, "voyage-3")
+                e => e.SomeText, indexName, "voyage-4")
             {
                 HnswMaxEdges = 18,
                 HnswNumEdgeCandidates = 102,
@@ -582,7 +582,7 @@ namespace MongoDB.Driver.Tests.Search
             var indexField = fields[0].AsBsonDocument;
             indexField["type"].AsString.Should().Be("autoEmbed");
             indexField["path"].AsString.Should().Be("SomeText");
-            indexField["model"].AsString.Should().Be("voyage-3");
+            indexField["model"].AsString.Should().Be("voyage-4");
             indexField["modality"].AsString.Should().Be("text");
 
             // TODO: CSHARP-5763
@@ -610,7 +610,7 @@ namespace MongoDB.Driver.Tests.Search
             var indexModel = new CreateVectorSearchIndexModel<EntityWithVector>(
                 "SomeText",
                 indexName,
-                "voyage-3",
+                "voyage-4",
                 "Filter1", "Filter2", "Filter3");
 
             var collection = _database.GetCollection<EntityWithVector>(_collection.CollectionNamespace.CollectionName);
@@ -629,7 +629,7 @@ namespace MongoDB.Driver.Tests.Search
             var indexField = fields[0].AsBsonDocument;
             indexField["type"].AsString.Should().Be("autoEmbed");
             indexField["path"].AsString.Should().Be("SomeText");
-            indexField["model"].AsString.Should().Be("voyage-3");
+            indexField["model"].AsString.Should().Be("voyage-4");
             indexField["modality"].AsString.Should().Be("text");
 
             for (var i = 1; i <= 3; i++)
@@ -654,7 +654,7 @@ namespace MongoDB.Driver.Tests.Search
             var indexModel = new CreateVectorSearchIndexModel<EntityWithVector>(
                 e => e.SomeText,
                 indexName,
-                "voyage-3",
+                "voyage-4",
                 e => e.Filter1, e => e.Filter2, e => e.Filter3);
 
             var collection = _database.GetCollection<EntityWithVector>(_collection.CollectionNamespace.CollectionName);
@@ -673,7 +673,7 @@ namespace MongoDB.Driver.Tests.Search
             var indexField = fields[0].AsBsonDocument;
             indexField["type"].AsString.Should().Be("autoEmbed");
             indexField["path"].AsString.Should().Be("SomeText");
-            indexField["model"].AsString.Should().Be("voyage-3");
+            indexField["model"].AsString.Should().Be("voyage-4");
             indexField["modality"].AsString.Should().Be("text");
 
             for (var i = 1; i <= 3; i++)
@@ -731,7 +731,7 @@ namespace MongoDB.Driver.Tests.Search
         private async Task<BsonDocument[]> GetIndexes(bool async, bool expectTimeout, string[] indexNames)
         {
             BsonDocument[] indexesFiltered = null!;
-            var timeoutCount = 4;
+            var timeoutCount = 2;
             bool? expectTimeout = null;
             while (expectTimeout != true || --timeoutCount >= 0)
             {

@@ -145,39 +145,23 @@ namespace MongoDB.Driver.Tests.Search
         {
             var expectedTitles = new[]
             {
-                "Red Dawn",
-                "Sands of Iwo Jima",
-                "White Tiger",
-                "P-51 Dragon Fighter",
-                "When Trumpets Fade"
+                "Red Dawn", "Sands of Iwo Jima", "White Tiger", "P-51 Dragon Fighter", "When Trumpets Fade"
             };
 
-            var options = new VectorSearchOptions<Movie>
-            {
-                IndexName = "autoEmbedded"
-            };
+            var options = new VectorSearchOptions<Movie> { IndexName = "autoEmbedded" };
 
             var vectorText = "Tigers or Trumpets";
 
-            try
-            {
-                // // TODO: CSHARP-5763 Currently fails with:
-                // "Command aggregate failed: Executor error during aggregate command on namespace: sample_mflix.movies :: caused by :: CanonicalModel: voyage-4 not registered yet, supported models are: []."
-                var results = GetMoviesCollection()
-                    .Aggregate()
-                    .VectorSearch(m => m.Plot, new QueryVector(vectorText), 5, options)
-                    .Project<Movie>(Builders<Movie>.Projection
-                        .Include(m => m.Title)
-                        .MetaVectorSearchScore(p => p.Score))
-                    .ToList();
+            var results = GetMoviesCollection()
+                .Aggregate()
+                .VectorSearch(m => m.Plot, new QueryVector(vectorText), 5, options)
+                .Project<Movie>(Builders<Movie>.Projection
+                    .Include(m => m.Title)
+                    .MetaVectorSearchScore(p => p.Score))
+                .ToList();
 
-                results.Select(m => m.Title).ShouldBeEquivalentTo(expectedTitles);
-                results.Should().OnlyContain(m => m.Score > 0.9);
-            }
-            catch (MongoCommandException ex)
-            {
-                Assert.Contains("supported models are: []", ex.Message);
-            }
+            results.Select(m => m.Title).ShouldBeEquivalentTo(expectedTitles);
+            results.Should().OnlyContain(m => m.Score > 0.9);
         }
 
         private IMongoCollection<EmbeddedMovie> GetEmbeddedMoviesCollection() => _mongoClient
