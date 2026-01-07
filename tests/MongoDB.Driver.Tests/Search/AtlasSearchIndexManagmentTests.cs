@@ -258,6 +258,56 @@ namespace MongoDB.Driver.Tests.Search
 
         [Theory(Timeout = Timeout)]
         [ParameterAttributeData]
+        public async Task Can_create_search_index_containing_vector_index(
+            [Values(false, true)] bool async)
+        {
+            var indexName = "search-vector" + (async ? "-async" : "");
+
+            var indexDefinition
+                = BsonDocument.Parse(
+                    """
+                    {
+                      "mappings": {
+                        "dynamic": false,
+                        "fields": {
+                          "Floats": {
+                            "type": "vector",
+                            "numDimensions": 1536,
+                            "similarity": "dotProduct"
+                            "quantization": "none",
+                            "hnswOptions": {
+                              "maxEdges": 32,
+                              "numEdgeCandidates": 512
+                            }
+                          }
+                        }
+                      }
+                    }
+                    """);
+
+            var indexModel = new CreateSearchIndexModel(indexName, indexDefinition);
+
+            var collection = _database.GetCollection<EntityWithVector>(_collection.CollectionNamespace.CollectionName);
+            var createdName = async
+                ? await collection.SearchIndexes.CreateOneAsync(indexModel)
+                : collection.SearchIndexes.CreateOne(indexModel);
+
+            createdName.Should().Be(indexName);
+
+            var index = (await GetIndexes(async, indexName))[0];
+            index["type"].AsString.Should().Be("search");
+
+            var mappings = index["latestDefinition"].AsBsonDocument["mappings"].AsBsonDocument;
+            mappings["dynamic"].AsBoolean.Should().Be(false);
+
+            var indexField = mappings["fields"].AsBsonDocument["Floats"].AsBsonDocument;
+            indexField["type"].AsString.Should().Be("vector");
+            indexField["numDimensions"].AsInt32.Should().Be(1536);
+            indexField["similarity"].AsString.Should().Be("dotProduct");
+        }
+
+        [Theory(Timeout = Timeout)]
+        [ParameterAttributeData]
         public async Task Can_create_Atlas_vector_index_for_all_options_using_typed_API(
             [Values(false, true)] bool async)
         {

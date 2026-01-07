@@ -522,4 +522,41 @@ namespace MongoDB.Driver.Search
                 { "allowAnalyzedField", _allowAnalyzedField, _allowAnalyzedField },
            };
     }
+
+    internal sealed class VectorSearchDefinition<TDocument> : OperatorSearchDefinition<TDocument>
+    {
+        private readonly QueryVector _queryVector;
+        private readonly int _limit;
+        private readonly VectorSearchOperatorOptions<TDocument> _options;
+
+        public VectorSearchDefinition(
+            SearchPathDefinition<TDocument> path,
+            QueryVector queryVector,
+            int limit,
+            VectorSearchOperatorOptions<TDocument> options,
+            SearchScoreDefinition<TDocument> score)
+                : base(OperatorType.VectorSearch, path, score)
+        {
+            Ensure.IsNotNull(path, nameof(path));
+            Ensure.IsNotNull(queryVector, nameof(queryVector));
+            Ensure.IsGreaterThanZero(limit, nameof(limit));
+            Ensure.That(options?.NumberOfCandidates is null || options.Exact == false, "Number of candidates must be omitted for exact nearest neighbour search (ENN).");
+
+            _queryVector = queryVector;
+            _limit = limit;
+            _options = options;
+        }
+
+        private protected override BsonDocument RenderArguments(
+            RenderArgs<TDocument> args,
+            IBsonSerializer fieldSerializer) =>
+            new()
+            {
+                { "queryVector", _queryVector.Vector },
+                { "limit", _limit },
+                { "numCandidates", _options?.NumberOfCandidates ?? _limit * 10, _options?.Exact != true },
+                { "filter", () => _options?.Filter.Render(args), _options?.Filter != null },
+                { "exact", true, _options?.Exact == true }
+            };
+    }
 }
