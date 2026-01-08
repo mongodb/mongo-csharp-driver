@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class IsMissingMethodToAggregationExpressionTranslator
     {
-        private static readonly IReadOnlyMethodInfoSet __isMissingMethods = MethodInfoSet.Create(
+        private static readonly IReadOnlyMethodInfoSet __translatableOverloads = MethodInfoSet.Create(
         [
             MqlMethod.Exists,
             MqlMethod.IsMissing,
@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__isMissingMethods))
+            if (method.IsOneOf(__translatableOverloads))
             {
                 var fieldExpression = arguments[0];
                 var fieldTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, fieldExpression);

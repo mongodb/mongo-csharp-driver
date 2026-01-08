@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class WindowMethodToAggregationExpressionTranslator
     {
-        private static readonly IReadOnlyMethodInfoSet __nullaryMethods = MethodInfoSet.Create(
+        private static readonly IReadOnlyMethodInfoSet __nullaryOverloads = MethodInfoSet.Create(
         [
             WindowMethod.Count,
             WindowMethod.DenseRank,
@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             WindowMethod.Rank
         ]);
 
-        private static readonly IReadOnlyMethodInfoSet __unaryMethods = MethodInfoSet.Create(
+        private static readonly IReadOnlyMethodInfoSet __unaryOverloads = MethodInfoSet.Create(
         [
             WindowMethod.AddToSet,
             WindowMethod.AverageWithDecimal,
@@ -88,7 +88,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             WindowMethod.SumWithSingle
         ]);
 
-        private static readonly IReadOnlyMethodInfoSet __binaryMethods = MethodInfoSet.Create(
+        private static readonly IReadOnlyMethodInfoSet __binaryOverloads = MethodInfoSet.Create(
         [
             WindowMethod.CovariancePopulationWithDecimals,
             WindowMethod.CovariancePopulationWithDoubles,
@@ -112,7 +112,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             WindowMethod.CovarianceSampleWithSingles
         ]);
 
-        private static readonly IReadOnlyMethodInfoSet __derivativeOrIntegralMethods = MethodInfoSet.Create(
+        private static readonly IReadOnlyMethodInfoSet __derivativeOrIntegralOverloads = MethodInfoSet.Create(
         [
             WindowMethod.DerivativeWithDecimal,
             WindowMethod.DerivativeWithDecimalAndUnit,
@@ -136,7 +136,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             WindowMethod.IntegralWithSingleAndUnit
         ]);
 
-        private static readonly IReadOnlyMethodInfoSet __exponentialMovingAverageMethods = MethodInfoSet.Create(
+        private static readonly IReadOnlyMethodInfoSet __exponentialMovingAverageOverloads = MethodInfoSet.Create(
         [
             WindowMethod.ExponentialMovingAverageWithDecimal,
             WindowMethod.ExponentialMovingAverageWithDouble,
@@ -145,13 +145,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             WindowMethod.ExponentialMovingAverageWithSingle
         ]);
 
-        private static readonly IReadOnlyMethodInfoSet __shiftMethods = MethodInfoSet.Create(
+        private static readonly IReadOnlyMethodInfoSet __shiftOverloads = MethodInfoSet.Create(
         [
             WindowMethod.Shift,
             WindowMethod.ShiftWithDefaultValue
         ]);
 
-        private static readonly IReadOnlyMethodInfoSet __quantileMethods = MethodInfoSet.Create(
+        private static readonly IReadOnlyMethodInfoSet __quantileOverloads = MethodInfoSet.Create(
         [
             WindowMethod.MedianWithDecimal,
             WindowMethod.MedianWithDouble,
@@ -199,7 +199,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     window = TranslateWindow(context, expression, windowExpression, inputSerializer);
                 }
 
-                if (method.IsOneOf(__nullaryMethods))
+                if (method.IsOneOf(__nullaryOverloads))
                 {
                     var @operator = GetNullaryWindowOperator(method);
                     var ast = AstExpression.NullaryWindowExpression(@operator, window);
@@ -213,7 +213,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     selectorTranslation = TranslateSelector(context, selectorLambda, inputSerializer);
                 }
 
-                if (method.IsOneOf(__unaryMethods))
+                if (method.IsOneOf(__unaryOverloads))
                 {
                     ThrowIfSelectorTranslationIsNull(selectorTranslation);
                     var @operator = GetUnaryWindowOperator(method);
@@ -222,7 +222,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     return new TranslatedExpression(expression, ast, serializer);
                 }
 
-                if (method.IsOneOf(__binaryMethods))
+                if (method.IsOneOf(__binaryOverloads))
                 {
                     var selector1Lambda = GetArgument<LambdaExpression>(parameters, "selector1", arguments);
                     var selector2Lambda = GetArgument<LambdaExpression>(parameters, "selector2", arguments);
@@ -235,7 +235,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     return new TranslatedExpression(expression, ast, serializer);
                 }
 
-                if (method.IsOneOf(__derivativeOrIntegralMethods))
+                if (method.IsOneOf(__derivativeOrIntegralOverloads))
                 {
                     ThrowIfSelectorTranslationIsNull(selectorTranslation);
                     WindowTimeUnit? unit = default;
@@ -250,7 +250,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     return new TranslatedExpression(expression, ast, serializer);
                 }
 
-                if (method.IsOneOf(__exponentialMovingAverageMethods))
+                if (method.IsOneOf(__exponentialMovingAverageOverloads))
                 {
                     ThrowIfSelectorTranslationIsNull(selectorTranslation);
                     var weightingExpression = arguments[2];
@@ -261,7 +261,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     return new TranslatedExpression(expression, ast, serializer);
                 }
 
-                if (method.IsOneOf(__quantileMethods))
+                if (method.IsOneOf(__quantileOverloads))
                 {
                     ThrowIfSelectorTranslationIsNull(selectorTranslation);
                     AstExpression ast;
@@ -282,7 +282,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     return new TranslatedExpression(expression, ast, serializer);
                 }
 
-                if (method.IsOneOf(__shiftMethods))
+                if (method.IsOneOf(__shiftOverloads))
                 {
                     ThrowIfSelectorTranslationIsNull(selectorTranslation);
                     var byExpression = arguments[2];

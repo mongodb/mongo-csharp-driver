@@ -139,9 +139,9 @@ internal partial class SerializerFinderVisitor
 
         IBsonSerializer GetDictionaryPropertySerializer()
         {
-            if (containingSerializer.Unwrapped() is not IBsonDictionarySerializer dictionarySerializer)
+            if (containingSerializer.GetValueSerializerIfWrapped() is not IBsonDictionarySerializer dictionarySerializer)
             {
-                throw new ExpressionNotSupportedException(node, because: "DictionarySerializer does not implement IBsonDictionarySerializer");
+                throw new ExpressionNotSupportedException(node, because: "dictionary serializer does not implement IBsonDictionarySerializer");
             }
 
             var keySerializer =  dictionarySerializer.KeySerializer;

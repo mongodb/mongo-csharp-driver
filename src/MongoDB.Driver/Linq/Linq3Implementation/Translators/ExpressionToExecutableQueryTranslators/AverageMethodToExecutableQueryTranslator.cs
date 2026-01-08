@@ -34,21 +34,21 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
     internal static class AverageMethodToExecutableQueryTranslator<TOutput>
     {
         // private static fields
-        private static readonly IReadOnlyMethodInfoSet __averageMethods;
-        private static readonly IReadOnlyMethodInfoSet __averageWithSelectorMethods;
+        private static readonly IReadOnlyMethodInfoSet __averageOverloads;
+        private static readonly IReadOnlyMethodInfoSet __averageWithSelectorOverloads;
         private static readonly IExecutableQueryFinalizer<TOutput, TOutput> __singleFinalizer = new SingleFinalizer<TOutput>();
         private static readonly IExecutableQueryFinalizer<TOutput, TOutput> __singleOrDefaultFinalizer = new SingleOrDefaultFinalizer<TOutput>();
 
         // static constructor
         static AverageMethodToExecutableQueryTranslator()
         {
-            __averageMethods = MethodInfoSet.Create(
+            __averageOverloads = MethodInfoSet.Create(
             [
                 QueryableMethod.AverageOverloads,
                 MongoQueryableMethod.AverageOverloads
             ]);
 
-            __averageWithSelectorMethods = MethodInfoSet.Create(
+            __averageWithSelectorOverloads = MethodInfoSet.Create(
             [
                 QueryableMethod.AverageWithSelectorOverloads,
                 MongoQueryableMethod.AverageWithSelectorOverloads
@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__averageMethods))
+            if (method.IsOneOf(__averageOverloads))
             {
                 var sourceExpression = arguments[0];
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
@@ -69,7 +69,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
 
                 var sourceSerializer = pipeline.OutputSerializer;
                 AstExpression valueExpression;
-                if (method.IsOneOf(__averageWithSelectorMethods))
+                if (method.IsOneOf(__averageWithSelectorOverloads))
                 {
                     var selectorLambda = ExpressionHelper.UnquoteLambda(arguments[1]);
                     var selectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, selectorLambda, sourceSerializer, asRoot: true);

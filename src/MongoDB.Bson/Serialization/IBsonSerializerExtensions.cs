@@ -68,7 +68,7 @@ namespace MongoDB.Bson.Serialization
                 throw new ArgumentException($"{baseType} is not assignable from {derivedTypeSerializer.ValueType}.");
             }
 
-            return BsonSerializer.LookupSerializer(baseType); // TODO: should be able to navigate from serializer
+            return BsonSerializer.LookupSerializer(baseType); // TODO: should be able to ask a serializer for the base type serializer
         }
 
         /// <summary>
@@ -89,7 +89,7 @@ namespace MongoDB.Bson.Serialization
                 throw new ArgumentException($"{baseTypeSerializer.ValueType} is not assignable from {derivedType}.");
             }
 
-            return BsonSerializer.LookupSerializer(derivedType); // TODO: should be able to navigate from serializer
+            return BsonSerializer.LookupSerializer(derivedType); // TODO: should be able to ask a serializer for the derived type serializer
         }
 
         /// <summary>

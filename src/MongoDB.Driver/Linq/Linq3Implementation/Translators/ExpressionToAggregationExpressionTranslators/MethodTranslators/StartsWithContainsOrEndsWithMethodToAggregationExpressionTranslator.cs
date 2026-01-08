@@ -31,13 +31,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class StartsWithContainsOrEndsWithMethodToAggregationExpressionTranslator
     {
-        private static readonly IReadOnlyMethodInfoSet __startsWithContainsOrEndsWithMethods;
-        private static readonly IReadOnlyMethodInfoSet __withComparisonTypeMethods;
-        private static readonly IReadOnlyMethodInfoSet __withIgnoreCaseAndCultureMethods;
+        private static readonly IReadOnlyMethodInfoSet __translatableOverloads;
+        private static readonly IReadOnlyMethodInfoSet __withComparisonTypeOverloads;
+        private static readonly IReadOnlyMethodInfoSet __withIgnoreCaseAndCultureOverloads;
 
         static StartsWithContainsOrEndsWithMethodToAggregationExpressionTranslator()
         {
-            __startsWithContainsOrEndsWithMethods = MethodInfoSet.Create(
+            __translatableOverloads = MethodInfoSet.Create(
             [
                 StringMethod.StartsWithWithChar,
                 StringMethod.StartsWithWithString,
@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 StringMethod.EndsWithWithStringAndIgnoreCaseAndCulture
             ]);
 
-            __withComparisonTypeMethods = MethodInfoSet.Create(
+            __withComparisonTypeOverloads = MethodInfoSet.Create(
             [
                 StringMethod.StartsWithWithStringAndComparisonType,
                 StringMethod.ContainsWithCharAndComparisonType,
@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 StringMethod.EndsWithWithStringAndComparisonType
             ]);
 
-            __withIgnoreCaseAndCultureMethods = MethodInfoSet.Create(
+            __withIgnoreCaseAndCultureOverloads = MethodInfoSet.Create(
             [
                 StringMethod.StartsWithWithStringAndIgnoreCaseAndCulture,
                 StringMethod.EndsWithWithStringAndIgnoreCaseAndCulture
@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         {
             var method = expression.Method;
 
-            if (method.IsOneOf(__startsWithContainsOrEndsWithMethods))
+            if (method.IsOneOf(__translatableOverloads))
             {
                 return true;
             }
@@ -216,7 +216,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
             bool IsWithComparisonTypeMethod(MethodInfo method)
             {
-                if (method.IsOneOf(__withComparisonTypeMethods))
+                if (method.IsOneOf(__withComparisonTypeOverloads))
                 {
                     return true;
                 }
@@ -226,7 +226,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
             bool IsWithIgnoreCaseAndCultureMethod(MethodInfo method)
             {
-                if (method.IsOneOf(__withIgnoreCaseAndCultureMethods))
+                if (method.IsOneOf(__withIgnoreCaseAndCultureOverloads))
                 {
                     return true;
                 }

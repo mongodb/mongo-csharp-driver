@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class WhereMethodToAggregationExpressionTranslator
     {
-        private static readonly IReadOnlyMethodInfoSet __whereMethods = MethodInfoSet.Create(
+        private static readonly IReadOnlyMethodInfoSet __whereOverloads = MethodInfoSet.Create(
         [
             EnumerableMethod.Where,
             MongoEnumerableMethod.WhereWithLimit,
@@ -36,7 +36,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__whereMethods))
+            if (method.IsOneOf(__whereOverloads))
             {
                 var sourceExpression = arguments[0];
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);

@@ -34,22 +34,22 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
     internal static class StringExpressionToRegexFilterTranslator
     {
         // private static fields
-        private static readonly IReadOnlyMethodInfoSet __modifierMethods;
-        private static readonly IReadOnlyMethodInfoSet __translatableMethods;
+        private static readonly IReadOnlyMethodInfoSet __modifierOverloads;
+        private static readonly IReadOnlyMethodInfoSet __translatableOverloads;
         private static readonly IReadOnlyMethodInfoSet __withComparisonTypeOverloads;
         private static readonly IReadOnlyMethodInfoSet __withIgnoreCaseAndCultureOverloads;
 
         // static constructor
         static StringExpressionToRegexFilterTranslator()
         {
-            __modifierMethods = MethodInfoSet.Create(
+            __modifierOverloads = MethodInfoSet.Create(
             [
                 StringMethod.ToLowerOverloads,
                 StringMethod.ToUpperOverloads,
                 StringMethod.TrimOverloads
             ]);
 
-            __translatableMethods = MethodInfoSet.Create(
+            __translatableOverloads = MethodInfoSet.Create(
             [
                 StringMethod.ContainsOverloads,
                 StringMethod.EndsWithOverloads,
@@ -78,7 +78,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             {
                 var method = methodCallExpression.Method;
 
-                if (method.IsOneOf(__translatableMethods))
+                if (method.IsOneOf(__translatableOverloads))
                 {
                     return true;
                 }
@@ -357,7 +357,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
         private static (AstFilterField, Modifiers) TranslateField(TranslationContext context, Expression expression, Expression fieldExpression)
         {
             if (fieldExpression is MethodCallExpression fieldMethodCallExpression &&
-                fieldMethodCallExpression.Method.IsOneOf(__modifierMethods))
+                fieldMethodCallExpression.Method.IsOneOf(__modifierOverloads))
             {
                 var (field, modifiers) = TranslateField(context, expression, fieldMethodCallExpression.Object);
                 modifiers = TranslateModifier(modifiers, fieldMethodCallExpression);

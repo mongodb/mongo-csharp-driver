@@ -14,7 +14,6 @@
 */
 
 using System.Linq.Expressions;
-using System.Reflection;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
@@ -32,19 +31,19 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
     {
         // private static fields
         private static readonly IExecutableQueryFinalizer<TOutput, TOutput> __finalizer = new SingleFinalizer<TOutput>();
-        private static readonly IReadOnlyMethodInfoSet __maxMethods;
-        private static readonly IReadOnlyMethodInfoSet __maxWithSelectorMethods;
+        private static readonly IReadOnlyMethodInfoSet __maxOverloads;
+        private static readonly IReadOnlyMethodInfoSet __maxWithSelectorOverloads;
 
         // static constructor
         static MaxMethodToExecutableQueryTranslator()
         {
-            __maxMethods = MethodInfoSet.Create(
+            __maxOverloads = MethodInfoSet.Create(
             [
                 QueryableMethod.MaxOverloads,
                 MongoQueryableMethod.MaxOverloads,
             ]);
 
-            __maxWithSelectorMethods = MethodInfoSet.Create(
+            __maxWithSelectorOverloads = MethodInfoSet.Create(
             [
                 QueryableMethod.MaxWithSelector,
                 MongoQueryableMethod.MaxWithSelectorAsync,
@@ -57,7 +56,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__maxMethods))
+            if (method.IsOneOf(__maxOverloads))
             {
                 var sourceExpression = arguments[0];
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
@@ -66,7 +65,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
                 var sourceSerializer = pipeline.OutputSerializer;
                 AstExpression valueAst;
                 IBsonSerializer valueSerializer;
-                if (method.IsOneOf(__maxWithSelectorMethods))
+                if (method.IsOneOf(__maxWithSelectorOverloads))
                 {
                     var selectorLambda = ExpressionHelper.UnquoteLambda(arguments[1]);
                     var selectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, selectorLambda, sourceSerializer, asRoot: true);

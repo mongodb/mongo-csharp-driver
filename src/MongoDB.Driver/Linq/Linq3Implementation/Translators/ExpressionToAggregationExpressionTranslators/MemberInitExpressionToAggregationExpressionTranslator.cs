@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                     if (!argumentTranslation.Serializer.CanBeAssignedTo(matchingMemberSerializationInfo.Serializer))
                     {
-                        throw new ExpressionNotSupportedException(argument, expression, because: "argument serializer is not equal to member serializer");
+                        throw new ExpressionNotSupportedException(argument, expression, because: "constructor argument serializer is not compatible with matching member serializer");
                     }
 
                     var computedField = AstExpression.ComputedField(matchingMemberSerializationInfo.ElementName, argumentTranslation.Ast);
@@ -89,7 +89,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                     if (!valueTranslation.Serializer.CanBeAssignedTo(memberSerializationInfo.Serializer))
                     {
-                        throw new ExpressionNotSupportedException(valueExpression, expression, because: $"value serializer is not equal to serializer for member {member.Name}");
+                        throw new ExpressionNotSupportedException(valueExpression, expression, because: $"value serializer is not compatible with serializer for member {member.Name}");
                     }
 
                     var computedField = AstExpression.ComputedField(memberSerializationInfo.ElementName, valueTranslation.Ast);

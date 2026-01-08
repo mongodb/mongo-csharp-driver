@@ -34,15 +34,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
     internal static class AnyMethodToExecutableQueryTranslator
     {
         // private static fields
-        private static readonly IReadOnlyMethodInfoSet __anyMethods;
-        private static readonly IReadOnlyMethodInfoSet __anyWithPredicateMethods;
+        private static readonly IReadOnlyMethodInfoSet __anyOverloads;
+        private static readonly IReadOnlyMethodInfoSet __anyWithPredicateOverloads;
         private static readonly IExecutableQueryFinalizer<BsonNull, bool> __finalizer = new AnyFinalizer();
         private static readonly IBsonSerializer<BsonNull> __outputSerializer = new WrappedValueSerializer<BsonNull>("_v", BsonNullSerializer.Instance);
 
         // static constructors
         static AnyMethodToExecutableQueryTranslator()
         {
-            __anyMethods = MethodInfoSet.Create(
+            __anyOverloads = MethodInfoSet.Create(
             [
                 QueryableMethod.Any,
                 QueryableMethod.AnyWithPredicate,
@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
                 MongoQueryableMethod.AnyWithPredicateAsync
             ]);
 
-            __anyWithPredicateMethods = MethodInfoSet.Create(
+            __anyWithPredicateOverloads = MethodInfoSet.Create(
             [
                 QueryableMethod.AnyWithPredicate,
                 MongoQueryableMethod.AnyWithPredicateAsync
@@ -63,12 +63,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__anyMethods))
+            if (method.IsOneOf(__anyOverloads))
             {
                 var sourceExpression = arguments[0];
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
 
-                if (method.IsOneOf(__anyWithPredicateMethods))
+                if (method.IsOneOf(__anyWithPredicateOverloads))
                 {
                     ClientSideProjectionHelper.ThrowIfClientSideProjection(expression, pipeline, method, "with a predicate");
 

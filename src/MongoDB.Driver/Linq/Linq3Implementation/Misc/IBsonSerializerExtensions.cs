@@ -158,8 +158,8 @@ internal static class IBsonSerializerExtensions
         return false;
     }
 
-    public static IBsonSerializer Unwrapped(this IBsonSerializer serializer)
+    public static IBsonSerializer GetValueSerializerIfWrapped(this IBsonSerializer serializer)
     {
-        return serializer is IWrappedValueSerializer wrappedValueSerializer ? wrappedValueSerializer.ValueSerializer.Unwrapped() :  serializer;
+        return serializer is IWrappedValueSerializer wrappedValueSerializer ? wrappedValueSerializer.ValueSerializer.GetValueSerializerIfWrapped() :  serializer;
     }
 }
