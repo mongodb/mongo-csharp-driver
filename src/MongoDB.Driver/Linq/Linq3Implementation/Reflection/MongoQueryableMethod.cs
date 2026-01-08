@@ -387,6 +387,20 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
                 __averageSingleWithSelectorAsync
             ]);
 
+            __averageWithSelectorOverloads = MethodInfoSet.Create(
+            [
+                __averageDecimalWithSelectorAsync,
+                __averageDoubleWithSelectorAsync,
+                __averageInt32WithSelectorAsync,
+                __averageInt64WithSelectorAsync,
+                __averageNullableDecimalWithSelectorAsync,
+                __averageNullableDoubleWithSelectorAsync,
+                __averageNullableInt32WithSelectorAsync,
+                __averageNullableInt64WithSelectorAsync,
+                __averageNullableSingleWithSelectorAsync,
+                __averageSingleWithSelectorAsync
+            ]);
+
             __countOverloads = MethodInfoSet.Create(
             [
                 __countAsync,
@@ -405,20 +419,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             [
                 __firstOrDefaultWithPredicateAsync,
                 __firstWithPredicateAsync
-            ]);
-
-            __averageWithSelectorOverloads = MethodInfoSet.Create(
-            [
-                __averageDecimalWithSelectorAsync,
-                __averageDoubleWithSelectorAsync,
-                __averageInt32WithSelectorAsync,
-                __averageInt64WithSelectorAsync,
-                __averageNullableDecimalWithSelectorAsync,
-                __averageNullableDoubleWithSelectorAsync,
-                __averageNullableInt32WithSelectorAsync,
-                __averageNullableInt64WithSelectorAsync,
-                __averageNullableSingleWithSelectorAsync,
-                __averageSingleWithSelectorAsync
             ]);
 
             __longCountOverloads = MethodInfoSet.Create(
@@ -508,6 +508,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
                 __skipWithLong,
                 __takeWithLong
             ]);
+
              __standardDeviationOverloads = MethodInfoSet.Create(
             [
                 __standardDeviationPopulationDecimal,
