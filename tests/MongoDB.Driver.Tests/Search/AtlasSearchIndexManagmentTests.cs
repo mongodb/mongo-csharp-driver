@@ -510,7 +510,7 @@ namespace MongoDB.Driver.Tests.Search
         public async Task Can_create_autoEmbed_vector_index_for_all_options(
             [Values(false, true)] bool async)
         {
-            var indexName = "auto-embed-all-profile" + (async ? "-async" : "");
+            var indexName = "auto-embed-all" + (async ? "-async" : "");
 
             var indexModel = new CreateVectorSearchIndexModel<EntityWithVector>(
                 e => e.SomeText, indexName, "voyage-4")
@@ -628,6 +628,42 @@ namespace MongoDB.Driver.Tests.Search
             indexField.Contains("quantization").Should().Be(false);
             indexField.Contains("hnswOptions").Should().Be(false);
             indexField.Contains("compression").Should().Be(false);
+        }
+
+        [Fact(Timeout = Timeout)]
+        public void Throws_for_unsupported_auto_embedding_options()
+        {
+            var collection = _database.GetCollection<EntityWithVector>(_collection.CollectionNamespace.CollectionName);
+
+            var indexModel = new CreateVectorSearchIndexModel<EntityWithVector>(
+                e => e.SomeText, Guid.NewGuid().ToString(), "voyage-4")
+            {
+                Quantization = VectorQuantization.Scalar
+            };
+
+            Assert.Equal(
+                "Currently, compression options such as 'Quantization' and 'Dimensions' are not supported for auto-embedding vector indexes.",
+                Assert.Throws<NotSupportedException>(() => collection.SearchIndexes.CreateOne(indexModel)).Message);
+
+            indexModel = new CreateVectorSearchIndexModel<EntityWithVector>(
+                e => e.SomeText, Guid.NewGuid().ToString(), "voyage-4")
+            {
+                HnswMaxEdges = 32
+            };
+
+            Assert.Equal(
+                "Currently, small-world options such as 'HnswMaxEdges' and 'HnswNumEdgeCandidates' are not supported for auto-embedding vector indexes.",
+                Assert.Throws<NotSupportedException>(() => collection.SearchIndexes.CreateOne(indexModel)).Message);
+
+            indexModel = new CreateVectorSearchIndexModel<EntityWithVector>(
+                e => e.SomeText, Guid.NewGuid().ToString(), "voyage-4")
+            {
+                HnswNumEdgeCandidates = 256
+            };
+
+            Assert.Equal(
+                "Currently, small-world options such as 'HnswMaxEdges' and 'HnswNumEdgeCandidates' are not supported for auto-embedding vector indexes.",
+                Assert.Throws<NotSupportedException>(() => collection.SearchIndexes.CreateOne(indexModel)).Message);
         }
 
         private class EntityWithVector
