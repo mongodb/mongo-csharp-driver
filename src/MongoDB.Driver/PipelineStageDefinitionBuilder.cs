@@ -2167,10 +2167,9 @@ namespace MongoDB.Driver
                 args =>
                 {
                     ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
-                    var queryData = queryVector.Vector;
+
                     var vectorSearchOperator = new BsonDocument
                     {
-                        { queryData is BsonString ? "query" : "queryVector", queryData },
                         { "path", field.Render(args).FieldName },
                         { "limit", limit },
                         { "numCandidates", options?.NumberOfCandidates ?? limit * 10, options?.Exact != true },
@@ -2178,6 +2177,16 @@ namespace MongoDB.Driver
                         { "filter", () => options?.Filter.Render(args with { RenderDollarForm = true }), options?.Filter != null },
                         { "exact", true, options?.Exact == true }
                     };
+
+                    if (queryVector.Vector is BsonString bsonString)
+                    {
+                        vectorSearchOperator["query"] = new BsonDocument { { "text", bsonString } };
+                        vectorSearchOperator.Add("model", options?.AutoEmbeddingModelName, options?.AutoEmbeddingModelName != null);
+                    }
+                    else
+                    {
+                        vectorSearchOperator["queryVector"] = queryVector.Vector;
+                    }
 
                     var document = new BsonDocument(operatorName, vectorSearchOperator);
                     return new RenderedPipelineStageDefinition<TInput>(operatorName, document, args.DocumentSerializer);

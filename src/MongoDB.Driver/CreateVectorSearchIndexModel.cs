@@ -38,8 +38,7 @@ public sealed class CreateVectorSearchIndexModel<TDocument> : CreateSearchIndexM
     public VectorSimilarity Similarity { get; }
 
     /// <summary>
-    /// Number of vector dimensions that vector search enforces at index-time and query-time. For auto-embedding
-    /// indexes, this is only used when specifying explicit field compression using <see cref="Quantization"/>.
+    /// Number of vector dimensions that vector search enforces at index-time and query-time.
     /// </summary>
     public int Dimensions { get; init; }
 
@@ -61,8 +60,7 @@ public sealed class CreateVectorSearchIndexModel<TDocument> : CreateSearchIndexM
     public IReadOnlyList<FieldDefinition<TDocument>> FilterFields { get; }
 
     /// <summary>
-    /// Type of automatic vector quantization for your vectors. At most one of <see cref="Quantization"/> and
-    /// <see cref="CompressionProfileName"/> can be used on any given index.
+    /// Type of automatic vector quantization for your vectors.
     /// </summary>
     public VectorQuantization? Quantization { get; init; }
 
@@ -75,13 +73,6 @@ public sealed class CreateVectorSearchIndexModel<TDocument> : CreateSearchIndexM
     /// Analogous to numCandidates at query-time, this parameter controls the maximum number of nodes to evaluate to find the closest neighbors to connect to a new node.
     /// </summary>
     public int? HnswNumEdgeCandidates { get; init; }
-
-    /// <summary>
-    /// Specifies the compression profile to use for auto-embedding indexes. For example, "storage_optimized",
-    /// "balanced", or "accuracy_optimized". Only used by auto-embedding indexes. At most one
-    /// of <see cref="Quantization"/> and <see cref="CompressionProfileName"/> can be used on any given index.
-    /// </summary>
-    public string CompressionProfileName { get; init; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CreateVectorSearchIndexModel{TDocument}"/> class for a vector
@@ -213,42 +204,29 @@ public sealed class CreateVectorSearchIndexModel<TDocument> : CreateSearchIndexM
             vectorField.Add("modality", Modality.ToString().ToLowerInvariant());
             vectorField.Add("model", AutoEmbeddingModelName);
 
-            if (CompressionProfileName != null)
+            if (Quantization != null)
+            {
+                throw new NotSupportedException(
+                    $"Both compression profile");
+            }
+
+            if (Dimensions == -1)
             {
                 if (Quantization != null)
                 {
                     throw new NotSupportedException(
-                        $"Both compression profile and explicit compression options have been set for this index. Either set '{nameof(CompressionProfileName)}' or set '{nameof(Quantization)}' and '{nameof(Dimensions)}', but not both.");
+                        $"Both compression profile");
                 }
-
-                // TODO: CSHARP-5763
-                // Currently throws "Command createSearchIndexes failed: "userCommand.indexes[0].fields[0]" unrecognized field "compression"."
-                // vectorField.Add("compression", CompressionProfileName);
-            }
-            else if (Quantization != null)
-            {
-                // TODO: CSHARP-5763
-                // Currently throws "Command createSearchIndexes failed: "userCommand.indexes[0].fields[0]" unrecognized field "compression"."
-                // vectorField.Add("compression", new BsonDocument
-                // {
-                //     { "quantization", Quantization.ToString()?.ToLowerInvariant() },
-                //     { "dimensions", Dimensions }
-                // });
             }
         }
 
         if (HnswMaxEdges != null || HnswNumEdgeCandidates != null)
         {
-            // TODO: CSHARP-5763
-            // Currently throws "Command createSearchIndexes failed: "userCommand.indexes[0].fields[0]" unrecognized field "hnswOptions"."
-            if (AutoEmbeddingModelName == null)
-            {
-                vectorField.Add("hnswOptions",
-                    new BsonDocument
-                    {
-                        { "maxEdges", HnswMaxEdges ?? 16 }, { "numEdgeCandidates", HnswNumEdgeCandidates ?? 100 }
-                    });
-            }
+            vectorField.Add("hnswOptions",
+                new BsonDocument
+                {
+                    { "maxEdges", HnswMaxEdges ?? 16 }, { "numEdgeCandidates", HnswNumEdgeCandidates ?? 100 }
+                });
         }
 
         var fieldDocuments = new List<BsonDocument> { vectorField };
