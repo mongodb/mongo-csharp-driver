@@ -637,19 +637,20 @@ namespace MongoDB.Driver.Tests
         [ParameterAttributeData]
         public async Task WithTransaction_retry_backoff_is_enforced([Values(true, false)] bool async)
         {
-            var backoffTimeMs = await ExecuteWithTransactionAsync(1);
+            var randomNumberGeneratorMock = new Mock<IRandom>();
+            var coreSessionMock = CreateCoreSessionMock();
+            var subject = CreateSubject(coreSession: coreSessionMock.Object, random: randomNumberGeneratorMock.Object);
+
             var noBackoffTimeMs = await ExecuteWithTransactionAsync(0);
+            var backoffTimeMs = await ExecuteWithTransactionAsync(1);
 
             backoffTimeMs.Should().BeApproximately(noBackoffTimeMs + 1800, 150);
 
             async Task<double> ExecuteWithTransactionAsync(double randomValue)
             {
-                var randomNumberGeneratorMock = new Mock<IRandom>();
+                randomNumberGeneratorMock.Reset();
                 randomNumberGeneratorMock.Setup(r => r.NextDouble()).Returns(randomValue);
-
-                var coreSessionMock = CreateCoreSessionMock();
                 ConfigureCoreSessionMock(coreSessionMock);
-                var subject = CreateSubject(coreSession: coreSessionMock.Object, random: randomNumberGeneratorMock.Object);
 
                 var sw = Stopwatch.StartNew();
                 _ = async ?
