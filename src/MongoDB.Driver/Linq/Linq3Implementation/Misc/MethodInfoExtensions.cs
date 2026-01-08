@@ -15,8 +15,8 @@
 
 using System;
 using System.Linq;
-using System.Collections.Generic;
 using System.Reflection;
+using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 {
@@ -111,37 +111,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             return false;
         }
 
-        public static bool IsOneOf(this MethodInfo method, HashSet<MethodInfo> comparands)
-        {
-            if (comparands != null)
-            {
-                if (method.IsGenericMethod)
-                {
-                    var methodDefinition = method.GetGenericMethodDefinition();
-                    return comparands.Contains(methodDefinition);
-                }
-                else
-                {
-                    return comparands.Contains(method);
-                }
-            }
-
-            return false;
-        }
-
-        public static bool IsOneOf(this MethodInfo method, params HashSet<MethodInfo>[] comparands)
-        {
-            for (var i = 0; i < comparands.Length; i++)
-            {
-                if (method.IsOneOf(comparands[i]))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
         public static bool IsOneOf(this MethodInfo method, MethodInfo comparand1, MethodInfo comparand2)
         {
             return method.Is(comparand1) || method.Is(comparand2);
@@ -157,31 +126,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             return method.Is(comparand1) || method.Is(comparand2) || method.Is(comparand3) || method.Is(comparand4);
         }
 
-        public static bool IsOneOf(this MethodInfo method, params MethodInfo[] comparands)
-        {
-            for (var i = 0; i < comparands.Length; i++)
-            {
-                if (method.Is(comparands[i]))
-                {
-                    return true;
-                }
-            }
+        public static bool IsOneOf(this MethodInfo method, IReadOnlyMethodInfoSet set) => set.Contains(method);
 
-            return false;
-        }
-
-        public static bool IsOneOf(this MethodInfo method, params MethodInfo[][] comparands)
-        {
-            for (var i = 0; i < comparands.Length; i++)
-            {
-                if (method.IsOneOf(comparands[i]))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
+        public static bool IsOneOf(this MethodInfo method, IReadOnlyMethodInfoSet set1, IReadOnlyMethodInfoSet set2) => set1.Contains(method) || set2.Contains(method);
 
         public static bool IsStaticCompareMethod(this MethodInfo method)
         {

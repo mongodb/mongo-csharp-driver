@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(MathMethod.Pow))
+            if (method.Is(MathMethod.Pow))
             {
                 var xExpression = arguments[0];
                 var yExpression = arguments[1];

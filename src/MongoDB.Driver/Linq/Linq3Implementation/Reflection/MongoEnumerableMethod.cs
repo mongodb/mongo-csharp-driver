@@ -108,16 +108,17 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __whereWithLimit;
 
         // sets of methods
-        private static readonly HashSet<MethodInfo> __medianOverloads;
-        private static readonly HashSet<MethodInfo> __medianWithSelectorOverloads;
-        private static readonly HashSet<MethodInfo> __percentileOverloads;
-        private static readonly HashSet<MethodInfo> __percentileWithSelectorOverloads;
-        private static readonly HashSet<MethodInfo> __standardDeviationOverloads;
-        private static readonly HashSet<MethodInfo> __standardDeviationWithSelectorOverloads;
+        private static readonly IReadOnlyMethodInfoSet __medianOverloads;
+        private static readonly IReadOnlyMethodInfoSet __medianWithSelectorOverloads;
+        private static readonly IReadOnlyMethodInfoSet __percentileOverloads;
+        private static readonly IReadOnlyMethodInfoSet __percentileWithSelectorOverloads;
+        private static readonly IReadOnlyMethodInfoSet __standardDeviationOverloads;
+        private static readonly IReadOnlyMethodInfoSet __standardDeviationWithSelectorOverloads;
 
         // static constructor
         static MongoEnumerableMethod()
         {
+            // initialize methods before sets of methods
             __allElements = ReflectionInfo.Method((IEnumerable<object> source) => source.AllElements());
             __allMatchingElements = ReflectionInfo.Method((IEnumerable<object> source, string identifier) => source.AllMatchingElements(identifier));
             __firstMatchingElement = ReflectionInfo.Method((IEnumerable<object> source) => source.FirstMatchingElement());
@@ -203,8 +204,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __standardDeviationSampleSingleWithSelector = ReflectionInfo.Method((IEnumerable<object> source, Func<object, float> selector) => source.StandardDeviationSample(selector));
             __whereWithLimit = ReflectionInfo.Method((IEnumerable<object> source, Func<object, bool> predicate, int limit) => source.Where(predicate, limit));
 
-            // initialize sets of methods after individual methods
-            __medianOverloads =
+            // initialize sets of methods after methods
+            __medianOverloads = MethodInfoSet.Create(
             [
                 __medianDecimal,
                 __medianDecimalWithSelector,
@@ -226,9 +227,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
                 __medianNullableSingleWithSelector,
                 __medianSingle,
                 __medianSingleWithSelector
-            ];
+            ]);
 
-            __medianWithSelectorOverloads =
+            __medianWithSelectorOverloads = MethodInfoSet.Create(
             [
                 __medianDecimalWithSelector,
                 __medianDoubleWithSelector,
@@ -240,9 +241,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
                 __medianNullableInt64WithSelector,
                 __medianNullableSingleWithSelector,
                 __medianSingleWithSelector
-            ];
+            ]);
 
-            __percentileOverloads =
+            __percentileOverloads = MethodInfoSet.Create(
             [
                 __percentileDecimal,
                 __percentileDecimalWithSelector,
@@ -264,9 +265,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
                 __percentileNullableSingleWithSelector,
                 __percentileSingle,
                 __percentileSingleWithSelector
-            ];
+            ]);
 
-            __percentileWithSelectorOverloads =
+            __percentileWithSelectorOverloads = MethodInfoSet.Create(
             [
                 __percentileDecimalWithSelector,
                 __percentileDoubleWithSelector,
@@ -278,9 +279,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
                 __percentileNullableInt64WithSelector,
                 __percentileNullableSingleWithSelector,
                 __percentileSingleWithSelector
-            ];
+            ]);
 
-            __standardDeviationOverloads =
+            __standardDeviationOverloads = MethodInfoSet.Create(
             [
                 __standardDeviationPopulationDecimal,
                 __standardDeviationPopulationDecimalWithSelector,
@@ -322,9 +323,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
                 __standardDeviationSampleNullableSingleWithSelector,
                 __standardDeviationSampleSingle,
                 __standardDeviationSampleSingleWithSelector,
-            ];
+            ]);
 
-            __standardDeviationWithSelectorOverloads =
+            __standardDeviationWithSelectorOverloads = MethodInfoSet.Create(
             [
                 __standardDeviationPopulationDecimalWithSelector,
                 __standardDeviationPopulationDoubleWithSelector,
@@ -346,7 +347,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
                 __standardDeviationSampleNullableInt64WithSelector,
                 __standardDeviationSampleNullableSingleWithSelector,
                 __standardDeviationSampleSingleWithSelector,
-            ];
+            ]);
         }
 
         // public properties
@@ -436,11 +437,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo WhereWithLimit => __whereWithLimit;
 
         // sets of methods
-        public static HashSet<MethodInfo> MedianOverloads => __medianOverloads;
-        public static HashSet<MethodInfo> MedianWithSelectorOverloads => __medianWithSelectorOverloads;
-        public static HashSet<MethodInfo> PercentileOverloads => __percentileOverloads;
-        public static HashSet<MethodInfo> PercentileWithSelectorOverloads => __percentileWithSelectorOverloads;
-        public static HashSet<MethodInfo> StandardDeviationOverloads => __standardDeviationOverloads;
-        public static HashSet<MethodInfo> StandardDeviationWithSelectorOverloads => __standardDeviationWithSelectorOverloads;
+        public static IReadOnlyMethodInfoSet MedianOverloads => __medianOverloads;
+        public static IReadOnlyMethodInfoSet MedianWithSelectorOverloads => __medianWithSelectorOverloads;
+        public static IReadOnlyMethodInfoSet PercentileOverloads => __percentileOverloads;
+        public static IReadOnlyMethodInfoSet PercentileWithSelectorOverloads => __percentileWithSelectorOverloads;
+        public static IReadOnlyMethodInfoSet StandardDeviationOverloads => __standardDeviationOverloads;
+        public static IReadOnlyMethodInfoSet StandardDeviationWithSelectorOverloads => __standardDeviationWithSelectorOverloads;
     }
 }

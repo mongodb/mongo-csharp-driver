@@ -32,25 +32,23 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
     {
         // private static fields
         private static readonly IExecutableQueryFinalizer<TOutput, TOutput> __finalizer = new SingleFinalizer<TOutput>();
-        private static readonly MethodInfo[] __maxMethods;
-        private static readonly MethodInfo[] __maxWithSelectorMethods;
+        private static readonly IReadOnlyMethodInfoSet __maxMethods;
+        private static readonly IReadOnlyMethodInfoSet __maxWithSelectorMethods;
 
         // static constructor
         static MaxMethodToExecutableQueryTranslator()
         {
-            __maxMethods = new[]
-            {
-                QueryableMethod.Max,
-                QueryableMethod.MaxWithSelector,
-                MongoQueryableMethod.MaxAsync,
-                MongoQueryableMethod.MaxWithSelectorAsync,
-            };
+            __maxMethods = MethodInfoSet.Create(
+            [
+                QueryableMethod.MaxOverloads,
+                MongoQueryableMethod.MaxOverloads,
+            ]);
 
-            __maxWithSelectorMethods = new[]
-            {
+            __maxWithSelectorMethods = MethodInfoSet.Create(
+            [
                 QueryableMethod.MaxWithSelector,
                 MongoQueryableMethod.MaxWithSelectorAsync,
-            };
+            ]);
         }
 
         // public static methods

@@ -28,19 +28,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class IndexOfAnyMethodToAggregationExpressionTranslator
     {
-        private static readonly MethodInfo[] __indexOfAnyMethods =
-        {
-            StringMethod.IndexOfAny,
-            StringMethod.IndexOfAnyWithStartIndex,
-            StringMethod.IndexOfAnyWithStartIndexAndCount,
-       };
-
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__indexOfAnyMethods))
+            if (method.IsOneOf(StringMethod.IndexOfAnyOverloads))
             {
                 var (stringVar, stringAst) = TranslateObject(expression.Object);
                 var anyOf = TranslateAnyOf(arguments);

@@ -31,14 +31,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class StartsWithContainsOrEndsWithMethodToAggregationExpressionTranslator
     {
-        private static readonly MethodInfo[] __startsWithContainsOrEndsWithMethods;
-        private static readonly MethodInfo[] __withComparisonTypeMethods;
-        private static readonly MethodInfo[] __withIgnoreCaseAndCultureMethods;
+        private static readonly IReadOnlyMethodInfoSet __startsWithContainsOrEndsWithMethods;
+        private static readonly IReadOnlyMethodInfoSet __withComparisonTypeMethods;
+        private static readonly IReadOnlyMethodInfoSet __withIgnoreCaseAndCultureMethods;
 
         static StartsWithContainsOrEndsWithMethodToAggregationExpressionTranslator()
         {
-            __startsWithContainsOrEndsWithMethods = new[]
-            {
+            __startsWithContainsOrEndsWithMethods = MethodInfoSet.Create(
+            [
                 StringMethod.StartsWithWithChar,
                 StringMethod.StartsWithWithString,
                 StringMethod.StartsWithWithStringAndComparisonType,
@@ -51,21 +51,21 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 StringMethod.EndsWithWithString,
                 StringMethod.EndsWithWithStringAndComparisonType,
                 StringMethod.EndsWithWithStringAndIgnoreCaseAndCulture
-            };
+            ]);
 
-            __withComparisonTypeMethods = new[]
-            {
+            __withComparisonTypeMethods = MethodInfoSet.Create(
+            [
                 StringMethod.StartsWithWithStringAndComparisonType,
                 StringMethod.ContainsWithCharAndComparisonType,
                 StringMethod.ContainsWithStringAndComparisonType,
                 StringMethod.EndsWithWithStringAndComparisonType
-            };
+            ]);
 
-            __withIgnoreCaseAndCultureMethods = new[]
-            {
+            __withIgnoreCaseAndCultureMethods = MethodInfoSet.Create(
+            [
                 StringMethod.StartsWithWithStringAndIgnoreCaseAndCulture,
                 StringMethod.EndsWithWithStringAndIgnoreCaseAndCulture
-            };
+            ]);
         }
 
         public static bool CanTranslate(MethodCallExpression expression)

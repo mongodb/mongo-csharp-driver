@@ -24,12 +24,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class WhereMethodToAggregationExpressionTranslator
     {
-        private static MethodInfo[] __whereMethods =
-        {
+        private static readonly IReadOnlyMethodInfoSet __whereMethods = MethodInfoSet.Create(
+        [
             EnumerableMethod.Where,
             MongoEnumerableMethod.WhereWithLimit,
             QueryableMethod.Where
-        };
+        ]);
 
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {

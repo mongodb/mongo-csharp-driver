@@ -96,27 +96,39 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         private static readonly MethodInfo __trimWithChars;
 
         // sets of methods
-        private static readonly HashSet<MethodInfo> __compareOverloads;
-        private static readonly HashSet<MethodInfo> __concatOverloads;
-        private static readonly HashSet<MethodInfo> __containsOverloads;
-        private static readonly HashSet<MethodInfo> __endsWithOverloads;
-        private static readonly HashSet<MethodInfo> __indexOfOverloads;
-        private static readonly HashSet<MethodInfo> __indexOfBytesOverloads;
-        private static readonly HashSet<MethodInfo> __indexOfWithCountOverloads;
-        private static readonly HashSet<MethodInfo> __indexOfWithStartIndexOverloads;
-        private static readonly HashSet<MethodInfo> __indexOfWithStringComparisonOverloads;
-        private static readonly HashSet<MethodInfo> __splitOverloads;
-        private static readonly HashSet<MethodInfo> __startsWithOverloads;
-        private static readonly HashSet<MethodInfo> __toLowerOverloads;
-        private static readonly HashSet<MethodInfo> __toUpperOverloads;
-
-        // arrays of sets of methods
-        private static readonly HashSet<MethodInfo>[] __endsWithOrStartsWithOverloads;
-        private static readonly HashSet<MethodInfo>[] __toLowerOrToUpperOverloads;
+        private static readonly IReadOnlyMethodInfoSet __anyStringInOverloads;
+        private static readonly IReadOnlyMethodInfoSet __anyStringNinOverloads;
+        private static readonly IReadOnlyMethodInfoSet __compareOverloads;
+        private static readonly IReadOnlyMethodInfoSet __concatOverloads;
+        private static readonly IReadOnlyMethodInfoSet __containsOverloads;
+        private static readonly IReadOnlyMethodInfoSet __endsWithOrStartsWithOverloads;
+        private static readonly IReadOnlyMethodInfoSet __endsWithOverloads;
+        private static readonly IReadOnlyMethodInfoSet __indexOfAnyOverloads;
+        private static readonly IReadOnlyMethodInfoSet __indexOfOverloads;
+        private static readonly IReadOnlyMethodInfoSet __indexOfBytesOverloads;
+        private static readonly IReadOnlyMethodInfoSet __indexOfWithCharOverloads;
+        private static readonly IReadOnlyMethodInfoSet __indexOfWithComparisonTypeOverloads;
+        private static readonly IReadOnlyMethodInfoSet __indexOfWithCountOverloads;
+        private static readonly IReadOnlyMethodInfoSet __indexOfWithStartIndexOverloads;
+        private static readonly IReadOnlyMethodInfoSet __indexOfWithStringOverloads;
+        private static readonly IReadOnlyMethodInfoSet __indexOfWithStringComparisonOverloads;
+        private static readonly IReadOnlyMethodInfoSet __splitOverloads;
+        private static readonly IReadOnlyMethodInfoSet __splitWithCharsOverloads;
+        private static readonly IReadOnlyMethodInfoSet __splitWithCountOverloads;
+        private static readonly IReadOnlyMethodInfoSet __splitWithOptionsOverloads;
+        private static readonly IReadOnlyMethodInfoSet __splitWithStringsOverloads;
+        private static readonly IReadOnlyMethodInfoSet __startsWithOverloads;
+        private static readonly IReadOnlyMethodInfoSet __stringInOverloads;
+        private static readonly IReadOnlyMethodInfoSet __stringNinOverloads;
+        private static readonly IReadOnlyMethodInfoSet __toLowerOrToUpperOverloads;
+        private static readonly IReadOnlyMethodInfoSet __toLowerOverloads;
+        private static readonly IReadOnlyMethodInfoSet __toUpperOverloads;
+        private static readonly IReadOnlyMethodInfoSet __trimOverloads;
 
         // static constructor
         static StringMethod()
         {
+            // initialize methods before sets of methods
 #if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
             __containsWithChar = ReflectionInfo.Method((string s, char value) => s.Contains(value));
             __containsWithCharAndComparisonType = ReflectionInfo.Method((string s, char value, StringComparison comparisonType) => s.Contains(value, comparisonType));
@@ -197,14 +209,26 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             __trimStart = ReflectionInfo.Method((string s, char[] trimChars) => s.TrimStart(trimChars));
             __trimWithChars = ReflectionInfo.Method((string s, char[] trimChars) => s.Trim(trimChars));
 
-            // initialize sets of methods after individual methods
-            __compareOverloads =
+                // initialize sets of methods after methods
+            __anyStringInOverloads = MethodInfoSet.Create(
+            [
+                __anyStringInWithEnumerable,
+                __anyStringInWithParams
+            ]);
+
+            __anyStringNinOverloads = MethodInfoSet.Create(
+            [
+                __anyStringNinWithEnumerable,
+                __anyStringNinWithParams,
+            ]);
+
+            __compareOverloads = MethodInfoSet.Create(
             [
                 __compare,
                 __compareWithIgnoreCase
-            ];
+            ]);
 
-            __concatOverloads =
+            __concatOverloads = MethodInfoSet.Create(
             [
                 __concatWith1Object,
                 __concatWith2Objects,
@@ -214,25 +238,32 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                 __concatWith4Strings,
                 __concatWithObjectArray,
                 __concatWithStringArray
-            ];
+            ]);
 
-            __containsOverloads =
+            __containsOverloads = MethodInfoSet.Create(
             [
                 __containsWithChar,
                 __containsWithCharAndComparisonType,
                 __containsWithString,
                 __containsWithStringAndComparisonType
-            ];
+            ]);
 
-            __endsWithOverloads =
+            __endsWithOverloads = MethodInfoSet.Create(
             [
                 __endsWithWithChar,
                 __endsWithWithString,
                 __endsWithWithStringAndComparisonType,
                 __endsWithWithStringAndIgnoreCaseAndCulture,
-            ];
+            ]);
 
-            __indexOfOverloads =
+            __indexOfAnyOverloads = MethodInfoSet.Create(
+            [
+                __indexOfAny,
+                __indexOfAnyWithStartIndex,
+                __indexOfAnyWithStartIndexAndCount,
+            ]);
+
+            __indexOfOverloads = MethodInfoSet.Create(
             [
                 __indexOfAny,
                 __indexOfAnyWithStartIndex,
@@ -249,17 +280,42 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                 __indexOfWithStringAndStartIndexAndComparisonType,
                 __indexOfWithStringAndStartIndexAndCount,
                 __indexOfWithStringAndStartIndexAndCountAndComparisonType,
-            ];
+            ]);
 
-            __indexOfBytesOverloads =
+            __indexOfBytesOverloads = MethodInfoSet.Create(
             [
                 __indexOfBytesWithValue,
                 __indexOfBytesWithValueAndStartIndex,
                 __indexOfBytesWithValueAndStartIndexAndCount
-            ];
+            ]);
 
-            __indexOfWithStartIndexOverloads =
+            __indexOfWithCharOverloads = MethodInfoSet.Create(
             [
+                __indexOfWithChar,
+                __indexOfWithCharAndStartIndex,
+                __indexOfWithCharAndStartIndexAndCount,
+            ]);
+
+            __indexOfWithComparisonTypeOverloads = MethodInfoSet.Create(
+            [
+                __indexOfWithStringAndComparisonType,
+                __indexOfWithStringAndStartIndexAndComparisonType,
+                __indexOfWithStringAndStartIndexAndCountAndComparisonType
+            ]);
+
+            __indexOfWithCountOverloads = MethodInfoSet.Create(
+            [
+                __indexOfAnyWithStartIndexAndCount,
+                __indexOfBytesWithValueAndStartIndexAndCount,
+                __indexOfWithCharAndStartIndexAndCount,
+                __indexOfWithStringAndStartIndexAndCount,
+                __indexOfWithStringAndStartIndexAndCountAndComparisonType
+            ]);
+
+            __indexOfWithStartIndexOverloads = MethodInfoSet.Create(
+            [
+                __indexOfAnyWithStartIndex,
+                __indexOfAnyWithStartIndexAndCount,
                 __indexOfBytesWithValueAndStartIndex,
                 __indexOfBytesWithValueAndStartIndexAndCount,
                 __indexOfWithCharAndStartIndex,
@@ -268,24 +324,26 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                 __indexOfWithStringAndStartIndexAndCount,
                 __indexOfWithStringAndStartIndexAndComparisonType,
                 __indexOfWithStringAndStartIndexAndCountAndComparisonType
-            ];
+            ]);
 
-            __indexOfWithCountOverloads =
+            __indexOfWithStringOverloads = MethodInfoSet.Create(
             [
-                __indexOfBytesWithValueAndStartIndexAndCount,
-                __indexOfWithCharAndStartIndexAndCount,
+                __indexOfWithString,
+                __indexOfWithStringAndComparisonType,
+                __indexOfWithStringAndStartIndex,
+                __indexOfWithStringAndStartIndexAndComparisonType,
                 __indexOfWithStringAndStartIndexAndCount,
                 __indexOfWithStringAndStartIndexAndCountAndComparisonType
-            ];
+            ]);
 
-            __indexOfWithStringComparisonOverloads =
+            __indexOfWithStringComparisonOverloads = MethodInfoSet.Create(
             [
                 __indexOfWithStringAndComparisonType,
                 __indexOfWithStringAndStartIndexAndComparisonType,
                 __indexOfWithStringAndStartIndexAndCountAndComparisonType
-            ];
+            ]);
 
-            __splitOverloads =
+            __splitOverloads = MethodInfoSet.Create(
             [
                 __splitWithChars,
                 __splitWithCharsAndCount,
@@ -293,42 +351,91 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                 __splitWithCharsAndOptions,
                 __splitWithStringsAndCountAndOptions,
                 __splitWithStringsAndOptions
-            ];
+            ]);
 
-            __startsWithOverloads =
+            __splitWithCharsOverloads = MethodInfoSet.Create(
+            [
+                __splitWithChars,
+                __splitWithCharsAndCount,
+                __splitWithCharsAndCountAndOptions,
+                __splitWithCharsAndOptions
+            ]);
+
+            __splitWithCountOverloads = MethodInfoSet.Create(
+            [
+                __splitWithCharsAndCount,
+                __splitWithCharsAndCountAndOptions,
+                __splitWithStringsAndCountAndOptions
+            ]);
+
+            __splitWithOptionsOverloads = MethodInfoSet.Create(
+            [
+                __splitWithCharsAndCountAndOptions,
+                __splitWithCharsAndOptions,
+                __splitWithStringsAndCountAndOptions,
+                __splitWithStringsAndOptions
+            ]);
+
+            __splitWithStringsOverloads = MethodInfoSet.Create(
+            [
+                __splitWithStringsAndCountAndOptions,
+                __splitWithStringsAndOptions
+            ]);
+
+            __startsWithOverloads = MethodInfoSet.Create(
             [
                 __startsWithWithChar,
                 __startsWithWithString,
                 __startsWithWithStringAndComparisonType,
                 __startsWithWithStringAndIgnoreCaseAndCulture
-            ];
+            ]);
 
-            __toLowerOverloads =
+            __stringInOverloads = MethodInfoSet.Create(
+            [
+                __stringInWithEnumerable,
+                __stringInWithParams
+            ]);
+
+            __stringNinOverloads = MethodInfoSet.Create(
+            [
+                __stringInWithEnumerable,
+                __stringInWithParams
+            ]);
+
+            __toLowerOverloads = MethodInfoSet.Create(
             [
                 __toLower,
                 __toLowerInvariant,
                 __toLowerWithCulture,
-            ];
+            ]);
 
-            __toUpperOverloads =
+            __toUpperOverloads = MethodInfoSet.Create(
             [
                 __toUpper,
                 __toUpperInvariant,
                 __toUpperWithCulture,
-            ];
+            ]);
+
+            __trimOverloads = MethodInfoSet.Create(
+            [
+                __trim,
+                __trimEnd,
+                __trimStart,
+                __trimWithChars
+            ]);
 
             // initialize sets of methods after individual methods
-            __endsWithOrStartsWithOverloads =
+            __endsWithOrStartsWithOverloads = MethodInfoSet.Create(
             [
                 __endsWithOverloads,
                 __startsWithOverloads
-            ];
+            ]);
 
-            __toLowerOrToUpperOverloads =
+            __toLowerOrToUpperOverloads = MethodInfoSet.Create(
             [
                 __toLowerOverloads,
                 __toUpperOverloads
-            ];
+            ]);
         }
 
         // public properties
@@ -404,22 +511,33 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         public static MethodInfo TrimWithChars => __trimWithChars;
 
         // sets of methods
-        public static HashSet<MethodInfo> ConcatOverloads => __concatOverloads;
-        public static HashSet<MethodInfo> ContainsOverloads => __containsOverloads;
-        public static HashSet<MethodInfo> EndsWithOverloads => __endsWithOverloads;
-        public static HashSet<MethodInfo> IndexOfOverloads => __indexOfOverloads;
-        public static HashSet<MethodInfo> IndexOfBytesOverloads => __indexOfBytesOverloads;
-        public static HashSet<MethodInfo> IndexOfWithCountOverloads => __indexOfWithCountOverloads;
-        public static HashSet<MethodInfo> IndexOfWithStartIndexOverloads => __indexOfWithStartIndexOverloads;
-        public static HashSet<MethodInfo> IndexOfWithStringComparisonOverloads => __indexOfWithStringComparisonOverloads;
-        public static HashSet<MethodInfo> SplitOverloads => __splitOverloads;
-        public static HashSet<MethodInfo> CompareOverloads => __compareOverloads;
-        public static HashSet<MethodInfo> StartsWithOverloads => __startsWithOverloads;
-        public static HashSet<MethodInfo> ToLowerOverloads => __toLowerOverloads;
-        public static HashSet<MethodInfo> ToUpperOverloads => __toUpperOverloads;
-
-        // arrays of sets of methods
-        public static HashSet<MethodInfo>[] EndsWithOrStartsWithOverloads => __endsWithOrStartsWithOverloads;
-        public static HashSet<MethodInfo>[] ToLowerOrToUpperOverloads => __toLowerOrToUpperOverloads;
+        public static IReadOnlyMethodInfoSet AnyStringInOverloads => __anyStringInOverloads;
+        public static IReadOnlyMethodInfoSet AnyStringNinOverloads => __anyStringNinOverloads;
+        public static IReadOnlyMethodInfoSet CompareOverloads => __compareOverloads;
+        public static IReadOnlyMethodInfoSet ConcatOverloads => __concatOverloads;
+        public static IReadOnlyMethodInfoSet ContainsOverloads => __containsOverloads;
+        public static IReadOnlyMethodInfoSet EndsWithOrStartsWithOverloads => __endsWithOrStartsWithOverloads;
+        public static IReadOnlyMethodInfoSet EndsWithOverloads => __endsWithOverloads;
+        public static IReadOnlyMethodInfoSet IndexOfAnyOverloads => __indexOfAnyOverloads;
+        public static IReadOnlyMethodInfoSet IndexOfOverloads => __indexOfOverloads;
+        public static IReadOnlyMethodInfoSet IndexOfBytesOverloads => __indexOfBytesOverloads;
+        public static IReadOnlyMethodInfoSet IndexOfWithCountOverloads => __indexOfWithCountOverloads;
+        public static IReadOnlyMethodInfoSet IndexOfWithCharOverloads => __indexOfWithCharOverloads;
+        public static IReadOnlyMethodInfoSet IndexOfWithComparisonTypeOverloads => __indexOfWithComparisonTypeOverloads;
+        public static IReadOnlyMethodInfoSet IndexOfWithStartIndexOverloads => __indexOfWithStartIndexOverloads;
+        public static IReadOnlyMethodInfoSet IndexOfWithStringOverloads => __indexOfWithStringOverloads;
+        public static IReadOnlyMethodInfoSet IndexOfWithStringComparisonOverloads => __indexOfWithStringComparisonOverloads;
+        public static IReadOnlyMethodInfoSet SplitOverloads => __splitOverloads;
+        public static IReadOnlyMethodInfoSet SplitWithCharsOverloads => __splitWithCharsOverloads;
+        public static IReadOnlyMethodInfoSet SplitWithCountOverloads => __splitWithCountOverloads;
+        public static IReadOnlyMethodInfoSet SplitWithOptionsOverloads => __splitWithOptionsOverloads;
+        public static IReadOnlyMethodInfoSet SplitWithStringsOverloads => __splitWithStringsOverloads;
+        public static IReadOnlyMethodInfoSet StartsWithOverloads => __startsWithOverloads;
+        public static IReadOnlyMethodInfoSet StringInOverloads => __stringInOverloads;
+        public static IReadOnlyMethodInfoSet StringNinOverloads => __stringNinOverloads;
+        public static IReadOnlyMethodInfoSet ToLowerOrToUpperOverloads => __toLowerOrToUpperOverloads;
+        public static IReadOnlyMethodInfoSet ToLowerOverloads => __toLowerOverloads;
+        public static IReadOnlyMethodInfoSet ToUpperOverloads => __toUpperOverloads;
+        public static IReadOnlyMethodInfoSet TrimOverloads => __trimOverloads;
     }
 }

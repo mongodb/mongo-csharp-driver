@@ -13,37 +13,20 @@
  * limitations under the License.
  */
 
-using System.Collections.Generic;
-using System.Reflection;
-
 namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection;
 
 internal static class TupleOrValueTupleMethod
 {
-    private static HashSet<MethodInfo> __createOverloads;
+    private static readonly IReadOnlyMethodInfoSet __createOverloads;
 
     static TupleOrValueTupleMethod()
     {
-        __createOverloads =
+        __createOverloads = MethodInfoSet.Create(
         [
-            TupleMethod.Create1,
-            TupleMethod.Create2,
-            TupleMethod.Create3,
-            TupleMethod.Create4,
-            TupleMethod.Create5,
-            TupleMethod.Create6,
-            TupleMethod.Create7,
-            TupleMethod.Create8,
-            ValueTupleMethod.Create1,
-            ValueTupleMethod.Create2,
-            ValueTupleMethod.Create3,
-            ValueTupleMethod.Create4,
-            ValueTupleMethod.Create5,
-            ValueTupleMethod.Create6,
-            ValueTupleMethod.Create7,
-            ValueTupleMethod.Create8
-        ];
+            TupleMethod.CreateOverloads,
+            ValueTupleMethod.CreateOverloads
+        ]);
     }
 
-    public static HashSet<MethodInfo> CreateOverloads => __createOverloads;
+    public static IReadOnlyMethodInfoSet CreateOverloads => __createOverloads;
 }

@@ -24,18 +24,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class ReverseMethodToAggregationExpressionTranslator
     {
-        private static readonly MethodInfo[] __reverseMethods =
-        {
-            EnumerableMethod.Reverse,
-            QueryableMethod.Reverse
-        };
-
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__reverseMethods))
+            if (method.IsOneOf(EnumerableOrQueryableMethod.Reverse))
             {
                 var sourceExpression = arguments[0];
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);

@@ -31,27 +31,27 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.SerializerFinders;
 
 internal partial class SerializerFinderVisitor
 {
-    private static HashSet<MethodInfo>[] __averageOrMedianOrPercentileOverloads =
+    private static readonly IReadOnlyMethodInfoSet __averageOrMedianOrPercentileOverloads = MethodInfoSet.Create(
     [
         EnumerableOrQueryableMethod.AverageOverloads,
         MongoEnumerableMethod.MedianOverloads,
         MongoEnumerableMethod.PercentileOverloads,
         WindowMethod.PercentileOverloads
-    ];
+    ]);
 
-    private static HashSet<MethodInfo>[] __averageOrMedianOrPercentileWithSelectorOverloads =
+    private static readonly IReadOnlyMethodInfoSet __averageOrMedianOrPercentileWithSelectorOverloads = MethodInfoSet.Create(
     [
         EnumerableOrQueryableMethod.AverageWithSelectorOverloads,
         MongoEnumerableMethod.MedianWithSelectorOverloads,
         MongoEnumerableMethod.PercentileWithSelectorOverloads,
         WindowMethod.PercentileOverloads
-    ];
+    ]);
 
-    private static readonly HashSet<MethodInfo>[] __whereOverloads =
+    private static readonly IReadOnlyMethodInfoSet __whereOverloads = MethodInfoSet.Create(
     [
         EnumerableOrQueryableMethod.Where,
         [MongoEnumerableMethod.WhereWithLimit]
-    ];
+    ]);
 
     protected override Expression VisitMethodCall(MethodCallExpression node)
     {
@@ -1034,7 +1034,7 @@ internal partial class SerializerFinderVisitor
 
         void DeduceElementAtMethodSerializers()
         {
-            if (method.IsOneOf(EnumerableMethod.ElementAt, EnumerableMethod.ElementAtOrDefault, QueryableMethod.ElementAt, QueryableMethod.ElementAtOrDefault, QueryableMethod.ElementAtOrDefault))
+            if (method.IsOneOf(EnumerableOrQueryableMethod.ElementAtOverloads))
             {
                 var sourceExpression = arguments[0];
                 DeduceItemAndCollectionSerializers(node, sourceExpression);
@@ -1137,7 +1137,7 @@ internal partial class SerializerFinderVisitor
 
         void DeduceExpMethodSerializers()
         {
-            if (method.IsOneOf(MathMethod.Exp))
+            if (method.Is(MathMethod.Exp))
             {
                 DeduceReturnsDoubleSerializer();
             }
@@ -1704,15 +1704,7 @@ internal partial class SerializerFinderVisitor
 
         void DeduceOrderByMethodSerializers()
         {
-            if (method.IsOneOf(
-                    EnumerableMethod.OrderBy,
-                    EnumerableMethod.OrderByDescending,
-                    EnumerableMethod.ThenBy,
-                    EnumerableMethod.ThenByDescending,
-                    QueryableMethod.OrderBy,
-                    QueryableMethod.OrderByDescending,
-                    QueryableMethod.ThenBy,
-                    QueryableMethod.ThenByDescending))
+            if (method.IsOneOf(EnumerableOrQueryableMethod.OrderByOrThenByOverloads))
             {
                 var sourceExpression = arguments[0];
                 var keySelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
@@ -1731,7 +1723,7 @@ internal partial class SerializerFinderVisitor
         {
             if (method.IsOneOf(EnumerableMethod.PickOverloads))
             {
-                if (method.IsOneOf(EnumerableMethod.PickWithSortDefinitionOverloads))
+                if (method.IsOneOf(EnumerableMethod.PickWithSortByOverloads))
                 {
                     var sortByExpression = arguments[1];
                     if (IsNotKnown(sortByExpression))
@@ -1746,7 +1738,7 @@ internal partial class SerializerFinderVisitor
                 {
                     var sourceItemSerializer =  ArraySerializerHelper.GetItemSerializer(sourceSerializer);
 
-                    var selectorExpression = arguments[method.IsOneOf(EnumerableMethod.PickWithSortDefinitionOverloads) ? 2 : 1];
+                    var selectorExpression = arguments[method.IsOneOf(EnumerableMethod.PickWithSortByOverloads) ? 2 : 1];
                     var selectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, selectorExpression);
                     var selectorSourceItemParameter = selectorLambda.Parameters.Single();
                     if (IsNotKnown(selectorSourceItemParameter))
@@ -1757,10 +1749,10 @@ internal partial class SerializerFinderVisitor
 
                 if (method.IsOneOf(EnumerableMethod.PickWithComputedNOverloads))
                 {
-                    var keyExpression = arguments[method.IsOneOf(EnumerableMethod.PickWithSortDefinitionOverloads) ? 3 : 2];
+                    var keyExpression = arguments[method.IsOneOf(EnumerableMethod.PickWithSortByOverloads) ? 3 : 2];
                     if (IsKnown(keyExpression, out var keySerializer))
                     {
-                        var nExpression = arguments[method.IsOneOf(EnumerableMethod.PickWithSortDefinitionOverloads) ? 4 : 3];
+                        var nExpression = arguments[method.IsOneOf(EnumerableMethod.PickWithSortByOverloads) ? 4 : 3];
                         var nLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, nExpression);
                         var nLambdaKeyParameter = nLambda.Parameters.Single();
 
@@ -1850,7 +1842,7 @@ internal partial class SerializerFinderVisitor
 
         void DeducePowMethodSerializers()
         {
-            if (method.IsOneOf(MathMethod.Pow))
+            if (method.Is(MathMethod.Pow))
             {
                 DeduceReturnsDoubleSerializer();
             }
@@ -2349,7 +2341,7 @@ internal partial class SerializerFinderVisitor
             {
                 var sourceExpression = arguments[0];
 
-                if (method.IsOneOf(EnumerableOrQueryableMethod.SkipOrTakeWhile))
+                if (method.IsOneOf(EnumerableOrQueryableMethod.SkipWhileOrTakeWhile))
                 {
                     var predicateLambda =  ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
                     var predicateParameter = predicateLambda.Parameters.Single();

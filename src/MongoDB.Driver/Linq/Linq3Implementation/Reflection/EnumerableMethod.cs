@@ -194,13 +194,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __zip;
 
         // sets of methods
-        private static readonly HashSet<MethodInfo> __pickOverloads;
-        private static readonly HashSet<MethodInfo> __pickWithComputedNOverloads;
-        private static readonly HashSet<MethodInfo> __pickWithSortDefinitionOverloads;
+        private static readonly IReadOnlyMethodInfoSet __pickOverloads;
+        private static readonly IReadOnlyMethodInfoSet __pickOverloadsThatCanOnlyBeUsedAsGroupByAccumulators;
+        private static readonly IReadOnlyMethodInfoSet __pickWithComputedNOverloads;
+        private static readonly IReadOnlyMethodInfoSet __pickWithNOverloads;
+        private static readonly IReadOnlyMethodInfoSet __pickWithSortByOverloads;
 
         // static constructor
         static EnumerableMethod()
         {
+            // initialize methods before sets of methods
             __aggregateWithFunc = ReflectionInfo.Method((IEnumerable<object> source, Func<object, object, object> func) => source.Aggregate(func));
             __aggregateWithSeedAndFunc = ReflectionInfo.Method((IEnumerable<object> source, object seed, Func<object, object, object> func) => source.Aggregate(seed, func));
             __aggregateWithSeedFuncAndResultSelector = ReflectionInfo.Method((IEnumerable<object> source, object seed, Func<object, object, object> func, Func<object, object> resultSelector) => source.Aggregate(seed, func, resultSelector));
@@ -368,8 +371,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __whereWithPredicateTakingIndex = ReflectionInfo.Method((IEnumerable<object> source, Func<object, int, bool> predicate) => source.Where(predicate));
             __zip = ReflectionInfo.Method((IEnumerable<object> first, IEnumerable<object> second, Func<object, object, object> resultSelector) => first.Zip(second, resultSelector));
 
-            // initialize sets of methods after individual methods
-            __pickOverloads =
+            // initialize sets of methods after methods
+            __pickOverloads = MethodInfoSet.Create(
             [
                 __bottom,
                 __bottomN,
@@ -385,9 +388,23 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
                 __top,
                 __topN,
                 __topNWithComputedN
-            ];
+            ]);
 
-            __pickWithComputedNOverloads =
+            __pickOverloadsThatCanOnlyBeUsedAsGroupByAccumulators = MethodInfoSet.Create(
+            [
+                __bottom,
+                __bottomN,
+                __bottomNWithComputedN,
+                __firstNWithComputedN,
+                __lastNWithComputedN,
+                __maxNWithComputedN,
+                __minNWithComputedN,
+                __top,
+                __topN,
+                __topNWithComputedN
+            ]);
+
+            __pickWithComputedNOverloads = MethodInfoSet.Create(
             [
                 __bottomNWithComputedN,
                 __firstNWithComputedN,
@@ -395,9 +412,19 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
                 __maxNWithComputedN,
                 __minNWithComputedN,
                 __topNWithComputedN
-            ];
+            ]);
 
-            __pickWithSortDefinitionOverloads =
+            __pickWithNOverloads = MethodInfoSet.Create(
+            [
+                __bottomN,
+                __firstN,
+                __lastN,
+                __maxN,
+                __minN,
+                __topN
+            ]);
+
+            __pickWithSortByOverloads = MethodInfoSet.Create(
             [
                 __bottom,
                 __bottomN,
@@ -405,7 +432,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
                 __top,
                 __topN,
                 __topNWithComputedN
-            ];
+            ]);
         }
 
         // public properties
@@ -577,9 +604,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo Zip => __zip;
 
         // sets of methods
-        public static HashSet<MethodInfo> PickOverloads => __pickOverloads;
-        public static HashSet<MethodInfo> PickWithComputedNOverloads => __pickWithComputedNOverloads;
-        public static HashSet<MethodInfo> PickWithSortDefinitionOverloads => __pickWithSortDefinitionOverloads;
+        public static IReadOnlyMethodInfoSet PickOverloads => __pickOverloads;
+        public static IReadOnlyMethodInfoSet PickOverloadsThatCanOnlyBeUsedAsGroupByAccumulators => __pickOverloadsThatCanOnlyBeUsedAsGroupByAccumulators;
+        public static IReadOnlyMethodInfoSet PickWithComputedNOverloads => __pickWithComputedNOverloads;
+        public static IReadOnlyMethodInfoSet PickWithNOverloads => __pickWithNOverloads;
+        public static IReadOnlyMethodInfoSet PickWithSortByOverloads => __pickWithSortByOverloads;
 
         // public methods
         public static bool IsContainsMethod(MethodCallExpression methodCallExpression, out Expression sourceExpression, out Expression valueExpression)

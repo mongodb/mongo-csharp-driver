@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -38,13 +37,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __sigmoid;
 
         // sets of methods
-        private static readonly HashSet<MethodInfo> __dateFromStringOverloads;
-        private static readonly HashSet<MethodInfo> __dateFromStringWithFormatOverloads;
-        private static readonly HashSet<MethodInfo> __dateFromStringWithTimezoneOverloads;
+        private static readonly IReadOnlyMethodInfoSet __dateFromStringOverloads;
+        private static readonly IReadOnlyMethodInfoSet __dateFromStringWithFormatOverloads;
+        private static readonly IReadOnlyMethodInfoSet __dateFromStringWithTimezoneOverloads;
 
         // static constructor
         static MqlMethod()
         {
+            // initialize methods before sets of methods
             __constantWithRepresentation = ReflectionInfo.Method((object value, BsonType representation) => Mql.Constant(value, representation));
             __constantWithSerializer = ReflectionInfo.Method((object value, IBsonSerializer<object> serializer) => Mql.Constant(value, serializer));
             __convert = ReflectionInfo.Method((object value, ConvertOptions<object> options) => Mql.Convert(value, options));
@@ -58,27 +58,27 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __isNullOrMissing = ReflectionInfo.Method((object field) => Mql.IsNullOrMissing(field));
             __sigmoid = ReflectionInfo.Method((double value) => Mql.Sigmoid(value));
 
-            // initialize sets of methods after individual methods
-            __dateFromStringOverloads =
+            // initialize sets of methods after methods
+            __dateFromStringOverloads = MethodInfoSet.Create(
             [
                 __dateFromString,
                 __dateFromStringWithFormat,
                 __dateFromStringWithFormatAndTimezone,
                 __dateFromStringWithFormatAndTimezoneAndOnErrorAndOnNull
-            ];
+            ]);
 
-            __dateFromStringWithFormatOverloads =
+            __dateFromStringWithFormatOverloads = MethodInfoSet.Create(
             [
                __dateFromStringWithFormat,
                __dateFromStringWithFormatAndTimezone,
                __dateFromStringWithFormatAndTimezoneAndOnErrorAndOnNull
-            ];
+            ]);
 
-            __dateFromStringWithTimezoneOverloads =
+            __dateFromStringWithTimezoneOverloads = MethodInfoSet.Create(
             [
                 __dateFromStringWithFormatAndTimezone,
                 __dateFromStringWithFormatAndTimezoneAndOnErrorAndOnNull
-            ];
+            ]);
         }
 
         // public properties
@@ -96,8 +96,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo Sigmoid => __sigmoid;
 
         // sets of methods
-        public static HashSet<MethodInfo> DateFromStringOverloads => __dateFromStringOverloads;
-        public static HashSet<MethodInfo> DateFromStringWithFormatOverloads => __dateFromStringWithFormatOverloads;
-        public static HashSet<MethodInfo> DateFromStringWithTimezoneOverloads => __dateFromStringWithTimezoneOverloads;
+        public static IReadOnlyMethodInfoSet DateFromStringOverloads => __dateFromStringOverloads;
+        public static IReadOnlyMethodInfoSet DateFromStringWithFormatOverloads => __dateFromStringWithFormatOverloads;
+        public static IReadOnlyMethodInfoSet DateFromStringWithTimezoneOverloads => __dateFromStringWithTimezoneOverloads;
     }
 }

@@ -32,25 +32,23 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
     {
         // private static fields
         private static readonly IExecutableQueryFinalizer<TOutput, TOutput> __finalizer = new SingleFinalizer<TOutput>();
-        private static readonly MethodInfo[] __minMethods;
-        private static readonly MethodInfo[] __minWithSelectorMethods;
+        private static readonly IReadOnlyMethodInfoSet __minMethods;
+        private static readonly IReadOnlyMethodInfoSet __minWithSelectorMethods;
 
         // static constructor
         static MinMethodToExecutableQueryTranslator()
         {
-            __minMethods = new[]
-            {
-                QueryableMethod.Min,
-                QueryableMethod.MinWithSelector,
-                MongoQueryableMethod.MinAsync,
-                MongoQueryableMethod.MinWithSelectorAsync,
-            };
+            __minMethods = MethodInfoSet.Create(
+            [
+                QueryableMethod.MinOverloads,
+                MongoQueryableMethod.MinOverloads,
+            ]);
 
-            __minWithSelectorMethods = new[]
-            {
+            __minWithSelectorMethods = MethodInfoSet.Create(
+            [
                 QueryableMethod.MinWithSelector,
                 MongoQueryableMethod.MinWithSelectorAsync,
-            };
+            ]);
         }
 
         // public static methods

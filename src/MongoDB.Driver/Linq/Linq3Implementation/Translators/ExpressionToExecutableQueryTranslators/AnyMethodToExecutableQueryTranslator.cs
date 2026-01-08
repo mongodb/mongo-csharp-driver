@@ -34,27 +34,27 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
     internal static class AnyMethodToExecutableQueryTranslator
     {
         // private static fields
-        private static readonly MethodInfo[] __anyMethods;
-        private static readonly MethodInfo[] __anyWithPredicateMethods;
+        private static readonly IReadOnlyMethodInfoSet __anyMethods;
+        private static readonly IReadOnlyMethodInfoSet __anyWithPredicateMethods;
         private static readonly IExecutableQueryFinalizer<BsonNull, bool> __finalizer = new AnyFinalizer();
         private static readonly IBsonSerializer<BsonNull> __outputSerializer = new WrappedValueSerializer<BsonNull>("_v", BsonNullSerializer.Instance);
 
         // static constructors
         static AnyMethodToExecutableQueryTranslator()
         {
-            __anyMethods = new[]
-            {
+            __anyMethods = MethodInfoSet.Create(
+            [
                 QueryableMethod.Any,
                 QueryableMethod.AnyWithPredicate,
                 MongoQueryableMethod.AnyAsync,
                 MongoQueryableMethod.AnyWithPredicateAsync
-            };
+            ]);
 
-            __anyWithPredicateMethods = new[]
-            {
+            __anyWithPredicateMethods = MethodInfoSet.Create(
+            [
                 QueryableMethod.AnyWithPredicate,
                 MongoQueryableMethod.AnyWithPredicateAsync
-            };
+            ]);
         }
 
         // public static methods

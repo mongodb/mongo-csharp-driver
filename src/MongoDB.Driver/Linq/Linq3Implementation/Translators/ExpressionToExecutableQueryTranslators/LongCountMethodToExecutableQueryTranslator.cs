@@ -30,27 +30,25 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
     internal static class LongCountMethodToExecutableQueryTranslator
     {
         // private static fields
-        private static readonly MethodInfo[] __longCountMethods;
-        private static readonly MethodInfo[] __longCountWithPredicateMethods;
+        private static readonly IReadOnlyMethodInfoSet __longCountMethods;
+        private static readonly IReadOnlyMethodInfoSet __longCountWithPredicateMethods;
         private static readonly IExecutableQueryFinalizer<long, long> _finalizer = new SingleOrDefaultFinalizer<long>();
         private static readonly IBsonSerializer<long> __wrappedInt64Serializer = new WrappedValueSerializer<long>("_v", new Int64Serializer());
 
         // static constructor
         static LongCountMethodToExecutableQueryTranslator()
         {
-            __longCountMethods = new[]
-            {
-                QueryableMethod.LongCount,
-                QueryableMethod.LongCountWithPredicate,
-                MongoQueryableMethod.LongCountAsync,
-                MongoQueryableMethod.LongCountWithPredicateAsync
-            };
+            __longCountMethods = MethodInfoSet.Create(
+            [
+                QueryableMethod.LongCountOverloads,
+                MongoQueryableMethod.LongCountOverloads
+            ]);
 
-            __longCountWithPredicateMethods = new[]
-            {
+            __longCountWithPredicateMethods = MethodInfoSet.Create(
+            [
                 QueryableMethod.LongCountWithPredicate,
                 MongoQueryableMethod.LongCountWithPredicateAsync
-            };
+            ]);
         }
 
         // public static methods
