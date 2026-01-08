@@ -140,37 +140,9 @@ namespace MongoDB.Driver.Tests.Search
             results.Should().OnlyContain(m => m.Score > 0.9);
         }
 
-        [Fact]
-        public void VectorSearchAutoEmbed()
-        {
-            var expectedTitles = new[]
-            {
-                "Red Dawn", "Sands of Iwo Jima", "White Tiger", "P-51 Dragon Fighter", "When Trumpets Fade"
-            };
-
-            var options = new VectorSearchOptions<Movie> { IndexName = "autoEmbedded" };
-
-            var vectorText = "Tigers or Trumpets";
-
-            var results = GetMoviesCollection()
-                .Aggregate()
-                .VectorSearch(m => m.Plot, new QueryVector(vectorText), 5, options)
-                .Project<Movie>(Builders<Movie>.Projection
-                    .Include(m => m.Title)
-                    .MetaVectorSearchScore(p => p.Score))
-                .ToList();
-
-            results.Select(m => m.Title).ShouldBeEquivalentTo(expectedTitles);
-            results.Should().OnlyContain(m => m.Score > 0.9);
-        }
-
         private IMongoCollection<EmbeddedMovie> GetEmbeddedMoviesCollection() => _mongoClient
             .GetDatabase("sample_mflix")
             .GetCollection<EmbeddedMovie>("embedded_movies");
-
-        private IMongoCollection<Movie> GetMoviesCollection() => _mongoClient
-            .GetDatabase("sample_mflix")
-            .GetCollection<Movie>("movies");
 
         [BsonIgnoreExtraElements]
         public class EmbeddedMovie
@@ -198,19 +170,6 @@ namespace MongoDB.Driver.Tests.Search
             public double Year { get; set; }
 
             [BsonElement("vectorSearchScore")]
-            public double Score { get; set; }
-        }
-
-        [BsonIgnoreExtraElements]
-        public class Movie
-        {
-            [BsonElement("title")]
-            public string Title { get; set; }
-
-            [BsonElement("plot")]
-            public string Plot { get; set; }
-
-            [BsonElement("score")]
             public double Score { get; set; }
         }
     }

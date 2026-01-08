@@ -44,12 +44,12 @@ namespace MongoDB.Driver
         /// Initializes a new instance of the <see cref="QueryVector"/> class with un-vectorized text for use with
         /// an auto-embedding vector index, which will create the actual vector from this text.
         /// </summary>
-        /// <param name="bsonText">The bson text to search for.</param>
-        public QueryVector(BsonString bsonText)
+        /// <param name="text">The text to search for.</param>
+        public QueryVector(string text)
         {
-            Ensure.IsNotNull(bsonText, nameof(bsonText));
+            Ensure.IsNotNull(text, nameof(text));
 
-            Vector = bsonText;
+            Vector = text;
         }
 
         /// <summary>

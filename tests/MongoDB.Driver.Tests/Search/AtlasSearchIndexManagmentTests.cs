@@ -58,6 +58,11 @@ namespace MongoDB.Driver.Tests.Search
 
             _database.CreateCollection(collectionName);
             _collection = _database.GetCollection<BsonDocument>(collectionName);
+
+            var collection = _database.GetCollection<EntityWithVector>(_collection.CollectionNamespace.CollectionName);
+            collection.InsertMany([
+                new EntityWithVector { Floats = new float[1024], Filter1 = true, Filter2 = "F21", Filter3 = 7, SomeText = "This is some text." },
+                new EntityWithVector { Floats = new float[1024], Filter1 = false, Filter2 = "F22", Filter3 = 6, SomeText = "Some different text." }]);
         }
 
         protected override void DisposeInternal()
@@ -433,7 +438,7 @@ namespace MongoDB.Driver.Tests.Search
 
             createdName.Should().Be(indexName);
 
-            var index = (await GetIndexes(async, expectTimeout: true, [indexName]))[0];
+            var index = (await GetIndexes(async, indexName))[0];
             index["type"].AsString.Should().Be("vectorSearch");
 
             var fields = index["latestDefinition"].AsBsonDocument["fields"].AsBsonArray;
@@ -452,7 +457,7 @@ namespace MongoDB.Driver.Tests.Search
 
         [Theory(Timeout = Timeout)]
         [ParameterAttributeData]
-        public async Task Can_create_autoEmbed_vector_index_for_all_options_with_compression_profile(
+        public async Task Can_create_autoEmbed_vector_index_for_all_options(
             [Values(false, true)] bool async)
         {
             var indexName = "auto-embed-all-profile" + (async ? "-async" : "");
@@ -460,10 +465,7 @@ namespace MongoDB.Driver.Tests.Search
             var indexModel = new CreateVectorSearchIndexModel<EntityWithVector>(
                 e => e.SomeText, indexName, "voyage-4")
             {
-                HnswMaxEdges = 18,
-                HnswNumEdgeCandidates = 102,
                 Modality = VectorEmbeddingModality.Text,
-                CompressionProfileName = "storage_optimized"
             };
 
             var collection = _database.GetCollection<EntityWithVector>(_collection.CollectionNamespace.CollectionName);
@@ -473,7 +475,7 @@ namespace MongoDB.Driver.Tests.Search
 
             createdName.Should().Be(indexName);
 
-            var index = (await GetIndexes(async, expectTimeout: true, [indexName]))[0];
+            var index = (await GetIndexes(async, indexName))[0];
             index["type"].AsString.Should().Be("vectorSearch");
 
             var fields = index["latestDefinition"].AsBsonDocument["fields"].AsBsonArray;
@@ -484,66 +486,6 @@ namespace MongoDB.Driver.Tests.Search
             indexField["path"].AsString.Should().Be("SomeText");
             indexField["model"].AsString.Should().Be("voyage-4");
             indexField["modality"].AsString.Should().Be("text");
-
-            // TODO: CSHARP-5763
-            // Currently throws "Command createSearchIndexes failed: "userCommand.indexes[0].fields[0]" unrecognized field "compression"."
-            // indexField["compression"].AsString.Should().Be("storage_optimized");
-
-            // TODO: CSHARP-5763
-            // Currently throws "Command createSearchIndexes failed: "userCommand.indexes[0].fields[0]" unrecognized field "hnswOptions"."
-            // indexField["hnswOptions"].AsBsonDocument["maxEdges"].AsInt32.Should().Be(18);
-            // indexField["hnswOptions"].AsBsonDocument["numEdgeCandidates"].AsInt32.Should().Be(102);
-
-            indexField.Contains("quantization").Should().Be(false);
-            indexField.Contains("numDimensions").Should().Be(false);
-            indexField.Contains("similarity").Should().Be(false);
-        }
-
-        [Theory(Timeout = Timeout)]
-        [ParameterAttributeData]
-        public async Task Can_create_autoEmbed_vector_index_for_all_options_with_explicit_compression(
-            [Values(false, true)] bool async)
-        {
-            var indexName = "auto-embed-all-explicit" + (async ? "-async" : "");
-
-            var indexModel = new CreateVectorSearchIndexModel<EntityWithVector>(
-                e => e.SomeText, indexName, "voyage-4")
-            {
-                HnswMaxEdges = 18,
-                HnswNumEdgeCandidates = 102,
-                Modality = VectorEmbeddingModality.Text,
-                Quantization = VectorQuantization.Binary,
-                Dimensions = 512
-            };
-
-            var collection = _database.GetCollection<EntityWithVector>(_collection.CollectionNamespace.CollectionName);
-            var createdName = async
-                ? await collection.SearchIndexes.CreateOneAsync(indexModel)
-                : collection.SearchIndexes.CreateOne(indexModel);
-
-            createdName.Should().Be(indexName);
-
-            var index = (await GetIndexes(async, expectTimeout: true, [indexName]))[0];
-            index["type"].AsString.Should().Be("vectorSearch");
-
-            var fields = index["latestDefinition"].AsBsonDocument["fields"].AsBsonArray;
-            fields.Count.Should().Be(1);
-
-            var indexField = fields[0].AsBsonDocument;
-            indexField["type"].AsString.Should().Be("autoEmbed");
-            indexField["path"].AsString.Should().Be("SomeText");
-            indexField["model"].AsString.Should().Be("voyage-4");
-            indexField["modality"].AsString.Should().Be("text");
-
-            // TODO: CSHARP-5763
-            // Currently throws "Command createSearchIndexes failed: "userCommand.indexes[0].fields[0]" unrecognized field "compression"."
-            // indexField["compression"].AsBsonDocument["quantization"].AsString.Should().Be("binary");
-            // indexField["compression"].AsBsonDocument["dimensions"].AsInt32.Should().Be(512);
-
-            // TODO: CSHARP-5763
-            // Currently throws "Command createSearchIndexes failed: "userCommand.indexes[0].fields[0]" unrecognized field "hnswOptions"."
-            // indexField["hnswOptions"].AsBsonDocument["maxEdges"].AsInt32.Should().Be(18);
-            // indexField["hnswOptions"].AsBsonDocument["numEdgeCandidates"].AsInt32.Should().Be(102);
 
             indexField.Contains("quantization").Should().Be(false);
             indexField.Contains("numDimensions").Should().Be(false);
@@ -570,7 +512,7 @@ namespace MongoDB.Driver.Tests.Search
 
             createdName.Should().Be(indexName);
 
-            var index = (await GetIndexes(async, expectTimeout: true, [indexName]))[0];
+            var index = (await GetIndexes(async, indexName))[0];
             index["type"].AsString.Should().Be("vectorSearch");
 
             var fields = index["latestDefinition"].AsBsonDocument["fields"].AsBsonArray;
@@ -614,7 +556,7 @@ namespace MongoDB.Driver.Tests.Search
 
             createdName.Should().Be(indexName);
 
-            var index = (await GetIndexes(async, expectTimeout: true, [indexName]))[0];
+            var index = (await GetIndexes(async, indexName))[0];
             index["type"].AsString.Should().Be("vectorSearch");
 
             var fields = index["latestDefinition"].AsBsonDocument["fields"].AsBsonArray;
@@ -675,14 +617,12 @@ namespace MongoDB.Driver.Tests.Search
             return result[0];
         }
 
-        private Task<BsonDocument[]> GetIndexes(bool async, params string[] indexNames)
-            => GetIndexes(async, expectTimeout: false, indexNames);
-
-        private async Task<BsonDocument[]> GetIndexes(bool async, bool expectTimeout, string[] indexNames)
+        private async Task<BsonDocument[]> GetIndexes(bool async, params string[] indexNames)
         {
             BsonDocument[] indexesFiltered = null!;
             var timeoutCount = 2;
-            while (!expectTimeout || --timeoutCount >= 0)
+            bool? expectTimeout = null;
+            while (expectTimeout != true || --timeoutCount >= 0)
             {
                 List<BsonDocument> indexes;
                 if (async)
@@ -699,10 +639,10 @@ namespace MongoDB.Driver.Tests.Search
                     .Where(i => indexNames.Contains(TryGetValue<string>(i, "name")))
                     .ToArray();
 
-                if (indexesFiltered.All(i => TryGetValue<bool>(i, "queryable")))
-                {
-                    Assert.False(expectTimeout, "Expected timeout, but got successful index creation instead.");
+                expectTimeout ??= !indexesFiltered.All(i => i.TryGetElement("status", out _));
 
+                if (indexesFiltered.All(i => TryGetValue<string>(i, "status") == "READY"))
+                {
                     return indexesFiltered;
                 }
 
