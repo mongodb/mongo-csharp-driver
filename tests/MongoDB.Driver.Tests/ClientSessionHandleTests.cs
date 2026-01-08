@@ -25,6 +25,7 @@ using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.TestHelpers;
 using Moq;
 using Xunit;
@@ -636,22 +637,21 @@ namespace MongoDB.Driver.Tests
         [ParameterAttributeData]
         public async Task WithTransaction_retry_backoff_is_enforced([Values(true, false)] bool async)
         {
-            var randomNumberGeneratorMock = new Mock<IRandom>();
-            var coreSessionMock = CreateCoreSessionMock();
-            var subject = CreateSubject(coreSession: coreSessionMock.Object, random: randomNumberGeneratorMock.Object);
-
-            var noBackoffTimeMs = await ExecuteWithTransactionAsync(0);
             var backoffTimeMs = await ExecuteWithTransactionAsync(1);
+            var noBackoffTimeMs = await ExecuteWithTransactionAsync(0);
 
-            backoffTimeMs.Should().BeApproximately(noBackoffTimeMs + 2200, 1);
+            backoffTimeMs.Should().BeApproximately(noBackoffTimeMs + 1800, 150);
 
             async Task<double> ExecuteWithTransactionAsync(double randomValue)
             {
-                var sw = Stopwatch.StartNew();
-                randomNumberGeneratorMock.Reset();
+                var randomNumberGeneratorMock = new Mock<IRandom>();
                 randomNumberGeneratorMock.Setup(r => r.NextDouble()).Returns(randomValue);
-                ConfigureCoreSessionMock(coreSessionMock);
 
+                var coreSessionMock = CreateCoreSessionMock();
+                ConfigureCoreSessionMock(coreSessionMock);
+                var subject = CreateSubject(coreSession: coreSessionMock.Object, random: randomNumberGeneratorMock.Object);
+
+                var sw = Stopwatch.StartNew();
                 _ = async ?
                     await subject.WithTransactionAsync((_, _) => Task.FromResult(true)) :
                     subject.WithTransaction((_, _) => true);
