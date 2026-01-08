@@ -59,7 +59,7 @@ public class AutoEmbedVectorSearchTests : LoggableTestClass
             new Movie { Title = "Fury", Plot = "A battle-hardened sergeant and his tank crew fight their way across Germany.", Runtime = 134, Year = 2014 }
         ]);
 
-        _collection.SearchIndexes.CreateOne(new CreateVectorSearchIndexModel<Movie>(
+        _collection.SearchIndexes.CreateOne(new CreateAutoEmbeddingVectorSearchIndexModel<Movie>(
             e => e.Plot, _autoEmbedIndexName, "voyage-4", filterFields: [e => e.Runtime, e => e.Year]));
 
         var foundIndex = TryGetIndex(_collection, _autoEmbedIndexName, out var indexDocument);
