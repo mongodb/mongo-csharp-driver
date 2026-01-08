@@ -38,9 +38,10 @@ public sealed class CreateVectorSearchIndexModel<TDocument> : CreateSearchIndexM
     public VectorSimilarity Similarity { get; }
 
     /// <summary>
-    /// Number of vector dimensions that vector search enforces at index-time and query-time.
+    /// Number of vector dimensions that vector search enforces at index-time and query-time. Currently supported
+    /// for auto-embedding vector indexes.
     /// </summary>
-    public int Dimensions { get; init; }
+    public int Dimensions { get; }
 
     /// <summary>
     /// The name of the embedding model to use, such as "voyage-4", "voyage-4-large", etc. Only used for auto-embedding
@@ -60,17 +61,20 @@ public sealed class CreateVectorSearchIndexModel<TDocument> : CreateSearchIndexM
     public IReadOnlyList<FieldDefinition<TDocument>> FilterFields { get; }
 
     /// <summary>
-    /// Type of automatic vector quantization for your vectors.
+    /// Type of automatic vector quantization for your vectors. Currently supported for auto-embedding vector indexes.
     /// </summary>
     public VectorQuantization? Quantization { get; init; }
 
     /// <summary>
     /// Maximum number of edges (or connections) that a node can have in the Hierarchical Navigable Small Worlds graph.
+    /// Currently supported for auto-embedding vector indexes.
     /// </summary>
     public int? HnswMaxEdges { get; init; }
 
     /// <summary>
-    /// Analogous to numCandidates at query-time, this parameter controls the maximum number of nodes to evaluate to find the closest neighbors to connect to a new node.
+    /// Analogous to numCandidates at query-time, this parameter controls the maximum number of nodes to evaluate to
+    /// find the closest neighbors to connect to a new node.
+    /// Currently supported for auto-embedding vector indexes.
     /// </summary>
     public int? HnswNumEdgeCandidates { get; init; }
 
@@ -204,24 +208,21 @@ public sealed class CreateVectorSearchIndexModel<TDocument> : CreateSearchIndexM
             vectorField.Add("modality", Modality.ToString().ToLowerInvariant());
             vectorField.Add("model", AutoEmbeddingModelName);
 
-            if (Quantization != null)
+            if (Quantization != null || Dimensions > 0)
             {
                 throw new NotSupportedException(
-                    $"Both compression profile");
-            }
-
-            if (Dimensions == -1)
-            {
-                if (Quantization != null)
-                {
-                    throw new NotSupportedException(
-                        $"Both compression profile");
-                }
+                    $"Currently, compression options such as '{nameof(Quantization)}' and '{nameof(Dimensions)}' are not supported for auto-embedding vector indexes.");
             }
         }
 
         if (HnswMaxEdges != null || HnswNumEdgeCandidates != null)
         {
+            if (AutoEmbeddingModelName != null)
+            {
+                throw new NotSupportedException(
+                    $"Currently, small-world options such as '{nameof(HnswMaxEdges)}' and '{nameof(HnswNumEdgeCandidates)}' are not supported for auto-embedding vector indexes.");
+            }
+
             vectorField.Add("hnswOptions",
                 new BsonDocument
                 {
