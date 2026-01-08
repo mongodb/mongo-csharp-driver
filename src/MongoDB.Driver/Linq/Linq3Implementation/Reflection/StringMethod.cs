@@ -398,8 +398,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 
             __stringNinOverloads = MethodInfoSet.Create(
             [
-                __stringInWithEnumerable,
-                __stringInWithParams
+                __stringNinWithEnumerable,
+                __stringNinWithParams
             ]);
 
             __toLowerOverloads = MethodInfoSet.Create(
