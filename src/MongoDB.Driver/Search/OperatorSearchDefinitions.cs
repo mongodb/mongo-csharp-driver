@@ -499,30 +499,6 @@ namespace MongoDB.Driver.Search
         }
     }
 
-    internal sealed class WildcardSearchDefinition<TDocument> : OperatorSearchDefinition<TDocument>
-    {
-        private readonly bool _allowAnalyzedField;
-        private readonly SearchQueryDefinition _query;
-
-        public WildcardSearchDefinition(
-            SearchPathDefinition<TDocument> path,
-            SearchQueryDefinition query,
-            bool allowAnalyzedField,
-            SearchScoreDefinition<TDocument> score)
-                : base(OperatorType.Wildcard, path, score)
-        {
-            _query = Ensure.IsNotNull(query, nameof(query));
-            _allowAnalyzedField = allowAnalyzedField;
-        }
-
-        private protected override BsonDocument RenderArguments(RenderArgs<TDocument> args,
-            IBsonSerializer fieldSerializer) => new()
-           {
-                { "query", _query.Render() },
-                { "allowAnalyzedField", _allowAnalyzedField, _allowAnalyzedField },
-           };
-    }
-
     internal sealed class VectorSearchDefinition<TDocument> : OperatorSearchDefinition<TDocument>
     {
         private readonly QueryVector _queryVector;
@@ -535,7 +511,7 @@ namespace MongoDB.Driver.Search
             int limit,
             VectorSearchOperatorOptions<TDocument> options,
             SearchScoreDefinition<TDocument> score)
-                : base(OperatorType.VectorSearch, path, score)
+            : base(OperatorType.VectorSearch, path, score)
         {
             Ensure.IsNotNull(path, nameof(path));
             Ensure.IsNotNull(queryVector, nameof(queryVector));
@@ -558,5 +534,29 @@ namespace MongoDB.Driver.Search
                 { "filter", () => _options?.Filter.Render(args), _options?.Filter != null },
                 { "exact", true, _options?.Exact == true }
             };
+    }
+
+    internal sealed class WildcardSearchDefinition<TDocument> : OperatorSearchDefinition<TDocument>
+    {
+        private readonly bool _allowAnalyzedField;
+        private readonly SearchQueryDefinition _query;
+
+        public WildcardSearchDefinition(
+            SearchPathDefinition<TDocument> path,
+            SearchQueryDefinition query,
+            bool allowAnalyzedField,
+            SearchScoreDefinition<TDocument> score)
+                : base(OperatorType.Wildcard, path, score)
+        {
+            _query = Ensure.IsNotNull(query, nameof(query));
+            _allowAnalyzedField = allowAnalyzedField;
+        }
+
+        private protected override BsonDocument RenderArguments(RenderArgs<TDocument> args,
+            IBsonSerializer fieldSerializer) => new()
+           {
+                { "query", _query.Render() },
+                { "allowAnalyzedField", _allowAnalyzedField, _allowAnalyzedField },
+           };
     }
 }

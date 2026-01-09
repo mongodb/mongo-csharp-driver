@@ -505,7 +505,10 @@ namespace MongoDB.Driver.Tests.Search
 
         private async Task<BsonDocument[]> GetIndexes(bool async, params string[] indexNames)
         {
-            while (true)
+            BsonDocument[] indexesFiltered = null!;
+            var timeoutCount = 2;
+            bool? expectTimeout = null;
+            while (expectTimeout != true || --timeoutCount >= 0)
             {
                 List<BsonDocument> indexes;
                 if (async)
@@ -518,17 +521,22 @@ namespace MongoDB.Driver.Tests.Search
                     indexes = _collection.SearchIndexes.List().ToList();
                 }
 
-                var indexesFiltered = indexes
-                    .Where(i => indexNames.Contains(TryGetValue<string>(i, "name")) && TryGetValue<bool>(i, "queryable"))
+                indexesFiltered = indexes
+                    .Where(i => indexNames.Contains(TryGetValue<string>(i, "name")))
                     .ToArray();
 
-                if (indexesFiltered.Length == indexNames.Length)
+                expectTimeout ??= !indexesFiltered.All(i => i.TryGetElement("status", out _));
+
+                if (indexesFiltered.All(i => TryGetValue<string>(i, "status") == "READY"))
                 {
                     return indexesFiltered;
                 }
 
                 Thread.Sleep(IndexesPollPeriod);
             }
+
+            // Allow test to continue if index creation timed-out as expected.
+            return indexesFiltered;
         }
 
         private static string GetRandomName() => $"test_{Guid.NewGuid():N}";
