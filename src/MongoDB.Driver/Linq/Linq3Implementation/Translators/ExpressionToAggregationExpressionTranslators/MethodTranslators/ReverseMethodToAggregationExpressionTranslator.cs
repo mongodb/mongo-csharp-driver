@@ -14,7 +14,6 @@
 */
 
 using System.Linq.Expressions;
-using System.Reflection;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
@@ -29,7 +28,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(EnumerableOrQueryableMethod.Reverse))
+            if (method.IsOneOf(EnumerableOrQueryableMethod.ReverseOverloads))
             {
                 var sourceExpression = arguments[0];
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);

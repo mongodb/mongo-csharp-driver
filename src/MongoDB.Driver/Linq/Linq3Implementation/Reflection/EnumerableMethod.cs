@@ -145,6 +145,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __range;
         private static readonly MethodInfo __repeat;
         private static readonly MethodInfo __reverse;
+        private static readonly MethodInfo __reverseWithArray; // will be null on target frameworks that don't have this method
         private static readonly MethodInfo __select;
         private static readonly MethodInfo __selectManyWithSelector;
         private static readonly MethodInfo __selectManyWithCollectionSelectorAndResultSelector;
@@ -199,11 +200,18 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly IReadOnlyMethodInfoSet __pickWithComputedNOverloads;
         private static readonly IReadOnlyMethodInfoSet __pickWithNOverloads;
         private static readonly IReadOnlyMethodInfoSet __pickWithSortByOverloads;
+        private static readonly IReadOnlyMethodInfoSet __reverseOverloads;
 
         // static constructor
         static EnumerableMethod()
         {
             // initialize methods before sets of methods
+#if NET10_OR_GREATER
+            __reverseWithArray = ReflectionInfo.Method(array source) => source.Reverse());
+#else
+            __reverseWithArray = GetReverseWithArrayMethodInfo(); // support users running net10 even though we don't target net10 yet
+#endif
+
             __aggregateWithFunc = ReflectionInfo.Method((IEnumerable<object> source, Func<object, object, object> func) => source.Aggregate(func));
             __aggregateWithSeedAndFunc = ReflectionInfo.Method((IEnumerable<object> source, object seed, Func<object, object, object> func) => source.Aggregate(seed, func));
             __aggregateWithSeedFuncAndResultSelector = ReflectionInfo.Method((IEnumerable<object> source, object seed, Func<object, object, object> func, Func<object, object> resultSelector) => source.Aggregate(seed, func, resultSelector));
@@ -433,6 +441,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
                 __topN,
                 __topNWithComputedN
             ]);
+
+            __reverseOverloads = MethodInfoSet.Create(
+            [
+                __reverse,
+                __reverseWithArray
+            ]);
         }
 
         // public properties
@@ -555,6 +569,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo Range => __range;
         public static MethodInfo Repeat => __repeat;
         public static MethodInfo Reverse => __reverse;
+        public static MethodInfo ReverseWithArray => __reverseWithArray;
         public static MethodInfo Select => __select;
         public static MethodInfo SelectManyWithSelector => __selectManyWithSelector;
         public static MethodInfo SelectManyWithCollectionSelectorAndResultSelector => __selectManyWithCollectionSelectorAndResultSelector;
@@ -609,6 +624,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static IReadOnlyMethodInfoSet PickWithComputedNOverloads => __pickWithComputedNOverloads;
         public static IReadOnlyMethodInfoSet PickWithNOverloads => __pickWithNOverloads;
         public static IReadOnlyMethodInfoSet PickWithSortByOverloads => __pickWithSortByOverloads;
+        public static IReadOnlyMethodInfoSet ReverseOverloads => __reverseOverloads;
 
         // public methods
         public static bool IsContainsMethod(MethodCallExpression methodCallExpression, out Expression sourceExpression, out Expression valueExpression)
@@ -694,5 +710,28 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         {
             return __where.MakeGenericMethod(tsource);
         }
+
+#if !NET10_OR_GREATER
+        private static MethodInfo GetReverseWithArrayMethodInfo()
+        {
+            // returns null on target frameworks that don't have this method
+            return
+                typeof(Enumerable)
+                .GetMethods()
+                .SingleOrDefault(m =>
+                    m.IsPublic &&
+                    m.IsStatic &&
+                    m.Name == "Reverse" &&
+                    m.IsGenericMethodDefinition &&
+                    m.GetGenericArguments() is var genericArguments &&
+                    genericArguments.Length == 1 &&
+                    genericArguments[0] is var tsource &&
+                    m.ReturnType == typeof(IEnumerable<>).MakeGenericType(tsource) &&
+                    m.GetParameters() is var parameters &&
+                    parameters.Length == 1 &&
+                    parameters[0] is var sourceParameter &&
+                    sourceParameter.ParameterType == tsource.MakeArrayType());
+        }
+#endif
     }
 }

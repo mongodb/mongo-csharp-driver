@@ -101,6 +101,7 @@ internal static class EnumerableOrQueryableMethod
     private static readonly IReadOnlyMethodInfoSet __minWithSelectorOverloads;
     private static readonly IReadOnlyMethodInfoSet __orderByOrThenByOverloads;
     private static readonly IReadOnlyMethodInfoSet __orderByOverloads;
+    private static readonly IReadOnlyMethodInfoSet __reverseOverloads;
     private static readonly IReadOnlyMethodInfoSet __selectManyOverloads;
     private static readonly IReadOnlyMethodInfoSet __singleOverloads;
     private static readonly IReadOnlyMethodInfoSet __singleWithPredicateOverloads;
@@ -689,6 +690,12 @@ internal static class EnumerableOrQueryableMethod
             __orderByDescending
         ]);
 
+        __reverseOverloads = MethodInfoSet.Create(
+        [
+            __reverse,
+            [EnumerableMethod.ReverseWithArray]
+        ]);
+
         __selectManyOverloads = MethodInfoSet.Create(
         [
             __selectManyWithSelector,
@@ -934,6 +941,7 @@ internal static class EnumerableOrQueryableMethod
     public static IReadOnlyMethodInfoSet MinWithSelectorOverloads => __minWithSelectorOverloads;
     public static IReadOnlyMethodInfoSet OrderByOrThenByOverloads => __orderByOrThenByOverloads;
     public static IReadOnlyMethodInfoSet OrderByOverloads => __orderByOverloads;
+    public static IReadOnlyMethodInfoSet ReverseOverloads => __reverseOverloads;
     public static IReadOnlyMethodInfoSet SelectManyOverloads => __selectManyOverloads;
     public static IReadOnlyMethodInfoSet SingleOverloads => __singleOverloads;
     public static IReadOnlyMethodInfoSet SingleWithPredicateOverloads => __singleWithPredicateOverloads;
