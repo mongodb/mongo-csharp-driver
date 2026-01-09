@@ -273,7 +273,7 @@ namespace MongoDB.Driver.Tests.Search
                           "Floats": {
                             "type": "vector",
                             "numDimensions": 1536,
-                            "similarity": "dotProduct"
+                            "similarity": "dotProduct",
                             "quantization": "none",
                             "hnswOptions": {
                               "maxEdges": 32,

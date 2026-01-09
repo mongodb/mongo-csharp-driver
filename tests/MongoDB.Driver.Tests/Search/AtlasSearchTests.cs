@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Tests.Search
                               "plot_embedding": {
                                 "type": "vector",
                                 "numDimensions": 1536,
-                                "similarity": "dotProduct"
+                                "similarity": "dotProduct",
                                 "quantization": "none",
                                 "hnswOptions": {
                                   "maxEdges": 32,

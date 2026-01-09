@@ -32,7 +32,7 @@ public sealed class VectorSearchOperatorOptions<TDocument>
     public int? NumberOfCandidates { get; set; }
 
     /// <summary>
-    /// Get or sets a value indicating if exact nearest neighbor (ENN) is to be used, false by default.
+    /// Gets or sets a value indicating if exact nearest neighbor (ENN) is to be used, false by default.
     /// If false, approximate nearest neighbor (ANN) is used.
     /// </summary>
     public bool Exact { get; set; }

@@ -78,7 +78,7 @@ namespace MongoDB.Driver.Tests.Search
                 .VectorSearch(p => p.FirstName, new[] { 123, 456 }, 10, new() { IndexName = "my_index", Exact = true, NumberOfCandidates = 22 }));
 
             exception.Should().BeOfType<ArgumentException>();
-            exception.Message.Should().Be("Number of candidates must be omitted for exact nearest neighbour search (ENN).");
+            exception.Message.Should().Be("Number of candidates must be omitted for exact nearest neighbor search (ENN).");
         }
 
         private IQueryable<Person> CreateSubject()

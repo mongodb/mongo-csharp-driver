@@ -516,7 +516,7 @@ namespace MongoDB.Driver.Search
             Ensure.IsNotNull(path, nameof(path));
             Ensure.IsNotNull(queryVector, nameof(queryVector));
             Ensure.IsGreaterThanZero(limit, nameof(limit));
-            Ensure.That(options?.NumberOfCandidates is null || options.Exact == false, "Number of candidates must be omitted for exact nearest neighbour search (ENN).");
+            Ensure.That(options?.NumberOfCandidates is null || !options.Exact, "Number of candidates must be omitted for exact nearest neighbor search (ENN).");
 
             _queryVector = queryVector;
             _limit = limit;
