@@ -110,7 +110,7 @@ namespace MongoDB.Driver.Tests.Search
         public async Task Case3_driver_can_successfully_drop_search_indexes(
             [Values(false, true)] bool async)
         {
-            var indexName = async ? "test-search-index-async" : "test-search-index";
+            var indexName = "test-search-index" + (async ? "-async" : "");
 
             await CreateIndexAndValidate(indexName, _indexDefinition, async);
             if (async)
@@ -149,7 +149,7 @@ namespace MongoDB.Driver.Tests.Search
         public async Task Case4_driver_can_update_a_search_index(
             [Values(false, true)] bool async)
         {
-            var indexName = async ? "test-search-index-async" : "test-search-index";
+            var indexName = "test-search-index-" + (async ? "-async" : "");
             var indexNewDefinition = BsonDocument.Parse("{ mappings: { dynamic: true, fields: { } }}");
 
             await CreateIndexAndValidate(indexName, _indexDefinition, async);
@@ -250,7 +250,7 @@ namespace MongoDB.Driver.Tests.Search
         public async Task Case8_driver_requires_explicit_type_to_create_vector_search_index(
             [Values(false, true)] bool async)
         {
-            var indexName = async ? "test-search-index-case8-error-async" : "test-search-index-case8-error";
+            var indexName = "test-search-index-case8-error" + (async ? "-async" : "");
 
             var exception = async
                 ? await Record.ExceptionAsync(() => _collection.SearchIndexes.CreateOneAsync(
@@ -427,7 +427,7 @@ namespace MongoDB.Driver.Tests.Search
         public async Task Can_create_autoEmbed_vector_index_for_required_only_options(
             [Values(false, true)] bool async)
         {
-            var indexName = async ? "auto-embed-required-async" : "auto-embed-required";
+            var indexName = "auto-embed-required" + (async ? "-async" : "");
 
             var indexModel = new CreateAutoEmbeddingVectorSearchIndexModel<EntityWithVector>("SomeText", indexName, "voyage-4");
 

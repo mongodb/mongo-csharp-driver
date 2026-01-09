@@ -80,7 +80,7 @@ public sealed class CreateAutoEmbeddingVectorSearchIndexModel<TDocument> : Creat
     }
 
     /// <inheritdoc/>
-    public override BsonDocument Render(RenderArgs<TDocument> renderArgs)
+    internal override BsonDocument Render(RenderArgs<TDocument> renderArgs)
     {
         var vectorField = new BsonDocument
         {
