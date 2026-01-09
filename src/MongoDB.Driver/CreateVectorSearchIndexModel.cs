@@ -102,23 +102,21 @@ public sealed class CreateVectorSearchIndexModel<TDocument> : CreateVectorSearch
     }
 
     /// <inheritdoc/>
-    public override BsonDocument Render(RenderArgs<TDocument> renderArgs)
+    internal override BsonDocument Render(RenderArgs<TDocument> renderArgs)
     {
-        var vectorField = new BsonDocument { { "path", Field.Render(renderArgs).FieldName }, };
-
-        vectorField.Add("type", "vector");
-
         var similarityValue = Similarity == VectorSimilarity.DotProduct
             ? "dotProduct" // Because neither "DotProduct" or "dotproduct" are allowed.
             : Similarity.ToString().ToLowerInvariant();
 
-        vectorField.Add("numDimensions", Dimensions);
-        vectorField.Add("similarity", similarityValue);
-
-        if (Quantization.HasValue)
+        var vectorField = new BsonDocument
         {
-            vectorField.Add("quantization", Quantization.ToString()?.ToLowerInvariant());
-        }
+            { "type", "vector" },
+            { "path", Field.Render(renderArgs).FieldName },
+            { "numDimensions", Dimensions },
+            { "similarity", similarityValue },
+        };
+
+        vectorField.Add("quantization", Quantization.ToString()?.ToLowerInvariant(), Quantization.HasValue);
 
         if (HnswMaxEdges != null || HnswNumEdgeCandidates != null)
         {
@@ -131,7 +129,6 @@ public sealed class CreateVectorSearchIndexModel<TDocument> : CreateVectorSearch
 
         var fieldDocuments = new List<BsonDocument> { vectorField };
         RenderFilterFields(renderArgs, fieldDocuments);
-
         return new BsonDocument { { "fields", new BsonArray(fieldDocuments) } };
     }
 }

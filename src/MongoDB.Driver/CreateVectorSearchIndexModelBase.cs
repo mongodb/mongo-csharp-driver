@@ -57,14 +57,14 @@ public abstract class CreateVectorSearchIndexModelBase<TDocument> : CreateSearch
     /// </summary>
     /// <param name="renderArgs">The render arguments.</param>
     /// <returns>A <see cref="BsonDocument" />.</returns>
-    public abstract BsonDocument Render(RenderArgs<TDocument> renderArgs);
+    internal abstract BsonDocument Render(RenderArgs<TDocument> renderArgs);
 
     /// <summary>
     /// Called by subclasses to render the filters for the index fields section.
     /// </summary>
     /// <param name="renderArgs">The render args.</param>
     /// <param name="fields">The list into which fields should be added.</param>
-    protected void RenderFilterFields(RenderArgs<TDocument> renderArgs, List<BsonDocument> fields)
+    private protected void RenderFilterFields(RenderArgs<TDocument> renderArgs, List<BsonDocument> fields)
     {
         if (FilterFields != null)
         {
