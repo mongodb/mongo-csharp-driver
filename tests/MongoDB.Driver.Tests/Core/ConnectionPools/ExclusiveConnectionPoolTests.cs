@@ -1329,7 +1329,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         .Setup(c => c.ConnectionId)
                         .Returns(connectionId);
 
-                    // mark some connections as expired only while the test initialization
                     if (!isInitializationDone && random.NextDouble() > 0.5)
                     {
                         connectionsExpired.Add(connectionId);
@@ -1349,21 +1348,18 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             using var subject = CreateSubject(settings, mockConnectionFactory.Object);
             subject.Initialize();
-            // Moving ConnectionPool to the ready state will start the maintenance thread that should create connection accordingly to minConnections settings
-            // each maintenance run should inspect IsExpired property of the connection and eventually some of the connections should
-            // turn expired as per mock configuration and removed from the pool
+            // Moving ConnectionPool to the ready state will start the maintenance thread that should create connection accordingly to minConnections settings.
             subject.SetReady();
 
-            // Have to wait for connections to be created and the connectionsExpired collection populated.
+            // Have to wait for connections to be created and the connectionsExpired collection to be populated.
             SpinWait.SpinUntil(() => subject.DormantCount == connectionsCount, TimeSpan.FromSeconds(10));
             isInitializationDone = true;
 
-            // ensure removed events are received in subsequent order, meaning all expired connections where removed in same pass
             _capturedEvents.WaitForOrThrowIfTimeout(events => events.Count(e => e is ConnectionPoolRemovedConnectionEvent) >= connectionsExpired.Count, TimeSpan.FromSeconds(10));
             var poolPruneEvents = _capturedEvents.Events
                 .SkipWhile(e => e is not ConnectionPoolRemovingConnectionEvent)
-                // it is expected that all connections should be expired and removed withing the single maintenance run
-                // removal of each connection produces 2 events: ConnectionPoolRemovingConnectionEvent and ConnectionPoolRemovedConnectionEvent
+                // It is expected that all connections should be expired and removed withing the single maintenance run.
+                // Removal of each connection produces 2 events: ConnectionPoolRemovingConnectionEvent and ConnectionPoolRemovedConnectionEvent.
                 .Take(connectionsExpired.Count * 2)
                 .ToArray();
 
