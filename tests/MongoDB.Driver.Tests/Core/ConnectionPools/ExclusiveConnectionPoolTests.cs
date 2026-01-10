@@ -1315,7 +1315,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             var connectionsExpired = new HashSet<ConnectionId>();
             var random = new Random(seed);
-            var isInitializationDone = false;
+            var createdCount = 0;
             var mockConnectionFactory = new Mock<IConnectionFactory> { DefaultValue = DefaultValue.Mock };
             mockConnectionFactory.Setup(f => f.ConnectionSettings).Returns(() => new ConnectionSettings());
             mockConnectionFactory
@@ -1329,12 +1329,15 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         .Setup(c => c.ConnectionId)
                         .Returns(connectionId);
 
-                    if (!isInitializationDone && random.NextDouble() > 0.5)
+                    // Should not mark as IsExpired connections created after the initial connections were created.
+                    // Otherwise, it is possible that maintenance job will create more connections and modify connectionsExpired
+                    // collection after the first batch of expired connections were removed from the pool.
+                    if (createdCount < connectionsCount && random.NextDouble() > 0.5)
                     {
                         connectionsExpired.Add(connectionId);
                         connectionMock
                             .SetupSequence(c => c.IsExpired)
-                            .Returns(() => isInitializationDone); // Once we mark test as initialized chosen connection could be expired.
+                            .Returns(true); // Second and subsequent calls return true, so all created connection will be expired together.
                     }
                     else
                     {
@@ -1343,6 +1346,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                             .Returns(false);
                     }
 
+                    createdCount++;
                     return connectionMock.Object;
                 });
 
@@ -1352,8 +1356,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             subject.SetReady();
 
             // Have to wait for connections to be created and the connectionsExpired collection to be populated.
-            SpinWait.SpinUntil(() => subject.DormantCount == connectionsCount, TimeSpan.FromSeconds(10));
-            isInitializationDone = true;
+            SpinWait.SpinUntil(() => createdCount == connectionsCount, TimeSpan.FromSeconds(10));
 
             _capturedEvents.WaitForOrThrowIfTimeout(events => events.Count(e => e is ConnectionPoolRemovedConnectionEvent) >= connectionsExpired.Count, TimeSpan.FromSeconds(10));
             var poolPruneEvents = _capturedEvents.Events
