@@ -1313,12 +1313,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 maxConnections: connectionsCount,
                 maintenanceInterval: TimeSpan.FromMilliseconds(10));
 
-            var connectionsCreated = new HashSet<ConnectionId>();
             var connectionsExpired = new HashSet<ConnectionId>();
-            var connectionsDisposed = new HashSet<ConnectionId>();
-
-            var syncRoot = new object();
-
+            var random = new Random(seed);
+            var isInitializationDone = false;
             var mockConnectionFactory = new Mock<IConnectionFactory> { DefaultValue = DefaultValue.Mock };
             mockConnectionFactory.Setup(f => f.ConnectionSettings).Returns(() => new ConnectionSettings());
             mockConnectionFactory
@@ -1326,65 +1323,56 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 .Returns(() =>
                 {
                     var connectionMock = new Mock<IConnection>();
+                    var connectionId = new ConnectionId(_serverId);
 
                     connectionMock
                         .Setup(c => c.ConnectionId)
-                        .Returns(new ConnectionId(_serverId));
+                        .Returns(connectionId);
 
-                    connectionMock
-                        .Setup(c => c.Settings)
-                        .Returns(new ConnectionSettings());
-
-                    connectionMock
-                        .Setup(c => c.IsExpired)
-                        .Returns(() =>
-                        {
-                            lock (syncRoot)
-                            {
-                                return connectionsExpired.Contains(connectionMock.Object.ConnectionId);
-                            }
-                        });
-
-                    connectionMock
-                        .Setup(c => c.Dispose())
-                        .Callback(() => connectionsDisposed.Add(connectionMock.Object.ConnectionId));
-
-                    connectionsCreated.Add(connectionMock.Object.ConnectionId);
+                    // mark some connections as expired only while the test initialization
+                    if (!isInitializationDone && random.NextDouble() > 0.5)
+                    {
+                        connectionsExpired.Add(connectionId);
+                        connectionMock
+                            .SetupSequence(c => c.IsExpired)
+                            .Returns(() => isInitializationDone); // Once we mark test as initialized chosen connection could be expired
+                    }
+                    else
+                    {
+                        connectionMock
+                            .Setup(c => c.IsExpired)
+                            .Returns(false);
+                    }
 
                     return connectionMock.Object;
                 });
 
             using var subject = CreateSubject(settings, mockConnectionFactory.Object);
             subject.Initialize();
+            // Moving ConnectionPool to the ready state will start the maintenance thread that should create connection accordingly to minConnections settings
+            // each maintenance run should inspect IsExpired property of the connection and eventually some of the connections should
+            // turn expired as per mock configuration and removed from the pool
             subject.SetReady();
 
-            SpinWait.SpinUntil(() => subject.DormantCount == connectionsCount, TimeSpan.FromSeconds(1));
-
-            // expire some of the connections
-            _capturedEvents.Clear();
-            var random = new Random(seed);
-            lock (syncRoot)
-            {
-                foreach (var connectionId in connectionsCreated)
-                {
-                    if (random.NextDouble() > 0.5)
-                    {
-                        connectionsExpired.Add(connectionId);
-                    }
-                }
-            }
+            // Have to wait for connections to be created and the connectionsExpired collection populated.
+            SpinWait.SpinUntil(() => subject.DormantCount == connectionsCount, TimeSpan.FromSeconds(10));
+            isInitializationDone = true;
 
             // ensure removed events are received in subsequent order, meaning all expired connections where removed in same pass
-            _capturedEvents.WaitForOrThrowIfTimeout(events => events.Count() >= connectionsExpired.Count * 2, TimeSpan.FromSeconds(10));
+            _capturedEvents.WaitForOrThrowIfTimeout(events => events.Count(e => e is ConnectionPoolRemovedConnectionEvent) >= connectionsExpired.Count, TimeSpan.FromSeconds(10));
+            var poolPruneEvents = _capturedEvents.Events
+                .SkipWhile(e => e is not ConnectionPoolRemovingConnectionEvent)
+                // it is expected that all connections should be expired and removed withing the single maintenance run
+                // removal of each connection produces 2 events: ConnectionPoolRemovingConnectionEvent and ConnectionPoolRemovedConnectionEvent
+                .Take(connectionsExpired.Count * 2)
+                .ToArray();
 
-            _capturedEvents.Events
-                .Take(connectionsCount * 2)
+            poolPruneEvents
                 .OfType<ConnectionPoolRemovingConnectionEvent>()
                 .Select(e => e.ConnectionId.LongLocalValue)
                 .ShouldBeEquivalentTo(connectionsExpired.Select(c => c.LongLocalValue));
 
-            _capturedEvents.Events
-                .Take(connectionsCount * 2)
+            poolPruneEvents
                 .OfType<ConnectionPoolRemovedConnectionEvent>()
                 .Select(e => e.ConnectionId.LongLocalValue)
                 .ShouldAllBeEquivalentTo(connectionsExpired.Select(c => c.LongLocalValue));
