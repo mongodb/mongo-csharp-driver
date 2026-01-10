@@ -1334,7 +1334,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         connectionsExpired.Add(connectionId);
                         connectionMock
                             .SetupSequence(c => c.IsExpired)
-                            .Returns(() => isInitializationDone); // Once we mark test as initialized chosen connection could be expired
+                            .Returns(() => isInitializationDone); // Once we mark test as initialized chosen connection could be expired.
                     }
                     else
                     {
@@ -1358,7 +1358,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             _capturedEvents.WaitForOrThrowIfTimeout(events => events.Count(e => e is ConnectionPoolRemovedConnectionEvent) >= connectionsExpired.Count, TimeSpan.FromSeconds(10));
             var poolPruneEvents = _capturedEvents.Events
                 .SkipWhile(e => e is not ConnectionPoolRemovingConnectionEvent)
-                // It is expected that all connections should be expired and removed withing the single maintenance run.
+                // It is expected that all connections should be expired and removed within the single maintenance run.
                 // Removal of each connection produces 2 events: ConnectionPoolRemovingConnectionEvent and ConnectionPoolRemovedConnectionEvent.
                 .Take(connectionsExpired.Count * 2)
                 .ToArray();
