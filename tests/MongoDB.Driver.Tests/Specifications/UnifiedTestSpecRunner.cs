@@ -123,7 +123,16 @@ namespace MongoDB.Driver.Tests.Specifications
         public void GridFS(JsonDrivenTestCase testCase) => Run(testCase);
 
         [UnifiedTestsTheory("index_management.tests")]
-        public void IndexManagement(JsonDrivenTestCase testCase) => Run(testCase);
+        public void IndexManagement(JsonDrivenTestCase testCase)
+        {
+            // Skip sharded due to CSHARP-5833/SERVER-117001
+            RequireServer
+                .Check()
+                .VersionGreaterThanOrEqualTo(SemanticVersion.Parse("8.0.0"))
+                .ClusterTypes(ClusterType.LoadBalanced, ClusterType.ReplicaSet);
+
+            Run(testCase);
+        }
 
         [Category("SupportLoadBalancing")]
         [UnifiedTestsTheory("load_balancers.tests")]
