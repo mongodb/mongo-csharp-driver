@@ -38,6 +38,7 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly ClusterType _clusterType = ClusterType.LoadBalanced;
         private ClusterDescription _description;
         private readonly IDnsMonitorFactory _dnsMonitorFactory;
+        private Thread _dnsMonitorThread;
         private readonly CancellationTokenSource _dnsMonitorCancellationTokenSource;
         private IClusterableServer _server;
         private readonly IClusterableServerFactory _serverFactory;
