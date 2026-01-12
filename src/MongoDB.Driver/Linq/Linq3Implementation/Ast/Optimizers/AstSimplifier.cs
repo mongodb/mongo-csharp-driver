@@ -684,17 +684,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
                 return AstExpression.ComputedDocument(computedFields);
             }
 
-            // { $size : { $map : { input : <array>, as : <var>, in : "$$<var>.fieldname" } } } => { $size : <array> }
-            // { $size : { $map : { input : <array>, as : <var>, in : { arrayElemAt: ... } } } } => { $size : <array> }
-            // { $size : { $map : { input : <array>, as : <var>, in : { k : { $arrayElemAt : ... }, v : { $arrayElemAt : ... }  } } } => { $size : <array> }
+            // { $size : { $map : { input : <array>, as : <var>, in : <expr> } } } => { $size : <array> }
+            // $map is always 1-to-1, so size of the mapped array equals size of the input array
             if (node.Operator == AstUnaryOperator.Size &&
-                arg is AstMapExpression mapExpression &&
-                mapExpression.As is var mapVar &&
-                ((mapExpression.In is AstFieldPathExpression fieldPath &&
-                  fieldPath.Path.StartsWith($"$${mapVar.Name}.")) ||
-                 mapExpression.In is AstBinaryExpression { Operator: AstBinaryOperator.ArrayElemAt } ||
-                 (mapExpression.In is AstComputedDocumentExpression computedDoc &&
-                  computedDoc.Fields.All(f => f.Value is AstBinaryExpression { Operator: AstBinaryOperator.ArrayElemAt }))))
+                arg is AstMapExpression mapExpression)
             {
                 return AstExpression.Size(mapExpression.Input);
             }

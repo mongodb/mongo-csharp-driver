@@ -1129,7 +1129,7 @@ public class CSharp5779Tests : LinqIntegrationTest<CSharp5779Tests.ClassFixture>
             .Select(x => x.DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays.Values.SelectMany(n => n.Keys));
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $reduce : { input : { $map : { input : { $map : { input : { $objectToArray : '$DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays' }, as : 'item', in : '$$item.v' } }, as : 'n', in : { $map : { input : '$$n', as : 'kvp', in : { $arrayElemAt : ['$$kvp', 0] } } }  } }, initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } }  }, _id : 0 } }");
+        AssertStages(stages, "{ $project : { _v : { $reduce : { input : { $map : { input : { $map : { input : { $objectToArray : '$DictionaryAsDocumentOfNestedDictionaryAsArrayOfArrays' }, as : 'item', in : '$$item.v' } }, as : 'n', in : { $map : { input : '$$n', as : 'kvp', in : { $arrayElemAt : ['$$kvp', 0] } } } } }, initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } } }, _id : 0 } }");
 
         var results = queryable.ToList();
         results.Count.Should().Be(4);
