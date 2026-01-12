@@ -38,7 +38,6 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly ClusterType _clusterType = ClusterType.LoadBalanced;
         private ClusterDescription _description;
         private readonly IDnsMonitorFactory _dnsMonitorFactory;
-        private Thread _dnsMonitorThread;
         private readonly CancellationTokenSource _dnsMonitorCancellationTokenSource;
         private IClusterableServer _server;
         private readonly IClusterableServerFactory _serverFactory;
@@ -46,6 +45,7 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly ICoreServerSessionPool _serverSessionPool;
         private readonly ClusterSettings _settings;
         private readonly InterlockedInt32 _state;
+        private readonly TokenBucket _tokenBucket = new TokenBucket();
         private readonly EventLogger<LogCategories.SDAM> _eventLogger;
         private readonly EventLogger<LogCategories.ServerSelection> _serverSelectionEventLogger;
 
@@ -101,6 +101,9 @@ namespace MongoDB.Driver.Core.Clusters
         public ClusterDescription Description => _description;
 
         public ClusterSettings Settings => _settings;
+
+        //TODO Put in right place
+        public TokenBucket TokenBucket => _tokenBucket;
 
         public event EventHandler<ClusterDescriptionChangedEventArgs> DescriptionChanged;
 
