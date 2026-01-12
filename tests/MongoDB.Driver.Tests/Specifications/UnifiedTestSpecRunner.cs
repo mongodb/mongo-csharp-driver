@@ -128,8 +128,7 @@ namespace MongoDB.Driver.Tests.Specifications
             // Skip sharded due to CSHARP-5833/SERVER-117001
             RequireServer
                 .Check()
-                .VersionGreaterThanOrEqualTo(SemanticVersion.Parse("8.0.0"))
-                .ClusterTypes(ClusterType.LoadBalanced, ClusterType.ReplicaSet);
+                .VersionGreaterThanOrEqualTo(SemanticVersion.Parse("8.0.0"));
 
             Run(testCase);
         }
