@@ -27,13 +27,22 @@ namespace MongoDB.Driver;
 /// </summary>
 public static class MongoTelemetry
 {
-    private static readonly string s_driverVersion = ClientDocumentHelper.GetAssemblyVersion(typeof(MongoClient).Assembly);
+    private static readonly string __driverVersion = ClientDocumentHelper.GetAssemblyVersion(typeof(MongoClient).Assembly);
 
     /// <summary>
-    /// The ActivitySource used by MongoDB driver for OpenTelemetry tracing.
-    /// Applications can subscribe to this source to receive MongoDB traces.
+    /// The name of the ActivitySource used by MongoDB driver for OpenTelemetry tracing.
+    /// Use this name when configuring OpenTelemetry: <c>.AddSource(MongoTelemetry.ActivitySourceName)</c>
     /// </summary>
-    public static readonly ActivitySource ActivitySource = new("MongoDB.Driver", s_driverVersion);
+    public const string ActivitySourceName = "MongoDB.Driver";
+
+    internal static readonly ActivitySource ActivitySource = new(ActivitySourceName, __driverVersion);
+
+    internal static Activity StartOperationActivity(OperationContext operationContext)
+    {
+        return operationContext.IsTracingEnabled
+            ? StartOperationActivity(operationContext.OperationName, operationContext.DatabaseName, operationContext.CollectionName)
+            : null;
+    }
 
     internal static Activity StartOperationActivity(string operationName, string databaseName, string collectionName = null)
     {
@@ -99,12 +108,7 @@ public static class MongoTelemetry
     {
         var activity = ActivitySource.StartActivity(commandName, ActivityKind.Client);
 
-        if (activity == null)
-        {
-            return null;
-        }
-
-        if (activity.IsAllDataRequested)
+        if (activity?.IsAllDataRequested == true)
         {
             var collectionName = ExtractCollectionName(command);
             activity.SetTag("db.system", "mongodb");
@@ -122,36 +126,40 @@ public static class MongoTelemetry
 
             SetConnectionTags(activity, connectionId);
 
-            if (command != null)
+            if (command.TryGetValue("lsid", out var lsid))
             {
-                if (command.TryGetValue("lsid", out var lsid))
-                {
-                    // Materialize the lsid to avoid accessing disposed RawBsonDocument later
-                    var materializedLsid = lsid.IsBsonDocument
-                        ? new BsonDocument(lsid.AsBsonDocument)
-                        : lsid;
-                    activity.SetTag("db.mongodb.lsid", materializedLsid);
-                }
+                // Materialize the lsid to avoid accessing disposed RawBsonDocument later
+                var materializedLsid = lsid.IsBsonDocument
+                    ? new BsonDocument(lsid.AsBsonDocument)
+                    : lsid;
+                activity.SetTag("db.mongodb.lsid", materializedLsid);
+            }
 
-                if (command.TryGetValue("txnNumber", out var txnNumber))
-                {
-                    activity.SetTag("db.mongodb.txn_number", txnNumber.ToInt64());
-                }
+            if (command.TryGetValue("txnNumber", out var txnNumber))
+            {
+                activity.SetTag("db.mongodb.txn_number", txnNumber.ToInt64());
+            }
 
-                if (queryTextMaxLength > 0)
-                {
-                    SetQueryText(activity, command, queryTextMaxLength);
-                }
+            if (queryTextMaxLength > 0)
+            {
+                SetQueryText(activity, command, queryTextMaxLength);
             }
         }
 
         return activity;
     }
 
-    internal static void RecordException(Activity activity, Exception exception)
+    internal static void RecordException(Activity activity, Exception exception, bool isOperationLevel = false)
     {
         if (activity == null)
         {
+            return;
+        }
+
+        // At operation level, skip server exceptions as they're already recorded on command span
+        if (isOperationLevel && exception is MongoServerException)
+        {
+            activity.SetStatus(ActivityStatusCode.Error);
             return;
         }
 

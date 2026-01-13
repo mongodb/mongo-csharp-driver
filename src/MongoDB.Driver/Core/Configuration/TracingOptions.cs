@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Configuration;
@@ -20,7 +21,7 @@ namespace MongoDB.Driver.Core.Configuration;
 /// <summary>
 /// Tracing-related settings for MongoDB operations.
 /// </summary>
-public sealed class TracingOptions
+public sealed class TracingOptions : IEquatable<TracingOptions>
 {
     /// <summary>
     /// Gets or sets whether tracing is disabled for this client.
@@ -45,21 +46,34 @@ public sealed class TracingOptions
     }
 
     /// <summary>
+    /// Determines whether two TracingOptions instances are equal.
+    /// </summary>
+    public static bool operator ==(TracingOptions lhs, TracingOptions rhs)
+    {
+        return object.Equals(lhs, rhs);
+    }
+
+    /// <summary>
+    /// Determines whether two TracingOptions instances are not equal.
+    /// </summary>
+    public static bool operator !=(TracingOptions lhs, TracingOptions rhs)
+    {
+        return !(lhs == rhs);
+    }
+
+    /// <summary>
     /// Determines whether the specified TracingOptions is equal to this instance.
     /// </summary>
     public bool Equals(TracingOptions other)
     {
-        if (ReferenceEquals(null, other)) return false;
-        if (ReferenceEquals(this, other)) return true;
-
-        return QueryTextMaxLength == other.QueryTextMaxLength && Disabled == other.Disabled;
+        return
+            other != null &&
+            QueryTextMaxLength == other.QueryTextMaxLength &&
+            Disabled == other.Disabled;
     }
 
     /// <inheritdoc/>
-    public override bool Equals(object obj)
-    {
-        return ReferenceEquals(this, obj) || obj is TracingOptions other && Equals(other);
-    }
+    public override bool Equals(object obj) => Equals(obj as TracingOptions);
 
     /// <inheritdoc/>
     public override int GetHashCode()

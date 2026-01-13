@@ -78,6 +78,7 @@ namespace MongoDB.Driver.Tests
         [InlineData("Socks5ProxySettings", true)]
         [InlineData("SrvMaxHosts", true)]
         [InlineData("SslSettings", true)]
+        [InlineData("TracingOptions", true)]
         [InlineData("UseTls", true)]
         [InlineData("WaitQueueSize", true)]
         [InlineData("WaitQueueTimeout", true)]
@@ -190,6 +191,7 @@ namespace MongoDB.Driver.Tests
                 CheckCertificateRevocation = true,
                 EnabledSslProtocols = SslProtocols.Tls12
             };
+            var tracingOptions = new TracingOptions();
             var useTls = false;
             var waitQueueSize = 20;
             var waitQueueTimeout = TimeSpan.FromSeconds(5);
@@ -235,6 +237,7 @@ namespace MongoDB.Driver.Tests
                     case "SrvMaxHosts": srvMaxHosts = 3; break;
                     case "SrvServiceName": srvServiceName = "customname"; break;
                     case "SslSettings": sslSettings.CheckCertificateRevocation = !sslSettings.CheckCertificateRevocation; break;
+                    case "TracingOptions": tracingOptions = new TracingOptions { Disabled = true }; break;
                     case "UseTls": useTls = !useTls; break;
                     case "WaitQueueSize": waitQueueSize = 99; break;
                     case "WaitQueueTimeout": waitQueueTimeout = TimeSpan.FromSeconds(99); break;
@@ -258,7 +261,6 @@ namespace MongoDB.Driver.Tests
                 loadBalanced,
                 localThreshold,
                 loggingSettings,
-                tracingOptions: null,
                 maxConnecting,
                 maxConnectionIdleTime,
                 maxConnectionLifeTime,
@@ -277,6 +279,7 @@ namespace MongoDB.Driver.Tests
                 srvMaxHosts,
                 srvServiceName,
                 sslSettings,
+                tracingOptions,
                 useTls,
                 waitQueueSize,
                 waitQueueTimeout);
@@ -326,6 +329,7 @@ namespace MongoDB.Driver.Tests
                 CheckCertificateRevocation = true,
                 EnabledSslProtocols = SslProtocols.Tls12
             };
+            var tracingOptions = new TracingOptions();
             var useTls = false;
             var waitQueueSize = 20;
             var waitQueueTimeout = TimeSpan.FromSeconds(5);
@@ -346,7 +350,6 @@ namespace MongoDB.Driver.Tests
                 loadBalanced,
                 localThreshold,
                 loggingSettings,
-                tracingOptions: null,
                 maxConnecting,
                 maxConnectionIdleTime,
                 maxConnectionLifeTime,
@@ -365,6 +368,7 @@ namespace MongoDB.Driver.Tests
                 srvMaxHosts,
                 srvServiceName,
                 sslSettings,
+                tracingOptions,
                 useTls,
                 waitQueueSize,
                 waitQueueTimeout);
