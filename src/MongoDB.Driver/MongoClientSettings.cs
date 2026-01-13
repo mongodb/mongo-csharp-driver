@@ -1274,7 +1274,6 @@ namespace MongoDB.Driver
                 _loadBalanced,
                 _localThreshold,
                 _loggingSettings,
-                _tracingOptions,
                 _maxConnecting,
                 _maxConnectionIdleTime,
                 _maxConnectionLifeTime,
@@ -1293,6 +1292,7 @@ namespace MongoDB.Driver
                 _srvMaxHosts,
                 _srvServiceName,
                 _sslSettings,
+                _tracingOptions,
                 _useTls,
                 _waitQueueSize,
                 _waitQueueTimeout);

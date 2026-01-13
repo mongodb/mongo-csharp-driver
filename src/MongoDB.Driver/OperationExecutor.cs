@@ -52,12 +52,7 @@ namespace MongoDB.Driver
             ThrowIfDisposed();
 
             using var activityScope = TransactionActivityScope.CreateIfNeeded(session);
-            using var activity = operationContext.IsTracingEnabled
-                ? MongoTelemetry.StartOperationActivity(
-                    operationContext.OperationName,
-                    operationContext.DatabaseName,
-                    operationContext.CollectionName)
-                : null;
+            using var activity = MongoTelemetry.StartOperationActivity(operationContext);
 
             try
             {
@@ -68,22 +63,7 @@ namespace MongoDB.Driver
             }
             catch (Exception ex)
             {
-                // Only record exceptions that originate at the operation level
-                // Command-level exceptions (MongoCommandException, MongoWriteException, etc.)
-                // are already recorded by CommandEventHelper on the command span
-                if (activity != null)
-                {
-                    if (!IsCommandLevelException(ex))
-                    {
-                        MongoTelemetry.RecordException(activity, ex);
-                    }
-                    else
-                    {
-                        // For command-level exceptions, only set error status without recording details
-                        activity.SetStatus(ActivityStatusCode.Error);
-                    }
-                }
-
+                MongoTelemetry.RecordException(activity, ex, isOperationLevel: true);
                 throw;
             }
         }
@@ -102,12 +82,7 @@ namespace MongoDB.Driver
             ThrowIfDisposed();
 
             using var activityScope = TransactionActivityScope.CreateIfNeeded(session);
-            using var activity = operationContext.IsTracingEnabled
-                ? MongoTelemetry.StartOperationActivity(
-                    operationContext.OperationName,
-                    operationContext.DatabaseName,
-                    operationContext.CollectionName)
-                : null;
+            using var activity = MongoTelemetry.StartOperationActivity(operationContext);
 
             try
             {
@@ -118,22 +93,7 @@ namespace MongoDB.Driver
             }
             catch (Exception ex)
             {
-                // Only record exceptions that originate at the operation level
-                // Command-level exceptions (MongoCommandException, MongoWriteException, etc.)
-                // are already recorded by CommandEventHelper on the command span
-                if (activity != null)
-                {
-                    if (!IsCommandLevelException(ex))
-                    {
-                        MongoTelemetry.RecordException(activity, ex);
-                    }
-                    else
-                    {
-                        // For command-level exceptions, only set error status without recording details
-                        activity.SetStatus(ActivityStatusCode.Error);
-                    }
-                }
-
+                MongoTelemetry.RecordException(activity, ex, isOperationLevel: true);
                 throw;
             }
         }
@@ -150,12 +110,7 @@ namespace MongoDB.Driver
             ThrowIfDisposed();
 
             using var activityScope = TransactionActivityScope.CreateIfNeeded(session);
-            using var activity = operationContext.IsTracingEnabled
-                ? MongoTelemetry.StartOperationActivity(
-                    operationContext.OperationName,
-                    operationContext.DatabaseName,
-                    operationContext.CollectionName)
-                : null;
+            using var activity = MongoTelemetry.StartOperationActivity(operationContext);
 
             try
             {
@@ -166,22 +121,7 @@ namespace MongoDB.Driver
             }
             catch (Exception ex)
             {
-                // Only record exceptions that originate at the operation level
-                // Command-level exceptions (MongoCommandException, MongoWriteException, etc.)
-                // are already recorded by CommandEventHelper on the command span
-                if (activity != null)
-                {
-                    if (!IsCommandLevelException(ex))
-                    {
-                        MongoTelemetry.RecordException(activity, ex);
-                    }
-                    else
-                    {
-                        // For command-level exceptions, only set error status without recording details
-                        activity.SetStatus(ActivityStatusCode.Error);
-                    }
-                }
-
+                MongoTelemetry.RecordException(activity, ex, isOperationLevel: true);
                 throw;
             }
         }
@@ -198,12 +138,7 @@ namespace MongoDB.Driver
             ThrowIfDisposed();
 
             using var activityScope = TransactionActivityScope.CreateIfNeeded(session);
-            using var activity = operationContext.IsTracingEnabled
-                ? MongoTelemetry.StartOperationActivity(
-                    operationContext.OperationName,
-                    operationContext.DatabaseName,
-                    operationContext.CollectionName)
-                : null;
+            using var activity = MongoTelemetry.StartOperationActivity(operationContext);
 
             try
             {
@@ -214,22 +149,7 @@ namespace MongoDB.Driver
             }
             catch (Exception ex)
             {
-                // Only record exceptions that originate at the operation level
-                // Command-level exceptions (MongoCommandException, MongoWriteException, etc.)
-                // are already recorded by CommandEventHelper on the command span
-                if (activity != null)
-                {
-                    if (!IsCommandLevelException(ex))
-                    {
-                        MongoTelemetry.RecordException(activity, ex);
-                    }
-                    else
-                    {
-                        // For command-level exceptions, only set error status without recording details
-                        activity.SetStatus(ActivityStatusCode.Error);
-                    }
-                }
-
+                MongoTelemetry.RecordException(activity, ex, isOperationLevel: true);
                 throw;
             }
         }
@@ -275,12 +195,6 @@ namespace MongoDB.Driver
             {
                 throw new ObjectDisposedException(nameof(OperationExecutor));
             }
-        }
-
-        private static bool IsCommandLevelException(Exception ex)
-        {
-            // Command-level exceptions are those that originate from MongoDB server
-            return ex is MongoServerException;
         }
 
         /// <summary>
