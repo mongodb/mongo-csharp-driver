@@ -220,11 +220,17 @@ namespace MongoDB.Driver
         {
             get
             {
-                for (int i = 0; i < _memory.Span.Length; i++)
+                for (var i = 0; i < _memory.Span.Length; i++)
                 {
                     yield return _memory.Span[i].ToDouble(null);
                 }
             }
+        }
+
+        public override BsonValue this[int index]
+        {
+            get { return _memory.Span[index].ToDouble(null); }
+            set => throw new NotImplementedException();
         }
     }
 
