@@ -24,6 +24,7 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.Sdk;
 
 namespace MongoDB.Driver.Tests.Search;
 
@@ -39,6 +40,8 @@ public class AutoEmbedVectorSearchTests : LoggableTestClass
 
     public AutoEmbedVectorSearchTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
     {
+        SkipTests();
+
         _mongoClient = AtlasSearchTestsUtils.CreateAtlasSearchMongoClient();
 
         _collection = _mongoClient.GetDatabase("dotnet-test").GetCollection<Movie>(GetRandomName());
@@ -78,6 +81,8 @@ public class AutoEmbedVectorSearchTests : LoggableTestClass
             Thread.Sleep(60_000);
         }
     }
+
+    private void SkipTests() => throw new SkipException("Test skipped because of CSHARP-XXXXX.");
 
     private bool TryGetIndex<TDocument>(
         IMongoCollection<TDocument> collection, string indexName, out BsonDocument indexDefinition)
