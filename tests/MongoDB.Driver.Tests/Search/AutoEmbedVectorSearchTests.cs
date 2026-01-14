@@ -40,7 +40,7 @@ public class AutoEmbedVectorSearchTests : LoggableTestClass
 
     public AutoEmbedVectorSearchTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
     {
-        SkipTests();
+        //SkipTests();
 
         _mongoClient = AtlasSearchTestsUtils.CreateAtlasSearchMongoClient();
 

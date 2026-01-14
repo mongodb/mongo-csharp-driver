@@ -48,7 +48,11 @@ namespace MongoDB.Driver.Tests.Search
 
         public AtlasSearchIndexManagementTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
-            _mongoClient = AtlasSearchTestsUtils.CreateAtlasSearchMongoClient();
+            RequireEnvironment.Check().EnvironmentVariable("ATLAS_SEARCH_INDEX_HELPERS_TESTS_ENABLED");
+
+            // MONGODB_URI is set by atlas-expansion.yml
+            var atlasSearchUri = CoreTestConfiguration.ConnectionString.ToString();
+            _mongoClient = new MongoClient(atlasSearchUri);
 
             _database = _mongoClient.GetDatabase("dotnet-test");
             var collectionName = GetRandomName();
