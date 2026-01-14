@@ -134,18 +134,14 @@ namespace MongoDB.Driver.Core.Operations
             {
                 return true;
             }
-            if (exception is MongoCursorNotFoundException)
-            {
-                return true;
-            }
-            if (exception is MongoConnectionPoolPausedException)
+            if (exception is MongoCursorNotFoundException or MongoConnectionPoolPausedException )
             {
                 return true;
             }
 
             if (Feature.ServerReturnsResumableChangeStreamErrorLabel.IsSupported(maxWireVersion))
             {
-                return exception is MongoException mongoException ? mongoException.HasErrorLabel(ResumableChangeStreamErrorLabel) : false;
+                return exception is MongoException mongoException && mongoException.HasErrorLabel(ResumableChangeStreamErrorLabel);
             }
 
             if (exception is MongoCommandException commandException)
@@ -181,8 +177,7 @@ namespace MongoDB.Driver.Core.Operations
                 return true;
             }
 
-            var commandException = exception as MongoCommandException;
-            if (commandException != null)
+            if (exception is MongoCommandException commandException)
             {
                 var code = (ServerErrorCode)commandException.Code;
                 if (__retryableReadErrorCodes.Contains(code))
@@ -196,7 +191,23 @@ namespace MongoDB.Driver.Core.Operations
 
         public static bool IsRetryableWriteException(Exception exception)
         {
-            return exception is MongoException mongoException ? mongoException.HasErrorLabel(RetryableWriteErrorLabel) : false;
+            return exception is MongoException mongoException && mongoException.HasErrorLabel(RetryableWriteErrorLabel);
+        }
+
+        public static bool IsBackpressureRetryableError(Exception exception)
+        {
+            return IsSystemOverloadedError(exception) && IsRetryableError(exception);
+        }
+
+        public static bool IsSystemOverloadedError(Exception exception)
+        {
+            return exception is MongoException mongoException && mongoException.HasErrorLabel("SystemOverloadedError");
+        }
+
+        //TODO Maybe we can remove this
+        public static bool IsRetryableError(Exception exception)
+        {
+            return exception is MongoException mongoException && mongoException.HasErrorLabel("RetryableError");
         }
 
         // private static methods

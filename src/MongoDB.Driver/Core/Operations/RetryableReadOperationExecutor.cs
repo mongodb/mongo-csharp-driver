@@ -15,32 +15,56 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Operations
 {
+    //TODO We could decide to merge the retryableRead and retryableWrite executors into a single executor (not in this PR)
     internal static class RetryableReadOperationExecutor
     {
+        const double baseBackoff = 0.1;
+        const int maxBackoff = 10;
+        const int maxRetries = 5;
+        const double retryTokenReturnRate = 0.1;
+
+
         // public static methods
         public static TResult Execute<TResult>(OperationContext operationContext, IRetryableReadOperation<TResult> operation, RetryableReadContext context)
         {
             HashSet<ServerDescription> deprioritizedServers = null;
-            var attempt = 1;
+            var attempt = 0;  //TODO This is to keep consistence with the withTransaction work
             Exception originalException = null;
+            bool isSystemOverloaded = false;
 
             var tokenBucket = context.ChannelSource.Server.TokenBucket;
             while (true) // Circle breaking logic based on ShouldRetryOperation method, see the catch block below.
             {
+                attempt++;
                 operationContext.ThrowIfTimedOutOrCanceled();
                 var server = context.ChannelSource.ServerDescription;
                 try
                 {
-                    return operation.ExecuteAttempt(operationContext, context, attempt, transactionNumber: null);
+                    var operationResult = operation.ExecuteAttempt(operationContext, context, attempt, transactionNumber: null);
+                    var tokensToDeposit = attempt > 1 ? retryTokenReturnRate + 1 : retryTokenReturnRate;
+                    tokenBucket.Deposit(tokensToDeposit);
+                    return operationResult;
                 }
                 catch (Exception ex)
                 {
-                    if (!ShouldRetryOperation(operationContext, context, ex, attempt))
+                    var isRetryableRead = IsRetryableRead(operationContext, context, ex, attempt);
+                    var isBackpressureRetryable = RetryabilityHelper.IsBackpressureRetryableError(ex);
+                    isSystemOverloaded = RetryabilityHelper.IsSystemOverloadedError(ex);
+
+                    var isRetryable = isRetryableRead || isBackpressureRetryable;
+
+                    if (attempt > 1)
+                    {
+                        tokenBucket.Deposit(1);
+                    }
+
+                    if (!isRetryable || attempt > maxRetries)
                     {
                         throw originalException ?? ex;
                     }
@@ -50,6 +74,18 @@ namespace MongoDB.Driver.Core.Operations
 
                 deprioritizedServers ??= new HashSet<ServerDescription>();
                 deprioritizedServers.Add(server);
+
+                if (isSystemOverloaded)
+                {
+                    var backoff = TimeSpan.FromMilliseconds(10); //TODO Get the right value;
+
+                    if (IsTimedOut(operationContext, backoff) || tokenBucket.Consume(1))
+                    {
+                        throw originalException;
+                    }
+
+                    Thread.Sleep(backoff);
+                }
 
                 try
                 {
@@ -62,6 +98,17 @@ namespace MongoDB.Driver.Core.Operations
 
                 attempt++;
             }
+        }
+
+        //TODO Move in right place
+        private static bool IsTimedOut(OperationContext operationContext, TimeSpan delay = default)
+        {
+            if (operationContext.Timeout.HasValue)
+            {
+                return operationContext.Elapsed + delay >= operationContext.Timeout;
+            }
+
+            return false;
         }
 
         public static async Task<TResult> ExecuteAsync<TResult>(OperationContext operationContext, IRetryableReadOperation<TResult> operation, RetryableReadContext context)
@@ -80,7 +127,7 @@ namespace MongoDB.Driver.Core.Operations
                 }
                 catch (Exception ex)
                 {
-                    if (!ShouldRetryOperation(operationContext, context, ex, attempt))
+                    if (!IsRetryableRead(operationContext, context, ex, attempt))
                     {
                         throw originalException ?? ex;
                     }
@@ -104,14 +151,17 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
+        //TODO What to do with this....?
         public static bool ShouldConnectionAcquireBeRetried(OperationContext operationContext, RetryableReadContext context, Exception exception, int attempt)
         {
             var innerException = exception is MongoAuthenticationException mongoAuthenticationException ? mongoAuthenticationException.InnerException : exception;
-            return ShouldRetryOperation(operationContext, context, innerException, attempt);
+            return IsRetryableRead(operationContext, context, innerException, attempt);
         }
 
+        //TODO Do we ever check that the server is at least version 3.6 (wire version 6) to be sure the server supports retryable reads?
+        //It seems we don't, maybe checking if we get a retryable read error is enough?
         // private static methods
-        private static bool ShouldRetryOperation(OperationContext operationContext, RetryableReadContext context, Exception exception, int attempt)
+        private static bool IsRetryableRead(OperationContext operationContext, RetryableReadContext context, Exception exception, int attempt)
         {
             if (!context.RetryRequested || context.Binding.Session.IsInTransaction)
             {
@@ -123,6 +173,7 @@ namespace MongoDB.Driver.Core.Operations
                 return false;
             }
 
+            //TODO Do we need to keep this first check here?
             return operationContext.IsRootContextTimeoutConfigured() || attempt < 2;
         }
     }
