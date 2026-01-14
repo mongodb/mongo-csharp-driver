@@ -595,16 +595,17 @@ namespace MongoDB.Driver.Core.Connections
         // private methods
         private void AddBackpressureErrorLabelsIfRequired(MongoConnectionException exception)
         {
-            if (exception == null)
-            {
-                return;
-            }
-
-            if (exception.ContainsTimeoutException || exception.InnerException is IOException)
-            {
-                exception.AddErrorLabel("SystemOverloadedError");
-                exception.AddErrorLabel("RetryableError");
-            }
+            // TODO: Backpressure-related error labeling is intentionally disabled. Uncomment the code below during implementation of CSHARP-5838
+            // if (exception == null)
+            // {
+            //     return;
+            // }
+            //
+            // if (exception.ContainsTimeoutException || exception.InnerException is IOException)
+            // {
+            //     exception.AddErrorLabel("SystemOverloadedError");
+            //     exception.AddErrorLabel("RetryableError");
+            // }
         }
 
         private bool ShouldBeCompressed(RequestMessage message)
