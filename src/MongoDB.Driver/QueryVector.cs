@@ -180,6 +180,20 @@ namespace MongoDB.Driver
 
         public ReadOnlySpan<T> Span => _memory.Span;
 
+        // note: indexer is only used in tests
+        public override BsonValue this[int index]
+        {
+            get
+            {
+                if (index < 0 || index >= _memory.Length)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(index));
+                }
+                return _memory.Span[index].ToDouble(null);
+            }
+            set => throw new NotSupportedException("QueryVectorBsonArray is read-only.");
+        }
+
         // note: Values is only used in tests
         public override IEnumerable<BsonValue> Values
         {
