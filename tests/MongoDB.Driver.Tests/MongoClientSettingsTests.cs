@@ -205,10 +205,10 @@ namespace MongoDB.Driver.Tests
         }
 
         [Theory]
-        [InlineData(new[]{CompressorType.Snappy}, "Compressors=[snappy]")]
-        [InlineData(new[]{CompressorType.Zlib}, "Compressors=[zlib]")]
-        [InlineData(new[]{CompressorType.ZStandard}, "Compressors=[zstd]")]
-        [InlineData(new[]{CompressorType.ZStandard, CompressorType.Snappy, CompressorType.Zlib}, "Compressors=[zstd,snappy,zlib]")]
+        [InlineData(new[] {CompressorType.Snappy}, "Compressors=[snappy]")]
+        [InlineData(new[] {CompressorType.Zlib}, "Compressors=[zlib]")]
+        [InlineData(new[] {CompressorType.ZStandard}, "Compressors=[zstd]")]
+        [InlineData(new[] {CompressorType.ZStandard, CompressorType.Snappy, CompressorType.Zlib}, "Compressors=[zstd,snappy,zlib]")]
         public void Compressors_ToString_outputs_correct_compressors(CompressorType[] compressors, string expectedConnectionString)
         {
             var settings = new MongoClientSettings {Compressors = compressors.Select(x => new CompressorConfiguration(x)).ToList()};

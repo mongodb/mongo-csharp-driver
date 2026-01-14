@@ -258,6 +258,56 @@ namespace MongoDB.Driver.Tests.Search
 
         [Theory(Timeout = Timeout)]
         [ParameterAttributeData]
+        public async Task Can_create_search_index_containing_vector_index(
+            [Values(false, true)] bool async)
+        {
+            var indexName = "search-vector" + (async ? "-async" : "");
+
+            var indexDefinition
+                = BsonDocument.Parse(
+                    """
+                    {
+                      "mappings": {
+                        "dynamic": false,
+                        "fields": {
+                          "Floats": {
+                            "type": "vector",
+                            "numDimensions": 1536,
+                            "similarity": "dotProduct",
+                            "quantization": "none",
+                            "hnswOptions": {
+                              "maxEdges": 32,
+                              "numEdgeCandidates": 512
+                            }
+                          }
+                        }
+                      }
+                    }
+                    """);
+
+            var indexModel = new CreateSearchIndexModel(indexName, indexDefinition);
+
+            var collection = _database.GetCollection<EntityWithVector>(_collection.CollectionNamespace.CollectionName);
+            var createdName = async
+                ? await collection.SearchIndexes.CreateOneAsync(indexModel)
+                : collection.SearchIndexes.CreateOne(indexModel);
+
+            createdName.Should().Be(indexName);
+
+            var index = (await GetIndexes(async, indexName))[0];
+            index["type"].AsString.Should().Be("search");
+
+            var mappings = index["latestDefinition"].AsBsonDocument["mappings"].AsBsonDocument;
+            mappings["dynamic"].AsBoolean.Should().Be(false);
+
+            var indexField = mappings["fields"].AsBsonDocument["Floats"].AsBsonDocument;
+            indexField["type"].AsString.Should().Be("vector");
+            indexField["numDimensions"].AsInt32.Should().Be(1536);
+            indexField["similarity"].AsString.Should().Be("dotProduct");
+        }
+
+        [Theory(Timeout = Timeout)]
+        [ParameterAttributeData]
         public async Task Can_create_Atlas_vector_index_for_all_options_using_typed_API(
             [Values(false, true)] bool async)
         {
@@ -455,7 +505,10 @@ namespace MongoDB.Driver.Tests.Search
 
         private async Task<BsonDocument[]> GetIndexes(bool async, params string[] indexNames)
         {
-            while (true)
+            BsonDocument[] indexesFiltered = null!;
+            var timeoutCount = 2;
+            bool? expectTimeout = null;
+            while (expectTimeout != true || --timeoutCount >= 0)
             {
                 List<BsonDocument> indexes;
                 if (async)
@@ -468,17 +521,22 @@ namespace MongoDB.Driver.Tests.Search
                     indexes = _collection.SearchIndexes.List().ToList();
                 }
 
-                var indexesFiltered = indexes
-                    .Where(i => indexNames.Contains(TryGetValue<string>(i, "name")) && TryGetValue<bool>(i, "queryable"))
+                indexesFiltered = indexes
+                    .Where(i => indexNames.Contains(TryGetValue<string>(i, "name")))
                     .ToArray();
 
-                if (indexesFiltered.Length == indexNames.Length)
+                expectTimeout ??= !indexesFiltered.All(i => i.TryGetElement("status", out _));
+
+                if (indexesFiltered.All(i => TryGetValue<string>(i, "status") == "READY"))
                 {
                     return indexesFiltered;
                 }
 
                 Thread.Sleep(IndexesPollPeriod);
             }
+
+            // Allow test to continue if index creation timed-out as expected.
+            return indexesFiltered;
         }
 
         private static string GetRandomName() => $"test_{Guid.NewGuid():N}";
