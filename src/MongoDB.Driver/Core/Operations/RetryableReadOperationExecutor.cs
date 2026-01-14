@@ -29,6 +29,7 @@ namespace MongoDB.Driver.Core.Operations
             var attempt = 1;
             Exception originalException = null;
 
+            var tokenBucket = context.ChannelSource.Server.TokenBucket;
             while (true) // Circle breaking logic based on ShouldRetryOperation method, see the catch block below.
             {
                 operationContext.ThrowIfTimedOutOrCanceled();

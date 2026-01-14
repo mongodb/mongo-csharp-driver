@@ -94,7 +94,7 @@ namespace MongoDB.Driver.Core.Clusters
 
         protected IClusterableServer CreateServer(EndPoint endPoint)
         {
-            return _serverFactory.CreateServer(Settings.GetInitialClusterType(), _clusterId, _clusterClock, endPoint);
+            return _serverFactory.CreateServer(Settings.GetInitialClusterType(), _clusterId, _clusterClock, endPoint, _tokenBucket);
         }
 
         public void Dispose()
