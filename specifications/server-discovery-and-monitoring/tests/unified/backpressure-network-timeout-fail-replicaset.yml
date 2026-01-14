@@ -1,12 +1,10 @@
-description: backpressure-network-timeout-error
+description: backpressure-network-timeout-error-replicaset
 schemaVersion: "1.17"
 runOnRequirements:
   - minServerVersion: "4.4"
     serverless: forbid
     topologies:
-      - single
       - replicaset
-      - sharded
 createEntities:
   - client:
       id: setupClient
@@ -50,7 +48,9 @@ tests:
         arguments:
           client: client
           event:
-            serverDescriptionChangedEvent: {}
+            serverDescriptionChangedEvent:
+              newDescription:
+                type: RSPrimary
           count: 1
       - name: failPoint
         object: testRunner
