@@ -22,7 +22,6 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Core.TestHelpers.Logging;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -40,9 +39,8 @@ public class AutoEmbedVectorSearchTests : LoggableTestClass
 
     public AutoEmbedVectorSearchTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
     {
-        RequireEnvironment.Check().EnvironmentVariable("ATLAS_SEARCH_TESTS_ENABLED");
+        _mongoClient = AtlasSearchTestsUtils.CreateAtlasSearchMongoClient();
 
-        _mongoClient = new MongoClient(CoreTestConfiguration.ConnectionString.ToString());
         _collection = _mongoClient.GetDatabase("dotnet-test").GetCollection<Movie>(GetRandomName());
         _autoEmbedIndexName = GetRandomName();
 
