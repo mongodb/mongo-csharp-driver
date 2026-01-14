@@ -292,56 +292,6 @@ namespace MongoDB.Driver.Tests.Search
             mongoClientSettings.ClusterSource = DisposingClusterSource.Instance;
 
             _mongoClient = new MongoClient(mongoClientSettings);
-
-            var moviesCollection = GetEmbeddedMoviesCollection<EmbeddedMovie>();
-            if (!TryGetIndex(moviesCollection, SearchWithVectorIndexName, out var _))
-            {
-                var indexDefinition
-                    = BsonDocument.Parse(
-                        """
-                        {
-                          "mappings": {
-                            "dynamic": false,
-                            "fields": {
-                              "plot_embedding": {
-                                "type": "vector",
-                                "numDimensions": 1536,
-                                "similarity": "dotProduct",
-                                "quantization": "none",
-                                "hnswOptions": {
-                                  "maxEdges": 32,
-                                  "numEdgeCandidates": 512
-                                }
-                              },
-                              "fullplot": {
-                                "type": "string"
-                              },
-                              "title": {
-                                "type": "string"
-                              }
-                            }
-                          }
-                        }
-                        """);
-
-                moviesCollection.SearchIndexes.CreateOne(
-                    new CreateSearchIndexModel(SearchWithVectorIndexName, indexDefinition));
-
-                while (!TryGetIndex(moviesCollection, SearchWithVectorIndexName, out var indexDocument)
-                       || indexDocument["status"].AsString != "READY")
-                {
-                    Thread.Sleep(5000);
-                }
-            }
-        }
-
-        private bool TryGetIndex<TDocument>(
-            IMongoCollection<TDocument> collection, string indexName, out BsonDocument indexDefinition)
-        {
-            indexDefinition = collection.SearchIndexes.List().ToList()
-                .SingleOrDefault(i => i["name"].AsString == indexName)?.AsBsonDocument;
-
-            return indexDefinition != null;
         }
 
         protected override void DisposeInternal() => _mongoClient.Dispose();
