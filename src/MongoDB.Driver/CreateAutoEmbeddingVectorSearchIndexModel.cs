@@ -37,7 +37,7 @@ public sealed class CreateAutoEmbeddingVectorSearchIndexModel<TDocument> : Creat
     public VectorEmbeddingModality Modality { get; init; } = VectorEmbeddingModality.Text;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="CreateVectorSearchIndexModel{TDocument}"/> for a vector index
+    /// Initializes a new instance of the <see cref="CreateAutoEmbeddingVectorSearchIndexModel{TDocument}"/> for a vector index
     /// that will automatically create embeddings from a given field in the document. The embedding model to use must
     /// be passed to this constructor.
     /// </summary>
@@ -56,7 +56,7 @@ public sealed class CreateAutoEmbeddingVectorSearchIndexModel<TDocument> : Creat
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="CreateVectorSearchIndexModel{TDocument}"/> for a vector index
+    /// Initializes a new instance of the <see cref="CreateAutoEmbeddingVectorSearchIndexModel{TDocument}"/> for a vector index
     /// that will automatically create embeddings from a given field in the document. The embedding model to use must
     /// be passed to this constructor.
     /// </summary>
