@@ -24,6 +24,7 @@ using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.Sdk;
 
 namespace MongoDB.Driver.Tests.Search
 {
@@ -50,14 +51,20 @@ namespace MongoDB.Driver.Tests.Search
         {
             RequireEnvironment.Check().EnvironmentVariable("ATLAS_SEARCH_INDEX_HELPERS_TESTS_ENABLED");
 
+            // MONGODB_URI is set by atlas-expansion.yml
             var atlasSearchUri = CoreTestConfiguration.ConnectionString.ToString();
-
             _mongoClient = new MongoClient(atlasSearchUri);
+
             _database = _mongoClient.GetDatabase("dotnet-test");
             var collectionName = GetRandomName();
 
             _database.CreateCollection(collectionName);
             _collection = _database.GetCollection<BsonDocument>(collectionName);
+
+            var collection = _database.GetCollection<EntityWithVector>(_collection.CollectionNamespace.CollectionName);
+            collection.InsertMany([
+                new EntityWithVector { Floats = new float[1024], Filter1 = true, Filter2 = "F21", Filter3 = 7, SomeText = "This is some text." },
+                new EntityWithVector { Floats = new float[1024], Filter1 = false, Filter2 = "F22", Filter3 = 6, SomeText = "Some different text." }]);
         }
 
         protected override void DisposeInternal()
@@ -105,7 +112,7 @@ namespace MongoDB.Driver.Tests.Search
         public async Task Case3_driver_can_successfully_drop_search_indexes(
             [Values(false, true)] bool async)
         {
-            var indexName = async ? "test-search-index-async" : "test-search-index";
+            var indexName = "test-search-index" + (async ? "-async" : "");
 
             await CreateIndexAndValidate(indexName, _indexDefinition, async);
             if (async)
@@ -144,7 +151,7 @@ namespace MongoDB.Driver.Tests.Search
         public async Task Case4_driver_can_update_a_search_index(
             [Values(false, true)] bool async)
         {
-            var indexName = async ? "test-search-index-async" : "test-search-index";
+            var indexName = "test-search-index-" + (async ? "-async" : "");
             var indexNewDefinition = BsonDocument.Parse("{ mappings: { dynamic: true, fields: { } }}");
 
             await CreateIndexAndValidate(indexName, _indexDefinition, async);
@@ -245,7 +252,7 @@ namespace MongoDB.Driver.Tests.Search
         public async Task Case8_driver_requires_explicit_type_to_create_vector_search_index(
             [Values(false, true)] bool async)
         {
-            var indexName = async ? "test-search-index-case8-error-async" : "test-search-index-case8-error";
+            var indexName = "test-search-index-case8-error" + (async ? "-async" : "");
 
             var exception = async
                 ? await Record.ExceptionAsync(() => _collection.SearchIndexes.CreateOneAsync(
@@ -311,7 +318,7 @@ namespace MongoDB.Driver.Tests.Search
         public async Task Can_create_Atlas_vector_index_for_all_options_using_typed_API(
             [Values(false, true)] bool async)
         {
-            var indexName = async ? "test-index-vector-optional-async" : "test-index-vector-optional";
+            var indexName = "vector-all" + (async ? "-async" : "");
 
             var indexModel = new CreateVectorSearchIndexModel<EntityWithVector>(
                 e => e.Floats, indexName, VectorSimilarity.Cosine, dimensions: 2)
@@ -344,10 +351,10 @@ namespace MongoDB.Driver.Tests.Search
 
         [Theory(Timeout = Timeout)]
         [ParameterAttributeData]
-        public async Task Can_create_Atlas_vector_index_for_required_only_options_using_typed_API(
+        public async Task Can_create_Atlas_vector_index_for_required_only_options(
             [Values(false, true)] bool async)
         {
-            var indexName = async ? "test-index-vector-required-async" : "test-index-vector-required";
+            var indexName = "vector-required" + (async ? "-async" : "");
 
             var indexModel = new CreateVectorSearchIndexModel<EntityWithVector>("vectors", indexName, VectorSimilarity.Euclidean, dimensions: 4);
 
@@ -376,10 +383,10 @@ namespace MongoDB.Driver.Tests.Search
 
         [Theory(Timeout = Timeout)]
         [ParameterAttributeData]
-        public async Task Can_create_Atlas_vector_index_for_all_options_using_typed_API_with_filters(
+        public async Task Can_create_Atlas_vector_index_for_all_options_with_filters(
             [Values(false, true)] bool async)
         {
-            var indexName = async ? "test-index-vector-typed-filters-async" : "test-index-typed-filters";
+            var indexName = "vector-all-filters" + (async ? "-async" : "");
 
             var indexModel = new CreateVectorSearchIndexModel<EntityWithVector>(
                 e => e.Floats,
@@ -425,10 +432,10 @@ namespace MongoDB.Driver.Tests.Search
 
         [Theory(Timeout = Timeout)]
         [ParameterAttributeData]
-        public async Task Can_create_Atlas_vector_index_for_required_only_options_using_typed_API_with_filters(
+        public async Task Can_create_Atlas_vector_index_for_required_only_options_with_filters(
             [Values(false, true)] bool async)
         {
-            var indexName = async ? "test-index-untyped-filters-async" : "test-index-untyped-filters";
+            var indexName = "vector-required-filters" + (async ? "-async" : "");
 
             var indexModel = new CreateVectorSearchIndexModel<EntityWithVector>(
                 "vectors",
@@ -467,6 +474,172 @@ namespace MongoDB.Driver.Tests.Search
             }
         }
 
+        [Theory(Timeout = Timeout)]
+        [ParameterAttributeData]
+        public async Task Can_create_autoEmbed_vector_index_for_required_only_options(
+            [Values(false, true)] bool async)
+        {
+            SkipTests();
+
+            var indexName = "auto-embed-required" + (async ? "-async" : "");
+
+            var indexModel = new CreateAutoEmbeddingVectorSearchIndexModel<EntityWithVector>("SomeText", indexName, "voyage-4");
+
+            var collection = _database.GetCollection<EntityWithVector>(_collection.CollectionNamespace.CollectionName);
+            var createdName = async
+                ? await collection.SearchIndexes.CreateOneAsync(indexModel)
+                : collection.SearchIndexes.CreateOne(indexModel);
+
+            createdName.Should().Be(indexName);
+
+            var index = (await GetIndexes(async, indexName))[0];
+            index["type"].AsString.Should().Be("vectorSearch");
+
+            var fields = index["latestDefinition"].AsBsonDocument["fields"].AsBsonArray;
+            fields.Count.Should().Be(1);
+
+            var indexField = fields[0].AsBsonDocument;
+            indexField["type"].AsString.Should().Be("autoEmbed");
+            indexField["path"].AsString.Should().Be("SomeText");
+            indexField["model"].AsString.Should().Be("voyage-4");
+            indexField["modality"].AsString.Should().Be("text");
+
+            indexField.Contains("quantization").Should().Be(false);
+            indexField.Contains("hnswOptions").Should().Be(false);
+            indexField.Contains("compression").Should().Be(false);
+        }
+
+        [Theory(Timeout = Timeout)]
+        [ParameterAttributeData]
+        public async Task Can_create_autoEmbed_vector_index_for_all_options(
+            [Values(false, true)] bool async)
+        {
+            SkipTests();
+
+            var indexName = "auto-embed-all" + (async ? "-async" : "");
+
+            var indexModel = new CreateAutoEmbeddingVectorSearchIndexModel<EntityWithVector>(
+                e => e.SomeText, indexName, "voyage-4")
+            {
+                Modality = VectorEmbeddingModality.Text,
+            };
+
+            var collection = _database.GetCollection<EntityWithVector>(_collection.CollectionNamespace.CollectionName);
+            var createdName = async
+                ? await collection.SearchIndexes.CreateOneAsync(indexModel)
+                : collection.SearchIndexes.CreateOne(indexModel);
+
+            createdName.Should().Be(indexName);
+
+            var index = (await GetIndexes(async, indexName))[0];
+            index["type"].AsString.Should().Be("vectorSearch");
+
+            var fields = index["latestDefinition"].AsBsonDocument["fields"].AsBsonArray;
+            fields.Count.Should().Be(1);
+
+            var indexField = fields[0].AsBsonDocument;
+            indexField["type"].AsString.Should().Be("autoEmbed");
+            indexField["path"].AsString.Should().Be("SomeText");
+            indexField["model"].AsString.Should().Be("voyage-4");
+            indexField["modality"].AsString.Should().Be("text");
+
+            indexField.Contains("quantization").Should().Be(false);
+            indexField.Contains("numDimensions").Should().Be(false);
+            indexField.Contains("similarity").Should().Be(false);
+        }
+
+        [Theory(Timeout = Timeout)]
+        [ParameterAttributeData]
+        public async Task Can_create_autoEmbed_vector_index_with_filters_as_text(
+            [Values(false, true)] bool async)
+        {
+            SkipTests();
+
+            var indexName = "auto-embed-filters-text" + (async ? "-async" : "");
+
+            var indexModel = new CreateAutoEmbeddingVectorSearchIndexModel<EntityWithVector>(
+                "SomeText",
+                indexName,
+                "voyage-4",
+                "Filter1", "Filter2", "Filter3");
+
+            var collection = _database.GetCollection<EntityWithVector>(_collection.CollectionNamespace.CollectionName);
+            var createdName = async
+                ? await collection.SearchIndexes.CreateOneAsync(indexModel)
+                : collection.SearchIndexes.CreateOne(indexModel);
+
+            createdName.Should().Be(indexName);
+
+            var index = (await GetIndexes(async, indexName))[0];
+            index["type"].AsString.Should().Be("vectorSearch");
+
+            var fields = index["latestDefinition"].AsBsonDocument["fields"].AsBsonArray;
+            fields.Count.Should().Be(4);
+
+            var indexField = fields[0].AsBsonDocument;
+            indexField["type"].AsString.Should().Be("autoEmbed");
+            indexField["path"].AsString.Should().Be("SomeText");
+            indexField["model"].AsString.Should().Be("voyage-4");
+            indexField["modality"].AsString.Should().Be("text");
+
+            for (var i = 1; i <= 3; i++)
+            {
+                var filterField = fields[i].AsBsonDocument;
+                filterField["type"].AsString.Should().Be("filter");
+                filterField["path"].AsString.Should().Be($"Filter{i}");
+            }
+
+            indexField.Contains("quantization").Should().Be(false);
+            indexField.Contains("hnswOptions").Should().Be(false);
+            indexField.Contains("compression").Should().Be(false);
+        }
+
+        [Theory(Timeout = Timeout)]
+        [ParameterAttributeData]
+        public async Task Can_create_autoEmbed_vector_index_with_filters_as_expressions(
+            [Values(false, true)] bool async)
+        {
+            SkipTests();
+
+            var indexName = "auto-embed-filters-expressions" + (async ? "-async" : "");
+
+            var indexModel = new CreateAutoEmbeddingVectorSearchIndexModel<EntityWithVector>(
+                e => e.SomeText,
+                indexName,
+                "voyage-4",
+                e => e.Filter1, e => e.Filter2, e => e.Filter3);
+
+            var collection = _database.GetCollection<EntityWithVector>(_collection.CollectionNamespace.CollectionName);
+            var createdName = async
+                ? await collection.SearchIndexes.CreateOneAsync(indexModel)
+                : collection.SearchIndexes.CreateOne(indexModel);
+
+            createdName.Should().Be(indexName);
+
+            var index = (await GetIndexes(async, indexName))[0];
+            index["type"].AsString.Should().Be("vectorSearch");
+
+            var fields = index["latestDefinition"].AsBsonDocument["fields"].AsBsonArray;
+            fields.Count.Should().Be(4);
+
+            var indexField = fields[0].AsBsonDocument;
+            indexField["type"].AsString.Should().Be("autoEmbed");
+            indexField["path"].AsString.Should().Be("SomeText");
+            indexField["model"].AsString.Should().Be("voyage-4");
+            indexField["modality"].AsString.Should().Be("text");
+
+            for (var i = 1; i <= 3; i++)
+            {
+                var filterField = fields[i].AsBsonDocument;
+                filterField["type"].AsString.Should().Be("filter");
+                filterField["path"].AsString.Should().Be($"Filter{i}");
+            }
+
+            indexField.Contains("quantization").Should().Be(false);
+            indexField.Contains("hnswOptions").Should().Be(false);
+            indexField.Contains("compression").Should().Be(false);
+        }
+
         private class EntityWithVector
         {
             public ObjectId Id { get; set; }
@@ -474,6 +647,7 @@ namespace MongoDB.Driver.Tests.Search
             public bool Filter1 { get; set; }
             public string Filter2 { get; set; }
             public int Filter3 { get; set; }
+            public string SomeText { get; set; }
         }
 
         private static string CreateIndexName(string baseName, bool async, bool includeFields)
@@ -551,5 +725,7 @@ namespace MongoDB.Driver.Tests.Search
             var result = BsonTypeMapper.MapToDotNetValue(value);
             return (T)result;
         }
+
+        private void SkipTests() => throw new SkipException("Test skipped because of CSHARP-5840.");
     }
 }

@@ -41,5 +41,10 @@ namespace MongoDB.Driver
         /// If false, approximate nearest neighbor (ANN) is used.
         /// </summary>
         public bool Exact { get; set; }
+
+        /// <summary>
+        /// The model to for auto-embedding in the query. Must be compatible with the model used to create the index.
+        /// </summary>
+        public string AutoEmbeddingModelName { get; set; }
     }
 }

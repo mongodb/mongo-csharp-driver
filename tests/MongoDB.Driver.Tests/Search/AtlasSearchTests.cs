@@ -283,15 +283,7 @@ namespace MongoDB.Driver.Tests.Search
 
         public AtlasSearchTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
-            RequireEnvironment.Check().EnvironmentVariable("ATLAS_SEARCH_TESTS_ENABLED");
-
-            var atlasSearchUri = Environment.GetEnvironmentVariable("ATLAS_SEARCH_URI");
-            Ensure.IsNotNullOrEmpty(atlasSearchUri, nameof(atlasSearchUri));
-
-            var mongoClientSettings = MongoClientSettings.FromConnectionString(atlasSearchUri);
-            mongoClientSettings.ClusterSource = DisposingClusterSource.Instance;
-
-            _mongoClient = new MongoClient(mongoClientSettings);
+            _mongoClient = AtlasSearchTestsUtils.CreateAtlasSearchMongoClient();
         }
 
         protected override void DisposeInternal() => _mongoClient.Dispose();
