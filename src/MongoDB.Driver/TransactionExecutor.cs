@@ -60,14 +60,8 @@ namespace MongoDB.Driver
                 }
                 catch (Exception ex)
                 {
-                    if (IsTransactionInStartingOrInProgressState(clientSession))
+                    if(ShouldAbortTransaction(operationContext, clientSession, out var abortOptions))
                     {
-                        AbortTransactionOptions abortOptions = null;
-                        if (operationContext.IsRootContextTimeoutConfigured())
-                        {
-                            abortOptions = new AbortTransactionOptions(operationContext.RootContext.Timeout);
-                        }
-
                         clientSession.AbortTransaction(abortOptions, cancellationToken);
                     }
 
@@ -112,14 +106,8 @@ namespace MongoDB.Driver
                 }
                 catch (Exception ex)
                 {
-                    if (IsTransactionInStartingOrInProgressState(clientSession))
+                    if(ShouldAbortTransaction(operationContext, clientSession, out var abortOptions))
                     {
-                        AbortTransactionOptions abortOptions = null;
-                        if (operationContext.IsRootContextTimeoutConfigured())
-                        {
-                            abortOptions = new AbortTransactionOptions(operationContext.RootContext.Timeout);
-                        }
-
                         await clientSession.AbortTransactionAsync(abortOptions, cancellationToken).ConfigureAwait(false);
                     }
 
@@ -131,24 +119,6 @@ namespace MongoDB.Driver
                     await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
                 }
             }
-        }
-
-        private static bool ShouldRetryTransaction(OperationContext operationContext, Exception ex, IRandom random, int attempt, out TimeSpan delay)
-        {
-            if (!HasErrorLabel(ex, TransientTransactionErrorLabel))
-            {
-                delay = TimeSpan.Zero;
-                return false;
-            }
-
-            delay = TimeSpan.FromMilliseconds(RetryabilityHelper.GetRetryDelayMs(random, attempt, 1.5, 5, 500));
-            if (IsTimedOut(operationContext, delay))
-            {
-                delay = TimeSpan.Zero;
-                return false;
-            }
-
-            return true;
         }
 
         private static bool IsTimedOut(OperationContext operationContext, TimeSpan delay = default)
@@ -249,7 +219,7 @@ namespace MongoDB.Driver
             return false;
         }
 
-        private static bool IsTransactionInStartingOrInProgressState(IClientSessionHandle clientSession)
+        private static bool IsTransactionInStartingOrInProgressState(IClientSession clientSession)
         {
             var currentTransaction = clientSession.WrappedCoreSession.CurrentTransaction;
             if (currentTransaction == null)
@@ -263,12 +233,47 @@ namespace MongoDB.Driver
             }
         }
 
+
+        private static bool ShouldAbortTransaction(OperationContext operationContext, IClientSession clientSession, out AbortTransactionOptions abortOptions)
+        {
+            abortOptions = null;
+            if (IsTransactionInStartingOrInProgressState(clientSession))
+            {
+                if (operationContext.IsRootContextTimeoutConfigured())
+                {
+                    abortOptions = new AbortTransactionOptions(operationContext.RootContext.Timeout);
+                }
+
+                return true;
+            }
+
+            return false;
+        }
+
         private static bool ShouldRetryCommit(OperationContext operationContext, Exception ex)
         {
             return
                 HasErrorLabel(ex, UnknownTransactionCommitResultLabel) &&
                 !IsTimedOut(operationContext) &&
                 !IsMaxTimeMSExpiredException(ex);
+        }
+
+        private static bool ShouldRetryTransaction(OperationContext operationContext, Exception ex, IRandom random, int attempt, out TimeSpan delay)
+        {
+            if (!HasErrorLabel(ex, TransientTransactionErrorLabel))
+            {
+                delay = TimeSpan.Zero;
+                return false;
+            }
+
+            delay = TimeSpan.FromMilliseconds(RetryabilityHelper.GetRetryDelayMs(random, attempt, 1.5, 5, 500));
+            if (IsTimedOut(operationContext, delay))
+            {
+                delay = TimeSpan.Zero;
+                return false;
+            }
+
+            return true;
         }
     }
 }
