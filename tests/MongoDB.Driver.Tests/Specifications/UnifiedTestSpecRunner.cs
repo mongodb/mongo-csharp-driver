@@ -196,6 +196,12 @@ namespace MongoDB.Driver.Tests.Specifications
                 throw new SkipException("Temporarily disable Backpressure.");
             }
 
+            if (testCase.Name.Contains("Pool is not cleared on handshake error during minPoolSize population"))
+            {
+                // TODO: Unskip the tests during implementation of CSHARP-5838
+                throw new SkipException("Temporarily disable Backpressure.");
+            }
+
             Run(testCase, IsSdamLogValid, new SdamRunnerEventsProcessor(testCase.Name));
         }
 
