@@ -40,7 +40,7 @@ public class AutoEmbedVectorSearchTests : LoggableTestClass
 
     public AutoEmbedVectorSearchTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
     {
-        //SkipTests();
+        SkipTests();
 
         _mongoClient = AtlasSearchTestsUtils.CreateAtlasSearchMongoClient();
 
@@ -82,7 +82,7 @@ public class AutoEmbedVectorSearchTests : LoggableTestClass
         }
     }
 
-    private void SkipTests() => throw new SkipException("Test skipped because of CSHARP-XXXXX.");
+    private void SkipTests() => throw new SkipException("Test skipped because of CSHARP-5840.");
 
     private bool TryGetIndex<TDocument>(
         IMongoCollection<TDocument> collection, string indexName, out BsonDocument indexDefinition)

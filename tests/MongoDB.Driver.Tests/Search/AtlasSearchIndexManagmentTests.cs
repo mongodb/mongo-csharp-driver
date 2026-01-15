@@ -24,6 +24,7 @@ using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.Sdk;
 
 namespace MongoDB.Driver.Tests.Search
 {
@@ -478,6 +479,8 @@ namespace MongoDB.Driver.Tests.Search
         public async Task Can_create_autoEmbed_vector_index_for_required_only_options(
             [Values(false, true)] bool async)
         {
+            SkipTests();
+
             var indexName = "auto-embed-required" + (async ? "-async" : "");
 
             var indexModel = new CreateAutoEmbeddingVectorSearchIndexModel<EntityWithVector>("SomeText", indexName, "voyage-4");
@@ -511,6 +514,8 @@ namespace MongoDB.Driver.Tests.Search
         public async Task Can_create_autoEmbed_vector_index_for_all_options(
             [Values(false, true)] bool async)
         {
+            SkipTests();
+
             var indexName = "auto-embed-all" + (async ? "-async" : "");
 
             var indexModel = new CreateAutoEmbeddingVectorSearchIndexModel<EntityWithVector>(
@@ -548,6 +553,8 @@ namespace MongoDB.Driver.Tests.Search
         public async Task Can_create_autoEmbed_vector_index_with_filters_as_text(
             [Values(false, true)] bool async)
         {
+            SkipTests();
+
             var indexName = "auto-embed-filters-text" + (async ? "-async" : "");
 
             var indexModel = new CreateAutoEmbeddingVectorSearchIndexModel<EntityWithVector>(
@@ -592,6 +599,8 @@ namespace MongoDB.Driver.Tests.Search
         public async Task Can_create_autoEmbed_vector_index_with_filters_as_expressions(
             [Values(false, true)] bool async)
         {
+            SkipTests();
+
             var indexName = "auto-embed-filters-expressions" + (async ? "-async" : "");
 
             var indexModel = new CreateAutoEmbeddingVectorSearchIndexModel<EntityWithVector>(
@@ -716,5 +725,7 @@ namespace MongoDB.Driver.Tests.Search
             var result = BsonTypeMapper.MapToDotNetValue(value);
             return (T)result;
         }
+
+        private void SkipTests() => throw new SkipException("Test skipped because of CSHARP-5840.");
     }
 }
