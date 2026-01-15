@@ -1752,7 +1752,7 @@ namespace MongoDB.Driver
                         => new CreateSearchIndexRequest(
                             model.Name,
                             model.Type,
-                            model is CreateVectorSearchIndexModel<TDocument> createVectorSearchIndexModel
+                            model is CreateVectorSearchIndexModelBase<TDocument> createVectorSearchIndexModel
                                 ? createVectorSearchIndexModel.Render(renderArgs)
                                 : model.Definition)),
                     _collection._messageEncoderSettings);
