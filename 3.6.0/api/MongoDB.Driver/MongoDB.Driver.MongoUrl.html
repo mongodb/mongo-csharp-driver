@@ -1,0 +1,533 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>Class MongoUrl
+ | MongoDB CSharp Driver API Reference </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Class MongoUrl
+ | MongoDB CSharp Driver API Reference ">
+      
+      <link rel="icon" href="../../images/favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/mongodb/mongo-csharp-driver/new/main/apiSpec/new?filename=MongoDB_Driver_MongoUrl.md&amp;value=---%0Auid%3A%20MongoDB.Driver.MongoUrl%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+  </head>
+
+  <script type="module" src="./../../public/docfx.min.js"></script>
+
+  <script>
+    const theme = localStorage.getItem('theme') || 'auto'
+    document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+  </script>
+
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../images/mongodb-logo.svg" alt="">
+            
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+      <div class="toc-offcanvas">
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tocOffcanvasLabel">Table of Contents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#tocOffcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <nav class="toc" id="toc"></nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actionbar">
+          <button class="btn btn-lg border-0 d-md-none" style="margin-top: -.65em; margin-left: -.8em" type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas" aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="MongoDB.Driver.MongoUrl">
+
+
+
+  <h1 id="MongoDB_Driver_MongoUrl" data-uid="MongoDB.Driver.MongoUrl" class="text-break">
+    Class MongoUrl
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/main/src/MongoDB.Driver/MongoUrl.cs/#L31"><i class="bi bi-code-slash"></i></a>
+  </h1>
+
+  <div class="facts text-secondary">
+    <dl><dt>Namespace</dt><dd><a class="xref" href="MongoDB.html">MongoDB</a>.<a class="xref" href="MongoDB.Driver.html">Driver</a></dd></dl>
+  <dl><dt>Assembly</dt><dd>MongoDB.Driver.dll</dd></dl>
+  </div>
+
+  <div class="markdown summary"><p>Represents an immutable URL style connection string. See also MongoUrlBuilder.</p>
+</div>
+  <div class="markdown conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[TypeConverter(typeof(MongoUrlTypeConverter))]
+public class MongoUrl : IEquatable&lt;MongoUrl&gt;</code></pre>
+  </div>
+
+
+
+
+  <dl class="typelist inheritance">
+    <dt>Inheritance</dt>
+    <dd>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></div>
+      <div><span class="xref">MongoUrl</span></div>
+    </dd>
+  </dl>
+
+  <dl class="typelist implements">
+    <dt>Implements</dt>
+    <dd>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.iequatable-1">IEquatable</a>&lt;<a class="xref" href="MongoDB.Driver.MongoUrl.html">MongoUrl</a>&gt;</div>
+    </dd>
+  </dl>
+
+
+  <dl class="typelist derived">
+    <dt>Inherited Members</dt>
+    <dd>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)">object.Equals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gettype">object.GetType()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone">object.MemberwiseClone()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.referenceequals">object.ReferenceEquals(object, object)</a>
+    </div>
+  </dd></dl>
+
+
+
+
+
+  <h2 class="section" id="constructors">Constructors
+</h2>
+
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.-ctor.html#MongoDB_Driver_MongoUrl__ctor_System_String_">MongoUrl(string)</a></dt>
+    <dd><p>Creates a new instance of MongoUrl.</p>
+</dd>
+  </dl>
+
+  <h2 class="section" id="properties">Properties
+</h2>
+
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.AllowInsecureTls.html#MongoDB_Driver_MongoUrl_AllowInsecureTls">AllowInsecureTls</a></dt>
+    <dd><p>Gets whether to relax TLS constraints as much as possible.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.ApplicationName.html#MongoDB_Driver_MongoUrl_ApplicationName">ApplicationName</a></dt>
+    <dd><p>Gets the application name.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.AuthenticationMechanism.html#MongoDB_Driver_MongoUrl_AuthenticationMechanism">AuthenticationMechanism</a></dt>
+    <dd><p>Gets the authentication mechanism.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.AuthenticationMechanismProperties.html#MongoDB_Driver_MongoUrl_AuthenticationMechanismProperties">AuthenticationMechanismProperties</a></dt>
+    <dd><p>Gets the authentication mechanism properties.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.AuthenticationSource.html#MongoDB_Driver_MongoUrl_AuthenticationSource">AuthenticationSource</a></dt>
+    <dd><p>Gets the authentication source.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.Compressors.html#MongoDB_Driver_MongoUrl_Compressors">Compressors</a></dt>
+    <dd><p>Gets the compressors.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.ComputedWaitQueueSize.html#MongoDB_Driver_MongoUrl_ComputedWaitQueueSize">ComputedWaitQueueSize</a></dt>
+    <dd><p>Gets the actual wait queue size (either WaitQueueSize or WaitQueueMultiple x MaxConnectionPoolSize).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.ConnectTimeout.html#MongoDB_Driver_MongoUrl_ConnectTimeout">ConnectTimeout</a></dt>
+    <dd><p>Gets the connect timeout.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.DatabaseName.html#MongoDB_Driver_MongoUrl_DatabaseName">DatabaseName</a></dt>
+    <dd><p>Gets the optional database name.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.DirectConnection.html#MongoDB_Driver_MongoUrl_DirectConnection">DirectConnection</a></dt>
+    <dd><p>Gets the direct connection.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.FSync.html#MongoDB_Driver_MongoUrl_FSync">FSync</a></dt>
+    <dd><p>Gets the FSync component of the write concern.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.HasAuthenticationSettings.html#MongoDB_Driver_MongoUrl_HasAuthenticationSettings">HasAuthenticationSettings</a></dt>
+    <dd><p>Gets a value indicating whether this instance has authentication settings.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.HeartbeatInterval.html#MongoDB_Driver_MongoUrl_HeartbeatInterval">HeartbeatInterval</a></dt>
+    <dd><p>Gets the heartbeat interval.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.HeartbeatTimeout.html#MongoDB_Driver_MongoUrl_HeartbeatTimeout">HeartbeatTimeout</a></dt>
+    <dd><p>Gets the heartbeat timeout.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.IPv6.html#MongoDB_Driver_MongoUrl_IPv6">IPv6</a></dt>
+    <dd><p>Gets a value indicating whether to use IPv6.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.IsResolved.html#MongoDB_Driver_MongoUrl_IsResolved">IsResolved</a></dt>
+    <dd><p>Gets a value indicating whether a connection string with scheme MongoDBPlusSrv has been resolved.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.Journal.html#MongoDB_Driver_MongoUrl_Journal">Journal</a></dt>
+    <dd><p>Gets the Journal component of the write concern.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.LoadBalanced.html#MongoDB_Driver_MongoUrl_LoadBalanced">LoadBalanced</a></dt>
+    <dd><p>Gets or sets whether load balanced mode is used.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.LocalThreshold.html#MongoDB_Driver_MongoUrl_LocalThreshold">LocalThreshold</a></dt>
+    <dd><p>Gets the local threshold.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.MaxConnecting.html#MongoDB_Driver_MongoUrl_MaxConnecting">MaxConnecting</a></dt>
+    <dd><p>Gets the maximum concurrently connecting connections.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.MaxConnectionIdleTime.html#MongoDB_Driver_MongoUrl_MaxConnectionIdleTime">MaxConnectionIdleTime</a></dt>
+    <dd><p>Gets the max connection idle time.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.MaxConnectionLifeTime.html#MongoDB_Driver_MongoUrl_MaxConnectionLifeTime">MaxConnectionLifeTime</a></dt>
+    <dd><p>Gets the max connection life time.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.MaxConnectionPoolSize.html#MongoDB_Driver_MongoUrl_MaxConnectionPoolSize">MaxConnectionPoolSize</a></dt>
+    <dd><p>Gets the max connection pool size.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.MinConnectionPoolSize.html#MongoDB_Driver_MongoUrl_MinConnectionPoolSize">MinConnectionPoolSize</a></dt>
+    <dd><p>Gets the min connection pool size.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.Password.html#MongoDB_Driver_MongoUrl_Password">Password</a></dt>
+    <dd><p>Gets the password.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.ProxyHost.html#MongoDB_Driver_MongoUrl_ProxyHost">ProxyHost</a></dt>
+    <dd><p>Gets the proxy host.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.ProxyPassword.html#MongoDB_Driver_MongoUrl_ProxyPassword">ProxyPassword</a></dt>
+    <dd><p>Gets the proxy password.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.ProxyPort.html#MongoDB_Driver_MongoUrl_ProxyPort">ProxyPort</a></dt>
+    <dd><p>Gets the proxy port.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.ProxyUsername.html#MongoDB_Driver_MongoUrl_ProxyUsername">ProxyUsername</a></dt>
+    <dd><p>Gets the proxy username.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.ReadConcernLevel.html#MongoDB_Driver_MongoUrl_ReadConcernLevel">ReadConcernLevel</a></dt>
+    <dd><p>Gets the read concern level.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.ReadPreference.html#MongoDB_Driver_MongoUrl_ReadPreference">ReadPreference</a></dt>
+    <dd><p>Gets the read preference.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.ReplicaSetName.html#MongoDB_Driver_MongoUrl_ReplicaSetName">ReplicaSetName</a></dt>
+    <dd><p>Gets the name of the replica set.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.RetryReads.html#MongoDB_Driver_MongoUrl_RetryReads">RetryReads</a></dt>
+    <dd><p>Gets whether reads will be retried.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.RetryWrites.html#MongoDB_Driver_MongoUrl_RetryWrites">RetryWrites</a></dt>
+    <dd><p>Gets whether writes will be retried.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.Scheme.html#MongoDB_Driver_MongoUrl_Scheme">Scheme</a></dt>
+    <dd><p>Gets the connection string scheme.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.Server.html#MongoDB_Driver_MongoUrl_Server">Server</a></dt>
+    <dd><p>Gets the address of the server (see also Servers if using more than one address).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.ServerMonitoringMode.html#MongoDB_Driver_MongoUrl_ServerMonitoringMode">ServerMonitoringMode</a></dt>
+    <dd><p>Gets the server monitoring mode to use.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.ServerSelectionTimeout.html#MongoDB_Driver_MongoUrl_ServerSelectionTimeout">ServerSelectionTimeout</a></dt>
+    <dd><p>Gets the server selection timeout.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.Servers.html#MongoDB_Driver_MongoUrl_Servers">Servers</a></dt>
+    <dd><p>Gets the list of server addresses (see also Server if using only one address).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.SocketTimeout.html#MongoDB_Driver_MongoUrl_SocketTimeout">SocketTimeout</a></dt>
+    <dd><p>Gets the socket timeout.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.SrvMaxHosts.html#MongoDB_Driver_MongoUrl_SrvMaxHosts">SrvMaxHosts</a></dt>
+    <dd><p>Limits the number of SRV records used to populate the seedlist
+during initial discovery, as well as the number of additional hosts
+that may be added during SRV polling.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.SrvServiceName.html#MongoDB_Driver_MongoUrl_SrvServiceName">SrvServiceName</a></dt>
+    <dd><p>Gets the SRV service name which modifies the srv URI to look like:</p>
+<pre><code class="lang-csharp">_{srvServiceName}._tcp.{hostname}.{domainname}</code></pre>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.TlsDisableCertificateRevocationCheck.html#MongoDB_Driver_MongoUrl_TlsDisableCertificateRevocationCheck">TlsDisableCertificateRevocationCheck</a></dt>
+    <dd><p>Gets whether or not to disable checking certificate revocation status during the TLS handshake.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.Url.html#MongoDB_Driver_MongoUrl_Url">Url</a></dt>
+    <dd><p>Gets the URL (in canonical form).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.UseSsl.html#MongoDB_Driver_MongoUrl_UseSsl">UseSsl</a></dt>
+    <dd><p>Gets a value indicating whether to use SSL.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.UseTls.html#MongoDB_Driver_MongoUrl_UseTls">UseTls</a></dt>
+    <dd><p>Gets a value indicating whether to use TLS.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.Username.html#MongoDB_Driver_MongoUrl_Username">Username</a></dt>
+    <dd><p>Gets the username.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.VerifySslCertificate.html#MongoDB_Driver_MongoUrl_VerifySslCertificate">VerifySslCertificate</a></dt>
+    <dd><p>Gets a value indicating whether to verify an SSL certificate.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.W.html#MongoDB_Driver_MongoUrl_W">W</a></dt>
+    <dd><p>Gets the W component of the write concern.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.WTimeout.html#MongoDB_Driver_MongoUrl_WTimeout">WTimeout</a></dt>
+    <dd><p>Gets the WTimeout component of the write concern.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.WaitQueueMultiple.html#MongoDB_Driver_MongoUrl_WaitQueueMultiple">WaitQueueMultiple</a></dt>
+    <dd><p>Gets the wait queue multiple (the actual wait queue size will be WaitQueueMultiple x MaxConnectionPoolSize).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.WaitQueueSize.html#MongoDB_Driver_MongoUrl_WaitQueueSize">WaitQueueSize</a></dt>
+    <dd><p>Gets the wait queue size.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.WaitQueueTimeout.html#MongoDB_Driver_MongoUrl_WaitQueueTimeout">WaitQueueTimeout</a></dt>
+    <dd><p>Gets the wait queue timeout.</p>
+</dd>
+  </dl>
+
+  <h2 class="section" id="methods">Methods
+</h2>
+
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.ClearCache.html#MongoDB_Driver_MongoUrl_ClearCache">ClearCache()</a></dt>
+    <dd><p>Clears the URL cache. When a URL is parsed it is stored in the cache so that it doesn't have to be
+parsed again. There is rarely a need to call this method.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.Create.html#MongoDB_Driver_MongoUrl_Create_System_String_">Create(string)</a></dt>
+    <dd><p>Creates an instance of MongoUrl (might be an existing existence if the same URL has been used before).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.Equals.html#MongoDB_Driver_MongoUrl_Equals_MongoDB_Driver_MongoUrl_">Equals(MongoUrl)</a></dt>
+    <dd><p>Compares two MongoUrls.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.Equals.html#MongoDB_Driver_MongoUrl_Equals_System_Object_">Equals(object)</a></dt>
+    <dd><p>Compares two MongoUrls.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.GetCredential.html#MongoDB_Driver_MongoUrl_GetCredential">GetCredential()</a></dt>
+    <dd><p>Gets the credential.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.GetHashCode.html#MongoDB_Driver_MongoUrl_GetHashCode">GetHashCode()</a></dt>
+    <dd><p>Gets the hash code.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.GetWriteConcern.html#MongoDB_Driver_MongoUrl_GetWriteConcern_System_Boolean_">GetWriteConcern(bool)</a></dt>
+    <dd><p>Returns a WriteConcern value based on this instance's settings and a default enabled value.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.Resolve.html#MongoDB_Driver_MongoUrl_Resolve_System_Boolean_System_Threading_CancellationToken_">Resolve(bool, CancellationToken)</a></dt>
+    <dd><p>Resolves a connection string. If the connection string indicates more information is available
+in the DNS system, it will acquire that information as well.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.Resolve.html#MongoDB_Driver_MongoUrl_Resolve_System_Threading_CancellationToken_">Resolve(CancellationToken)</a></dt>
+    <dd><p>Resolves a connection string. If the connection string indicates more information is available
+in the DNS system, it will acquire that information as well.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.ResolveAsync.html#MongoDB_Driver_MongoUrl_ResolveAsync_System_Boolean_System_Threading_CancellationToken_">ResolveAsync(bool, CancellationToken)</a></dt>
+    <dd><p>Resolves a connection string. If the connection string indicates more information is available
+in the DNS system, it will acquire that information as well.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.ResolveAsync.html#MongoDB_Driver_MongoUrl_ResolveAsync_System_Threading_CancellationToken_">ResolveAsync(CancellationToken)</a></dt>
+    <dd><p>Resolves a connection string. If the connection string indicates more information is available
+in the DNS system, it will acquire that information as well.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.ToString.html#MongoDB_Driver_MongoUrl_ToString">ToString()</a></dt>
+    <dd><p>Returns the canonical URL based on the settings in this MongoUrlBuilder.</p>
+</dd>
+  </dl>
+
+  <h2 class="section" id="operators">Operators
+</h2>
+
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.op_Equality.html#MongoDB_Driver_MongoUrl_op_Equality_MongoDB_Driver_MongoUrl_MongoDB_Driver_MongoUrl_">operator ==(MongoUrl, MongoUrl)</a></dt>
+    <dd><p>Compares two MongoUrls.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoUrl.op_Inequality.html#MongoDB_Driver_MongoUrl_op_Inequality_MongoDB_Driver_MongoUrl_MongoDB_Driver_MongoUrl_">operator !=(MongoUrl, MongoUrl)</a></dt>
+    <dd><p>Compares two MongoUrls.</p>
+</dd>
+  </dl>
+
+
+
+</article>
+
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          &copy; 2023 MongoDB, Inc.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,827 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>Namespace MongoDB.Bson.Serialization.Serializers
+ | MongoDB CSharp Driver API Reference </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Namespace MongoDB.Bson.Serialization.Serializers
+ | MongoDB CSharp Driver API Reference ">
+      
+      <link rel="icon" href="../../images/favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/mongodb/mongo-csharp-driver/blob/main/apidocs/namespaces/MongoDB.Bson/MongoDB.Bson.Serialization.Serializers.md/#L2">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+  </head>
+
+  <script type="module" src="./../../public/docfx.min.js"></script>
+
+  <script>
+    const theme = localStorage.getItem('theme') || 'auto'
+    document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+  </script>
+
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../images/mongodb-logo.svg" alt="">
+            
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+      <div class="toc-offcanvas">
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tocOffcanvasLabel">Table of Contents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#tocOffcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <nav class="toc" id="toc"></nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actionbar">
+          <button class="btn btn-lg border-0 d-md-none" style="margin-top: -.65em; margin-left: -.8em" type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas" aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="MongoDB.Bson.Serialization.Serializers">
+
+  <h1 id="MongoDB_Bson_Serialization_Serializers" data-uid="MongoDB.Bson.Serialization.Serializers" class="text-break">Namespace MongoDB.Bson.Serialization.Serializers
+</h1>
+  <div class="markdown level0 summary">
+<p>The MongoDB.Bson.Serialization.Serializers namespace contains the serializers for the various BSON and base .Net types</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="markdown level0 remarks"></div>
+
+    <h3 id="classes">
+Classes
+</h3>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.AbstractClassSerializer-1.html">AbstractClassSerializer&lt;TClass&gt;</a></dt>
+      <dd><p>Represents a serializer for an abstract class.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.ArrayAsBinaryVectorSerializer-1.html">ArrayAsBinaryVectorSerializer&lt;TItem&gt;</a></dt>
+      <dd><p>Represents a serializer for <code class="typeparamref">TItem</code> arrays represented as a BinaryVector.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.ArraySerializer-1.html">ArraySerializer&lt;TItem&gt;</a></dt>
+      <dd><p>Represents a serializer for one-dimensional arrays.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.BinaryVectorSerializerBase-2.html">BinaryVectorSerializerBase&lt;TItemContainer, TItem&gt;</a></dt>
+      <dd><p>Represents a serializer for TItemContainer values represented as a BinaryVector.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.BinaryVectorSerializer-2.html">BinaryVectorSerializer&lt;TItemContainer, TItem&gt;</a></dt>
+      <dd><p>Represents a serializer for <a class="xref" href="MongoDB.Bson.BinaryVector-1.html">BinaryVector&lt;TItem&gt;</a>.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.BitArraySerializer.html">BitArraySerializer</a></dt>
+      <dd><p>Represents a serializer for BitArrays.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.BooleanSerializer.html">BooleanSerializer</a></dt>
+      <dd><p>Represents a serializer for Booleans.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.BsonArraySerializer.html">BsonArraySerializer</a></dt>
+      <dd><p>Represents a serializer for BsonArrays.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.BsonBinaryDataSerializer.html">BsonBinaryDataSerializer</a></dt>
+      <dd><p>Represents a serializer for BsonBinaryDatas.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.BsonBooleanSerializer.html">BsonBooleanSerializer</a></dt>
+      <dd><p>Represents a serializer for BsonBooleans.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.BsonDateTimeSerializer.html">BsonDateTimeSerializer</a></dt>
+      <dd><p>Represents a serializer for BsonDateTimes.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.BsonDecimal128Serializer.html">BsonDecimal128Serializer</a></dt>
+      <dd><p>Represents a serializer for BsonDecimal128s.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.BsonDocumentSerializer.html">BsonDocumentSerializer</a></dt>
+      <dd><p>Represents a serializer for BsonDocuments.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.BsonDocumentWrapperSerializer.html">BsonDocumentWrapperSerializer</a></dt>
+      <dd><p>Represents a serializer for BsonDocumentWrappers.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.BsonDoubleSerializer.html">BsonDoubleSerializer</a></dt>
+      <dd><p>Represents a serializer for BsonDoubles.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.BsonInt32Serializer.html">BsonInt32Serializer</a></dt>
+      <dd><p>Represents a serializer for BsonInt32s.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.BsonInt64Serializer.html">BsonInt64Serializer</a></dt>
+      <dd><p>Represents a serializer for BsonInt64s.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.BsonJavaScriptSerializer.html">BsonJavaScriptSerializer</a></dt>
+      <dd><p>Represents a serializer for BsonJavaScripts.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.BsonJavaScriptWithScopeSerializer.html">BsonJavaScriptWithScopeSerializer</a></dt>
+      <dd><p>Represents a serializer for BsonJavaScriptWithScopes.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.BsonMaxKeySerializer.html">BsonMaxKeySerializer</a></dt>
+      <dd><p>Represents a serializer for BsonMaxKeys.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.BsonMinKeySerializer.html">BsonMinKeySerializer</a></dt>
+      <dd><p>Represents a serializer for BsonMinKeys.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.BsonNullSerializer.html">BsonNullSerializer</a></dt>
+      <dd><p>Represents a serializer for BsonNulls.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.BsonObjectIdSerializer.html">BsonObjectIdSerializer</a></dt>
+      <dd><p>Represents a serializer for BsonObjectIds.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.BsonRegularExpressionSerializer.html">BsonRegularExpressionSerializer</a></dt>
+      <dd><p>Represents a serializer for BsonRegularExpressions.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.BsonStringSerializer.html">BsonStringSerializer</a></dt>
+      <dd><p>Represents a serializer for BsonStrings.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.BsonSymbolSerializer.html">BsonSymbolSerializer</a></dt>
+      <dd><p>Represents a serializer for BsonSymbols.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.BsonTimestampSerializer.html">BsonTimestampSerializer</a></dt>
+      <dd><p>Represents a serializer for BsonTimestamps.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.BsonUndefinedSerializer.html">BsonUndefinedSerializer</a></dt>
+      <dd><p>Represents a serializer for BsonUndefineds.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.BsonValueCSharpNullArrayAndDocumentSerializer-1.html">BsonValueCSharpNullArrayAndDocumentSerializer&lt;TBsonValue&gt;</a></dt>
+      <dd><p>Represents a serializer for a BsonValue that can round trip C# null and implements IBsonArraySerializer and IBsonDocumentSerializer.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.BsonValueCSharpNullArraySerializer-1.html">BsonValueCSharpNullArraySerializer&lt;TBsonValue&gt;</a></dt>
+      <dd><p>Represents a serializer for a BsonValue that can round trip C# null and implements IBsonArraySerializer.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.BsonValueCSharpNullDocumentSerializer-1.html">BsonValueCSharpNullDocumentSerializer&lt;TBsonValue&gt;</a></dt>
+      <dd><p>Represents a serializer for a BsonValue that can round trip C# null and implements IBsonDocumentSerializer.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.BsonValueCSharpNullSerializer-1.html">BsonValueCSharpNullSerializer&lt;TBsonValue&gt;</a></dt>
+      <dd><p>Represents a serializer for a BsonValue that can round trip C# null.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.BsonValueSerializer.html">BsonValueSerializer</a></dt>
+      <dd><p>Represents a serializer for BsonValues.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.BsonValueSerializerBase-1.html">BsonValueSerializerBase&lt;TBsonValue&gt;</a></dt>
+      <dd><p>Represents a base class for BsonValue serializers.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.ByteArraySerializer.html">ByteArraySerializer</a></dt>
+      <dd><p>Represents a serializer for ByteArrays.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.ByteSerializer.html">ByteSerializer</a></dt>
+      <dd><p>Represents a serializer for Bytes.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.CharSerializer.html">CharSerializer</a></dt>
+      <dd><p>Represents a serializer for Chars.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.ClassSerializerBase-1.html">ClassSerializerBase&lt;TValue&gt;</a></dt>
+      <dd><p>Represents an abstract base class for class serializers.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.CultureInfoSerializer.html">CultureInfoSerializer</a></dt>
+      <dd><p>Represents a serializer for CultureInfos.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.DateTimeOffsetSerializer.html">DateTimeOffsetSerializer</a></dt>
+      <dd><p>Represents a serializer for DateTimeOffsets.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.DateTimeSerializer.html">DateTimeSerializer</a></dt>
+      <dd><p>Represents a serializer for DateTimes.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.Decimal128Serializer.html">Decimal128Serializer</a></dt>
+      <dd><p>Represents a serializer for Decimal128s.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.DecimalSerializer.html">DecimalSerializer</a></dt>
+      <dd><p>Represents a serializer for Decimals.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.DictionaryInterfaceImplementerSerializer-1.html">DictionaryInterfaceImplementerSerializer&lt;TDictionary&gt;</a></dt>
+      <dd><p>Represents a serializer for a class that implements IDictionary.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.DictionaryInterfaceImplementerSerializer-3.html">DictionaryInterfaceImplementerSerializer&lt;TDictionary, TKey, TValue&gt;</a></dt>
+      <dd><p>Represents a serializer for a class that implements <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.idictionary-2">IDictionary&lt;TKey, TValue&gt;</a>.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.DictionarySerializerBase-1.html">DictionarySerializerBase&lt;TDictionary&gt;</a></dt>
+      <dd><p>Represents a serializer for dictionaries.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.DictionarySerializerBase-3.html">DictionarySerializerBase&lt;TDictionary, TKey, TValue&gt;</a></dt>
+      <dd><p>Represents a serializer for dictionaries.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.DiscriminatedInterfaceSerializer-1.html">DiscriminatedInterfaceSerializer&lt;TInterface&gt;</a></dt>
+      <dd><p>Represents a serializer for Interfaces.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.DiscriminatedWrapperSerializer-1.html">DiscriminatedWrapperSerializer&lt;TValue&gt;</a></dt>
+      <dd><p>Represents a serializer that serializes values as a discriminator/value pair.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.DoubleSerializer.html">DoubleSerializer</a></dt>
+      <dd><p>Represents a serializer for Doubles.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.DowncastingSerializer.html">DowncastingSerializer</a></dt>
+      <dd><p>Static factory class for DowncastingSerializer.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.DowncastingSerializer-2.html">DowncastingSerializer&lt;TBase, TDerived&gt;</a></dt>
+      <dd><p>A serializer for TBase where the actual values are of type TDerived.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.DynamicDocumentBaseSerializer-1.html">DynamicDocumentBaseSerializer&lt;T&gt;</a></dt>
+      <dd><p>Base serializer for dynamic types.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.ElementAppendingSerializer-1.html">ElementAppendingSerializer&lt;TDocument&gt;</a></dt>
+      <dd><p>A serializer that serializes a document and appends elements to the end of it.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.EnumSerializer.html">EnumSerializer</a></dt>
+      <dd><p>Static factory class for EnumSerializer.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.EnumSerializer-1.html">EnumSerializer&lt;TEnum&gt;</a></dt>
+      <dd><p>Represents a serializer for enums.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.EnumerableInterfaceImplementerSerializerBase-1.html">EnumerableInterfaceImplementerSerializerBase&lt;TValue&gt;</a></dt>
+      <dd><p>Represents a serializer for enumerable values.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.EnumerableInterfaceImplementerSerializerBase-2.html">EnumerableInterfaceImplementerSerializerBase&lt;TValue, TItem&gt;</a></dt>
+      <dd><p>Represents a serializer for enumerable values.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.EnumerableInterfaceImplementerSerializer-1.html">EnumerableInterfaceImplementerSerializer&lt;TValue&gt;</a></dt>
+      <dd><p>Represents a serializer for a class that implements IEnumerable.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.EnumerableInterfaceImplementerSerializer-2.html">EnumerableInterfaceImplementerSerializer&lt;TValue, TItem&gt;</a></dt>
+      <dd><p>Represents a serializer for a class that implementes <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable&lt;T&gt;</a>.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.EnumerableSerializerBase-1.html">EnumerableSerializerBase&lt;TValue&gt;</a></dt>
+      <dd><p>Represents a base serializer for enumerable values.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.EnumerableSerializerBase-2.html">EnumerableSerializerBase&lt;TValue, TItem&gt;</a></dt>
+      <dd><p>Represents a serializer for enumerable values.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.ExpandoObjectSerializer.html">ExpandoObjectSerializer</a></dt>
+      <dd><p>Serializer for <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.dynamic.expandoobject">ExpandoObject</a>.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.GuidSerializer.html">GuidSerializer</a></dt>
+      <dd><p>Represents a serializer for Guids.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.IEnumerableDeserializingAsCollectionSerializer-3.html">IEnumerableDeserializingAsCollectionSerializer&lt;TIEnumerable, TItem, TCollection&gt;</a></dt>
+      <dd><p>Represents a serializer for IEnumerable and any other derived interface implemented by TCollection.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.IOrderedEnumerableSerializer.html">IOrderedEnumerableSerializer</a></dt>
+      <dd><p>A factory class for instances of IOrderedEnumerableSerializer&lt;TItem&gt;.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.IOrderedEnumerableSerializer-1.html">IOrderedEnumerableSerializer&lt;TItem&gt;</a></dt>
+      <dd><p>Represents a serializer for IOrderedEnumerable<code class="typeparamref">TItem</code>.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.IPAddressSerializer.html">IPAddressSerializer</a></dt>
+      <dd><p>Represents a serializer for IPAddresses.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.IPEndPointSerializer.html">IPEndPointSerializer</a></dt>
+      <dd><p>Represents a serializer for IPEndPoints.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.ImpliedImplementationInterfaceSerializer-2.html">ImpliedImplementationInterfaceSerializer&lt;TInterface, TImplementation&gt;</a></dt>
+      <dd><p>Represents a serializer for Interfaces.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.Int16Serializer.html">Int16Serializer</a></dt>
+      <dd><p>Represents a serializer for Int16s.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.Int32Serializer.html">Int32Serializer</a></dt>
+      <dd><p>Represents a serializer for Int32.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.Int64Serializer.html">Int64Serializer</a></dt>
+      <dd><p>Represents a serializer for Int64s.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.ItemContainerAsBinaryVectorSerializer-2.html">ItemContainerAsBinaryVectorSerializer&lt;TItemContainer, TItem&gt;</a></dt>
+      <dd><p>A base class for serializers for <code class="typeparamref">TItem</code> containers represented as a BinaryVector.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.KeyValuePairSerializer.html">KeyValuePairSerializer</a></dt>
+      <dd><p>Static factory class for KeyValuePairSerializers.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.KeyValuePairSerializer-2.html">KeyValuePairSerializer&lt;TKey, TValue&gt;</a></dt>
+      <dd><p>Represents a serializer for KeyValuePairs.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.LazyBsonArraySerializer.html">LazyBsonArraySerializer</a></dt>
+      <dd><p>Represents a serializer for LazyBsonArrays.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.LazyBsonDocumentSerializer.html">LazyBsonDocumentSerializer</a></dt>
+      <dd><p>Represents a serializer for LazyBsonDocuments.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.MemoryAsBinaryVectorSerializer-1.html">MemoryAsBinaryVectorSerializer&lt;TItem&gt;</a></dt>
+      <dd><p>Represents a serializer for <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.memory-1">Memory&lt;T&gt;</a> represented as a binary vector.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.MemorySerializerBase-2.html">MemorySerializerBase&lt;TItem, TMemory&gt;</a></dt>
+      <dd><p>Represents an abstract base class for <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.memory-1">Memory&lt;T&gt;</a> and <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.readonlymemory-1">ReadOnlyMemory&lt;T&gt;</a> serializers.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.MemorySerializer-1.html">MemorySerializer&lt;TItem&gt;</a></dt>
+      <dd><p>Represents a serializer for <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.memory-1">Memory&lt;T&gt;</a>.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.NullableSerializer.html">NullableSerializer</a></dt>
+      <dd><p>Static factory class for NullableSerializers.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.NullableSerializer-1.html">NullableSerializer&lt;T&gt;</a></dt>
+      <dd><p>Represents a serializer for nullable values.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.ObjectIdSerializer.html">ObjectIdSerializer</a></dt>
+      <dd><p>Represents a serializer for ObjectIds.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.ObjectSerializer.html">ObjectSerializer</a></dt>
+      <dd><p>Represents a serializer for objects.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.PartiallyRawBsonDocumentSerializer.html">PartiallyRawBsonDocumentSerializer</a></dt>
+      <dd><p>Represents a serializer for a BsonDocument with some parts raw.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.ProjectingDeserializer-2.html">ProjectingDeserializer&lt;TFrom, TTo&gt;</a></dt>
+      <dd><p>Wraps a serializer and projects using a function.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.QueueSerializer.html">QueueSerializer</a></dt>
+      <dd><p>Represents a serializer for Queues.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.QueueSerializer-1.html">QueueSerializer&lt;TItem&gt;</a></dt>
+      <dd><p>Represents a serializer for Queues.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.RawBsonArraySerializer.html">RawBsonArraySerializer</a></dt>
+      <dd><p>Represents a serializer for RawBsonArrays.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.RawBsonDocumentSerializer.html">RawBsonDocumentSerializer</a></dt>
+      <dd><p>Represents a serializer for RawBsonDocuments.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.ReadOnlyCollectionSerializer-1.html">ReadOnlyCollectionSerializer&lt;TItem&gt;</a></dt>
+      <dd><p>Represents a serializer for readonly collection.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.ReadOnlyCollectionSubclassSerializer-2.html">ReadOnlyCollectionSubclassSerializer&lt;TValue, TItem&gt;</a></dt>
+      <dd><p>Represents a serializer for a subclass of ReadOnlyCollection.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.ReadOnlyDictionaryInterfaceImplementerSerializer-3.html">ReadOnlyDictionaryInterfaceImplementerSerializer&lt;TDictionary, TKey, TValue&gt;</a></dt>
+      <dd><p>Represents a serializer for a class that implements <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.idictionary-2">IDictionary&lt;TKey, TValue&gt;</a>.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.ReadOnlyMemoryAsBinaryVectorSerializer-1.html">ReadOnlyMemoryAsBinaryVectorSerializer&lt;TItem&gt;</a></dt>
+      <dd><p>Represents a serializer for <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.readonlymemory-1">ReadOnlyMemory&lt;T&gt;</a> represented as a BinaryVector.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.ReadonlyMemorySerializer-1.html">ReadonlyMemorySerializer&lt;TItem&gt;</a></dt>
+      <dd><p>Represents a serializer for <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.readonlymemory-1">ReadOnlyMemory&lt;T&gt;</a>.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.RegexSerializer.html">RegexSerializer</a></dt>
+      <dd><p>Represents a serializer for Regex.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.SByteSerializer.html">SByteSerializer</a></dt>
+      <dd><p>Represents a serializer for SBytes.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.SealedClassSerializerBase-1.html">SealedClassSerializerBase&lt;TValue&gt;</a></dt>
+      <dd><p>Represents an abstract base class for sealed class serializers.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.SerializeAsNominalTypeSerializer-2.html">SerializeAsNominalTypeSerializer&lt;TActualType, TNominalType&gt;</a></dt>
+      <dd><p>Represents a serializer for a class that will be serialized as if it were one of its base classes.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.SerializerBase-1.html">SerializerBase&lt;TValue&gt;</a></dt>
+      <dd><p>Represents an abstract base class for serializers.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.SerializerHelper.html">SerializerHelper</a></dt>
+      <dd><p>Represents a helper for serializers.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.SerializerHelper.Member.html">SerializerHelper.Member</a></dt>
+      <dd><p>Represents information about a member.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.SingleSerializer.html">SingleSerializer</a></dt>
+      <dd><p>Represents a serializer for Singles.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.StackSerializer.html">StackSerializer</a></dt>
+      <dd><p>Represents a serializer for Stacks.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.StackSerializer-1.html">StackSerializer&lt;TItem&gt;</a></dt>
+      <dd><p>Represents a serializer for Stacks.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.StringSerializer.html">StringSerializer</a></dt>
+      <dd><p>Represents a serializer for Strings.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.StructSerializerBase-1.html">StructSerializerBase&lt;TValue&gt;</a></dt>
+      <dd><p>Represents an abstract base class for struct serializers.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.ThreeDimensionalArraySerializer-1.html">ThreeDimensionalArraySerializer&lt;TItem&gt;</a></dt>
+      <dd><p>Represents a serializer for three-dimensional arrays.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.TimeSpanSerializer.html">TimeSpanSerializer</a></dt>
+      <dd><p>Represents a serializer for Timespans.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.TupleSerializer.html">TupleSerializer</a></dt>
+      <dd><p>A factory class for TupleSerializers.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.TupleSerializer-1.html">TupleSerializer&lt;T1&gt;</a></dt>
+      <dd><p>Represents a serializer for a <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.tuple-1">Tuple&lt;T1&gt;</a>.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.TupleSerializer-2.html">TupleSerializer&lt;T1, T2&gt;</a></dt>
+      <dd><p>Represents a serializer for a <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.tuple-2">Tuple&lt;T1, T2&gt;</a>.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.TupleSerializer-3.html">TupleSerializer&lt;T1, T2, T3&gt;</a></dt>
+      <dd><p>Represents a serializer for a <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.tuple-3">Tuple&lt;T1, T2, T3&gt;</a>.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.TupleSerializer-4.html">TupleSerializer&lt;T1, T2, T3, T4&gt;</a></dt>
+      <dd><p>Represents a serializer for a <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.tuple-4">Tuple&lt;T1, T2, T3, T4&gt;</a>.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.TupleSerializer-5.html">TupleSerializer&lt;T1, T2, T3, T4, T5&gt;</a></dt>
+      <dd><p>Represents a serializer for a <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.tuple-5">Tuple&lt;T1, T2, T3, T4, T5&gt;</a>.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.TupleSerializer-6.html">TupleSerializer&lt;T1, T2, T3, T4, T5, T6&gt;</a></dt>
+      <dd><p>Represents a serializer for a <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.tuple-6">Tuple&lt;T1, T2, T3, T4, T5, T6&gt;</a>.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.TupleSerializer-7.html">TupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7&gt;</a></dt>
+      <dd><p>Represents a serializer for a <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.tuple-7">Tuple&lt;T1, T2, T3, T4, T5, T6, T7&gt;</a>.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.TupleSerializer-8.html">TupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7, TRest&gt;</a></dt>
+      <dd><p>Represents a serializer for a <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.tuple-8">Tuple&lt;T1, T2, T3, T4, T5, T6, T7, TRest&gt;</a>.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.TwoDimensionalArraySerializer-1.html">TwoDimensionalArraySerializer&lt;TItem&gt;</a></dt>
+      <dd><p>Represents a serializer for two-dimensional arrays.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.UInt16Serializer.html">UInt16Serializer</a></dt>
+      <dd><p>Represents a serializer for UInt16s.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.UInt32Serializer.html">UInt32Serializer</a></dt>
+      <dd><p>Represents a serializer for UInt32s.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.UInt64Serializer.html">UInt64Serializer</a></dt>
+      <dd><p>Represents a serializer for UInt64s.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.UndiscriminatedActualTypeSerializer-1.html">UndiscriminatedActualTypeSerializer&lt;TValue&gt;</a></dt>
+      <dd><p>Represents a serializer for interfaces and base classes that delegates to the actual type interface without writing a discriminator.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.UriSerializer.html">UriSerializer</a></dt>
+      <dd><p>Represents a serializer for Uris.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer.html">ValueTupleSerializer</a></dt>
+      <dd><p>A factory class for ValueTupleSerializers.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer-1.html">ValueTupleSerializer&lt;T1&gt;</a></dt>
+      <dd><p>Represents a serializer for a <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.valuetuple-1">ValueTuple&lt;T1&gt;</a>.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer-2.html">ValueTupleSerializer&lt;T1, T2&gt;</a></dt>
+      <dd><p>Represents a serializer for a <span class="xref">(T1, T2)</span>.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer-3.html">ValueTupleSerializer&lt;T1, T2, T3&gt;</a></dt>
+      <dd><p>Represents a serializer for a <span class="xref">(T1, T2, T3)</span>.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer-4.html">ValueTupleSerializer&lt;T1, T2, T3, T4&gt;</a></dt>
+      <dd><p>Represents a serializer for a <span class="xref">(T1, T2, T3, T4)</span>.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer-5.html">ValueTupleSerializer&lt;T1, T2, T3, T4, T5&gt;</a></dt>
+      <dd><p>Represents a serializer for a <span class="xref">(T1, T2, T3, T4, T5)</span>.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer-6.html">ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6&gt;</a></dt>
+      <dd><p>Represents a serializer for a <span class="xref">(T1, T2, T3, T4, T5, T6)</span>.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer-7.html">ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7&gt;</a></dt>
+      <dd><p>Represents a serializer for a <span class="xref">(T1, T2, T3, T4, T5, T6, T7)</span>.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer-8.html">ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7, TRest&gt;</a></dt>
+      <dd><p>Represents a serializer for a <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.valuetuple-8">ValueTuple&lt;T1, T2, T3, T4, T5, T6, T7, TRest&gt;</a>.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.VersionSerializer.html">VersionSerializer</a></dt>
+      <dd><p>Represents a serializer for Versions.</p>
+</dd>
+    </dl>
+    <h3 id="interfaces">
+Interfaces
+</h3>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.IBsonTupleSerializer.html">IBsonTupleSerializer</a></dt>
+      <dd><p>An interface implemented by tuple serializers.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.IDiscriminatedInterfaceSerializer.html">IDiscriminatedInterfaceSerializer</a></dt>
+      <dd><p>An interface implemented by DiscriminatedInterfaceSerializer.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.IDowncastingSerializer.html">IDowncastingSerializer</a></dt>
+      <dd><p>An interface implemented by DowncastingSerializer.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.IImpliedImplementationInterfaceSerializer.html">IImpliedImplementationInterfaceSerializer</a></dt>
+      <dd><p>An interface implemented by ImpliedImplementationInterfaceSerializer.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.IKeyValuePairSerializer.html">IKeyValuePairSerializer</a></dt>
+      <dd><p>An interface implemented by KeyValuePairSerializer.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.INullableSerializer.html">INullableSerializer</a></dt>
+      <dd><p>An interface used by the LINQ3 translators to access the value serializer without needing to use reflection.</p>
+</dd>
+    </dl>
+
+
+</article>
+
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          &copy; 2023 MongoDB, Inc.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

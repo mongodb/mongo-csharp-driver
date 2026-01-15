@@ -1,0 +1,504 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>Method Lookup
+ | MongoDB CSharp Driver API Reference </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Method Lookup
+ | MongoDB CSharp Driver API Reference ">
+      
+      <link rel="icon" href="../../images/favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/mongodb/mongo-csharp-driver/new/main/apiSpec/new?filename=MongoDB_Driver_Linq_MongoQueryable_Lookup_.md&amp;value=---%0Auid%3A%20MongoDB.Driver.Linq.MongoQueryable.Lookup*%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+  </head>
+
+  <script type="module" src="./../../public/docfx.min.js"></script>
+
+  <script>
+    const theme = localStorage.getItem('theme') || 'auto'
+    document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+  </script>
+
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../images/mongodb-logo.svg" alt="">
+            
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+      <div class="toc-offcanvas">
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tocOffcanvasLabel">Table of Contents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#tocOffcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <nav class="toc" id="toc"></nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actionbar">
+          <button class="btn btn-lg border-0 d-md-none" style="margin-top: -.65em; margin-left: -.8em" type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas" aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="MongoDB.Driver.Linq.MongoQueryable.Lookup*">
+
+
+
+
+
+<h1 id="MongoDB_Driver_Linq_MongoQueryable_Lookup_" data-uid="MongoDB.Driver.Linq.MongoQueryable.Lookup*" class="text-break">
+  Method Lookup
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/main/src/MongoDB.Driver/Linq/MongoQueryable.cs/#L879"><i class="bi bi-code-slash"></i></a>
+</h1>
+
+<div class="facts text-secondary">
+  <dl><dt>Namespace</dt><dd><a class="xref" href="MongoDB.html">MongoDB</a>.<a class="xref" href="MongoDB.Driver.html">Driver</a>.<a class="xref" href="MongoDB.Driver.Linq.html">Linq</a></dd></dl>
+  <dl><dt>Assembly</dt><dd>MongoDB.Driver.dll</dd></dl>
+</div>
+
+<div class="markdown summary"></div>
+<div class="markdown conceptual"></div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<a id="MongoDB_Driver_Linq_MongoQueryable_Lookup_" data-uid="MongoDB.Driver.Linq.MongoQueryable.Lookup*"></a>
+
+<h3 id="MongoDB_Driver_Linq_MongoQueryable_Lookup__3_System_Linq_IQueryable___0__MongoDB_Driver_IMongoCollection___1__System_Linq_Expressions_Expression_System_Func___0___2___System_Linq_Expressions_Expression_System_Func___1___2___" data-uid="MongoDB.Driver.Linq.MongoQueryable.Lookup``3(System.Linq.IQueryable{``0},MongoDB.Driver.IMongoCollection{``1},System.Linq.Expressions.Expression{System.Func{``0,``2}},System.Linq.Expressions.Expression{System.Func{``1,``2}})">
+  Lookup&lt;TSource, TForeign, TField&gt;(IQueryable&lt;TSource&gt;, IMongoCollection&lt;TForeign&gt;, Expression&lt;Func&lt;TSource, TField&gt;&gt;, Expression&lt;Func&lt;TForeign, TField&gt;&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/main/src/MongoDB.Driver/Linq/MongoQueryable.cs/#L879"><i class="bi bi-code-slash"></i></a>
+</h3>
+
+<div class="markdown level1 summary"><p>Looks up documents in a foreign collection.</p>
+</div>
+<div class="markdown level1 conceptual"></div>
+
+<div class="codewrapper">
+  <pre><code class="lang-csharp hljs">public static IQueryable&lt;LookupResult&lt;TSource, TForeign&gt;&gt; Lookup&lt;TSource, TForeign, TField&gt;(this IQueryable&lt;TSource&gt; source, IMongoCollection&lt;TForeign&gt; from, Expression&lt;Func&lt;TSource, TField&gt;&gt; localField, Expression&lt;Func&lt;TForeign, TField&gt;&gt; foreignField)</code></pre>
+</div>
+
+<h4 class="section">Parameters</h4>
+<dl class="parameters">
+  <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.iqueryable-1">IQueryable</a>&lt;TSource&gt;</dt>
+  <dd><p>The source documents.</p>
+</dd>
+  <dt><code>from</code> <a class="xref" href="MongoDB.Driver.IMongoCollection-1.html">IMongoCollection</a>&lt;TForeign&gt;</dt>
+  <dd><p>The foreign collection.</p>
+</dd>
+  <dt><code>localField</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, TField&gt;&gt;</dt>
+  <dd><p>The local field to compare against the foreign field.</p>
+</dd>
+  <dt><code>foreignField</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TForeign, TField&gt;&gt;</dt>
+  <dd><p>The foreign field to compare against the local field.</p>
+</dd>
+</dl>
+
+<h4 class="section">Returns</h4>
+<dl class="parameters">
+  <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.iqueryable-1">IQueryable</a>&lt;<a class="xref" href="MongoDB.Driver.Linq.LookupResult-2.html">LookupResult</a>&lt;TSource, TForeign&gt;&gt;</dt>
+  <dd><p>An <span class="xref">IQueryable{LookupResult{TSource,TForeign}}</span> with the results of the Lookup.</p>
+</dd>
+</dl>
+
+<h4 class="section">Type Parameters</h4>
+<dl class="parameters">
+  <dt><code>TSource</code></dt>
+  <dd><p>The type of the source documents.</p>
+</dd>
+  <dt><code>TForeign</code></dt>
+  <dd><p>The type of the foreign documents.</p>
+</dd>
+  <dt><code>TField</code></dt>
+  <dd><p>The type of the fields being compared.</p>
+</dd>
+</dl>
+
+
+
+
+
+
+
+
+
+
+<a id="MongoDB_Driver_Linq_MongoQueryable_Lookup_" data-uid="MongoDB.Driver.Linq.MongoQueryable.Lookup*"></a>
+
+<h3 id="MongoDB_Driver_Linq_MongoQueryable_Lookup__3_System_Linq_IQueryable___0__MongoDB_Driver_IMongoCollection___1__System_Linq_Expressions_Expression_System_Func___0_System_Linq_IQueryable___1__System_Linq_IQueryable___2____" data-uid="MongoDB.Driver.Linq.MongoQueryable.Lookup``3(System.Linq.IQueryable{``0},MongoDB.Driver.IMongoCollection{``1},System.Linq.Expressions.Expression{System.Func{``0,System.Linq.IQueryable{``1},System.Linq.IQueryable{``2}}})">
+  Lookup&lt;TSource, TForeign, TResult&gt;(IQueryable&lt;TSource&gt;, IMongoCollection&lt;TForeign&gt;, Expression&lt;Func&lt;TSource, IQueryable&lt;TForeign&gt;, IQueryable&lt;TResult&gt;&gt;&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/main/src/MongoDB.Driver/Linq/MongoQueryable.cs/#L910"><i class="bi bi-code-slash"></i></a>
+</h3>
+
+<div class="markdown level1 summary"><p>Looks up documents in a foreign collection.</p>
+</div>
+<div class="markdown level1 conceptual"></div>
+
+<div class="codewrapper">
+  <pre><code class="lang-csharp hljs">public static IQueryable&lt;LookupResult&lt;TSource, TResult&gt;&gt; Lookup&lt;TSource, TForeign, TResult&gt;(this IQueryable&lt;TSource&gt; source, IMongoCollection&lt;TForeign&gt; from, Expression&lt;Func&lt;TSource, IQueryable&lt;TForeign&gt;, IQueryable&lt;TResult&gt;&gt;&gt; pipeline)</code></pre>
+</div>
+
+<h4 class="section">Parameters</h4>
+<dl class="parameters">
+  <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.iqueryable-1">IQueryable</a>&lt;TSource&gt;</dt>
+  <dd><p>The source documents.</p>
+</dd>
+  <dt><code>from</code> <a class="xref" href="MongoDB.Driver.IMongoCollection-1.html">IMongoCollection</a>&lt;TForeign&gt;</dt>
+  <dd><p>The foreign collection.</p>
+</dd>
+  <dt><code>pipeline</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-3">Func</a>&lt;TSource, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.iqueryable-1">IQueryable</a>&lt;TForeign&gt;, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.iqueryable-1">IQueryable</a>&lt;TResult&gt;&gt;&gt;</dt>
+  <dd><p>The pipeline to run against the foreign documents.</p>
+</dd>
+</dl>
+
+<h4 class="section">Returns</h4>
+<dl class="parameters">
+  <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.iqueryable-1">IQueryable</a>&lt;<a class="xref" href="MongoDB.Driver.Linq.LookupResult-2.html">LookupResult</a>&lt;TSource, TResult&gt;&gt;</dt>
+  <dd><p>An <span class="xref">IQueryable{LookupResult{TSource,TResult}}</span> with the results of the Lookup.</p>
+</dd>
+</dl>
+
+<h4 class="section">Type Parameters</h4>
+<dl class="parameters">
+  <dt><code>TSource</code></dt>
+  <dd><p>The type of the source documents.</p>
+</dd>
+  <dt><code>TForeign</code></dt>
+  <dd><p>The type of the foreign documents.</p>
+</dd>
+  <dt><code>TResult</code></dt>
+  <dd><p>The type of the pipeline output.</p>
+</dd>
+</dl>
+
+
+
+
+
+
+
+
+
+
+<a id="MongoDB_Driver_Linq_MongoQueryable_Lookup_" data-uid="MongoDB.Driver.Linq.MongoQueryable.Lookup*"></a>
+
+<h3 id="MongoDB_Driver_Linq_MongoQueryable_Lookup__4_System_Linq_IQueryable___0__MongoDB_Driver_IMongoCollection___1__System_Linq_Expressions_Expression_System_Func___0___2___System_Linq_Expressions_Expression_System_Func___1___2___System_Linq_Expressions_Expression_System_Func___0_System_Linq_IQueryable___1__System_Linq_IQueryable___3____" data-uid="MongoDB.Driver.Linq.MongoQueryable.Lookup``4(System.Linq.IQueryable{``0},MongoDB.Driver.IMongoCollection{``1},System.Linq.Expressions.Expression{System.Func{``0,``2}},System.Linq.Expressions.Expression{System.Func{``1,``2}},System.Linq.Expressions.Expression{System.Func{``0,System.Linq.IQueryable{``1},System.Linq.IQueryable{``3}}})">
+  Lookup&lt;TSource, TForeign, TField, TResult&gt;(IQueryable&lt;TSource&gt;, IMongoCollection&lt;TForeign&gt;, Expression&lt;Func&lt;TSource, TField&gt;&gt;, Expression&lt;Func&lt;TForeign, TField&gt;&gt;, Expression&lt;Func&lt;TSource, IQueryable&lt;TForeign&gt;, IQueryable&lt;TResult&gt;&gt;&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/main/src/MongoDB.Driver/Linq/MongoQueryable.cs/#L942"><i class="bi bi-code-slash"></i></a>
+</h3>
+
+<div class="markdown level1 summary"><p>Looks up documents in a foreign collection.</p>
+</div>
+<div class="markdown level1 conceptual"></div>
+
+<div class="codewrapper">
+  <pre><code class="lang-csharp hljs">public static IQueryable&lt;LookupResult&lt;TSource, TResult&gt;&gt; Lookup&lt;TSource, TForeign, TField, TResult&gt;(this IQueryable&lt;TSource&gt; source, IMongoCollection&lt;TForeign&gt; from, Expression&lt;Func&lt;TSource, TField&gt;&gt; localField, Expression&lt;Func&lt;TForeign, TField&gt;&gt; foreignField, Expression&lt;Func&lt;TSource, IQueryable&lt;TForeign&gt;, IQueryable&lt;TResult&gt;&gt;&gt; pipeline)</code></pre>
+</div>
+
+<h4 class="section">Parameters</h4>
+<dl class="parameters">
+  <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.iqueryable-1">IQueryable</a>&lt;TSource&gt;</dt>
+  <dd><p>The source documents.</p>
+</dd>
+  <dt><code>from</code> <a class="xref" href="MongoDB.Driver.IMongoCollection-1.html">IMongoCollection</a>&lt;TForeign&gt;</dt>
+  <dd><p>The foreign collection.</p>
+</dd>
+  <dt><code>localField</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, TField&gt;&gt;</dt>
+  <dd><p>The local field to compare against the foreign field.</p>
+</dd>
+  <dt><code>foreignField</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TForeign, TField&gt;&gt;</dt>
+  <dd><p>The foreign field to compare against the local field.</p>
+</dd>
+  <dt><code>pipeline</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-3">Func</a>&lt;TSource, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.iqueryable-1">IQueryable</a>&lt;TForeign&gt;, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.iqueryable-1">IQueryable</a>&lt;TResult&gt;&gt;&gt;</dt>
+  <dd><p>The pipeline to run against the matching foreign documents.</p>
+</dd>
+</dl>
+
+<h4 class="section">Returns</h4>
+<dl class="parameters">
+  <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.iqueryable-1">IQueryable</a>&lt;<a class="xref" href="MongoDB.Driver.Linq.LookupResult-2.html">LookupResult</a>&lt;TSource, TResult&gt;&gt;</dt>
+  <dd><p>An <span class="xref">IQueryable{LookupResult{TSource,TResult}}</span> with the results of the Lookup.</p>
+</dd>
+</dl>
+
+<h4 class="section">Type Parameters</h4>
+<dl class="parameters">
+  <dt><code>TSource</code></dt>
+  <dd><p>The type of the source documents.</p>
+</dd>
+  <dt><code>TForeign</code></dt>
+  <dd><p>The type of the foreign documents.</p>
+</dd>
+  <dt><code>TField</code></dt>
+  <dd><p>The type of the fields being compared.</p>
+</dd>
+  <dt><code>TResult</code></dt>
+  <dd><p>The type of the pipeline output.</p>
+</dd>
+</dl>
+
+
+
+
+
+
+
+
+
+
+<a id="MongoDB_Driver_Linq_MongoQueryable_Lookup_" data-uid="MongoDB.Driver.Linq.MongoQueryable.Lookup*"></a>
+
+<h3 id="MongoDB_Driver_Linq_MongoQueryable_Lookup__3_System_Linq_IQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Collections_Generic_IEnumerable___1____System_Linq_Expressions_Expression_System_Func___0___2___System_Linq_Expressions_Expression_System_Func___1___2___" data-uid="MongoDB.Driver.Linq.MongoQueryable.Lookup``3(System.Linq.IQueryable{``0},System.Linq.Expressions.Expression{System.Func{``0,System.Collections.Generic.IEnumerable{``1}}},System.Linq.Expressions.Expression{System.Func{``0,``2}},System.Linq.Expressions.Expression{System.Func{``1,``2}})">
+  Lookup&lt;TSource, TDocument, TField&gt;(IQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, IEnumerable&lt;TDocument&gt;&gt;&gt;, Expression&lt;Func&lt;TSource, TField&gt;&gt;, Expression&lt;Func&lt;TDocument, TField&gt;&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/main/src/MongoDB.Driver/Linq/MongoQueryable.cs/#L978"><i class="bi bi-code-slash"></i></a>
+</h3>
+
+<div class="markdown level1 summary"><p>Looks up documents in a list of foreign documents.</p>
+</div>
+<div class="markdown level1 conceptual"></div>
+
+<div class="codewrapper">
+  <pre><code class="lang-csharp hljs">public static IQueryable&lt;LookupResult&lt;TSource, TDocument&gt;&gt; Lookup&lt;TSource, TDocument, TField&gt;(this IQueryable&lt;TSource&gt; source, Expression&lt;Func&lt;TSource, IEnumerable&lt;TDocument&gt;&gt;&gt; documents, Expression&lt;Func&lt;TSource, TField&gt;&gt; localField, Expression&lt;Func&lt;TDocument, TField&gt;&gt; foreignField)</code></pre>
+</div>
+
+<h4 class="section">Parameters</h4>
+<dl class="parameters">
+  <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.iqueryable-1">IQueryable</a>&lt;TSource&gt;</dt>
+  <dd><p>The source documents.</p>
+</dd>
+  <dt><code>documents</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TDocument&gt;&gt;&gt;</dt>
+  <dd><p>The foreign documents.</p>
+</dd>
+  <dt><code>localField</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, TField&gt;&gt;</dt>
+  <dd><p>The local field to compare against the foreign field.</p>
+</dd>
+  <dt><code>foreignField</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TField&gt;&gt;</dt>
+  <dd><p>The foreign field to compare against the local field.</p>
+</dd>
+</dl>
+
+<h4 class="section">Returns</h4>
+<dl class="parameters">
+  <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.iqueryable-1">IQueryable</a>&lt;<a class="xref" href="MongoDB.Driver.Linq.LookupResult-2.html">LookupResult</a>&lt;TSource, TDocument&gt;&gt;</dt>
+  <dd><p>An <span class="xref">IQueryable{LookupResult{TSource,TDocument}}</span> with the results of the Lookup.</p>
+</dd>
+</dl>
+
+<h4 class="section">Type Parameters</h4>
+<dl class="parameters">
+  <dt><code>TSource</code></dt>
+  <dd><p>The type of the source documents.</p>
+</dd>
+  <dt><code>TDocument</code></dt>
+  <dd><p>The type of the foreign documents.</p>
+</dd>
+  <dt><code>TField</code></dt>
+  <dd><p>The type of the fields being compared.</p>
+</dd>
+</dl>
+
+
+
+
+
+
+
+
+
+
+<a id="MongoDB_Driver_Linq_MongoQueryable_Lookup_" data-uid="MongoDB.Driver.Linq.MongoQueryable.Lookup*"></a>
+
+<h3 id="MongoDB_Driver_Linq_MongoQueryable_Lookup__3_System_Linq_IQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Collections_Generic_IEnumerable___1____System_Linq_Expressions_Expression_System_Func___0_System_Linq_IQueryable___1__System_Linq_IQueryable___2____" data-uid="MongoDB.Driver.Linq.MongoQueryable.Lookup``3(System.Linq.IQueryable{``0},System.Linq.Expressions.Expression{System.Func{``0,System.Collections.Generic.IEnumerable{``1}}},System.Linq.Expressions.Expression{System.Func{``0,System.Linq.IQueryable{``1},System.Linq.IQueryable{``2}}})">
+  Lookup&lt;TSource, TDocument, TResult&gt;(IQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, IEnumerable&lt;TDocument&gt;&gt;&gt;, Expression&lt;Func&lt;TSource, IQueryable&lt;TDocument&gt;, IQueryable&lt;TResult&gt;&gt;&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/main/src/MongoDB.Driver/Linq/MongoQueryable.cs/#L1010"><i class="bi bi-code-slash"></i></a>
+</h3>
+
+<div class="markdown level1 summary"><p>Looks up documents in a list of foreign documents.</p>
+</div>
+<div class="markdown level1 conceptual"></div>
+
+<div class="codewrapper">
+  <pre><code class="lang-csharp hljs">public static IQueryable&lt;LookupResult&lt;TSource, TResult&gt;&gt; Lookup&lt;TSource, TDocument, TResult&gt;(this IQueryable&lt;TSource&gt; source, Expression&lt;Func&lt;TSource, IEnumerable&lt;TDocument&gt;&gt;&gt; documents, Expression&lt;Func&lt;TSource, IQueryable&lt;TDocument&gt;, IQueryable&lt;TResult&gt;&gt;&gt; pipeline)</code></pre>
+</div>
+
+<h4 class="section">Parameters</h4>
+<dl class="parameters">
+  <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.iqueryable-1">IQueryable</a>&lt;TSource&gt;</dt>
+  <dd><p>The source documents.</p>
+</dd>
+  <dt><code>documents</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TDocument&gt;&gt;&gt;</dt>
+  <dd><p>The foreign documents.</p>
+</dd>
+  <dt><code>pipeline</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-3">Func</a>&lt;TSource, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.iqueryable-1">IQueryable</a>&lt;TDocument&gt;, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.iqueryable-1">IQueryable</a>&lt;TResult&gt;&gt;&gt;</dt>
+  <dd><p>The pipeline to run against the foreign documents.</p>
+</dd>
+</dl>
+
+<h4 class="section">Returns</h4>
+<dl class="parameters">
+  <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.iqueryable-1">IQueryable</a>&lt;<a class="xref" href="MongoDB.Driver.Linq.LookupResult-2.html">LookupResult</a>&lt;TSource, TResult&gt;&gt;</dt>
+  <dd><p>An <span class="xref">IQueryable{LookupResult{TSource,TResult}}</span> with the results of the Lookup.</p>
+</dd>
+</dl>
+
+<h4 class="section">Type Parameters</h4>
+<dl class="parameters">
+  <dt><code>TSource</code></dt>
+  <dd><p>The type of the source documents.</p>
+</dd>
+  <dt><code>TDocument</code></dt>
+  <dd><p>The type of the foreign documents.</p>
+</dd>
+  <dt><code>TResult</code></dt>
+  <dd><p>The type of the pipeline output.</p>
+</dd>
+</dl>
+
+
+
+
+
+
+
+
+
+
+<a id="MongoDB_Driver_Linq_MongoQueryable_Lookup_" data-uid="MongoDB.Driver.Linq.MongoQueryable.Lookup*"></a>
+
+<h3 id="MongoDB_Driver_Linq_MongoQueryable_Lookup__4_System_Linq_IQueryable___0__System_Linq_Expressions_Expression_System_Func___0_System_Collections_Generic_IEnumerable___1____System_Linq_Expressions_Expression_System_Func___0___2___System_Linq_Expressions_Expression_System_Func___1___2___System_Linq_Expressions_Expression_System_Func___0_System_Linq_IQueryable___1__System_Linq_IQueryable___3____" data-uid="MongoDB.Driver.Linq.MongoQueryable.Lookup``4(System.Linq.IQueryable{``0},System.Linq.Expressions.Expression{System.Func{``0,System.Collections.Generic.IEnumerable{``1}}},System.Linq.Expressions.Expression{System.Func{``0,``2}},System.Linq.Expressions.Expression{System.Func{``1,``2}},System.Linq.Expressions.Expression{System.Func{``0,System.Linq.IQueryable{``1},System.Linq.IQueryable{``3}}})">
+  Lookup&lt;TSource, TDocument, TField, TResult&gt;(IQueryable&lt;TSource&gt;, Expression&lt;Func&lt;TSource, IEnumerable&lt;TDocument&gt;&gt;&gt;, Expression&lt;Func&lt;TSource, TField&gt;&gt;, Expression&lt;Func&lt;TDocument, TField&gt;&gt;, Expression&lt;Func&lt;TSource, IQueryable&lt;TDocument&gt;, IQueryable&lt;TResult&gt;&gt;&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/main/src/MongoDB.Driver/Linq/MongoQueryable.cs/#L1042"><i class="bi bi-code-slash"></i></a>
+</h3>
+
+<div class="markdown level1 summary"><p>Looks up documents in a list of foreign documents.</p>
+</div>
+<div class="markdown level1 conceptual"></div>
+
+<div class="codewrapper">
+  <pre><code class="lang-csharp hljs">public static IQueryable&lt;LookupResult&lt;TSource, TResult&gt;&gt; Lookup&lt;TSource, TDocument, TField, TResult&gt;(this IQueryable&lt;TSource&gt; source, Expression&lt;Func&lt;TSource, IEnumerable&lt;TDocument&gt;&gt;&gt; documents, Expression&lt;Func&lt;TSource, TField&gt;&gt; localField, Expression&lt;Func&lt;TDocument, TField&gt;&gt; foreignField, Expression&lt;Func&lt;TSource, IQueryable&lt;TDocument&gt;, IQueryable&lt;TResult&gt;&gt;&gt; pipeline)</code></pre>
+</div>
+
+<h4 class="section">Parameters</h4>
+<dl class="parameters">
+  <dt><code>source</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.iqueryable-1">IQueryable</a>&lt;TSource&gt;</dt>
+  <dd><p>The source documents.</p>
+</dd>
+  <dt><code>documents</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;TDocument&gt;&gt;&gt;</dt>
+  <dd><p>The foreign documents.</p>
+</dd>
+  <dt><code>localField</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TSource, TField&gt;&gt;</dt>
+  <dd><p>The local field to compare against the foreign field.</p>
+</dd>
+  <dt><code>foreignField</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TDocument, TField&gt;&gt;</dt>
+  <dd><p>The foreign field to compare against the local field.</p>
+</dd>
+  <dt><code>pipeline</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-3">Func</a>&lt;TSource, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.iqueryable-1">IQueryable</a>&lt;TDocument&gt;, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.iqueryable-1">IQueryable</a>&lt;TResult&gt;&gt;&gt;</dt>
+  <dd><p>The pipeline to run against the matching foreign documents.</p>
+</dd>
+</dl>
+
+<h4 class="section">Returns</h4>
+<dl class="parameters">
+  <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.iqueryable-1">IQueryable</a>&lt;<a class="xref" href="MongoDB.Driver.Linq.LookupResult-2.html">LookupResult</a>&lt;TSource, TResult&gt;&gt;</dt>
+  <dd><p>An <span class="xref">IQueryable{LookupResult{TSource,TResult}}</span> with the results of the Lookup.</p>
+</dd>
+</dl>
+
+<h4 class="section">Type Parameters</h4>
+<dl class="parameters">
+  <dt><code>TSource</code></dt>
+  <dd><p>The type of the source documents.</p>
+</dd>
+  <dt><code>TDocument</code></dt>
+  <dd><p>The type of the foreign documents.</p>
+</dd>
+  <dt><code>TField</code></dt>
+  <dd><p>The type of the fields being matched.</p>
+</dd>
+  <dt><code>TResult</code></dt>
+  <dd><p>The type of the pipeline output.</p>
+</dd>
+</dl>
+
+
+
+
+
+
+
+
+
+
+</article>
+
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          &copy; 2023 MongoDB, Inc.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

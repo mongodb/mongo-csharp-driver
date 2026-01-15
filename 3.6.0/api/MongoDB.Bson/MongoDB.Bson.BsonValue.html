@@ -1,0 +1,956 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>Class BsonValue
+ | MongoDB CSharp Driver API Reference </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Class BsonValue
+ | MongoDB CSharp Driver API Reference ">
+      
+      <link rel="icon" href="../../images/favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/mongodb/mongo-csharp-driver/new/main/apiSpec/new?filename=MongoDB_Bson_BsonValue.md&amp;value=---%0Auid%3A%20MongoDB.Bson.BsonValue%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+  </head>
+
+  <script type="module" src="./../../public/docfx.min.js"></script>
+
+  <script>
+    const theme = localStorage.getItem('theme') || 'auto'
+    document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+  </script>
+
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../images/mongodb-logo.svg" alt="">
+            
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+      <div class="toc-offcanvas">
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tocOffcanvasLabel">Table of Contents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#tocOffcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <nav class="toc" id="toc"></nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actionbar">
+          <button class="btn btn-lg border-0 d-md-none" style="margin-top: -.65em; margin-left: -.8em" type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas" aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="MongoDB.Bson.BsonValue">
+
+
+
+  <h1 id="MongoDB_Bson_BsonValue" data-uid="MongoDB.Bson.BsonValue" class="text-break">
+    Class BsonValue
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/main/src/MongoDB.Bson/ObjectModel/BsonValue.cs/#L27"><i class="bi bi-code-slash"></i></a>
+  </h1>
+
+  <div class="facts text-secondary">
+    <dl><dt>Namespace</dt><dd><a class="xref" href="MongoDB.html">MongoDB</a>.<a class="xref" href="MongoDB.Bson.html">Bson</a></dd></dl>
+  <dl><dt>Assembly</dt><dd>MongoDB.Bson.dll</dd></dl>
+  </div>
+
+  <div class="markdown summary"><p>Represents a BSON value (this is an abstract class, see the various subclasses).</p>
+</div>
+  <div class="markdown conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract class BsonValue : IComparable&lt;BsonValue&gt;, IConvertible, IEquatable&lt;BsonValue&gt;</code></pre>
+  </div>
+
+
+
+
+  <dl class="typelist inheritance">
+    <dt>Inheritance</dt>
+    <dd>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></div>
+      <div><span class="xref">BsonValue</span></div>
+    </dd>
+  </dl>
+
+  <dl class="typelist implements">
+    <dt>Implements</dt>
+    <dd>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.icomparable-1">IComparable</a>&lt;<a class="xref" href="MongoDB.Bson.BsonValue.html">BsonValue</a>&gt;</div>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.iconvertible">IConvertible</a></div>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.iequatable-1">IEquatable</a>&lt;<a class="xref" href="MongoDB.Bson.BsonValue.html">BsonValue</a>&gt;</div>
+    </dd>
+  </dl>
+
+  <dl class="typelist derived">
+    <dt>Derived</dt>
+    <dd>
+      <div><a class="xref" href="MongoDB.Bson.BsonArray.html">BsonArray</a></div>
+      <div><a class="xref" href="MongoDB.Bson.BsonBinaryData.html">BsonBinaryData</a></div>
+      <div><a class="xref" href="MongoDB.Bson.BsonBoolean.html">BsonBoolean</a></div>
+      <div><a class="xref" href="MongoDB.Bson.BsonDateTime.html">BsonDateTime</a></div>
+      <div><a class="xref" href="MongoDB.Bson.BsonDecimal128.html">BsonDecimal128</a></div>
+      <div><a class="xref" href="MongoDB.Bson.BsonDocument.html">BsonDocument</a></div>
+      <div><a class="xref" href="MongoDB.Bson.BsonDouble.html">BsonDouble</a></div>
+      <div><a class="xref" href="MongoDB.Bson.BsonInt32.html">BsonInt32</a></div>
+      <div><a class="xref" href="MongoDB.Bson.BsonInt64.html">BsonInt64</a></div>
+      <div><a class="xref" href="MongoDB.Bson.BsonJavaScript.html">BsonJavaScript</a></div>
+      <div><a class="xref" href="MongoDB.Bson.BsonMaxKey.html">BsonMaxKey</a></div>
+      <div><a class="xref" href="MongoDB.Bson.BsonMinKey.html">BsonMinKey</a></div>
+      <div><a class="xref" href="MongoDB.Bson.BsonNull.html">BsonNull</a></div>
+      <div><a class="xref" href="MongoDB.Bson.BsonObjectId.html">BsonObjectId</a></div>
+      <div><a class="xref" href="MongoDB.Bson.BsonRegularExpression.html">BsonRegularExpression</a></div>
+      <div><a class="xref" href="MongoDB.Bson.BsonString.html">BsonString</a></div>
+      <div><a class="xref" href="MongoDB.Bson.BsonSymbol.html">BsonSymbol</a></div>
+      <div><a class="xref" href="MongoDB.Bson.BsonTimestamp.html">BsonTimestamp</a></div>
+      <div><a class="xref" href="MongoDB.Bson.BsonUndefined.html">BsonUndefined</a></div>
+    </dd>
+  </dl>
+
+  <dl class="typelist derived">
+    <dt>Inherited Members</dt>
+    <dd>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)">object.Equals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gettype">object.GetType()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone">object.MemberwiseClone()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.referenceequals">object.ReferenceEquals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.tostring">object.ToString()</a>
+    </div>
+  </dd></dl>
+
+  <dl class="typelist extensionMethods">
+    <dt>Extension Methods</dt>
+    <dd>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.ToBsonDocument.html#MongoDB_Bson_BsonExtensionMethods_ToBsonDocument__1___0_MongoDB_Bson_Serialization_IBsonSerializer___0__System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_">BsonExtensionMethods.ToBsonDocument&lt;TNominalType&gt;(TNominalType, IBsonSerializer&lt;TNominalType&gt;, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.ToBson.html#MongoDB_Bson_BsonExtensionMethods_ToBson__1___0_MongoDB_Bson_Serialization_IBsonSerializer___0__MongoDB_Bson_IO_BsonBinaryWriterSettings_System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_System_Int32_">BsonExtensionMethods.ToBson&lt;TNominalType&gt;(TNominalType, IBsonSerializer&lt;TNominalType&gt;, BsonBinaryWriterSettings, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs, int)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.ToJson.html#MongoDB_Bson_BsonExtensionMethods_ToJson__1___0_MongoDB_Bson_IO_JsonWriterSettings_MongoDB_Bson_Serialization_IBsonSerializer___0__System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_">BsonExtensionMethods.ToJson&lt;TNominalType&gt;(TNominalType, JsonWriterSettings, IBsonSerializer&lt;TNominalType&gt;, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.ToBson.html#MongoDB_Bson_BsonExtensionMethods_ToBson_System_Object_System_Type_MongoDB_Bson_IO_BsonBinaryWriterSettings_MongoDB_Bson_Serialization_IBsonSerializer_System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_System_Int32_">BsonExtensionMethods.ToBson(object, Type, BsonBinaryWriterSettings, IBsonSerializer, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs, int)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.ToBsonDocument.html#MongoDB_Bson_BsonExtensionMethods_ToBsonDocument_System_Object_System_Type_MongoDB_Bson_Serialization_IBsonSerializer_System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_">BsonExtensionMethods.ToBsonDocument(object, Type, IBsonSerializer, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.ToJson.html#MongoDB_Bson_BsonExtensionMethods_ToJson_System_Object_System_Type_MongoDB_Bson_IO_JsonWriterSettings_MongoDB_Bson_Serialization_IBsonSerializer_System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_">BsonExtensionMethods.ToJson(object, Type, JsonWriterSettings, IBsonSerializer, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs)</a>
+  </div>
+  </dd></dl>
+
+
+
+
+  <h2 class="section" id="properties">Properties
+</h2>
+
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.AsBoolean.html#MongoDB_Bson_BsonValue_AsBoolean">AsBoolean</a></dt>
+    <dd><p>Casts the BsonValue to a Boolean (throws an InvalidCastException if the cast is not valid).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.AsBsonArray.html#MongoDB_Bson_BsonValue_AsBsonArray">AsBsonArray</a></dt>
+    <dd><p>Casts the BsonValue to a BsonArray (throws an InvalidCastException if the cast is not valid).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.AsBsonBinaryData.html#MongoDB_Bson_BsonValue_AsBsonBinaryData">AsBsonBinaryData</a></dt>
+    <dd><p>Casts the BsonValue to a BsonBinaryData (throws an InvalidCastException if the cast is not valid).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.AsBsonDateTime.html#MongoDB_Bson_BsonValue_AsBsonDateTime">AsBsonDateTime</a></dt>
+    <dd><p>Casts the BsonValue to a BsonDateTime (throws an InvalidCastException if the cast is not valid).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.AsBsonDocument.html#MongoDB_Bson_BsonValue_AsBsonDocument">AsBsonDocument</a></dt>
+    <dd><p>Casts the BsonValue to a BsonDocument (throws an InvalidCastException if the cast is not valid).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.AsBsonJavaScript.html#MongoDB_Bson_BsonValue_AsBsonJavaScript">AsBsonJavaScript</a></dt>
+    <dd><p>Casts the BsonValue to a BsonJavaScript (throws an InvalidCastException if the cast is not valid).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.AsBsonJavaScriptWithScope.html#MongoDB_Bson_BsonValue_AsBsonJavaScriptWithScope">AsBsonJavaScriptWithScope</a></dt>
+    <dd><p>Casts the BsonValue to a BsonJavaScriptWithScope (throws an InvalidCastException if the cast is not valid).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.AsBsonMaxKey.html#MongoDB_Bson_BsonValue_AsBsonMaxKey">AsBsonMaxKey</a></dt>
+    <dd><p>Casts the BsonValue to a BsonMaxKey (throws an InvalidCastException if the cast is not valid).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.AsBsonMinKey.html#MongoDB_Bson_BsonValue_AsBsonMinKey">AsBsonMinKey</a></dt>
+    <dd><p>Casts the BsonValue to a BsonMinKey (throws an InvalidCastException if the cast is not valid).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.AsBsonNull.html#MongoDB_Bson_BsonValue_AsBsonNull">AsBsonNull</a></dt>
+    <dd><p>Casts the BsonValue to a BsonNull (throws an InvalidCastException if the cast is not valid).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.AsBsonRegularExpression.html#MongoDB_Bson_BsonValue_AsBsonRegularExpression">AsBsonRegularExpression</a></dt>
+    <dd><p>Casts the BsonValue to a BsonRegularExpression (throws an InvalidCastException if the cast is not valid).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.AsBsonSymbol.html#MongoDB_Bson_BsonValue_AsBsonSymbol">AsBsonSymbol</a></dt>
+    <dd><p>Casts the BsonValue to a BsonSymbol (throws an InvalidCastException if the cast is not valid).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.AsBsonTimestamp.html#MongoDB_Bson_BsonValue_AsBsonTimestamp">AsBsonTimestamp</a></dt>
+    <dd><p>Casts the BsonValue to a BsonTimestamp (throws an InvalidCastException if the cast is not valid).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.AsBsonUndefined.html#MongoDB_Bson_BsonValue_AsBsonUndefined">AsBsonUndefined</a></dt>
+    <dd><p>Casts the BsonValue to a BsonUndefined (throws an InvalidCastException if the cast is not valid).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.AsBsonValue.html#MongoDB_Bson_BsonValue_AsBsonValue">AsBsonValue</a></dt>
+    <dd><p>Casts the BsonValue to a BsonValue (a way of upcasting subclasses of BsonValue to BsonValue at compile time).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.AsByteArray.html#MongoDB_Bson_BsonValue_AsByteArray">AsByteArray</a></dt>
+    <dd><p>Casts the BsonValue to a Byte[] (throws an InvalidCastException if the cast is not valid).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.AsDecimal.html#MongoDB_Bson_BsonValue_AsDecimal">AsDecimal</a></dt>
+    <dd><p>Casts the BsonValue to a <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.decimal">decimal</a> (throws an InvalidCastException if the cast is not valid).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.AsDecimal128.html#MongoDB_Bson_BsonValue_AsDecimal128">AsDecimal128</a></dt>
+    <dd><p>Casts the BsonValue to a <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a> (throws an InvalidCastException if the cast is not valid).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.AsDouble.html#MongoDB_Bson_BsonValue_AsDouble">AsDouble</a></dt>
+    <dd><p>Casts the BsonValue to a Double (throws an InvalidCastException if the cast is not valid).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.AsGuid.html#MongoDB_Bson_BsonValue_AsGuid">AsGuid</a></dt>
+    <dd><p>Casts the BsonValue to a Guid (throws an InvalidCastException if the cast is not valid).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.AsInt32.html#MongoDB_Bson_BsonValue_AsInt32">AsInt32</a></dt>
+    <dd><p>Casts the BsonValue to an Int32 (throws an InvalidCastException if the cast is not valid).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.AsInt64.html#MongoDB_Bson_BsonValue_AsInt64">AsInt64</a></dt>
+    <dd><p>Casts the BsonValue to a Int64 (throws an InvalidCastException if the cast is not valid).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.AsLocalTime.html#MongoDB_Bson_BsonValue_AsLocalTime">AsLocalTime</a></dt>
+    <dd><p>Casts the BsonValue to a DateTime in the local timezone (throws an InvalidCastException if the cast is not valid).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.AsNullableBoolean.html#MongoDB_Bson_BsonValue_AsNullableBoolean">AsNullableBoolean</a></dt>
+    <dd><p>Casts the BsonValue to a Nullable{Boolean} (throws an InvalidCastException if the cast is not valid).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.AsNullableDecimal.html#MongoDB_Bson_BsonValue_AsNullableDecimal">AsNullableDecimal</a></dt>
+    <dd><p>Casts the BsonValue to a Nullable{Decimal} (throws an InvalidCastException if the cast is not valid).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.AsNullableDecimal128.html#MongoDB_Bson_BsonValue_AsNullableDecimal128">AsNullableDecimal128</a></dt>
+    <dd><p>Casts the BsonValue to a Nullable{Decimal128} (throws an InvalidCastException if the cast is not valid).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.AsNullableDouble.html#MongoDB_Bson_BsonValue_AsNullableDouble">AsNullableDouble</a></dt>
+    <dd><p>Casts the BsonValue to a Nullable{Double} (throws an InvalidCastException if the cast is not valid).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.AsNullableGuid.html#MongoDB_Bson_BsonValue_AsNullableGuid">AsNullableGuid</a></dt>
+    <dd><p>Casts the BsonValue to a Nullable{Guid} (throws an InvalidCastException if the cast is not valid).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.AsNullableInt32.html#MongoDB_Bson_BsonValue_AsNullableInt32">AsNullableInt32</a></dt>
+    <dd><p>Casts the BsonValue to a Nullable{Int32} (throws an InvalidCastException if the cast is not valid).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.AsNullableInt64.html#MongoDB_Bson_BsonValue_AsNullableInt64">AsNullableInt64</a></dt>
+    <dd><p>Casts the BsonValue to a Nullable{Int64} (throws an InvalidCastException if the cast is not valid).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.AsNullableLocalTime.html#MongoDB_Bson_BsonValue_AsNullableLocalTime">AsNullableLocalTime</a></dt>
+    <dd><p>Casts the BsonValue to a Nullable{DateTime} in the local timezone (throws an InvalidCastException if the cast is not valid).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.AsNullableObjectId.html#MongoDB_Bson_BsonValue_AsNullableObjectId">AsNullableObjectId</a></dt>
+    <dd><p>Casts the BsonValue to a Nullable{ObjectId} (throws an InvalidCastException if the cast is not valid).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.AsNullableUniversalTime.html#MongoDB_Bson_BsonValue_AsNullableUniversalTime">AsNullableUniversalTime</a></dt>
+    <dd><p>Casts the BsonValue to a Nullable{DateTime} in UTC (throws an InvalidCastException if the cast is not valid).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.AsObjectId.html#MongoDB_Bson_BsonValue_AsObjectId">AsObjectId</a></dt>
+    <dd><p>Casts the BsonValue to an ObjectId (throws an InvalidCastException if the cast is not valid).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.AsRegex.html#MongoDB_Bson_BsonValue_AsRegex">AsRegex</a></dt>
+    <dd><p>Casts the BsonValue to a Regex (throws an InvalidCastException if the cast is not valid).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.AsString.html#MongoDB_Bson_BsonValue_AsString">AsString</a></dt>
+    <dd><p>Casts the BsonValue to a String (throws an InvalidCastException if the cast is not valid).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.AsUniversalTime.html#MongoDB_Bson_BsonValue_AsUniversalTime">AsUniversalTime</a></dt>
+    <dd><p>Casts the BsonValue to a DateTime in UTC (throws an InvalidCastException if the cast is not valid).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.BsonType.html#MongoDB_Bson_BsonValue_BsonType">BsonType</a></dt>
+    <dd><p>Gets the BsonType of this BsonValue.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.IsBoolean.html#MongoDB_Bson_BsonValue_IsBoolean">IsBoolean</a></dt>
+    <dd><p>Tests whether this BsonValue is a Boolean.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.IsBsonArray.html#MongoDB_Bson_BsonValue_IsBsonArray">IsBsonArray</a></dt>
+    <dd><p>Tests whether this BsonValue is a BsonArray.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.IsBsonBinaryData.html#MongoDB_Bson_BsonValue_IsBsonBinaryData">IsBsonBinaryData</a></dt>
+    <dd><p>Tests whether this BsonValue is a BsonBinaryData.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.IsBsonDateTime.html#MongoDB_Bson_BsonValue_IsBsonDateTime">IsBsonDateTime</a></dt>
+    <dd><p>Tests whether this BsonValue is a BsonDateTime.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.IsBsonDocument.html#MongoDB_Bson_BsonValue_IsBsonDocument">IsBsonDocument</a></dt>
+    <dd><p>Tests whether this BsonValue is a BsonDocument.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.IsBsonJavaScript.html#MongoDB_Bson_BsonValue_IsBsonJavaScript">IsBsonJavaScript</a></dt>
+    <dd><p>Tests whether this BsonValue is a BsonJavaScript.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.IsBsonJavaScriptWithScope.html#MongoDB_Bson_BsonValue_IsBsonJavaScriptWithScope">IsBsonJavaScriptWithScope</a></dt>
+    <dd><p>Tests whether this BsonValue is a BsonJavaScriptWithScope.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.IsBsonMaxKey.html#MongoDB_Bson_BsonValue_IsBsonMaxKey">IsBsonMaxKey</a></dt>
+    <dd><p>Tests whether this BsonValue is a BsonMaxKey.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.IsBsonMinKey.html#MongoDB_Bson_BsonValue_IsBsonMinKey">IsBsonMinKey</a></dt>
+    <dd><p>Tests whether this BsonValue is a BsonMinKey.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.IsBsonNull.html#MongoDB_Bson_BsonValue_IsBsonNull">IsBsonNull</a></dt>
+    <dd><p>Tests whether this BsonValue is a BsonNull.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.IsBsonRegularExpression.html#MongoDB_Bson_BsonValue_IsBsonRegularExpression">IsBsonRegularExpression</a></dt>
+    <dd><p>Tests whether this BsonValue is a BsonRegularExpression.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.IsBsonSymbol.html#MongoDB_Bson_BsonValue_IsBsonSymbol">IsBsonSymbol</a></dt>
+    <dd><p>Tests whether this BsonValue is a BsonSymbol .</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.IsBsonTimestamp.html#MongoDB_Bson_BsonValue_IsBsonTimestamp">IsBsonTimestamp</a></dt>
+    <dd><p>Tests whether this BsonValue is a BsonTimestamp.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.IsBsonUndefined.html#MongoDB_Bson_BsonValue_IsBsonUndefined">IsBsonUndefined</a></dt>
+    <dd><p>Tests whether this BsonValue is a BsonUndefined.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.IsDecimal128.html#MongoDB_Bson_BsonValue_IsDecimal128">IsDecimal128</a></dt>
+    <dd><p>Tests whether this BsonValue is a Decimal128.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.IsDouble.html#MongoDB_Bson_BsonValue_IsDouble">IsDouble</a></dt>
+    <dd><p>Tests whether this BsonValue is a Double.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.IsGuid.html#MongoDB_Bson_BsonValue_IsGuid">IsGuid</a></dt>
+    <dd><p>Tests whether this BsonValue is a Guid.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.IsInt32.html#MongoDB_Bson_BsonValue_IsInt32">IsInt32</a></dt>
+    <dd><p>Tests whether this BsonValue is an Int32.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.IsInt64.html#MongoDB_Bson_BsonValue_IsInt64">IsInt64</a></dt>
+    <dd><p>Tests whether this BsonValue is an Int64.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.IsNumeric.html#MongoDB_Bson_BsonValue_IsNumeric">IsNumeric</a></dt>
+    <dd><p>Tests whether this BsonValue is a numeric value.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.IsObjectId.html#MongoDB_Bson_BsonValue_IsObjectId">IsObjectId</a></dt>
+    <dd><p>Tests whether this BsonValue is an ObjectId .</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.IsString.html#MongoDB_Bson_BsonValue_IsString">IsString</a></dt>
+    <dd><p>Tests whether this BsonValue is a String.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.IsValidDateTime.html#MongoDB_Bson_BsonValue_IsValidDateTime">IsValidDateTime</a></dt>
+    <dd><p>Tests whether this BsonValue is a valid DateTime.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.Item.html#MongoDB_Bson_BsonValue_Item_System_Int32_">this[int]</a></dt>
+    <dd><p>Gets or sets a value by position (only applies to BsonDocument and BsonArray).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.Item.html#MongoDB_Bson_BsonValue_Item_System_String_">this[string]</a></dt>
+    <dd><p>Gets or sets a value by name (only applies to BsonDocument).</p>
+</dd>
+  </dl>
+
+  <h2 class="section" id="methods">Methods
+</h2>
+
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.Clone.html#MongoDB_Bson_BsonValue_Clone">Clone()</a></dt>
+    <dd><p>Creates a shallow clone of the BsonValue (see also DeepClone).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.CompareTo.html#MongoDB_Bson_BsonValue_CompareTo_MongoDB_Bson_BsonValue_">CompareTo(BsonValue)</a></dt>
+    <dd><p>Compares this BsonValue to another BsonValue.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.CompareTypeTo.html#MongoDB_Bson_BsonValue_CompareTypeTo_MongoDB_Bson_BsonValue_">CompareTypeTo(BsonValue)</a></dt>
+    <dd><p>Compares the type of this BsonValue to the type of another BsonValue.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.Create.html#MongoDB_Bson_BsonValue_Create_System_Object_">Create(object)</a></dt>
+    <dd><p>Creates a new instance of the BsonValue class.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.DeepClone.html#MongoDB_Bson_BsonValue_DeepClone">DeepClone()</a></dt>
+    <dd><p>Creates a deep clone of the BsonValue (see also Clone).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.Equals.html#MongoDB_Bson_BsonValue_Equals_MongoDB_Bson_BsonValue_">Equals(BsonValue)</a></dt>
+    <dd><p>Compares this BsonValue to another BsonValue.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.Equals.html#MongoDB_Bson_BsonValue_Equals_System_Object_">Equals(object)</a></dt>
+    <dd><p>Compares this BsonValue to another object.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.GetHashCode.html#MongoDB_Bson_BsonValue_GetHashCode">GetHashCode()</a></dt>
+    <dd><p>Gets the hash code.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.IConvertibleGetTypeCodeImplementation.html#MongoDB_Bson_BsonValue_IConvertibleGetTypeCodeImplementation">IConvertibleGetTypeCodeImplementation()</a></dt>
+    <dd><p>Implementation of the IConvertible GetTypeCode method.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.IConvertibleToBooleanImplementation.html#MongoDB_Bson_BsonValue_IConvertibleToBooleanImplementation_System_IFormatProvider_">IConvertibleToBooleanImplementation(IFormatProvider)</a></dt>
+    <dd><p>Implementation of the IConvertible ToBoolean method.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.IConvertibleToByteImplementation.html#MongoDB_Bson_BsonValue_IConvertibleToByteImplementation_System_IFormatProvider_">IConvertibleToByteImplementation(IFormatProvider)</a></dt>
+    <dd><p>Implementation of the IConvertible ToByte method.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.IConvertibleToCharImplementation.html#MongoDB_Bson_BsonValue_IConvertibleToCharImplementation_System_IFormatProvider_">IConvertibleToCharImplementation(IFormatProvider)</a></dt>
+    <dd><p>Implementation of the IConvertible ToChar method.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.IConvertibleToDateTimeImplementation.html#MongoDB_Bson_BsonValue_IConvertibleToDateTimeImplementation_System_IFormatProvider_">IConvertibleToDateTimeImplementation(IFormatProvider)</a></dt>
+    <dd><p>Implementation of the IConvertible ToDateTime method.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.IConvertibleToDecimalImplementation.html#MongoDB_Bson_BsonValue_IConvertibleToDecimalImplementation_System_IFormatProvider_">IConvertibleToDecimalImplementation(IFormatProvider)</a></dt>
+    <dd><p>Implementation of the IConvertible ToDecimal method.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.IConvertibleToDoubleImplementation.html#MongoDB_Bson_BsonValue_IConvertibleToDoubleImplementation_System_IFormatProvider_">IConvertibleToDoubleImplementation(IFormatProvider)</a></dt>
+    <dd><p>Implementation of the IConvertible ToDouble method.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.IConvertibleToInt16Implementation.html#MongoDB_Bson_BsonValue_IConvertibleToInt16Implementation_System_IFormatProvider_">IConvertibleToInt16Implementation(IFormatProvider)</a></dt>
+    <dd><p>Implementation of the IConvertible ToInt16 method.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.IConvertibleToInt32Implementation.html#MongoDB_Bson_BsonValue_IConvertibleToInt32Implementation_System_IFormatProvider_">IConvertibleToInt32Implementation(IFormatProvider)</a></dt>
+    <dd><p>Implementation of the IConvertible ToInt32 method.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.IConvertibleToInt64Implementation.html#MongoDB_Bson_BsonValue_IConvertibleToInt64Implementation_System_IFormatProvider_">IConvertibleToInt64Implementation(IFormatProvider)</a></dt>
+    <dd><p>Implementation of the IConvertible ToInt64 method.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.IConvertibleToSByteImplementation.html#MongoDB_Bson_BsonValue_IConvertibleToSByteImplementation_System_IFormatProvider_">IConvertibleToSByteImplementation(IFormatProvider)</a></dt>
+    <dd><p>Implementation of the IConvertible ToSByte method.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.IConvertibleToSingleImplementation.html#MongoDB_Bson_BsonValue_IConvertibleToSingleImplementation_System_IFormatProvider_">IConvertibleToSingleImplementation(IFormatProvider)</a></dt>
+    <dd><p>Implementation of the IConvertible ToSingle method.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.IConvertibleToStringImplementation.html#MongoDB_Bson_BsonValue_IConvertibleToStringImplementation_System_IFormatProvider_">IConvertibleToStringImplementation(IFormatProvider)</a></dt>
+    <dd><p>Implementation of the IConvertible ToString method.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.IConvertibleToUInt16Implementation.html#MongoDB_Bson_BsonValue_IConvertibleToUInt16Implementation_System_IFormatProvider_">IConvertibleToUInt16Implementation(IFormatProvider)</a></dt>
+    <dd><p>Implementation of the IConvertible ToUInt16 method.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.IConvertibleToUInt32Implementation.html#MongoDB_Bson_BsonValue_IConvertibleToUInt32Implementation_System_IFormatProvider_">IConvertibleToUInt32Implementation(IFormatProvider)</a></dt>
+    <dd><p>Implementation of the IConvertible ToUInt32 method.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.IConvertibleToUInt64Implementation.html#MongoDB_Bson_BsonValue_IConvertibleToUInt64Implementation_System_IFormatProvider_">IConvertibleToUInt64Implementation(IFormatProvider)</a></dt>
+    <dd><p>Implementation of the IConvertible ToUInt64 method.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.OperatorEqualsImplementation.html#MongoDB_Bson_BsonValue_OperatorEqualsImplementation_MongoDB_Bson_BsonValue_">OperatorEqualsImplementation(BsonValue)</a></dt>
+    <dd><p>Implementation of operator ==.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.ToBoolean.html#MongoDB_Bson_BsonValue_ToBoolean">ToBoolean()</a></dt>
+    <dd><p>Converts this BsonValue to a Boolean (using the JavaScript definition of truthiness).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.ToDecimal.html#MongoDB_Bson_BsonValue_ToDecimal">ToDecimal()</a></dt>
+    <dd><p>Converts this BsonValue to a Decimal.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.ToDecimal128.html#MongoDB_Bson_BsonValue_ToDecimal128">ToDecimal128()</a></dt>
+    <dd><p>Converts this BsonValue to a Decimal128.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.ToDouble.html#MongoDB_Bson_BsonValue_ToDouble">ToDouble()</a></dt>
+    <dd><p>Converts this BsonValue to a Double.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.ToInt32.html#MongoDB_Bson_BsonValue_ToInt32">ToInt32()</a></dt>
+    <dd><p>Converts this BsonValue to an Int32.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.ToInt64.html#MongoDB_Bson_BsonValue_ToInt64">ToInt64()</a></dt>
+    <dd><p>Converts this BsonValue to an Int64.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.ToLocalTime.html#MongoDB_Bson_BsonValue_ToLocalTime">ToLocalTime()</a></dt>
+    <dd><p>Converts this BsonValue to a DateTime in local time.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.ToNullableLocalTime.html#MongoDB_Bson_BsonValue_ToNullableLocalTime">ToNullableLocalTime()</a></dt>
+    <dd><p>Converts this BsonValue to a DateTime? in local time.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.ToNullableUniversalTime.html#MongoDB_Bson_BsonValue_ToNullableUniversalTime">ToNullableUniversalTime()</a></dt>
+    <dd><p>Converts this BsonValue to a DateTime? in UTC.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.ToUniversalTime.html#MongoDB_Bson_BsonValue_ToUniversalTime">ToUniversalTime()</a></dt>
+    <dd><p>Converts this BsonValue to a DateTime in UTC.</p>
+</dd>
+  </dl>
+
+  <h2 class="section" id="operators">Operators
+</h2>
+
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_Equality.html#MongoDB_Bson_BsonValue_op_Equality_MongoDB_Bson_BsonValue_MongoDB_Bson_BsonValue_">operator ==(BsonValue, BsonValue)</a></dt>
+    <dd><p>Compares two BsonValues.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_Explicit.html#MongoDB_Bson_BsonValue_op_Explicit_MongoDB_Bson_BsonValue__MongoDB_Bson_Decimal128">explicit operator Decimal128(BsonValue)</a></dt>
+    <dd><p>Casts a BsonValue to a <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a>.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_Explicit.html#MongoDB_Bson_BsonValue_op_Explicit_MongoDB_Bson_BsonValue__MongoDB_Bson_ObjectId">explicit operator ObjectId(BsonValue)</a></dt>
+    <dd><p>Casts a BsonValue to an ObjectId.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_Explicit.html#MongoDB_Bson_BsonValue_op_Explicit_MongoDB_Bson_BsonValue__System_Boolean">explicit operator bool(BsonValue)</a></dt>
+    <dd><p>Casts a BsonValue to a bool.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_Explicit.html#MongoDB_Bson_BsonValue_op_Explicit_MongoDB_Bson_BsonValue__System_Byte__">explicit operator byte[](BsonValue)</a></dt>
+    <dd><p>Casts a BsonValue to a byte[].</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_Explicit.html#MongoDB_Bson_BsonValue_op_Explicit_MongoDB_Bson_BsonValue__System_DateTime">explicit operator DateTime(BsonValue)</a></dt>
+    <dd><p>Casts a BsonValue to a DateTime.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_Explicit.html#MongoDB_Bson_BsonValue_op_Explicit_MongoDB_Bson_BsonValue__System_Decimal">explicit operator decimal(BsonValue)</a></dt>
+    <dd><p>Casts a BsonValue to a decimal.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_Explicit.html#MongoDB_Bson_BsonValue_op_Explicit_MongoDB_Bson_BsonValue__System_Double">explicit operator double(BsonValue)</a></dt>
+    <dd><p>Casts a BsonValue to a double.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_Explicit.html#MongoDB_Bson_BsonValue_op_Explicit_MongoDB_Bson_BsonValue__System_Guid">explicit operator Guid(BsonValue)</a></dt>
+    <dd><p>Casts a BsonValue to a Guid.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_Explicit.html#MongoDB_Bson_BsonValue_op_Explicit_MongoDB_Bson_BsonValue__System_Int32">explicit operator int(BsonValue)</a></dt>
+    <dd><p>Casts a BsonValue to an int.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_Explicit.html#MongoDB_Bson_BsonValue_op_Explicit_MongoDB_Bson_BsonValue__System_Int64">explicit operator long(BsonValue)</a></dt>
+    <dd><p>Casts a BsonValue to a long.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_Explicit.html#MongoDB_Bson_BsonValue_op_Explicit_MongoDB_Bson_BsonValue__System_Nullable_MongoDB_Bson_Decimal128_">explicit operator Decimal128?(BsonValue)</a></dt>
+    <dd><p>Casts a BsonValue to a nullable <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a>?.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_Explicit.html#MongoDB_Bson_BsonValue_op_Explicit_MongoDB_Bson_BsonValue__System_Nullable_MongoDB_Bson_ObjectId_">explicit operator ObjectId?(BsonValue)</a></dt>
+    <dd><p>Casts a BsonValue to an ObjectId?.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_Explicit.html#MongoDB_Bson_BsonValue_op_Explicit_MongoDB_Bson_BsonValue__System_Nullable_System_Boolean_">explicit operator bool?(BsonValue)</a></dt>
+    <dd><p>Casts a BsonValue to a bool?.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_Explicit.html#MongoDB_Bson_BsonValue_op_Explicit_MongoDB_Bson_BsonValue__System_Nullable_System_DateTime_">explicit operator DateTime?(BsonValue)</a></dt>
+    <dd><p>Casts a BsonValue to a DateTime?.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_Explicit.html#MongoDB_Bson_BsonValue_op_Explicit_MongoDB_Bson_BsonValue__System_Nullable_System_Decimal_">explicit operator decimal?(BsonValue)</a></dt>
+    <dd><p>Casts a BsonValue to a decimal?.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_Explicit.html#MongoDB_Bson_BsonValue_op_Explicit_MongoDB_Bson_BsonValue__System_Nullable_System_Double_">explicit operator double?(BsonValue)</a></dt>
+    <dd><p>Casts a BsonValue to a double?.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_Explicit.html#MongoDB_Bson_BsonValue_op_Explicit_MongoDB_Bson_BsonValue__System_Nullable_System_Guid_">explicit operator Guid?(BsonValue)</a></dt>
+    <dd><p>Casts a BsonValue to a Guid?.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_Explicit.html#MongoDB_Bson_BsonValue_op_Explicit_MongoDB_Bson_BsonValue__System_Nullable_System_Int32_">explicit operator int?(BsonValue)</a></dt>
+    <dd><p>Casts a BsonValue to an int?.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_Explicit.html#MongoDB_Bson_BsonValue_op_Explicit_MongoDB_Bson_BsonValue__System_Nullable_System_Int64_">explicit operator long?(BsonValue)</a></dt>
+    <dd><p>Casts a BsonValue to a long?.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_Explicit.html#MongoDB_Bson_BsonValue_op_Explicit_MongoDB_Bson_BsonValue__System_String">explicit operator string(BsonValue)</a></dt>
+    <dd><p>Casts a BsonValue to a string.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_Explicit.html#MongoDB_Bson_BsonValue_op_Explicit_MongoDB_Bson_BsonValue__System_Text_RegularExpressions_Regex">explicit operator Regex(BsonValue)</a></dt>
+    <dd><p>Casts a BsonValue to a Regex.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_GreaterThan.html#MongoDB_Bson_BsonValue_op_GreaterThan_MongoDB_Bson_BsonValue_MongoDB_Bson_BsonValue_">operator &gt;(BsonValue, BsonValue)</a></dt>
+    <dd><p>Compares two BsonValues.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_GreaterThanOrEqual.html#MongoDB_Bson_BsonValue_op_GreaterThanOrEqual_MongoDB_Bson_BsonValue_MongoDB_Bson_BsonValue_">operator &gt;=(BsonValue, BsonValue)</a></dt>
+    <dd><p>Compares two BsonValues.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_Implicit.html#MongoDB_Bson_BsonValue_op_Implicit_MongoDB_Bson_Decimal128__MongoDB_Bson_BsonValue">implicit operator BsonValue(Decimal128)</a></dt>
+    <dd><p>Converts a <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a> to a BsonValue.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_Implicit.html#MongoDB_Bson_BsonValue_op_Implicit_MongoDB_Bson_ObjectId__MongoDB_Bson_BsonValue">implicit operator BsonValue(ObjectId)</a></dt>
+    <dd><p>Converts an ObjectId to a BsonValue.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_Implicit.html#MongoDB_Bson_BsonValue_op_Implicit_System_Boolean__MongoDB_Bson_BsonValue">implicit operator BsonValue(bool)</a></dt>
+    <dd><p>Converts a bool to a BsonValue.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_Implicit.html#MongoDB_Bson_BsonValue_op_Implicit_System_Byte____MongoDB_Bson_BsonValue">implicit operator BsonValue(byte[])</a></dt>
+    <dd><p>Converts a byte[] to a BsonValue.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_Implicit.html#MongoDB_Bson_BsonValue_op_Implicit_System_DateTime__MongoDB_Bson_BsonValue">implicit operator BsonValue(DateTime)</a></dt>
+    <dd><p>Converts a DateTime to a BsonValue.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_Implicit.html#MongoDB_Bson_BsonValue_op_Implicit_System_Decimal__MongoDB_Bson_BsonValue">implicit operator BsonValue(decimal)</a></dt>
+    <dd><p>Converts a decimal to a BsonValue.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_Implicit.html#MongoDB_Bson_BsonValue_op_Implicit_System_Double__MongoDB_Bson_BsonValue">implicit operator BsonValue(double)</a></dt>
+    <dd><p>Converts a double to a BsonValue.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_Implicit.html#MongoDB_Bson_BsonValue_op_Implicit_System_Enum__MongoDB_Bson_BsonValue">implicit operator BsonValue(Enum)</a></dt>
+    <dd><p>Converts an Enum to a BsonValue.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_Implicit.html#MongoDB_Bson_BsonValue_op_Implicit_System_Int32__MongoDB_Bson_BsonValue">implicit operator BsonValue(int)</a></dt>
+    <dd><p>Converts an int to a BsonValue.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_Implicit.html#MongoDB_Bson_BsonValue_op_Implicit_System_Int64__MongoDB_Bson_BsonValue">implicit operator BsonValue(long)</a></dt>
+    <dd><p>Converts a long to a BsonValue.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_Implicit.html#MongoDB_Bson_BsonValue_op_Implicit_System_Nullable_MongoDB_Bson_Decimal128___MongoDB_Bson_BsonValue">implicit operator BsonValue(Decimal128?)</a></dt>
+    <dd><p>Converts a nullable <a class="xref" href="MongoDB.Bson.Decimal128.html">Decimal128</a> to a BsonValue.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_Implicit.html#MongoDB_Bson_BsonValue_op_Implicit_System_Nullable_MongoDB_Bson_ObjectId___MongoDB_Bson_BsonValue">implicit operator BsonValue(ObjectId?)</a></dt>
+    <dd><p>Converts an ObjectId? to a BsonValue.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_Implicit.html#MongoDB_Bson_BsonValue_op_Implicit_System_Nullable_System_Boolean___MongoDB_Bson_BsonValue">implicit operator BsonValue(bool?)</a></dt>
+    <dd><p>Converts a bool? to a BsonValue.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_Implicit.html#MongoDB_Bson_BsonValue_op_Implicit_System_Nullable_System_DateTime___MongoDB_Bson_BsonValue">implicit operator BsonValue(DateTime?)</a></dt>
+    <dd><p>Converts a DateTime? to a BsonValue.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_Implicit.html#MongoDB_Bson_BsonValue_op_Implicit_System_Nullable_System_Decimal___MongoDB_Bson_BsonValue">implicit operator BsonValue(decimal?)</a></dt>
+    <dd><p>Converts a decimal? to a BsonValue.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_Implicit.html#MongoDB_Bson_BsonValue_op_Implicit_System_Nullable_System_Double___MongoDB_Bson_BsonValue">implicit operator BsonValue(double?)</a></dt>
+    <dd><p>Converts a double? to a BsonValue.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_Implicit.html#MongoDB_Bson_BsonValue_op_Implicit_System_Nullable_System_Int32___MongoDB_Bson_BsonValue">implicit operator BsonValue(int?)</a></dt>
+    <dd><p>Converts an int? to a BsonValue.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_Implicit.html#MongoDB_Bson_BsonValue_op_Implicit_System_Nullable_System_Int64___MongoDB_Bson_BsonValue">implicit operator BsonValue(long?)</a></dt>
+    <dd><p>Converts a long? to a BsonValue.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_Implicit.html#MongoDB_Bson_BsonValue_op_Implicit_System_String__MongoDB_Bson_BsonValue">implicit operator BsonValue(string)</a></dt>
+    <dd><p>Converts a string to a BsonValue.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_Implicit.html#MongoDB_Bson_BsonValue_op_Implicit_System_Text_RegularExpressions_Regex__MongoDB_Bson_BsonValue">implicit operator BsonValue(Regex)</a></dt>
+    <dd><p>Converts a Regex to a BsonValue.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_Inequality.html#MongoDB_Bson_BsonValue_op_Inequality_MongoDB_Bson_BsonValue_MongoDB_Bson_BsonValue_">operator !=(BsonValue, BsonValue)</a></dt>
+    <dd><p>Compares two BsonValues.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_LessThan.html#MongoDB_Bson_BsonValue_op_LessThan_MongoDB_Bson_BsonValue_MongoDB_Bson_BsonValue_">operator &lt;(BsonValue, BsonValue)</a></dt>
+    <dd><p>Compares two BsonValues.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.BsonValue.op_LessThanOrEqual.html#MongoDB_Bson_BsonValue_op_LessThanOrEqual_MongoDB_Bson_BsonValue_MongoDB_Bson_BsonValue_">operator &lt;=(BsonValue, BsonValue)</a></dt>
+    <dd><p>Compares two BsonValues.</p>
+</dd>
+  </dl>
+
+
+
+</article>
+
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          &copy; 2023 MongoDB, Inc.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

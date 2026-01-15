@@ -1,0 +1,374 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>Class BsonMemberMap
+ | MongoDB CSharp Driver API Reference </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Class BsonMemberMap
+ | MongoDB CSharp Driver API Reference ">
+      
+      <link rel="icon" href="../../images/favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/mongodb/mongo-csharp-driver/new/main/apiSpec/new?filename=MongoDB_Bson_Serialization_BsonMemberMap.md&amp;value=---%0Auid%3A%20MongoDB.Bson.Serialization.BsonMemberMap%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+  </head>
+
+  <script type="module" src="./../../public/docfx.min.js"></script>
+
+  <script>
+    const theme = localStorage.getItem('theme') || 'auto'
+    document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+  </script>
+
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../images/mongodb-logo.svg" alt="">
+            
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+      <div class="toc-offcanvas">
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tocOffcanvasLabel">Table of Contents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#tocOffcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <nav class="toc" id="toc"></nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actionbar">
+          <button class="btn btn-lg border-0 d-md-none" style="margin-top: -.65em; margin-left: -.8em" type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas" aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="MongoDB.Bson.Serialization.BsonMemberMap">
+
+
+
+  <h1 id="MongoDB_Bson_Serialization_BsonMemberMap" data-uid="MongoDB.Bson.Serialization.BsonMemberMap" class="text-break">
+    Class BsonMemberMap
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/main/src/MongoDB.Bson/Serialization/BsonMemberMap.cs/#L26"><i class="bi bi-code-slash"></i></a>
+  </h1>
+
+  <div class="facts text-secondary">
+    <dl><dt>Namespace</dt><dd><a class="xref" href="MongoDB.html">MongoDB</a>.<a class="xref" href="MongoDB.Bson.html">Bson</a>.<a class="xref" href="MongoDB.Bson.Serialization.html">Serialization</a></dd></dl>
+  <dl><dt>Assembly</dt><dd>MongoDB.Bson.dll</dd></dl>
+  </div>
+
+  <div class="markdown summary"><p>Represents the mapping between a field or property and a BSON element.</p>
+</div>
+  <div class="markdown conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public class BsonMemberMap</code></pre>
+  </div>
+
+
+
+
+  <dl class="typelist inheritance">
+    <dt>Inheritance</dt>
+    <dd>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></div>
+      <div><span class="xref">BsonMemberMap</span></div>
+    </dd>
+  </dl>
+
+
+
+  <dl class="typelist derived">
+    <dt>Inherited Members</dt>
+    <dd>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)">object.Equals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gettype">object.GetType()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone">object.MemberwiseClone()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.referenceequals">object.ReferenceEquals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.tostring">object.ToString()</a>
+    </div>
+  </dd></dl>
+
+  <dl class="typelist extensionMethods">
+    <dt>Extension Methods</dt>
+    <dd>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.ToBsonDocument.html#MongoDB_Bson_BsonExtensionMethods_ToBsonDocument__1___0_MongoDB_Bson_Serialization_IBsonSerializer___0__System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_">BsonExtensionMethods.ToBsonDocument&lt;TNominalType&gt;(TNominalType, IBsonSerializer&lt;TNominalType&gt;, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.ToBson.html#MongoDB_Bson_BsonExtensionMethods_ToBson__1___0_MongoDB_Bson_Serialization_IBsonSerializer___0__MongoDB_Bson_IO_BsonBinaryWriterSettings_System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_System_Int32_">BsonExtensionMethods.ToBson&lt;TNominalType&gt;(TNominalType, IBsonSerializer&lt;TNominalType&gt;, BsonBinaryWriterSettings, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs, int)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.ToJson.html#MongoDB_Bson_BsonExtensionMethods_ToJson__1___0_MongoDB_Bson_IO_JsonWriterSettings_MongoDB_Bson_Serialization_IBsonSerializer___0__System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_">BsonExtensionMethods.ToJson&lt;TNominalType&gt;(TNominalType, JsonWriterSettings, IBsonSerializer&lt;TNominalType&gt;, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.ToBson.html#MongoDB_Bson_BsonExtensionMethods_ToBson_System_Object_System_Type_MongoDB_Bson_IO_BsonBinaryWriterSettings_MongoDB_Bson_Serialization_IBsonSerializer_System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_System_Int32_">BsonExtensionMethods.ToBson(object, Type, BsonBinaryWriterSettings, IBsonSerializer, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs, int)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.ToBsonDocument.html#MongoDB_Bson_BsonExtensionMethods_ToBsonDocument_System_Object_System_Type_MongoDB_Bson_Serialization_IBsonSerializer_System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_">BsonExtensionMethods.ToBsonDocument(object, Type, IBsonSerializer, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.ToJson.html#MongoDB_Bson_BsonExtensionMethods_ToJson_System_Object_System_Type_MongoDB_Bson_IO_JsonWriterSettings_MongoDB_Bson_Serialization_IBsonSerializer_System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_">BsonExtensionMethods.ToJson(object, Type, JsonWriterSettings, IBsonSerializer, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs)</a>
+  </div>
+  </dd></dl>
+
+
+
+
+  <h2 class="section" id="constructors">Constructors
+</h2>
+
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonMemberMap.-ctor.html#MongoDB_Bson_Serialization_BsonMemberMap__ctor_MongoDB_Bson_Serialization_BsonClassMap_System_Reflection_MemberInfo_">BsonMemberMap(BsonClassMap, MemberInfo)</a></dt>
+    <dd><p>Initializes a new instance of the BsonMemberMap class.</p>
+</dd>
+  </dl>
+
+  <h2 class="section" id="properties">Properties
+</h2>
+
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonMemberMap.ClassMap.html#MongoDB_Bson_Serialization_BsonMemberMap_ClassMap">ClassMap</a></dt>
+    <dd><p>Gets the class map that this member map belongs to.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonMemberMap.DefaultValue.html#MongoDB_Bson_Serialization_BsonMemberMap_DefaultValue">DefaultValue</a></dt>
+    <dd><p>Gets the default value.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonMemberMap.ElementName.html#MongoDB_Bson_Serialization_BsonMemberMap_ElementName">ElementName</a></dt>
+    <dd><p>Gets the name of the element.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonMemberMap.Getter.html#MongoDB_Bson_Serialization_BsonMemberMap_Getter">Getter</a></dt>
+    <dd><p>Gets the getter function.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonMemberMap.IdGenerator.html#MongoDB_Bson_Serialization_BsonMemberMap_IdGenerator">IdGenerator</a></dt>
+    <dd><p>Gets the Id generator.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonMemberMap.IgnoreIfDefault.html#MongoDB_Bson_Serialization_BsonMemberMap_IgnoreIfDefault">IgnoreIfDefault</a></dt>
+    <dd><p>Gets whether default values should be ignored when serialized.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonMemberMap.IgnoreIfNull.html#MongoDB_Bson_Serialization_BsonMemberMap_IgnoreIfNull">IgnoreIfNull</a></dt>
+    <dd><p>Gets whether null values should be ignored when serialized.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonMemberMap.IsDefaultValueSpecified.html#MongoDB_Bson_Serialization_BsonMemberMap_IsDefaultValueSpecified">IsDefaultValueSpecified</a></dt>
+    <dd><p>Gets whether a default value was specified.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonMemberMap.IsReadOnly.html#MongoDB_Bson_Serialization_BsonMemberMap_IsReadOnly">IsReadOnly</a></dt>
+    <dd><p>Gets whether the member is readonly.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonMemberMap.IsRequired.html#MongoDB_Bson_Serialization_BsonMemberMap_IsRequired">IsRequired</a></dt>
+    <dd><p>Gets whether an element is required for this member when deserialized.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonMemberMap.MemberInfo.html#MongoDB_Bson_Serialization_BsonMemberMap_MemberInfo">MemberInfo</a></dt>
+    <dd><p>Gets the member info.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonMemberMap.MemberName.html#MongoDB_Bson_Serialization_BsonMemberMap_MemberName">MemberName</a></dt>
+    <dd><p>Gets the name of the member.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonMemberMap.MemberType.html#MongoDB_Bson_Serialization_BsonMemberMap_MemberType">MemberType</a></dt>
+    <dd><p>Gets the type of the member.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonMemberMap.MemberTypeIsBsonValue.html#MongoDB_Bson_Serialization_BsonMemberMap_MemberTypeIsBsonValue">MemberTypeIsBsonValue</a></dt>
+    <dd><p>Gets whether the member type is a BsonValue.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonMemberMap.Order.html#MongoDB_Bson_Serialization_BsonMemberMap_Order">Order</a></dt>
+    <dd><p>Gets the serialization order.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonMemberMap.Setter.html#MongoDB_Bson_Serialization_BsonMemberMap_Setter">Setter</a></dt>
+    <dd><p>Gets the setter function.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonMemberMap.ShouldSerializeMethod.html#MongoDB_Bson_Serialization_BsonMemberMap_ShouldSerializeMethod">ShouldSerializeMethod</a></dt>
+    <dd><p>Gets the method that will be called to determine whether the member should be serialized.</p>
+</dd>
+  </dl>
+
+  <h2 class="section" id="methods">Methods
+</h2>
+
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonMemberMap.ApplyDefaultValue.html#MongoDB_Bson_Serialization_BsonMemberMap_ApplyDefaultValue_System_Object_">ApplyDefaultValue(object)</a></dt>
+    <dd><p>Applies the default value to the member of an object.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonMemberMap.Equals.html#MongoDB_Bson_Serialization_BsonMemberMap_Equals_System_Object_">Equals(object)</a></dt>
+    <dd><p>Determines whether the specified object is equal to the current object.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonMemberMap.Freeze.html#MongoDB_Bson_Serialization_BsonMemberMap_Freeze">Freeze()</a></dt>
+    <dd><p>Freezes this instance.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonMemberMap.GetHashCode.html#MongoDB_Bson_Serialization_BsonMemberMap_GetHashCode">GetHashCode()</a></dt>
+    <dd><p>Serves as the default hash function.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonMemberMap.GetSerializer.html#MongoDB_Bson_Serialization_BsonMemberMap_GetSerializer">GetSerializer()</a></dt>
+    <dd><p>Gets the serializer.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonMemberMap.Reset.html#MongoDB_Bson_Serialization_BsonMemberMap_Reset">Reset()</a></dt>
+    <dd><p>Resets the member map back to its initial state.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonMemberMap.SetDefaultValue.html#MongoDB_Bson_Serialization_BsonMemberMap_SetDefaultValue_System_Func_System_Object__">SetDefaultValue(Func&lt;object&gt;)</a></dt>
+    <dd><p>Sets the default value creator.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonMemberMap.SetDefaultValue.html#MongoDB_Bson_Serialization_BsonMemberMap_SetDefaultValue_System_Object_">SetDefaultValue(object)</a></dt>
+    <dd><p>Sets the default value.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonMemberMap.SetElementName.html#MongoDB_Bson_Serialization_BsonMemberMap_SetElementName_System_String_">SetElementName(string)</a></dt>
+    <dd><p>Sets the name of the element.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonMemberMap.SetIdGenerator.html#MongoDB_Bson_Serialization_BsonMemberMap_SetIdGenerator_MongoDB_Bson_Serialization_IIdGenerator_">SetIdGenerator(IIdGenerator)</a></dt>
+    <dd><p>Sets the Id generator.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonMemberMap.SetIgnoreIfDefault.html#MongoDB_Bson_Serialization_BsonMemberMap_SetIgnoreIfDefault_System_Boolean_">SetIgnoreIfDefault(bool)</a></dt>
+    <dd><p>Sets whether default values should be ignored when serialized.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonMemberMap.SetIgnoreIfNull.html#MongoDB_Bson_Serialization_BsonMemberMap_SetIgnoreIfNull_System_Boolean_">SetIgnoreIfNull(bool)</a></dt>
+    <dd><p>Sets whether null values should be ignored when serialized.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonMemberMap.SetIsRequired.html#MongoDB_Bson_Serialization_BsonMemberMap_SetIsRequired_System_Boolean_">SetIsRequired(bool)</a></dt>
+    <dd><p>Sets whether an element is required for this member when deserialized</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonMemberMap.SetOrder.html#MongoDB_Bson_Serialization_BsonMemberMap_SetOrder_System_Int32_">SetOrder(int)</a></dt>
+    <dd><p>Sets the serialization order.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonMemberMap.SetSerializer.html#MongoDB_Bson_Serialization_BsonMemberMap_SetSerializer_MongoDB_Bson_Serialization_IBsonSerializer_">SetSerializer(IBsonSerializer)</a></dt>
+    <dd><p>Sets the serializer.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonMemberMap.SetShouldSerializeMethod.html#MongoDB_Bson_Serialization_BsonMemberMap_SetShouldSerializeMethod_System_Func_System_Object_System_Boolean__">SetShouldSerializeMethod(Func&lt;object, bool&gt;)</a></dt>
+    <dd><p>Sets the method that will be called to determine whether the member should be serialized.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.BsonMemberMap.ShouldSerialize.html#MongoDB_Bson_Serialization_BsonMemberMap_ShouldSerialize_System_Object_System_Object_">ShouldSerialize(object, object)</a></dt>
+    <dd><p>Determines whether a value should be serialized</p>
+</dd>
+  </dl>
+
+
+
+</article>
+
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          &copy; 2023 MongoDB, Inc.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
