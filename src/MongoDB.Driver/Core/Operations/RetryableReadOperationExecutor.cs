@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Core.Operations
         public static TResult Execute<TResult>(OperationContext operationContext, IRetryableReadOperation<TResult> operation, RetryableReadContext context)
         {
             HashSet<ServerDescription> deprioritizedServers = null;
-            var attempt = 0;  //TODO This is to keep consistence with the withTransaction work
+            var attempt = 0;  // TODO This is to keep consistency with the withTransaction work
             Exception originalException = null;
             bool isSystemOverloaded = false;
 
@@ -77,9 +77,9 @@ namespace MongoDB.Driver.Core.Operations
 
                 if (isSystemOverloaded)
                 {
-                    var backoff = TimeSpan.FromMilliseconds(10); //TODO Get the right value;
+                    var backoff = GetBackoffDelay(attempt);
 
-                    if (IsTimedOut(operationContext, backoff) || tokenBucket.Consume(1))
+                    if (IsTimedOut(operationContext, backoff) || !tokenBucket.Consume(1))
                     {
                         throw originalException;
                     }
@@ -98,17 +98,6 @@ namespace MongoDB.Driver.Core.Operations
 
                 attempt++;
             }
-        }
-
-        //TODO Move in right place
-        private static bool IsTimedOut(OperationContext operationContext, TimeSpan delay = default)
-        {
-            if (operationContext.Timeout.HasValue)
-            {
-                return operationContext.Elapsed + delay >= operationContext.Timeout;
-            }
-
-            return false;
         }
 
         public static async Task<TResult> ExecuteAsync<TResult>(OperationContext operationContext, IRetryableReadOperation<TResult> operation, RetryableReadContext context)
@@ -158,8 +147,7 @@ namespace MongoDB.Driver.Core.Operations
             return IsRetryableRead(operationContext, context, innerException, attempt);
         }
 
-        //TODO Do we ever check that the server is at least version 3.6 (wire version 6) to be sure the server supports retryable reads?
-        //It seems we don't, maybe checking if we get a retryable read error is enough?
+        // TODO Do we ever check that the server is at least version 3.6 (wire version 6) to be sure the server supports retryable reads? It seems we don't, maybe checking if we get a retryable read error is enough?
         // private static methods
         private static bool IsRetryableRead(OperationContext operationContext, RetryableReadContext context, Exception exception, int attempt)
         {
@@ -176,5 +164,23 @@ namespace MongoDB.Driver.Core.Operations
             //TODO Do we need to keep this first check here?
             return operationContext.IsRootContextTimeoutConfigured() || attempt < 2;
         }
+
+        // TODO Move in right place and add the correct logic
+        private static TimeSpan GetBackoffDelay(int attempt)
+        {
+            return TimeSpan.FromSeconds(2);
+        }
+
+        // TODO Move in right place
+        private static bool IsTimedOut(OperationContext operationContext, TimeSpan delay = default)
+        {
+            if (operationContext.Timeout.HasValue)
+            {
+                return operationContext.Elapsed + delay >= operationContext.Timeout;
+            }
+
+            return false;
+        }
+
     }
 }
