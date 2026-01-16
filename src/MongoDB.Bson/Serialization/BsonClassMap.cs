@@ -52,6 +52,7 @@ namespace MongoDB.Bson.Serialization
         private Func<object> _creator;
         private string _discriminator;
         private bool _discriminatorIsRequired;
+        private BsonMemberMap _discriminatorMemberMap;
         private bool _hasRootClass;
         private bool _isRootClass;
         private BsonMemberMap _idMemberMap;
@@ -154,6 +155,14 @@ namespace MongoDB.Bson.Serialization
         public bool DiscriminatorIsRequired
         {
             get { return _discriminatorIsRequired; }
+        }
+
+        /// <summary>
+        /// Gets the discriminator member map (null if none).
+        /// </summary>
+        public BsonMemberMap DiscriminatorMemberMap
+        {
+            get { return _discriminatorMemberMap; }
         }
 
         /// <summary>
@@ -634,6 +643,15 @@ namespace MongoDB.Bson.Serialization
                             {
                                 // conventions could have set this to an improper value
                                 _idMemberMap.SetElementName("_id");
+                            }
+                        }
+
+                        if (_discriminatorMemberMap == null)
+                        {
+                            // see if we can inherit the discriminatorMemberMap from our base class
+                            if (_baseClassMap != null)
+                            {
+                                _discriminatorMemberMap = _baseClassMap.DiscriminatorMemberMap;
                             }
                         }
 
@@ -1119,6 +1137,29 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
+        /// Sets the discriminator member.
+        /// </summary>
+        /// <param name="memberMap">The discriminator member (null if none).</param>
+        public void SetDiscriminatorMember(BsonMemberMap memberMap)
+        {
+            if (memberMap != null)
+            {
+                EnsureMemberMapIsForThisClass(memberMap);
+
+                if (memberMap.MemberInfo is not PropertyInfo propertyInfo ||
+                    propertyInfo.CanWrite ||
+                    !propertyInfo.GetMethod.IsVirtual)
+                {
+                    throw new ArgumentException("The discriminator member must be a virtual read-only property.", nameof(memberMap));
+                }
+            }
+
+            if (_frozen) { ThrowFrozenException(); }
+
+            _discriminatorMemberMap = memberMap;
+        }
+
+        /// <summary>
         /// Sets the member map of the member used to hold extra elements.
         /// </summary>
         /// <param name="memberMap">The extra elements member map.</param>
@@ -1329,7 +1370,17 @@ namespace MongoDB.Bson.Serialization
 
                 if (discriminatorConvention != null)
                 {
-                    EnsureNoMemberMapConflicts(discriminatorConvention.ElementName);
+                    if (_discriminatorMemberMap == null)
+                    {
+                        EnsureNoMemberMapConflicts(discriminatorConvention.ElementName);
+                    }
+                    else
+                    {
+                        if (_discriminatorMemberMap.ElementName != discriminatorConvention.ElementName)
+                        {
+                            throw new BsonSerializationException("Discriminator convention and disciminator map element names do not match.");
+                        }
+                    }
                 }
             }
 
