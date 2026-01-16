@@ -34,6 +34,7 @@ namespace MongoDB.Driver
         private readonly ICoreSessionHandle _coreSession;
         private bool _disposed;
         private readonly ClientSessionOptions _options;
+        private readonly IRandom _random;
         private IServerSession _serverSession;
 
         // constructors
@@ -44,16 +45,17 @@ namespace MongoDB.Driver
         /// <param name="options">The options.</param>
         /// <param name="coreSession">The wrapped session.</param>
         public ClientSessionHandle(IMongoClient client, ClientSessionOptions options, ICoreSessionHandle coreSession)
-            : this(client, options, coreSession, SystemClock.Instance)
+            : this(client, options, coreSession, SystemClock.Instance, DefaultRandom.Instance)
         {
         }
 
-        internal ClientSessionHandle(IMongoClient client, ClientSessionOptions options, ICoreSessionHandle coreSession, IClock clock)
+        internal ClientSessionHandle(IMongoClient client, ClientSessionOptions options, ICoreSessionHandle coreSession, IClock clock, IRandom random)
         {
             _client = client;
             _options = options;
             _coreSession = coreSession;
             _clock = clock;
+            _random = random;
         }
 
         // public properties
@@ -166,7 +168,7 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(callback, nameof(callback));
 
-            return TransactionExecutor.ExecuteWithRetries(this, callback, transactionOptions, _clock, cancellationToken);
+            return TransactionExecutor.ExecuteWithRetries(this, callback, transactionOptions, _clock, _random, cancellationToken);
         }
 
         /// <inheritdoc />
@@ -174,7 +176,7 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(callbackAsync, nameof(callbackAsync));
 
-            return TransactionExecutor.ExecuteWithRetriesAsync(this, callbackAsync, transactionOptions, _clock, cancellationToken);
+            return TransactionExecutor.ExecuteWithRetriesAsync(this, callbackAsync, transactionOptions, _clock, _random, cancellationToken);
         }
 
         private TransactionOptions GetEffectiveTransactionOptions(TransactionOptions transactionOptions)

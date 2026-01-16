@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,6 +25,7 @@ using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.TestHelpers;
 using Moq;
 using Xunit;
@@ -629,6 +631,50 @@ namespace MongoDB.Driver.Tests
             mockCoreSession.Verify(handle => handle.CommitTransaction(It.IsAny<CancellationToken>()), Times.Once);
         }
 
+        // This is an equivalent to the prose test described at https://github.com/mongodb/specifications/blob/192976b194afdb1f458cbba2530c73de6b2c700f/source/transactions-convenient-api/tests/README.md?plain=1#L44
+        // It's much harder to substitute at the mongoClient level for now, so we will have the tests for ClientSessionHandle instead
+        [Theory]
+        [ParameterAttributeData]
+        public async Task WithTransaction_retry_backoff_is_enforced([Values(true, false)] bool async)
+        {
+            var randomNumberGeneratorMock = new Mock<IRandom>();
+            var coreSessionMock = CreateCoreSessionMock();
+            var subject = CreateSubject(coreSession: coreSessionMock.Object, random: randomNumberGeneratorMock.Object);
+
+            var noBackoffTimeMs = await ExecuteWithTransactionAsync(0);
+            var backoffTimeMs = await ExecuteWithTransactionAsync(1);
+
+            backoffTimeMs.Should().BeApproximately(noBackoffTimeMs + 1800, 150);
+
+            async Task<double> ExecuteWithTransactionAsync(double randomValue)
+            {
+                randomNumberGeneratorMock.Reset();
+                randomNumberGeneratorMock.Setup(r => r.NextDouble()).Returns(randomValue);
+                ConfigureCoreSessionMock(coreSessionMock);
+
+                var sw = Stopwatch.StartNew();
+                _ = async ?
+                    await subject.WithTransactionAsync((_, _) => Task.FromResult(true)) :
+                    subject.WithTransaction((_, _) => true);
+
+                return sw.Elapsed.TotalMilliseconds;
+            }
+
+            void ConfigureCoreSessionMock(Mock<ICoreSessionHandle> coreSession)
+            {
+                var commitSync = coreSession.SetupSequence(s => s.CommitTransaction(It.IsAny<CancellationToken>()));
+                var commitAsync = coreSession.SetupSequence(s => s.CommitTransactionAsync(It.IsAny<CancellationToken>()));
+                for (var i = 0; i < 13; i++)
+                {
+                    commitSync.Throws(PrepareException(WithTransactionErrorState.TransientTransactionError));
+                    commitAsync.Throws(PrepareException(WithTransactionErrorState.TransientTransactionError));
+                }
+
+                commitSync.Pass();
+                commitAsync.Returns(Task.CompletedTask);
+            }
+        }
+
         // private methods
         private Mock<ICoreSessionHandle> CreateCoreSessionMock(
             ICoreServerSession serverSession = null,
@@ -656,13 +702,15 @@ namespace MongoDB.Driver.Tests
             IMongoClient client = null,
             ClientSessionOptions options = null,
             ICoreSessionHandle coreSession = null,
-            IClock clock = null)
+            IClock clock = null,
+            IRandom random = null)
         {
-            client = client ?? Mock.Of<IMongoClient>();
-            options = options ?? new ClientSessionOptions();
-            coreSession = coreSession ?? CreateCoreSession(options: options.ToCore());
-            clock = clock ?? SystemClock.Instance;
-            return new ClientSessionHandle(client, options, coreSession, clock);
+            client ??= Mock.Of<IMongoClient>();
+            options ??= new ClientSessionOptions();
+            coreSession ??= CreateCoreSession(options: options.ToCore());
+            clock ??= SystemClock.Instance;
+            random ??= DefaultRandom.Instance;
+            return new ClientSessionHandle(client, options, coreSession, clock, random);
         }
 
         private MongoException PrepareException(WithTransactionErrorState state)

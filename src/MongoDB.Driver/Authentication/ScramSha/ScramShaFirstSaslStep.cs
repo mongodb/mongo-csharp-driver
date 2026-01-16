@@ -25,13 +25,13 @@ namespace MongoDB.Driver.Authentication.ScramSha
         private readonly IScramShaAlgorithm _algorithm;
         private readonly ScramCache _cache;
         private readonly UsernamePasswordCredential _credential;
-        private readonly IRandomStringGenerator _randomStringGenerator;
+        private readonly IRandom _random;
 
-        public ScramShaFirstSaslStep(IScramShaAlgorithm algorithm, UsernamePasswordCredential credential, IRandomStringGenerator randomStringGenerator, ScramCache cache)
+        public ScramShaFirstSaslStep(IScramShaAlgorithm algorithm, UsernamePasswordCredential credential, IRandom random, ScramCache cache)
         {
             _algorithm = algorithm;
             _credential = credential;
-            _randomStringGenerator = randomStringGenerator;
+            _random = random;
             _cache = cache;
         }
 
@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Authentication.ScramSha
         {
             const string legalCharacters = "!\"#$%&'()*+-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
 
-            return _randomStringGenerator.Generate(20, legalCharacters);
+            return _random.GenerateString(20, legalCharacters);
         }
 
         private string PrepUsername(string username)

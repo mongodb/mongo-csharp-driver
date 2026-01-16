@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,10 +13,12 @@
 * limitations under the License.
 */
 
-namespace MongoDB.Driver.Core.Misc
+namespace MongoDB.Driver.Core.Misc;
+
+internal interface IRandom
 {
-    internal interface IRandomStringGenerator
-    {
-        string Generate(int length, string legalCharacters);
-    }
+    string GenerateString(int length, string legalCharacters);
+
+    double NextDouble();
 }
+
