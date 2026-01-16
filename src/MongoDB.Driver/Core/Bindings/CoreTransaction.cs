@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System.Diagnostics;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Servers;
 
@@ -32,6 +33,9 @@ namespace MongoDB.Driver.Core.Bindings
         private readonly long _transactionNumber;
         private readonly TransactionOptions _transactionOptions;
         private readonly object _lock = new object();
+        private Activity _transactionActivity;
+        private Activity _parentActivity;
+        private readonly bool _isTracingEnabled;
 
         // public constructors
         /// <summary>
@@ -40,9 +44,21 @@ namespace MongoDB.Driver.Core.Bindings
         /// <param name="transactionNumber">The transaction number.</param>
         /// <param name="transactionOptions">The transaction options.</param>
         public CoreTransaction(long transactionNumber, TransactionOptions transactionOptions)
+            : this(transactionNumber, transactionOptions, isTracingEnabled: false)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CoreTransaction" /> class.
+        /// </summary>
+        /// <param name="transactionNumber">The transaction number.</param>
+        /// <param name="transactionOptions">The transaction options.</param>
+        /// <param name="isTracingEnabled">Whether OpenTelemetry tracing is enabled for this transaction.</param>
+        internal CoreTransaction(long transactionNumber, TransactionOptions transactionOptions, bool isTracingEnabled)
         {
             _transactionNumber = transactionNumber;
             _transactionOptions = transactionOptions;
+            _isTracingEnabled = isTracingEnabled;
             _state = CoreTransactionState.Starting;
             _isEmpty = true;
         }
@@ -57,6 +73,29 @@ namespace MongoDB.Driver.Core.Bindings
         public bool IsEmpty => _isEmpty;
 
         internal OperationContext OperationContext { get; set; }
+
+        /// <summary>
+        /// Gets or sets the transaction activity (for OpenTelemetry tracing).
+        /// </summary>
+        internal Activity TransactionActivity
+        {
+            get => _transactionActivity;
+            set => _transactionActivity = value;
+        }
+
+        /// <summary>
+        /// Gets or sets the parent activity to restore after the transaction completes.
+        /// </summary>
+        internal Activity ParentActivity
+        {
+            get => _parentActivity;
+            set => _parentActivity = value;
+        }
+
+        /// <summary>
+        /// Gets whether OpenTelemetry tracing is enabled for this transaction.
+        /// </summary>
+        internal bool IsTracingEnabled => _isTracingEnabled;
 
         /// <summary>
         /// Gets the transaction state.
@@ -138,6 +177,8 @@ namespace MongoDB.Driver.Core.Bindings
                 _pinnedChannel?.Dispose();
                 _pinnedChannel = null;
                 _pinnedServer = null;
+                _transactionActivity?.Dispose();
+                _transactionActivity = null;
             }
         }
     }

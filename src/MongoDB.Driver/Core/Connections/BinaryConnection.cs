@@ -68,6 +68,7 @@ namespace MongoDB.Driver.Core.Connections
             IConnectionInitializer connectionInitializer,
             IEventSubscriber eventSubscriber,
             ILoggerFactory loggerFactory,
+            TracingOptions tracingOptions,
             TimeSpan socketReadTimeout,
             TimeSpan socketWriteTimeout)
         {
@@ -83,7 +84,7 @@ namespace MongoDB.Driver.Core.Connections
 
             _compressorSource = new CompressorSource(settings.Compressors);
             _eventLogger = loggerFactory.CreateEventLogger<LogCategories.Connection>(eventSubscriber);
-            _commandEventHelper = new CommandEventHelper(loggerFactory.CreateEventLogger<LogCategories.Command>(eventSubscriber));
+            _commandEventHelper = new CommandEventHelper(loggerFactory.CreateEventLogger<LogCategories.Command>(eventSubscriber), tracingOptions);
             _socketReadTimeout = socketReadTimeout;
             _socketWriteTimeout = socketWriteTimeout;
         }
