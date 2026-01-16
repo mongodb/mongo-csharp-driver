@@ -64,12 +64,13 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             var find = collection.Find(x => x.A.Any(v => v == 2 || v > 3));
 
             var renderedFilter = TranslateFindFilter(collection, find);
-            var results = find.ToList().OrderBy(x => x.Id).ToList();
 
-            // the ideal translation would be { Roles : { $elemMatch : { $or : [{ $eq : 2 }, { $gt : 3 }] } } }
+            // the ideal translation would be { A : { $elemMatch : { $or : [{ $eq : 2 }, { $gt : 3 }] } } }
             // but the server does not support implied element names in combination with $or
             // see: https://jira.mongodb.org/browse/SERVER-93020
-            renderedFilter.Should().Be("{ $expr : { $anyElementTrue : { $map : { input : '$A', as : 'v', in : { $or : [{ $eq : ['$$v', 2] }, { $gt : ['$$v', 3] }] } } } } }");
+            renderedFilter.Should().Be("{ $or : [{ A : { $elemMatch : { $eq : 2 } } }, { A : { $elemMatch : { $gt : 3 } } }] }");
+
+            var results = find.ToList().OrderBy(x => x.Id).ToList();
             results.Select(x => x.Id).Should().Equal(2, 4);
         }
 
