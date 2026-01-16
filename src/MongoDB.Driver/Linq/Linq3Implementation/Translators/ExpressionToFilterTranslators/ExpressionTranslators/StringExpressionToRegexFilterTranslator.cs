@@ -634,7 +634,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 }
             }
 
+            if (comparisonOperator != AstComparisonFilterOperator.Eq && comparisonOperator != AstComparisonFilterOperator.Ne)
+            {
+                throw new ExpressionNotSupportedException(expression, because: $"comparison operator {comparisonOperator} is not supported");
+            }
+
             var comparand = rightExpression.GetConstantValue<int>(containingExpression: expression);
+            if (comparand < 0)
+            {
+                throw new ExpressionNotSupportedException(expression, because: "comparison to negative values is not supported");
+            }
 
             if (method.IsOneOf(__indexOfAnyMethods, __indexOfWithCharMethods))
             {
