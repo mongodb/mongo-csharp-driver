@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             throw new InvalidOperationException($"Could not find IEnumerable<T> interface of type: {enumerableType}.");
         }
 
-        public static bool Implements(this Type type, Type @interface)
+        public static bool ImplementsInterface(this Type type, Type @interface)
         {
             if (type == @interface)
             {
@@ -102,6 +102,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 
         public static bool ImplementsDictionaryInterface(this Type type, out Type keyType, out Type valueType)
         {
+            // note: returns true for IReadOnlyDictionary also
             if (TryGetGenericInterface(type, __dictionaryInterfaceDefinitions, out var dictionaryInterface))
             {
                 var genericArguments = dictionaryInterface.GetGenericArguments();
@@ -146,11 +147,54 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             return false;
         }
 
+        public static bool ImplementsIOrderedEnumerable(this Type type, out Type itemType)
+        {
+            if (TryGetIOrderedEnumerableGenericInterface(type, out var iOrderedEnumerableType))
+            {
+                itemType = iOrderedEnumerableType.GetGenericArguments()[0];
+                return true;
+            }
+
+            itemType = null;
+            return false;
+        }
+
+        public static bool ImplementsIOrderedQueryable(this Type type, out Type itemType)
+        {
+            if (TryGetIOrderedQueryableGenericInterface(type, out var iorderedQueryableType))
+            {
+                itemType = iorderedQueryableType.GetGenericArguments()[0];
+                return true;
+            }
+
+            itemType = null;
+            return false;
+        }
+
         public static bool ImplementsIQueryable(this Type type, out Type itemType)
         {
             if (TryGetIQueryableGenericInterface(type, out var iqueryableType))
             {
                 itemType = iqueryableType.GetGenericArguments()[0];
+                return true;
+            }
+
+            itemType = null;
+            return false;
+        }
+
+        public static bool ImplementsIQueryableOf(this Type type, Type itemType)
+        {
+            return
+                ImplementsIEnumerable(type, out var actualItemType) &&
+                actualItemType == itemType;
+        }
+
+        public static bool ImplementsISet(this Type type, out Type itemType)
+        {
+            if (TryGetISetGenericInterface(type, out var isetType))
+            {
+                itemType = isetType.GetGenericArguments()[0];
                 return true;
             }
 
@@ -197,11 +241,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             return false;
         }
 
+        public static bool IsBoolean(this Type type)
+        {
+            return type == typeof(bool);
+        }
+
         public static bool IsBooleanOrNullableBoolean(this Type type)
         {
-            return
-                type == typeof(bool) ||
-                type.IsNullable(out var valueType) && valueType == typeof(bool);
+            return IsBoolean(type) || type.IsNullable(out var valueType) && IsBoolean(valueType);
         }
 
         public static bool IsConvertibleToEnum(this Type type)
@@ -294,23 +341,18 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             return type.IsNullable(out var nullableValueType) && nullableValueType == valueType;
         }
 
-        public static bool IsReadOnlySpanOf(this Type type, Type itemType)
-        {
-            return
-                type.IsGenericType &&
-                type.GetGenericTypeDefinition() == typeof(ReadOnlySpan<>) &&
-                type.GetGenericArguments()[0] == itemType;
-        }
-
         public static bool IsNumeric(this Type type)
         {
+            // note: treating more types as numeric would require careful analysis of impact on callers of this method
             return
-                type == typeof(int) ||
-                type == typeof(long) ||
+                type == typeof(char) ||  // TODO: should we really treat char as numeric?
+                type == typeof(decimal) ||
+                type == typeof(Decimal128) ||
                 type == typeof(double) ||
                 type == typeof(float) ||
-                type == typeof(decimal) ||
-                type == typeof(Decimal128);
+                type == typeof(int) ||
+                type == typeof(long) ||
+                type == typeof(short);
         }
 
         public static bool IsNumericOrNullableNumeric(this Type type)
@@ -318,6 +360,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             return
                 type.IsNumeric() ||
                 type.IsNullable(out var valueType) && valueType.IsNumeric();
+        }
+
+        public static bool IsReadOnlySpanOf(this Type type, Type itemType)
+        {
+            return
+                type.IsGenericType &&
+                type.GetGenericTypeDefinition() == typeof(ReadOnlySpan<>) &&
+                type.GetGenericArguments()[0] == itemType;
         }
 
         public static bool IsSameAsOrNullableOf(this Type type, Type valueType)
@@ -337,7 +387,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         {
             return
                 type.IsSubclassOf(baseTypeOrInterface) ||
-                type.Implements(baseTypeOrInterface);
+                type.ImplementsInterface(baseTypeOrInterface);
         }
 
         public static bool IsTuple(this Type type)
@@ -386,8 +436,17 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         public static bool TryGetIListGenericInterface(this Type type, out Type ilistGenericInterface)
             => TryGetGenericInterface(type, typeof(IList<>), out ilistGenericInterface);
 
+        public static bool TryGetIOrderedEnumerableGenericInterface(this Type type, out Type iorderedEnumerableGenericInterface)
+            => TryGetGenericInterface(type, typeof(IOrderedEnumerable<>), out iorderedEnumerableGenericInterface);
+
+        public static bool TryGetIOrderedQueryableGenericInterface(this Type type, out Type iorderedQueryableGenericInterface)
+            => TryGetGenericInterface(type, typeof(IOrderedQueryable<>), out iorderedQueryableGenericInterface);
+
         public static bool TryGetIQueryableGenericInterface(this Type type, out Type iqueryableGenericInterface)
             => TryGetGenericInterface(type, typeof(IQueryable<>), out iqueryableGenericInterface);
+
+        public static bool TryGetISetGenericInterface(this Type type, out Type isetGenericInterface)
+            => TryGetGenericInterface(type, typeof(ISet<>), out isetGenericInterface);
 
         private static TValue GetDefaultValueGeneric<TValue>()
         {

@@ -34,129 +34,41 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
     internal static class StringExpressionToRegexFilterTranslator
     {
         // private static fields
-        private static readonly MethodInfo[] __indexOfAnyMethods;
-        private static readonly MethodInfo[] __indexOfMethods;
-        private static readonly MethodInfo[] __indexOfWithCharMethods;
-        private static readonly MethodInfo[] __indexOfWithComparisonTypeMethods;
-        private static readonly MethodInfo[] __indexOfWithCountMethods;
-        private static readonly MethodInfo[] __indexOfWithStartIndexMethods;
-        private static readonly MethodInfo[] __indexOfWithStringMethods;
-        private static readonly MethodInfo[] __modifierMethods;
-        private static readonly MethodInfo[] __translatableMethods;
-        private static readonly MethodInfo[] __withComparisonTypeMethods;
-        private static readonly MethodInfo[] __withIgnoreCaseAndCultureMethods;
+        private static readonly IReadOnlyMethodInfoSet __modifierOverloads;
+        private static readonly IReadOnlyMethodInfoSet __translatableOverloads;
+        private static readonly IReadOnlyMethodInfoSet __withComparisonTypeOverloads;
+        private static readonly IReadOnlyMethodInfoSet __withIgnoreCaseAndCultureOverloads;
 
         // static constructor
         static StringExpressionToRegexFilterTranslator()
         {
-            __indexOfAnyMethods = new[]
-            {
-                StringMethod.IndexOfAny,
-                StringMethod.IndexOfAnyWithStartIndex,
-                StringMethod.IndexOfAnyWithStartIndexAndCount,
-            };
+            __modifierOverloads = MethodInfoSet.Create(
+            [
+                StringMethod.ToLowerOverloads,
+                StringMethod.ToUpperOverloads,
+                StringMethod.TrimOverloads
+            ]);
 
-            __indexOfMethods = new[]
-            {
-                StringMethod.IndexOfAny,
-                StringMethod.IndexOfAnyWithStartIndex,
-                StringMethod.IndexOfAnyWithStartIndexAndCount,
-                StringMethod.IndexOfWithChar,
-                StringMethod.IndexOfWithCharAndStartIndex,
-                StringMethod.IndexOfWithCharAndStartIndexAndCount,
-                StringMethod.IndexOfWithString,
-                StringMethod.IndexOfWithStringAndComparisonType,
-                StringMethod.IndexOfWithStringAndStartIndex,
-                StringMethod.IndexOfWithStringAndStartIndexAndComparisonType,
-                StringMethod.IndexOfWithStringAndStartIndexAndCount,
-                StringMethod.IndexOfWithStringAndStartIndexAndCountAndComparisonType
-            };
+            __translatableOverloads = MethodInfoSet.Create(
+            [
+                StringMethod.ContainsOverloads,
+                StringMethod.EndsWithOverloads,
+                StringMethod.StartsWithOverloads
+            ]);
 
-            __indexOfWithCharMethods = new[]
-            {
-                StringMethod.IndexOfWithChar,
-                StringMethod.IndexOfWithCharAndStartIndex,
-                StringMethod.IndexOfWithCharAndStartIndexAndCount,
-            };
-
-            __indexOfWithComparisonTypeMethods = new[]
-            {
-                StringMethod.IndexOfWithStringAndComparisonType,
-                StringMethod.IndexOfWithStringAndStartIndexAndComparisonType,
-                StringMethod.IndexOfWithStringAndStartIndexAndCountAndComparisonType
-            };
-
-            __indexOfWithCountMethods = new[]
-            {
-                StringMethod.IndexOfAnyWithStartIndexAndCount,
-                StringMethod.IndexOfWithCharAndStartIndexAndCount,
-                StringMethod.IndexOfWithStringAndStartIndexAndCount,
-                StringMethod.IndexOfWithStringAndStartIndexAndCountAndComparisonType
-            };
-
-            __indexOfWithStartIndexMethods = new[]
-            {
-                StringMethod.IndexOfAnyWithStartIndex,
-                StringMethod.IndexOfAnyWithStartIndexAndCount,
-                StringMethod.IndexOfWithCharAndStartIndex,
-                StringMethod.IndexOfWithCharAndStartIndexAndCount,
-                StringMethod.IndexOfWithStringAndStartIndex,
-                StringMethod.IndexOfWithStringAndStartIndexAndComparisonType,
-                StringMethod.IndexOfWithStringAndStartIndexAndCount,
-                StringMethod.IndexOfWithStringAndStartIndexAndCountAndComparisonType
-            };
-
-            __indexOfWithStringMethods = new[]
-            {
-                StringMethod.IndexOfWithString,
-                StringMethod.IndexOfWithStringAndComparisonType,
-                StringMethod.IndexOfWithStringAndStartIndex,
-                StringMethod.IndexOfWithStringAndStartIndexAndComparisonType,
-                StringMethod.IndexOfWithStringAndStartIndexAndCount,
-                StringMethod.IndexOfWithStringAndStartIndexAndCountAndComparisonType
-            };
-
-            __modifierMethods = new[]
-            {
-                StringMethod.ToLower,
-                StringMethod.ToLowerInvariant,
-                StringMethod.ToUpper,
-                StringMethod.ToUpperInvariant,
-                StringMethod.Trim,
-                StringMethod.TrimEnd,
-                StringMethod.TrimStart,
-                StringMethod.TrimWithChars
-            };
-
-            __translatableMethods = new[]
-            {
-                StringMethod.ContainsWithChar,
-                StringMethod.ContainsWithCharAndComparisonType,
-                StringMethod.ContainsWithString,
-                StringMethod.ContainsWithStringAndComparisonType,
-                StringMethod.EndsWithWithChar,
-                StringMethod.EndsWithWithString,
-                StringMethod.EndsWithWithStringAndComparisonType,
-                StringMethod.EndsWithWithStringAndIgnoreCaseAndCulture,
-                StringMethod.StartsWithWithChar,
-                StringMethod.StartsWithWithString,
-                StringMethod.StartsWithWithStringAndComparisonType,
-                StringMethod.StartsWithWithStringAndIgnoreCaseAndCulture
-            };
-
-            __withComparisonTypeMethods = new[]
-            {
+            __withComparisonTypeOverloads = MethodInfoSet.Create(
+            [
                 StringMethod.ContainsWithCharAndComparisonType,
                 StringMethod.ContainsWithStringAndComparisonType,
                 StringMethod.EndsWithWithStringAndComparisonType,
                 StringMethod.StartsWithWithStringAndComparisonType,
-            };
+            ]);
 
-            __withIgnoreCaseAndCultureMethods = new[]
-            {
+            __withIgnoreCaseAndCultureOverloads = MethodInfoSet.Create(
+            [
                 StringMethod.EndsWithWithStringAndIgnoreCaseAndCulture,
                 StringMethod.StartsWithWithStringAndIgnoreCaseAndCulture
-            };
+            ]);
         }
 
         // public static methods
@@ -166,7 +78,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             {
                 var method = methodCallExpression.Method;
 
-                if (method.IsOneOf(__translatableMethods))
+                if (method.IsOneOf(__translatableOverloads))
                 {
                     return true;
                 }
@@ -368,7 +280,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
         {
             return
                 leftExpression is MethodCallExpression leftMethodCallExpression &&
-                leftMethodCallExpression.Method.IsOneOf(__indexOfMethods);
+                leftMethodCallExpression.Method.IsOneOf(StringMethod.IndexOfOverloads);
         }
 
         private static bool IsStringLengthComparison(Expression leftExpression)
@@ -381,7 +293,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 
         private static bool IsWithComparisonTypeMethod(MethodInfo method)
         {
-            if (method.IsOneOf(__withComparisonTypeMethods))
+            if (method.IsOneOf(__withComparisonTypeOverloads))
             {
                 return true;
             }
@@ -445,7 +357,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
         private static (AstFilterField, Modifiers) TranslateField(TranslationContext context, Expression expression, Expression fieldExpression)
         {
             if (fieldExpression is MethodCallExpression fieldMethodCallExpression &&
-                fieldMethodCallExpression.Method.IsOneOf(__modifierMethods))
+                fieldMethodCallExpression.Method.IsOneOf(__modifierOverloads))
             {
                 var (field, modifiers) = TranslateField(context, expression, fieldMethodCallExpression.Object);
                 modifiers = TranslateModifier(modifiers, fieldMethodCallExpression);
@@ -527,7 +439,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             {
                 modifiers = TranslateComparisonType(modifiers, expression, arguments[1]);
             }
-            if (method.IsOneOf(__withIgnoreCaseAndCultureMethods))
+            if (method.IsOneOf(__withIgnoreCaseAndCultureOverloads))
             {
                 modifiers = TranslateIgnoreCase(modifiers, expression, arguments[1]);
                 modifiers = TranslateCulture(modifiers, expression, arguments[2]);
@@ -613,7 +525,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             var (field, modifiers) = TranslateField(context, expression, fieldExpression);
 
             var startIndex = 0;
-            if (method.IsOneOf(__indexOfWithStartIndexMethods))
+            if (method.IsOneOf(StringMethod.IndexOfWithStartIndexOverloads))
             {
                 var startIndexExpression = arguments[1];
                 startIndex = startIndexExpression.GetConstantValue<int>(containingExpression: expression);
@@ -624,7 +536,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             }
 
             var count = (int?)null;
-            if (method.IsOneOf(__indexOfWithCountMethods))
+            if (method.IsOneOf(StringMethod.IndexOfWithCountOverloads))
             {
                 var countExpression = arguments[2];
                 count = countExpression.GetConstantValue<int>(containingExpression: expression);
@@ -636,16 +548,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 
             var comparand = rightExpression.GetConstantValue<int>(containingExpression: expression);
 
-            if (method.IsOneOf(__indexOfAnyMethods, __indexOfWithCharMethods))
+            if (method.IsOneOf(StringMethod.IndexOfAnyOverloads, StringMethod.IndexOfWithCharOverloads))
             {
                 char[] anyOf;
-                if (method.IsOneOf(__indexOfAnyMethods))
+                if (method.IsOneOf(StringMethod.IndexOfAnyOverloads))
                 {
                     var anyOfExpression = arguments[0];
                     anyOf = anyOfExpression.GetConstantValue<char[]>(containingExpression: expression);
                 }
                 else
-                if (method.IsOneOf(__indexOfWithCharMethods))
+                if (method.IsOneOf(StringMethod.IndexOfWithCharOverloads))
                 {
                     var valueExpression = arguments[0];
                     var value = valueExpression.GetConstantValue<char>(containingExpression: expression);
@@ -684,13 +596,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 return CreateFilter(expression, field, modifiers, comparisonOperator, pattern);
             }
 
-            if (method.IsOneOf(__indexOfWithStringMethods))
+            if (method.IsOneOf(StringMethod.IndexOfWithStringOverloads))
             {
                 var valueExpression = arguments[0];
                 var value = valueExpression.GetConstantValue<string>(containingExpression: expression);
                 var escapedValue = Regex.Escape(value);
 
-                if (method.IsOneOf(__indexOfWithComparisonTypeMethods))
+                if (method.IsOneOf(StringMethod.IndexOfWithComparisonTypeOverloads))
                 {
                     var comparisonTypeExpression = arguments.Last();
                     modifiers = TranslateComparisonType(modifiers, expression, comparisonTypeExpression);

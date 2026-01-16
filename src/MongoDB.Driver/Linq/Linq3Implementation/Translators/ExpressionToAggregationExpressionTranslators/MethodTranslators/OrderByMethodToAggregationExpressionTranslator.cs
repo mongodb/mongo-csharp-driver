@@ -27,44 +27,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class OrderByMethodToAggregationExpressionTranslator
     {
-        private static MethodInfo[] __translatableMethods =
-        {
-            EnumerableMethod.OrderBy,
-            EnumerableMethod.OrderByDescending,
-            EnumerableMethod.ThenBy,
-            EnumerableMethod.ThenByDescending,
-            QueryableMethod.OrderBy,
-            QueryableMethod.OrderByDescending,
-            QueryableMethod.ThenBy,
-            QueryableMethod.ThenByDescending
-        };
-
-        private static MethodInfo[] __orderByMethods =
-        {
-            EnumerableMethod.OrderBy,
-            EnumerableMethod.OrderByDescending,
-            QueryableMethod.OrderBy,
-            QueryableMethod.OrderByDescending
-        };
-
-        private static MethodInfo[] __thenByMethods =
-        {
-            EnumerableMethod.ThenBy,
-            EnumerableMethod.ThenByDescending,
-            QueryableMethod.ThenBy,
-            QueryableMethod.ThenByDescending
-        };
-
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__translatableMethods))
+            if (method.IsOneOf(EnumerableOrQueryableMethod.OrderByOrThenByOverloads))
             {
                 var sourceExpression = arguments[0];
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
-                if (method.IsOneOf(__thenByMethods))
+                if (method.IsOneOf(EnumerableOrQueryableMethod.ThenByOverloads))
                 {
                     NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsOrderedQueryableSource(expression, sourceTranslation);
                 }
@@ -80,7 +52,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                 if (IsIdentityLambda(keySelectorLambda))
                 {
-                    if (method.IsOneOf(__orderByMethods))
+                    if (method.IsOneOf(EnumerableOrQueryableMethod.OrderByOverloads))
                     {
                         var ast = AstExpression.SortArray(sourceTranslation.Ast, order);
                         return new TranslatedExpression(expression, ast, orderedEnumerableSerializer);
@@ -92,13 +64,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var sortFieldPath = keySelectorLambda.TranslateToDottedFieldName(context, itemSerializer);
                 var sortField = AstSort.Field(sortFieldPath, order);
 
-                if (method.IsOneOf(__orderByMethods))
+                if (method.IsOneOf(EnumerableOrQueryableMethod.OrderByOverloads))
                 {
                     var ast = AstExpression.SortArray(sourceTranslation.Ast, sortField);
                     return new TranslatedExpression(expression, ast, orderedEnumerableSerializer);
                 }
 
-                if (method.IsOneOf(__thenByMethods))
+                if (method.IsOneOf(EnumerableOrQueryableMethod.ThenByOverloads))
                 {
                     if (sourceTranslation.Ast is AstSortArrayExpression originalAst)
                     {
