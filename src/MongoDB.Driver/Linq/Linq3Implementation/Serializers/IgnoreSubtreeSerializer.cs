@@ -32,6 +32,10 @@ internal interface IIgnoreSubtreeSerializer
 {
 }
 
+/// <summary>
+/// A serializer assigned to nodes that don't need a serializer and whose child nodes don't need a serializer either.
+/// </summary>
+/// <typeparam name="TValue">The value type.</typeparam>
 internal class IgnoreSubtreeSerializer<TValue> : SerializerBase<TValue>, IIgnoreSubtreeSerializer
 {
 }

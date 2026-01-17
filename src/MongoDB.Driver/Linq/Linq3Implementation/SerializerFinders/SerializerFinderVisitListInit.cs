@@ -22,7 +22,7 @@ internal partial class SerializerFinderVisitor
     protected override Expression VisitListInit(ListInitExpression node)
     {
         var newExpression = node.NewExpression;
-        var initializers = node.Initializers;
+        // var initializers = node.Initializers;
 
         DeduceListInitSerializers();
         base.VisitListInit(node);
@@ -32,7 +32,7 @@ internal partial class SerializerFinderVisitor
 
         void DeduceListInitSerializers()
         {
-            // TODO: handle initializers?
+            // TODO: handle initializers (see CSHARP-5853)
             DeduceSerializers(node, newExpression);
         }
     }

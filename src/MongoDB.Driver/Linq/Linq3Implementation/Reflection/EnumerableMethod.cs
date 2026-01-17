@@ -206,12 +206,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         static EnumerableMethod()
         {
             // initialize methods before sets of methods
-#if NET10_OR_GREATER
-            __reverseWithArray = ReflectionInfo.Method(array source) => source.Reverse());
-#else
-            __reverseWithArray = GetReverseWithArrayMethodInfo(); // support users running net10 even though we don't target net10 yet
-#endif
-
             __aggregateWithFunc = ReflectionInfo.Method((IEnumerable<object> source, Func<object, object, object> func) => source.Aggregate(func));
             __aggregateWithSeedAndFunc = ReflectionInfo.Method((IEnumerable<object> source, object seed, Func<object, object, object> func) => source.Aggregate(seed, func));
             __aggregateWithSeedFuncAndResultSelector = ReflectionInfo.Method((IEnumerable<object> source, object seed, Func<object, object, object> func, Func<object, object> resultSelector) => source.Aggregate(seed, func, resultSelector));
@@ -712,7 +706,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             return __where.MakeGenericMethod(tsource);
         }
 
-#if !NET10_OR_GREATER
         private static MethodInfo GetReverseWithArrayMethodInfo()
         {
             // returns null on target frameworks that don't have this method
@@ -733,6 +726,5 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
                     parameters[0] is var sourceParameter &&
                     sourceParameter.ParameterType == tsource.MakeArrayType());
         }
-#endif
     }
 }
