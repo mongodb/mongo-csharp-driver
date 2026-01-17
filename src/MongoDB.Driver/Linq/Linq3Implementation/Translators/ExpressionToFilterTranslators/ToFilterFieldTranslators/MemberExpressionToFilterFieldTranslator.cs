@@ -14,11 +14,11 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilterTranslators.ToFilterFieldTranslators
@@ -41,6 +41,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
             var fieldSerializer = fieldTranslation.Serializer;
             var fieldSerializerType = fieldSerializer.GetType();
+
+            if (memberExpression.Type.IsGenericType &&
+                (memberExpression.Type.GetGenericTypeDefinition() == typeof(Dictionary<,>.KeyCollection) ||
+                 memberExpression.Type.GetGenericTypeDefinition() == typeof(Dictionary<,>.ValueCollection)))
+            {
+                throw new ExpressionNotSupportedException(memberExpression, because: "Dictionary.KeyCollection and Dictionary.ValueCollection cannot be translated using filters");
+            }
 
             if (fieldSerializer.GetType() == typeof(BsonValueSerializer))
             {
@@ -132,6 +139,28 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 }
 
                 throw new ExpressionNotSupportedException(memberExpression, because: $"serializer {fieldTranslation.Serializer.GetType().FullName} does not implement IBsonTupleSerializer");
+            }
+
+            if (fieldExpression.Type.IsGenericType &&
+                fieldExpression.Type.GetGenericTypeDefinition() == typeof(KeyValuePair<,>) &&
+                fieldSerializer is IKeyValuePairSerializerV2 keyValuePairSerializer)
+            {
+                switch (memberExpression.Member.Name)
+                {
+                    case "Key":
+                        if (keyValuePairSerializer.Representation == BsonType.Array)
+                        {
+                            return fieldTranslation.SubField("0", keyValuePairSerializer.KeySerializer);
+                        }
+                        return fieldTranslation.SubField("k", keyValuePairSerializer.KeySerializer);
+
+                    case "Value":
+                        if (keyValuePairSerializer.Representation == BsonType.Array)
+                        {
+                            return fieldTranslation.SubField("1", keyValuePairSerializer.ValueSerializer);
+                        }
+                        return fieldTranslation.SubField("v", keyValuePairSerializer.ValueSerializer);
+                }
             }
 
             throw new ExpressionNotSupportedException(memberExpression);
