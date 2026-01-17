@@ -347,15 +347,13 @@ namespace MongoDB.Bson.IO
             // overridden in BsonBinaryWriter to write the raw bytes to the stream
             // for all other streams, deserialize the raw bytes and serialize the resulting document instead
 
-            using (var stream = new ByteBufferStream(slice, ownsBuffer: false))
-            using (var bsonReader = new BsonBinaryReader(stream, BsonBinaryReaderSettings.Defaults))
-            {
-                var deserializationContext = BsonDeserializationContext.CreateRoot(bsonReader);
-                var document = BsonDocumentSerializer.Instance.Deserialize(deserializationContext);
+            using var bsonReader = BsonBinaryReaderUtils.CreateBinaryReader(slice, BsonBinaryReaderSettings.Defaults);
 
-                var serializationContext = BsonSerializationContext.CreateRoot(this);
-                BsonDocumentSerializer.Instance.Serialize(serializationContext, document);
-            }
+            var deserializationContext = BsonDeserializationContext.CreateRoot(bsonReader);
+            var document = BsonDocumentSerializer.Instance.Deserialize(deserializationContext);
+
+            var serializationContext = BsonSerializationContext.CreateRoot(this);
+            BsonDocumentSerializer.Instance.Serialize(serializationContext, document);
         }
 
         /// <summary>

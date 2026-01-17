@@ -14,17 +14,17 @@
 */
 
 using System;
-using System.IO;
 using System.Text;
+
 namespace MongoDB.Bson.IO
 {
     /// <summary>
     /// Represents a UTF8 name decoder.
     /// </summary>
-    public class Utf8NameDecoder : INameDecoder
+    public class Utf8NameDecoder : INameDecoder, INameDecoderInternal
     {
         // private static fields
-        private static readonly Utf8NameDecoder __instance = new Utf8NameDecoder();
+        private static readonly Utf8NameDecoder __instance = new();
 
         // public static properties
         /// <summary>
@@ -52,6 +52,17 @@ namespace MongoDB.Bson.IO
             var utf8 = stream.ReadCStringBytes();
             return Utf8Helper.DecodeUtf8String(utf8.Array, utf8.Offset, utf8.Count, encoding);
         }
+
+        /// <summary>
+        /// Decodes the name.
+        /// </summary>
+        /// <param name="span">The span.</param>
+        /// <param name="encoding">The encoding.</param>
+        /// <returns>
+        /// The name.
+        /// </returns>
+        public string Decode(ReadOnlySpan<byte> span, UTF8Encoding encoding) =>
+            Utf8Helper.DecodeUtf8String(span, encoding);
 
         /// <summary>
         /// Informs the decoder of an already decoded name (so the decoder can change state if necessary).
