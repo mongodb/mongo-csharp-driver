@@ -39,14 +39,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                     return fieldTranslation;
                 }
 
-                if (IsConvertEnumToUnderlyingType(fieldType, targetType))
+                if (IsConvertEnumToIntegralType(fieldType, targetType))
                 {
-                    return TranslateConvertEnumToUnderlyingType(fieldTranslation, targetType);
+                    return TranslateConvertEnumToIntegralType(fieldTranslation, targetType);
                 }
 
-                if (IsConvertUnderlyingTypeToEnum(fieldType, targetType))
+                if (IsConvertIntegralTypeToEnum(fieldType, targetType))
                 {
-                    return TranslateConvertUnderlyingTypeToEnum(fieldTranslation, targetType);
+                    return TranslateConvertIntegralTypeToEnum(fieldTranslation, targetType);
                 }
 
                 if (IsNumericConversion(fieldType, targetType))
@@ -73,11 +73,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             throw new ExpressionNotSupportedException(expression);
         }
 
-        private static bool IsConvertEnumToUnderlyingType(Type fieldType, Type targetType)
+        private static bool IsConvertEnumToIntegralType(Type fieldType, Type targetType)
         {
             return
-                fieldType.IsEnumOrNullableEnum(out _, out var underlyingType) &&
-                targetType.IsSameAsOrNullableOf(underlyingType);
+                fieldType.IsEnumOrNullableEnum(out _, out _) &&
+                targetType.IsIntegralOrNullableIntegral();
         }
 
         private static bool IsConvertToBaseType(Type fieldType, Type targetType)
@@ -98,11 +98,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 targetType.GetGenericArguments()[0] == fieldType;
         }
 
-        private static bool IsConvertUnderlyingTypeToEnum(Type fieldType, Type targetType)
+        private static bool IsConvertIntegralTypeToEnum(Type fieldType, Type targetType)
         {
             return
-                targetType.IsEnumOrNullableEnum(out _, out var underlyingType) &&
-                fieldType.IsSameAsOrNullableOf(underlyingType);
+                fieldType.IsIntegralOrNullableIntegral() &&
+                targetType.IsEnumOrNullableEnum(out _, out _);
         }
 
         private static bool IsNumericConversion(Type fieldType, Type targetType)
@@ -132,7 +132,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             }
         }
 
-        private static TranslatedFilterField TranslateConvertEnumToUnderlyingType(TranslatedFilterField fieldTranslation, Type targetType)
+        private static TranslatedFilterField TranslateConvertEnumToIntegralType(TranslatedFilterField fieldTranslation, Type targetType)
         {
             var fieldSerializer = fieldTranslation.Serializer;
             var fieldType = fieldSerializer.ValueType;
@@ -148,7 +148,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 enumSerializer = fieldSerializer;
             }
 
-            var targetSerializer = EnumUnderlyingTypeSerializer.Create(enumSerializer);
+            var enumType = enumSerializer.ValueType;
+            var enumUnderlyingType =  enumType.GetEnumUnderlyingType();
+            var nonNullableTargetType = targetType.IsNullable() ? Nullable.GetUnderlyingType(targetType) : targetType;
+
+            var targetSerializer = EnumAsIntegralTypeSerializer.Create(enumSerializer, enumUnderlyingType, integralType: nonNullableTargetType);
             if (targetType.IsNullable())
             {
                 targetSerializer = NullableSerializer.Create(targetSerializer);
@@ -177,7 +181,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             return new TranslatedFilterField(fieldTranslation.Ast, nullableSerializer);
         }
 
-        private static TranslatedFilterField TranslateConvertUnderlyingTypeToEnum(TranslatedFilterField fieldTranslation, Type targetType)
+        private static TranslatedFilterField TranslateConvertIntegralTypeToEnum(TranslatedFilterField fieldTranslation, Type targetType)
         {
             var valueSerializer = fieldTranslation.Serializer;
             if (valueSerializer is INullableSerializer nullableSerializer)
@@ -186,7 +190,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             }
 
             IBsonSerializer targetSerializer;
-            if (valueSerializer is IEnumUnderlyingTypeSerializer enumUnderlyingTypeSerializer)
+            if (valueSerializer is IEnumAsIntegralTypeSerializer enumUnderlyingTypeSerializer)
             {
                 targetSerializer = enumUnderlyingTypeSerializer.EnumSerializer;
             }

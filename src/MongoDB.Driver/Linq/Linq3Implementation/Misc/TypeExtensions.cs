@@ -242,6 +242,24 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             return IsNullableEnum(type, out enumType, out underlyingType);
         }
 
+        public static bool IsIntegral(this Type type)
+        {
+            return
+                type == typeof(byte) ||
+                type == typeof(sbyte) ||
+                type == typeof(short) ||
+                type == typeof(ushort) ||
+                type == typeof(int) ||
+                type == typeof(uint) ||
+                type == typeof(long) ||
+                type == typeof(ulong);
+        }
+
+        public static bool IsIntegralOrNullableIntegral(this Type type)
+        {
+            return type.IsIntegral() || (type.IsNullable(out var valueType) && valueType.IsIntegral());
+        }
+
         public static bool IsNullable(this Type type)
         {
             return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
