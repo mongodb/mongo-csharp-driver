@@ -15,10 +15,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.TestHelpers;
@@ -40,7 +37,7 @@ namespace MongoDB.Bson.Tests.IO
         }
 
         [Fact]
-        public void constructor_should_initialize_subject()
+        public void Constructor_should_initialize_subject()
         {
             var maxChunkCount = 1;
             var chunkSize = 16;
@@ -54,21 +51,27 @@ namespace MongoDB.Bson.Tests.IO
 
         [Theory]
         [ParameterAttributeData]
-        public void constructor_should_throw_chunkSize_is_less_than_zero(
+        public void Constructor_should_throw_chunkSize_is_less_than_zero(
             [Values(-1, 0)]
             int chunkSize)
         {
             Action action = () => new BsonChunkPool(1, chunkSize);
 
-            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("chunkSize");
+            var exception = Record.Exception(action);
+
+            exception.Should().BeOfType<ArgumentOutOfRangeException>();
+            ((ArgumentOutOfRangeException)exception).ParamName.Should().Be("chunkSize");
         }
 
         [Fact]
-        public void constructor_should_throw_when_MaxChunkCount_is_less_than_zero()
+        public void Constructor_should_throw_when_MaxChunkCount_is_less_than_zero()
         {
             Action action = () => new BsonChunkPool(-1, 16);
 
-            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("maxChunkCount");
+            var exception = Record.Exception(action);
+
+            exception.Should().BeOfType<ArgumentOutOfRangeException>();
+            ((ArgumentOutOfRangeException)exception).ParamName.Should().Be("maxChunkCount");
         }
 
         [Fact]
@@ -103,7 +106,10 @@ namespace MongoDB.Bson.Tests.IO
         {
             Action action = () => BsonChunkPool.Default = null;
 
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("value");
+            var exception = Record.Exception(action);
+
+            exception.Should().BeOfType<ArgumentNullException>();
+            ((ArgumentNullException)exception).ParamName.Should().Be("value");
         }
 
         [Fact]
@@ -162,7 +168,10 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.GetChunk(1);
 
-            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonChunkPool");
+            var exception = Record.Exception(action);
+
+            exception.Should().BeOfType<ObjectDisposedException>();
+            ((ObjectDisposedException)exception).ObjectName.Should().Be("BsonChunkPool");
         }
 
         [Fact]
@@ -200,7 +209,10 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => { var _ = subject.Bytes; };
 
-            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("DisposableChunk");
+            var exception = Record.Exception(action);
+
+            exception.Should().BeOfType<ObjectDisposedException>();
+            ((ObjectDisposedException)exception).ObjectName.Should().Be("DisposableChunk");
         }
 
         [Fact]
@@ -292,7 +304,10 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.Fork();
 
-            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("DisposableChunk");
+            var exception = Record.Exception(action);
+
+            exception.Should().BeOfType<ObjectDisposedException>();
+            ((ObjectDisposedException)exception).ObjectName.Should().Be("DisposableChunk");
         }
     }
 }
