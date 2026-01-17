@@ -1,12 +1,10 @@
-description: backpressure-network-error-fail
+description: backpressure-network-error-fail-replicaset
 schemaVersion: "1.17"
 runOnRequirements:
   - minServerVersion: "4.4"
     serverless: forbid
     topologies:
-      - single
       - replicaset
-      - sharded
 createEntities:
   - client:
       id: setupClient
@@ -28,7 +26,7 @@ tests:
                 id: client
                 useMultipleMongoses: false
                 observeEvents:
-                  - serverHeartbeatSucceededEvent
+                  - serverDescriptionChangedEvent
                   - poolClearedEvent
                 uriOptions:
                   retryWrites: false
@@ -48,7 +46,9 @@ tests:
         arguments:
           client: client
           event:
-            serverHeartbeatSucceededEvent: {}
+            serverDescriptionChangedEvent:
+              newDescription:
+                type: RSPrimary
           count: 1
       - name: failPoint
         object: testRunner

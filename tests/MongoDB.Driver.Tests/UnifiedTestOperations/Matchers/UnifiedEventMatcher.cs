@@ -129,6 +129,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                     "LoadBalancer" => ServerType.LoadBalanced,
                     "Mongos" => ServerType.ShardRouter,
                     "Standalone" => ServerType.Standalone,
+                    "RSPrimary" => ServerType.ReplicaSetPrimary,
+                    "RSSecondary" => ServerType.ReplicaSetSecondary,
                     "Unknown" => ServerType.Unknown,
                     _ => throw new Exception($"Unsupported event filter server type: {value}."),
                 };
