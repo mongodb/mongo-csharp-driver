@@ -45,6 +45,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             switch (expression.NodeType)
             {
                 case ExpressionType.Convert:
+                case ExpressionType.ConvertChecked:
                 case ExpressionType.TypeAs:
                     return ConvertExpressionToAggregationExpressionTranslator.Translate(context, (UnaryExpression)expression);
 
