@@ -32,6 +32,14 @@ internal interface IUnknowableSerializer
 {
 }
 
+/// <summary>
+/// A serializer assigned to nodes that need a serializer, but for which we have no way of knowing what serializer to use.
+/// </summary>
+/// <typeparam name="TValue">The value type.</typeparam>
+/// <remarks>
+/// This serializer differs from the IgnoreNodeSerializer because in this case we know that the node needs a serializer,
+/// but we just have no way of knowing which serializer to use.
+/// </remarks>
 internal class UnknowableSerializer<TValue> : SerializerBase<TValue>, IUnknowableSerializer
 {
 }

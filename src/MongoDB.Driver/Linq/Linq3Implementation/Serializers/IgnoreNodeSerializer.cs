@@ -28,6 +28,14 @@ internal static class IgnoreNodeSerializer
     }
 }
 
+/// <summary>
+/// A serializer assigned to nodes that don't need a serializer.
+/// </summary>
+/// <typeparam name="TValue">The value type.</typeparam>
+/// <remarks>
+/// This serializer differs from the UnknowableSerializer because in this case we know that the node does not need a serializer.
+/// UnknowableSerializer is used when we know the node needs a serializer, but we don't have a way to know what the serializer should be.
+/// </remarks>
 internal class IgnoreNodeSerializer<TValue> : SerializerBase<TValue>
 {
 }
