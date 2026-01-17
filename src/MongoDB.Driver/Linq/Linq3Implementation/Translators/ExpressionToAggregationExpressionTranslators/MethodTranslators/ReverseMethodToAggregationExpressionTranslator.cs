@@ -27,6 +27,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         private static readonly MethodInfo[] __reverseMethods =
         {
             EnumerableMethod.Reverse,
+            EnumerableMethod.ReverseWithArray,
             QueryableMethod.Reverse
         };
 

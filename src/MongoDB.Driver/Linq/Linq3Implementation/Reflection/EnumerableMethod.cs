@@ -144,6 +144,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __range;
         private static readonly MethodInfo __repeat;
         private static readonly MethodInfo __reverse;
+        private static readonly MethodInfo __reverseWithArray; // will be null on target frameworks that don't have this method
         private static readonly MethodInfo __select;
         private static readonly MethodInfo __selectMany;
         private static readonly MethodInfo __selectManyWithCollectionSelectorAndResultSelector;
@@ -313,6 +314,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __range = ReflectionInfo.Method((int start, int count) => Enumerable.Range(start, count));
             __repeat = ReflectionInfo.Method((object element, int count) => Enumerable.Repeat(element, count));
             __reverse = ReflectionInfo.Method((IEnumerable<object> source) => source.Reverse());
+            __reverseWithArray = GetReverseWithArrayMethodInfo(); // support users running net10 even though we don't target net10 yet
             __select = ReflectionInfo.Method((IEnumerable<object> source, Func<object, object> selector) => source.Select(selector));
             __selectMany = ReflectionInfo.Method((IEnumerable<object> source, Func<object, IEnumerable<object>> selector) => source.SelectMany(selector));
             __selectManyWithCollectionSelectorAndResultSelector = ReflectionInfo.Method((IEnumerable<object> source, Func<object, IEnumerable<object>> collectionSelector, Func<object, object, object> resultSelector) => source.SelectMany(collectionSelector, resultSelector));
@@ -481,6 +483,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo Range => __range;
         public static MethodInfo Repeat => __repeat;
         public static MethodInfo Reverse => __reverse;
+        public static MethodInfo ReverseWithArray => __reverseWithArray;
         public static MethodInfo Select => __select;
         public static MethodInfo SelectMany => __selectMany;
         public static MethodInfo SelectManyWithCollectionSelectorAndResultSelector => __selectManyWithCollectionSelectorAndResultSelector;
@@ -612,6 +615,27 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo MakeWhere(Type tsource)
         {
             return __where.MakeGenericMethod(tsource);
+        }
+
+        private static MethodInfo GetReverseWithArrayMethodInfo()
+        {
+            // returns null on target frameworks that don't have this method
+            return
+                typeof(Enumerable)
+                    .GetMethods()
+                    .SingleOrDefault(m =>
+                        m.IsPublic &&
+                        m.IsStatic &&
+                        m.Name == "Reverse" &&
+                        m.IsGenericMethodDefinition &&
+                        m.GetGenericArguments() is var genericArguments &&
+                        genericArguments.Length == 1 &&
+                        genericArguments[0] is var tsource &&
+                        m.ReturnType == typeof(IEnumerable<>).MakeGenericType(tsource) &&
+                        m.GetParameters() is var parameters &&
+                        parameters.Length == 1 &&
+                        parameters[0] is var sourceParameter &&
+                        sourceParameter.ParameterType == tsource.MakeArrayType());
         }
     }
 }
