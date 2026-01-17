@@ -196,12 +196,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         // static constructor
         static EnumerableMethod()
         {
-#if NET10_OR_GREATER
-            __reverseWithArray = ReflectionInfo.Method(array source) => source.Reverse());
-#else
-            __reverseWithArray = GetReverseWithArrayMethodInfo(); // support users running net10 even though we don't target net10 yet
-#endif
-
             __aggregateWithFunc = ReflectionInfo.Method((IEnumerable<object> source, Func<object, object, object> func) => source.Aggregate(func));
             __aggregateWithSeedAndFunc = ReflectionInfo.Method((IEnumerable<object> source, object seed, Func<object, object, object> func) => source.Aggregate(seed, func));
             __aggregateWithSeedFuncAndResultSelector = ReflectionInfo.Method((IEnumerable<object> source, object seed, Func<object, object, object> func, Func<object, object> resultSelector) => source.Aggregate(seed, func, resultSelector));
@@ -320,6 +314,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __range = ReflectionInfo.Method((int start, int count) => Enumerable.Range(start, count));
             __repeat = ReflectionInfo.Method((object element, int count) => Enumerable.Repeat(element, count));
             __reverse = ReflectionInfo.Method((IEnumerable<object> source) => source.Reverse());
+            __reverseWithArray = GetReverseWithArrayMethodInfo(); // support users running net10 even though we don't target net10 yet
             __select = ReflectionInfo.Method((IEnumerable<object> source, Func<object, object> selector) => source.Select(selector));
             __selectMany = ReflectionInfo.Method((IEnumerable<object> source, Func<object, IEnumerable<object>> selector) => source.SelectMany(selector));
             __selectManyWithCollectionSelectorAndResultSelector = ReflectionInfo.Method((IEnumerable<object> source, Func<object, IEnumerable<object>> collectionSelector, Func<object, object, object> resultSelector) => source.SelectMany(collectionSelector, resultSelector));
@@ -622,7 +617,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             return __where.MakeGenericMethod(tsource);
         }
 
-#if !NET10_OR_GREATER
         private static MethodInfo GetReverseWithArrayMethodInfo()
         {
             // returns null on target frameworks that don't have this method
@@ -643,6 +637,5 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
                         parameters[0] is var sourceParameter &&
                         sourceParameter.ParameterType == tsource.MakeArrayType());
         }
-#endif
     }
 }
