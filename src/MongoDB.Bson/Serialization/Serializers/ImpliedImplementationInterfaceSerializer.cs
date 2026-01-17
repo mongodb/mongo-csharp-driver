@@ -41,18 +41,20 @@ namespace MongoDB.Bson.Serialization.Serializers
         IBsonDictionarySerializer,
         IBsonDocumentSerializer,
         IChildSerializerConfigurable,
-        IImpliedImplementationInterfaceSerializer
+        IImpliedImplementationInterfaceSerializer,
+        IHasSerializationDomain
             where TImplementation : class, TInterface
     {
         // private fields
         private readonly Lazy<IBsonSerializer<TImplementation>> _lazyImplementationSerializer;
+        private readonly IBsonSerializationDomain _serializationDomain;
 
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="ImpliedImplementationInterfaceSerializer{TInterface, TImplementation}"/> class.
         /// </summary>
         public ImpliedImplementationInterfaceSerializer()
-            : this(BsonSerializer.SerializerRegistry)
+            : this(BsonSerializationDomain.Default)
         {
         }
 
@@ -61,7 +63,12 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="implementationSerializer">The implementation serializer.</param>
         public ImpliedImplementationInterfaceSerializer(IBsonSerializer<TImplementation> implementationSerializer)
-            : this(new Lazy<IBsonSerializer<TImplementation>>(() => implementationSerializer))
+            : this(BsonSerializationDomain.Default, new Lazy<IBsonSerializer<TImplementation>>(() => implementationSerializer))
+        {
+        }
+
+        internal ImpliedImplementationInterfaceSerializer(IBsonSerializationDomain serializationDomain, IBsonSerializer<TImplementation> implementationSerializer)
+            : this(serializationDomain, new Lazy<IBsonSerializer<TImplementation>>(() => implementationSerializer))
         {
             if (implementationSerializer == null)
             {
@@ -74,15 +81,20 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="serializerRegistry">The serializer registry.</param>
         public ImpliedImplementationInterfaceSerializer(IBsonSerializerRegistry serializerRegistry)
-            : this(new Lazy<IBsonSerializer<TImplementation>>(() => serializerRegistry.GetSerializer<TImplementation>()))
+            : this((serializerRegistry as BsonSerializerRegistry)?.SerializationDomain)
         {
-            if (serializerRegistry == null)
+        }
+
+        internal ImpliedImplementationInterfaceSerializer(IBsonSerializationDomain serializationDomain)
+            : this(serializationDomain, new Lazy<IBsonSerializer<TImplementation>>(() => serializationDomain.LookupSerializer<TImplementation>()))
+        {
+            if (serializationDomain == null)
             {
-                throw new ArgumentNullException("serializerRegistry");
+                throw new ArgumentNullException("serializationDomain");
             }
         }
 
-        private ImpliedImplementationInterfaceSerializer(Lazy<IBsonSerializer<TImplementation>> lazyImplementationSerializer)
+        private ImpliedImplementationInterfaceSerializer(IBsonSerializationDomain serializationDomain, Lazy<IBsonSerializer<TImplementation>> lazyImplementationSerializer)
         {
             var interfaceTypeInfo = typeof(TInterface).GetTypeInfo();
             if (!interfaceTypeInfo.IsInterface)
@@ -91,6 +103,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 throw new ArgumentException(message, "<TInterface>");
             }
 
+            _serializationDomain = serializationDomain;
             _lazyImplementationSerializer = lazyImplementationSerializer;
         }
 
@@ -155,6 +168,8 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         IBsonSerializer IImpliedImplementationInterfaceSerializer.ImplementationSerializer => ImplementationSerializer;
+
+        IBsonSerializationDomain IHasSerializationDomain.SerializationDomain => _serializationDomain;
 
         /// <summary>
         /// Gets the value serializer.
@@ -279,7 +294,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 }
                 else
                 {
-                    var serializer = BsonSerializer.LookupSerializer(actualType);
+                    var serializer = _serializationDomain.LookupSerializer(actualType);
                     serializer.Serialize(context, value);
                 }
             }
