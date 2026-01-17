@@ -244,7 +244,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 
         public static bool IsIntegral(this Type type)
         {
-            return type == typeof(int) || type == typeof(long) || type == typeof(uint) || type == typeof(ulong);
+            return
+                type == typeof(byte) ||
+                type == typeof(sbyte) ||
+                type == typeof(short) ||
+                type == typeof(ushort) ||
+                type == typeof(int) ||
+                type == typeof(uint) ||
+                type == typeof(long) ||
+                type == typeof(ulong);
         }
 
         public static bool IsIntegralOrNullableIntegral(this Type type)

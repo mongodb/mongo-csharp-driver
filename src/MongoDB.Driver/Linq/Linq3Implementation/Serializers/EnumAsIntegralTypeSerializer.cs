@@ -17,6 +17,7 @@ using System;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers
 {
@@ -40,7 +41,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers
             {
                 throw new ArgumentException($"{typeof(TEnumUnderlyingType).FullName} is not the underlying type of {typeof(TEnum).FullName}.");
             }
-            if (typeof(TIntegralType) != typeof(int) && typeof(TIntegralType) != typeof(long) && typeof(TIntegralType) != typeof(uint) && typeof(TIntegralType) != typeof(ulong))
+            if (!typeof(TIntegralType).IsIntegral())
             {
                 throw new ArgumentException($"{typeof(TIntegralType).FullName} is not an integral type");
             }
