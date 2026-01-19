@@ -122,22 +122,22 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                 }
             };
 
-            if (Environment.GetEnvironmentVariable("FLE_AWS_TEMPORARY_CREDS_ENABLED") != null)
+            if (Environment.GetEnvironmentVariable("CSFLE_AWS_TEMPORARY_CREDS_ENABLED") != null)
             {
                 kmsProviders.Add(
                     "awsTemporary",
                     new Dictionary<string, object>
                     {
-                        { "accessKeyId", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_TEMP_ACCESS_KEY_ID") },
-                        { "secretAccessKey", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_TEMP_SECRET_ACCESS_KEY") },
-                        { "sessionToken", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_TEMP_SESSION_TOKEN") }
+                        { "accessKeyId", GetEnvironmentVariableOrDefaultOrThrowIfNothing("CSFLE_AWS_TEMP_ACCESS_KEY_ID") },
+                        { "secretAccessKey", GetEnvironmentVariableOrDefaultOrThrowIfNothing("CSFLE_AWS_TEMP_SECRET_ACCESS_KEY") },
+                        { "sessionToken", GetEnvironmentVariableOrDefaultOrThrowIfNothing("CSFLE_AWS_TEMP_SESSION_TOKEN") }
                     });
                 kmsProviders.Add(
                     "awsTemporaryNoSessionToken",
                     new Dictionary<string, object>
                     {
-                        { "accessKeyId", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_TEMP_ACCESS_KEY_ID") },
-                        { "secretAccessKey", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_TEMP_SECRET_ACCESS_KEY") }
+                        { "accessKeyId", GetEnvironmentVariableOrDefaultOrThrowIfNothing("CSFLE_AWS_TEMP_ACCESS_KEY_ID") },
+                        { "secretAccessKey", GetEnvironmentVariableOrDefaultOrThrowIfNothing("CSFLE_AWS_TEMP_SECRET_ACCESS_KEY") }
                     });
             }
 

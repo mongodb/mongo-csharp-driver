@@ -90,7 +90,7 @@ namespace MongoDB.Driver.Tests.Specifications
             // This spec test includes an AWS sessionToken in its config, indicating it should use temporary AWS credentials
             if (testCaseNameLower.Contains("localschema.json"))
             {
-                RequireEnvironment.Check().EnvironmentVariable("FLE_AWS_TEMPORARY_CREDS_ENABLED");
+                RequireEnvironment.Check().EnvironmentVariable("CSFLE_AWS_TEMPORARY_CREDS_ENABLED");
             }
 
             if (testCaseNameLower.Contains("kmip") ||
