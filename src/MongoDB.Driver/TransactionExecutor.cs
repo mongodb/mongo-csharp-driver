@@ -60,7 +60,7 @@ namespace MongoDB.Driver
                 }
                 catch (Exception ex)
                 {
-                    if(ShouldAbortTransaction(operationContext, clientSession, out var abortOptions))
+                    if (ShouldAbortTransaction(operationContext, clientSession, out var abortOptions))
                     {
                         clientSession.AbortTransaction(abortOptions, cancellationToken);
                     }
@@ -106,7 +106,7 @@ namespace MongoDB.Driver
                 }
                 catch (Exception ex)
                 {
-                    if(ShouldAbortTransaction(operationContext, clientSession, out var abortOptions))
+                    if (ShouldAbortTransaction(operationContext, clientSession, out var abortOptions))
                     {
                         await clientSession.AbortTransactionAsync(abortOptions, cancellationToken).ConfigureAwait(false);
                     }
