@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System.Diagnostics;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
@@ -64,7 +65,6 @@ namespace MongoDB.Driver.Core.Connections
             mockLogger.Setup(m => m.IsEnabled(LogLevel.Debug)).Returns(logCommands);
 
             var eventCapturer = new EventCapturer();
-            // Capture unrelated event, so events filtering is enabled.
             eventCapturer.Capture<SdamInformationEvent>();
             if (captureCommandSucceeded)
             {
@@ -79,7 +79,52 @@ namespace MongoDB.Driver.Core.Connections
             var tracingOptions = traceCommands ? new TracingOptions() : new TracingOptions { Disabled = true };
             var commandHelper = new CommandEventHelper(eventLogger, tracingOptions);
 
-            commandHelper._shouldTrackState().Should().Be(logCommands || captureCommandSucceeded || captureCommandFailed || traceCommands);
+            // No ActivityListener, so tracing doesn't contribute to _shouldTrackState
+            commandHelper._shouldTrackState().Should().Be(logCommands || captureCommandSucceeded || captureCommandFailed);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void ShouldTrackState_should_be_correct_with_activity_listener(
+            [Values(false, true)] bool logCommands,
+            [Values(false, true)] bool captureCommandSucceeded,
+            [Values(false, true)] bool captureCommandFailed,
+            [Values(false, true)] bool traceCommands)
+        {
+            ActivityListener listener = null;
+            try
+            {
+                listener = new ActivityListener
+                {
+                    ShouldListenTo = source => source.Name == "MongoDB.Driver",
+                    Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData
+                };
+                ActivitySource.AddActivityListener(listener);
+
+                var mockLogger = new Mock<ILogger<LogCategories.Command>>();
+                mockLogger.Setup(m => m.IsEnabled(LogLevel.Debug)).Returns(logCommands);
+
+                var eventCapturer = new EventCapturer();
+                eventCapturer.Capture<SdamInformationEvent>();
+                if (captureCommandSucceeded)
+                {
+                    eventCapturer.Capture<CommandSucceededEvent>(_ => true);
+                }
+                if (captureCommandFailed)
+                {
+                    eventCapturer.Capture<CommandFailedEvent>(_ => true);
+                }
+
+                var eventLogger = new EventLogger<LogCategories.Command>(eventCapturer, mockLogger.Object);
+                var tracingOptions = traceCommands ? new TracingOptions() : new TracingOptions { Disabled = true };
+                var commandHelper = new CommandEventHelper(eventLogger, tracingOptions);
+
+                commandHelper._shouldTrackState().Should().Be(logCommands || captureCommandSucceeded || captureCommandFailed || traceCommands);
+            }
+            finally
+            {
+                listener?.Dispose();
+            }
         }
     }
 
