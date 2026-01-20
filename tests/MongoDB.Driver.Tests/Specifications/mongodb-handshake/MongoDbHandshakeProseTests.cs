@@ -14,6 +14,7 @@
  */
 
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,6 +25,7 @@ using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
@@ -97,6 +99,27 @@ namespace MongoDB.Driver.Tests.Specifications.mongodb_handshake
             }
 
             subject._state().Should().Be(3); // 3 - open.
+        }
+
+        // https://github.com/baileympearson/specifications/blob/530e727dd5cc0d0eb2606ea6db1cf144968597e7/source/mongodb-handshake/tests/README.md#test-9-handshake-documents-include-backpressure-true
+        [Fact]
+        public async Task HandshakeDocumentsIncludeBackpressureTrue()
+        {
+            var eventCapturer = new EventCapturer()
+                .Capture<CommandStartedEvent>(e => e.CommandName is "hello" or OppressiveLanguageConstants.LegacyHelloCommandName);
+
+            var client = DriverTestConfiguration.CreateMongoClient(cb => cb.Subscribe(eventCapturer));
+
+            var database = client.GetDatabase("admin");
+            await database.RunCommandAsync<BsonDocument>(new BsonDocument("ping", 1));
+
+            var commandStartedEvents = eventCapturer.Events.OfType<CommandStartedEvent>().ToList();
+            commandStartedEvents.Should().NotBeEmpty();
+            foreach (var doc in commandStartedEvents.Select(ev => ev.Command))
+            {
+                doc.Contains("backpressure").Should().BeTrue();
+                doc["backpressure"].AsBoolean.Should().BeTrue();
+            }
         }
     }
 
