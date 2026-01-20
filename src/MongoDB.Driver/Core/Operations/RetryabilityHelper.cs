@@ -194,11 +194,6 @@ namespace MongoDB.Driver.Core.Operations
             return exception is MongoException mongoException && mongoException.HasErrorLabel(RetryableWriteErrorLabel);
         }
 
-        public static bool IsBackpressureRetryableError(Exception exception)
-        {
-            return IsSystemOverloadedError(exception) && IsRetryableError(exception);
-        }
-
         public static bool IsSystemOverloadedError(Exception exception)
         {
             return exception is MongoException mongoException && mongoException.HasErrorLabel("SystemOverloadedError");
