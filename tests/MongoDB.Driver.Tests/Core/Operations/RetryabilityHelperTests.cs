@@ -1,4 +1,4 @@
-﻿/* Copyright 2018-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
 using Xunit;
-using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -100,6 +99,40 @@ namespace MongoDB.Driver.Core.Operations
 
             var hasRetryableWriteErrorLabel = exception.HasErrorLabel("RetryableWriteError");
             hasRetryableWriteErrorLabel.Should().Be(shouldAddErrorLabel);
+        }
+
+        [Theory]
+        [InlineData(1, 2, 100, 10000, 0, 100)]
+        [InlineData(2, 2, 100, 10000, 0, 200)]
+        [InlineData(3, 2, 100, 10000, 0, 400)]
+        [InlineData(9999, 2, 100, 10000, 0, 10000)]
+        [InlineData(1, 1.5, 100, 10000, 0, 100)]
+        [InlineData(2, 1.5, 100, 10000, 0, 150)]
+        [InlineData(3, 1.5, 100, 10000, 0, 225)]
+        [InlineData(9999, 1.5, 100, 10000, 0, 10000)]
+        public void GetRetryDelayMs_should_return_expected_result(int attempt, double backoffBase, int backoffInitial, int backoffMax, int expectedRangeMin, int expectedRangeMax)
+        {
+            var result = RetryabilityHelper.GetRetryDelayMs(DefaultRandom.Instance, attempt, backoffBase, backoffInitial, backoffMax);
+
+            result.Should().BeInRange(expectedRangeMin, expectedRangeMax);
+        }
+
+        [Theory]
+        [InlineData(-1, 2, 100, 1000, "attempt")]
+        [InlineData(0, 2, 100, 1000, "attempt")]
+        [InlineData(1, -1, 100, 1000, "backoffBase")]
+        [InlineData(1, 0, 100, 1000, "backoffBase")]
+        [InlineData(1, 2, -1, 1000, "backoffInitial")]
+        [InlineData(1, 2, 0, 1000, "backoffInitial")]
+        [InlineData(1, 2, 100, -1, "backoffMax")]
+        [InlineData(1, 2, 100, 0, "backoffMax")]
+        [InlineData(1, 2, 100, 50, "backoffMax")]
+        public void GetRetryDelayMs_throws_on_wrong_parameters(int attempt, double backoffBase, int backoffInitial, int backoffMax, string expectedParameterName)
+        {
+            var exception = Record.Exception(() => RetryabilityHelper.GetRetryDelayMs(DefaultRandom.Instance, attempt, backoffBase, backoffInitial, backoffMax));
+
+            exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject
+                .ParamName.Should().Be(expectedParameterName);
         }
 
         [Theory]

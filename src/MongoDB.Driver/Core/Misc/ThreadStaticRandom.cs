@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,13 +26,14 @@ namespace MongoDB.Driver.Core.Misc
         // static methods
         public static int Next(int maxValue)
         {
-            var random = __threadStaticRandom;
-            if (random == null)
-            {
-                random = __threadStaticRandom = new Random();
-            }
+            __threadStaticRandom ??= new Random();
+            return __threadStaticRandom.Next(maxValue);
+        }
 
-            return random.Next(maxValue);
+        public static double NextDouble()
+        {
+            __threadStaticRandom ??= new Random();
+            return __threadStaticRandom.NextDouble();
         }
     }
 }
