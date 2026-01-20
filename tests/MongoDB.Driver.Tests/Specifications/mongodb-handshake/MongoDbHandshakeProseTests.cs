@@ -38,13 +38,13 @@ namespace MongoDB.Driver.Tests.Specifications.mongodb_handshake
 {
     public class MongoDbHandshakeProseTests : LoggableTestClass
     {
-        // https://github.com/mongodb/specifications/blob/75027a8e91ff50778aed2ad5a67c005f2694705f/source/mongodb-handshake/tests/README.md?plain=1#L77
         public MongoDbHandshakeProseTests(ITestOutputHelper output) : base(output)
         {
         }
 
         [Theory]
         [ParameterAttributeData]
+        // https://github.com/mongodb/specifications/blob/75027a8e91ff50778aed2ad5a67c005f2694705f/source/mongodb-handshake/tests/README.md?plain=1#L77
         public async Task DriverAcceptsArbitraryAuthMechanism([Values(false, true)] bool async)
         {
             var capturedEvents = new EventCapturer();
