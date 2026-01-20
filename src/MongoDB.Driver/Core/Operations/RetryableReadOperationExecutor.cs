@@ -26,8 +26,8 @@ namespace MongoDB.Driver.Core.Operations
     internal static class RetryableReadOperationExecutor
     {
         const int basePowerBackoff = 2;
-        const double initialBackoff = 0.1;
-        const int maxBackoff = 10;
+        const double initialBackoff = 100;
+        const int maxBackoff = 1000;
         const int maxRetries = 5;
         const double retryTokenReturnRate = 0.1;
 
@@ -195,7 +195,7 @@ namespace MongoDB.Driver.Core.Operations
         // TODO Move in right place and add the correct logic
         private static TimeSpan GetBackoffDelay(int attempt)
         {
-            TimeSpan.FromMilliseconds(GetRetryDelayMs(DefaultRandom.Instance, attempt, basePowerBackoff, initialBackoff, maxBackoff));
+            return TimeSpan.FromMilliseconds(GetRetryDelayMs(DefaultRandom.Instance, attempt, basePowerBackoff, initialBackoff, maxBackoff));
         }
 
         // TODO Move in right place
