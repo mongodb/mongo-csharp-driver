@@ -34,7 +34,7 @@ using Moq;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace MongoDB.Driver.Tests.Specifications.mongodb_handshake
+namespace MongoDB.Driver.Tests.Specifications.mongodb_handshake.prose_tests
 {
     public class MongoDbHandshakeProseTests : LoggableTestClass
     {
