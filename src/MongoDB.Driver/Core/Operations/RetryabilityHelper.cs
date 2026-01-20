@@ -204,7 +204,6 @@ namespace MongoDB.Driver.Core.Operations
             return exception is MongoException mongoException && mongoException.HasErrorLabel("SystemOverloadedError");
         }
 
-        //TODO Maybe we can remove this
         public static bool IsRetryableError(Exception exception)
         {
             return exception is MongoException mongoException && mongoException.HasErrorLabel("RetryableError");

@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Operations
@@ -24,11 +25,24 @@ namespace MongoDB.Driver.Core.Operations
     //TODO We could decide to merge the retryableRead and retryableWrite executors into a single executor (not in this PR)
     internal static class RetryableReadOperationExecutor
     {
-        const double baseBackoff = 0.1;
+        const int basePowerBackoff = 2;
+        const double initialBackoff = 0.1;
         const int maxBackoff = 10;
         const int maxRetries = 5;
         const double retryTokenReturnRate = 0.1;
 
+        //TODO This is taken from Alex's PR, we'll remove them after that is merged
+        private static int GetRetryDelayMs(IRandom random, int attempt, double backoffBase, double backoffInitial, int backoffMax)
+        {
+            Ensure.IsNotNull(random, nameof(random));
+            Ensure.IsGreaterThanZero(attempt, nameof(attempt));
+            Ensure.IsGreaterThanZero(backoffBase, nameof(backoffBase));
+            Ensure.IsGreaterThanZero(backoffInitial, nameof(backoffInitial));
+            Ensure.IsGreaterThan(backoffMax, backoffInitial, nameof(backoffMax));
+
+            var j = random.NextDouble();
+            return (int)(j * Math.Min(backoffMax, backoffInitial * Math.Pow(backoffBase, attempt - 1)));
+        }
 
         // public static methods
         public static TResult Execute<TResult>(OperationContext operationContext, IRetryableReadOperation<TResult> operation, RetryableReadContext context)
@@ -36,7 +50,7 @@ namespace MongoDB.Driver.Core.Operations
             HashSet<ServerDescription> deprioritizedServers = null;
             var attempt = 0;  // TODO This is to keep consistency with the withTransaction work
             Exception originalException = null;
-            bool isSystemOverloaded = false;
+            var maxAttempts = 1;  //TODO Do we have CSOT implemented here? According to the spec here "if CSOT, then math.inf, otherwise 1"
 
             var tokenBucket = context.ChannelSource.Server.TokenBucket;
             while (true) // Circle breaking logic based on ShouldRetryOperation method, see the catch block below.
@@ -44,35 +58,50 @@ namespace MongoDB.Driver.Core.Operations
                 attempt++;
                 operationContext.ThrowIfTimedOutOrCanceled();
                 var server = context.ChannelSource.ServerDescription;
+                bool isSystemOverloaded;
                 try
                 {
                     var operationResult = operation.ExecuteAttempt(operationContext, context, attempt, transactionNumber: null);
-                    var tokensToDeposit = attempt > 1 ? retryTokenReturnRate + 1 : retryTokenReturnRate;
+                    var tokensToDeposit = retryTokenReturnRate;
+                    if (attempt > 1)
+                    {
+                        tokensToDeposit += 1;
+                    }
                     tokenBucket.Deposit(tokensToDeposit);
                     return operationResult;
                 }
                 catch (Exception ex)
                 {
+                    originalException ??= ex;
+
                     var isRetryableRead = IsRetryableRead(operationContext, context, ex, attempt);
-                    var isBackpressureRetryable = RetryabilityHelper.IsBackpressureRetryableError(ex);
+                    var isErrorRetryable = RetryabilityHelper.IsRetryableError(ex);
                     isSystemOverloaded = RetryabilityHelper.IsSystemOverloadedError(ex);
 
-                    var isRetryable = isRetryableRead || isBackpressureRetryable;
+                    var isRetryable = isRetryableRead || (isErrorRetryable && isSystemOverloaded);
 
-                    if (attempt > 1)
+                    if (attempt > 1 && !isSystemOverloaded)
                     {
                         tokenBucket.Deposit(1);
                     }
 
-                    if (!isRetryable || attempt > maxRetries)
+                    if (!isRetryable)
                     {
-                        throw originalException ?? ex;
+                        throw originalException;
                     }
 
-                    originalException ??= ex;
+                    if (isSystemOverloaded)
+                    {
+                        maxAttempts = maxRetries;
+                    }
+
+                    if (attempt > maxAttempts)
+                    {
+                        throw originalException;
+                    }
                 }
 
-                deprioritizedServers ??= new HashSet<ServerDescription>();
+                deprioritizedServers ??= [];
                 deprioritizedServers.Add(server);
 
                 if (isSystemOverloaded)
@@ -95,8 +124,6 @@ namespace MongoDB.Driver.Core.Operations
                 {
                     throw originalException;
                 }
-
-                attempt++;
             }
         }
 
@@ -168,7 +195,7 @@ namespace MongoDB.Driver.Core.Operations
         // TODO Move in right place and add the correct logic
         private static TimeSpan GetBackoffDelay(int attempt)
         {
-            return TimeSpan.FromSeconds(2);
+            TimeSpan.FromMilliseconds(GetRetryDelayMs(DefaultRandom.Instance, attempt, basePowerBackoff, initialBackoff, maxBackoff));
         }
 
         // TODO Move in right place
@@ -181,6 +208,5 @@ namespace MongoDB.Driver.Core.Operations
 
             return false;
         }
-
     }
 }
