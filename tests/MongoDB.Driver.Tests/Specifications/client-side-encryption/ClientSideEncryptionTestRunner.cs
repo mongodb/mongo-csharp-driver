@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
             {
                 // This test requires setting of some temporary environment variables that can be set by mongo orchestration or manually.
                 // Add this environment variable on your local machine only together with FLE_AWS_TEMP_* variables (note: they will be expired in 12 hours)
-                RequireEnvironment.Check().EnvironmentVariable("FLE_AWS_TEMPORARY_CREDS_ENABLED");
+                RequireEnvironment.Check().EnvironmentVariable("CSFLE_AWS_TEMPORARY_CREDS_ENABLED");
             }
 
             if (testCase.Name.Contains("kmip"))

@@ -344,7 +344,6 @@ functions:
         working_dir: mongo-csharp-driver
         shell: "bash"
         script: |
-          DRIVERS_TOOLS=${DRIVERS_TOOLS} . ./evergreen/set-temp-fle-aws-creds.sh
           ${PREPARE_SHELL}
           OS=${OS} \
             evergreen/add-ca-certs.sh
@@ -359,6 +358,7 @@ functions:
           FRAMEWORK=${FRAMEWORK} \
           CRYPT_SHARED_LIB_PATH=${CRYPT_SHARED_LIB_PATH} \
           TEST_CATEGORY=${TEST_CATEGORY} \
+          CSFLE_AWS_TEMPORARY_CREDS_ENABLED=true \
             evergreen/run-tests.sh
           echo "Skipping certificate removal..."
 
@@ -393,7 +393,6 @@ functions:
         working_dir: mongo-csharp-driver
         shell: "bash"
         script: |
-          DRIVERS_TOOLS=${DRIVERS_TOOLS} . ./evergreen/set-temp-fle-aws-creds.sh
           ${PREPARE_SHELL}
           OS=${OS} \
             evergreen/add-ca-certs.sh
@@ -408,6 +407,7 @@ functions:
           TEST_CATEGORY="CSFLE" \
           FRAMEWORK=${FRAMEWORK} \
           CRYPT_SHARED_LIB_PATH="" \
+          CSFLE_AWS_TEMPORARY_CREDS_ENABLED=true \
             evergreen/run-tests.sh
           echo "Skipping certificate removal..."
 
@@ -1989,7 +1989,7 @@ axes:
           OS: "windows-64"
           skip_ECS_auth_test: true
           skip_web_identity_auth_test: true
-        run_on: windows-64-vs2017-test
+        run_on: windows-2022-latest-small
       - id: "ubuntu-1804"
         display_name: "Ubuntu 18.04"
         variables:
@@ -2393,7 +2393,7 @@ task_groups:
 buildvariants:
 - name: unit-tests-windows
   display_name: Unit Tests on Windows
-  run_on: windows-64-vs2017-test
+  run_on: windows-2022-latest-small
   expansions:
     OS: "windows-64"
   tasks:
@@ -2439,7 +2439,7 @@ buildvariants:
   matrix_spec: { version: ["5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: ["standalone", "sharded-cluster"], auth: "auth", ssl: "nossl", os: "windows-64" }
   display_name: "Stable API ${version} ${topology} ${auth} ${ssl} ${os}"
   run_on:
-    - windows-64-vs2017-test
+    - windows-2022-latest-small
   tasks:
     - name: stable-api-tests-net472
     - name: stable-api-tests-netstandard21
@@ -2611,7 +2611,7 @@ buildvariants:
   matrix_spec: { version: ["4.4", "5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: "standalone", os: "windows-64" }
   display_name: "MONGODB-AWS Auth test ${version} ${os}"
   run_on:
-    - windows-64-vs2017-test
+    - windows-2022-latest-small
   tasks:
     - name: aws-auth-tests
 
@@ -2629,7 +2629,7 @@ buildvariants:
 
 - name: gssapi-auth-tests-windows
   run_on:
-    - windows-64-vs2017-test
+    - windows-2022-latest-small
   display_name: "GSSAPI (Kerberos) Auth tests - Windows"
   tasks:
     - name: test-gssapi-net472
@@ -2685,14 +2685,14 @@ buildvariants:
 - name: atlas-connectivity-tests
   display_name: "Atlas Connectivity Tests"
   run_on:
-    - windows-64-vs2017-test # Why on windows?
+    - windows-2022-latest-small # Why on windows?
   tasks:
     - name: atlas-connectivity-tests
 
 - name: atlas-search-test
   display_name: "Atlas Search Tests"
   run_on:
-    - windows-64-vs2017-test # Why on windows?
+    - windows-2022-latest-small # Why on windows?
   tasks:
     - name: atlas-search-test
 
