@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
         [InlineData(true, true, false, true, true, 1)]
         [InlineData(true, true, false, true, true, 2)]
         [InlineData(true, true, false, true, true, 10)]
-        public void ShouldRetryOperation_should_return_expected_result(
+        public void IsRetryableRead_should_return_expected_result(
             bool expected,
             bool isRetryRequested,
             bool isInTransaction,
@@ -53,10 +53,10 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
             int attempt)
         {
             var retryableReadContext = CreateSubject(isRetryRequested, isInTransaction);
-            var exception =CoreExceptionHelper.CreateException(isRetriableException ? nameof(MongoNodeIsRecoveringException) : nameof(IOException));
+            var exception = CoreExceptionHelper.CreateException(isRetriableException ? nameof(MongoNodeIsRecoveringException) : nameof(IOException));
             var operationContext = new OperationContext(hasTimeout ? TimeSpan.FromSeconds(42) : null, CancellationToken.None);
 
-            var result = RetryableReadOperationExecutorReflector.ShouldRetryOperation(operationContext, retryableReadContext, exception, attempt);
+            var result = RetryableReadOperationExecutorReflector.IsRetryableRead(operationContext, retryableReadContext, exception, attempt);
 
             Assert.Equal(expected, result);
         }
@@ -72,8 +72,8 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
 
         private static class RetryableReadOperationExecutorReflector
         {
-            public static bool ShouldRetryOperation(OperationContext operationContext, RetryableReadContext context, Exception exception, int attempt)
-                => (bool)Reflector.InvokeStatic(typeof(RetryableReadOperationExecutor), nameof(ShouldRetryOperation), operationContext, context, exception, attempt);
+            public static bool IsRetryableRead(OperationContext operationContext, RetryableReadContext context, Exception exception, int attempt)
+                => (bool)Reflector.InvokeStatic(typeof(RetryableReadOperationExecutor), nameof(IsRetryableRead), operationContext, context, exception, attempt);
         }
     }
 }
