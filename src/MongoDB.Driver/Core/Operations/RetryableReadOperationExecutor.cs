@@ -174,7 +174,6 @@ namespace MongoDB.Driver.Core.Operations
             return IsRetryableRead(operationContext, context, innerException, attempt);
         }
 
-        // TODO Do we ever check that the server is at least version 3.6 (wire version 6) to be sure the server supports retryable reads? It seems we don't, maybe checking if we get a retryable read error is enough?
         // private static methods
         private static bool IsRetryableRead(OperationContext operationContext, RetryableReadContext context, Exception exception, int attempt)
         {
@@ -188,17 +187,14 @@ namespace MongoDB.Driver.Core.Operations
                 return false;
             }
 
-            //TODO Do we need to keep this first check here?
             return operationContext.IsRootContextTimeoutConfigured() || attempt < 2;
         }
 
-        // TODO Move in right place and add the correct logic
         private static TimeSpan GetBackoffDelay(int attempt)
         {
             return TimeSpan.FromMilliseconds(GetRetryDelayMs(DefaultRandom.Instance, attempt, basePowerBackoff, initialBackoff, maxBackoff));
         }
 
-        // TODO Move in right place
         private static bool IsTimedOut(OperationContext operationContext, TimeSpan delay = default)
         {
             if (operationContext.Timeout.HasValue)
