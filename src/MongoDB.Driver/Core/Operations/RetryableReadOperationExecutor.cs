@@ -26,31 +26,18 @@ namespace MongoDB.Driver.Core.Operations
     internal static class RetryableReadOperationExecutor
     {
         const int basePowerBackoff = 2;
-        const double initialBackoff = 100;
+        const int initialBackoff = 100;
         const int maxBackoff = 1000;
         const int maxRetries = 5;
         const double retryTokenReturnRate = 0.1;
-
-        //TODO This is taken from Alex's PR, we'll remove them after that is merged
-        private static int GetRetryDelayMs(IRandom random, int attempt, double backoffBase, double backoffInitial, int backoffMax)
-        {
-            Ensure.IsNotNull(random, nameof(random));
-            Ensure.IsGreaterThanZero(attempt, nameof(attempt));
-            Ensure.IsGreaterThanZero(backoffBase, nameof(backoffBase));
-            Ensure.IsGreaterThanZero(backoffInitial, nameof(backoffInitial));
-            Ensure.IsGreaterThan(backoffMax, backoffInitial, nameof(backoffMax));
-
-            var j = random.NextDouble();
-            return (int)(j * Math.Min(backoffMax, backoffInitial * Math.Pow(backoffBase, attempt - 1)));
-        }
 
         // public static methods
         public static TResult Execute<TResult>(OperationContext operationContext, IRetryableReadOperation<TResult> operation, RetryableReadContext context)
         {
             HashSet<ServerDescription> deprioritizedServers = null;
-            var attempt = 0;  // TODO This is to keep consistency with the withTransaction work
+            var attempt = 0;
             Exception originalException = null;
-            var maxAttempts = 1;  //TODO Do we have CSOT implemented here? According to the spec here "if CSOT, then math.inf, otherwise 1"
+            var maxAttempts = 1;
 
             var tokenBucket = context.ChannelSource.Server.TokenBucket;
             while (true) // Circle breaking logic based on ShouldRetryOperation method, see the catch block below.
@@ -190,9 +177,10 @@ namespace MongoDB.Driver.Core.Operations
             return operationContext.IsRootContextTimeoutConfigured() || attempt < 2;
         }
 
+        //TODO Where should we get the IRandom instance from..?
         private static TimeSpan GetBackoffDelay(int attempt)
         {
-            return TimeSpan.FromMilliseconds(GetRetryDelayMs(DefaultRandom.Instance, attempt, basePowerBackoff, initialBackoff, maxBackoff));
+            return TimeSpan.FromMilliseconds(RetryabilityHelper.GetRetryDelayMs(DefaultRandom.Instance, attempt, basePowerBackoff, initialBackoff, maxBackoff));
         }
 
         private static bool IsTimedOut(OperationContext operationContext, TimeSpan delay = default)
