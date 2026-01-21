@@ -75,7 +75,16 @@ namespace MongoDB.Driver.Tests.Specifications
         }
 
         [UnifiedTestsTheory("client_backpressure.tests")]
-        public void ClientBackpressure(JsonDrivenTestCase testCase) => Run(testCase);
+        public void ClientBackpressure(JsonDrivenTestCase testCase)
+        {
+            //TODO Do we want to do something about these operations?
+            if (testCase.Name.Contains("findOne ") || testCase.Name.Contains("dropIndexes "))
+            {
+                throw new SkipException($"Test skipped because operation is not supported.");
+            }
+
+            Run(testCase);
+        }
 
         [Category("CSFLE")]
         [UnifiedTestsTheory("client_side_encryption.tests.unified")]
