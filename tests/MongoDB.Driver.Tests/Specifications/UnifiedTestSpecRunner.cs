@@ -74,6 +74,9 @@ namespace MongoDB.Driver.Tests.Specifications
             }
         }
 
+        [UnifiedTestsTheory("client_backpressure.tests")]
+        public void ClientBackpressure(JsonDrivenTestCase testCase) => Run(testCase);
+
         [Category("CSFLE")]
         [UnifiedTestsTheory("client_side_encryption.tests.unified")]
         public void ClientSideEncryption(JsonDrivenTestCase testCase)

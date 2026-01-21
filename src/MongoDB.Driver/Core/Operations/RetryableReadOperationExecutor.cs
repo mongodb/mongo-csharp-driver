@@ -38,6 +38,7 @@ namespace MongoDB.Driver.Core.Operations
                 operationContext.ThrowIfTimedOutOrCanceled();
                 var server = context.ChannelSource.ServerDescription;
                 bool isSystemOverloaded;
+
                 try
                 {
                     var operationResult = operation.ExecuteAttempt(operationContext, context, attempt, transactionNumber: null);
@@ -95,6 +96,7 @@ namespace MongoDB.Driver.Core.Operations
                     Thread.Sleep(backoff);
                 }
 
+                //TODO What to do with this?
                 try
                 {
                     context.AcquireOrReplaceChannel(operationContext, deprioritizedServers);
@@ -109,30 +111,77 @@ namespace MongoDB.Driver.Core.Operations
         public static async Task<TResult> ExecuteAsync<TResult>(OperationContext operationContext, IRetryableReadOperation<TResult> operation, RetryableReadContext context)
         {
             HashSet<ServerDescription> deprioritizedServers = null;
-            var attempt = 1;
+            var attempt = 0;
             Exception originalException = null;
+            var maxAttempts = 1;
+            var tokenBucket = context.ChannelSource.Server.TokenBucket;
 
             while (true) // Circle breaking logic based on ShouldRetryOperation method, see the catch block below.
             {
+                attempt++;
                 operationContext.ThrowIfTimedOutOrCanceled();
                 var server = context.ChannelSource.ServerDescription;
+                bool isSystemOverloaded;
+
                 try
                 {
-                    return await operation.ExecuteAttemptAsync(operationContext, context, attempt, transactionNumber: null).ConfigureAwait(false);
+                    var operationResult = await operation.ExecuteAttemptAsync(operationContext, context, attempt, transactionNumber: null).ConfigureAwait(false);
+                    var tokensToDeposit = RetryabilityHelper.OperationRetryBackpressureConstants.RetryTokenReturnRate;
+                    if (attempt > 1)
+                    {
+                        tokensToDeposit += 1;
+                    }
+                    tokenBucket.Deposit(tokensToDeposit);
+                    return operationResult;
                 }
                 catch (Exception ex)
                 {
-                    if (!IsRetryableRead(operationContext, context, ex, attempt))
+                    originalException ??= ex;
+
+                    var isRetryableRead = IsRetryableRead(operationContext, context, ex, attempt);
+                    var isErrorRetryable = RetryabilityHelper.IsRetryableError(ex);
+                    isSystemOverloaded = RetryabilityHelper.IsSystemOverloadedError(ex);
+
+                    var isRetryable = isRetryableRead || (isErrorRetryable && isSystemOverloaded);
+
+                    if (attempt > 1 && !isSystemOverloaded)
                     {
-                        throw originalException ?? ex;
+                        tokenBucket.Deposit(1);
                     }
 
-                    originalException ??= ex;
+                    if (!isRetryable)
+                    {
+                        throw originalException;
+                    }
+
+                    if (isSystemOverloaded)
+                    {
+                        maxAttempts = RetryabilityHelper.OperationRetryBackpressureConstants.MaxRetries;
+                    }
+
+                    if (attempt > maxAttempts)
+                    {
+                        throw originalException;
+                    }
+
                 }
 
-                deprioritizedServers ??= new HashSet<ServerDescription>();
+                deprioritizedServers ??= [];
                 deprioritizedServers.Add(server);
 
+                if (isSystemOverloaded)
+                {
+                    var backoff = RetryabilityHelper.GetOperationRetryBackoffDelay(attempt);
+
+                    if (IsTimedOut(operationContext, backoff) || !tokenBucket.Consume(1))
+                    {
+                        throw originalException;
+                    }
+
+                    await Task.Delay(backoff).ConfigureAwait(false);
+                }
+
+                //TODO What to do with this?
                 try
                 {
                     await context.AcquireOrReplaceChannelAsync(operationContext, deprioritizedServers).ConfigureAwait(false);
@@ -141,8 +190,6 @@ namespace MongoDB.Driver.Core.Operations
                 {
                     throw originalException;
                 }
-
-                attempt++;
             }
         }
 

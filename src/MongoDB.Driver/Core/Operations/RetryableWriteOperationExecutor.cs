@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-present MongoDB Inc.
+﻿        /* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -48,6 +48,7 @@ namespace MongoDB.Driver.Core.Operations
                 operationContext.ThrowIfTimedOutOrCanceled();
                 var server = context.ChannelSource.ServerDescription;
                 bool isSystemOverloaded;
+
                 try
                 {
                     var operationResult = operation.ExecuteAttempt(operationContext, context, attempt, transactionNumber);
@@ -105,16 +106,12 @@ namespace MongoDB.Driver.Core.Operations
                     Thread.Sleep(backoff);
                 }
 
+                //TODO What to do with this?
                 try
                 {
                     context.AcquireOrReplaceChannel(operationContext, deprioritizedServers);
                 }
                 catch
-                {
-                    throw originalException;
-                }
-
-                if (!AreRetryableWritesSupported(context.ChannelSource.ServerDescription))
                 {
                     throw originalException;
                 }
@@ -130,31 +127,76 @@ namespace MongoDB.Driver.Core.Operations
         public static async Task<TResult> ExecuteAsync<TResult>(OperationContext operationContext, IRetryableWriteOperation<TResult> operation, RetryableWriteContext context)
         {
             HashSet<ServerDescription> deprioritizedServers = null;
-            var attempt = 1;
+            var attempt = 0;
             Exception originalException = null;
+            var maxAttempts = 1;
+            var tokenBucket = context.ChannelSource.Server.TokenBucket;
 
             long? transactionNumber = AreRetriesAllowed(operation.WriteConcern, context, context.ChannelSource.ServerDescription) ? context.Binding.Session.AdvanceTransactionNumber() : null;
 
             while (true)  // Circle breaking logic based on ShouldRetryOperation method, see the catch block below.
             {
+                attempt++;
                 operationContext.ThrowIfTimedOutOrCanceled();
                 var server = context.ChannelSource.ServerDescription;
+                bool isSystemOverloaded;
+
                 try
                 {
-                    return await operation.ExecuteAttemptAsync(operationContext, context, attempt, transactionNumber).ConfigureAwait(false);
+                    var operationResult = await operation.ExecuteAttemptAsync(operationContext, context, attempt, transactionNumber).ConfigureAwait(false);
+                    var tokensToDeposit = RetryabilityHelper.OperationRetryBackpressureConstants.RetryTokenReturnRate;
+                    if (attempt > 1)
+                    {
+                        tokensToDeposit += 1;
+                    }
+                    tokenBucket.Deposit(tokensToDeposit);
+                    return operationResult;
                 }
                 catch (Exception ex)
                 {
-                    if (!IsRetryableWrite(operationContext, operation.WriteConcern, context, server, ex, attempt))
+                    originalException ??= ex;
+
+                    var isRetryableWrite = IsRetryableWrite(operationContext, operation.WriteConcern, context, server, ex, attempt);
+                    var isErrorRetryable = RetryabilityHelper.IsRetryableError(ex);
+                    isSystemOverloaded = RetryabilityHelper.IsSystemOverloadedError(ex);
+
+                    var isRetryable = isRetryableWrite || (isErrorRetryable && isSystemOverloaded);
+
+                    if (attempt > 1 && !isSystemOverloaded)
                     {
-                        throw originalException ?? ex;
+                        tokenBucket.Deposit(1);
                     }
 
-                    originalException ??= ex;
+                    if (!isRetryable)
+                    {
+                        throw originalException;
+                    }
+
+                    if (isSystemOverloaded)
+                    {
+                        maxAttempts = RetryabilityHelper.OperationRetryBackpressureConstants.MaxRetries;
+                    }
+
+                    if (attempt > maxAttempts)
+                    {
+                        throw originalException;
+                    }
                 }
 
                 deprioritizedServers ??= new HashSet<ServerDescription>();
                 deprioritizedServers.Add(server);
+
+                if (isSystemOverloaded)
+                {
+                    var backoff = RetryabilityHelper.GetOperationRetryBackoffDelay(attempt);
+
+                    if (IsTimedOut(operationContext, backoff) || !tokenBucket.Consume(1))
+                    {
+                        throw originalException;
+                    }
+
+                    await Task.Delay(backoff).ConfigureAwait(false);
+                }
 
                 try
                 {
@@ -164,13 +206,6 @@ namespace MongoDB.Driver.Core.Operations
                 {
                     throw originalException;
                 }
-
-                if (!AreRetryableWritesSupported(context.ChannelSource.ServerDescription))
-                {
-                    throw originalException;
-                }
-
-                attempt++;
             }
         }
 
