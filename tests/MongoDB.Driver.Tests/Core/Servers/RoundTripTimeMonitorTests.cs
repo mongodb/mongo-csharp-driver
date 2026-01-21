@@ -193,11 +193,11 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
             sentMessages.Count.Should().BeInRange(1, 2);
 
             var requestId = sentMessages[0]["requestId"].AsInt32;
-            sentMessages[0].Should().Be($"{{ \"opcode\" : \"opmsg\", \"requestId\" : {requestId}, \"responseTo\" : 0, \"sections\" : [{{ \"payloadType\" : 0, \"document\" : {{ \"hello\" : 1, \"helloOk\" : true, \"$db\" : \"admin\", \"$readPreference\" : {{ \"mode\" : \"primaryPreferred\" }}, \"apiVersion\" : \"1\" }} }}] }}");
+            sentMessages[0].Should().Be($"{{ \"opcode\" : \"opmsg\", \"requestId\" : {requestId}, \"responseTo\" : 0, \"sections\" : [{{ \"payloadType\" : 0, \"document\" : {{ \"hello\" : 1, \"helloOk\" : true, \"backpressure\" : true, \"$db\" : \"admin\", \"$readPreference\" : {{ \"mode\" : \"primaryPreferred\" }}, \"apiVersion\" : \"1\" }} }}] }}");
             if (sentMessages.Count > 1)
             {
                 requestId = sentMessages[1]["requestId"].AsInt32;
-                sentMessages[1].Should().Be($"{{ \"opcode\" : \"opmsg\", \"requestId\" : {requestId}, \"responseTo\" : 0, \"sections\" : [{{ \"payloadType\" : 0, \"document\" : {{ \"hello\" : 1, \"helloOk\" : true, \"$db\" : \"admin\", \"$readPreference\" : {{ \"mode\" : \"primaryPreferred\" }}, \"apiVersion\" : \"1\" }} }}] }}");
+                sentMessages[1].Should().Be($"{{ \"opcode\" : \"opmsg\", \"requestId\" : {requestId}, \"responseTo\" : 0, \"sections\" : [{{ \"payloadType\" : 0, \"document\" : {{ \"hello\" : 1, \"helloOk\" : true, \"backpressure\" : true, \"$db\" : \"admin\", \"$readPreference\" : {{ \"mode\" : \"primaryPreferred\" }}, \"apiVersion\" : \"1\" }} }}] }}");
             }
         }
 
@@ -235,11 +235,11 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
             sentMessages.Count.Should().BeInRange(1, 2);
 
             var requestId = sentMessages[0]["requestId"].AsInt32;
-            sentMessages[0].Should().Be($"{{ \"opcode\" : \"opmsg\", \"requestId\" : {requestId}, \"responseTo\" : 0, \"sections\" : [{{ \"payloadType\" : 0, \"document\" : {{ \"hello\" : 1, \"helloOk\" : true, \"loadBalanced\" : true, \"$db\" : \"admin\", \"$readPreference\" : {{ \"mode\" : \"primaryPreferred\" }} }} }}] }}");
+            sentMessages[0].Should().Be($"{{ \"opcode\" : \"opmsg\", \"requestId\" : {requestId}, \"responseTo\" : 0, \"sections\" : [{{ \"payloadType\" : 0, \"document\" : {{ \"hello\" : 1, \"helloOk\" : true, \"loadBalanced\" : true, \"backpressure\" : true, \"$db\" : \"admin\", \"$readPreference\" : {{ \"mode\" : \"primaryPreferred\" }} }} }}] }}");
             if (sentMessages.Count > 1)
             {
                 requestId = sentMessages[1]["requestId"].AsInt32;
-                sentMessages[1].Should().Be($"{{ \"opcode\" : \"opmsg\", \"requestId\" : {requestId}, \"responseTo\" : 0, \"sections\" : [{{ \"payloadType\" : 0, \"document\" : {{ \"hello\" : 1, \"helloOk\" : true, \"loadBalanced\" : true, \"$db\" : \"admin\", \"$readPreference\" : {{ \"mode\" : \"primaryPreferred\" }} }} }}] }}");
+                sentMessages[1].Should().Be($"{{ \"opcode\" : \"opmsg\", \"requestId\" : {requestId}, \"responseTo\" : 0, \"sections\" : [{{ \"payloadType\" : 0, \"document\" : {{ \"hello\" : 1, \"helloOk\" : true, \"loadBalanced\" : true, \"backpressure\" : true, \"$db\" : \"admin\", \"$readPreference\" : {{ \"mode\" : \"primaryPreferred\" }} }} }}] }}");
             }
         }
 
