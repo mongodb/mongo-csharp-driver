@@ -25,13 +25,6 @@ namespace MongoDB.Driver.Core.Operations
 {
     internal static class RetryableWriteOperationExecutor
     {
-        //TODO Should we put this values somewhere...? Maybe in retryability helper
-        const int basePowerBackoff = 2;
-        const int initialBackoff = 100;
-        const int maxBackoff = 1000;
-        const int maxRetries = 5;
-        const double retryTokenReturnRate = 0.1;
-
         // public static methods
         public static TResult Execute<TResult>(OperationContext operationContext, IRetryableWriteOperation<TResult> operation, IWriteBinding binding, bool retryRequested)
         {
@@ -58,7 +51,7 @@ namespace MongoDB.Driver.Core.Operations
                 try
                 {
                     var operationResult = operation.ExecuteAttempt(operationContext, context, attempt, transactionNumber);
-                    var tokensToDeposit = retryTokenReturnRate;
+                    var tokensToDeposit = RetryabilityHelper.OperationRetryBackpressureConstants.RetryTokenReturnRate;
                     if (attempt > 1)
                     {
                         tokensToDeposit += 1;
@@ -88,7 +81,7 @@ namespace MongoDB.Driver.Core.Operations
 
                     if (isSystemOverloaded)
                     {
-                        maxAttempts = maxRetries;
+                        maxAttempts = RetryabilityHelper.OperationRetryBackpressureConstants.MaxRetries;
                     }
 
                     if (attempt > maxAttempts)
@@ -97,12 +90,12 @@ namespace MongoDB.Driver.Core.Operations
                     }
                 }
 
-                deprioritizedServers ??= new HashSet<ServerDescription>();
+                deprioritizedServers ??= [];
                 deprioritizedServers.Add(server);
 
                 if (isSystemOverloaded)
                 {
-                    var backoff = GetBackoffDelay(attempt);
+                    var backoff = RetryabilityHelper.GetOperationRetryBackoffDelay(attempt);
 
                     if (IsTimedOut(operationContext, backoff) || !tokenBucket.Consume(1))
                     {
@@ -232,12 +225,6 @@ namespace MongoDB.Driver.Core.Operations
         private static bool IsOperationAcknowledged(WriteConcern writeConcern)
             => writeConcern == null || // null means use server default write concern which implies acknowledged
                writeConcern.IsAcknowledged;
-
-        //TODO Where should we get the IRandom instance from..?
-        private static TimeSpan GetBackoffDelay(int attempt)
-        {
-            return TimeSpan.FromMilliseconds(RetryabilityHelper.GetRetryDelayMs(DefaultRandom.Instance, attempt, basePowerBackoff, initialBackoff, maxBackoff));
-        }
 
         private static bool IsTimedOut(OperationContext operationContext, TimeSpan delay = default)
         {

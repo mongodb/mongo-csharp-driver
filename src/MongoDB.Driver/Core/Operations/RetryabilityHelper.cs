@@ -23,6 +23,9 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Operations
 {
+    /// <summary>
+    /// This class contains helper methods for retryability, both for retryable reads /writes and client backpressure retries.
+    /// </summary>
     internal static class RetryabilityHelper
     {
         // private constants
@@ -108,6 +111,9 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
+        /// <summary>
+        /// Implements an exponential backoff with jitter algorithm to determine the delay used by client backpressure retries.
+        /// </summary>
         public static int GetRetryDelayMs(IRandom random, int attempt, double backoffBase, int backoffInitial, int backoffMax)
         {
             Ensure.IsNotNull(random, nameof(random));
@@ -118,6 +124,20 @@ namespace MongoDB.Driver.Core.Operations
 
             var j = random.NextDouble();
             return (int)(j * Math.Min(backoffMax, backoffInitial * Math.Pow(backoffBase, attempt - 1)));
+        }
+
+        /// <summary>
+        /// Gets the operation retry backoff delay used for operation retries under client backpressure.
+        /// </summary>
+        public static TimeSpan GetOperationRetryBackoffDelay(int attempt)
+        {
+            return TimeSpan.FromMilliseconds(
+                GetRetryDelayMs(
+                    DefaultRandom.Instance,
+                    attempt,
+                    OperationRetryBackpressureConstants.BasePowerBackoff,
+                    OperationRetryBackpressureConstants.InitialBackoff,
+                    OperationRetryBackpressureConstants.MaxBackoff));
         }
 
         public static bool IsCommandRetryable(BsonDocument command)
@@ -273,6 +293,16 @@ namespace MongoDB.Driver.Core.Operations
             }
 
             return false;
+        }
+
+        public static class OperationRetryBackpressureConstants
+        {
+            //TODO Should these be here...?
+            public const int BasePowerBackoff = 2;
+            public const int InitialBackoff = 100;
+            public const int MaxBackoff = 1000;
+            public const int MaxRetries = 5;
+            public const double RetryTokenReturnRate = 0.1;
         }
     }
 }
