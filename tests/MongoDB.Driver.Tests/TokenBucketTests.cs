@@ -60,15 +60,15 @@ public class TokenBucketTests
     public void Consume_should_throw_when_argument_invalid()
     {
         var bucket = new TokenBucket();
-        Assert.Throws<ArgumentException>(() => bucket.Consume(0));
-        Assert.Throws<ArgumentException>(() => bucket.Consume(-1));
+        Assert.Throws<ArgumentOutOfRangeException>(() => bucket.Consume(0));
+        Assert.Throws<ArgumentOutOfRangeException>(() => bucket.Consume(-1));
     }
 
     [Fact]
     public void Deposit_should_throw_when_argument_invalid()
     {
         var bucket = new TokenBucket();
-        Assert.Throws<ArgumentException>(() => bucket.Deposit(0));
-        Assert.Throws<ArgumentException>(() => bucket.Deposit(-1));
+        Assert.Throws<ArgumentOutOfRangeException>(() => bucket.Deposit(0));
+        Assert.Throws<ArgumentOutOfRangeException>(() => bucket.Deposit(-1));
     }
 }
