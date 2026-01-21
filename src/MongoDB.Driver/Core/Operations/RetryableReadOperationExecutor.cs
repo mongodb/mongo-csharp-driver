@@ -38,8 +38,8 @@ namespace MongoDB.Driver.Core.Operations
             var attempt = 0;
             Exception originalException = null;
             var maxAttempts = 1;
-
             var tokenBucket = context.ChannelSource.Server.TokenBucket;
+
             while (true) // Circle breaking logic based on ShouldRetryOperation method, see the catch block below.
             {
                 attempt++;

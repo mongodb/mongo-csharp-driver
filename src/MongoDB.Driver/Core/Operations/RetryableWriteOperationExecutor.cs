@@ -15,51 +15,102 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Operations
 {
     internal static class RetryableWriteOperationExecutor
     {
+        //TODO Should we put this values somewhere...? Maybe in retryability helper
+        const int basePowerBackoff = 2;
+        const int initialBackoff = 100;
+        const int maxBackoff = 1000;
+        const int maxRetries = 5;
+        const double retryTokenReturnRate = 0.1;
+
         // public static methods
         public static TResult Execute<TResult>(OperationContext operationContext, IRetryableWriteOperation<TResult> operation, IWriteBinding binding, bool retryRequested)
         {
-            using (var context = RetryableWriteContext.Create(operationContext, binding, retryRequested))
-            {
-                return Execute(operationContext, operation, context);
-            }
+            using var context = RetryableWriteContext.Create(operationContext, binding, retryRequested);
+            return Execute(operationContext, operation, context);
         }
 
         public static TResult Execute<TResult>(OperationContext operationContext, IRetryableWriteOperation<TResult> operation, RetryableWriteContext context)
         {
             HashSet<ServerDescription> deprioritizedServers = null;
-            var attempt = 1;
+            var attempt = 0;
             Exception originalException = null;
+            var maxAttempts = 1;
+            var tokenBucket = context.ChannelSource.Server.TokenBucket;
 
             long? transactionNumber = AreRetriesAllowed(operation.WriteConcern, context, context.ChannelSource.ServerDescription) ? context.Binding.Session.AdvanceTransactionNumber() : null;
 
             while (true) // Circle breaking logic based on ShouldRetryOperation method, see the catch block below.
             {
+                attempt++;
                 operationContext.ThrowIfTimedOutOrCanceled();
                 var server = context.ChannelSource.ServerDescription;
+                bool isSystemOverloaded;
                 try
                 {
-                    return operation.ExecuteAttempt(operationContext, context, attempt, transactionNumber);
+                    var operationResult = operation.ExecuteAttempt(operationContext, context, attempt, transactionNumber);
+                    var tokensToDeposit = retryTokenReturnRate;
+                    if (attempt > 1)
+                    {
+                        tokensToDeposit += 1;
+                    }
+                    tokenBucket.Deposit(tokensToDeposit);
+                    return operationResult;
                 }
                 catch (Exception ex)
                 {
-                    if (!ShouldRetryOperation(operationContext, operation.WriteConcern, context, server, ex, attempt))
+                    originalException ??= ex;
+
+                    var isRetryableWrite = IsRetryableWrite(operationContext, operation.WriteConcern, context, server, ex, attempt);
+                    var isErrorRetryable = RetryabilityHelper.IsRetryableError(ex);
+                    isSystemOverloaded = RetryabilityHelper.IsSystemOverloadedError(ex);
+
+                    var isRetryable = isRetryableWrite || (isErrorRetryable && isSystemOverloaded);
+
+                    if (attempt > 1 && !isSystemOverloaded)
                     {
-                        throw originalException ?? ex;
+                        tokenBucket.Deposit(1);
                     }
 
-                    originalException ??= ex;
+                    if (!isRetryable)
+                    {
+                        throw originalException;
+                    }
+
+                    if (isSystemOverloaded)
+                    {
+                        maxAttempts = maxRetries;
+                    }
+
+                    if (attempt > maxAttempts)
+                    {
+                        throw originalException;
+                    }
                 }
 
                 deprioritizedServers ??= new HashSet<ServerDescription>();
                 deprioritizedServers.Add(server);
+
+                if (isSystemOverloaded)
+                {
+                    var backoff = GetBackoffDelay(attempt);
+
+                    if (IsTimedOut(operationContext, backoff) || !tokenBucket.Consume(1))
+                    {
+                        throw originalException;
+                    }
+
+                    Thread.Sleep(backoff);
+                }
 
                 try
                 {
@@ -74,17 +125,13 @@ namespace MongoDB.Driver.Core.Operations
                 {
                     throw originalException;
                 }
-
-                attempt++;
             }
         }
 
-        public async static Task<TResult> ExecuteAsync<TResult>(OperationContext operationContext, IRetryableWriteOperation<TResult> operation, IWriteBinding binding, bool retryRequested)
+        public static async Task<TResult> ExecuteAsync<TResult>(OperationContext operationContext, IRetryableWriteOperation<TResult> operation, IWriteBinding binding, bool retryRequested)
         {
-            using (var context = await RetryableWriteContext.CreateAsync(operationContext, binding, retryRequested).ConfigureAwait(false))
-            {
-                return await ExecuteAsync(operationContext, operation, context).ConfigureAwait(false);
-            }
+            using var context = await RetryableWriteContext.CreateAsync(operationContext, binding, retryRequested).ConfigureAwait(false);
+            return await ExecuteAsync(operationContext, operation, context).ConfigureAwait(false);
         }
 
         public static async Task<TResult> ExecuteAsync<TResult>(OperationContext operationContext, IRetryableWriteOperation<TResult> operation, RetryableWriteContext context)
@@ -105,7 +152,7 @@ namespace MongoDB.Driver.Core.Operations
                 }
                 catch (Exception ex)
                 {
-                    if (!ShouldRetryOperation(operationContext, operation.WriteConcern, context, server, ex, attempt))
+                    if (!IsRetryableWrite(operationContext, operation.WriteConcern, context, server, ex, attempt))
                     {
                         throw originalException ?? ex;
                     }
@@ -152,7 +199,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // private static methods
-        private static bool ShouldRetryOperation(OperationContext operationContext, WriteConcern writeConcern, RetryableWriteContext context, ServerDescription server, Exception exception, int attempt)
+        private static bool IsRetryableWrite(OperationContext operationContext, WriteConcern writeConcern, RetryableWriteContext context, ServerDescription server, Exception exception, int attempt)
         {
             if (!AreRetriesAllowed(writeConcern, context, server))
             {
@@ -185,5 +232,21 @@ namespace MongoDB.Driver.Core.Operations
         private static bool IsOperationAcknowledged(WriteConcern writeConcern)
             => writeConcern == null || // null means use server default write concern which implies acknowledged
                writeConcern.IsAcknowledged;
+
+        //TODO Where should we get the IRandom instance from..?
+        private static TimeSpan GetBackoffDelay(int attempt)
+        {
+            return TimeSpan.FromMilliseconds(RetryabilityHelper.GetRetryDelayMs(DefaultRandom.Instance, attempt, basePowerBackoff, initialBackoff, maxBackoff));
+        }
+
+        private static bool IsTimedOut(OperationContext operationContext, TimeSpan delay = default)
+        {
+            if (operationContext.Timeout.HasValue)
+            {
+                return operationContext.Elapsed + delay >= operationContext.Timeout;
+            }
+
+            return false;
+        }
     }
 }
