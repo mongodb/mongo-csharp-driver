@@ -36,6 +36,7 @@ using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Specifications.mongodb_handshake.prose_tests
 {
+    [Trait("Category", "Integration")]
     public class MongoDbHandshakeProseTests : LoggableTestClass
     {
         public MongoDbHandshakeProseTests(ITestOutputHelper output) : base(output)
