@@ -17,20 +17,12 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    //TODO We could decide to merge the retryableRead and retryableWrite executors into a single executor (not in this PR)
     internal static class RetryableReadOperationExecutor
     {
-        const int basePowerBackoff = 2;
-        const int initialBackoff = 100;
-        const int maxBackoff = 1000;
-        const int maxRetries = 5;
-        const double retryTokenReturnRate = 0.1;
-
         // public static methods
         public static TResult Execute<TResult>(OperationContext operationContext, IRetryableReadOperation<TResult> operation, RetryableReadContext context)
         {
@@ -49,7 +41,7 @@ namespace MongoDB.Driver.Core.Operations
                 try
                 {
                     var operationResult = operation.ExecuteAttempt(operationContext, context, attempt, transactionNumber: null);
-                    var tokensToDeposit = retryTokenReturnRate;
+                    var tokensToDeposit = RetryabilityHelper.OperationRetryBackpressureConstants.RetryTokenReturnRate;
                     if (attempt > 1)
                     {
                         tokensToDeposit += 1;
@@ -79,7 +71,7 @@ namespace MongoDB.Driver.Core.Operations
 
                     if (isSystemOverloaded)
                     {
-                        maxAttempts = maxRetries;
+                        maxAttempts = RetryabilityHelper.OperationRetryBackpressureConstants.MaxRetries;
                     }
 
                     if (attempt > maxAttempts)
@@ -93,7 +85,7 @@ namespace MongoDB.Driver.Core.Operations
 
                 if (isSystemOverloaded)
                 {
-                    var backoff = GetBackoffDelay(attempt);
+                    var backoff = RetryabilityHelper.GetOperationRetryBackoffDelay(attempt);
 
                     if (IsTimedOut(operationContext, backoff) || !tokenBucket.Consume(1))
                     {
@@ -175,12 +167,6 @@ namespace MongoDB.Driver.Core.Operations
             }
 
             return operationContext.IsRootContextTimeoutConfigured() || attempt < 2;
-        }
-
-        //TODO Where should we get the IRandom instance from..?
-        private static TimeSpan GetBackoffDelay(int attempt)
-        {
-            return TimeSpan.FromMilliseconds(RetryabilityHelper.GetRetryDelayMs(DefaultRandom.Instance, attempt, basePowerBackoff, initialBackoff, maxBackoff));
         }
 
         private static bool IsTimedOut(OperationContext operationContext, TimeSpan delay = default)
