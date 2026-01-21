@@ -39,7 +39,7 @@ public class ClientBackpressureProseTests
         using (ConfigureJitter(0))
         {
             sw = Stopwatch.StartNew();
-            Assert.Throws<MongoCommandException>(() => collection.Find(new BsonDocument("a", 1)).ToList());
+            Assert.Throws<MongoCommandException>(() => collection.InsertOne(new BsonDocument("a", 1)));
             sw.Stop();
             noBackoffTime = sw.Elapsed.TotalSeconds;
         }
@@ -47,7 +47,7 @@ public class ClientBackpressureProseTests
         using (ConfigureJitter(1))
         {
             sw.Restart();
-            Assert.Throws<MongoCommandException>(() => collection.Find(new BsonDocument("a", 1)).ToList());
+            Assert.Throws<MongoCommandException>(() => collection.InsertOne(new BsonDocument("a", 1)));
             sw.Stop();
             withBackoffTime = sw.Elapsed.TotalSeconds;
         }
@@ -69,7 +69,7 @@ public class ClientBackpressureProseTests
             { "mode", "alwaysOn" },
             { "data", new BsonDocument
                 {
-                    { "failCommands", new BsonArray { "find" } }, //TODO for testing
+                    { "failCommands", new BsonArray { "insert" } },
                     { "errorCode", 2 },
                     { "errorLabels", new BsonArray(new[] { "SystemOverloadedError", "RetryableError" }) }
                 }
