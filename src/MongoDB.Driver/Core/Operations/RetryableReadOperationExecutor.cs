@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Core.Operations
             var maxAttempts = 1;
             var tokenBucket = context.ChannelSource.Server.TokenBucket;
 
-            while (true) // Circle breaking logic based on ShouldRetryOperation method, see the catch block below.
+            while (true)
             {
                 attempt++;
                 operationContext.ThrowIfTimedOutOrCanceled();
@@ -116,7 +116,7 @@ namespace MongoDB.Driver.Core.Operations
             var maxAttempts = 1;
             var tokenBucket = context.ChannelSource.Server.TokenBucket;
 
-            while (true) // Circle breaking logic based on ShouldRetryOperation method, see the catch block below.
+            while (true)
             {
                 attempt++;
                 operationContext.ThrowIfTimedOutOrCanceled();

@@ -1,4 +1,4 @@
-﻿        /* Copyright 2010-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Operations
@@ -42,7 +41,7 @@ namespace MongoDB.Driver.Core.Operations
 
             long? transactionNumber = AreRetriesAllowed(operation.WriteConcern, context, context.ChannelSource.ServerDescription) ? context.Binding.Session.AdvanceTransactionNumber() : null;
 
-            while (true) // Circle breaking logic based on ShouldRetryOperation method, see the catch block below.
+            while (true)
             {
                 attempt++;
                 operationContext.ThrowIfTimedOutOrCanceled();
@@ -134,7 +133,7 @@ namespace MongoDB.Driver.Core.Operations
 
             long? transactionNumber = AreRetriesAllowed(operation.WriteConcern, context, context.ChannelSource.ServerDescription) ? context.Binding.Session.AdvanceTransactionNumber() : null;
 
-            while (true)  // Circle breaking logic based on ShouldRetryOperation method, see the catch block below.
+            while (true)
             {
                 attempt++;
                 operationContext.ThrowIfTimedOutOrCanceled();
