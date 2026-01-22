@@ -61,6 +61,7 @@ namespace MongoDB.Driver.Core.Operations
                 }
                 catch (Exception ex)
                 {
+                    //TODO Which exception do we want to raise in case of backpressure retries exhausted?
                     originalException ??= ex;
 
                     var isRetryableWrite = IsRetryableWrite(operationContext, operation.WriteConcern, context, server, ex, attempt);

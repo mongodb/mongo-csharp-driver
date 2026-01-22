@@ -426,8 +426,13 @@ namespace MongoDB.Driver.Core.WireProtocol
                 errmsg.AsString.StartsWith("Transaction numbers", StringComparison.Ordinal);
         }
 
-        private void MessageWasProbablySent(CommandRequestMessage message)
+        private void MessageWasProbablySent(CommandRequestMessage message)  //TODO We can pass the boolean here, instead of having the if outside
         {
+            if (!message.WasSent)
+            {
+                return;
+            }
+
             if (_session.Id != null)
             {
                 _session.WasUsed();
@@ -436,6 +441,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             var transaction = _session.CurrentTransaction;
             if (transaction != null && transaction.State == CoreTransactionState.Starting)
             {
+                //TODO Maybe we need to change this...
                 transaction.SetState(CoreTransactionState.InProgress);
             }
         }
@@ -475,6 +481,8 @@ namespace MongoDB.Driver.Core.WireProtocol
                         var recoveryToken = ((RawBsonDocument)rawRecoveryToken).Materialize(binaryReaderSettings);
                         _session.CurrentTransaction.RecoveryToken = recoveryToken;
                     }
+
+                    //Transition the transaction state to "InProgress" if it's "Starting"
                 }
                 else
                 {
@@ -511,6 +519,9 @@ namespace MongoDB.Driver.Core.WireProtocol
                     }
 
                     var exception = new MongoCommandException(connectionId, message, _command, materializedDocument);
+
+                    //Transition the transaction state to "InProgress" if it's "Starting" only if it's not a RetryableError
+
 
                     // https://jira.mongodb.org/browse/CSHARP-2678
                     if (IsRetryableWriteExceptionAndDeploymentDoesNotSupportRetryableWrites(exception))
@@ -561,10 +572,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 }
                 finally
                 {
-                    if (message.WasSent)
-                    {
-                        MessageWasProbablySent(message);
-                    }
+                    MessageWasProbablySent(message);
                 }
 
                 responseExpected = message.WrappedMessage.ResponseExpected; // mutable, read after sending
@@ -576,7 +584,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 var response = (CommandResponseMessage)connection.ReceiveMessage(operationContext, responseTo, encoderSelector, _messageEncoderSettings);
                 // TODO: CSOT: Propagate operationContext into Encryption
                 response = AutoDecryptFieldsIfNecessary(response, operationContext.CancellationToken);
-                var result = ProcessResponse(connection.ConnectionId, response.WrappedMessage);
+                var result = ProcessResponse(connection.ConnectionId, response.WrappedMessage);  //TODO This method here throws the exception we need to check for retryability
                 SaveResponseInfo(response);
                 return result;
             }
@@ -598,10 +606,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 }
                 finally
                 {
-                    if (message.WasSent)
-                    {
-                        MessageWasProbablySent(message);
-                    }
+                    MessageWasProbablySent(message);
                 }
                 responseExpected = message.WrappedMessage.ResponseExpected; // mutable, read after sending
             }
