@@ -25,12 +25,16 @@ namespace MongoDB.Driver.Core.Operations
 {
     internal sealed class WriteCommandOperation<TCommandResult> : CommandOperationBase<TCommandResult>, IWriteOperation<TCommandResult>
     {
+        private readonly string _operationName;
         private ReadPreference _readPreference = ReadPreference.Primary;
 
-        public WriteCommandOperation(DatabaseNamespace databaseNamespace, BsonDocument command, IBsonSerializer<TCommandResult> resultSerializer, MessageEncoderSettings messageEncoderSettings)
+        public WriteCommandOperation(DatabaseNamespace databaseNamespace, BsonDocument command, IBsonSerializer<TCommandResult> resultSerializer, MessageEncoderSettings messageEncoderSettings, string operationName = null)
             : base(databaseNamespace, command, resultSerializer, messageEncoderSettings)
         {
+            _operationName = operationName;
         }
+
+        public string OperationName => _operationName;
 
         public ReadPreference ReadPreference
         {

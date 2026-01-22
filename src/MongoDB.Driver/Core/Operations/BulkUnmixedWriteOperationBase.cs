@@ -101,6 +101,8 @@ namespace MongoDB.Driver.Core.Operations
             set { _messageEncoderSettings = value; }
         }
 
+        public string OperationName => "bulkWrite";
+
         public IEnumerable<TWriteRequest> Requests
         {
             get { return _requests; }
