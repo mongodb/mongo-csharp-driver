@@ -57,6 +57,13 @@ namespace MongoDB.Driver.Core.Operations
                         tokensToDeposit += 1;
                     }
                     tokenBucket.Deposit(tokensToDeposit);
+
+                    if (context.Binding.Session.Id != null &&
+                        context.Binding.Session.IsInTransaction)
+                    {
+                        context.Binding.Session.CurrentTransaction.HasExecutedAtLeastFirstCommand = true;
+                    }
+
                     return operationResult;
                 }
                 catch (Exception ex)
@@ -88,6 +95,16 @@ namespace MongoDB.Driver.Core.Operations
                     if (attempt > maxAttempts)
                     {
                         throw originalException;
+                    }
+
+                    //TODO Not very clean, but similar to what python is doing.
+                    //The alternative would be not to transition to InProgress state, but that does not seem to work properly for now.
+                    if (isSystemOverloaded
+                        && context.Binding.Session.Id != null
+                        && context.Binding.Session.IsInTransaction
+                        && context.Binding.Session.CurrentTransaction is { HasExecutedAtLeastFirstCommand: false } currentTransaction)
+                    {
+                        currentTransaction.ResetState();
                     }
                 }
 
@@ -150,6 +167,13 @@ namespace MongoDB.Driver.Core.Operations
                         tokensToDeposit += 1;
                     }
                     tokenBucket.Deposit(tokensToDeposit);
+
+                    if (context.Binding.Session.Id != null &&
+                        context.Binding.Session.IsInTransaction)
+                    {
+                        context.Binding.Session.CurrentTransaction.HasExecutedAtLeastFirstCommand = true;
+                    }
+
                     return operationResult;
                 }
                 catch (Exception ex)
@@ -180,6 +204,14 @@ namespace MongoDB.Driver.Core.Operations
                     if (attempt > maxAttempts)
                     {
                         throw originalException;
+                    }
+
+                    if (isSystemOverloaded
+                        && context.Binding.Session.Id != null
+                        && context.Binding.Session.IsInTransaction
+                        && context.Binding.Session.CurrentTransaction is { HasExecutedAtLeastFirstCommand: false } currentTransaction)
+                    {
+                        currentTransaction.ResetState();
                     }
                 }
 
