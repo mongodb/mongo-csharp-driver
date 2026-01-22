@@ -48,6 +48,8 @@ namespace MongoDB.Driver.Core.Operations
             get { return _messageEncoderSettings; }
         }
 
+        public string OperationName => "dropDatabase";
+
         public WriteConcern WriteConcern
         {
             get { return _writeConcern; }
@@ -92,7 +94,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private EventContext.OperationNameDisposer BeginOperation() => EventContext.BeginOperation("dropDatabase");
+        private EventContext.OperationNameDisposer BeginOperation() => EventContext.BeginOperation(OperationName);
 
         private WriteCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, ICoreSessionHandle session)
         {

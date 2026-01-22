@@ -87,6 +87,8 @@ namespace MongoDB.Driver.Core.Operations
             get { return _messageEncoderSettings; }
         }
 
+        public string OperationName => "distinct";
+
         public ReadConcern ReadConcern
         {
             get { return _readConcern; }
@@ -151,7 +153,7 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        private EventContext.OperationNameDisposer BeginOperation() => EventContext.BeginOperation("distinct");
+        private EventContext.OperationNameDisposer BeginOperation() => EventContext.BeginOperation(OperationName);
 
         private ReadCommandOperation<DistinctResult> CreateOperation(OperationContext operationContext, RetryableReadContext context)
         {

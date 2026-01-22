@@ -69,6 +69,8 @@ namespace MongoDB.Driver.Core.Operations
             get { return _messageEncoderSettings; }
         }
 
+        public string OperationName => "createIndexes";
+
         public IEnumerable<CreateIndexRequest> Requests
         {
             get { return _requests; }
@@ -130,7 +132,7 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        private EventContext.OperationIdDisposer BeginOperation() => EventContext.BeginOperation(null, "createIndexes");
+        private EventContext.OperationIdDisposer BeginOperation() => EventContext.BeginOperation(null, OperationName);
 
         private WriteCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription)
         {

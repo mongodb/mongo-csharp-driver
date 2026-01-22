@@ -55,6 +55,8 @@ namespace MongoDB.Driver.Core.Operations
             WriteConcern = options?.WriteConcern;
         }
 
+        public new string OperationName => "bulkWrite";
+
         protected override BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, int attempt, long? transactionNumber)
         {
             var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, session, WriteConcern);
@@ -204,7 +206,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private EventContext.OperationIdDisposer BeginOperation() => EventContext.BeginOperation(null, "bulkWrite");
+        private EventContext.OperationIdDisposer BeginOperation() => EventContext.BeginOperation(null, OperationName);
 
         private void EnsureCanProceedNextBatch(ConnectionId connectionId, BulkWriteRawResult bulkWriteResult)
         {

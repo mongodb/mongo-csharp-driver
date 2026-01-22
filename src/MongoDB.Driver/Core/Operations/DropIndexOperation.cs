@@ -72,6 +72,8 @@ namespace MongoDB.Driver.Core.Operations
             get { return _messageEncoderSettings; }
         }
 
+        public string OperationName => "dropIndexes";
+
         public WriteConcern WriteConcern
         {
             get { return _writeConcern; }
@@ -151,7 +153,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private EventContext.OperationNameDisposer BeginOperation() => EventContext.BeginOperation("dropIndexes");
+        private EventContext.OperationNameDisposer BeginOperation() => EventContext.BeginOperation(OperationName);
 
         private WriteCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, ICoreSessionHandle session)
         {

@@ -48,6 +48,8 @@ namespace MongoDB.Driver.Core.Operations
 
         public WriteConcern WriteConcern => _writeConcern;
 
+        public string OperationName => CommandName;
+
         protected abstract string CommandName { get; }
 
         public virtual BsonDocument Execute(OperationContext operationContext, IReadBinding binding)

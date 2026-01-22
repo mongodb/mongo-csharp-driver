@@ -67,6 +67,8 @@ namespace MongoDB.Driver.Core.Operations
             get { return _messageEncoderSettings; }
         }
 
+        public string OperationName => "findAndModify";
+
         public IBsonSerializer<TResult> ResultSerializer
         {
             get { return _resultSerializer; }
@@ -152,7 +154,7 @@ namespace MongoDB.Driver.Core.Operations
 
         protected abstract IElementNameValidator GetCommandValidator();
 
-        private EventContext.OperationNameDisposer BeginOperation() => EventContext.BeginOperation("findAndModify");
+        private EventContext.OperationNameDisposer BeginOperation() => EventContext.BeginOperation(OperationName);
 
         private WriteCommandOperation<RawBsonDocument> CreateOperation(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber)
         {

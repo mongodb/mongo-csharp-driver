@@ -79,6 +79,11 @@ namespace MongoDB.Driver.Core.Operations
             get { return _resultSerializer; }
         }
 
+        /// <summary>
+        /// Gets the name of the operation.
+        /// </summary>
+        public string OperationName => "mapReduce";
+
         // methods
         /// <inheritdoc/>
         protected override BsonDocument CreateOutputOptions()

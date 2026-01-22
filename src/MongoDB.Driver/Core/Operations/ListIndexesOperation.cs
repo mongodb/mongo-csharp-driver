@@ -61,6 +61,8 @@ namespace MongoDB.Driver.Core.Operations
             get { return _messageEncoderSettings; }
         }
 
+        public string OperationName => "listIndexes";
+
         public bool RetryRequested
         {
             get => _retryRequested;

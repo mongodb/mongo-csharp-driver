@@ -59,6 +59,8 @@ namespace MongoDB.Driver.Core.Operations
             get { return _messageEncoderSettings; }
         }
 
+        public string OperationName => "renameCollection";
+
         public CollectionNamespace NewCollectionNamespace
         {
             get { return _newCollectionNamespace; }
@@ -110,7 +112,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private EventContext.OperationNameDisposer BeginOperation() => EventContext.BeginOperation("renameCollection");
+        private EventContext.OperationNameDisposer BeginOperation() => EventContext.BeginOperation(OperationName);
 
         private WriteCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription)
         {

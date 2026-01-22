@@ -90,6 +90,11 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <summary>
+        /// Gets the name of the operation.
+        /// </summary>
+        public string OperationName => "mapReduce";
+
+        /// <summary>
         /// Gets the output collection namespace.
         /// </summary>
         /// <value>

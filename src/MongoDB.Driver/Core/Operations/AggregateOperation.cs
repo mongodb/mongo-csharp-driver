@@ -211,6 +211,11 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <summary>
+        /// Gets the name of the operation.
+        /// </summary>
+        public string OperationName => "aggregate";
+
+        /// <summary>
         /// Gets the pipeline.
         /// </summary>
         /// <value>
@@ -352,7 +357,7 @@ namespace MongoDB.Driver.Core.Operations
             return command;
         }
 
-        private EventContext.OperationIdDisposer BeginOperation() => EventContext.BeginOperation(null, "aggregate");
+        private EventContext.OperationIdDisposer BeginOperation() => EventContext.BeginOperation(null, OperationName);
 
         private ReadCommandOperation<AggregateResult> CreateOperation(OperationContext operationContext, RetryableReadContext context)
         {

@@ -38,6 +38,7 @@ namespace MongoDB.Driver.Core.Operations
         private int? _maxDocumentSize;
         private int? _maxWireDocumentSize;
         private readonly MessageEncoderSettings _messageEncoderSettings;
+        private readonly string _operationName;
         private readonly List<WriteRequest> _requests;
         private bool _retryRequested;
         private WriteConcern _writeConcern;
@@ -45,19 +46,22 @@ namespace MongoDB.Driver.Core.Operations
         public BulkMixedWriteOperation(
             CollectionNamespace collectionNamespace,
             IEnumerable<WriteRequest> requests,
-            MessageEncoderSettings messageEncoderSettings)
-            : this(collectionNamespace, Ensure.IsNotNull(requests, nameof(requests)).ToList(), messageEncoderSettings)
+            MessageEncoderSettings messageEncoderSettings,
+            string operationName = null)
+            : this(collectionNamespace, Ensure.IsNotNull(requests, nameof(requests)).ToList(), messageEncoderSettings, operationName)
         {
         }
 
         public BulkMixedWriteOperation(
             CollectionNamespace collectionNamespace,
             List<WriteRequest> requests,
-            MessageEncoderSettings messageEncoderSettings)
+            MessageEncoderSettings messageEncoderSettings,
+            string operationName = null)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
             _requests = Ensure.IsNotNull(requests, nameof(requests));
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
+            _operationName = operationName;
             _writeConcern = WriteConcern.Acknowledged;
         }
 
@@ -118,6 +122,8 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _messageEncoderSettings; }
         }
+
+        public string OperationName => _operationName ?? "bulkWrite";
 
         public IEnumerable<WriteRequest> Requests
         {

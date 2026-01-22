@@ -54,6 +54,8 @@ namespace MongoDB.Driver.Core.Operations
 
         public MessageEncoderSettings MessageEncoderSettings => _messageEncoderSettings;
 
+        public string OperationName => "count";
+
         public ReadConcern ReadConcern
         {
             get => _readConcern;
@@ -92,7 +94,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private EventContext.OperationNameDisposer BeginOperation() => EventContext.BeginOperation("count");
+        private EventContext.OperationNameDisposer BeginOperation() => EventContext.BeginOperation(OperationName);
 
         private IExecutableInRetryableReadContext<long> CreateCountOperation()
         {

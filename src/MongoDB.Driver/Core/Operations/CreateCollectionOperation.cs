@@ -169,6 +169,8 @@ namespace MongoDB.Driver.Core.Operations
             get { return _messageEncoderSettings; }
         }
 
+        public string OperationName => "createCollection";
+
         public BsonDocument StorageEngine
         {
             get { return _storageEngine; }
