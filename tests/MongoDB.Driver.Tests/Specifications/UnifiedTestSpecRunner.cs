@@ -78,7 +78,7 @@ namespace MongoDB.Driver.Tests.Specifications
         public void ClientBackpressure(JsonDrivenTestCase testCase)
         {
             //TODO Do we want to do something about these operations?
-            if (testCase.Name.Contains("findOne ") || testCase.Name.Contains("dropIndexes "))
+            if (testCase.Name.Contains("findOne ") || testCase.Name.Contains("dropIndexes ") || testCase.Name.Contains("listIndexNames "))
             {
                 throw new SkipException($"Test skipped because operation is not supported.");
             }
