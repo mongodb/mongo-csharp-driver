@@ -25,6 +25,7 @@ public class MongoProxyConnectionException : MongoException
     /// <summary>
     /// Initializes a new instance of the <see cref="MongoProxyConnectionException"/> class.
     /// </summary>
+    /// <param name="message">The error message.</param>
     /// <param name="exception">The inner exception.</param>
     public MongoProxyConnectionException(string message, Exception exception)
         : base(message, exception)
