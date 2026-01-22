@@ -189,21 +189,7 @@ namespace MongoDB.Driver.Tests.Specifications
         [Category("SDAM", "SupportLoadBalancing")]
         [UnifiedTestsTheory("server_discovery_and_monitoring.tests.unified")]
         public void ServerDiscoveryAndMonitoring(JsonDrivenTestCase testCase)
-        {
-            if (testCase.Name.Contains("backpressure"))
-            {
-                // TODO: Unskip the tests during implementation of CSHARP-5838
-                throw new SkipException("Temporarily disable Backpressure.");
-            }
-
-            if (testCase.Name.Contains("Pool is not cleared on handshake error during minPoolSize population"))
-            {
-                // TODO: Unskip the tests during implementation of CSHARP-5838
-                throw new SkipException("Temporarily disable Backpressure.");
-            }
-
-            Run(testCase, IsSdamLogValid, new SdamRunnerEventsProcessor(testCase.Name));
-        }
+            => Run(testCase, IsSdamLogValid, new SdamRunnerEventsProcessor(testCase.Name));
 
         [Category("SupportLoadBalancing")]
         [UnifiedTestsTheory("server_selection.tests.logging")]
