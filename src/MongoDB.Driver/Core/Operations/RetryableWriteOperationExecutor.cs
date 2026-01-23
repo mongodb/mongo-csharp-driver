@@ -184,8 +184,8 @@ namespace MongoDB.Driver.Core.Operations
             out TimeSpan backoff)
         {
             backoff = TimeSpan.Zero;
-            var isRetryableException = RetryabilityHelper.IsRetryableException(exception);
             var isRetryableWriteException = RetryabilityHelper.IsRetryableWriteException(exception);
+            var isRetryableException = RetryabilityHelper.IsRetryableException(exception);
             var isSystemOverloadedException = RetryabilityHelper.IsSystemOverloadedException(exception);
 
             var isRetryableWrite = AreRetriesAllowed(writeConcern, context, server) && isRetryableWriteException;
