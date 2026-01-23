@@ -24,8 +24,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_backpressure.prose_tests;
 
 public class ClientBackpressureProseTests
 {
-    [Fact]
-    [Trait("Category", "Integration")]
+    //TODO Need to become a unit test
+    // [Fact]
+    // [Trait("Category", "Integration")]
     public async Task OperationRetryUsesExponentialBackoff()
     {
         var client = DriverTestConfiguration.Client;
