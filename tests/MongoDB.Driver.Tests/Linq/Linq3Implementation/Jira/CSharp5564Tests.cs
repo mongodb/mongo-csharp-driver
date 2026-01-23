@@ -32,7 +32,7 @@ public class CSharp5564Tests : LinqIntegrationTest<CSharp5564Tests.ClassFixture>
     }
 
     [Fact]
-    public void Find_E_equals_B_shoud_work()
+    public void Find_E_equals_B_should_work()
     {
         var collection = Fixture.Collection;
 
@@ -45,11 +45,11 @@ public class CSharp5564Tests : LinqIntegrationTest<CSharp5564Tests.ClassFixture>
             "{ $match : { E : 'B' } }",
             "{ $limit : 1 }");
 
-        result.Id.Should().Equals(1);
+        result.Id.Should().Be(2);
     }
 
     [Fact]
-    public void Find_EByte_equals_B_shoud_work()
+    public void Find_EByte_equals_B_should_work()
     {
         var collection = Fixture.Collection;
 
@@ -62,11 +62,11 @@ public class CSharp5564Tests : LinqIntegrationTest<CSharp5564Tests.ClassFixture>
             "{ $match : { EByte : 'B' } }",
             "{ $limit : 1 }");
 
-        result.Id.Should().Equals(1);
+        result.Id.Should().Be(2);
     }
 
     [Fact]
-    public void Find_EInt_equals_B_shoud_work()
+    public void Find_EInt_equals_B_should_work()
     {
         var collection = Fixture.Collection;
 
@@ -79,11 +79,11 @@ public class CSharp5564Tests : LinqIntegrationTest<CSharp5564Tests.ClassFixture>
             "{ $match : { EInt : 'B' } }",
             "{ $limit : 1 }");
 
-        result.Id.Should().Equals(1);
+        result.Id.Should().Be(2);
     }
 
     [Fact]
-    public void Find_ELong_equals_B_shoud_work()
+    public void Find_ELong_equals_B_should_work()
     {
         var collection = Fixture.Collection;
 
@@ -96,11 +96,11 @@ public class CSharp5564Tests : LinqIntegrationTest<CSharp5564Tests.ClassFixture>
             "{ $match : { ELong : 'B' } }",
             "{ $limit : 1 }");
 
-        result.Id.Should().Equals(1);
+        result.Id.Should().Be(2);
     }
 
     [Fact]
-    public void Find_ESByte_equals_B_shoud_work()
+    public void Find_ESByte_equals_B_should_work()
     {
         var collection = Fixture.Collection;
 
@@ -113,11 +113,11 @@ public class CSharp5564Tests : LinqIntegrationTest<CSharp5564Tests.ClassFixture>
             "{ $match : { ESByte : 'B' } }",
             "{ $limit : 1 }");
 
-        result.Id.Should().Equals(1);
+        result.Id.Should().Be(2);
     }
 
     [Fact]
-    public void Find_EShort_equals_B_shoud_work()
+    public void Find_EShort_equals_B_should_work()
     {
         var collection = Fixture.Collection;
 
@@ -130,11 +130,11 @@ public class CSharp5564Tests : LinqIntegrationTest<CSharp5564Tests.ClassFixture>
             "{ $match : { EShort : 'B' } }",
             "{ $limit : 1 }");
 
-        result.Id.Should().Equals(1);
+        result.Id.Should().Be(2);
     }
 
     [Fact]
-    public void Find_EUInt_equals_B_shoud_work()
+    public void Find_EUInt_equals_B_should_work()
     {
         var collection = Fixture.Collection;
 
@@ -147,11 +147,11 @@ public class CSharp5564Tests : LinqIntegrationTest<CSharp5564Tests.ClassFixture>
             "{ $match : { EUInt : 'B' } }",
             "{ $limit : 1 }");
 
-        result.Id.Should().Equals(1);
+        result.Id.Should().Be(2);
     }
 
     [Fact]
-    public void Find_EULong_equals_B_shoud_work()
+    public void Find_EULong_equals_B_should_work()
     {
         var collection = Fixture.Collection;
 
@@ -164,11 +164,11 @@ public class CSharp5564Tests : LinqIntegrationTest<CSharp5564Tests.ClassFixture>
             "{ $match : { EULong : 'B' } }",
             "{ $limit : 1 }");
 
-        result.Id.Should().Equals(1);
+        result.Id.Should().Be(2);
     }
 
     [Fact]
-    public void Find_EUShort_equals_B_shoud_work()
+    public void Find_EUShort_equals_B_should_work()
     {
         var collection = Fixture.Collection;
 
@@ -181,7 +181,7 @@ public class CSharp5564Tests : LinqIntegrationTest<CSharp5564Tests.ClassFixture>
             "{ $match : { EUShort : 'B' } }",
             "{ $limit : 1 }");
 
-        result.Id.Should().Equals(1);
+        result.Id.Should().Be(2);
     }
 
     public class C
