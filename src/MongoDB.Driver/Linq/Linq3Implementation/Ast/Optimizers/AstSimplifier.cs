@@ -315,7 +315,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
                     return true;
                 }
 
-                orFilters= null;
+                orFilters = null;
                 return false;
             }
 
