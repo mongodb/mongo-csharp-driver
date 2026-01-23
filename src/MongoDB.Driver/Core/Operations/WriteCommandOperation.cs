@@ -23,9 +23,11 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    internal sealed class WriteCommandOperation<TCommandResult> : CommandOperationBase<TCommandResult>, IWriteOperation<TCommandResult>
+    internal sealed class WriteCommandOperation<TCommandResult> : CommandOperationBase<TCommandResult>, IWriteOperation<TCommandResult>, IRetryableWriteOperation<TCommandResult>
     {
         private ReadPreference _readPreference = ReadPreference.Primary;
+        private bool _retryRequested;
+        private WriteConcern _writeConcern;
 
         public WriteCommandOperation(DatabaseNamespace databaseNamespace, BsonDocument command, IBsonSerializer<TCommandResult> resultSerializer, MessageEncoderSettings messageEncoderSettings)
             : base(databaseNamespace, command, resultSerializer, messageEncoderSettings)
@@ -38,14 +40,35 @@ namespace MongoDB.Driver.Core.Operations
             set => _readPreference = Ensure.IsNotNull(value, nameof(value));
         }
 
+        public bool RetryRequested
+        {
+            get => _retryRequested;
+            set => _retryRequested = value;
+        }
+
+        public WriteConcern WriteConcern
+        {
+            get => _writeConcern;
+            set => _writeConcern = value;
+        }
+
         public TCommandResult Execute(OperationContext operationContext, IWriteBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (EventContext.BeginOperation())
-            using (var channelSource = binding.GetWriteChannelSource(operationContext))
+            using (var context = RetryableWriteContext.Create(operationContext, binding, _retryRequested))
             {
-                return ExecuteProtocol(operationContext, channelSource, binding.Session, _readPreference);
+                return Execute(operationContext, context);
+            }
+        }
+
+        public TCommandResult Execute(OperationContext operationContext, RetryableWriteContext context)
+        {
+            Ensure.IsNotNull(context, nameof(context));
+
+            using (EventContext.BeginOperation())
+            {
+                return RetryableWriteOperationExecutor.Execute(operationContext, this, context);
             }
         }
 
@@ -53,11 +76,30 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (EventContext.BeginOperation())
-            using (var channelSource = await binding.GetWriteChannelSourceAsync(operationContext).ConfigureAwait(false))
+            using (var context = await RetryableWriteContext.CreateAsync(operationContext, binding, _retryRequested).ConfigureAwait(false))
             {
-                return await ExecuteProtocolAsync(operationContext, channelSource, binding.Session, _readPreference).ConfigureAwait(false);
+                return await ExecuteAsync(operationContext, context).ConfigureAwait(false);
             }
+        }
+
+        public async Task<TCommandResult> ExecuteAsync(OperationContext operationContext, RetryableWriteContext context)
+        {
+            Ensure.IsNotNull(context, nameof(context));
+
+            using (EventContext.BeginOperation())
+            {
+                return await RetryableWriteOperationExecutor.ExecuteAsync(operationContext, this, context).ConfigureAwait(false);
+            }
+        }
+
+        public TCommandResult ExecuteAttempt(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
+        {
+            return ExecuteProtocol(operationContext, context.ChannelSource, context.Binding.Session, _readPreference);
+        }
+
+        public Task<TCommandResult> ExecuteAttemptAsync(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
+        {
+            return ExecuteProtocolAsync(operationContext, context.ChannelSource, context.Binding.Session, _readPreference);
         }
     }
 }
