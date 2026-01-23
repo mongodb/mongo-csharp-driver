@@ -31,6 +31,8 @@ namespace MongoDB.Driver.Core.Operations
         // private constants
         private const string ResumableChangeStreamErrorLabel = "ResumableChangeStreamError";
         private const string RetryableWriteErrorLabel = "RetryableWriteError";
+        private const string RetryableErrorLabel = "RetryableError";
+        private const string SystemOverloadedErrorLabel = "SystemOverloadedError";
 
         // private static fields
         private static readonly HashSet<ServerErrorCode> __resumableChangeStreamErrorCodes;
@@ -214,14 +216,14 @@ namespace MongoDB.Driver.Core.Operations
             return exception is MongoException mongoException && mongoException.HasErrorLabel(RetryableWriteErrorLabel);
         }
 
-        public static bool IsSystemOverloadedError(Exception exception)
+        public static bool IsSystemOverloadedException(Exception exception)
         {
-            return exception is MongoException mongoException && mongoException.HasErrorLabel("SystemOverloadedError");
+            return exception is MongoException mongoException && mongoException.HasErrorLabel(SystemOverloadedErrorLabel);
         }
 
-        public static bool IsRetryableError(Exception exception)
+        public static bool IsRetryableException(Exception exception)
         {
-            return exception is MongoException mongoException && mongoException.HasErrorLabel("RetryableError");
+            return exception is MongoException mongoException && mongoException.HasErrorLabel(RetryableErrorLabel);
         }
 
         // private static methods

@@ -72,8 +72,8 @@ namespace MongoDB.Driver.Core.Operations
                     originalException ??= ex;
 
                     var isRetryableWrite = IsRetryableWrite(operationContext, operation.WriteConcern, context, server, ex, attempt);
-                    var isErrorRetryable = RetryabilityHelper.IsRetryableError(ex);
-                    isSystemOverloaded = RetryabilityHelper.IsSystemOverloadedError(ex);
+                    var isErrorRetryable = RetryabilityHelper.IsRetryableException(ex);
+                    isSystemOverloaded = RetryabilityHelper.IsSystemOverloadedException(ex);
 
                     var isRetryable = isRetryableWrite || (isErrorRetryable && isSystemOverloaded);
 
@@ -132,6 +132,8 @@ namespace MongoDB.Driver.Core.Operations
                 {
                     throw originalException;
                 }
+
+                //TODO Do we ned areRetryableWrites supported?
             }
         }
 
@@ -181,8 +183,8 @@ namespace MongoDB.Driver.Core.Operations
                     originalException ??= ex;
 
                     var isRetryableWrite = IsRetryableWrite(operationContext, operation.WriteConcern, context, server, ex, attempt);
-                    var isErrorRetryable = RetryabilityHelper.IsRetryableError(ex);
-                    isSystemOverloaded = RetryabilityHelper.IsSystemOverloadedError(ex);
+                    var isErrorRetryable = RetryabilityHelper.IsRetryableException(ex);
+                    isSystemOverloaded = RetryabilityHelper.IsSystemOverloadedException(ex);
 
                     var isRetryable = isRetryableWrite || (isErrorRetryable && isSystemOverloaded);
 
