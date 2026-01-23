@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Core.Operations
             HashSet<ServerDescription> deprioritizedServers = null;
             var attempt = 0;
             Exception originalException = null;
-            var tokenBucket = context.ChannelSource.Server.TokenBucket  ?? new TokenBucket(); //TODO null should not happen, it's for tests
+            var tokenBucket = context.ChannelSource?.Server?.TokenBucket  ?? new TokenBucket(); //TODO null should not happen, it's for tests
 
             while (true)
             {
@@ -87,7 +87,7 @@ namespace MongoDB.Driver.Core.Operations
             HashSet<ServerDescription> deprioritizedServers = null;
             var attempt = 0;
             Exception originalException = null;
-            var tokenBucket = context.ChannelSource.Server.TokenBucket  ?? new TokenBucket(); //TODO null should not happen, it's for tests
+            var tokenBucket = context.ChannelSource?.Server?.TokenBucket  ?? new TokenBucket(); //TODO null should not happen, it's for tests
 
             while (true)
             {
