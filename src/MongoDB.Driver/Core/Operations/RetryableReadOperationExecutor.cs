@@ -55,8 +55,8 @@ namespace MongoDB.Driver.Core.Operations
                     originalException ??= ex;
 
                     var isRetryableRead = IsRetryableRead(operationContext, context, ex, attempt);
-                    var isErrorRetryable = RetryabilityHelper.IsRetryableError(ex);
-                    isSystemOverloaded = RetryabilityHelper.IsSystemOverloadedError(ex);
+                    var isErrorRetryable = RetryabilityHelper.IsRetryableException(ex);
+                    isSystemOverloaded = RetryabilityHelper.IsSystemOverloadedException(ex);
 
                     var isRetryable = isRetryableRead || (isErrorRetryable && isSystemOverloaded);
 
@@ -139,8 +139,8 @@ namespace MongoDB.Driver.Core.Operations
                     originalException ??= ex;
 
                     var isRetryableRead = IsRetryableRead(operationContext, context, ex, attempt);
-                    var isErrorRetryable = RetryabilityHelper.IsRetryableError(ex);
-                    isSystemOverloaded = RetryabilityHelper.IsSystemOverloadedError(ex);
+                    var isErrorRetryable = RetryabilityHelper.IsRetryableException(ex);
+                    isSystemOverloaded = RetryabilityHelper.IsSystemOverloadedException(ex);
 
                     var isRetryable = isRetryableRead || (isErrorRetryable && isSystemOverloaded);
 
