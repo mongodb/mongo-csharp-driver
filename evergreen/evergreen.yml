@@ -113,6 +113,16 @@ functions:
           ${PREPARE_SHELL}
           bash evergreen/install-dotnet.sh
 
+  compile-and-pack-driver-tests:
+    - command: shell.exec
+      type: system
+      params:
+        working_dir: mongo-csharp-driver
+        script: |
+          ${PREPARE_SHELL}
+              evergreen/compile-sources.sh
+              tar czf /tmp/mongo-csharp-driver.tgz tests/*.Tests/bin/Release/net6.0/ evergreen/install-dotnet.sh ${INCLUDE_FILES}
+
   prepare-resources:
     - command: shell.exec
       params:
@@ -1424,23 +1434,32 @@ tasks:
               export GCPOIDC_TEST_CMD="OIDC_ENV=gcp ./evergreen/run-mongodb-oidc-env-tests.sh"
               bash $DRIVERS_TOOLS/.evergreen/auth_oidc/gcp/run-driver-test.sh
 
-    - name: test-oidc-k8s
+    - name: test-oidc-k8s-eks
       commands:
-        - command: shell.exec
-          params:
-            shell: bash
-            working_dir: mongo-csharp-driver
-            script: |-
-              ${PREPARE_SHELL}
-              evergreen/compile-sources.sh
-              tar czf /tmp/mongo-csharp-driver.tgz tests/*.Tests/bin/Release/net6.0/ evergreen/run-mongodb-oidc-env-tests.sh evergreen/install-dotnet.sh
-        - func: assume-aws-test-secrets-role
+        - func: configure-framework
+        - func: compile-and-pack-driver-tests
+          vars:
+            INCLUDE_FILES: evergreen/run-mongodb-oidc-env-tests.sh
         - func: run_oidc_k8s_tests
           vars:
             K8S_VARIANT: eks
+
+    - name: test-oidc-k8s-gke
+      commands:
+        - func: configure-framework
+        - func: compile-and-pack-driver-tests
+          vars:
+            INCLUDE_FILES: evergreen/run-mongodb-oidc-env-tests.sh
         - func: run_oidc_k8s_tests
           vars:
             K8S_VARIANT: gke
+
+    - name: test-oidc-k8s-aks
+      commands:
+        - func: configure-framework
+        - func: compile-and-pack-driver-tests
+          vars:
+            INCLUDE_FILES: evergreen/run-mongodb-oidc-env-tests.sh
         - func: run_oidc_k8s_tests
           vars:
             K8S_VARIANT: aks
@@ -2338,16 +2357,20 @@ task_groups:
     tasks:
       - test-oidc-gcp
 
-  - name: oidc-auth-k8s-task-group
+  - name: oidc-auth-k8s-eks-task-group
     setup_group_can_fail_task: true
     setup_group_timeout_secs: 1800 # 30 minutes
     setup_group:
+      - command: expansions.update
+        params:
+          updates:
+            - key: 'K8S_VARIANT'
+              value: eks
       - func: fetch-source
       - func: prepare-resources
       - func: fix-absolute-paths
       - func: make-files-executable
       - func: assume-aws-test-secrets-role
-      - func: configure-framework
       - command: subprocess.exec
         params:
           binary: bash
@@ -2364,7 +2387,71 @@ task_groups:
           args:
             - ${DRIVERS_TOOLS}/.evergreen/auth_oidc/k8s/teardown.sh
     tasks:
-      - test-oidc-k8s
+      - test-oidc-k8s-eks
+
+  - name: oidc-auth-k8s-aks-task-group
+    setup_group_can_fail_task: true
+    setup_group_timeout_secs: 1800 # 30 minutes
+    setup_group:
+      - command: expansions.update
+        params:
+          updates:
+            - key: 'K8S_VARIANT'
+              value: aks
+      - func: fetch-source
+      - func: prepare-resources
+      - func: fix-absolute-paths
+      - func: make-files-executable
+      - func: assume-aws-test-secrets-role
+      - command: subprocess.exec
+        params:
+          binary: bash
+          include_expansions_in_env:
+            - "AWS_ACCESS_KEY_ID"
+            - "AWS_SECRET_ACCESS_KEY"
+            - "AWS_SESSION_TOKEN"
+          args:
+            - ${DRIVERS_TOOLS}/.evergreen/auth_oidc/k8s/setup.sh
+    teardown_group:
+      - command: subprocess.exec
+        params:
+          binary: bash
+          args:
+            - ${DRIVERS_TOOLS}/.evergreen/auth_oidc/k8s/teardown.sh
+    tasks:
+      - test-oidc-k8s-aks
+
+  - name: oidc-auth-k8s-gke-task-group
+    setup_group_can_fail_task: true
+    setup_group_timeout_secs: 1800 # 30 minutes
+    setup_group:
+      - command: expansions.update
+        params:
+          updates:
+            - key: 'K8S_VARIANT'
+              value: gke
+      - func: fetch-source
+      - func: prepare-resources
+      - func: fix-absolute-paths
+      - func: make-files-executable
+      - func: assume-aws-test-secrets-role
+      - command: subprocess.exec
+        params:
+          binary: bash
+          include_expansions_in_env:
+            - "AWS_ACCESS_KEY_ID"
+            - "AWS_SECRET_ACCESS_KEY"
+            - "AWS_SESSION_TOKEN"
+          args:
+            - ${DRIVERS_TOOLS}/.evergreen/auth_oidc/k8s/setup.sh
+    teardown_group:
+      - command: subprocess.exec
+        params:
+          binary: bash
+          args:
+            - ${DRIVERS_TOOLS}/.evergreen/auth_oidc/k8s/teardown.sh
+    tasks:
+      - test-oidc-k8s-gke
 
   - name: validate-apicompat-task-group
     setup_group_can_fail_task: true
@@ -2598,7 +2685,9 @@ buildvariants:
   display_name: "MongoDB-OIDC Auth (k8s) - ${os}"
   batchtime: 20160 # 14 days
   tasks:
-    - name: oidc-auth-k8s-task-group
+    - name: oidc-auth-k8s-eks-task-group
+    - name: oidc-auth-k8s-aks-task-group
+    - name: oidc-auth-k8s-gke-task-group
 
 - matrix_name: "ocsp-tests"
   matrix_spec: { version: ["4.4", "5.0", "6.0", "7.0", "8.0", "rapid", "latest"], auth: "noauth", ssl: "ssl", topology: "standalone", os: "windows-64" }
