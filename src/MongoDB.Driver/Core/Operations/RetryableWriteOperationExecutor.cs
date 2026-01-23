@@ -36,7 +36,6 @@ namespace MongoDB.Driver.Core.Operations
             HashSet<ServerDescription> deprioritizedServers = null;
             var attempt = 0;
             Exception originalException = null;
-            var maxAttempts = 1;
             var tokenBucket = context.ChannelSource.Server.TokenBucket;
 
             long? transactionNumber = AreRetriesAllowed(operation.WriteConcern, context, context.ChannelSource.ServerDescription) ? context.Binding.Session.AdvanceTransactionNumber() : null;
@@ -46,7 +45,6 @@ namespace MongoDB.Driver.Core.Operations
                 attempt++;
                 operationContext.ThrowIfTimedOutOrCanceled();
                 var server = context.ChannelSource.ServerDescription;
-                bool isSystemOverloaded;
 
                 try
                 {
@@ -68,62 +66,20 @@ namespace MongoDB.Driver.Core.Operations
                 }
                 catch (Exception ex)
                 {
-                    //TODO Which exception do we want to raise in case of backpressure retries exhausted?
                     originalException ??= ex;
 
-                    var isRetryableWrite = IsRetryableWrite(operationContext, operation.WriteConcern, context, server, ex, attempt);
-                    var isErrorRetryable = RetryabilityHelper.IsRetryableException(ex);
-                    isSystemOverloaded = RetryabilityHelper.IsSystemOverloadedException(ex);
-
-                    var isRetryable = isRetryableWrite || (isErrorRetryable && isSystemOverloaded);
-
-                    if (attempt > 1 && !isSystemOverloaded)
-                    {
-                        tokenBucket.Deposit(1);
-                    }
-
-                    if (!isRetryable)
-                    {
-                        throw originalException;
-                    }
-
-                    if (isSystemOverloaded)
-                    {
-                        maxAttempts = RetryabilityHelper.OperationRetryBackpressureConstants.MaxRetries;
-                    }
-
-                    if (attempt > maxAttempts)
-                    {
-                        throw originalException;
-                    }
-
-                    //TODO Not very clean, but similar to what python is doing.
-                    //The alternative would be not to transition to InProgress state, but that does not seem to work properly for now.
-                    if (isSystemOverloaded
-                        && context.Binding.Session.Id != null
-                        && context.Binding.Session.IsInTransaction
-                        && context.Binding.Session.CurrentTransaction is { HasExecutedAtLeastFirstCommand: false } currentTransaction)
-                    {
-                        currentTransaction.ResetState();
-                    }
-                }
-
-                deprioritizedServers ??= [];
-                deprioritizedServers.Add(server);
-
-                if (isSystemOverloaded)
-                {
-                    var backoff = RetryabilityHelper.GetOperationRetryBackoffDelay(attempt);
-
-                    if (IsTimedOut(operationContext, backoff) || !tokenBucket.Consume(1))
+                    if (!ShouldRetry(operationContext, operation.WriteConcern, context, server, tokenBucket, ex, attempt, out var backoff))
                     {
                         throw originalException;
                     }
 
                     Thread.Sleep(backoff);
+                    //TODO I should throw if backoff exceeeds timeout
                 }
 
-                //TODO What to do with this?
+                deprioritizedServers ??= [];
+                deprioritizedServers.Add(server);
+
                 try
                 {
                     context.AcquireOrReplaceChannel(operationContext, deprioritizedServers);
@@ -132,8 +88,6 @@ namespace MongoDB.Driver.Core.Operations
                 {
                     throw originalException;
                 }
-
-                //TODO Do we ned areRetryableWrites supported?
             }
         }
 
@@ -148,7 +102,6 @@ namespace MongoDB.Driver.Core.Operations
             HashSet<ServerDescription> deprioritizedServers = null;
             var attempt = 0;
             Exception originalException = null;
-            var maxAttempts = 1;
             var tokenBucket = context.ChannelSource.Server.TokenBucket;
 
             long? transactionNumber = AreRetriesAllowed(operation.WriteConcern, context, context.ChannelSource.ServerDescription) ? context.Binding.Session.AdvanceTransactionNumber() : null;
@@ -158,7 +111,6 @@ namespace MongoDB.Driver.Core.Operations
                 attempt++;
                 operationContext.ThrowIfTimedOutOrCanceled();
                 var server = context.ChannelSource.ServerDescription;
-                bool isSystemOverloaded;
 
                 try
                 {
@@ -182,55 +134,16 @@ namespace MongoDB.Driver.Core.Operations
                 {
                     originalException ??= ex;
 
-                    var isRetryableWrite = IsRetryableWrite(operationContext, operation.WriteConcern, context, server, ex, attempt);
-                    var isErrorRetryable = RetryabilityHelper.IsRetryableException(ex);
-                    isSystemOverloaded = RetryabilityHelper.IsSystemOverloadedException(ex);
-
-                    var isRetryable = isRetryableWrite || (isErrorRetryable && isSystemOverloaded);
-
-                    if (attempt > 1 && !isSystemOverloaded)
-                    {
-                        tokenBucket.Deposit(1);
-                    }
-
-                    if (!isRetryable)
+                    if (!ShouldRetry(operationContext, operation.WriteConcern, context, server, tokenBucket, ex, attempt, out var backoff))
                     {
                         throw originalException;
                     }
 
-                    if (isSystemOverloaded)
-                    {
-                        maxAttempts = RetryabilityHelper.OperationRetryBackpressureConstants.MaxRetries;
-                    }
-
-                    if (attempt > maxAttempts)
-                    {
-                        throw originalException;
-                    }
-
-                    if (isSystemOverloaded
-                        && context.Binding.Session.Id != null
-                        && context.Binding.Session.IsInTransaction
-                        && context.Binding.Session.CurrentTransaction is { HasExecutedAtLeastFirstCommand: false } currentTransaction)
-                    {
-                        currentTransaction.ResetState();
-                    }
+                    await Task.Delay(backoff, operationContext.CancellationToken).ConfigureAwait(false);
                 }
 
-                deprioritizedServers ??= new HashSet<ServerDescription>();
+                deprioritizedServers ??= [];
                 deprioritizedServers.Add(server);
-
-                if (isSystemOverloaded)
-                {
-                    var backoff = RetryabilityHelper.GetOperationRetryBackoffDelay(attempt);
-
-                    if (IsTimedOut(operationContext, backoff) || !tokenBucket.Consume(1))
-                    {
-                        throw originalException;
-                    }
-
-                    await Task.Delay(backoff).ConfigureAwait(false);
-                }
 
                 try
                 {
@@ -261,18 +174,55 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // private static methods
-        private static bool IsRetryableWrite(OperationContext operationContext, WriteConcern writeConcern, RetryableWriteContext context, ServerDescription server, Exception exception, int attempt)
+        private static bool ShouldRetry(OperationContext operationContext,
+            WriteConcern writeConcern,
+            RetryableWriteContext context,
+            ServerDescription server,
+            TokenBucket tokenBucket,
+            Exception exception,
+            int attempt,
+            out TimeSpan backoff)
         {
-            if (!AreRetriesAllowed(writeConcern, context, server))
+            backoff = TimeSpan.Zero;
+            var isRetryableException = RetryabilityHelper.IsRetryableException(exception);
+            var isRetryableWriteException = RetryabilityHelper.IsRetryableWriteException(exception);
+            var isSystemOverloadedException = RetryabilityHelper.IsSystemOverloadedException(exception);
+
+            var isRetryableWrite = AreRetriesAllowed(writeConcern, context, server) && isRetryableWriteException;
+
+            var isBackpressureRetry = isSystemOverloadedException
+                                      && isRetryableException;
+
+            if (attempt > 1 && !isSystemOverloadedException)
+            {
+                tokenBucket.Deposit(1);
+            }
+
+            if (!isRetryableWrite && !isBackpressureRetry)
             {
                 return false;
             }
 
-            if (!RetryabilityHelper.IsRetryableWriteException(exception))
+            if (isSystemOverloadedException)
             {
-                return false;
+                //TODO When the first command of a transaction fails with a backpressure error, we need to reset the transaction state
+                //It needs to be put to "Starting" again. I've tried to cancel its transition to "InProgress" state in the first place, but that did not work well with the current implementation
+                //(I was getting an end of error stream from the binary connection). This "reset" of the transaction state seems to work fine and is the same approach done by Python
+                if (context.Binding.Session.Id != null
+                    && context.Binding.Session.IsInTransaction
+                    && context.Binding.Session.CurrentTransaction is { HasExecutedAtLeastFirstCommand: false } currentTransaction)
+                {
+                    currentTransaction.ResetState();
+                }
+
+                backoff = RetryabilityHelper.GetOperationRetryBackoffDelay(attempt);
+
+                var canConsumeToken = tokenBucket.Consume(1);
+                return canConsumeToken && attempt <= RetryabilityHelper.OperationRetryBackpressureConstants.MaxRetries;
             }
 
+            //If a retryable write (not backpressure related), we retry "infinite" times with CSOT enabled (until timeout),
+            //otherwise just once.
             return operationContext.IsRootContextTimeoutConfigured() || attempt < 2;
         }
 
