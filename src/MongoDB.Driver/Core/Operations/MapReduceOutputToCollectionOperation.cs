@@ -199,7 +199,10 @@ namespace MongoDB.Driver.Core.Operations
         private WriteCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription)
         {
             var command = CreateCommand(operationContext, session, connectionDescription);
-            return new WriteCommandOperation<BsonDocument>(CollectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, MessageEncoderSettings);
+            return new WriteCommandOperation<BsonDocument>(CollectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, MessageEncoderSettings)
+            {
+                WriteConcern = WriteConcern
+            };
         }
     }
 }
