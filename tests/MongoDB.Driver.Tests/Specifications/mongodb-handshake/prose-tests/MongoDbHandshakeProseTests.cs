@@ -119,8 +119,8 @@ namespace MongoDB.Driver.Tests.Specifications.mongodb_handshake.prose_tests
             foreach (var doc in commandStartedEvents.Select(ev => ev.Command))
             {
                 //TODO The messages have been added for tesing purposes only. Remove them later.
-                doc.Contains("backpressure").Should().BeTrue( $"Expected 'backpressure' field in hello command: {doc}");
-                doc["backpressure"].AsBoolean.Should().BeTrue( $"Expected 'backpressure' field to be true in hello command: {doc}" );
+                doc.Contains("backpressure").Should().BeTrue( doc.ToString());
+                doc["backpressure"].AsBoolean.Should().BeTrue( doc.ToString());
             }
         }
     }
