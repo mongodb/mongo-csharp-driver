@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Core.Operations
                     if (context.Binding.Session.Id != null &&
                         context.Binding.Session.IsInTransaction)
                     {
-                        context.Binding.Session.CurrentTransaction.HasExecutedAtLeastFirstCommand = true;
+                        context.Binding.Session.CurrentTransaction.HasCompletedCommand = true;
                     }
 
                     return operationResult;
@@ -125,7 +125,7 @@ namespace MongoDB.Driver.Core.Operations
                     if (context.Binding.Session.Id != null &&
                         context.Binding.Session.IsInTransaction)
                     {
-                        context.Binding.Session.CurrentTransaction.HasExecutedAtLeastFirstCommand = true;
+                        context.Binding.Session.CurrentTransaction.HasCompletedCommand = true;
                     }
 
                     return operationResult;
@@ -211,7 +211,7 @@ namespace MongoDB.Driver.Core.Operations
                 //(I was getting an end of error stream from the binary connection). This "reset" of the transaction state seems to work fine and is the same approach done by Python
                 if (context.Binding.Session.Id != null
                     && context.Binding.Session.IsInTransaction
-                    && context.Binding.Session.CurrentTransaction is { HasExecutedAtLeastFirstCommand: false } currentTransaction)
+                    && context.Binding.Session.CurrentTransaction is { HasCompletedCommand: false } currentTransaction)
                 {
                     currentTransaction.ResetState();
                 }
