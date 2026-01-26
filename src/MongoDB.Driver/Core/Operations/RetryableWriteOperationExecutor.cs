@@ -145,6 +145,7 @@ namespace MongoDB.Driver.Core.Operations
                 deprioritizedServers ??= [];
                 deprioritizedServers.Add(server);
 
+                //TODO Should this be retried as well?
                 try
                 {
                     await context.AcquireOrReplaceChannelAsync(operationContext, deprioritizedServers).ConfigureAwait(false);
@@ -221,8 +222,7 @@ namespace MongoDB.Driver.Core.Operations
                 return canConsumeToken && attempt <= RetryabilityHelper.OperationRetryBackpressureConstants.MaxRetries;
             }
 
-            //If a retryable write (not backpressure related), we retry "infinite" times with CSOT enabled (until timeout),
-            //otherwise just once.
+            //If a retryable write (not backpressure related), we retry "infinite" times (until timeout) with CSOT enabled, otherwise just once.
             return operationContext.IsRootContextTimeoutConfigured() || attempt < 2;
         }
 
@@ -244,15 +244,5 @@ namespace MongoDB.Driver.Core.Operations
         private static bool IsOperationAcknowledged(WriteConcern writeConcern)
             => writeConcern == null || // null means use server default write concern which implies acknowledged
                writeConcern.IsAcknowledged;
-
-        private static bool IsTimedOut(OperationContext operationContext, TimeSpan delay = default)
-        {
-            if (operationContext.Timeout.HasValue)
-            {
-                return operationContext.Elapsed + delay >= operationContext.Timeout;
-            }
-
-            return false;
-        }
     }
 }
