@@ -92,14 +92,6 @@ namespace MongoDB.Driver.TestHelpers.Core
                 return;
             }
 
-            // Filter out hello/isMaster handshake commands for now
-            // TODO: Discuss with spec owners whether handshake commands should be filtered
-            var commandName = activity.GetTagItem("db.command.name") as string;
-            if (commandName?.ToLowerInvariant() == "hello" || commandName?.ToLowerInvariant() == "ismaster")
-            {
-                return;
-            }
-
             lock (_lock)
             {
                 _completedActivities.Add(activity);

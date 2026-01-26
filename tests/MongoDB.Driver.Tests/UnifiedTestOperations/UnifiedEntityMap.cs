@@ -845,12 +845,6 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 }
             }
 
-            // Always clear span capturer after client creation to remove handshake spans
-            if (spanCapturer != null)
-            {
-                spanCapturer.Clear();
-            }
-
             return (client, clientEventCapturers, loggingComponents, spanCapturer);
         }
 
