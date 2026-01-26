@@ -94,12 +94,23 @@ namespace MongoDB.Driver.Core.Operations
 
         public TCommandResult ExecuteAttempt(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
         {
+            AddTransactionNumberToCommandIfNecessary(transactionNumber);
             return ExecuteProtocol(operationContext, context.ChannelSource, context.Binding.Session, _readPreference);
         }
 
         public Task<TCommandResult> ExecuteAttemptAsync(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
         {
+            AddTransactionNumberToCommandIfNecessary(transactionNumber);
             return ExecuteProtocolAsync(operationContext, context.ChannelSource, context.Binding.Session, _readPreference);
+        }
+
+
+        private void AddTransactionNumberToCommandIfNecessary(long? transactionNumber)
+        {
+            if (transactionNumber.HasValue)
+            {
+                Command["txnNumber"] = transactionNumber.Value;
+            }
         }
     }
 }
