@@ -48,23 +48,24 @@ namespace MongoDB.Driver.Core.Clusters
         private ExpirableClusterDescription _expirableClusterDescription;
         private readonly LatencyLimitingServerSelector _latencyLimitingServerSelector;
         protected readonly EventLogger<LogCategories.SDAM> _clusterEventLogger;
-        private readonly TokenBucket _tokenBucket = new TokenBucket();
+        private readonly TokenBucket _tokenBucket = new();
         protected readonly EventLogger<LogCategories.ServerSelection> _serverSelectionEventLogger;
         private readonly IClusterableServerFactory _serverFactory;
         private readonly ServerSelectionWaitQueue _serverSelectionWaitQueue;
         private readonly ICoreServerSessionPool _serverSessionPool;
+        private readonly ClusterSettings _settings;
         private readonly InterlockedInt32 _state;
 
         // constructors
         protected Cluster(ClusterSettings settings, IClusterableServerFactory serverFactory, IEventSubscriber eventSubscriber, ILoggerFactory loggerFactory)
         {
-            Settings = Ensure.IsNotNull(settings, nameof(settings));
-            Ensure.That(!Settings.LoadBalanced, "LoadBalanced mode is not supported.");
+            _settings = Ensure.IsNotNull(settings, nameof(settings));
+            Ensure.That(!_settings.LoadBalanced, "LoadBalanced mode is not supported.");
             _serverFactory = Ensure.IsNotNull(serverFactory, nameof(serverFactory));
             Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
             _state = new InterlockedInt32(State.Initial);
             _clusterId = new ClusterId();
-            _expirableClusterDescription = new (this, ClusterDescription.CreateInitial(_clusterId, Settings.DirectConnection));
+            _expirableClusterDescription = new (this, ClusterDescription.CreateInitial(_clusterId, _settings.DirectConnection));
             _latencyLimitingServerSelector = new LatencyLimitingServerSelector(settings.LocalThreshold);
             _serverSelectionWaitQueue = new ServerSelectionWaitQueue(this);
             _serverSessionPool = new CoreServerSessionPool(this);
@@ -84,7 +85,7 @@ namespace MongoDB.Driver.Core.Clusters
 
         public abstract IEnumerable<IClusterableServer> Servers { get; }
 
-        public ClusterSettings Settings { get; }
+        public ClusterSettings Settings => _settings;
 
         // methods
         public ICoreServerSession AcquireServerSession()
@@ -94,7 +95,7 @@ namespace MongoDB.Driver.Core.Clusters
 
         protected IClusterableServer CreateServer(EndPoint endPoint)
         {
-            return _serverFactory.CreateServer(Settings.GetInitialClusterType(), _clusterId, _clusterClock, endPoint, _tokenBucket);
+            return _serverFactory.CreateServer(_settings.GetInitialClusterType(), _clusterId, _clusterClock, endPoint, _tokenBucket);
         }
 
         public void Dispose()
@@ -151,7 +152,7 @@ namespace MongoDB.Driver.Core.Clusters
             Ensure.IsNotNull(operationContext, nameof(operationContext));
             ThrowIfDisposedOrNotOpen();
 
-            using var serverSelectionOperationContext = operationContext.WithTimeout(Settings.ServerSelectionTimeout);
+            using var serverSelectionOperationContext = operationContext.WithTimeout(_settings.ServerSelectionTimeout);
             var expirableClusterDescription = _expirableClusterDescription;
             IDisposable serverSelectionWaitQueueDisposer = null;
             (selector, var operationCountSelector, var stopwatch) = BeginServerSelection(expirableClusterDescription.ClusterDescription, selector);
@@ -189,7 +190,7 @@ namespace MongoDB.Driver.Core.Clusters
             Ensure.IsNotNull(operationContext, nameof(operationContext));
             ThrowIfDisposedOrNotOpen();
 
-            using var serverSelectionOperationContext = operationContext.WithTimeout(Settings.ServerSelectionTimeout);
+            using var serverSelectionOperationContext = operationContext.WithTimeout(_settings.ServerSelectionTimeout);
             var expirableClusterDescription = _expirableClusterDescription;
             IDisposable serverSelectionWaitQueueDisposer = null;
             (selector, var operationCountSelector, var stopwatch) = BeginServerSelection(expirableClusterDescription.ClusterDescription, selector);
@@ -248,15 +249,15 @@ namespace MongoDB.Driver.Core.Clusters
                 EventContext.OperationName));
 
             var allSelectors = new List<IServerSelector>(5);
-            if (Settings.PreServerSelector != null)
+            if (_settings.PreServerSelector != null)
             {
-                allSelectors.Add(Settings.PreServerSelector);
+                allSelectors.Add(_settings.PreServerSelector);
             }
 
             allSelectors.Add(selector);
-            if (Settings.PostServerSelector != null)
+            if (_settings.PostServerSelector != null)
             {
-                allSelectors.Add(Settings.PostServerSelector);
+                allSelectors.Add(_settings.PostServerSelector);
             }
 
             allSelectors.Add(_latencyLimitingServerSelector);
@@ -452,7 +453,7 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 lock (_serverSelectionWaitQueueLock)
                 {
-                    if (_serverSelectionWaitQueueSize >= _cluster.Settings.MaxServerSelectionWaitQueueSize)
+                    if (_serverSelectionWaitQueueSize >= _cluster._settings.MaxServerSelectionWaitQueueSize)
                     {
                         throw MongoWaitQueueFullException.ForServerSelection();
                     }
