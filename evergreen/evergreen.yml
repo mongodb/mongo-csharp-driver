@@ -113,16 +113,6 @@ functions:
           ${PREPARE_SHELL}
           bash evergreen/install-dotnet.sh
 
-  compile-and-pack-driver-tests:
-    - command: shell.exec
-      type: system
-      params:
-        working_dir: mongo-csharp-driver
-        script: |
-          ${PREPARE_SHELL}
-              evergreen/compile-sources.sh
-              tar czf /tmp/mongo-csharp-driver.tgz tests/*.Tests/bin/Release/net6.0/ evergreen/install-dotnet.sh ${INCLUDE_FILES}
-
   prepare-resources:
     - command: shell.exec
       params:
@@ -1006,6 +996,9 @@ functions:
         script: |
           ${PREPARE_SHELL}
 
+          evergreen/compile-sources.sh
+          tar czf /tmp/mongo-csharp-driver.tgz tests/*.Tests/bin/Release/net6.0/ evergreen/install-dotnet.sh evergreen/run-mongodb-oidc-env-tests.sh
+
           export K8S_VARIANT=${K8S_VARIANT}
           export K8S_DRIVERS_TAR_FILE=/tmp/mongo-csharp-driver.tgz
           export K8S_TEST_CMD="OIDC_ENV=k8s ./evergreen/run-mongodb-oidc-env-tests.sh"
@@ -1408,7 +1401,7 @@ tasks:
               ${PREPARE_SHELL}
 
               evergreen/compile-sources.sh
-              tar czf /tmp/mongo-csharp-driver.tgz tests/*.Tests/bin/Release/net6.0/ evergreen/run-mongodb-oidc-env-tests.sh evergreen/install-dotnet.sh
+              tar czf /tmp/mongo-csharp-driver.tgz tests/*.Tests/bin/Release/net6.0/ evergreen/install-dotnet.sh evergreen/run-mongodb-oidc-env-tests.sh
 
               export AZUREOIDC_DRIVERS_TAR_FILE=/tmp/mongo-csharp-driver.tgz
               export AZUREOIDC_TEST_CMD="OIDC_ENV=azure ./evergreen/run-mongodb-oidc-env-tests.sh"
@@ -1437,9 +1430,6 @@ tasks:
     - name: test-oidc-k8s-eks
       commands:
         - func: configure-framework
-        - func: compile-and-pack-driver-tests
-          vars:
-            INCLUDE_FILES: evergreen/run-mongodb-oidc-env-tests.sh
         - func: run_oidc_k8s_tests
           vars:
             K8S_VARIANT: eks
@@ -1447,9 +1437,6 @@ tasks:
     - name: test-oidc-k8s-gke
       commands:
         - func: configure-framework
-        - func: compile-and-pack-driver-tests
-          vars:
-            INCLUDE_FILES: evergreen/run-mongodb-oidc-env-tests.sh
         - func: run_oidc_k8s_tests
           vars:
             K8S_VARIANT: gke
@@ -1457,9 +1444,6 @@ tasks:
     - name: test-oidc-k8s-aks
       commands:
         - func: configure-framework
-        - func: compile-and-pack-driver-tests
-          vars:
-            INCLUDE_FILES: evergreen/run-mongodb-oidc-env-tests.sh
         - func: run_oidc_k8s_tests
           vars:
             K8S_VARIANT: aks
