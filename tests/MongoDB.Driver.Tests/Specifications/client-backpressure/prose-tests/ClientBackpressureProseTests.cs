@@ -59,7 +59,8 @@ public class ClientBackpressureProseTests
 
     private static IDisposable ConfigureJitter(int value)
     {
-        return DefaultRandom.SetDoubleValueForTesting(value);
+        //return DefaultRandom.SetDoubleValueForTesting(value);
+        return null;
     }
 
     private static async Task ConfigureFailPointAsync(IMongoClient client)

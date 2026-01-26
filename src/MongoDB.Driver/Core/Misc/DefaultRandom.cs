@@ -20,8 +20,6 @@ namespace MongoDB.Driver.Core.Misc;
 
 internal sealed class DefaultRandom : IRandom
 {
-    private static double? _testDoubleValue;
-
     public static DefaultRandom Instance { get; } = new DefaultRandom();
 
     public string GenerateString(int length, string legalCharacters)
@@ -65,31 +63,10 @@ internal sealed class DefaultRandom : IRandom
 
     public double NextDouble()
     {
-        if (_testDoubleValue.HasValue)
-        {
-            return _testDoubleValue.Value;
-        }
 #if NET6_0_OR_GREATER
         return System.Random.Shared.NextDouble();
 #else
         return ThreadStaticRandom.NextDouble();
 #endif
-    }
-
-    public static IDisposable SetDoubleValueForTesting(int value)
-    {
-        _testDoubleValue = value;
-        return new ResetTestDoubleValueDisposable();
-    }
-
-    private sealed class ResetTestDoubleValueDisposable : IDisposable
-    {
-        private bool _disposed;
-        public void Dispose()
-        {
-            if (_disposed) return;
-            _testDoubleValue = null;
-            _disposed = true;
-        }
     }
 }
