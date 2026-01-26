@@ -149,6 +149,6 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         //TODO Let's see if we keep this
-        internal bool HasExecutedAtLeastFirstCommand { get; set; }
+        internal bool HasCompletedCommand { get; set; }
     }
 }
