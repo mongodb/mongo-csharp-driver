@@ -46,9 +46,9 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly ICoreServerSessionPool _serverSessionPool;
         private readonly ClusterSettings _settings;
         private readonly InterlockedInt32 _state;
-        private readonly TokenBucket _tokenBucket = new TokenBucket();
         private readonly EventLogger<LogCategories.SDAM> _eventLogger;
         private readonly EventLogger<LogCategories.ServerSelection> _serverSelectionEventLogger;
+        private readonly TokenBucket _tokenBucket = new();
 
         public LoadBalancedCluster(
             ClusterSettings settings,
@@ -103,7 +103,6 @@ namespace MongoDB.Driver.Core.Clusters
 
         public ClusterSettings Settings => _settings;
 
-        //TODO Put in right place
         public TokenBucket TokenBucket => _tokenBucket;
 
         public event EventHandler<ClusterDescriptionChangedEventArgs> DescriptionChanged;
