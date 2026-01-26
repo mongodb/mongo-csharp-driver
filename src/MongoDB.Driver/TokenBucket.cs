@@ -14,35 +14,36 @@
  */
 
 using System;
+using System.Threading;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver;
 
 internal sealed class TokenBucket
 {
-    // Default retry token capacity
     private const double Capacity = 1000d;
-
-    private readonly object _lock = new();
     private double _tokens = Capacity;
 
-    public double Tokens
-    {
-        get { lock (_lock) return _tokens; }
-    }
+    public double Tokens => _tokens;
 
     public bool Consume(double tokens)
     {
         Ensure.IsGreaterThan(tokens, 0, nameof(tokens));
 
-        lock (_lock)
+        while (true)
         {
-            if (_tokens >= tokens)
+            var current = _tokens;
+            if (current < tokens)
             {
-                _tokens -= tokens;
+                return false;
+            }
+
+            var updated = current - tokens;
+            var original = Interlocked.CompareExchange(ref _tokens, updated, current);
+            if (original == current)
+            {
                 return true;
             }
-            return false;
         }
     }
 
@@ -50,9 +51,16 @@ internal sealed class TokenBucket
     {
         Ensure.IsGreaterThan(tokens, 0, nameof(tokens));
 
-        lock (_lock)
+        while (true)
         {
-            _tokens = Math.Min(_tokens + tokens, Capacity);
+            var current = _tokens;
+            var updated = Math.Min(current + tokens, Capacity);
+
+            var original = Interlocked.CompareExchange(ref _tokens, updated, current);
+            if (original == current)
+            {
+                return;
+            }
         }
     }
 }
