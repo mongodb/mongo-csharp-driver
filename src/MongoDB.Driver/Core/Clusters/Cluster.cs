@@ -152,7 +152,7 @@ namespace MongoDB.Driver.Core.Clusters
             Ensure.IsNotNull(operationContext, nameof(operationContext));
             ThrowIfDisposedOrNotOpen();
 
-            using var serverSelectionOperationContext = operationContext.WithTimeout(_settings.ServerSelectionTimeout);
+            using var serverSelectionOperationContext = operationContext.WithTimeout(Settings.ServerSelectionTimeout);
             var expirableClusterDescription = _expirableClusterDescription;
             IDisposable serverSelectionWaitQueueDisposer = null;
             (selector, var operationCountSelector, var stopwatch) = BeginServerSelection(expirableClusterDescription.ClusterDescription, selector);
@@ -190,7 +190,7 @@ namespace MongoDB.Driver.Core.Clusters
             Ensure.IsNotNull(operationContext, nameof(operationContext));
             ThrowIfDisposedOrNotOpen();
 
-            using var serverSelectionOperationContext = operationContext.WithTimeout(_settings.ServerSelectionTimeout);
+            using var serverSelectionOperationContext = operationContext.WithTimeout(Settings.ServerSelectionTimeout);
             var expirableClusterDescription = _expirableClusterDescription;
             IDisposable serverSelectionWaitQueueDisposer = null;
             (selector, var operationCountSelector, var stopwatch) = BeginServerSelection(expirableClusterDescription.ClusterDescription, selector);
@@ -249,15 +249,15 @@ namespace MongoDB.Driver.Core.Clusters
                 EventContext.OperationName));
 
             var allSelectors = new List<IServerSelector>(5);
-            if (_settings.PreServerSelector != null)
+            if (Settings.PreServerSelector != null)
             {
-                allSelectors.Add(_settings.PreServerSelector);
+                allSelectors.Add(Settings.PreServerSelector);
             }
 
             allSelectors.Add(selector);
-            if (_settings.PostServerSelector != null)
+            if (Settings.PostServerSelector != null)
             {
-                allSelectors.Add(_settings.PostServerSelector);
+                allSelectors.Add(Settings.PostServerSelector);
             }
 
             allSelectors.Add(_latencyLimitingServerSelector);
