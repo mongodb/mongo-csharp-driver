@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Security.Cryptography;
 
 namespace MongoDB.Driver.Core.Misc;

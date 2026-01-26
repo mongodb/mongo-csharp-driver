@@ -48,13 +48,13 @@ namespace MongoDB.Driver.Core.Clusters
         private ExpirableClusterDescription _expirableClusterDescription;
         private readonly LatencyLimitingServerSelector _latencyLimitingServerSelector;
         protected readonly EventLogger<LogCategories.SDAM> _clusterEventLogger;
-        private readonly TokenBucket _tokenBucket = new();
         protected readonly EventLogger<LogCategories.ServerSelection> _serverSelectionEventLogger;
         private readonly IClusterableServerFactory _serverFactory;
         private readonly ServerSelectionWaitQueue _serverSelectionWaitQueue;
         private readonly ICoreServerSessionPool _serverSessionPool;
         private readonly ClusterSettings _settings;
         private readonly InterlockedInt32 _state;
+        private readonly TokenBucket _tokenBucket = new();
 
         // constructors
         protected Cluster(ClusterSettings settings, IClusterableServerFactory serverFactory, IEventSubscriber eventSubscriber, ILoggerFactory loggerFactory)
@@ -81,11 +81,11 @@ namespace MongoDB.Driver.Core.Clusters
 
         public ClusterDescription Description => _expirableClusterDescription.ClusterDescription;
 
-        public TokenBucket TokenBucket => _tokenBucket;
-
         public abstract IEnumerable<IClusterableServer> Servers { get; }
 
         public ClusterSettings Settings => _settings;
+
+        public TokenBucket TokenBucket => _tokenBucket;
 
         // methods
         public ICoreServerSession AcquireServerSession()
