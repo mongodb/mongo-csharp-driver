@@ -104,7 +104,8 @@ namespace MongoDB.Driver.Core.Operations
             return ExecuteProtocolAsync(operationContext, context.ChannelSource, context.Binding.Session, _readPreference);
         }
 
-
+        //TODO Not the cleanest, but the easiest for now. With more time, we need to find a way to merge WriteCommandOperation and RetryableWriteCommandOperationBase
+        //Maybe the first could be a single command, while the second can have the retryable logic. In this case only the second will be used by the other operations
         private void AddTransactionNumberToCommandIfNecessary(long? transactionNumber)
         {
             if (transactionNumber.HasValue)
