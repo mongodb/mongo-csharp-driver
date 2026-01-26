@@ -19,6 +19,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core;
@@ -119,8 +120,9 @@ namespace MongoDB.Driver.Tests.Specifications.mongodb_handshake.prose_tests
             foreach (var doc in commandStartedEvents.Select(ev => ev.Command))
             {
                 //TODO The messages have been added for tesing purposes only. Remove them later.
-                doc.Contains("backpressure").Should().BeTrue( doc.ToString());
-                doc["backpressure"].AsBoolean.Should().BeTrue( doc.ToString());
+                Logger.LogError($"DOC: {doc}");
+                doc.Contains("backpressure").Should().BeTrue();
+                doc["backpressure"].AsBoolean.Should().BeTrue();
             }
         }
     }
