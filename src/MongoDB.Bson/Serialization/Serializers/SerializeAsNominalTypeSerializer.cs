@@ -32,7 +32,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the <see cref="SerializeAsNominalTypeSerializer{TActualType, TNominalType}"/> class.
         /// </summary>
         public SerializeAsNominalTypeSerializer()
-            : this(BsonSerializer.SerializerRegistry)
+            : this(BsonSerializationDomain.Default.SerializerRegistry)
         {
         }
 

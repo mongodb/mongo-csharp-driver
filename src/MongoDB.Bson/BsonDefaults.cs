@@ -24,13 +24,9 @@ namespace MongoDB.Bson
     /// </summary>
     public static class BsonDefaults
     {
-        // private static fields
-        private static bool __dynamicArraySerializerWasSet;
-        private static IBsonSerializer __dynamicArraySerializer;
-        private static bool __dynamicDocumentSerializerWasSet;
-        private static IBsonSerializer __dynamicDocumentSerializer;
-        private static int __maxDocumentSize = int.MaxValue;
-        private static int __maxSerializationDepth = 100;
+        /* DOMAIN-API DynamicSerializers are used by ExpandoObjectSerializer to create a SerializationContext for ObjectSerializers. We need to remove those from the public API maybe..?
+         And from the BsonDefaults too.
+         */
 
         // public static properties
         /// <summary>
@@ -38,19 +34,8 @@ namespace MongoDB.Bson
         /// </summary>
         public static IBsonSerializer DynamicArraySerializer
         {
-            get
-            {
-                if (!__dynamicArraySerializerWasSet)
-                {
-                    __dynamicArraySerializer = BsonSerializer.LookupSerializer<List<object>>();
-                }
-                return __dynamicArraySerializer;
-            }
-            set
-            {
-                __dynamicArraySerializerWasSet = true;
-                __dynamicArraySerializer = value;
-            }
+            get => BsonSerializationDomain.Default.BsonDefaults.DynamicArraySerializer;
+            set => BsonSerializationDomain.Default.BsonDefaults.DynamicArraySerializer = value;
         }
 
         /// <summary>
@@ -58,28 +43,21 @@ namespace MongoDB.Bson
         /// </summary>
         public static IBsonSerializer DynamicDocumentSerializer
         {
-            get
-            {
-                if (!__dynamicDocumentSerializerWasSet)
-                {
-                    __dynamicDocumentSerializer = BsonSerializer.LookupSerializer<ExpandoObject>();
-                }
-                return __dynamicDocumentSerializer;
-            }
-            set
-            {
-                __dynamicDocumentSerializerWasSet = true;
-                __dynamicDocumentSerializer = value;
-            }
+            get => BsonSerializationDomain.Default.BsonDefaults.DynamicDocumentSerializer;
+            set => BsonSerializationDomain.Default.BsonDefaults.DynamicDocumentSerializer = value;
         }
+
+        /* DOMAIN-API MaxDocumentSize should probably be removed from the public API too, as it should come from the server.
+         * MaxSerializationDepth is useful. Does it make sense to keep it global...?
+         */
 
         /// <summary>
         /// Gets or sets the default max document size. The default is 4MiB.
         /// </summary>
         public static int MaxDocumentSize
         {
-            get { return __maxDocumentSize; }
-            set { __maxDocumentSize = value; }
+            get => BsonSerializationDomain.Default.BsonDefaults.MaxDocumentSize;
+            set => BsonSerializationDomain.Default.BsonDefaults.MaxDocumentSize = value;
         }
 
         /// <summary>
@@ -87,8 +65,8 @@ namespace MongoDB.Bson
         /// </summary>
         public static int MaxSerializationDepth
         {
-            get { return __maxSerializationDepth; }
-            set { __maxSerializationDepth = value; }
+            get => BsonSerializationDomain.Default.BsonDefaults.MaxSerializationDepth;
+            set => BsonSerializationDomain.Default.BsonDefaults.MaxSerializationDepth = value;
         }
     }
 }
