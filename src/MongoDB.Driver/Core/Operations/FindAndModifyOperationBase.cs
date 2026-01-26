@@ -92,8 +92,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
                 var operation = CreateOperation(operationContext, channelBinding.Session, channel.ConnectionDescription, null);
-                operation.RetryRequested = _retryRequested;
-                operation.WriteConcern = _writeConcern;
+                operation.RetryRequested = _retryRequested;  //TODO Maybe retryRequested should be set in CreateOperation
 
                 using (var rawBsonDocument = operation.Execute(operationContext, channelBinding))
                 {
@@ -111,7 +110,6 @@ namespace MongoDB.Driver.Core.Operations
             {
                 var operation = CreateOperation(operationContext, channelBinding.Session, channel.ConnectionDescription, null);
                 operation.RetryRequested = _retryRequested;
-                operation.WriteConcern = _writeConcern;
 
                 using (var rawBsonDocument = await operation.ExecuteAsync(operationContext, channelBinding).ConfigureAwait(false))
                 {
