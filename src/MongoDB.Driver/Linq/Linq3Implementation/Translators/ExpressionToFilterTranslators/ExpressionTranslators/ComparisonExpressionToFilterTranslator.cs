@@ -56,6 +56,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 return CountComparisonExpressionToFilterTranslator.Translate(context, expression, comparisonOperator, countExpression, sizeExpression);
             }
 
+            if (DictionaryIndexerComparisonExpressionToFilterTranslator.CanTranslate(leftExpression, rightExpression))
+            {
+                return DictionaryIndexerComparisonExpressionToFilterTranslator.Translate(context, expression, comparisonOperator, (MethodCallExpression)leftExpression, (ConstantExpression)rightExpression);
+            }
+
             if (GetTypeComparisonExpressionToFilterTranslator.CanTranslate(leftExpression, comparisonOperator, rightExpression))
             {
                 return GetTypeComparisonExpressionToFilterTranslator.Translate(context, expression, (MethodCallExpression)leftExpression, comparisonOperator, (ConstantExpression)rightExpression);
