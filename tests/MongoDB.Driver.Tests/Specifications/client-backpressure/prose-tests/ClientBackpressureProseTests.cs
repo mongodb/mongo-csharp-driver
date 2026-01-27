@@ -113,12 +113,11 @@ public class ClientBackpressureProseTests
 
         withBackoffException.Should().NotBeNull().And.BeOfType<MongoCommandException>();
 
-        // Assert - Backoff should add at least 2100ms (allowing 1s tolerance)
+        // Backoff time should be about 3100ms
         var difference = withBackoffTime - noBackoffTime;
-        difference.Should().BeGreaterOrEqualTo(2100,
-            $"backoff difference should be greater than 2100ms, got {difference}ms (noBackoff: {noBackoffTime}ms, withBackoff: {withBackoffTime}ms)");
+        difference.Should().BeGreaterOrEqualTo(3000,
+            $"backoff difference should be greater than 3000ms, got {difference}ms (noBackoff: {noBackoffTime}ms, withBackoff: {withBackoffTime}ms)");
     }
-
 
     private static RetryableReadContext CreateRetryableReadContext(IRandom random)
     {
