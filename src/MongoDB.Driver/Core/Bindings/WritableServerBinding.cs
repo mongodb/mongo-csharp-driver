@@ -95,11 +95,11 @@ namespace MongoDB.Driver.Core.Bindings
                 throw new InvalidOperationException($"This overload of {nameof(GetWriteChannelSource)} cannot be called when pinned to a server.");
             }
 
-            var writableServerSelector = new WritableServerSelector(mayUseSecondary);
-
-            var selector = deprioritizedServers != null
-                ? (IServerSelector)new CompositeServerSelector(new IServerSelector[] { new PriorityServerSelector(deprioritizedServers), writableServerSelector })
-                : writableServerSelector;
+            IServerSelector selector = new WritableServerSelector(mayUseSecondary);
+            if (deprioritizedServers != null)
+            {
+                selector = new DeprioritizedServersServerSelector(deprioritizedServers, selector);
+            }
 
             var server = _cluster.SelectServer(operationContext, selector);
             return CreateServerChannelSource(server);
@@ -129,11 +129,11 @@ namespace MongoDB.Driver.Core.Bindings
                 throw new InvalidOperationException($"This overload of {nameof(GetWriteChannelSource)} cannot be called when pinned to a server.");
             }
 
-            var writableServerSelector = new WritableServerSelector(mayUseSecondary);
-
-            IServerSelector selector = deprioritizedServers != null
-                ? new CompositeServerSelector(new IServerSelector[] { new PriorityServerSelector(deprioritizedServers), writableServerSelector })
-                : writableServerSelector;
+            IServerSelector selector = new WritableServerSelector(mayUseSecondary);
+            if (deprioritizedServers != null)
+            {
+                selector = new DeprioritizedServersServerSelector(deprioritizedServers, selector);
+            }
 
             var server = await _cluster.SelectServerAsync(operationContext, selector).ConfigureAwait(false);
             return CreateServerChannelSource(server);

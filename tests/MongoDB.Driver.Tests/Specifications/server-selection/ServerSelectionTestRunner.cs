@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_selection
         {
             var definition = testCase.Test;
 
-            JsonDrivenHelper.EnsureAllFieldsAreValid(definition, "_path", "in_latency_window", "operation", "read_preference", "suitable_servers", "topology_description", "heartbeatFrequencyMS", "error");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(definition, "_path", "in_latency_window", "operation", "read_preference", "suitable_servers", "deprioritized_servers", "topology_description", "heartbeatFrequencyMS", "error");
 
             var error = definition.GetValue("error", false).ToBoolean();
             var heartbeatInterval = TimeSpan.FromMilliseconds(definition.GetValue("heartbeatFrequencyMS", 10000).ToInt64());
@@ -65,6 +65,12 @@ namespace MongoDB.Driver.Tests.Specifications.server_selection
                 }
 
                 selector = new ReadPreferenceServerSelector(readPreference);
+            }
+
+            if (definition.TryGetValue("deprioritized_servers", out var deprioritizedServersValue))
+            {
+                var deprioritizedServers = ServerSelectionTestHelper.BuildServerDescriptions((BsonArray)deprioritizedServersValue, _clusterId, heartbeatInterval);
+                selector = new DeprioritizedServersServerSelector(deprioritizedServers, selector);
             }
 
             if (error)
