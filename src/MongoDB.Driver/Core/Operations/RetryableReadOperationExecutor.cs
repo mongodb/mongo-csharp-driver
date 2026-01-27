@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Operations
@@ -60,7 +61,7 @@ namespace MongoDB.Driver.Core.Operations
                 {
                     originalException ??= ex;
 
-                    if (!ShouldRetry(operationContext, context, tokenBucket, ex, attempt, out var backoff))
+                    if (!ShouldRetry(operationContext, context, tokenBucket, ex, attempt, context.Random, out var backoff))
                     {
                         throw originalException;
                     }
@@ -118,7 +119,7 @@ namespace MongoDB.Driver.Core.Operations
                 {
                     originalException ??= ex;
 
-                    if (!ShouldRetry(operationContext, context, tokenBucket, ex, attempt, out var backoff))
+                    if (!ShouldRetry(operationContext, context, tokenBucket, ex, attempt, context.Random, out var backoff))
                     {
                         throw originalException;
                     }
@@ -168,6 +169,7 @@ namespace MongoDB.Driver.Core.Operations
             TokenBucket tokenBucket,
             Exception exception,
             int attempt,
+            IRandom random,
             out TimeSpan backoff)
         {
             backoff = TimeSpan.Zero;
@@ -202,7 +204,7 @@ namespace MongoDB.Driver.Core.Operations
                     currentTransaction.ResetState();
                 }
 
-                backoff = RetryabilityHelper.GetOperationRetryBackoffDelay(attempt);
+                backoff = RetryabilityHelper.GetOperationRetryBackoffDelay(attempt, random);
 
                 var canConsumeToken = tokenBucket.Consume(1);
                 return canConsumeToken && attempt <= RetryabilityHelper.OperationRetryBackpressureConstants.MaxRetries;

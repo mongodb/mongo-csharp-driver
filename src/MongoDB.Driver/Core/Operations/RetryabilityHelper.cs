@@ -131,11 +131,11 @@ namespace MongoDB.Driver.Core.Operations
         /// <summary>
         /// Gets the operation retry backoff delay used for operation retries under client backpressure.
         /// </summary>
-        public static TimeSpan GetOperationRetryBackoffDelay(int attempt)
+        public static TimeSpan GetOperationRetryBackoffDelay(int attempt, IRandom random)
         {
             return TimeSpan.FromMilliseconds(
                 GetRetryDelayMs(
-                    DefaultRandom.Instance,
+                    random,
                     attempt,
                     OperationRetryBackpressureConstants.BasePowerBackoff,
                     OperationRetryBackpressureConstants.InitialBackoff,
