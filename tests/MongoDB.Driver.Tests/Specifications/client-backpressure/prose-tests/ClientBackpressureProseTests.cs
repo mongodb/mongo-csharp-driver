@@ -27,6 +27,7 @@ using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
+using MongoDB.Driver.Core.TestHelpers;
 using Moq;
 using Xunit;
 
@@ -40,7 +41,7 @@ public class ClientBackpressureProseTests
     public async Task ReadExecute_should_apply_backoff_when_SystemOverloadedError_occurs(bool async)
     {
         var operationMock = new Mock<IRetryableReadOperation<int>>();
-        var exception = CreateSystemOverloadedErrorException();
+        var exception = CoreExceptionHelper.CreateMongoCommandExceptionWithLabels(2, "SystemOverloadedError", "RetryableError");
         operationMock
             .Setup(o => o.ExecuteAttempt(It.IsAny<OperationContext>(), It.IsAny<RetryableReadContext>(), It.IsAny<int>(), It.IsAny<long?>()))
             .Throws(exception);
@@ -61,7 +62,7 @@ public class ClientBackpressureProseTests
     public async Task WriteExecute_should_apply_backoff_when_SystemOverloadedError_occurs(bool async)
     {
         var operationMock = new Mock<IRetryableWriteOperation<int>>();
-        var exception = CreateSystemOverloadedErrorException();
+        var exception = CoreExceptionHelper.CreateMongoCommandExceptionWithLabels(2, "SystemOverloadedError", "RetryableError");
         operationMock.SetupGet(o => o.WriteConcern).Returns(WriteConcern.Acknowledged);
         operationMock
             .Setup(o => o.ExecuteAttempt(It.IsAny<OperationContext>(), It.IsAny<RetryableWriteContext>(), It.IsAny<int>(), It.IsAny<long?>()))
@@ -83,28 +84,21 @@ public class ClientBackpressureProseTests
         Action<OperationContext, TContext> executeSync,
         Func<OperationContext, TContext, Task> executeAsync)
     {
+        var operationContext = new OperationContext(TimeSpan.FromSeconds(30), CancellationToken.None);
+
         // Test with no backoff (jitter = 0)
         var noBackoffRandom = new Mock<IRandom>();
         noBackoffRandom.Setup(r => r.NextDouble()).Returns(0.0);
         var noBackoffContext = createContext(noBackoffRandom.Object);
 
         var stopwatch = Stopwatch.StartNew();
-        Exception noBackoffException;
-        if (async)
-        {
-            noBackoffException = await Record.ExceptionAsync(() =>
-                executeAsync(new OperationContext(TimeSpan.FromSeconds(30), CancellationToken.None), noBackoffContext));
-        }
-        else
-        {
-            noBackoffException = Record.Exception(() =>
-                executeSync(new OperationContext(TimeSpan.FromSeconds(30), CancellationToken.None), noBackoffContext));
-        }
+        var noBackoffException = async
+            ? await Record.ExceptionAsync(() => executeAsync(operationContext, noBackoffContext))
+            : Record.Exception(() => executeSync(operationContext, noBackoffContext));
         stopwatch.Stop();
         var noBackoffTime = stopwatch.ElapsedMilliseconds;
 
-        noBackoffException.Should().NotBeNull();
-        noBackoffException.Should().BeOfType<MongoCommandException>();
+        noBackoffException.Should().NotBeNull().And.BeOfType<MongoCommandException>();
 
         // Test with full backoff (jitter = 1)
         var withBackoffRandom = new Mock<IRandom>();
@@ -112,40 +106,25 @@ public class ClientBackpressureProseTests
         var withBackoffContext = createContext(withBackoffRandom.Object);
 
         stopwatch.Restart();
-        Exception withBackoffException;
-        if (async)
-        {
-            withBackoffException = await Record.ExceptionAsync(() =>
-                executeAsync(new OperationContext(TimeSpan.FromSeconds(30), CancellationToken.None), withBackoffContext));
-        }
-        else
-        {
-            withBackoffException = Record.Exception(() =>
-                executeSync(new OperationContext(TimeSpan.FromSeconds(30), CancellationToken.None), withBackoffContext));
-        }
+        var withBackoffException = async
+            ? await Record.ExceptionAsync(() => executeAsync(operationContext, withBackoffContext))
+            : Record.Exception(() => executeSync(operationContext, withBackoffContext));
         stopwatch.Stop();
         var withBackoffTime = stopwatch.ElapsedMilliseconds;
 
-        withBackoffException.Should().NotBeNull();
-        withBackoffException.Should().BeOfType<MongoCommandException>();
+        withBackoffException.Should().NotBeNull().And.BeOfType<MongoCommandException>();
 
-        // Assert - Backoff should add at least 2100ms
-        // The sum of 5 backoffs with jitter=1 is approximately 3100ms
-        // We allow a 1-second tolerance window, so the difference should be at least 2100ms
+        // Assert - Backoff should add at least 2100ms (allowing 1s tolerance)
         var difference = withBackoffTime - noBackoffTime;
-        Assert.True(difference >= 2100, $"Expected at least 2100ms difference, got {difference}ms (noBackoff: {noBackoffTime}ms, withBackoff: {withBackoffTime}ms)");
+        difference.Should().BeGreaterOrEqualTo(2100,
+            $"backoff difference should be greater than 2100ms, got {difference}ms (noBackoff: {noBackoffTime}ms, withBackoff: {withBackoffTime}ms)");
     }
 
-    private static MongoCommandException CreateSystemOverloadedErrorException()
-    {
-        var result = BsonDocument.Parse("{ ok: 0, code: 2, codeName: 'SystemOverloaded', errmsg: 'System overloaded', errorLabels: ['SystemOverloadedError', 'RetryableError'] }");
-        var connectionId = new ConnectionId(new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27017)));
-        return new MongoCommandException(connectionId, "System overloaded", new BsonDocument("insert", "test"), result);
-    }
 
     private static RetryableReadContext CreateRetryableReadContext(IRandom random)
     {
-        var sessionMock = CreateSessionMock(hasSessionId: false);
+        var sessionMock = new Mock<ICoreSessionHandle>();
+        sessionMock.SetupGet(s => s.IsInTransaction).Returns(false);
         var (channelSourceMock, channelMock) = CreateChannelMocks();
 
         var bindingMock = new Mock<IReadBinding>();
@@ -163,7 +142,9 @@ public class ClientBackpressureProseTests
 
     private static RetryableWriteContext CreateRetryableWriteContext(IRandom random)
     {
-        var sessionMock = CreateSessionMock(hasSessionId: true);
+        var sessionMock = new Mock<ICoreSessionHandle>();
+        sessionMock.SetupGet(s => s.IsInTransaction).Returns(false);
+        sessionMock.SetupGet(s => s.Id).Returns(new BsonDocument("id", 1));
         var (channelSourceMock, channelMock) = CreateChannelMocks();
 
         var bindingMock = new Mock<IWriteBinding>();
@@ -179,32 +160,19 @@ public class ClientBackpressureProseTests
         return context;
     }
 
-    private static Mock<ICoreSessionHandle> CreateSessionMock(bool hasSessionId)
-    {
-        var sessionMock = new Mock<ICoreSessionHandle>();
-        sessionMock.SetupGet(s => s.IsInTransaction).Returns(false);
-        sessionMock.SetupGet(s => s.Id).Returns(hasSessionId ? new BsonDocument("id", 1) : null);
-        return sessionMock;
-    }
-
-    private static ServerDescription CreateServerDescription()
-    {
-        var endPoint = new DnsEndPoint("localhost", 27017);
-        var serverId = new ServerId(new ClusterId(), endPoint);
-        return new ServerDescription(serverId, endPoint);
-    }
-
     private static (Mock<IChannelSourceHandle> channelSource, Mock<IChannelHandle> channel) CreateChannelMocks()
     {
         var serverMock = new Mock<IServer>();
-        var tokenBucket = new TokenBucket();
-        serverMock.SetupGet(s => s.TokenBucket).Returns(tokenBucket);
+        serverMock.SetupGet(s => s.TokenBucket).Returns(new TokenBucket());
+
+        var serverId = new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27017));
+        var serverDescription = new ServerDescription(serverId, serverId.EndPoint);
 
         var channelMock = new Mock<IChannelHandle>();
 
         var channelSourceMock = new Mock<IChannelSourceHandle>();
         channelSourceMock.SetupGet(cs => cs.Server).Returns(serverMock.Object);
-        channelSourceMock.SetupGet(cs => cs.ServerDescription).Returns(CreateServerDescription());
+        channelSourceMock.SetupGet(cs => cs.ServerDescription).Returns(serverDescription);
         channelSourceMock.Setup(cs => cs.GetChannel(It.IsAny<OperationContext>())).Returns(channelMock.Object);
         channelSourceMock.Setup(cs => cs.GetChannelAsync(It.IsAny<OperationContext>())).ReturnsAsync(channelMock.Object);
 
