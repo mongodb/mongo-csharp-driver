@@ -15,12 +15,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using Xunit;
 
@@ -85,9 +87,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         {
             var serializer = new DictionaryInterfaceImplementerSerializer<Dictionary<string, int>>(DictionaryRepresentation.Document);
 
-            var exception = Record.Exception(() => DocumentSerializerHelper.GetMemberSerializationInfo(serializer, "abc"));
+            var exception = Record.Exception(() => DocumentSerializerHelper.GetMemberSerializationInfo(null, serializer, "abc"));
 
-            exception.Should().BeOfType<NotSupportedException>();
+            exception.Should().BeOfType<ExpressionNotSupportedException>();
             exception.Message.Should().Contain("does not represent members as fields");
         }
 
