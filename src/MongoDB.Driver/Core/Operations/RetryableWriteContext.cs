@@ -68,17 +68,20 @@ namespace MongoDB.Driver.Core.Operations
         private IChannelSourceHandle _channelSource;
         private bool _disposed;
         private bool _retryRequested;
+        private IRandom _random;
 
-        public RetryableWriteContext(IWriteBinding binding, bool retryRequested)
+        public RetryableWriteContext(IWriteBinding binding, bool retryRequested, IRandom random = null)
         {
             _binding = Ensure.IsNotNull(binding, nameof(binding));
             _retryRequested = retryRequested;
+            _random = random ?? DefaultRandom.Instance;
         }
 
         public IWriteBinding Binding => _binding;
         public IChannelHandle Channel => _channel;
         public IChannelSourceHandle ChannelSource => _channelSource;
         public bool RetryRequested => _retryRequested;
+        public IRandom Random => _random;
 
         public void Dispose()
         {
