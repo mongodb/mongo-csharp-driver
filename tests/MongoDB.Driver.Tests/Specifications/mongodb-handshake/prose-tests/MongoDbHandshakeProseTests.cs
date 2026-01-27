@@ -30,6 +30,7 @@ using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
@@ -103,14 +104,17 @@ namespace MongoDB.Driver.Tests.Specifications.mongodb_handshake.prose_tests
             subject._state().Should().Be(3); // 3 - open.
         }
 
-        // https://github.com/baileympearson/specifications/blob/530e727dd5cc0d0eb2606ea6db1cf144968597e7/source/mongodb-handshake/tests/README.md#test-9-handshake-documents-include-backpressure-true
         [Fact]
+        // https://github.com/baileympearson/specifications/blob/530e727dd5cc0d0eb2606ea6db1cf144968597e7/source/mongodb-handshake/tests/README.md#test-9-handshake-documents-include-backpressure-true
         public async Task HandshakeDocumentsIncludeBackpressureTrue()
         {
+            //TODO A test
+            RequireServer.Check().Authentication(authentication: false); // speculative authentication makes events asserting hard
+
             var eventCapturer = new EventCapturer()
                 .Capture<CommandStartedEvent>(e => e.CommandName is "hello" or OppressiveLanguageConstants.LegacyHelloCommandName);
 
-            var client = DriverTestConfiguration.CreateMongoClient(cb => cb.Subscribe(eventCapturer));
+            using var client = DriverTestConfiguration.CreateMongoClient(eventCapturer);
 
             var database = client.GetDatabase("admin");
             await database.RunCommandAsync<BsonDocument>(new BsonDocument("ping", 1));
