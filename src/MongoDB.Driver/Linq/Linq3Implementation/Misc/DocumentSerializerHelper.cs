@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
@@ -70,16 +71,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             return false;
         }
 
-        public static MemberSerializationInfo GetMemberSerializationInfo(IBsonSerializer serializer, string memberName)
+        public static MemberSerializationInfo GetMemberSerializationInfo(Expression expression, IBsonSerializer serializer, string memberName)
         {
             if (!AreMembersRepresentedAsFields(serializer, out var documentSerializer))
             {
-                throw new NotSupportedException($"Serializer for {serializer.ValueType} does not represent members as fields.");
+                throw new ExpressionNotSupportedException(expression, because: $"serializer for {serializer.ValueType} does not represent members as fields.");
             }
 
             if (!(documentSerializer.TryGetMemberSerializationInfo(memberName, out BsonSerializationInfo serializationInfo)))
             {
-                throw new InvalidOperationException($"Serializer for {serializer.ValueType} does not have a member named {memberName}.");
+                throw new ExpressionNotSupportedException(expression, because: $"serializer for {serializer.ValueType} does not have a member named {memberName}.");
             }
 
             if (serializationInfo.ElementPath == null)
