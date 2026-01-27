@@ -260,7 +260,7 @@ namespace MongoDB.Bson.IO
         {
             if (!_isReadOnly)
             {
-                throw new InvalidOperationException("MultiChunkBuffer is not read only.");
+                throw new InvalidOperationException($"{nameof(SingleChunkBuffer)} is not read only.");
             }
         }
 
@@ -268,7 +268,7 @@ namespace MongoDB.Bson.IO
         {
             if (_isReadOnly)
             {
-                throw new InvalidOperationException("MultiChunkBuffer is not writable.");
+                throw new InvalidOperationException($"{nameof(SingleChunkBuffer)} is not writable.");
             }
         }
 
