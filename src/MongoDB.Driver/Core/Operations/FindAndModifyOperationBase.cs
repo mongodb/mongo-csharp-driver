@@ -28,7 +28,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    internal abstract class FindAndModifyOperationBase<TResult> : IWriteOperation<TResult>, IRetryableWriteOperation<TResult>
+    internal abstract class FindAndModifyOperationBase<TResult> : IWriteOperation<TResult>
     {
         private Collation _collation;
         private BsonValue _comment;
@@ -87,44 +87,13 @@ namespace MongoDB.Driver.Core.Operations
         public TResult Execute(OperationContext operationContext, IWriteBinding binding)
         {
             using (BeginOperation())
-            {
-                return RetryableWriteOperationExecutor.Execute(operationContext, this, binding, _retryRequested);
-            }
-        }
-
-        public TResult Execute(OperationContext operationContext, RetryableWriteContext context)
-        {
-            using (BeginOperation())
-            {
-                return RetryableWriteOperationExecutor.Execute(operationContext, this, context);
-            }
-        }
-
-        public Task<TResult> ExecuteAsync(OperationContext operationContext, IWriteBinding binding)
-        {
-            using (BeginOperation())
-            {
-                return RetryableWriteOperationExecutor.ExecuteAsync(operationContext, this, binding, _retryRequested);
-            }
-        }
-
-        public Task<TResult> ExecuteAsync(OperationContext operationContext, RetryableWriteContext context)
-        {
-            using (BeginOperation())
-            {
-                return RetryableWriteOperationExecutor.ExecuteAsync(operationContext, this, context);
-            }
-        }
-
-        public TResult ExecuteAttempt(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
-        {
-            var binding = context.Binding;
-            var channelSource = context.ChannelSource;
-            var channel = context.Channel;
-
+            using (var channelSource = binding.GetWriteChannelSource(operationContext))
+            using (var channel = channelSource.GetChannel(operationContext))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
-                var operation = CreateOperation(operationContext, channelBinding.Session, channel.ConnectionDescription, transactionNumber);
+                var operation = CreateOperation(operationContext, channelBinding.Session, channel.ConnectionDescription, null);
+                operation.RetryRequested = _retryRequested;  //TODO Maybe retryRequested should be set in CreateOperation
+
                 using (var rawBsonDocument = operation.Execute(operationContext, channelBinding))
                 {
                     return ProcessCommandResult(channel.ConnectionDescription.ConnectionId, rawBsonDocument);
@@ -132,15 +101,16 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public async Task<TResult> ExecuteAttemptAsync(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
+        public async Task<TResult> ExecuteAsync(OperationContext operationContext, IWriteBinding binding)
         {
-            var binding = context.Binding;
-            var channelSource = context.ChannelSource;
-            var channel = context.Channel;
-
+            using (BeginOperation())
+            using (var channelSource = await binding.GetWriteChannelSourceAsync(operationContext).ConfigureAwait(false))
+            using (var channel = await channelSource.GetChannelAsync(operationContext).ConfigureAwait(false))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
-                var operation = CreateOperation(operationContext, channelBinding.Session, channel.ConnectionDescription, transactionNumber);
+                var operation = CreateOperation(operationContext, channelBinding.Session, channel.ConnectionDescription, null);
+                operation.RetryRequested = _retryRequested;
+
                 using (var rawBsonDocument = await operation.ExecuteAsync(operationContext, channelBinding).ConfigureAwait(false))
                 {
                     return ProcessCommandResult(channel.ConnectionDescription.ConnectionId, rawBsonDocument);
