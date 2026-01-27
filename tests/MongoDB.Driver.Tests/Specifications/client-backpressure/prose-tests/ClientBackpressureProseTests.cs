@@ -23,7 +23,6 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
@@ -38,7 +37,7 @@ public class ClientBackpressureProseTests
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    public async Task ReadExecute_should_apply_backoff_when_SystemOverloadedError_occurs(bool async)
+    public async Task ReadExecute_should_apply_backoff_when_backpressure_errors_occurs(bool async)
     {
         var operationMock = new Mock<IRetryableReadOperation<int>>();
         var exception = CoreExceptionHelper.CreateMongoCommandExceptionWithLabels(2, "SystemOverloadedError", "RetryableError");
@@ -59,7 +58,7 @@ public class ClientBackpressureProseTests
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    public async Task WriteExecute_should_apply_backoff_when_SystemOverloadedError_occurs(bool async)
+    public async Task WriteExecute_should_apply_backoff_when_backpressure_errors_occurs(bool async)
     {
         var operationMock = new Mock<IRetryableWriteOperation<int>>();
         var exception = CoreExceptionHelper.CreateMongoCommandExceptionWithLabels(2, "SystemOverloadedError", "RetryableError");
