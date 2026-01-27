@@ -145,32 +145,9 @@ public class ClientBackpressureProseTests
 
     private static RetryableReadContext CreateRetryableReadContext(IRandom random)
     {
-        // Create mock session
-        var sessionMock = new Mock<ICoreSessionHandle>();
-        sessionMock.SetupGet(s => s.IsInTransaction).Returns(false);
-        sessionMock.SetupGet(s => s.Id).Returns((BsonDocument)null);
+        var sessionMock = CreateSessionMock(hasSessionId: false);
+        var (channelSourceMock, channelMock) = CreateChannelMocks();
 
-        // Create mock server with TokenBucket
-        var serverMock = new Mock<IServer>();
-        var tokenBucket = new TokenBucket();
-        serverMock.SetupGet(s => s.TokenBucket).Returns(tokenBucket);
-
-        // Create server description
-        var endPoint = new DnsEndPoint("localhost", 27017);
-        var serverId = new ServerId(new ClusterId(), endPoint);
-        var serverDescription = new ServerDescription(serverId, endPoint);
-
-        // Create mock channel
-        var channelMock = new Mock<IChannelHandle>();
-
-        // Create mock channel source
-        var channelSourceMock = new Mock<IChannelSourceHandle>();
-        channelSourceMock.SetupGet(cs => cs.Server).Returns(serverMock.Object);
-        channelSourceMock.SetupGet(cs => cs.ServerDescription).Returns(serverDescription);
-        channelSourceMock.Setup(cs => cs.GetChannel(It.IsAny<OperationContext>())).Returns(channelMock.Object);
-        channelSourceMock.Setup(cs => cs.GetChannelAsync(It.IsAny<OperationContext>())).ReturnsAsync(channelMock.Object);
-
-        // Create mock binding
         var bindingMock = new Mock<IReadBinding>();
         bindingMock.SetupGet(b => b.Session).Returns(sessionMock.Object);
         bindingMock.Setup(b => b.GetReadChannelSource(It.IsAny<OperationContext>(), It.IsAny<IReadOnlyCollection<ServerDescription>>()))
@@ -178,48 +155,17 @@ public class ClientBackpressureProseTests
         bindingMock.Setup(b => b.GetReadChannelSourceAsync(It.IsAny<OperationContext>(), It.IsAny<IReadOnlyCollection<ServerDescription>>()))
             .ReturnsAsync(channelSourceMock.Object);
 
-        // Create context with custom random - RetryableReadContext is sealed, so we use reflection
         var context = new RetryableReadContext(bindingMock.Object, retryRequested: true, random);
-
-        // Use reflection to set the private _channelSource and _channel fields
-        var contextType = typeof(RetryableReadContext);
-        var channelSourceField = contextType.GetField("_channelSource", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        var channelField = contextType.GetField("_channel", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-
-        channelSourceField.SetValue(context, channelSourceMock.Object);
-        channelField.SetValue(context, channelMock.Object);
+        SetContextChannelFields(context, channelSourceMock.Object, channelMock.Object, typeof(RetryableReadContext));
 
         return context;
     }
 
     private static RetryableWriteContext CreateRetryableWriteContext(IRandom random)
     {
-        // Create mock session
-        var sessionMock = new Mock<ICoreSessionHandle>();
-        sessionMock.SetupGet(s => s.IsInTransaction).Returns(false);
-        sessionMock.SetupGet(s => s.Id).Returns(new BsonDocument("id", 1));
+        var sessionMock = CreateSessionMock(hasSessionId: true);
+        var (channelSourceMock, channelMock) = CreateChannelMocks();
 
-        // Create mock server with TokenBucket
-        var serverMock = new Mock<IServer>();
-        var tokenBucket = new TokenBucket();
-        serverMock.SetupGet(s => s.TokenBucket).Returns(tokenBucket);
-
-        // Create server description
-        var endPoint = new DnsEndPoint("localhost", 27017);
-        var serverId = new ServerId(new ClusterId(), endPoint);
-        var serverDescription = new ServerDescription(serverId, endPoint, wireVersionRange: new Range<int>(0, 21), type: ServerType.ReplicaSetPrimary);
-
-        // Create mock channel
-        var channelMock = new Mock<IChannelHandle>();
-
-        // Create mock channel source
-        var channelSourceMock = new Mock<IChannelSourceHandle>();
-        channelSourceMock.SetupGet(cs => cs.Server).Returns(serverMock.Object);
-        channelSourceMock.SetupGet(cs => cs.ServerDescription).Returns(serverDescription);
-        channelSourceMock.Setup(cs => cs.GetChannel(It.IsAny<OperationContext>())).Returns(channelMock.Object);
-        channelSourceMock.Setup(cs => cs.GetChannelAsync(It.IsAny<OperationContext>())).ReturnsAsync(channelMock.Object);
-
-        // Create mock binding
         var bindingMock = new Mock<IWriteBinding>();
         bindingMock.SetupGet(b => b.Session).Returns(sessionMock.Object);
         bindingMock.Setup(b => b.GetWriteChannelSource(It.IsAny<OperationContext>(), It.IsAny<IReadOnlyCollection<ServerDescription>>()))
@@ -227,17 +173,50 @@ public class ClientBackpressureProseTests
         bindingMock.Setup(b => b.GetWriteChannelSourceAsync(It.IsAny<OperationContext>(), It.IsAny<IReadOnlyCollection<ServerDescription>>()))
             .ReturnsAsync(channelSourceMock.Object);
 
-        // Create context with custom random - RetryableWriteContext is sealed, so we use reflection
         var context = new RetryableWriteContext(bindingMock.Object, retryRequested: true, random);
+        SetContextChannelFields(context, channelSourceMock.Object, channelMock.Object, typeof(RetryableWriteContext));
 
-        // Use reflection to set the private _channelSource and _channel fields
-        var contextType = typeof(RetryableWriteContext);
+        return context;
+    }
+
+    private static Mock<ICoreSessionHandle> CreateSessionMock(bool hasSessionId)
+    {
+        var sessionMock = new Mock<ICoreSessionHandle>();
+        sessionMock.SetupGet(s => s.IsInTransaction).Returns(false);
+        sessionMock.SetupGet(s => s.Id).Returns(hasSessionId ? new BsonDocument("id", 1) : null);
+        return sessionMock;
+    }
+
+    private static ServerDescription CreateServerDescription()
+    {
+        var endPoint = new DnsEndPoint("localhost", 27017);
+        var serverId = new ServerId(new ClusterId(), endPoint);
+        return new ServerDescription(serverId, endPoint);
+    }
+
+    private static (Mock<IChannelSourceHandle> channelSource, Mock<IChannelHandle> channel) CreateChannelMocks()
+    {
+        var serverMock = new Mock<IServer>();
+        var tokenBucket = new TokenBucket();
+        serverMock.SetupGet(s => s.TokenBucket).Returns(tokenBucket);
+
+        var channelMock = new Mock<IChannelHandle>();
+
+        var channelSourceMock = new Mock<IChannelSourceHandle>();
+        channelSourceMock.SetupGet(cs => cs.Server).Returns(serverMock.Object);
+        channelSourceMock.SetupGet(cs => cs.ServerDescription).Returns(CreateServerDescription());
+        channelSourceMock.Setup(cs => cs.GetChannel(It.IsAny<OperationContext>())).Returns(channelMock.Object);
+        channelSourceMock.Setup(cs => cs.GetChannelAsync(It.IsAny<OperationContext>())).ReturnsAsync(channelMock.Object);
+
+        return (channelSourceMock, channelMock);
+    }
+
+    private static void SetContextChannelFields(object context, IChannelSourceHandle channelSource, IChannelHandle channel, Type contextType)
+    {
         var channelSourceField = contextType.GetField("_channelSource", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
         var channelField = contextType.GetField("_channel", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
-        channelSourceField.SetValue(context, channelSourceMock.Object);
-        channelField.SetValue(context, channelMock.Object);
-
-        return context;
+        channelSourceField.SetValue(context, channelSource);
+        channelField.SetValue(context, channel);
     }
 }
