@@ -89,6 +89,8 @@ namespace MongoDB.Driver.Core.Operations
             get { return _messageEncoderSettings; }
         }
 
+        public string OperationName => "dropCollection";
+
         public WriteConcern WriteConcern
         {
             get { return _writeConcern; }

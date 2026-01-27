@@ -78,6 +78,8 @@ namespace MongoDB.Driver.Core.Operations
             get { return _messageEncoderSettings; }
         }
 
+        public string OperationName => "listCollections";
+
         public bool? NameOnly
         {
             get { return _nameOnly; }

@@ -165,6 +165,12 @@ namespace MongoDB.Driver.Tests.Specifications
            Run(testCase);
         }
 
+        [UnifiedTestsTheory("open_telemetry.operation")]
+        public void OpenTelemetry(JsonDrivenTestCase testCase) => Run(testCase);
+
+        [UnifiedTestsTheory("open_telemetry.transaction")]
+        public void OpenTelemetryTransactions(JsonDrivenTestCase testCase) => Run(testCase);
+
         [Category("SupportLoadBalancing")]
         [UnifiedTestsTheory("read_write_concern.tests.operation")]
         public void ReadWriteConcern(JsonDrivenTestCase testCase) => Run(testCase);

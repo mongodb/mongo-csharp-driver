@@ -65,6 +65,8 @@ namespace MongoDB.Driver.Core.Operations
             get { return _messageEncoderSettings; }
         }
 
+        public string OperationName => "createView";
+
         public IReadOnlyList<BsonDocument> Pipeline
         {
             get { return _pipeline; }

@@ -52,11 +52,14 @@ namespace MongoDB.Driver.Core.Operations
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
         }
 
+        // public properties
+        public string OperationName => "createSearchIndexes";
+
         // public methods
         /// <inheritdoc/>
         public BsonDocument Execute(OperationContext operationContext, IWriteBinding binding)
         {
-            using (EventContext.BeginOperation("createSearchIndexes"))
+            using (EventContext.BeginOperation(OperationName))
             using (var channelSource = binding.GetWriteChannelSource(operationContext))
             using (var channel = channelSource.GetChannel(operationContext))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
@@ -69,7 +72,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <inheritdoc/>
         public async Task<BsonDocument> ExecuteAsync(OperationContext operationContext, IWriteBinding binding)
         {
-            using (EventContext.BeginOperation("createSearchIndexes"))
+            using (EventContext.BeginOperation(OperationName))
             using (var channelSource = await binding.GetWriteChannelSourceAsync(operationContext).ConfigureAwait(false))
             using (var channel = await channelSource.GetChannelAsync(operationContext).ConfigureAwait(false))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
