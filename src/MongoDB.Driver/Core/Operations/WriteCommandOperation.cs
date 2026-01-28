@@ -23,11 +23,9 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    internal sealed class WriteCommandOperation<TCommandResult> : CommandOperationBase<TCommandResult>, IWriteOperation<TCommandResult>, IRetryableWriteOperation<TCommandResult>
+    internal sealed class WriteCommandOperation<TCommandResult> : CommandOperationBase<TCommandResult>, IWriteOperation<TCommandResult>
     {
         private ReadPreference _readPreference = ReadPreference.Primary;
-        private bool _retryRequested;
-        private WriteConcern _writeConcern;
 
         public WriteCommandOperation(DatabaseNamespace databaseNamespace, BsonDocument command, IBsonSerializer<TCommandResult> resultSerializer, MessageEncoderSettings messageEncoderSettings)
             : base(databaseNamespace, command, resultSerializer, messageEncoderSettings)
@@ -40,35 +38,14 @@ namespace MongoDB.Driver.Core.Operations
             set => _readPreference = Ensure.IsNotNull(value, nameof(value));
         }
 
-        public bool RetryRequested
-        {
-            get => _retryRequested;
-            set => _retryRequested = value;
-        }
-
-        public WriteConcern WriteConcern
-        {
-            get => _writeConcern;
-            set => _writeConcern = value;
-        }
-
         public TCommandResult Execute(OperationContext operationContext, IWriteBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (var context = RetryableWriteContext.Create(operationContext, binding, _retryRequested))
-            {
-                return Execute(operationContext, context);
-            }
-        }
-
-        public TCommandResult Execute(OperationContext operationContext, RetryableWriteContext context)
-        {
-            Ensure.IsNotNull(context, nameof(context));
-
             using (EventContext.BeginOperation())
+            using (var channelSource = binding.GetWriteChannelSource(operationContext))
             {
-                return RetryableWriteOperationExecutor.Execute(operationContext, this, context);
+                return ExecuteProtocol(operationContext, channelSource, binding.Session, _readPreference);
             }
         }
 
@@ -76,41 +53,10 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (var context = await RetryableWriteContext.CreateAsync(operationContext, binding, _retryRequested).ConfigureAwait(false))
-            {
-                return await ExecuteAsync(operationContext, context).ConfigureAwait(false);
-            }
-        }
-
-        public async Task<TCommandResult> ExecuteAsync(OperationContext operationContext, RetryableWriteContext context)
-        {
-            Ensure.IsNotNull(context, nameof(context));
-
             using (EventContext.BeginOperation())
+            using (var channelSource = await binding.GetWriteChannelSourceAsync(operationContext).ConfigureAwait(false))
             {
-                return await RetryableWriteOperationExecutor.ExecuteAsync(operationContext, this, context).ConfigureAwait(false);
-            }
-        }
-
-        public TCommandResult ExecuteAttempt(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
-        {
-            AddTransactionNumberToCommandIfNecessary(transactionNumber);
-            return ExecuteProtocol(operationContext, context.ChannelSource, context.Binding.Session, _readPreference);
-        }
-
-        public Task<TCommandResult> ExecuteAttemptAsync(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
-        {
-            AddTransactionNumberToCommandIfNecessary(transactionNumber);
-            return ExecuteProtocolAsync(operationContext, context.ChannelSource, context.Binding.Session, _readPreference);
-        }
-
-        //TODO Not the cleanest, but the easiest for now. With more time, we need to find a way to merge WriteCommandOperation and RetryableWriteCommandOperationBase
-        //Maybe the first could be a single command, while the second can have the retryable logic. In this case only the second will be used by the other operations
-        private void AddTransactionNumberToCommandIfNecessary(long? transactionNumber)
-        {
-            if (transactionNumber.HasValue)
-            {
-                Command["txnNumber"] = transactionNumber.Value;
+                return await ExecuteProtocolAsync(operationContext, channelSource, binding.Session, _readPreference).ConfigureAwait(false);
             }
         }
     }
