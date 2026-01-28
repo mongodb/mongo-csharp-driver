@@ -741,6 +741,16 @@ namespace MongoDB.Bson
         {
             if (Flags.IsFirstForm(d._highBits))
             {
+                // fix for CSHARP-5792, make sure that Decimal128.MaxValue and MinValue are mapped back to
+                // decimal.MaxValue and MinValue.
+                if (d == Decimal128.MaxValue)
+                {
+                    return decimal.MaxValue;
+                }
+                if (d == Decimal128.MinValue)
+                {
+                    return decimal.MinValue;
+                }
                 if (Decimal128.Compare(d, __minDecimalValue) < 0 || Decimal128.Compare(d, __maxDecimalValue) > 0)
                 {
                     throw new OverflowException("Value is too large or too small to be converted to a Decimal.");
