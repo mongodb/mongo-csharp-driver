@@ -166,7 +166,20 @@ namespace MongoDB.Driver.Tests.Specifications
         }
 
         [UnifiedTestsTheory("open_telemetry.operation")]
-        public void OpenTelemetry(JsonDrivenTestCase testCase) => Run(testCase);
+        public void OpenTelemetry(JsonDrivenTestCase testCase)
+        {
+            // TODO: Unskip the tests once CSHARP-5856 is fixed.
+            if (testCase.Name.Contains("create_collection.json"))
+            {
+                var serverVersion = CoreTestConfiguration.ServerVersion;
+                if (serverVersion < SemanticVersion.Parse("7.0.0"))
+                {
+                    throw new SkipException($"Test skipped for MongoDB < 7.0 due to non-idempotent createCollection. See CSHARP-5856.");
+                }
+            }
+
+            Run(testCase);
+        }
 
         [UnifiedTestsTheory("open_telemetry.transaction")]
         public void OpenTelemetryTransactions(JsonDrivenTestCase testCase) => Run(testCase);
