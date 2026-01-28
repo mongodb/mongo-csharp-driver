@@ -93,6 +93,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
+        //TODO Do this inside the main loop, but remember that this follows reads retryability logic, even with writes
         public void AcquireOrReplaceChannel(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             var attempt = 1;
