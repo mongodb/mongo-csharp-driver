@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
     {
         public static TranslatedExpression Translate(TranslationContext context, UnaryExpression expression)
         {
-            if (expression.NodeType == ExpressionType.Convert || expression.NodeType == ExpressionType.TypeAs)
+            if (expression.NodeType == ExpressionType.Convert || expression.NodeType == ExpressionType.ConvertChecked || expression.NodeType == ExpressionType.TypeAs)
             {
                 var sourceExpression = expression.Operand;
                 var sourceType = sourceExpression.Type;
