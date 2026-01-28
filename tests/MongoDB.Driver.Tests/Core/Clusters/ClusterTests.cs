@@ -118,14 +118,6 @@ namespace MongoDB.Driver.Core.Clusters
             mockServerSessionPool.Verify(m => m.AcquireSession(), Times.Once);
         }
 
-        [Fact]
-        public void TokenBucket_should_not_be_null()
-        {
-            var subject = CreateSubject();
-
-            subject.TokenBucket.Should().NotBeNull();
-        }
-
         [Theory]
         [ParameterAttributeData]
         public async Task SelectServer_should_throw_if_not_initialized(
@@ -488,6 +480,14 @@ namespace MongoDB.Driver.Core.Clusters
 
             numberOfCustomServerSelectorCalls.Should().Be(1);
             _capturedEvents.Any().Should().BeFalse();
+        }
+
+        [Fact]
+        public void TokenBucket_should_not_be_null()
+        {
+            var subject = CreateSubject();
+
+            subject.TokenBucket.Should().NotBeNull();
         }
 
         // private methods
