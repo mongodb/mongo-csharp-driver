@@ -428,6 +428,11 @@ namespace MongoDB.Driver.Core.WireProtocol
 
         private void MessageWasProbablySent(CommandRequestMessage message)
         {
+            if (!message.WasSent)
+            {
+                return;
+            }
+
             if (_session.Id != null)
             {
                 _session.WasUsed();
@@ -561,10 +566,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 }
                 finally
                 {
-                    if (message.WasSent)
-                    {
-                        MessageWasProbablySent(message);
-                    }
+                    MessageWasProbablySent(message);
                 }
 
                 responseExpected = message.WrappedMessage.ResponseExpected; // mutable, read after sending
@@ -598,10 +600,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 }
                 finally
                 {
-                    if (message.WasSent)
-                    {
-                        MessageWasProbablySent(message);
-                    }
+                    MessageWasProbablySent(message);
                 }
                 responseExpected = message.WrappedMessage.ResponseExpected; // mutable, read after sending
             }

@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Core.Servers
 
         // methods
         /// <inheritdoc/>
-        public IClusterableServer CreateServer(ClusterType clusterType, ClusterId clusterId, IClusterClock clusterClock, EndPoint endPoint) =>
+        public IClusterableServer CreateServer(ClusterType clusterType, ClusterId clusterId, IClusterClock clusterClock, EndPoint endPoint, TokenBucket tokenBucket) =>
             clusterType switch
             {
                 ClusterType.LoadBalanced =>
@@ -67,7 +67,8 @@ namespace MongoDB.Driver.Core.Servers
                         endPoint,
                         _connectionPoolFactory,
                         _serverApi,
-                        _loggerFactory.CreateEventLogger<LogCategories.SDAM>(_eventSubscriber)),
+                        _loggerFactory.CreateEventLogger<LogCategories.SDAM>(_eventSubscriber),
+                        tokenBucket),
 
                 _ =>
                     new DefaultServer(
@@ -79,7 +80,8 @@ namespace MongoDB.Driver.Core.Servers
                         _connectionPoolFactory,
                         _serverMonitorFactory,
                         _serverApi,
-                        _loggerFactory.CreateEventLogger<LogCategories.SDAM>(_eventSubscriber))
+                        _loggerFactory.CreateEventLogger<LogCategories.SDAM>(_eventSubscriber),
+                        tokenBucket)
             };
     }
 }

@@ -48,6 +48,7 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly InterlockedInt32 _state;
         private readonly EventLogger<LogCategories.SDAM> _eventLogger;
         private readonly EventLogger<LogCategories.ServerSelection> _serverSelectionEventLogger;
+        private readonly TokenBucket _tokenBucket = new();
 
         public LoadBalancedCluster(
             ClusterSettings settings,
@@ -101,6 +102,8 @@ namespace MongoDB.Driver.Core.Clusters
         public ClusterDescription Description => _description;
 
         public ClusterSettings Settings => _settings;
+
+        public TokenBucket TokenBucket => _tokenBucket;
 
         public event EventHandler<ClusterDescriptionChangedEventArgs> DescriptionChanged;
 
@@ -167,7 +170,7 @@ namespace MongoDB.Driver.Core.Clusters
                 var endPoint = _settings.EndPoints.Single();
                 if (_settings.Scheme != ConnectionStringScheme.MongoDBPlusSrv)
                 {
-                    _server = _serverFactory.CreateServer(_clusterType, _clusterId, _clusterClock, endPoint);
+                    _server = _serverFactory.CreateServer(_clusterType, _clusterId, _clusterClock, endPoint, _tokenBucket);
                     InitializeServer(_server);
                 }
                 else
@@ -349,7 +352,7 @@ namespace MongoDB.Driver.Core.Clusters
             }
 
             var resolvedEndpoint = endPoints.Single();
-            _server = _serverFactory.CreateServer(_clusterType, _clusterId, _clusterClock, resolvedEndpoint);
+            _server = _serverFactory.CreateServer(_clusterType, _clusterId, _clusterClock, resolvedEndpoint, _tokenBucket);
             InitializeServer(_server);
         }
 

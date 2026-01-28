@@ -68,17 +68,24 @@ namespace MongoDB.Driver.Core.Operations
         private IChannelSourceHandle _channelSource;
         private bool _disposed;
         private bool _retryRequested;
+        private IRandom _random;
 
-        public RetryableReadContext(IReadBinding binding, bool retryRequested)
+        public RetryableReadContext(IReadBinding binding, bool retryRequested, IRandom random = null)
         {
             _binding = Ensure.IsNotNull(binding, nameof(binding));
             _retryRequested = retryRequested;
+            _random = random ?? DefaultRandom.Instance;
         }
 
         public IReadBinding Binding => _binding;
         public IChannelHandle Channel => _channel;
         public IChannelSourceHandle ChannelSource => _channelSource;
+        /// <summary>
+        /// This property only influences the retryability for retryable reads/writes and has no effect
+        /// on client backpressure errors.
+        /// </summary>
         public bool RetryRequested => _retryRequested;
+        public IRandom Random => _random;
 
         public void Dispose()
         {
