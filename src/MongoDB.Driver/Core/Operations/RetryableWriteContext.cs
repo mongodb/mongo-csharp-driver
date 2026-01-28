@@ -80,6 +80,10 @@ namespace MongoDB.Driver.Core.Operations
         public IWriteBinding Binding => _binding;
         public IChannelHandle Channel => _channel;
         public IChannelSourceHandle ChannelSource => _channelSource;
+        /// <summary>
+        /// This property only influences the retryability for retryable reads/writes and has no effect
+        /// on client backpressure errors.
+        /// </summary>
         public bool RetryRequested => _retryRequested;
         public IRandom Random => _random;
 
