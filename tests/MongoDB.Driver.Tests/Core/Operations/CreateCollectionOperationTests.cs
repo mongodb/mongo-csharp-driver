@@ -490,7 +490,7 @@ namespace MongoDB.Driver.Core.Operations
                 var result = operation switch
                 {
                     CreateCollectionOperation createCollectionOperation => createCollectionOperation.CreateCommand(OperationContext.NoTimeout, session),
-                    CreateIndexesOperation createIndexesOperation => createIndexesOperation.CreateCommand(OperationContext.NoTimeout, session, OperationTestHelper.CreateConnectionDescription()),
+                    CreateIndexesOperation createIndexesOperation => createIndexesOperation.CreateCommand(OperationContext.NoTimeout, session, OperationTestHelper.CreateConnectionDescription(), null),
                     _ => throw new Exception($"Unexpected operation {operation}."),
                 };
                 result.Should().Be(expectedResult);
