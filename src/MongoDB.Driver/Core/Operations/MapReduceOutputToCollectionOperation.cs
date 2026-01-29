@@ -153,10 +153,6 @@ namespace MongoDB.Driver.Core.Operations
             {
                 command.Add("writeConcern", writeConcern.ToBsonDocument());
             }
-            if (transactionNumber.HasValue)
-            {
-                command.Add("txnNumber", transactionNumber.Value);
-            }
             return command;
         }
 
