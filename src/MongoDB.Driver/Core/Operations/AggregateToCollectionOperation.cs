@@ -151,7 +151,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             using (BeginOperation())
             {
-                return RetryableWriteOperationExecutor.Execute(operationContext, this, binding, retryRequested: false);
+                return RetryableWriteOperationExecutor.Execute(operationContext, this, binding, retryRequested: false, mayUseSecondary: new MayUseSecondary(_readPreference));
             }
         }
 
@@ -167,7 +167,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             using (BeginOperation())
             {
-                return RetryableWriteOperationExecutor.ExecuteAsync(operationContext, this, binding, retryRequested: false);
+                return RetryableWriteOperationExecutor.ExecuteAsync(operationContext, this, binding, retryRequested: false, mayUseSecondary: new MayUseSecondary(_readPreference));
             }
         }
 
