@@ -14,8 +14,11 @@
 */
 
 using System.Linq.Expressions;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
+using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
+using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators
 {
@@ -30,7 +33,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var indexExpression = expression.Right;
                 var indexTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, indexExpression);
                 var ast = AstExpression.ArrayElemAt(arrayTranslation.Ast, indexTranslation.Ast);
-                var itemSerializer = ArraySerializerHelper.GetItemSerializer(arrayTranslation.Serializer);
+                var arraySerializer = arrayTranslation.Serializer;
+                var itemSerializer = arraySerializer.GetItemSerializer(indexExpression, arrayExpression);
                 return new TranslatedExpression(expression, ast, itemSerializer);
             }
 

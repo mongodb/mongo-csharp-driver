@@ -42,8 +42,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var valueExpression = arguments[0];
             var optionsExpression = arguments[1];
 
-            var (toBsonType, toSerializer) = TranslateToType(expression, toType);
+            var toBsonType = GetResultRepresentation(expression, toType);
             var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
+            var toSerializer = context.NodeSerializers.GetSerializer(expression);
             var (subType, byteOrder, format, onErrorAst, onNullAst) = TranslateOptions(context, expression, optionsExpression, toSerializer);
 
             var ast = AstExpression.Convert(valueTranslation.Ast, toBsonType.Render(), subType, byteOrder, format, onErrorAst, onNullAst);
@@ -143,39 +144,39 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             return (subType, byteOrder, format, onErrorTranslation?.Ast, onNullTranslation?.Ast);
         }
 
-        private static (BsonType ToBsonType, IBsonSerializer ToSerializer) TranslateToType(Expression expression, Type toType)
+        private static BsonType GetResultRepresentation(Expression expression, Type toType)
         {
             var isNullable = toType.IsNullable();
             var valueType = isNullable ? Nullable.GetUnderlyingType(toType) : toType;
 
-            var (bsonType, valueSerializer) = (ValueTuple<BsonType, IBsonSerializer>)(Type.GetTypeCode(valueType) switch
+            var representation = Type.GetTypeCode(valueType) switch
             {
-                TypeCode.Boolean => (BsonType.Boolean, BooleanSerializer.Instance),
-                TypeCode.Byte => (BsonType.Int32, ByteSerializer.Instance),
-                TypeCode.Char => (BsonType.String, StringSerializer.Instance),
-                TypeCode.DateTime => (BsonType.DateTime, DateTimeSerializer.Instance),
-                TypeCode.Decimal => (BsonType.Decimal128, DecimalSerializer.Instance),
-                TypeCode.Double => (BsonType.Double, DoubleSerializer.Instance),
-                TypeCode.Int16 => (BsonType.Int32, Int16Serializer.Instance),
-                TypeCode.Int32 => (BsonType.Int32, Int32Serializer.Instance),
-                TypeCode.Int64 => (BsonType.Int64, Int64Serializer.Instance),
-                TypeCode.SByte => (BsonType.Int32, SByteSerializer.Instance),
-                TypeCode.Single => (BsonType.Double, SingleSerializer.Instance),
-                TypeCode.String => (BsonType.String, StringSerializer.Instance),
-                TypeCode.UInt16 => (BsonType.Int32, UInt16Serializer.Instance),
-                TypeCode.UInt32 => (BsonType.Int64, Int32Serializer.Instance),
-                TypeCode.UInt64 => (BsonType.Decimal128, UInt64Serializer.Instance),
+                TypeCode.Boolean => BsonType.Boolean,
+                TypeCode.Byte => BsonType.Int32,
+                TypeCode.Char => BsonType.String,
+                TypeCode.DateTime => BsonType.DateTime,
+                TypeCode.Decimal => BsonType.Decimal128,
+                TypeCode.Double => BsonType.Double,
+                TypeCode.Int16 => BsonType.Int32,
+                TypeCode.Int32 => BsonType.Int32,
+                TypeCode.Int64 => BsonType.Int64,
+                TypeCode.SByte => BsonType.Int32,
+                TypeCode.Single => BsonType.Double,
+                TypeCode.String => BsonType.String,
+                TypeCode.UInt16 => BsonType.Int32,
+                TypeCode.UInt32 => BsonType.Int64,
+                TypeCode.UInt64 => BsonType.Decimal128,
 
-                _ when valueType == typeof(byte[]) => (BsonType.Binary, ByteArraySerializer.Instance),
-                _ when valueType == typeof(BsonBinaryData) => (BsonType.Binary, BsonBinaryDataSerializer.Instance),
-                _ when valueType == typeof(Decimal128) => (BsonType.Decimal128, Decimal128Serializer.Instance),
-                _ when valueType == typeof(Guid) => (BsonType.Binary, GuidSerializer.StandardInstance),
-                _ when valueType == typeof(ObjectId) => (BsonType.ObjectId, ObjectIdSerializer.Instance),
+                _ when valueType == typeof(byte[]) => BsonType.Binary,
+                _ when valueType == typeof(BsonBinaryData) => BsonType.Binary,
+                _ when valueType == typeof(Decimal128) => BsonType.Decimal128,
+                _ when valueType == typeof(Guid) => BsonType.Binary,
+                _ when valueType == typeof(ObjectId) => BsonType.ObjectId,
 
                 _ => throw new ExpressionNotSupportedException(expression, because: $"{toType} is not a valid TTo for Convert")
-            });
+            };
 
-            return (bsonType, isNullable ? NullableSerializer.Create(valueSerializer) : valueSerializer);
+            return representation;
         }
     }
 }
