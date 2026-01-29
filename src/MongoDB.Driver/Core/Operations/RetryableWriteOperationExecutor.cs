@@ -26,9 +26,9 @@ namespace MongoDB.Driver.Core.Operations
     internal static class RetryableWriteOperationExecutor
     {
         // public static methods
-        public static TResult Execute<TResult>(OperationContext operationContext, IRetryableWriteOperation<TResult> operation, IWriteBinding binding, bool retryRequested)
+        public static TResult Execute<TResult>(OperationContext operationContext, IRetryableWriteOperation<TResult> operation, IWriteBinding binding, bool retryRequested, IMayUseSecondaryCriteria mayUseSecondary = null)
         {
-            using var context = RetryableWriteContext.Create(operationContext, binding, retryRequested);
+            using var context = RetryableWriteContext.Create(operationContext, binding, retryRequested, mayUseSecondary);
             return Execute(operationContext, operation, context);
         }
 
@@ -92,9 +92,9 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public static async Task<TResult> ExecuteAsync<TResult>(OperationContext operationContext, IRetryableWriteOperation<TResult> operation, IWriteBinding binding, bool retryRequested)
+        public static async Task<TResult> ExecuteAsync<TResult>(OperationContext operationContext, IRetryableWriteOperation<TResult> operation, IWriteBinding binding, bool retryRequested, IMayUseSecondaryCriteria mayUseSecondary = null)
         {
-            using var context = await RetryableWriteContext.CreateAsync(operationContext, binding, retryRequested).ConfigureAwait(false);
+            using var context = await RetryableWriteContext.CreateAsync(operationContext, binding, retryRequested, mayUseSecondary).ConfigureAwait(false);
             return await ExecuteAsync(operationContext, operation, context).ConfigureAwait(false);
         }
 

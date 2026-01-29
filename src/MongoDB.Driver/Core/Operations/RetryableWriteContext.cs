@@ -26,12 +26,12 @@ namespace MongoDB.Driver.Core.Operations
     {
         #region static
 
-        public static RetryableWriteContext Create(OperationContext operationContext, IWriteBinding binding, bool retryRequested)
+        public static RetryableWriteContext Create(OperationContext operationContext, IWriteBinding binding, bool retryRequested, IMayUseSecondaryCriteria mayUseSecondaryCriteria = null)
         {
             var context = new RetryableWriteContext(binding, retryRequested);
             try
             {
-                context.AcquireOrReplaceChannel(operationContext, null);
+                context.AcquireOrReplaceChannel(operationContext, null, mayUseSecondaryCriteria);
             }
             catch
             {
@@ -43,12 +43,12 @@ namespace MongoDB.Driver.Core.Operations
             return context;
         }
 
-        public static async Task<RetryableWriteContext> CreateAsync(OperationContext operationContext, IWriteBinding binding, bool retryRequested)
+        public static async Task<RetryableWriteContext> CreateAsync(OperationContext operationContext, IWriteBinding binding, bool retryRequested, IMayUseSecondaryCriteria mayUseSecondaryCriteria = null)
         {
             var context = new RetryableWriteContext(binding, retryRequested);
             try
             {
-                await context.AcquireOrReplaceChannelAsync(operationContext, null).ConfigureAwait(false);
+                await context.AcquireOrReplaceChannelAsync(operationContext, null, mayUseSecondaryCriteria).ConfigureAwait(false);
             }
             catch
             {
@@ -98,13 +98,16 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         //TODO Do this inside the main loop, but remember that this follows reads retryability logic, even with writes
-        public void AcquireOrReplaceChannel(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
+        public void AcquireOrReplaceChannel(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondaryCriteria = null)
         {
             var attempt = 1;
             while (true)
             {
                 operationContext.ThrowIfTimedOutOrCanceled();
-                ReplaceChannelSource(Binding.GetWriteChannelSource(operationContext, deprioritizedServers));
+                var writeChannelSource = mayUseSecondaryCriteria == null  //TODO The implementation of those two overloads is different, I'm worried there some important difference I can't appreciate
+                    ? Binding.GetWriteChannelSource(operationContext, deprioritizedServers)
+                    : Binding.GetWriteChannelSource(operationContext, deprioritizedServers, mayUseSecondaryCriteria);
+                ReplaceChannelSource(writeChannelSource);
                 var server = ChannelSource.ServerDescription;
                 try
                 {
@@ -118,13 +121,16 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public async Task AcquireOrReplaceChannelAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
+        public async Task AcquireOrReplaceChannelAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondaryCriteria = null)
         {
             var attempt = 1;
             while (true)
             {
                 operationContext.ThrowIfTimedOutOrCanceled();
-                ReplaceChannelSource(await Binding.GetWriteChannelSourceAsync(operationContext, deprioritizedServers).ConfigureAwait(false));
+                var writeChannelSource = mayUseSecondaryCriteria == null  //TODO The implementation of those two overloads is different, I'm worried there some important difference I can't appreciate
+                    ? await Binding.GetWriteChannelSourceAsync(operationContext, deprioritizedServers).ConfigureAwait(false)
+                    : await Binding.GetWriteChannelSourceAsync(operationContext, deprioritizedServers, mayUseSecondaryCriteria).ConfigureAwait(false);
+                ReplaceChannelSource(writeChannelSource);
                 var server = ChannelSource.ServerDescription;
                 try
                 {
