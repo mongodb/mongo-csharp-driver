@@ -123,11 +123,11 @@ public class ClientBackpressureProseTests
     {
         var sessionMock = new Mock<ICoreSessionHandle>();
         sessionMock.SetupGet(s => s.IsInTransaction).Returns(false);
-        sessionMock.As<ICoreSessionInternal>().Setup(s => s.TokenBucket).Returns(new TokenBucket());
         var (channelSourceMock, channelMock) = CreateChannelMocks();
 
         var bindingMock = new Mock<IReadBinding>();
         bindingMock.SetupGet(b => b.Session).Returns(sessionMock.Object);
+        bindingMock.SetupGet(b => b.TokenBucket).Returns(new TokenBucket());
         bindingMock.Setup(b => b.GetReadChannelSource(It.IsAny<OperationContext>(), It.IsAny<IReadOnlyCollection<ServerDescription>>()))
             .Returns(channelSourceMock.Object);
         bindingMock.Setup(b => b.GetReadChannelSourceAsync(It.IsAny<OperationContext>(), It.IsAny<IReadOnlyCollection<ServerDescription>>()))
@@ -142,13 +142,13 @@ public class ClientBackpressureProseTests
     private static RetryableWriteContext CreateRetryableWriteContext(IRandom random)
     {
         var sessionMock = new Mock<ICoreSessionHandle>();
-        sessionMock.As<ICoreSessionInternal>().Setup(s => s.TokenBucket).Returns(new TokenBucket());
         sessionMock.SetupGet(s => s.IsInTransaction).Returns(false);
         sessionMock.SetupGet(s => s.Id).Returns(new BsonDocument("id", 1));
         var (channelSourceMock, channelMock) = CreateChannelMocks();
 
         var bindingMock = new Mock<IWriteBinding>();
         bindingMock.SetupGet(b => b.Session).Returns(sessionMock.Object);
+        bindingMock.SetupGet(b => b.TokenBucket).Returns(new TokenBucket());
         bindingMock.Setup(b => b.GetWriteChannelSource(It.IsAny<OperationContext>(), It.IsAny<IReadOnlyCollection<ServerDescription>>()))
             .Returns(channelSourceMock.Object);
         bindingMock.Setup(b => b.GetWriteChannelSourceAsync(It.IsAny<OperationContext>(), It.IsAny<IReadOnlyCollection<ServerDescription>>()))
