@@ -123,6 +123,7 @@ public class ClientBackpressureProseTests
     {
         var sessionMock = new Mock<ICoreSessionHandle>();
         sessionMock.SetupGet(s => s.IsInTransaction).Returns(false);
+        sessionMock.As<ICoreSessionInternal>().Setup(s => s.TokenBucket).Returns(new TokenBucket());
         var (channelSourceMock, channelMock) = CreateChannelMocks();
 
         var bindingMock = new Mock<IReadBinding>();
@@ -141,6 +142,7 @@ public class ClientBackpressureProseTests
     private static RetryableWriteContext CreateRetryableWriteContext(IRandom random)
     {
         var sessionMock = new Mock<ICoreSessionHandle>();
+        sessionMock.As<ICoreSessionInternal>().Setup(s => s.TokenBucket).Returns(new TokenBucket());
         sessionMock.SetupGet(s => s.IsInTransaction).Returns(false);
         sessionMock.SetupGet(s => s.Id).Returns(new BsonDocument("id", 1));
         var (channelSourceMock, channelMock) = CreateChannelMocks();
@@ -161,8 +163,6 @@ public class ClientBackpressureProseTests
     private static (Mock<IChannelSourceHandle> channelSource, Mock<IChannelHandle> channel) CreateChannelMocks()
     {
         var serverMock = new Mock<IServer>();
-        serverMock.SetupGet(s => s.TokenBucket).Returns(new TokenBucket());
-
         var serverId = new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27017));
         var serverDescription = new ServerDescription(serverId, serverId.EndPoint);
 
