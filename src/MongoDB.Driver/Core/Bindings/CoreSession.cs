@@ -139,6 +139,8 @@ namespace MongoDB.Driver.Core.Bindings
         /// <inheritdoc />
         public BsonTimestamp SnapshotTime => _snapshotTime;
 
+        TokenBucket ICoreSessionInternal.TokenBucket => _cluster.TokenBucket;
+
         // public methods
         /// <inheritdoc />
         public void AbortTransaction(CancellationToken cancellationToken = default)

@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Core.Operations
             HashSet<ServerDescription> deprioritizedServers = null;
             var attempt = 0;
             Exception originalException = null;
-            var tokenBucket = context.ChannelSource?.Server?.TokenBucket  ?? new TokenBucket(); //TODO null should not happen, it's for tests
+            var tokenBucket = context.Binding.Session.GetTokenBucket();
 
             long? transactionNumber = AreRetriesAllowed(operation.WriteConcern, context, context.ChannelSource.ServerDescription) ? context.Binding.Session.AdvanceTransactionNumber() : null;
 
@@ -103,7 +103,7 @@ namespace MongoDB.Driver.Core.Operations
             HashSet<ServerDescription> deprioritizedServers = null;
             var attempt = 0;
             Exception originalException = null;
-            var tokenBucket = context.ChannelSource?.Server?.TokenBucket  ?? new TokenBucket(); //TODO null should not happen, it's for tests
+            var tokenBucket = context.Binding.Session.GetTokenBucket();
 
             long? transactionNumber = AreRetriesAllowed(operation.WriteConcern, context, context.ChannelSource.ServerDescription) ? context.Binding.Session.AdvanceTransactionNumber() : null;
 
