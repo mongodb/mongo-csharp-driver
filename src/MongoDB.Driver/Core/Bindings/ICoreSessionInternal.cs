@@ -21,7 +21,6 @@ namespace MongoDB.Driver.Core.Bindings;
 // TODO: Merge this interface into ICoreSession on major release
 internal interface ICoreSessionInternal
 {
-    TokenBucket TokenBucket { get; }
     void AbortTransaction(AbortTransactionOptions options, CancellationToken cancellationToken = default);
     Task AbortTransactionAsync(AbortTransactionOptions options, CancellationToken cancellationToken = default);
     void CommitTransaction(CommitTransactionOptions options, CancellationToken cancellationToken = default);

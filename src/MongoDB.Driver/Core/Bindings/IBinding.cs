@@ -23,6 +23,7 @@ namespace MongoDB.Driver.Core.Bindings
     internal interface IBinding : IDisposable
     {
         ICoreSessionHandle Session { get; }
+        TokenBucket TokenBucket { get; }
     }
 
     internal interface IReadBinding : IBinding

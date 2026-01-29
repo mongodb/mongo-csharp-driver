@@ -21,11 +21,6 @@ namespace MongoDB.Driver.Core.Bindings
     // TODO: CSOT: Make it public when CSOT will be ready for GA
     internal static class ICoreSessionExtensions
     {
-        public static TokenBucket GetTokenBucket(this ICoreSession session)
-        {
-            return ((ICoreSessionInternal)session).TokenBucket;
-        }
-
         // TODO: Merge these extension methods in ICoreSession interface on major release
         public static void AbortTransaction(this ICoreSession session, AbortTransactionOptions options, CancellationToken cancellationToken = default)
         {

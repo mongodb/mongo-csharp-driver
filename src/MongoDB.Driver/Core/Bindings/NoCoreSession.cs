@@ -30,11 +30,6 @@ namespace MongoDB.Driver.Core.Bindings
         // private static fields
         private static readonly ICoreSession __instance = new NoCoreSession();
 
-        //TODO I don't like this, but I'm not sure of how to retrieve the tokenBucket otherwise in the retryable executors.
-        //Before the token was being retrieved from  retryableContext.ChannelSource?.Server?.TokenBucket, but if we don't do server selection first,
-        //we have no server.
-        private static TokenBucket _tokenBucket = new();
-
         // public static properties
         /// <summary>
         /// Gets the pre-created instance.
@@ -91,9 +86,6 @@ namespace MongoDB.Driver.Core.Bindings
 
         /// <inheritdoc />
         public BsonTimestamp SnapshotTime => null;
-
-        /// <inheritdoc />
-        TokenBucket ICoreSessionInternal.TokenBucket => _tokenBucket;
 
         // public methods
         /// <inheritdoc />
