@@ -233,8 +233,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "expireAfterSeconds", () => _expireAfter.Value.TotalSeconds, _expireAfter.HasValue },
                 { "timeseries", () => _timeSeriesOptions.ToBsonDocument(), _timeSeriesOptions != null },
                 { "encryptedFields", _encryptedFields, _encryptedFields != null },
-                { "changeStreamPreAndPostImages", _changeStreamPreAndPostImages, _changeStreamPreAndPostImages != null },
-                { "txnNumber", () => transactionNumber.Value, transactionNumber.HasValue }
+                { "changeStreamPreAndPostImages", _changeStreamPreAndPostImages, _changeStreamPreAndPostImages != null }
             };
         }
 

@@ -94,8 +94,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "index", _indexName },
                 { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue && !operationContext.IsRootContextTimeoutConfigured() },
                 { "writeConcern", writeConcern, writeConcern != null },
-                { "comment", _comment, _comment != null },
-                { "txnNumber", () => transactionNumber.Value, transactionNumber.HasValue }
+                { "comment", _comment, _comment != null }
             };
         }
 

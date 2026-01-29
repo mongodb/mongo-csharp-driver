@@ -155,8 +155,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "viewOn", _viewOn },
                 { "pipeline", new BsonArray(_pipeline) },
                 { "collation", () => _collation.ToBsonDocument(), _collation != null },
-                { "writeConcern", writeConcern, writeConcern != null },
-                { "txnNumber", () => transactionNumber.Value, transactionNumber.HasValue }
+                { "writeConcern", writeConcern, writeConcern != null }
             };
         }
 

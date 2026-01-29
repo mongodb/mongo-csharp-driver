@@ -186,8 +186,7 @@ namespace MongoDB.Driver.Core.Operations
             return new BsonDocument
             {
                 { "drop", _collectionNamespace.CollectionName },
-                { "writeConcern", writeConcern, writeConcern != null },
-                { "txnNumber", () => transactionNumber.Value, transactionNumber.HasValue }
+                { "writeConcern", writeConcern, writeConcern != null }
             };
         }
 

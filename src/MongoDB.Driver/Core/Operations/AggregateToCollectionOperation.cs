@@ -226,8 +226,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "cursor", new BsonDocument() },
                 { "hint", _hint, _hint != null },
                 { "let", _let, _let != null },
-                { "comment", _comment, _comment != null },
-                { "txnNumber", () => transactionNumber.Value, transactionNumber.HasValue }
+                { "comment", _comment, _comment != null }
             };
         }
 

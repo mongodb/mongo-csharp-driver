@@ -78,8 +78,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "renameCollection", _collectionNamespace.FullName },
                 { "to", _newCollectionNamespace.FullName },
                 { "dropTarget", () => _dropTarget.Value, _dropTarget.HasValue },
-                { "writeConcern", writeConcern, writeConcern != null },
-                { "txnNumber", () => transactionNumber.Value, transactionNumber.HasValue }
+                { "writeConcern", writeConcern, writeConcern != null }
             };
         }
 

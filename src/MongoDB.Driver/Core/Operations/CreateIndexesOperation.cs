@@ -160,8 +160,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue && !operationContext.IsRootContextTimeoutConfigured() },
                 { "writeConcern", writeConcern, writeConcern != null },
                 { "comment", _comment, _comment != null },
-                { "commitQuorum", () => _commitQuorum.ToBsonValue(), _commitQuorum != null },
-                { "txnNumber", () => transactionNumber.Value, transactionNumber.HasValue }
+                { "commitQuorum", () => _commitQuorum.ToBsonValue(), _commitQuorum != null }
             };
         }
 
