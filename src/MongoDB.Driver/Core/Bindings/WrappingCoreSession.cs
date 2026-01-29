@@ -165,16 +165,6 @@ namespace MongoDB.Driver.Core.Bindings
             }
         }
 
-        /// <inheritdoc />
-        TokenBucket ICoreSessionInternal.TokenBucket
-        {
-            get
-            {
-                ThrowIfDisposed();
-                return _wrapped.GetTokenBucket();
-            }
-        }
-
         /// <summary>
         /// Gets the wrapped session.
         /// </summary>

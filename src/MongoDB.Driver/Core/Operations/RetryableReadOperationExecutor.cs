@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Core.Operations
             HashSet<ServerDescription> deprioritizedServers = null;
             var attempt = 0;
             Exception originalException = null;
-            var tokenBucket = context.Binding.Session.GetTokenBucket();
+            var tokenBucket = context.Binding.TokenBucket;
 
             while (true)
             {
@@ -89,7 +89,7 @@ namespace MongoDB.Driver.Core.Operations
             HashSet<ServerDescription> deprioritizedServers = null;
             var attempt = 0;
             Exception originalException = null;
-            var tokenBucket = context.Binding.Session.GetTokenBucket();
+            var tokenBucket = context.Binding.TokenBucket;
 
             while (true)
             {
