@@ -130,8 +130,7 @@ namespace MongoDB.Driver.Core.Operations
             return new BsonDocument
             {
                 { "createSearchIndexes", _collectionNamespace.CollectionName },
-                { "indexes", new BsonArray(_requests.Select(request => request.CreateIndexDocument())) },
-                { "txnNumber", () => transactionNumber.Value, transactionNumber.HasValue }
+                { "indexes", new BsonArray(_requests.Select(request => request.CreateIndexDocument())) }
             };
         }
 

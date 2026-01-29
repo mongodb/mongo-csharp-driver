@@ -142,8 +142,7 @@ namespace MongoDB.Driver.Core.Operations
             return new BsonDocument
             {
                 { "dropSearchIndex", _collectionNamespace.CollectionName },
-                { "name", _indexName },
-                { "txnNumber", () => transactionNumber.Value, transactionNumber.HasValue }
+                { "name", _indexName }
             };
         }
 

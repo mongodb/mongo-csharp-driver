@@ -116,8 +116,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 { "updateSearchIndex", _collectionNamespace.CollectionName },
                 { "name", _indexName },
-                { "definition", _definition },
-                { "txnNumber", () => transactionNumber.Value, transactionNumber.HasValue }
+                { "definition", _definition }
             };
         }
 
