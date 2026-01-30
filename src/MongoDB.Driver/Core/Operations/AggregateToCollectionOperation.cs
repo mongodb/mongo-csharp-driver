@@ -185,10 +185,9 @@ namespace MongoDB.Driver.Core.Operations
             var channelSource = context.ChannelSource;
             var channel = context.Channel;
 
-            var mayUseSecondary = new MayUseSecondary(_readPreference);
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
-                var operation = CreateOperation(operationContext, channelBinding.Session, channel.ConnectionDescription, mayUseSecondary.EffectiveReadPreference, transactionNumber);
+                var operation = CreateOperation(operationContext, channelBinding.Session, channel.ConnectionDescription, context.MayUseSecondaryCriteria.EffectiveReadPreference, transactionNumber);
                 return operation.Execute(operationContext, channelBinding);
             }
         }
@@ -199,10 +198,9 @@ namespace MongoDB.Driver.Core.Operations
             var channelSource = context.ChannelSource;
             var channel = context.Channel;
 
-            var mayUseSecondary = new MayUseSecondary(_readPreference);
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
-                var operation = CreateOperation(operationContext, channelBinding.Session, channel.ConnectionDescription, mayUseSecondary.EffectiveReadPreference, transactionNumber);
+                var operation = CreateOperation(operationContext, channelBinding.Session, channel.ConnectionDescription, context.MayUseSecondaryCriteria.EffectiveReadPreference, transactionNumber);
                 return await operation.ExecuteAsync(operationContext, channelBinding).ConfigureAwait(false);
             }
         }
