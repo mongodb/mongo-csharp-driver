@@ -301,6 +301,20 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void WithTimeout_should_preserve_operation_metadata()
+        {
+            using var originalContext = CreateSubject(timeout: TimeSpan.FromSeconds(100), elapsed: TimeSpan.Zero);
+            using var contextWithMetadata = originalContext.WithOperationMetadata("find", "testdb", "testcol", true);
+
+            using var resultContext = contextWithMetadata.WithTimeout(TimeSpan.FromSeconds(50));
+
+            resultContext.OperationName.Should().Be("find");
+            resultContext.DatabaseName.Should().Be("testdb");
+            resultContext.CollectionName.Should().Be("testcol");
+            resultContext.IsTracingEnabled.Should().BeTrue();
+        }
+
+        [Fact]
         public void WithTimeout_should_preserve_RootContext()
         {
             using var rootContext = CreateSubject(timeout: Timeout.InfiniteTimeSpan, elapsed: TimeSpan.Zero);
@@ -331,6 +345,41 @@ namespace MongoDB.Driver.Tests
 
             exception.Should().BeOfType<ArgumentOutOfRangeException>()
                 .Subject.ParamName.Should().Be("timeout");
+        }
+
+        [Fact]
+        public void WithOperationMetadata_should_preserve_RootContext()
+        {
+            using var rootContext = CreateSubject(timeout: Timeout.InfiniteTimeSpan, elapsed: TimeSpan.Zero);
+
+            using var resultContext = rootContext.WithOperationMetadata("insert", "mydb", "mycol", false);
+
+            resultContext.RootContext.Should().Be(rootContext);
+        }
+
+        [Fact]
+        public void WithOperationMetadata_should_set_metadata_properties()
+        {
+            using var originalContext = CreateSubject(timeout: TimeSpan.FromSeconds(10), elapsed: TimeSpan.Zero);
+
+            using var resultContext = originalContext.WithOperationMetadata("find", "testdb", "testcollection", true);
+
+            resultContext.OperationName.Should().Be("find");
+            resultContext.DatabaseName.Should().Be("testdb");
+            resultContext.CollectionName.Should().Be("testcollection");
+            resultContext.IsTracingEnabled.Should().BeTrue();
+        }
+
+        [Fact]
+        public void WithOperationMetadata_should_use_RemainingTimeout()
+        {
+            var originalTimeout = TimeSpan.FromSeconds(10);
+            var elapsed = TimeSpan.FromSeconds(3);
+            using var originalContext = CreateSubject(timeout: originalTimeout, elapsed: elapsed);
+
+            using var resultContext = originalContext.WithOperationMetadata("update", "db", "col", true);
+
+            resultContext.Timeout.Should().Be(originalTimeout - elapsed);
         }
 
         private static OperationContext CreateSubject(TimeSpan? timeout, TimeSpan elapsed = default, CancellationToken cancellationToken = default)

@@ -31,6 +31,8 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.That(operations.Count(o => o.IsMainOperation) == 1, message: $"{nameof(CompositeWriteOperation<TResult>)} must have a single main operation.");
         }
 
+        public string OperationName => null;
+
         public TResult Execute(OperationContext operationContext, IWriteBinding binding)
         {
             TResult result = default;

@@ -25,4 +25,5 @@ internal interface ICoreSessionInternal
     Task AbortTransactionAsync(AbortTransactionOptions options, CancellationToken cancellationToken = default);
     void CommitTransaction(CommitTransactionOptions options, CancellationToken cancellationToken = default);
     Task CommitTransactionAsync(CommitTransactionOptions options, CancellationToken cancellationToken = default);
+    void StartTransaction(TransactionOptions transactionOptions, bool isTracingEnabled);
 }

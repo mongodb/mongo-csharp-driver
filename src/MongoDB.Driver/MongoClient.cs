@@ -563,7 +563,7 @@ namespace MongoDB.Driver
                 _settings.RetryReads,
                 _settings.TranslationOptions);
 
-        private OperationContext CreateOperationContext(IClientSessionHandle session, TimeSpan? timeout, CancellationToken cancellationToken)
+        private OperationContext CreateOperationContext(IClientSessionHandle session, TimeSpan? timeout, string operationName, CancellationToken cancellationToken)
         {
             var operationContext = session.WrappedCoreSession.CurrentTransaction?.OperationContext;
             if (operationContext != null && timeout != null)
@@ -571,32 +571,43 @@ namespace MongoDB.Driver
                 throw new InvalidOperationException("Cannot specify per operation timeout inside transaction.");
             }
 
-            return operationContext?.Fork() ?? new OperationContext(timeout ?? _settings.Timeout, cancellationToken);
+            var context = operationContext?.Fork() ?? new OperationContext(timeout ?? _settings.Timeout, cancellationToken);
+
+            // Set operation metadata for OpenTelemetry tracing
+            // Client-level operations (like bulkWrite) use "admin" as database name
+            if (operationName != null)
+            {
+                var tracingOptions = _settings.TracingOptions;
+                var isTracingEnabled = tracingOptions == null || !tracingOptions.Disabled;
+                context = context.WithOperationMetadata(operationName, "admin", null, isTracingEnabled);
+            }
+
+            return context;
         }
 
         private TResult ExecuteReadOperation<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, TimeSpan? timeout, CancellationToken cancellationToken)
         {
             var readPreference = session.GetEffectiveReadPreference(_settings.ReadPreference);
-            using var operationContext = CreateOperationContext(session, timeout, cancellationToken);
+            using var operationContext = CreateOperationContext(session, timeout, operation.OperationName, cancellationToken);
             return _operationExecutor.ExecuteReadOperation(operationContext, session, operation, readPreference, false);
         }
 
         private async Task<TResult> ExecuteReadOperationAsync<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, TimeSpan? timeout, CancellationToken cancellationToken)
         {
             var readPreference = session.GetEffectiveReadPreference(_settings.ReadPreference);
-            using var operationContext = CreateOperationContext(session, timeout, cancellationToken);
+            using var operationContext = CreateOperationContext(session, timeout, operation.OperationName, cancellationToken);
             return await _operationExecutor.ExecuteReadOperationAsync(operationContext, session, operation, readPreference, false).ConfigureAwait(false);
         }
 
         private TResult ExecuteWriteOperation<TResult>(IClientSessionHandle session, IWriteOperation<TResult> operation, TimeSpan? timeout, CancellationToken cancellationToken)
         {
-            using var operationContext = CreateOperationContext(session, timeout, cancellationToken);
+            using var operationContext = CreateOperationContext(session, timeout, operation.OperationName, cancellationToken);
             return _operationExecutor.ExecuteWriteOperation(operationContext, session, operation, false);
         }
 
         private async Task<TResult> ExecuteWriteOperationAsync<TResult>(IClientSessionHandle session, IWriteOperation<TResult> operation, TimeSpan? timeout, CancellationToken cancellationToken)
         {
-            using var operationContext = CreateOperationContext(session, timeout, cancellationToken);
+            using var operationContext = CreateOperationContext(session, timeout, operation.OperationName, cancellationToken);
             return await _operationExecutor.ExecuteWriteOperationAsync(operationContext, session, operation, false).ConfigureAwait(false);
         }
 

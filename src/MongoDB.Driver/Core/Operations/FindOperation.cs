@@ -165,6 +165,8 @@ namespace MongoDB.Driver.Core.Operations
             get { return _messageEncoderSettings; }
         }
 
+        public string OperationName => "find";
+
         public BsonDocument Min
         {
             get { return _min; }
@@ -363,7 +365,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private IDisposable BeginOperation() => EventContext.BeginOperation(null, "find");
+        private IDisposable BeginOperation() => EventContext.BeginOperation(null, OperationName);
 
         private ReadCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, RetryableReadContext context)
         {
