@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Driver.Core.Misc;
@@ -23,6 +24,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
     /// <summary>
     /// Represents a server selector that selects servers based on a collection of servers to deprioritize.
     /// </summary>
+    [Obsolete("PriorityServerSelector is obsolete and will be removed in a future release.")]
     public sealed class PriorityServerSelector : IServerSelector
     {
         private readonly IReadOnlyCollection<ServerDescription> _deprioritizedServers;
