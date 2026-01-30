@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Core.Operations
 
         public static RetryableWriteContext Create(OperationContext operationContext, IWriteBinding binding, bool retryRequested, IMayUseSecondaryCriteria mayUseSecondaryCriteria = null)
         {
-            var context = new RetryableWriteContext(binding, retryRequested);
+            var context = new RetryableWriteContext(binding, retryRequested, mayUseSecondaryCriteria: mayUseSecondaryCriteria);
             try
             {
                 context.AcquireOrReplaceChannel(operationContext, null, mayUseSecondaryCriteria);
@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Core.Operations
 
         public static async Task<RetryableWriteContext> CreateAsync(OperationContext operationContext, IWriteBinding binding, bool retryRequested, IMayUseSecondaryCriteria mayUseSecondaryCriteria = null)
         {
-            var context = new RetryableWriteContext(binding, retryRequested);
+            var context = new RetryableWriteContext(binding, retryRequested, mayUseSecondaryCriteria: mayUseSecondaryCriteria);
             try
             {
                 await context.AcquireOrReplaceChannelAsync(operationContext, null, mayUseSecondaryCriteria).ConfigureAwait(false);
@@ -69,23 +69,26 @@ namespace MongoDB.Driver.Core.Operations
         private bool _disposed;
         private bool _retryRequested;
         private IRandom _random;
+        private IMayUseSecondaryCriteria _mayUseSecondaryCriteria;
 
-        public RetryableWriteContext(IWriteBinding binding, bool retryRequested, IRandom random = null)
+        public RetryableWriteContext(IWriteBinding binding, bool retryRequested, IRandom random = null, IMayUseSecondaryCriteria mayUseSecondaryCriteria = null)
         {
             _binding = Ensure.IsNotNull(binding, nameof(binding));
             _retryRequested = retryRequested;
             _random = random ?? DefaultRandom.Instance;
+            _mayUseSecondaryCriteria = mayUseSecondaryCriteria;
         }
 
         public IWriteBinding Binding => _binding;
         public IChannelHandle Channel => _channel;
         public IChannelSourceHandle ChannelSource => _channelSource;
+        public IMayUseSecondaryCriteria MayUseSecondaryCriteria => _mayUseSecondaryCriteria;
+        public IRandom Random => _random;
         /// <summary>
         /// This property only influences the retryability for retryable reads/writes and has no effect
         /// on client backpressure errors.
         /// </summary>
         public bool RetryRequested => _retryRequested;
-        public IRandom Random => _random;
 
         public void Dispose()
         {
