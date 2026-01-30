@@ -1,22 +1,23 @@
-description: "command"
+description: "command-logging"
 
-schemaVersion: "1.0"
+schemaVersion: "1.13"
 
 createEntities:
   - client:
       id: &client client
-      observeEvents:
-        - commandStartedEvent
-        - commandSucceededEvent
-        - commandFailedEvent
+      observeLogMessages:
+        command: debug
   - database:
       id: &database database
       client: *client
-      databaseName: &databaseName command-monitoring-tests
+      databaseName: &databaseName logging-tests
   - collection:
       id: &collection collection
       database: *database
-      collectionName: &collectionName test
+      collectionName: &collectionName logging-tests-collection
+  - session:
+      id: &session session
+      client: *client
 
 initialData:
   - collectionName: *collectionName
@@ -31,20 +32,195 @@ tests:
         object: *database
         arguments:
           command: { ping: 1 }
-          commandName: ping
-    expectEvents:
+          commandName: &commandName ping
+    expectLogMessages:
       - client: *client
-        events:
-          - commandStartedEvent:
-              command:
-                ping: 1
-              commandName: ping
+        messages:
+          - level: debug
+            component: command
+            data:
+              message: "Command started"
               databaseName: *databaseName
-          - commandSucceededEvent:
-              reply:
-                ok: 1
-              commandName: ping
+              commandName: *commandName
+              command:
+                $$matchAsDocument:
+                  $$matchAsRoot:
+                    ping: 1
+                    $db: *databaseName
+              requestId: { $$type: [int, long] }
+              serverHost: { $$type: string }
+              serverPort: { $$type: [int, long] }
 
-# The legacy "A failed command event" test was removed in the test conversion, as the
-# behavior when a command fails is already covered by the test "A failed find event"
-# in find.yml.
+          - level: debug
+            component: command
+            data:
+              message: "Command succeeded"
+              databaseName: *databaseName
+              commandName: *commandName
+              reply: { $$type: string }
+              requestId: { $$type: [int, long] }
+              serverHost: { $$type: string }
+              serverPort: { $$type: [int, long] }
+              durationMS: { $$type: [double, int, long] }
+
+  - description: "A failed command"
+    operations:
+      - name: &commandName find
+        object: *collection
+        arguments:
+          filter: { $or: true }
+        expectError:
+          isClientError: false
+    expectLogMessages:
+      - client: *client
+        messages:
+          - level: debug
+            component: command
+            data:
+              message: "Command started"
+              databaseName: *databaseName
+              commandName: *commandName
+              command: { $$type: string }
+              requestId: { $$type: [int, long] }
+              serverHost: { $$type: string }
+              serverPort: { $$type: [int, long] }
+
+          - level: debug
+            component: command
+            data:
+              message: "Command failed"
+              databaseName: *databaseName
+              commandName: *commandName
+              failure: { $$exists: true }
+              requestId: { $$type: [int, long] }
+              serverHost: { $$type: string }
+              serverPort: { $$type: [int, long] }
+              durationMS: { $$type: [double, int, long] }
+
+  - description: "A successful commitTransaction command"
+    runOnRequirements:
+      - topologies:
+          - replicaset
+          - sharded
+    operations:
+      - name: startTransaction
+        object: *session
+      - name: insertOne
+        object: *collection
+        arguments:
+          session: *session
+          document: { _id: 2, x: 22 }
+      - name: commitTransaction
+        object: *session
+    expectLogMessages:
+      - client: *client
+        messages:
+          - level: debug
+            component: command
+            data:
+              message: "Command started"
+              databaseName: *databaseName
+              commandName: insert
+              command: { $$type: string }
+              requestId: { $$type: [int, long] }
+              serverHost: { $$type: string }
+              serverPort: { $$type: [int, long] }
+
+          - level: debug
+            component: command
+            data:
+              message: "Command succeeded"
+              databaseName: *databaseName
+              commandName: insert
+              reply: { $$type: string }
+              requestId: { $$type: [int, long] }
+              serverHost: { $$type: string }
+              serverPort: { $$type: [int, long] }
+              durationMS: { $$type: [double, int, long] }
+
+          - level: debug
+            component: command
+            data:
+              message: "Command started"
+              databaseName: admin
+              commandName: commitTransaction
+              command: { $$type: string }
+              requestId: { $$type: [int, long] }
+              serverHost: { $$type: string }
+              serverPort: { $$type: [int, long] }
+
+          - level: debug
+            component: command
+            data:
+              message: "Command succeeded"
+              databaseName: admin
+              commandName: commitTransaction
+              reply: { $$type: string }
+              requestId: { $$type: [int, long] }
+              serverHost: { $$type: string }
+              serverPort: { $$type: [int, long] }
+              durationMS: { $$type: [double, int, long] }
+
+  - description: "A successful abortTransaction command"
+    runOnRequirements:
+      - topologies:
+          - replicaset
+          - sharded
+    operations:
+      - name: startTransaction
+        object: *session
+      - name: insertOne
+        object: *collection
+        arguments:
+          session: *session
+          document: { _id: 3, x: 33 }
+      - name: abortTransaction
+        object: *session
+    expectLogMessages:
+      - client: *client
+        messages:
+          - level: debug
+            component: command
+            data:
+              message: "Command started"
+              databaseName: *databaseName
+              commandName: insert
+              command: { $$type: string }
+              requestId: { $$type: [int, long] }
+              serverHost: { $$type: string }
+              serverPort: { $$type: [int, long] }
+
+          - level: debug
+            component: command
+            data:
+              message: "Command succeeded"
+              databaseName: *databaseName
+              commandName: insert
+              reply: { $$type: string }
+              requestId: { $$type: [int, long] }
+              serverHost: { $$type: string }
+              serverPort: { $$type: [int, long] }
+              durationMS: { $$type: [double, int, long] }
+
+          - level: debug
+            component: command
+            data:
+              message: "Command started"
+              databaseName: admin
+              commandName: abortTransaction
+              command: { $$type: string }
+              requestId: { $$type: [int, long] }
+              serverHost: { $$type: string }
+              serverPort: { $$type: [int, long] }
+
+          - level: debug
+            component: command
+            data:
+              message: "Command succeeded"
+              databaseName: admin
+              commandName: abortTransaction
+              reply: { $$type: string }
+              requestId: { $$type: [int, long] }
+              serverHost: { $$type: string }
+              serverPort: { $$type: [int, long] }
+              durationMS: { $$type: [double, int, long] }
