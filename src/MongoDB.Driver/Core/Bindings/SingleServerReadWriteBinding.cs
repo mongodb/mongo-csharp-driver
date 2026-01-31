@@ -43,6 +43,11 @@ namespace MongoDB.Driver.Core.Bindings
             get { return _session; }
         }
 
+        public TokenBucket TokenBucket
+        {
+            get { return _server.TokenBucket; }
+        }
+
         public void Dispose()
         {
             if (!_disposed)

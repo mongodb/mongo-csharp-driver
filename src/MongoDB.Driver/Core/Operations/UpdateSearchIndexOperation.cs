@@ -13,23 +13,26 @@
 * limitations under the License.
 */
 
+using System;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    internal sealed class UpdateSearchIndexOperation : IWriteOperation<BsonDocument>
+    internal sealed class UpdateSearchIndexOperation : IWriteOperation<BsonDocument>, IRetryableWriteOperation<BsonDocument>
     {
         // fields
         private readonly CollectionNamespace _collectionNamespace;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly string _indexName;
         private readonly BsonDocument _definition;
+        private WriteConcern _writeConcern;
 
         public UpdateSearchIndexOperation(
             CollectionNamespace collectionNamespace,
@@ -43,40 +46,86 @@ namespace MongoDB.Driver.Core.Operations
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
         }
 
+        public WriteConcern WriteConcern
+        {
+            get { return _writeConcern; }
+            set { _writeConcern = value; }
+        }
+
         public BsonDocument Execute(OperationContext operationContext, IWriteBinding binding)
         {
-            using (EventContext.BeginOperation("updateSearchIndex"))
-            using (var channelSource = binding.GetWriteChannelSource(operationContext))
-            using (var channel = channelSource.GetChannel(operationContext))
+            using (BeginOperation())
+            {
+                return RetryableWriteOperationExecutor.Execute(operationContext, this, binding, retryRequested: false);
+            }
+        }
+
+        public BsonDocument Execute(OperationContext operationContext, RetryableWriteContext context)
+        {
+            using (BeginOperation())
+            {
+                return RetryableWriteOperationExecutor.Execute(operationContext, this, context);
+            }
+        }
+
+        public Task<BsonDocument> ExecuteAsync(OperationContext operationContext, IWriteBinding binding)
+        {
+            using (BeginOperation())
+            {
+                return RetryableWriteOperationExecutor.ExecuteAsync(operationContext, this, binding, retryRequested: false);
+            }
+        }
+
+        public Task<BsonDocument> ExecuteAsync(OperationContext operationContext, RetryableWriteContext context)
+        {
+            using (BeginOperation())
+            {
+                return RetryableWriteOperationExecutor.ExecuteAsync(operationContext, this, context);
+            }
+        }
+
+        public BsonDocument ExecuteAttempt(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
+        {
+            var binding = context.Binding;
+            var channelSource = context.ChannelSource;
+            var channel = context.Channel;
+
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
-                var operation = CreateOperation();
+                var operation = CreateOperation(operationContext, channelBinding.Session, channel.ConnectionDescription, transactionNumber);
                 return operation.Execute(operationContext, channelBinding);
             }
         }
 
-        public async Task<BsonDocument> ExecuteAsync(OperationContext operationContext, IWriteBinding binding)
+        public async Task<BsonDocument> ExecuteAttemptAsync(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
         {
-            using (EventContext.BeginOperation("updateSearchIndex"))
-            using (var channelSource = await binding.GetWriteChannelSourceAsync(operationContext).ConfigureAwait(false))
-            using (var channel = await channelSource.GetChannelAsync(operationContext).ConfigureAwait(false))
+            var binding = context.Binding;
+            var channelSource = context.ChannelSource;
+            var channel = context.Channel;
+
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
-                var operation = CreateOperation();
+                var operation = CreateOperation(operationContext, channelBinding.Session, channel.ConnectionDescription, transactionNumber);
                 return await operation.ExecuteAsync(operationContext, channelBinding).ConfigureAwait(false);
             }
         }
 
-        private WriteCommandOperation<BsonDocument> CreateOperation()
+        internal BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber)
         {
-            var command = new BsonDocument()
+            return new BsonDocument
             {
                 { "updateSearchIndex", _collectionNamespace.CollectionName },
                 { "name", _indexName },
                 { "definition", _definition }
             };
+        }
 
-            return new (_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+        private IDisposable BeginOperation() => EventContext.BeginOperation("updateSearchIndex");
+
+        private WriteCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber)
+        {
+            var command = CreateCommand(operationContext, session, connectionDescription, transactionNumber);
+            return new WriteCommandOperation<BsonDocument>(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
         }
     }
 }

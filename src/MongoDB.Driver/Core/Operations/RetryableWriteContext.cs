@@ -26,12 +26,12 @@ namespace MongoDB.Driver.Core.Operations
     {
         #region static
 
-        public static RetryableWriteContext Create(OperationContext operationContext, IWriteBinding binding, bool retryRequested)
+        public static RetryableWriteContext Create(OperationContext operationContext, IWriteBinding binding, bool retryRequested, IMayUseSecondaryCriteria mayUseSecondaryCriteria = null)
         {
-            var context = new RetryableWriteContext(binding, retryRequested);
+            var context = new RetryableWriteContext(binding, retryRequested, mayUseSecondaryCriteria: mayUseSecondaryCriteria);
             try
             {
-                context.AcquireOrReplaceChannel(operationContext, null);
+                context.AcquireOrReplaceChannel(operationContext, null, mayUseSecondaryCriteria);
             }
             catch
             {
@@ -43,12 +43,12 @@ namespace MongoDB.Driver.Core.Operations
             return context;
         }
 
-        public static async Task<RetryableWriteContext> CreateAsync(OperationContext operationContext, IWriteBinding binding, bool retryRequested)
+        public static async Task<RetryableWriteContext> CreateAsync(OperationContext operationContext, IWriteBinding binding, bool retryRequested, IMayUseSecondaryCriteria mayUseSecondaryCriteria = null)
         {
-            var context = new RetryableWriteContext(binding, retryRequested);
+            var context = new RetryableWriteContext(binding, retryRequested, mayUseSecondaryCriteria: mayUseSecondaryCriteria);
             try
             {
-                await context.AcquireOrReplaceChannelAsync(operationContext, null).ConfigureAwait(false);
+                await context.AcquireOrReplaceChannelAsync(operationContext, null, mayUseSecondaryCriteria).ConfigureAwait(false);
             }
             catch
             {
@@ -68,16 +68,26 @@ namespace MongoDB.Driver.Core.Operations
         private IChannelSourceHandle _channelSource;
         private bool _disposed;
         private bool _retryRequested;
+        private IRandom _random;
+        private IMayUseSecondaryCriteria _mayUseSecondaryCriteria;
 
-        public RetryableWriteContext(IWriteBinding binding, bool retryRequested)
+        public RetryableWriteContext(IWriteBinding binding, bool retryRequested, IRandom random = null, IMayUseSecondaryCriteria mayUseSecondaryCriteria = null)
         {
             _binding = Ensure.IsNotNull(binding, nameof(binding));
             _retryRequested = retryRequested;
+            _random = random ?? DefaultRandom.Instance;
+            _mayUseSecondaryCriteria = mayUseSecondaryCriteria;
         }
 
         public IWriteBinding Binding => _binding;
         public IChannelHandle Channel => _channel;
         public IChannelSourceHandle ChannelSource => _channelSource;
+        public IMayUseSecondaryCriteria MayUseSecondaryCriteria => _mayUseSecondaryCriteria;
+        public IRandom Random => _random;
+        /// <summary>
+        /// This property only influences the retryability for retryable reads/writes and has no effect
+        /// on client backpressure errors.
+        /// </summary>
         public bool RetryRequested => _retryRequested;
 
         public void Dispose()
@@ -90,13 +100,17 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public void AcquireOrReplaceChannel(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
+        //TODO Do this inside the main loop, but remember that this follows reads retryability logic, even with writes
+        public void AcquireOrReplaceChannel(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondaryCriteria = null)
         {
             var attempt = 1;
             while (true)
             {
                 operationContext.ThrowIfTimedOutOrCanceled();
-                ReplaceChannelSource(Binding.GetWriteChannelSource(operationContext, deprioritizedServers));
+                var writeChannelSource = mayUseSecondaryCriteria == null  //TODO The implementation of those two overloads is different, I'm worried there some important difference I can't appreciate
+                    ? Binding.GetWriteChannelSource(operationContext, deprioritizedServers)
+                    : Binding.GetWriteChannelSource(operationContext, deprioritizedServers, mayUseSecondaryCriteria);
+                ReplaceChannelSource(writeChannelSource);
                 var server = ChannelSource.ServerDescription;
                 try
                 {
@@ -110,13 +124,16 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public async Task AcquireOrReplaceChannelAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
+        public async Task AcquireOrReplaceChannelAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondaryCriteria = null)
         {
             var attempt = 1;
             while (true)
             {
                 operationContext.ThrowIfTimedOutOrCanceled();
-                ReplaceChannelSource(await Binding.GetWriteChannelSourceAsync(operationContext, deprioritizedServers).ConfigureAwait(false));
+                var writeChannelSource = mayUseSecondaryCriteria == null  //TODO The implementation of those two overloads is different, I'm worried there some important difference I can't appreciate
+                    ? await Binding.GetWriteChannelSourceAsync(operationContext, deprioritizedServers).ConfigureAwait(false)
+                    : await Binding.GetWriteChannelSourceAsync(operationContext, deprioritizedServers, mayUseSecondaryCriteria).ConfigureAwait(false);
+                ReplaceChannelSource(writeChannelSource);
                 var server = ChannelSource.ServerDescription;
                 try
                 {

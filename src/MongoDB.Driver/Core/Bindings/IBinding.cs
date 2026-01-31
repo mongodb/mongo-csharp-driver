@@ -15,7 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Servers;
 
@@ -24,6 +23,7 @@ namespace MongoDB.Driver.Core.Bindings
     internal interface IBinding : IDisposable
     {
         ICoreSessionHandle Session { get; }
+        TokenBucket TokenBucket { get; }
     }
 
     internal interface IReadBinding : IBinding
