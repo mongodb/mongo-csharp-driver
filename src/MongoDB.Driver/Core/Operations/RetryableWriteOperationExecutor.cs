@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Servers;
@@ -50,12 +51,11 @@ namespace MongoDB.Driver.Core.Operations
                 }
                 catch (Exception ex)
                 {
+                    originalException ??= ex;
                     if (!ShouldRetryOperation(operationContext, operation.WriteConcern, context, server, ex, attempt))
                     {
-                        throw originalException ?? ex;
+                        Rethrow(originalException);
                     }
-
-                    originalException ??= ex;
                 }
 
                 deprioritizedServers ??= new HashSet<ServerDescription>();
@@ -67,12 +67,12 @@ namespace MongoDB.Driver.Core.Operations
                 }
                 catch
                 {
-                    throw originalException;
+                    Rethrow(originalException);
                 }
 
                 if (!AreRetryableWritesSupported(context.ChannelSource.ServerDescription))
                 {
-                    throw originalException;
+                    Rethrow(originalException);
                 }
 
                 attempt++;
@@ -105,12 +105,11 @@ namespace MongoDB.Driver.Core.Operations
                 }
                 catch (Exception ex)
                 {
+                    originalException ??= ex;
                     if (!ShouldRetryOperation(operationContext, operation.WriteConcern, context, server, ex, attempt))
                     {
-                        throw originalException ?? ex;
+                        Rethrow(originalException);
                     }
-
-                    originalException ??= ex;
                 }
 
                 deprioritizedServers ??= new HashSet<ServerDescription>();
@@ -122,12 +121,12 @@ namespace MongoDB.Driver.Core.Operations
                 }
                 catch
                 {
-                    throw originalException;
+                    Rethrow(originalException);
                 }
 
                 if (!AreRetryableWritesSupported(context.ChannelSource.ServerDescription))
                 {
-                    throw originalException;
+                    Rethrow(originalException);
                 }
 
                 attempt++;
@@ -185,5 +184,11 @@ namespace MongoDB.Driver.Core.Operations
         private static bool IsOperationAcknowledged(WriteConcern writeConcern)
             => writeConcern == null || // null means use server default write concern which implies acknowledged
                writeConcern.IsAcknowledged;
+
+        private static void Rethrow(Exception exception)
+        {
+            // Use ExceptionDispatchInfo to avoid losing the original exception stack trace
+            ExceptionDispatchInfo.Capture(originalException).Throw();
+        }
     }
 }
