@@ -14,7 +14,6 @@
 */
 
 using System.Linq.Expressions;
-using System.Reflection;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
@@ -24,19 +23,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class ReverseMethodToAggregationExpressionTranslator
     {
-        private static readonly MethodInfo[] __reverseMethods =
-        {
-            EnumerableMethod.Reverse,
-            EnumerableMethod.ReverseWithArray,
-            QueryableMethod.Reverse
-        };
-
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__reverseMethods))
+            if (method.IsOneOf(EnumerableOrQueryableMethod.ReverseOverloads))
             {
                 var sourceExpression = arguments[0];
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);

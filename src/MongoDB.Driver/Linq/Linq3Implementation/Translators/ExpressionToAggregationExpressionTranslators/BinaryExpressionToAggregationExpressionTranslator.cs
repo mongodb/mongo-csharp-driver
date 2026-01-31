@@ -216,7 +216,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             };
         }
 
-        static bool IsConvertEnumToUnderlyingType(Expression expression)
+        static bool IsConvertEnumToIntegralType(Expression expression)
         {
             if (expression.NodeType == ExpressionType.Convert)
             {
@@ -226,7 +226,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                 return
                     sourceType.IsEnumOrNullableEnum(out _, out var underlyingType) &&
-                    targetType.IsSameAsOrNullableOf(underlyingType);
+                    targetType.IsIntegralOrNullableIntegral();
             }
 
             return false;
@@ -235,13 +235,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         internal static bool IsEnumArithmeticExpression(BinaryExpression expression)
         {
             return
-                (IsEnumOrConvertEnumToUnderlyingType(expression.Left) || IsEnumOrConvertEnumToUnderlyingType(expression.Right)) &&
+                (IsEnumOrConvertEnumToIntegralType(expression.Left) || IsEnumOrConvertEnumToIntegralType(expression.Right)) &&
                 IsAddOrSubtractExpression(expression);
         }
 
-        static bool IsEnumOrConvertEnumToUnderlyingType(Expression expression)
+        static bool IsEnumOrConvertEnumToIntegralType(Expression expression)
         {
-            return expression.Type.IsEnum || IsConvertEnumToUnderlyingType(expression);
+            return expression.Type.IsEnum || IsConvertEnumToIntegralType(expression);
         }
 
         private static TranslatedExpression TranslateArithmeticExpression(
@@ -379,7 +379,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var rightTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, rightExpression);
 
             TranslatedExpression enumTranslation, operandTranslation;
-            if (IsEnumOrConvertEnumToUnderlyingType(leftExpression))
+            if (IsEnumOrConvertEnumToIntegralType(leftExpression))
             {
                 enumTranslation = leftTranslation;
                 operandTranslation = rightTranslation;

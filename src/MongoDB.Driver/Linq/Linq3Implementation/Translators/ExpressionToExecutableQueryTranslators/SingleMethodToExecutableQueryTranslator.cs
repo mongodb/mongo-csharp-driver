@@ -28,41 +28,31 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
     {
         // private static fields
         private static readonly IExecutableQueryFinalizer<TOutput, TOutput> __singleFinalizer = new SingleFinalizer<TOutput>();
-        private static readonly MethodInfo[] __singleMethods;
-        private static readonly MethodInfo[] __singleOrDefaultMethods;
-        private static readonly MethodInfo[] __singleWithPredicateMethods;
+        private static readonly IReadOnlyMethodInfoSet __singleOverloads;
+        private static readonly IReadOnlyMethodInfoSet __singleOrDefaultOverloads;
+        private static readonly IReadOnlyMethodInfoSet __singleWithPredicateOverloads;
         private static readonly IExecutableQueryFinalizer<TOutput, TOutput> __singleOrDefaultFinalizer = new SingleOrDefaultFinalizer<TOutput>();
 
         // static constructor
         static SingleMethodToExecutableQueryTranslator()
         {
-            __singleMethods = new[]
-            {
-                QueryableMethod.Single,
-                QueryableMethod.SingleOrDefault,
-                QueryableMethod.SingleOrDefaultWithPredicate,
-                QueryableMethod.SingleWithPredicate,
-                MongoQueryableMethod.SingleAsync,
-                MongoQueryableMethod.SingleOrDefaultAsync,
-                MongoQueryableMethod.SingleOrDefaultWithPredicateAsync,
-                MongoQueryableMethod.SingleWithPredicateAsync
-            };
+            __singleOverloads = MethodInfoSet.Create(
+            [
+                QueryableMethod.SingleOverloads,
+                MongoQueryableMethod.SingleOverloads
+            ]);
 
-            __singleWithPredicateMethods = new[]
-            {
-                QueryableMethod.SingleOrDefaultWithPredicate,
-                QueryableMethod.SingleWithPredicate,
-                MongoQueryableMethod.SingleOrDefaultWithPredicateAsync,
-                MongoQueryableMethod.SingleWithPredicateAsync
-            };
+            __singleWithPredicateOverloads = MethodInfoSet.Create(
+            [
+                QueryableMethod.SingleWithPredicateOverloads,
+                MongoQueryableMethod.SingleWithPredicateOverloads
+            ]);
 
-            __singleOrDefaultMethods = new[]
-            {
-                QueryableMethod.SingleOrDefault,
-                QueryableMethod.SingleOrDefaultWithPredicate,
-                MongoQueryableMethod.SingleOrDefaultAsync,
-                MongoQueryableMethod.SingleOrDefaultWithPredicateAsync
-            };
+            __singleOrDefaultOverloads = MethodInfoSet.Create(
+            [
+                QueryableMethod.SingleOrDefaultOverloads,
+                MongoQueryableMethod.SingleOrDefaultOverloads
+            ]);
         }
 
         // public static methods
@@ -71,12 +61,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__singleMethods))
+            if (method.IsOneOf(__singleOverloads))
             {
                 var sourceExpression = arguments[0];
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
 
-                if (method.IsOneOf(__singleWithPredicateMethods))
+                if (method.IsOneOf(__singleWithPredicateOverloads))
                 {
                     ClientSideProjectionHelper.ThrowIfClientSideProjection(expression, pipeline, method, "with a predicate");
 
@@ -92,7 +82,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
                     AstStage.Limit(2),
                     pipeline.OutputSerializer);
 
-                var finalizer = method.IsOneOf(__singleOrDefaultMethods) ? __singleOrDefaultFinalizer : __singleFinalizer;
+                var finalizer = method.IsOneOf(__singleOrDefaultOverloads) ? __singleOrDefaultFinalizer : __singleFinalizer;
 
                 return ExecutableQuery.Create(
                     provider,
