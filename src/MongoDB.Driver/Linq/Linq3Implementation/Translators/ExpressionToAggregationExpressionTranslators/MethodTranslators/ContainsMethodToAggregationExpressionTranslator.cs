@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
@@ -33,6 +34,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
             if (IsEnumerableContainsMethod(expression, out var sourceExpression, out var valueExpression))
             {
+                if (TryTranslateDictionaryKeysOrValuesContains(context, expression, sourceExpression, valueExpression, out var dictionaryTranslation))
+                {
+                    return dictionaryTranslation;
+                }
+
                 return TranslateEnumerableContains(context, expression, sourceExpression, valueExpression);
             }
 
@@ -82,6 +88,49 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var ast = AstExpression.In(valueTranslation.Ast, sourceTranslation.Ast);
 
             return new TranslatedExpression(expression, ast, BooleanSerializer.Instance);
+        }
+
+        private static bool TryTranslateDictionaryKeysOrValuesContains(
+            TranslationContext context,
+            Expression expression,
+            Expression sourceExpression,
+            Expression valueExpression,
+            out TranslatedExpression translation)
+        {
+            translation = null;
+
+            if (sourceExpression is not MemberExpression memberExpression)
+            {
+                return false;
+            }
+
+            var memberName = memberExpression.Member.Name;
+            var declaringType = memberExpression.Member.DeclaringType;
+
+            if (!declaringType.IsGenericType ||
+                (declaringType.GetGenericTypeDefinition() != typeof(Dictionary<,>) &&
+                declaringType.GetGenericTypeDefinition() != typeof(IDictionary<,>)))
+            {
+                return false;
+            }
+
+            switch (memberName)
+            {
+                case "Keys":
+                {
+                    var dictionaryExpression = memberExpression.Expression;
+                    translation = ContainsKeyMethodToAggregationExpressionTranslator.TranslateContainsKey(context, expression, dictionaryExpression, valueExpression);
+                    return true;
+                }
+                case "Values":
+                {
+                    var dictionaryExpression = memberExpression.Expression;
+                    translation = ContainsValueMethodToAggregationExpressionTranslator.TranslateContainsValue(context, expression, dictionaryExpression, valueExpression);
+                    return true;
+                }
+                default:
+                    return false;
+            }
         }
     }
 }
