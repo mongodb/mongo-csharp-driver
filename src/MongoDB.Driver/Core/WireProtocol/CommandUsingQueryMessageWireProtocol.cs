@@ -235,7 +235,6 @@ namespace MongoDB.Driver.Core.WireProtocol
             connection.ReceiveMessageAsync(operationContext, message.RequestId, encoderSelector, _messageEncoderSettings).IgnoreExceptions();
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]
         private TCommandResult ProcessReply(ConnectionId connectionId, ReplyMessage<RawBsonDocument> reply)
         {
             if (reply.NumberReturned == 0)
