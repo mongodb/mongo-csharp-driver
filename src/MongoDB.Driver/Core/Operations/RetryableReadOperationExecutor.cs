@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Core.Operations
         // public static methods
         public static TResult Execute<TResult>(OperationContext operationContext, IRetryableReadOperation<TResult> operation, RetryableReadContext context)
         {
-            HashSet<ServerDescription> deprioritizedServers = [];
+            HashSet<ServerDescription> deprioritizedServers = null;
             var attempt = 0;
             Exception originalException = null;
             var tokenBucket = context.Binding.TokenBucket;
@@ -76,6 +76,7 @@ namespace MongoDB.Driver.Core.Operations
 
                 if (server != null)
                 {
+                    deprioritizedServers ??= [];
                     deprioritizedServers.Add(server);
                 }
 
@@ -84,7 +85,7 @@ namespace MongoDB.Driver.Core.Operations
 
         public static async Task<TResult> ExecuteAsync<TResult>(OperationContext operationContext, IRetryableReadOperation<TResult> operation, RetryableReadContext context)
         {
-            HashSet<ServerDescription> deprioritizedServers = [];
+            HashSet<ServerDescription> deprioritizedServers = null;
             var attempt = 0;
             Exception originalException = null;
             var tokenBucket = context.Binding.TokenBucket;
@@ -133,6 +134,7 @@ namespace MongoDB.Driver.Core.Operations
 
                 if (server != null)
                 {
+                    deprioritizedServers ??= [];
                     deprioritizedServers.Add(server);
                 }
             }
