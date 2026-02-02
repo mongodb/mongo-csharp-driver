@@ -151,7 +151,7 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        private IDisposable BeginOperation() => EventContext.BeginOperation("distinct");
+        private IDisposable BeginOperation() => EventContext.BeginOperation(null, "distinct");
 
         private ReadCommandOperation<DistinctResult> CreateOperation(OperationContext operationContext)
         {

@@ -162,7 +162,7 @@ namespace MongoDB.Driver.Core.Operations
             return document["n"].ToInt64();
         }
 
-        private IDisposable BeginOperation() => EventContext.BeginOperation("count");
+        private IDisposable BeginOperation() => EventContext.BeginOperation(null, "count");
 
         private ReadCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext)
         {
