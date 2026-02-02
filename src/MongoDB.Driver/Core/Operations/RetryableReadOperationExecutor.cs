@@ -64,9 +64,10 @@ namespace MongoDB.Driver.Core.Operations
                 }
                 catch (Exception ex)
                 {
-                    originalException ??= ex;
+                    var innerException = ex is MongoAuthenticationException mongoAuthenticationException ? mongoAuthenticationException.InnerException : ex;
+                    originalException ??= innerException;
 
-                    if (!ShouldRetry(operationContext, context, tokenBucket, ex, attempt, context.Random, out var backoff))
+                    if (!ShouldRetry(operationContext, context, tokenBucket, innerException, attempt, context.Random, out var backoff))
                     {
                         throw originalException;
                     }
@@ -122,9 +123,10 @@ namespace MongoDB.Driver.Core.Operations
                 }
                 catch (Exception ex)
                 {
-                    originalException ??= ex;
+                    var innerException = ex is MongoAuthenticationException mongoAuthenticationException ? mongoAuthenticationException.InnerException : ex;
+                    originalException ??= innerException;
 
-                    if (!ShouldRetry(operationContext, context, tokenBucket, ex, attempt, context.Random, out var backoff))
+                    if (!ShouldRetry(operationContext, context, tokenBucket, innerException, attempt, context.Random, out var backoff))
                     {
                         throw originalException;
                     }
