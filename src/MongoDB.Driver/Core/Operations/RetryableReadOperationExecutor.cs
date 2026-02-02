@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Core.Operations
         // public static methods
         public static TResult Execute<TResult>(OperationContext operationContext, IRetryableReadOperation<TResult> operation, RetryableReadContext context)
         {
-            HashSet<ServerDescription> deprioritizedServers = null;
+            HashSet<ServerDescription> deprioritizedServers = [];
             var attempt = 0;
             Exception originalException = null;
             var tokenBucket = context.Binding.TokenBucket;
@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Core.Operations
                 ServerDescription server = null;
                 try
                 {
-                    context.AcquireOrReplaceChannel(operationContext, null);
+                    context.AcquireOrReplaceChannel(operationContext, deprioritizedServers);
                     ChannelPinningHelper.PinChannellIfRequired(context.ChannelSource, context.Channel, context.Binding.Session);
 
                     server = context.ChannelSource.ServerDescription;
@@ -76,7 +76,6 @@ namespace MongoDB.Driver.Core.Operations
 
                 if (server != null)
                 {
-                    deprioritizedServers ??= [];
                     deprioritizedServers.Add(server);
                 }
 
@@ -85,7 +84,7 @@ namespace MongoDB.Driver.Core.Operations
 
         public static async Task<TResult> ExecuteAsync<TResult>(OperationContext operationContext, IRetryableReadOperation<TResult> operation, RetryableReadContext context)
         {
-            HashSet<ServerDescription> deprioritizedServers = null;
+            HashSet<ServerDescription> deprioritizedServers = [];
             var attempt = 0;
             Exception originalException = null;
             var tokenBucket = context.Binding.TokenBucket;
@@ -98,7 +97,7 @@ namespace MongoDB.Driver.Core.Operations
                 ServerDescription server = null;
                 try
                 {
-                    await context.AcquireOrReplaceChannelAsync(operationContext, null).ConfigureAwait(false);
+                    await context.AcquireOrReplaceChannelAsync(operationContext, deprioritizedServers).ConfigureAwait(false);
                     ChannelPinningHelper.PinChannellIfRequired(context.ChannelSource, context.Channel, context.Binding.Session);
 
                     server = context.ChannelSource.ServerDescription;
@@ -134,7 +133,6 @@ namespace MongoDB.Driver.Core.Operations
 
                 if (server != null)
                 {
-                    deprioritizedServers ??= [];
                     deprioritizedServers.Add(server);
                 }
             }
