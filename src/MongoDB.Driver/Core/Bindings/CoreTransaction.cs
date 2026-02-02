@@ -34,7 +34,6 @@ namespace MongoDB.Driver.Core.Bindings
         private readonly TransactionOptions _transactionOptions;
         private readonly object _lock = new object();
         private Activity _transactionActivity;
-        private Activity _parentActivity;
         private readonly bool _isTracingEnabled;
 
         // public constructors
@@ -81,15 +80,6 @@ namespace MongoDB.Driver.Core.Bindings
         {
             get => _transactionActivity;
             set => _transactionActivity = value;
-        }
-
-        /// <summary>
-        /// Gets or sets the parent activity to restore after the transaction completes.
-        /// </summary>
-        internal Activity ParentActivity
-        {
-            get => _parentActivity;
-            set => _parentActivity = value;
         }
 
         /// <summary>
@@ -170,6 +160,13 @@ namespace MongoDB.Driver.Core.Bindings
             }
         }
 
+        internal void EndTransactionActivity()
+        {
+            _transactionActivity?.SetStatus(ActivityStatusCode.Ok);
+            _transactionActivity?.Dispose();
+            _transactionActivity = null;
+        }
+
         internal void UnpinAll()
         {
             lock (_lock)
@@ -177,8 +174,6 @@ namespace MongoDB.Driver.Core.Bindings
                 _pinnedChannel?.Dispose();
                 _pinnedChannel = null;
                 _pinnedServer = null;
-                _transactionActivity?.Dispose();
-                _transactionActivity = null;
             }
         }
     }
