@@ -92,7 +92,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private IDisposable BeginOperation() => EventContext.BeginOperation("count");
+        private IDisposable BeginOperation() => EventContext.BeginOperation(null, "count");
 
         private IExecutableInRetryableReadContext<long> CreateCountOperation()
         {
