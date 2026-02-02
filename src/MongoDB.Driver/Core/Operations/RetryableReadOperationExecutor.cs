@@ -36,10 +36,15 @@ namespace MongoDB.Driver.Core.Operations
             {
                 attempt++;
                 operationContext.ThrowIfTimedOutOrCanceled();
-                var server = context.ChannelSource.ServerDescription;
 
+                ServerDescription server = null;
                 try
                 {
+                    context.AcquireOrReplaceChannel(operationContext, null);
+                    ChannelPinningHelper.PinChannellIfRequired(context.ChannelSource, context.Channel, context.Binding.Session);
+
+                    server = context.ChannelSource.ServerDescription;
+
                     var operationResult = operation.ExecuteAttempt(operationContext, context, attempt, transactionNumber: null);
                     var tokensToDeposit = RetryabilityHelper.OperationRetryBackpressureConstants.RetryTokenReturnRate;
                     if (attempt > 1)
@@ -69,17 +74,12 @@ namespace MongoDB.Driver.Core.Operations
                     Thread.Sleep(backoff);
                 }
 
-                deprioritizedServers ??= [];
-                deprioritizedServers.Add(server);
+                if (server != null)
+                {
+                    deprioritizedServers ??= [];
+                    deprioritizedServers.Add(server);
+                }
 
-                try
-                {
-                    context.AcquireOrReplaceChannel(operationContext, deprioritizedServers);
-                }
-                catch
-                {
-                    throw originalException;
-                }
             }
         }
 
@@ -94,10 +94,15 @@ namespace MongoDB.Driver.Core.Operations
             {
                 attempt++;
                 operationContext.ThrowIfTimedOutOrCanceled();
-                var server = context.ChannelSource.ServerDescription;
 
+                ServerDescription server = null;
                 try
                 {
+                    await context.AcquireOrReplaceChannelAsync(operationContext, null).ConfigureAwait(false);
+                    ChannelPinningHelper.PinChannellIfRequired(context.ChannelSource, context.Channel, context.Binding.Session);
+
+                    server = context.ChannelSource.ServerDescription;
+
                     var operationResult = await operation.ExecuteAttemptAsync(operationContext, context, attempt, transactionNumber: null).ConfigureAwait(false);
                     var tokensToDeposit = RetryabilityHelper.OperationRetryBackpressureConstants.RetryTokenReturnRate;
                     if (attempt > 1)
@@ -127,17 +132,10 @@ namespace MongoDB.Driver.Core.Operations
                     await Task.Delay(backoff, operationContext.CancellationToken).ConfigureAwait(false);
                 }
 
-                deprioritizedServers ??= [];
-                deprioritizedServers.Add(server);
-
-                //TODO Should this be retried as well?
-                try
+                if (server != null)
                 {
-                    await context.AcquireOrReplaceChannelAsync(operationContext, deprioritizedServers).ConfigureAwait(false);
-                }
-                catch
-                {
-                    throw originalException;
+                    deprioritizedServers ??= [];
+                    deprioritizedServers.Add(server);
                 }
             }
         }

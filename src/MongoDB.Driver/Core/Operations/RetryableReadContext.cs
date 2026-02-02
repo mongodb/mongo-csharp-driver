@@ -29,35 +29,13 @@ namespace MongoDB.Driver.Core.Operations
         public static RetryableReadContext Create(OperationContext operationContext, IReadBinding binding, bool retryRequested)
         {
             var context = new RetryableReadContext(binding, retryRequested);
-            try
-            {
-                context.AcquireOrReplaceChannel(operationContext, null);
-            }
-            catch
-            {
-                context.Dispose();
-                throw;
-            }
-
-            ChannelPinningHelper.PinChannellIfRequired(context.ChannelSource, context.Channel, context.Binding.Session);
             return context;
         }
 
-        public static async Task<RetryableReadContext> CreateAsync(OperationContext operationContext, IReadBinding binding, bool retryRequested)
+        public static Task<RetryableReadContext> CreateAsync(OperationContext operationContext, IReadBinding binding, bool retryRequested)
         {
             var context = new RetryableReadContext(binding, retryRequested);
-            try
-            {
-                await context.AcquireOrReplaceChannelAsync(operationContext, null).ConfigureAwait(false);
-            }
-            catch
-            {
-                context.Dispose();
-                throw;
-            }
-
-            ChannelPinningHelper.PinChannellIfRequired(context.ChannelSource, context.Channel, context.Binding.Session);
-            return context;
+            return Task.FromResult(context);  //TODO We can remove this later
         }
         #endregion
 
@@ -99,40 +77,16 @@ namespace MongoDB.Driver.Core.Operations
 
         public void AcquireOrReplaceChannel(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
-            var attempt = 1;
-            while (true)
-            {
-                operationContext.ThrowIfTimedOutOrCanceled();
-                ReplaceChannelSource(Binding.GetReadChannelSource(operationContext, deprioritizedServers));
-                try
-                {
-                    ReplaceChannel(ChannelSource.GetChannel(operationContext));
-                    return;
-                }
-                catch (Exception ex) when (RetryableReadOperationExecutor.ShouldConnectionAcquireBeRetried(operationContext, this, ex, attempt))
-                {
-                    attempt++;
-                }
-            }
+            operationContext.ThrowIfTimedOutOrCanceled();
+            ReplaceChannelSource(Binding.GetReadChannelSource(operationContext, deprioritizedServers));
+            ReplaceChannel(ChannelSource.GetChannel(operationContext));
         }
 
         public async Task AcquireOrReplaceChannelAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
-            var attempt = 1;
-            while (true)
-            {
-                operationContext.ThrowIfTimedOutOrCanceled();
-                ReplaceChannelSource(await Binding.GetReadChannelSourceAsync(operationContext, deprioritizedServers).ConfigureAwait(false));
-                try
-                {
-                    ReplaceChannel(await ChannelSource.GetChannelAsync(operationContext).ConfigureAwait(false));
-                    return;
-                }
-                catch (Exception ex) when (RetryableReadOperationExecutor.ShouldConnectionAcquireBeRetried(operationContext, this, ex, attempt))
-                {
-                    attempt++;
-                }
-            }
+            operationContext.ThrowIfTimedOutOrCanceled();
+            ReplaceChannelSource(await Binding.GetReadChannelSourceAsync(operationContext, deprioritizedServers).ConfigureAwait(false));
+            ReplaceChannel(await ChannelSource.GetChannelAsync(operationContext).ConfigureAwait(false));
         }
 
         private void ReplaceChannel(IChannelHandle channel)
