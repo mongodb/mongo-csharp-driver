@@ -169,7 +169,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         public void BsonSizeLimitAndBatchSizeSplittingTest([Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
-            RequireServer.Check().VersionLessThan("7.0.29"); // Skip large encryption tests on mongocryptd, because of https://jira.mongodb.org/browse/SERVER-118428
+            // Skip large encryption tests on mongocryptd, because of https://jira.mongodb.org/browse/SERVER-118428
+            // Remove the check below in scope of CSHARP-5858 once SERVER-118428 will be resolved.
+            RequireServer.Check().VersionLessThan("7.0.29");
 
             var eventCapturer = CreateEventCapturer(commandNameFilter: "insert");
             using (var client = ConfigureClient())
