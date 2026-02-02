@@ -51,7 +51,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(readPreference, nameof(readPreference));
             ThrowIfDisposed();
 
-            using var activityScope = TransactionActivityScope.CreateIfNeeded(session);
+            using var transactionActivityScope = TransactionActivityScope.CreateIfNeeded(session.WrappedCoreSession.CurrentTransaction);
             using var activity = MongoTelemetry.StartOperationActivity(operationContext);
 
             try
@@ -81,7 +81,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(readPreference, nameof(readPreference));
             ThrowIfDisposed();
 
-            using var activityScope = TransactionActivityScope.CreateIfNeeded(session);
+            using var transactionActivityScope = TransactionActivityScope.CreateIfNeeded(session.WrappedCoreSession.CurrentTransaction);
             using var activity = MongoTelemetry.StartOperationActivity(operationContext);
 
             try
@@ -109,7 +109,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(operation, nameof(operation));
             ThrowIfDisposed();
 
-            using var activityScope = TransactionActivityScope.CreateIfNeeded(session);
+            using var transactionActivityScope = TransactionActivityScope.CreateIfNeeded(session.WrappedCoreSession.CurrentTransaction);
             using var activity = MongoTelemetry.StartOperationActivity(operationContext);
 
             try
@@ -137,7 +137,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(operation, nameof(operation));
             ThrowIfDisposed();
 
-            using var activityScope = TransactionActivityScope.CreateIfNeeded(session);
+            using var transactionActivityScope = TransactionActivityScope.CreateIfNeeded(session.WrappedCoreSession.CurrentTransaction);
             using var activity = MongoTelemetry.StartOperationActivity(operationContext);
 
             try
@@ -194,35 +194,6 @@ namespace MongoDB.Driver
             if (_isDisposed)
             {
                 throw new ObjectDisposedException(nameof(OperationExecutor));
-            }
-        }
-
-        /// <summary>
-        /// Manages Activity.Current scope when executing operations within a transaction.
-        /// Temporarily sets Activity.Current to the transaction activity so operation activities nest correctly,
-        /// then restores to the original value to prevent AsyncLocal flow issues.
-        /// </summary>
-        private sealed class TransactionActivityScope : IDisposable
-        {
-            private readonly Activity _originalActivity;
-
-            private TransactionActivityScope(Activity transactionActivity)
-            {
-                _originalActivity = Activity.Current;
-                Activity.Current = transactionActivity;
-            }
-
-            public static TransactionActivityScope CreateIfNeeded(IClientSessionHandle session)
-            {
-                var transactionActivity = session?.WrappedCoreSession?.CurrentTransaction?.TransactionActivity;
-                return transactionActivity != null
-                    ? new TransactionActivityScope(transactionActivity)
-                    : null;
-            }
-
-            public void Dispose()
-            {
-                Activity.Current = _originalActivity;
             }
         }
     }
