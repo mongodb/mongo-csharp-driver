@@ -355,7 +355,7 @@ namespace MongoDB.Driver.Core.Operations
             bool async)
         {
             RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
-            if (CoreTestConfiguration.ServerVersion >= SemanticVersion.Parse("v8.3.0-alpha3-105-g1227af8")) // Temporary workaround for https://jira.mongodb.org/browse/SERVER-115810
+            if (CoreTestConfiguration.ServerVersion >= SemanticVersion.Parse("v8.3.0-alpha3-105-g1227af8"))
             {
                 DropCollection(_outputCollectionNamespace);
             }
