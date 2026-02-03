@@ -29,35 +29,13 @@ namespace MongoDB.Driver.Core.Operations
         public static RetryableWriteContext Create(OperationContext operationContext, IWriteBinding binding, bool retryRequested, IMayUseSecondaryCriteria mayUseSecondaryCriteria = null)
         {
             var context = new RetryableWriteContext(binding, retryRequested, mayUseSecondaryCriteria: mayUseSecondaryCriteria);
-            try
-            {
-                context.AcquireOrReplaceChannel(operationContext, null, mayUseSecondaryCriteria);
-            }
-            catch
-            {
-                context.Dispose();
-                throw;
-            }
-
-            ChannelPinningHelper.PinChannellIfRequired(context.ChannelSource, context.Channel, context.Binding.Session);
             return context;
         }
 
-        public static async Task<RetryableWriteContext> CreateAsync(OperationContext operationContext, IWriteBinding binding, bool retryRequested, IMayUseSecondaryCriteria mayUseSecondaryCriteria = null)
+        public static Task<RetryableWriteContext> CreateAsync(OperationContext operationContext, IWriteBinding binding, bool retryRequested, IMayUseSecondaryCriteria mayUseSecondaryCriteria = null)
         {
             var context = new RetryableWriteContext(binding, retryRequested, mayUseSecondaryCriteria: mayUseSecondaryCriteria);
-            try
-            {
-                await context.AcquireOrReplaceChannelAsync(operationContext, null, mayUseSecondaryCriteria).ConfigureAwait(false);
-            }
-            catch
-            {
-                context.Dispose();
-                throw;
-            }
-
-            ChannelPinningHelper.PinChannellIfRequired(context.ChannelSource, context.Channel, context.Binding.Session);
-            return context;
+            return Task.FromResult(context); //TODO Need to remove this
         }
         #endregion
 
@@ -103,48 +81,22 @@ namespace MongoDB.Driver.Core.Operations
         //TODO Do this inside the main loop, but remember that this follows reads retryability logic, even with writes
         public void AcquireOrReplaceChannel(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondaryCriteria = null)
         {
-            var attempt = 1;
-            while (true)
-            {
-                operationContext.ThrowIfTimedOutOrCanceled();
-                var writeChannelSource = mayUseSecondaryCriteria == null  //TODO The implementation of those two overloads is different, I'm worried there some important difference I can't appreciate
-                    ? Binding.GetWriteChannelSource(operationContext, deprioritizedServers)
-                    : Binding.GetWriteChannelSource(operationContext, deprioritizedServers, mayUseSecondaryCriteria);
-                ReplaceChannelSource(writeChannelSource);
-                var server = ChannelSource.ServerDescription;
-                try
-                {
-                    ReplaceChannel(ChannelSource.GetChannel(operationContext));
-                    return;
-                }
-                catch (Exception ex) when (RetryableWriteOperationExecutor.ShouldConnectionAcquireBeRetried(operationContext, this, server, ex, attempt))
-                {
-                    attempt++;
-                }
-            }
+            operationContext.ThrowIfTimedOutOrCanceled();
+            var writeChannelSource = mayUseSecondaryCriteria == null  //TODO The implementation of those two overloads is different, I'm worried there some important difference I can't appreciate
+                ? Binding.GetWriteChannelSource(operationContext, deprioritizedServers)
+                : Binding.GetWriteChannelSource(operationContext, deprioritizedServers, mayUseSecondaryCriteria);
+            ReplaceChannelSource(writeChannelSource);
+            ReplaceChannel(ChannelSource.GetChannel(operationContext));
         }
 
         public async Task AcquireOrReplaceChannelAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondaryCriteria = null)
         {
-            var attempt = 1;
-            while (true)
-            {
-                operationContext.ThrowIfTimedOutOrCanceled();
-                var writeChannelSource = mayUseSecondaryCriteria == null  //TODO The implementation of those two overloads is different, I'm worried there some important difference I can't appreciate
-                    ? await Binding.GetWriteChannelSourceAsync(operationContext, deprioritizedServers).ConfigureAwait(false)
-                    : await Binding.GetWriteChannelSourceAsync(operationContext, deprioritizedServers, mayUseSecondaryCriteria).ConfigureAwait(false);
-                ReplaceChannelSource(writeChannelSource);
-                var server = ChannelSource.ServerDescription;
-                try
-                {
-                    ReplaceChannel(await ChannelSource.GetChannelAsync(operationContext).ConfigureAwait(false));
-                    return;
-                }
-                catch (Exception ex) when (RetryableWriteOperationExecutor.ShouldConnectionAcquireBeRetried(operationContext, this, server, ex, attempt))
-                {
-                    attempt++;
-                }
-            }
+            operationContext.ThrowIfTimedOutOrCanceled();
+            var writeChannelSource = mayUseSecondaryCriteria == null  //TODO The implementation of those two overloads is different, I'm worried there some important difference I can't appreciate
+                ? await Binding.GetWriteChannelSourceAsync(operationContext, deprioritizedServers).ConfigureAwait(false)
+                : await Binding.GetWriteChannelSourceAsync(operationContext, deprioritizedServers, mayUseSecondaryCriteria).ConfigureAwait(false);
+            ReplaceChannelSource(writeChannelSource);
+            ReplaceChannel(await ChannelSource.GetChannelAsync(operationContext).ConfigureAwait(false));
         }
 
         private void ReplaceChannel(IChannelHandle channel)

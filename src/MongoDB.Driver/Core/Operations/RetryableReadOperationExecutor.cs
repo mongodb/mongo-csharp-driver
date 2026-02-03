@@ -62,10 +62,9 @@ namespace MongoDB.Driver.Core.Operations
                 }
                 catch (Exception ex)
                 {
-                    var innerException = ex is MongoAuthenticationException mongoAuthenticationException ? mongoAuthenticationException.InnerException : ex;
                     originalException ??= ex;
 
-                    if (!ShouldRetry(operationContext, context, tokenBucket, innerException, attempt, context.Random, out var backoff))
+                    if (!ShouldRetry(operationContext, context, tokenBucket, ex, attempt, context.Random, out var backoff))
                     {
                         throw originalException;
                     }
@@ -119,10 +118,9 @@ namespace MongoDB.Driver.Core.Operations
                 }
                 catch (Exception ex)
                 {
-                    var innerException = ex is MongoAuthenticationException mongoAuthenticationException ? mongoAuthenticationException.InnerException : ex;
                     originalException ??= ex;
 
-                    if (!ShouldRetry(operationContext, context, tokenBucket, innerException, attempt, context.Random, out var backoff))
+                    if (!ShouldRetry(operationContext, context, tokenBucket, ex, attempt, context.Random, out var backoff))
                     {
                         throw originalException;
                     }
@@ -147,6 +145,9 @@ namespace MongoDB.Driver.Core.Operations
             IRandom random,
             out TimeSpan backoff)
         {
+            //Authentication exceptions are wrapped inside MongoAuthenticationException, we need to unwrap them to be able to detect their retryability
+            exception = exception is MongoAuthenticationException mongoAuthenticationException ? mongoAuthenticationException.InnerException : exception;
+
             backoff = TimeSpan.Zero;
             var isRetryableReadException = RetryabilityHelper.IsRetryableReadException(exception);
             var isRetryableException = RetryabilityHelper.IsRetryableException(exception);

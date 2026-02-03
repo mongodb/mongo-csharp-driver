@@ -39,16 +39,21 @@ namespace MongoDB.Driver.Core.Operations
             Exception originalException = null;
             var tokenBucket = context.Binding.TokenBucket;
 
-            long? transactionNumber = AreRetriesAllowed(operation.WriteConcern, context, context.ChannelSource.ServerDescription) ? context.Binding.Session.AdvanceTransactionNumber() : null;
-
+            long? transactionNumber = null;
             while (true)
             {
                 attempt++;
                 operationContext.ThrowIfTimedOutOrCanceled();
-                var server = context.ChannelSource.ServerDescription;
 
+                ServerDescription server = null;
                 try
                 {
+                    context.AcquireOrReplaceChannel(operationContext, deprioritizedServers);
+                    ChannelPinningHelper.PinChannellIfRequired(context.ChannelSource, context.Channel, context.Binding.Session);
+                    server = context.ChannelSource.ServerDescription;
+
+                    transactionNumber ??= AreRetriesAllowed(operation.WriteConcern, context, context.ChannelSource.ServerDescription) ? context.Binding.Session.AdvanceTransactionNumber() : null;
+
                     var operationResult = operation.ExecuteAttempt(operationContext, context, attempt, transactionNumber);
                     var tokensToDeposit = RetryabilityHelper.OperationRetryBackpressureConstants.RetryTokenReturnRate;
                     if (attempt > 1)
@@ -67,9 +72,10 @@ namespace MongoDB.Driver.Core.Operations
                 }
                 catch (Exception ex)
                 {
+                    var innerException = ex is MongoAuthenticationException mongoAuthenticationException ? mongoAuthenticationException.InnerException : ex;
                     originalException ??= ex;
 
-                    if (!ShouldRetry(operationContext, operation.WriteConcern, context, server, tokenBucket, ex, attempt, context.Random, out var backoff))
+                    if (!ShouldRetry(operationContext, operation.WriteConcern, context, server, tokenBucket, innerException, attempt, context.Random, out var backoff))
                     {
                         throw originalException;
                     }
@@ -78,16 +84,10 @@ namespace MongoDB.Driver.Core.Operations
                     //TODO I should throw if backoff exceeeds timeout
                 }
 
-                deprioritizedServers ??= [];
-                deprioritizedServers.Add(server);
-
-                try
+                if (server != null)
                 {
-                    context.AcquireOrReplaceChannel(operationContext, deprioritizedServers);
-                }
-                catch
-                {
-                    throw originalException;
+                    deprioritizedServers ??= [];
+                    deprioritizedServers.Add(server);
                 }
             }
         }
@@ -105,16 +105,23 @@ namespace MongoDB.Driver.Core.Operations
             Exception originalException = null;
             var tokenBucket = context.Binding.TokenBucket;
 
-            long? transactionNumber = AreRetriesAllowed(operation.WriteConcern, context, context.ChannelSource.ServerDescription) ? context.Binding.Session.AdvanceTransactionNumber() : null;
-
+            long? transactionNumber = null;
             while (true)
             {
                 attempt++;
                 operationContext.ThrowIfTimedOutOrCanceled();
-                var server = context.ChannelSource.ServerDescription;
 
+                ServerDescription server = null;
                 try
                 {
+                    //TODO This seems to be idempotent
+                    await context.AcquireOrReplaceChannelAsync(operationContext, deprioritizedServers).ConfigureAwait(false);
+                    ChannelPinningHelper.PinChannellIfRequired(context.ChannelSource, context.Channel, context.Binding.Session);
+                    server = context.ChannelSource.ServerDescription;
+
+                    //TODO This should be set only once
+                    transactionNumber ??= AreRetriesAllowed(operation.WriteConcern, context, context.ChannelSource.ServerDescription) ? context.Binding.Session.AdvanceTransactionNumber() : null;
+
                     var operationResult = await operation.ExecuteAttemptAsync(operationContext, context, attempt, transactionNumber).ConfigureAwait(false);
                     var tokensToDeposit = RetryabilityHelper.OperationRetryBackpressureConstants.RetryTokenReturnRate;
                     if (attempt > 1)
@@ -143,36 +150,12 @@ namespace MongoDB.Driver.Core.Operations
                     await Task.Delay(backoff, operationContext.CancellationToken).ConfigureAwait(false);
                 }
 
-                deprioritizedServers ??= [];
-                deprioritizedServers.Add(server);
-
-                //TODO Should this be retried as well?
-                try
+                if (server != null)
                 {
-                    await context.AcquireOrReplaceChannelAsync(operationContext, deprioritizedServers).ConfigureAwait(false);
-                }
-                catch
-                {
-                    throw originalException;
+                    deprioritizedServers ??= [];
+                    deprioritizedServers.Add(server);
                 }
             }
-        }
-
-        public static bool ShouldConnectionAcquireBeRetried(OperationContext operationContext, RetryableWriteContext context, ServerDescription server, Exception exception, int attempt)
-        {
-            if (!DoesContextAllowRetries(context, server))
-            {
-                return false;
-            }
-
-            var innerException = exception is MongoAuthenticationException mongoAuthenticationException ? mongoAuthenticationException.InnerException : exception;
-            // According the spec error during handshake should be handle according to RetryableReads logic
-            if (!RetryabilityHelper.IsRetryableReadException(innerException))
-            {
-                return false;
-            }
-
-            return operationContext.IsRootContextTimeoutConfigured() || attempt < 2;
         }
 
         // private static methods
@@ -186,12 +169,26 @@ namespace MongoDB.Driver.Core.Operations
             IRandom random,
             out TimeSpan backoff)
         {
+            var isAuthException = exception is MongoAuthenticationException;
+            exception = exception is MongoAuthenticationException mongoAuthenticationException ? mongoAuthenticationException.InnerException : exception;
+
+            bool isRetryableReadOrWrite;
+            if (isAuthException)
+            {
+                //Auth operations are retried only according to retryable reads logic
+                var isRetryableReadException = RetryabilityHelper.IsRetryableReadException(exception);
+                isRetryableReadOrWrite = context.RetryRequested && !context.Binding.Session.IsInTransaction && isRetryableReadException;
+            }
+            else
+            {
+                var isRetryableWriteException = RetryabilityHelper.IsRetryableWriteException(exception);
+                isRetryableReadOrWrite = AreRetriesAllowed(writeConcern, context, server) && isRetryableWriteException;
+            }
+
             backoff = TimeSpan.Zero;
-            var isRetryableWriteException = RetryabilityHelper.IsRetryableWriteException(exception);
             var isRetryableException = RetryabilityHelper.IsRetryableException(exception);
             var isSystemOverloadedException = RetryabilityHelper.IsSystemOverloadedException(exception);
 
-            var isRetryableWrite = AreRetriesAllowed(writeConcern, context, server) && isRetryableWriteException;
 
             var isBackpressureRetry = isSystemOverloadedException
                                       && isRetryableException;
@@ -201,7 +198,7 @@ namespace MongoDB.Driver.Core.Operations
                 tokenBucket.Deposit(1);
             }
 
-            if (!isRetryableWrite && !isBackpressureRetry)
+            if (!isRetryableReadOrWrite && !isBackpressureRetry)
             {
                 return false;
             }
