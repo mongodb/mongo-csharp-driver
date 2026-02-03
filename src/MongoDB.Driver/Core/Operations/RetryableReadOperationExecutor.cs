@@ -42,7 +42,6 @@ namespace MongoDB.Driver.Core.Operations
                 {
                     context.AcquireOrReplaceChannel(operationContext, deprioritizedServers);
                     ChannelPinningHelper.PinChannellIfRequired(context.ChannelSource, context.Channel, context.Binding.Session);
-
                     server = context.ChannelSource.ServerDescription;
 
                     var operationResult = operation.ExecuteAttempt(operationContext, context, attempt, transactionNumber: null);
@@ -53,7 +52,6 @@ namespace MongoDB.Driver.Core.Operations
                     }
                     tokenBucket.Deposit(tokensToDeposit);
 
-                    //TODO Do we need this also here?
                     if (context.Binding.Session.Id != null &&
                         context.Binding.Session.IsInTransaction)
                     {
@@ -80,7 +78,6 @@ namespace MongoDB.Driver.Core.Operations
                     deprioritizedServers ??= [];
                     deprioritizedServers.Add(server);
                 }
-
             }
         }
 
@@ -101,7 +98,6 @@ namespace MongoDB.Driver.Core.Operations
                 {
                     await context.AcquireOrReplaceChannelAsync(operationContext, deprioritizedServers).ConfigureAwait(false);
                     ChannelPinningHelper.PinChannellIfRequired(context.ChannelSource, context.Channel, context.Binding.Session);
-
                     server = context.ChannelSource.ServerDescription;
 
                     var operationResult = await operation.ExecuteAttemptAsync(operationContext, context, attempt, transactionNumber: null).ConfigureAwait(false);
@@ -142,28 +138,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public static bool ShouldConnectionAcquireBeRetried(OperationContext operationContext, RetryableReadContext context, Exception exception, int attempt)
-        {
-            var innerException = exception is MongoAuthenticationException mongoAuthenticationException ? mongoAuthenticationException.InnerException : exception;
-            return IsRetryableRead(operationContext, context, innerException, attempt);
-        }
-
         // private static methods
-        private static bool IsRetryableRead(OperationContext operationContext, RetryableReadContext context, Exception exception, int attempt)
-        {
-            if (!context.RetryRequested || context.Binding.Session.IsInTransaction)
-            {
-                return false;
-            }
-
-            if (!RetryabilityHelper.IsRetryableReadException(exception))
-            {
-                return false;
-            }
-
-            return operationContext.IsRootContextTimeoutConfigured() || attempt < 2;
-        }
-
         private static bool ShouldRetry(OperationContext operationContext,
             RetryableReadContext context,
             TokenBucket tokenBucket,
