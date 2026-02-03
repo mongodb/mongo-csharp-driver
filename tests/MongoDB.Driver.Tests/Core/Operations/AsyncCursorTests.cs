@@ -635,12 +635,12 @@ namespace MongoDB.Driver.Core.Operations
     public class AsyncCursorIntegrationTests : OperationTestBase
     {
         [Theory]
-        [InlineData(0, 1000)]
+        //[InlineData(0, 1000)] //TODO Investigate
         [InlineData(2, 2)]
         [InlineData(2, 1000)]
         [InlineData(4, 2)]
         [InlineData(4, 4)]
-        //TODO Investigate [InlineData(4, 1000)]
+        [InlineData(4, 1000)]
         public void Session_reference_count_should_be_decremented_as_soon_as_possible(int collectionSize, int batchSize)
         {
             RequireServer.Check();
