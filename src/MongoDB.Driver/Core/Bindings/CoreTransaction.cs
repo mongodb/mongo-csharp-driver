@@ -62,38 +62,13 @@ namespace MongoDB.Driver.Core.Bindings
             _isEmpty = true;
         }
 
-        // public properties
-        /// <summary>
-        /// Gets a value indicating whether the transaction is empty.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if the transaction is empty; otherwise, <c>false</c>.
-        /// </value>
-        public bool IsEmpty => _isEmpty;
-
-        internal OperationContext OperationContext { get; set; }
-
-        /// <summary>
-        /// Gets or sets the transaction activity (for OpenTelemetry tracing).
-        /// </summary>
-        internal Activity TransactionActivity
-        {
-            get => _transactionActivity;
-            set => _transactionActivity = value;
-        }
-
+        // internal properties
         /// <summary>
         /// Gets whether OpenTelemetry tracing is enabled for this transaction.
         /// </summary>
         internal bool IsTracingEnabled => _isTracingEnabled;
 
-        /// <summary>
-        /// Gets the transaction state.
-        /// </summary>
-        /// <value>
-        /// The transaction state.
-        /// </value>
-        public CoreTransactionState State => _state;
+        internal OperationContext OperationContext { get; set; }
 
         internal IChannelHandle PinnedChannel
         {
@@ -112,6 +87,32 @@ namespace MongoDB.Driver.Core.Bindings
             get => _pinnedServer;
             set => _pinnedServer = value;
         }
+
+        /// <summary>
+        /// Gets or sets the transaction activity (for OpenTelemetry tracing).
+        /// </summary>
+        internal Activity TransactionActivity
+        {
+            get => _transactionActivity;
+            set => _transactionActivity = value;
+        }
+
+        // public properties
+        /// <summary>
+        /// Gets a value indicating whether the transaction is empty.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if the transaction is empty; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsEmpty => _isEmpty;
+
+        /// <summary>
+        /// Gets the transaction state.
+        /// </summary>
+        /// <value>
+        /// The transaction state.
+        /// </value>
+        public CoreTransactionState State => _state;
 
         /// <summary>
         /// Gets the transaction number.
@@ -142,6 +143,13 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         // internal methods
+        internal void EndTransactionActivity()
+        {
+            _transactionActivity?.SetStatus(ActivityStatusCode.Ok);
+            _transactionActivity?.Dispose();
+            _transactionActivity = null;
+        }
+
         internal void PinChannel(IChannelHandle channel)
         {
             lock (_lock)
@@ -158,13 +166,6 @@ namespace MongoDB.Driver.Core.Bindings
             {
                 _isEmpty = false;
             }
-        }
-
-        internal void EndTransactionActivity()
-        {
-            _transactionActivity?.SetStatus(ActivityStatusCode.Ok);
-            _transactionActivity?.Dispose();
-            _transactionActivity = null;
         }
 
         internal void UnpinAll()
