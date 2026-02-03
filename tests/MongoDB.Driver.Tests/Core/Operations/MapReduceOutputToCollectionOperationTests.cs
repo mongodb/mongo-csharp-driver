@@ -19,6 +19,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -354,6 +355,11 @@ namespace MongoDB.Driver.Core.Operations
             bool async)
         {
             RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
+            if (CoreTestConfiguration.ServerVersion >= SemanticVersion.Parse("v8.3.0-alpha3-105-g1227af8")) // Temporary workaround for https://jira.mongodb.org/browse/SERVER-115810
+            {
+                DropCollection(_outputCollectionNamespace);
+            }
+
             EnsureTestData();
             var collation = new Collation("en_US", caseLevel: caseSensitive, strength: CollationStrength.Primary);
             var filter = BsonDocument.Parse("{ y : 'a' }");
