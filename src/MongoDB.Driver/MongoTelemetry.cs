@@ -23,7 +23,7 @@ using MongoDB.Driver.Core.Connections;
 namespace MongoDB.Driver;
 
 /// <summary>
-/// Provides access to MongoDB driver's OpenTelemetry instrumentation.
+/// Provides access to MongoDB .NET/C# driver's OpenTelemetry instrumentation.
 /// </summary>
 public static class MongoTelemetry
 {

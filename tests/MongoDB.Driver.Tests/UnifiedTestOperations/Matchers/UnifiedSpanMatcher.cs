@@ -147,7 +147,6 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                 actualAttributes.Should().ContainKey(attributeName, $"span should have attribute '{attributeName}'");
                 var actualValue = actualAttributes[attributeName];
 
-                // Convert the actual value to BsonValue
                 var actualBsonValue = ConvertToBsonValue(actualValue);
                 _valueMatcher.AssertValuesMatch(actualBsonValue, expectedValue);
             }
@@ -158,7 +157,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
             return value switch
             {
                 null => BsonNull.Value,
-                BsonValue bv => bv, // Already a BsonValue (including BsonDocument), return as-is
+                BsonValue bv => bv,
                 string s => new BsonString(s),
                 int i => new BsonInt32(i),
                 long l => new BsonInt64(l),

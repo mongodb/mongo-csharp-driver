@@ -1236,7 +1236,6 @@ namespace MongoDB.Driver
 
             var context = operationContext?.Fork() ?? new OperationContext(timeout ?? _settings.Timeout, cancellationToken);
 
-            // Set operation metadata for OpenTelemetry tracing
             if (operationName != null)
             {
                 var tracingOptions = _database.Client.Settings.TracingOptions;
