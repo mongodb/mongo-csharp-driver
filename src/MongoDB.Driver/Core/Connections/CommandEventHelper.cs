@@ -222,6 +222,13 @@ namespace MongoDB.Driver.Core.Connections
                 return;
             }
 
+            if (_currentCommandActivity is not null)
+            {
+                MongoTelemetry.RecordException(_currentCommandActivity, exception);
+                _currentCommandActivity.Dispose();
+                _currentCommandActivity = null;
+            }
+
             var requestIds = _state.Keys;
             foreach (var requestId in requestIds)
             {
@@ -229,13 +236,6 @@ namespace MongoDB.Driver.Core.Connections
                 if (_state.TryRemove(requestId, out state))
                 {
                     state.Stopwatch.Stop();
-
-                    if (_currentCommandActivity is not null)
-                    {
-                        MongoTelemetry.RecordException(_currentCommandActivity, exception);
-                        _currentCommandActivity.Dispose();
-                        _currentCommandActivity = null;
-                    }
 
                     if (_shouldTrackFailed)
                     {
