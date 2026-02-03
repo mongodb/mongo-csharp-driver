@@ -168,15 +168,6 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 // Ignored because Dispose shouldn't fail
             }
 
-            try
-            {
-                DropTestDatabases();
-            }
-            catch
-            {
-                // Ignored because Dispose shouldn't fail
-            }
-
             _logger.LogDebug("Disposing entity map");
 
             _entityMap?.Dispose();
@@ -430,28 +421,5 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             }
         }
 
-        private void DropTestDatabases()
-        {
-            if (_entityMap == null)
-            {
-                return;
-            }
-
-            _logger.LogDebug("Dropping test databases");
-
-            foreach (var database in _entityMap.Databases.Values)
-            {
-                try
-                {
-                    var databaseName = database.DatabaseNamespace.DatabaseName;
-                    _logger.LogDebug("Dropping database {0}", databaseName);
-                    database.Client.DropDatabase(databaseName);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogDebug("Failed to drop database {0}: {1}", database.DatabaseNamespace.DatabaseName, ex.Message);
-                }
-            }
-        }
     }
 }
