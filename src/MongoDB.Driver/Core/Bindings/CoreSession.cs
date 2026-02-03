@@ -19,7 +19,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Driver;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
@@ -412,6 +411,7 @@ namespace MongoDB.Driver.Core.Bindings
                     }
                 }
 
+                _currentTransaction?.EndTransactionActivity();
                 _currentTransaction?.UnpinAll();
                 _serverSession.Value.Dispose();
                 _disposed = true;
@@ -442,7 +442,6 @@ namespace MongoDB.Driver.Core.Bindings
             _currentTransaction?.UnpinAll(); // unpin data if any when a new transaction is started
             _currentTransaction = new CoreTransaction(transactionNumber, effectiveTransactionOptions, isTracingEnabled);
 
-            // Start transaction span for OpenTelemetry tracing (if enabled)
             if (isTracingEnabled)
             {
                 _currentTransaction.TransactionActivity = MongoTelemetry.StartTransactionActivity();
@@ -585,7 +584,7 @@ namespace MongoDB.Driver.Core.Bindings
         private TResult ExecuteEndTransactionOnPrimary<TResult>(OperationContext operationContext, IReadOperation<TResult> operation)
         {
             using var transactionActivityScope = TransactionActivityScope.CreateIfNeeded(_currentTransaction);
-            using var activity = MongoTelemetry.StartOperationActivity(operationContext);
+            using var operationActivity = MongoTelemetry.StartOperationActivity(operationContext);
 
             using (var sessionHandle = new NonDisposingCoreSessionHandle(this))
             using (var binding = ChannelPinningHelper.CreateReadWriteBinding(_cluster, sessionHandle))
@@ -597,7 +596,7 @@ namespace MongoDB.Driver.Core.Bindings
         private async Task<TResult> ExecuteEndTransactionOnPrimaryAsync<TResult>(OperationContext operationContext, IReadOperation<TResult> operation)
         {
             using var transactionActivityScope = TransactionActivityScope.CreateIfNeeded(_currentTransaction);
-            using var activity = MongoTelemetry.StartOperationActivity(operationContext);
+            using var operationActivity = MongoTelemetry.StartOperationActivity(operationContext);
 
             using (var sessionHandle = new NonDisposingCoreSessionHandle(this))
             using (var binding = ChannelPinningHelper.CreateReadWriteBinding(_cluster, sessionHandle))

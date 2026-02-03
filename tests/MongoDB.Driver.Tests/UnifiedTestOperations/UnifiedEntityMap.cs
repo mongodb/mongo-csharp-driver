@@ -795,7 +795,6 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     settings.ServerSelectionTimeout = serverSelectionTimeout.GetValueOrDefault(defaultValue: settings.ServerSelectionTimeout);
                     settings.SocketTimeout = socketTimeout.GetValueOrDefault(defaultValue: settings.SocketTimeout);
                     settings.Timeout = timeout;
-                    // Set tracing options: either the configured options, or explicitly disable tracing if not observing
                     settings.TracingOptions = tracingOptions ?? new TracingOptions { Disabled = true };
                     if (eventCapturers.Length > 0)
                     {

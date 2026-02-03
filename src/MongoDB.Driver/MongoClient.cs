@@ -573,8 +573,6 @@ namespace MongoDB.Driver
 
             var context = operationContext?.Fork() ?? new OperationContext(timeout ?? _settings.Timeout, cancellationToken);
 
-            // Set operation metadata for OpenTelemetry tracing
-            // Client-level operations (like bulkWrite) use "admin" as database name
             if (operationName != null)
             {
                 var tracingOptions = _settings.TracingOptions;
