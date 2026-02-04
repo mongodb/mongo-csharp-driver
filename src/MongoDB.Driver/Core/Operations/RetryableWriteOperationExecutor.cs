@@ -72,10 +72,9 @@ namespace MongoDB.Driver.Core.Operations
                 }
                 catch (Exception ex)
                 {
-                    var innerException = ex is MongoAuthenticationException mongoAuthenticationException ? mongoAuthenticationException.InnerException : ex;
                     originalException ??= ex;
 
-                    if (!ShouldRetry(operationContext, operation.WriteConcern, context, server, tokenBucket, innerException, attempt, context.Random, out var backoff))
+                    if (!ShouldRetry(operationContext, operation.WriteConcern, context, server, tokenBucket, ex, attempt, context.Random, out var backoff))
                     {
                         throw originalException;
                     }

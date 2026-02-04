@@ -77,16 +77,34 @@ namespace MongoDB.Driver.Core.Operations
 
         public void AcquireOrReplaceChannel(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
-            operationContext.ThrowIfTimedOutOrCanceled();
-            ReplaceChannelSource(Binding.GetReadChannelSource(operationContext, deprioritizedServers));
-            ReplaceChannel(ChannelSource.GetChannel(operationContext));
+            try
+            {
+                operationContext.ThrowIfTimedOutOrCanceled();
+                ReplaceChannelSource(Binding.GetReadChannelSource(operationContext, deprioritizedServers));
+                ReplaceChannel(ChannelSource.GetChannel(operationContext));
+            }
+            catch
+            {
+                _channelSource?.Dispose();
+                _channel?.Dispose();
+                throw;
+            }
         }
 
         public async Task AcquireOrReplaceChannelAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
-            operationContext.ThrowIfTimedOutOrCanceled();
-            ReplaceChannelSource(await Binding.GetReadChannelSourceAsync(operationContext, deprioritizedServers).ConfigureAwait(false));
-            ReplaceChannel(await ChannelSource.GetChannelAsync(operationContext).ConfigureAwait(false));
+            try
+            {
+                operationContext.ThrowIfTimedOutOrCanceled();
+                ReplaceChannelSource(await Binding.GetReadChannelSourceAsync(operationContext, deprioritizedServers).ConfigureAwait(false));
+                ReplaceChannel(await ChannelSource.GetChannelAsync(operationContext).ConfigureAwait(false));
+            }
+            catch
+            {
+                _channelSource?.Dispose();
+                _channel?.Dispose();
+                throw;
+            }
         }
 
         private void ReplaceChannel(IChannelHandle channel)

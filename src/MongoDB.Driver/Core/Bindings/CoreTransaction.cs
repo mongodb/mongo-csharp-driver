@@ -135,7 +135,7 @@ namespace MongoDB.Driver.Core.Bindings
         internal void ResetState()
         {
             _state = CoreTransactionState.Starting;
-            _isEmpty = false; //TODO This is wrong
+            _isEmpty = true;
         }
 
         internal void UnpinAll()

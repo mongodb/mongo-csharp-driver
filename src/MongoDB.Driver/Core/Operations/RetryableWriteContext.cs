@@ -78,25 +78,42 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        //TODO Do this inside the main loop, but remember that this follows reads retryability logic, even with writes
         public void AcquireOrReplaceChannel(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondaryCriteria = null)
         {
-            operationContext.ThrowIfTimedOutOrCanceled();
-            var writeChannelSource = mayUseSecondaryCriteria == null  //TODO The implementation of those two overloads is different, I'm worried there some important difference I can't appreciate
-                ? Binding.GetWriteChannelSource(operationContext, deprioritizedServers)
-                : Binding.GetWriteChannelSource(operationContext, deprioritizedServers, mayUseSecondaryCriteria);
-            ReplaceChannelSource(writeChannelSource);
-            ReplaceChannel(ChannelSource.GetChannel(operationContext));
+            try
+            {
+                operationContext.ThrowIfTimedOutOrCanceled();
+                var writeChannelSource = mayUseSecondaryCriteria == null  //TODO The implementation of those two overloads is different, I'm worried there some important difference I can't appreciate
+                    ? Binding.GetWriteChannelSource(operationContext, deprioritizedServers)
+                    : Binding.GetWriteChannelSource(operationContext, deprioritizedServers, mayUseSecondaryCriteria);
+                ReplaceChannelSource(writeChannelSource);
+                ReplaceChannel(ChannelSource.GetChannel(operationContext));
+            }
+            catch
+            {
+                _channelSource?.Dispose();
+                _channel?.Dispose();
+                throw;
+            }
         }
 
         public async Task AcquireOrReplaceChannelAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondaryCriteria = null)
         {
-            operationContext.ThrowIfTimedOutOrCanceled();
-            var writeChannelSource = mayUseSecondaryCriteria == null  //TODO The implementation of those two overloads is different, I'm worried there some important difference I can't appreciate
-                ? await Binding.GetWriteChannelSourceAsync(operationContext, deprioritizedServers).ConfigureAwait(false)
-                : await Binding.GetWriteChannelSourceAsync(operationContext, deprioritizedServers, mayUseSecondaryCriteria).ConfigureAwait(false);
-            ReplaceChannelSource(writeChannelSource);
-            ReplaceChannel(await ChannelSource.GetChannelAsync(operationContext).ConfigureAwait(false));
+            try
+            {
+                operationContext.ThrowIfTimedOutOrCanceled();
+                var writeChannelSource = mayUseSecondaryCriteria == null  //TODO The implementation of those two overloads is different, I'm worried there some important difference I can't appreciate
+                    ? await Binding.GetWriteChannelSourceAsync(operationContext, deprioritizedServers).ConfigureAwait(false)
+                    : await Binding.GetWriteChannelSourceAsync(operationContext, deprioritizedServers, mayUseSecondaryCriteria).ConfigureAwait(false);
+                ReplaceChannelSource(writeChannelSource);
+                ReplaceChannel(await ChannelSource.GetChannelAsync(operationContext).ConfigureAwait(false));
+            }
+            catch
+            {
+                _channelSource?.Dispose();
+                _channel?.Dispose();
+                throw;
+            }
         }
 
         private void ReplaceChannel(IChannelHandle channel)
