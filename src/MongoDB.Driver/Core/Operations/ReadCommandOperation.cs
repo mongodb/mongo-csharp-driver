@@ -29,6 +29,7 @@ namespace MongoDB.Driver.Core.Operations
     {
         private readonly Func<ICoreSession, ConnectionDescription, BsonDocument> _commandFactory;
         private bool _retryRequested;
+        private bool _canBeRetried = true;
 
         public ReadCommandOperation(
             DatabaseNamespace databaseNamespace,
@@ -55,11 +56,17 @@ namespace MongoDB.Driver.Core.Operations
             set => _retryRequested = value;
         }
 
+        public bool CanBeRetried
+        {
+            get => _canBeRetried;
+            init => _canBeRetried = value;
+        }
+
         public TCommandResult Execute(OperationContext operationContext, IReadBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (var context = RetryableReadContext.Create(operationContext, binding, _retryRequested))
+            using (var context = RetryableReadContext.Create(operationContext, binding, _retryRequested, _canBeRetried))
             {
                 return Execute(operationContext, context);
             }
@@ -79,7 +86,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (var context = await RetryableReadContext.CreateAsync(operationContext, binding, _retryRequested).ConfigureAwait(false))
+            using (var context = await RetryableReadContext.CreateAsync(operationContext, binding, _retryRequested, _canBeRetried).ConfigureAwait(false))
             {
                 return await ExecuteAsync(operationContext, context).ConfigureAwait(false);
             }

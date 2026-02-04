@@ -145,10 +145,16 @@ namespace MongoDB.Driver.Core.Operations
             IRandom random,
             out TimeSpan backoff)
         {
+            backoff = TimeSpan.Zero;
+
+            if (!context.CanBeRetried)
+            {
+                return false;
+            }
+
             //Authentication exceptions are wrapped inside MongoAuthenticationException, we need to unwrap them to be able to detect their retryability
             exception = exception is MongoAuthenticationException mongoAuthenticationException ? mongoAuthenticationException.InnerException : exception;
 
-            backoff = TimeSpan.Zero;
             var isRetryableReadException = RetryabilityHelper.IsRetryableReadException(exception);
             var isRetryableException = RetryabilityHelper.IsRetryableException(exception);
             var isSystemOverloadedException = RetryabilityHelper.IsSystemOverloadedException(exception);
