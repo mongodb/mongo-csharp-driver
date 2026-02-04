@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Core.Operations
                 {
                     originalException ??= ex;
 
-                    if (!ShouldRetry(operationContext, operation.WriteConcern, context, server, tokenBucket, ex, attempt, context.Random, out var backoff))
+                    if (!ShouldRetry(operationContext, operation.WriteConcern, context, tokenBucket, ex, attempt, context.Random, out var backoff))
                     {
                         throw originalException;
                     }
@@ -148,7 +148,7 @@ namespace MongoDB.Driver.Core.Operations
                 {
                     originalException ??= ex;
 
-                    if (!ShouldRetry(operationContext, operation.WriteConcern, context, server, tokenBucket, ex, attempt, context.Random, out var backoff))
+                    if (!ShouldRetry(operationContext, operation.WriteConcern, context, tokenBucket, ex, attempt, context.Random, out var backoff))
                     {
                         throw originalException;
                     }
@@ -168,33 +168,27 @@ namespace MongoDB.Driver.Core.Operations
         private static bool ShouldRetry(OperationContext operationContext,
             WriteConcern writeConcern,
             RetryableWriteContext context,
-            ServerDescription server,
             TokenBucket tokenBucket,
             Exception exception,
             int attempt,
             IRandom random,
             out TimeSpan backoff)
         {
-            var isAuthException = exception is MongoAuthenticationException;
+            backoff = TimeSpan.Zero;
+
             exception = exception is MongoAuthenticationException mongoAuthenticationException ? mongoAuthenticationException.InnerException : exception;
 
-            bool isRetryableReadOrWrite;
-            if (isAuthException)
-            {
-                //Auth operations are retried only according to retryable reads logic
-                var isRetryableReadException = RetryabilityHelper.IsRetryableReadException(exception);
-                isRetryableReadOrWrite = context.RetryRequested && !context.Binding.Session.IsInTransaction && isRetryableReadException;
-            }
-            else
-            {
-                var isRetryableWriteException = RetryabilityHelper.IsRetryableWriteException(exception);
-                isRetryableReadOrWrite = AreRetriesAllowed(writeConcern, context, server) && isRetryableWriteException;
-            }
+            var isRetryableReadException = RetryabilityHelper.IsRetryableReadException(exception);
+            var isRetryableRead = context.RetryRequested && !context.Binding.Session.IsInTransaction && isRetryableReadException;
 
-            backoff = TimeSpan.Zero;
+            //TODO We can shortcircuit this
+            var isRetryableWriteException = RetryabilityHelper.IsRetryableWriteException(exception);
+            var isRetryableWrites = AreRetriesAllowed(writeConcern, context, context.ChannelSource.ServerDescription) && isRetryableWriteException;
+
+            var isRetryableReadOrWrite = isRetryableRead || isRetryableWrites;
+
             var isRetryableException = RetryabilityHelper.IsRetryableException(exception);
             var isSystemOverloadedException = RetryabilityHelper.IsSystemOverloadedException(exception);
-
 
             var isBackpressureRetry = isSystemOverloadedException
                                       && isRetryableException;
