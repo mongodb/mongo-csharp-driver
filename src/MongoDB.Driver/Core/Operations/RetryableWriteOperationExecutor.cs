@@ -36,6 +36,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             HashSet<ServerDescription> deprioritizedServers = null;
             var attempt = 0;
+            var operationAttempts = 0;
             Exception originalException = null;
             var tokenBucket = context.Binding.TokenBucket;
 
@@ -54,7 +55,8 @@ namespace MongoDB.Driver.Core.Operations
 
                     transactionNumber ??= AreRetriesAllowed(operation.WriteConcern, context, context.ChannelSource.ServerDescription) ? context.Binding.Session.AdvanceTransactionNumber() : null;
 
-                    var operationResult = operation.ExecuteAttempt(operationContext, context, attempt, transactionNumber);
+                    operationAttempts++;
+                    var operationResult = operation.ExecuteAttempt(operationContext, context, operationAttempts, transactionNumber);
                     var tokensToDeposit = RetryabilityHelper.OperationRetryBackpressureConstants.RetryTokenReturnRate;
                     if (attempt > 1)
                     {
@@ -101,6 +103,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             HashSet<ServerDescription> deprioritizedServers = null;
             var attempt = 0;
+            var operationAttempts = 0;
             Exception originalException = null;
             var tokenBucket = context.Binding.TokenBucket;
 
@@ -118,10 +121,11 @@ namespace MongoDB.Driver.Core.Operations
                     ChannelPinningHelper.PinChannellIfRequired(context.ChannelSource, context.Channel, context.Binding.Session);
                     server = context.ChannelSource.ServerDescription;
 
+                    operationAttempts++;
                     //TODO This should be set only once
                     transactionNumber ??= AreRetriesAllowed(operation.WriteConcern, context, context.ChannelSource.ServerDescription) ? context.Binding.Session.AdvanceTransactionNumber() : null;
 
-                    var operationResult = await operation.ExecuteAttemptAsync(operationContext, context, attempt, transactionNumber).ConfigureAwait(false);
+                    var operationResult = await operation.ExecuteAttemptAsync(operationContext, context, operationAttempts, transactionNumber).ConfigureAwait(false);
                     var tokensToDeposit = RetryabilityHelper.OperationRetryBackpressureConstants.RetryTokenReturnRate;
                     if (attempt > 1)
                     {
