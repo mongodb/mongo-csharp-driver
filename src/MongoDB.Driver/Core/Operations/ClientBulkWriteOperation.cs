@@ -112,6 +112,10 @@ namespace MongoDB.Driver.Core.Operations
                 }
                 catch (Exception exception)
                 {
+                    if (context.Channel is null)  //TODO Need to improve
+                    {
+                        throw;
+                    }
                     bulkWriteResults.TopLevelException = exception;
                 }
 
@@ -170,6 +174,10 @@ namespace MongoDB.Driver.Core.Operations
                 }
                 catch (Exception exception)
                 {
+                    if (context.Channel is null)  //TODO Need to improve
+                    {
+                        throw;
+                    }
                     bulkWriteResults.TopLevelException = exception;
                 }
 
