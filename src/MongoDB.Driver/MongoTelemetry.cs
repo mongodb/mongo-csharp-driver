@@ -51,39 +51,37 @@ public static class MongoTelemetry
             return null;
         }
 
-        var spanName = GetSpanName(operationName, databaseName, collectionName);
-        var activity = ActivitySource.StartActivity(spanName, ActivityKind.Client);
-
-        if (activity?.IsAllDataRequested == true)
+        // Early return if no listeners to avoid tag construction overhead
+        if (!ActivitySource.HasListeners())
         {
-            activity.SetTag("db.system", "mongodb");
-            activity.SetTag("db.operation.name", operationName);
-            activity.SetTag("db.operation.summary", spanName);
-
-            if (!string.IsNullOrEmpty(databaseName))
-            {
-                activity.SetTag("db.namespace", databaseName);
-            }
-
-            if (!string.IsNullOrEmpty(collectionName))
-            {
-                activity.SetTag("db.collection.name", collectionName);
-            }
+            return null;
         }
 
-        return activity;
+        var spanName = GetSpanName(operationName, databaseName, collectionName);
+
+        var tags = new TagList
+        {
+            { "db.system", "mongodb" },
+            { "db.operation.name", operationName },
+            { "db.operation.summary", spanName }
+        };
+
+        if (!string.IsNullOrEmpty(databaseName))
+        {
+            tags.Add("db.namespace", databaseName);
+        }
+
+        if (!string.IsNullOrEmpty(collectionName))
+        {
+            tags.Add("db.collection.name", collectionName);
+        }
+
+        return ActivitySource.StartActivity(ActivityKind.Client, tags: tags, name: spanName);
     }
 
     internal static Activity StartTransactionActivity()
     {
-        var activity = ActivitySource.StartActivity("transaction", ActivityKind.Client);
-
-        if (activity?.IsAllDataRequested == true)
-        {
-            activity.SetTag("db.system", "mongodb");
-        }
-
-        return activity;
+        return ActivitySource.StartActivity(ActivityKind.Client, tags: new TagList { { "db.system", "mongodb" } }, name: "transaction");
     }
 
     internal static string GetSpanName(string name, string databaseName, string collectionName)
@@ -106,25 +104,29 @@ public static class MongoTelemetry
         ConnectionId connectionId,
         int queryTextMaxLength = 0)
     {
-        var activity = ActivitySource.StartActivity(commandName, ActivityKind.Client);
+        var collectionName = ExtractCollectionName(command);
+        var querySummary = GetSpanName(commandName, databaseNamespace.DatabaseName, collectionName);
+
+        var tags = new TagList
+        {
+            { "db.system", "mongodb" },
+            { "db.command.name", commandName },
+            { "db.namespace", databaseNamespace.DatabaseName },
+            { "db.query.summary", querySummary }
+        };
+
+        if (!string.IsNullOrEmpty(collectionName))
+        {
+            tags.Add("db.collection.name", collectionName);
+        }
+
+        AddConnectionTagsForSampling(ref tags, connectionId);
+
+        var activity = ActivitySource.StartActivity(ActivityKind.Client, tags: tags, name: commandName);
 
         if (activity?.IsAllDataRequested == true)
         {
-            var collectionName = ExtractCollectionName(command);
-            activity.SetTag("db.system", "mongodb");
-            activity.SetTag("db.command.name", commandName);
-            activity.SetTag("db.namespace", databaseNamespace.DatabaseName);
-
-            if (!string.IsNullOrEmpty(collectionName))
-            {
-                activity.SetTag("db.collection.name", collectionName);
-            }
-
-            // db.query.summary uses the full format like operation-level spans
-            var querySummary = GetSpanName(commandName, databaseNamespace.DatabaseName, collectionName);
-            activity.SetTag("db.query.summary", querySummary);
-
-            SetConnectionTags(activity, connectionId);
+            SetAdditionalConnectionTags(activity, connectionId);
 
             if (command.TryGetValue("lsid", out var lsid))
             {
@@ -172,29 +174,32 @@ public static class MongoTelemetry
         activity.SetStatus(ActivityStatusCode.Error);
     }
 
-    private static void SetConnectionTags(Activity activity, ConnectionId connectionId)
+    private static void AddConnectionTagsForSampling(ref TagList tags, ConnectionId connectionId)
     {
         var endPoint = connectionId?.ServerId?.EndPoint;
         switch (endPoint)
         {
             case IPEndPoint ipEndPoint:
-                activity.SetTag("server.address", ipEndPoint.Address.ToString());
-                activity.SetTag("server.port", (long)ipEndPoint.Port);
-                activity.SetTag("network.transport", "tcp");
+                tags.Add("server.address", ipEndPoint.Address.ToString());
+                tags.Add("server.port", (long)ipEndPoint.Port);
+                tags.Add("network.transport", "tcp");
                 break;
             case DnsEndPoint dnsEndPoint:
-                activity.SetTag("server.address", dnsEndPoint.Host);
-                activity.SetTag("server.port", (long)dnsEndPoint.Port);
-                activity.SetTag("network.transport", "tcp");
+                tags.Add("server.address", dnsEndPoint.Host);
+                tags.Add("server.port", (long)dnsEndPoint.Port);
+                tags.Add("network.transport", "tcp");
                 break;
 #if NET5_0_OR_GREATER || NETCOREAPP3_0_OR_GREATER
             case UnixDomainSocketEndPoint unixEndPoint:
-                activity.SetTag("network.transport", "unix");
-                activity.SetTag("server.address", unixEndPoint.ToString());
+                tags.Add("network.transport", "unix");
+                tags.Add("server.address", unixEndPoint.ToString());
                 break;
 #endif
         }
+    }
 
+    private static void SetAdditionalConnectionTags(Activity activity, ConnectionId connectionId)
+    {
         if (connectionId != null)
         {
             if (connectionId.LongServerValue.HasValue)
