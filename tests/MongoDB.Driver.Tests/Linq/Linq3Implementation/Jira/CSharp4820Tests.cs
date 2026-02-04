@@ -20,6 +20,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Linq;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira;
@@ -46,40 +47,58 @@ public class CSharp4820Tests : LinqIntegrationTest<CSharp4820Tests.ClassFixture>
     [Fact]
     public void Update_Set_with_List_should_work()
     {
+        var collection = Fixture.Collection;
         var values = new List<string>() { "abc", "def" };
         var update = Builders<C>.Update.Set(x => x.ReadOnlyCollection, values);
+
         var serializerRegistry = BsonSerializer.SerializerRegistry;
         var documentSerializer = serializerRegistry.GetSerializer<C>();
-
         var rendered = (BsonDocument)update.Render(new (documentSerializer, serializerRegistry));
-
         rendered.Should().Be("{ $set : { ReadOnlyCollection : ['[abc]', '[def]'] } }");
+
+        var filter = Builders<C>.Filter.Eq(x => x.Id, 1);
+        collection.UpdateOne(filter, update);
+
+        var result = collection.Find(filter).Single();
+        result.ReadOnlyCollection.Should().Equal("abc", "def");
     }
 
     [Fact]
     public void Update_Set_with_Enumerable_should_throw()
     {
+        var collection = Fixture.Collection;
         var values = new[] { "abc", "def" }.Select(x => x);
         var update = Builders<C>.Update.Set(x => x.ReadOnlyCollection, values);
+
         var serializerRegistry = BsonSerializer.SerializerRegistry;
         var documentSerializer = serializerRegistry.GetSerializer<C>();
-
         var rendered = (BsonDocument)update.Render(new (documentSerializer, serializerRegistry));
-
         rendered.Should().Be("{ $set : { ReadOnlyCollection : ['[abc]', '[def]'] } }");
+
+        var filter = Builders<C>.Filter.Eq(x => x.Id, 1);
+        collection.UpdateOne(filter, update);
+
+        var result = collection.Find(filter).Single();
+        result.ReadOnlyCollection.Should().Equal("abc", "def");
     }
 
     [Fact]
     public void Update_Set_with_Enumerable_ToList_should_work()
     {
+        var collection = Fixture.Collection;
         var values = new[] { "abc", "def" }.Select(x => x);
         var update = Builders<C>.Update.Set(x => x.ReadOnlyCollection, values.ToList());
+
         var serializerRegistry = BsonSerializer.SerializerRegistry;
         var documentSerializer = serializerRegistry.GetSerializer<C>();
-
         var rendered = (BsonDocument)update.Render(new (documentSerializer, serializerRegistry));
-
         rendered.Should().Be("{ $set : { ReadOnlyCollection : ['[abc]', '[def]'] } }");
+
+        var filter = Builders<C>.Filter.Eq(x => x.Id, 1);
+        collection.UpdateOne(filter, update);
+
+        var result = collection.Find(filter).Single();
+        result.ReadOnlyCollection.Should().Equal("abc", "def");
     }
 
     public class C
@@ -106,9 +125,9 @@ public class CSharp4820Tests : LinqIntegrationTest<CSharp4820Tests.ClassFixture>
 
     public sealed class ClassFixture : MongoCollectionFixture<C>
     {
-        protected override IEnumerable<C> InitialData => null;
-        // [
-        //     new C { }
-        // ];
+        protected override IEnumerable<C> InitialData =>
+        [
+            new C { Id = 1, ReadOnlyCollection = new List<string> { "abc" } }
+        ];
     }
 }

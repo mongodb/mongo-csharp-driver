@@ -34,12 +34,10 @@ internal static class SerializerFinder
         }
         while (visitor.IsMakingProgress);
 
-        //#if DEBUG
         var expressionWithMissingSerializer = MissingSerializerFinder.FindExpressionWithMissingSerializer(expression, nodeSerializers);
         if (expressionWithMissingSerializer != null)
         {
             throw new ExpressionNotSupportedException(expressionWithMissingSerializer, because: "we were unable to determine which serializer to use for the result");
         }
-        //#endif
     }
 }

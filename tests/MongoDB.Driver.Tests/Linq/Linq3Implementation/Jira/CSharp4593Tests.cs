@@ -131,7 +131,7 @@ public class CSharp4593Tests : LinqIntegrationTest<CSharp4593Tests.ClassFixture>
             Orders.InsertMany(
             [
                     new Order { Id = "a", RateBasisHistoryId = "abc" }
-                ]);
+            ]);
 
             Entities = CreateCollection<Entity>("entities");
             Entities.InsertMany(

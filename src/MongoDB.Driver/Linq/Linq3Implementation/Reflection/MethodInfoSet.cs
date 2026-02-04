@@ -25,7 +25,7 @@ internal interface IReadOnlyMethodInfoSet : IEnumerable<MethodInfo>
     bool Contains(MethodInfo method);
 }
 
-internal abstract class MethodInfoSet : IReadOnlyMethodInfoSet
+internal class MethodInfoSet : IReadOnlyMethodInfoSet
 {
     public static IReadOnlyMethodInfoSet Create(IEnumerable<MethodInfo> methods)
     {
@@ -48,50 +48,24 @@ internal abstract class MethodInfoSet : IReadOnlyMethodInfoSet
 
     private static IReadOnlyMethodInfoSet Create(HashSet<MethodInfo> hashSet)
     {
-        return hashSet.Count <= 4 ? new ArrayBasedMethodInfoSet(hashSet.ToArray()) : new HashSetBasedMethodInfoSet(hashSet);
+        return hashSet.Count <= 4 ? new MethodInfoSet(hashSet.ToArray()) : new MethodInfoSet(hashSet);
     }
 
-    public abstract bool Contains(MethodInfo method);
+    private readonly ICollection<MethodInfo> _methods;
 
-    public abstract IEnumerator<MethodInfo> GetEnumerator();
-
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-}
-
-internal sealed class ArrayBasedMethodInfoSet : MethodInfoSet
-{
-    private readonly MethodInfo[] _methods;
-
-    public ArrayBasedMethodInfoSet(MethodInfo[] methods)
+    public MethodInfoSet(ICollection<MethodInfo> methods)
     {
         _methods = methods;
     }
 
-    public override bool Contains(MethodInfo method)
+    public bool Contains(MethodInfo method)
     {
         return method.IsGenericMethod && !method.ContainsGenericParameters ?
             _methods.Contains(method.GetGenericMethodDefinition()) :
             _methods.Contains(method);
     }
 
-    public override IEnumerator<MethodInfo> GetEnumerator() => ((IEnumerable<MethodInfo>)_methods).GetEnumerator();
-}
+    public IEnumerator<MethodInfo> GetEnumerator() => _methods.GetEnumerator();
 
-internal sealed class HashSetBasedMethodInfoSet : MethodInfoSet
-{
-    private readonly HashSet<MethodInfo> _methods;
-
-    public HashSetBasedMethodInfoSet(HashSet<MethodInfo> methods)
-    {
-        _methods = new HashSet<MethodInfo>(methods);
-    }
-
-    public override bool Contains(MethodInfo method)
-    {
-        return method.IsGenericMethod && !method.ContainsGenericParameters ?
-            _methods.Contains(method.GetGenericMethodDefinition()) :
-            _methods.Contains(method);
-    }
-
-    public override IEnumerator<MethodInfo> GetEnumerator() => _methods.GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

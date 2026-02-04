@@ -13,22 +13,29 @@
  * limitations under the License.
  */
 
+using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp5435Tests : Linq3IntegrationTest
+    public class CSharp5435Tests : LinqIntegrationTest<CSharp5435Tests.ClassFixture>
     {
+        public CSharp5435Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Test_set_ValueObject_Value_using_creator_map()
         {
-            var coll = GetCollection();
+            var coll = Fixture.Collection;
             var doc = new MyDocument();
             var filter = Builders<MyDocument>.Filter.Eq(x => x.Id, doc.Id);
 
@@ -51,7 +58,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Test_set_ValueObject_Value_using_property_setter()
         {
-            var coll = GetCollection();
+            var coll = Fixture.Collection;
             var doc = new MyDocument();
             var filter = Builders<MyDocument>.Filter.Eq(x => x.Id, doc.Id);
 
@@ -77,7 +84,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Test_set_ValueObject_to_derived_value_using_property_setter()
         {
-            var coll = GetCollection();
+            var coll = Fixture.Collection;
             var doc = new MyDocument();
             var filter = Builders<MyDocument>.Filter.Eq(x => x.Id, doc.Id);
 
@@ -98,7 +105,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Test_set_X_using_constructor()
         {
-            var coll = GetCollection();
+            var coll = Fixture.Collection;
             var doc = new MyDocument();
             var filter = Builders<MyDocument>.Filter.Eq(x => x.Id, doc.Id);
 
@@ -121,7 +128,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Test_set_A()
         {
-            var coll = GetCollection();
+            var coll = Fixture.Collection;
             var doc = new MyDocument();
             var filter = Builders<MyDocument>.Filter.Eq(x => x.Id, doc.Id);
 
@@ -141,18 +148,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             coll.UpdateOne(filter, updateError, new() { IsUpsert = true });
         }
 
-        private IMongoCollection<MyDocument> GetCollection()
-        {
-            var collection = GetCollection<MyDocument>("test");
-            CreateCollection(
-                collection.Database.GetCollection<BsonDocument>("test"),
-                BsonDocument.Parse("{ _id : 1 }"),
-                BsonDocument.Parse("{ _id : 2, X : null }"),
-                BsonDocument.Parse("{ _id : 3, X : 3 }"));
-            return collection;
-        }
-
-        class MyDocument
+        public class MyDocument
         {
             [BsonRepresentation(MongoDB.Bson.BsonType.ObjectId)]
             public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
@@ -169,7 +165,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             public int[] A { get; set; }
         }
 
-        class MyValue
+        public class MyValue
         {
             [BsonConstructor]
             public MyValue() { }
@@ -178,13 +174,13 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             public int Value { get; set; }
         }
 
-        class MyDerivedValue : MyValue
+        public class MyDerivedValue : MyValue
         {
             public int B { get; set; }
         }
 
         [BsonSerializer(typeof(XSerializer))]
-        class X
+        public class X
         {
             public X(int y)
             {
@@ -220,6 +216,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 serializationInfo = memberName == "Y" ? new BsonSerializationInfo("Y", Int32Serializer.Instance, typeof(int)) : null;
                 return serializationInfo != null;
             }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<MyDocument, BsonDocument>
+        {
+            protected override IEnumerable<BsonDocument> InitialData =>
+            [
+                BsonDocument.Parse("{ _id : 1 }"),
+                BsonDocument.Parse("{ _id : 2, X : null }"),
+                BsonDocument.Parse("{ _id : 3, X : 3 }")
+            ];
         }
     }
 }

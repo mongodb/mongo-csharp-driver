@@ -22,7 +22,6 @@ internal partial class SerializerFinderVisitor
     protected override Expression VisitListInit(ListInitExpression node)
     {
         var newExpression = node.NewExpression;
-        // var initializers = node.Initializers;
 
         DeduceListInitSerializers();
         base.VisitListInit(node);

@@ -81,7 +81,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         private class MyDTO
         {
             public DateTime timestamp { get; set; }
-            [BsonRepresentation(BsonType.Decimal128)] public decimal sqrt_calc { get; set; }
+            public decimal sqrt_calc { get; set; }
         }
 
         public sealed class ClassFixture : MongoCollectionFixture<C>
