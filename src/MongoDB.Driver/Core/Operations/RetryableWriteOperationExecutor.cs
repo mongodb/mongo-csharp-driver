@@ -125,6 +125,9 @@ namespace MongoDB.Driver.Core.Operations
                     //TODO This should be set only once
                     transactionNumber ??= AreRetriesAllowed(operation.WriteConcern, context, context.ChannelSource.ServerDescription) ? context.Binding.Session.AdvanceTransactionNumber() : null;
 
+                    //TODO The "attempt" parameter is only used in RetryableWriteCommandOperationBase, and in particular in "CreateCommandPayloads", that uses it to decide what to include in the bulk write payloads
+                    //It seems we should change this parameter to another one, as the attempt number is not correct in this new retryability. Also the current operationAttempt is not correct,
+                    //probably the attempts should be counted only for the "retryable write" attempts?
                     var operationResult = await operation.ExecuteAttemptAsync(operationContext, context, operationAttempts, transactionNumber).ConfigureAwait(false);
                     var tokensToDeposit = RetryabilityHelper.OperationRetryBackpressureConstants.RetryTokenReturnRate;
                     if (attempt > 1)
