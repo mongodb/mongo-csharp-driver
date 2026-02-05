@@ -45,9 +45,11 @@ public static class MongoTelemetry
     private const string DbMongoDbTxnNumberAttribute = "db.mongodb.txn_number";
     private const string DbMongoDbServerConnectionIdAttribute = "db.mongodb.server_connection_id";
     private const string DbMongoDbDriverConnectionIdAttribute = "db.mongodb.driver_connection_id";
+    private const string DbMongoDbCursorIdAttribute = "db.mongodb.cursor_id";
     private const string ExceptionTypeAttribute = "exception.type";
     private const string ExceptionMessageAttribute = "exception.message";
     private const string ExceptionStacktraceAttribute = "exception.stacktrace";
+    private const string DbResponseStatusCodeAttribute = "db.response.status_code";
 
     /// <summary>
     /// The name of the ActivitySource used by MongoDB driver for OpenTelemetry tracing.
@@ -111,6 +113,22 @@ public static class MongoTelemetry
         return activity;
     }
 
+    internal static void CompleteCommandActivity(Activity activity, BsonDocument reply)
+    {
+        if (activity == null)
+        {
+            return;
+        }
+
+        if (TryGetCursorId(reply, out var cursorId))
+        {
+            activity.SetTag(DbMongoDbCursorIdAttribute, cursorId);
+        }
+
+        activity.SetStatus(ActivityStatusCode.Ok);
+        activity.Dispose();
+    }
+
     internal static Activity StartOperationActivity(OperationContext operationContext)
     {
         return operationContext.IsTracingEnabled
@@ -158,7 +176,7 @@ public static class MongoTelemetry
         return ActivitySource.StartActivity(ActivityKind.Client, tags: new TagList { { DbSystemAttribute, "mongodb" } }, name: "transaction");
     }
 
-    internal static void RecordException(Activity activity, Exception exception, bool isOperationLevel = false)
+    internal static void RecordException(Activity activity, Exception exception, bool isOperationLevel = false, BsonDocument commandReply = null)
     {
         if (activity == null)
         {
@@ -178,6 +196,19 @@ public static class MongoTelemetry
         {
             activity.SetTag(ExceptionStacktraceAttribute, exception.StackTrace);
         }
+
+        if (commandReply != null)
+        {
+            if (commandReply.Contains("code"))
+            {
+                activity.SetTag(DbResponseStatusCodeAttribute, commandReply["code"].ToString());
+            }
+
+            // Override stacktrace with empty string - server-side exceptions don't have meaningful client stacktraces
+            // we need the team to decide on this.
+            activity.SetTag(ExceptionStacktraceAttribute, "");
+        }
+
         activity.SetStatus(ActivityStatusCode.Error);
     }
 
@@ -267,6 +298,24 @@ public static class MongoTelemetry
             commandText = commandText.Substring(0, maxLength);
         }
 
-        activity?.SetTag(DbQueryTextAttribute, commandText);
+        activity.SetTag(DbQueryTextAttribute, commandText);
+    }
+
+    private static bool TryGetCursorId(BsonDocument reply, out long cursorId)
+    {
+        cursorId = 0;
+        if (reply == null) return false;
+
+        if (reply.TryGetValue("cursor", out var cursorValue) && cursorValue.IsBsonDocument)
+        {
+            var cursorDoc = cursorValue.AsBsonDocument;
+            if (cursorDoc.TryGetValue("id", out var idValue) && idValue.IsInt64)
+            {
+                cursorId = idValue.AsInt64;
+                return cursorId != 0;
+            }
+        }
+
+        return false;
     }
 }
