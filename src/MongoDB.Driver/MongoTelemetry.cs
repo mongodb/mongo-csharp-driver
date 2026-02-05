@@ -29,6 +29,26 @@ public static class MongoTelemetry
 {
     private static readonly string __driverVersion = ClientDocumentHelper.GetAssemblyVersion(typeof(MongoClient).Assembly);
 
+    // OpenTelemetry semantic convention attribute names
+    private const string DbSystemAttribute = "db.system";
+    private const string DbOperationNameAttribute = "db.operation.name";
+    private const string DbOperationSummaryAttribute = "db.operation.summary";
+    private const string DbCommandNameAttribute = "db.command.name";
+    private const string DbNamespaceAttribute = "db.namespace";
+    private const string DbCollectionNameAttribute = "db.collection.name";
+    private const string DbQuerySummaryAttribute = "db.query.summary";
+    private const string DbQueryTextAttribute = "db.query.text";
+    private const string ServerAddressAttribute = "server.address";
+    private const string ServerPortAttribute = "server.port";
+    private const string NetworkTransportAttribute = "network.transport";
+    private const string DbMongoDbLsidAttribute = "db.mongodb.lsid";
+    private const string DbMongoDbTxnNumberAttribute = "db.mongodb.txn_number";
+    private const string DbMongoDbServerConnectionIdAttribute = "db.mongodb.server_connection_id";
+    private const string DbMongoDbDriverConnectionIdAttribute = "db.mongodb.driver_connection_id";
+    private const string ExceptionTypeAttribute = "exception.type";
+    private const string ExceptionMessageAttribute = "exception.message";
+    private const string ExceptionStacktraceAttribute = "exception.stacktrace";
+
     /// <summary>
     /// The name of the ActivitySource used by MongoDB driver for OpenTelemetry tracing.
     /// Use this name when configuring OpenTelemetry: <c>.AddSource(MongoTelemetry.ActivitySourceName)</c>
@@ -49,15 +69,15 @@ public static class MongoTelemetry
 
         var tags = new TagList
         {
-            { "db.system", "mongodb" },
-            { "db.command.name", commandName },
-            { "db.namespace", databaseNamespace.DatabaseName },
-            { "db.query.summary", querySummary }
+            { DbSystemAttribute, "mongodb" },
+            { DbCommandNameAttribute, commandName },
+            { DbNamespaceAttribute, databaseNamespace.DatabaseName },
+            { DbQuerySummaryAttribute, querySummary }
         };
 
         if (!string.IsNullOrEmpty(collectionName))
         {
-            tags.Add("db.collection.name", collectionName);
+            tags.Add(DbCollectionNameAttribute, collectionName);
         }
 
         AddConnectionTagsForSampling(ref tags, connectionId);
@@ -74,12 +94,12 @@ public static class MongoTelemetry
                 var materializedLsid = lsid.IsBsonDocument
                     ? new BsonDocument(lsid.AsBsonDocument)
                     : lsid;
-                activity.SetTag("db.mongodb.lsid", materializedLsid);
+                activity.SetTag(DbMongoDbLsidAttribute, materializedLsid);
             }
 
             if (command.TryGetValue("txnNumber", out var txnNumber))
             {
-                activity.SetTag("db.mongodb.txn_number", txnNumber.ToInt64());
+                activity.SetTag(DbMongoDbTxnNumberAttribute, txnNumber.ToInt64());
             }
 
             if (queryTextMaxLength > 0)
@@ -115,19 +135,19 @@ public static class MongoTelemetry
 
         var tags = new TagList
         {
-            { "db.system", "mongodb" },
-            { "db.operation.name", operationName },
-            { "db.operation.summary", spanName }
+            { DbSystemAttribute, "mongodb" },
+            { DbOperationNameAttribute, operationName },
+            { DbOperationSummaryAttribute, spanName }
         };
 
         if (!string.IsNullOrEmpty(databaseName))
         {
-            tags.Add("db.namespace", databaseName);
+            tags.Add(DbNamespaceAttribute, databaseName);
         }
 
         if (!string.IsNullOrEmpty(collectionName))
         {
-            tags.Add("db.collection.name", collectionName);
+            tags.Add(DbCollectionNameAttribute, collectionName);
         }
 
         return ActivitySource.StartActivity(ActivityKind.Client, tags: tags, name: spanName);
@@ -135,7 +155,7 @@ public static class MongoTelemetry
 
     internal static Activity StartTransactionActivity()
     {
-        return ActivitySource.StartActivity(ActivityKind.Client, tags: new TagList { { "db.system", "mongodb" } }, name: "transaction");
+        return ActivitySource.StartActivity(ActivityKind.Client, tags: new TagList { { DbSystemAttribute, "mongodb" } }, name: "transaction");
     }
 
     internal static void RecordException(Activity activity, Exception exception, bool isOperationLevel = false)
@@ -152,11 +172,11 @@ public static class MongoTelemetry
             return;
         }
 
-        activity.SetTag("exception.type", exception.GetType().FullName);
-        activity.SetTag("exception.message", exception.Message);
+        activity.SetTag(ExceptionTypeAttribute, exception.GetType().FullName);
+        activity.SetTag(ExceptionMessageAttribute, exception.Message);
         if (exception.StackTrace != null)
         {
-            activity.SetTag("exception.stacktrace", exception.StackTrace);
+            activity.SetTag(ExceptionStacktraceAttribute, exception.StackTrace);
         }
         activity.SetStatus(ActivityStatusCode.Error);
     }
@@ -167,19 +187,19 @@ public static class MongoTelemetry
         switch (endPoint)
         {
             case IPEndPoint ipEndPoint:
-                tags.Add("server.address", ipEndPoint.Address.ToString());
-                tags.Add("server.port", (long)ipEndPoint.Port);
-                tags.Add("network.transport", "tcp");
+                tags.Add(ServerAddressAttribute, ipEndPoint.Address.ToString());
+                tags.Add(ServerPortAttribute, (long)ipEndPoint.Port);
+                tags.Add(NetworkTransportAttribute, "tcp");
                 break;
             case DnsEndPoint dnsEndPoint:
-                tags.Add("server.address", dnsEndPoint.Host);
-                tags.Add("server.port", (long)dnsEndPoint.Port);
-                tags.Add("network.transport", "tcp");
+                tags.Add(ServerAddressAttribute, dnsEndPoint.Host);
+                tags.Add(ServerPortAttribute, (long)dnsEndPoint.Port);
+                tags.Add(NetworkTransportAttribute, "tcp");
                 break;
 #if NET5_0_OR_GREATER || NETCOREAPP3_0_OR_GREATER
             case UnixDomainSocketEndPoint unixEndPoint:
-                tags.Add("network.transport", "unix");
-                tags.Add("server.address", unixEndPoint.ToString());
+                tags.Add(NetworkTransportAttribute, "unix");
+                tags.Add(ServerAddressAttribute, unixEndPoint.ToString());
                 break;
 #endif
         }
@@ -231,9 +251,9 @@ public static class MongoTelemetry
         {
             if (connectionId.LongServerValue.HasValue)
             {
-                activity.SetTag("db.mongodb.server_connection_id", connectionId.LongServerValue.Value);
+                activity.SetTag(DbMongoDbServerConnectionIdAttribute, connectionId.LongServerValue.Value);
             }
-            activity.SetTag("db.mongodb.driver_connection_id", connectionId.LongLocalValue);
+            activity.SetTag(DbMongoDbDriverConnectionIdAttribute, connectionId.LongLocalValue);
         }
     }
 
@@ -247,6 +267,6 @@ public static class MongoTelemetry
             commandText = commandText.Substring(0, maxLength);
         }
 
-        activity?.SetTag("db.query.text", commandText);
+        activity?.SetTag(DbQueryTextAttribute, commandText);
     }
 }
