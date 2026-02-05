@@ -55,7 +55,7 @@ namespace MongoDB.Driver.Core.Operations
             WriteConcern = options?.WriteConcern;
         }
 
-        public new string OperationName => "bulkWrite";
+        public override string OperationName => "bulkWrite";
 
         protected override BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, int attempt, long? transactionNumber)
         {
