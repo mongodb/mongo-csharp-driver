@@ -1,17 +1,17 @@
 ﻿/* Copyright 2013-present MongoDB Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 using System;
 using System.Net;
@@ -111,6 +111,40 @@ namespace MongoDB.Driver.Core.Clusters
             subject1.Equals(subject2).Should().BeTrue();
             subject1.Equals((object)subject2).Should().BeTrue();
             subject1.GetHashCode().Should().Be(subject2.GetHashCode());
+        }
+
+        [Theory]
+        [InlineData("ClusterId")]
+        [InlineData("DirectConnection")]
+        [InlineData("DnsMonitorException")]
+        [InlineData("Servers")]
+        [InlineData("Type")]
+        public void SdamEquals_should_return_false_if_any_field_is_not_equal(string notEqualField)
+        {
+            var subject1 = CreateSubject();
+            var subject2 = CreateSubject(notEqualField);
+            subject1.SdamEquals(subject2).Should().BeFalse();
+        }
+
+        [Fact]
+        public void SdamEquals_should_return_true_if_all_fields_are_equal()
+        {
+            var subject1 = CreateSubject();
+            var subject2 = CreateSubject();
+            subject1.SdamEquals(subject2).Should().BeTrue();
+        }
+
+        [Fact]
+        public void SdamEquals_should_return_true_if_servers_are_sdam_equal_but_not_equal()
+        {
+            var server1 = __serverDescription1.With(averageRoundTripTime: TimeSpan.FromSeconds(1));
+            var server2 = __serverDescription1.With(averageRoundTripTime: TimeSpan.FromSeconds(2));
+
+            var subject1 = CreateSubject().WithServerDescription(server1);
+            var subject2 = CreateSubject().WithServerDescription(server2);
+
+            subject1.Equals(subject2).Should().BeFalse();
+            subject1.SdamEquals(subject2).Should().BeTrue();
         }
 
         [Theory]
