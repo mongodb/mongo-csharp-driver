@@ -37,66 +37,6 @@ public static class MongoTelemetry
 
     internal static readonly ActivitySource ActivitySource = new(ActivitySourceName, __driverVersion);
 
-    internal static Activity StartOperationActivity(OperationContext operationContext)
-    {
-        return operationContext.IsTracingEnabled
-            ? StartOperationActivity(operationContext.OperationName, operationContext.DatabaseName, operationContext.CollectionName)
-            : null;
-    }
-
-    internal static Activity StartOperationActivity(string operationName, string databaseName, string collectionName = null)
-    {
-        if (string.IsNullOrEmpty(operationName))
-        {
-            return null;
-        }
-
-        // Early return if no listeners to avoid tag construction overhead
-        if (!ActivitySource.HasListeners())
-        {
-            return null;
-        }
-
-        var spanName = GetSpanName(operationName, databaseName, collectionName);
-
-        var tags = new TagList
-        {
-            { "db.system", "mongodb" },
-            { "db.operation.name", operationName },
-            { "db.operation.summary", spanName }
-        };
-
-        if (!string.IsNullOrEmpty(databaseName))
-        {
-            tags.Add("db.namespace", databaseName);
-        }
-
-        if (!string.IsNullOrEmpty(collectionName))
-        {
-            tags.Add("db.collection.name", collectionName);
-        }
-
-        return ActivitySource.StartActivity(ActivityKind.Client, tags: tags, name: spanName);
-    }
-
-    internal static Activity StartTransactionActivity()
-    {
-        return ActivitySource.StartActivity(ActivityKind.Client, tags: new TagList { { "db.system", "mongodb" } }, name: "transaction");
-    }
-
-    internal static string GetSpanName(string name, string databaseName, string collectionName)
-    {
-        if (!string.IsNullOrEmpty(collectionName))
-        {
-            return $"{name} {databaseName}.{collectionName}";
-        }
-        if (!string.IsNullOrEmpty(databaseName))
-        {
-            return $"{name} {databaseName}";
-        }
-        return name;
-    }
-
     internal static Activity StartCommandActivity(
         string commandName,
         BsonDocument command,
@@ -151,6 +91,53 @@ public static class MongoTelemetry
         return activity;
     }
 
+    internal static Activity StartOperationActivity(OperationContext operationContext)
+    {
+        return operationContext.IsTracingEnabled
+            ? StartOperationActivity(operationContext.OperationName, operationContext.DatabaseName, operationContext.CollectionName)
+            : null;
+    }
+
+    internal static Activity StartOperationActivity(string operationName, string databaseName, string collectionName = null)
+    {
+        if (string.IsNullOrEmpty(operationName))
+        {
+            return null;
+        }
+
+        // Early return if no listeners to avoid tag construction overhead
+        if (!ActivitySource.HasListeners())
+        {
+            return null;
+        }
+
+        var spanName = GetSpanName(operationName, databaseName, collectionName);
+
+        var tags = new TagList
+        {
+            { "db.system", "mongodb" },
+            { "db.operation.name", operationName },
+            { "db.operation.summary", spanName }
+        };
+
+        if (!string.IsNullOrEmpty(databaseName))
+        {
+            tags.Add("db.namespace", databaseName);
+        }
+
+        if (!string.IsNullOrEmpty(collectionName))
+        {
+            tags.Add("db.collection.name", collectionName);
+        }
+
+        return ActivitySource.StartActivity(ActivityKind.Client, tags: tags, name: spanName);
+    }
+
+    internal static Activity StartTransactionActivity()
+    {
+        return ActivitySource.StartActivity(ActivityKind.Client, tags: new TagList { { "db.system", "mongodb" } }, name: "transaction");
+    }
+
     internal static void RecordException(Activity activity, Exception exception, bool isOperationLevel = false)
     {
         if (activity == null)
@@ -198,6 +185,46 @@ public static class MongoTelemetry
         }
     }
 
+    private static string ExtractCollectionName(BsonDocument command)
+    {
+        if (command == null) return null;
+
+        var firstElement = command.GetElement(0);
+        if (firstElement.Value.IsString)
+        {
+            var value = firstElement.Value.AsString;
+            if (value != "1" && value != "admin" && !string.IsNullOrEmpty(value))
+            {
+                return value;
+            }
+        }
+
+        return null;
+    }
+
+    private static BsonDocument FilterSensitiveData(BsonDocument command)
+    {
+        var filtered = new BsonDocument(command);
+        filtered.Remove("lsid");
+        filtered.Remove("$db");
+        filtered.Remove("$clusterTime");
+        filtered.Remove("signature");
+        return filtered;
+    }
+
+    private static string GetSpanName(string name, string databaseName, string collectionName)
+    {
+        if (!string.IsNullOrEmpty(collectionName))
+        {
+            return $"{name} {databaseName}.{collectionName}";
+        }
+        if (!string.IsNullOrEmpty(databaseName))
+        {
+            return $"{name} {databaseName}";
+        }
+        return name;
+    }
+
     private static void SetAdditionalConnectionTags(Activity activity, ConnectionId connectionId)
     {
         if (connectionId != null)
@@ -221,32 +248,5 @@ public static class MongoTelemetry
         }
 
         activity?.SetTag("db.query.text", commandText);
-    }
-
-    private static BsonDocument FilterSensitiveData(BsonDocument command)
-    {
-        var filtered = new BsonDocument(command);
-        filtered.Remove("lsid");
-        filtered.Remove("$db");
-        filtered.Remove("$clusterTime");
-        filtered.Remove("signature");
-        return filtered;
-    }
-
-    private static string ExtractCollectionName(BsonDocument command)
-    {
-        if (command == null) return null;
-
-        var firstElement = command.GetElement(0);
-        if (firstElement.Value.IsString)
-        {
-            var value = firstElement.Value.AsString;
-            if (value != "1" && value != "admin" && !string.IsNullOrEmpty(value))
-            {
-                return value;
-            }
-        }
-
-        return null;
     }
 }
