@@ -47,15 +47,16 @@ namespace MongoDB.Driver.Core.Operations
                 operationContext.ThrowIfTimedOutOrCanceled();
 
                 ServerDescription server = null;
+                var exceptionFromChannelAcquisition = false;
                 try
                 {
                     context.AcquireOrReplaceChannel(operationContext, deprioritizedServers);
                     ChannelPinningHelper.PinChannellIfRequired(context.ChannelSource, context.Channel, context.Binding.Session);
                     server = context.ChannelSource.ServerDescription;
 
+                    operationAttempts++;
                     transactionNumber ??= AreRetriesAllowed(operation.WriteConcern, context, context.ChannelSource.ServerDescription) ? context.Binding.Session.AdvanceTransactionNumber() : null;
 
-                    operationAttempts++;
                     var operationResult = operation.ExecuteAttempt(operationContext, context, operationAttempts, transactionNumber);
                     var tokensToDeposit = RetryabilityHelper.OperationRetryBackpressureConstants.RetryTokenReturnRate;
                     if (attempt > 1)
@@ -74,9 +75,14 @@ namespace MongoDB.Driver.Core.Operations
                 }
                 catch (Exception ex)
                 {
+                    if (server == null)
+                    {
+                        exceptionFromChannelAcquisition = true;
+                    }
+
                     originalException ??= ex;
 
-                    if (!ShouldRetry(operationContext, operation.WriteConcern, context, tokenBucket, ex, attempt, context.Random, out var backoff))
+                    if (!ShouldRetry(operationContext, operation.WriteConcern, context, tokenBucket, ex, attempt, context.Random, exceptionFromChannelAcquisition, out var backoff))
                     {
                         throw originalException;
                     }
@@ -114,6 +120,7 @@ namespace MongoDB.Driver.Core.Operations
                 operationContext.ThrowIfTimedOutOrCanceled();
 
                 ServerDescription server = null;
+                var exceptionFromChannelAcquisition = false;
                 try
                 {
                     //TODO This seems to be idempotent
@@ -146,9 +153,14 @@ namespace MongoDB.Driver.Core.Operations
                 }
                 catch (Exception ex)
                 {
+                    if (server == null)
+                    {
+                        exceptionFromChannelAcquisition = true;
+                    }
+
                     originalException ??= ex;
 
-                    if (!ShouldRetry(operationContext, operation.WriteConcern, context, tokenBucket, ex, attempt, context.Random, out var backoff))
+                    if (!ShouldRetry(operationContext, operation.WriteConcern, context, tokenBucket, ex, attempt, context.Random, exceptionFromChannelAcquisition, out var backoff))
                     {
                         throw originalException;
                     }
@@ -172,16 +184,25 @@ namespace MongoDB.Driver.Core.Operations
             Exception exception,
             int attempt,
             IRandom random,
+            bool exceptionFromChannelAcquisition,
             out TimeSpan backoff)
         {
             backoff = TimeSpan.Zero;
 
-            exception = exception is MongoAuthenticationException mongoAuthenticationException ? mongoAuthenticationException.InnerException : exception;
+            bool isRetryableRead;
+            if (exceptionFromChannelAcquisition)
+            {
+                //Exceptions from channel acquisition could be wrapped in a MongoAuthenticationException, in which case we need to look at the inner exception to decide if it's retryable or not
+                var exceptionToAnalyze = exception is MongoAuthenticationException mongoAuthenticationException ? mongoAuthenticationException.InnerException : exception;
 
-            var isRetryableReadException = RetryabilityHelper.IsRetryableReadException(exception);
-            var isRetryableRead = context.RetryRequested && !context.Binding.Session.IsInTransaction && isRetryableReadException;
+                var isRetryableReadException = RetryabilityHelper.IsRetryableReadException(exceptionToAnalyze);
+                isRetryableRead = context.RetryRequested && !context.Binding.Session.IsInTransaction && isRetryableReadException;
+            }
+            else
+            {
+                isRetryableRead = false;
+            }
 
-            //TODO We can shortcircuit this
             var isRetryableWriteException = RetryabilityHelper.IsRetryableWriteException(exception);
             var isRetryableWrites = AreRetriesAllowed(writeConcern, context, context.ChannelSource.ServerDescription) && isRetryableWriteException;
 
