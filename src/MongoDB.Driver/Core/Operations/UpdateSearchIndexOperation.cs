@@ -78,7 +78,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "definition", _definition }
             };
 
-            return new (_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            return new (_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings, OperationName);
         }
     }
 }
