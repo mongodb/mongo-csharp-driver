@@ -114,12 +114,7 @@ namespace MongoDB.Driver.Core.Connections
             {
                 state.Stopwatch.Stop();
 
-                if (_currentCommandActivity is not null)
-                {
-                    _currentCommandActivity.SetStatus(ActivityStatusCode.Ok);
-                    _currentCommandActivity.Dispose();
-                    _currentCommandActivity = null;
-                }
+                CompleteCommandActivityWithSuccess();
 
                 if (_shouldTrackSucceeded)
                 {
@@ -146,12 +141,7 @@ namespace MongoDB.Driver.Core.Connections
             {
                 state.Stopwatch.Stop();
 
-                if (_currentCommandActivity is not null)
-                {
-                    MongoTelemetry.RecordException(_currentCommandActivity, exception);
-                    _currentCommandActivity.Dispose();
-                    _currentCommandActivity = null;
-                }
+                CompleteCommandActivityWithException(exception);
 
                 _eventLogger.LogAndPublish(new CommandFailedEvent(
                         state.CommandName,
@@ -196,12 +186,7 @@ namespace MongoDB.Driver.Core.Connections
 
             state.Stopwatch.Stop();
 
-            if (_currentCommandActivity is not null)
-            {
-                MongoTelemetry.RecordException(_currentCommandActivity, exception);
-                _currentCommandActivity.Dispose();
-                _currentCommandActivity = null;
-            }
+            CompleteCommandActivityWithException(exception);
 
             _eventLogger.LogAndPublish(new CommandFailedEvent(
                 state.CommandName,
@@ -222,12 +207,7 @@ namespace MongoDB.Driver.Core.Connections
                 return;
             }
 
-            if (_currentCommandActivity is not null)
-            {
-                MongoTelemetry.RecordException(_currentCommandActivity, exception);
-                _currentCommandActivity.Dispose();
-                _currentCommandActivity = null;
-            }
+            CompleteCommandActivityWithException(exception);
 
             var requestIds = _state.Keys;
             foreach (var requestId in requestIds)
@@ -309,30 +289,18 @@ namespace MongoDB.Driver.Core.Connections
                     serviceId),
                     skipLogging);
 
-                if (_shouldTrackState)
-                {
-                    var commandState = new CommandState
-                    {
-                        CommandName = commandName,
-                        OperationId = operationId,
-                        Stopwatch = stopwatch,
-                        QueryNamespace = new CollectionNamespace(databaseNamespace, "$cmd"),
-                        ExpectedResponseType = decodedMessage.MoreToCome ? ExpectedResponseType.None : ExpectedResponseType.Command,
-                        ShouldRedactReply = shouldRedactCommand
-                    };
-
-                    if (_shouldTrace && !shouldRedactCommand && !skipLogging)
-                    {
-                        _currentCommandActivity = MongoTelemetry.StartCommandActivity(
-                            commandName,
-                            command,
-                            databaseNamespace,
-                            connectionId,
-                            _tracingOptions?.QueryTextMaxLength ?? 0);
-                    }
-
-                    _state.TryAdd(requestId, commandState);
-                }
+                TrackCommandState(
+                    requestId,
+                    operationId,
+                    commandName,
+                    command,
+                    stopwatch,
+                    new CollectionNamespace(databaseNamespace, "$cmd"),
+                    decodedMessage.MoreToCome ? ExpectedResponseType.None : ExpectedResponseType.Command,
+                    shouldRedactCommand,
+                    databaseNamespace,
+                    connectionId,
+                    skipLogging);
             }
         }
 
@@ -357,7 +325,7 @@ namespace MongoDB.Driver.Core.Connections
 
             if (ok.ToBoolean())
             {
-                CompleteCommandActivityWithSuccess(_currentCommandActivity, reply);
+                CompleteCommandActivityWithSuccess(reply);
 
                 _eventLogger.LogAndPublish(new CommandSucceededEvent(
                     state.CommandName,
@@ -419,30 +387,18 @@ namespace MongoDB.Driver.Core.Connections
                     connectionId),
                     skipLogging);
 
-                if (_shouldTrackState)
-                {
-                    var commandState = new CommandState
-                    {
-                        CommandName = commandName,
-                        OperationId = operationId,
-                        Stopwatch = stopwatch,
-                        QueryNamespace = decodedMessage.CollectionNamespace,
-                        ExpectedResponseType = isCommand ? ExpectedResponseType.Command : ExpectedResponseType.Query,
-                        ShouldRedactReply = shouldRedactCommand
-                    };
-
-                    if (_shouldTrace && !shouldRedactCommand && !skipLogging)
-                    {
-                        _currentCommandActivity = MongoTelemetry.StartCommandActivity(
-                            commandName,
-                            command,
-                            decodedMessage.CollectionNamespace.DatabaseNamespace,
-                            connectionId,
-                            _tracingOptions?.QueryTextMaxLength ?? 0);
-                    }
-
-                    _state.TryAdd(requestId, commandState);
-                }
+                TrackCommandState(
+                    requestId,
+                    operationId,
+                    commandName,
+                    command,
+                    stopwatch,
+                    decodedMessage.CollectionNamespace,
+                    isCommand ? ExpectedResponseType.Command : ExpectedResponseType.Query,
+                    shouldRedactCommand,
+                    decodedMessage.CollectionNamespace.DatabaseNamespace,
+                    connectionId,
+                    skipLogging);
             }
             finally
             {
@@ -550,7 +506,7 @@ namespace MongoDB.Driver.Core.Connections
             }
             else
             {
-                CompleteCommandActivityWithSuccess(_currentCommandActivity, reply);
+                CompleteCommandActivityWithSuccess(reply);
 
                 _eventLogger.LogAndPublish(new CommandSucceededEvent(
                     state.CommandName,
@@ -589,7 +545,7 @@ namespace MongoDB.Driver.Core.Connections
                     };
                 }
 
-                CompleteCommandActivityWithSuccess(_currentCommandActivity, reply);
+                CompleteCommandActivityWithSuccess(reply);
 
                 _eventLogger.LogAndPublish(new CommandSucceededEvent(
                     state.CommandName,
@@ -697,19 +653,64 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        private void CompleteCommandActivityWithSuccess(Activity activity, BsonDocument reply)
+        private void TrackCommandState(
+            int requestId,
+            long? operationId,
+            string commandName,
+            BsonDocument command,
+            Stopwatch stopwatch,
+            CollectionNamespace queryNamespace,
+            ExpectedResponseType expectedResponseType,
+            bool shouldRedactCommand,
+            DatabaseNamespace databaseNamespace,
+            ConnectionId connectionId,
+            bool skipLogging)
         {
-            if (activity == null)
+            if (!_shouldTrackState)
             {
                 return;
             }
 
-            if (TryGetCursorId(reply, out var cursorId))
+            var commandState = new CommandState
             {
-                activity.SetTag("db.mongodb.cursor_id", cursorId);
+                CommandName = commandName,
+                OperationId = operationId,
+                Stopwatch = stopwatch,
+                QueryNamespace = queryNamespace,
+                ExpectedResponseType = expectedResponseType,
+                ShouldRedactReply = shouldRedactCommand
+            };
+
+            if (_shouldTrace && !shouldRedactCommand && !skipLogging)
+            {
+                _currentCommandActivity = MongoTelemetry.StartCommandActivity(
+                    commandName,
+                    command,
+                    databaseNamespace,
+                    connectionId,
+                    _tracingOptions?.QueryTextMaxLength ?? 0);
             }
-            activity.SetStatus(ActivityStatusCode.Ok);
-            activity.Dispose();
+
+            _state.TryAdd(requestId, commandState);
+        }
+
+        private void CompleteCommandActivityWithSuccess(BsonDocument reply = null)
+        {
+            if (_currentCommandActivity is not null)
+            {
+                MongoTelemetry.CompleteCommandActivity(_currentCommandActivity, reply);
+                _currentCommandActivity = null;
+            }
+        }
+
+        private void CompleteCommandActivityWithException(Exception exception, BsonDocument commandReply = null)
+        {
+            if (_currentCommandActivity is not null)
+            {
+                MongoTelemetry.RecordException(_currentCommandActivity, exception, commandReply: commandReply);
+                _currentCommandActivity.Dispose();
+                _currentCommandActivity = null;
+            }
         }
 
         private void HandleCommandFailure(
@@ -731,19 +732,7 @@ namespace MongoDB.Driver.Core.Connections
                 null,
                 reply);
 
-            if (_currentCommandActivity is not null)
-            {
-                MongoTelemetry.RecordException(_currentCommandActivity, exception);
-
-                if (reply.Contains("code"))
-                {
-                    _currentCommandActivity.SetTag("db.response.status_code", reply["code"].ToString());
-                }
-
-                _currentCommandActivity.SetTag("exception.stacktrace", "");
-                _currentCommandActivity.Dispose();
-                _currentCommandActivity = null;
-            }
+            CompleteCommandActivityWithException(exception, reply);
 
             if (_shouldTrackFailed)
             {
@@ -758,24 +747,6 @@ namespace MongoDB.Driver.Core.Connections
                     state.Stopwatch.Elapsed),
                     skipLogging);
             }
-        }
-
-        private bool TryGetCursorId(BsonDocument reply, out long cursorId)
-        {
-            cursorId = 0;
-            if (reply == null) return false;
-
-            if (reply.TryGetValue("cursor", out var cursorValue) && cursorValue.IsBsonDocument)
-            {
-                var cursorDoc = cursorValue.AsBsonDocument;
-                if (cursorDoc.TryGetValue("id", out var idValue) && idValue.IsInt64)
-                {
-                    cursorId = idValue.AsInt64;
-                    return cursorId != 0;
-                }
-            }
-
-            return false;
         }
 
         private enum ExpectedResponseType
