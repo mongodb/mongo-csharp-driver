@@ -33,7 +33,6 @@ namespace MongoDB.Driver.Core.Bindings
         private readonly long _transactionNumber;
         private readonly TransactionOptions _transactionOptions;
         private readonly object _lock = new object();
-        private Activity _transactionActivity;
         private readonly bool _isTracingEnabled;
 
         // public constructors
@@ -91,11 +90,7 @@ namespace MongoDB.Driver.Core.Bindings
         /// <summary>
         /// Gets or sets the transaction activity (for OpenTelemetry tracing).
         /// </summary>
-        internal Activity TransactionActivity
-        {
-            get => _transactionActivity;
-            set => _transactionActivity = value;
-        }
+        internal Activity TransactionActivity { get; set; }
 
         // public properties
         /// <summary>
@@ -145,9 +140,9 @@ namespace MongoDB.Driver.Core.Bindings
         // internal methods
         internal void EndTransactionActivity()
         {
-            _transactionActivity?.SetStatus(ActivityStatusCode.Ok);
-            _transactionActivity?.Dispose();
-            _transactionActivity = null;
+            TransactionActivity?.SetStatus(ActivityStatusCode.Ok);
+            TransactionActivity?.Dispose();
+            TransactionActivity = null;
         }
 
         internal void PinChannel(IChannelHandle channel)

@@ -1234,20 +1234,22 @@ namespace MongoDB.Driver
                 throw new InvalidOperationException("Cannot specify per operation timeout inside transaction.");
             }
 
-            var context = operationContext?.Fork() ?? new OperationContext(timeout ?? _settings.Timeout, cancellationToken);
+            var baseContext = operationContext?.Fork() ?? new OperationContext(timeout ?? _settings.Timeout, cancellationToken);
 
             if (operationName != null)
             {
                 var tracingOptions = _database.Client.Settings.TracingOptions;
                 var isTracingEnabled = tracingOptions == null || !tracingOptions.Disabled;
-                context = context.WithOperationMetadata(
+                var contextWithMetadata = baseContext.WithOperationMetadata(
                     operationName,
                     _collectionNamespace.DatabaseNamespace.DatabaseName,
                     _collectionNamespace.CollectionName,
                     isTracingEnabled);
+                baseContext.Dispose();
+                return contextWithMetadata;
             }
 
-            return context;
+            return baseContext;
         }
 
         private TResult ExecuteReadOperation<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, TimeSpan? timeout, CancellationToken cancellationToken)
