@@ -139,7 +139,7 @@ namespace MongoDB.Driver.Core.Operations
             var databaseNamespace = _collectionNamespace.DatabaseNamespace;
             var command = CreateCommand(operationContext, session, connectionDescription);
             var resultSerializer = BsonDocumentSerializer.Instance;
-            return new WriteCommandOperation<BsonDocument>(databaseNamespace, command, resultSerializer, _messageEncoderSettings);
+            return new WriteCommandOperation<BsonDocument>(databaseNamespace, command, resultSerializer, _messageEncoderSettings, OperationName);
         }
     }
 }

@@ -207,7 +207,7 @@ namespace MongoDB.Driver.Core.Operations
         private WriteCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, ReadPreference effectiveReadPreference)
         {
             var command = CreateCommand(operationContext, session, connectionDescription);
-            var operation = new WriteCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, MessageEncoderSettings);
+            var operation = new WriteCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, MessageEncoderSettings, OperationName);
             if (effectiveReadPreference != null)
             {
                 operation.ReadPreference = effectiveReadPreference;

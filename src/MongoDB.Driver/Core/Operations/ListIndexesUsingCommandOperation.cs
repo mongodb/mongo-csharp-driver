@@ -138,7 +138,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "cursor", () => new BsonDocument("batchSize", _batchSize.Value), _batchSize.HasValue },
                 { "comment", _comment, _comment != null },
             };
-            return new ReadCommandOperation<BsonDocument>(databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            return new ReadCommandOperation<BsonDocument>(databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings, OperationName)
             {
                 RetryRequested = _retryRequested // might be overridden by retryable read context
             };

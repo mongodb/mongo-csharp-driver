@@ -155,7 +155,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "authorizedCollections", () => _authorizedCollections.Value, _authorizedCollections.HasValue },
                 { "comment", _comment, _comment != null }
             };
-            return new ReadCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            return new ReadCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings, OperationName)
             {
                 RetryRequested = _retryRequested // might be overridden by retryable read context
             };
