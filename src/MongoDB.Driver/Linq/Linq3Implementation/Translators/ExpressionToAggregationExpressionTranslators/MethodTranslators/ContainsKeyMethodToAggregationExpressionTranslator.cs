@@ -36,27 +36,57 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             {
                 var dictionaryExpression = expression.Object;
                 var keyExpression = arguments[0];
-
-                var dictionaryTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, dictionaryExpression);
-                var dictionarySerializer = GetDictionarySerializer(expression, dictionaryTranslation);
-                var dictionaryRepresentation = dictionarySerializer.DictionaryRepresentation;
-
-                AstExpression ast;
-                switch (dictionaryRepresentation)
-                {
-                    case DictionaryRepresentation.Document:
-                        var keyFieldName = GetKeyFieldName(context, expression, keyExpression, dictionarySerializer.KeySerializer);
-                        ast = AstExpression.IsNotMissing(AstExpression.GetField(dictionaryTranslation.Ast, keyFieldName));
-                        break;
-
-                    default:
-                        throw new ExpressionNotSupportedException(expression, because: $"ContainsKey is not supported when DictionaryRepresentation is: {dictionaryRepresentation}");
-                }
-
-                return new TranslatedExpression(expression, ast, BooleanSerializer.Instance);
+                return TranslateContainsKey(context, expression, dictionaryExpression, keyExpression);
             }
 
             throw new ExpressionNotSupportedException(expression);
+        }
+
+        public static TranslatedExpression TranslateContainsKey(TranslationContext context, Expression expression, Expression dictionaryExpression, Expression keyExpression)
+        {
+            var dictionaryTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, dictionaryExpression);
+            var dictionarySerializer = GetDictionarySerializer(expression, dictionaryTranslation);
+            var dictionaryRepresentation = dictionarySerializer.DictionaryRepresentation;
+
+            AstExpression ast;
+            switch (dictionaryRepresentation)
+            {
+                case DictionaryRepresentation.Document:
+                    {
+                        var keyFieldName = GetKeyFieldName(context, expression, keyExpression, dictionarySerializer.KeySerializer);
+                        ast = AstExpression.IsNotMissing(AstExpression.GetField(dictionaryTranslation.Ast, keyFieldName));
+                        break;
+                    }
+
+                case DictionaryRepresentation.ArrayOfDocuments:
+                    {
+                        var keyFieldName = GetKeyFieldName(context, expression, keyExpression, dictionarySerializer.KeySerializer);
+                        var kvpVar = AstExpression.Var("kvp");
+                        var keysArray = AstExpression.Map(
+                            input: dictionaryTranslation.Ast,
+                            @as: kvpVar,
+                            @in: AstExpression.GetField(kvpVar, "k"));
+                        ast = AstExpression.In(keyFieldName, keysArray);
+                        break;
+                    }
+
+                case DictionaryRepresentation.ArrayOfArrays:
+                    {
+                        var keyFieldName = GetKeyFieldName(context, expression, keyExpression, dictionarySerializer.KeySerializer);
+                        var kvpVar = AstExpression.Var("kvp");
+                        var keysArray = AstExpression.Map(
+                            input: dictionaryTranslation.Ast,
+                            @as: kvpVar,
+                            @in: AstExpression.ArrayElemAt(kvpVar, 0));
+                        ast = AstExpression.In(keyFieldName, keysArray);
+                        break;
+                    }
+
+                default:
+                    throw new ExpressionNotSupportedException(expression, because: $"DictionaryRepresentation: {dictionaryRepresentation} is not supported.");
+            }
+
+            return new TranslatedExpression(expression, ast, BooleanSerializer.Instance);
         }
 
         private static AstExpression GetKeyFieldName(TranslationContext context, Expression expression, Expression keyExpression, IBsonSerializer keySerializer)
