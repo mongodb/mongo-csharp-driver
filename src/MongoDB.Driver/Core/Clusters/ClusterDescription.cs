@@ -195,6 +195,21 @@ namespace MongoDB.Driver.Core.Clusters
                 _type == other._type;
         }
 
+        internal bool SdamEquals(ClusterDescription other)
+        {
+            if (other == null)
+            {
+                return false;
+            }
+
+            return
+                _clusterId.Equals(other._clusterId) &&
+                _directConnection.Equals(other._directConnection) &&
+                object.Equals(_dnsMonitorException, other._dnsMonitorException) &&
+                _servers.SequenceEqual(other._servers, ServerDescription.SdamEqualityComparer.Instance) &&
+                _type == other._type;
+        }
+
         /// <inheritdoc/>
         public override bool Equals(object obj)
         {
