@@ -165,61 +165,39 @@ namespace MongoDB.Driver.Core.Connections
 
         private void Connect(Socket socket, EndPoint endPoint, CancellationToken cancellationToken)
         {
-            var callbackState = new OperationCallbackState<Socket>(socket);
-            using var timeoutCancellationTokenSource = new CancellationTokenSource(_settings.ConnectTimeout);
-            using var combinedCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCancellationTokenSource.Token);
-            using var cancellationSubscription = combinedCancellationTokenSource.Token.Register(state =>
+            Task connectTask;
+#if NET472
+            if (endPoint is DnsEndPoint dnsEndPoint)
             {
-                var operationState = (OperationCallbackState<Socket>)state;
-                if (operationState.TryChangeStatusFromInProgress(OperationCallbackState<Socket>.OperationStatus.Interrupted))
-                {
-                    DisposeSocket(operationState.Subject);
-                }
-            }, callbackState);
-
+                // mono doesn't support DnsEndPoint in its ConnectAsync method.
+                connectTask = socket.ConnectAsync(dnsEndPoint.Host, dnsEndPoint.Port);
+            }
+            else
+            {
+                connectTask = socket.ConnectAsync(endPoint);
+            }
+#else
+            connectTask = socket.ConnectAsync(endPoint);
+#endif
             try
             {
-#if NET472
-                if (endPoint is DnsEndPoint dnsEndPoint)
-                {
-                    // mono doesn't support DnsEndPoint in its Connect method.
-                    socket.Connect(dnsEndPoint.Host, dnsEndPoint.Port);
-                }
-                else
-                {
-                    socket.Connect(endPoint);
-                }
-#else
-                socket.Connect(endPoint);
-#endif
-                if (!callbackState.TryChangeStatusFromInProgress(OperationCallbackState<Socket>.OperationStatus.Done))
-                {
-                    throw new ObjectDisposedException(nameof(Socket));
-                }
+                connectTask.WaitTask(_settings.ConnectTimeout, cancellationToken);
             }
-            catch
+            catch (Exception ex)
             {
-                DisposeSocket(socket);
+                try
+                {
+                    connectTask.IgnoreExceptions();
+                    socket.Dispose();
+                }
+                catch { }
 
-                cancellationToken.ThrowIfCancellationRequested();
-                if (timeoutCancellationTokenSource.IsCancellationRequested)
+                if (ex is TimeoutException)
                 {
                     throw new TimeoutException($"Timed out connecting to {endPoint}. Timeout was {_settings.ConnectTimeout}.");
                 }
 
                 throw;
-            }
-
-            static void DisposeSocket(Socket socket)
-            {
-                try
-                {
-                    socket.Dispose();
-                }
-                catch
-                {
-                    // Ignore any exceptions.
-                }
             }
         }
 
