@@ -444,11 +444,12 @@ namespace MongoDB.Driver.Core.Bindings
 
             if (isTracingEnabled)
             {
+                var previousCurrent = Activity.Current;
                 _currentTransaction.TransactionActivity = MongoTelemetry.StartTransactionActivity();
 
-                // Immediately restore Activity.Current to the parent to prevent AsyncLocal flow issues.
-                // The transaction activity will be explicitly set as parent for operations within the transaction.
-                Activity.Current = _currentTransaction.TransactionActivity.Parent;
+                // Immediately restore Activity.Current to the previous current to prevent AsyncLocal flow issues.
+                // The transaction activity will be made the temporary Activity.Current for operations within the transaction.
+                Activity.Current = previousCurrent;
             }
         }
 
