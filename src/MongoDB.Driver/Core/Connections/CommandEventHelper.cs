@@ -91,6 +91,16 @@ namespace MongoDB.Driver.Core.Connections
             get { return _shouldTrackState; }
         }
 
+        public void CompleteFailedCommandActivity(Exception exception)
+        {
+            if (_currentCommandActivity is not null)
+            {
+                MongoTelemetry.RecordException(_currentCommandActivity, exception);
+                _currentCommandActivity.Dispose();
+                _currentCommandActivity = null;
+            }
+        }
+
         public void BeforeSending(
             RequestMessage message,
             ConnectionId connectionId,
@@ -703,11 +713,11 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        private void CompleteCommandActivityWithException(Exception exception, BsonDocument commandReply = null)
+        private void CompleteCommandActivityWithException(Exception exception)
         {
             if (_currentCommandActivity is not null)
             {
-                MongoTelemetry.RecordException(_currentCommandActivity, exception, commandReply: commandReply);
+                MongoTelemetry.RecordException(_currentCommandActivity, exception);
                 _currentCommandActivity.Dispose();
                 _currentCommandActivity = null;
             }
@@ -721,7 +731,10 @@ namespace MongoDB.Driver.Core.Connections
             int responseTo,
             bool skipLogging)
         {
-            if (_currentCommandActivity is null && !_shouldTrackFailed)
+            // Don't complete the activity here. It will be completed by CompleteFailedCommandActivity
+            // when WireProtocol creates the real exception with meaningful stacktrace.
+
+            if (!_shouldTrackFailed)
             {
                 return;
             }
@@ -732,21 +745,16 @@ namespace MongoDB.Driver.Core.Connections
                 null,
                 reply);
 
-            CompleteCommandActivityWithException(exception, reply);
-
-            if (_shouldTrackFailed)
-            {
-                _eventLogger.LogAndPublish(new CommandFailedEvent(
-                    state.CommandName,
-                    state.QueryNamespace.DatabaseNamespace,
-                    exception,
-                    state.OperationId,
-                    responseTo,
-                    connectionId,
-                    serviceId,
-                    state.Stopwatch.Elapsed),
-                    skipLogging);
-            }
+            _eventLogger.LogAndPublish(new CommandFailedEvent(
+                state.CommandName,
+                state.QueryNamespace.DatabaseNamespace,
+                exception,
+                state.OperationId,
+                responseTo,
+                connectionId,
+                serviceId,
+                state.Stopwatch.Elapsed),
+                skipLogging);
         }
 
         private enum ExpectedResponseType

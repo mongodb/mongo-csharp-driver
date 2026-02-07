@@ -236,6 +236,11 @@ namespace MongoDB.Driver.Core.TestHelpers
             return Task.CompletedTask;
         }
 
+        public void CompleteCommandWithException(Exception exception)
+        {
+            // No-op for mock
+        }
+
         // nested type
         private class ActionQueueItem
         {

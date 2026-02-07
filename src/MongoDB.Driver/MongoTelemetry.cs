@@ -176,7 +176,7 @@ public static class MongoTelemetry
         return ActivitySource.StartActivity(ActivityKind.Client, tags: new TagList { { DbSystemAttribute, "mongodb" } }, name: "transaction");
     }
 
-    internal static void RecordException(Activity activity, Exception exception, bool isOperationLevel = false, BsonDocument commandReply = null)
+    internal static void RecordException(Activity activity, Exception exception, bool isOperationLevel = false)
     {
         if (activity == null)
         {
@@ -197,16 +197,13 @@ public static class MongoTelemetry
             activity.SetTag(ExceptionStacktraceAttribute, exception.StackTrace);
         }
 
-        if (commandReply != null)
+        if (!isOperationLevel && exception is MongoCommandException commandException)
         {
-            if (commandReply.Contains("code"))
+            var code = commandException.Code;
+            if (code != -1)
             {
-                activity.SetTag(DbResponseStatusCodeAttribute, commandReply["code"].ToString());
+                activity.SetTag(DbResponseStatusCodeAttribute, code.ToString());
             }
-
-            // Override stacktrace with empty string - server-side exceptions don't have meaningful client stacktraces
-            // we need the team to decide on this.
-            activity.SetTag(ExceptionStacktraceAttribute, "");
         }
 
         activity.SetStatus(ActivityStatusCode.Error);
