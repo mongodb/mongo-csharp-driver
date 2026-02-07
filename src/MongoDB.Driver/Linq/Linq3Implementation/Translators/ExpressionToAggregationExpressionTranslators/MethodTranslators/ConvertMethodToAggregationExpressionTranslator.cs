@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
             var toBsonType = GetResultRepresentation(expression, toType);
             var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
-            var toSerializer = context.NodeSerializers.GetSerializer(expression);
+            var toSerializer = context.GetSerializer(expression);
             var (subType, byteOrder, format, onErrorAst, onNullAst) = TranslateOptions(context, expression, optionsExpression, toSerializer);
 
             var ast = AstExpression.Convert(valueTranslation.Ast, toBsonType.Render(), subType, byteOrder, format, onErrorAst, onNullAst);

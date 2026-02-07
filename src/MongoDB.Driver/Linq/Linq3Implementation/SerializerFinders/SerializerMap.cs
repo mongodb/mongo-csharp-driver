@@ -27,6 +27,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.SerializerFinders;
 internal interface IReadOnlySerializerMap
 {
     IBsonSerializer GetSerializer(Expression node);
+    bool HasResultSerializer(Expression node);
 }
 
 internal class SerializerMap : IReadOnlySerializerMap
@@ -87,12 +88,21 @@ internal class SerializerMap : IReadOnlySerializerMap
 
     public IBsonSerializer GetSerializer(Expression node)
     {
-        if (_map.TryGetValue(node, out var nodeSerializer))
+        if (_map.TryGetValue(node, out var nodeSerializer) &&
+            nodeSerializer is not IIgnoreSubtreeSerializer &&
+            nodeSerializer is not IUnknowableSerializer)
         {
             return nodeSerializer;
         }
 
-        throw new ExpressionNotSupportedException(node, because: "unable to determine which serializer to use");
+        throw new ExpressionNotSupportedException(node, because: "unable to determine which serializer to use for the result");
+    }
+
+    public bool HasResultSerializer(Expression node)
+    {
+        return
+            IsKnown(node, out var serializer) &&
+            (serializer is not IIgnoreSubtreeSerializer && serializer is not IUnknowableSerializer);
     }
 
     public bool IsNotKnown(Expression node)

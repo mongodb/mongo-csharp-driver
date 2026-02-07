@@ -114,13 +114,6 @@ internal partial class SerializerFinderVisitor
                 case ExpressionType.And:
                 case ExpressionType.ExclusiveOr:
                 case ExpressionType.Or:
-                    switch (node.Type)
-                    {
-                        case Type t when t == typeof(bool): return BooleanSerializer.Instance;
-                        case Type t when t == typeof(int): return Int32Serializer.Instance;
-                    }
-                    goto default;
-
                 case ExpressionType.AndAlso:
                 case ExpressionType.Equal:
                 case ExpressionType.GreaterThan:
@@ -130,8 +123,6 @@ internal partial class SerializerFinderVisitor
                 case ExpressionType.NotEqual:
                 case ExpressionType.OrElse:
                 case ExpressionType.TypeEqual:
-                    return BooleanSerializer.Instance;
-
                 case ExpressionType.Add:
                 case ExpressionType.AddChecked:
                 case ExpressionType.Divide:

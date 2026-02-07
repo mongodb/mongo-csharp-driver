@@ -197,6 +197,15 @@ internal partial class SerializerFinderVisitor
         }
     }
 
+    private void DeduceStandardSerializer(Expression node)
+    {
+        if (IsNotKnown(node))
+        {
+            var serializer = StandardSerializers.GetSerializer(node.Type);
+            AddNodeSerializer(node, serializer);
+        }
+    }
+
     private void DeduceStringSerializer(Expression node)
     {
         if (IsNotKnown(node))

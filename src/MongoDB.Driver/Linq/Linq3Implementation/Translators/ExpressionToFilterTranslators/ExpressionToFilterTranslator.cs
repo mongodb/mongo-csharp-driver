@@ -31,6 +31,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
         // public methods
         public static AstFilter Translate(TranslationContext context, Expression expression, bool exprOk = true)
         {
+            if (!context.HasResultSerializer(expression))
+            {
+                throw new ExpressionNotSupportedException(expression, because: "we were unable to determine which serializer to use for the result");
+            }
+
             AstFilter filter;
             try
             {

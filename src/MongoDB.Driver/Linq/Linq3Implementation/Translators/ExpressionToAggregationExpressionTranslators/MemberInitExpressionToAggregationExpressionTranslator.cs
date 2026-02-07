@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             NewExpression newExpression,
             IReadOnlyList<MemberBinding> bindings)
         {
-            var nodeSerializer = context.NodeSerializers.GetSerializer(expression);
+            var nodeSerializer = context.GetSerializer(expression);
             var constructorInfo = newExpression.Constructor; // note: can be null when using the default constructor with a struct
             var constructorArguments = newExpression.Arguments;
 

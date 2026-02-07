@@ -47,7 +47,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                         _ => throw new InvalidOperationException()
                     };
 
-                return new TranslatedExpression(expression, ast, objectTranslation.Serializer);
+                var resultSerializer = context.GetSerializer(expression);
+                return new TranslatedExpression(expression, ast, resultSerializer);
             }
 
             throw new ExpressionNotSupportedException(expression);

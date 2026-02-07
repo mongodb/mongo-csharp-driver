@@ -70,7 +70,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     @as: predicateSymbol.Var.Name,
                     limitTranslation?.Ast);
 
-                var resultSerializer = context.NodeSerializers.GetSerializer(expression);
+                var resultSerializer = context.GetSerializer(expression);
                 return new TranslatedExpression(expression, ast, resultSerializer);
             }
 

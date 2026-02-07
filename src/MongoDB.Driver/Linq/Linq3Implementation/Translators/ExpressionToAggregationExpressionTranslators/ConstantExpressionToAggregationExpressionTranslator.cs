@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
     {
         public static TranslatedExpression Translate(TranslationContext context, ConstantExpression constantExpression)
         {
-            var constantSerializer = context.NodeSerializers.GetSerializer(constantExpression);
+            var constantSerializer = context.GetSerializer(constantExpression);
             return Translate(constantExpression, constantSerializer);
         }
 

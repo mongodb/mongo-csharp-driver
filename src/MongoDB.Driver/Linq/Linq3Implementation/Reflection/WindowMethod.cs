@@ -142,7 +142,22 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __sumWithSingle;
 
         // sets of methods
+        private static readonly IReadOnlyMethodInfoSet __averageOverloads;
+        private static readonly IReadOnlyMethodInfoSet __covariancePopulationOverloads;
+        private static readonly IReadOnlyMethodInfoSet __covarianceSampleOverloads;
+        private static readonly IReadOnlyMethodInfoSet __derivativeOverloads;
+        private static readonly IReadOnlyMethodInfoSet __exponentialMovingAverageOverloads;
+        private static readonly IReadOnlyMethodInfoSet __integralOverloads;
+        private static readonly IReadOnlyMethodInfoSet __medianOverloads;
         private static readonly IReadOnlyMethodInfoSet __percentileOverloads;
+        private static readonly IReadOnlyMethodInfoSet __standardDeviationPopulationOverloads;
+        private static readonly IReadOnlyMethodInfoSet __standardDeviationSampleOverloads;
+        private static readonly IReadOnlyMethodInfoSet __sumOverloads;
+
+        // sets of sets methods
+        private static readonly IReadOnlyMethodInfoSet __covarianceOverloads;
+        private static readonly IReadOnlyMethodInfoSet __derivativeOrIntegralOverloads;
+        private static readonly IReadOnlyMethodInfoSet __standardDeviationOverloads;
 
         // static constructor
         static WindowMethod()
@@ -268,6 +283,99 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __sumWithSingle = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, float> selector, SetWindowFieldsWindow window) => partition.Sum(selector, window));
 
             // initialize sets of methods after methods
+            __averageOverloads = MethodInfoSet.Create(
+            [
+                __averageWithDecimal,
+                __averageWithDouble,
+                __averageWithInt32,
+                __averageWithInt64,
+                __averageWithNullableDecimal,
+                __averageWithNullableDouble,
+                __averageWithNullableInt32,
+                __averageWithNullableInt64,
+                __averageWithNullableSingle,
+                __averageWithSingle
+            ]);
+
+            __covariancePopulationOverloads = MethodInfoSet.Create(
+            [
+                __covariancePopulationWithDecimals,
+                __covariancePopulationWithDoubles,
+                __covariancePopulationWithInt32s,
+                __covariancePopulationWithInt64s,
+                __covariancePopulationWithNullableDecimals,
+                __covariancePopulationWithNullableDoubles,
+                __covariancePopulationWithNullableInt32s,
+                __covariancePopulationWithNullableInt64s,
+                __covariancePopulationWithNullableSingles,
+                __covariancePopulationWithSingles
+            ]);
+
+            __covarianceSampleOverloads = MethodInfoSet.Create(
+            [
+                __covarianceSampleWithDecimals,
+                __covarianceSampleWithDoubles,
+                __covarianceSampleWithInt32s,
+                __covarianceSampleWithInt64s,
+                __covarianceSampleWithNullableDecimals,
+                __covarianceSampleWithNullableDoubles,
+                __covarianceSampleWithNullableInt32s,
+                __covarianceSampleWithNullableInt64s,
+                __covarianceSampleWithNullableSingles,
+                __covarianceSampleWithSingles
+            ]);
+
+            __derivativeOverloads = MethodInfoSet.Create(
+            [
+                __derivativeWithDecimal,
+                __derivativeWithDecimalAndUnit,
+                __derivativeWithDouble,
+                __derivativeWithDoubleAndUnit,
+                __derivativeWithInt32,
+                __derivativeWithInt32AndUnit,
+                __derivativeWithInt64,
+                __derivativeWithInt64AndUnit,
+                __derivativeWithSingle,
+                __derivativeWithSingleAndUnit
+            ]);
+
+            __exponentialMovingAverageOverloads = MethodInfoSet.Create(
+            [
+                __exponentialMovingAverageWithDecimal,
+                __exponentialMovingAverageWithDouble,
+                __exponentialMovingAverageWithInt32,
+                __exponentialMovingAverageWithInt64,
+                __exponentialMovingAverageWithSingle
+            ]);
+
+            __integralOverloads = MethodInfoSet.Create(
+            [
+                __integralWithDecimal,
+                __integralWithDecimalAndUnit,
+                __integralWithDouble,
+                __integralWithDoubleAndUnit,
+                __integralWithInt32,
+                __integralWithInt32AndUnit,
+                __integralWithInt64,
+                __integralWithInt64AndUnit,
+                __integralWithSingle,
+                __integralWithSingleAndUnit
+            ]);
+
+            __medianOverloads = MethodInfoSet.Create(
+            [
+                __medianWithDecimal,
+                __medianWithDouble,
+                __medianWithInt32,
+                __medianWithInt64,
+                __medianWithNullableDecimal,
+                __medianWithNullableDouble,
+                __medianWithNullableInt32,
+                __medianWithNullableInt64,
+                __medianWithNullableSingle,
+                __medianWithSingle
+            ]);
+
             __percentileOverloads = MethodInfoSet.Create(
             [
                 __percentileWithDecimal,
@@ -280,6 +388,67 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
                 __percentileWithNullableInt64,
                 __percentileWithNullableSingle,
                 __percentileWithSingle
+            ]);
+
+            __standardDeviationPopulationOverloads = MethodInfoSet.Create(
+            [
+                __standardDeviationPopulationWithDecimal,
+                __standardDeviationPopulationWithDouble,
+                __standardDeviationPopulationWithInt32,
+                __standardDeviationPopulationWithInt64,
+                __standardDeviationPopulationWithNullableDecimal,
+                __standardDeviationPopulationWithNullableDouble,
+                __standardDeviationPopulationWithNullableInt32,
+                __standardDeviationPopulationWithNullableInt64,
+                __standardDeviationPopulationWithNullableSingle,
+                __standardDeviationPopulationWithSingle
+            ]);
+
+            __standardDeviationSampleOverloads = MethodInfoSet.Create(
+            [
+                __standardDeviationSampleWithDecimal,
+                __standardDeviationSampleWithDouble,
+                __standardDeviationSampleWithInt32,
+                __standardDeviationSampleWithInt64,
+                __standardDeviationSampleWithNullableDecimal,
+                __standardDeviationSampleWithNullableDouble,
+                __standardDeviationSampleWithNullableInt32,
+                __standardDeviationSampleWithNullableInt64,
+                __standardDeviationSampleWithNullableSingle,
+                __standardDeviationSampleWithSingle
+            ]);
+
+            __sumOverloads = MethodInfoSet.Create(
+            [
+                __sumWithDecimal,
+                __sumWithDouble,
+                __sumWithInt32,
+                __sumWithInt64,
+                __sumWithNullableDecimal,
+                __sumWithNullableDouble,
+                __sumWithNullableInt32,
+                __sumWithNullableInt64,
+                __sumWithNullableSingle,
+                __sumWithSingle
+            ]);
+
+            // initialize sets of sets of methods after sets of methods
+            __covarianceOverloads = MethodInfoSet.Create(
+            [
+                __covariancePopulationOverloads,
+                __covarianceSampleOverloads
+            ]);
+
+            __derivativeOrIntegralOverloads = MethodInfoSet.Create(
+            [
+                __derivativeOverloads,
+                __integralOverloads
+            ]);
+
+            __standardDeviationOverloads = MethodInfoSet.Create(
+            [
+                __standardDeviationPopulationOverloads,
+                __standardDeviationSampleOverloads
             ]);
         }
 
@@ -404,6 +573,21 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo SumWithSingle => __sumWithSingle;
 
         // sets of methods
+        public static IReadOnlyMethodInfoSet AverageOverloads => __averageOverloads;
+        public static IReadOnlyMethodInfoSet CovariancePopulationOverloads => __covariancePopulationOverloads;
+        public static IReadOnlyMethodInfoSet CovarianceSampleOverloads => __covarianceSampleOverloads;
+        public static IReadOnlyMethodInfoSet DerivativeOverloads => __derivativeOverloads;
+        public static IReadOnlyMethodInfoSet ExponentialMovingAverageOverloads => __exponentialMovingAverageOverloads;
+        public static IReadOnlyMethodInfoSet IntegralOverloads => __integralOverloads;
+        public static IReadOnlyMethodInfoSet MedianOverloads => __medianOverloads;
         public static IReadOnlyMethodInfoSet PercentileOverloads => __percentileOverloads;
+        public static IReadOnlyMethodInfoSet StandardDeviationPopulationOverloads => __standardDeviationPopulationOverloads;
+        public static IReadOnlyMethodInfoSet StandardDeviationSampleOverloads => __standardDeviationSampleOverloads;
+        public static IReadOnlyMethodInfoSet SumOverloads => __sumOverloads;
+
+        // sets of sets of methods
+        public static IReadOnlyMethodInfoSet CovarianceOverloads => __covarianceOverloads;
+        public static IReadOnlyMethodInfoSet DerivativeOrIntegralOverloads => __derivativeOrIntegralOverloads;
+        public static IReadOnlyMethodInfoSet StandardDeviationOverloads => __standardDeviationOverloads;
     }
 }

@@ -37,6 +37,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
         public static TranslatedExpression TranslateWithoutUnwrapping(TranslationContext context, Expression expression)
         {
+            if (!context.HasResultSerializer(expression))
+            {
+                throw new ExpressionNotSupportedException(expression, because: "we were unable to determine which serializer to use for the result");
+            }
+
             switch (expression.NodeType)
             {
                 case ExpressionType.Convert:

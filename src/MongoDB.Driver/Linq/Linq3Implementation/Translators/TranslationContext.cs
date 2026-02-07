@@ -146,7 +146,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
 
         // public properties
         public TranslationContextData Data => _data;
-        public IReadOnlySerializerMap NodeSerializers => _nodeSerializers;
         public NameGenerator NameGenerator => _nameGenerator;
         public SymbolTable SymbolTable => _symbolTable;
         public ExpressionTranslationOptions TranslationOptions => _translationOptions;
@@ -195,6 +194,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
         public IBsonSerializer GetSerializer(Expression parameter)
         {
             return _nodeSerializers.GetSerializer(parameter);
+        }
+
+        public bool HasResultSerializer(Expression node)
+        {
+            return _nodeSerializers.HasResultSerializer(node);
         }
 
         public override string ToString()
