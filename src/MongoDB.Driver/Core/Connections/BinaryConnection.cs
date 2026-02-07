@@ -579,6 +579,11 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
+        public void CompleteCommandWithException(Exception exception)
+        {
+            _commandEventHelper.CompleteFailedCommandActivity(exception);
+        }
+
         // private methods
         private bool ShouldBeCompressed(RequestMessage message)
         {
