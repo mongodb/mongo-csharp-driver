@@ -176,6 +176,15 @@ internal partial class SerializerFinderVisitor
         }
     }
 
+    private void DeduceIgnoreSubtreeSerializer(Expression node)
+    {
+        if (IsNotKnown(node))
+        {
+            var serializer = IgnoreSubtreeSerializer.Create(node.Type);
+            AddNodeSerializer(node, serializer);
+        }
+    }
+
     private void DeduceSerializer(Expression node, IBsonSerializer serializer)
     {
         if (IsNotKnown(node) && serializer != null)

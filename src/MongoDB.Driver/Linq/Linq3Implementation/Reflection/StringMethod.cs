@@ -101,7 +101,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         private static readonly IReadOnlyMethodInfoSet __compareOverloads;
         private static readonly IReadOnlyMethodInfoSet __concatOverloads;
         private static readonly IReadOnlyMethodInfoSet __containsOverloads;
-        private static readonly IReadOnlyMethodInfoSet __endsWithOrStartsWithOverloads;
         private static readonly IReadOnlyMethodInfoSet __endsWithOverloads;
         private static readonly IReadOnlyMethodInfoSet __indexOfAnyOverloads;
         private static readonly IReadOnlyMethodInfoSet __indexOfOverloads;
@@ -120,10 +119,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         private static readonly IReadOnlyMethodInfoSet __startsWithOverloads;
         private static readonly IReadOnlyMethodInfoSet __stringInOverloads;
         private static readonly IReadOnlyMethodInfoSet __stringNinOverloads;
-        private static readonly IReadOnlyMethodInfoSet __toLowerOrToUpperOverloads;
         private static readonly IReadOnlyMethodInfoSet __toLowerOverloads;
         private static readonly IReadOnlyMethodInfoSet __toUpperOverloads;
         private static readonly IReadOnlyMethodInfoSet __trimOverloads;
+
+        // sets of sets of methods
+        private static readonly IReadOnlyMethodInfoSet __anyStringInOrNinOverloads;
+        private static readonly IReadOnlyMethodInfoSet __endsWithOrStartsWithOverloads;
+        private static readonly IReadOnlyMethodInfoSet __stringInOrNinOverloads;
+        private static readonly IReadOnlyMethodInfoSet __toLowerOrToUpperOverloads;
 
         // static constructor
         static StringMethod()
@@ -209,7 +213,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             __trimStart = ReflectionInfo.Method((string s, char[] trimChars) => s.TrimStart(trimChars));
             __trimWithChars = ReflectionInfo.Method((string s, char[] trimChars) => s.Trim(trimChars));
 
-                // initialize sets of methods after methods
+            // initialize sets of methods after methods
             __anyStringInOverloads = MethodInfoSet.Create(
             [
                 __anyStringInWithEnumerable,
@@ -424,11 +428,23 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                 __trimWithChars
             ]);
 
-            // initialize sets of methods after individual methods
+            // initialize sets of sets of methods after sets of methods
+            __anyStringInOrNinOverloads = MethodInfoSet.Create(
+            [
+                __anyStringInOverloads,
+                __anyStringNinOverloads
+            ]);
+
             __endsWithOrStartsWithOverloads = MethodInfoSet.Create(
             [
                 __endsWithOverloads,
                 __startsWithOverloads
+            ]);
+
+            __stringInOrNinOverloads = MethodInfoSet.Create(
+            [
+                __stringInOverloads,
+                __stringNinOverloads
             ]);
 
             __toLowerOrToUpperOverloads = MethodInfoSet.Create(
@@ -516,7 +532,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         public static IReadOnlyMethodInfoSet CompareOverloads => __compareOverloads;
         public static IReadOnlyMethodInfoSet ConcatOverloads => __concatOverloads;
         public static IReadOnlyMethodInfoSet ContainsOverloads => __containsOverloads;
-        public static IReadOnlyMethodInfoSet EndsWithOrStartsWithOverloads => __endsWithOrStartsWithOverloads;
         public static IReadOnlyMethodInfoSet EndsWithOverloads => __endsWithOverloads;
         public static IReadOnlyMethodInfoSet IndexOfAnyOverloads => __indexOfAnyOverloads;
         public static IReadOnlyMethodInfoSet IndexOfOverloads => __indexOfOverloads;
@@ -535,9 +550,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         public static IReadOnlyMethodInfoSet StartsWithOverloads => __startsWithOverloads;
         public static IReadOnlyMethodInfoSet StringInOverloads => __stringInOverloads;
         public static IReadOnlyMethodInfoSet StringNinOverloads => __stringNinOverloads;
-        public static IReadOnlyMethodInfoSet ToLowerOrToUpperOverloads => __toLowerOrToUpperOverloads;
         public static IReadOnlyMethodInfoSet ToLowerOverloads => __toLowerOverloads;
         public static IReadOnlyMethodInfoSet ToUpperOverloads => __toUpperOverloads;
         public static IReadOnlyMethodInfoSet TrimOverloads => __trimOverloads;
+
+        // sets of sets methods
+        public static IReadOnlyMethodInfoSet AnyStringInOrNinOverloads => __anyStringInOrNinOverloads;
+        public static IReadOnlyMethodInfoSet EndsWithOrStartsWithOverloads => __endsWithOrStartsWithOverloads;
+        public static IReadOnlyMethodInfoSet StringInOrNinOverloads => __stringInOrNinOverloads;
+        public static IReadOnlyMethodInfoSet ToLowerOrToUpperOverloads => __toLowerOrToUpperOverloads;
     }
 }

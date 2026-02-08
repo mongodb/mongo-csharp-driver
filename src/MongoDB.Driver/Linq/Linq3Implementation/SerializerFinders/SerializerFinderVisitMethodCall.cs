@@ -101,6 +101,7 @@ internal partial class SerializerFinderVisitor
                 case "DateFromString": DeduceDateFromStringMethodSerializers(); break;
                 case "DefaultIfEmpty": DeduceDefaultIfEmptyMethodSerializers(); break;
                 case "DegreesToRadians": DeduceDegreesToRadiansMethodSerializers(); break;
+                case "Densify": DeduceDensifyMethodSerializers(); break;
                 case "Distinct": DeduceDistinctMethodSerializers(); break;
                 case "DocumentNumber": DeduceDocumentNumberMethodSerializers(); break;
                 case "Documents": DeduceDocumentsMethodSerializers(); break;
@@ -140,7 +141,6 @@ internal partial class SerializerFinderVisitor
                 case "Sigmoid": DeduceSigmoidMethodSerializers(); break;
                 case "Split": DeduceSplitMethodSerializers(); break;
                 case "Sqrt": DeduceSqrtMethodSerializers(); break;
-                case "StringIn": DeduceStringInMethodSerializers(); break;
                 case "StrLenBytes": DeduceStrLenBytesMethodSerializers(); break;
                 case "Subtract": DeduceSubtractMethodSerializers(); break;
                 case "Sum": DeduceSumMethodSerializers(); break;
@@ -174,6 +174,11 @@ internal partial class SerializerFinderVisitor
                 case "AllMatchingElements":
                 case "FirstMatchingElement":
                     DeduceMatchingElementsMethodSerializers();
+                    break;
+
+                case "AnyStringIn":
+                case "AnyStringNin":
+                    DeduceAnyStringInOrNinMethodSerializers();
                     break;
 
                 case "Append":
@@ -292,6 +297,11 @@ internal partial class SerializerFinderVisitor
                 case "StandardDeviationSample":
                 case "StandardDeviationSampleAsync":
                     DeduceStandardDeviationMethodSerializers();
+                    break;
+
+                case "StringIn":
+                case "StringNin":
+                    DeduceStringInOrNinMethodSerializers();
                     break;
 
                 case "Substring":
@@ -555,6 +565,18 @@ internal partial class SerializerFinderVisitor
                     DeduceItemAndCollectionSerializers(predicateParameter, sourceExpression);
                 }
 
+                DeduceReturnsBooleanSerializer();
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
+        }
+
+        void DeduceAnyStringInOrNinMethodSerializers()
+        {
+            if (method.IsOneOf(StringMethod.AnyStringInOrNinOverloads))
+            {
                 DeduceReturnsBooleanSerializer();
             }
             else
@@ -1096,6 +1118,35 @@ internal partial class SerializerFinderVisitor
                 var selectorLambda = (LambdaExpression)arguments[1];
                 DeduceWindowMethodSelectorParameterSerializer(partitionExpression, selectorLambda);
                 DeduceStandardSerializer(node);
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
+        }
+
+        void DeduceDensifyMethodSerializers()
+        {
+            if (method.Is(MongoQueryableMethod.DensifyWithArrayPartitionByFields))
+            {
+                var sourceExpression = arguments[0];
+                var fieldLambda = ExpressionHelper.UnquoteLambda(arguments[1]);
+                var fieldLambdaSourceParameter = fieldLambda.Parameters.Single();
+                var rangeExpression = arguments[2];
+                var partitionByFieldsExpression = arguments[3];
+
+                DeduceItemAndCollectionSerializers(fieldLambdaSourceParameter, sourceExpression);
+                DeduceIgnoreSubtreeSerializer(rangeExpression);
+                if (partitionByFieldsExpression is NewArrayExpression newArrayExpression)
+                {
+                    foreach (var arrayItemExpression in newArrayExpression.Expressions)
+                    {
+                        var partitionByFieldLambda = ExpressionHelper.UnquoteLambda(arrayItemExpression);
+                        var partitionByFieldLambdaSourceParameter = partitionByFieldLambda.Parameters.Single();
+                        DeduceItemAndCollectionSerializers(partitionByFieldLambdaSourceParameter, sourceExpression);
+                    }
+                }
+                DeduceCollectionAndCollectionSerializers(node, sourceExpression);
             }
             else
             {
@@ -2450,9 +2501,9 @@ internal partial class SerializerFinderVisitor
             }
         }
 
-        void DeduceStringInMethodSerializers()
+        void DeduceStringInOrNinMethodSerializers()
         {
-            if (method.IsOneOf(StringMethod.StringInWithEnumerable, StringMethod.StringInWithParams))
+            if (method.IsOneOf(StringMethod.StringInOrNinOverloads))
             {
                 DeduceReturnsBooleanSerializer();
             }
