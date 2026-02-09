@@ -14,6 +14,7 @@
 */
 
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Bindings
 {
@@ -33,7 +34,7 @@ namespace MongoDB.Driver.Core.Bindings
         /// <summary>
         /// Initializes a new instance of the <see cref="CoreSessionOptions" /> class.
         /// </summary>
-        /// <param name="isCausallyConsistent">if set to <c>true</c> this session is causally consistent]</param>
+        /// <param name="isCausallyConsistent">if set to <c>true</c> this session is causally consistent</param>
         /// <param name="isImplicit">if set to <c>true</c> this session is an implicit session.</param>
         /// <param name="isSnapshot">if set to <c>true</c> this session is a snapshot session.</param>
         /// <param name="defaultTransactionOptions">The default transaction options.</param>
@@ -45,6 +46,7 @@ namespace MongoDB.Driver.Core.Bindings
             bool isSnapshot = false,
             BsonTimestamp snapshotTime = null)
         {
+            Ensure.That( snapshotTime is null || isSnapshot, "snapshotTime can only be set if isSnapshot is true.");
             _isCausallyConsistent = isCausallyConsistent;
             _isImplicit = isImplicit;
             _isSnapshot = isSnapshot;
@@ -55,7 +57,7 @@ namespace MongoDB.Driver.Core.Bindings
         /// <summary>
         /// Initializes a new instance of the <see cref="CoreSessionOptions" /> class.
         /// </summary>
-        /// <param name="isCausallyConsistent">if set to <c>true</c> this session is causally consistent]</param>
+        /// <param name="isCausallyConsistent">if set to <c>true</c> this session is causally consistent</param>
         /// <param name="isImplicit">if set to <c>true</c> this session is an implicit session.</param>
         /// <param name="isSnapshot">if set to <c>true</c> this session is a snapshot session.</param>
         /// <param name="defaultTransactionOptions">The default transaction options.</param>

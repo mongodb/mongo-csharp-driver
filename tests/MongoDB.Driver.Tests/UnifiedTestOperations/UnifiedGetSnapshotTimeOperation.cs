@@ -20,11 +20,11 @@ using MongoDB.Bson;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations;
 
-public class UnifiedGetSnapshotOperation : IUnifiedEntityTestOperation
+public class UnifiedGetSnapshotTimeOperation : IUnifiedEntityTestOperation
 {
     private readonly IClientSessionHandle _session;
 
-    public UnifiedGetSnapshotOperation(IClientSessionHandle session)
+    public UnifiedGetSnapshotTimeOperation(IClientSessionHandle session)
     {
         _session = session;
     }
@@ -46,16 +46,16 @@ public class UnifiedGetSnapshotOperation : IUnifiedEntityTestOperation
     }
 }
 
-public class UnifiedGetSnapshotOperationBuilder
+public class UnifiedGetSnapshotTimeOperationBuilder
 {
     private readonly UnifiedEntityMap _entityMap;
 
-    public UnifiedGetSnapshotOperationBuilder(UnifiedEntityMap entityMap)
+    public UnifiedGetSnapshotTimeOperationBuilder(UnifiedEntityMap entityMap)
     {
         _entityMap = entityMap;
     }
 
-    public UnifiedGetSnapshotOperation Build(string targetSessionId, BsonDocument arguments)
+    public UnifiedGetSnapshotTimeOperation Build(string targetSessionId, BsonDocument arguments)
     {
         if (arguments != null)
         {
@@ -63,6 +63,6 @@ public class UnifiedGetSnapshotOperationBuilder
         }
 
         var session = _entityMap.Sessions[targetSessionId];
-        return new UnifiedGetSnapshotOperation(session);
+        return new UnifiedGetSnapshotTimeOperation(session);
     }
 }
