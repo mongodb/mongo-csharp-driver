@@ -25,7 +25,6 @@ namespace MongoDB.Driver
     /// </summary>
     public static class IClientSessionExtensions
     {
-        //TODO This will need to be moved somewhere else
         /// <summary>
         /// Gets the snapshot time for a snapshot session.
         /// </summary>
