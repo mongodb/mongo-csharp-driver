@@ -137,7 +137,12 @@ namespace MongoDB.Driver.Core.WireProtocol
                     {
                         return ProcessReply(connection.ConnectionId, (ReplyMessage<RawBsonDocument>)reply);
                     }
-                    catch (MongoServerException ex)
+                    catch (MongoCommandException ex) when (ex is not MongoWriteConcernException)
+                    {
+                        connection.CompleteCommandWithException(ex);
+                        throw;
+                    }
+                    catch (MongoExecutionTimeoutException ex)
                     {
                         connection.CompleteCommandWithException(ex);
                         throw;
@@ -167,7 +172,12 @@ namespace MongoDB.Driver.Core.WireProtocol
                     {
                         return ProcessReply(connection.ConnectionId, (ReplyMessage<RawBsonDocument>)reply);
                     }
-                    catch (MongoServerException ex)
+                    catch (MongoCommandException ex) when (ex is not MongoWriteConcernException)
+                    {
+                        connection.CompleteCommandWithException(ex);
+                        throw;
+                    }
+                    catch (MongoExecutionTimeoutException ex)
                     {
                         connection.CompleteCommandWithException(ex);
                         throw;
