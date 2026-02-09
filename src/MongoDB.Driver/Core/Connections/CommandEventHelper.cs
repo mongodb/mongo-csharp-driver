@@ -449,14 +449,17 @@ namespace MongoDB.Driver.Core.Connections
                     replyMessage.QueryFailure ||
                     (state.ExpectedResponseType != ExpectedResponseType.Query && replyMessage.Documents.Count == 0))
                 {
-                    var queryFailureDocument = replyMessage.QueryFailureDocument;
-                    if (state.ShouldRedactReply)
-                    {
-                        queryFailureDocument = new BsonDocument();
-                    }
+                    // Activity is not completed here. WireProtocol will create the real exception with a
+                    // meaningful stacktrace, and CompleteCommandWithException will be called there.
 
                     if (_shouldTrackFailed)
                     {
+                        var queryFailureDocument = replyMessage.QueryFailureDocument;
+                        if (state.ShouldRedactReply)
+                        {
+                            queryFailureDocument = new BsonDocument();
+                        }
+
                         _eventLogger.LogAndPublish(new CommandFailedEvent(
                             state.CommandName,
                             state.QueryNamespace.DatabaseNamespace,
@@ -731,8 +734,8 @@ namespace MongoDB.Driver.Core.Connections
             int responseTo,
             bool skipLogging)
         {
-            // Don't complete the activity here. It will be completed by CompleteFailedCommandActivity
-            // when WireProtocol creates the real exception with meaningful stacktrace.
+            // Activity is not completed here. WireProtocol will create the real exception with a
+            // meaningful stacktrace, and CompleteCommandWithException will be called there.
 
             if (!_shouldTrackFailed)
             {

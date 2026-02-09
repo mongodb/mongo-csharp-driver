@@ -183,8 +183,8 @@ public static class MongoTelemetry
             return;
         }
 
-        // At operation level, skip server exceptions as they're already recorded on command span
-        if (isOperationLevel && exception is MongoServerException)
+        // At operation level, skip exceptions already recorded on the command span
+        if (isOperationLevel && exception is (MongoCommandException and not MongoWriteConcernException) or MongoExecutionTimeoutException)
         {
             activity.SetStatus(ActivityStatusCode.Error);
             return;
@@ -197,9 +197,15 @@ public static class MongoTelemetry
             activity.SetTag(ExceptionStacktraceAttribute, exception.StackTrace);
         }
 
-        if (!isOperationLevel && exception is MongoCommandException commandException)
+        if (!isOperationLevel)
         {
-            var code = commandException.Code;
+            var code = exception switch
+            {
+                MongoCommandException cmd => cmd.Code,
+                MongoExecutionTimeoutException timeout => timeout.Code,
+                _ => -1
+            };
+
             if (code != -1)
             {
                 activity.SetTag(DbResponseStatusCodeAttribute, code.ToString());
