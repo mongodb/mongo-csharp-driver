@@ -13,13 +13,36 @@
  * limitations under the License.
  */
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 
 namespace MongoDB.Driver
 {
+    /// <summary>
+    /// Extension methods for <see cref="IClientSession"/>.
+    /// </summary>
+    public static class IClientSessionExtensions
+    {
+        //TODO This will need to be moved somewhere else
+        /// <summary>
+        /// Gets the snapshot time for a snapshot session.
+        /// </summary>
+        /// <param name="session">The client session handle.</param>
+        /// <returns>The snapshot time as a <see cref="BsonTimestamp"/>.</returns>
+        /// <exception cref="InvalidOperationException">Thrown when the session is not a snapshot session.</exception>
+        public static BsonTimestamp GetSnapshotTime(this IClientSession session)
+        {
+            var clientSessionHandle = (ClientSessionHandle)session;
+            return clientSessionHandle.WrappedCoreSession.IsSnapshot ?
+                clientSessionHandle.SnapshotTime
+                : throw new InvalidOperationException("Cannot retrieve snapshot time from a non-snapshot session.");
+        }
+    }
+
     // TODO: CSOT: Make it public when CSOT will be ready for GA
-    internal static class IClientSessionExtensions
+    internal static class IInternalClientSessionExtensions
     {
         // TODO: Merge these extension methods in IClientSession interface on major release
         public static void AbortTransaction(this IClientSession session, AbortTransactionOptions options, CancellationToken cancellationToken = default)
