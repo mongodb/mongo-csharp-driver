@@ -54,7 +54,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
             if (_event.Contains("serverDescriptionChangedEvent"))
             {
-                Thread.Sleep(10); // wait a little more in case of serverDescriptionChangedEvent, because we want to let Cluster know about updated topology for server selection.
+                // wait a little more in case of serverDescriptionChangedEvent, because we want to let Cluster know about updated topology for server selection.
+                // should be addressed in https://jira.mongodb.org/browse/CSHARP-5878
+                Thread.Sleep(10);
             }
         }
     }
