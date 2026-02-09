@@ -309,7 +309,6 @@ tests:
             atClusterTime:
               "$$exists": true
 
-## This test seems to be wrong
 - description: countDocuments operation with snapshot
   operations:
   - name: countDocuments
