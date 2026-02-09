@@ -102,8 +102,11 @@ namespace MongoDB.Driver.Core.Bindings
         public bool IsSnapshot => _isSnapshot;
 
         /// <summary>
-        /// //TODO
+        /// Gets the snapshot time for snapshot sessions.
         /// </summary>
+        /// <value>
+        /// The snapshot time as a <see cref="BsonTimestamp"/>, or <c>null</c> if not set.
+        /// </value>
         public BsonTimestamp SnapshotTime => _snapshotTime;
     }
 }
