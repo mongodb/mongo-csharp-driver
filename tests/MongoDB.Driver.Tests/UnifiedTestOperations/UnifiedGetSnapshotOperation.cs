@@ -31,7 +31,6 @@ public class UnifiedGetSnapshotOperation : IUnifiedEntityTestOperation
 
     public OperationResult Execute(CancellationToken cancellationToken) => GetSnapshotTime();
 
-    //TODO Do we necessarily need an async version of this...?
     public Task<OperationResult> ExecuteAsync(CancellationToken cancellationToken) => Task.FromResult(GetSnapshotTime());
 
     private OperationResult GetSnapshotTime()

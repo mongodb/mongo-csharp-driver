@@ -374,7 +374,6 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
             exception.Should().BeOfType<NotSupportedException>();
         }
 
-
         private sealed class MongocryptdContext : IDisposable
         {
             public IMongoClient MongoClient { get; }
