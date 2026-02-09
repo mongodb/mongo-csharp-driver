@@ -22,19 +22,25 @@ using MongoDB.Driver.Core.Bindings;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// //TODO
+    /// Extension methods for <see cref="IClientSessionHandle"/>.
     /// </summary>
     public static class ClientSessionExtensions
     {
         //TODO This will need to be moved somewhere else
         /// <summary>
-        /// //TODO
+        /// Gets the snapshot time for a snapshot session.
         /// </summary>
-        /// <param name="session"></param>
-        /// <returns></returns>
+        /// <param name="session">The client session handle.</param>
+        /// <returns>The snapshot time as a <see cref="BsonTimestamp"/>.</returns>
+        /// <exception cref="InvalidOperationException">Thrown when the session is not a snapshot session.</exception>
         public static BsonTimestamp GetSnapshotTime(this IClientSessionHandle session)
         {
-            return ((ClientSessionHandle)session).SnapshotTime;
+            var clientSessionHandle = (ClientSessionHandle)session;
+            if (!clientSessionHandle.WrappedCoreSession.IsSnapshot)
+            {
+                throw new InvalidOperationException("Cannot retrieve snapshot time from a non-snapshot session.");
+            }
+            return clientSessionHandle.SnapshotTime;
         }
     }
 
