@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
     {
         public static TranslatedFilterField Translate(TranslationContext context, UnaryExpression expression)
         {
-            if (expression.NodeType == ExpressionType.Convert || expression.NodeType == ExpressionType.TypeAs)
+            if (expression.NodeType == ExpressionType.Convert || expression.NodeType == ExpressionType.ConvertChecked || expression.NodeType == ExpressionType.TypeAs)
             {
                 var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, expression.Operand);
                 var fieldType = fieldTranslation.Serializer.ValueType;

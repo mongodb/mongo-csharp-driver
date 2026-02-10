@@ -33,6 +33,38 @@ public class CSharp5606Tests : LinqIntegrationTest<CSharp5606Tests.ClassFixture>
 
     [Theory]
     [ParameterAttributeData]
+    public void Aggregage_Match_with_checked_or_unchecked_int_to_long_conversion_should_work(
+        [Values(false, true)] bool @checked)
+    {
+        var collection = Fixture.Collection;
+
+        Expression<Func<C, bool>> predicate;
+        if (@checked)
+        {
+            checked // default compiler setting is not checked
+            {
+                predicate = x => x.Id == 1L;
+            }
+        }
+        else
+        {
+            predicate = x => x.Id == 1L;
+        }
+
+        var aggregate = collection.Aggregate()
+            .Match(predicate);
+
+        var stages = Translate(collection, aggregate);
+        AssertStages(
+            stages,
+            """{ $match : { _id : 1 } }""");
+
+        var results = aggregate.ToList();
+        results.Select(x => x.Id).Should().Equal(1);
+    }
+
+    [Theory]
+    [ParameterAttributeData]
     public void Aggregage_Group_with_checked_or_unchecked_int_to_long_conversion_should_work(
             [Values(false, true)] bool @checked)
     {
