@@ -165,6 +165,10 @@ namespace MongoDB.Driver.Core.Connections
 
         private void Connect(Socket socket, EndPoint endPoint, CancellationToken cancellationToken)
         {
+            // We are using asynchronous methods in sync code path here, because synchronous Connect does not support cancellationToken
+            // and the only workaround with disposing the socket from another thread could lead to deadlocks on Linux and Mac platforms.
+            // On other hand we do not want to delegate all work to async code path here,because on net472 socket.ConnectAsync
+            // does not use async machinery, and we would like to avoid it as well to minimize dependency on ThreadPool.
             Task connectTask;
 #if NET472
             if (endPoint is DnsEndPoint dnsEndPoint)
