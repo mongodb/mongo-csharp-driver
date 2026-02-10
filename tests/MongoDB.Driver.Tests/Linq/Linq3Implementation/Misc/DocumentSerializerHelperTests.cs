@@ -86,10 +86,12 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void GetMemberSerializationInfo_should_throw_when_members_are_not_represented_as_fields()
         {
             var serializer = new DictionaryInterfaceImplementerSerializer<Dictionary<string, int>>(DictionaryRepresentation.Document);
+            var expression = Expression.Constant("dummy");
 
-            var exception = Record.Exception(() => DocumentSerializerHelper.GetMemberSerializationInfo(null, serializer, "abc"));
+            var exception = Record.Exception(() => DocumentSerializerHelper.GetMemberSerializationInfo(expression, serializer, "abc"));
 
             exception.Should().BeOfType<ExpressionNotSupportedException>();
+            exception.Message.Should().Contain("dummy");
             exception.Message.Should().Contain("does not represent members as fields");
         }
 
