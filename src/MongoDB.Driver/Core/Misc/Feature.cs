@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __directConnectionSetting = new Feature("DirectConnectionSetting", WireVersion.Server44);
         private static readonly Feature __electionIdPriorityInSDAM = new Feature("ElectionIdPriorityInSDAM ", WireVersion.Server60);
         private static readonly Feature __eval = new Feature("Eval", WireVersion.Zero, WireVersion.Server42);
-        private static readonly Feature __failPointsBlockConnection = new Feature("FailPointsBlockConnection", WireVersion.Server42);
+        private static readonly Feature __failPointsBlockConnection = new Feature("FailPointsBlockConnection", WireVersion.Server44);
         private static readonly Feature __failPointsFailCommand = new Feature("FailPointsFailCommand", WireVersion.Server40);
         private static readonly Feature __failPointsFailCommandForSharded = new Feature("FailPointsFailCommandForSharded", WireVersion.Server42);
         private static readonly Feature __filterLimit = new Feature("FilterLimit", WireVersion.Server60);
