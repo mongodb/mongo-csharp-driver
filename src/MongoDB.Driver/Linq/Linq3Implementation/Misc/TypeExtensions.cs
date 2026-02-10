@@ -361,7 +361,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 
         public static bool IsNumeric(this Type type)
         {
-            // note: treating more types as numeric would require careful analysis of impact on callers of this method
             return
                 type == typeof(byte) ||
                 type == typeof(sbyte) ||

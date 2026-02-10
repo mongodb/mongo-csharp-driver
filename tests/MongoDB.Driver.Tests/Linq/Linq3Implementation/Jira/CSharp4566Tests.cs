@@ -43,6 +43,20 @@ public class CSharp4566Tests : LinqIntegrationTest<CSharp4566Tests.ClassFixture>
     }
 
     [Fact]
+    public void Find_NullableChar_equals_char_null_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var find = collection.Find(x => x.NullableChar == null);
+
+        var filter = TranslateFindFilter(collection, find);
+        filter.Should().Be("""{ NullableChar : null }""");
+
+        var result = find.Single();
+        result.Id.Should().Be(3);
+    }
+
+    [Fact]
     public void Find_NullableLong_equals_double_should_work()
     {
         var collection = Fixture.Collection;
@@ -57,6 +71,20 @@ public class CSharp4566Tests : LinqIntegrationTest<CSharp4566Tests.ClassFixture>
     }
 
     [Fact]
+    public void Find_NullableLong_equals_double_null_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var find = collection.Find(x => x.NullableLong == null);
+
+        var filter = TranslateFindFilter(collection, find);
+        filter.Should().Be("""{ NullableLong : null }""");
+
+        var result = find.Single();
+        result.Id.Should().Be(3);
+    }
+
+    [Fact]
     public void Find_NullableSByte_equals_int_should_work()
     {
         var collection = Fixture.Collection;
@@ -68,6 +96,20 @@ public class CSharp4566Tests : LinqIntegrationTest<CSharp4566Tests.ClassFixture>
 
         var result = find.Single();
         result.Id.Should().Be(1);
+    }
+
+    [Fact]
+    public void Find_NullableSByte_equals_int_null_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var find = collection.Find(x => x.NullableSByte == null);
+
+        var filter = TranslateFindFilter(collection, find);
+        filter.Should().Be("""{ NullableSByte : null }""");
+
+        var result = find.Single();
+        result.Id.Should().Be(3);
     }
 
     public class C
