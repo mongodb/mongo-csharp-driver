@@ -111,7 +111,7 @@ functions:
           - "FRAMEWORK"
         script: |
           ${PREPARE_SHELL}
-          bash evergreen/install-dotnet.sh
+          RUNTIME_VERSIONS=${RUNTIME_VERSIONS} bash evergreen/install-dotnet.sh
 
   prepare-resources:
     - command: shell.exec
@@ -1921,21 +1921,23 @@ tasks:
       commands:
         - func: configure-framework
           vars:
-            DOTNET_SDK_VERSION: 9.0
-            FRAMEWORK: net8.0
+            DOTNET_SDK_VERSION: 10.0
+            RUNTIME_VERSIONS: 8.0,9.0,10.0
         - func: bootstrap-mongo-orchestration
         - command: expansions.update
           params:
             updates:
               - key: TEST_RESULTS_PATH
-                value: "./efcore/artifacts/test-results/TEST*.xml"
+                value: "./efcore/artifacts/test-results/**/TEST*.xml"
         - func: run-external-script
           vars:
             GIT_REPO: "https://github.com/mongodb/mongo-efcore-provider.git"
             LOCAL_PATH: ${workdir}/efcore
             SCRIPT: |
               ${PREPARE_SHELL}
-              ATLAS_URI=Disabled CRYPT_SHARED_LIB_PATH="${CRYPT_SHARED_LIB_PATH}" DRIVER_VERSION="${PACKAGE_VERSION}" MONGODB_VERSION="${VERSION}" bash ./evergreen/run-tests.sh
+              ATLAS_URI=Disabled CRYPT_SHARED_LIB_PATH="${CRYPT_SHARED_LIB_PATH}" DRIVER_VERSION="${PACKAGE_VERSION}" BUILD_CONFIGURATION="Debug EF8" MONGODB_VERSION="${VERSION}" bash ./evergreen/run-tests.sh
+              ATLAS_URI=Disabled CRYPT_SHARED_LIB_PATH="${CRYPT_SHARED_LIB_PATH}" DRIVER_VERSION="${PACKAGE_VERSION}" BUILD_CONFIGURATION="Debug EF9" MONGODB_VERSION="${VERSION}" bash ./evergreen/run-tests.sh
+              ATLAS_URI=Disabled CRYPT_SHARED_LIB_PATH="${CRYPT_SHARED_LIB_PATH}" DRIVER_VERSION="${PACKAGE_VERSION}" BUILD_CONFIGURATION="Debug EF10" MONGODB_VERSION="${VERSION}" bash ./evergreen/run-tests.sh
 
     - name: x509-auth-tests
       commands:
