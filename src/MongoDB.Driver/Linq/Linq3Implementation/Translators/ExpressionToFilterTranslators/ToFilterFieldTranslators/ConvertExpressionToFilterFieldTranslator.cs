@@ -181,7 +181,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 enumSerializer = fieldSerializer;
             }
 
-            var integralType = targetType.IsNullable() ? Nullable.GetUnderlyingType(targetType) : targetType;
+            var enumType = enumSerializer.ValueType;
+            var enumUnderlyingType = enumType.GetEnumUnderlyingType();
+            var nonNullableTargetType = targetType.IsNullable() ? Nullable.GetUnderlyingType(targetType) : targetType;
 
             // the serializer converts in the opposite direction as the C# expression
             var targetSerializer = ConvertIntegralTypeToEnumSerializer.Create(integralType, enumSerializer);
@@ -254,7 +256,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             {
                 var targetUnderlyingTypeSerializer = GetConfiguredNumericTargetTypeSerializer(fieldUnderlyingTypeSerializer, targetUnderlyingType);
                 var nullableTargetUnderlyingTypeSerializer = NullableSerializer.Create(targetUnderlyingTypeSerializer);
-                return  new TranslatedFilterField(fieldTranslation.Ast, nullableTargetUnderlyingTypeSerializer);
+                return new TranslatedFilterField(fieldTranslation.Ast, nullableTargetUnderlyingTypeSerializer);
             }
 
             throw new ExpressionNotSupportedException(expression);
@@ -267,7 +269,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             if (IsStandardNumericOrCharSerializer(fieldSerializer))
             {
                 var targetTypeSerializer = GetConfiguredNumericTargetTypeSerializer(fieldSerializer, targetType);
-                return  new TranslatedFilterField(fieldTranslation.Ast, targetTypeSerializer);
+                return new TranslatedFilterField(fieldTranslation.Ast, targetTypeSerializer);
             }
 
             throw new ExpressionNotSupportedException(expression);
