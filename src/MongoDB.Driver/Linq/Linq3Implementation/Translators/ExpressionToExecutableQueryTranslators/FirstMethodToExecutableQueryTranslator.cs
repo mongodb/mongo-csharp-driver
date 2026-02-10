@@ -28,32 +28,24 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
     {
         // private static fields
         private static readonly IExecutableQueryFinalizer<TOutput, TOutput> __firstFinalizer = new FirstFinalizer<TOutput>();
-        private static readonly MethodInfo[] __firstMethods;
-        private static readonly MethodInfo[] __firstWithPredicateMethods;
+        private static readonly IReadOnlyMethodInfoSet __firstOverloads;
+        private static readonly IReadOnlyMethodInfoSet __firstWithPredicateOverloads;
         private static readonly IExecutableQueryFinalizer<TOutput, TOutput> __firstOrDefaultFinalizer = new FirstOrDefaultFinalizer<TOutput>();
 
         // static constructor
         static FirstMethodToExecutableQueryTranslator()
         {
-            __firstMethods = new[]
-            {
-                QueryableMethod.First,
-                QueryableMethod.FirstOrDefault,
-                QueryableMethod.FirstOrDefaultWithPredicate,
-                QueryableMethod.FirstWithPredicate,
-                MongoQueryableMethod.FirstAsync,
-                MongoQueryableMethod.FirstOrDefaultAsync,
-                MongoQueryableMethod.FirstOrDefaultWithPredicateAsync,
-                MongoQueryableMethod.FirstWithPredicateAsync
-            };
+            __firstOverloads = MethodInfoSet.Create(
+            [
+                QueryableMethod.FirstOverloads,
+                MongoQueryableMethod.FirstOverloads
+            ]);
 
-            __firstWithPredicateMethods = new[]
-            {
-                QueryableMethod.FirstOrDefaultWithPredicate,
-                QueryableMethod.FirstWithPredicate,
-                MongoQueryableMethod.FirstOrDefaultWithPredicateAsync,
-                MongoQueryableMethod.FirstWithPredicateAsync
-            };
+            __firstWithPredicateOverloads = MethodInfoSet.Create(
+            [
+                QueryableMethod.FirstWithPredicateOverloads,
+                MongoQueryableMethod.FirstWithPredicateOverloads
+            ]);
         }
 
         // public static methods
@@ -62,12 +54,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__firstMethods))
+            if (method.IsOneOf(__firstOverloads))
             {
                 var sourceExpression = arguments[0];
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
 
-                if (method.IsOneOf(__firstWithPredicateMethods))
+                if (method.IsOneOf(__firstWithPredicateOverloads))
                 {
                     ClientSideProjectionHelper.ThrowIfClientSideProjection(expression, pipeline, method, "with a predicate");
 

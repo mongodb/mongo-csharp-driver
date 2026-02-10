@@ -45,8 +45,7 @@ internal class DictionarySerializer<TKey, TValue> : DictionarySerializerBase<Dic
     {
     }
 
-    protected override ICollection<KeyValuePair<TKey, TValue>> CreateAccumulator()
-    {
-        return new Dictionary<TKey, TValue>();
-    }
+    protected override ICollection<KeyValuePair<TKey, TValue>> CreateAccumulator() => new Dictionary<TKey, TValue>();
+
+    protected override Dictionary<TKey, TValue>FinalizeAccumulator(ICollection<KeyValuePair<TKey, TValue>> accumulator) => (Dictionary<TKey, TValue>)accumulator;
 }

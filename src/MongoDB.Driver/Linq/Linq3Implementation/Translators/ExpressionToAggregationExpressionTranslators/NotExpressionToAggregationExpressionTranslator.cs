@@ -24,6 +24,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         {
             if (expression.NodeType == ExpressionType.Not)
             {
+                // TODO: check operand representation
                 var operandTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, expression.Operand);
                 var ast = expression.Type == typeof(bool) ? AstExpression.Not(operandTranslation.Ast) : AstExpression.BitNot(operandTranslation.Ast);
                 return new TranslatedExpression(expression, ast, operandTranslation.Serializer);

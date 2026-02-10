@@ -31,58 +31,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
 {
     internal static class LookupMethodToPipelineTranslator
     {
-        // private static fields
-        private static readonly MethodInfo[] __lookupMethods =
-        {
-            MongoQueryableMethod.LookupWithDocumentsAndLocalFieldAndForeignField,
-            MongoQueryableMethod.LookupWithDocumentsAndLocalFieldAndForeignFieldAndPipeline,
-            MongoQueryableMethod.LookupWithDocumentsAndPipeline,
-            MongoQueryableMethod.LookupWithFromAndLocalFieldAndForeignField,
-            MongoQueryableMethod.LookupWithFromAndLocalFieldAndForeignFieldAndPipeline,
-            MongoQueryableMethod.LookupWithFromAndPipeline
-        };
-
-        private static readonly MethodInfo[] __lookupMethodsWithDocuments =
-        {
-            MongoQueryableMethod.LookupWithDocumentsAndLocalFieldAndForeignField,
-            MongoQueryableMethod.LookupWithDocumentsAndLocalFieldAndForeignFieldAndPipeline,
-            MongoQueryableMethod.LookupWithDocumentsAndPipeline
-        };
-
-        private static readonly MethodInfo[] __lookupMethodsWithDocumentsAndPipeline =
-        {
-            MongoQueryableMethod.LookupWithDocumentsAndLocalFieldAndForeignFieldAndPipeline,
-            MongoQueryableMethod.LookupWithDocumentsAndPipeline
-        };
-
-        private static readonly MethodInfo[] __lookupMethodsWithFrom =
-        {
-            MongoQueryableMethod.LookupWithFromAndLocalFieldAndForeignField,
-            MongoQueryableMethod.LookupWithFromAndLocalFieldAndForeignFieldAndPipeline,
-            MongoQueryableMethod.LookupWithFromAndPipeline
-        };
-
-        private static readonly MethodInfo[] __lookupMethodsWithFromAndPipeline =
-        {
-            MongoQueryableMethod.LookupWithFromAndLocalFieldAndForeignFieldAndPipeline,
-            MongoQueryableMethod.LookupWithFromAndPipeline
-        };
-
-        private static readonly MethodInfo[] __lookupMethodsWithLocalFieldAndForeignField =
-        {
-            MongoQueryableMethod.LookupWithDocumentsAndLocalFieldAndForeignField,
-            MongoQueryableMethod.LookupWithDocumentsAndLocalFieldAndForeignFieldAndPipeline,
-            MongoQueryableMethod.LookupWithFromAndLocalFieldAndForeignField,
-            MongoQueryableMethod.LookupWithFromAndLocalFieldAndForeignFieldAndPipeline
-        };
-
         // public static methods
         public static TranslatedPipeline Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__lookupMethods))
+            if (method.IsOneOf(MongoQueryableMethod.LookupOverloads))
             {
                 var sourceExpression = arguments[0];
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
@@ -97,7 +52,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                 IMongoCollection foreignCollection = null;
                 string foreignCollectionName = null;
                 IBsonSerializer foreignSerializer = null;
-                if (method.IsOneOf(__lookupMethodsWithFrom))
+                if (method.IsOneOf(MongoQueryableMethod.LookupWithFromOverloads))
                 {
                     var fromExpression = arguments[1];
                     foreignCollection = fromExpression.GetConstantValue<IMongoCollection>(expression);
@@ -107,13 +62,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
 
                 TranslatedPipeline lookupPipeline = null;
                 var isCorrelatedSubquery = false;
-                if (method.IsOneOf(__lookupMethodsWithDocuments))
+                if (method.IsOneOf(MongoQueryableMethod.LookupWithDocumentsOverloads))
                 {
                     var documentsLambda = ExpressionHelper.UnquoteLambda(arguments[1]);
                     var documentsPipeline = TranslateDocuments(context, documentsLambda, localSerializer);
                     var documentSerializer = documentsPipeline.OutputSerializer;
 
-                    if (method.IsOneOf(__lookupMethodsWithDocumentsAndPipeline))
+                    if (method.IsOneOf(MongoQueryableMethod.LookupWithDocumentsAndPipelineOverloads))
                     {
                         var pipelineLambda = ExpressionHelper.UnquoteLambda(arguments.Last());
                         var localParameter = pipelineLambda.Parameters.First();
@@ -134,7 +89,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
 
                 string localField = null;
                 string foreignField = null;
-                if (method.IsOneOf(__lookupMethodsWithLocalFieldAndForeignField))
+                if (method.IsOneOf(MongoQueryableMethod.LookupWithLocalFieldAndForeignFieldOverloads))
                 {
                     var localFieldExpression = ExpressionHelper.UnquoteLambda(arguments[2]);
                     var foreignFieldExpression = ExpressionHelper.UnquoteLambda(arguments[3]);
@@ -142,7 +97,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                     foreignField = foreignFieldExpression.TranslateToDottedFieldName(context, foreignSerializer);
                 }
 
-                if (method.IsOneOf(__lookupMethodsWithFromAndPipeline))
+                if (method.IsOneOf(MongoQueryableMethod.LookupWithFromAndPipelineOverloads))
                 {
                     var pipelineLamda = ExpressionHelper.UnquoteLambda(arguments.Last());
                     var localParameter = pipelineLamda.Parameters[0];
@@ -281,7 +236,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             var queryableParameter = parameters[1];
             var body = pipelineLambda.Body;
 
-            context = TranslationContext.Create(context.TranslationOptions);
+            var initialNodeSerializers = new (Expression, IBsonSerializer)[]
+            {
+                (localParameter, localSerializer),
+                (queryableParameter, IQueryableSerializer.Create(documentSerializer)),
+            };
+
+            context = TranslationContext.Create(pipelineLambda, initialNodeSerializers, context.TranslationOptions);
             var localAst = AstExpression.Var("local");
             var localSymbol = context.CreateSymbol(localParameter, localAst, localSerializer);
             context = context.WithSymbol(localSymbol);
@@ -332,7 +293,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             var queryableParameter = parameters[1];
             var body = pipelineLambda.Body;
 
-            context = TranslationContext.Create(context.TranslationOptions);
+            (Expression, IBsonSerializer)[] initialNodeSerializers =
+            [
+                (localParameter, context.GetSerializer(localParameter)),
+                (queryableParameter, context.GetSerializer(queryableParameter))
+            ];
+
+            context = TranslationContext.Create(pipelineLambda, initialNodeSerializers, context.TranslationOptions);
             var localAst = AstExpression.Var("local");
             var localSymbol = context.CreateSymbol(localParameter, localAst, localSerializer);
             context = context.WithSymbol(localSymbol);

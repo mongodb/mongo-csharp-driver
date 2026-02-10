@@ -26,87 +26,19 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class AverageMethodToAggregationExpressionTranslator
     {
-        private static readonly MethodInfo[] __averageMethods =
-        {
-            EnumerableMethod.AverageDecimal,
-            EnumerableMethod.AverageDecimalWithSelector,
-            EnumerableMethod.AverageDouble,
-            EnumerableMethod.AverageDoubleWithSelector,
-            EnumerableMethod.AverageInt32,
-            EnumerableMethod.AverageInt32WithSelector,
-            EnumerableMethod.AverageInt64,
-            EnumerableMethod.AverageInt64WithSelector,
-            EnumerableMethod.AverageNullableDecimal,
-            EnumerableMethod.AverageNullableDecimalWithSelector,
-            EnumerableMethod.AverageNullableDouble,
-            EnumerableMethod.AverageNullableDoubleWithSelector,
-            EnumerableMethod.AverageNullableInt32,
-            EnumerableMethod.AverageNullableInt32WithSelector,
-            EnumerableMethod.AverageNullableInt64,
-            EnumerableMethod.AverageNullableInt64WithSelector,
-            EnumerableMethod.AverageNullableSingle,
-            EnumerableMethod.AverageNullableSingleWithSelector,
-            EnumerableMethod.AverageSingle,
-            EnumerableMethod.AverageSingleWithSelector,
-            QueryableMethod.AverageDecimal,
-            QueryableMethod.AverageDecimalWithSelector,
-            QueryableMethod.AverageDouble,
-            QueryableMethod.AverageDoubleWithSelector,
-            QueryableMethod.AverageInt32,
-            QueryableMethod.AverageInt32WithSelector,
-            QueryableMethod.AverageInt64,
-            QueryableMethod.AverageInt64WithSelector,
-            QueryableMethod.AverageNullableDecimal,
-            QueryableMethod.AverageNullableDecimalWithSelector,
-            QueryableMethod.AverageNullableDouble,
-            QueryableMethod.AverageNullableDoubleWithSelector,
-            QueryableMethod.AverageNullableInt32,
-            QueryableMethod.AverageNullableInt32WithSelector,
-            QueryableMethod.AverageNullableInt64,
-            QueryableMethod.AverageNullableInt64WithSelector,
-            QueryableMethod.AverageNullableSingle,
-            QueryableMethod.AverageNullableSingleWithSelector,
-            QueryableMethod.AverageSingle,
-            QueryableMethod.AverageSingleWithSelector
-        };
-
-        private static readonly MethodInfo[] __averageWithSelectorMethods =
-        {
-            EnumerableMethod.AverageDecimalWithSelector,
-            EnumerableMethod.AverageDoubleWithSelector,
-            EnumerableMethod.AverageInt32WithSelector,
-            EnumerableMethod.AverageInt64WithSelector,
-            EnumerableMethod.AverageNullableDecimalWithSelector,
-            EnumerableMethod.AverageNullableDoubleWithSelector,
-            EnumerableMethod.AverageNullableInt32WithSelector,
-            EnumerableMethod.AverageNullableInt64WithSelector,
-            EnumerableMethod.AverageNullableSingleWithSelector,
-            EnumerableMethod.AverageSingleWithSelector,
-            QueryableMethod.AverageDecimalWithSelector,
-            QueryableMethod.AverageDoubleWithSelector,
-            QueryableMethod.AverageInt32WithSelector,
-            QueryableMethod.AverageInt64WithSelector,
-            QueryableMethod.AverageNullableDecimalWithSelector,
-            QueryableMethod.AverageNullableDoubleWithSelector,
-            QueryableMethod.AverageNullableInt32WithSelector,
-            QueryableMethod.AverageNullableInt64WithSelector,
-            QueryableMethod.AverageNullableSingleWithSelector,
-            QueryableMethod.AverageSingleWithSelector
-        };
-
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__averageMethods))
+            if (method.IsOneOf(EnumerableOrQueryableMethod.AverageOverloads))
             {
                 var sourceExpression = arguments[0];
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
                 NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsQueryableSource(expression, sourceTranslation);
 
                 AstExpression ast;
-                if (method.IsOneOf(__averageWithSelectorMethods))
+                if (method.IsOneOf(EnumerableOrQueryableMethod.AverageWithSelectorOverloads))
                 {
                     var selectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
                     var selectorParameter = selectorLambda.Parameters[0];

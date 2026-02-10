@@ -24,49 +24,19 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class AggregateMethodToAggregationExpressionTranslator
     {
-        private static readonly MethodInfo[] __aggregateMethods =
-        {
-            EnumerableMethod.AggregateWithFunc,
-            EnumerableMethod.AggregateWithSeedAndFunc,
-            EnumerableMethod.AggregateWithSeedFuncAndResultSelector,
-            QueryableMethod.AggregateWithFunc,
-            QueryableMethod.AggregateWithSeedAndFunc,
-            QueryableMethod.AggregateWithSeedFuncAndResultSelector
-        };
-
-        private static readonly MethodInfo[] __aggregateWithoutSeedMethods =
-        {
-            EnumerableMethod.AggregateWithFunc,
-            QueryableMethod.AggregateWithFunc
-        };
-
-        private static readonly MethodInfo[] __aggregateWithSeedMethods =
-        {
-            EnumerableMethod.AggregateWithSeedAndFunc,
-            EnumerableMethod.AggregateWithSeedFuncAndResultSelector,
-            QueryableMethod.AggregateWithSeedAndFunc,
-            QueryableMethod.AggregateWithSeedFuncAndResultSelector
-        };
-
-        private static readonly MethodInfo[] __aggregateWithSeedFuncAndResultSelectorMethods =
-       {
-            EnumerableMethod.AggregateWithSeedFuncAndResultSelector,
-            QueryableMethod.AggregateWithSeedFuncAndResultSelector
-        };
-
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__aggregateMethods))
+            if (method.IsOneOf(EnumerableOrQueryableMethod.AggregateOverloads))
             {
                 var sourceExpression = arguments[0];
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
                 NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsQueryableSource(expression, sourceTranslation);
                 var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
 
-                if (method.IsOneOf(__aggregateWithoutSeedMethods))
+                if (method.IsOneOf(EnumerableOrQueryableMethod.AggregateWithFunc))
                 {
                     var funcLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
                     var funcParameters = funcLambda.Parameters;
@@ -95,7 +65,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                     return new TranslatedExpression(expression, ast, itemSerializer);
                 }
-                else if (method.IsOneOf(__aggregateWithSeedMethods))
+                else if (method.IsOneOf(EnumerableOrQueryableMethod.AggregateWithSeedOverloads))
                 {
                     var seedExpression = arguments[1];
                     var seedTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, seedExpression);
@@ -116,7 +86,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                         @in: funcTranslation.Ast);
                     var serializer = accumulatorSerializer;
 
-                    if (method.IsOneOf(__aggregateWithSeedFuncAndResultSelectorMethods))
+                    if (method.IsOneOf(EnumerableOrQueryableMethod.AggregateWithSeedFuncAndResultSelector))
                     {
                         var resultSelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[3]);
                         var resultSelectorAccumulatorParameter = resultSelectorLambda.Parameters[0];

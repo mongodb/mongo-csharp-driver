@@ -24,19 +24,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class AnyMethodToAggregationExpressionTranslator
     {
-        private static readonly MethodInfo[] __anyMethods =
-        {
-            EnumerableMethod.Any,
-            QueryableMethod.Any
-        };
-
-        private static readonly MethodInfo[] __anyWithPredicateMethods =
-        {
-            EnumerableMethod.AnyWithPredicate,
-            QueryableMethod.AnyWithPredicate,
-            ArrayMethod.Exists
-        };
-
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
@@ -46,13 +33,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
             NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsQueryableSource(expression, sourceTranslation);
 
-            if (method.IsOneOf(__anyMethods))
+            if (method.IsOneOf(EnumerableOrQueryableMethod.Any))
             {
                 var ast = AstExpression.Gt(AstExpression.Size(sourceTranslation.Ast), 0);
                 return new TranslatedExpression(expression, ast, new BooleanSerializer());
             }
 
-            if (method.IsOneOf(__anyWithPredicateMethods) || ListMethod.IsExistsMethod(method))
+            if (method.IsOneOf(EnumerableOrQueryableMethod.AnyWithPredicate) || method.Is(ArrayMethod.Exists) || ListMethod.IsExistsMethod(method))
             {
                 var predicateLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, method.IsStatic ? arguments[1] : arguments[0]);
                 var predicateParameter = predicateLambda.Parameters[0];

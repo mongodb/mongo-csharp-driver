@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         // public static methods
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
-            if (RegexMethod.IsMatchMethod(expression, out var inputExpression, out var regex))
+            if (RegexMethod.IsIsMatchMethod(expression, out var inputExpression, out var regex))
             {
                 var inputTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, inputExpression);
                 var regularExpression = new BsonRegularExpression(regex);

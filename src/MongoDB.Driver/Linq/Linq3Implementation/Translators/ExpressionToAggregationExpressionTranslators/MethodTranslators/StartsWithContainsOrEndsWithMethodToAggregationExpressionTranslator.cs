@@ -31,14 +31,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class StartsWithContainsOrEndsWithMethodToAggregationExpressionTranslator
     {
-        private static readonly MethodInfo[] __startsWithContainsOrEndsWithMethods;
-        private static readonly MethodInfo[] __withComparisonTypeMethods;
-        private static readonly MethodInfo[] __withIgnoreCaseAndCultureMethods;
+        private static readonly IReadOnlyMethodInfoSet __translatableOverloads;
+        private static readonly IReadOnlyMethodInfoSet __withComparisonTypeOverloads;
+        private static readonly IReadOnlyMethodInfoSet __withIgnoreCaseAndCultureOverloads;
 
         static StartsWithContainsOrEndsWithMethodToAggregationExpressionTranslator()
         {
-            __startsWithContainsOrEndsWithMethods = new[]
-            {
+            __translatableOverloads = MethodInfoSet.Create(
+            [
                 StringMethod.StartsWithWithChar,
                 StringMethod.StartsWithWithString,
                 StringMethod.StartsWithWithStringAndComparisonType,
@@ -51,28 +51,28 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 StringMethod.EndsWithWithString,
                 StringMethod.EndsWithWithStringAndComparisonType,
                 StringMethod.EndsWithWithStringAndIgnoreCaseAndCulture
-            };
+            ]);
 
-            __withComparisonTypeMethods = new[]
-            {
+            __withComparisonTypeOverloads = MethodInfoSet.Create(
+            [
                 StringMethod.StartsWithWithStringAndComparisonType,
                 StringMethod.ContainsWithCharAndComparisonType,
                 StringMethod.ContainsWithStringAndComparisonType,
                 StringMethod.EndsWithWithStringAndComparisonType
-            };
+            ]);
 
-            __withIgnoreCaseAndCultureMethods = new[]
-            {
+            __withIgnoreCaseAndCultureOverloads = MethodInfoSet.Create(
+            [
                 StringMethod.StartsWithWithStringAndIgnoreCaseAndCulture,
                 StringMethod.EndsWithWithStringAndIgnoreCaseAndCulture
-            };
+            ]);
         }
 
         public static bool CanTranslate(MethodCallExpression expression)
         {
             var method = expression.Method;
 
-            if (method.IsOneOf(__startsWithContainsOrEndsWithMethods))
+            if (method.IsOneOf(__translatableOverloads))
             {
                 return true;
             }
@@ -216,7 +216,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
             bool IsWithComparisonTypeMethod(MethodInfo method)
             {
-                if (method.IsOneOf(__withComparisonTypeMethods))
+                if (method.IsOneOf(__withComparisonTypeOverloads))
                 {
                     return true;
                 }
@@ -226,7 +226,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
             bool IsWithIgnoreCaseAndCultureMethod(MethodInfo method)
             {
-                if (method.IsOneOf(__withIgnoreCaseAndCultureMethods))
+                if (method.IsOneOf(__withIgnoreCaseAndCultureOverloads))
                 {
                     return true;
                 }

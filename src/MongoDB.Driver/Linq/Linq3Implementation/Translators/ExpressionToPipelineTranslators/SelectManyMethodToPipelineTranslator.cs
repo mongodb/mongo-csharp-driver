@@ -33,32 +33,19 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
 {
     internal static class SelectManyMethodToPipelineTranslator
     {
-        // private static fields
-        private static readonly MethodInfo[] __selectManyMethods;
-
-        // static constructor
-        static SelectManyMethodToPipelineTranslator()
-        {
-            __selectManyMethods = new[]
-            {
-                QueryableMethod.SelectMany,
-                QueryableMethod.SelectManyWithCollectionSelectorAndResultSelector
-            };
-        }
-
         // public static methods
         public static TranslatedPipeline Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__selectManyMethods))
+            if (method.IsOneOf(QueryableMethod.SelectManyOverloads))
             {
                 var sourceExpression = arguments[0];
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
                 ClientSideProjectionHelper.ThrowIfClientSideProjection(expression, pipeline, method);
 
-                if (method.Is(QueryableMethod.SelectMany))
+                if (method.Is(QueryableMethod.SelectManyWithSelector))
                 {
                     return TranslateSelectMany(context, pipeline, arguments);
                 }

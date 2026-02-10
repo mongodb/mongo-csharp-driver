@@ -21,31 +21,20 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
+using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilterTranslators.ToFilterFieldTranslators;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilterTranslators.MethodTranslators
 {
     internal static class StringInOrNinMethodToFilterTranslator
     {
-        private static readonly MethodInfo[] __stringInOrNinMethods =
-        {
-            StringMethod.AnyStringInWithEnumerable,
-            StringMethod.AnyStringInWithParams,
-            StringMethod.AnyStringNinWithEnumerable,
-            StringMethod.AnyStringNinWithParams,
-            StringMethod.StringInWithEnumerable,
-            StringMethod.StringInWithParams,
-            StringMethod.StringNinWithEnumerable,
-            StringMethod.StringNinWithParams,
-        };
-
-        private static readonly MethodInfo[] __stringInMethods =
-        {
-            StringMethod.AnyStringInWithEnumerable,
-            StringMethod.AnyStringInWithParams,
-            StringMethod.StringInWithEnumerable,
-            StringMethod.StringInWithParams,
-        };
+        private static readonly IReadOnlyMethodInfoSet __translatableOverloads = MethodInfoSet.Create(
+        [
+            StringMethod.AnyStringInOverloads,
+            StringMethod.AnyStringNinOverloads,
+            StringMethod.StringInOverloads,
+            StringMethod.StringNinOverloads
+        ]);
 
         // public static methods
         public static AstFilter Translate(TranslationContext context, MethodCallExpression expression)
@@ -53,7 +42,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             var method  = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__stringInOrNinMethods))
+            if (method.IsOneOf(__translatableOverloads))
             {
                 var fieldExpression = arguments[0];
                 var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
@@ -82,7 +71,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                         serializedValues.Add(serializedValue);
                     }
 
-                    return method.IsOneOf(__stringInMethods) ? AstFilter.In(fieldTranslation.Ast, serializedValues) : AstFilter.Nin(fieldTranslation.Ast, serializedValues);
+                    return method.IsOneOf(StringMethod.AnyStringInOverloads, StringMethod.StringInOverloads) ?
+                        AstFilter.In(fieldTranslation.Ast, serializedValues) :
+                        AstFilter.Nin(fieldTranslation.Ast, serializedValues);
                 }
             }
 

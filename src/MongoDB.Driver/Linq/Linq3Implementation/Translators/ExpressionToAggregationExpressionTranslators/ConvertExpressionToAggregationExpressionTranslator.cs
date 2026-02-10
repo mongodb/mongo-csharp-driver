@@ -80,9 +80,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 return TranslateConvertEnumToIntegralType(expression, sourceType, targetType, sourceTranslation);
             }
 
-            if (IsConvertUnderlyingTypeToEnum(sourceType, targetType))
+            if (IsConvertIntegralTypeToEnum(sourceType, targetType))
             {
-                return TranslateConvertUnderlyingTypeToEnum(expression, sourceType, targetType, sourceTranslation);
+                return TranslateConvertIntegralTypeToEnum(expression, sourceType, targetType, sourceTranslation);
             }
 
             if (IsConvertEnumToEnum(sourceType, targetType))
@@ -162,11 +162,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             return targetType.IsNullable();
         }
 
-        private static bool IsConvertUnderlyingTypeToEnum(Type sourceType, Type targetType)
+        private static bool IsConvertIntegralTypeToEnum(Type sourceType, Type targetType)
         {
             return
-                targetType.IsEnum(out var underlyingType) &&
-                sourceType == underlyingType;
+                sourceType.IsIntegral() &&
+                targetType.IsEnum;
         }
 
         private static TranslatedExpression TranslateConvertToBaseType(UnaryExpression expression, Type sourceType, Type targetType, TranslatedExpression sourceTranslation)
@@ -214,9 +214,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         private static TranslatedExpression TranslateConvertEnumToIntegralType(UnaryExpression expression, Type sourceType, Type targetType, TranslatedExpression sourceTranslation)
         {
             var enumSerializer = sourceTranslation.Serializer;
-            var enumType = enumSerializer.ValueType;
-            var enumUnderlyingType =  enumType.GetEnumUnderlyingType();
-            var targetSerializer = EnumAsIntegralTypeSerializer.Create(enumSerializer, enumUnderlyingType, integralType: targetType);
+            var integralType = targetType;
+
+            // the serializer converts in the opposite direction as the C# expression
+            var targetSerializer = ConvertIntegralTypeToEnumSerializer.Create(integralType, enumSerializer);
+
             return new TranslatedExpression(expression, sourceTranslation.Ast, targetSerializer);
         }
 
@@ -262,14 +264,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             throw new ExpressionNotSupportedException(expression, because: "targetType is not nullable");
         }
 
-        private static TranslatedExpression TranslateConvertUnderlyingTypeToEnum(UnaryExpression expression, Type sourceType, Type targetType, TranslatedExpression sourceTranslation)
+        private static TranslatedExpression TranslateConvertIntegralTypeToEnum(UnaryExpression expression, Type sourceType, Type targetType, TranslatedExpression sourceTranslation)
         {
             var valueSerializer = sourceTranslation.Serializer;
 
             IBsonSerializer targetSerializer;
-            if (valueSerializer is IEnumAsIntegralTypeSerializer enumUnderlyingTypeSerializer)
+            if (valueSerializer is IConvertIntegralTypeToEnumSerializer convertIntegralTypeToEnumSerializer)
             {
-                targetSerializer = enumUnderlyingTypeSerializer.EnumSerializer;
+                targetSerializer = convertIntegralTypeToEnumSerializer.EnumSerializer;
             }
             else
             {

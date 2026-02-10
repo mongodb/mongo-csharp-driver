@@ -20,6 +20,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
+using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
@@ -37,10 +38,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsQueryableSource(expression, sourceTranslation);
 
                 var listItemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
-                var listItemType = listItemSerializer.ValueType;
-                var listType = typeof(List<>).MakeGenericType(listItemType);
-                var listSerializerType = typeof(EnumerableInterfaceImplementerSerializer<,>).MakeGenericType(listType, listItemType);
-                var listSerializer = (IBsonSerializer)Activator.CreateInstance(listSerializerType, listItemSerializer);
+                var listSerializer = ListSerializer.Create(listItemSerializer);
 
                 return new TranslatedExpression(expression, sourceTranslation.Ast, listSerializer);
             }

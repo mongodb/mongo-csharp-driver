@@ -27,18 +27,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class OfTypeMethodToAggregationExpressionTranslator
     {
-        private static MethodInfo[] __ofTypeMethods =
-        {
-            EnumerableMethod.OfType,
-            QueryableMethod.OfType
-        };
-
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__ofTypeMethods))
+            if (method.IsOneOf(EnumerableOrQueryableMethod.OfType))
             {
                 var sourceExpression = arguments[0];
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);

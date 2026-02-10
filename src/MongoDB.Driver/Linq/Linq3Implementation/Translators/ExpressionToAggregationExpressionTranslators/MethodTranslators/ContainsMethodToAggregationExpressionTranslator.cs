@@ -31,7 +31,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 return StartsWithContainsOrEndsWithMethodToAggregationExpressionTranslator.Translate(context, expression);
             }
 
-            if (IsEnumerableContainsMethod(expression, out var sourceExpression, out var valueExpression))
+            if (EnumerableMethod.IsContainsMethod(expression, out var sourceExpression, out var valueExpression) &&
+                !expression.Method.Is(StringMethod.ContainsWithChar))
             {
                 return TranslateEnumerableContains(context, expression, sourceExpression, valueExpression);
             }
@@ -40,39 +41,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         }
 
         // private methods
-        private static bool IsEnumerableContainsMethod(MethodCallExpression expression, out Expression sourceExpression, out Expression valueExpression)
-        {
-            var method = expression.Method;
-            var arguments = expression.Arguments;
-
-            if (method.IsOneOf(EnumerableMethod.Contains, QueryableMethod.Contains))
-            {
-                sourceExpression = arguments[0];
-                valueExpression = arguments[1];
-                return true;
-            }
-
-            if (!method.IsStatic && method.ReturnType == typeof(bool) && method.Name == "Contains" && arguments.Count == 1)
-            {
-                sourceExpression = expression.Object;
-                valueExpression = arguments[0];
-
-                if (sourceExpression.Type.TryGetIEnumerableGenericInterface(out var ienumerableInterface))
-                {
-                    var itemType = ienumerableInterface.GetGenericArguments()[0];
-                    if (itemType == valueExpression.Type)
-                    {
-                        // string.Contains(char) is not translated like other Contains methods because string is not represented as an array
-                        return sourceExpression.Type != typeof(string) && valueExpression.Type != typeof(char);
-                    }
-                }
-            }
-
-            sourceExpression = null;
-            valueExpression = null;
-            return false;
-        }
-
         private static TranslatedExpression TranslateEnumerableContains(TranslationContext context, MethodCallExpression expression, Expression sourceExpression, Expression valueExpression)
         {
             var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);

@@ -22,6 +22,15 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// </summary>
     public sealed class CharSerializer : StructSerializerBase<char>, IRepresentationConfigurable<CharSerializer>
     {
+        #region static
+        private static readonly CharSerializer __instance = new();
+
+        /// <summary>
+        /// Returns the default instance of CharSerializer.
+        /// </summary>
+        public static CharSerializer Instance => __instance;
+        #endregion
+
         // private fields
         private readonly BsonType _representation;
 
