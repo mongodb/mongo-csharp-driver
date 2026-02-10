@@ -194,7 +194,7 @@ namespace MongoDB.Driver.Core.Connections
 
                 if (ex is TimeoutException)
                 {
-                    throw new TimeoutException($"Timed out connecting to {endPoint}. Timeout was {_settings.ConnectTimeout}.");
+                    throw new TimeoutException($"Timed out connecting to {endPoint}. Timeout was {_settings.ConnectTimeout}.", ex.InnerException);
                 }
 
                 throw;
@@ -232,7 +232,7 @@ namespace MongoDB.Driver.Core.Connections
 
                 if (ex is TimeoutException)
                 {
-                    throw new TimeoutException($"Timed out connecting to {endPoint}. Timeout was {_settings.ConnectTimeout}.");
+                    throw new TimeoutException($"Timed out connecting to {endPoint}. Timeout was {_settings.ConnectTimeout}.", ex.InnerException);
                 }
 
                 throw;
