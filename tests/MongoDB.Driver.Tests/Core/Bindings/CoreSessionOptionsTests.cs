@@ -50,6 +50,7 @@ namespace MongoDB.Driver.Core.Bindings
             result.DefaultTransactionOptions.Should().BeNull();
             result.IsCausallyConsistent.Should().BeFalse();
             result.IsImplicit.Should().BeFalse();
+            result.SnapshotTime.Should().BeNull();
         }
 
         [Fact]
@@ -59,6 +60,17 @@ namespace MongoDB.Driver.Core.Bindings
             ex.Should().NotBeNull();
             ex.Should().BeOfType<ArgumentException>();
             ex.Message.Should().Be("snapshotTime can only be set if isSnapshot is true.");
+        }
+
+        [Fact]
+        public void constructor_should_initialize_SnapshotTime_when_isSnapshot_is_true()
+        {
+            var snapshotTime = new BsonTimestamp(1234567890, 1);
+
+            var result = new CoreSessionOptions(isSnapshot: true, snapshotTime: snapshotTime);
+
+            result.SnapshotTime.Should().Be(snapshotTime);
+            result.IsSnapshot.Should().BeTrue();
         }
 
         [Theory]
@@ -96,6 +108,19 @@ namespace MongoDB.Driver.Core.Bindings
             var result = subject.IsImplicit;
 
             result.Should().Be(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void SnapshotTime_should_return_expected_result(
+            [Values(false, true)] bool nullValue)
+        {
+            var snapshotTime = nullValue ? null : new BsonTimestamp(1234567890, 1);
+            var subject = new CoreSessionOptions(isSnapshot: true, snapshotTime: snapshotTime);
+
+            var result = subject.SnapshotTime;
+
+            result.Should().Be(snapshotTime);
         }
     }
 }
