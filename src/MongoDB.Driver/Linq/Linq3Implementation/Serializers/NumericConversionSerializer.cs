@@ -17,6 +17,7 @@ using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
@@ -30,6 +31,8 @@ internal static class NumericConversionSerializer
 }
 
 internal class NumericConversionSerializer<TSource, TTarget> : SerializerBase<TTarget>, IHasRepresentationSerializer
+    where TSource : struct
+    where TTarget : struct
 {
     private readonly BsonType _representation;
     private readonly IBsonSerializer<TSource> _sourceSerializer;
@@ -38,6 +41,14 @@ internal class NumericConversionSerializer<TSource, TTarget> : SerializerBase<TT
 
     public NumericConversionSerializer(IBsonSerializer<TSource> sourceSerializer)
     {
+        if (!typeof(TSource).IsNumericOrChar())
+        {
+            throw new ArgumentException($"{typeof(TSource).FullName} is not a numeric type supported by NumericConversionSerializer.", "TSource");
+        }
+        if (!typeof(TTarget).IsNumericOrChar())
+        {
+            throw new ArgumentException($"{typeof(TTarget).FullName} is not a numeric type supported by NumericConversionSerializer.", "TTarget");
+        }
         if (sourceSerializer is not IHasRepresentationSerializer hasRepresentationSerializer)
         {
             throw new NotSupportedException($"Serializer class {sourceSerializer.GetType().Name} does not implement IHasRepresentationSerializer.");
@@ -50,28 +61,12 @@ internal class NumericConversionSerializer<TSource, TTarget> : SerializerBase<TT
     public override TTarget Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
     {
         var sourceValue = _sourceSerializer.Deserialize(context);
-        return (TTarget)Convert(typeof(TSource), typeof(TTarget), sourceValue);
+        return (TTarget)Convert.ChangeType(sourceValue, typeof(TTarget));
     }
 
     public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TTarget value)
     {
-        var sourceValue = Convert(typeof(TTarget), typeof(TSource), value);
+        var sourceValue = Convert.ChangeType(value, typeof(TSource));
         _sourceSerializer.Serialize(context, args, sourceValue);
-    }
-
-    private object Convert(Type sourceType, Type targetType, object value)
-    {
-        return (Type.GetTypeCode(sourceType), Type.GetTypeCode(targetType)) switch
-        {
-            (TypeCode.Decimal, TypeCode.Double) => (object)(double)(decimal)value,
-            (TypeCode.Double, TypeCode.Decimal) => (object)(decimal)(double)value,
-            (TypeCode.Int16, TypeCode.Int32) => (object)(int)(short)value,
-            (TypeCode.Int16, TypeCode.Int64) => (object)(long)(short)value,
-            (TypeCode.Int32, TypeCode.Int16) => (object)(short)(int)value,
-            (TypeCode.Int32, TypeCode.Int64) => (object)(long)(int)value,
-            (TypeCode.Int64, TypeCode.Int16) => (object)(short)(long)value,
-            (TypeCode.Int64, TypeCode.Int32) => (object)(int)(long)value,
-            _ => throw new NotSupportedException($"Cannot convert {sourceType} to {targetType}."),
-        };
     }
 }

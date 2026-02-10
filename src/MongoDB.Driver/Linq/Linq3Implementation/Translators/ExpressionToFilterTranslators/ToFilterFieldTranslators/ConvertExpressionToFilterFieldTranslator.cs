@@ -181,9 +181,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 enumSerializer = fieldSerializer;
             }
 
-            var enumType = enumSerializer.ValueType;
-            var enumUnderlyingType = enumType.GetEnumUnderlyingType();
-            var nonNullableTargetType = targetType.IsNullable() ? Nullable.GetUnderlyingType(targetType) : targetType;
+            var integralType = targetType.IsNullable() ? Nullable.GetUnderlyingType(targetType) : targetType;
 
             // the serializer converts in the opposite direction as the C# expression
             var targetSerializer = ConvertIntegralTypeToEnumSerializer.Create(integralType, enumSerializer);

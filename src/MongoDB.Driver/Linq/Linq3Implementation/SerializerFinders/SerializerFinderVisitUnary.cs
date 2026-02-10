@@ -148,7 +148,7 @@ internal partial class SerializerFinderVisitor
                     return GetConvertToDerivedTypeSerializer(node, targetType, sourceSerializer);
                 }
 
-                if (IsNumericConversion(sourceType, targetType))
+                if (IsNumericOrCharConversion(sourceType, targetType))
                 {
                     return GetNumericConversionSerializer(node, sourceType, targetType, sourceSerializer);
                 }
@@ -300,9 +300,9 @@ internal partial class SerializerFinderVisitor
                     targetType.IsEnum;
             }
 
-            static bool IsNumericConversion(Type sourceType, Type targetType)
+            static bool IsNumericOrCharConversion(Type sourceType, Type targetType)
             {
-                return sourceType.IsNumeric() && targetType.IsNumeric();
+                return ConvertHelper.IsNumericOrCharConversion(sourceType, targetType);
             }
         }
     }
