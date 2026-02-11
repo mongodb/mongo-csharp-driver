@@ -286,10 +286,10 @@ namespace MongoDB.Driver.Tests.Specifications.auth
             var callbackMock = new Mock<IOidcCallback>();
             ConfigureOidcCallback(callbackMock, GetAccessTokenValue());
             var credential = MongoCredential.CreateOidcCredential(callbackMock.Object);
-            var (collection, _, _) = CreateOidcTestObjects(credential);
+            var (collection, client, _) = CreateOidcTestObjects(credential);
 
             Exception exception;
-            using (ConfigureFailPoint(1, (int)ServerErrorCode.IllegalOperation, "saslStart"))
+            using (ConfigureFailPoint(1, (int)ServerErrorCode.IllegalOperation, client, "saslStart"))
             {
                 exception = async
                     ? await Record.ExceptionAsync(() => collection.FindAsync(Builders<BsonDocument>.Filter.Empty))
@@ -315,9 +315,9 @@ namespace MongoDB.Driver.Tests.Specifications.auth
             var callbackMock = new Mock<IOidcCallback>();
             ConfigureOidcCallback(callbackMock, GetAccessTokenValue());
             var credential = MongoCredential.CreateOidcCredential(callbackMock.Object);
-            var (collection, _, eventCapturer) = CreateOidcTestObjects(credential);
+            var (collection, client, eventCapturer) = CreateOidcTestObjects(credential);
 
-            using (ConfigureFailPoint(1, (int)ServerErrorCode.ReauthenticationRequired, "find"))
+            using (ConfigureFailPoint(1, (int)ServerErrorCode.ReauthenticationRequired, client, "find"))
             {
                 _ = async
                     ? await collection.FindAsync(Builders<BsonDocument>.Filter.Empty)
@@ -344,7 +344,7 @@ namespace MongoDB.Driver.Tests.Specifications.auth
             // configure mock with valid access token
             ConfigureOidcCallback(callbackMock, GetAccessTokenValue());
             var credential = MongoCredential.CreateOidcCredential(callbackMock.Object);
-            var (collection, _, eventCapturer) = CreateOidcTestObjects(credential);
+            var (collection, client, eventCapturer) = CreateOidcTestObjects(credential);
 
             _ = async
                 ? await collection.FindAsync(Builders<BsonDocument>.Filter.Empty)
@@ -353,7 +353,7 @@ namespace MongoDB.Driver.Tests.Specifications.auth
             // reconfigure mock to return invalid access token
             ConfigureOidcCallback(callbackMock, "wrong token");
             Exception exception;
-            using (ConfigureFailPoint(1, (int)ServerErrorCode.ReauthenticationRequired, "find"))
+            using (ConfigureFailPoint(1, (int)ServerErrorCode.ReauthenticationRequired, client, "find"))
             {
                 exception = async
                     ? await Record.ExceptionAsync(() => collection.FindAsync(Builders<BsonDocument>.Filter.Empty))
@@ -382,7 +382,7 @@ namespace MongoDB.Driver.Tests.Specifications.auth
             // configure mock with valid access token
             ConfigureOidcCallback(callbackMock, GetAccessTokenValue());
             var credential = MongoCredential.CreateOidcCredential(callbackMock.Object);
-            var (collection, _, eventCapturer) = CreateOidcTestObjects(credential);
+            var (collection, client, eventCapturer) = CreateOidcTestObjects(credential);
 
             if (async)
             {
@@ -396,7 +396,7 @@ namespace MongoDB.Driver.Tests.Specifications.auth
             // reconfigure mock to return invalid access token
             ConfigureOidcCallback(callbackMock, "wrong token");
             Exception exception;
-            using (ConfigureFailPoint(1, (int)ServerErrorCode.ReauthenticationRequired, "insert"))
+            using (ConfigureFailPoint(1, (int)ServerErrorCode.ReauthenticationRequired, client, "insert"))
             {
                 exception = async
                     ? await Record.ExceptionAsync(() => collection.InsertOneAsync(dummyDocument))
@@ -454,7 +454,7 @@ namespace MongoDB.Driver.Tests.Specifications.auth
             VerifyCallbackUsage(callbackMock, async, Times.Never());
             eventCapturer.Count.Should().Be(0);
 
-            using (ConfigureFailPoint(1, (int)ServerErrorCode.ReauthenticationRequired, "insert"))
+            using (ConfigureFailPoint(1, (int)ServerErrorCode.ReauthenticationRequired, client, "insert"))
             {
                 var dummyDocument2 = new BsonDocument("dummy", "value2");
                 if (async)
@@ -487,7 +487,7 @@ namespace MongoDB.Driver.Tests.Specifications.auth
             var credential = MongoCredential.CreateOidcCredential(callbackMock.Object);
             var (collection, client, eventCapturer) = CreateOidcTestObjects(credential);
 
-            using (ConfigureFailPoint(1, (int)ServerErrorCode.ReauthenticationRequired, "find"))
+            using (ConfigureFailPoint(1, (int)ServerErrorCode.ReauthenticationRequired, client, "find"))
             {
                 var session = client.StartSession();
                 _ = async
@@ -556,6 +556,7 @@ namespace MongoDB.Driver.Tests.Specifications.auth
         private FailPoint ConfigureFailPoint(
             int times,
             int errorCode,
+            IMongoClient client,
             params string[] command)
         {
             var failPointCommand = new BsonDocument
@@ -567,7 +568,8 @@ namespace MongoDB.Driver.Tests.Specifications.auth
                     new BsonDocument
                     {
                         { "failCommands", new BsonArray(command.Select(c => new BsonString(c))) },
-                        { "errorCode",  errorCode }
+                        { "errorCode", errorCode },
+                        { "appName", client.Settings.ApplicationName }
                     }
                 }
             };
@@ -589,6 +591,7 @@ namespace MongoDB.Driver.Tests.Specifications.auth
             settings.ServerMonitoringMode = ServerMonitoringMode.Poll;
             settings.HeartbeatInterval = TimeSpan.FromSeconds(30);
             settings.ClusterConfigurator = (builder) => builder.Subscribe(eventCapturer);
+            settings.ApplicationName = $"OIDC_Prose_tests";
             var client = DriverTestConfiguration.CreateMongoClient(settings);
 
             var db = client.GetDatabase(DatabaseName);
