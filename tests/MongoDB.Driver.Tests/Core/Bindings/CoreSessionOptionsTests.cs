@@ -54,15 +54,6 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         [Fact]
-        public void constructor_should_throw_when_setting_snapshotTime_without_snapshot()
-        {
-            var ex = Record.Exception(() => new CoreSessionOptions(isSnapshot: false, snapshotTime: new BsonTimestamp(2)));
-            ex.Should().NotBeNull();
-            ex.Should().BeOfType<ArgumentException>();
-            ex.Message.Should().Be("snapshotTime can only be set if isSnapshot is true.");
-        }
-
-        [Fact]
         public void constructor_should_initialize_SnapshotTime_when_isSnapshot_is_true()
         {
             var snapshotTime = new BsonTimestamp(1234567890, 1);

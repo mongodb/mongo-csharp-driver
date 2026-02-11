@@ -46,7 +46,6 @@ namespace MongoDB.Driver.Core.Bindings
             bool isSnapshot = false,
             BsonTimestamp snapshotTime = null)
         {
-            Ensure.That( snapshotTime is null || isSnapshot, "snapshotTime can only be set if isSnapshot is true.");
             _isCausallyConsistent = isCausallyConsistent;
             _isImplicit = isImplicit;
             _isSnapshot = isSnapshot;
