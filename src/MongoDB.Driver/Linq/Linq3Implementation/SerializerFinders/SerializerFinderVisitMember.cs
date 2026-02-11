@@ -186,19 +186,13 @@ internal partial class SerializerFinderVisitor
 
         IBsonSerializer GetPropertySerializer()
         {
-            if (containingSerializer is not IBsonDocumentSerializer documentSerializer)
+            if (containingSerializer is IBsonDocumentSerializer documentSerializer &&
+                documentSerializer.TryGetMemberSerializationInfo(memberName, out var memberSerializationInfo))
             {
-                // TODO: return UnknowableSerializer???
-                throw new ExpressionNotSupportedException(node, because: $"serializer type {containingSerializer.GetType()} does not implement the {nameof(IBsonDocumentSerializer)} interface");
+                return memberSerializationInfo.Serializer;
             }
 
-            if (!documentSerializer.TryGetMemberSerializationInfo(memberName, out var memberSerializationInfo))
-            {
-                // TODO: return UnknowableSerializer???
-                throw new ExpressionNotSupportedException(node, because: $"serializer type {containingSerializer.GetType()} does not support a member named: {memberName}");
-            }
-
-            return memberSerializationInfo.Serializer;
+            return UnknowableSerializer.Create(node.Type);
         }
 
         IBsonSerializer GetTupleOrValueTuplePropertySerializer()
