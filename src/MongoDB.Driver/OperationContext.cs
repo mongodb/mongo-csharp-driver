@@ -138,35 +138,7 @@ namespace MongoDB.Driver
 
         public void WaitTask(Task task)
         {
-            if (task.IsCompleted)
-            {
-                task.GetAwaiter().GetResult(); // re-throws exception if any
-                return;
-            }
-
-            var timeout = RemainingTimeout;
-            if (timeout == TimeSpan.Zero)
-            {
-                throw new TimeoutException();
-            }
-
-            try
-            {
-                if (!task.Wait((int)timeout.TotalMilliseconds, CancellationToken))
-                {
-                    CancellationToken.ThrowIfCancellationRequested();
-                    throw new TimeoutException();
-                }
-            }
-            catch (AggregateException e)
-            {
-                if (e.InnerExceptions.Count == 1)
-                {
-                    throw e.InnerExceptions[0];
-                }
-
-                throw;
-            }
+            task.WaitTask(RemainingTimeout, CancellationToken);
         }
 
         public async Task WaitTaskAsync(Task task)

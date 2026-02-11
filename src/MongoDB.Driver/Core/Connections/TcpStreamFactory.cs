@@ -165,61 +165,43 @@ namespace MongoDB.Driver.Core.Connections
 
         private void Connect(Socket socket, EndPoint endPoint, CancellationToken cancellationToken)
         {
-            var callbackState = new OperationCallbackState<Socket>(socket);
-            using var timeoutCancellationTokenSource = new CancellationTokenSource(_settings.ConnectTimeout);
-            using var combinedCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCancellationTokenSource.Token);
-            using var cancellationSubscription = combinedCancellationTokenSource.Token.Register(state =>
+            // We are using asynchronous methods in sync code path here, because synchronous Connect does not support cancellationToken
+            // and the only workaround with disposing the socket from another thread could lead to deadlocks on Linux and Mac platforms.
+            // On other hand we do not want to delegate all work to async code path here,because on net472 socket.ConnectAsync
+            // does not use async machinery, and we would like to avoid it as well to minimize dependency on ThreadPool.
+            Task connectTask;
+#if NET472
+            if (endPoint is DnsEndPoint dnsEndPoint)
             {
-                var operationState = (OperationCallbackState<Socket>)state;
-                if (operationState.TryChangeStatusFromInProgress(OperationCallbackState<Socket>.OperationStatus.Interrupted))
-                {
-                    DisposeSocket(operationState.Subject);
-                }
-            }, callbackState);
-
+                // mono doesn't support DnsEndPoint in its ConnectAsync method.
+                connectTask = socket.ConnectAsync(dnsEndPoint.Host, dnsEndPoint.Port);
+            }
+            else
+            {
+                connectTask = socket.ConnectAsync(endPoint);
+            }
+#else
+            connectTask = socket.ConnectAsync(endPoint);
+#endif
             try
             {
-#if NET472
-                if (endPoint is DnsEndPoint dnsEndPoint)
-                {
-                    // mono doesn't support DnsEndPoint in its Connect method.
-                    socket.Connect(dnsEndPoint.Host, dnsEndPoint.Port);
-                }
-                else
-                {
-                    socket.Connect(endPoint);
-                }
-#else
-                socket.Connect(endPoint);
-#endif
-                if (!callbackState.TryChangeStatusFromInProgress(OperationCallbackState<Socket>.OperationStatus.Done))
-                {
-                    throw new ObjectDisposedException(nameof(Socket));
-                }
+                connectTask.WaitTask(_settings.ConnectTimeout, cancellationToken);
             }
-            catch
-            {
-                DisposeSocket(socket);
-
-                cancellationToken.ThrowIfCancellationRequested();
-                if (timeoutCancellationTokenSource.IsCancellationRequested)
-                {
-                    throw new TimeoutException($"Timed out connecting to {endPoint}. Timeout was {_settings.ConnectTimeout}.");
-                }
-
-                throw;
-            }
-
-            static void DisposeSocket(Socket socket)
+            catch (Exception ex)
             {
                 try
                 {
+                    connectTask.IgnoreExceptions();
                     socket.Dispose();
                 }
-                catch
+                catch { }
+
+                if (ex is TimeoutException)
                 {
-                    // Ignore any exceptions.
+                    throw new TimeoutException($"Timed out connecting to {endPoint}. Timeout was {_settings.ConnectTimeout}.", ex.InnerException);
                 }
+
+                throw;
             }
         }
 
@@ -254,7 +236,7 @@ namespace MongoDB.Driver.Core.Connections
 
                 if (ex is TimeoutException)
                 {
-                    throw new TimeoutException($"Timed out connecting to {endPoint}. Timeout was {_settings.ConnectTimeout}.");
+                    throw new TimeoutException($"Timed out connecting to {endPoint}. Timeout was {_settings.ConnectTimeout}.", ex.InnerException);
                 }
 
                 throw;
