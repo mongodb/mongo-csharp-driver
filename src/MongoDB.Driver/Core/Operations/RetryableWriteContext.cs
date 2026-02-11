@@ -76,6 +76,8 @@ namespace MongoDB.Driver.Core.Operations
                 var writeChannelSource = Binding.GetWriteChannelSource(operationContext, deprioritizedServers);
                 ReplaceChannelSource(writeChannelSource);
                 ReplaceChannel(ChannelSource.GetChannel(operationContext));
+
+                ChannelPinningHelper.PinChannellIfRequired(ChannelSource, Channel, Binding.Session);
             }
             catch
             {
@@ -94,6 +96,8 @@ namespace MongoDB.Driver.Core.Operations
                     .GetWriteChannelSourceAsync(operationContext, deprioritizedServers).ConfigureAwait(false);
                 ReplaceChannelSource(writeChannelSource);
                 ReplaceChannel(await ChannelSource.GetChannelAsync(operationContext).ConfigureAwait(false));
+
+                ChannelPinningHelper.PinChannellIfRequired(ChannelSource, Channel, Binding.Session);
             }
             catch
             {

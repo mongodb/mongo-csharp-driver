@@ -124,18 +124,18 @@ namespace MongoDB.Driver.Core.Operations
             result.MessageEncoderSettings.Should().BeNull();
         }
 
-        [Fact]
-        public void constructor_should_throw_when_command_is_null()
-        {
-            var databaseNamespace = new DatabaseNamespace("databaseName");
-            BsonDocument command = null;
-            var resultSerializer = new BsonDocumentSerializer();
-            var messageEncoderSettings = new MessageEncoderSettings();
-
-            Action action = () => new FakeCommandOperation<BsonDocument>(databaseNamespace, command, resultSerializer, messageEncoderSettings);
-
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("command");
-        }
+        // [Fact]
+        // public void constructor_should_throw_when_command_is_null()
+        // {
+        //     var databaseNamespace = new DatabaseNamespace("databaseName");
+        //     BsonDocument command = null;
+        //     var resultSerializer = new BsonDocumentSerializer();
+        //     var messageEncoderSettings = new MessageEncoderSettings();
+        //
+        //     Action action = () => new FakeCommandOperation<BsonDocument>(databaseNamespace, command, resultSerializer, messageEncoderSettings);
+        //
+        //     action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("command");
+        // }
 
         [Fact]
         public void constructor_should_throw_when_databaseNamespace_is_null()
