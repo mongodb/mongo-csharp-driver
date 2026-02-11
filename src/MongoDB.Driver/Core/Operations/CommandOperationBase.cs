@@ -41,9 +41,19 @@ namespace MongoDB.Driver.Core.Operations
             MessageEncoderSettings messageEncoderSettings)
         {
             _databaseNamespace = Ensure.IsNotNull(databaseNamespace, nameof(databaseNamespace));
-            _command = Ensure.IsNotNull(command, nameof(command));
+            _command = command; //can be null
             _resultSerializer = Ensure.IsNotNull(resultSerializer, nameof(resultSerializer));
             _messageEncoderSettings = messageEncoderSettings;
+        }
+
+        //TODO Move to the right place
+        /// <summary>
+        /// Sets the command to be executed. This is used by derived classes that build commands dynamically.
+        /// </summary>
+        /// <param name="command">The command.</param>
+        protected void SetCommand(BsonDocument command)
+        {
+            _command = Ensure.IsNotNull(command, nameof(command));
         }
 
         public BsonDocument AdditionalOptions

@@ -29,35 +29,13 @@ namespace MongoDB.Driver.Core.Operations
         public static RetryableWriteContext Create(OperationContext operationContext, IWriteBinding binding, bool retryRequested)
         {
             var context = new RetryableWriteContext(binding, retryRequested);
-            try
-            {
-                context.AcquireOrReplaceChannel(operationContext, null);
-            }
-            catch
-            {
-                context.Dispose();
-                throw;
-            }
-
-            ChannelPinningHelper.PinChannellIfRequired(context.ChannelSource, context.Channel, context.Binding.Session);
             return context;
         }
 
-        public static async Task<RetryableWriteContext> CreateAsync(OperationContext operationContext, IWriteBinding binding, bool retryRequested)
+        public static Task<RetryableWriteContext> CreateAsync(OperationContext operationContext, IWriteBinding binding, bool retryRequested)
         {
             var context = new RetryableWriteContext(binding, retryRequested);
-            try
-            {
-                await context.AcquireOrReplaceChannelAsync(operationContext, null).ConfigureAwait(false);
-            }
-            catch
-            {
-                context.Dispose();
-                throw;
-            }
-
-            ChannelPinningHelper.PinChannellIfRequired(context.ChannelSource, context.Channel, context.Binding.Session);
-            return context;
+            return Task.FromResult(context);  //TODO This whole method could be removed
         }
         #endregion
 
@@ -92,41 +70,36 @@ namespace MongoDB.Driver.Core.Operations
 
         public void AcquireOrReplaceChannel(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
-            var attempt = 1;
-            while (true)
+            try
             {
                 operationContext.ThrowIfTimedOutOrCanceled();
-                ReplaceChannelSource(Binding.GetWriteChannelSource(operationContext, deprioritizedServers));
-                var server = ChannelSource.ServerDescription;
-                try
-                {
-                    ReplaceChannel(ChannelSource.GetChannel(operationContext));
-                    return;
-                }
-                catch (Exception ex) when (RetryableWriteOperationExecutor.ShouldConnectionAcquireBeRetried(operationContext, this, server, ex, attempt))
-                {
-                    attempt++;
-                }
+                var writeChannelSource = Binding.GetWriteChannelSource(operationContext, deprioritizedServers);
+                ReplaceChannelSource(writeChannelSource);
+                ReplaceChannel(ChannelSource.GetChannel(operationContext));
+            }
+            catch
+            {
+                _channelSource?.Dispose();
+                _channel?.Dispose();
+                throw;
             }
         }
 
         public async Task AcquireOrReplaceChannelAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
-            var attempt = 1;
-            while (true)
+            try
             {
                 operationContext.ThrowIfTimedOutOrCanceled();
-                ReplaceChannelSource(await Binding.GetWriteChannelSourceAsync(operationContext, deprioritizedServers).ConfigureAwait(false));
-                var server = ChannelSource.ServerDescription;
-                try
-                {
-                    ReplaceChannel(await ChannelSource.GetChannelAsync(operationContext).ConfigureAwait(false));
-                    return;
-                }
-                catch (Exception ex) when (RetryableWriteOperationExecutor.ShouldConnectionAcquireBeRetried(operationContext, this, server, ex, attempt))
-                {
-                    attempt++;
-                }
+                var writeChannelSource = await Binding
+                    .GetWriteChannelSourceAsync(operationContext, deprioritizedServers).ConfigureAwait(false);
+                ReplaceChannelSource(writeChannelSource);
+                ReplaceChannel(await ChannelSource.GetChannelAsync(operationContext).ConfigureAwait(false));
+            }
+            catch
+            {
+                _channelSource?.Dispose();
+                _channel?.Dispose();
+                throw;
             }
         }
 

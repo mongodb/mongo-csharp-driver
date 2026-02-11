@@ -13,10 +13,12 @@
 * limitations under the License.
 */
 
+using System;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -25,6 +27,7 @@ namespace MongoDB.Driver.Core.Operations
 {
     internal sealed class ReadCommandOperation<TCommandResult> : CommandOperationBase<TCommandResult>, IReadOperation<TCommandResult>, IRetryableReadOperation<TCommandResult>
     {
+        private readonly Func<ICoreSession, ConnectionDescription, BsonDocument> _commandFactory;
         private bool _retryRequested;
 
         public ReadCommandOperation(
@@ -34,6 +37,16 @@ namespace MongoDB.Driver.Core.Operations
             MessageEncoderSettings messageEncoderSettings)
             : base(databaseNamespace, command, resultSerializer, messageEncoderSettings)
         {
+        }
+
+        public ReadCommandOperation(
+            DatabaseNamespace databaseNamespace,
+            Func<ICoreSession, ConnectionDescription, BsonDocument> commandFactory,
+            IBsonSerializer<TCommandResult> resultSerializer,
+            MessageEncoderSettings messageEncoderSettings)
+            : base(databaseNamespace, null, resultSerializer, messageEncoderSettings)
+        {
+            _commandFactory = Ensure.IsNotNull(commandFactory, nameof(commandFactory));
         }
 
         public bool RetryRequested
@@ -84,11 +97,23 @@ namespace MongoDB.Driver.Core.Operations
 
         public TCommandResult ExecuteAttempt(OperationContext operationContext, RetryableReadContext context, int attempt, long? transactionNumber)
         {
+            if (_commandFactory != null)
+            {
+                var command = _commandFactory(context.Binding.Session, context.Channel.ConnectionDescription);
+                SetCommand(command);
+            }
+
             return ExecuteProtocol(operationContext, context.Channel, context.Binding.Session, context.Binding.ReadPreference);
         }
 
         public Task<TCommandResult> ExecuteAttemptAsync(OperationContext operationContext, RetryableReadContext context, int attempt, long? transactionNumber)
         {
+            if (_commandFactory != null)
+            {
+                var command = _commandFactory(context.Binding.Session, context.Channel.ConnectionDescription);
+                SetCommand(command);
+            }
+
             return ExecuteProtocolAsync(operationContext, context.Channel, context.Binding.Session, context.Binding.ReadPreference);
         }
     }

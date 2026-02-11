@@ -166,8 +166,11 @@ namespace MongoDB.Driver.Core.Operations
 
         private ReadCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, RetryableReadContext context)
         {
-            var command = CreateCommand(operationContext, context.Binding.Session, context.Channel.ConnectionDescription);
-            return new ReadCommandOperation<BsonDocument>(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            return new ReadCommandOperation<BsonDocument>(
+                _collectionNamespace.DatabaseNamespace,
+                (session, connectionDescription) => CreateCommand(operationContext, session, connectionDescription),
+                BsonDocumentSerializer.Instance,
+                _messageEncoderSettings)
             {
                 RetryRequested = _retryRequested // might be overridden by retryable read context
             };

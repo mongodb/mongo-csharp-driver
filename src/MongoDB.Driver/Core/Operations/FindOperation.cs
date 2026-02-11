@@ -367,10 +367,9 @@ namespace MongoDB.Driver.Core.Operations
 
         private ReadCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, RetryableReadContext context)
         {
-            var command = CreateCommand(operationContext, context.Binding.Session, context.Channel.ConnectionDescription);
             var operation = new ReadCommandOperation<BsonDocument>(
                 _collectionNamespace.DatabaseNamespace,
-                command,
+                (session, connectionDescription) => CreateCommand(operationContext, session, connectionDescription),
                 __findCommandResultSerializer,
                 _messageEncoderSettings)
             {

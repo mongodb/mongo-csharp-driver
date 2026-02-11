@@ -155,10 +155,13 @@ namespace MongoDB.Driver.Core.Operations
 
         private ReadCommandOperation<DistinctResult> CreateOperation(OperationContext operationContext, RetryableReadContext context)
         {
-            var command = CreateCommand(operationContext, context.Binding.Session, context.Channel.ConnectionDescription);
             var serializer = new DistinctResultDeserializer(_valueSerializer);
 
-            return new ReadCommandOperation<DistinctResult>(_collectionNamespace.DatabaseNamespace, command, serializer, _messageEncoderSettings)
+            return new ReadCommandOperation<DistinctResult>(
+                _collectionNamespace.DatabaseNamespace,
+                (session, connectionDescription) => CreateCommand(operationContext, session, connectionDescription),
+                serializer,
+                _messageEncoderSettings)
             {
                 RetryRequested = _retryRequested // might be overridden by retryable read context
             };

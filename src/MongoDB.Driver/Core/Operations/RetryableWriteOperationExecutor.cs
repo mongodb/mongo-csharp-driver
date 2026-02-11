@@ -38,14 +38,20 @@ namespace MongoDB.Driver.Core.Operations
             var attempt = 1;
             Exception originalException = null;
 
-            long? transactionNumber = AreRetriesAllowed(operation.WriteConcern, context, context.ChannelSource.ServerDescription) ? context.Binding.Session.AdvanceTransactionNumber() : null;
+            long? transactionNumber = null;
 
             while (true) // Circle breaking logic based on ShouldRetryOperation method, see the catch block below.
             {
                 operationContext.ThrowIfTimedOutOrCanceled();
-                var server = context.ChannelSource.ServerDescription;
+                ServerDescription server = null;
                 try
                 {
+                    context.AcquireOrReplaceChannel(operationContext, deprioritizedServers);
+                    ChannelPinningHelper.PinChannellIfRequired(context.ChannelSource, context.Channel, context.Binding.Session);
+                    server = context.ChannelSource.ServerDescription;
+
+                    transactionNumber = AreRetriesAllowed(operation.WriteConcern, context, context.ChannelSource.ServerDescription) ? context.Binding.Session.AdvanceTransactionNumber() : null;
+
                     return operation.ExecuteAttempt(operationContext, context, attempt, transactionNumber);
                 }
                 catch (Exception ex)
@@ -58,22 +64,8 @@ namespace MongoDB.Driver.Core.Operations
                     originalException ??= ex;
                 }
 
-                deprioritizedServers ??= new HashSet<ServerDescription>();
+                deprioritizedServers ??= [];
                 deprioritizedServers.Add(server);
-
-                try
-                {
-                    context.AcquireOrReplaceChannel(operationContext, deprioritizedServers);
-                }
-                catch
-                {
-                    throw originalException;
-                }
-
-                if (!AreRetryableWritesSupported(context.ChannelSource.ServerDescription))
-                {
-                    throw originalException;
-                }
 
                 attempt++;
             }
@@ -93,14 +85,20 @@ namespace MongoDB.Driver.Core.Operations
             var attempt = 1;
             Exception originalException = null;
 
-            long? transactionNumber = AreRetriesAllowed(operation.WriteConcern, context, context.ChannelSource.ServerDescription) ? context.Binding.Session.AdvanceTransactionNumber() : null;
+            long? transactionNumber = null;
 
             while (true)  // Circle breaking logic based on ShouldRetryOperation method, see the catch block below.
             {
                 operationContext.ThrowIfTimedOutOrCanceled();
-                var server = context.ChannelSource.ServerDescription;
+                ServerDescription server = null;
                 try
                 {
+                    await context.AcquireOrReplaceChannelAsync(operationContext, deprioritizedServers).ConfigureAwait(false);
+                    ChannelPinningHelper.PinChannellIfRequired(context.ChannelSource, context.Channel, context.Binding.Session);
+                    server = context.ChannelSource.ServerDescription;
+
+                    transactionNumber = AreRetriesAllowed(operation.WriteConcern, context, context.ChannelSource.ServerDescription) ? context.Binding.Session.AdvanceTransactionNumber() : null;
+
                     return await operation.ExecuteAttemptAsync(operationContext, context, attempt, transactionNumber).ConfigureAwait(false);
                 }
                 catch (Exception ex)
@@ -115,20 +113,6 @@ namespace MongoDB.Driver.Core.Operations
 
                 deprioritizedServers ??= new HashSet<ServerDescription>();
                 deprioritizedServers.Add(server);
-
-                try
-                {
-                    await context.AcquireOrReplaceChannelAsync(operationContext, deprioritizedServers).ConfigureAwait(false);
-                }
-                catch
-                {
-                    throw originalException;
-                }
-
-                if (!AreRetryableWritesSupported(context.ChannelSource.ServerDescription))
-                {
-                    throw originalException;
-                }
 
                 attempt++;
             }

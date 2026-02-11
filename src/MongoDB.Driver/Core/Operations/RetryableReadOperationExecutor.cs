@@ -32,9 +32,13 @@ namespace MongoDB.Driver.Core.Operations
             while (true) // Circle breaking logic based on ShouldRetryOperation method, see the catch block below.
             {
                 operationContext.ThrowIfTimedOutOrCanceled();
-                var server = context.ChannelSource.ServerDescription;
+                ServerDescription server = null;
                 try
                 {
+                    context.AcquireOrReplaceChannel(operationContext, deprioritizedServers);
+                    ChannelPinningHelper.PinChannellIfRequired(context.ChannelSource, context.Channel, context.Binding.Session);
+                    server = context.ChannelSource.ServerDescription;
+
                     return operation.ExecuteAttempt(operationContext, context, attempt, transactionNumber: null);
                 }
                 catch (Exception ex)
@@ -50,15 +54,6 @@ namespace MongoDB.Driver.Core.Operations
                 deprioritizedServers ??= new HashSet<ServerDescription>();
                 deprioritizedServers.Add(server);
 
-                try
-                {
-                    context.AcquireOrReplaceChannel(operationContext, deprioritizedServers);
-                }
-                catch
-                {
-                    throw originalException;
-                }
-
                 attempt++;
             }
         }
@@ -72,9 +67,14 @@ namespace MongoDB.Driver.Core.Operations
             while (true) // Circle breaking logic based on ShouldRetryOperation method, see the catch block below.
             {
                 operationContext.ThrowIfTimedOutOrCanceled();
-                var server = context.ChannelSource.ServerDescription;
+                ServerDescription server = null;
+
                 try
                 {
+                    await context.AcquireOrReplaceChannelAsync(operationContext, deprioritizedServers).ConfigureAwait(false);
+                    ChannelPinningHelper.PinChannellIfRequired(context.ChannelSource, context.Channel, context.Binding.Session);
+                    server = context.ChannelSource.ServerDescription;
+
                     return await operation.ExecuteAttemptAsync(operationContext, context, attempt, transactionNumber: null).ConfigureAwait(false);
                 }
                 catch (Exception ex)
@@ -89,15 +89,6 @@ namespace MongoDB.Driver.Core.Operations
 
                 deprioritizedServers ??= new HashSet<ServerDescription>();
                 deprioritizedServers.Add(server);
-
-                try
-                {
-                    await context.AcquireOrReplaceChannelAsync(operationContext, deprioritizedServers).ConfigureAwait(false);
-                }
-                catch
-                {
-                    throw originalException;
-                }
 
                 attempt++;
             }
