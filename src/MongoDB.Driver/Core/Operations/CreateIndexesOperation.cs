@@ -130,7 +130,7 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        private IDisposable BeginOperation() => EventContext.BeginOperation(null, "createIndexes");
+        private EventContext.OperationIdDisposer BeginOperation() => EventContext.BeginOperation(null, "createIndexes");
 
         private WriteCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription)
         {

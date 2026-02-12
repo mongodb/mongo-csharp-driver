@@ -110,7 +110,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private IDisposable BeginOperation() => EventContext.BeginOperation(null, "listDatabases");
+        private EventContext.OperationIdDisposer BeginOperation() => EventContext.BeginOperation(null, "listDatabases");
 
         private IAsyncCursor<BsonDocument> CreateCursor(BsonDocument reply)
         {

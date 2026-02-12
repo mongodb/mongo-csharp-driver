@@ -152,7 +152,7 @@ namespace MongoDB.Driver.Core.Operations
 
         protected abstract IElementNameValidator GetCommandValidator();
 
-        private IDisposable BeginOperation() => EventContext.BeginOperation("findAndModify");
+        private EventContext.OperationNameDisposer BeginOperation() => EventContext.BeginOperation("findAndModify");
 
         private WriteCommandOperation<RawBsonDocument> CreateOperation(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber)
         {

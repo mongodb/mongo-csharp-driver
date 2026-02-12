@@ -159,7 +159,7 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        private IDisposable BeginOperation() => EventContext.BeginOperation("drop");
+        private EventContext.OperationNameDisposer BeginOperation() => EventContext.BeginOperation("drop");
 
         private WriteCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, ICoreSessionHandle session)
         {
