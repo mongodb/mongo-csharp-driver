@@ -26,6 +26,7 @@ namespace MongoDB.Driver.Core.Operations
     {
         #region static
 
+        //TODO After we have confirmed this is working, we need to remove the async version and the operationContext from the inut param.
         public static RetryableReadContext Create(OperationContext operationContext, IReadBinding binding, bool retryRequested)
         {
             var context = new RetryableReadContext(binding, retryRequested);
@@ -75,6 +76,8 @@ namespace MongoDB.Driver.Core.Operations
                 operationContext.ThrowIfTimedOutOrCanceled();
                 ReplaceChannelSource(Binding.GetReadChannelSource(operationContext, deprioritizedServers));
                 ReplaceChannel(ChannelSource.GetChannel(operationContext));
+
+                ChannelPinningHelper.PinChannellIfRequired(ChannelSource, Channel, Binding.Session);  //TODO We should do it only the first time, as an improvement we could pass the attempt number.
             }
             catch
             {
@@ -91,6 +94,8 @@ namespace MongoDB.Driver.Core.Operations
                 operationContext.ThrowIfTimedOutOrCanceled();
                 ReplaceChannelSource(await Binding.GetReadChannelSourceAsync(operationContext, deprioritizedServers).ConfigureAwait(false));
                 ReplaceChannel(await ChannelSource.GetChannelAsync(operationContext).ConfigureAwait(false));
+
+                ChannelPinningHelper.PinChannellIfRequired(ChannelSource, Channel, Binding.Session);
             }
             catch
             {

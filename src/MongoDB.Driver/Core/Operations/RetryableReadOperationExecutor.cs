@@ -36,7 +36,6 @@ namespace MongoDB.Driver.Core.Operations
                 try
                 {
                     context.AcquireOrReplaceChannel(operationContext, deprioritizedServers);
-                    ChannelPinningHelper.PinChannellIfRequired(context.ChannelSource, context.Channel, context.Binding.Session);
                     server = context.ChannelSource.ServerDescription;
 
                     return operation.ExecuteAttempt(operationContext, context, attempt, transactionNumber: null);
@@ -72,7 +71,6 @@ namespace MongoDB.Driver.Core.Operations
                 try
                 {
                     await context.AcquireOrReplaceChannelAsync(operationContext, deprioritizedServers).ConfigureAwait(false);
-                    ChannelPinningHelper.PinChannellIfRequired(context.ChannelSource, context.Channel, context.Binding.Session);
                     server = context.ChannelSource.ServerDescription;
 
                     return await operation.ExecuteAttemptAsync(operationContext, context, attempt, transactionNumber: null).ConfigureAwait(false);
