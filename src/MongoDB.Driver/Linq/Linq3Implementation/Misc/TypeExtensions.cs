@@ -361,16 +361,24 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 
         public static bool IsNumeric(this Type type)
         {
-            // note: treating more types as numeric would require careful analysis of impact on callers of this method
             return
-                type == typeof(char) ||  // TODO: should we really treat char as numeric?
-                type == typeof(decimal) ||
-                type == typeof(Decimal128) ||
+                type == typeof(byte) ||
+                type == typeof(sbyte) ||
+                type == typeof(short) ||
+                type == typeof(ushort) ||
+                type == typeof(int) ||
+                type == typeof(uint) ||
+                type == typeof(long) ||
+                type == typeof(ulong) ||
                 type == typeof(double) ||
                 type == typeof(float) ||
-                type == typeof(int) ||
-                type == typeof(long) ||
-                type == typeof(short);
+                type == typeof(decimal) ||
+                type == typeof(Decimal128);
+        }
+
+        public static bool IsNumericOrChar(this Type type)
+        {
+            return type.IsNumeric() || type == typeof(char);
         }
 
         public static bool IsNumericOrNullableNumeric(this Type type)
