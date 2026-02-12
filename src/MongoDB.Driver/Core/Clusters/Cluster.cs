@@ -163,7 +163,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             using var serverSelectionOperationContext = operationContext.WithTimeout(Settings.ServerSelectionTimeout);
             var expirableClusterDescription = _expirableClusterDescription;
-            ServerSelectionWaitQueue.ServerSelectionQueueDisposer? serverSelectionWaitQueueDisposer = null;
+            IDisposable serverSelectionWaitQueueDisposer = null;
             (selector, var operationCountSelector, var stopwatch) = BeginServerSelection(expirableClusterDescription.ClusterDescription, selector);
 
             try
@@ -201,7 +201,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             using var serverSelectionOperationContext = operationContext.WithTimeout(Settings.ServerSelectionTimeout);
             var expirableClusterDescription = _expirableClusterDescription;
-            ServerSelectionWaitQueue.ServerSelectionQueueDisposer? serverSelectionWaitQueueDisposer = null;
+            IDisposable serverSelectionWaitQueueDisposer = null;
             (selector, var operationCountSelector, var stopwatch) = BeginServerSelection(expirableClusterDescription.ClusterDescription, selector);
 
             try
@@ -458,7 +458,7 @@ namespace MongoDB.Driver.Core.Clusters
                 _rapidHeartbeatTimer.Dispose();
             }
 
-            public ServerSelectionQueueDisposer Enter(OperationContext operationContext, IServerSelector selector, ClusterDescription clusterDescription, long? operationId)
+            public IDisposable Enter(OperationContext operationContext, IServerSelector selector, ClusterDescription clusterDescription, long? operationId)
             {
                 lock (_serverSelectionWaitQueueLock)
                 {
@@ -523,7 +523,7 @@ namespace MongoDB.Driver.Core.Clusters
                 }
             }
 
-            public readonly struct ServerSelectionQueueDisposer : IDisposable
+            private sealed class ServerSelectionQueueDisposer : IDisposable
             {
                 private readonly ServerSelectionWaitQueue _waitQueue;
 
@@ -532,7 +532,7 @@ namespace MongoDB.Driver.Core.Clusters
                     _waitQueue = waitQueue;
                 }
 
-                public readonly void Dispose()
+                public void Dispose()
                     => _waitQueue.ExitServerSelectionWaitQueue();
             }
         }
