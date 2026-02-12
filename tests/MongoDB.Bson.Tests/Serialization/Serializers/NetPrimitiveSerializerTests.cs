@@ -1556,7 +1556,7 @@ namespace MongoDB.Bson.Tests.Serialization
         }
 
         [Theory]
-        [MemberData(nameof(IPAddressSpecialValuesTestCases))]
+        [MemberData(nameof(IpAddressSpecialValuesTestCases))]
         public void TestSpecialValues(IPAddress ipAddress, string serializedValue)
         {
             var obj = new TestClass
@@ -1572,16 +1572,16 @@ namespace MongoDB.Bson.Tests.Serialization
             Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        public static IEnumerable<object[]> IPAddressSpecialValuesTestCases()
-        {
-            yield return [IPAddress.Any, "0.0.0.0"];
-            yield return [IPAddress.Broadcast, "255.255.255.255"];
-            yield return [IPAddress.IPv6Any, "[::]"];
-            yield return [IPAddress.IPv6Loopback, "[::1]"];
-            yield return [IPAddress.IPv6None, "[::]"];
-            yield return [IPAddress.Loopback, "127.0.0.1"];
-            yield return [IPAddress.None, "255.255.255.255"];
-        }
+        public static IEnumerable<object[]> IpAddressSpecialValuesTestCases =>
+        [
+            [IPAddress.Any, "0.0.0.0"],
+            [IPAddress.Broadcast, "255.255.255.255"],
+            [IPAddress.IPv6Any, "[::]"],
+            [IPAddress.IPv6Loopback, "[::1]"],
+            [IPAddress.IPv6None, "[::]"],
+            [IPAddress.Loopback, "127.0.0.1"],
+            [IPAddress.None, "255.255.255.255"],
+        ];
 
         [Fact]
         public void Equals_null_should_return_false()
