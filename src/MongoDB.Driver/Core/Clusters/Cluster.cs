@@ -523,7 +523,7 @@ namespace MongoDB.Driver.Core.Clusters
                 }
             }
 
-            private readonly struct ServerSelectionQueueDisposer : IDisposable
+            public readonly struct ServerSelectionQueueDisposer : IDisposable
             {
                 private readonly ServerSelectionWaitQueue _waitQueue;
 
