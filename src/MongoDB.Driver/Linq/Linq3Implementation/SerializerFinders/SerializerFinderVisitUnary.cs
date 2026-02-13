@@ -52,25 +52,22 @@ internal partial class SerializerFinderVisitor
 
         void DeduceUnaryOperatorSerializers()
         {
-            if (IsNotKnown(node))
+            if (IsNotKnown(node) && IsKnown(operand, out var sourceSerializer))
             {
                 var resultSerializer = unaryOperator switch
                 {
                     ExpressionType.ArrayLength => Int32Serializer.Instance,
-                    ExpressionType.Convert or ExpressionType.TypeAs => GetConvertSerializer(),
+                    ExpressionType.Convert or ExpressionType.ConvertChecked or ExpressionType.TypeAs => GetConvertSerializer(sourceSerializer),
                     ExpressionType.Not => StandardSerializers.GetSerializer(node.Type),
                     ExpressionType.Quote => IgnoreNodeSerializer.Create(node.Type),
-                    _ => null
+                    _ => UnknowableSerializer.Create(node.Type)
                 };
 
-                if (resultSerializer != null)
-                {
-                    AddNodeSerializer(node, resultSerializer);
-                }
+                AddNodeSerializer(node, resultSerializer);
             }
         }
 
-        IBsonSerializer GetConvertSerializer()
+        IBsonSerializer GetConvertSerializer(IBsonSerializer sourceSerializer)
         {
             var sourceType = operand.Type;
             var targetType = node.Type;
@@ -84,12 +81,7 @@ internal partial class SerializerFinderVisitor
                 operand = unarySourceExpression.Operand;
             }
 
-            if (IsKnown(operand, out var sourceSerializer))
-            {
-                return GetTargetSerializer(node, sourceType, targetType, sourceSerializer);
-            }
-
-            return null;
+            return GetTargetSerializer(node, sourceType, targetType, sourceSerializer);
 
             static IBsonSerializer GetTargetSerializer(UnaryExpression node, Type sourceType, Type targetType, IBsonSerializer sourceSerializer)
             {
@@ -153,7 +145,7 @@ internal partial class SerializerFinderVisitor
                     return GetNumericConversionSerializer(node, sourceType, targetType, sourceSerializer);
                 }
 
-                return null;
+                return UnknowableSerializer.Create(node.Type);
             }
 
             static IBsonSerializer GetConvertFromBsonValueSerializer(UnaryExpression expression, Type targetType)
@@ -209,7 +201,7 @@ internal partial class SerializerFinderVisitor
             {
                 if (sourceSerializer is not INullableSerializer nullableSourceSerializer)
                 {
-                    throw new ExpressionNotSupportedException(expression, because: $"sourceSerializer type {sourceSerializer.GetType()} does not implement nameof(INullableSerializer)");
+                    return UnknowableSerializer.Create(expression.Type);
                 }
 
                 var sourceValueSerializer = nullableSourceSerializer.ValueSerializer;
