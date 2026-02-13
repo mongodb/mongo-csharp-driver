@@ -14,6 +14,7 @@
 */
 
 using FluentAssertions;
+using MongoDB.Bson;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -81,32 +82,75 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [ParameterAttributeData]
+        public void SnapshotTime_get_should_return_expected_result(
+            [Values(false, true)] bool nullValue)
+        {
+            var value = nullValue ? null : new BsonTimestamp(1234567890, 1);
+            var subject = CreateSubject(snapshotTime: value);
+
+            var result = subject.SnapshotTime;
+
+            result.Should().Be(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void SnapshotTime_set_should_have_expected_result(
+            [Values(false, true)] bool nullValue)
+        {
+            var subject = CreateSubject();
+            var value = nullValue ? null : new BsonTimestamp(1234567890, 1);
+
+            subject.SnapshotTime = value;
+
+            subject.SnapshotTime.Should().Be(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         public void ToCore_should_return_expected_result(
             [Values(null, false, true)] bool? causalConsistency,
             [Values(false, true)] bool isImplicit,
-            [Values(false, true)] bool nullDefaultTransactionOptions)
+            [Values(false, true)] bool snapshot,
+            [Values(false, true)] bool nullDefaultTransactionOptions,
+            [Values(false, true)] bool nullSnapshotTime)
         {
+            // Skip invalid combinations: snapshotTime can only be set if snapshot is true
+            if (!snapshot && !nullSnapshotTime)
+            {
+                return;
+            }
+
             var defaultTransactionOptions = nullDefaultTransactionOptions ? null : new TransactionOptions();
+            var snapshotTime = nullSnapshotTime ? null : new BsonTimestamp(1234567890, 1);
             var subject = CreateSubject(
                 causalConsistency: causalConsistency,
-                defaultTransactionOptions: defaultTransactionOptions);
+                defaultTransactionOptions: defaultTransactionOptions,
+                snapshot: snapshot,
+                snapshotTime: snapshotTime);
 
             var result = subject.ToCore(isImplicit: isImplicit);
 
             result.DefaultTransactionOptions.Should().BeSameAs(defaultTransactionOptions);
-            result.IsCausallyConsistent.Should().Be(causalConsistency ?? true);
+            result.IsCausallyConsistent.Should().Be(causalConsistency ?? !snapshot);
             result.IsImplicit.Should().Be(isImplicit);
+            result.IsSnapshot.Should().Be(snapshot);
+            result.SnapshotTime.Should().Be(snapshotTime);
         }
 
         // private methods
         private ClientSessionOptions CreateSubject(
             bool? causalConsistency = null,
-            TransactionOptions defaultTransactionOptions = null)
+            TransactionOptions defaultTransactionOptions = null,
+            bool snapshot = false,
+            BsonTimestamp snapshotTime = null)
         {
             return new ClientSessionOptions
             {
                 CausalConsistency = causalConsistency,
-                DefaultTransactionOptions = defaultTransactionOptions
+                DefaultTransactionOptions = defaultTransactionOptions,
+                Snapshot = snapshot,
+                SnapshotTime = snapshotTime
             };
         }
     }

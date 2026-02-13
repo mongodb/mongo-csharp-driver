@@ -156,6 +156,19 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void SnapshotTime_should_call_coreSession()
+        {
+            var subject = CreateSubject();
+            var value = new BsonTimestamp(1234567890, 1);
+            var mockCoreSession = Mock.Get(subject.WrappedCoreSession);
+            mockCoreSession.SetupGet(m => m.SnapshotTime).Returns(value);
+
+            var result = subject.SnapshotTime;
+
+            result.Should().BeSameAs(value);
+        }
+
+        [Fact]
         public void WrappedCoreSession_returns_expected_result()
         {
             var coreSession = CreateCoreSession();

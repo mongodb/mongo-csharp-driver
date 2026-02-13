@@ -13,8 +13,10 @@
  * limitations under the License.
  */
 
+using System;
 using System.Collections.Generic;
 using FluentAssertions;
+using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
 using Moq;
 using Xunit;
@@ -33,6 +35,41 @@ namespace MongoDB.Driver.Tests
             var result = session.GetEffectiveReadPreference(defaultReadPreference);
 
             result.Should().Be(expectedReadPreference);
+        }
+
+        [Fact]
+        public void GetSnapshotTime_on_snapshot_session_returns_expected_value()
+        {
+            var snapshotTime = new BsonTimestamp(1234567890, 1);
+            var coreSessionMock = new Mock<ICoreSessionHandle>();
+            coreSessionMock.SetupGet(s => s.IsSnapshot).Returns(true);
+            coreSessionMock.SetupGet(s => s.SnapshotTime).Returns(snapshotTime);
+            
+            var session = new ClientSessionHandle(
+                Mock.Of<IMongoClient>(),
+                new ClientSessionOptions(),
+                coreSessionMock.Object);
+
+            var result = session.GetSnapshotTime();
+
+            result.Should().Be(snapshotTime);
+        }
+
+        [Fact]
+        public void GetSnapshotTime_on_non_snapshot_session_throws_InvalidOperationException()
+        {
+            var coreSessionMock = new Mock<ICoreSessionHandle>();
+            coreSessionMock.SetupGet(s => s.IsSnapshot).Returns(false);
+            
+            var session = new ClientSessionHandle(
+                Mock.Of<IMongoClient>(),
+                new ClientSessionOptions(),
+                coreSessionMock.Object);
+
+            var exception = Record.Exception(() => session.GetSnapshotTime());
+
+            exception.Should().BeOfType<InvalidOperationException>();
+            exception.Message.Should().Contain("non-snapshot session");
         }
 
         public static IEnumerable<object[]> GetEffectiveReadPreferenceTestCases()
