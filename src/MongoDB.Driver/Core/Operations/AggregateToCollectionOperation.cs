@@ -200,7 +200,7 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        private IDisposable BeginOperation() => EventContext.BeginOperation("aggregate");
+        private EventContext.OperationNameDisposer BeginOperation() => EventContext.BeginOperation("aggregate");
 
         private WriteCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, ReadPreference effectiveReadPreference)
         {

@@ -160,7 +160,7 @@ namespace MongoDB.Driver.Core.Operations
         private bool IsOperationRetryable()
             => _retryRequested && _requests.All(r => r.IsRetryable());
 
-        private IDisposable BeginOperation() =>
+        private EventContext.OperationIdDisposer BeginOperation() =>
             EventContext.BeginOperation(null, _requests.FirstOrDefault()?.RequestType.ToString().ToLower());
 
         private BulkWriteBatchResult CreateBatchResult(

@@ -91,7 +91,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private IDisposable BeginOperation() => EventContext.BeginOperation(null, "listIndexes");
+        private EventContext.OperationIdDisposer BeginOperation() => EventContext.BeginOperation(null, "listIndexes");
 
         private IExecutableInRetryableReadContext<IAsyncCursor<BsonDocument>> CreateOperation()
         {

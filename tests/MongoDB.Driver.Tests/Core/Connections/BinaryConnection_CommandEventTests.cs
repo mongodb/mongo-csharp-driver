@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Core.Connections
         private BlockingMemoryStream _stream;
         private Mock<IStreamFactory> _mockStreamFactory;
         private BinaryConnection _subject;
-        private IDisposable _operationIdDisposer;
+        private EventContext.OperationIdDisposer _operationIdDisposer;
 
         public static IEnumerable<object[]> GetPotentiallyRedactedCommandTestCases()
         {

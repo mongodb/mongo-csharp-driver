@@ -1,4 +1,4 @@
-﻿/* Copyright 2021-present MongoDB Inc.
+/* Copyright 2021-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -92,7 +92,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private IDisposable BeginOperation() => EventContext.BeginOperation("count");
+        private EventContext.OperationNameDisposer BeginOperation() => EventContext.BeginOperation("count");
 
         private IExecutableInRetryableReadContext<long> CreateCountOperation()
         {

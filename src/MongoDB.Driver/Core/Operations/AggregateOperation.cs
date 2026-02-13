@@ -352,7 +352,7 @@ namespace MongoDB.Driver.Core.Operations
             return command;
         }
 
-        private IDisposable BeginOperation() => EventContext.BeginOperation(null, "aggregate");
+        private EventContext.OperationIdDisposer BeginOperation() => EventContext.BeginOperation(null, "aggregate");
 
         private ReadCommandOperation<AggregateResult> CreateOperation(OperationContext operationContext, RetryableReadContext context)
         {

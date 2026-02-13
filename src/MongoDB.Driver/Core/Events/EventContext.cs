@@ -1,4 +1,4 @@
-﻿/* Copyright 2015-present MongoDB Inc.
+/* Copyright 2015-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -87,100 +87,111 @@ namespace MongoDB.Driver.Core.Events
             }
         }
 
-        public static IDisposable BeginFind(int? batchSize, int? limit)
+        public static FindOperationDisposer BeginFind(int? batchSize, int? limit)
         {
             return FindOperationBatchSize == null ?
-                (IDisposable)new FindOperationDisposer(batchSize, limit) :
-                NoOpDisposer.Instance;
+                new FindOperationDisposer(batchSize, limit) :
+                default;
         }
 
-        public static IDisposable BeginKillCursors(CollectionNamespace collectionNamespace)
+        public static KillCursorsOperationDisposer BeginKillCursors(CollectionNamespace collectionNamespace)
         {
             return KillCursorsCollectionNamespace == null ?
-                (IDisposable)new KillCursorsOperationDisposer(collectionNamespace) :
-                NoOpDisposer.Instance;
+                new KillCursorsOperationDisposer(collectionNamespace) :
+                default;
         }
 
-        public static IDisposable BeginOperation()
+        public static OperationIdDisposer BeginOperation() => BeginOperation(null, null);
+
+        public static OperationNameDisposer BeginOperation(string commandName)
         {
-            return BeginOperation(null, null);
+            return commandName != null ? new OperationNameDisposer(commandName) : default;
         }
 
-        public static IDisposable BeginOperation(string commandName)
-        {
-            return commandName != null ? new OperationNameDisposer(commandName) : NoOpDisposer.Instance;
-        }
-
-        public static IDisposable BeginOperation(long? operationId, string commandName = null)
+        public static OperationIdDisposer BeginOperation(long? operationId, string commandName = null)
         {
             return OperationId == null ?
                 new OperationIdDisposer(operationId ?? LongIdGenerator<OperationIdDisposer>.GetNextId(), commandName) :
-                NoOpDisposer.Instance;
+                default;
         }
 
-        private sealed class NoOpDisposer : IDisposable
+        internal readonly struct FindOperationDisposer : IDisposable
         {
-            public static NoOpDisposer Instance = new NoOpDisposer();
+            private readonly bool _isActive;
 
-            public void Dispose()
-            {
-                // do nothing
-            }
-        }
-
-        private sealed class FindOperationDisposer : IDisposable
-        {
             public FindOperationDisposer(int? batchSize, int? limit)
             {
+                _isActive = true;
                 EventContext.FindOperationBatchSize = batchSize;
                 EventContext.FindOperationLimit = limit;
             }
 
-            public void Dispose()
+            public readonly void Dispose()
             {
-                EventContext.FindOperationBatchSize = null;
-                EventContext.FindOperationLimit = null;
+                if (_isActive)
+                {
+                    EventContext.FindOperationBatchSize = null;
+                    EventContext.FindOperationLimit = null;
+                }
             }
         }
 
-        private sealed class KillCursorsOperationDisposer : IDisposable
+        internal readonly struct KillCursorsOperationDisposer : IDisposable
         {
+            private readonly bool _isActive;
+
             public KillCursorsOperationDisposer(CollectionNamespace collectionNamespace)
             {
+                _isActive = true;
                 EventContext.KillCursorsCollectionNamespace = collectionNamespace;
             }
 
-            public void Dispose()
+            public readonly void Dispose()
             {
-                EventContext.KillCursorsCollectionNamespace = null;
+                if (_isActive)
+                {
+                    EventContext.KillCursorsCollectionNamespace = null;
+                }
             }
         }
 
-        private sealed class OperationIdDisposer : IDisposable
+        internal readonly struct OperationIdDisposer : IDisposable
         {
+            private readonly bool _isActive;
+
             public OperationIdDisposer(long operationId, string operationName)
             {
+                _isActive = true;
                 EventContext.OperationId = operationId;
                 EventContext.OperationName = operationName;
             }
 
-            public void Dispose()
+            public readonly void Dispose()
             {
-                EventContext.OperationId = null;
-                EventContext.OperationName = null;
+                if (_isActive)
+                {
+                    EventContext.OperationId = null;
+                    EventContext.OperationName = null;
+                }
             }
         }
 
-        private sealed class OperationNameDisposer : IDisposable
+        internal readonly struct OperationNameDisposer : IDisposable
         {
+            private readonly bool _isActive;
+
             public OperationNameDisposer(string operationName)
             {
+                _isActive = true;
                 EventContext.OperationName = operationName;
             }
 
-            public void Dispose()
+            public readonly void Dispose()
             {
-                EventContext.OperationName = null;
+                if (_isActive)
+                {
+                    EventContext.OperationName = null;
+                }
             }
         }
     }
