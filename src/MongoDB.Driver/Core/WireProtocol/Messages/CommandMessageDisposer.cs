@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         // public methods
         public readonly void Dispose()
         {
-            if (_message.Sections is not null)
+            if (_message is not null)
             {
                 foreach (var section in _message.Sections)
                 {
