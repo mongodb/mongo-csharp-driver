@@ -55,6 +55,8 @@ namespace MongoDB.Driver.Core.Operations
             get { return _collectionNamespace; }
         }
 
+        public override string OperationName => null;
+
         public BatchableSource<DeleteRequest> Deletes
         {
             get { return _deletes; }

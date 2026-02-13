@@ -449,7 +449,7 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        private static string GetAssemblyVersion(Assembly assembly)
+        internal static string GetAssemblyVersion(Assembly assembly)
         {
             var versionAttribute = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
             var hashIndex = versionAttribute.InformationalVersion.IndexOf('+');

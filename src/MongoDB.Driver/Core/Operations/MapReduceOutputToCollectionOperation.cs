@@ -90,6 +90,11 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <summary>
+        /// Gets the name of the operation.
+        /// </summary>
+        public string OperationName => "mapReduce";
+
+        /// <summary>
         /// Gets the output collection namespace.
         /// </summary>
         /// <value>
@@ -199,7 +204,7 @@ namespace MongoDB.Driver.Core.Operations
         private WriteCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription)
         {
             var command = CreateCommand(operationContext, session, connectionDescription);
-            return new WriteCommandOperation<BsonDocument>(CollectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, MessageEncoderSettings);
+            return new WriteCommandOperation<BsonDocument>(CollectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, MessageEncoderSettings, OperationName);
         }
     }
 }

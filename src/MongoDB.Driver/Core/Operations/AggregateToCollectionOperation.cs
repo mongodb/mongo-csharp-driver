@@ -118,6 +118,8 @@ namespace MongoDB.Driver.Core.Operations
             get { return _messageEncoderSettings; }
         }
 
+        public string OperationName => "aggregate";
+
         public IReadOnlyList<BsonDocument> Pipeline
         {
             get { return _pipeline; }
@@ -200,12 +202,12 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        private IDisposable BeginOperation() => EventContext.BeginOperation("aggregate");
+        private IDisposable BeginOperation() => EventContext.BeginOperation(OperationName);
 
         private WriteCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, ReadPreference effectiveReadPreference)
         {
             var command = CreateCommand(operationContext, session, connectionDescription);
-            var operation = new WriteCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, MessageEncoderSettings);
+            var operation = new WriteCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, MessageEncoderSettings, OperationName);
             if (effectiveReadPreference != null)
             {
                 operation.ReadPreference = effectiveReadPreference;

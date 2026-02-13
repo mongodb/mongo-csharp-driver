@@ -25,16 +25,21 @@ namespace MongoDB.Driver.Core.Operations
 {
     internal sealed class ReadCommandOperation<TCommandResult> : CommandOperationBase<TCommandResult>, IReadOperation<TCommandResult>, IRetryableReadOperation<TCommandResult>
     {
+        private readonly string _operationName;
         private bool _retryRequested;
 
         public ReadCommandOperation(
             DatabaseNamespace databaseNamespace,
             BsonDocument command,
             IBsonSerializer<TCommandResult> resultSerializer,
-            MessageEncoderSettings messageEncoderSettings)
+            MessageEncoderSettings messageEncoderSettings,
+            string operationName = null)
             : base(databaseNamespace, command, resultSerializer, messageEncoderSettings)
         {
+            _operationName = operationName;
         }
+
+        public string OperationName => _operationName;
 
         public bool RetryRequested
         {

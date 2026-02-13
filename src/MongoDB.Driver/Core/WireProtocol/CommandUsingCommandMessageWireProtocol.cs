@@ -576,9 +576,22 @@ namespace MongoDB.Driver.Core.WireProtocol
                 var response = (CommandResponseMessage)connection.ReceiveMessage(operationContext, responseTo, encoderSelector, _messageEncoderSettings);
                 // TODO: CSOT: Propagate operationContext into Encryption
                 response = AutoDecryptFieldsIfNecessary(response, operationContext.CancellationToken);
-                var result = ProcessResponse(connection.ConnectionId, response.WrappedMessage);
-                SaveResponseInfo(response);
-                return result;
+                try
+                {
+                    var result = ProcessResponse(connection.ConnectionId, response.WrappedMessage);
+                    SaveResponseInfo(response);
+                    return result;
+                }
+                catch (MongoCommandException ex) when (ex is not MongoWriteConcernException)
+                {
+                    connection.CompleteCommandWithException(ex);
+                    throw;
+                }
+                catch (MongoExecutionTimeoutException ex)
+                {
+                    connection.CompleteCommandWithException(ex);
+                    throw;
+                }
             }
             else
             {
@@ -612,9 +625,22 @@ namespace MongoDB.Driver.Core.WireProtocol
                 var response = (CommandResponseMessage)await connection.ReceiveMessageAsync(operationContext, responseTo, encoderSelector, _messageEncoderSettings).ConfigureAwait(false);
                 // TODO: CSOT: Propagate operationContext into Encryption
                 response = await AutoDecryptFieldsIfNecessaryAsync(response, operationContext.CancellationToken).ConfigureAwait(false);
-                var result = ProcessResponse(connection.ConnectionId, response.WrappedMessage);
-                SaveResponseInfo(response);
-                return result;
+                try
+                {
+                    var result = ProcessResponse(connection.ConnectionId, response.WrappedMessage);
+                    SaveResponseInfo(response);
+                    return result;
+                }
+                catch (MongoCommandException ex) when (ex is not MongoWriteConcernException)
+                {
+                    connection.CompleteCommandWithException(ex);
+                    throw;
+                }
+                catch (MongoExecutionTimeoutException ex)
+                {
+                    connection.CompleteCommandWithException(ex);
+                    throw;
+                }
             }
             else
             {

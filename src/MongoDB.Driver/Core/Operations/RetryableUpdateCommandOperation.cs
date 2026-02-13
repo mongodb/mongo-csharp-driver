@@ -56,6 +56,8 @@ namespace MongoDB.Driver.Core.Operations
             get { return _collectionNamespace; }
         }
 
+        public override string OperationName => null;
+
         public BsonDocument Let
         {
             get { return _let; }

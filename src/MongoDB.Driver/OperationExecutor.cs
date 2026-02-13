@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
@@ -50,8 +51,21 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(readPreference, nameof(readPreference));
             ThrowIfDisposed();
 
-            using var binding = CreateReadBinding(session, readPreference, allowChannelPinning);
-            return operation.Execute(operationContext, binding);
+            using var transactionActivityScope = TransactionActivityScope.CreateIfNeeded(session.WrappedCoreSession.CurrentTransaction);
+            using var activity = MongoTelemetry.StartOperationActivity(operationContext);
+
+            try
+            {
+                using var binding = CreateReadBinding(session, readPreference, allowChannelPinning);
+                var result = operation.Execute(operationContext, binding);
+                activity?.SetStatus(ActivityStatusCode.Ok);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                MongoTelemetry.RecordException(activity, ex, isOperationLevel: true);
+                throw;
+            }
         }
 
         public async Task<TResult> ExecuteReadOperationAsync<TResult>(
@@ -67,8 +81,21 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(readPreference, nameof(readPreference));
             ThrowIfDisposed();
 
-            using var binding = CreateReadBinding(session, readPreference, allowChannelPinning);
-            return await operation.ExecuteAsync(operationContext, binding).ConfigureAwait(false);
+            using var transactionActivityScope = TransactionActivityScope.CreateIfNeeded(session.WrappedCoreSession.CurrentTransaction);
+            using var activity = MongoTelemetry.StartOperationActivity(operationContext);
+
+            try
+            {
+                using var binding = CreateReadBinding(session, readPreference, allowChannelPinning);
+                var result = await operation.ExecuteAsync(operationContext, binding).ConfigureAwait(false);
+                activity?.SetStatus(ActivityStatusCode.Ok);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                MongoTelemetry.RecordException(activity, ex, isOperationLevel: true);
+                throw;
+            }
         }
 
         public TResult ExecuteWriteOperation<TResult>(
@@ -82,8 +109,21 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(operation, nameof(operation));
             ThrowIfDisposed();
 
-            using var binding = CreateReadWriteBinding(session, allowChannelPinning);
-            return operation.Execute(operationContext, binding);
+            using var transactionActivityScope = TransactionActivityScope.CreateIfNeeded(session.WrappedCoreSession.CurrentTransaction);
+            using var activity = MongoTelemetry.StartOperationActivity(operationContext);
+
+            try
+            {
+                using var binding = CreateReadWriteBinding(session, allowChannelPinning);
+                var result = operation.Execute(operationContext, binding);
+                activity?.SetStatus(ActivityStatusCode.Ok);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                MongoTelemetry.RecordException(activity, ex, isOperationLevel: true);
+                throw;
+            }
         }
 
         public async Task<TResult> ExecuteWriteOperationAsync<TResult>(
@@ -97,8 +137,21 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(operation, nameof(operation));
             ThrowIfDisposed();
 
-            using var binding = CreateReadWriteBinding(session, allowChannelPinning);
-            return await operation.ExecuteAsync(operationContext, binding).ConfigureAwait(false);
+            using var transactionActivityScope = TransactionActivityScope.CreateIfNeeded(session.WrappedCoreSession.CurrentTransaction);
+            using var activity = MongoTelemetry.StartOperationActivity(operationContext);
+
+            try
+            {
+                using var binding = CreateReadWriteBinding(session, allowChannelPinning);
+                var result = await operation.ExecuteAsync(operationContext, binding).ConfigureAwait(false);
+                activity?.SetStatus(ActivityStatusCode.Ok);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                MongoTelemetry.RecordException(activity, ex, isOperationLevel: true);
+                throw;
+            }
         }
 
         public IClientSessionHandle StartImplicitSession()

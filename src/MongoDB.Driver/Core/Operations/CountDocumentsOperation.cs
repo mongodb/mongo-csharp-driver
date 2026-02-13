@@ -91,6 +91,8 @@ namespace MongoDB.Driver.Core.Operations
             get { return _messageEncoderSettings; }
         }
 
+        public string OperationName => "countDocuments";
+
         public ReadConcern ReadConcern
         {
             get { return _readConcern; }

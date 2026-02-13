@@ -79,6 +79,11 @@ namespace MongoDB.Driver.Core.Operations
             get { return _resultSerializer; }
         }
 
+        /// <summary>
+        /// Gets the name of the operation.
+        /// </summary>
+        public string OperationName => "mapReduce";
+
         // methods
         /// <inheritdoc/>
         protected override BsonDocument CreateOutputOptions()
@@ -135,7 +140,7 @@ namespace MongoDB.Driver.Core.Operations
             var command = CreateCommand(operationContext, session, connectionDescription);
             var resultArraySerializer = new ArraySerializer<TResult>(_resultSerializer);
             var resultSerializer = new ElementDeserializer<TResult[]>("results", resultArraySerializer);
-            return new ReadCommandOperation<TResult[]>(CollectionNamespace.DatabaseNamespace, command, resultSerializer, MessageEncoderSettings)
+            return new ReadCommandOperation<TResult[]>(CollectionNamespace.DatabaseNamespace, command, resultSerializer, MessageEncoderSettings, OperationName)
             {
                 RetryRequested = false
             };
