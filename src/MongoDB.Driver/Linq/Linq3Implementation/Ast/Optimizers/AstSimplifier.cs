@@ -192,6 +192,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
                     return new AstFieldOperationFilter(node.Field, impliedOperation);
                 }
 
+                // { field : { $elemMatch : { $or : [<filter1>, <filter2>, ...] } } } // where any filter references the implied element "@<elem>"
+                // => { field : { $or : [{ field : { $elemMatch : <filter1> } }, { field : { $elemMatch : <filter2> } }, ...] } }
+                if (IsFieldElemMatchOrReferencingImpliedElement(node, out var orFilters))
+                {
+                    var rewrittenFilters = orFilters.Select(filter => AstFilter.ElemMatch(node.Field, filter)).ToArray();
+                    return AstFilter.Or(rewrittenFilters);
+                }
+
                 // { field : { $elemMatch : { $not : { $regex : "pattern", $options : "options" } } } } => { field : { $elemMatch : { $not : /pattern/options } } }
                 if (IsFieldElemMatchNotRegex(node, out var elemField, out regex))
                 {
@@ -291,6 +299,23 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
                 }
 
                 regex = null;
+                return false;
+            }
+
+            static bool IsFieldElemMatchOrReferencingImpliedElement(AstFieldOperationFilter node, out AstFilter[] orFilters)
+            {
+                // { field : { $elemMatch : { $or : [<filter1>, <filter2>, ...] } } } // where any filter references the implied element "@<elem>"
+                if (node.Operation is AstElemMatchFilterOperation elemMatch &&
+                    elemMatch.Filter is AstOrFilter orFilter &&
+                    orFilter.Filters.Any(filter =>
+                        filter is AstFieldOperationFilter fieldOperationFilter &&
+                        fieldOperationFilter.Field.Path == "@<elem>"))
+                {
+                    orFilters = orFilter.Filters.ToArray();
+                    return true;
+                }
+
+                orFilters = null;
                 return false;
             }
 

@@ -90,7 +90,7 @@ namespace MongoDB.Driver.Tests.Specifications
             // This spec test includes an AWS sessionToken in its config, indicating it should use temporary AWS credentials
             if (testCaseNameLower.Contains("localschema.json"))
             {
-                RequireEnvironment.Check().EnvironmentVariable("FLE_AWS_TEMPORARY_CREDS_ENABLED");
+                RequireEnvironment.Check().EnvironmentVariable("CSFLE_AWS_TEMPORARY_CREDS_ENABLED");
             }
 
             if (testCaseNameLower.Contains("kmip") ||
@@ -123,7 +123,15 @@ namespace MongoDB.Driver.Tests.Specifications
         public void GridFS(JsonDrivenTestCase testCase) => Run(testCase);
 
         [UnifiedTestsTheory("index_management.tests")]
-        public void IndexManagement(JsonDrivenTestCase testCase) => Run(testCase);
+        public void IndexManagement(JsonDrivenTestCase testCase)
+        {
+            // Skip sharded due to CSHARP-5833/SERVER-117001
+            RequireServer
+                .Check()
+                .VersionGreaterThanOrEqualTo(SemanticVersion.Parse("8.0.0"));
+
+            Run(testCase);
+        }
 
         [Category("SupportLoadBalancing")]
         [UnifiedTestsTheory("load_balancers.tests")]
@@ -181,14 +189,7 @@ namespace MongoDB.Driver.Tests.Specifications
         [Category("SDAM", "SupportLoadBalancing")]
         [UnifiedTestsTheory("server_discovery_and_monitoring.tests.unified")]
         public void ServerDiscoveryAndMonitoring(JsonDrivenTestCase testCase)
-        {
-            if (testCase.Name.Contains("pool-clear-"))
-            {
-                throw new SkipException("This test is flaky and is skipped while being investigated.");
-            }
-
-            Run(testCase, IsSdamLogValid, new SdamRunnerEventsProcessor(testCase.Name));
-        }
+            => Run(testCase, IsSdamLogValid, new SdamRunnerEventsProcessor(testCase.Name));
 
         [Category("SupportLoadBalancing")]
         [UnifiedTestsTheory("server_selection.tests.logging")]

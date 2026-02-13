@@ -166,10 +166,12 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
         [Theory]
         [ParameterAttributeData]
-        public void BsonSizeLimitAndBatchSizeSplittingTest(
-            [Values(false, true)] bool async)
+        public void BsonSizeLimitAndBatchSizeSplittingTest([Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
+            // Skip large encryption tests on mongocryptd, because of https://jira.mongodb.org/browse/SERVER-118428
+            // Remove the check below in scope of CSHARP-5858 once SERVER-118428 will be resolved.
+            RequireServer.Check().VersionLessThan("7.0.29");
 
             var eventCapturer = CreateEventCapturer(commandNameFilter: "insert");
             using (var client = ConfigureClient())
@@ -1834,9 +1836,12 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 }
                 catch (XunitException) // assertation failed
                 {
-                    // Sometimes the mock server triggers SocketError.ConnectionReset (10054) on windows instead the expected exception.
+                    // Sometimes the mock server triggers SocketError.ConnectionReset (10054) or SocketError.ConnectionAborted (10053) on windows instead the expected exception.
                     // It looks like a test env issue, a similar behavior presents in other drivers, so we rely on the same check on different OSs
-                    AssertInnerEncryptionException<SocketException>(exception, "An existing connection was forcibly closed by the remote host");
+                    AssertInnerEncryptionException<SocketException>(exception, ex =>
+                    {
+                        ((int)ex.SocketErrorCode).Should().BeOneOf(10053, 10054); // SocketError.ConnectionAborted, SocketError.ConnectionReset
+                    });
                 }
             }
 

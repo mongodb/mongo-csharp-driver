@@ -2,7 +2,7 @@
 =================
 
 [![MongoDB.Driver](https://img.shields.io/nuget/v/MongoDB.Driver.svg)](https://www.nuget.org/packages/MongoDB.Driver/)
-[![Documentation](https://img.shields.io/badge/docs-docfx-blue.svg)](https://mongodb.github.io/mongo-csharp-driver/3.4.0/api/index.html)
+[![Documentation](https://img.shields.io/badge/docs-docfx-blue.svg)](https://mongodb.github.io/mongo-csharp-driver/latest.html)
 [![Documentation](https://img.shields.io/badge/docs-mongo-green.svg)](https://www.mongodb.com/docs/drivers/csharp/current/)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/mongodb/mongo-csharp-driver/blob/main/LICENSE.md)
 

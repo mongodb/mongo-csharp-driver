@@ -61,9 +61,22 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __week;
         private static readonly MethodInfo __weekWithTimezone;
 
+        // sets of methods
+        private static readonly IReadOnlyMethodInfoSet __addOrSubtractOverloads;
+        private static readonly IReadOnlyMethodInfoSet __addOrSubtractWithTimeSpanOverloads;
+        private static readonly IReadOnlyMethodInfoSet __addOrSubtractWithTimezoneOverloads;
+        private static readonly IReadOnlyMethodInfoSet __addOrSubtractWithUnitOverloads;
+        private static readonly IReadOnlyMethodInfoSet __subtractReturningDateTimeOverloads;
+        private static readonly IReadOnlyMethodInfoSet __subtractReturningInt64Overloads;
+        private static readonly IReadOnlyMethodInfoSet __subtractReturningTimeSpanWithMillisecondsUnitsOverloads;
+        private static readonly IReadOnlyMethodInfoSet __subtractWithDateTimeOverloads;
+        private static readonly IReadOnlyMethodInfoSet __subtractWithTimezoneOverloads;
+        private static readonly IReadOnlyMethodInfoSet __subtractWithUnitOverloads;
+
         // static constructor
         static DateTimeMethod()
         {
+            // initialize methods before sets of methods
             __add = ReflectionInfo.Method((DateTime @this, TimeSpan value) => @this.Add(value));
             __addDays = ReflectionInfo.Method((DateTime @this, double value) => @this.AddDays(value));
             __addDaysWithTimezone = ReflectionInfo.Method((DateTime @this, double value, string timezone) => @this.AddDays(value, timezone));
@@ -103,6 +116,111 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __truncateWithBinSizeAndTimezone = ReflectionInfo.Method((DateTime @this, DateTimeUnit unit, long binSize, string timezone) => @this.Truncate(unit, binSize, timezone));
             __week = ReflectionInfo.Method((DateTime @this) => @this.Week());
             __weekWithTimezone = ReflectionInfo.Method((DateTime @this, string timezone) => @this.Week(timezone));
+
+            // initialize sets of methods after methods
+            __addOrSubtractOverloads = MethodInfoSet.Create(
+            [
+                __add,
+                __addDays,
+                __addDaysWithTimezone,
+                __addHours,
+                __addHoursWithTimezone,
+                __addMilliseconds,
+                __addMillisecondsWithTimezone,
+                __addMinutes,
+                __addMinutesWithTimezone,
+                __addMonths,
+                __addMonthsWithTimezone,
+                __addQuarters,
+                __addQuartersWithTimezone,
+                __addSeconds,
+                __addSecondsWithTimezone,
+                __addTicks,
+                __addWeeks,
+                __addWeeksWithTimezone,
+                __addWithTimezone,
+                __addWithUnit,
+                __addWithUnitAndTimezone,
+                __addYears,
+                __addYearsWithTimezone,
+                __subtractWithTimeSpan,
+                __subtractWithTimeSpanAndTimezone,
+                __subtractWithUnit,
+                __subtractWithUnitAndTimezone
+            ]);
+
+            __addOrSubtractWithTimeSpanOverloads = MethodInfoSet.Create(
+            [
+                __add,
+                __addWithTimezone,
+                __subtractWithTimeSpan,
+                __subtractWithTimeSpanAndTimezone
+            ]);
+
+            __addOrSubtractWithTimezoneOverloads = MethodInfoSet.Create(
+            [
+                __addDaysWithTimezone,
+                __addHoursWithTimezone,
+                __addMillisecondsWithTimezone,
+                __addMinutesWithTimezone,
+                __addMonthsWithTimezone,
+                __addQuartersWithTimezone,
+                __addSecondsWithTimezone,
+                __addWeeksWithTimezone,
+                __addWithTimezone,
+                __addWithUnitAndTimezone,
+                __addYearsWithTimezone,
+                __subtractWithTimeSpanAndTimezone,
+                __subtractWithUnitAndTimezone
+            ]);
+
+            __addOrSubtractWithUnitOverloads = MethodInfoSet.Create(
+            [
+                __addWithUnit,
+                __addWithUnitAndTimezone,
+                __subtractWithUnit,
+                __subtractWithUnitAndTimezone
+            ]);
+
+            __subtractReturningDateTimeOverloads = MethodInfoSet.Create(
+            [
+                __subtractWithTimeSpan,
+                __subtractWithTimeSpanAndTimezone,
+                __subtractWithUnit,
+                __subtractWithUnitAndTimezone
+            ]);
+
+            __subtractReturningInt64Overloads = MethodInfoSet.Create(
+            [
+                __subtractWithDateTimeAndUnit,
+                __subtractWithDateTimeAndUnitAndTimezone
+            ]);
+
+            __subtractReturningTimeSpanWithMillisecondsUnitsOverloads = MethodInfoSet.Create(
+            [
+                __subtractWithDateTime,
+                __subtractWithDateTimeAndTimezone
+            ]);
+
+            __subtractWithDateTimeOverloads = MethodInfoSet.Create(
+            [
+                __subtractWithDateTime,
+                __subtractWithDateTimeAndTimezone,
+                __subtractWithDateTimeAndUnit,
+                __subtractWithDateTimeAndUnitAndTimezone
+            ]);
+
+            __subtractWithTimezoneOverloads = MethodInfoSet.Create(
+            [
+                __subtractWithDateTimeAndTimezone,
+                __subtractWithDateTimeAndUnitAndTimezone
+            ]);
+
+            __subtractWithUnitOverloads = MethodInfoSet.Create(
+            [
+                __subtractWithDateTimeAndUnit,
+                __subtractWithDateTimeAndUnitAndTimezone
+            ]);
         }
 
         // public properties
@@ -145,5 +263,17 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo TruncateWithBinSizeAndTimezone => __truncateWithBinSizeAndTimezone;
         public static MethodInfo Week => __week;
         public static MethodInfo WeekWithTimezone => __weekWithTimezone;
+
+        // sets of methods
+        public static IReadOnlyMethodInfoSet AddOrSubtractOverloads => __addOrSubtractOverloads;
+        public static IReadOnlyMethodInfoSet AddOrSubtractWithTimeSpanOverloads => __addOrSubtractWithTimeSpanOverloads;
+        public static IReadOnlyMethodInfoSet AddOrSubtractWithTimezoneOverloads => __addOrSubtractWithTimezoneOverloads;
+        public static IReadOnlyMethodInfoSet AddOrSubtractWithUnitOverloads => __addOrSubtractWithUnitOverloads;
+        public static IReadOnlyMethodInfoSet SubtractReturningDateTimeOverloads => __subtractReturningDateTimeOverloads;
+        public static IReadOnlyMethodInfoSet SubtractReturningInt64Overloads => __subtractReturningInt64Overloads;
+        public static IReadOnlyMethodInfoSet SubtractReturningTimeSpanWithMillisecondsUnitsOverloads => __subtractReturningTimeSpanWithMillisecondsUnitsOverloads;
+        public static IReadOnlyMethodInfoSet SubtractWithDateTimeOverloads => __subtractWithDateTimeOverloads;
+        public static IReadOnlyMethodInfoSet SubtractWithTimezoneOverloads => __subtractWithTimezoneOverloads;
+        public static IReadOnlyMethodInfoSet SubtractWithUnitOverloads => __subtractWithUnitOverloads;
     }
 }

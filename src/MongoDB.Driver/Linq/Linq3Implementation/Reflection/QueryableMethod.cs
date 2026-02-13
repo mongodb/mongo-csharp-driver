@@ -28,6 +28,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __aggregateWithSeedAndFunc;
         private static readonly MethodInfo __aggregateWithSeedFuncAndResultSelector;
         private static readonly MethodInfo __all;
+        private static readonly MethodInfo __allWithPredicate;
         private static readonly MethodInfo __any;
         private static readonly MethodInfo __anyWithPredicate;
         private static readonly MethodInfo __append;
@@ -90,7 +91,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __prepend;
         private static readonly MethodInfo __reverse;
         private static readonly MethodInfo __select;
-        private static readonly MethodInfo __selectMany;
+        private static readonly MethodInfo __selectManyWithSelector;
         private static readonly MethodInfo __selectManyWithCollectionSelectorAndResultSelector;
         private static readonly MethodInfo __selectManyWithCollectionSelectorTakingIndexAndResultSelector;
         private static readonly MethodInfo __selectManyWithSelectorTakingIndex;
@@ -131,13 +132,36 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __whereWithPredicateTakingIndex;
         private static readonly MethodInfo __zip;
 
+        // sets of methods
+        private static readonly IReadOnlyMethodInfoSet __averageOverloads;
+        private static readonly IReadOnlyMethodInfoSet __averageWithSelectorOverloads;
+        private static readonly IReadOnlyMethodInfoSet __countOverloads;
+        private static readonly IReadOnlyMethodInfoSet __firstOverloads;
+        private static readonly IReadOnlyMethodInfoSet __firstWithPredicateOverloads;
+        private static readonly IReadOnlyMethodInfoSet __groupByOverloads;
+        private static readonly IReadOnlyMethodInfoSet __groupByWithElementSelectorOverloads;
+        private static readonly IReadOnlyMethodInfoSet __groupByWithResultSelectorOverloads;
+        private static readonly IReadOnlyMethodInfoSet __lastOverloads;
+        private static readonly IReadOnlyMethodInfoSet __lastWithPredicateOverloads;
+        private static readonly IReadOnlyMethodInfoSet __longCountOverloads;
+        private static readonly IReadOnlyMethodInfoSet __maxOverloads;
+        private static readonly IReadOnlyMethodInfoSet __minOverloads;
+        private static readonly IReadOnlyMethodInfoSet __selectManyOverloads;
+        private static readonly IReadOnlyMethodInfoSet __singleOverloads;
+        private static readonly IReadOnlyMethodInfoSet __singleOrDefaultOverloads;
+        private static readonly IReadOnlyMethodInfoSet __singleWithPredicateOverloads;
+        private static readonly IReadOnlyMethodInfoSet __sumOverloads;
+        private static readonly IReadOnlyMethodInfoSet __sumWithSelectorOverloads;
+
         // static constructor
         static QueryableMethod()
         {
+            // initialize methods before sets of methods
             __aggregateWithFunc = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, object, object>> func) => source.Aggregate(func));
             __aggregateWithSeedAndFunc = ReflectionInfo.Method((IQueryable<object> source, object seed, Expression<Func<object, object, object>> func) => source.Aggregate(seed, func));
             __aggregateWithSeedFuncAndResultSelector = ReflectionInfo.Method((IQueryable<object> source, object seed, Expression<Func<object, object, object>> func, Expression<Func<object, object>> selector) => source.Aggregate(seed, func, selector));
             __all = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, bool>> predicate) => source.All(predicate));
+            __allWithPredicate = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, bool>> predicate) => source.All(predicate));
             __any = ReflectionInfo.Method((IQueryable<object> source) => source.Any());
             __anyWithPredicate = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, bool>> predicate) => source.Any(predicate));
             __append = ReflectionInfo.Method((IQueryable<object> source, object element) => source.Append(element));
@@ -200,7 +224,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __prepend = ReflectionInfo.Method((IQueryable<object> source, object element) => source.Prepend(element));
             __reverse = ReflectionInfo.Method((IQueryable<object> source) => source.Reverse());
             __select = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, object>> selector) => source.Select(selector));
-            __selectMany = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, IEnumerable<object>>> selector) => source.SelectMany(selector));
+            __selectManyWithSelector = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, IEnumerable<object>>> selector) => source.SelectMany(selector));
             __selectManyWithCollectionSelectorAndResultSelector = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, IEnumerable<object>>> collectionSelector, Expression<Func<object, object, object>> resultSelector) => source.SelectMany(collectionSelector, resultSelector));
             __selectManyWithCollectionSelectorTakingIndexAndResultSelector = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, int, IEnumerable<object>>> collectionSelector, Expression<Func<object, object, object>> resultSelector) => source.SelectMany(collectionSelector, resultSelector));
             __selectManyWithSelectorTakingIndex = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, int, IEnumerable<object>>> selector) => source.SelectMany(selector));
@@ -240,6 +264,181 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __where = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, bool>> predicate) => source.Where(predicate));
             __whereWithPredicateTakingIndex = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, int, bool>> predicate) => source.Where(predicate));
             __zip = ReflectionInfo.Method((IQueryable<object> source1, IEnumerable<object> source2, Expression<Func<object, object, object>> resultSelector) => source1.Zip(source2, resultSelector));
+
+            // initialize sets of methods after methods
+            __averageOverloads = MethodInfoSet.Create(
+            [
+                __averageDecimal,
+                __averageDecimalWithSelector,
+                __averageDouble,
+                __averageDoubleWithSelector,
+                __averageInt32,
+                __averageInt32WithSelector,
+                __averageInt64,
+                __averageInt64WithSelector,
+                __averageNullableDecimal,
+                __averageNullableDecimalWithSelector,
+                __averageNullableDouble,
+                __averageNullableDoubleWithSelector,
+                __averageNullableInt32,
+                __averageNullableInt32WithSelector,
+                __averageNullableInt64,
+                __averageNullableInt64WithSelector,
+                __averageNullableSingle,
+                __averageNullableSingleWithSelector,
+                __averageSingle,
+                __averageSingleWithSelector
+            ]);
+
+            __averageWithSelectorOverloads = MethodInfoSet.Create(
+            [
+                __averageDecimalWithSelector,
+                __averageDoubleWithSelector,
+                __averageInt32WithSelector,
+                __averageInt64WithSelector,
+                __averageNullableDecimalWithSelector,
+                __averageNullableDoubleWithSelector,
+                __averageNullableInt32WithSelector,
+                __averageNullableInt64WithSelector,
+                __averageNullableSingleWithSelector,
+                __averageSingleWithSelector
+            ]);
+
+            __countOverloads = MethodInfoSet.Create(
+            [
+                __count,
+                __countWithPredicate
+            ]);
+
+            __firstOverloads = MethodInfoSet.Create(
+            [
+                __first,
+                __firstOrDefault,
+                __firstOrDefaultWithPredicate,
+                __firstWithPredicate
+            ]);
+
+            __firstWithPredicateOverloads = MethodInfoSet.Create(
+            [
+                __firstOrDefaultWithPredicate,
+                __firstWithPredicate
+            ]);
+
+            __groupByOverloads = MethodInfoSet.Create(
+            [
+                __groupByWithKeySelector,
+                __groupByWithKeySelectorAndElementSelector,
+                __groupByWithKeySelectorAndResultSelector,
+                __groupByWithKeySelectorElementSelectorAndResultSelector
+            ]);
+
+            __groupByWithElementSelectorOverloads = MethodInfoSet.Create(
+            [
+                __groupByWithKeySelectorAndElementSelector,
+                __groupByWithKeySelectorElementSelectorAndResultSelector
+            ]);
+
+            __groupByWithResultSelectorOverloads = MethodInfoSet.Create(
+            [
+                __groupByWithKeySelectorAndResultSelector,
+                __groupByWithKeySelectorElementSelectorAndResultSelector
+            ]);
+
+            __lastOverloads = MethodInfoSet.Create(
+            [
+                __last,
+                __lastOrDefault,
+                __lastOrDefaultWithPredicate,
+                __lastWithPredicate
+            ]);
+
+            __lastWithPredicateOverloads = MethodInfoSet.Create(
+            [
+                __lastOrDefaultWithPredicate,
+                __lastWithPredicate
+            ]);
+
+            __longCountOverloads = MethodInfoSet.Create(
+            [
+                __longCount,
+                __longCountWithPredicate
+            ]);
+
+            __maxOverloads = MethodInfoSet.Create(
+            [
+                __max,
+                __maxWithSelector
+            ]);
+
+            __minOverloads = MethodInfoSet.Create(
+            [
+                __min,
+                __minWithSelector
+            ]);
+
+            __selectManyOverloads = MethodInfoSet.Create(
+            [
+                __selectManyWithSelector,
+                __selectManyWithCollectionSelectorAndResultSelector
+            ]);
+
+            __singleOverloads = MethodInfoSet.Create(
+            [
+                __single,
+                __singleOrDefault,
+                __singleOrDefaultWithPredicate,
+                __singleWithPredicate
+            ]);
+
+            __singleOrDefaultOverloads = MethodInfoSet.Create(
+            [
+                __singleOrDefault,
+                __singleOrDefaultWithPredicate
+            ]);
+
+            __singleWithPredicateOverloads = MethodInfoSet.Create(
+            [
+                __singleOrDefaultWithPredicate,
+                __singleWithPredicate
+            ]);
+
+            __sumOverloads = MethodInfoSet.Create(
+            [
+                __sumDecimal,
+                __sumDecimalWithSelector,
+                __sumDouble,
+                __sumDoubleWithSelector,
+                __sumInt32,
+                __sumInt32WithSelector,
+                __sumInt64,
+                __sumInt64WithSelector,
+                __sumNullableDecimal,
+                __sumNullableDecimalWithSelector,
+                __sumNullableDouble,
+                __sumNullableDoubleWithSelector,
+                __sumNullableInt32,
+                __sumNullableInt32WithSelector,
+                __sumNullableInt64,
+                __sumNullableInt64WithSelector,
+                __sumNullableSingle,
+                __sumNullableSingleWithSelector,
+                __sumSingle,
+                __sumSingleWithSelector
+            ]);
+
+            __sumWithSelectorOverloads = MethodInfoSet.Create(
+            [
+                __sumDecimalWithSelector,
+                __sumDoubleWithSelector,
+                __sumInt32WithSelector,
+                __sumInt64WithSelector,
+                __sumNullableDecimalWithSelector,
+                __sumNullableDoubleWithSelector,
+                __sumNullableInt32WithSelector,
+                __sumNullableInt64WithSelector,
+                __sumNullableSingleWithSelector,
+                __sumSingleWithSelector,
+            ]);
         }
 
         // public properties
@@ -247,6 +446,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo AggregateWithSeedAndFunc => __aggregateWithSeedAndFunc;
         public static MethodInfo AggregateWithSeedFuncAndResultSelector => __aggregateWithSeedFuncAndResultSelector;
         public static MethodInfo All => __all;
+        public static MethodInfo AllWithPredicate => __allWithPredicate;
         public static MethodInfo Any => __any;
         public static MethodInfo AnyWithPredicate => __anyWithPredicate;
         public static MethodInfo Append => __append;
@@ -291,7 +491,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo GroupByWithKeySelectorAndResultSelector => __groupByWithKeySelectorAndResultSelector;
         public static MethodInfo GroupByWithKeySelectorElementSelectorAndResultSelector => __groupByWithKeySelectorElementSelectorAndResultSelector;
         public static MethodInfo GroupJoin => __groupJoin;
-        public static MethodInfo Interset => __intersect;
+        public static MethodInfo Intersect => __intersect;
         public static MethodInfo Join => __join;
         public static MethodInfo Last => __last;
         public static MethodInfo LastOrDefault => __lastOrDefault;
@@ -309,7 +509,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo Prepend => __prepend;
         public static MethodInfo Reverse => __reverse;
         public static MethodInfo Select => __select;
-        public static MethodInfo SelectMany => __selectMany;
+        public static MethodInfo SelectManyWithSelector => __selectManyWithSelector;
         public static MethodInfo SelectManyWithCollectionSelectorAndResultSelector => __selectManyWithCollectionSelectorAndResultSelector;
         public static MethodInfo SelectManyWithCollectionSelectorTakingIndexAndResultSelector => __selectManyWithCollectionSelectorTakingIndexAndResultSelector;
         public static MethodInfo SelectManyWithSelectorTakingIndex => __selectManyWithSelectorTakingIndex;
@@ -349,6 +549,27 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo Where => __where;
         public static MethodInfo WhereWithPredicateTakingIndex => __whereWithPredicateTakingIndex;
         public static MethodInfo Zip => __zip;
+
+        // sets of methods
+        public static IReadOnlyMethodInfoSet AverageOverloads => __averageOverloads;
+        public static IReadOnlyMethodInfoSet AverageWithSelectorOverloads => __averageWithSelectorOverloads;
+        public static IReadOnlyMethodInfoSet CountOverloads => __countOverloads;
+        public static IReadOnlyMethodInfoSet FirstOverloads => __firstOverloads;
+        public static IReadOnlyMethodInfoSet FirstWithPredicateOverloads => __firstWithPredicateOverloads;
+        public static IReadOnlyMethodInfoSet GroupByOverloads => __groupByOverloads;
+        public static IReadOnlyMethodInfoSet GroupByWithElementSelectorOverloads => __groupByWithElementSelectorOverloads;
+        public static IReadOnlyMethodInfoSet GroupByWithResultSelectorOverloads => __groupByWithResultSelectorOverloads;
+        public static IReadOnlyMethodInfoSet LastOverloads => __lastOverloads;
+        public static IReadOnlyMethodInfoSet LastWithPredicateOverloads => __lastWithPredicateOverloads;
+        public static IReadOnlyMethodInfoSet LongCountOverloads => __longCountOverloads;
+        public static IReadOnlyMethodInfoSet MaxOverloads => __maxOverloads;
+        public static IReadOnlyMethodInfoSet MinOverloads => __minOverloads;
+        public static IReadOnlyMethodInfoSet SelectManyOverloads => __selectManyOverloads;
+        public static IReadOnlyMethodInfoSet SingleOverloads => __singleOverloads;
+        public static IReadOnlyMethodInfoSet SingleOrDefaultOverloads => __singleOrDefaultOverloads;
+        public static IReadOnlyMethodInfoSet SingleWithPredicateOverloads => __singleWithPredicateOverloads;
+        public static IReadOnlyMethodInfoSet SumOverloads => __sumOverloads;
+        public static IReadOnlyMethodInfoSet SumWithSelectorOverloads => __sumWithSelectorOverloads;
 
         // public methods
         public static MethodInfo MakeSelect(Type tsource, Type tresult)

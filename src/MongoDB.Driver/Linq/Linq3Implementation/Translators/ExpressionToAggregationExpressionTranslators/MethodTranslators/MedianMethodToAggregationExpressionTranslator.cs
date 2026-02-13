@@ -24,50 +24,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal class MedianMethodToAggregationExpressionTranslator
     {
-        private static readonly MethodInfo[] __medianMethods =
-        [
-            MongoEnumerableMethod.MedianDecimal,
-            MongoEnumerableMethod.MedianDecimalWithSelector,
-            MongoEnumerableMethod.MedianDouble,
-            MongoEnumerableMethod.MedianDoubleWithSelector,
-            MongoEnumerableMethod.MedianInt32,
-            MongoEnumerableMethod.MedianInt32WithSelector,
-            MongoEnumerableMethod.MedianInt64,
-            MongoEnumerableMethod.MedianInt64WithSelector,
-            MongoEnumerableMethod.MedianNullableDecimal,
-            MongoEnumerableMethod.MedianNullableDecimalWithSelector,
-            MongoEnumerableMethod.MedianNullableDouble,
-            MongoEnumerableMethod.MedianNullableDoubleWithSelector,
-            MongoEnumerableMethod.MedianNullableInt32,
-            MongoEnumerableMethod.MedianNullableInt32WithSelector,
-            MongoEnumerableMethod.MedianNullableInt64,
-            MongoEnumerableMethod.MedianNullableInt64WithSelector,
-            MongoEnumerableMethod.MedianNullableSingle,
-            MongoEnumerableMethod.MedianNullableSingleWithSelector,
-            MongoEnumerableMethod.MedianSingle,
-            MongoEnumerableMethod.MedianSingleWithSelector
-        ];
-
-        private static readonly MethodInfo[] __medianWithSelectorMethods =
-        [
-            MongoEnumerableMethod.MedianDecimalWithSelector,
-            MongoEnumerableMethod.MedianDoubleWithSelector,
-            MongoEnumerableMethod.MedianInt32WithSelector,
-            MongoEnumerableMethod.MedianInt64WithSelector,
-            MongoEnumerableMethod.MedianNullableDecimalWithSelector,
-            MongoEnumerableMethod.MedianNullableDoubleWithSelector,
-            MongoEnumerableMethod.MedianNullableInt32WithSelector,
-            MongoEnumerableMethod.MedianNullableInt64WithSelector,
-            MongoEnumerableMethod.MedianNullableSingleWithSelector,
-            MongoEnumerableMethod.MedianSingleWithSelector
-        ];
-
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__medianMethods))
+            if (method.IsOneOf(MongoEnumerableMethod.MedianOverloads))
             {
                 var sourceExpression = arguments[0];
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
@@ -75,7 +37,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                 var inputAst = sourceTranslation.Ast;
 
-                if (method.IsOneOf(__medianWithSelectorMethods))
+                if (method.IsOneOf(MongoEnumerableMethod.MedianWithSelectorOverloads))
                 {
                     var sourceItemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
 

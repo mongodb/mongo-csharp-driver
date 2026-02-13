@@ -24,26 +24,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class AppendOrPrependMethodToAggregationExpressionTranslator
     {
-        private static readonly MethodInfo[] __appendOrPrependMethods =
-        {
-            EnumerableMethod.Append,
-            EnumerableMethod.Prepend,
-            QueryableMethod.Append,
-            QueryableMethod.Prepend
-        };
-
-        private static readonly MethodInfo[] __appendMethods =
-        {
-            EnumerableMethod.Append,
-            QueryableMethod.Append
-        };
-
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__appendOrPrependMethods))
+            if (method.IsOneOf(EnumerableOrQueryableMethod.AppendOrPrepend))
             {
                 var sourceExpression = arguments[0];
                 var elementExpression = arguments[1];
@@ -68,7 +54,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     }
                 }
 
-                var ast = method.IsOneOf(__appendMethods) ?
+                var ast = method.IsOneOf(EnumerableOrQueryableMethod.Append) ?
                     AstExpression.ConcatArrays(sourceTranslation.Ast, AstExpression.ComputedArray(elementTranslation.Ast)) :
                     AstExpression.ConcatArrays(AstExpression.ComputedArray(elementTranslation.Ast), sourceTranslation.Ast);
                 var serializer = NestedAsQueryableSerializer.CreateIEnumerableOrNestedAsQueryableSerializer(expression.Type, itemSerializer);

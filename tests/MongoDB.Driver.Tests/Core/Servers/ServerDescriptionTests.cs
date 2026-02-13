@@ -259,6 +259,268 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         [Theory]
+        [InlineData("EndPoint")]
+        [InlineData("Type")]
+        [InlineData("WireVersionRange")]
+        [InlineData("CanonicalEndPoint")]
+        [InlineData("ReplicaSetConfig.Members")]
+        [InlineData("Tags")]
+        [InlineData("ReplicaSetConfig.Name")]
+        [InlineData("ReplicaSetConfig.Version")]
+        [InlineData("ElectionId")]
+        [InlineData("ReplicaSetConfig.Primary")]
+        [InlineData("LogicalSessionTimeout")]
+        [InlineData("HeartbeatException")]
+        public void SdamEquals_should_return_false_when_any_sdam_field_is_not_equal(string notEqualField)
+        {
+            var endPoint = new DnsEndPoint("localhost", 27017);
+            var serverId = new ServerId(__clusterId, endPoint);
+            var type = ServerType.ReplicaSetPrimary;
+            var wireVersionRange = new Range<int>(6, 14);
+            var canonicalEndPoint = new DnsEndPoint("localhost", 27017);
+            var replicaSetConfig = new ReplicaSetConfig(
+                new[] { new DnsEndPoint("localhost", 27017), new DnsEndPoint("localhost", 27018) },
+                "name",
+                new DnsEndPoint("localhost", 27017),
+                1);
+            var tags = new TagSet(new[] { new Tag("x", "a") });
+            var electionId = new ElectionId(ObjectId.GenerateNewId());
+            var logicalSessionTimeout = TimeSpan.FromMinutes(1);
+            var heartbeatException = (Exception)null;
+
+            var subject = new ServerDescription(
+                serverId,
+                endPoint,
+                type: type,
+                wireVersionRange: wireVersionRange,
+                canonicalEndPoint: canonicalEndPoint,
+                replicaSetConfig: replicaSetConfig,
+                tags: tags,
+                electionId: electionId,
+                logicalSessionTimeout: logicalSessionTimeout,
+                heartbeatException: heartbeatException);
+
+            switch (notEqualField)
+            {
+                case "EndPoint": endPoint = new DnsEndPoint(endPoint.Host, endPoint.Port + 1); break;
+                case "Type": type = ServerType.ReplicaSetSecondary; break;
+                case "WireVersionRange": wireVersionRange = new Range<int>(0, 0); break;
+                case "CanonicalEndPoint": canonicalEndPoint = new DnsEndPoint("localhost", 27018); break;
+                case "ReplicaSetConfig.Members": replicaSetConfig = new ReplicaSetConfig(new[] { endPoint }, replicaSetConfig.Name, replicaSetConfig.Primary, replicaSetConfig.Version); break;
+                case "Tags": tags = new TagSet(new[] { new Tag("x", "b") }); break;
+                case "ReplicaSetConfig.Name": replicaSetConfig = new ReplicaSetConfig(replicaSetConfig.Members, "newname", replicaSetConfig.Primary, replicaSetConfig.Version); break;
+                case "ReplicaSetConfig.Version": replicaSetConfig = new ReplicaSetConfig(replicaSetConfig.Members, replicaSetConfig.Name, replicaSetConfig.Primary, replicaSetConfig.Version + 1); break;
+                case "ElectionId": electionId = new ElectionId(ObjectId.Empty); break;
+                case "ReplicaSetConfig.Primary": replicaSetConfig = new ReplicaSetConfig(replicaSetConfig.Members, replicaSetConfig.Name, new DnsEndPoint("localhost", 27018), replicaSetConfig.Version); break;
+                case "LogicalSessionTimeout": logicalSessionTimeout = TimeSpan.FromMinutes(2); break;
+                case "HeartbeatException": heartbeatException = new Exception(); break;
+            }
+
+            var serverDescription2 = new ServerDescription(
+                new ServerId(__clusterId, endPoint),
+                endPoint,
+                type: type,
+                wireVersionRange: wireVersionRange,
+                canonicalEndPoint: canonicalEndPoint,
+                replicaSetConfig: replicaSetConfig,
+                tags: tags,
+                electionId: electionId,
+                logicalSessionTimeout: logicalSessionTimeout,
+                heartbeatException: heartbeatException);
+
+            subject.SdamEquals(serverDescription2).Should().BeFalse();
+        }
+
+        [Theory]
+        [InlineData("AverageRoundTripTime")]
+        [InlineData("LastUpdateTimestamp")]
+        [InlineData("State")]
+        [InlineData("Version")]
+        [InlineData("MaxBatchCount")]
+        [InlineData("MaxDocumentSize")]
+        [InlineData("MaxMessageSize")]
+        [InlineData("MaxWireDocumentSize")]
+        [InlineData("LastWriteTimestamp")]
+        [InlineData("HeartbeatInterval")]
+        [InlineData("ReasonChanged")]
+        [InlineData("ServerId")]
+        public void SdamEquals_should_return_true_when_any_non_sdam_field_is_not_equal(string notEqualField)
+        {
+            var endPoint = new DnsEndPoint("localhost", 27017);
+            var serverId = new ServerId(__clusterId, endPoint);
+            var averageRoundTripTime = TimeSpan.FromSeconds(1);
+            var lastUpdateTimestamp = DateTime.UtcNow;
+            var state = ServerState.Connected;
+            var version = new SemanticVersion(3, 6, 0);
+            var maxBatchCount = 1000;
+            var maxDocumentSize = 16000000;
+            var maxMessageSize = 48000000;
+            var maxWireDocumentSize = 16000000;
+            var lastWriteTimestamp = DateTime.UtcNow;
+            var heartbeatInterval = TimeSpan.FromSeconds(10);
+            var reasonChanged = "initial";
+
+            var subject = new ServerDescription(
+                serverId,
+                endPoint,
+                averageRoundTripTime: averageRoundTripTime,
+                lastUpdateTimestamp: lastUpdateTimestamp,
+                state: state,
+                version: version,
+                maxBatchCount: maxBatchCount,
+                maxDocumentSize: maxDocumentSize,
+                maxMessageSize: maxMessageSize,
+                maxWireDocumentSize: maxWireDocumentSize,
+                lastWriteTimestamp: lastWriteTimestamp,
+                heartbeatInterval: heartbeatInterval,
+                reasonChanged: reasonChanged);
+
+            switch (notEqualField)
+            {
+                case "AverageRoundTripTime": averageRoundTripTime = averageRoundTripTime.Add(TimeSpan.FromSeconds(1)); break;
+                case "LastUpdateTimestamp": lastUpdateTimestamp = lastUpdateTimestamp.Add(TimeSpan.FromSeconds(1)); break;
+                case "State": state = ServerState.Disconnected; break;
+                case "Version": version = new SemanticVersion(version.Major, version.Minor, version.Patch + 1); break;
+                case "MaxBatchCount": maxBatchCount += 1; break;
+                case "MaxDocumentSize": maxDocumentSize += 1; break;
+                case "MaxMessageSize": maxMessageSize += 1; break;
+                case "MaxWireDocumentSize": maxWireDocumentSize += 1; break;
+                case "LastWriteTimestamp": lastWriteTimestamp = lastWriteTimestamp.Add(TimeSpan.FromSeconds(1)); break;
+                case "HeartbeatInterval": heartbeatInterval = heartbeatInterval.Add(TimeSpan.FromSeconds(1)); break;
+                case "ReasonChanged": reasonChanged = "changed"; break;
+                case "ServerId": serverId = new ServerId(new ClusterId(), endPoint); break;
+            }
+
+            var serverDescription2 = new ServerDescription(
+                serverId,
+                endPoint,
+                averageRoundTripTime: averageRoundTripTime,
+                lastUpdateTimestamp: lastUpdateTimestamp,
+                state: state,
+                version: version,
+                maxBatchCount: maxBatchCount,
+                maxDocumentSize: maxDocumentSize,
+                maxMessageSize: maxMessageSize,
+                maxWireDocumentSize: maxWireDocumentSize,
+                lastWriteTimestamp: lastWriteTimestamp,
+                heartbeatInterval: heartbeatInterval,
+                reasonChanged: reasonChanged);
+
+            subject.SdamEquals(serverDescription2).Should().BeTrue();
+        }
+
+        [Fact]
+        public void SdamEquals_should_return_true_when_all_sdam_fields_are_equal()
+        {
+            var endPoint = new DnsEndPoint("localhost", 27017);
+            var serverId = new ServerId(__clusterId, endPoint);
+            var type = ServerType.ReplicaSetPrimary;
+            var wireVersionRange = new Range<int>(6, 14);
+            var canonicalEndPoint = new DnsEndPoint("localhost", 27017);
+            var replicaSetConfig = new ReplicaSetConfig(
+                new[] { new DnsEndPoint("localhost", 27017), new DnsEndPoint("localhost", 27018) },
+                "name",
+                new DnsEndPoint("localhost", 27017),
+                1);
+            var tags = new TagSet(new[] { new Tag("x", "a") });
+            var electionId = new ElectionId(ObjectId.GenerateNewId());
+            var logicalSessionTimeout = TimeSpan.FromMinutes(1);
+            var heartbeatException = new Exception("message");
+
+            var subject = new ServerDescription(
+                serverId,
+                endPoint,
+                type: type,
+                wireVersionRange: wireVersionRange,
+                canonicalEndPoint: canonicalEndPoint,
+                replicaSetConfig: replicaSetConfig,
+                tags: tags,
+                electionId: electionId,
+                logicalSessionTimeout: logicalSessionTimeout,
+                heartbeatException: heartbeatException);
+
+            var serverDescription2 = new ServerDescription(
+                serverId,
+                endPoint,
+                type: type,
+                wireVersionRange: wireVersionRange,
+                canonicalEndPoint: canonicalEndPoint,
+                replicaSetConfig: replicaSetConfig,
+                tags: tags,
+                electionId: electionId,
+                logicalSessionTimeout: logicalSessionTimeout,
+                heartbeatException: heartbeatException);
+
+            subject.SdamEquals(serverDescription2).Should().BeTrue();
+        }
+
+        [Fact]
+        public void SdamEqualityComparer_Equals_should_return_true_when_both_arguments_are_null()
+        {
+            var subject = new ServerDescription.SdamEqualityComparer();
+
+            var result = subject.Equals(null, null);
+
+            result.Should().BeTrue();
+        }
+
+        [Fact]
+        public void SdamEqualityComparer_Equals_should_return_false_when_one_argument_is_null()
+        {
+            var subject = new ServerDescription.SdamEqualityComparer();
+            var serverDescription = new ServerDescription(__serverId, __endPoint);
+
+            subject.Equals(serverDescription, null).Should().BeFalse();
+            subject.Equals(null, serverDescription).Should().BeFalse();
+        }
+
+        [Fact]
+        public void SdamEqualityComparer_Equals_should_return_true_when_arguments_are_same_reference()
+        {
+            var subject = new ServerDescription.SdamEqualityComparer();
+            var serverDescription = new ServerDescription(__serverId, __endPoint);
+
+            var result = subject.Equals(serverDescription, serverDescription);
+
+            result.Should().BeTrue();
+        }
+
+        [Fact]
+        public void SdamEqualityComparer_Equals_should_return_true_when_arguments_are_sdam_equal()
+        {
+            var subject = new ServerDescription.SdamEqualityComparer();
+            var serverDescription1 = new ServerDescription(__serverId, __endPoint, type: ServerType.Standalone);
+            var serverDescription2 = new ServerDescription(__serverId, __endPoint, type: ServerType.Standalone);
+
+            var result = subject.Equals(serverDescription1, serverDescription2);
+
+            result.Should().BeTrue();
+        }
+
+        [Fact]
+        public void SdamEqualityComparer_Equals_should_return_false_when_arguments_are_not_sdam_equal()
+        {
+            var subject = new ServerDescription.SdamEqualityComparer();
+            var serverDescription1 = new ServerDescription(__serverId, __endPoint, type: ServerType.Standalone);
+            var serverDescription2 = new ServerDescription(__serverId, __endPoint, type: ServerType.ReplicaSetPrimary);
+
+            var result = subject.Equals(serverDescription1, serverDescription2);
+
+            result.Should().BeFalse();
+        }
+
+        [Fact]
+        public void SdamEqualityComparer_GetHashCode_should_return_expected_result()
+        {
+            var subject = new ServerDescription.SdamEqualityComparer();
+            var serverDescription = new ServerDescription(__serverId, __endPoint);
+
+            var result = subject.GetHashCode(serverDescription);
+
+            result.Should().Be(serverDescription.GetHashCode());
+        }
+
+        [Theory]
         [InlineData(null, true)]
         [InlineData(new[] { 0, 0 }, false)]
         [InlineData(new[] { 0, 7 }, false)]

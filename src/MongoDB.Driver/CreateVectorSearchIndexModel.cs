@@ -22,15 +22,10 @@ using MongoDB.Bson;
 namespace MongoDB.Driver;
 
 /// <summary>
-/// Defines a vector index model using strongly-typed C# APIs.
+/// Defines a vector index model for pre-embedded vector indexes using strongly-typed C# APIs.
 /// </summary>
-public sealed class CreateVectorSearchIndexModel<TDocument> : CreateSearchIndexModel
+public sealed class CreateVectorSearchIndexModel<TDocument> : CreateVectorSearchIndexModelBase<TDocument>
 {
-    /// <summary>
-    /// The field containing the vectors to index.
-    /// </summary>
-    public FieldDefinition<TDocument> Field { get; }
-
     /// <summary>
     /// The <see cref="VectorSimilarity"/> to use to search for top K-nearest neighbors.
     /// </summary>
@@ -40,11 +35,6 @@ public sealed class CreateVectorSearchIndexModel<TDocument> : CreateSearchIndexM
     /// Number of vector dimensions that vector search enforces at index-time and query-time.
     /// </summary>
     public int Dimensions { get; }
-
-    /// <summary>
-    /// Fields that may be used as filters in the vector query.
-    /// </summary>
-    public IReadOnlyList<FieldDefinition<TDocument>> FilterFields { get; }
 
     /// <summary>
     /// Type of automatic vector quantization for your vectors.
@@ -57,13 +47,15 @@ public sealed class CreateVectorSearchIndexModel<TDocument> : CreateSearchIndexM
     public int? HnswMaxEdges { get; init; }
 
     /// <summary>
-    /// Analogous to numCandidates at query-time, this parameter controls the maximum number of nodes to evaluate to find the closest neighbors to connect to a new node.
+    /// Analogous to numCandidates at query-time, this parameter controls the maximum number of nodes to evaluate to
+    /// find the closest neighbors to connect to a new node.
     /// </summary>
     public int? HnswNumEdgeCandidates { get; init; }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="CreateVectorSearchIndexModel{TDocument}"/> class, passing the
-    /// required options for <see cref="VectorSimilarity"/> and the number of vector dimensions to the constructor.
+    /// Initializes a new instance of the <see cref="CreateVectorSearchIndexModel{TDocument}"/> class for a vector
+    /// index where the vector embeddings are created manually. The required options for <see cref="VectorSimilarity"/>
+    /// and the number of vector dimensions are passed to the constructor.
     /// </summary>
     /// <param name="name">The index name.</param>
     /// <param name="field">The field containing the vectors to index.</param>
@@ -76,17 +68,16 @@ public sealed class CreateVectorSearchIndexModel<TDocument> : CreateSearchIndexM
         VectorSimilarity similarity,
         int dimensions,
         params FieldDefinition<TDocument>[] filterFields)
-        : base(name, SearchIndexType.VectorSearch)
+        : base(field, name, filterFields)
     {
-        Field = field;
         Similarity = similarity;
         Dimensions = dimensions;
-        FilterFields = filterFields?.ToList() ?? [];
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="CreateVectorSearchIndexModel{TDocument}"/> class, passing the
-    /// required options for <see cref="VectorSimilarity"/> and the number of vector dimensions to the constructor.
+    /// Initializes a new instance of the <see cref="CreateVectorSearchIndexModel{TDocument}"/> class for a vector
+    /// index where the vector embeddings are created manually. The required options for <see cref="VectorSimilarity"/>
+    /// and the number of vector dimensions are passed to the constructor.
     /// </summary>
     /// <param name="name">The index name.</param>
     /// <param name="field">An expression pointing to the field containing the vectors to index.</param>
@@ -110,12 +101,8 @@ public sealed class CreateVectorSearchIndexModel<TDocument> : CreateSearchIndexM
     {
     }
 
-    /// <summary>
-    /// Renders the index model to a <see cref="BsonDocument"/>.
-    /// </summary>
-    /// <param name="renderArgs">The render arguments.</param>
-    /// <returns>A <see cref="BsonDocument" />.</returns>
-    public BsonDocument Render(RenderArgs<TDocument> renderArgs)
+    /// <inheritdoc/>
+    internal override BsonDocument Render(RenderArgs<TDocument> renderArgs)
     {
         var similarityValue = Similarity == VectorSimilarity.DotProduct
             ? "dotProduct" // Because neither "DotProduct" or "dotproduct" are allowed.
@@ -123,43 +110,25 @@ public sealed class CreateVectorSearchIndexModel<TDocument> : CreateSearchIndexM
 
         var vectorField = new BsonDocument
         {
-            { "type", BsonString.Create("vector") },
+            { "type", "vector" },
             { "path", Field.Render(renderArgs).FieldName },
-            { "numDimensions", BsonInt32.Create(Dimensions) },
-            { "similarity", BsonString.Create(similarityValue) },
+            { "numDimensions", Dimensions },
+            { "similarity", similarityValue },
         };
 
-        if (Quantization.HasValue)
-        {
-            vectorField.Add("quantization", BsonString.Create(Quantization.ToString()?.ToLower()));
-        }
+        vectorField.Add("quantization", Quantization.ToString()?.ToLowerInvariant(), Quantization.HasValue);
 
         if (HnswMaxEdges != null || HnswNumEdgeCandidates != null)
         {
-            var hnswDocument = new BsonDocument
-            {
-                { "maxEdges", BsonInt32.Create(HnswMaxEdges ?? 16) },
-                { "numEdgeCandidates", BsonInt32.Create(HnswNumEdgeCandidates ?? 100) }
-            };
-            vectorField.Add("hnswOptions", hnswDocument);
+            vectorField.Add("hnswOptions",
+                new BsonDocument
+                {
+                    { "maxEdges", HnswMaxEdges ?? 16 }, { "numEdgeCandidates", HnswNumEdgeCandidates ?? 100 }
+                });
         }
 
         var fieldDocuments = new List<BsonDocument> { vectorField };
-
-        if (FilterFields != null)
-        {
-            foreach (var filterPath in FilterFields)
-            {
-                var fieldDocument = new BsonDocument
-                {
-                    { "type", BsonString.Create("filter") },
-                    { "path", BsonString.Create(filterPath.Render(renderArgs).FieldName) }
-                };
-
-                fieldDocuments.Add(fieldDocument);
-            }
-        }
-
+        RenderFilterFields(renderArgs, fieldDocuments);
         return new BsonDocument { { "fields", new BsonArray(fieldDocuments) } };
     }
 }

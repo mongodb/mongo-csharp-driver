@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+using System;
 using System.IO;
 using System.Net;
 using System.Threading;
@@ -44,10 +45,10 @@ internal sealed class Socks5ProxyStreamFactory : IStreamFactory
             Socks5Helper.PerformSocks5Handshake(stream, endPoint, _settings.Socks5ProxySettings.Authentication, cancellationToken);
             return stream;
         }
-        catch
+        catch (Exception ex)
         {
             stream?.Dispose();
-            throw;
+            throw MongoProxyConnectionException.FromException(ex);
         }
     }
 
@@ -62,10 +63,10 @@ internal sealed class Socks5ProxyStreamFactory : IStreamFactory
             await Socks5Helper.PerformSocks5HandshakeAsync(stream, endPoint, _settings.Socks5ProxySettings.Authentication, cancellationToken).ConfigureAwait(false);
             return stream;
         }
-        catch
+        catch (Exception ex)
         {
             stream?.Dispose();
-            throw;
+            throw MongoProxyConnectionException.FromException(ex);
         }
     }
 }

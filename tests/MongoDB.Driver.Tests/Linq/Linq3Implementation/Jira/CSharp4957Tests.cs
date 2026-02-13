@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
         [Theory]
         [ParameterAttributeData]
-        public void New_array_with_two_items_with_different_serializers_should_throw(
+        public void New_array_with_two_items_with_different_serializers_should_work(
             [Values(false, true)] bool enableClientSideProjections)
         {
             RequireServer.Check().Supports(Feature.FindProjectionExpressions);
@@ -94,21 +94,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var queryable = collection.AsQueryable(translationOptions)
                 .Select(x => new[] { x.X, x.Y });
 
-            if (enableClientSideProjections)
-            {
-                var stages = Translate(collection, queryable, out var outputSerializer);
-                AssertStages(stages, "{ $project : { _snippets : ['$X', '$Y'], _id : 0 } }");
-                outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
+            var stages = Translate(collection, queryable, out var outputSerializer);
+            AssertStages(stages, "{ $project : { _v : ['$X', '$Y'], _id : 0 } }");
 
-                var result = queryable.Single();
-                result.Should().Equal(1, 2);
-            }
-            else
-            {
-                var exception = Record.Exception(() => Translate(collection, queryable));
-                exception.Should().BeOfType<ExpressionNotSupportedException>();
-                exception.Message.Should().Contain("all items in the array must be serialized using the same serializer");
-            }
+            var result = queryable.Single();
+            result.Should().Equal(1, 2);
         }
 
         public class C

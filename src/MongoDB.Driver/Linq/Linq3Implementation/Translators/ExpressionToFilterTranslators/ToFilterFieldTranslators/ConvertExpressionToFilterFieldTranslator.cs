@@ -39,19 +39,25 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                     return fieldTranslation;
                 }
 
-                if (IsConvertEnumToUnderlyingType(fieldType, targetType))
+                // must check for enum conversions before numeric conversions
+                if (IsConvertEnumToIntegralType(fieldType, targetType))
                 {
-                    return TranslateConvertEnumToUnderlyingType(fieldTranslation, targetType);
+                    return TranslateConvertEnumToIntegralType(fieldTranslation, targetType);
                 }
 
-                if (IsConvertUnderlyingTypeToEnum(fieldType, targetType))
+                if (IsConvertIntegralTypeToEnum(fieldType, targetType))
                 {
-                    return TranslateConvertUnderlyingTypeToEnum(fieldTranslation, targetType);
+                    return TranslateConvertIntegralTypeToEnum(fieldTranslation, targetType);
                 }
 
-                if (IsNumericConversion(fieldType, targetType))
+                if (IsNumericOrCharConversion(fieldType, targetType))
                 {
-                    return TranslateNumericConversion(fieldTranslation, targetType);
+                    return TranslateNumericOrCharConversion(expression, fieldTranslation, targetType);
+                }
+
+                if (IsNullableNumericOrCharConversion(fieldType, targetType, out _, out var underlyingTargetType))
+                {
+                    return TranslateNullableNumericOrCharConversion(expression, fieldTranslation, underlyingTargetType);
                 }
 
                 if (IsConvertToNullable(fieldType, targetType))
@@ -73,11 +79,33 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             throw new ExpressionNotSupportedException(expression);
         }
 
-        private static bool IsConvertEnumToUnderlyingType(Type fieldType, Type targetType)
+        private static IBsonSerializer GetConfiguredNumericTargetTypeSerializer(IBsonSerializer fieldSerializer, Type targetType)
+        {
+            var targetTypeSerializer = StandardSerializers.GetSerializer(targetType);
+
+            if (fieldSerializer is IRepresentationConfigurable representationConfigurableFieldSerializer &&
+                targetTypeSerializer is IRepresentationConfigurable representationConfigurableTargetTypeSerializer)
+            {
+                var fieldRepresentation = representationConfigurableFieldSerializer.Representation;
+                if (fieldRepresentation == BsonType.String)
+                {
+                    targetTypeSerializer = representationConfigurableTargetTypeSerializer.WithRepresentation(fieldRepresentation);
+                }
+            }
+            if (fieldSerializer is IRepresentationConverterConfigurable converterConfigurableFieldSerializer &&
+                targetTypeSerializer is IRepresentationConverterConfigurable converterConfigurableTargetTypeSerializer)
+            {
+                targetTypeSerializer = converterConfigurableTargetTypeSerializer.WithConverter(converterConfigurableFieldSerializer.Converter);
+            }
+
+            return targetTypeSerializer;
+        }
+
+        private static bool IsConvertEnumToIntegralType(Type fieldType, Type targetType)
         {
             return
-                fieldType.IsEnumOrNullableEnum(out _, out var underlyingType) &&
-                targetType.IsSameAsOrNullableOf(underlyingType);
+                fieldType.IsEnumOrNullableEnum(out _, out _) &&
+                targetType.IsIntegralOrNullableIntegral();
         }
 
         private static bool IsConvertToBaseType(Type fieldType, Type targetType)
@@ -98,41 +126,46 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 targetType.GetGenericArguments()[0] == fieldType;
         }
 
-        private static bool IsConvertUnderlyingTypeToEnum(Type fieldType, Type targetType)
+        private static bool IsConvertIntegralTypeToEnum(Type fieldType, Type targetType)
         {
             return
-                targetType.IsEnumOrNullableEnum(out _, out var underlyingType) &&
-                fieldType.IsSameAsOrNullableOf(underlyingType);
+                fieldType.IsIntegralOrNullableIntegral() &&
+                targetType.IsEnumOrNullableEnum(out _, out _);
         }
 
-        private static bool IsNumericConversion(Type fieldType, Type targetType)
+        private static bool IsNullableNumericOrCharConversion(Type fieldType, Type targetType, out Type underlyingFieldType, out Type underlyingTargetType)
         {
-            return IsNumericType(fieldType) && IsNumericType(targetType);
+            return ConvertHelper.IsNullableNumericOrCharConversion(fieldType, targetType, out underlyingFieldType, out underlyingTargetType);
         }
 
-        private static bool IsNumericType(Type type)
+        private static bool IsNumericOrCharConversion(Type fieldType, Type targetType)
         {
-            switch (Type.GetTypeCode(type))
-            {
-                case TypeCode.Byte:
-                case TypeCode.Decimal:
-                case TypeCode.Double:
-                case TypeCode.Int16:
-                case TypeCode.Int32:
-                case TypeCode.Int64:
-                case TypeCode.SByte:
-                case TypeCode.Single:
-                case TypeCode.UInt16:
-                case TypeCode.UInt32:
-                case TypeCode.UInt64:
-                    return true;
-
-                default:
-                    return false;
-            }
+            return ConvertHelper.IsNumericOrCharConversion(fieldType, targetType);
         }
 
-        private static TranslatedFilterField TranslateConvertEnumToUnderlyingType(TranslatedFilterField fieldTranslation, Type targetType)
+        private static bool IsStandardNumericSerializer(IBsonSerializer serializer)
+        {
+            return
+                serializer is ByteSerializer ||
+                serializer is SByteSerializer ||
+                serializer is Int16Serializer ||
+                serializer is UInt16Serializer ||
+                serializer is Int32Serializer ||
+                serializer is UInt32Serializer ||
+                serializer is Int64Serializer ||
+                serializer is UInt64Serializer ||
+                serializer is DoubleSerializer ||
+                serializer is SingleSerializer ||
+                serializer is DecimalSerializer ||
+                serializer is Decimal128Serializer;
+        }
+
+        private static bool IsStandardNumericOrCharSerializer(IBsonSerializer serializer)
+        {
+            return IsStandardNumericSerializer(serializer) || serializer is CharSerializer;
+        }
+
+        private static TranslatedFilterField TranslateConvertEnumToIntegralType(TranslatedFilterField fieldTranslation, Type targetType)
         {
             var fieldSerializer = fieldTranslation.Serializer;
             var fieldType = fieldSerializer.ValueType;
@@ -148,7 +181,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 enumSerializer = fieldSerializer;
             }
 
-            var targetSerializer = EnumUnderlyingTypeSerializer.Create(enumSerializer);
+            var integralType = targetType.IsNullable() ? Nullable.GetUnderlyingType(targetType) : targetType;
+
+            // the serializer converts in the opposite direction as the C# expression
+            var targetSerializer = ConvertIntegralTypeToEnumSerializer.Create(integralType, enumSerializer);
             if (targetType.IsNullable())
             {
                 targetSerializer = NullableSerializer.Create(targetSerializer);
@@ -177,7 +213,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             return new TranslatedFilterField(fieldTranslation.Ast, nullableSerializer);
         }
 
-        private static TranslatedFilterField TranslateConvertUnderlyingTypeToEnum(TranslatedFilterField fieldTranslation, Type targetType)
+        private static TranslatedFilterField TranslateConvertIntegralTypeToEnum(TranslatedFilterField fieldTranslation, Type targetType)
         {
             var valueSerializer = fieldTranslation.Serializer;
             if (valueSerializer is INullableSerializer nullableSerializer)
@@ -186,7 +222,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             }
 
             IBsonSerializer targetSerializer;
-            if (valueSerializer is IEnumUnderlyingTypeSerializer enumUnderlyingTypeSerializer)
+            if (valueSerializer is IConvertIntegralTypeToEnumSerializer enumUnderlyingTypeSerializer)
             {
                 targetSerializer = enumUnderlyingTypeSerializer.EnumSerializer;
             }
@@ -209,38 +245,32 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             return new TranslatedFilterField(fieldTranslation.Ast, targetSerializer);
         }
 
-        private static TranslatedFilterField TranslateNumericConversion(TranslatedFilterField fieldTranslation, Type targetType)
+        private static TranslatedFilterField TranslateNullableNumericOrCharConversion(Expression expression, TranslatedFilterField fieldTranslation, Type targetUnderlyingType)
         {
-            IBsonSerializer targetTypeSerializer = targetType switch
+            var fieldNullableSerializer = (INullableSerializer)fieldTranslation.Serializer;
+            var fieldUnderlyingTypeSerializer = fieldNullableSerializer.ValueSerializer;
+
+            if (IsStandardNumericOrCharSerializer(fieldUnderlyingTypeSerializer))
             {
-                Type t when t == typeof(byte) => new ByteSerializer(),
-                Type t when t == typeof(sbyte) => new SByteSerializer(),
-                Type t when t == typeof(short) => new Int16Serializer(),
-                Type t when t == typeof(ushort) => new UInt16Serializer(),
-                Type t when t == typeof(int) => new Int32Serializer(),
-                Type t when t == typeof(uint) => new UInt32Serializer(),
-                Type t when t == typeof(long) => new Int64Serializer(),
-                Type t when t == typeof(ulong) => new UInt64Serializer(),
-                Type t when t == typeof(float) => new SingleSerializer(),
-                Type t when t == typeof(double) => new DoubleSerializer(),
-                Type t when t == typeof(decimal) => new DecimalSerializer(),
-                _ => throw new Exception($"Unexpected target type: {targetType}.")
-            };
-            if (fieldTranslation.Serializer is IRepresentationConfigurable representationConfigurableFieldSerializer &&
-                targetTypeSerializer is IRepresentationConfigurable representationConfigurableTargetTypeSerializer)
-            {
-                var fieldRepresentation = representationConfigurableFieldSerializer.Representation;
-                if (fieldRepresentation == BsonType.String)
-                {
-                    targetTypeSerializer = representationConfigurableTargetTypeSerializer.WithRepresentation(fieldRepresentation);
-                }
+                var targetUnderlyingTypeSerializer = GetConfiguredNumericTargetTypeSerializer(fieldUnderlyingTypeSerializer, targetUnderlyingType);
+                var nullableTargetUnderlyingTypeSerializer = NullableSerializer.Create(targetUnderlyingTypeSerializer);
+                return new TranslatedFilterField(fieldTranslation.Ast, nullableTargetUnderlyingTypeSerializer);
             }
-            if (fieldTranslation.Serializer is IRepresentationConverterConfigurable converterConfigurableFieldSerializer &&
-                targetTypeSerializer is IRepresentationConverterConfigurable converterConfigurableTargetTypeSerializer)
+
+            throw new ExpressionNotSupportedException(expression);
+        }
+
+        private static TranslatedFilterField TranslateNumericOrCharConversion(Expression expression, TranslatedFilterField fieldTranslation, Type targetType)
+        {
+            var fieldSerializer = fieldTranslation.Serializer;
+
+            if (IsStandardNumericOrCharSerializer(fieldSerializer))
             {
-                targetTypeSerializer = converterConfigurableTargetTypeSerializer.WithConverter(converterConfigurableFieldSerializer.Converter);
+                var targetTypeSerializer = GetConfiguredNumericTargetTypeSerializer(fieldSerializer, targetType);
+                return new TranslatedFilterField(fieldTranslation.Ast, targetTypeSerializer);
             }
-            return new TranslatedFilterField(fieldTranslation.Ast, targetTypeSerializer);
+
+            throw new ExpressionNotSupportedException(expression);
         }
     }
 }

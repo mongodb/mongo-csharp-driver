@@ -2,6 +2,8 @@
 set -o errexit  # Exit the script with error if any of the commands fail
 
 SOURCE_PROJECT=${1:-CSharpDriver.sln}
+CONFIGURATION=${CONFIGURATION:-'Release'}
+
 if [ -z "$PACKAGE_VERSION" ]; then
   PACKAGE_VERSION=$(bash ./evergreen/get-version.sh)
   echo Calculated PACKAGE_VERSION value: "$PACKAGE_VERSION"
@@ -30,4 +32,4 @@ do
   sleep $DELAY
 done
 
-dotnet build "${SOURCE_PROJECT}" -c Release --no-restore -p:Version="$PACKAGE_VERSION"
+dotnet build "${SOURCE_PROJECT}" -c "${CONFIGURATION}" --no-restore -p:Version="$PACKAGE_VERSION"

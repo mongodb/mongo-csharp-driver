@@ -12,4 +12,9 @@
     <Description>Helper classes applicable to all test projects.</Description>
   </PropertyGroup>
 
+<!-- On event of debugging of UnobservedTaskExceptions uncomment the following lines to find which test causes the exceptions -->
+<!--  <PropertyGroup>-->
+<!--    <DefineConstants>$(DefineConstants);UNOBSERVED_TASK_EXCEPTION_DEBUGGING</DefineConstants>-->
+<!--  </PropertyGroup>-->
+
 </Project>

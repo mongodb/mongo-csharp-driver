@@ -27,12 +27,23 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __staticIsMatch;
         private static readonly MethodInfo __staticIsMatchWithOptions;
 
+        // sets of methods
+        private static readonly IReadOnlyMethodInfoSet __isMatchOverloads;
+
         // static constructor
         static RegexMethod()
         {
             __isMatch = ReflectionInfo.Method((Regex regex, string input) => regex.IsMatch(input));
             __staticIsMatch = ReflectionInfo.Method((string input, string pattern) => Regex.IsMatch(input, pattern));
             __staticIsMatchWithOptions = ReflectionInfo.Method((string input, string pattern, RegexOptions options) => Regex.IsMatch(input, pattern, options));
+
+            // initialize sets of methods after methods
+            __isMatchOverloads = MethodInfoSet.Create(
+            [
+                __isMatch,
+                __staticIsMatch,
+                __staticIsMatchWithOptions
+            ]);
         }
 
         // public properties
@@ -40,8 +51,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo StaticIsMatch => __staticIsMatch;
         public static MethodInfo StaticIsMatchWithOptions => __staticIsMatchWithOptions;
 
+        // sets of methods
+        public static IReadOnlyMethodInfoSet IsMatchOverloads => __isMatchOverloads;
+
         // public methods
-        public static bool IsMatchMethod(MethodCallExpression expression, out Expression inputExpression, out Regex regex)
+        public static bool IsIsMatchMethod(MethodCallExpression expression, out Expression inputExpression, out Regex regex)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;

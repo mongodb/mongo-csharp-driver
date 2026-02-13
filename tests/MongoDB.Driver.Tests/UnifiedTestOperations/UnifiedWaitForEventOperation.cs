@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Misc;
@@ -50,6 +51,13 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     var triggeredEventsCount = _eventCapturer.Events.Count(eventCondition);
                     return $"Waiting for {_count} of {FluentAssertionsHelper.EscapeBraces(_event.ToString())} exceeded the timeout {timeout}. The number of triggered events is {triggeredEventsCount}.";
                 });
+
+            if (_event.Contains("serverDescriptionChangedEvent"))
+            {
+                // wait a little more in case of serverDescriptionChangedEvent, because we want to let Cluster know about updated topology for server selection.
+                // should be addressed in https://jira.mongodb.org/browse/CSHARP-5878
+                Thread.Sleep(10);
+            }
         }
     }
 

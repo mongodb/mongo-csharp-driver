@@ -499,20 +499,15 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <inheritdoc/>
         public bool TryGetItemSerializationInfo(out BsonSerializationInfo serializationInfo)
         {
-            if (_dictionaryRepresentation is DictionaryRepresentation.ArrayOfArrays or DictionaryRepresentation.ArrayOfDocuments)
-            {
-                var representation = _dictionaryRepresentation == DictionaryRepresentation.ArrayOfArrays
-                    ? BsonType.Array
-                    : BsonType.Document;
-                var keySerializer = _lazyKeySerializer.Value;
-                var valueSerializer = _lazyValueSerializer.Value;
-                var keyValuePairSerializer = new KeyValuePairSerializer<TKey, TValue>(representation, keySerializer, valueSerializer);
-                serializationInfo = new BsonSerializationInfo(null, keyValuePairSerializer, keyValuePairSerializer.ValueType);
-                return true;
-            }
+            var representation = _dictionaryRepresentation == DictionaryRepresentation.ArrayOfArrays
+                ? BsonType.Array
+                : BsonType.Document;
+            var keySerializer = _lazyKeySerializer.Value;
+            var valueSerializer = _lazyValueSerializer.Value;
+            var keyValuePairSerializer = new KeyValuePairSerializer<TKey, TValue>(representation, keySerializer, valueSerializer);
 
-            serializationInfo = null;
-            return false;
+            serializationInfo = new BsonSerializationInfo(null, keyValuePairSerializer, keyValuePairSerializer.ValueType);
+            return true;
         }
 
         /// <inheritdoc/>

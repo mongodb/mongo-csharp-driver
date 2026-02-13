@@ -1337,6 +1337,11 @@ namespace MongoDB.Bson.Serialization
 
             void EnsureNoMemberMapConflicts(string elementName)
             {
+                if (AppContext.TryGetSwitch("Switch.MongoDB.Driver.DisableDiscriminatorFieldConflictCheck", out bool disableConflictCheck) && disableConflictCheck)
+                {
+                    return;
+                }
+
                 var conflictingMemberMap = _allMemberMaps.FirstOrDefault(memberMap => memberMap.ElementName == elementName);
 
                 if (conflictingMemberMap != null)

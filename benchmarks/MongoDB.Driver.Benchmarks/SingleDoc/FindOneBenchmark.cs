@@ -15,54 +15,68 @@
 
 using System.Linq;
 using BenchmarkDotNet.Attributes;
+using MongoDB.Benchmarks.MultiDoc;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
-using MongoDB.Driver.TestHelpers;
 using static MongoDB.Benchmarks.BenchmarkHelper;
 
-namespace MongoDB.Benchmarks.SingleDoc
+namespace MongoDB.Benchmarks.SingleDoc;
+
+[IterationTime(3000)]
+[BenchmarkCategory(DriverBenchmarkCategory.SingleBench, DriverBenchmarkCategory.ReadBench, DriverBenchmarkCategory.DriverBench)]
+public class FindOneBenchmark
 {
-    [IterationTime(3000)]
-    [BenchmarkCategory(DriverBenchmarkCategory.SingleBench, DriverBenchmarkCategory.ReadBench, DriverBenchmarkCategory.DriverBench)]
-    public class FindOneBenchmark
+    private const int Iterations = 10_000;
+
+    private IMongoClient _client;
+    private IMongoCollection<BsonDocument> _collection;
+    private IMongoCollection<Tweet> _collectionPoco;
+    private BsonDocument _tweetDocument;
+
+    [Params(16_220_000)]
+    public int BenchmarkDataSetSize { get; set; } // used in BenchmarkResult.cs
+
+    [GlobalSetup]
+    public void Setup()
     {
-        private IMongoClient _client;
-        private IMongoCollection<BsonDocument> _collection;
-        private BsonDocument _tweetDocument;
+        _client = MongoConfiguration.CreateClient();
+        var db = _client.GetDatabase(MongoConfiguration.PerfTestDatabaseName);
+        _collection = db.GetCollection<BsonDocument>(MongoConfiguration.PerfTestCollectionName);
+        _collectionPoco = db.GetCollection<Tweet>(MongoConfiguration.PerfTestCollectionName);
+        _tweetDocument = ReadExtendedJson("single_and_multi_document/tweet.json");
 
-        [Params(16_220_000)]
-        public int BenchmarkDataSetSize { get; set; } // used in BenchmarkResult.cs
+        PopulateCollection();
+    }
 
-        [GlobalSetup]
-        public void Setup()
+    [Benchmark]
+    public void FindOne()
+    {
+        for (int i = 0; i < Iterations; i++)
         {
-            _client = MongoConfiguration.CreateClient();
-            _collection = _client.GetDatabase(MongoConfiguration.PerfTestDatabaseName).GetCollection<BsonDocument>(MongoConfiguration.PerfTestCollectionName);
-            _tweetDocument = ReadExtendedJson("single_and_multi_document/tweet.json");
-
-            PopulateCollection();
+            _ = _collection.Find(new BsonDocument("_id", i)).First();
         }
+    }
 
-        [Benchmark]
-        public void FindOne()
+    [Benchmark]
+    public void FindOnePoco()
+    {
+        for (int i = 0; i < Iterations; i++)
         {
-            for (int i = 0; i < 10000; i++)
-            {
-                _collection.Find(new BsonDocument("_id", i)).First();
-            }
+            _ = _collectionPoco.Find(t => t.Id == i).First();
         }
+    }
 
-        [GlobalCleanup]
-        public void Teardown()
-        {
-            _client.Dispose();
-        }
+    [GlobalCleanup]
+    public void Teardown()
+    {
+        _client.Dispose();
+    }
 
-        private void PopulateCollection()
-        {
-            var documents = Enumerable.Range(0, 10000)
-                .Select(i => _tweetDocument.DeepClone().AsBsonDocument.Add("_id", i));
-            _collection.InsertMany(documents);
-        }
+    private void PopulateCollection()
+    {
+        var documents = Enumerable.Range(0, Iterations)
+            .Select(i => _tweetDocument.DeepClone().AsBsonDocument.Add("_id", i));
+        _collection.InsertMany(documents);
     }
 }

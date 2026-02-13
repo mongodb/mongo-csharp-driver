@@ -32,6 +32,7 @@ using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.TestHelpers.XunitExtensions;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Authentication
@@ -58,9 +59,7 @@ namespace MongoDB.Driver.Tests.Authentication
             [Values(false, true)] bool async)
         {
             var serverApi = useServerApi ? new ServerApi(ServerApiVersion.V1, true, true) : null;
-            var randomStringGenerator = new ConstantRandomStringGenerator("fyko+d2lbbFgONRv9qkxdawL");
-
-            var subject = CreateScramSha1SaslAuthenticator(randomStringGenerator, serverApi);
+            var subject = CreateScramSha1SaslAuthenticator("fyko+d2lbbFgONRv9qkxdawL", serverApi);
 
             var connection = new MockConnection(__serverId);
             var saslStartResponse = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson("{ conversationId : 1, payload : BinData(0,'cj1meWtvK2QybGJiRmdPTlJ2OXFreGRhd0xIbytWZ2s3cXZVT0tVd3VXTElXZzRsLzlTcmFHTUhFRSxzPXJROVpZM01udEJldVAzRTFURFZDNHc9PSxpPTEwMDAw'), done : false, ok : 1 }"));
@@ -95,9 +94,7 @@ namespace MongoDB.Driver.Tests.Authentication
         public async Task Authenticate_with_loadBalancedConnection_should_use_command_wire_protocol(
             [Values(false, true)] bool async)
         {
-            var randomStringGenerator = new ConstantRandomStringGenerator("fyko+d2lbbFgONRv9qkxdawL");
-
-            var subject = CreateScramSha1SaslAuthenticator(randomStringGenerator, null);
+            var subject = CreateScramSha1SaslAuthenticator("fyko+d2lbbFgONRv9qkxdawL", null);
 
             var connection = new MockConnection(__serverId, new ConnectionSettings(loadBalanced: true), null);
             var saslStartResponse = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson("{ conversationId : 1, payload : BinData(0,'cj1meWtvK2QybGJiRmdPTlJ2OXFreGRhd0xIbytWZ2s3cXZVT0tVd3VXTElXZzRsLzlTcmFHTUhFRSxzPXJROVpZM01udEJldVAzRTFURFZDNHc9PSxpPTEwMDAw'), done : false, ok : 1 }"));
@@ -133,7 +130,7 @@ namespace MongoDB.Driver.Tests.Authentication
             [Values("MongoConnectionException", "MongoNotPrimaryException")] string exceptionName,
             [Values(false, true)] bool async)
         {
-            var subject = CreateScramSha1SaslAuthenticator(DefaultRandomStringGenerator.Instance, null);
+            var subject = CreateScramSha1SaslAuthenticator("fyko+d2lbbFgONRv9qkxdawL", null);
 
             var responseException = CoreExceptionHelper.CreateException(exceptionName);
             var connection = new MockConnection(__serverId);
@@ -153,8 +150,7 @@ namespace MongoDB.Driver.Tests.Authentication
             [Values(false, true)]
             bool async)
         {
-            var randomStringGenerator = new ConstantRandomStringGenerator("fyko+d2lbbFgONRv9qkxdawL");
-            var subject = CreateScramSha1SaslAuthenticator(randomStringGenerator, null);
+            var subject = CreateScramSha1SaslAuthenticator("fyko+d2lbbFgONRv9qkxdawL", null);
 
             var saslStartResponse = MessageHelper.BuildCommandResponse(
                 RawBsonDocumentHelper.FromJson("{conversationId: 1, payload: BinData(0,'cj1meWtvLWQybGJiRmdPTlJ2OXFreGRhd0xIbytWZ2s3cXZVT0tVd3VXTElXZzRsLzlTcmFHTUhFRSxzPXJROVpZM01udEJldVAzRTFURFZDNHc9PSxpPTEwMDAw'), done: false, ok: 1}"));
@@ -176,8 +172,7 @@ namespace MongoDB.Driver.Tests.Authentication
             [Values(false, true)]
             bool async)
         {
-            var randomStringGenerator = new ConstantRandomStringGenerator("fyko+d2lbbFgONRv9qkxdawL");
-            var subject = CreateScramSha1SaslAuthenticator(randomStringGenerator, null);
+            var subject = CreateScramSha1SaslAuthenticator("fyko+d2lbbFgONRv9qkxdawL", null);
 
             var saslStartResponse = MessageHelper.BuildCommandResponse(
                 RawBsonDocumentHelper.FromJson("{conversationId: 1, payload: BinData(0,'cj1meWtvK2QybGJiRmdPTlJ2OXFreGRhd0xIbytWZ2s3cXZVT0tVd3VXTElXZzRsLzlTcmFHTUhFRSxzPXJROVpZM01udEJldVAzRTFURFZDNHc9PSxpPTEwMDAw'), done: false, ok: 1}"));
@@ -203,8 +198,7 @@ namespace MongoDB.Driver.Tests.Authentication
             [Values(false, true)] bool useLongAuthentication,
             [Values(false, true)] bool async)
         {
-            var randomStringGenerator = new ConstantRandomStringGenerator("fyko+d2lbbFgONRv9qkxdawL");
-            var subject = CreateScramSha1SaslAuthenticator(randomStringGenerator, null);
+            var subject = CreateScramSha1SaslAuthenticator("fyko+d2lbbFgONRv9qkxdawL", null);
 
             var saslStartResponse = MessageHelper.BuildCommandResponse(
                 RawBsonDocumentHelper.FromJson("{ conversationId : 1, payload : BinData(0,'cj1meWtvK2QybGJiRmdPTlJ2OXFreGRhd0xIbytWZ2s3cXZVT0tVd3VXTElXZzRsLzlTcmFHTUhFRSxzPXJROVpZM01udEJldVAzRTFURFZDNHc9PSxpPTEwMDAw'), done : false, ok : 1}"));
@@ -350,8 +344,7 @@ namespace MongoDB.Driver.Tests.Authentication
         public async Task Authenticate_should_use_cache(
             [Values(false, true)] bool async)
         {
-            var randomStringGenerator = new ConstantRandomStringGenerator("fyko+d2lbbFgONRv9qkxdawL");
-            var subject = CreateScramSha1SaslAuthenticator(randomStringGenerator, serverApi: null);
+            var subject = CreateScramSha1SaslAuthenticator("fyko+d2lbbFgONRv9qkxdawL", serverApi: null);
 
             var saslStartResponse = MessageHelper.BuildCommandResponse(
                 RawBsonDocumentHelper.FromJson(
@@ -383,7 +376,7 @@ namespace MongoDB.Driver.Tests.Authentication
             scramShaMechanism._cache()._cachedEntry().Should().NotBe(null);
         }
 
-        private static SaslAuthenticator CreateScramSha1SaslAuthenticator(IRandomStringGenerator randomStringGenerator, ServerApi serverApi)
+        private static SaslAuthenticator CreateScramSha1SaslAuthenticator(string clientNonce, ServerApi serverApi)
         {
             var saslContext = new SaslContext
             {
@@ -395,7 +388,10 @@ namespace MongoDB.Driver.Tests.Authentication
                 MechanismProperties = null,
             };
 
-            var awsSaslMechanism = ScramShaSaslMechanism.CreateScramSha1Mechanism(saslContext, randomStringGenerator);
+            var randomMock = new Mock<IRandom>();
+            randomMock.Setup(r => r.GenerateString(It.IsAny<int>(), It.IsAny<string>())).Returns(clientNonce);
+
+            var awsSaslMechanism = ScramShaSaslMechanism.CreateScramSha1Mechanism(saslContext, randomMock.Object);
             return new SaslAuthenticator(awsSaslMechanism, serverApi);
         }
     }

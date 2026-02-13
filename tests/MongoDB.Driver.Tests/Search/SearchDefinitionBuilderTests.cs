@@ -1420,6 +1420,67 @@ namespace MongoDB.Driver.Tests.Search
         }
 
         [Fact]
+        public void VectorSearch()
+        {
+            var subject = CreateSubject<BsonDocument>();
+            var queryVector = new[] { 1.0f, 2.0f, 3.0f };
+
+            AssertRendered(
+                subject.VectorSearch("x", queryVector, 5),
+                "{ vectorSearch: { queryVector: [1.0, 2.0, 3.0], limit: 5, numCandidates: 50, path: 'x' } }");
+
+            var options = new VectorSearchOperatorOptions<BsonDocument>
+            {
+                NumberOfCandidates = 128,
+                Filter = subject.Text("description", "test")
+            };
+            AssertRendered(
+                subject.VectorSearch("x", queryVector, 10, options),
+                "{ vectorSearch: { queryVector: [1.0, 2.0, 3.0], limit: 10, numCandidates: 128, filter: { text: { query: 'test', path: 'description' } }, path: 'x' } }");
+
+            var scoreBuilder = new SearchScoreDefinitionBuilder<BsonDocument>();
+            options = new VectorSearchOperatorOptions<BsonDocument>
+            {
+                Exact = true
+            };
+            AssertRendered(
+                subject.VectorSearch("x", queryVector, 5, options, scoreBuilder.Constant(2)),
+                "{ vectorSearch: { queryVector: [1.0, 2.0, 3.0], limit: 5, exact: true, path: 'x', score: { constant: { value: 2 } } } }");
+        }
+
+        [Fact]
+        public void VectorSearch_typed()
+        {
+            var subject = CreateSubject<Person>();
+            var queryVector = new[] { 1.0f, 2.0f, 3.0f };
+
+            AssertRendered(
+                subject.VectorSearch(x => x.FirstName, queryVector, 5),
+                "{ vectorSearch: { queryVector: [1.0, 2.0, 3.0], limit: 5, numCandidates: 50, path: 'fn' } }");
+            AssertRendered(
+                subject.VectorSearch("FirstName", queryVector, 5),
+                "{ vectorSearch: { queryVector: [1.0, 2.0, 3.0], limit: 5, numCandidates: 50, path: 'fn' } }");
+
+            var options = new VectorSearchOperatorOptions<Person>
+            {
+                NumberOfCandidates = 128,
+                Filter = subject.Text(x => x.LastName, "test")
+            };
+            AssertRendered(
+                subject.VectorSearch(x => x.FirstName, queryVector, 10, options),
+                "{ vectorSearch: { queryVector: [1.0, 2.0, 3.0], limit: 10, numCandidates: 128, filter: { text: { query: 'test', path: 'ln' } }, path: 'fn' } }");
+
+            var scoreBuilder = new SearchScoreDefinitionBuilder<Person>();
+            options = new VectorSearchOperatorOptions<Person>
+            {
+                Exact = true
+            };
+            AssertRendered(
+                subject.VectorSearch(x => x.FirstName, queryVector, 5, options, scoreBuilder.Constant(2)),
+                "{ vectorSearch: { queryVector: [1.0, 2.0, 3.0], limit: 5, exact: true, path: 'fn', score: { constant: { value: 2 } } } }");
+        }
+
+        [Fact]
         public void Wildcard()
         {
             var subject = CreateSubject<BsonDocument>();

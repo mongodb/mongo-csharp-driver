@@ -27,56 +27,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class IndexOfMethodToAggregationExpressionTranslator
     {
-        private static readonly MethodInfo[] __indexOfMethods =
-        {
-            StringMethod.IndexOfWithChar,
-            StringMethod.IndexOfBytesWithValue,
-            StringMethod.IndexOfBytesWithValueAndStartIndex,
-            StringMethod.IndexOfBytesWithValueAndStartIndexAndCount,
-            StringMethod.IndexOfWithCharAndStartIndex,
-            StringMethod.IndexOfWithCharAndStartIndexAndCount,
-            StringMethod.IndexOfWithString,
-            StringMethod.IndexOfWithStringAndStartIndex,
-            StringMethod.IndexOfWithStringAndStartIndexAndCount,
-            StringMethod.IndexOfWithStringAndComparisonType,
-            StringMethod.IndexOfWithStringAndStartIndexAndComparisonType,
-            StringMethod.IndexOfWithStringAndStartIndexAndCountAndComparisonType
-       };
-
-        private static readonly MethodInfo[] __indexOfWithStartIndexMethods =
-        {
-            StringMethod.IndexOfBytesWithValueAndStartIndex,
-            StringMethod.IndexOfBytesWithValueAndStartIndexAndCount,
-            StringMethod.IndexOfWithCharAndStartIndex,
-            StringMethod.IndexOfWithCharAndStartIndexAndCount,
-            StringMethod.IndexOfWithStringAndStartIndex,
-            StringMethod.IndexOfWithStringAndStartIndexAndCount,
-            StringMethod.IndexOfWithStringAndStartIndexAndComparisonType,
-            StringMethod.IndexOfWithStringAndStartIndexAndCountAndComparisonType
-       };
-
-        private static readonly MethodInfo[] __indexOfWithCountMethods =
-        {
-            StringMethod.IndexOfBytesWithValueAndStartIndexAndCount,
-            StringMethod.IndexOfWithCharAndStartIndexAndCount,
-            StringMethod.IndexOfWithStringAndStartIndexAndCount,
-            StringMethod.IndexOfWithStringAndStartIndexAndCountAndComparisonType
-        };
-
-        private static readonly MethodInfo[] __indexOfWithStringComparisonMethods =
-        {
-            StringMethod.IndexOfWithStringAndComparisonType,
-            StringMethod.IndexOfWithStringAndStartIndexAndComparisonType,
-            StringMethod.IndexOfWithStringAndStartIndexAndCountAndComparisonType
-        };
-
-        private static readonly MethodInfo[] __indexOfBytesMethods =
-        {
-            StringMethod.IndexOfBytesWithValue,
-            StringMethod.IndexOfBytesWithValueAndStartIndex,
-            StringMethod.IndexOfBytesWithValueAndStartIndexAndCount
-       };
-
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             if (IsStringIndexOfMethod(expression, out var objectExpression, out var valueExpression, out var startIndexExpression, out var countExpression, out var comparisonTypeExpression))
@@ -100,7 +50,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var endAst = CreateEndAst(startIndexTranslation?.Ast, countTranslation?.Ast);
 
                 AstExpression ast;
-                if (expression.Method.IsOneOf(__indexOfBytesMethods) || ordinal)
+                if (expression.Method.IsOneOf(StringMethod.IndexOfBytesOverloads) || ordinal)
                 {
                     ast = AstExpression.IndexOfBytes(objectTranslation.Ast, valueTranslation.Ast, startIndexTranslation?.Ast, endAst);
                 }
@@ -167,14 +117,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__indexOfMethods))
+            if (method.IsOneOf(StringMethod.IndexOfOverloads))
             {
-                if (method.IsOneOf(__indexOfBytesMethods))
+                if (method.IsOneOf(StringMethod.IndexOfBytesOverloads))
                 {
                     instanceExpression = arguments[0];
                     valueExpression = arguments[1];
-                    startIndexExpression = method.IsOneOf(__indexOfWithStartIndexMethods) ? arguments[2] : null;
-                    countExpression = method.IsOneOf(__indexOfWithCountMethods) ? arguments[3] : null;
+                    startIndexExpression = method.IsOneOf(StringMethod.IndexOfWithStartIndexOverloads) ? arguments[2] : null;
+                    countExpression = method.IsOneOf(StringMethod.IndexOfWithCountOverloads) ? arguments[3] : null;
                     comparisonTypeExpression = null;
                     return true;
                 }
@@ -182,9 +132,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 {
                     instanceExpression = expression.Object;
                     valueExpression = arguments[0];
-                    startIndexExpression = method.IsOneOf(__indexOfWithStartIndexMethods) ? arguments[1] : null;
-                    countExpression = method.IsOneOf(__indexOfWithCountMethods) ? arguments[2] : null;
-                    comparisonTypeExpression = method.IsOneOf(__indexOfWithStringComparisonMethods) ? arguments.Last() : null;
+                    startIndexExpression = method.IsOneOf(StringMethod.IndexOfWithStartIndexOverloads) ? arguments[1] : null;
+                    countExpression = method.IsOneOf(StringMethod.IndexOfWithCountOverloads) ? arguments[2] : null;
+                    comparisonTypeExpression = method.IsOneOf(StringMethod.IndexOfWithStringComparisonOverloads) ? arguments.Last() : null;
                     return true;
                 }
             }

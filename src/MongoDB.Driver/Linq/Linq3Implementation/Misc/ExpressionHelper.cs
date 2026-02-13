@@ -35,7 +35,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             Ensure.IsNotNull(method, nameof(method));
             Ensure.IsNotNull(expression, nameof(expression));
 
-            if (method.DeclaringType == typeof(Queryable))
+            var declaringType = method.DeclaringType;
+            if (declaringType == typeof(Queryable) || declaringType == typeof(MongoQueryable))
             {
                 return UnquoteLambda(expression);
             }

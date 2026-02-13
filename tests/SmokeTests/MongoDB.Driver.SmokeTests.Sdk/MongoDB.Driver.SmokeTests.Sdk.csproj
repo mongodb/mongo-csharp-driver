@@ -4,8 +4,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1;net472;net5.0;net6.0</TargetFrameworks>
-    <TargetFrameworks Condition="'$(IsOSX)'!='true'">$(TargetFrameworks);net8.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1;net472;net5.0;net6.0;net8.0;net10.0</TargetFrameworks>
     <LangVersion>9</LangVersion>
     <CodeAnalysisRuleSet>..\..\..\MongoDBTest.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
@@ -59,6 +58,13 @@
     <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Configuration" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.TraceSource" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Configuration" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.TraceSource" Version="10.0.0" />
   </ItemGroup>
 
   <ItemGroup>

@@ -23,26 +23,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class RoundMethodToAggregationExpressionTranslator
     {
-        private static readonly MethodInfo[] __roundMethods =
-        {
-            MathMethod.RoundWithDecimal,
-            MathMethod.RoundWithDecimalAndDecimals,
-            MathMethod.RoundWithDouble,
-            MathMethod.RoundWithDoubleAndDigits
-        };
-
-        private static readonly MethodInfo[] __roundWithPlaceMethods =
-        {
-            MathMethod.RoundWithDecimalAndDecimals,
-            MathMethod.RoundWithDoubleAndDigits
-        };
-
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__roundMethods))
+            if (method.IsOneOf(MathMethod.RoundOverloads))
             {
                 var argumentExpression = arguments[0];
                 var argumentTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, argumentExpression);
@@ -50,7 +36,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                 var argumentAst = ConvertHelper.RemoveWideningConvert(argumentTranslation);
                 AstExpression ast;
-                if (method.IsOneOf(__roundWithPlaceMethods))
+                if (method.IsOneOf(MathMethod.RoundWithPlaceOverloads))
                 {
                     var placeExpression = arguments[1];
                     var placeTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, placeExpression);

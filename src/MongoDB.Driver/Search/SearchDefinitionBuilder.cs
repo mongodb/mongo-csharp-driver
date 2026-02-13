@@ -892,5 +892,39 @@ namespace MongoDB.Driver.Search
             bool allowAnalyzedField = false,
             SearchScoreDefinition<TDocument> score = null) =>
                 Wildcard(new ExpressionFieldDefinition<TDocument>(path), query, allowAnalyzedField, score);
+
+        /// <summary>
+        /// Creates a search definition for a vector search as a search operator.
+        /// </summary>
+        /// <param name="path">The indexed field or fields to search.</param>
+        /// <param name="queryVector">The query vector.</param>
+        /// <param name="limit">The limit.</param>
+        /// <param name="options">The vector search options.</param>
+        /// <param name="score">The score modifier.</param>
+        /// <returns>A vector search definition.</returns>
+        public SearchDefinition<TDocument> VectorSearch(
+            SearchPathDefinition<TDocument> path,
+            QueryVector queryVector,
+            int limit,
+            VectorSearchOperatorOptions<TDocument> options = null,
+            SearchScoreDefinition<TDocument> score = null) =>
+                new VectorSearchDefinition<TDocument>(path, queryVector, limit, options, score);
+
+        /// <summary>
+        /// Creates a search definition for a vector search as a search operator.
+        /// </summary>
+        /// <param name="path">The indexed field or fields to search.</param>
+        /// <param name="queryVector">The query vector.</param>
+        /// <param name="limit">The limit.</param>
+        /// <param name="options">The vector search options.</param>
+        /// <param name="score">The score modifier.</param>
+        /// <returns>A vector search definition.</returns>
+        public SearchDefinition<TDocument> VectorSearch<TField>(
+            Expression<Func<TDocument, TField>> path,
+            QueryVector queryVector,
+            int limit,
+            VectorSearchOperatorOptions<TDocument> options = null,
+            SearchScoreDefinition<TDocument> score = null) =>
+                VectorSearch(new ExpressionFieldDefinition<TDocument>(path), queryVector, limit, options, score);
     }
 }

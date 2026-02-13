@@ -6,7 +6,22 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1;net6.0</TargetFrameworks>
+    <Configurations>Debug;Release;Release_CSharp_14</Configurations>
+    <Platforms>AnyCPU</Platforms>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release_CSharp_14' ">
+    <Optimize Condition=" '$(Optimize)' == '' ">true</Optimize>
+    <DefineConstants>$(DefineConstants);CSHARP_14</DefineConstants>
+    <LangVersion>14</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' != 'Release_CSharp_14' ">
+    <LangVersion>12</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp3.1;net6.0;net10.0</TargetFrameworks>
     <TargetFrameworks Condition="'$(IsWindows)'=='true'">$(TargetFrameworks);net472</TargetFrameworks>
     <IsPackable>false</IsPackable>
     <SignAssembly>true</SignAssembly>
@@ -14,7 +29,6 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <LangVersion>12</LangVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
@@ -28,7 +42,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(IsWindows)'=='true'">
     <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>

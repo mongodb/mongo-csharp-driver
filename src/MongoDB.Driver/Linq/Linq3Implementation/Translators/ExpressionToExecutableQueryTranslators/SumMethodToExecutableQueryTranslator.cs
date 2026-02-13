@@ -33,79 +33,23 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
     {
         // private static fields
         private static readonly IExecutableQueryFinalizer<TOutput, TOutput> __finalizer = new SingleOrDefaultFinalizer<TOutput>();
-        private static readonly MethodInfo[] __sumMethods;
-        private static readonly MethodInfo[] __sumWithSelectorMethods;
+        private static readonly IReadOnlyMethodInfoSet __sumOverloads;
+        private static readonly IReadOnlyMethodInfoSet __sumWithSelectorOverloads;
 
         // static constructor
         static SumMethodToExecutableQueryTranslator()
         {
-            __sumMethods = new[]
-            {
-                QueryableMethod.SumDecimal,
-                QueryableMethod.SumDecimalWithSelector,
-                QueryableMethod.SumDouble,
-                QueryableMethod.SumDoubleWithSelector,
-                QueryableMethod.SumInt32,
-                QueryableMethod.SumInt32WithSelector,
-                QueryableMethod.SumInt64,
-                QueryableMethod.SumInt64WithSelector,
-                QueryableMethod.SumNullableDecimal,
-                QueryableMethod.SumNullableDecimalWithSelector,
-                QueryableMethod.SumNullableDouble,
-                QueryableMethod.SumNullableDoubleWithSelector,
-                QueryableMethod.SumNullableInt32,
-                QueryableMethod.SumNullableInt32WithSelector,
-                QueryableMethod.SumNullableInt64,
-                QueryableMethod.SumNullableInt64WithSelector,
-                QueryableMethod.SumNullableSingle,
-                QueryableMethod.SumNullableSingleWithSelector,
-                QueryableMethod.SumSingle,
-                QueryableMethod.SumSingleWithSelector,
-                MongoQueryableMethod.SumDecimalAsync,
-                MongoQueryableMethod.SumDecimalWithSelectorAsync,
-                MongoQueryableMethod.SumDoubleAsync,
-                MongoQueryableMethod.SumDoubleWithSelectorAsync,
-                MongoQueryableMethod.SumInt32Async,
-                MongoQueryableMethod.SumInt32WithSelectorAsync,
-                MongoQueryableMethod.SumInt64Async,
-                MongoQueryableMethod.SumInt64WithSelectorAsync,
-                MongoQueryableMethod.SumNullableDecimalAsync,
-                MongoQueryableMethod.SumNullableDecimalWithSelectorAsync,
-                MongoQueryableMethod.SumNullableDoubleAsync,
-                MongoQueryableMethod.SumNullableDoubleWithSelectorAsync,
-                MongoQueryableMethod.SumNullableInt32Async,
-                MongoQueryableMethod.SumNullableInt32WithSelectorAsync,
-                MongoQueryableMethod.SumNullableInt64Async,
-                MongoQueryableMethod.SumNullableInt64WithSelectorAsync,
-                MongoQueryableMethod.SumNullableSingleAsync,
-                MongoQueryableMethod.SumNullableSingleWithSelectorAsync,
-                MongoQueryableMethod.SumSingleAsync,
-                MongoQueryableMethod.SumSingleWithSelectorAsync
-            };
+            __sumOverloads = MethodInfoSet.Create(
+            [
+                QueryableMethod.SumOverloads,
+                MongoQueryableMethod.SumOverloads
+            ]);
 
-            __sumWithSelectorMethods = new[]
-            {
-                QueryableMethod.SumDecimalWithSelector,
-                QueryableMethod.SumDoubleWithSelector,
-                QueryableMethod.SumInt32WithSelector,
-                QueryableMethod.SumInt64WithSelector,
-                QueryableMethod.SumNullableDecimalWithSelector,
-                QueryableMethod.SumNullableDoubleWithSelector,
-                QueryableMethod.SumNullableInt32WithSelector,
-                QueryableMethod.SumNullableInt64WithSelector,
-                QueryableMethod.SumNullableSingleWithSelector,
-                QueryableMethod.SumSingleWithSelector,
-                MongoQueryableMethod.SumDecimalWithSelectorAsync,
-                MongoQueryableMethod.SumDoubleWithSelectorAsync,
-                MongoQueryableMethod.SumInt32WithSelectorAsync,
-                MongoQueryableMethod.SumInt64WithSelectorAsync,
-                MongoQueryableMethod.SumNullableDecimalWithSelectorAsync,
-                MongoQueryableMethod.SumNullableDoubleWithSelectorAsync,
-                MongoQueryableMethod.SumNullableInt32WithSelectorAsync,
-                MongoQueryableMethod.SumNullableInt64WithSelectorAsync,
-                MongoQueryableMethod.SumNullableSingleWithSelectorAsync,
-                MongoQueryableMethod.SumSingleWithSelectorAsync
-            };
+            __sumWithSelectorOverloads = MethodInfoSet.Create(
+            [
+                QueryableMethod.SumWithSelectorOverloads,
+                MongoQueryableMethod.SumWithSelectorOverloads
+            ]);
         }
 
         // public static methods
@@ -114,7 +58,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__sumMethods))
+            if (method.IsOneOf(__sumOverloads))
             {
                 var sourceExpression = arguments[0];
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
@@ -122,7 +66,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
 
                 var sourceSerializer = pipeline.OutputSerializer;
                 AstExpression valueAst;
-                if (method.IsOneOf(__sumWithSelectorMethods))
+                if (method.IsOneOf(__sumWithSelectorOverloads))
                 {
                     var selectorLambda = ExpressionHelper.UnquoteLambda(arguments[1]);
                     var selectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, selectorLambda, sourceSerializer, asRoot: true);

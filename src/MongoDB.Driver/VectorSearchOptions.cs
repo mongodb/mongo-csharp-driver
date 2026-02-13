@@ -37,9 +37,14 @@ namespace MongoDB.Driver
         public int? NumberOfCandidates { get; set; }
 
         /// <summary>
-        /// Get or sets a value indicating if exact nearest neighbor (ENN) is to be used, false by default.
+        /// Gets or sets a value indicating if exact nearest neighbor (ENN) is to be used, false by default.
         /// If false, approximate nearest neighbor (ANN) is used.
         /// </summary>
         public bool Exact { get; set; }
+
+        /// <summary>
+        /// The model to for auto-embedding in the query. Must be compatible with the model used to create the index.
+        /// </summary>
+        public string AutoEmbeddingModelName { get; set; }
     }
 }

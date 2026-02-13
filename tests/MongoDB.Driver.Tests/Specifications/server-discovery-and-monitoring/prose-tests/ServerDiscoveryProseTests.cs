@@ -17,9 +17,13 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers;
+using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
@@ -83,6 +87,61 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring.pr
                 {
                     exception.Should().BeNull();
                 }
+            }
+        }
+
+        // https://github.com/mongodb/specifications/blob/a8d34be0df234365600a9269af5a463f581562fd/source/server-discovery-and-monitoring/server-discovery-and-monitoring-tests.md?plain=1#L176
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Connection_Pool_Backpressure([Values(true, false)]bool async)
+        {
+            RequireServer.Check().VersionGreaterThanOrEqualTo("7.0.23");
+
+            var setupClient = DriverTestConfiguration.Client;
+            var adminDatabase = setupClient.GetDatabase(DatabaseNamespace.Admin.DatabaseName);
+
+            adminDatabase.RunCommand<BsonDocument>(
+                @"{
+                    setParameter : 1,
+                    ingressConnectionEstablishmentRateLimiterEnabled: true,
+                    ingressConnectionEstablishmentRatePerSec: 20,
+                    ingressConnectionEstablishmentBurstCapacitySecs: 1,
+                    ingressConnectionEstablishmentMaxQueueDepth: 1
+                }");
+
+            try
+            {
+                var eventCapturer = new EventCapturer()
+                    .Capture<ConnectionPoolCheckingOutConnectionFailedEvent>()
+                    .Capture<ConnectionPoolClearedEvent>();
+
+                using var client = DriverTestConfiguration.CreateMongoClient(settings =>
+                {
+                    settings.MaxConnecting = 100;
+                    settings.LoggingSettings = LoggingSettings;
+                    settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
+                });
+
+                var collection = client.GetDatabase("test").GetCollection<BsonDocument>("test");
+                collection.InsertOne(new BsonDocument());
+
+                var filter = "{ $where : \"function() { sleep(2000); return true; }\" }";
+                _ = await ThreadingUtilities.ExecuteTasksOnNewThreadsCollectExceptions(
+                    100,
+                    _ => async ? collection.FindAsync(filter) : Task.FromResult(collection.FindSync(filter)), Timeout.Infinite);
+
+                eventCapturer.Events.Count(e => e is ConnectionPoolCheckingOutConnectionFailedEvent).Should().BeGreaterOrEqualTo(10);
+                eventCapturer.Events.Should().NotContain(e => e is ConnectionPoolClearedEvent);
+            }
+            finally
+            {
+                Thread.Sleep(1000);
+
+                adminDatabase.RunCommand<BsonDocument>(
+                    @"{
+                        setParameter : 1,
+                        ingressConnectionEstablishmentRateLimiterEnabled: false
+                    }");
             }
         }
 

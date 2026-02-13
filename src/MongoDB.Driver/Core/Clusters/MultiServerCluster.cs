@@ -485,7 +485,9 @@ namespace MongoDB.Driver.Core.Clusters
                 }
 
                 newClusterDescription = newClusterDescription.WithDnsMonitorException(null);
-                UpdateClusterDescription(newClusterDescription);
+
+                var shouldClusterDescriptionChangedEventBePublished = !newClusterDescription.SdamEquals(oldClusterDescription);
+                UpdateClusterDescription(newClusterDescription, shouldClusterDescriptionChangedEventBePublished);
             }
 
             foreach (var addedServer in newServers)

@@ -87,7 +87,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 }
             }
 
-            var serializationInfo = DocumentSerializerHelper.GetMemberSerializationInfo(containerTranslation.Serializer, member.Name);
+            var serializationInfo = DocumentSerializerHelper.GetMemberSerializationInfo(expression, containerTranslation.Serializer, member.Name);
             AstExpression ast;
             if (serializationInfo.ElementPath == null)
             {
