@@ -14,35 +14,40 @@
  */
 
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace MongoDB.Driver.Tests.Specifications.mongodb_handshake
+namespace MongoDB.Driver.Tests.Specifications.mongodb_handshake.prose_tests
 {
+    [Trait("Category", "Integration")]
     public class MongoDbHandshakeProseTests : LoggableTestClass
     {
-        // https://github.com/mongodb/specifications/blob/75027a8e91ff50778aed2ad5a67c005f2694705f/source/mongodb-handshake/tests/README.md?plain=1#L77
         public MongoDbHandshakeProseTests(ITestOutputHelper output) : base(output)
         {
         }
 
         [Theory]
         [ParameterAttributeData]
+        // https://github.com/mongodb/specifications/blob/75027a8e91ff50778aed2ad5a67c005f2694705f/source/mongodb-handshake/tests/README.md?plain=1#L77
         public async Task DriverAcceptsArbitraryAuthMechanism([Values(false, true)] bool async)
         {
             var capturedEvents = new EventCapturer();
@@ -97,6 +102,32 @@ namespace MongoDB.Driver.Tests.Specifications.mongodb_handshake
             }
 
             subject._state().Should().Be(3); // 3 - open.
+        }
+
+        [Fact]
+        // https://github.com/baileympearson/specifications/blob/530e727dd5cc0d0eb2606ea6db1cf144968597e7/source/mongodb-handshake/tests/README.md#test-9-handshake-documents-include-backpressure-true
+        public async Task HandshakeDocumentsIncludeBackpressureTrue()
+        {
+            //TODO A test
+            RequireServer.Check().Authentication(authentication: false); // speculative authentication makes events asserting hard
+
+            var eventCapturer = new EventCapturer()
+                .Capture<CommandStartedEvent>(e => e.CommandName is "hello" or OppressiveLanguageConstants.LegacyHelloCommandName);
+
+            using var client = DriverTestConfiguration.CreateMongoClient(eventCapturer);
+
+            var database = client.GetDatabase("admin");
+            await database.RunCommandAsync<BsonDocument>(new BsonDocument("ping", 1));
+
+            var commandStartedEvents = eventCapturer.Events.OfType<CommandStartedEvent>().ToList();
+            commandStartedEvents.Should().NotBeEmpty();
+            foreach (var doc in commandStartedEvents.Select(ev => ev.Command))
+            {
+                //TODO The messages have been added for tesing purposes only. Remove them later.
+                Logger.LogError($"DOC: {doc}");
+                doc.Contains("backpressure").Should().BeTrue();
+                doc["backpressure"].AsBoolean.Should().BeTrue();
+            }
         }
     }
 

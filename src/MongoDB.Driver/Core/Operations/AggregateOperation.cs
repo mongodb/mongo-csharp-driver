@@ -288,7 +288,7 @@ namespace MongoDB.Driver.Core.Operations
 
             using (EventContext.BeginOperation())
             {
-                var operation = CreateOperation(operationContext, context);
+                var operation = CreateOperation(operationContext);
                 var result = operation.Execute(operationContext, context);
 
                 context.ChannelSource.Session.SetSnapshotTimeIfNeeded(result.AtClusterTime);
@@ -317,7 +317,7 @@ namespace MongoDB.Driver.Core.Operations
 
             using (EventContext.BeginOperation())
             {
-                var operation = CreateOperation(operationContext, context);
+                var operation = CreateOperation(operationContext);
                 var result = await operation.ExecuteAsync(operationContext, context).ConfigureAwait(false);
 
                 context.ChannelSource.Session.SetSnapshotTimeIfNeeded(result.AtClusterTime);
@@ -354,12 +354,15 @@ namespace MongoDB.Driver.Core.Operations
 
         private IDisposable BeginOperation() => EventContext.BeginOperation(null, "aggregate");
 
-        private ReadCommandOperation<AggregateResult> CreateOperation(OperationContext operationContext, RetryableReadContext context)
+        private ReadCommandOperation<AggregateResult> CreateOperation(OperationContext operationContext)
         {
             var databaseNamespace = _collectionNamespace == null ? _databaseNamespace : _collectionNamespace.DatabaseNamespace;
-            var command = CreateCommand(operationContext, context.Binding.Session, context.Channel.ConnectionDescription);
             var serializer = new AggregateResultDeserializer(_resultSerializer);
-            return new ReadCommandOperation<AggregateResult>(databaseNamespace, command, serializer, MessageEncoderSettings)
+            return new ReadCommandOperation<AggregateResult>(
+                databaseNamespace,
+                (session, connectionDescription) => CreateCommand(operationContext, session, connectionDescription),
+                serializer,
+                MessageEncoderSettings)
             {
                 RetryRequested = _retryRequested // might be overridden by retryable read context
             };

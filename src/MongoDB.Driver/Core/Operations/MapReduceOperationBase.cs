@@ -221,7 +221,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        protected internal virtual BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription)
+        protected internal virtual BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber = null)
         {
             return new BsonDocument
             {

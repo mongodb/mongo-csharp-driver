@@ -56,7 +56,8 @@ namespace MongoDB.Driver.Core.Servers
             IConnectionPoolFactory connectionPoolFactory,
             IServerMonitorFactory monitorFactory,
             ServerApi serverApi,
-            EventLogger<LogCategories.SDAM> eventLogger)
+            EventLogger<LogCategories.SDAM> eventLogger,
+            TokenBucket tokenBucket)
             : base(
                   clusterId,
                   clusterClock,
@@ -65,7 +66,8 @@ namespace MongoDB.Driver.Core.Servers
                   endPoint,
                   connectionPoolFactory,
                   serverApi,
-                  eventLogger)
+                  eventLogger,
+                  tokenBucket)
         {
             _monitor = Ensure.IsNotNull(monitorFactory, nameof(monitorFactory)).Create(ServerId, endPoint);
             _baseDescription = _currentDescription = new ServerDescription(ServerId, endPoint, reasonChanged: "ServerInitialDescription", heartbeatInterval: settings.HeartbeatInterval);
