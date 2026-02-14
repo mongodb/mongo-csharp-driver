@@ -39,7 +39,7 @@
             {
               "name": "createCollection operation-create-collection.newlyCreatedCollection",
               "attributes": {
-                "db.system": "mongodb",
+                "db.system.name": "mongodb",
                 "db.namespace": "operation-create-collection",
                 "db.collection.name": "newlyCreatedCollection",
                 "db.operation.name": "createCollection",
@@ -49,7 +49,7 @@
                 {
                   "name": "create",
                   "attributes": {
-                    "db.system": "mongodb",
+                    "db.system.name": "mongodb",
                     "db.namespace": "operation-create-collection",
                     "db.collection.name": "newlyCreatedCollection",
                     "db.command.name": "create",

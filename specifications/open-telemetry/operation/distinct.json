@@ -54,7 +54,7 @@
             {
               "name": "distinct operation-distinct.test",
               "attributes": {
-                "db.system": "mongodb",
+                "db.system.name": "mongodb",
                 "db.namespace": "operation-distinct",
                 "db.collection.name": "test",
                 "db.operation.name": "distinct",
@@ -64,7 +64,7 @@
                 {
                   "name": "distinct",
                   "attributes": {
-                    "db.system": "mongodb",
+                    "db.system.name": "mongodb",
                     "db.namespace": "operation-distinct",
                     "db.collection.name": "test",
                     "db.command.name": "distinct",

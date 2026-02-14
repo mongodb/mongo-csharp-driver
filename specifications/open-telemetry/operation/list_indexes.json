@@ -50,7 +50,7 @@
             {
               "name": "listIndexes operation-list-indexes.test",
               "attributes": {
-                "db.system": "mongodb",
+                "db.system.name": "mongodb",
                 "db.namespace": "operation-list-indexes",
                 "db.collection.name": "test",
                 "db.operation.name": "listIndexes",
@@ -60,7 +60,7 @@
                 {
                   "name": "listIndexes",
                   "attributes": {
-                    "db.system": "mongodb",
+                    "db.system.name": "mongodb",
                     "db.namespace": "operation-list-indexes",
                     "db.collection.name": "test",
                     "db.command.name": "listIndexes",

@@ -48,7 +48,7 @@
             {
               "name": "createIndexes operation-create-indexes.test",
               "attributes": {
-                "db.system": "mongodb",
+                "db.system.name": "mongodb",
                 "db.namespace": "operation-create-indexes",
                 "db.collection.name": "test",
                 "db.operation.name": "createIndexes",
@@ -58,7 +58,7 @@
                 {
                   "name": "createIndexes",
                   "attributes": {
-                    "db.system": "mongodb",
+                    "db.system.name": "mongodb",
                     "db.namespace": "operation-create-indexes",
                     "db.collection.name": "test",
                     "db.command.name": "createIndexes",

@@ -77,7 +77,7 @@ tests:
         spans:
           - name: bulkWrite admin
             attributes:
-              db.system: mongodb
+              db.system.name: mongodb
               db.namespace: admin
               db.collection.name: { $$exists: false }
               db.operation.name: bulkWrite
@@ -85,7 +85,7 @@ tests:
             nested:
               - name: bulkWrite
                 attributes:
-                  db.system: mongodb
+                  db.system.name: mongodb
                   db.namespace: admin
                   db.collection.name: { $$exists: false }
                   db.command.name: bulkWrite

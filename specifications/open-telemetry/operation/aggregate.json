@@ -52,7 +52,7 @@
             {
               "name": "aggregate operation-aggregate.test",
               "attributes": {
-                "db.system": "mongodb",
+                "db.system.name": "mongodb",
                 "db.namespace": "operation-aggregate",
                 "db.collection.name": "test",
                 "db.operation.name": "aggregate",
@@ -62,7 +62,7 @@
                 {
                   "name": "aggregate",
                   "attributes": {
-                    "db.system": "mongodb",
+                    "db.system.name": "mongodb",
                     "db.namespace": "operation-aggregate",
                     "db.collection.name": "test",
                     "db.command.name": "aggregate",

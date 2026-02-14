@@ -30,7 +30,7 @@ public static class MongoTelemetry
     private static readonly string __driverVersion = ClientDocumentHelper.GetAssemblyVersion(typeof(MongoClient).Assembly);
 
     // OpenTelemetry semantic convention attribute names
-    private const string DbSystemAttribute = "db.system";
+    private const string DbSystemAttribute = "db.system.name";
     private const string DbOperationNameAttribute = "db.operation.name";
     private const string DbOperationSummaryAttribute = "db.operation.summary";
     private const string DbCommandNameAttribute = "db.command.name";

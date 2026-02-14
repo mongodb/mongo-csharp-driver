@@ -30,7 +30,7 @@ tests:
         spans:
           - name: listIndexes operation-list-indexes.test
             attributes:
-              db.system: mongodb
+              db.system.name: mongodb
               db.namespace: operation-list-indexes
               db.collection.name: test
               db.operation.name: listIndexes
@@ -39,7 +39,7 @@ tests:
             nested:
               - name: listIndexes
                 attributes:
-                  db.system: mongodb
+                  db.system.name: mongodb
                   db.namespace: operation-list-indexes
                   db.collection.name: test
                   db.command.name: listIndexes

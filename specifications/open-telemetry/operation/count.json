@@ -52,7 +52,7 @@
             {
               "name": "count operation-count.test",
               "attributes": {
-                "db.system": "mongodb",
+                "db.system.name": "mongodb",
                 "db.namespace": "operation-count",
                 "db.collection.name": "test",
                 "db.operation.name": "count",
@@ -62,7 +62,7 @@
                 {
                   "name": "count",
                   "attributes": {
-                    "db.system": "mongodb",
+                    "db.system.name": "mongodb",
                     "db.namespace": "operation-count",
                     "db.collection.name": "test",
                     "db.command.name": "count",

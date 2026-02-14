@@ -31,7 +31,7 @@ tests:
         spans:
           - name: insert operation-insert.test
             attributes:
-              db.system: mongodb
+              db.system.name: mongodb
               db.namespace: operation-insert
               db.collection.name: test
               db.operation.name: insert
@@ -39,7 +39,7 @@ tests:
             nested:
               - name: insert
                 attributes:
-                  db.system: mongodb
+                  db.system.name: mongodb
                   db.command.name: insert
                   db.namespace: operation-insert
                   db.collection.name: test

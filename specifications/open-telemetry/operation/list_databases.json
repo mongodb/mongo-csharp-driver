@@ -29,7 +29,7 @@
             {
               "name": "listDatabases admin",
               "attributes": {
-                "db.system": "mongodb",
+                "db.system.name": "mongodb",
                 "db.namespace": "admin",
                 "db.operation.name": "listDatabases",
                 "db.operation.summary": "listDatabases admin",
@@ -41,7 +41,7 @@
                 {
                   "name": "listDatabases",
                   "attributes": {
-                    "db.system": "mongodb",
+                    "db.system.name": "mongodb",
                     "db.namespace": "admin",
                     "db.collection.name": {
                       "$$exists": false

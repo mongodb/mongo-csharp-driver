@@ -31,7 +31,7 @@ tests:
         spans:
           - name: find operation-find.test
             attributes:
-              db.system: mongodb
+              db.system.name: mongodb
               db.namespace: operation-find
               db.collection.name: test
               db.operation.name: find
@@ -39,7 +39,7 @@ tests:
             nested:
               - name: find
                 attributes:
-                  db.system: mongodb
+                  db.system.name: mongodb
                   db.namespace: operation-find
                   db.collection.name: test
                   db.command.name: find

@@ -101,7 +101,7 @@
             {
               "name": "createSearchIndexes operation-atlas-search.test",
               "attributes": {
-                "db.system": "mongodb",
+                "db.system.name": "mongodb",
                 "db.namespace": "operation-atlas-search",
                 "db.collection.name": "test",
                 "db.operation.name": "createSearchIndexes",
@@ -111,7 +111,7 @@
                 {
                   "name": "createSearchIndexes",
                   "attributes": {
-                    "db.system": "mongodb",
+                    "db.system.name": "mongodb",
                     "db.namespace": "operation-atlas-search",
                     "db.command.name": "createSearchIndexes",
                     "db.collection.name": "test",
@@ -177,7 +177,7 @@
             {
               "name": "updateSearchIndex operation-atlas-search.test",
               "attributes": {
-                "db.system": "mongodb",
+                "db.system.name": "mongodb",
                 "db.namespace": "operation-atlas-search",
                 "db.collection.name": "test",
                 "db.operation.name": "updateSearchIndex",
@@ -187,7 +187,7 @@
                 {
                   "name": "updateSearchIndex",
                   "attributes": {
-                    "db.system": "mongodb",
+                    "db.system.name": "mongodb",
                     "db.namespace": "operation-atlas-search",
                     "db.command.name": "updateSearchIndex",
                     "db.collection.name": "test",
@@ -245,7 +245,7 @@
             {
               "name": "dropSearchIndex operation-atlas-search.test",
               "attributes": {
-                "db.system": "mongodb",
+                "db.system.name": "mongodb",
                 "db.namespace": "operation-atlas-search",
                 "db.collection.name": "test",
                 "db.operation.name": "dropSearchIndex",
@@ -255,7 +255,7 @@
                 {
                   "name": "dropSearchIndex",
                   "attributes": {
-                    "db.system": "mongodb",
+                    "db.system.name": "mongodb",
                     "db.namespace": "operation-atlas-search",
                     "db.command.name": "dropSearchIndex",
                     "db.collection.name": "test",

@@ -30,7 +30,7 @@ tests:
         spans:
           - name: aggregate operation-aggregate.test
             attributes:
-              db.system: mongodb
+              db.system.name: mongodb
               db.namespace: operation-aggregate
               db.collection.name: test
               db.operation.name: aggregate
@@ -39,7 +39,7 @@ tests:
             nested:
               - name: aggregate
                 attributes:
-                  db.system: mongodb
+                  db.system.name: mongodb
                   db.namespace: operation-aggregate
                   db.collection.name: *collectionName0
                   db.command.name: aggregate

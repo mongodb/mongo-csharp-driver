@@ -97,7 +97,7 @@
             {
               "name": "mapReduce operation-map-reduce.test",
               "attributes": {
-                "db.system": "mongodb",
+                "db.system.name": "mongodb",
                 "db.namespace": "operation-map-reduce",
                 "db.collection.name": "test",
                 "db.operation.name": "mapReduce",
@@ -107,7 +107,7 @@
                 {
                   "name": "mapReduce",
                   "attributes": {
-                    "db.system": "mongodb",
+                    "db.system.name": "mongodb",
                     "db.namespace": "operation-map-reduce",
                     "db.collection.name": "test",
                     "db.command.name": "mapReduce",

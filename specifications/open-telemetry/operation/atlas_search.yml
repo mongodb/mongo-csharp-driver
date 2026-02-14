@@ -70,7 +70,7 @@ tests:
         spans:
           - name: createSearchIndexes operation-atlas-search.test
             attributes:
-              db.system: mongodb
+              db.system.name: mongodb
               db.namespace: operation-atlas-search
               db.collection.name: test
               db.operation.name: createSearchIndexes
@@ -78,7 +78,7 @@ tests:
             nested:
               - name: createSearchIndexes
                 attributes:
-                  db.system: mongodb
+                  db.system.name: mongodb
                   db.namespace: operation-atlas-search
                   db.command.name: createSearchIndexes
                   db.collection.name: test
@@ -103,7 +103,7 @@ tests:
 
           - name: updateSearchIndex operation-atlas-search.test
             attributes:
-              db.system: mongodb
+              db.system.name: mongodb
               db.namespace: operation-atlas-search
               db.collection.name: test
               db.operation.name: updateSearchIndex
@@ -112,7 +112,7 @@ tests:
             nested:
               - name: updateSearchIndex
                 attributes:
-                  db.system: mongodb
+                  db.system.name: mongodb
                   db.namespace: operation-atlas-search
                   db.command.name: updateSearchIndex
                   db.collection.name: test
@@ -138,7 +138,7 @@ tests:
 
           - name: dropSearchIndex operation-atlas-search.test
             attributes:
-              db.system: mongodb
+              db.system.name: mongodb
               db.namespace: operation-atlas-search
               db.collection.name: test
               db.operation.name: dropSearchIndex
@@ -146,7 +146,7 @@ tests:
             nested:
               - name: dropSearchIndex
                 attributes:
-                  db.system: mongodb
+                  db.system.name: mongodb
                   db.namespace: operation-atlas-search
                   db.command.name: dropSearchIndex
                   db.collection.name: test

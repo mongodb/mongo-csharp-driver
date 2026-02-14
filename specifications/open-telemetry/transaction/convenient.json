@@ -88,13 +88,13 @@
             {
               "name": "transaction",
               "attributes": {
-                "db.system": "mongodb"
+                "db.system.name": "mongodb"
               },
               "nested": [
                 {
                   "name": "insert convenient-transaction-tests.test",
                   "attributes": {
-                    "db.system": "mongodb",
+                    "db.system.name": "mongodb",
                     "db.namespace": "convenient-transaction-tests",
                     "db.collection.name": "test",
                     "db.operation.name": "insert",
@@ -104,7 +104,7 @@
                     {
                       "name": "insert",
                       "attributes": {
-                        "db.system": "mongodb",
+                        "db.system.name": "mongodb",
                         "db.namespace": "convenient-transaction-tests",
                         "db.collection.name": "test",
                         "db.command.name": "insert",
@@ -173,7 +173,7 @@
                 {
                   "name": "commitTransaction admin",
                   "attributes": {
-                    "db.system": "mongodb",
+                    "db.system.name": "mongodb",
                     "db.namespace": "admin",
                     "db.collection.name": {
                       "$$exists": false
@@ -185,7 +185,7 @@
                     {
                       "name": "commitTransaction",
                       "attributes": {
-                        "db.system": "mongodb",
+                        "db.system.name": "mongodb",
                         "db.namespace": "admin",
                         "db.collection.name": {
                           "$$exists": false
@@ -251,7 +251,7 @@
             {
               "name": "find convenient-transaction-tests.test",
               "attributes": {
-                "db.system": "mongodb",
+                "db.system.name": "mongodb",
                 "db.namespace": "convenient-transaction-tests",
                 "db.collection.name": "test",
                 "db.operation.summary": "find convenient-transaction-tests.test",
@@ -261,7 +261,7 @@
                 {
                   "name": "find",
                   "attributes": {
-                    "db.system": "mongodb",
+                    "db.system.name": "mongodb",
                     "db.namespace": "convenient-transaction-tests",
                     "db.collection.name": "test",
                     "db.command.name": "find",

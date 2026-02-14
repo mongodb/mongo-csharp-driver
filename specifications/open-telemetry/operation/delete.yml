@@ -29,7 +29,7 @@ tests:
         spans:
           - name: delete operation-delete.test
             attributes:
-              db.system: mongodb
+              db.system.name: mongodb
               db.namespace: *databaseName0
               db.collection.name: *collectionName0
               db.operation.name: delete
@@ -37,7 +37,7 @@ tests:
             nested:
               - name: delete
                 attributes:
-                  db.system: mongodb
+                  db.system.name: mongodb
                   db.command.name: delete
                   db.namespace: operation-delete
                   db.collection.name: test

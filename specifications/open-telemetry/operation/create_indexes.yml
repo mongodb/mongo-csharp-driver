@@ -28,7 +28,7 @@ tests:
         spans:
           - name: createIndexes operation-create-indexes.test
             attributes:
-              db.system: mongodb
+              db.system.name: mongodb
               db.namespace: *database0Name
               db.collection.name: *collection0Name
               db.operation.name: createIndexes
@@ -36,7 +36,7 @@ tests:
             nested:
               - name: createIndexes
                 attributes:
-                  db.system: mongodb
+                  db.system.name: mongodb
                   db.namespace: *database0Name
                   db.collection.name: *collection0Name
                   db.command.name: createIndexes

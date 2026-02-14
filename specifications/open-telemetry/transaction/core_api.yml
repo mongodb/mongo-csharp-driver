@@ -52,11 +52,11 @@ tests:
         spans:
           - name: transaction
             attributes:
-              db.system: mongodb
+              db.system.name: mongodb
             nested:
               - name: insert transaction-tests.test
                 attributes:
-                  db.system: mongodb
+                  db.system.name: mongodb
                   db.namespace: transaction-tests
                   db.collection.name: test
                   db.operation.name: insert
@@ -65,7 +65,7 @@ tests:
                 nested:
                   - name: insert
                     attributes:
-                      db.system: mongodb
+                      db.system.name: mongodb
                       db.namespace: transaction-tests
                       db.collection.name: test
                       db.command.name: insert
@@ -96,7 +96,7 @@ tests:
                               - _id: 1
               - name: commitTransaction admin
                 attributes:
-                  db.system: mongodb
+                  db.system.name: mongodb
                   db.namespace: admin
                   db.collection.name: { $$exists: false }
                   db.operation.name: commitTransaction
@@ -105,7 +105,7 @@ tests:
                 nested:
                   - name: commitTransaction
                     attributes:
-                      db.system: mongodb
+                      db.system.name: mongodb
                       db.namespace: admin
                       db.collection.name: { $$exists: false }
                       db.query.summary: commitTransaction admin
@@ -132,7 +132,7 @@ tests:
                             autocommit: false
           - name: find transaction-tests.test
             attributes:
-              db.system: mongodb
+              db.system.name: mongodb
               db.namespace: transaction-tests
               db.collection.name: test
               db.operation.summary: find transaction-tests.test
@@ -140,7 +140,7 @@ tests:
             nested:
               - name: find
                 attributes:
-                  db.system: mongodb
+                  db.system.name: mongodb
                   db.namespace: transaction-tests
                   db.collection.name: test
                   db.command.name: find
@@ -182,7 +182,7 @@ tests:
         spans:
           - name: transaction
             attributes:
-              db.system: mongodb
+              db.system.name: mongodb
               db.namespace: { $$exists: false }
               db.collection.name: { $$exists: false }
               db.operation.name: { $$exists: false }
@@ -190,7 +190,7 @@ tests:
             nested:
               - name: insert transaction-tests.test
                 attributes:
-                  db.system: mongodb
+                  db.system.name: mongodb
                   db.namespace: transaction-tests
                   db.collection.name: test
                   db.operation.name: insert
@@ -198,7 +198,7 @@ tests:
                 nested:
                   - name: insert
                     attributes:
-                      db.system: mongodb
+                      db.system.name: mongodb
                       db.namespace: transaction-tests
                       db.collection.name: test
                       db.command.name: insert
@@ -229,7 +229,7 @@ tests:
                               - _id: 1
               - name: abortTransaction admin
                 attributes:
-                  db.system: mongodb
+                  db.system.name: mongodb
                   db.namespace: admin
                   db.collection.name: { $$exists: false }
                   db.operation.name: abortTransaction
@@ -237,7 +237,7 @@ tests:
                 nested:
                   - name: abortTransaction
                     attributes:
-                      db.system: mongodb
+                      db.system.name: mongodb
                       db.namespace: admin
                       db.collection.name: { $$exists: false }
                       db.query.summary: abortTransaction admin

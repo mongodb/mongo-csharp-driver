@@ -35,7 +35,7 @@ tests:
         spans:
           - name: findAndModify operation-find-one-and-update.test
             attributes:
-              db.system: mongodb
+              db.system.name: mongodb
               db.namespace: operation-find-one-and-update
               db.collection.name: test
               db.operation.name: findAndModify
@@ -44,7 +44,7 @@ tests:
             nested:
               - name: findAndModify
                 attributes:
-                  db.system: mongodb
+                  db.system.name: mongodb
                   db.namespace: operation-find-one-and-update
                   db.collection.name: test
                   db.command.name: findAndModify

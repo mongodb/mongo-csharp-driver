@@ -31,7 +31,7 @@ tests:
         spans:
           - name: update operation-update.test
             attributes:
-              db.system: mongodb
+              db.system.name: mongodb
               db.namespace: *databaseName0
               db.collection.name: *collectionName0
               db.operation.name: update
@@ -40,7 +40,7 @@ tests:
             nested:
               - name: update
                 attributes:
-                  db.system: mongodb
+                  db.system.name: mongodb
                   db.namespace: operation-update
                   db.collection.name: *collectionName0
                   db.command.name: update

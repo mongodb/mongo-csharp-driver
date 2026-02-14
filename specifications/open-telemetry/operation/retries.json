@@ -83,7 +83,7 @@
             {
               "name": "find operation-retries.test",
               "attributes": {
-                "db.system": "mongodb",
+                "db.system.name": "mongodb",
                 "db.namespace": "operation-retries",
                 "db.collection.name": "test",
                 "db.operation.name": "find",
@@ -93,7 +93,7 @@
                 {
                   "name": "find",
                   "attributes": {
-                    "db.system": "mongodb",
+                    "db.system.name": "mongodb",
                     "db.namespace": "operation-retries",
                     "db.collection.name": "test",
                     "db.command.name": "find",
@@ -148,7 +148,7 @@
                 {
                   "name": "find",
                   "attributes": {
-                    "db.system": "mongodb",
+                    "db.system.name": "mongodb",
                     "db.namespace": "operation-retries",
                     "db.collection.name": "test",
                     "db.command.name": "find",

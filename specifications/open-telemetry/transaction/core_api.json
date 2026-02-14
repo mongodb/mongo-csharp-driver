@@ -94,13 +94,13 @@
             {
               "name": "transaction",
               "attributes": {
-                "db.system": "mongodb"
+                "db.system.name": "mongodb"
               },
               "nested": [
                 {
                   "name": "insert transaction-tests.test",
                   "attributes": {
-                    "db.system": "mongodb",
+                    "db.system.name": "mongodb",
                     "db.namespace": "transaction-tests",
                     "db.collection.name": "test",
                     "db.operation.name": "insert",
@@ -110,7 +110,7 @@
                     {
                       "name": "insert",
                       "attributes": {
-                        "db.system": "mongodb",
+                        "db.system.name": "mongodb",
                         "db.namespace": "transaction-tests",
                         "db.collection.name": "test",
                         "db.command.name": "insert",
@@ -179,7 +179,7 @@
                 {
                   "name": "commitTransaction admin",
                   "attributes": {
-                    "db.system": "mongodb",
+                    "db.system.name": "mongodb",
                     "db.namespace": "admin",
                     "db.collection.name": {
                       "$$exists": false
@@ -191,7 +191,7 @@
                     {
                       "name": "commitTransaction",
                       "attributes": {
-                        "db.system": "mongodb",
+                        "db.system.name": "mongodb",
                         "db.namespace": "admin",
                         "db.collection.name": {
                           "$$exists": false
@@ -257,7 +257,7 @@
             {
               "name": "find transaction-tests.test",
               "attributes": {
-                "db.system": "mongodb",
+                "db.system.name": "mongodb",
                 "db.namespace": "transaction-tests",
                 "db.collection.name": "test",
                 "db.operation.summary": "find transaction-tests.test",
@@ -267,7 +267,7 @@
                 {
                   "name": "find",
                   "attributes": {
-                    "db.system": "mongodb",
+                    "db.system.name": "mongodb",
                     "db.namespace": "transaction-tests",
                     "db.collection.name": "test",
                     "db.command.name": "find",
@@ -358,7 +358,7 @@
             {
               "name": "transaction",
               "attributes": {
-                "db.system": "mongodb",
+                "db.system.name": "mongodb",
                 "db.namespace": {
                   "$$exists": false
                 },
@@ -376,7 +376,7 @@
                 {
                   "name": "insert transaction-tests.test",
                   "attributes": {
-                    "db.system": "mongodb",
+                    "db.system.name": "mongodb",
                     "db.namespace": "transaction-tests",
                     "db.collection.name": "test",
                     "db.operation.name": "insert",
@@ -386,7 +386,7 @@
                     {
                       "name": "insert",
                       "attributes": {
-                        "db.system": "mongodb",
+                        "db.system.name": "mongodb",
                         "db.namespace": "transaction-tests",
                         "db.collection.name": "test",
                         "db.command.name": "insert",
@@ -455,7 +455,7 @@
                 {
                   "name": "abortTransaction admin",
                   "attributes": {
-                    "db.system": "mongodb",
+                    "db.system.name": "mongodb",
                     "db.namespace": "admin",
                     "db.collection.name": {
                       "$$exists": false
@@ -467,7 +467,7 @@
                     {
                       "name": "abortTransaction",
                       "attributes": {
-                        "db.system": "mongodb",
+                        "db.system.name": "mongodb",
                         "db.namespace": "admin",
                         "db.collection.name": {
                           "$$exists": false

@@ -24,7 +24,7 @@ tests:
         spans:
           - name: createCollection operation-create-collection.newlyCreatedCollection
             attributes:
-              db.system: mongodb
+              db.system.name: mongodb
               db.namespace: *database0Name
               db.collection.name: *collectionName
               db.operation.name: createCollection
@@ -32,7 +32,7 @@ tests:
             nested:
               - name: create
                 attributes:
-                  db.system: mongodb
+                  db.system.name: mongodb
                   db.namespace: *database0Name
                   db.collection.name: *collectionName
                   db.command.name: create

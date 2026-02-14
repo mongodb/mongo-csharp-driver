@@ -168,7 +168,7 @@
             {
               "name": "bulkWrite admin",
               "attributes": {
-                "db.system": "mongodb",
+                "db.system.name": "mongodb",
                 "db.namespace": "admin",
                 "db.collection.name": {
                   "$$exists": false
@@ -180,7 +180,7 @@
                 {
                   "name": "bulkWrite",
                   "attributes": {
-                    "db.system": "mongodb",
+                    "db.system.name": "mongodb",
                     "db.namespace": "admin",
                     "db.collection.name": {
                       "$$exists": false

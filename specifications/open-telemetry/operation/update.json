@@ -53,7 +53,7 @@
             {
               "name": "update operation-update.test",
               "attributes": {
-                "db.system": "mongodb",
+                "db.system.name": "mongodb",
                 "db.namespace": "operation-update",
                 "db.collection.name": "test",
                 "db.operation.name": "update",
@@ -63,7 +63,7 @@
                 {
                   "name": "update",
                   "attributes": {
-                    "db.system": "mongodb",
+                    "db.system.name": "mongodb",
                     "db.namespace": "operation-update",
                     "db.collection.name": "test",
                     "db.command.name": "update",

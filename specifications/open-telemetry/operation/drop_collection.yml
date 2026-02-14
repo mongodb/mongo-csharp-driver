@@ -33,7 +33,7 @@ tests:
         spans:
           - name: dropCollection operation-drop-collection.test
             attributes:
-              db.system: mongodb
+              db.system.name: mongodb
               db.namespace: operation-drop-collection
               db.collection.name: test
               db.operation.name: dropCollection
@@ -42,7 +42,7 @@ tests:
             nested:
               - name: drop
                 attributes:
-                  db.system: mongodb
+                  db.system.name: mongodb
                   db.namespace: operation-drop-collection
                   db.collection.name: test
                   db.command.name: drop

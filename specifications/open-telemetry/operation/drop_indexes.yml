@@ -46,7 +46,7 @@ tests:
         spans:
           - name: dropIndexes operation-drop-indexes.test
             attributes:
-              db.system: mongodb
+              db.system.name: mongodb
               db.namespace: operation-drop-indexes
               db.collection.name: test
               db.operation.name: dropIndexes
@@ -54,7 +54,7 @@ tests:
             nested:
               - name: dropIndexes
                 attributes:
-                  db.system: mongodb
+                  db.system.name: mongodb
                   db.namespace: operation-drop-indexes
                   db.collection.name: test
                   db.command.name: dropIndexes

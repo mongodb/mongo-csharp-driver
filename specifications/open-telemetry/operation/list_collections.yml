@@ -22,7 +22,7 @@ tests:
          spans:
            - name: listCollections operation-list-collections
              attributes:
-               db.system: mongodb
+               db.system.name: mongodb
                db.namespace: operation-list-collections
                db.operation.name: listCollections
                db.operation.summary: listCollections operation-list-collections
@@ -31,7 +31,7 @@ tests:
              nested:
                - name: listCollections
                  attributes:
-                   db.system: mongodb
+                   db.system.name: mongodb
                    db.namespace: operation-list-collections
                    db.collection.name: { $$exists: false }
                    db.command.name: listCollections
