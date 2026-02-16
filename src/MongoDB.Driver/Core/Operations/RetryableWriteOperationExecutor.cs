@@ -35,21 +35,24 @@ namespace MongoDB.Driver.Core.Operations
         public static TResult Execute<TResult>(OperationContext operationContext, IRetryableWriteOperation<TResult> operation, RetryableWriteContext context)
         {
             HashSet<ServerDescription> deprioritizedServers = null;
-            var attempt = 1;
+            var attempt = 0;
+            var operationAttempt = 0;  //TODO not super happy about this, need to figure out if we can do it better. It's used for the BulkOperations ("canBeSplit" is different for the second attempt)
             Exception originalException = null;
 
             long? transactionNumber = null;
 
             while (true) // Circle breaking logic based on ShouldRetryOperation method, see the catch block below.
             {
+                attempt++;
                 operationContext.ThrowIfTimedOutOrCanceled();
                 try
                 {
                     context.AcquireOrReplaceChannel(operationContext, deprioritizedServers);
+                    operationAttempt++;
 
                     transactionNumber ??= AreRetriesAllowed(operation.WriteConcern, context, context.ChannelSource.ServerDescription) ? context.Binding.Session.AdvanceTransactionNumber() : null;
 
-                    return operation.ExecuteAttempt(operationContext, context, attempt, transactionNumber);
+                    return operation.ExecuteAttempt(operationContext, context, operationAttempt, transactionNumber);
                 }
                 catch (Exception ex)
                 {
@@ -63,8 +66,6 @@ namespace MongoDB.Driver.Core.Operations
 
                 deprioritizedServers ??= [];
                 deprioritizedServers.Add(context.LastAcquiredServer);
-
-                attempt++;
             }
         }
 
@@ -79,22 +80,25 @@ namespace MongoDB.Driver.Core.Operations
         public static async Task<TResult> ExecuteAsync<TResult>(OperationContext operationContext, IRetryableWriteOperation<TResult> operation, RetryableWriteContext context)
         {
             HashSet<ServerDescription> deprioritizedServers = null;
-            var attempt = 1;
+            var attempt = 0;
+            var operationAttempt = 0;
             Exception originalException = null;
 
             long? transactionNumber = null;
 
             while (true)  // Circle breaking logic based on ShouldRetryOperation method, see the catch block below.
             {
+                attempt++;
                 operationContext.ThrowIfTimedOutOrCanceled();
 
                 try
                 {
                     await context.AcquireOrReplaceChannelAsync(operationContext, deprioritizedServers).ConfigureAwait(false);
+                    operationAttempt++;
 
                     transactionNumber ??= AreRetriesAllowed(operation.WriteConcern, context, context.ChannelSource.ServerDescription) ? context.Binding.Session.AdvanceTransactionNumber() : null;
 
-                    return await operation.ExecuteAttemptAsync(operationContext, context, attempt, transactionNumber).ConfigureAwait(false);
+                    return await operation.ExecuteAttemptAsync(operationContext, context, operationAttempt, transactionNumber).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {

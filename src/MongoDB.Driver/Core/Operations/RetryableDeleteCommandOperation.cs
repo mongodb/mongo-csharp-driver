@@ -92,7 +92,7 @@ namespace MongoDB.Driver.Core.Operations
             }
             else
             {
-                deletes = new BatchableSource<DeleteRequest>(_deletes.Items, _deletes.Offset, _deletes.ProcessedCount, canBeSplit: false);
+                deletes = new BatchableSource<DeleteRequest>(_deletes.Items, _deletes.Offset, _deletes.Count, _deletes.ProcessedCount, canBeSplit: false);
             }
             var maxBatchCount = Math.Min(MaxBatchCount ?? int.MaxValue, channel.ConnectionDescription.MaxBatchCount);
             var maxDocumentSize = channel.ConnectionDescription.MaxWireDocumentSize;

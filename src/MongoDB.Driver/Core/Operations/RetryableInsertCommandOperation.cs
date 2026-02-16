@@ -89,7 +89,8 @@ namespace MongoDB.Driver.Core.Operations
             }
             else
             {
-                documents = new BatchableSource<TDocument>(_documents.Items, _documents.Offset, _documents.ProcessedCount, canBeSplit: false);
+                documents = new BatchableSource<TDocument>(_documents.Items, _documents.Offset, _documents.Count, _documents.ProcessedCount, canBeSplit: false);
+                //TODO This looked wrong, is it tested somewhere? In the update command it was not even used.
             }
 
             var elementNameValidator = NoOpElementNameValidator.Instance;

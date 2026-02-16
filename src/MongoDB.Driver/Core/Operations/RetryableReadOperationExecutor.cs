@@ -26,11 +26,12 @@ namespace MongoDB.Driver.Core.Operations
         public static TResult Execute<TResult>(OperationContext operationContext, IRetryableReadOperation<TResult> operation, RetryableReadContext context)
         {
             HashSet<ServerDescription> deprioritizedServers = null;
-            var attempt = 1;
+            var attempt = 0;
             Exception originalException = null;
 
             while (true) // Circle breaking logic based on ShouldRetryOperation method, see the catch block below.
             {
+                attempt++;
                 operationContext.ThrowIfTimedOutOrCanceled();
                 try
                 {
@@ -49,19 +50,18 @@ namespace MongoDB.Driver.Core.Operations
 
                 deprioritizedServers ??= [];
                 deprioritizedServers.Add(context.LastAcquiredServer);
-
-                attempt++;
             }
         }
 
         public static async Task<TResult> ExecuteAsync<TResult>(OperationContext operationContext, IRetryableReadOperation<TResult> operation, RetryableReadContext context)
         {
             HashSet<ServerDescription> deprioritizedServers = null;
-            var attempt = 1;
+            var attempt = 0;
             Exception originalException = null;
 
             while (true) // Circle breaking logic based on ShouldRetryOperation method, see the catch block below.
             {
+                attempt++;
                 operationContext.ThrowIfTimedOutOrCanceled();
 
                 try
@@ -81,8 +81,6 @@ namespace MongoDB.Driver.Core.Operations
 
                 deprioritizedServers ??= [];
                 deprioritizedServers.Add(context.LastAcquiredServer);
-
-                attempt++;
             }
         }
 
