@@ -32,12 +32,9 @@ namespace MongoDB.Driver.Core.Operations
             while (true) // Circle breaking logic based on ShouldRetryOperation method, see the catch block below.
             {
                 operationContext.ThrowIfTimedOutOrCanceled();
-                ServerDescription server = null;
                 try
                 {
                     context.AcquireOrReplaceChannel(operationContext, deprioritizedServers);
-                    server = context.ChannelSource.ServerDescription;
-
                     return operation.ExecuteAttempt(operationContext, context, attempt, transactionNumber: null);
                 }
                 catch (Exception ex)
@@ -50,8 +47,8 @@ namespace MongoDB.Driver.Core.Operations
                     originalException ??= ex;
                 }
 
-                deprioritizedServers ??= new HashSet<ServerDescription>();
-                deprioritizedServers.Add(server);
+                deprioritizedServers ??= [];
+                deprioritizedServers.Add(context.LastAcquiredServer);
 
                 attempt++;
             }
@@ -66,13 +63,10 @@ namespace MongoDB.Driver.Core.Operations
             while (true) // Circle breaking logic based on ShouldRetryOperation method, see the catch block below.
             {
                 operationContext.ThrowIfTimedOutOrCanceled();
-                ServerDescription server = null;
 
                 try
                 {
                     await context.AcquireOrReplaceChannelAsync(operationContext, deprioritizedServers).ConfigureAwait(false);
-                    server = context.ChannelSource.ServerDescription;
-
                     return await operation.ExecuteAttemptAsync(operationContext, context, attempt, transactionNumber: null).ConfigureAwait(false);
                 }
                 catch (Exception ex)
@@ -85,22 +79,18 @@ namespace MongoDB.Driver.Core.Operations
                     originalException ??= ex;
                 }
 
-                deprioritizedServers ??= new HashSet<ServerDescription>();
-                deprioritizedServers.Add(server);
+                deprioritizedServers ??= [];
+                deprioritizedServers.Add(context.LastAcquiredServer);
 
                 attempt++;
             }
         }
 
-        public static bool ShouldConnectionAcquireBeRetried(OperationContext operationContext, RetryableReadContext context, Exception exception, int attempt)
-        {
-            var innerException = exception is MongoAuthenticationException mongoAuthenticationException ? mongoAuthenticationException.InnerException : exception;
-            return ShouldRetryOperation(operationContext, context, innerException, attempt);
-        }
-
         // private static methods
         private static bool ShouldRetryOperation(OperationContext operationContext, RetryableReadContext context, Exception exception, int attempt)
         {
+            exception = exception is MongoAuthenticationException mongoAuthenticationException ? mongoAuthenticationException.InnerException : exception;
+
             if (!context.RetryRequested || context.Binding.Session.IsInTransaction)
             {
                 return false;

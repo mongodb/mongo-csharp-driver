@@ -43,11 +43,9 @@ namespace MongoDB.Driver.Core.Operations
             while (true) // Circle breaking logic based on ShouldRetryOperation method, see the catch block below.
             {
                 operationContext.ThrowIfTimedOutOrCanceled();
-                ServerDescription server = null;
                 try
                 {
                     context.AcquireOrReplaceChannel(operationContext, deprioritizedServers);
-                    server = context.ChannelSource.ServerDescription;
 
                     transactionNumber ??= AreRetriesAllowed(operation.WriteConcern, context, context.ChannelSource.ServerDescription) ? context.Binding.Session.AdvanceTransactionNumber() : null;
 
@@ -55,7 +53,7 @@ namespace MongoDB.Driver.Core.Operations
                 }
                 catch (Exception ex)
                 {
-                    if (!ShouldRetryOperation(operationContext, operation.WriteConcern, context, server, ex, attempt))
+                    if (!ShouldRetryOperation(operationContext, operation.WriteConcern, context, context.LastAcquiredServer, ex, attempt))
                     {
                         throw originalException ?? ex;
                     }
@@ -64,7 +62,7 @@ namespace MongoDB.Driver.Core.Operations
                 }
 
                 deprioritizedServers ??= [];
-                deprioritizedServers.Add(server);
+                deprioritizedServers.Add(context.LastAcquiredServer);
 
                 attempt++;
             }
@@ -72,7 +70,7 @@ namespace MongoDB.Driver.Core.Operations
 
         public async static Task<TResult> ExecuteAsync<TResult>(OperationContext operationContext, IRetryableWriteOperation<TResult> operation, IWriteBinding binding, bool retryRequested)
         {
-            using (var context = await RetryableWriteContext.CreateAsync(operationContext, binding, retryRequested).ConfigureAwait(false))
+            using (var context = RetryableWriteContext.Create(operationContext, binding, retryRequested))
             {
                 return await ExecuteAsync(operationContext, operation, context).ConfigureAwait(false);
             }
@@ -89,11 +87,10 @@ namespace MongoDB.Driver.Core.Operations
             while (true)  // Circle breaking logic based on ShouldRetryOperation method, see the catch block below.
             {
                 operationContext.ThrowIfTimedOutOrCanceled();
-                ServerDescription server = null;
+
                 try
                 {
                     await context.AcquireOrReplaceChannelAsync(operationContext, deprioritizedServers).ConfigureAwait(false);
-                    server = context.ChannelSource.ServerDescription;
 
                     transactionNumber ??= AreRetriesAllowed(operation.WriteConcern, context, context.ChannelSource.ServerDescription) ? context.Binding.Session.AdvanceTransactionNumber() : null;
 
@@ -101,7 +98,7 @@ namespace MongoDB.Driver.Core.Operations
                 }
                 catch (Exception ex)
                 {
-                    if (!ShouldRetryOperation(operationContext, operation.WriteConcern, context, server, ex, attempt))
+                    if (!ShouldRetryOperation(operationContext, operation.WriteConcern, context, context.LastAcquiredServer, ex, attempt))
                     {
                         throw originalException ?? ex;
                     }
@@ -109,41 +106,45 @@ namespace MongoDB.Driver.Core.Operations
                     originalException ??= ex;
                 }
 
-                deprioritizedServers ??= new HashSet<ServerDescription>();
-                deprioritizedServers.Add(server);
+                deprioritizedServers ??= [];
+                deprioritizedServers.Add(context.LastAcquiredServer);
 
                 attempt++;
             }
         }
 
-        public static bool ShouldConnectionAcquireBeRetried(OperationContext operationContext, RetryableWriteContext context, ServerDescription server, Exception exception, int attempt)
-        {
-            if (!DoesContextAllowRetries(context, server))
-            {
-                return false;
-            }
-
-            var innerException = exception is MongoAuthenticationException mongoAuthenticationException ? mongoAuthenticationException.InnerException : exception;
-            // According the spec error during handshake should be handle according to RetryableReads logic
-            if (!RetryabilityHelper.IsRetryableReadException(innerException))
-            {
-                return false;
-            }
-
-            return operationContext.IsRootContextTimeoutConfigured() || attempt < 2;
-        }
-
         // private static methods
         private static bool ShouldRetryOperation(OperationContext operationContext, WriteConcern writeConcern, RetryableWriteContext context, ServerDescription server, Exception exception, int attempt)
         {
-            if (!AreRetriesAllowed(writeConcern, context, server))
-            {
+            if (server is null)
                 return false;
-            }
 
-            if (!RetryabilityHelper.IsRetryableWriteException(exception))
+            if (context.ErrorDuringLastAcquisition)
             {
-                return false;
+                // According the spec error during handshake should be handle according to RetryableReads logic
+                exception = exception is MongoAuthenticationException mongoAuthenticationException ? mongoAuthenticationException.InnerException : exception;
+
+                if (!DoesContextAllowRetries(context, server))
+                {
+                    return false;
+                }
+
+                if (!RetryabilityHelper.IsRetryableReadException(exception))
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                if (!AreRetriesAllowed(writeConcern, context, server))
+                {
+                    return false;
+                }
+
+                if (!RetryabilityHelper.IsRetryableWriteException(exception))
+                {
+                    return false;
+                }
             }
 
             return operationContext.IsRootContextTimeoutConfigured() || attempt < 2;

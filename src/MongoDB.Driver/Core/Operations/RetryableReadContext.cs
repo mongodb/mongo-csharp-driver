@@ -40,6 +40,7 @@ namespace MongoDB.Driver.Core.Operations
         private IChannelSourceHandle _channelSource;
         private bool _disposed;
         private bool _retryRequested;
+        private ServerDescription _lastAcquiredServer;
 
         public RetryableReadContext(IReadBinding binding, bool retryRequested)
         {
@@ -51,6 +52,7 @@ namespace MongoDB.Driver.Core.Operations
         public IChannelHandle Channel => _channel;
         public IChannelSourceHandle ChannelSource => _channelSource;
         public bool RetryRequested => _retryRequested;
+        public ServerDescription LastAcquiredServer => _lastAcquiredServer;
 
         public void Dispose()
         {
@@ -66,11 +68,14 @@ namespace MongoDB.Driver.Core.Operations
         {
             try
             {
+                _lastAcquiredServer = null;
                 operationContext.ThrowIfTimedOutOrCanceled();
                 ReplaceChannelSource(Binding.GetReadChannelSource(operationContext, deprioritizedServers));
+                _lastAcquiredServer = ChannelSource.ServerDescription;
                 ReplaceChannel(ChannelSource.GetChannel(operationContext));
 
-                ChannelPinningHelper.PinChannellIfRequired(ChannelSource, Channel, Binding.Session);  //TODO We should do it only the first time, as an improvement we could pass the attempt number.
+                ChannelPinningHelper.PinChannellIfRequired(ChannelSource, Channel,
+                    Binding.Session); //TODO We should do it only the first time, as an improvement we could pass the attempt number.
             }
             catch
             {
@@ -84,8 +89,11 @@ namespace MongoDB.Driver.Core.Operations
         {
             try
             {
+                _lastAcquiredServer = null;
                 operationContext.ThrowIfTimedOutOrCanceled();
                 ReplaceChannelSource(await Binding.GetReadChannelSourceAsync(operationContext, deprioritizedServers).ConfigureAwait(false));
+                _lastAcquiredServer = ChannelSource.ServerDescription;
+                //TODO Another possibility would be to separate the server selection from the connection acquisition
                 ReplaceChannel(await ChannelSource.GetChannelAsync(operationContext).ConfigureAwait(false));
 
                 ChannelPinningHelper.PinChannellIfRequired(ChannelSource, Channel, Binding.Session);

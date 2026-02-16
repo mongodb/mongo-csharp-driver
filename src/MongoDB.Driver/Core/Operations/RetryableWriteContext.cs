@@ -40,6 +40,8 @@ namespace MongoDB.Driver.Core.Operations
         private IChannelSourceHandle _channelSource;
         private bool _disposed;
         private bool _retryRequested;
+        private bool _errorDuringLastAcquisition;
+        private ServerDescription _lastAcquiredServer;
 
         public RetryableWriteContext(IWriteBinding binding, bool retryRequested)
         {
@@ -51,6 +53,8 @@ namespace MongoDB.Driver.Core.Operations
         public IChannelHandle Channel => _channel;
         public IChannelSourceHandle ChannelSource => _channelSource;
         public bool RetryRequested => _retryRequested;
+        public bool ErrorDuringLastAcquisition => _errorDuringLastAcquisition;
+        public ServerDescription LastAcquiredServer => _lastAcquiredServer;
 
         public void Dispose()
         {
@@ -62,19 +66,25 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
+        // This method is used for server selection and connection acquisition.
         public void AcquireOrReplaceChannel(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             try
             {
+                _errorDuringLastAcquisition = false;
+                _lastAcquiredServer = null;
                 operationContext.ThrowIfTimedOutOrCanceled();
                 var writeChannelSource = Binding.GetWriteChannelSource(operationContext, deprioritizedServers);
                 ReplaceChannelSource(writeChannelSource);
+                _lastAcquiredServer = ChannelSource.ServerDescription;
                 ReplaceChannel(ChannelSource.GetChannel(operationContext));
 
                 ChannelPinningHelper.PinChannellIfRequired(ChannelSource, Channel, Binding.Session);
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine($"Exception during channel acquisition: {ex.Message}");
+                _errorDuringLastAcquisition = true;
                 _channelSource?.Dispose();
                 _channel?.Dispose();
                 throw;
@@ -85,16 +95,20 @@ namespace MongoDB.Driver.Core.Operations
         {
             try
             {
+                _errorDuringLastAcquisition = false;
+                _lastAcquiredServer = null;
                 operationContext.ThrowIfTimedOutOrCanceled();
                 var writeChannelSource = await Binding
                     .GetWriteChannelSourceAsync(operationContext, deprioritizedServers).ConfigureAwait(false);
                 ReplaceChannelSource(writeChannelSource);
+                _lastAcquiredServer = ChannelSource.ServerDescription;
                 ReplaceChannel(await ChannelSource.GetChannelAsync(operationContext).ConfigureAwait(false));
 
                 ChannelPinningHelper.PinChannellIfRequired(ChannelSource, Channel, Binding.Session);
             }
             catch
             {
+                _errorDuringLastAcquisition = true;
                 _channelSource?.Dispose();
                 _channel?.Dispose();
                 throw;
