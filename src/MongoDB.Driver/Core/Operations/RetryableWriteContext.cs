@@ -31,12 +31,6 @@ namespace MongoDB.Driver.Core.Operations
             var context = new RetryableWriteContext(binding, retryRequested);
             return context;
         }
-
-        public static Task<RetryableWriteContext> CreateAsync(OperationContext operationContext, IWriteBinding binding, bool retryRequested)
-        {
-            var context = new RetryableWriteContext(binding, retryRequested);
-            return Task.FromResult(context);  //TODO This whole method could be removed
-        }
         #endregion
 
 #pragma warning disable CA2213 // Disposable fields should be disposed

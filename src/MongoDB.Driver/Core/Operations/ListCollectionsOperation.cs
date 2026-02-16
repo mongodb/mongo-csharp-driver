@@ -121,7 +121,7 @@ namespace MongoDB.Driver.Core.Operations
 
             using (BeginOperation())
             {
-                using (var context = await RetryableReadContext.CreateAsync(operationContext, binding, _retryRequested).ConfigureAwait(false))
+                using (var context = RetryableReadContext.Create(operationContext, binding, _retryRequested))
                 {
                     return await ExecuteAsync(operationContext, context).ConfigureAwait(false);
                 }

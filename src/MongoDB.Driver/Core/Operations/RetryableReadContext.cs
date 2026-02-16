@@ -26,17 +26,10 @@ namespace MongoDB.Driver.Core.Operations
     {
         #region static
 
-        //TODO After we have confirmed this is working, we need to remove the async version and the operationContext from the inut param.
         public static RetryableReadContext Create(OperationContext operationContext, IReadBinding binding, bool retryRequested)
         {
             var context = new RetryableReadContext(binding, retryRequested);
             return context;
-        }
-
-        public static Task<RetryableReadContext> CreateAsync(OperationContext operationContext, IReadBinding binding, bool retryRequested)
-        {
-            var context = new RetryableReadContext(binding, retryRequested);
-            return Task.FromResult(context);
         }
         #endregion
 

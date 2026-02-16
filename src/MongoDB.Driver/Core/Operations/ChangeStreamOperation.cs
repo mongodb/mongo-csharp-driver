@@ -296,7 +296,7 @@ namespace MongoDB.Driver.Core.Operations
             IAsyncCursor<RawBsonDocument> cursor;
             ICursorBatchInfo cursorBatchInfo;
             BsonTimestamp initialOperationTime;
-            using (var context = await RetryableReadContext.CreateAsync(operationContext, binding, _retryRequested).ConfigureAwait(false))
+            using (var context = RetryableReadContext.Create(operationContext, binding, _retryRequested))
             {
                 cursor = await ExecuteAggregateOperationAsync(operationContext, context).ConfigureAwait(false);
                 cursorBatchInfo = (ICursorBatchInfo)cursor;
@@ -330,7 +330,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <inheritdoc />
         public async Task<IAsyncCursor<RawBsonDocument>> ResumeAsync(OperationContext operationContext, IReadBinding binding)
         {
-            using (var context = await RetryableReadContext.CreateAsync(operationContext, binding, retryRequested: false).ConfigureAwait(false))
+            using (var context = RetryableReadContext.Create(operationContext, binding, retryRequested: false))
             {
                 return await ExecuteAggregateOperationAsync(operationContext, context).ConfigureAwait(false);
             }
