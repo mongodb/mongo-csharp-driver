@@ -87,7 +87,14 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                     case "$$sessionLsid":
                         var sessionId = operatorValue.AsString;
                         var expectedSessionLsid = _entityMap.SessionIds[sessionId];
-                        AssertValuesMatch(actual, expectedSessionLsid, isRoot: false);
+                        if (actual.IsString)
+                        {
+                            actual.AsString.Should().Be(expectedSessionLsid.ToJson());
+                        }
+                        else
+                        {
+                            AssertValuesMatch(actual, expectedSessionLsid, isRoot: false);
+                        }
                         break;
                     default:
                         throw new FormatException($"Unrecognized root level special operator: '{operatorName}'.");
@@ -161,8 +168,18 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                                 break;
                             case "$$sessionLsid":
                                 var sessionId = operatorValue.AsString;
-                                expectedValue = _entityMap.SessionIds[sessionId];
-                                break;
+                                var expectedSessionLsid = _entityMap.SessionIds[sessionId];
+                                actualDocument.Names.Should().Contain(expectedName);
+                                var actualLsid = actualDocument[expectedName];
+                                if (actualLsid.IsString)
+                                {
+                                    actualLsid.AsString.Should().Be(expectedSessionLsid.ToJson());
+                                }
+                                else
+                                {
+                                    AssertValuesMatch(actualLsid, expectedSessionLsid, isRoot: false);
+                                }
+                                continue;
                             default:
                                 throw new FormatException($"Unrecognized special operator: '{operatorName}'.");
                         }

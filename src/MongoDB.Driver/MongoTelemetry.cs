@@ -96,7 +96,7 @@ public static class MongoTelemetry
                 var materializedLsid = lsid.IsBsonDocument
                     ? new BsonDocument(lsid.AsBsonDocument)
                     : lsid;
-                activity.SetTag(DbMongoDbLsidAttribute, materializedLsid);
+                activity.SetTag(DbMongoDbLsidAttribute, materializedLsid.ToJson());
             }
 
             if (command.TryGetValue("txnNumber", out var txnNumber))
