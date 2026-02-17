@@ -61,6 +61,8 @@ namespace MongoDB.Driver.Tests.Specifications.auth
         [ParameterAttributeData]
         public async Task Callback_authentication_callback_called_during_authentication([Values(false, true)]bool async)
         {
+            EnsureOidcIsConfigured();
+
             var (settings, eventCapturer, callbackMock) = GetMongoClientSettings();
             ConfigureOidcCallback(callbackMock);
             using var client = DriverTestConfiguration.CreateMongoClient(settings);
@@ -82,6 +84,8 @@ namespace MongoDB.Driver.Tests.Specifications.auth
         [ParameterAttributeData]
         public async Task Callback_authentication_callback_called_once_for_multiple_connections([Values(false, true)]bool async)
         {
+            EnsureOidcIsConfigured();
+
             var (settings, _, callbackMock) = GetMongoClientSettings();
             ConfigureOidcCallback(callbackMock);
             using var client = DriverTestConfiguration.CreateMongoClient(settings);
@@ -281,6 +285,8 @@ namespace MongoDB.Driver.Tests.Specifications.auth
         [ParameterAttributeData]
         public async Task Unexpected_error_does_not_clear_token_cache([Values(false, true)] bool async)
         {
+            EnsureOidcIsConfigured();
+
             var (settings, _, callbackMock) = GetMongoClientSettings();
             ConfigureOidcCallback(callbackMock);
             using var client = DriverTestConfiguration.CreateMongoClient(settings);
@@ -308,6 +314,8 @@ namespace MongoDB.Driver.Tests.Specifications.auth
         [ParameterAttributeData]
         public async Task ReAuthentication([Values(false, true)] bool async)
         {
+            EnsureOidcIsConfigured();
+
             var (settings, eventCapturer, callbackMock) = GetMongoClientSettings();
             ConfigureOidcCallback(callbackMock);
             using var client = DriverTestConfiguration.CreateMongoClient(settings);
@@ -370,7 +378,6 @@ namespace MongoDB.Driver.Tests.Specifications.auth
         [ParameterAttributeData]
         public async Task Write_commands_fail_if_reauthentication_fails([Values(false, true)] bool async)
         {
-            var dummyDocument = new BsonDocument("dummy", "value");
             EnsureOidcIsConfigured("test");
 
             var (settings, eventCapturer, callbackMock) = GetMongoClientSettings();
@@ -378,6 +385,7 @@ namespace MongoDB.Driver.Tests.Specifications.auth
             using var client = DriverTestConfiguration.CreateMongoClient(settings);
             var collection = client.GetDatabase(DatabaseName).GetCollection<BsonDocument>(CollectionName);
 
+            var dummyDocument = new BsonDocument("dummy", "value");
             if (async)
             {
                 await collection.InsertOneAsync(dummyDocument);
@@ -473,6 +481,8 @@ namespace MongoDB.Driver.Tests.Specifications.auth
         [ParameterAttributeData]
         public async Task Reauthentication_Succeeds_when_Session_involved([Values(false, true)] bool async)
         {
+            EnsureOidcIsConfigured();
+
             var (settings, eventCapturer, callbackMock) = GetMongoClientSettings();
             ConfigureOidcCallback(callbackMock);
             using var client = DriverTestConfiguration.CreateMongoClient(settings);
@@ -624,10 +634,17 @@ namespace MongoDB.Driver.Tests.Specifications.auth
             return (settings, eventCapturer, callback);
         }
 
-        private void EnsureOidcIsConfigured(string environmentType) =>
-            RequireEnvironment
-                .Check()
-                .EnvironmentVariable(OidcEnvironmentName, environmentType);
+        private void EnsureOidcIsConfigured(string environmentType = null)
+        {
+            if (environmentType == null)
+            {
+                RequireEnvironment.Check().EnvironmentVariable(OidcEnvironmentName);
+            }
+            else
+            {
+                RequireEnvironment.Check().EnvironmentVariable(OidcEnvironmentName, environmentType);
+            }
+        }
 
         private void VerifyCallbackUsage(Mock<IOidcCallback> callbackMock, bool async, Times times)
         {
