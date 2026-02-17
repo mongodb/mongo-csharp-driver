@@ -284,7 +284,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 var combiner = new BulkWriteBatchResultCombiner(_batchResults, _writeConcern.IsAcknowledged);
                 var remainingRequests = _requests.GetUnprocessedItems();
-                return combiner.CreateResultOrThrowIfHasErrors(channel.ConnectionDescription.ConnectionId, remainingRequests);
+                return combiner.CreateResultOrThrowIfHasErrors(channel?.ConnectionDescription.ConnectionId, remainingRequests);
             }
 
             // private methods
