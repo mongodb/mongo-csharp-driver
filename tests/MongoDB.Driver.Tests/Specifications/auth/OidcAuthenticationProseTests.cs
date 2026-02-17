@@ -39,7 +39,9 @@ using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Specifications.auth
 {
-    [Category("Authentication", "MongoDbOidc")]
+    [Trait("Category", "Integration")]
+    [Trait("Category", "Authentication")]
+    [Trait("Category", "MongoDbOidc")]
     public class OidcAuthenticationProseTests : LoggableTestClass
     {
         private const string DatabaseName = "test";
