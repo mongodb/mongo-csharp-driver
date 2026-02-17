@@ -26,10 +26,8 @@ namespace MongoDB.Driver.Core.Operations
         // public static methods
         public static TResult Execute<TResult>(OperationContext operationContext, IRetryableWriteOperation<TResult> operation, IWriteBinding binding, bool retryRequested)
         {
-            using (var context = RetryableWriteContext.Create(operationContext, binding, retryRequested))
-            {
-                return Execute(operationContext, operation, context);
-            }
+            using var context = RetryableWriteContext.Create(operationContext, binding, retryRequested);
+            return Execute(operationContext, operation, context);
         }
 
         public static TResult Execute<TResult>(OperationContext operationContext, IRetryableWriteOperation<TResult> operation, RetryableWriteContext context)
@@ -69,12 +67,10 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public async static Task<TResult> ExecuteAsync<TResult>(OperationContext operationContext, IRetryableWriteOperation<TResult> operation, IWriteBinding binding, bool retryRequested)
+        public static async Task<TResult> ExecuteAsync<TResult>(OperationContext operationContext, IRetryableWriteOperation<TResult> operation, IWriteBinding binding, bool retryRequested)
         {
-            using (var context = RetryableWriteContext.Create(operationContext, binding, retryRequested))
-            {
-                return await ExecuteAsync(operationContext, operation, context).ConfigureAwait(false);
-            }
+            using var context = RetryableWriteContext.Create(operationContext, binding, retryRequested);
+            return await ExecuteAsync(operationContext, operation, context).ConfigureAwait(false);
         }
 
         public static async Task<TResult> ExecuteAsync<TResult>(OperationContext operationContext, IRetryableWriteOperation<TResult> operation, RetryableWriteContext context)
@@ -125,7 +121,7 @@ namespace MongoDB.Driver.Core.Operations
 
             if (context.ErrorDuringLastAcquisition)
             {
-                // According the spec error during handshake should be handle according to RetryableReads logic
+                // According to the spec error during handshake should be handled according to RetryableReads logic
                 exception = exception is MongoAuthenticationException mongoAuthenticationException ? mongoAuthenticationException.InnerException : exception;
 
                 if (!DoesContextAllowRetries(context, server))
