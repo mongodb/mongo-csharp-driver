@@ -81,9 +81,8 @@ namespace MongoDB.Driver.Core.Operations
 
                 ChannelPinningHelper.PinChannellIfRequired(ChannelSource, Channel, Binding.Session);
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine($"Exception during channel acquisition: {ex.Message}");
                 _errorDuringLastAcquisition = true;
                 _channelSource?.Dispose();
                 _channel?.Dispose();

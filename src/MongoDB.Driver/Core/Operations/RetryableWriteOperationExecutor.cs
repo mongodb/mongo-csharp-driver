@@ -33,28 +33,27 @@ namespace MongoDB.Driver.Core.Operations
         public static TResult Execute<TResult>(OperationContext operationContext, IRetryableWriteOperation<TResult> operation, RetryableWriteContext context)
         {
             HashSet<ServerDescription> deprioritizedServers = null;
-            var attempt = 0;
-            var operationAttempt = 0;  //TODO not super happy about this, need to figure out if we can do it better. It's used for the BulkOperations ("canBeSplit" is different for the second attempt)
+            var totalAttempts = 0;
+            var operationExecutionAttempts = 0;
             Exception originalException = null;
 
             long? transactionNumber = null;
 
             while (true) // Circle breaking logic based on ShouldRetryOperation method, see the catch block below.
             {
-                attempt++;
+                totalAttempts++;
                 operationContext.ThrowIfTimedOutOrCanceled();
                 try
                 {
                     context.AcquireOrReplaceChannel(operationContext, deprioritizedServers);
-                    operationAttempt++;
-
                     transactionNumber ??= AreRetriesAllowed(operation.WriteConcern, context, context.ChannelSource.ServerDescription) ? context.Binding.Session.AdvanceTransactionNumber() : null;
 
-                    return operation.ExecuteAttempt(operationContext, context, operationAttempt, transactionNumber);
+                    operationExecutionAttempts++;
+                    return operation.ExecuteAttempt(operationContext, context, operationExecutionAttempts, transactionNumber);
                 }
                 catch (Exception ex)
                 {
-                    if (!ShouldRetryOperation(operationContext, operation.WriteConcern, context, context.LastAcquiredServer, ex, attempt))
+                    if (!ShouldRetryOperation(operationContext, operation.WriteConcern, context, context.LastAcquiredServer, ex, totalAttempts))
                     {
                         throw originalException ?? ex;
                     }
@@ -76,29 +75,28 @@ namespace MongoDB.Driver.Core.Operations
         public static async Task<TResult> ExecuteAsync<TResult>(OperationContext operationContext, IRetryableWriteOperation<TResult> operation, RetryableWriteContext context)
         {
             HashSet<ServerDescription> deprioritizedServers = null;
-            var attempt = 0;
-            var operationAttempt = 0;
+            var totalAttempts = 0;
+            var operationExecutionAttempts = 0;
             Exception originalException = null;
 
             long? transactionNumber = null;
 
             while (true)  // Circle breaking logic based on ShouldRetryOperation method, see the catch block below.
             {
-                attempt++;
+                totalAttempts++;
                 operationContext.ThrowIfTimedOutOrCanceled();
 
                 try
                 {
                     await context.AcquireOrReplaceChannelAsync(operationContext, deprioritizedServers).ConfigureAwait(false);
-                    operationAttempt++;
-
                     transactionNumber ??= AreRetriesAllowed(operation.WriteConcern, context, context.ChannelSource.ServerDescription) ? context.Binding.Session.AdvanceTransactionNumber() : null;
 
-                    return await operation.ExecuteAttemptAsync(operationContext, context, operationAttempt, transactionNumber).ConfigureAwait(false);
+                    operationExecutionAttempts++;
+                    return await operation.ExecuteAttemptAsync(operationContext, context, operationExecutionAttempts, transactionNumber).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
-                    if (!ShouldRetryOperation(operationContext, operation.WriteConcern, context, context.LastAcquiredServer, ex, attempt))
+                    if (!ShouldRetryOperation(operationContext, operation.WriteConcern, context, context.LastAcquiredServer, ex, totalAttempts))
                     {
                         throw originalException ?? ex;
                     }
@@ -108,13 +106,11 @@ namespace MongoDB.Driver.Core.Operations
 
                 deprioritizedServers ??= [];
                 deprioritizedServers.Add(context.LastAcquiredServer);
-
-                attempt++;
             }
         }
 
         // private static methods
-        private static bool ShouldRetryOperation(OperationContext operationContext, WriteConcern writeConcern, RetryableWriteContext context, ServerDescription server, Exception exception, int attempt)
+        private static bool ShouldRetryOperation(OperationContext operationContext, WriteConcern writeConcern, RetryableWriteContext context, ServerDescription server, Exception exception, int totalAttempts)
         {
             if (server is null)
                 return false;
@@ -147,7 +143,7 @@ namespace MongoDB.Driver.Core.Operations
                 }
             }
 
-            return operationContext.IsRootContextTimeoutConfigured() || attempt < 2;
+            return operationContext.IsRootContextTimeoutConfigured() || totalAttempts < 2;
         }
 
         private static bool AreRetriesAllowed(WriteConcern writeConcern, RetryableWriteContext context, ServerDescription server)
