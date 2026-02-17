@@ -71,7 +71,7 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = RetryableReadContext.Create(operationContext, binding, _retryRequested))
+            using (var context = RetryableReadContext.Create(binding, _retryRequested))
             {
                 var operation = CreateCountOperation();
 
@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = RetryableReadContext.Create(operationContext, binding, _retryRequested))
+            using (var context = RetryableReadContext.Create(binding, _retryRequested))
             {
                 var operation = CreateCountOperation();
 

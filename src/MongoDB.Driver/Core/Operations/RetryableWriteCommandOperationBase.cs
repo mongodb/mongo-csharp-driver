@@ -88,7 +88,7 @@ namespace MongoDB.Driver.Core.Operations
 
         public virtual BsonDocument Execute(OperationContext operationContext, IWriteBinding binding)
         {
-            using (var context = RetryableWriteContext.Create(operationContext, binding, _retryRequested))
+            using (var context = RetryableWriteContext.Create(binding, _retryRequested))
             {
                 return Execute(operationContext, context);
             }
@@ -101,7 +101,7 @@ namespace MongoDB.Driver.Core.Operations
 
         public virtual async Task<BsonDocument> ExecuteAsync(OperationContext operationContext, IWriteBinding binding)
         {
-            using (var context = RetryableWriteContext.Create(operationContext, binding, _retryRequested))
+            using (var context = RetryableWriteContext.Create(binding, _retryRequested))
             {
                 return await ExecuteAsync(operationContext, context).ConfigureAwait(false);
             }

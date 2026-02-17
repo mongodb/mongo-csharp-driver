@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Core.Operations
         // public static methods
         public static TResult Execute<TResult>(OperationContext operationContext, IRetryableWriteOperation<TResult> operation, IWriteBinding binding, bool retryRequested)
         {
-            using var context = RetryableWriteContext.Create(operationContext, binding, retryRequested);
+            using var context = RetryableWriteContext.Create(binding, retryRequested);
             return Execute(operationContext, operation, context);
         }
 
@@ -69,7 +69,7 @@ namespace MongoDB.Driver.Core.Operations
 
         public static async Task<TResult> ExecuteAsync<TResult>(OperationContext operationContext, IRetryableWriteOperation<TResult> operation, IWriteBinding binding, bool retryRequested)
         {
-            using var context = RetryableWriteContext.Create(operationContext, binding, retryRequested);
+            using var context = RetryableWriteContext.Create(binding, retryRequested);
             return await ExecuteAsync(operationContext, operation, context).ConfigureAwait(false);
         }
 

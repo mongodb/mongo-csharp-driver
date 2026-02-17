@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (var context = RetryableReadContext.Create(operationContext, binding, _retryRequested))
+            using (var context = RetryableReadContext.Create(binding, _retryRequested))
             {
                 return Execute(operationContext, context);
             }
@@ -79,7 +79,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (var context = RetryableReadContext.Create(operationContext, binding, _retryRequested))
+            using (var context = RetryableReadContext.Create(binding, _retryRequested))
             {
                 return await ExecuteAsync(operationContext, context).ConfigureAwait(false);
             }

@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Core.Operations
     {
         #region static
 
-        public static RetryableWriteContext Create(OperationContext operationContext, IWriteBinding binding, bool retryRequested)
+        public static RetryableWriteContext Create(IWriteBinding binding, bool retryRequested)
         {
             var context = new RetryableWriteContext(binding, retryRequested);
             return context;

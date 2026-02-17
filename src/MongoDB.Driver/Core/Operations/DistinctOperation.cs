@@ -109,7 +109,7 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = RetryableReadContext.Create(operationContext, binding, _retryRequested))
+            using (var context = RetryableReadContext.Create(binding, _retryRequested))
             {
                 var operation = CreateOperation(operationContext, context);
                 var result = operation.Execute(operationContext, context);
@@ -125,7 +125,7 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = RetryableReadContext.Create(operationContext, binding, _retryRequested))
+            using (var context = RetryableReadContext.Create(binding, _retryRequested))
             {
                 var operation = CreateOperation(operationContext, context);
                 var result = await operation.ExecuteAsync(operationContext, context).ConfigureAwait(false);

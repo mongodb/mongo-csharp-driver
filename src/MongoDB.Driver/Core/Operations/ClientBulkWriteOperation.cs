@@ -94,7 +94,7 @@ namespace MongoDB.Driver.Core.Operations
             var bulkWriteResults = new BulkWriteRawResult();
             while (true)
             {
-                using var context = RetryableWriteContext.Create(operationContext, binding, GetEffectiveRetryRequested());
+                using var context = RetryableWriteContext.Create(binding, GetEffectiveRetryRequested());
                 BsonDocument serverResponse = null;
                 try
                 {
@@ -152,7 +152,7 @@ namespace MongoDB.Driver.Core.Operations
             var bulkWriteResults = new BulkWriteRawResult();
             while (true)
             {
-                using var context = RetryableWriteContext.Create(operationContext, binding, GetEffectiveRetryRequested());
+                using var context = RetryableWriteContext.Create(binding, GetEffectiveRetryRequested());
                 BsonDocument serverResponse = null;
                 try
                 {

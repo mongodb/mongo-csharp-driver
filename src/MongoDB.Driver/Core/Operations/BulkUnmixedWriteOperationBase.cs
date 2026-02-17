@@ -129,7 +129,7 @@ namespace MongoDB.Driver.Core.Operations
         public BulkWriteOperationResult Execute(OperationContext operationContext, IWriteBinding binding)
         {
             using (BeginOperation())
-            using (var context = RetryableWriteContext.Create(operationContext, binding, IsOperationRetryable()))
+            using (var context = RetryableWriteContext.Create(binding, IsOperationRetryable()))
             {
                 return Execute(operationContext, context);
             }
@@ -145,7 +145,7 @@ namespace MongoDB.Driver.Core.Operations
         public async Task<BulkWriteOperationResult> ExecuteAsync(OperationContext operationContext, IWriteBinding binding)
         {
             using (BeginOperation())
-            using (var context = RetryableWriteContext.Create(operationContext, binding, IsOperationRetryable()))
+            using (var context = RetryableWriteContext.Create(binding, IsOperationRetryable()))
             {
                 return await ExecuteAsync(operationContext, context).ConfigureAwait(false);
             }
