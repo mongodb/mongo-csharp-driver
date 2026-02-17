@@ -115,9 +115,9 @@ namespace MongoDB.Driver.Core.Operations
             if (server is null)
                 return false;
 
-            if (context.ErrorDuringLastAcquisition)
+            if (context.ErrorDuringLastChannelAcquisition)
             {
-                // According to the spec error during handshake should be handled according to RetryableReads logic
+                // According to the spec, errors during handshake should be handled according to RetryableReads logic
                 exception = exception is MongoAuthenticationException mongoAuthenticationException ? mongoAuthenticationException.InnerException : exception;
 
                 if (!DoesContextAllowRetries(context, server))

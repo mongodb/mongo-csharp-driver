@@ -110,7 +110,7 @@ namespace MongoDB.Driver.Core.Operations
                     bulkWriteResults.TopLevelException = commandException;
                     serverResponse = commandException.Result;
                 }
-                catch (Exception exception) when (!context.ErrorDuringLastAcquisition)
+                catch (Exception exception) when (!context.ErrorDuringLastChannelAcquisition)
                 {
                     bulkWriteResults.TopLevelException = exception;
                 }
@@ -168,7 +168,7 @@ namespace MongoDB.Driver.Core.Operations
                     bulkWriteResults.TopLevelException = commandException;
                     serverResponse = commandException.Result;
                 }
-                catch (Exception exception) when (!context.ErrorDuringLastAcquisition)
+                catch (Exception exception) when (!context.ErrorDuringLastChannelAcquisition)
                 {
                     bulkWriteResults.TopLevelException = exception;
                 }

@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Core.Operations
         private IChannelSourceHandle _channelSource;
         private bool _disposed;
         private bool _retryRequested;
-        private bool _errorDuringLastAcquisition;
+        private bool _errorDuringLastChannelAcquisition;
         private ServerDescription _lastAcquiredServer;
 
         public RetryableWriteContext(IWriteBinding binding, bool retryRequested)
@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Core.Operations
         public IChannelHandle Channel => _channel;
         public IChannelSourceHandle ChannelSource => _channelSource;
         public bool RetryRequested => _retryRequested;
-        public bool ErrorDuringLastAcquisition => _errorDuringLastAcquisition;
+        public bool ErrorDuringLastChannelAcquisition => _errorDuringLastChannelAcquisition;
         public ServerDescription LastAcquiredServer => _lastAcquiredServer;
 
         public void Dispose()
@@ -71,7 +71,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             try
             {
-                _errorDuringLastAcquisition = false;
+                _errorDuringLastChannelAcquisition = false;
                 _lastAcquiredServer = null;
                 operationContext.ThrowIfTimedOutOrCanceled();
                 var writeChannelSource = Binding.GetWriteChannelSource(operationContext, deprioritizedServers);
@@ -83,7 +83,7 @@ namespace MongoDB.Driver.Core.Operations
             }
             catch
             {
-                _errorDuringLastAcquisition = true;
+                _errorDuringLastChannelAcquisition = true;
                 _channelSource?.Dispose();
                 _channel?.Dispose();
                 throw;
@@ -94,7 +94,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             try
             {
-                _errorDuringLastAcquisition = false;
+                _errorDuringLastChannelAcquisition = false;
                 _lastAcquiredServer = null;
                 operationContext.ThrowIfTimedOutOrCanceled();
                 var writeChannelSource = await Binding
@@ -107,7 +107,7 @@ namespace MongoDB.Driver.Core.Operations
             }
             catch
             {
-                _errorDuringLastAcquisition = true;
+                _errorDuringLastChannelAcquisition = true;
                 _channelSource?.Dispose();
                 _channel?.Dispose();
                 throw;
