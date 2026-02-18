@@ -24,15 +24,6 @@ namespace MongoDB.Driver.Core.Operations
 {
     internal sealed class RetryableWriteContext : IDisposable
     {
-        #region static
-
-        public static RetryableWriteContext Create(IWriteBinding binding, bool retryRequested)
-        {
-            var context = new RetryableWriteContext(binding, retryRequested);
-            return context;
-        }
-        #endregion
-
 #pragma warning disable CA2213 // Disposable fields should be disposed
         private readonly IWriteBinding _binding;
 #pragma warning restore CA2213 // Disposable fields should be disposed

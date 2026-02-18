@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,15 +24,6 @@ namespace MongoDB.Driver.Core.Operations
 {
     internal sealed class RetryableReadContext : IDisposable
     {
-        #region static
-
-        public static RetryableReadContext Create(IReadBinding binding, bool retryRequested)
-        {
-            var context = new RetryableReadContext(binding, retryRequested);
-            return context;
-        }
-        #endregion
-
 #pragma warning disable CA2213 // Disposable fields should be disposed
         private readonly IReadBinding _binding;
 #pragma warning restore CA2213 // Disposable fields should be disposed
