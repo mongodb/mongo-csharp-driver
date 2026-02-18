@@ -57,7 +57,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        // This method is used for server selection and connection acquisition.
         public void AcquireOrReplaceChannel(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             try
