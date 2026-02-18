@@ -42,7 +42,8 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
         {
             RequireServer.Check()
                 .Supports(Feature.FailPointsBlockConnection)
-                .ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded);
+                .ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded)
+                .VersionGreaterThanOrEqualTo("4.4.0"); // MongoDB 4.2 does not respect blockTimeMS in combination with errorCode.
 
             var heartbeatInterval = TimeSpan.FromMilliseconds(50);
             var eventsWaitTimeout = TimeSpan.FromMilliseconds(5000);

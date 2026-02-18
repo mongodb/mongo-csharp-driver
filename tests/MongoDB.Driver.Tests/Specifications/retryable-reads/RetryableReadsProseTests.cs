@@ -40,7 +40,8 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
         [ParameterAttributeData]
         public async Task PoolClearedError_read_retryablity_test([Values(true, false)] bool async)
         {
-            RequireServer.Check().Supports(Feature.FailPointsBlockConnection);
+            RequireServer.Check().Supports(Feature.FailPointsBlockConnection)
+                .VersionGreaterThanOrEqualTo("4.4.0"); // MongoDB 4.2 does not respect blockTimeMS in combination with errorCode.
 
             var heartbeatInterval = TimeSpan.FromMilliseconds(50);
             var eventsWaitTimeout = TimeSpan.FromMilliseconds(5000);
