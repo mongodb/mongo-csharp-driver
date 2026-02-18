@@ -644,7 +644,16 @@ namespace MongoDB.Driver.Core.Tests
 
         private RetryableReadContext CreateRetryableReadContext(IReadBindingHandle readBindingHandle, bool async)
         {
-            return new RetryableReadContext(readBindingHandle, retryRequested: false);
+            var retryableContext = new RetryableReadContext(readBindingHandle, retryRequested: false);
+            if (async)
+            {
+                retryableContext.AcquireOrReplaceChannelAsync(OperationContext.NoTimeout, null).GetAwaiter().GetResult();
+            }
+            else
+            {
+                retryableContext.AcquireOrReplaceChannel(OperationContext.NoTimeout, null);
+            }
+            return retryableContext;
         }
 
         private DisposableBindingBundle<IReadBindingHandle, RetryableReadContext> CreateReadBindingsAndRetryableReadContext(IClusterInternal cluster, ICoreSessionHandle sessionHandle, bool async)
@@ -659,7 +668,16 @@ namespace MongoDB.Driver.Core.Tests
 
         private RetryableWriteContext CreateRetryableWriteContext(IReadWriteBindingHandle readWriteBindingHandle, bool async)
         {
-            return new RetryableWriteContext(readWriteBindingHandle, retryRequested: false);
+            var retryableContext = new RetryableWriteContext(readWriteBindingHandle, retryRequested: false);
+            if (async)
+            {
+                retryableContext.AcquireOrReplaceChannelAsync(OperationContext.NoTimeout, null).GetAwaiter().GetResult();
+            }
+            else
+            {
+                retryableContext.AcquireOrReplaceChannel(OperationContext.NoTimeout, null);
+            }
+            return retryableContext;
         }
 
         private DisposableBindingBundle<IReadWriteBindingHandle, RetryableWriteContext> CreateReadWriteBindingsAndRetryableWriteContext(IClusterInternal cluster, ICoreSessionHandle sessionHandle, bool async)
