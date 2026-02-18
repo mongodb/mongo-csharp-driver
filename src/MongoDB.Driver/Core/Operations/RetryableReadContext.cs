@@ -64,9 +64,7 @@ namespace MongoDB.Driver.Core.Operations
                 ReplaceChannelSource(Binding.GetReadChannelSource(operationContext, deprioritizedServers));
                 _lastAcquiredServer = ChannelSource.ServerDescription;
                 ReplaceChannel(ChannelSource.GetChannel(operationContext));
-
-                ChannelPinningHelper.PinChannellIfRequired(ChannelSource, Channel,
-                    Binding.Session); //TODO We should do it only the first time, as an improvement we could pass the attempt number.
+                ChannelPinningHelper.PinChannellIfRequired(ChannelSource, Channel, Binding.Session);
             }
             catch
             {
@@ -84,9 +82,7 @@ namespace MongoDB.Driver.Core.Operations
                 operationContext.ThrowIfTimedOutOrCanceled();
                 ReplaceChannelSource(await Binding.GetReadChannelSourceAsync(operationContext, deprioritizedServers).ConfigureAwait(false));
                 _lastAcquiredServer = ChannelSource.ServerDescription;
-                //TODO Another possibility would be to separate the server selection from the connection acquisition
                 ReplaceChannel(await ChannelSource.GetChannelAsync(operationContext).ConfigureAwait(false));
-
                 ChannelPinningHelper.PinChannellIfRequired(ChannelSource, Channel, Binding.Session);
             }
             catch
