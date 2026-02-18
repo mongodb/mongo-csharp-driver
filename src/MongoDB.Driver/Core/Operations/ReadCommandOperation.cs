@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Core.Operations
 {
     internal sealed class ReadCommandOperation<TCommandResult> : CommandOperationBase<TCommandResult>, IReadOperation<TCommandResult>, IRetryableReadOperation<TCommandResult>
     {
-        private readonly Func<ICoreSession, ConnectionDescription, BsonDocument> _commandFactory;
+        private readonly ICommandCreator _commandCreator;
         private bool _retryRequested;
 
         public ReadCommandOperation(
@@ -41,12 +41,12 @@ namespace MongoDB.Driver.Core.Operations
 
         public ReadCommandOperation(
             DatabaseNamespace databaseNamespace,
-            Func<ICoreSession, ConnectionDescription, BsonDocument> commandFactory,
+            ICommandCreator commandCreator,
             IBsonSerializer<TCommandResult> resultSerializer,
             MessageEncoderSettings messageEncoderSettings)
             : base(databaseNamespace, null, resultSerializer, messageEncoderSettings)
         {
-            _commandFactory = Ensure.IsNotNull(commandFactory, nameof(commandFactory));
+            _commandCreator = Ensure.IsNotNull(commandCreator, nameof(commandCreator));
         }
 
         public bool RetryRequested
@@ -97,9 +97,9 @@ namespace MongoDB.Driver.Core.Operations
 
         public TCommandResult ExecuteAttempt(OperationContext operationContext, RetryableReadContext context, int attempt, long? transactionNumber)
         {
-            if (_commandFactory != null)
+            if (_commandCreator != null)
             {
-                var command = _commandFactory(context.Binding.Session, context.Channel.ConnectionDescription);
+                var command = _commandCreator.CreateCommand(operationContext, context.Binding.Session, context.Channel.ConnectionDescription);
                 SetCommand(command);
             }
 
@@ -108,9 +108,9 @@ namespace MongoDB.Driver.Core.Operations
 
         public Task<TCommandResult> ExecuteAttemptAsync(OperationContext operationContext, RetryableReadContext context, int attempt, long? transactionNumber)
         {
-            if (_commandFactory != null)
+            if (_commandCreator != null)
             {
-                var command = _commandFactory(context.Binding.Session, context.Channel.ConnectionDescription);
+                var command = _commandCreator.CreateCommand(operationContext, context.Binding.Session, context.Channel.ConnectionDescription);
                 SetCommand(command);
             }
 

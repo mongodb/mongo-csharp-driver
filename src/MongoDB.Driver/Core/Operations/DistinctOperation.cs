@@ -27,7 +27,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    internal sealed class DistinctOperation<TValue> : IReadOperation<IAsyncCursor<TValue>>
+    internal sealed class DistinctOperation<TValue> : IReadOperation<IAsyncCursor<TValue>>, ICommandCreator
     {
         private Collation _collation;
         private CollectionNamespace _collectionNamespace;
@@ -159,7 +159,7 @@ namespace MongoDB.Driver.Core.Operations
 
             return new ReadCommandOperation<DistinctResult>(
                 _collectionNamespace.DatabaseNamespace,
-                (session, connectionDescription) => CreateCommand(operationContext, session, connectionDescription),
+                this,
                 serializer,
                 _messageEncoderSettings)
             {

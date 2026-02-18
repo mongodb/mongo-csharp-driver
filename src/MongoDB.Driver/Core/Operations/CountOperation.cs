@@ -25,7 +25,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    internal sealed class CountOperation : IReadOperation<long>, IExecutableInRetryableReadContext<long>
+    internal sealed class CountOperation : IReadOperation<long>, IExecutableInRetryableReadContext<long>, ICommandCreator
     {
         private Collation _collation;
         private readonly CollectionNamespace _collectionNamespace;
@@ -168,7 +168,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             return new ReadCommandOperation<BsonDocument>(
                 _collectionNamespace.DatabaseNamespace,
-                (session, connectionDescription) => CreateCommand(operationContext, session, connectionDescription),
+                this,
                 BsonDocumentSerializer.Instance,
                 _messageEncoderSettings)
             {

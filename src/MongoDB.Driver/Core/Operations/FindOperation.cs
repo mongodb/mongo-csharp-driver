@@ -28,7 +28,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    internal sealed class FindOperation<TDocument> : IReadOperation<IAsyncCursor<TDocument>>, IExecutableInRetryableReadContext<IAsyncCursor<TDocument>>
+    internal sealed class FindOperation<TDocument> : IReadOperation<IAsyncCursor<TDocument>>, IExecutableInRetryableReadContext<IAsyncCursor<TDocument>>, ICommandCreator
     {
         #region static
         // private static fields
@@ -369,7 +369,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var operation = new ReadCommandOperation<BsonDocument>(
                 _collectionNamespace.DatabaseNamespace,
-                (session, connectionDescription) => CreateCommand(operationContext, session, connectionDescription),
+                this,
                 __findCommandResultSerializer,
                 _messageEncoderSettings)
             {

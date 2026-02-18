@@ -29,7 +29,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    internal sealed class AggregateOperation<TResult> : IReadOperation<IAsyncCursor<TResult>>, IExecutableInRetryableReadContext<IAsyncCursor<TResult>>
+    internal sealed class AggregateOperation<TResult> : IReadOperation<IAsyncCursor<TResult>>, IExecutableInRetryableReadContext<IAsyncCursor<TResult>>, ICommandCreator
     {
         // fields
         private bool? _allowDiskUse;
@@ -326,7 +326,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        internal BsonDocument CreateCommand(OperationContext operationContext, ICoreSession session, ConnectionDescription connectionDescription)
+        public BsonDocument CreateCommand(OperationContext operationContext, ICoreSession session, ConnectionDescription connectionDescription)
         {
             var readConcern = ReadConcernHelper.GetReadConcernForCommand(session, connectionDescription, _readConcern);
             var command = new BsonDocument
@@ -360,7 +360,7 @@ namespace MongoDB.Driver.Core.Operations
             var serializer = new AggregateResultDeserializer(_resultSerializer);
             return new ReadCommandOperation<AggregateResult>(
                 databaseNamespace,
-                (session, connectionDescription) => CreateCommand(operationContext, session, connectionDescription),
+                this,
                 serializer,
                 MessageEncoderSettings)
             {
