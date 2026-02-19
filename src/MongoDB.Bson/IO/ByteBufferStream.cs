@@ -638,9 +638,8 @@ namespace MongoDB.Bson.IO
 
             PrepareToWrite(8);
 
-            var bytes = new byte[8];
-            BinaryPrimitivesCompat.WriteDoubleLittleEndian(bytes, value);
-            _buffer.SetBytes(_position, bytes, 0, 8);
+            BinaryPrimitivesCompat.WriteDoubleLittleEndian(_temp, value);
+            _buffer.SetBytes(_position, _temp, 0, 8);
 
             SetPositionAfterWrite(_position + 8);
         }
@@ -679,9 +678,8 @@ namespace MongoDB.Bson.IO
 
             PrepareToWrite(8);
 
-            var bytes = new byte[8];
-            BinaryPrimitives.WriteInt64LittleEndian(bytes, value);
-            _buffer.SetBytes(_position, bytes, 0, 8);
+            BinaryPrimitives.WriteInt64LittleEndian(_temp, value);
+            _buffer.SetBytes(_position, _temp, 0, 8);
 
             SetPositionAfterWrite(_position + 8);
         }
