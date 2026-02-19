@@ -26,10 +26,6 @@ namespace MongoDB.Driver.SmokeTests.Sdk
     [Trait("Category", "Integration")]
     public sealed class OpenTelemetryTests
     {
-        public OpenTelemetryTests()
-        {
-            InfrastructureUtilities.ValidateMongoDBPackageVersion();
-        }
 
         [Fact]
         public void MongoClient_should_create_activities_when_tracing_enabled()
