@@ -722,19 +722,6 @@ functions:
           FRAMEWORK=${FRAMEWORK} \
             evergreen/run-smoke-tests.sh "${PACKAGE_VERSION}"
 
-  run-test-SK:
-    - command: shell.exec
-      params:
-        shell: bash
-        working_dir: mongo-csharp-driver
-        env:
-          ATLAS_SK: ${ATLAS_SK}
-        script: |
-          ${PREPARE_SHELL}
-          echo "cloning sk rep"
-          git clone https://github.com/microsoft/semantic-kernel.git
-          ./evergreen/run-sk.sh
-
   setup-csfle-secrets:
     - command: ec2.assume_role
       params:
@@ -1812,11 +1799,6 @@ tasks:
               ${PREPARE_SHELL}
               source $DRIVERS_TOOLS/.evergreen/csfle/gcpkms/secrets-export.sh
               GCPKMS_CMD="MONGODB_URI='mongodb://localhost:27017' OS='${OS}' ./evergreen/run-csfle-gcp-tests.sh" $DRIVERS_TOOLS/.evergreen/csfle/gcpkms/run-command.sh
-
-    - name: test-SK
-      commands:
-        - func: configure-framework
-        - func: run-test-SK
 
     - name: build-packages
       commands:
@@ -2928,16 +2910,6 @@ buildvariants:
       depends_on:
         - name: build-packages
           variant: ".build-packages"
-
-- matrix_name: test-SK
-  matrix_spec:
-    os: "ubuntu-2004"
-  display_name: "Semantic Kernel Connector"
-  tasks:
-    - name: test-SK
-      depends_on:
-        - name: push-packages-myget
-          variant: ".push-packages-myget"
 
 - matrix_name: push-packages-nuget
   matrix_spec:
