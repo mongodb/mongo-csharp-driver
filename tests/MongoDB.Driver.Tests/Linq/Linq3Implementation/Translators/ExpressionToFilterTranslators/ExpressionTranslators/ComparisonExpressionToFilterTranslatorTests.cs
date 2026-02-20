@@ -20,7 +20,6 @@ using System.Linq.Expressions;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
 using MongoDB.Driver.Linq.Linq3Implementation.SerializerFinders;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilterTranslators.ExpressionTranslators;
@@ -33,46 +32,46 @@ public class ComparisonExpressionToFilterTranslatorTests
 {
     [Theory]
     [MemberData(nameof(SupportedComparisonTestCases))]
-    public void Translate_should_produce_proper_ast(LambdaExpression expression, BsonValue expectedAst)
+    public void Translate_should_produce_proper_ast(LambdaExpression expression, string expectedTranslation)
     {
         var translationContext = CreateTranslationContext(expression);
         var resultAst = ComparisonExpressionToFilterTranslator.Translate(translationContext, (BinaryExpression)expression.Body);
 
-        resultAst.Render().Should().Be(expectedAst);
+        resultAst.Render().Should().Be(BsonDocument.Parse(expectedTranslation));
     }
 
-    // TODO: Probably need to be merged with CSharp2422Tests, CSharp4401Tests,
+    // TODO: Probably need to be merged with CSharp2422Tests and CSharp4401Tests.
     public static IEnumerable<object[]> SupportedComparisonTestCases =
     [
         // Comparison to constant test cases: eq
-        CreateTestCase<MyModel>(CreateLambda<MyModel, int>(x => x.Int), Expression.Constant(5), ExpressionType.Equal, AstFilter.Eq(AstFilter.Field("Int"), 5)),
-        CreateTestCase<MyModel>(CreateLambda<MyModel, int?>(x => x.NullableInt), Expression.Constant(5, typeof(int?)), ExpressionType.Equal, AstFilter.Eq(AstFilter.Field("NullableInt"), 5)),
-        CreateTestCase<MyModel>(Expression.Constant(5), CreateLambda<MyModel, int>(x => x.Int), ExpressionType.Equal, AstFilter.Eq(AstFilter.Field("Int"), 5)),
-        CreateTestCase<MyModel>(Expression.Constant(5, typeof(int?)), CreateLambda<MyModel, int?>(x => x.NullableInt), ExpressionType.Equal, AstFilter.Eq(AstFilter.Field("NullableInt"), 5)),
+        CreateTestCase<MyModel>(CreateLambda<MyModel, int>(x => x.Int), Expression.Constant(5), ExpressionType.Equal, "{ Int : { $eq : 5 } }"),
+        CreateTestCase<MyModel>(CreateLambda<MyModel, int?>(x => x.NullableInt), Expression.Constant(5, typeof(int?)), ExpressionType.Equal, "{ NullableInt : { $eq : 5 } }"),
+        CreateTestCase<MyModel>(Expression.Constant(5), CreateLambda<MyModel, int>(x => x.Int), ExpressionType.Equal, "{ Int : { $eq : 5 } }"),
+        CreateTestCase<MyModel>(Expression.Constant(5, typeof(int?)), CreateLambda<MyModel, int?>(x => x.NullableInt), ExpressionType.Equal, "{ NullableInt : { $eq : 5 } }"),
 
         // Comparison to constant test cases: gt
-        CreateTestCase<MyModel>(CreateLambda<MyModel, int>(x => x.Int), Expression.Constant(5), ExpressionType.GreaterThan, AstFilter.Compare(AstFilter.Field("Int"), AstComparisonFilterOperator.Gt, 5)),
-        CreateTestCase<MyModel>(CreateLambda<MyModel, int?>(x => x.NullableInt), Expression.Constant(5, typeof(int?)), ExpressionType.GreaterThan, AstFilter.Compare(AstFilter.Field("NullableInt"), AstComparisonFilterOperator.Gt, 5)),
-        CreateTestCase<MyModel>(Expression.Constant(5), CreateLambda<MyModel, int>(x => x.Int), ExpressionType.GreaterThan, AstFilter.Compare(AstFilter.Field("Int"), AstComparisonFilterOperator.Lt, 5)),
-        CreateTestCase<MyModel>(Expression.Constant(5, typeof(int?)), CreateLambda<MyModel, int?>(x => x.NullableInt), ExpressionType.GreaterThan, AstFilter.Compare(AstFilter.Field("NullableInt"), AstComparisonFilterOperator.Lt, 5)),
+        CreateTestCase<MyModel>(CreateLambda<MyModel, int>(x => x.Int), Expression.Constant(5), ExpressionType.GreaterThan, "{ Int : { $gt : 5 } }"),
+        CreateTestCase<MyModel>(CreateLambda<MyModel, int?>(x => x.NullableInt), Expression.Constant(5, typeof(int?)), ExpressionType.GreaterThan, "{ NullableInt : { $gt : 5 } }"),
+        CreateTestCase<MyModel>(Expression.Constant(5), CreateLambda<MyModel, int>(x => x.Int), ExpressionType.GreaterThan, "{ Int : { $lt : 5 } }"),
+        CreateTestCase<MyModel>(Expression.Constant(5, typeof(int?)), CreateLambda<MyModel, int?>(x => x.NullableInt), ExpressionType.GreaterThan, "{ NullableInt : { $lt : 5 } }"),
 
         // Comparison to constant test cases: lt
-        CreateTestCase<MyModel>(CreateLambda<MyModel, int>(x => x.Int), Expression.Constant(5), ExpressionType.LessThan, AstFilter.Compare(AstFilter.Field("Int"), AstComparisonFilterOperator.Lt, 5)),
-        CreateTestCase<MyModel>(CreateLambda<MyModel, int?>(x => x.NullableInt), Expression.Constant(5, typeof(int?)), ExpressionType.LessThan, AstFilter.Compare(AstFilter.Field("NullableInt"), AstComparisonFilterOperator.Lt, 5)),
-        CreateTestCase<MyModel>(Expression.Constant(5), CreateLambda<MyModel, int>(x => x.Int), ExpressionType.LessThan, AstFilter.Compare(AstFilter.Field("Int"), AstComparisonFilterOperator.Gt, 5)),
-        CreateTestCase<MyModel>(Expression.Constant(5, typeof(int?)), CreateLambda<MyModel, int?>(x => x.NullableInt), ExpressionType.LessThan, AstFilter.Compare(AstFilter.Field("NullableInt"), AstComparisonFilterOperator.Gt, 5)),
+        CreateTestCase<MyModel>(CreateLambda<MyModel, int>(x => x.Int), Expression.Constant(5), ExpressionType.LessThan, "{ Int : { $lt : 5 } }"),
+        CreateTestCase<MyModel>(CreateLambda<MyModel, int?>(x => x.NullableInt), Expression.Constant(5, typeof(int?)), ExpressionType.LessThan, "{ NullableInt : { $lt : 5 } }"),
+        CreateTestCase<MyModel>(Expression.Constant(5), CreateLambda<MyModel, int>(x => x.Int), ExpressionType.LessThan, "{ Int : { $gt : 5 } }"),
+        CreateTestCase<MyModel>(Expression.Constant(5, typeof(int?)), CreateLambda<MyModel, int?>(x => x.NullableInt), ExpressionType.LessThan, "{ NullableInt : { $gt : 5 } }"),
 
         // Comparison to constant test cases: gte
-        CreateTestCase<MyModel>(CreateLambda<MyModel, int>(x => x.Int), Expression.Constant(5), ExpressionType.GreaterThanOrEqual, AstFilter.Compare(AstFilter.Field("Int"), AstComparisonFilterOperator.Gte, 5)),
-        CreateTestCase<MyModel>(CreateLambda<MyModel, int?>(x => x.NullableInt), Expression.Constant(5, typeof(int?)), ExpressionType.GreaterThanOrEqual, AstFilter.Compare(AstFilter.Field("NullableInt"), AstComparisonFilterOperator.Gte, 5)),
-        CreateTestCase<MyModel>(Expression.Constant(5), CreateLambda<MyModel, int>(x => x.Int), ExpressionType.GreaterThanOrEqual, AstFilter.Compare(AstFilter.Field("Int"), AstComparisonFilterOperator.Lte, 5)),
-        CreateTestCase<MyModel>(Expression.Constant(5, typeof(int?)), CreateLambda<MyModel, int?>(x => x.NullableInt), ExpressionType.GreaterThanOrEqual, AstFilter.Compare(AstFilter.Field("NullableInt"), AstComparisonFilterOperator.Lte, 5)),
+        CreateTestCase<MyModel>(CreateLambda<MyModel, int>(x => x.Int), Expression.Constant(5), ExpressionType.GreaterThanOrEqual, "{ Int : { $gte : 5 } }"),
+        CreateTestCase<MyModel>(CreateLambda<MyModel, int?>(x => x.NullableInt), Expression.Constant(5, typeof(int?)), ExpressionType.GreaterThanOrEqual, "{ NullableInt : { $gte : 5 } }"),
+        CreateTestCase<MyModel>(Expression.Constant(5), CreateLambda<MyModel, int>(x => x.Int), ExpressionType.GreaterThanOrEqual, "{ Int : { $lte : 5 } }"),
+        CreateTestCase<MyModel>(Expression.Constant(5, typeof(int?)), CreateLambda<MyModel, int?>(x => x.NullableInt), ExpressionType.GreaterThanOrEqual, "{ NullableInt : { $lte : 5 } }"),
 
         // Comparison to constant test cases: lte
-        CreateTestCase<MyModel>(CreateLambda<MyModel, int>(x => x.Int), Expression.Constant(5), ExpressionType.LessThanOrEqual, AstFilter.Compare(AstFilter.Field("Int"), AstComparisonFilterOperator.Lte, 5)),
-        CreateTestCase<MyModel>(CreateLambda<MyModel, int?>(x => x.NullableInt), Expression.Constant(5, typeof(int?)), ExpressionType.LessThanOrEqual, AstFilter.Compare(AstFilter.Field("NullableInt"), AstComparisonFilterOperator.Lte, 5)),
-        CreateTestCase<MyModel>(Expression.Constant(5), CreateLambda<MyModel, int>(x => x.Int), ExpressionType.LessThanOrEqual, AstFilter.Compare(AstFilter.Field("Int"), AstComparisonFilterOperator.Gte, 5)),
-        CreateTestCase<MyModel>(Expression.Constant(5, typeof(int?)), CreateLambda<MyModel, int?>(x => x.NullableInt), ExpressionType.LessThanOrEqual, AstFilter.Compare(AstFilter.Field("NullableInt"), AstComparisonFilterOperator.Gte, 5)),
+        CreateTestCase<MyModel>(CreateLambda<MyModel, int>(x => x.Int), Expression.Constant(5), ExpressionType.LessThanOrEqual, "{ Int : { $lte : 5 } }"),
+        CreateTestCase<MyModel>(CreateLambda<MyModel, int?>(x => x.NullableInt), Expression.Constant(5, typeof(int?)), ExpressionType.LessThanOrEqual, "{ NullableInt : { $lte : 5 } }"),
+        CreateTestCase<MyModel>(Expression.Constant(5), CreateLambda<MyModel, int>(x => x.Int), ExpressionType.LessThanOrEqual, "{ Int : { $gte : 5 } }"),
+        CreateTestCase<MyModel>(Expression.Constant(5, typeof(int?)), CreateLambda<MyModel, int?>(x => x.NullableInt), ExpressionType.LessThanOrEqual, "{ NullableInt : { $gte : 5 } }"),
     ];
 
     private static LambdaExpression CreateLambda<TModel, TField>(Expression<Func<TModel, TField>> expression) => expression;
@@ -81,7 +80,7 @@ public class ComparisonExpressionToFilterTranslatorTests
         Expression left,
         Expression right,
         ExpressionType expressionType,
-        AstFilter expected)
+        string expectedTranslation)
     {
         var modelParameter = Expression.Parameter(typeof(TModel));
         var leftExpression = ReplaceParameters(left, modelParameter);
@@ -97,7 +96,7 @@ public class ComparisonExpressionToFilterTranslatorTests
             _ => throw new ArgumentOutOfRangeException(),
         };
 
-        return [Expression.Lambda(comparisonExpression, modelParameter), expected.Render()];
+        return [Expression.Lambda(comparisonExpression, modelParameter), expectedTranslation];
 
         static Expression ReplaceParameters(Expression expression, ParameterExpression newParameter)
         {
