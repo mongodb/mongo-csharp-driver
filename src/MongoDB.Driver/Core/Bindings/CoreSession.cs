@@ -150,8 +150,7 @@ namespace MongoDB.Driver.Core.Bindings
         {
             EnsureAbortTransactionCanBeCalled(nameof(AbortTransaction));
 
-            using var baseContext = new OperationContext(GetTimeout(options?.Timeout), cancellationToken);
-            using var contextWithMetadata = baseContext.WithOperationMetadata("abortTransaction", "admin", collectionName: null, _currentTransaction.IsTracingEnabled);
+            using var operationContext = new OperationContext(GetTimeout(options?.Timeout), "abortTransaction", "admin", null, _currentTransaction.IsTracingEnabled, cancellationToken);
             try
             {
                 if (_currentTransaction.IsEmpty)
@@ -161,11 +160,11 @@ namespace MongoDB.Driver.Core.Bindings
 
                 try
                 {
-                    var firstAttempt = CreateAbortTransactionOperation(contextWithMetadata);
-                    ExecuteEndTransactionOnPrimary(contextWithMetadata, firstAttempt);
+                    var firstAttempt = CreateAbortTransactionOperation(operationContext);
+                    ExecuteEndTransactionOnPrimary(operationContext, firstAttempt);
                     return;
                 }
-                catch (Exception exception) when (ShouldRetryEndTransactionException(contextWithMetadata, exception))
+                catch (Exception exception) when (ShouldRetryEndTransactionException(operationContext, exception))
                 {
                     // unpin if retryable error
                     _currentTransaction.UnpinAll();
@@ -179,8 +178,8 @@ namespace MongoDB.Driver.Core.Bindings
 
                 try
                 {
-                    var secondAttempt = CreateAbortTransactionOperation(contextWithMetadata);
-                    ExecuteEndTransactionOnPrimary(contextWithMetadata, secondAttempt);
+                    var secondAttempt = CreateAbortTransactionOperation(operationContext);
+                    ExecuteEndTransactionOnPrimary(operationContext, secondAttempt);
                 }
                 catch
                 {
@@ -207,8 +206,7 @@ namespace MongoDB.Driver.Core.Bindings
         {
             EnsureAbortTransactionCanBeCalled(nameof(AbortTransaction));
 
-            using var baseContext = new OperationContext(GetTimeout(options?.Timeout), cancellationToken);
-            using var contextWithMetadata = baseContext.WithOperationMetadata("abortTransaction", "admin", collectionName: null, _currentTransaction.IsTracingEnabled);
+            using var operationContext = new OperationContext(GetTimeout(options?.Timeout), "abortTransaction", "admin", null, _currentTransaction.IsTracingEnabled, cancellationToken);
             try
             {
                 if (_currentTransaction.IsEmpty)
@@ -218,11 +216,11 @@ namespace MongoDB.Driver.Core.Bindings
 
                 try
                 {
-                    var firstAttempt = CreateAbortTransactionOperation(contextWithMetadata);
-                    await ExecuteEndTransactionOnPrimaryAsync(contextWithMetadata, firstAttempt).ConfigureAwait(false);
+                    var firstAttempt = CreateAbortTransactionOperation(operationContext);
+                    await ExecuteEndTransactionOnPrimaryAsync(operationContext, firstAttempt).ConfigureAwait(false);
                     return;
                 }
-                catch (Exception exception) when (ShouldRetryEndTransactionException(contextWithMetadata, exception))
+                catch (Exception exception) when (ShouldRetryEndTransactionException(operationContext, exception))
                 {
                     // unpin if retryable error
                     _currentTransaction.UnpinAll();
@@ -236,8 +234,8 @@ namespace MongoDB.Driver.Core.Bindings
 
                 try
                 {
-                    var secondAttempt = CreateAbortTransactionOperation(contextWithMetadata);
-                    await ExecuteEndTransactionOnPrimaryAsync(contextWithMetadata, secondAttempt).ConfigureAwait(false);
+                    var secondAttempt = CreateAbortTransactionOperation(operationContext);
+                    await ExecuteEndTransactionOnPrimaryAsync(operationContext, secondAttempt).ConfigureAwait(false);
                 }
                 catch
                 {
@@ -313,8 +311,7 @@ namespace MongoDB.Driver.Core.Bindings
         {
             EnsureCommitTransactionCanBeCalled(nameof(CommitTransaction));
 
-            using var baseContext = new OperationContext(GetTimeout(options?.Timeout), cancellationToken);
-            using var contextWithMetadata = baseContext.WithOperationMetadata("commitTransaction", "admin", collectionName: null, _currentTransaction.IsTracingEnabled);
+            using var operationContext = new OperationContext(GetTimeout(options?.Timeout), "commitTransaction", "admin", null, _currentTransaction.IsTracingEnabled, cancellationToken);
             try
             {
                 _isCommitTransactionInProgress = true;
@@ -325,18 +322,18 @@ namespace MongoDB.Driver.Core.Bindings
 
                 try
                 {
-                    var firstAttempt = CreateCommitTransactionOperation(contextWithMetadata, IsFirstCommitAttemptRetry());
-                    ExecuteEndTransactionOnPrimary(contextWithMetadata, firstAttempt);
+                    var firstAttempt = CreateCommitTransactionOperation(operationContext, IsFirstCommitAttemptRetry());
+                    ExecuteEndTransactionOnPrimary(operationContext, firstAttempt);
                     return;
                 }
-                catch (Exception exception) when (ShouldRetryEndTransactionException(contextWithMetadata, exception))
+                catch (Exception exception) when (ShouldRetryEndTransactionException(operationContext, exception))
                 {
                     // unpin server if needed, then ignore exception and retry
                     TransactionHelper.UnpinServerIfNeededOnRetryableCommitException(_currentTransaction, exception);
                 }
 
-                var secondAttempt = CreateCommitTransactionOperation(contextWithMetadata, isCommitRetry: true);
-                ExecuteEndTransactionOnPrimary(contextWithMetadata, secondAttempt);
+                var secondAttempt = CreateCommitTransactionOperation(operationContext, isCommitRetry: true);
+                ExecuteEndTransactionOnPrimary(operationContext, secondAttempt);
             }
             finally
             {
@@ -355,8 +352,7 @@ namespace MongoDB.Driver.Core.Bindings
         {
             EnsureCommitTransactionCanBeCalled(nameof(CommitTransaction));
 
-            using var baseContext = new OperationContext(GetTimeout(options?.Timeout), cancellationToken);
-            using var contextWithMetadata = baseContext.WithOperationMetadata("commitTransaction", "admin", collectionName: null, _currentTransaction.IsTracingEnabled);
+            using var operationContext = new OperationContext(GetTimeout(options?.Timeout), "commitTransaction", "admin", null, _currentTransaction.IsTracingEnabled, cancellationToken);
             try
             {
                 _isCommitTransactionInProgress = true;
@@ -367,18 +363,18 @@ namespace MongoDB.Driver.Core.Bindings
 
                 try
                 {
-                    var firstAttempt = CreateCommitTransactionOperation(contextWithMetadata, IsFirstCommitAttemptRetry());
-                    await ExecuteEndTransactionOnPrimaryAsync(contextWithMetadata, firstAttempt).ConfigureAwait(false);
+                    var firstAttempt = CreateCommitTransactionOperation(operationContext, IsFirstCommitAttemptRetry());
+                    await ExecuteEndTransactionOnPrimaryAsync(operationContext, firstAttempt).ConfigureAwait(false);
                     return;
                 }
-                catch (Exception exception) when (ShouldRetryEndTransactionException(contextWithMetadata, exception))
+                catch (Exception exception) when (ShouldRetryEndTransactionException(operationContext, exception))
                 {
                     // unpin server if needed, then ignore exception and retry
                     TransactionHelper.UnpinServerIfNeededOnRetryableCommitException(_currentTransaction, exception);
                 }
 
-                var secondAttempt = CreateCommitTransactionOperation(contextWithMetadata, isCommitRetry: true);
-                await ExecuteEndTransactionOnPrimaryAsync(contextWithMetadata, secondAttempt).ConfigureAwait(false);
+                var secondAttempt = CreateCommitTransactionOperation(operationContext, isCommitRetry: true);
+                await ExecuteEndTransactionOnPrimaryAsync(operationContext, secondAttempt).ConfigureAwait(false);
             }
             finally
             {

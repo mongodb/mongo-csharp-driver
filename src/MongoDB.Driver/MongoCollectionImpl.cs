@@ -1234,22 +1234,29 @@ namespace MongoDB.Driver
                 throw new InvalidOperationException("Cannot specify per operation timeout inside transaction.");
             }
 
-            var baseContext = operationContext?.Fork() ?? new OperationContext(timeout ?? _settings.Timeout, cancellationToken);
+            var tracingOptions = _database.Client.Settings.TracingOptions;
+            var isTracingEnabled = tracingOptions?.Disabled != true && MongoTelemetry.ActivitySource.HasListeners();
 
-            if (operationName != null)
+            if (operationContext != null)
             {
-                var tracingOptions = _database.Client.Settings.TracingOptions;
-                var isTracingEnabled = tracingOptions == null || !tracingOptions.Disabled;
-                var contextWithMetadata = baseContext.WithOperationMetadata(
+                return isTracingEnabled
+                    ? operationContext.ForkWithOperationMetadata(
+                        operationName,
+                        _collectionNamespace.DatabaseNamespace.DatabaseName,
+                        _collectionNamespace.CollectionName,
+                        isTracingEnabled)
+                    : operationContext.Fork();
+            }
+
+            return isTracingEnabled
+                ? new OperationContext(
+                    timeout ?? _settings.Timeout,
                     operationName,
                     _collectionNamespace.DatabaseNamespace.DatabaseName,
                     _collectionNamespace.CollectionName,
-                    isTracingEnabled);
-                baseContext.Dispose();
-                return contextWithMetadata;
-            }
-
-            return baseContext;
+                    isTracingEnabled,
+                    cancellationToken)
+                : new OperationContext(timeout ?? _settings.Timeout, cancellationToken);
         }
 
         private TResult ExecuteReadOperation<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, TimeSpan? timeout, CancellationToken cancellationToken)

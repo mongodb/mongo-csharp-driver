@@ -33,6 +33,21 @@ namespace MongoDB.Driver
         {
         }
 
+        internal OperationContext(
+            TimeSpan? timeout,
+            string operationName,
+            string databaseName,
+            string collectionName,
+            bool isTracingEnabled,
+            CancellationToken cancellationToken)
+            : this(timeout, cancellationToken)
+        {
+            OperationName = operationName;
+            DatabaseName = databaseName;
+            CollectionName = collectionName;
+            IsTracingEnabled = isTracingEnabled;
+        }
+
         internal OperationContext(IClock clock, TimeSpan? timeout, CancellationToken cancellationToken)
             : this(clock, clock.GetTimestamp(), timeout, cancellationToken)
         {
@@ -121,6 +136,16 @@ namespace MongoDB.Driver
             new (Clock, InitialTimestamp, Timeout, CancellationToken)
             {
                 RootContext = RootContext
+            };
+
+        internal OperationContext ForkWithOperationMetadata(string operationName, string databaseName, string collectionName, bool isTracingEnabled) =>
+            new (Clock, InitialTimestamp, Timeout, CancellationToken)
+            {
+                RootContext = RootContext,
+                OperationName = operationName,
+                DatabaseName = databaseName,
+                CollectionName = collectionName,
+                IsTracingEnabled = isTracingEnabled
             };
 
         public bool IsTimedOut()
