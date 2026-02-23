@@ -111,7 +111,7 @@ namespace MongoDB.Driver.Core.Operations
             using (BeginOperation())
             using (var context = new RetryableReadContext(binding, _retryRequested))
             {
-                var operation = CreateOperation(operationContext, context);
+                var operation = CreateOperation(operationContext);
                 var result = operation.Execute(operationContext, context);
 
                 binding.Session.SetSnapshotTimeIfNeeded(result.AtClusterTime);
@@ -127,7 +127,7 @@ namespace MongoDB.Driver.Core.Operations
             using (BeginOperation())
             using (var context = new RetryableReadContext(binding, _retryRequested))
             {
-                var operation = CreateOperation(operationContext, context);
+                var operation = CreateOperation(operationContext);
                 var result = await operation.ExecuteAsync(operationContext, context).ConfigureAwait(false);
 
                 binding.Session.SetSnapshotTimeIfNeeded(result.AtClusterTime);
@@ -153,7 +153,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private EventContext.OperationIdDisposer BeginOperation() => EventContext.BeginOperation(null, "distinct");
 
-        private ReadCommandOperation<DistinctResult> CreateOperation(OperationContext operationContext, RetryableReadContext context)
+        private ReadCommandOperation<DistinctResult> CreateOperation(OperationContext operationContext)
         {
             var serializer = new DistinctResultDeserializer(_valueSerializer);
 

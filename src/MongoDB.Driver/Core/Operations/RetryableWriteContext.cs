@@ -33,16 +33,26 @@ namespace MongoDB.Driver.Core.Operations
         private bool _retryRequested;
         private bool _errorDuringLastChannelAcquisition;
         private ServerDescription _lastAcquiredServer;
+        private IRandom _random;
+        private IMayUseSecondaryCriteria _mayUseSecondaryCriteria;
 
-        public RetryableWriteContext(IWriteBinding binding, bool retryRequested)
+        public RetryableWriteContext(IWriteBinding binding, bool retryRequested, IRandom random = null, IMayUseSecondaryCriteria mayUseSecondaryCriteria = null)
         {
             _binding = Ensure.IsNotNull(binding, nameof(binding));
             _retryRequested = retryRequested;
+            _random = random ?? DefaultRandom.Instance;
+            _mayUseSecondaryCriteria = mayUseSecondaryCriteria;
         }
 
         public IWriteBinding Binding => _binding;
         public IChannelHandle Channel => _channel;
         public IChannelSourceHandle ChannelSource => _channelSource;
+        public IMayUseSecondaryCriteria MayUseSecondaryCriteria => _mayUseSecondaryCriteria;
+        public IRandom Random => _random;
+        /// <summary>
+        /// This property only influences the retryability for retryable reads/writes and has no effect
+        /// on client backpressure errors.
+        /// </summary>
         public bool RetryRequested => _retryRequested;
         public bool ErrorDuringLastChannelAcquisition => _errorDuringLastChannelAcquisition;
         public ServerDescription LastAcquiredServer => _lastAcquiredServer;
@@ -57,7 +67,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public void AcquireOrReplaceChannel(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
+        public void AcquireOrReplaceChannel(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondaryCriteria = null)
         {
             try
             {
@@ -80,7 +90,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public async Task AcquireOrReplaceChannelAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
+        public async Task AcquireOrReplaceChannelAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondaryCriteria = null)
         {
             try
             {

@@ -221,19 +221,18 @@ namespace MongoDB.Driver.Core.Operations
             {
                 // TODO: CSOT: Implement operation context support for Cursors
                 var operationContext = new OperationContext(null, cancellationToken);
-                result = channel.Command<BsonDocument>(
-                    operationContext,
-                    _channelSource.Session,
-                    null, // readPreference
+
+                var operation = new ReadCommandOperation<BsonDocument>(
                     _collectionNamespace.DatabaseNamespace,
                     command,
-                    null, // commandPayloads
-                    NoOpElementNameValidator.Instance,
-                    null, // additionalOptions
-                    null, // postWriteAction
-                    CommandResponseHandling.Return,
                     __getMoreCommandResultSerializer,
                     _messageEncoderSettings);
+
+                using var channelBinding = new ChannelReadWriteBinding(
+                    _channelSource.Server,
+                    channel,
+                    _channelSource.Session.Fork());
+                result = operation.Execute(operationContext, channelBinding);
             }
             catch (MongoCommandException ex) when (IsMongoCursorNotFoundException(ex))
             {
@@ -251,19 +250,18 @@ namespace MongoDB.Driver.Core.Operations
             {
                 // TODO: CSOT: Implement operation context support for Cursors
                 var operationContext = new OperationContext(null, cancellationToken);
-                result = await channel.CommandAsync<BsonDocument>(
-                    operationContext,
-                    _channelSource.Session,
-                    null, // readPreference
+
+                var operation = new ReadCommandOperation<BsonDocument>(
                     _collectionNamespace.DatabaseNamespace,
                     command,
-                    null, // commandPayloads
-                    NoOpElementNameValidator.Instance,
-                    null, // additionalOptions
-                    null, // postWriteAction
-                    CommandResponseHandling.Return,
                     __getMoreCommandResultSerializer,
-                    _messageEncoderSettings).ConfigureAwait(false);
+                    _messageEncoderSettings);
+
+                using var channelBinding = new ChannelReadWriteBinding(
+                    _channelSource.Server,
+                    channel,
+                    _channelSource.Session.Fork());
+                result = await operation.ExecuteAsync(operationContext, channelBinding).ConfigureAwait(false);
             }
             catch (MongoCommandException ex) when (IsMongoCursorNotFoundException(ex))
             {

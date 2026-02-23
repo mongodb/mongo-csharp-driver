@@ -23,11 +23,16 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Operations
 {
+    /// <summary>
+    /// This class contains helper methods for retryability, both for retryable reads /writes and client backpressure retries.
+    /// </summary>
     internal static class RetryabilityHelper
     {
         // private constants
         private const string ResumableChangeStreamErrorLabel = "ResumableChangeStreamError";
         private const string RetryableWriteErrorLabel = "RetryableWriteError";
+        private const string RetryableErrorLabel = "RetryableError";
+        private const string SystemOverloadedErrorLabel = "SystemOverloadedError";
 
         // private static fields
         private static readonly HashSet<ServerErrorCode> __resumableChangeStreamErrorCodes;
@@ -108,6 +113,9 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
+        /// <summary>
+        /// Implements an exponential backoff with jitter algorithm to determine the delay used by client backpressure retries.
+        /// </summary>
         public static int GetRetryDelayMs(IRandom random, int attempt, double backoffBase, int backoffInitial, int backoffMax)
         {
             Ensure.IsNotNull(random, nameof(random));
@@ -118,6 +126,20 @@ namespace MongoDB.Driver.Core.Operations
 
             var j = random.NextDouble();
             return (int)(j * Math.Min(backoffMax, backoffInitial * Math.Pow(backoffBase, attempt - 1)));
+        }
+
+        /// <summary>
+        /// Gets the operation retry backoff delay used for operation retries under client backpressure.
+        /// </summary>
+        public static TimeSpan GetOperationRetryBackoffDelay(int attempt, IRandom random)
+        {
+            return TimeSpan.FromMilliseconds(
+                GetRetryDelayMs(
+                    random,
+                    attempt,
+                    OperationRetryBackpressureConstants.BasePowerBackoff,
+                    OperationRetryBackpressureConstants.InitialBackoff,
+                    OperationRetryBackpressureConstants.MaxBackoff));
         }
 
         public static bool IsCommandRetryable(BsonDocument command)
@@ -134,18 +156,14 @@ namespace MongoDB.Driver.Core.Operations
             {
                 return true;
             }
-            if (exception is MongoCursorNotFoundException)
-            {
-                return true;
-            }
-            if (exception is MongoConnectionPoolPausedException)
+            if (exception is MongoCursorNotFoundException or MongoConnectionPoolPausedException )
             {
                 return true;
             }
 
             if (Feature.ServerReturnsResumableChangeStreamErrorLabel.IsSupported(maxWireVersion))
             {
-                return exception is MongoException mongoException ? mongoException.HasErrorLabel(ResumableChangeStreamErrorLabel) : false;
+                return exception is MongoException mongoException && mongoException.HasErrorLabel(ResumableChangeStreamErrorLabel);
             }
 
             if (exception is MongoCommandException commandException)
@@ -181,8 +199,7 @@ namespace MongoDB.Driver.Core.Operations
                 return true;
             }
 
-            var commandException = exception as MongoCommandException;
-            if (commandException != null)
+            if (exception is MongoCommandException commandException)
             {
                 var code = (ServerErrorCode)commandException.Code;
                 if (__retryableReadErrorCodes.Contains(code))
@@ -196,7 +213,17 @@ namespace MongoDB.Driver.Core.Operations
 
         public static bool IsRetryableWriteException(Exception exception)
         {
-            return exception is MongoException mongoException ? mongoException.HasErrorLabel(RetryableWriteErrorLabel) : false;
+            return exception is MongoException mongoException && mongoException.HasErrorLabel(RetryableWriteErrorLabel);
+        }
+
+        public static bool IsSystemOverloadedException(Exception exception)
+        {
+            return exception is MongoException mongoException && mongoException.HasErrorLabel(SystemOverloadedErrorLabel);
+        }
+
+        public static bool IsRetryableException(Exception exception)
+        {
+            return exception is MongoException mongoException && mongoException.HasErrorLabel(RetryableErrorLabel);
         }
 
         // private static methods
@@ -268,6 +295,16 @@ namespace MongoDB.Driver.Core.Operations
             }
 
             return false;
+        }
+
+        public static class OperationRetryBackpressureConstants
+        {
+            //TODO Should these be here...?
+            public const int BasePowerBackoff = 2;
+            public const int InitialBackoff = 100;
+            public const int MaxBackoff = 10000;
+            public const int MaxRetries = 5;
+            public const double RetryTokenReturnRate = 0.1;
         }
     }
 }

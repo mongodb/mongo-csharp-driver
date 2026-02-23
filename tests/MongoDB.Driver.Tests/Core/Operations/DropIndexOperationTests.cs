@@ -139,8 +139,9 @@ namespace MongoDB.Driver.Core.Operations
                 { "index", indexName }
             };
             var session = OperationTestHelper.CreateSession();
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
-            var result = subject.CreateCommand(OperationContext.NoTimeout, session);
+            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription, null);
 
             result.Should().Be(expectedResult);
         }
@@ -167,8 +168,9 @@ namespace MongoDB.Driver.Core.Operations
                 { "maxTimeMS", expectedMaxTimeMS }
             };
             var session = OperationTestHelper.CreateSession();
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
-            var result = subject.CreateCommand(OperationContext.NoTimeout, session);
+            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription, null);
 
             result.Should().Be(expectedResult);
             result["maxTimeMS"].BsonType.Should().Be(BsonType.Int32);
@@ -185,9 +187,10 @@ namespace MongoDB.Driver.Core.Operations
                 MaxTime = TimeSpan.FromSeconds(10)
             };
             var session = OperationTestHelper.CreateSession();
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
             var operationContext = new OperationContext(TimeSpan.FromMilliseconds(timeoutMs), CancellationToken.None);
-            var result = subject.CreateCommand(operationContext, session);
+            var result = subject.CreateCommand(operationContext, session, connectionDescription, null);
 
             result.Should().NotContain("maxTimeMS");
         }
@@ -213,8 +216,9 @@ namespace MongoDB.Driver.Core.Operations
             };
             var operationContext = hasOperationTimeout ? new OperationContext(TimeSpan.FromSeconds(42), CancellationToken.None) : OperationContext.NoTimeout;
             var session = OperationTestHelper.CreateSession();
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
-            var result = subject.CreateCommand(operationContext, session);
+            var result = subject.CreateCommand(operationContext, session, connectionDescription, null);
 
             var expectedWriteConcern = writeConcern?.ToBsonDocument();
             if (hasOperationTimeout)

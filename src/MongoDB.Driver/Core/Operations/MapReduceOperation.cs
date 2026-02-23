@@ -117,7 +117,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <inheritdoc/>
-        protected internal override BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription)
+        protected internal override BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber = null)
         {
             var command = base.CreateCommand(operationContext, session, connectionDescription);
 

@@ -46,6 +46,11 @@ namespace MongoDB.Driver.Core.Bindings
             get { return _reference.Instance.Session; }
         }
 
+        public TokenBucket TokenBucket
+        {
+            get { return _reference.Instance.TokenBucket; }
+        }
+
         public IChannelSourceHandle GetReadChannelSource(OperationContext operationContext)
         {
             ThrowIfDisposed();

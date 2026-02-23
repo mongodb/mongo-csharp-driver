@@ -28,7 +28,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    internal sealed class AggregateToCollectionOperation : IWriteOperation<BsonDocument>
+    internal sealed class AggregateToCollectionOperation : IWriteOperation<BsonDocument>, IRetryableWriteOperation<BsonDocument>
     {
         private bool? _allowDiskUse;
         private bool? _bypassDocumentValidation;
@@ -149,35 +149,63 @@ namespace MongoDB.Driver.Core.Operations
 
         public BsonDocument Execute(OperationContext operationContext, IWriteBinding binding)
         {
-            Ensure.IsNotNull(binding, nameof(binding));
-
-            var mayUseSecondary = new MayUseSecondary(_readPreference);
             using (BeginOperation())
-            using (var channelSource = binding.GetWriteChannelSource(operationContext, mayUseSecondary))
-            using (var channel = channelSource.GetChannel(operationContext))
+            {
+                return RetryableWriteOperationExecutor.Execute(operationContext, this, binding, retryRequested: false, mayUseSecondary: new MayUseSecondary(_readPreference));
+            }
+        }
+
+        public BsonDocument Execute(OperationContext operationContext, RetryableWriteContext context)
+        {
+            using (BeginOperation())
+            {
+                return RetryableWriteOperationExecutor.Execute(operationContext, this, context);
+            }
+        }
+
+        public Task<BsonDocument> ExecuteAsync(OperationContext operationContext, IWriteBinding binding)
+        {
+            using (BeginOperation())
+            {
+                return RetryableWriteOperationExecutor.ExecuteAsync(operationContext, this, binding, retryRequested: false, mayUseSecondary: new MayUseSecondary(_readPreference));
+            }
+        }
+
+        public Task<BsonDocument> ExecuteAsync(OperationContext operationContext, RetryableWriteContext context)
+        {
+            using (BeginOperation())
+            {
+                return RetryableWriteOperationExecutor.ExecuteAsync(operationContext, this, context);
+            }
+        }
+
+        public BsonDocument ExecuteAttempt(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
+        {
+            var binding = context.Binding;
+            var channelSource = context.ChannelSource;
+            var channel = context.Channel;
+
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
-                var operation = CreateOperation(operationContext, channelBinding.Session, channel.ConnectionDescription, mayUseSecondary.EffectiveReadPreference);
+                var operation = CreateOperation(operationContext, channelBinding.Session, channel.ConnectionDescription, context.MayUseSecondaryCriteria.EffectiveReadPreference, transactionNumber);
                 return operation.Execute(operationContext, channelBinding);
             }
         }
 
-        public async Task<BsonDocument> ExecuteAsync(OperationContext operationContext, IWriteBinding binding)
+        public async Task<BsonDocument> ExecuteAttemptAsync(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
         {
-            Ensure.IsNotNull(binding, nameof(binding));
+            var binding = context.Binding;
+            var channelSource = context.ChannelSource;
+            var channel = context.Channel;
 
-            var mayUseSecondary = new MayUseSecondary(_readPreference);
-            using (BeginOperation())
-            using (var channelSource = await binding.GetWriteChannelSourceAsync(operationContext, mayUseSecondary).ConfigureAwait(false))
-            using (var channel = await channelSource.GetChannelAsync(operationContext).ConfigureAwait(false))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
-                var operation = CreateOperation(operationContext, channelBinding.Session, channel.ConnectionDescription, mayUseSecondary.EffectiveReadPreference);
+                var operation = CreateOperation(operationContext, channelBinding.Session, channel.ConnectionDescription, context.MayUseSecondaryCriteria.EffectiveReadPreference, transactionNumber);
                 return await operation.ExecuteAsync(operationContext, channelBinding).ConfigureAwait(false);
             }
         }
 
-        public BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription)
+        internal BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber)
         {
             var readConcern = _readConcern != null
                 ? ReadConcernHelper.GetReadConcernForCommand(session, connectionDescription, _readConcern)
@@ -202,9 +230,9 @@ namespace MongoDB.Driver.Core.Operations
 
         private EventContext.OperationNameDisposer BeginOperation() => EventContext.BeginOperation("aggregate");
 
-        private WriteCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, ReadPreference effectiveReadPreference)
+        private WriteCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, ReadPreference effectiveReadPreference, long? transactionNumber)
         {
-            var command = CreateCommand(operationContext, session, connectionDescription);
+            var command = CreateCommand(operationContext, session, connectionDescription, transactionNumber);
             var operation = new WriteCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, MessageEncoderSettings);
             if (effectiveReadPreference != null)
             {

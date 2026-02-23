@@ -337,6 +337,7 @@ namespace MongoDB.Driver.Core.Bindings
             }
         }
 
+        //TODO Both commit transaction and abort transaction need to be changed according to spec
         /// <inheritdoc />
         public Task CommitTransactionAsync(CancellationToken cancellationToken = default)
             => ((ICoreSessionInternal)this).CommitTransactionAsync(null, cancellationToken);

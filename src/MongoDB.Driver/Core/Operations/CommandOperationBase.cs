@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Core.Operations
             MessageEncoderSettings messageEncoderSettings)
         {
             _databaseNamespace = Ensure.IsNotNull(databaseNamespace, nameof(databaseNamespace));
-            _command = command; //can be null
+            _command = command; // Can be null if using factory pattern - will be set before execution
             _resultSerializer = Ensure.IsNotNull(resultSerializer, nameof(resultSerializer));
             _messageEncoderSettings = messageEncoderSettings;
         }

@@ -40,6 +40,7 @@ namespace MongoDB.Driver.Core.Servers
         private readonly InterlockedInt32 _state;
         private readonly ServerApi _serverApi;
         private readonly EventLogger<LogCategories.SDAM> _eventLogger;
+        private readonly TokenBucket _tokenBucket;
 
         private int _outstandingOperationsCount;
 
@@ -51,7 +52,8 @@ namespace MongoDB.Driver.Core.Servers
             EndPoint endPoint,
             IConnectionPoolFactory connectionPoolFactory,
             ServerApi serverApi,
-            EventLogger<LogCategories.SDAM> eventLogger)
+            EventLogger<LogCategories.SDAM> eventLogger,
+            TokenBucket tokenBucket)
         {
 
             _clusterClock = Ensure.IsNotNull(clusterClock, nameof(clusterClock));
@@ -66,6 +68,7 @@ namespace MongoDB.Driver.Core.Servers
             _outstandingOperationsCount = 0;
 
             _eventLogger = Ensure.IsNotNull(eventLogger, nameof(eventLogger));
+            _tokenBucket = tokenBucket;
         }
 
         public event EventHandler<ServerDescriptionChangedEventArgs> DescriptionChanged;
@@ -77,6 +80,7 @@ namespace MongoDB.Driver.Core.Servers
         public bool IsInitialized => _state.Value != State.Initial;
         public ServerApi ServerApi => _serverApi;
         public ServerId ServerId => _serverId;
+        public TokenBucket TokenBucket => _tokenBucket;
         protected EventLogger<LogCategories.SDAM> EventLogger => _eventLogger;
 
         int IClusterableServer.OutstandingOperationsCount => Interlocked.CompareExchange(ref _outstandingOperationsCount, 0, 0);

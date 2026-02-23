@@ -44,6 +44,7 @@ internal class SelectedServer : ISelectedServer
     public EndPoint EndPoint => _server.EndPoint;
     public ServerId ServerId => _server.ServerId;
     public ServerApi ServerApi => _server.ServerApi;
+    public TokenBucket TokenBucket => _server.TokenBucket;
     public ServerDescription DescriptionWhenSelected => _descriptionWhenSelected;
 
     public void DecrementOutstandingOperationsCount()

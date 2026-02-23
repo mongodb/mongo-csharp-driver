@@ -51,6 +51,11 @@ namespace MongoDB.Driver.Core.Bindings
             get { return _session; }
         }
 
+        public TokenBucket TokenBucket
+        {
+            get { return _cluster.TokenBucket; }
+        }
+
         public IChannelSourceHandle GetReadChannelSource(OperationContext operationContext)
         {
             return GetReadChannelSource(operationContext, null);

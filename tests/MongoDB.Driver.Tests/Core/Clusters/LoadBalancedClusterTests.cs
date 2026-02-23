@@ -443,6 +443,14 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
             }
         }
 
+        [Fact]
+        public void TokenBucket_should_not_be_null()
+        {
+            var subject = CreateSubject();
+
+            subject.TokenBucket.Should().NotBeNull();
+        }
+
         // private methods
         private Mock<IDnsMonitorFactory> CreateMockDnsMonitorFactory()
         {

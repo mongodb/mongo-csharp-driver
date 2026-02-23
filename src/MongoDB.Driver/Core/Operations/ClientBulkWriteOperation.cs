@@ -55,7 +55,7 @@ namespace MongoDB.Driver.Core.Operations
             WriteConcern = options?.WriteConcern;
         }
 
-        protected override BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, int attempt, long? transactionNumber)
+        protected override BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, long? transactionNumber)
         {
             var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, session, WriteConcern);
             return new BsonDocument
@@ -112,6 +112,10 @@ namespace MongoDB.Driver.Core.Operations
                 }
                 catch (Exception exception) when (!context.ErrorDuringLastChannelAcquisition)
                 {
+                    if (context.Channel is null)  //TODO Need to improve
+                    {
+                        throw;
+                    }
                     bulkWriteResults.TopLevelException = exception;
                 }
 
@@ -170,6 +174,10 @@ namespace MongoDB.Driver.Core.Operations
                 }
                 catch (Exception exception) when (!context.ErrorDuringLastChannelAcquisition)
                 {
+                    if (context.Channel is null)  //TODO Need to improve
+                    {
+                        throw;
+                    }
                     bulkWriteResults.TopLevelException = exception;
                 }
 
