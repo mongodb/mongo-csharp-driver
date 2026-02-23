@@ -81,7 +81,7 @@ namespace MongoDB.Driver.Core.Operations
                     //TODO I should throw if backoff exceeeds timeout
                 }
 
-                deprioritizedServers ??= new HashSet<ServerDescription>();
+                deprioritizedServers ??= [];
                 deprioritizedServers.Add(context.LastAcquiredServer);
             }
         }
@@ -143,7 +143,7 @@ namespace MongoDB.Driver.Core.Operations
                     await Task.Delay(backoff, operationContext.CancellationToken).ConfigureAwait(false);
                 }
 
-                deprioritizedServers ??= new HashSet<ServerDescription>();
+                deprioritizedServers ??= [];
                 deprioritizedServers.Add(context.LastAcquiredServer);
             }
         }
@@ -175,7 +175,7 @@ namespace MongoDB.Driver.Core.Operations
             }
 
             var isRetryableWriteException = RetryabilityHelper.IsRetryableWriteException(exception);
-            var isRetryableWrites = AreRetriesAllowed(writeConcern, context, context.ChannelSource.ServerDescription) && isRetryableWriteException;
+            var isRetryableWrites = AreRetriesAllowed(writeConcern, context, context.LastAcquiredServer) && isRetryableWriteException;
 
             var isRetryableReadOrWrite = isRetryableRead || isRetryableWrites;
 
