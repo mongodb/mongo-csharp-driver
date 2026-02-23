@@ -198,7 +198,8 @@ namespace MongoDB.Driver
 
         internal OperationContext WithOperationMetadata(string operationName, string databaseName, string collectionName, bool isTracingEnabled)
         {
-            return new OperationContext(Clock, RemainingTimeout, CancellationToken)
+            TimeSpan? newTimeout = Timeout.HasValue ? RemainingTimeout : null;
+            return new OperationContext(Clock, newTimeout, CancellationToken)
             {
                 RootContext = RootContext,
                 OperationName = operationName,
