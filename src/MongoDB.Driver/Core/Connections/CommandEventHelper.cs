@@ -101,6 +101,15 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
+        public void EnsureCommandActivityCompleted()
+        {
+            if (_currentCommandActivity is not null)
+            {
+                _currentCommandActivity.Dispose();
+                _currentCommandActivity = null;
+            }
+        }
+
         public void BeforeSending(
             RequestMessage message,
             ConnectionId connectionId,

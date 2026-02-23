@@ -241,6 +241,11 @@ namespace MongoDB.Driver.Core.TestHelpers
             // No-op for mock
         }
 
+        public void EnsureCommandActivityCompleted()
+        {
+            // No-op for mock
+        }
+
         // nested type
         private class ActionQueueItem
         {

@@ -598,6 +598,11 @@ namespace MongoDB.Driver.Core.Connections
             _commandEventHelper.CompleteFailedCommandActivity(exception);
         }
 
+        public void EnsureCommandActivityCompleted()
+        {
+            _commandEventHelper.EnsureCommandActivityCompleted();
+        }
+
         // private methods
         private void AddBackpressureErrorLabelsIfRequired(MongoConnectionException exception)
         {

@@ -574,10 +574,10 @@ namespace MongoDB.Driver.Core.WireProtocol
             {
                 var encoderSelector = new CommandResponseMessageEncoderSelector();
                 var response = (CommandResponseMessage)connection.ReceiveMessage(operationContext, responseTo, encoderSelector, _messageEncoderSettings);
-                // TODO: CSOT: Propagate operationContext into Encryption
-                response = AutoDecryptFieldsIfNecessary(response, operationContext.CancellationToken);
                 try
                 {
+                    // TODO: CSOT: Propagate operationContext into Encryption
+                    response = AutoDecryptFieldsIfNecessary(response, operationContext.CancellationToken);
                     var result = ProcessResponse(connection.ConnectionId, response.WrappedMessage);
                     SaveResponseInfo(response);
                     return result;
@@ -591,6 +591,10 @@ namespace MongoDB.Driver.Core.WireProtocol
                 {
                     connection.CompleteCommandWithException(ex);
                     throw;
+                }
+                finally
+                {
+                    connection.EnsureCommandActivityCompleted();
                 }
             }
             else
@@ -623,10 +627,10 @@ namespace MongoDB.Driver.Core.WireProtocol
             {
                 var encoderSelector = new CommandResponseMessageEncoderSelector();
                 var response = (CommandResponseMessage)await connection.ReceiveMessageAsync(operationContext, responseTo, encoderSelector, _messageEncoderSettings).ConfigureAwait(false);
-                // TODO: CSOT: Propagate operationContext into Encryption
-                response = await AutoDecryptFieldsIfNecessaryAsync(response, operationContext.CancellationToken).ConfigureAwait(false);
                 try
                 {
+                    // TODO: CSOT: Propagate operationContext into Encryption
+                    response = await AutoDecryptFieldsIfNecessaryAsync(response, operationContext.CancellationToken).ConfigureAwait(false);
                     var result = ProcessResponse(connection.ConnectionId, response.WrappedMessage);
                     SaveResponseInfo(response);
                     return result;
@@ -640,6 +644,10 @@ namespace MongoDB.Driver.Core.WireProtocol
                 {
                     connection.CompleteCommandWithException(ex);
                     throw;
+                }
+                finally
+                {
+                    connection.EnsureCommandActivityCompleted();
                 }
             }
             else
