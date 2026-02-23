@@ -221,17 +221,5 @@ namespace MongoDB.Driver
             };
         }
 
-        internal OperationContext WithOperationMetadata(string operationName, string databaseName, string collectionName, bool isTracingEnabled)
-        {
-            TimeSpan? newTimeout = Timeout.HasValue ? RemainingTimeout : null;
-            return new OperationContext(Clock, newTimeout, CancellationToken)
-            {
-                RootContext = RootContext,
-                OperationName = operationName,
-                DatabaseName = databaseName,
-                CollectionName = collectionName,
-                IsTracingEnabled = isTracingEnabled
-            };
-        }
     }
 }
