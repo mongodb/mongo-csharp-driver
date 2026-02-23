@@ -125,8 +125,8 @@ functions:
           git clone https://github.com/mongodb-labs/drivers-evergreen-tools.git $DRIVERS_TOOLS
 
           if [ "$EG_TOOLS_COMMIT" != "" ]; then
-            cd $DRIVERS_TOOLS
-            git checkout $EG_TOOLS_COMMIT
+            cd "$DRIVERS_TOOLS"
+            git checkout "$EG_TOOLS_COMMIT"
           fi
 
           echo "{ \"releases\": { \"default\": \"$MONGODB_BINARIES\" }}" > $MONGO_ORCHESTRATION_HOME/orchestration.config
