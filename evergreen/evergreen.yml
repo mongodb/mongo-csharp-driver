@@ -1990,7 +1990,7 @@ axes:
         display_name: "Ubuntu 18.04"
         variables:
           OS: "ubuntu-1804"
-          EG_TOOLS_COMMIT: 9e9a306820c4a517736691e34d141e2ad56e4af6
+          EG_TOOLS_COMMIT: "9e9a306820c4a517736691e34d141e2ad56e4af6"  # Pin drivers-evergreen-tools for Ubuntu 18.04 as a temporary workaround to run MongoDB 4.2 variants
         run_on: ubuntu1804-test
       - id: "ubuntu-2004"
         display_name: "Ubuntu 20.04"
