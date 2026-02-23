@@ -509,9 +509,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
-            public void CompleteCommandWithException(Exception exception)
+            public void CompleteCommandActivityWithException(Exception exception)
             {
-                _connection.CompleteCommandWithException(exception);
+                _connection.CompleteCommandActivityWithException(exception);
             }
 
             public void EnsureCommandActivityCompleted()
@@ -662,10 +662,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 return _reference.Instance.SendMessageAsync(operationContext, message, messageEncoderSettings);
             }
 
-            public void CompleteCommandWithException(Exception exception)
+            public void CompleteCommandActivityWithException(Exception exception)
             {
                 ThrowIfDisposed();
-                _reference.Instance.CompleteCommandWithException(exception);
+                _reference.Instance.CompleteCommandActivityWithException(exception);
             }
 
             public void EnsureCommandActivityCompleted()

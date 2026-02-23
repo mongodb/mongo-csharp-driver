@@ -236,7 +236,7 @@ namespace MongoDB.Driver.Core.TestHelpers
             return Task.CompletedTask;
         }
 
-        public void CompleteCommandWithException(Exception exception)
+        public void CompleteCommandActivityWithException(Exception exception)
         {
             // No-op for mock
         }

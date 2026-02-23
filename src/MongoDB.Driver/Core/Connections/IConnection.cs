@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Core.Connections
         void SendMessage(OperationContext operationContext, RequestMessage message, MessageEncoderSettings messageEncoderSettings);
         Task SendMessageAsync(OperationContext operationContext, RequestMessage message, MessageEncoderSettings messageEncoderSettings);
 
-        void CompleteCommandWithException(Exception exception);
+        void CompleteCommandActivityWithException(Exception exception);
         void EnsureCommandActivityCompleted();
     }
 

@@ -459,7 +459,7 @@ namespace MongoDB.Driver.Core.Connections
                     (state.ExpectedResponseType != ExpectedResponseType.Query && replyMessage.Documents.Count == 0))
                 {
                     // Activity is not completed here. WireProtocol will create the real exception with a
-                    // meaningful stacktrace, and CompleteCommandWithException will be called there.
+                    // meaningful stacktrace, and CompleteCommandActivityWithException will be called there.
 
                     if (_shouldTrackFailed)
                     {
@@ -744,7 +744,7 @@ namespace MongoDB.Driver.Core.Connections
             bool skipLogging)
         {
             // Activity is not completed here. WireProtocol will create the real exception with a
-            // meaningful stacktrace, and CompleteCommandWithException will be called there.
+            // meaningful stacktrace, and CompleteCommandActivityWithException will be called there.
 
             if (!_shouldTrackFailed)
             {

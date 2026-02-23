@@ -139,12 +139,12 @@ namespace MongoDB.Driver.Core.WireProtocol
                     }
                     catch (MongoCommandException ex) when (ex is not MongoWriteConcernException)
                     {
-                        connection.CompleteCommandWithException(ex);
+                        connection.CompleteCommandActivityWithException(ex);
                         throw;
                     }
                     catch (MongoExecutionTimeoutException ex)
                     {
-                        connection.CompleteCommandWithException(ex);
+                        connection.CompleteCommandActivityWithException(ex);
                         throw;
                     }
             }
@@ -174,12 +174,12 @@ namespace MongoDB.Driver.Core.WireProtocol
                     }
                     catch (MongoCommandException ex) when (ex is not MongoWriteConcernException)
                     {
-                        connection.CompleteCommandWithException(ex);
+                        connection.CompleteCommandActivityWithException(ex);
                         throw;
                     }
                     catch (MongoExecutionTimeoutException ex)
                     {
-                        connection.CompleteCommandWithException(ex);
+                        connection.CompleteCommandActivityWithException(ex);
                         throw;
                     }
             }

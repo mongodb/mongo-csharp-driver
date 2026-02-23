@@ -593,7 +593,7 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        public void CompleteCommandWithException(Exception exception)
+        public void CompleteCommandActivityWithException(Exception exception)
         {
             _commandEventHelper.CompleteFailedCommandActivity(exception);
         }
