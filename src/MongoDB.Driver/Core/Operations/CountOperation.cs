@@ -25,7 +25,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    internal sealed class CountOperation : IReadOperation<long>, IExecutableInRetryableReadContext<long>
+    internal sealed class CountOperation : IReadOperation<long>, IExecutableInRetryableReadContext<long>, ICommandCreator
     {
         private Collation _collation;
         private readonly CollectionNamespace _collectionNamespace;
@@ -131,7 +131,7 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = RetryableReadContext.Create(operationContext, binding, _retryRequested))
+            using (var context = new RetryableReadContext(binding, _retryRequested))
             {
                 return Execute(operationContext, context);
             }
@@ -139,7 +139,7 @@ namespace MongoDB.Driver.Core.Operations
 
         public long Execute(OperationContext operationContext, RetryableReadContext context)
         {
-            var operation = CreateOperation(operationContext, context);
+            var operation = CreateOperation(operationContext);
             var document = operation.Execute(operationContext, context);
             return document["n"].ToInt64();
         }
@@ -149,7 +149,7 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = await RetryableReadContext.CreateAsync(operationContext, binding, _retryRequested).ConfigureAwait(false))
+            using (var context = new RetryableReadContext(binding, _retryRequested))
             {
                 return await ExecuteAsync(operationContext, context).ConfigureAwait(false);
             }
@@ -157,17 +157,20 @@ namespace MongoDB.Driver.Core.Operations
 
         public async Task<long> ExecuteAsync(OperationContext operationContext, RetryableReadContext context)
         {
-            var operation = CreateOperation(operationContext, context);
+            var operation = CreateOperation(operationContext);
             var document = await operation.ExecuteAsync(operationContext, context).ConfigureAwait(false);
             return document["n"].ToInt64();
         }
 
         private EventContext.OperationNameDisposer BeginOperation() => EventContext.BeginOperation("count");
 
-        private ReadCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, RetryableReadContext context)
+        private ReadCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext)
         {
-            var command = CreateCommand(operationContext, context.Binding.Session, context.Channel.ConnectionDescription);
-            return new ReadCommandOperation<BsonDocument>(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            return new ReadCommandOperation<BsonDocument>(
+                _collectionNamespace.DatabaseNamespace,
+                this,
+                BsonDocumentSerializer.Instance,
+                _messageEncoderSettings)
             {
                 RetryRequested = _retryRequested // might be overridden by retryable read context
             };

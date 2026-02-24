@@ -48,8 +48,8 @@ namespace MongoDB.Driver.Core.Clusters
         {
             _settings = new ClusterSettings(serverSelectionTimeout: TimeSpan.FromSeconds(2));
             _mockServerFactory = new Mock<IClusterableServerFactory>();
-            _mockServerFactory.Setup(f => f.CreateServer(It.IsAny<ClusterType>(), It.IsAny<ClusterId>(), It.IsAny<IClusterClock>(), It.IsAny<EndPoint>()))
-                .Returns((ClusterType _, ClusterId clusterId, IClusterClock _, EndPoint endPoint) =>
+            _mockServerFactory.Setup(f => f.CreateServer(It.IsAny<ClusterType>(), It.IsAny<ClusterId>(), It.IsAny<IClusterClock>(), It.IsAny<EndPoint>(), It.IsAny<TokenBucket>()))
+                .Returns((ClusterType _, ClusterId clusterId, IClusterClock _, EndPoint endPoint, TokenBucket tokenBucket) =>
                 {
                     var mockServer = new Mock<IClusterableServer>();
                     mockServer.SetupGet(s => s.EndPoint).Returns(endPoint);
@@ -394,8 +394,8 @@ namespace MongoDB.Driver.Core.Clusters
             [Values(false, true)]
             bool async)
         {
-            _mockServerFactory.Setup(f => f.CreateServer(It.IsAny<ClusterType>(), It.IsAny<ClusterId>(), It.IsAny<IClusterClock>(), It.IsAny<EndPoint>()))
-                .Returns((ClusterType _, ClusterId clusterId, IClusterClock clusterClock, EndPoint endPoint) =>
+            _mockServerFactory.Setup(f => f.CreateServer(It.IsAny<ClusterType>(), It.IsAny<ClusterId>(), It.IsAny<IClusterClock>(), It.IsAny<EndPoint>(), It.IsAny<TokenBucket>()))
+                .Returns((ClusterType _, ClusterId clusterId, IClusterClock clusterClock, EndPoint endPoint, TokenBucket tokenBucket) =>
                 {
                     var mockServer = new Mock<IClusterableServer>();
                     mockServer.SetupGet(s => s.EndPoint).Returns(endPoint);
@@ -480,6 +480,14 @@ namespace MongoDB.Driver.Core.Clusters
 
             numberOfCustomServerSelectorCalls.Should().Be(1);
             _capturedEvents.Any().Should().BeFalse();
+        }
+
+        [Fact]
+        public void TokenBucket_should_not_be_null()
+        {
+            var subject = CreateSubject();
+
+            subject.TokenBucket.Should().NotBeNull();
         }
 
         // private methods

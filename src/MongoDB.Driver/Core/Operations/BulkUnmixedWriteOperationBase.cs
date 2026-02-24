@@ -129,7 +129,7 @@ namespace MongoDB.Driver.Core.Operations
         public BulkWriteOperationResult Execute(OperationContext operationContext, IWriteBinding binding)
         {
             using (BeginOperation())
-            using (var context = RetryableWriteContext.Create(operationContext, binding, IsOperationRetryable()))
+            using (var context = new RetryableWriteContext(binding, IsOperationRetryable()))
             {
                 return Execute(operationContext, context);
             }
@@ -145,7 +145,7 @@ namespace MongoDB.Driver.Core.Operations
         public async Task<BulkWriteOperationResult> ExecuteAsync(OperationContext operationContext, IWriteBinding binding)
         {
             using (BeginOperation())
-            using (var context = await RetryableWriteContext.CreateAsync(operationContext, binding, IsOperationRetryable()).ConfigureAwait(false))
+            using (var context = new RetryableWriteContext(binding, IsOperationRetryable()))
             {
                 return await ExecuteAsync(operationContext, context).ConfigureAwait(false);
             }
@@ -284,7 +284,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 var combiner = new BulkWriteBatchResultCombiner(_batchResults, _writeConcern.IsAcknowledged);
                 var remainingRequests = _requests.GetUnprocessedItems();
-                return combiner.CreateResultOrThrowIfHasErrors(channel.ConnectionDescription.ConnectionId, remainingRequests);
+                return combiner.CreateResultOrThrowIfHasErrors(channel?.ConnectionDescription.ConnectionId, remainingRequests);
             }
 
             // private methods

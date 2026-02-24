@@ -18,13 +18,14 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    internal sealed class DropDatabaseOperation : IWriteOperation<BsonDocument>
+    internal sealed class DropDatabaseOperation : IWriteOperation<BsonDocument>, IRetryableWriteOperation<BsonDocument>
     {
         private readonly DatabaseNamespace _databaseNamespace;
         private readonly MessageEncoderSettings _messageEncoderSettings;
@@ -54,7 +55,7 @@ namespace MongoDB.Driver.Core.Operations
             set { _writeConcern = value; }
         }
 
-        public BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session)
+        public BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber)
         {
             var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, session, _writeConcern);
             return new BsonDocument
@@ -66,37 +67,67 @@ namespace MongoDB.Driver.Core.Operations
 
         public BsonDocument Execute(OperationContext operationContext, IWriteBinding binding)
         {
-            Ensure.IsNotNull(binding, nameof(binding));
-
             using (BeginOperation())
-            using (var channelSource = binding.GetWriteChannelSource(operationContext))
-            using (var channel = channelSource.GetChannel(operationContext))
+            {
+                return RetryableWriteOperationExecutor.Execute(operationContext, this, binding, retryRequested: false);
+            }
+        }
+
+        public BsonDocument Execute(OperationContext operationContext, RetryableWriteContext context)
+        {
+            using (BeginOperation())
+            {
+                return RetryableWriteOperationExecutor.Execute(operationContext, this, context);
+            }
+        }
+
+        public Task<BsonDocument> ExecuteAsync(OperationContext operationContext, IWriteBinding binding)
+        {
+            using (BeginOperation())
+            {
+                return RetryableWriteOperationExecutor.ExecuteAsync(operationContext, this, binding, retryRequested: false);
+            }
+        }
+
+        public Task<BsonDocument> ExecuteAsync(OperationContext operationContext, RetryableWriteContext context)
+        {
+            using (BeginOperation())
+            {
+                return RetryableWriteOperationExecutor.ExecuteAsync(operationContext, this, context);
+            }
+        }
+
+        public BsonDocument ExecuteAttempt(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
+        {
+            var binding = context.Binding;
+            var channelSource = context.ChannelSource;
+            var channel = context.Channel;
+
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
-                var operation = CreateOperation(operationContext, channelBinding.Session);
+                var operation = CreateOperation(operationContext, channelBinding.Session, channel.ConnectionDescription, transactionNumber);
                 return operation.Execute(operationContext, channelBinding);
             }
         }
 
-        public async Task<BsonDocument> ExecuteAsync(OperationContext operationContext, IWriteBinding binding)
+        public async Task<BsonDocument> ExecuteAttemptAsync(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
         {
-            Ensure.IsNotNull(binding, nameof(binding));
+            var binding = context.Binding;
+            var channelSource = context.ChannelSource;
+            var channel = context.Channel;
 
-            using (BeginOperation())
-            using (var channelSource = await binding.GetWriteChannelSourceAsync(operationContext).ConfigureAwait(false))
-            using (var channel = await channelSource.GetChannelAsync(operationContext).ConfigureAwait(false))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
-                var operation = CreateOperation(operationContext, channelBinding.Session);
+                var operation = CreateOperation(operationContext, channelBinding.Session, channel.ConnectionDescription, transactionNumber);
                 return await operation.ExecuteAsync(operationContext, channelBinding).ConfigureAwait(false);
             }
         }
 
         private EventContext.OperationNameDisposer BeginOperation() => EventContext.BeginOperation("dropDatabase");
 
-        private WriteCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, ICoreSessionHandle session)
+        private WriteCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber)
         {
-            var command = CreateCommand(operationContext, session);
+            var command = CreateCommand(operationContext, session, connectionDescription, transactionNumber);
             return new WriteCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
         }
     }

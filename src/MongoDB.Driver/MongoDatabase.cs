@@ -735,7 +735,9 @@ namespace MongoDB.Driver
             var messageEncoderSettings = GetMessageEncoderSettings();
             return new ReadCommandOperation<TResult>(_databaseNamespace, renderedCommand.Document, renderedCommand.ResultSerializer, messageEncoderSettings)
             {
-                RetryRequested = false
+                RetryRequested = false,
+                // RunCommand is only retryable in the context of client backpressure, and only if both "retryWrites" and "retryReads" are enabled.
+                CanBeRetried = Client.Settings.RetryWrites && Client.Settings.RetryReads
             };
         }
 

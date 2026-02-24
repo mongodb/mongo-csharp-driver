@@ -113,8 +113,8 @@ namespace MongoDB.Driver.Tests.Specifications.server_selection
 
             var mockServerFactory = new Mock<IClusterableServerFactory>();
             mockServerFactory
-                .Setup(s => s.CreateServer(It.IsAny<ClusterType>(), It.IsAny<ClusterId>(), It.IsAny<IClusterClock>(), It.IsAny<EndPoint>()))
-                .Returns<ClusterType, ClusterId, IClusterClock, EndPoint>((_, _, _, endpoint) =>
+                .Setup(s => s.CreateServer(It.IsAny<ClusterType>(), It.IsAny<ClusterId>(), It.IsAny<IClusterClock>(), It.IsAny<EndPoint>(), It.IsAny<TokenBucket>()))
+                .Returns<ClusterType, ClusterId, IClusterClock, EndPoint, TokenBucket>((_, _, _, endpoint, _) =>
                 {
                     var serverDescriptionDisconnected = clusterDescription.Servers
                         .Single(s => s.EndPoint == endpoint)

@@ -55,7 +55,7 @@ namespace MongoDB.Driver.Core.Operations
             WriteConcern = options?.WriteConcern;
         }
 
-        protected override BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, int attempt, long? transactionNumber)
+        protected override BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, long? transactionNumber)
         {
             var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, session, WriteConcern);
             return new BsonDocument
@@ -94,7 +94,7 @@ namespace MongoDB.Driver.Core.Operations
             var bulkWriteResults = new BulkWriteRawResult();
             while (true)
             {
-                using var context = RetryableWriteContext.Create(operationContext, binding, GetEffectiveRetryRequested());
+                using var context = new RetryableWriteContext(binding, GetEffectiveRetryRequested());
                 BsonDocument serverResponse = null;
                 try
                 {
@@ -110,7 +110,7 @@ namespace MongoDB.Driver.Core.Operations
                     bulkWriteResults.TopLevelException = commandException;
                     serverResponse = commandException.Result;
                 }
-                catch (Exception exception)
+                catch (Exception exception) when (!context.ErrorDuringLastChannelAcquisition)
                 {
                     bulkWriteResults.TopLevelException = exception;
                 }
@@ -152,7 +152,7 @@ namespace MongoDB.Driver.Core.Operations
             var bulkWriteResults = new BulkWriteRawResult();
             while (true)
             {
-                using var context = RetryableWriteContext.Create(operationContext, binding, GetEffectiveRetryRequested());
+                using var context = new RetryableWriteContext(binding, GetEffectiveRetryRequested());
                 BsonDocument serverResponse = null;
                 try
                 {
@@ -168,7 +168,7 @@ namespace MongoDB.Driver.Core.Operations
                     bulkWriteResults.TopLevelException = commandException;
                     serverResponse = commandException.Result;
                 }
-                catch (Exception exception)
+                catch (Exception exception) when (!context.ErrorDuringLastChannelAcquisition)
                 {
                     bulkWriteResults.TopLevelException = exception;
                 }

@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,43 +24,6 @@ namespace MongoDB.Driver.Core.Operations
 {
     internal sealed class RetryableReadContext : IDisposable
     {
-        #region static
-
-        public static RetryableReadContext Create(OperationContext operationContext, IReadBinding binding, bool retryRequested)
-        {
-            var context = new RetryableReadContext(binding, retryRequested);
-            try
-            {
-                context.AcquireOrReplaceChannel(operationContext, null);
-            }
-            catch
-            {
-                context.Dispose();
-                throw;
-            }
-
-            ChannelPinningHelper.PinChannellIfRequired(context.ChannelSource, context.Channel, context.Binding.Session);
-            return context;
-        }
-
-        public static async Task<RetryableReadContext> CreateAsync(OperationContext operationContext, IReadBinding binding, bool retryRequested)
-        {
-            var context = new RetryableReadContext(binding, retryRequested);
-            try
-            {
-                await context.AcquireOrReplaceChannelAsync(operationContext, null).ConfigureAwait(false);
-            }
-            catch
-            {
-                context.Dispose();
-                throw;
-            }
-
-            ChannelPinningHelper.PinChannellIfRequired(context.ChannelSource, context.Channel, context.Binding.Session);
-            return context;
-        }
-        #endregion
-
 #pragma warning disable CA2213 // Disposable fields should be disposed
         private readonly IReadBinding _binding;
 #pragma warning restore CA2213 // Disposable fields should be disposed
@@ -68,17 +31,32 @@ namespace MongoDB.Driver.Core.Operations
         private IChannelSourceHandle _channelSource;
         private bool _disposed;
         private bool _retryRequested;
+        private ServerDescription _lastAcquiredServer;
+        private bool _canBeRetried;
+        private IRandom _random;
 
-        public RetryableReadContext(IReadBinding binding, bool retryRequested)
+        public RetryableReadContext(IReadBinding binding, bool retryRequested, bool canBeRetried = true, IRandom random = null)
         {
             _binding = Ensure.IsNotNull(binding, nameof(binding));
             _retryRequested = retryRequested;
+            _canBeRetried = canBeRetried;
+            _random = random ?? DefaultRandom.Instance;
         }
 
         public IReadBinding Binding => _binding;
         public IChannelHandle Channel => _channel;
         public IChannelSourceHandle ChannelSource => _channelSource;
+        /// <summary>
+        /// This property only influences the retryability for retryable reads/writes and has no effect
+        /// on client backpressure errors.
+        /// </summary>
         public bool RetryRequested => _retryRequested;
+        public ServerDescription LastAcquiredServer => _lastAcquiredServer;
+        /// <summary>
+        /// Indicates whether the operation can be retried. If false, retries are disabled entirely.
+        /// </summary>
+        public bool CanBeRetried => _canBeRetried;
+        public IRandom Random => _random;
 
         public void Dispose()
         {
@@ -92,39 +70,39 @@ namespace MongoDB.Driver.Core.Operations
 
         public void AcquireOrReplaceChannel(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
-            var attempt = 1;
-            while (true)
+            try
             {
+                _lastAcquiredServer = null;
                 operationContext.ThrowIfTimedOutOrCanceled();
                 ReplaceChannelSource(Binding.GetReadChannelSource(operationContext, deprioritizedServers));
-                try
-                {
-                    ReplaceChannel(ChannelSource.GetChannel(operationContext));
-                    return;
-                }
-                catch (Exception ex) when (RetryableReadOperationExecutor.ShouldConnectionAcquireBeRetried(operationContext, this, ex, attempt))
-                {
-                    attempt++;
-                }
+                _lastAcquiredServer = ChannelSource.ServerDescription;
+                ReplaceChannel(ChannelSource.GetChannel(operationContext));
+                ChannelPinningHelper.PinChannellIfRequired(ChannelSource, Channel, Binding.Session);
+            }
+            catch
+            {
+                _channelSource?.Dispose();
+                _channel?.Dispose();
+                throw;
             }
         }
 
         public async Task AcquireOrReplaceChannelAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
-            var attempt = 1;
-            while (true)
+            try
             {
+                _lastAcquiredServer = null;
                 operationContext.ThrowIfTimedOutOrCanceled();
                 ReplaceChannelSource(await Binding.GetReadChannelSourceAsync(operationContext, deprioritizedServers).ConfigureAwait(false));
-                try
-                {
-                    ReplaceChannel(await ChannelSource.GetChannelAsync(operationContext).ConfigureAwait(false));
-                    return;
-                }
-                catch (Exception ex) when (RetryableReadOperationExecutor.ShouldConnectionAcquireBeRetried(operationContext, this, ex, attempt))
-                {
-                    attempt++;
-                }
+                _lastAcquiredServer = ChannelSource.ServerDescription;
+                ReplaceChannel(await ChannelSource.GetChannelAsync(operationContext).ConfigureAwait(false));
+                ChannelPinningHelper.PinChannellIfRequired(ChannelSource, Channel, Binding.Session);
+            }
+            catch
+            {
+                _channelSource?.Dispose();
+                _channel?.Dispose();
+                throw;
             }
         }
 

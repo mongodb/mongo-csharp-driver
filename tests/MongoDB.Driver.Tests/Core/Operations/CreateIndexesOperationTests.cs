@@ -93,7 +93,7 @@ namespace MongoDB.Driver.Core.Operations
             var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
-            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription);
+            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription, null);
 
             var expectedResult = new BsonDocument
             {
@@ -115,7 +115,7 @@ namespace MongoDB.Driver.Core.Operations
             var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
-            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription);
+            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription, null);
 
             var expectedResult = new BsonDocument
             {
@@ -139,7 +139,7 @@ namespace MongoDB.Driver.Core.Operations
             var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.CreateIndexCommitQuorum.FirstSupportedWireVersion);
 
-            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription);
+            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription, null);
 
             var expectedResult = new BsonDocument
             {
@@ -165,7 +165,7 @@ namespace MongoDB.Driver.Core.Operations
             var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.CreateIndexCommitQuorum.FirstSupportedWireVersion);
 
-            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription);
+            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription, null);
 
             var expectedResult = new BsonDocument
             {
@@ -194,7 +194,7 @@ namespace MongoDB.Driver.Core.Operations
             var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
-            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription);
+            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription, null);
 
             var expectedResult = new BsonDocument
             {
@@ -220,7 +220,7 @@ namespace MongoDB.Driver.Core.Operations
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
             var operationContext = new OperationContext(TimeSpan.FromMilliseconds(timeoutMs), CancellationToken.None);
-            var result = subject.CreateCommand(operationContext, session, connectionDescription);
+            var result = subject.CreateCommand(operationContext, session, connectionDescription, null);
 
             result.Should().NotContain("maxTimeMS");
         }
@@ -240,7 +240,7 @@ namespace MongoDB.Driver.Core.Operations
             var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
-            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription);
+            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription, null);
 
             var expectedResult = new BsonDocument
             {
@@ -263,7 +263,7 @@ namespace MongoDB.Driver.Core.Operations
             var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.CreateIndexCommitQuorum.LastNotSupportedWireVersion);
 
-            var exception = Record.Exception(() => subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription));
+            var exception = Record.Exception(() => subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription, null));
 
             exception.Should().BeOfType<NotSupportedException>();
         }

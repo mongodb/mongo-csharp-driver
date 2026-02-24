@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Core.TestHelpers
             _loggerFactory = loggerFactory;
         }
 
-        public IClusterableServer CreateServer(ClusterType clusterType, ClusterId clusterId, IClusterClock clusterClock, EndPoint endPoint)
+        public IClusterableServer CreateServer(ClusterType clusterType, ClusterId clusterId, IClusterClock clusterClock, EndPoint endPoint, TokenBucket tokenBucket)
         {
             ServerTuple result;
             if (!_servers.TryGetValue(endPoint, out result) || result.HasBeenRemoved)
@@ -130,7 +130,8 @@ namespace MongoDB.Driver.Core.TestHelpers
                             endPoint,
                             connectionPoolFactory,
                             serverApi: null,
-                            _loggerFactory.CreateEventLogger<LogCategories.SDAM>(_eventSubscriber));
+                            _loggerFactory.CreateEventLogger<LogCategories.SDAM>(_eventSubscriber),
+                            tokenBucket);
                     default:
                         return new DefaultServer(
                             clusterId,
@@ -141,7 +142,8 @@ namespace MongoDB.Driver.Core.TestHelpers
                             connectionPoolFactory,
                             serverMonitorFactory,
                             serverApi: null,
-                            _loggerFactory.CreateEventLogger<LogCategories.SDAM>(_eventSubscriber));
+                            _loggerFactory.CreateEventLogger<LogCategories.SDAM>(_eventSubscriber),
+                            tokenBucket);
                 }
             }
         }
@@ -202,7 +204,6 @@ namespace MongoDB.Driver.Core.TestHelpers
             public IClusterableServer Server;
             public IServerMonitor Monitor;
         }
-
     }
     internal static class ServerReflector
     {

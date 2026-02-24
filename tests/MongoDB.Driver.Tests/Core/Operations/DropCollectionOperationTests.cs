@@ -69,8 +69,9 @@ namespace MongoDB.Driver.Core.Operations
                 { "drop", _collectionNamespace.CollectionName }
             };
             var session = OperationTestHelper.CreateSession();
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
-            var result = subject.CreateCommand(OperationContext.NoTimeout, session);
+            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription, null);
 
             result.Should().Be(expectedResult);
         }
@@ -95,8 +96,9 @@ namespace MongoDB.Driver.Core.Operations
             };
             var operationContext = hasOperationTimeout ? new OperationContext(TimeSpan.FromSeconds(42), CancellationToken.None) : OperationContext.NoTimeout;
             var session = OperationTestHelper.CreateSession();
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
-            var result = subject.CreateCommand(operationContext, session);
+            var result = subject.CreateCommand(operationContext, session, connectionDescription, null);
 
             var expectedConcern = writeConcern?.ToBsonDocument();
             if (hasOperationTimeout)
@@ -117,10 +119,11 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = DropCollectionOperation.CreateEncryptedDropCollectionOperationIfConfigured(_collectionNamespace, encryptedFields: null, _messageEncoderSettings, null);
             var session = OperationTestHelper.CreateSession();
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
             var s = subject.Should().BeOfType<DropCollectionOperation>().Subject;
 
-            var command = s.CreateCommand(OperationContext.NoTimeout, session);
+            var command = s.CreateCommand(OperationContext.NoTimeout, session, connectionDescription, null);
 
             var expectedResult = new BsonDocument
             {
@@ -181,7 +184,8 @@ namespace MongoDB.Driver.Core.Operations
             {
                 operationInfo.IsMainOperation.Should().Be(isMainOperation);
                 var operation = operationInfo.Operation.Should().BeOfType<DropCollectionOperation>().Subject;
-                var result = operation.CreateCommand(OperationContext.NoTimeout, session);
+                var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+                var result = operation.CreateCommand(OperationContext.NoTimeout, session, connectionDescription, null);
                 var expectedResult = new BsonDocument
                 {
                     { "drop", collectionNamespace.CollectionName },

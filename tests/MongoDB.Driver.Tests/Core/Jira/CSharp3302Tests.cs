@@ -48,6 +48,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
         private readonly static TimeSpan __heartbeatInterval = TimeSpan.FromMilliseconds(200);
         private readonly static ServerId __serverId1 = new ServerId(__clusterId, __endPoint1);
         private readonly static ServerId __serverId2 = new ServerId(__clusterId, __endPoint2);
+        private readonly static TokenBucket ___tokenBucket = new TokenBucket();
 
         public CSharp3302Tests(ITestOutputHelper output) : base(output)
         {
@@ -78,10 +79,11 @@ namespace MongoDB.Driver.Core.Tests.Jira
             serverMock.Setup(s => s.IsInitialized).Returns(true);
             serverMock.Setup(s => s.Description).Returns(serverDescription);
             serverMock.Setup(s => s.RequestHeartbeat()).Callback(BlockHeartbeatRequested);
+            serverMock.Setup(s => s.TokenBucket).Returns(___tokenBucket);
 
             var serverFactoryMock = new Mock<IClusterableServerFactory>();
             serverFactoryMock
-                .Setup(f => f.CreateServer(It.IsAny<ClusterType>(), It.IsAny<ClusterId>(), It.IsAny<IClusterClock>(), It.IsAny<EndPoint>()))
+                .Setup(f => f.CreateServer(It.IsAny<ClusterType>(), It.IsAny<ClusterId>(), It.IsAny<IClusterClock>(), It.IsAny<EndPoint>(), It.IsAny<TokenBucket>()))
                 .Returns(serverMock.Object);
 
             using (var cluster = new MultiServerCluster(clusterSettings, serverFactoryMock.Object, new EventCapturer(), LoggerFactory))

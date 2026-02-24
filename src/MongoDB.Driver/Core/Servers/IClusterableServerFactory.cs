@@ -20,6 +20,6 @@ namespace MongoDB.Driver.Core.Servers
 {
     internal interface IClusterableServerFactory
     {
-        IClusterableServer CreateServer(ClusterType clusterType, ClusterId clusterId, IClusterClock clusterClock, EndPoint endPoint);
+        IClusterableServer CreateServer(ClusterType clusterType, ClusterId clusterId, IClusterClock clusterClock, EndPoint endPoint, TokenBucket tokenBucket);
     }
 }

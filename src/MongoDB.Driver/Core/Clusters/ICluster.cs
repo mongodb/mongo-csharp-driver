@@ -58,6 +58,8 @@ namespace MongoDB.Driver.Core.Clusters
     {
         IEnumerable<IClusterableServer> Servers { get; }
 
+        TokenBucket TokenBucket { get; }
+
         event EventHandler<ClusterDescriptionChangedEventArgs> DescriptionChanged;
 
         ICoreServerSession AcquireServerSession();

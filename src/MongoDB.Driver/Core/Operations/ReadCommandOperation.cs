@@ -25,7 +25,9 @@ namespace MongoDB.Driver.Core.Operations
 {
     internal sealed class ReadCommandOperation<TCommandResult> : CommandOperationBase<TCommandResult>, IReadOperation<TCommandResult>, IRetryableReadOperation<TCommandResult>
     {
+        private readonly ICommandCreator _commandCreator;
         private bool _retryRequested;
+        private bool _canBeRetried = true;
 
         public ReadCommandOperation(
             DatabaseNamespace databaseNamespace,
@@ -36,22 +38,38 @@ namespace MongoDB.Driver.Core.Operations
         {
         }
 
+        public ReadCommandOperation(
+            DatabaseNamespace databaseNamespace,
+            ICommandCreator commandCreator,
+            IBsonSerializer<TCommandResult> resultSerializer,
+            MessageEncoderSettings messageEncoderSettings)
+            : base(databaseNamespace, null, resultSerializer, messageEncoderSettings)
+        {
+            _commandCreator = Ensure.IsNotNull(commandCreator, nameof(commandCreator));
+        }
+
         public bool RetryRequested
         {
             get => _retryRequested;
             set => _retryRequested = value;
         }
 
+        public bool CanBeRetried
+        {
+            get => _canBeRetried;
+            init => _canBeRetried = value;
+        }
+
         public TCommandResult Execute(OperationContext operationContext, IReadBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (var context = RetryableReadContext.Create(operationContext, binding, _retryRequested))
+            using (var context = new RetryableReadContext(binding, _retryRequested, _canBeRetried))
             {
                 return Execute(operationContext, context);
             }
         }
-
+        
         public TCommandResult Execute(OperationContext operationContext, RetryableReadContext context)
         {
             Ensure.IsNotNull(context, nameof(context));
@@ -66,7 +84,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (var context = await RetryableReadContext.CreateAsync(operationContext, binding, _retryRequested).ConfigureAwait(false))
+            using (var context = new RetryableReadContext(binding, _retryRequested, _canBeRetried))
             {
                 return await ExecuteAsync(operationContext, context).ConfigureAwait(false);
             }
@@ -84,11 +102,23 @@ namespace MongoDB.Driver.Core.Operations
 
         public TCommandResult ExecuteAttempt(OperationContext operationContext, RetryableReadContext context, int attempt, long? transactionNumber)
         {
+            if (_commandCreator != null)
+            {
+                var command = _commandCreator.CreateCommand(operationContext, context.Binding.Session, context.Channel.ConnectionDescription);
+                SetCommand(command);
+            }
+
             return ExecuteProtocol(operationContext, context.Channel, context.Binding.Session, context.Binding.ReadPreference);
         }
 
         public Task<TCommandResult> ExecuteAttemptAsync(OperationContext operationContext, RetryableReadContext context, int attempt, long? transactionNumber)
         {
+            if (_commandCreator != null)
+            {
+                var command = _commandCreator.CreateCommand(operationContext, context.Binding.Session, context.Channel.ConnectionDescription);
+                SetCommand(command);
+            }
+
             return ExecuteProtocolAsync(operationContext, context.Channel, context.Binding.Session, context.Binding.ReadPreference);
         }
     }
