@@ -85,7 +85,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 
             if (leftExpression.Type == rightExpression.Type &&
                 (comparisonOperator == AstComparisonFilterOperator.Eq || comparisonOperator == AstComparisonFilterOperator.Ne) &&
-                (leftExpression.Type == typeof(bool) || leftExpression.Type == typeof(bool?)))
+                (leftExpression.Type == typeof(bool) || leftExpression.Type == typeof(bool?)) &&
+                comparandExpression.Value != null)
             {
                 return TranslateComparisonToBooleanConstant(context, expression, leftExpression, comparisonOperator, (bool)comparandExpression.Value);
             }
@@ -105,24 +106,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 comparisonOperation.Value == true)
             {
                 var field = fieldOperationFilter.Field;
-
-                switch (comparisonOperator)
-                {
-                    case AstComparisonFilterOperator.Eq:
-                        return AstFilter.Eq(field, comparand);
-                    case AstComparisonFilterOperator.Ne:
-                        return AstFilter.Ne(field, comparand);
-                    default:
-                        throw new ExpressionNotSupportedException(expression);
-                }
-            }
-            else if (filter is AstExprFilter exprFilter &&
-                     exprFilter.Expression is AstGetFieldExpression getFieldExpression &&
-                     getFieldExpression.HasSafeFieldName(out var fieldName) &&
-                     getFieldExpression.Input is AstVarExpression inputVarExpression &&
-                     inputVarExpression.IsCurrent)
-            {
-                var field = AstFilter.Field(fieldName);
 
                 switch (comparisonOperator)
                 {
