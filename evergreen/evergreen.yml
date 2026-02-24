@@ -116,10 +116,19 @@ functions:
   prepare-resources:
     - command: shell.exec
       params:
+        working_dir: mongo-csharp-driver
+        include_expansions_in_env:
+          - "EG_TOOLS_COMMIT"
         script: |
           ${PREPARE_SHELL}
           rm -rf $DRIVERS_TOOLS
           git clone https://github.com/mongodb-labs/drivers-evergreen-tools.git $DRIVERS_TOOLS
+
+          if [ "$EG_TOOLS_COMMIT" != "" ]; then
+            cd "$DRIVERS_TOOLS"
+            git checkout "$EG_TOOLS_COMMIT"
+          fi
+
           echo "{ \"releases\": { \"default\": \"$MONGODB_BINARIES\" }}" > $MONGO_ORCHESTRATION_HOME/orchestration.config
 
   # Upload build artifacts that other tasks may depend on
@@ -1981,6 +1990,7 @@ axes:
         display_name: "Ubuntu 18.04"
         variables:
           OS: "ubuntu-1804"
+          EG_TOOLS_COMMIT: "9e9a306820c4a517736691e34d141e2ad56e4af6"  # Pin drivers-evergreen-tools for Ubuntu 18.04 as a temporary workaround to run MongoDB 4.2 variants
         run_on: ubuntu1804-test
       - id: "ubuntu-2004"
         display_name: "Ubuntu 20.04"
@@ -2525,7 +2535,7 @@ buildvariants:
           - test-netstandard21 # Apple M1 (arm64) cannot load runtimes lower then .NET 6.
 
 - matrix_name: "secure-tests-linux-1804"
-  matrix_spec: { version: ["4.2", "4.4", "5.0", "6.0"], topology: "*", auth: "auth", ssl: "ssl", os: "ubuntu-1804" }
+  matrix_spec: { version: ["4.2"], topology: "*", auth: "auth", ssl: "ssl", os: "ubuntu-1804" }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
@@ -2533,7 +2543,7 @@ buildvariants:
     - name: test-net60
 
 - matrix_name: "secure-tests-linux-2004"
-  matrix_spec: { version: ["7.0", "8.0", "rapid", "latest"], topology: "*", auth: "auth", ssl: "ssl", os: "ubuntu-2004" }
+  matrix_spec: { version: ["4.4", "5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: "*", auth: "auth", ssl: "ssl", os: "ubuntu-2004" }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
@@ -2565,7 +2575,7 @@ buildvariants:
           - test-netstandard21 # Apple M1 (arm64) cannot load runtimes lower then .NET 6.
 
 - matrix_name: "unsecure-tests-linux-1804"
-  matrix_spec: { version: ["4.2", "4.4", "5.0", "6.0"], topology: "*", auth: "noauth", ssl: "nossl", os: "ubuntu-1804" }
+  matrix_spec: { version: ["4.2"], topology: "*", auth: "noauth", ssl: "nossl", os: "ubuntu-1804" }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
@@ -2573,7 +2583,7 @@ buildvariants:
     - name: test-net60
 
 - matrix_name: "unsecure-tests-linux-2004"
-  matrix_spec: { version: ["7.0", "8.0", "rapid", "latest"], topology: "*", auth: "noauth", ssl: "nossl", os: "ubuntu-2004" }
+  matrix_spec: { version: ["4.4", "5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: "*", auth: "noauth", ssl: "nossl", os: "ubuntu-2004" }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
@@ -2605,7 +2615,7 @@ buildvariants:
           - test-netstandard21 # Apple M1 (arm64) cannot load runtimes lower then .NET 6.
 
 - matrix_name: "tests-compression-linux-1804"
-  matrix_spec: { compressor: "*", auth: "noauth", ssl: "nossl", version: ["4.2", "4.4", "5.0", "6.0"], topology: "standalone", os: "ubuntu-1804" }
+  matrix_spec: { compressor: "*", auth: "noauth", ssl: "nossl", version: ["4.2"], topology: "standalone", os: "ubuntu-1804" }
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
@@ -2613,7 +2623,7 @@ buildvariants:
     - name: test-net60
 
 - matrix_name: "tests-compression-linux-2004"
-  matrix_spec: { compressor: "*", auth: "noauth", ssl: "nossl", version: ["7.0", "8.0", "rapid", "latest"], topology: "standalone", os: "ubuntu-2004" }
+  matrix_spec: { compressor: "*", auth: "noauth", ssl: "nossl", version: ["4.4", "5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: "standalone", os: "ubuntu-2004" }
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
@@ -2695,7 +2705,7 @@ buildvariants:
 
 - name: gssapi-auth-tests-linux
   run_on:
-    - ubuntu1804-test
+    - ubuntu2004-test
   display_name: "GSSAPI (Kerberos) Auth tests - Linux"
   tasks:
     - name: test-gssapi-netstandard21
@@ -2756,7 +2766,7 @@ buildvariants:
 - name: atlas-search-index-helpers-test
   display_name: "Atlas Search Index Helpers Tests"
   run_on:
-    - ubuntu1804-test
+    - ubuntu2004-test
   tasks:
     - name: atlas-search-index-helpers-task-group
 
@@ -2796,7 +2806,7 @@ buildvariants:
     - name: test-csfle-with-mongocryptd-net60
 
 - matrix_name: "csfle-with-mocked-kms-tests-linux-1804"
-  matrix_spec: { os: "ubuntu-1804", ssl: "nossl", version: ["4.2", "4.4", "5.0", "6.0"], topology: ["replicaset"] }
+  matrix_spec: { os: "ubuntu-1804", ssl: "nossl", version: ["4.2"], topology: ["replicaset"] }
   display_name: "CSFLE Mocked KMS ${version} ${os}"
   tasks:
     - name: test-csfle-with-mocked-kms-tls-netstandard21
@@ -2805,7 +2815,7 @@ buildvariants:
     - name: test-csfle-with-mongocryptd-net60
 
 - matrix_name: "csfle-with-mocked-kms-tests-linux-2004"
-  matrix_spec: { os: "ubuntu-2004", ssl: "nossl", version: ["7.0", "8.0", "rapid", "latest"], topology: ["replicaset"] }
+  matrix_spec: { os: "ubuntu-2004", ssl: "nossl", version: ["4.4", "5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: ["replicaset"] }
   display_name: "CSFLE Mocked KMS ${version} ${os}"
   tasks:
     - name: test-csfle-with-mocked-kms-tls-netstandard21
