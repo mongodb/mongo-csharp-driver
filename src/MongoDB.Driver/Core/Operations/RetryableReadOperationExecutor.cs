@@ -45,10 +45,13 @@ namespace MongoDB.Driver.Core.Operations
                     }
 
                     originalException ??= ex;
+                    if (server.Type == ServerType.ShardRouter ||
+                        (ex is MongoException mongoException && mongoException.HasErrorLabel("SystemOverloadedError")))
+                    {
+                        deprioritizedServers ??= new HashSet<ServerDescription>();
+                        deprioritizedServers.Add(server);
+                    }
                 }
-
-                deprioritizedServers ??= new HashSet<ServerDescription>();
-                deprioritizedServers.Add(server);
 
                 try
                 {
@@ -85,10 +88,13 @@ namespace MongoDB.Driver.Core.Operations
                     }
 
                     originalException ??= ex;
+                    if (server.Type == ServerType.ShardRouter ||
+                        (ex is MongoException mongoException && mongoException.HasErrorLabel("SystemOverloadedError")))
+                    {
+                        deprioritizedServers ??= new HashSet<ServerDescription>();
+                        deprioritizedServers.Add(server);
+                    }
                 }
-
-                deprioritizedServers ??= new HashSet<ServerDescription>();
-                deprioritizedServers.Add(server);
 
                 try
                 {
