@@ -14,6 +14,7 @@
 */
 
 using System.Linq.Expressions;
+using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators;
@@ -104,6 +105,24 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 comparisonOperation.Value == true)
             {
                 var field = fieldOperationFilter.Field;
+
+                switch (comparisonOperator)
+                {
+                    case AstComparisonFilterOperator.Eq:
+                        return AstFilter.Eq(field, comparand);
+                    case AstComparisonFilterOperator.Ne:
+                        return AstFilter.Ne(field, comparand);
+                    default:
+                        throw new ExpressionNotSupportedException(expression);
+                }
+            }
+            else if (filter is AstExprFilter exprFilter &&
+                     exprFilter.Expression is AstGetFieldExpression getFieldExpression &&
+                     getFieldExpression.HasSafeFieldName(out var fieldName) &&
+                     getFieldExpression.Input is AstVarExpression inputVarExpression &&
+                     inputVarExpression.IsCurrent)
+            {
+                var field = AstFilter.Field(fieldName);
 
                 switch (comparisonOperator)
                 {
