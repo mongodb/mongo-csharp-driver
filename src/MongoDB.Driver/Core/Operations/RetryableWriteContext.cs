@@ -67,7 +67,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public void AcquireOrReplaceChannel(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondaryCriteria = null)
+        public void AcquireOrReplaceChannel(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             try
             {
@@ -75,9 +75,9 @@ namespace MongoDB.Driver.Core.Operations
                 _lastAcquiredServer = null;
                 operationContext.ThrowIfTimedOutOrCanceled();
                 //TODO The implementation of the two overloads is different, need to understand if it's an issue and we can just call the second overload from the first one.
-                var writeChannelSource = mayUseSecondaryCriteria == null ?
+                var writeChannelSource = _mayUseSecondaryCriteria == null ?
                     Binding.GetWriteChannelSource(operationContext, deprioritizedServers)
-                    : Binding.GetWriteChannelSource(operationContext, deprioritizedServers, mayUseSecondaryCriteria);
+                    : Binding.GetWriteChannelSource(operationContext, deprioritizedServers, _mayUseSecondaryCriteria);
                 ReplaceChannelSource(writeChannelSource);
                 _lastAcquiredServer = ChannelSource.ServerDescription;
                 ReplaceChannel(ChannelSource.GetChannel(operationContext));
@@ -93,7 +93,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public async Task AcquireOrReplaceChannelAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondaryCriteria = null)
+        public async Task AcquireOrReplaceChannelAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             try
             {
@@ -101,9 +101,9 @@ namespace MongoDB.Driver.Core.Operations
                 _lastAcquiredServer = null;
                 operationContext.ThrowIfTimedOutOrCanceled();
                 //TODO The implementation of the two overloads is different, need to understand if it's an issue and we can just call the second overload from the first one.
-                var writeChannelSource = mayUseSecondaryCriteria == null ?
+                var writeChannelSource = _mayUseSecondaryCriteria == null ?
                     await Binding.GetWriteChannelSourceAsync(operationContext, deprioritizedServers).ConfigureAwait(false)
-                    : await Binding.GetWriteChannelSourceAsync(operationContext, deprioritizedServers, mayUseSecondaryCriteria).ConfigureAwait(false);
+                    : await Binding.GetWriteChannelSourceAsync(operationContext, deprioritizedServers, _mayUseSecondaryCriteria).ConfigureAwait(false);
                 ReplaceChannelSource(writeChannelSource);
                 _lastAcquiredServer = ChannelSource.ServerDescription;
                 ReplaceChannel(await ChannelSource.GetChannelAsync(operationContext).ConfigureAwait(false));
