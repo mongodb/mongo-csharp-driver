@@ -1375,12 +1375,13 @@ namespace MongoDB.Bson.Tests.IO
         [Theory]
         [ParameterAttributeData]
         public void WriteDecimal128_should_have_expected_effect(
+            [Values(1, 2)]
+            int numberOfChunks,
             [Values("-1.0", "0.0", "1.0", "NaN", "-Infinity", "Infinity")]
             string valueString)
         {
             var value = Decimal128.Parse(valueString);
-            var subject = CreateSubject();
-            var mockBuffer = Mock.Get(subject.Buffer);
+            var subject = CreateSubject(0, CalculateChunkSizes(16, numberOfChunks));
             var expectedBytes = new byte[16];
             BinaryPrimitives.WriteUInt64LittleEndian(new Span<byte>(expectedBytes, 0, 8), value.GetIEEELowBits());
             BinaryPrimitives.WriteUInt64LittleEndian(new Span<byte>(expectedBytes, 8, 8), value.GetIEEEHighBits());
@@ -1389,8 +1390,8 @@ namespace MongoDB.Bson.Tests.IO
 
             subject.Position.Should().Be(16);
             subject.Length.Should().Be(16);
-            mockBuffer.Verify(b => b.SetBytes(0, It.Is<byte[]>(x => x.SequenceEqual(expectedBytes.Take(8))), 0, 8), Times.Once);
-            mockBuffer.Verify(b => b.SetBytes(8, It.Is<byte[]>(x => x.SequenceEqual(expectedBytes.Skip(8))), 0, 8), Times.Once);
+            subject.Position = 0;
+            subject.ReadBytes(16).Should().Equal(expectedBytes);
         }
 
         [Fact]
@@ -1418,7 +1419,7 @@ namespace MongoDB.Bson.Tests.IO
 
             subject.Position.Should().Be(8);
             subject.Length.Should().Be(8);
-            mockBuffer.Verify(b => b.SetBytes(0, It.Is<byte[]>(x => x.SequenceEqual(bytes)), 0, 8), Times.Once);
+            mockBuffer.Verify(b => b.SetBytes(0, It.Is<byte[]>(x => x.Take(8).SequenceEqual(bytes)), 0, 8), Times.Once);
         }
 
         [Fact]
@@ -1476,7 +1477,7 @@ namespace MongoDB.Bson.Tests.IO
 
             subject.Position.Should().Be(8);
             subject.Length.Should().Be(8);
-            mockBuffer.Verify(b => b.SetBytes(0, It.Is<byte[]>(x => x.SequenceEqual(expectedBytes)), 0, 8), Times.Once);
+            mockBuffer.Verify(b => b.SetBytes(0, It.Is<byte[]>(x => x.Take(8).SequenceEqual(expectedBytes)), 0, 8), Times.Once);
         }
 
         [Fact]
