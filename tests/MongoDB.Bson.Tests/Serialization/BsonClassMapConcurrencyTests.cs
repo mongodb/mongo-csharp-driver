@@ -38,7 +38,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var taskB = Task.Run(() => BsonClassMap.LookupClassMap(typeof(ClassB)));
 
-            mre1.Wait(); // Wait until taskB acquires the lock on Lazy<IBsonSerializer<ClassA>>._state
+            mre1.Wait(5000); // Wait until taskB acquires the lock on Lazy<IBsonSerializer<ClassA>>._state
 
             var taskA = Task.Run(() => BsonClassMap.LookupClassMap(typeof(ClassC)));
 
@@ -80,7 +80,14 @@ namespace MongoDB.Bson.Tests.Serialization
 
                 mre1?.Set(); // Signal that taskB has acquired the lock on Lazy<IBsonSerializer<ClassA>>._state
 
-                mre2?.Wait(); // Wait until taskA acquires write-lock on BsonSerializer.ConfigLock
+                if (mre2 != null)
+                {
+                    // Wait until taskA acquires write-lock on BsonSerializer.ConfigLock, but avoid unbounded blocking
+                    if (!mre2.Wait(TimeSpan.FromSeconds(5)))
+                    {
+                        throw new TimeoutException("Timeout while waiting for BsonSerializer.ConfigLock in DeadlockTriggeringOptionsAttribute.Apply.");
+                    }
+                }
 
                 return serializer;
             }

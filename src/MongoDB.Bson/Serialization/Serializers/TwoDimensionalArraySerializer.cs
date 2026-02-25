@@ -49,7 +49,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 throw new ArgumentNullException("itemSerializer");
             }
 
-            _lazyItemSerializer = Lazy.CreatePublicationOnly(() => itemSerializer);
+            _lazyItemSerializer = new Lazy<IBsonSerializer<TItem>>(() => itemSerializer);
         }
 
         /// <summary>
