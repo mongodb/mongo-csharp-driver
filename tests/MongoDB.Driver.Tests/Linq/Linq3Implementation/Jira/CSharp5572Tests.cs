@@ -68,7 +68,7 @@ public class CSharp5572Tests : LinqIntegrationTest<CSharp5572Tests.ClassFixture>
             .Where(selector);
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, """{ $match : { $expr : { $eq : [{ $eq : ["$NullableBool", true] }, true] } } }""");
+        AssertStages(stages, "{ $match : { NullableBool : true } }");
 
         var results = queryable.ToList();
         results.Select(x => x.Id).Should().Equal(2);

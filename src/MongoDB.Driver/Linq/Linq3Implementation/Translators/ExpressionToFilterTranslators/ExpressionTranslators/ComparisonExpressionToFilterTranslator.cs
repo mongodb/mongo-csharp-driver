@@ -82,9 +82,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 throw new ExpressionNotSupportedException(expression, because: "comparand must be a constant");
             }
 
-            if (leftExpression.Type == typeof(bool) &&
+            if (leftExpression.Type == rightExpression.Type &&
                 (comparisonOperator == AstComparisonFilterOperator.Eq || comparisonOperator == AstComparisonFilterOperator.Ne) &&
-                rightExpression.Type == typeof(bool))
+                (leftExpression.Type == typeof(bool) || leftExpression.Type == typeof(bool?)) &&
+                comparandExpression.Value != null)
             {
                 return TranslateComparisonToBooleanConstant(context, expression, leftExpression, comparisonOperator, (bool)comparandExpression.Value);
             }
