@@ -51,6 +51,8 @@ public static class MongoTelemetry
     private const string ExceptionStacktraceAttribute = "exception.stacktrace";
     private const string DbResponseStatusCodeAttribute = "db.response.status_code";
 
+    private const string DbSystemValue = "mongodb";
+
     /// <summary>
     /// The name of the ActivitySource used by MongoDB driver for OpenTelemetry tracing.
     /// Use this name when configuring OpenTelemetry: <c>.AddSource(MongoTelemetry.ActivitySourceName)</c>
@@ -71,7 +73,7 @@ public static class MongoTelemetry
 
         var tags = new TagList
         {
-            { DbSystemAttribute, "mongodb" },
+            { DbSystemAttribute, DbSystemValue },
             { DbCommandNameAttribute, commandName },
             { DbNamespaceAttribute, databaseNamespace.DatabaseName },
             { DbQuerySummaryAttribute, querySummary }
@@ -153,7 +155,7 @@ public static class MongoTelemetry
 
         var tags = new TagList
         {
-            { DbSystemAttribute, "mongodb" },
+            { DbSystemAttribute, DbSystemValue },
             { DbOperationNameAttribute, operationName },
             { DbOperationSummaryAttribute, spanName }
         };
@@ -173,7 +175,7 @@ public static class MongoTelemetry
 
     internal static Activity StartTransactionActivity()
     {
-        return ActivitySource.StartActivity(ActivityKind.Client, tags: new TagList { { DbSystemAttribute, "mongodb" } }, name: "transaction");
+        return ActivitySource.StartActivity(ActivityKind.Client, tags: new TagList { { DbSystemAttribute, DbSystemValue } }, name: "transaction");
     }
 
     internal static void RecordException(Activity activity, Exception exception, bool isOperationLevel = false)
