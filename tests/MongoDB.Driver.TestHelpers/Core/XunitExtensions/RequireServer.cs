@@ -55,6 +55,16 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
             throw new SkipException($"Test skipped because authentication is {(actualAuthentication ? "on" : "off")}.");
         }
 
+        internal RequireServer Cluster(Func<IClusterInternal, bool> condition, string because)
+        {
+            if (condition(CoreTestConfiguration.Cluster))
+            {
+                return this;
+            }
+
+            throw new SkipException($"Test skipped because cluster is not satisfies the provided condition: {because}");
+        }
+
         public RequireServer ClusterType(ClusterType clusterType)
         {
             var actualClusterType = CoreTestConfiguration.Cluster.Description.Type;

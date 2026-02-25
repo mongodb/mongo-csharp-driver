@@ -227,7 +227,8 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
         {
             RequireServer.Check()
                 .VersionGreaterThanOrEqualTo("4.4")
-                .ClusterTypes(ClusterType.ReplicaSet);
+                .ClusterTypes(ClusterType.ReplicaSet)
+                .Cluster(c => DriverTestConfiguration.GetReplicaSetNumberOfDataBearingMembers(c) > 1, "Replicaset cluster must have more then 1 data-bearing nodes.");
 
             var failPointCommand = BsonDocument.Parse(
                 @"{
@@ -235,7 +236,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
                     mode: { times: 1 },
                     data: {
                         failCommands: ['find'],
-                        errorLabels: ['RetryableError', 'SystemOverloadedError']
+                        errorLabels: ['RetryableError', 'SystemOverloadedError'],
                         errorCode: 6
                     }
                 }");
@@ -282,7 +283,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
                     mode: { times: 1 },
                     data: {
                         failCommands: ['find'],
-                        errorLabels: ['RetryableError']
+                        errorLabels: ['RetryableError'],
                         errorCode: 6
                     }
                 }");
