@@ -219,30 +219,30 @@ namespace MongoDB.Driver.Tests
             };
         }
 
-        public static bool IsReplicaSet(IMongoClient client)
+        internal static bool IsReplicaSet(IClusterInternal cluster)
         {
-            var clusterTypeIsKnown = SpinWait.SpinUntil(() => client.Cluster.Description.Type != ClusterType.Unknown, TimeSpan.FromSeconds(10));
+            var clusterTypeIsKnown = SpinWait.SpinUntil(() => cluster.Description.Type != ClusterType.Unknown, TimeSpan.FromSeconds(10));
             if (!clusterTypeIsKnown)
             {
-                throw new InvalidOperationException($"Unable to determine cluster type: {client.Cluster.Description}.");
+                throw new InvalidOperationException($"Unable to determine cluster type: {cluster.Description}.");
             }
-            return client.Cluster.Description.Type == ClusterType.ReplicaSet;
+            return cluster.Description.Type == ClusterType.ReplicaSet;
         }
 
-        public static int GetReplicaSetNumberOfDataBearingMembers(IMongoClient client)
+        internal static int GetReplicaSetNumberOfDataBearingMembers(IClusterInternal cluster)
         {
-            if (!IsReplicaSet(client))
+            if (!IsReplicaSet(cluster))
             {
-                throw new InvalidOperationException($"Cluster is not a replica set: {client.Cluster.Description}.");
+                throw new InvalidOperationException($"Cluster is not a replica set: {cluster.Description}.");
             }
 
-            var allServersAreConnected = SpinWait.SpinUntil(() => client.Cluster.Description.Servers.All(s => s.State == ServerState.Connected), TimeSpan.FromSeconds(10));
+            var allServersAreConnected = SpinWait.SpinUntil(() => cluster.Description.Servers.All(s => s.State == ServerState.Connected), TimeSpan.FromSeconds(10));
             if (!allServersAreConnected)
             {
-                throw new InvalidOperationException($"Unable to connect to all members of the replica set: {client.Cluster.Description}.");
+                throw new InvalidOperationException($"Unable to connect to all members of the replica set: {cluster.Description}.");
             }
 
-            return client.Cluster.Description.Servers.Count(s => s.IsDataBearing);
+            return cluster.Description.Servers.Count(s => s.IsDataBearing);
         }
 
         private static void EnsureUniqueCluster(MongoClientSettings settings)

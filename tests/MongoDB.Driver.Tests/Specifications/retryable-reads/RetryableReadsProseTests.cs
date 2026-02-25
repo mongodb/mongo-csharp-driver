@@ -118,8 +118,9 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
             eventCapturer.Events.OfType<ConnectionPoolCheckingOutConnectionFailedEvent>().Count().Should().Be(1);
         }
 
-        [Fact]
-        public void Sharded_cluster_retryable_reads_are_retried_on_different_mongos_if_available()
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Sharded_cluster_retryable_reads_are_retried_on_different_mongos_if_available([Values(true, false)] bool async)
         {
             RequireServer.Check()
                 .Supports(Feature.FailPointsFailCommandForSharded)
@@ -128,11 +129,11 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
 
             var failPointCommand = BsonDocument.Parse(
                 @"{
-                    configureFailPoint: ""failCommand"",
+                    configureFailPoint: 'failCommand',
                     mode: { times: 1 },
                     data:
                     {
-                        failCommands: [""find""],
+                        failCommands: ['find'],
                         errorCode: 6
                     }
                 }");
@@ -156,11 +157,11 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
             var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             var collection = database.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
 
-            Assert.Throws<MongoCommandException>(() =>
-            {
-                collection.Find(Builders<BsonDocument>.Filter.Empty).ToList();
-            });
+            var exception = async ?
+                await Record.ExceptionAsync(() => collection.FindAsync(Builders<BsonDocument>.Filter.Empty)) :
+                Record.Exception(() => collection.FindSync(Builders<BsonDocument>.Filter.Empty));
 
+            exception.Should().BeOfType<MongoCommandException>();
             var failedEvents = eventCapturer.Events.OfType<CommandFailedEvent>().ToArray();
             failedEvents.Length.Should().Be(2);
 
@@ -168,8 +169,9 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
             failedEvents[0].ConnectionId.ServerId.Should().NotBe(failedEvents[1].ConnectionId.ServerId);
         }
 
-        [Fact]
-        public void Sharded_cluster_retryable_reads_are_retried_on_same_mongos_if_no_other_is_available()
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Sharded_cluster_retryable_reads_are_retried_on_same_mongos_if_no_other_is_available([Values(true, false)] bool async)
         {
             RequireServer.Check()
                 .Supports(Feature.FailPointsFailCommandForSharded)
@@ -177,11 +179,11 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
 
             var failPointCommand = BsonDocument.Parse(
                 @"{
-                    configureFailPoint: ""failCommand"",
+                    configureFailPoint: 'failCommand',
                     mode: { times: 1 },
                     data:
                     {
-                        failCommands: [""find""],
+                        failCommands: ['find'],
                         errorCode: 6
                     }
                 }");
@@ -204,7 +206,9 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
             var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             var collection = database.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
 
-            collection.Find(Builders<BsonDocument>.Filter.Empty).ToList();
+            _ = async ?
+                await collection.FindAsync(Builders<BsonDocument>.Filter.Empty) :
+                collection.FindSync(Builders<BsonDocument>.Filter.Empty);
 
             var failedEvents = eventCapturer.Events.OfType<CommandFailedEvent>().ToArray();
             var succeededEvents = eventCapturer.Events.OfType<CommandSucceededEvent>().ToArray();
@@ -214,6 +218,101 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
 
             failedEvents[0].CommandName.Should().Be(succeededEvents[0].CommandName).And.Be("find");
             failedEvents[0].ConnectionId.ServerId.Should().Be(succeededEvents[0].ConnectionId.ServerId);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        // https://github.com/mongodb/specifications/blob/19ed647f6d6ca2de231e21de25bd1279f6d0bd14/source/retryable-reads/tests/README.md?plain=1#L130
+        public async Task Retryable_reads_caused_by_overload_error_retried_on_different_replicaset_server([Values(true, false)] bool async)
+        {
+            RequireServer.Check()
+                .VersionGreaterThanOrEqualTo("4.4")
+                .ClusterTypes(ClusterType.ReplicaSet)
+                .Cluster(c => DriverTestConfiguration.GetReplicaSetNumberOfDataBearingMembers(c) > 1, "Replicaset cluster must have more then 1 data-bearing nodes.");
+
+            var failPointCommand = BsonDocument.Parse(
+                @"{
+                    configureFailPoint: 'failCommand',
+                    mode: { times: 1 },
+                    data: {
+                        failCommands: ['find'],
+                        errorLabels: ['RetryableError', 'SystemOverloadedError'],
+                        errorCode: 6
+                    }
+                }");
+
+            var eventCapturer = new EventCapturer().CaptureCommandEvents("find");
+
+            using var client = DriverTestConfiguration.CreateMongoClient(
+                s =>
+                {
+                    s.RetryReads = true;
+                    s.ClusterConfigurator = b => b.Subscribe(eventCapturer);
+                    s.ReadPreference = ReadPreference.PrimaryPreferred;
+                },
+                useMultipleShardRouters: false);
+
+            var failPointServer = client.GetClusterInternal().SelectServer(OperationContext.NoTimeout, new ReadPreferenceServerSelector(ReadPreference.Primary));
+            using var failPoint = FailPoint.Configure(failPointServer, NoCoreSession.NewHandle(), failPointCommand);
+
+            var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
+            var collection = database.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
+
+            _ = async ?
+                await collection.FindAsync(Builders<BsonDocument>.Filter.Empty) :
+                collection.FindSync(Builders<BsonDocument>.Filter.Empty);
+
+            eventCapturer.Next().Should().BeOfType<CommandStartedEvent>().Subject.ConnectionId.ServerId.Should().Be(failPointServer.ServerId);
+            eventCapturer.Next().Should().BeOfType<CommandFailedEvent>();
+            eventCapturer.Next().Should().BeOfType<CommandStartedEvent>().Subject.ConnectionId.ServerId.Should().NotBe(failPointServer.ServerId);
+            eventCapturer.Next().Should().BeOfType<CommandSucceededEvent>();
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        // https://github.com/mongodb/specifications/blob/19ed647f6d6ca2de231e21de25bd1279f6d0bd14/source/retryable-reads/tests/README.md?plain=1#L160C10-L160C97
+        public async Task Retryable_reads_caused_by_non_overload_error_retried_on_same_replicaset_server([Values(true, false)] bool async)
+        {
+            RequireServer.Check()
+                .VersionGreaterThanOrEqualTo("4.4")
+                .ClusterTypes(ClusterType.ReplicaSet);
+
+            var failPointCommand = BsonDocument.Parse(
+                @"{
+                    configureFailPoint: 'failCommand',
+                    mode: { times: 1 },
+                    data: {
+                        failCommands: ['find'],
+                        errorLabels: ['RetryableError'],
+                        errorCode: 6
+                    }
+                }");
+
+            var eventCapturer = new EventCapturer().CaptureCommandEvents("find");
+
+            using var client = DriverTestConfiguration.CreateMongoClient(
+                s =>
+                {
+                    s.RetryReads = true;
+                    s.ClusterConfigurator = b => b.Subscribe(eventCapturer);
+                    s.ReadPreference = ReadPreference.PrimaryPreferred;
+                },
+                useMultipleShardRouters: false);
+
+            var failPointServer = client.GetClusterInternal().SelectServer(OperationContext.NoTimeout, new ReadPreferenceServerSelector(ReadPreference.Primary));
+            using var failPoint = FailPoint.Configure(failPointServer, NoCoreSession.NewHandle(), failPointCommand);
+
+            var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
+            var collection = database.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
+
+            _ = async ?
+                await collection.FindAsync(Builders<BsonDocument>.Filter.Empty) :
+                collection.FindSync(Builders<BsonDocument>.Filter.Empty);
+
+            eventCapturer.Next().Should().BeOfType<CommandStartedEvent>().Subject.ConnectionId.ServerId.Should().Be(failPointServer.ServerId);
+            eventCapturer.Next().Should().BeOfType<CommandFailedEvent>();
+            eventCapturer.Next().Should().BeOfType<CommandStartedEvent>().Subject.ConnectionId.ServerId.Should().Be(failPointServer.ServerId);
+            eventCapturer.Next().Should().BeOfType<CommandSucceededEvent>();
         }
 
         // private methods
