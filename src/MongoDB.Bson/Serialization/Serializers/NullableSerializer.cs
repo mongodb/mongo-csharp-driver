@@ -160,7 +160,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 throw new ArgumentNullException("serializerRegistry");
             }
 
-            _lazySerializer = new Lazy<IBsonSerializer<T>>(() => serializerRegistry.GetSerializer<T>());
+            _lazySerializer = Lazy.CreatePublicationOnly(() => serializerRegistry.GetSerializer<T>());
         }
 
         // public properties
