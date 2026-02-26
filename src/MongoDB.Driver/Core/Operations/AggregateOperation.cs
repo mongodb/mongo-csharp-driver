@@ -211,6 +211,11 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <summary>
+        /// Gets the name of the operation.
+        /// </summary>
+        public string OperationName => "aggregate";
+
+        /// <summary>
         /// Gets the pipeline.
         /// </summary>
         /// <value>
@@ -352,14 +357,14 @@ namespace MongoDB.Driver.Core.Operations
             return command;
         }
 
-        private EventContext.OperationIdDisposer BeginOperation() => EventContext.BeginOperation(null, "aggregate");
+        private EventContext.OperationIdDisposer BeginOperation() => EventContext.BeginOperation(null, OperationName);
 
         private ReadCommandOperation<AggregateResult> CreateOperation(OperationContext operationContext, RetryableReadContext context)
         {
             var databaseNamespace = _collectionNamespace == null ? _databaseNamespace : _collectionNamespace.DatabaseNamespace;
             var command = CreateCommand(operationContext, context.Binding.Session, context.Channel.ConnectionDescription);
             var serializer = new AggregateResultDeserializer(_resultSerializer);
-            return new ReadCommandOperation<AggregateResult>(databaseNamespace, command, serializer, MessageEncoderSettings)
+            return new ReadCommandOperation<AggregateResult>(databaseNamespace, command, serializer, MessageEncoderSettings, OperationName)
             {
                 RetryRequested = _retryRequested // might be overridden by retryable read context
             };

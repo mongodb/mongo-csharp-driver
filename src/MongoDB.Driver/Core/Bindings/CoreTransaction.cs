@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System.Diagnostics;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Servers;
 
@@ -32,6 +33,7 @@ namespace MongoDB.Driver.Core.Bindings
         private readonly long _transactionNumber;
         private readonly TransactionOptions _transactionOptions;
         private readonly object _lock = new object();
+        private readonly bool _isTracingEnabled;
 
         // public constructors
         /// <summary>
@@ -40,31 +42,32 @@ namespace MongoDB.Driver.Core.Bindings
         /// <param name="transactionNumber">The transaction number.</param>
         /// <param name="transactionOptions">The transaction options.</param>
         public CoreTransaction(long transactionNumber, TransactionOptions transactionOptions)
+            : this(transactionNumber, transactionOptions, isTracingEnabled: false)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CoreTransaction" /> class.
+        /// </summary>
+        /// <param name="transactionNumber">The transaction number.</param>
+        /// <param name="transactionOptions">The transaction options.</param>
+        /// <param name="isTracingEnabled">Whether OpenTelemetry tracing is enabled for this transaction.</param>
+        internal CoreTransaction(long transactionNumber, TransactionOptions transactionOptions, bool isTracingEnabled)
         {
             _transactionNumber = transactionNumber;
             _transactionOptions = transactionOptions;
+            _isTracingEnabled = isTracingEnabled;
             _state = CoreTransactionState.Starting;
             _isEmpty = true;
         }
 
-        // public properties
+        // internal properties
         /// <summary>
-        /// Gets a value indicating whether the transaction is empty.
+        /// Gets whether OpenTelemetry tracing is enabled for this transaction.
         /// </summary>
-        /// <value>
-        ///   <c>true</c> if the transaction is empty; otherwise, <c>false</c>.
-        /// </value>
-        public bool IsEmpty => _isEmpty;
+        internal bool IsTracingEnabled => _isTracingEnabled;
 
         internal OperationContext OperationContext { get; set; }
-
-        /// <summary>
-        /// Gets the transaction state.
-        /// </summary>
-        /// <value>
-        /// The transaction state.
-        /// </value>
-        public CoreTransactionState State => _state;
 
         internal IChannelHandle PinnedChannel
         {
@@ -83,6 +86,28 @@ namespace MongoDB.Driver.Core.Bindings
             get => _pinnedServer;
             set => _pinnedServer = value;
         }
+
+        /// <summary>
+        /// Gets or sets the transaction activity (for OpenTelemetry tracing).
+        /// </summary>
+        internal Activity TransactionActivity { get; set; }
+
+        // public properties
+        /// <summary>
+        /// Gets a value indicating whether the transaction is empty.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if the transaction is empty; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsEmpty => _isEmpty;
+
+        /// <summary>
+        /// Gets the transaction state.
+        /// </summary>
+        /// <value>
+        /// The transaction state.
+        /// </value>
+        public CoreTransactionState State => _state;
 
         /// <summary>
         /// Gets the transaction number.
@@ -113,6 +138,13 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         // internal methods
+        internal void EndTransactionActivity()
+        {
+            TransactionActivity?.SetStatus(ActivityStatusCode.Ok);
+            TransactionActivity?.Dispose();
+            TransactionActivity = null;
+        }
+
         internal void PinChannel(IChannelHandle channel)
         {
             lock (_lock)

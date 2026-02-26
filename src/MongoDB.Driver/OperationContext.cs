@@ -33,6 +33,21 @@ namespace MongoDB.Driver
         {
         }
 
+        internal OperationContext(
+            TimeSpan? timeout,
+            string operationName,
+            string databaseName,
+            string collectionName,
+            bool isTracingEnabled,
+            CancellationToken cancellationToken)
+            : this(timeout, cancellationToken)
+        {
+            OperationName = operationName;
+            DatabaseName = databaseName;
+            CollectionName = collectionName;
+            IsTracingEnabled = isTracingEnabled;
+        }
+
         internal OperationContext(IClock clock, TimeSpan? timeout, CancellationToken cancellationToken)
             : this(clock, clock.GetTimestamp(), timeout, cancellationToken)
         {
@@ -50,6 +65,12 @@ namespace MongoDB.Driver
         public CancellationToken CancellationToken { get; }
 
         public OperationContext RootContext { get; private init; }
+
+        // OpenTelemetry operation metadata
+        internal string OperationName { get; init; }
+        internal string DatabaseName { get; init; }
+        internal string CollectionName { get; init; }
+        internal bool IsTracingEnabled { get; init; }
 
         public TimeSpan RemainingTimeout
         {
@@ -117,6 +138,16 @@ namespace MongoDB.Driver
                 RootContext = RootContext
             };
 
+        internal OperationContext ForkWithOperationMetadata(string operationName, string databaseName, string collectionName, bool isTracingEnabled) =>
+            new (Clock, InitialTimestamp, Timeout, CancellationToken)
+            {
+                RootContext = RootContext,
+                OperationName = operationName,
+                DatabaseName = databaseName,
+                CollectionName = collectionName,
+                IsTracingEnabled = isTracingEnabled
+            };
+
         public bool IsTimedOut()
         {
             // Dotnet APIs like task.WaitAsync truncating the timeout to milliseconds.
@@ -182,8 +213,13 @@ namespace MongoDB.Driver
 
             return new OperationContext(Clock, timeout, CancellationToken)
             {
-                RootContext = RootContext
+                RootContext = RootContext,
+                OperationName = OperationName,
+                DatabaseName = DatabaseName,
+                CollectionName = CollectionName,
+                IsTracingEnabled = IsTracingEnabled
             };
         }
+
     }
 }

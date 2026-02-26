@@ -60,6 +60,7 @@ namespace MongoDB.Driver
         private readonly int _srvMaxHosts;
         private readonly string _srvServiceName;
         private readonly SslSettings _sslSettings;
+        private readonly TracingOptions _tracingOptions;
         private readonly bool _useTls;
         private readonly int _waitQueueSize;
         private readonly TimeSpan _waitQueueTimeout;
@@ -99,6 +100,7 @@ namespace MongoDB.Driver
             int srvMaxHosts,
             string srvServiceName,
             SslSettings sslSettings,
+            TracingOptions tracingOptions,
             bool useTls,
             int waitQueueSize,
             TimeSpan waitQueueTimeout)
@@ -136,6 +138,7 @@ namespace MongoDB.Driver
             _srvMaxHosts = srvMaxHosts;
             _srvServiceName = srvServiceName;
             _sslSettings = sslSettings;
+            _tracingOptions = tracingOptions;
             _useTls = useTls;
             _waitQueueSize = waitQueueSize;
             _waitQueueTimeout = waitQueueTimeout;
@@ -177,6 +180,7 @@ namespace MongoDB.Driver
         public int SrvMaxHosts { get { return _srvMaxHosts; } }
         public string SrvServiceName { get { return _srvServiceName; } }
         public SslSettings SslSettings { get { return _sslSettings; } }
+        public TracingOptions TracingOptions { get { return _tracingOptions; } }
         public bool UseTls => _useTls;
         public int WaitQueueSize { get { return _waitQueueSize; } }
         public TimeSpan WaitQueueTimeout { get { return _waitQueueTimeout; } }
@@ -233,6 +237,7 @@ namespace MongoDB.Driver
                 _srvMaxHosts == rhs._srvMaxHosts &&
                 _srvServiceName == rhs.SrvServiceName &&
                 object.Equals(_sslSettings, rhs._sslSettings) &&
+                _tracingOptions == rhs._tracingOptions &&
                 _useTls == rhs._useTls &&
                 _waitQueueSize == rhs._waitQueueSize &&
                 _waitQueueTimeout == rhs._waitQueueTimeout;

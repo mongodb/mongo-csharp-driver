@@ -36,6 +36,7 @@ namespace MongoDB.Driver.Core.Configuration
         private ConnectionPoolSettings _connectionPoolSettings;
         private ConnectionSettings _connectionSettings;
         private LoggingSettings _loggingSettings;
+        private TracingOptions _tracingOptions;
         private ServerSettings _serverSettings;
         private SslStreamSettings _sslStreamSettings;
         private Func<IStreamFactory, IStreamFactory> _streamFactoryWrapper;
@@ -120,6 +121,19 @@ namespace MongoDB.Driver.Core.Configuration
             Ensure.IsNotNull(configurator, nameof(configurator));
 
             _loggingSettings = configurator(_loggingSettings);
+            return this;
+        }
+
+        /// <summary>
+        /// Configures the tracing options.
+        /// </summary>
+        /// <param name="configurator">The tracing options configurator delegate.</param>
+        /// <returns>A reconfigured cluster builder.</returns>
+        public ClusterBuilder ConfigureTracingOptions(Func<TracingOptions, TracingOptions> configurator)
+        {
+            Ensure.IsNotNull(configurator, nameof(configurator));
+
+            _tracingOptions = configurator(_tracingOptions);
             return this;
         }
 
@@ -228,6 +242,7 @@ namespace MongoDB.Driver.Core.Configuration
                 _eventAggregator,
                 _clusterSettings.ServerApi,
                 _loggingSettings.ToInternalLoggerFactory(),
+                _tracingOptions,
                 _tcpStreamSettings.ReadTimeout,
                 _tcpStreamSettings.WriteTimeout);
 
@@ -290,6 +305,7 @@ namespace MongoDB.Driver.Core.Configuration
                 new EventAggregator(),
                 _clusterSettings.ServerApi,
                 loggerFactory: null,
+                tracingOptions: new TracingOptions { Disabled = true },
                 _tcpStreamSettings.ReadTimeout,
                 _tcpStreamSettings.WriteTimeout);
 

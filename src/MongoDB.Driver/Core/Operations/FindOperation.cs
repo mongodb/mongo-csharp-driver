@@ -165,6 +165,8 @@ namespace MongoDB.Driver.Core.Operations
             get { return _messageEncoderSettings; }
         }
 
+        public string OperationName => "find";
+
         public BsonDocument Min
         {
             get { return _min; }
@@ -363,7 +365,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private EventContext.OperationIdDisposer BeginOperation() => EventContext.BeginOperation(null, "find");
+        private EventContext.OperationIdDisposer BeginOperation() => EventContext.BeginOperation(null, OperationName);
 
         private ReadCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, RetryableReadContext context)
         {
@@ -372,7 +374,8 @@ namespace MongoDB.Driver.Core.Operations
                 _collectionNamespace.DatabaseNamespace,
                 command,
                 __findCommandResultSerializer,
-                _messageEncoderSettings)
+                _messageEncoderSettings,
+                OperationName)
             {
                 RetryRequested = _retryRequested // might be overridden by retryable read context
             };

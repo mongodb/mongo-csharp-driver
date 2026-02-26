@@ -25,11 +25,19 @@ namespace MongoDB.Driver.Core.Operations
         private readonly (IWriteOperation<TResult> Operation, bool IsMainOperation)[] _operations;
 
         public CompositeWriteOperation(params (IWriteOperation<TResult>, bool IsMainOperation)[] operations)
+            : this(operationName: null, operations)
         {
+        }
+
+        public CompositeWriteOperation(string operationName, params (IWriteOperation<TResult>, bool IsMainOperation)[] operations)
+        {
+            OperationName = operationName;
             _operations = Ensure.IsNotNull(operations, nameof(operations));
             Ensure.IsGreaterThanZero(operations.Length, nameof(operations.Length));
             Ensure.That(operations.Count(o => o.IsMainOperation) == 1, message: $"{nameof(CompositeWriteOperation<TResult>)} must have a single main operation.");
         }
+
+        public string OperationName { get; }
 
         public TResult Execute(OperationContext operationContext, IWriteBinding binding)
         {

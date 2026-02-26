@@ -74,6 +74,8 @@ namespace MongoDB.Driver.Core.Operations
             get { return _messageEncoderSettings; }
         }
 
+        public abstract string OperationName { get; }
+
         public bool RetryRequested
         {
             get { return _retryRequested; }

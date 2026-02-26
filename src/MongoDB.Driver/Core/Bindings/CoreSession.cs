@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -149,7 +150,7 @@ namespace MongoDB.Driver.Core.Bindings
         {
             EnsureAbortTransactionCanBeCalled(nameof(AbortTransaction));
 
-            using var operationContext = new OperationContext(GetTimeout(options?.Timeout), cancellationToken);
+            using var operationContext = new OperationContext(GetTimeout(options?.Timeout), "abortTransaction", "admin", null, _currentTransaction.IsTracingEnabled, cancellationToken);
             try
             {
                 if (_currentTransaction.IsEmpty)
@@ -191,6 +192,8 @@ namespace MongoDB.Driver.Core.Bindings
                 // The transaction is aborted.The session MUST be unpinned regardless
                 // of whether the abortTransaction command succeeds or fails
                 _currentTransaction.UnpinAll();
+
+                _currentTransaction.EndTransactionActivity();
             }
         }
 
@@ -203,7 +206,7 @@ namespace MongoDB.Driver.Core.Bindings
         {
             EnsureAbortTransactionCanBeCalled(nameof(AbortTransaction));
 
-            using var operationContext = new OperationContext(GetTimeout(options?.Timeout), cancellationToken);
+            using var operationContext = new OperationContext(GetTimeout(options?.Timeout), "abortTransaction", "admin", null, _currentTransaction.IsTracingEnabled, cancellationToken);
             try
             {
                 if (_currentTransaction.IsEmpty)
@@ -245,6 +248,8 @@ namespace MongoDB.Driver.Core.Bindings
                 // The transaction is aborted.The session MUST be unpinned regardless
                 // of whether the abortTransaction command succeeds or fails
                 _currentTransaction.UnpinAll();
+
+                _currentTransaction.EndTransactionActivity();
             }
         }
 
@@ -306,7 +311,7 @@ namespace MongoDB.Driver.Core.Bindings
         {
             EnsureCommitTransactionCanBeCalled(nameof(CommitTransaction));
 
-            using var operationContext = new OperationContext(GetTimeout(options?.Timeout), cancellationToken);
+            using var operationContext = new OperationContext(GetTimeout(options?.Timeout), "commitTransaction", "admin", null, _currentTransaction.IsTracingEnabled, cancellationToken);
             try
             {
                 _isCommitTransactionInProgress = true;
@@ -334,6 +339,7 @@ namespace MongoDB.Driver.Core.Bindings
             {
                 _isCommitTransactionInProgress = false;
                 _currentTransaction.SetState(CoreTransactionState.Committed);
+                _currentTransaction.EndTransactionActivity();
             }
         }
 
@@ -346,7 +352,7 @@ namespace MongoDB.Driver.Core.Bindings
         {
             EnsureCommitTransactionCanBeCalled(nameof(CommitTransaction));
 
-            using var operationContext = new OperationContext(GetTimeout(options?.Timeout), cancellationToken);
+            using var operationContext = new OperationContext(GetTimeout(options?.Timeout), "commitTransaction", "admin", null, _currentTransaction.IsTracingEnabled, cancellationToken);
             try
             {
                 _isCommitTransactionInProgress = true;
@@ -374,6 +380,7 @@ namespace MongoDB.Driver.Core.Bindings
             {
                 _isCommitTransactionInProgress = false;
                 _currentTransaction.SetState(CoreTransactionState.Committed);
+                _currentTransaction.EndTransactionActivity();
             }
         }
 
@@ -400,6 +407,7 @@ namespace MongoDB.Driver.Core.Bindings
                     }
                 }
 
+                _currentTransaction?.EndTransactionActivity();
                 _currentTransaction?.UnpinAll();
                 _serverSession.Value.Dispose();
                 _disposed = true;
@@ -414,6 +422,9 @@ namespace MongoDB.Driver.Core.Bindings
 
         /// <inheritdoc />
         public void StartTransaction(TransactionOptions transactionOptions = null)
+            => ((ICoreSessionInternal)this).StartTransaction(transactionOptions, isTracingEnabled: false);
+
+        void ICoreSessionInternal.StartTransaction(TransactionOptions transactionOptions, bool isTracingEnabled)
         {
             EnsureStartTransactionCanBeCalled();
 
@@ -425,7 +436,17 @@ namespace MongoDB.Driver.Core.Bindings
             }
 
             _currentTransaction?.UnpinAll(); // unpin data if any when a new transaction is started
-            _currentTransaction = new CoreTransaction(transactionNumber, effectiveTransactionOptions);
+            _currentTransaction = new CoreTransaction(transactionNumber, effectiveTransactionOptions, isTracingEnabled);
+
+            if (isTracingEnabled)
+            {
+                var previousCurrent = Activity.Current;
+                _currentTransaction.TransactionActivity = MongoTelemetry.StartTransactionActivity();
+
+                // Immediately restore Activity.Current to the previous current to prevent AsyncLocal flow issues.
+                // The transaction activity will be made the temporary Activity.Current for operations within the transaction.
+                Activity.Current = previousCurrent;
+            }
         }
 
         /// <inheritdoc />
@@ -559,6 +580,9 @@ namespace MongoDB.Driver.Core.Bindings
 
         private TResult ExecuteEndTransactionOnPrimary<TResult>(OperationContext operationContext, IReadOperation<TResult> operation)
         {
+            using var transactionActivityScope = TransactionActivityScope.CreateIfNeeded(_currentTransaction);
+            using var operationActivity = MongoTelemetry.StartOperationActivity(operationContext);
+
             using (var sessionHandle = new NonDisposingCoreSessionHandle(this))
             using (var binding = ChannelPinningHelper.CreateReadWriteBinding(_cluster, sessionHandle))
             {
@@ -568,6 +592,9 @@ namespace MongoDB.Driver.Core.Bindings
 
         private async Task<TResult> ExecuteEndTransactionOnPrimaryAsync<TResult>(OperationContext operationContext, IReadOperation<TResult> operation)
         {
+            using var transactionActivityScope = TransactionActivityScope.CreateIfNeeded(_currentTransaction);
+            using var operationActivity = MongoTelemetry.StartOperationActivity(operationContext);
+
             using (var sessionHandle = new NonDisposingCoreSessionHandle(this))
             using (var binding = ChannelPinningHelper.CreateReadWriteBinding(_cluster, sessionHandle))
             {

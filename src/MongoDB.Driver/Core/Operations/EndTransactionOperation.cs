@@ -48,6 +48,8 @@ namespace MongoDB.Driver.Core.Operations
 
         public WriteConcern WriteConcern => _writeConcern;
 
+        public string OperationName => CommandName;
+
         protected abstract string CommandName { get; }
 
         public virtual BsonDocument Execute(OperationContext operationContext, IReadBinding binding)
@@ -95,7 +97,7 @@ namespace MongoDB.Driver.Core.Operations
         private IReadOperation<BsonDocument> CreateOperation(OperationContext operationContext)
         {
             var command = CreateCommand(operationContext);
-            return new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            return new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, _messageEncoderSettings, OperationName)
             {
                 RetryRequested = false
             };

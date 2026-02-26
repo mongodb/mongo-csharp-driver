@@ -87,6 +87,8 @@ namespace MongoDB.Driver.Core.Operations
             get { return _messageEncoderSettings; }
         }
 
+        public string OperationName => "distinct";
+
         public ReadConcern ReadConcern
         {
             get { return _readConcern; }
@@ -151,14 +153,14 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        private EventContext.OperationNameDisposer BeginOperation() => EventContext.BeginOperation("distinct");
+        private EventContext.OperationNameDisposer BeginOperation() => EventContext.BeginOperation(OperationName);
 
         private ReadCommandOperation<DistinctResult> CreateOperation(OperationContext operationContext, RetryableReadContext context)
         {
             var command = CreateCommand(operationContext, context.Binding.Session, context.Channel.ConnectionDescription);
             var serializer = new DistinctResultDeserializer(_valueSerializer);
 
-            return new ReadCommandOperation<DistinctResult>(_collectionNamespace.DatabaseNamespace, command, serializer, _messageEncoderSettings)
+            return new ReadCommandOperation<DistinctResult>(_collectionNamespace.DatabaseNamespace, command, serializer, _messageEncoderSettings, OperationName)
             {
                 RetryRequested = _retryRequested // might be overridden by retryable read context
             };

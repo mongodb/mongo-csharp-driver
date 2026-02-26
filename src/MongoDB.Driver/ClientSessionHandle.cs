@@ -160,7 +160,11 @@ namespace MongoDB.Driver
         public void StartTransaction(TransactionOptions transactionOptions = null)
         {
             var effectiveTransactionOptions = GetEffectiveTransactionOptions(transactionOptions);
-            _coreSession.StartTransaction(effectiveTransactionOptions);
+
+            var tracingOptions = _client?.Settings?.TracingOptions;
+            var isTracingEnabled = tracingOptions == null || !tracingOptions.Disabled;
+
+            ((ICoreSessionInternal)_coreSession).StartTransaction(effectiveTransactionOptions, isTracingEnabled);
         }
 
         /// <inheritdoc />

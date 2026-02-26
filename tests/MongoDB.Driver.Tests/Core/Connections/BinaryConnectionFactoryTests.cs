@@ -41,6 +41,7 @@ namespace MongoDB.Driver.Core.Connections
                 eventSubscriber,
                 serverApi: null,
                 loggerFactory: null,
+                tracingOptions: null,
                 socketReadTimeout: Timeout.InfiniteTimeSpan,
                 socketWriteTimeout: Timeout.InfiniteTimeSpan));
 
@@ -59,6 +60,7 @@ namespace MongoDB.Driver.Core.Connections
                 eventSubscriber,
                 serverApi: null,
                 loggerFactory: null,
+                tracingOptions: null,
                 socketReadTimeout: Timeout.InfiniteTimeSpan,
                 socketWriteTimeout: Timeout.InfiniteTimeSpan));
 
@@ -77,6 +79,7 @@ namespace MongoDB.Driver.Core.Connections
                 eventSubscriber,
                 serverApi: null,
                 loggerFactory: null,
+                tracingOptions: null,
                 socketReadTimeout: Timeout.InfiniteTimeSpan,
                 socketWriteTimeout: Timeout.InfiniteTimeSpan);
 
@@ -97,6 +100,7 @@ namespace MongoDB.Driver.Core.Connections
                 eventSubscriber,
                 serverApi: null,
                 loggerFactory: null,
+                tracingOptions: null,
                 socketReadTimeout: Timeout.InfiniteTimeSpan,
                 socketWriteTimeout: Timeout.InfiniteTimeSpan);
 
@@ -119,6 +123,7 @@ namespace MongoDB.Driver.Core.Connections
                 eventSubscriber,
                 serverApi,
                 loggerFactory: null,
+                tracingOptions: null,
                 socketReadTimeout: Timeout.InfiniteTimeSpan,
                 socketWriteTimeout: Timeout.InfiniteTimeSpan);
 

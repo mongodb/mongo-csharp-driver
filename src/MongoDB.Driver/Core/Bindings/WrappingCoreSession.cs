@@ -286,6 +286,12 @@ namespace MongoDB.Driver.Core.Bindings
             _wrapped.StartTransaction(transactionOptions);
         }
 
+        void ICoreSessionInternal.StartTransaction(TransactionOptions transactionOptions, bool isTracingEnabled)
+        {
+            ThrowIfDisposed();
+            ((ICoreSessionInternal)_wrapped).StartTransaction(transactionOptions, isTracingEnabled);
+        }
+
         /// <inheritdoc />
         public void SetSnapshotTimeIfNeeded(BsonTimestamp snapshotTime)
         {

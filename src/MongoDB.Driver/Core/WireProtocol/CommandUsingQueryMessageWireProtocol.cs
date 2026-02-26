@@ -133,7 +133,20 @@ namespace MongoDB.Driver.Core.WireProtocol
                 default:
                     var encoderSelector = new ReplyMessageEncoderSelector<RawBsonDocument>(RawBsonDocumentSerializer.Instance);
                     var reply = connection.ReceiveMessage(operationContext, message.RequestId, encoderSelector, _messageEncoderSettings);
-                    return ProcessReply(connection.ConnectionId, (ReplyMessage<RawBsonDocument>)reply);
+                    try
+                    {
+                        return ProcessReply(connection.ConnectionId, (ReplyMessage<RawBsonDocument>)reply);
+                    }
+                    catch (MongoCommandException ex) when (ex is not MongoWriteConcernException)
+                    {
+                        connection.CompleteCommandActivityWithException(ex);
+                        throw;
+                    }
+                    catch (MongoExecutionTimeoutException ex)
+                    {
+                        connection.CompleteCommandActivityWithException(ex);
+                        throw;
+                    }
             }
         }
 
@@ -155,7 +168,20 @@ namespace MongoDB.Driver.Core.WireProtocol
                 default:
                     var encoderSelector = new ReplyMessageEncoderSelector<RawBsonDocument>(RawBsonDocumentSerializer.Instance);
                     var reply = await connection.ReceiveMessageAsync(operationContext, message.RequestId, encoderSelector, _messageEncoderSettings).ConfigureAwait(false);
-                    return ProcessReply(connection.ConnectionId, (ReplyMessage<RawBsonDocument>)reply);
+                    try
+                    {
+                        return ProcessReply(connection.ConnectionId, (ReplyMessage<RawBsonDocument>)reply);
+                    }
+                    catch (MongoCommandException ex) when (ex is not MongoWriteConcernException)
+                    {
+                        connection.CompleteCommandActivityWithException(ex);
+                        throw;
+                    }
+                    catch (MongoExecutionTimeoutException ex)
+                    {
+                        connection.CompleteCommandActivityWithException(ex);
+                        throw;
+                    }
             }
         }
 

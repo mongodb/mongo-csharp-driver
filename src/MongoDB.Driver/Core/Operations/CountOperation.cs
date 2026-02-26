@@ -91,6 +91,8 @@ namespace MongoDB.Driver.Core.Operations
             get { return _messageEncoderSettings; }
         }
 
+        public string OperationName => "count";
+
         public ReadConcern ReadConcern
         {
             get { return _readConcern; }
@@ -162,12 +164,12 @@ namespace MongoDB.Driver.Core.Operations
             return document["n"].ToInt64();
         }
 
-        private EventContext.OperationNameDisposer BeginOperation() => EventContext.BeginOperation("count");
+        private EventContext.OperationNameDisposer BeginOperation() => EventContext.BeginOperation(OperationName);
 
         private ReadCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, RetryableReadContext context)
         {
             var command = CreateCommand(operationContext, context.Binding.Session, context.Channel.ConnectionDescription);
-            return new ReadCommandOperation<BsonDocument>(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            return new ReadCommandOperation<BsonDocument>(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings, OperationName)
             {
                 RetryRequested = _retryRequested // might be overridden by retryable read context
             };

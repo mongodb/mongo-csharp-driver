@@ -32,6 +32,7 @@ namespace MongoDB.Driver.Core.Connections
         private readonly ILoggerFactory _loggerFactory;
         private readonly ConnectionSettings _settings;
         private readonly IStreamFactory _streamFactory;
+        private readonly TracingOptions _tracingOptions;
         // TODO: CSOT: temporary here, remove on the next major release, together with socketTimeout
         private readonly TimeSpan _socketReadTimeout;
         private readonly TimeSpan _socketWriteTimeout;
@@ -43,6 +44,7 @@ namespace MongoDB.Driver.Core.Connections
             IEventSubscriber eventSubscriber,
             ServerApi serverApi,
             ILoggerFactory loggerFactory,
+            TracingOptions tracingOptions,
             TimeSpan? socketReadTimeout,
             TimeSpan? socketWriteTimeout)
         {
@@ -51,6 +53,7 @@ namespace MongoDB.Driver.Core.Connections
             _eventSubscriber = Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
             _connectionInitializer = new ConnectionInitializer(settings.ApplicationName, settings.Compressors, serverApi, settings.LibraryInfo);
             _loggerFactory = loggerFactory;
+            _tracingOptions = tracingOptions;
             _socketReadTimeout = socketReadTimeout.HasValue && socketReadTimeout > TimeSpan.Zero ? socketReadTimeout.Value : Timeout.InfiniteTimeSpan;
             _socketWriteTimeout = socketWriteTimeout.HasValue && socketWriteTimeout > TimeSpan.Zero ? socketWriteTimeout.Value : Timeout.InfiniteTimeSpan;
         }
@@ -70,6 +73,7 @@ namespace MongoDB.Driver.Core.Connections
                 _connectionInitializer,
                 _eventSubscriber,
                 _loggerFactory,
+                _tracingOptions,
                 _socketReadTimeout,
                 _socketWriteTimeout);
         }

@@ -182,6 +182,11 @@ namespace MongoDB.Driver.Core.Operations
         public MessageEncoderSettings MessageEncoderSettings => _messageEncoderSettings;
 
         /// <summary>
+        /// Gets the name of the operation.
+        /// </summary>
+        public string OperationName => "changeStream";
+
+        /// <summary>
         /// Gets the pipeline.
         /// </summary>
         /// <value>
