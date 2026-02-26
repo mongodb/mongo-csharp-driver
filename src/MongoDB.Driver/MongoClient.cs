@@ -634,9 +634,17 @@ namespace MongoDB.Driver
 
         private IClientSessionHandle StartSession(ClientSessionOptions options)
         {
-            if (options != null && options.Snapshot && options.CausalConsistency == true)
+            if (options != null)
             {
-                throw new NotSupportedException("Combining both causal consistency and snapshot options is not supported.");
+                if (options.SnapshotTime != null && !options.Snapshot)
+                {
+                    throw new InvalidOperationException("Specifying a snapshot time requires snapshot to be true.");
+                }
+
+                if (options.Snapshot && options.CausalConsistency == true)
+                {
+                    throw new NotSupportedException("Combining both causal consistency and snapshot options is not supported.");
+                }
             }
 
             options ??= new ClientSessionOptions();
