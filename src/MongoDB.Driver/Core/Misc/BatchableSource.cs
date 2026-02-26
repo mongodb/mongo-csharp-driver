@@ -88,12 +88,18 @@ namespace MongoDB.Driver.Core.Misc
         /// <param name="count">The count.</param>
         /// <param name="canBeSplit">if set to <c>true</c> the batch can be split.</param>
         public BatchableSource(IReadOnlyList<T> items, int offset, int count, bool canBeSplit)
+            : this(items, offset, count, 0, canBeSplit)
+        {
+
+        }
+
+        internal BatchableSource(IReadOnlyList<T> items, int offset, int count, int processedCount, bool canBeSplit)
         {
             _items = Ensure.IsNotNull(items, nameof(items));
             _offset = Ensure.IsBetween(offset, 0, items.Count, nameof(offset));
             _count = Ensure.IsBetween(count, 0, items.Count - offset, nameof(count));
+            _processedCount = Ensure.IsBetween(processedCount, 0, count, nameof(processedCount));
             _canBeSplit = canBeSplit;
-            _processedCount = 0;
         }
 
         // public properties

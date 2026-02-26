@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,43 +24,6 @@ namespace MongoDB.Driver.Core.Operations
 {
     internal sealed class RetryableReadContext : IDisposable
     {
-        #region static
-
-        public static RetryableReadContext Create(OperationContext operationContext, IReadBinding binding, bool retryRequested)
-        {
-            var context = new RetryableReadContext(binding, retryRequested);
-            try
-            {
-                context.AcquireOrReplaceChannel(operationContext, null);
-            }
-            catch
-            {
-                context.Dispose();
-                throw;
-            }
-
-            ChannelPinningHelper.PinChannellIfRequired(context.ChannelSource, context.Channel, context.Binding.Session);
-            return context;
-        }
-
-        public static async Task<RetryableReadContext> CreateAsync(OperationContext operationContext, IReadBinding binding, bool retryRequested)
-        {
-            var context = new RetryableReadContext(binding, retryRequested);
-            try
-            {
-                await context.AcquireOrReplaceChannelAsync(operationContext, null).ConfigureAwait(false);
-            }
-            catch
-            {
-                context.Dispose();
-                throw;
-            }
-
-            ChannelPinningHelper.PinChannellIfRequired(context.ChannelSource, context.Channel, context.Binding.Session);
-            return context;
-        }
-        #endregion
-
 #pragma warning disable CA2213 // Disposable fields should be disposed
         private readonly IReadBinding _binding;
 #pragma warning restore CA2213 // Disposable fields should be disposed
@@ -84,48 +47,93 @@ namespace MongoDB.Driver.Core.Operations
         {
             if (!_disposed)
             {
-                _channelSource?.Dispose();
-                _channel?.Dispose();
+                DisposeChannelAndSource();
                 _disposed = true;
             }
         }
 
-        public void AcquireOrReplaceChannel(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
+        public ServerDescription DoServerSelection(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
-            var attempt = 1;
-            while (true)
+            try
             {
                 operationContext.ThrowIfTimedOutOrCanceled();
-                ReplaceChannelSource(Binding.GetReadChannelSource(operationContext, deprioritizedServers));
-                try
-                {
-                    ReplaceChannel(ChannelSource.GetChannel(operationContext));
-                    return;
-                }
-                catch (Exception ex) when (RetryableReadOperationExecutor.ShouldConnectionAcquireBeRetried(operationContext, this, ex, attempt))
-                {
-                    attempt++;
-                }
+                var readChannelSource = Binding.GetReadChannelSource(operationContext, deprioritizedServers);
+                ReplaceChannelSource(readChannelSource);
+                return ChannelSource.ServerDescription;
             }
+            catch
+            {
+                DisposeChannelAndSource();
+                throw;
+            }
+        }
+
+        public async Task<ServerDescription> DoServerSelectionAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
+        {
+            try
+            {
+                operationContext.ThrowIfTimedOutOrCanceled();
+                var readChannelSource = await Binding
+                    .GetReadChannelSourceAsync(operationContext, deprioritizedServers).ConfigureAwait(false);
+                ReplaceChannelSource(readChannelSource);
+                return ChannelSource.ServerDescription;
+            }
+            catch
+            {
+                DisposeChannelAndSource();
+                throw;
+            }
+        }
+
+        public void DoChannelAcquisition(OperationContext operationContext)
+        {
+            try
+            {
+                if (_channelSource is null)
+                {
+                    throw new InvalidOperationException("Channel source is not initialized. Server selection must be performed before channel acquisition.");
+                }
+                operationContext.ThrowIfTimedOutOrCanceled();
+                ReplaceChannel(ChannelSource.GetChannel(operationContext));
+                ChannelPinningHelper.PinChannellIfRequired(ChannelSource, Channel, Binding.Session);
+            }
+            catch
+            {
+                DisposeChannelAndSource();
+                throw;
+            }
+        }
+
+        public async Task DoChannelAcquisitionAsync(OperationContext operationContext)
+        {
+            try
+            {
+                if (_channelSource is null)
+                {
+                    throw new InvalidOperationException("Channel source is not initialized. Server selection must be performed before channel acquisition.");
+                }
+                operationContext.ThrowIfTimedOutOrCanceled();
+                ReplaceChannel(await ChannelSource.GetChannelAsync(operationContext).ConfigureAwait(false));
+                ChannelPinningHelper.PinChannellIfRequired(ChannelSource, Channel, Binding.Session);
+            }
+            catch
+            {
+                DisposeChannelAndSource();
+                throw;
+            }
+        }
+
+        //TODO We can proably remove those, are used only by tests now
+        public void AcquireOrReplaceChannel(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
+        {
+            DoServerSelection(operationContext, deprioritizedServers);
+            DoChannelAcquisition(operationContext);
         }
 
         public async Task AcquireOrReplaceChannelAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
-            var attempt = 1;
-            while (true)
-            {
-                operationContext.ThrowIfTimedOutOrCanceled();
-                ReplaceChannelSource(await Binding.GetReadChannelSourceAsync(operationContext, deprioritizedServers).ConfigureAwait(false));
-                try
-                {
-                    ReplaceChannel(await ChannelSource.GetChannelAsync(operationContext).ConfigureAwait(false));
-                    return;
-                }
-                catch (Exception ex) when (RetryableReadOperationExecutor.ShouldConnectionAcquireBeRetried(operationContext, this, ex, attempt))
-                {
-                    attempt++;
-                }
-            }
+            await DoServerSelectionAsync(operationContext, deprioritizedServers).ConfigureAwait(false);
+            await DoChannelAcquisitionAsync(operationContext).ConfigureAwait(false);
         }
 
         private void ReplaceChannel(IChannelHandle channel)
@@ -142,6 +150,12 @@ namespace MongoDB.Driver.Core.Operations
             _channel?.Dispose();
             _channelSource = channelSource;
             _channel = null;
+        }
+
+        private void DisposeChannelAndSource()
+        {
+            _channelSource?.Dispose();
+            _channel?.Dispose();
         }
     }
 }

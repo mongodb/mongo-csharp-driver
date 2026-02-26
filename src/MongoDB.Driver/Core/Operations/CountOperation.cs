@@ -25,7 +25,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    internal sealed class CountOperation : IReadOperation<long>, IExecutableInRetryableReadContext<long>
+    internal sealed class CountOperation : IReadOperation<long>, IExecutableInRetryableReadContext<long>, ICommandCreator
     {
         private Collation _collation;
         private readonly CollectionNamespace _collectionNamespace;
@@ -133,7 +133,7 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = RetryableReadContext.Create(operationContext, binding, _retryRequested))
+            using (var context = new RetryableReadContext(binding, _retryRequested))
             {
                 return Execute(operationContext, context);
             }
@@ -151,7 +151,7 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = await RetryableReadContext.CreateAsync(operationContext, binding, _retryRequested).ConfigureAwait(false))
+            using (var context = new RetryableReadContext(binding, _retryRequested))
             {
                 return await ExecuteAsync(operationContext, context).ConfigureAwait(false);
             }
@@ -168,8 +168,12 @@ namespace MongoDB.Driver.Core.Operations
 
         private ReadCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, RetryableReadContext context)
         {
-            var command = CreateCommand(operationContext, context.Binding.Session, context.Channel.ConnectionDescription);
-            return new ReadCommandOperation<BsonDocument>(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings, OperationName)
+            return new ReadCommandOperation<BsonDocument>(
+                _collectionNamespace.DatabaseNamespace,
+                this,
+                BsonDocumentSerializer.Instance,
+                _messageEncoderSettings,
+                OperationName)
             {
                 RetryRequested = _retryRequested // might be overridden by retryable read context
             };

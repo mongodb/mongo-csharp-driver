@@ -96,7 +96,7 @@ namespace MongoDB.Driver.Core.Operations
             var bulkWriteResults = new BulkWriteRawResult();
             while (true)
             {
-                using var context = RetryableWriteContext.Create(operationContext, binding, GetEffectiveRetryRequested());
+                using var context = new RetryableWriteContext(binding, GetEffectiveRetryRequested());
                 BsonDocument serverResponse = null;
                 try
                 {
@@ -112,7 +112,7 @@ namespace MongoDB.Driver.Core.Operations
                     bulkWriteResults.TopLevelException = commandException;
                     serverResponse = commandException.Result;
                 }
-                catch (Exception exception)
+                catch (Exception exception) when (context.Channel is not null)
                 {
                     bulkWriteResults.TopLevelException = exception;
                 }
@@ -154,7 +154,7 @@ namespace MongoDB.Driver.Core.Operations
             var bulkWriteResults = new BulkWriteRawResult();
             while (true)
             {
-                using var context = RetryableWriteContext.Create(operationContext, binding, GetEffectiveRetryRequested());
+                using var context = new RetryableWriteContext(binding, GetEffectiveRetryRequested());
                 BsonDocument serverResponse = null;
                 try
                 {
@@ -170,7 +170,7 @@ namespace MongoDB.Driver.Core.Operations
                     bulkWriteResults.TopLevelException = commandException;
                     serverResponse = commandException.Result;
                 }
-                catch (Exception exception)
+                catch (Exception exception) when (context.Channel is not null)
                 {
                     bulkWriteResults.TopLevelException = exception;
                 }

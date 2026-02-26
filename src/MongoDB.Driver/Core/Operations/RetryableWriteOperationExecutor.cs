@@ -26,151 +26,131 @@ namespace MongoDB.Driver.Core.Operations
         // public static methods
         public static TResult Execute<TResult>(OperationContext operationContext, IRetryableWriteOperation<TResult> operation, IWriteBinding binding, bool retryRequested)
         {
-            using (var context = RetryableWriteContext.Create(operationContext, binding, retryRequested))
-            {
-                return Execute(operationContext, operation, context);
-            }
+            using var context = new RetryableWriteContext(binding, retryRequested);
+            return Execute(operationContext, operation, context);
         }
 
         public static TResult Execute<TResult>(OperationContext operationContext, IRetryableWriteOperation<TResult> operation, RetryableWriteContext context)
         {
             HashSet<ServerDescription> deprioritizedServers = null;
-            var attempt = 1;
+            var totalAttempts = 0;
+            var operationExecutionAttempts = 0;
             Exception originalException = null;
 
-            long? transactionNumber = AreRetriesAllowed(operation.WriteConcern, context, context.ChannelSource.ServerDescription) ? context.Binding.Session.AdvanceTransactionNumber() : null;
+            long? transactionNumber = null;
 
             while (true) // Circle breaking logic based on ShouldRetryOperation method, see the catch block below.
             {
+                totalAttempts++;
                 operationContext.ThrowIfTimedOutOrCanceled();
-                var server = context.ChannelSource.ServerDescription;
+                ServerDescription server = null;
+                bool channelAcquisitionSuccessful = false;
+
                 try
                 {
-                    return operation.ExecuteAttempt(operationContext, context, attempt, transactionNumber);
+                    server = context.DoServerSelection(operationContext, deprioritizedServers);
+                    context.DoChannelAcquisition(operationContext);
+                    channelAcquisitionSuccessful = true;
+
+                    transactionNumber ??= AreRetriesAllowed(operation.WriteConcern, context, server) ? context.Binding.Session.AdvanceTransactionNumber() : null;
+
+                    operationExecutionAttempts++;
+                    return operation.ExecuteAttempt(operationContext, context, operationExecutionAttempts, transactionNumber);
                 }
                 catch (Exception ex)
                 {
-                    if (!ShouldRetryOperation(operationContext, operation.WriteConcern, context, server, ex, attempt))
+                    if (!ShouldRetryOperation(operationContext, !channelAcquisitionSuccessful, operation.WriteConcern, context, server, ex, totalAttempts))
                     {
                         throw originalException ?? ex;
                     }
 
                     originalException ??= ex;
-                    if (server.Type == ServerType.ShardRouter ||
-                        (ex is MongoException mongoException && mongoException.HasErrorLabel("SystemOverloadedError")))
-                    {
-                        deprioritizedServers ??= new HashSet<ServerDescription>();
-                        deprioritizedServers.Add(server);
-                    }
+                    deprioritizedServers = UpdateServerList(server, deprioritizedServers, ex);
                 }
-
-                try
-                {
-                    context.AcquireOrReplaceChannel(operationContext, deprioritizedServers);
-                }
-                catch
-                {
-                    throw originalException;
-                }
-
-                if (!AreRetryableWritesSupported(context.ChannelSource.ServerDescription))
-                {
-                    throw originalException;
-                }
-
-                attempt++;
             }
         }
 
-        public async static Task<TResult> ExecuteAsync<TResult>(OperationContext operationContext, IRetryableWriteOperation<TResult> operation, IWriteBinding binding, bool retryRequested)
+        public static async Task<TResult> ExecuteAsync<TResult>(OperationContext operationContext, IRetryableWriteOperation<TResult> operation, IWriteBinding binding, bool retryRequested)
         {
-            using (var context = await RetryableWriteContext.CreateAsync(operationContext, binding, retryRequested).ConfigureAwait(false))
-            {
-                return await ExecuteAsync(operationContext, operation, context).ConfigureAwait(false);
-            }
+            using var context = new RetryableWriteContext(binding, retryRequested);
+            return await ExecuteAsync(operationContext, operation, context).ConfigureAwait(false);
         }
 
         public static async Task<TResult> ExecuteAsync<TResult>(OperationContext operationContext, IRetryableWriteOperation<TResult> operation, RetryableWriteContext context)
         {
             HashSet<ServerDescription> deprioritizedServers = null;
-            var attempt = 1;
+            var totalAttempts = 0;
+            var operationExecutionAttempts = 0;
             Exception originalException = null;
 
-            long? transactionNumber = AreRetriesAllowed(operation.WriteConcern, context, context.ChannelSource.ServerDescription) ? context.Binding.Session.AdvanceTransactionNumber() : null;
+            long? transactionNumber = null;
 
             while (true)  // Circle breaking logic based on ShouldRetryOperation method, see the catch block below.
             {
+                totalAttempts++;
                 operationContext.ThrowIfTimedOutOrCanceled();
-                var server = context.ChannelSource.ServerDescription;
+                ServerDescription server = null;
+                bool channelAcquisitionSuccessful = false;
+
                 try
                 {
-                    return await operation.ExecuteAttemptAsync(operationContext, context, attempt, transactionNumber).ConfigureAwait(false);
+                    server = await context.DoServerSelectionAsync(operationContext, deprioritizedServers).ConfigureAwait(false);
+                    await context.DoChannelAcquisitionAsync(operationContext).ConfigureAwait(false);
+                    channelAcquisitionSuccessful = true;
+
+                    transactionNumber ??= AreRetriesAllowed(operation.WriteConcern, context, server) ? context.Binding.Session.AdvanceTransactionNumber() : null;
+
+                    operationExecutionAttempts++;
+                    return await operation.ExecuteAttemptAsync(operationContext, context, operationExecutionAttempts, transactionNumber).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
-                    if (!ShouldRetryOperation(operationContext, operation.WriteConcern, context, server, ex, attempt))
+                    if (!ShouldRetryOperation(operationContext, !channelAcquisitionSuccessful, operation.WriteConcern, context, server, ex, totalAttempts))
                     {
                         throw originalException ?? ex;
                     }
 
                     originalException ??= ex;
-                    if (server.Type == ServerType.ShardRouter ||
-                        (ex is MongoException mongoException && mongoException.HasErrorLabel("SystemOverloadedError")))
-                    {
-                        deprioritizedServers ??= new HashSet<ServerDescription>();
-                        deprioritizedServers.Add(server);
-                    }
+                    deprioritizedServers = UpdateServerList(server, deprioritizedServers, ex);
                 }
-
-                try
-                {
-                    await context.AcquireOrReplaceChannelAsync(operationContext, deprioritizedServers).ConfigureAwait(false);
-                }
-                catch
-                {
-                    throw originalException;
-                }
-
-                if (!AreRetryableWritesSupported(context.ChannelSource.ServerDescription))
-                {
-                    throw originalException;
-                }
-
-                attempt++;
             }
-        }
-
-        public static bool ShouldConnectionAcquireBeRetried(OperationContext operationContext, RetryableWriteContext context, ServerDescription server, Exception exception, int attempt)
-        {
-            if (!DoesContextAllowRetries(context, server))
-            {
-                return false;
-            }
-
-            var innerException = exception is MongoAuthenticationException mongoAuthenticationException ? mongoAuthenticationException.InnerException : exception;
-            // According the spec error during handshake should be handle according to RetryableReads logic
-            if (!RetryabilityHelper.IsRetryableReadException(innerException))
-            {
-                return false;
-            }
-
-            return operationContext.IsRootContextTimeoutConfigured() || attempt < 2;
         }
 
         // private static methods
-        private static bool ShouldRetryOperation(OperationContext operationContext, WriteConcern writeConcern, RetryableWriteContext context, ServerDescription server, Exception exception, int attempt)
+        private static bool ShouldRetryOperation(OperationContext operationContext, bool errorDuringChannelAcquisition, WriteConcern writeConcern, RetryableWriteContext context, ServerDescription server, Exception exception, int totalAttempts)
         {
-            if (!AreRetriesAllowed(writeConcern, context, server))
-            {
+            if (server is null)
                 return false;
+
+            if (errorDuringChannelAcquisition)
+            {
+                // According to the spec, errors during handshake should be handled according to RetryableReads logic
+                exception = exception is MongoAuthenticationException mongoAuthenticationException ? mongoAuthenticationException.InnerException : exception;
+
+                if (!DoesContextAllowRetries(context, server))
+                {
+                    return false;
+                }
+
+                if (!RetryabilityHelper.IsRetryableReadException(exception))
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                if (!AreRetriesAllowed(writeConcern, context, server))
+                {
+                    return false;
+                }
+
+                if (!RetryabilityHelper.IsRetryableWriteException(exception))
+                {
+                    return false;
+                }
             }
 
-            if (!RetryabilityHelper.IsRetryableWriteException(exception))
-            {
-                return false;
-            }
-
-            return operationContext.IsRootContextTimeoutConfigured() || attempt < 2;
+            return operationContext.IsRootContextTimeoutConfigured() || totalAttempts < 2;
         }
 
         private static bool AreRetriesAllowed(WriteConcern writeConcern, RetryableWriteContext context, ServerDescription server)
@@ -191,5 +171,17 @@ namespace MongoDB.Driver.Core.Operations
         private static bool IsOperationAcknowledged(WriteConcern writeConcern)
             => writeConcern == null || // null means use server default write concern which implies acknowledged
                writeConcern.IsAcknowledged;
+
+        private static HashSet<ServerDescription> UpdateServerList(ServerDescription server, HashSet<ServerDescription> deprioritizedServers, Exception ex)
+        {
+            if (server != null && (server.Type == ServerType.ShardRouter ||
+                (ex is MongoException mongoException && mongoException.HasErrorLabel("SystemOverloadedError"))))
+            {
+                deprioritizedServers ??= [];
+                deprioritizedServers.Add(server);
+            }
+
+            return deprioritizedServers;
+        }
     }
 }
