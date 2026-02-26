@@ -26,98 +26,72 @@ namespace MongoDB.Driver.Core.Operations
         public static TResult Execute<TResult>(OperationContext operationContext, IRetryableReadOperation<TResult> operation, RetryableReadContext context)
         {
             HashSet<ServerDescription> deprioritizedServers = null;
-            var attempt = 1;
+            var totalAttempts = 0;
             Exception originalException = null;
 
             while (true) // Circle breaking logic based on ShouldRetryOperation method, see the catch block below.
             {
+                totalAttempts++;
                 operationContext.ThrowIfTimedOutOrCanceled();
-                var server = context.ChannelSource.ServerDescription;
+                ServerDescription server = null;
+
                 try
                 {
-                    return operation.ExecuteAttempt(operationContext, context, attempt, transactionNumber: null);
+                    server = context.DoServerSelection(operationContext, deprioritizedServers);
+                    context.DoChannelAcquisition(operationContext);
+
+                    return operation.ExecuteAttempt(operationContext, context, totalAttempts, transactionNumber: null);
                 }
                 catch (Exception ex)
                 {
-                    if (!ShouldRetryOperation(operationContext, context, ex, attempt))
+                    if (!ShouldRetryOperation(operationContext, context, ex, totalAttempts))
                     {
                         throw originalException ?? ex;
                     }
 
                     originalException ??= ex;
-                    if (server.Type == ServerType.ShardRouter ||
-                        (ex is MongoException mongoException && mongoException.HasErrorLabel("SystemOverloadedError")))
-                    {
-                        deprioritizedServers ??= new HashSet<ServerDescription>();
-                        deprioritizedServers.Add(server);
-                    }
+                    deprioritizedServers = UpdateServerList(server, deprioritizedServers, ex);
                 }
-
-                try
-                {
-                    context.AcquireOrReplaceChannel(operationContext, deprioritizedServers);
-                }
-                catch
-                {
-                    throw originalException;
-                }
-
-                attempt++;
             }
         }
 
         public static async Task<TResult> ExecuteAsync<TResult>(OperationContext operationContext, IRetryableReadOperation<TResult> operation, RetryableReadContext context)
         {
             HashSet<ServerDescription> deprioritizedServers = null;
-            var attempt = 1;
+            var totalAttempts = 0;
             Exception originalException = null;
 
             while (true) // Circle breaking logic based on ShouldRetryOperation method, see the catch block below.
             {
+                totalAttempts++;
                 operationContext.ThrowIfTimedOutOrCanceled();
-                var server = context.ChannelSource.ServerDescription;
+                ServerDescription server = null;
+
                 try
                 {
-                    return await operation.ExecuteAttemptAsync(operationContext, context, attempt, transactionNumber: null).ConfigureAwait(false);
+                    server = await context.DoServerSelectionAsync(operationContext, deprioritizedServers).ConfigureAwait(false);
+                    await context.DoChannelAcquisitionAsync(operationContext).ConfigureAwait(false);
+
+                    return await operation.ExecuteAttemptAsync(operationContext, context, totalAttempts, transactionNumber: null).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
-                    if (!ShouldRetryOperation(operationContext, context, ex, attempt))
+                    if (!ShouldRetryOperation(operationContext, context, ex, totalAttempts))
                     {
                         throw originalException ?? ex;
                     }
 
                     originalException ??= ex;
-                    if (server.Type == ServerType.ShardRouter ||
-                        (ex is MongoException mongoException && mongoException.HasErrorLabel("SystemOverloadedError")))
-                    {
-                        deprioritizedServers ??= new HashSet<ServerDescription>();
-                        deprioritizedServers.Add(server);
-                    }
+                    deprioritizedServers = UpdateServerList(server, deprioritizedServers, ex);
                 }
-
-                try
-                {
-                    await context.AcquireOrReplaceChannelAsync(operationContext, deprioritizedServers).ConfigureAwait(false);
-                }
-                catch
-                {
-                    throw originalException;
-                }
-
-                attempt++;
             }
         }
 
-        public static bool ShouldConnectionAcquireBeRetried(OperationContext operationContext, RetryableReadContext context, Exception exception, int attempt)
-        {
-            var innerException = exception is MongoAuthenticationException mongoAuthenticationException ? mongoAuthenticationException.InnerException : exception;
-            return ShouldRetryOperation(operationContext, context, innerException, attempt);
-        }
-
         // private static methods
-        private static bool ShouldRetryOperation(OperationContext operationContext, RetryableReadContext context, Exception exception, int attempt)
+        private static bool ShouldRetryOperation(OperationContext operationContext, RetryableReadContext context, Exception exception, int totalAttempts)
         {
+            exception = exception is MongoAuthenticationException mongoAuthenticationException ? mongoAuthenticationException.InnerException : exception;
+
             if (!context.RetryRequested || context.Binding.Session.IsInTransaction)
             {
                 return false;
@@ -128,7 +102,19 @@ namespace MongoDB.Driver.Core.Operations
                 return false;
             }
 
-            return operationContext.IsRootContextTimeoutConfigured() || attempt < 2;
+            return operationContext.IsRootContextTimeoutConfigured() || totalAttempts < 2;
+        }
+
+        private static HashSet<ServerDescription> UpdateServerList(ServerDescription server, HashSet<ServerDescription> deprioritizedServers, Exception ex)
+        {
+            if (server != null && (server.Type == ServerType.ShardRouter ||
+                                   (ex is MongoException mongoException && mongoException.HasErrorLabel("SystemOverloadedError"))))
+            {
+                deprioritizedServers ??= [];
+                deprioritizedServers.Add(server);
+            }
+
+            return deprioritizedServers;
         }
     }
 }

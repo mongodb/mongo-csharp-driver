@@ -91,7 +91,7 @@ namespace MongoDB.Driver.Core.Operations
             }
             else
             {
-                documents = new BatchableSource<TDocument>(_documents.Items, _documents.Offset, _documents.ProcessedCount, canBeSplit: false);
+                documents = new BatchableSource<TDocument>(_documents.Items, _documents.Offset, _documents.Count, _documents.ProcessedCount, canBeSplit: false);
             }
 
             var elementNameValidator = NoOpElementNameValidator.Instance;
