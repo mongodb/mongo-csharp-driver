@@ -391,7 +391,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
                         innerMostGetFieldExpression.FieldName.IsStringConstant("_elements"))
                     {
                         firstOrLastOperator = unaryOperator;
-                        rootFieldExpression = AstExpression.GetField(AstExpression.RootVar, getFieldExpression.FieldName);
+                        rootFieldExpression = AstExpression.GetField(_element, getFieldExpression.FieldName);
                         return true;
                     }
 
