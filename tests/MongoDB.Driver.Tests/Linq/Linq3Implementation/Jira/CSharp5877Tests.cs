@@ -19,6 +19,8 @@ using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
 
@@ -34,6 +36,8 @@ public class CSharp5877Tests : LinqIntegrationTest<CSharp5877Tests.ClassFixture>
     [Fact]
     public void GroupBy_with_First_field_access_should_use_correct_path_when_source_is_wrapped()
     {
+        RequireServer.Check().Supports(Feature.SortArrayOperator);
+
         var collection = Fixture.Collection;
 
         var queryable = collection.AsQueryable()
