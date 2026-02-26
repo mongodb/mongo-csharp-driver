@@ -284,8 +284,6 @@ namespace MongoDB.Driver.Core.Connections
             var commandName = originalCommand.GetElement(0).Name;
             var shouldRedactCommand = ShouldRedactCommand(originalCommand);
 
-            bool moreToCome;
-
             // Only decode when we need the full command for CommandStartedEvent or db.query.text
             if ((_shouldTrackStarted || _queryTextMaxLength > 0) && !shouldRedactCommand)
             {
@@ -305,7 +303,6 @@ namespace MongoDB.Driver.Core.Connections
                             command[name] = items;
                         }
                     }
-                    moreToCome = decodedMessage.MoreToCome;
 
                     _eventLogger.LogAndPublish(new CommandStartedEvent(
                         commandName,
@@ -324,7 +321,7 @@ namespace MongoDB.Driver.Core.Connections
                         command,
                         stopwatch,
                         new CollectionNamespace(databaseNamespace, "$cmd"),
-                        moreToCome ? ExpectedResponseType.None : ExpectedResponseType.Command,
+                        decodedMessage.MoreToCome ? ExpectedResponseType.None : ExpectedResponseType.Command,
                         shouldRedactCommand,
                         databaseNamespace,
                         connectionId,
@@ -335,8 +332,6 @@ namespace MongoDB.Driver.Core.Connections
             }
             else
             {
-                moreToCome = message.WrappedMessage.MoreToCome;
-
                 if (_shouldTrackStarted)
                 {
                     _eventLogger.LogAndPublish(new CommandStartedEvent(
@@ -357,7 +352,7 @@ namespace MongoDB.Driver.Core.Connections
                     originalCommand,
                     stopwatch,
                     new CollectionNamespace(databaseNamespace, "$cmd"),
-                    moreToCome ? ExpectedResponseType.None : ExpectedResponseType.Command,
+                    message.WrappedMessage.MoreToCome ? ExpectedResponseType.None : ExpectedResponseType.Command,
                     shouldRedactCommand,
                     databaseNamespace,
                     connectionId,
