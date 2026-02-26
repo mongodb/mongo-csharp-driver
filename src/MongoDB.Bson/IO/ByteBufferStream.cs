@@ -638,9 +638,8 @@ namespace MongoDB.Bson.IO
 
             PrepareToWrite(8);
 
-            var bytes = new byte[8];
-            BinaryPrimitivesCompat.WriteDoubleLittleEndian(bytes, value);
-            _buffer.SetBytes(_position, bytes, 0, 8);
+            BinaryPrimitivesCompat.WriteDoubleLittleEndian(_temp, value);
+            _buffer.SetBytes(_position, _temp, 0, 8);
 
             SetPositionAfterWrite(_position + 8);
         }
@@ -679,9 +678,8 @@ namespace MongoDB.Bson.IO
 
             PrepareToWrite(8);
 
-            var bytes = new byte[8];
-            BinaryPrimitives.WriteInt64LittleEndian(bytes, value);
-            _buffer.SetBytes(_position, bytes, 0, 8);
+            BinaryPrimitives.WriteInt64LittleEndian(_temp, value);
+            _buffer.SetBytes(_position, _temp, 0, 8);
 
             SetPositionAfterWrite(_position + 8);
         }
@@ -734,10 +732,9 @@ namespace MongoDB.Bson.IO
                 var bytes = rentedSegmentEncoded.Segment.Array;
                 actualLength = rentedSegmentEncoded.Segment.Count;
 
-                var lengthPlusOneBytes = new byte[4];
-                BinaryPrimitives.WriteInt32LittleEndian(lengthPlusOneBytes, actualLength + 1);
+                BinaryPrimitives.WriteInt32LittleEndian(_temp, actualLength + 1);
 
-                _buffer.SetBytes(_position, lengthPlusOneBytes, 0, 4);
+                _buffer.SetBytes(_position, _temp, 0, 4);
                 _buffer.SetBytes(_position + 4, bytes, 0, actualLength);
                 _buffer.SetByte(_position + 4 + actualLength, 0);
             }
