@@ -139,6 +139,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast
         SortArrayExpression,
         SortStage,
         SortByCountStage,
+        SubtypeFilterOperation,
         SwitchExpression,
         SwitchExpressionBranch,
         TernaryExpression,

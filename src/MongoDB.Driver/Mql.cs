@@ -17,7 +17,6 @@ using System;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
 namespace MongoDB.Driver
 {
@@ -177,5 +176,14 @@ namespace MongoDB.Driver
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
+
+        /// <summary>
+        /// Returns the subtype of a given binary value.
+        /// </summary>
+        /// <typeparam name="TValue">The type of the binary value.</typeparam>
+        /// <param name="value">The binary value.</param>
+        /// <returns>The binary subtype.</returns>
+        public static BsonBinarySubType Subtype<TValue>(TValue value) =>
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
     }
 }
