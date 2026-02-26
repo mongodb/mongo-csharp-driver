@@ -107,9 +107,8 @@ namespace MongoDB.Driver.Core.Operations
 
         private static HashSet<ServerDescription> UpdateServerList(ServerDescription server, HashSet<ServerDescription> deprioritizedServers, Exception ex)
         {
-            if (server != null &&
-                (server.Type == ServerType.ShardRouter ||
-                 (ex is MongoException mongoException && mongoException.HasErrorLabel("SystemOverloadedError"))))
+            if (server != null && (server.Type == ServerType.ShardRouter ||
+                                   (ex is MongoException mongoException && mongoException.HasErrorLabel("SystemOverloadedError"))))
             {
                 deprioritizedServers ??= [];
                 deprioritizedServers.Add(server);
