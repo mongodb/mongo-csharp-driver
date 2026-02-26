@@ -123,7 +123,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        //TODO We can proably remove those, are used only by tests now
         public void AcquireOrReplaceChannel(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             DoServerSelection(operationContext, deprioritizedServers);
