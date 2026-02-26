@@ -284,7 +284,6 @@ namespace MongoDB.Driver.Core.Connections
             var commandName = originalCommand.GetElement(0).Name;
             var shouldRedactCommand = ShouldRedactCommand(originalCommand);
 
-            BsonDocument command;
             bool moreToCome;
 
             // Only decode when we need the full command for CommandStartedEvent or db.query.text
@@ -294,7 +293,7 @@ namespace MongoDB.Driver.Core.Connections
                 using (new CommandMessageDisposer(decodedMessage))
                 {
                     var type0Section = decodedMessage.Sections.OfType<Type0CommandMessageSection>().Single();
-                    command = (BsonDocument)type0Section.Document;
+                    var command = (BsonDocument)type0Section.Document;
                     var type1Sections = decodedMessage.Sections.OfType<Type1CommandMessageSection>().ToList();
                     if (type1Sections.Count > 0)
                     {
@@ -336,14 +335,13 @@ namespace MongoDB.Driver.Core.Connections
             }
             else
             {
-                command = shouldRedactCommand ? new BsonDocument() : originalCommand;
                 moreToCome = message.WrappedMessage.MoreToCome;
 
                 if (_shouldTrackStarted)
                 {
                     _eventLogger.LogAndPublish(new CommandStartedEvent(
                         commandName,
-                        command,
+                        new BsonDocument(),
                         databaseNamespace,
                         operationId,
                         requestId,
@@ -356,7 +354,7 @@ namespace MongoDB.Driver.Core.Connections
                     requestId,
                     operationId,
                     commandName,
-                    command,
+                    originalCommand,
                     stopwatch,
                     new CollectionNamespace(databaseNamespace, "$cmd"),
                     moreToCome ? ExpectedResponseType.None : ExpectedResponseType.Command,
