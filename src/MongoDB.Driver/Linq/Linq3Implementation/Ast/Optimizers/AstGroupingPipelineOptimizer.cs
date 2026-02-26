@@ -358,11 +358,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
 
             public override AstNode VisitGetFieldExpression(AstGetFieldExpression node)
             {
-                // { $getField : { field : <elementField>, input : { $firstOrLast : "$_elements" } } } => { __agg0 : { $firstOrLast : <rootField> } } + "$__agg0"
-                if (IsGetFieldChainOnFirstOrLastElement(node, out var firstOrLastOperator, out var rootFieldExpression))
+                // { $getField : { field : <fieldName>, input : { $firstOrLast : "$_elements" } } } => { __agg0 : { $firstOrLast : <elementField> } } + "$__agg0"
+                if (IsGetFieldChainOnFirstOrLastElement(node, out var firstOrLastOperator, out var elementFieldExpression))
                 {
                     var unaryAccumulatorOperator = firstOrLastOperator == AstUnaryOperator.First ? AstUnaryAccumulatorOperator.First : AstUnaryAccumulatorOperator.Last;
-                    var accumulatorExpression = AstExpression.UnaryAccumulator(unaryAccumulatorOperator, rootFieldExpression);
+                    var accumulatorExpression = AstExpression.UnaryAccumulator(unaryAccumulatorOperator, elementFieldExpression);
                     var accumulatorFieldName = _accumulators.AddAccumulatorExpression(accumulatorExpression);
                     return AstExpression.GetField(AstExpression.RootVar, accumulatorFieldName);
                 }
@@ -374,12 +374,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
 
                 return base.VisitGetFieldExpression(node);
 
-                bool IsGetFieldChainOnFirstOrLastElement(AstGetFieldExpression getFieldExpression, out AstUnaryOperator firstOrLastOperator, out AstExpression rootFieldExpression)
+                bool IsGetFieldChainOnFirstOrLastElement(AstGetFieldExpression getFieldExpression, out AstUnaryOperator firstOrLastOperator, out AstExpression elementFieldExpression)
                 {
                     if (getFieldExpression.Input is AstGetFieldExpression innerGetFieldExpression &&
-                        IsGetFieldChainOnFirstOrLastElement(innerGetFieldExpression, out firstOrLastOperator, out rootFieldExpression))
+                        IsGetFieldChainOnFirstOrLastElement(innerGetFieldExpression, out firstOrLastOperator, out elementFieldExpression))
                     {
-                        rootFieldExpression = AstExpression.GetField(rootFieldExpression, getFieldExpression.FieldName);
+                        elementFieldExpression = AstExpression.GetField(elementFieldExpression, getFieldExpression.FieldName);
                         return true;
                     }
 
@@ -391,12 +391,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
                         innerMostGetFieldExpression.FieldName.IsStringConstant("_elements"))
                     {
                         firstOrLastOperator = unaryOperator;
-                        rootFieldExpression = AstExpression.GetField(_element, getFieldExpression.FieldName);
+                        elementFieldExpression = AstExpression.GetField(_element, getFieldExpression.FieldName);
                         return true;
                     }
 
                     firstOrLastOperator = default;
-                    rootFieldExpression = null;
+                    elementFieldExpression = null;
                     return false;
                 }
             }
