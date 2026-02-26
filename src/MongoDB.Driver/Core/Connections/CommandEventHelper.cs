@@ -288,7 +288,7 @@ namespace MongoDB.Driver.Core.Connections
             bool moreToCome;
 
             // Only decode when we need the full command for CommandStartedEvent or db.query.text
-            if (_shouldTrackStarted || _queryTextMaxLength > 0)
+            if ((_shouldTrackStarted || _queryTextMaxLength > 0) && !shouldRedactCommand)
             {
                 var decodedMessage = encoder.ReadMessage();
                 using (new CommandMessageDisposer(decodedMessage))
@@ -307,11 +307,6 @@ namespace MongoDB.Driver.Core.Connections
                         }
                     }
                     moreToCome = decodedMessage.MoreToCome;
-
-                    if (shouldRedactCommand)
-                    {
-                        command = new BsonDocument();
-                    }
 
                     _eventLogger.LogAndPublish(new CommandStartedEvent(
                         commandName,
@@ -343,6 +338,19 @@ namespace MongoDB.Driver.Core.Connections
             {
                 command = shouldRedactCommand ? new BsonDocument() : originalCommand;
                 moreToCome = message.WrappedMessage.MoreToCome;
+
+                if (_shouldTrackStarted)
+                {
+                    _eventLogger.LogAndPublish(new CommandStartedEvent(
+                        commandName,
+                        command,
+                        databaseNamespace,
+                        operationId,
+                        requestId,
+                        connectionId,
+                        serviceId),
+                        skipLogging);
+                }
 
                 TrackCommandState(
                     requestId,
