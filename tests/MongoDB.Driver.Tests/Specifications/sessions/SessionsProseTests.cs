@@ -372,7 +372,7 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
             var mongoClient = DriverTestConfiguration.Client;
 
             var exception = Record.Exception(() => mongoClient.StartSession(sessionOptions));
-            exception.Should().BeOfType<NotSupportedException>();
+            exception.Should().BeOfType<InvalidOperationException>();
         }
 
         // https://github.com/mongodb/specifications/blob/192976b194afdb1f458cbba2530c73de6b2c700f/source/sessions/tests/README.md#22-retrieving-snapshottime-on-a-non-snapshot-session-raises-an-error

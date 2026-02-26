@@ -156,7 +156,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
-        public void SnapshotTime_should_call_coreSession()
+        public void SnapshotTime_returns_expected_result()
         {
             var subject = CreateSubject();
             var value = new BsonTimestamp(1234567890, 1);

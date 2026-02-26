@@ -626,7 +626,7 @@ namespace MongoDB.Driver
             {
                 if (options.SnapshotTime != null && !options.Snapshot)
                 {
-                    throw new NotSupportedException("Specifying a snapshot time requires snapshot to be true.");
+                    throw new InvalidOperationException("Specifying a snapshot time requires snapshot to be true.");
                 }
 
                 if (options.Snapshot && options.CausalConsistency == true)
