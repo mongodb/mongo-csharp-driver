@@ -35,28 +35,30 @@ namespace MongoDB.Driver.Core.Connections
     {
         private readonly EventLogger<LogCategories.Command> _eventLogger;
         private readonly ConcurrentDictionary<int, CommandState> _state;
-        private readonly TracingOptions _tracingOptions;
 
         private readonly bool _shouldProcessRequestMessages;
+        private readonly bool _shouldTrackStarted;
         private readonly bool _shouldTrackState;
         private readonly bool _shouldTrackFailed;
         private readonly bool _shouldTrackSucceeded;
         private readonly bool _shouldTrace;
+        private readonly int _queryTextMaxLength;
 
         private Activity _currentCommandActivity;
 
         public CommandEventHelper(EventLogger<LogCategories.Command> eventLogger, TracingOptions tracingOptions = null)
         {
             _eventLogger = eventLogger;
-            _tracingOptions = tracingOptions;
 
             _shouldTrackSucceeded = _eventLogger.IsEventTracked<CommandSucceededEvent>();
             _shouldTrackFailed = _eventLogger.IsEventTracked<CommandFailedEvent>();
+            _shouldTrackStarted = _eventLogger.IsEventTracked<CommandStartedEvent>();
 
-            _shouldTrace = _tracingOptions?.Disabled != true && MongoTelemetry.ActivitySource.HasListeners();
+            _shouldTrace = tracingOptions?.Disabled != true && MongoTelemetry.ActivitySource.HasListeners();
+            _queryTextMaxLength = tracingOptions?.QueryTextMaxLength ?? 0;
 
             _shouldTrackState = _shouldTrackSucceeded || _shouldTrackFailed || _shouldTrace;
-            _shouldProcessRequestMessages = _eventLogger.IsEventTracked<CommandStartedEvent>() || _shouldTrackState;
+            _shouldProcessRequestMessages = _shouldTrackStarted || _shouldTrackState;
 
             if (_shouldTrackState)
             {
@@ -273,40 +275,74 @@ namespace MongoDB.Driver.Core.Connections
             var requestId = message.RequestId;
             var operationId = EventContext.OperationId;
 
-            var decodedMessage = encoder.ReadMessage();
-            using (new CommandMessageDisposer(decodedMessage))
-            {
-                var type0Section = decodedMessage.Sections.OfType<Type0CommandMessageSection>().Single();
-                var command = (BsonDocument)type0Section.Document;
-                var type1Sections = decodedMessage.Sections.OfType<Type1CommandMessageSection>().ToList();
-                if (type1Sections.Count > 0)
-                {
-                    command = new BsonDocument(command); // materialize the top level of the command RawBsonDocument
-                    foreach (var type1Section in type1Sections)
-                    {
-                        var name = type1Section.Identifier;
-                        var items = new BsonArray(type1Section.Documents.GetBatchItems().Cast<RawBsonDocument>());
-                        command[name] = items;
-                    }
-                }
-                var commandName = command.GetElement(0).Name;
-                var databaseName = command["$db"].AsString;
-                var databaseNamespace = new DatabaseNamespace(databaseName);
-                var shouldRedactCommand = ShouldRedactCommand(command);
-                if (shouldRedactCommand)
-                {
-                    command = new BsonDocument();
-                }
+            var originalType0Section = message.WrappedMessage.Sections.OfType<Type0CommandMessageSection>().Single();
+            var originalCommand = (BsonDocument)originalType0Section.Document;
+            var databaseNamespace = originalType0Section.DatabaseNamespace;
+            var sessionId = originalType0Section.SessionId;
+            var transactionNumber = originalType0Section.TransactionNumber;
 
-                _eventLogger.LogAndPublish(new CommandStartedEvent(
-                    commandName,
-                    command,
-                    databaseNamespace,
-                    operationId,
-                    requestId,
-                    connectionId,
-                    serviceId),
-                    skipLogging);
+            var commandName = originalCommand.GetElement(0).Name;
+            var shouldRedactCommand = ShouldRedactCommand(originalCommand);
+
+            BsonDocument command;
+            bool moreToCome;
+
+            // Only decode when we need the full command for CommandStartedEvent or db.query.text
+            if (_shouldTrackStarted || _queryTextMaxLength > 0)
+            {
+                var decodedMessage = encoder.ReadMessage();
+                using (new CommandMessageDisposer(decodedMessage))
+                {
+                    var type0Section = decodedMessage.Sections.OfType<Type0CommandMessageSection>().Single();
+                    command = (BsonDocument)type0Section.Document;
+                    var type1Sections = decodedMessage.Sections.OfType<Type1CommandMessageSection>().ToList();
+                    if (type1Sections.Count > 0)
+                    {
+                        command = new BsonDocument(command); // materialize the top level of the command RawBsonDocument
+                        foreach (var type1Section in type1Sections)
+                        {
+                            var name = type1Section.Identifier;
+                            var items = new BsonArray(type1Section.Documents.GetBatchItems().Cast<RawBsonDocument>());
+                            command[name] = items;
+                        }
+                    }
+                    moreToCome = decodedMessage.MoreToCome;
+
+                    if (shouldRedactCommand)
+                    {
+                        command = new BsonDocument();
+                    }
+
+                    _eventLogger.LogAndPublish(new CommandStartedEvent(
+                        commandName,
+                        command,
+                        databaseNamespace,
+                        operationId,
+                        requestId,
+                        connectionId,
+                        serviceId),
+                        skipLogging);
+
+                    TrackCommandState(
+                        requestId,
+                        operationId,
+                        commandName,
+                        command,
+                        stopwatch,
+                        new CollectionNamespace(databaseNamespace, "$cmd"),
+                        moreToCome ? ExpectedResponseType.None : ExpectedResponseType.Command,
+                        shouldRedactCommand,
+                        databaseNamespace,
+                        connectionId,
+                        skipLogging,
+                        sessionId,
+                        transactionNumber);
+                }
+            }
+            else
+            {
+                command = shouldRedactCommand ? new BsonDocument() : originalCommand;
+                moreToCome = message.WrappedMessage.MoreToCome;
 
                 TrackCommandState(
                     requestId,
@@ -315,11 +351,13 @@ namespace MongoDB.Driver.Core.Connections
                     command,
                     stopwatch,
                     new CollectionNamespace(databaseNamespace, "$cmd"),
-                    decodedMessage.MoreToCome ? ExpectedResponseType.None : ExpectedResponseType.Command,
+                    moreToCome ? ExpectedResponseType.None : ExpectedResponseType.Command,
                     shouldRedactCommand,
                     databaseNamespace,
                     connectionId,
-                    skipLogging);
+                    skipLogging,
+                    sessionId,
+                    transactionNumber);
             }
         }
 
@@ -417,7 +455,9 @@ namespace MongoDB.Driver.Core.Connections
                     shouldRedactCommand,
                     decodedMessage.CollectionNamespace.DatabaseNamespace,
                     connectionId,
-                    skipLogging);
+                    skipLogging,
+                    sessionId: null,
+                    transactionNumber: null);
             }
             finally
             {
@@ -686,7 +726,9 @@ namespace MongoDB.Driver.Core.Connections
             bool shouldRedactCommand,
             DatabaseNamespace databaseNamespace,
             ConnectionId connectionId,
-            bool skipLogging)
+            bool skipLogging,
+            BsonDocument sessionId,
+            long? transactionNumber)
         {
             if (!_shouldTrackState)
             {
@@ -710,7 +752,9 @@ namespace MongoDB.Driver.Core.Connections
                     command,
                     databaseNamespace,
                     connectionId,
-                    _tracingOptions?.QueryTextMaxLength ?? 0);
+                    sessionId,
+                    transactionNumber,
+                    _queryTextMaxLength);
             }
 
             _state.TryAdd(requestId, commandState);

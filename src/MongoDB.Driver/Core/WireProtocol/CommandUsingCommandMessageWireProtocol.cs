@@ -291,6 +291,8 @@ namespace MongoDB.Driver.Core.WireProtocol
         private Type0CommandMessageSection<BsonDocument> CreateType0Section(OperationContext operationContext, ConnectionDescription connectionDescription)
         {
             var extraElements = new List<BsonElement>();
+            BsonDocument sessionId = null;
+            long? transactionNumber = null;
 
             AddIfNotAlreadyAdded("$db", _databaseNamespace.DatabaseName);
 
@@ -320,6 +322,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 else if (IsSessionAcknowledged())
                 {
                     AddIfNotAlreadyAdded("lsid", _session.Id);
+                    sessionId = _session.Id;
                 }
                 else
                 {
@@ -349,7 +352,8 @@ namespace MongoDB.Driver.Core.WireProtocol
             if (_session.IsInTransaction)
             {
                 var transaction = _session.CurrentTransaction;
-                AddIfNotAlreadyAdded("txnNumber", transaction.TransactionNumber);
+                transactionNumber = transaction.TransactionNumber;
+                AddIfNotAlreadyAdded("txnNumber", transactionNumber.Value);
                 if (transaction.State == CoreTransactionState.Starting)
                 {
                     AddIfNotAlreadyAdded("startTransaction", true);
@@ -393,7 +397,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
 
             var elementAppendingSerializer = new ElementAppendingSerializer<BsonDocument>(BsonDocumentSerializer.Instance, extraElements);
-            return new Type0CommandMessageSection<BsonDocument>(_command, elementAppendingSerializer);
+            return new Type0CommandMessageSection<BsonDocument>(_command, elementAppendingSerializer, _databaseNamespace, sessionId, transactionNumber);
 
             void AddIfNotAlreadyAdded(string key, BsonValue value)
             {

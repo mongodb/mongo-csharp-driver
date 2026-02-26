@@ -16,9 +16,12 @@
 using System;
 using System.Diagnostics;
 using System.Net;
-using System.Net.Sockets;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Connections;
+
+#if NET5_0_OR_GREATER || NETCOREAPP3_0_OR_GREATER
+using System.Net.Sockets;
+#endif
 
 namespace MongoDB.Driver;
 
@@ -66,6 +69,8 @@ public static class MongoTelemetry
         BsonDocument command,
         DatabaseNamespace databaseNamespace,
         ConnectionId connectionId,
+        BsonDocument sessionId,
+        long? transactionNumber,
         int queryTextMaxLength = 0)
     {
         var collectionName = ExtractCollectionName(command);
@@ -92,18 +97,18 @@ public static class MongoTelemetry
         {
             SetAdditionalConnectionTags(activity, connectionId);
 
-            if (command.TryGetValue("lsid", out var lsid))
+            if (sessionId != null)
             {
-                // Materialize the lsid to avoid accessing disposed RawBsonDocument later
-                var materializedLsid = lsid.IsBsonDocument
-                    ? new BsonDocument(lsid.AsBsonDocument)
-                    : lsid;
-                activity.SetTag(DbMongoDbLsidAttribute, materializedLsid.ToJson());
+                activity.SetTag(DbMongoDbLsidAttribute, sessionId.ToJson());
+            }
+            else if (command.TryGetValue("lsid", out var lsidValue))
+            {
+                activity.SetTag(DbMongoDbLsidAttribute, lsidValue.ToJson());
             }
 
-            if (command.TryGetValue("txnNumber", out var txnNumber))
+            if (transactionNumber.HasValue)
             {
-                activity.SetTag(DbMongoDbTxnNumberAttribute, txnNumber.ToInt64());
+                activity.SetTag(DbMongoDbTxnNumberAttribute, transactionNumber.Value);
             }
 
             if (queryTextMaxLength > 0)
