@@ -66,6 +66,13 @@ namespace MongoDB.Bson.IO
         }
 
         /// <summary>
+        /// Determines whether the specified BSON type is valid.
+        /// </summary>
+        /// <param name="bsonType">The BSON type to validate.</param>
+        /// <returns>True if the BSON type is valid; otherwise, false.</returns>
+        public static bool IsValidBsonType(BsonType bsonType) => __validBsonTypes[(byte)bsonType];
+
+        /// <summary>
         /// Reads the binary sub type.
         /// </summary>
         /// <param name="stream">The stream.</param>

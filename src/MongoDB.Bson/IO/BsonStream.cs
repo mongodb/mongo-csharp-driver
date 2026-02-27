@@ -14,16 +14,13 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace MongoDB.Bson.IO
 {
     /// <summary>
-    /// Represents a Stream has additional methods to suport reading and writing BSON values.
+    /// Represents a Stream has additional methods to support reading and writing BSON values.
     /// </summary>
     public abstract class BsonStream : Stream
     {

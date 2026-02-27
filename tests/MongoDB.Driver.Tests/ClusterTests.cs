@@ -71,14 +71,14 @@ namespace MongoDB.Driver.Tests
                 .ClusterType(ClusterType.Sharded)
                 .MultipleMongoses(true);
 
-            // temporary disable the test on Auth envs due to operations timings irregularities
+            // temporarily disable the test on Auth envs due to operations timings irregularities
             RequireServer.Check().Authentication(false);
 
             var applicationName = FailPoint.DecorateApplicationName("loadBalancingTest", async);
             const int threadsCount = 10;
             const int commandsFailPointPerThreadCount = 10;
             const int commandsPerThreadCount = 100;
-            const double maxCommandsOnSlowServerRatio = 0.3; // temporary set slow server load to 30% from 25% until find timings are investigated
+            const double maxCommandsOnSlowServerRatio = 0.3; // temporarily set slow server load to 30% from 25% until find timings are investigated
             const double operationsCountTolerance = 0.10;
 
             var failCommand = BsonDocument.Parse($"{{ configureFailPoint: 'failCommand', mode : {{ times : 10000 }}, data : {{ failCommands : [\"find\"], blockConnection: true, blockTimeMS: 500, appName: '{applicationName}' }} }}");

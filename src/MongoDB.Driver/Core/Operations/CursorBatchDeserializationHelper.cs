@@ -1,4 +1,4 @@
-﻿/* Copyright 2015-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -35,7 +35,6 @@ namespace MongoDB.Driver.Core.Operations
         /// <param name="documentSerializer">The document serializer.</param>
         /// <param name="messageEncoderSettings">The message encoder settings.</param>
         /// <returns>The documents.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]
         public static List<TDocument> DeserializeBatch<TDocument>(RawBsonArray batch, IBsonSerializer<TDocument> documentSerializer, MessageEncoderSettings messageEncoderSettings)
         {
             var documents = new List<TDocument>();
@@ -44,23 +43,20 @@ namespace MongoDB.Driver.Core.Operations
             if (messageEncoderSettings != null)
             {
                 readerSettings.Encoding = messageEncoderSettings.GetOrDefault(MessageEncoderSettingsName.ReadEncoding, Utf8Encodings.Strict);
-            };
-
-            using (var stream = new ByteBufferStream(batch.Slice, ownsBuffer: false))
-            using (var reader = new BsonBinaryReader(stream, readerSettings))
-            {
-                var context = BsonDeserializationContext.CreateRoot(reader);
-
-                // BSON requires that the top level object be a document, but an array looks close enough to a document that we can pretend it is one
-                reader.ReadStartDocument();
-                while (reader.ReadBsonType() != 0)
-                {
-                    reader.SkipName(); // skip over the index pseudo names
-                    var document = documentSerializer.Deserialize<TDocument>(context);
-                    documents.Add(document);
-                }
-                reader.ReadEndDocument();
             }
+
+            using var reader = BsonBinaryReaderUtils.CreateBinaryReader(batch.Slice, readerSettings);
+            var context = BsonDeserializationContext.CreateRoot(reader);
+
+            // BSON requires that the top level object be a document, but an array looks close enough to a document that we can pretend it is one
+            reader.ReadStartDocument();
+            while (reader.ReadBsonType() != 0)
+            {
+                reader.SkipName(); // skip over the index pseudo names
+                var document = documentSerializer.Deserialize(context);
+                documents.Add(document);
+            }
+            reader.ReadEndDocument();
 
             return documents;
         }

@@ -15,7 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 
 namespace MongoDB.Bson.IO
@@ -90,7 +89,7 @@ namespace MongoDB.Bson.IO
         }
 
         /// <summary>
-        /// Gets the settings of the writer.
+        /// Gets the settings of the reader.
         /// </summary>
         public new BsonBinaryReaderSettings Settings
         {
@@ -214,7 +213,7 @@ namespace MongoDB.Bson.IO
                 {
                     // insert the element name into the error message
                     var periodIndex = ex.Message.IndexOf('.');
-                    var dottedElementName = GenerateDottedElementName();
+                    var dottedElementName = BsonBinaryReaderUtils.GenerateDottedElementName(_context, _contextStack.ToArray(), () => _bsonStream.ReadCString(Utf8Encodings.Lenient));
                     var message = ex.Message.Substring(0, periodIndex) + $" for fieldname \"{dottedElementName}\"" + ex.Message.Substring(periodIndex);
                     throw new FormatException(message);
                 }
@@ -758,59 +757,6 @@ namespace MongoDB.Bson.IO
         }
 
         // private methods
-        private string GenerateDottedElementName()
-        {
-            string elementName;
-            if (_context.ContextType == ContextType.Document)
-            {
-                try
-                {
-                    elementName = _bsonStream.ReadCString(Utf8Encodings.Lenient);
-                }
-                catch
-                {
-                    elementName = "?"; // ignore exception
-                }
-            }
-            else if (_context.ContextType == ContextType.Array)
-            {
-                elementName = _context.ArrayIndex.ToString(NumberFormatInfo.InvariantInfo);
-            }
-            else
-            {
-                elementName = "?";
-            }
-
-            return GenerateDottedElementName(_contextStack.ToArray(), 0, elementName);
-        }
-
-        private string GenerateDottedElementName(BsonBinaryReaderContext[] contexts, int currentContextIndex, string elementName)
-        {
-            if (currentContextIndex >= contexts.Length)
-                return elementName;
-
-            var context = contexts[currentContextIndex];
-            var nextIndex = currentContextIndex + 1;
-
-            if (context.ContextType == ContextType.Document)
-            {
-                return GenerateDottedElementName(contexts,  nextIndex, (context.ElementName ?? "?") + "." + elementName);
-            }
-
-            if (context.ContextType == ContextType.Array)
-            {
-                var indexElementName = context.ArrayIndex.ToString(NumberFormatInfo.InvariantInfo);
-                return GenerateDottedElementName(contexts,  nextIndex, indexElementName + "." + elementName);
-            }
-
-            if (nextIndex < contexts.Length)
-            {
-                return GenerateDottedElementName(contexts, nextIndex, "?." + elementName);
-            }
-
-            return elementName;
-        }
-
         private BsonReaderState GetNextState()
         {
             switch (_context.ContextType)

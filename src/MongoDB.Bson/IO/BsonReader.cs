@@ -466,9 +466,17 @@ namespace MongoDB.Bson.IO
         /// </summary>
         /// <param name="methodName">The name of the method calling this one.</param>
         /// <param name="requiredBsonType">The required BSON type.</param>
-        protected void VerifyBsonType(string methodName, BsonType requiredBsonType)
+        protected void VerifyBsonType(string methodName, BsonType requiredBsonType) =>
+            VerifyBsonType(requiredBsonType, methodName);
+
+        /// <summary>
+        /// Verifies the current state and BsonType of the reader.
+        /// </summary>
+        /// /// <param name="requiredBsonType">The required BSON type.</param>
+        /// <param name="methodName">The name of the method calling this one.</param>
+        protected void VerifyBsonType(BsonType requiredBsonType, [System.Runtime.CompilerServices.CallerMemberName]string methodName = null)
         {
-            if (_state == BsonReaderState.Initial || _state == BsonReaderState.ScopeDocument || _state == BsonReaderState.Type)
+            if (_state is BsonReaderState.Initial or BsonReaderState.ScopeDocument or BsonReaderState.Type)
             {
                 ReadBsonType();
             }
@@ -483,10 +491,7 @@ namespace MongoDB.Bson.IO
             }
             if (_currentBsonType != requiredBsonType)
             {
-                var message = string.Format(
-                    "{0} can only be called when CurrentBsonType is {1}, not when CurrentBsonType is {2}.",
-                    methodName, requiredBsonType, _currentBsonType);
-                throw new InvalidOperationException(message);
+                throw new InvalidOperationException($"{methodName} can only be called when CurrentBsonType is {requiredBsonType}, not when CurrentBsonType is {_currentBsonType}.");
             }
         }
     }

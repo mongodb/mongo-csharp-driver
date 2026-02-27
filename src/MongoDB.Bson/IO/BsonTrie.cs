@@ -94,6 +94,27 @@ namespace MongoDB.Bson.IO
         }
 
         /// <summary>
+        /// Gets the node associated with the specified element name.
+        /// </summary>
+        /// <param name="utf8">The element name.</param>
+        /// <param name="node">
+        /// When this method returns, contains the node associated with the specified element name, if the key is found;
+        /// otherwise, null. This parameter is passed uninitialized.
+        /// </param>
+        /// <returns>True if the node was found; otherwise, false.</returns>
+        public bool TryGetNode(ReadOnlySpan<byte> utf8, out BsonTrieNode<TValue> node)
+        {
+            node = _root;
+            for (var i = 0; node != null && i < utf8.Length; i++)
+            {
+                var keyByte = utf8[i];
+                node = node.GetChild(keyByte);
+            }
+
+            return node != null;
+        }
+
+        /// <summary>
         /// Tries to get the node associated with a name read from a stream.
         /// </summary>
         /// <param name="stream">The stream.</param>

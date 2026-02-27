@@ -16,8 +16,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
@@ -64,77 +62,64 @@ namespace MongoDB.Bson
         }
 
         // public properties
-        /// <summary>
-        /// Gets the number of elements.
-        /// </summary>
+        /// <inheritdoc/>
         public override int ElementCount
         {
             get
             {
                 ThrowIfDisposed();
-                using (var stream = new ByteBufferStream(_slice, ownsBuffer: false))
-                using (var bsonReader = new BsonBinaryReader(stream, _readerSettings))
+                using var bsonReader = BsonBinaryReaderUtils.CreateBinaryReader(_slice, _readerSettings);
+
+                var elementCount = 0;
+
+                bsonReader.ReadStartDocument();
+                while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
                 {
-                    var elementCount = 0;
-
-                    bsonReader.ReadStartDocument();
-                    while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
-                    {
-                        bsonReader.SkipName();
-                        bsonReader.SkipValue();
-                        elementCount++;
-                    }
-                    bsonReader.ReadEndDocument();
-
-                    return elementCount;
+                    bsonReader.SkipName();
+                    bsonReader.SkipValue();
+                    elementCount++;
                 }
+                bsonReader.ReadEndDocument();
+
+                return elementCount;
             }
         }
 
-        /// <summary>
-        /// Gets the elements.
-        /// </summary>
+        /// <inheritdoc/>
         public override IEnumerable<BsonElement> Elements
         {
             get
             {
                 ThrowIfDisposed();
-                using (var stream = new ByteBufferStream(_slice, ownsBuffer: false))
-                using (var bsonReader = new BsonBinaryReader(stream, _readerSettings))
-                {
-                    var context = BsonDeserializationContext.CreateRoot(bsonReader);
+                using var bsonReader = BsonBinaryReaderUtils.CreateBinaryReader(_slice, _readerSettings);
+                var context = BsonDeserializationContext.CreateRoot(bsonReader);
 
-                    bsonReader.ReadStartDocument();
-                    while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
-                    {
-                        var name = bsonReader.ReadName();
-                        var value = DeserializeBsonValue(context);
-                        yield return new BsonElement(name, value);
-                    }
-                    bsonReader.ReadEndDocument();
+                bsonReader.ReadStartDocument();
+                while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
+                {
+                    var name = bsonReader.ReadName();
+                    var value = DeserializeBsonValue(context);
+                    yield return new BsonElement(name, value);
                 }
+                bsonReader.ReadEndDocument();
             }
         }
 
-        /// <summary>
-        /// Gets the element names.
-        /// </summary>
+        /// <inheritdoc/>
         public override IEnumerable<string> Names
         {
             get
             {
                 ThrowIfDisposed();
-                using (var stream = new ByteBufferStream(_slice, ownsBuffer: false))
-                using (var bsonReader = new BsonBinaryReader(stream, _readerSettings))
+                using var bsonReader = BsonBinaryReaderUtils.CreateBinaryReader(_slice, _readerSettings);
+
+                bsonReader.ReadStartDocument();
+                while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
                 {
-                    bsonReader.ReadStartDocument();
-                    while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
-                    {
-                        yield return bsonReader.ReadName();
-                        bsonReader.SkipValue();
-                    }
-                    bsonReader.ReadEndDocument();
+                    yield return bsonReader.ReadName();
+                    bsonReader.SkipValue();
                 }
+                bsonReader.ReadEndDocument();
             }
         }
 
@@ -153,47 +138,34 @@ namespace MongoDB.Bson
             }
         }
 
-        /// <summary>
-        /// Gets the values.
-        /// </summary>
+        /// <inheritdoc/>
         public override IEnumerable<BsonValue> Values
         {
             get
             {
                 ThrowIfDisposed();
-                using (var stream = new ByteBufferStream(_slice, ownsBuffer: false))
-                using (var bsonReader = new BsonBinaryReader(stream, _readerSettings))
-                {
-                    var context = BsonDeserializationContext.CreateRoot(bsonReader);
+                using var bsonReader = BsonBinaryReaderUtils.CreateBinaryReader(_slice, _readerSettings);
+                var context = BsonDeserializationContext.CreateRoot(bsonReader);
 
-                    bsonReader.ReadStartDocument();
-                    while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
-                    {
-                        bsonReader.SkipName();
-                        yield return DeserializeBsonValue(context);
-                    }
-                    bsonReader.ReadEndDocument();
+                bsonReader.ReadStartDocument();
+                while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
+                {
+                    bsonReader.SkipName();
+                    yield return DeserializeBsonValue(context);
                 }
+                bsonReader.ReadEndDocument();
             }
         }
 
         // public indexers
-        /// <summary>
-        /// Gets or sets a value by position.
-        /// </summary>
-        /// <param name="index">The position.</param>
-        /// <returns>The value.</returns>
+        /// <inheritdoc/>
         public override BsonValue this[int index]
         {
             get { return GetValue(index); }
             set { Set(index, value); }
         }
 
-        /// <summary>
-        /// Gets or sets a value by name.
-        /// </summary>
-        /// <param name="name">The name.</param>
-        /// <returns>The value.</returns>
+        /// <inheritdoc/>
         public override BsonValue this[string name]
         {
             get { return GetValue(name); }
@@ -201,243 +173,154 @@ namespace MongoDB.Bson
         }
 
         // public methods
-        /// <summary>
-        /// Adds an element to the document.
-        /// </summary>
-        /// <param name="element">The element to add.</param>
-        /// <returns>
-        /// The document (so method calls can be chained).
-        /// </returns>
+        /// <inheritdoc/>
         public override BsonDocument Add(BsonElement element)
         {
             throw new NotSupportedException("RawBsonDocument instances are immutable.");
         }
 
-        /// <summary>
-        /// Creates and adds an element to the document.
-        /// </summary>
-        /// <param name="name">The name of the element.</param>
-        /// <param name="value">The value of the element.</param>
-        /// <returns>
-        /// The document (so method calls can be chained).
-        /// </returns>
+        /// <inheritdoc/>
         public override BsonDocument Add(string name, BsonValue value)
         {
             throw new NotSupportedException("RawBsonDocument instances are immutable.");
         }
 
-        /// <summary>
-        /// Creates and adds an element to the document, but only if the condition is true.
-        /// </summary>
-        /// <param name="name">The name of the element.</param>
-        /// <param name="value">The value of the element.</param>
-        /// <param name="condition">Whether to add the element to the document.</param>
-        /// <returns>The document (so method calls can be chained).</returns>
+        /// <inheritdoc/>
         public override BsonDocument Add(string name, BsonValue value, bool condition)
         {
             throw new NotSupportedException("RawBsonDocument instances are immutable.");
         }
 
-        /// <summary>
-        /// Adds elements to the document from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">The dictionary.</param>
-        /// <returns>
-        /// The document (so method calls can be chained).
-        /// </returns>
+        /// <inheritdoc/>
         public override BsonDocument AddRange(Dictionary<string, object> dictionary)
         {
             throw new NotSupportedException("RawBsonDocument instances are immutable.");
         }
 
-        /// <summary>
-        /// Adds elements to the document from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">The dictionary.</param>
-        /// <returns>
-        /// The document (so method calls can be chained).
-        /// </returns>
+        /// <inheritdoc/>
         public override BsonDocument AddRange(IDictionary dictionary)
         {
             throw new NotSupportedException("RawBsonDocument instances are immutable.");
         }
 
-        /// <summary>
-        /// Adds a list of elements to the document.
-        /// </summary>
-        /// <param name="elements">The list of elements.</param>
-        /// <returns>
-        /// The document (so method calls can be chained).
-        /// </returns>
+        /// <inheritdoc/>
         public override BsonDocument AddRange(IEnumerable<BsonElement> elements)
         {
             throw new NotSupportedException("RawBsonDocument instances are immutable.");
         }
 
-        /// <summary>
-        /// Adds elements to the document from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">The dictionary.</param>
-        /// <returns>
-        /// The document (so method calls can be chained).
-        /// </returns>
+        /// <inheritdoc/>
         public override BsonDocument AddRange(IEnumerable<KeyValuePair<string, object>> dictionary)
         {
             throw new NotSupportedException("RawBsonDocument instances are immutable.");
         }
 
-        /// <summary>
-        /// Clears the document (removes all elements).
-        /// </summary>
+        /// <inheritdoc/>
         public override void Clear()
         {
             throw new NotSupportedException("RawBsonDocument instances are immutable.");
         }
 
-        /// <summary>
-        /// Creates a shallow clone of the document (see also DeepClone).
-        /// </summary>
-        /// <returns>
-        /// A shallow clone of the document.
-        /// </returns>
+        /// <inheritdoc/>
         public override BsonValue Clone()
         {
             ThrowIfDisposed();
             return new RawBsonDocument(CloneSlice());
         }
 
-        /// <summary>
-        /// Tests whether the document contains an element with the specified name.
-        /// </summary>
-        /// <param name="name">The name of the element to look for.</param>
-        /// <returns>
-        /// True if the document contains an element with the specified name.
-        /// </returns>
+        /// <inheritdoc/>
         public override bool Contains(string name)
         {
             if (name == null)
             {
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
             }
             ThrowIfDisposed();
 
-            using (var stream = new ByteBufferStream(_slice, ownsBuffer: false))
-            using (var bsonReader = new BsonBinaryReader(stream, _readerSettings))
-            {
-                bsonReader.ReadStartDocument();
-                while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
-                {
-                    if (bsonReader.ReadName() == name)
-                    {
-                        return true;
-                    }
-                    bsonReader.SkipValue();
-                }
-                bsonReader.ReadEndDocument();
+            using var bsonReader = BsonBinaryReaderUtils.CreateBinaryReader(_slice, _readerSettings);
 
-                return false;
+            bsonReader.ReadStartDocument();
+            while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
+            {
+                if (bsonReader.ReadName() == name)
+                {
+                    return true;
+                }
+                bsonReader.SkipValue();
             }
+            bsonReader.ReadEndDocument();
+
+            return false;
         }
 
-        /// <summary>
-        /// Tests whether the document contains an element with the specified value.
-        /// </summary>
-        /// <param name="value">The value of the element to look for.</param>
-        /// <returns>
-        /// True if the document contains an element with the specified value.
-        /// </returns>
+        /// <inheritdoc/>
         public override bool ContainsValue(BsonValue value)
         {
             ThrowIfDisposed();
-            using (var stream = new ByteBufferStream(_slice, ownsBuffer: false))
-            using (var bsonReader = new BsonBinaryReader(stream, _readerSettings))
+            using var bsonReader = BsonBinaryReaderUtils.CreateBinaryReader(_slice, _readerSettings);
+            var context = BsonDeserializationContext.CreateRoot(bsonReader);
+
+            bsonReader.ReadStartDocument();
+            while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
             {
-                var context = BsonDeserializationContext.CreateRoot(bsonReader);
-
-                bsonReader.ReadStartDocument();
-                while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
+                bsonReader.SkipName();
+                if (DeserializeBsonValue(context).Equals(value))
                 {
-                    bsonReader.SkipName();
-                    if (DeserializeBsonValue(context).Equals(value))
-                    {
-                        return true;
-                    }
+                    return true;
                 }
-                bsonReader.ReadEndDocument();
-
-                return false;
             }
+            bsonReader.ReadEndDocument();
+
+            return false;
         }
 
-        /// <summary>
-        /// Creates a deep clone of the document (see also Clone).
-        /// </summary>
-        /// <returns>
-        /// A deep clone of the document.
-        /// </returns>
+        /// <inheritdoc/>
         public override BsonValue DeepClone()
         {
             ThrowIfDisposed();
             return new RawBsonDocument(CloneSlice());
         }
 
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
+        /// <inheritdoc/>
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
 
-        /// <summary>
-        /// Gets an element of this document.
-        /// </summary>
-        /// <param name="index">The zero based index of the element.</param>
-        /// <returns>
-        /// The element.
-        /// </returns>
+        /// <inheritdoc/>
         public override BsonElement GetElement(int index)
         {
             if (index < 0)
             {
-                throw new ArgumentOutOfRangeException("index");
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
             ThrowIfDisposed();
 
-            using (var stream = new ByteBufferStream(_slice, ownsBuffer: false))
-            using (var bsonReader = new BsonBinaryReader(stream, _readerSettings))
+            using var bsonReader = BsonBinaryReaderUtils.CreateBinaryReader(_slice, _readerSettings);
+            var context = BsonDeserializationContext.CreateRoot(bsonReader);
+
+            bsonReader.ReadStartDocument();
+            var i = 0;
+            while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
             {
-                var context = BsonDeserializationContext.CreateRoot(bsonReader);
-
-                bsonReader.ReadStartDocument();
-                var i = 0;
-                while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
+                if (i == index)
                 {
-                    if (i == index)
-                    {
-                        var name = bsonReader.ReadName();
-                        var value = DeserializeBsonValue(context);
-                        return new BsonElement(name, value);
-                    }
-
-                    bsonReader.SkipName();
-                    bsonReader.SkipValue();
-                    i++;
+                    var name = bsonReader.ReadName();
+                    var value = DeserializeBsonValue(context);
+                    return new BsonElement(name, value);
                 }
-                bsonReader.ReadEndDocument();
 
-                throw new ArgumentOutOfRangeException("index");
+                bsonReader.SkipName();
+                bsonReader.SkipValue();
+                i++;
             }
+            bsonReader.ReadEndDocument();
+
+            throw new ArgumentOutOfRangeException(nameof(index));
         }
 
-        /// <summary>
-        /// Gets an element of this document.
-        /// </summary>
-        /// <param name="name">The name of the element.</param>
-        /// <returns>
-        /// A BsonElement.
-        /// </returns>
+        /// <inheritdoc/>
         public override BsonElement GetElement(string name)
         {
             ThrowIfDisposed();
@@ -447,81 +330,56 @@ namespace MongoDB.Bson
                 return element;
             }
 
-            string message = string.Format("Element '{0}' not found.", name);
-            throw new KeyNotFoundException(message);
+            throw new KeyNotFoundException($"Element '{name}' not found.");
         }
 
-        /// <summary>
-        /// Gets an enumerator that can be used to enumerate the elements of this document.
-        /// </summary>
-        /// <returns>
-        /// An enumerator.
-        /// </returns>
+        /// <inheritdoc/>
         public override IEnumerator<BsonElement> GetEnumerator()
         {
             ThrowIfDisposed();
-            using (var stream = new ByteBufferStream(_slice, ownsBuffer: false))
-            using (var bsonReader = new BsonBinaryReader(stream, _readerSettings))
-            {
-                var context = BsonDeserializationContext.CreateRoot(bsonReader);
+            using var bsonReader = BsonBinaryReaderUtils.CreateBinaryReader(_slice, _readerSettings);
+            var context = BsonDeserializationContext.CreateRoot(bsonReader);
 
-                bsonReader.ReadStartDocument();
-                while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
-                {
-                    var name = bsonReader.ReadName();
-                    var value = DeserializeBsonValue(context);
-                    yield return new BsonElement(name, value);
-                }
-                bsonReader.ReadEndDocument();
+            bsonReader.ReadStartDocument();
+            while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
+            {
+                var name = bsonReader.ReadName();
+                var value = DeserializeBsonValue(context);
+                yield return new BsonElement(name, value);
             }
         }
 
-        /// <summary>
-        /// Gets the value of an element.
-        /// </summary>
-        /// <param name="index">The zero based index of the element.</param>
-        /// <returns>
-        /// The value of the element.
-        /// </returns>
+        /// <inheritdoc/>
         public override BsonValue GetValue(int index)
         {
             if (index < 0)
             {
-                throw new ArgumentOutOfRangeException("index");
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
             ThrowIfDisposed();
 
-            using (var stream = new ByteBufferStream(_slice, ownsBuffer: false))
-            using (var bsonReader = new BsonBinaryReader(stream, _readerSettings))
+            using var bsonReader = BsonBinaryReaderUtils.CreateBinaryReader(_slice, _readerSettings);
+            var context = BsonDeserializationContext.CreateRoot(bsonReader);
+
+            bsonReader.ReadStartDocument();
+            var i = 0;
+            while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
             {
-                var context = BsonDeserializationContext.CreateRoot(bsonReader);
-
-                bsonReader.ReadStartDocument();
-                var i = 0;
-                while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
+                bsonReader.SkipName();
+                if (i == index)
                 {
-                    bsonReader.SkipName();
-                    if (i == index)
-                    {
-                        return DeserializeBsonValue(context);
-                    }
-
-                    bsonReader.SkipValue();
-                    i++;
+                    return DeserializeBsonValue(context);
                 }
-                bsonReader.ReadEndDocument();
 
-                throw new ArgumentOutOfRangeException("index");
+                bsonReader.SkipValue();
+                i++;
             }
+            bsonReader.ReadEndDocument();
+
+            throw new ArgumentOutOfRangeException(nameof(index));
         }
 
-        /// <summary>
-        /// Gets the value of an element.
-        /// </summary>
-        /// <param name="name">The name of the element.</param>
-        /// <returns>
-        /// The value of the element.
-        /// </returns>
+        /// <inheritdoc/>
         public override BsonValue GetValue(string name)
         {
             ThrowIfDisposed();
@@ -535,14 +393,7 @@ namespace MongoDB.Bson
             throw new KeyNotFoundException(message);
         }
 
-        /// <summary>
-        /// Gets the value of an element or a default value if the element is not found.
-        /// </summary>
-        /// <param name="name">The name of the element.</param>
-        /// <param name="defaultValue">The default value returned if the element is not found.</param>
-        /// <returns>
-        /// The value of the element or the default value if the element is not found.
-        /// </returns>
+        /// <inheritdoc/>
         public override BsonValue GetValue(string name, BsonValue defaultValue)
         {
             ThrowIfDisposed();
@@ -555,11 +406,7 @@ namespace MongoDB.Bson
             return defaultValue;
         }
 
-        /// <summary>
-        /// Inserts a new element at a specified position.
-        /// </summary>
-        /// <param name="index">The position of the new element.</param>
-        /// <param name="element">The element.</param>
+        /// <inheritdoc/>
         public override void InsertAt(int index, BsonElement element)
         {
             throw new NotSupportedException("RawBsonDocument instances are immutable.");
@@ -573,185 +420,115 @@ namespace MongoDB.Bson
         public BsonDocument Materialize(BsonBinaryReaderSettings binaryReaderSettings)
         {
             ThrowIfDisposed();
-            using (var stream = new ByteBufferStream(_slice, ownsBuffer: false))
-            using (var reader = new BsonBinaryReader(stream, binaryReaderSettings))
-            {
-                var context = BsonDeserializationContext.CreateRoot(reader);
-                return BsonDocumentSerializer.Instance.Deserialize(context);
-            }
+            using var bsonReader = BsonBinaryReaderUtils.CreateBinaryReader(_slice, binaryReaderSettings);
+            var context = BsonDeserializationContext.CreateRoot(bsonReader);
+
+            return BsonDocumentSerializer.Instance.Deserialize(context);
         }
 
-        /// <summary>
-        /// Merges another document into this one. Existing elements are not overwritten.
-        /// </summary>
-        /// <param name="document">The other document.</param>
-        /// <returns>
-        /// The document (so method calls can be chained).
-        /// </returns>
+        /// <inheritdoc/>
         public override BsonDocument Merge(BsonDocument document)
         {
             throw new NotSupportedException("RawBsonDocument instances are immutable.");
         }
 
-        /// <summary>
-        /// Merges another document into this one, specifying whether existing elements are overwritten.
-        /// </summary>
-        /// <param name="document">The other document.</param>
-        /// <param name="overwriteExistingElements">Whether to overwrite existing elements.</param>
-        /// <returns>
-        /// The document (so method calls can be chained).
-        /// </returns>
+        /// <inheritdoc/>
         public override BsonDocument Merge(BsonDocument document, bool overwriteExistingElements)
         {
             throw new NotSupportedException("RawBsonDocument instances are immutable.");
         }
 
-        /// <summary>
-        /// Removes an element from this document (if duplicate element names are allowed
-        /// then all elements with this name will be removed).
-        /// </summary>
-        /// <param name="name">The name of the element to remove.</param>
+        /// <inheritdoc/>
         public override void Remove(string name)
         {
             throw new NotSupportedException("RawBsonDocument instances are immutable.");
         }
 
-        /// <summary>
-        /// Removes an element from this document.
-        /// </summary>
-        /// <param name="index">The zero based index of the element to remove.</param>
+        /// <inheritdoc/>
         public override void RemoveAt(int index)
         {
             throw new NotSupportedException("RawBsonDocument instances are immutable.");
         }
 
-        /// <summary>
-        /// Removes an element from this document.
-        /// </summary>
-        /// <param name="element">The element to remove.</param>
+        /// <inheritdoc/>
         public override void RemoveElement(BsonElement element)
         {
             throw new NotSupportedException("RawBsonDocument instances are immutable.");
         }
 
-        /// <summary>
-        /// Sets the value of an element.
-        /// </summary>
-        /// <param name="index">The zero based index of the element whose value is to be set.</param>
-        /// <param name="value">The new value.</param>
-        /// <returns>
-        /// The document (so method calls can be chained).
-        /// </returns>
+        /// <inheritdoc/>
         public override BsonDocument Set(int index, BsonValue value)
         {
             throw new NotSupportedException("RawBsonDocument instances are immutable.");
         }
 
-        /// <summary>
-        /// Sets the value of an element (an element will be added if no element with this name is found).
-        /// </summary>
-        /// <param name="name">The name of the element whose value is to be set.</param>
-        /// <param name="value">The new value.</param>
-        /// <returns>
-        /// The document (so method calls can be chained).
-        /// </returns>
+        /// <inheritdoc/>
         public override BsonDocument Set(string name, BsonValue value)
         {
             throw new NotSupportedException("RawBsonDocument instances are immutable.");
         }
 
-        /// <summary>
-        /// Sets an element of the document (replaces any existing element with the same name or adds a new element if an element with the same name is not found).
-        /// </summary>
-        /// <param name="element">The new element.</param>
-        /// <returns>
-        /// The document.
-        /// </returns>
+        /// <inheritdoc/>
         public override BsonDocument SetElement(BsonElement element)
         {
             throw new NotSupportedException("RawBsonDocument instances are immutable.");
         }
 
-        /// <summary>
-        /// Sets an element of the document (replacing the existing element at that position).
-        /// </summary>
-        /// <param name="index">The zero based index of the element to replace.</param>
-        /// <param name="element">The new element.</param>
-        /// <returns>
-        /// The document.
-        /// </returns>
+        /// <inheritdoc/>
         public override BsonDocument SetElement(int index, BsonElement element)
         {
             throw new NotSupportedException("RawBsonDocument instances are immutable.");
         }
 
-        /// <summary>
-        /// Tries to get an element of this document.
-        /// </summary>
-        /// <param name="name">The name of the element.</param>
-        /// <param name="element">The element.</param>
-        /// <returns>
-        /// True if an element with that name was found.
-        /// </returns>
+        /// <inheritdoc/>
         public override bool TryGetElement(string name, out BsonElement element)
         {
             ThrowIfDisposed();
-            using (var stream = new ByteBufferStream(_slice, ownsBuffer: false))
-            using (var bsonReader = new BsonBinaryReader(stream, _readerSettings))
+
+            using var bsonReader = BsonBinaryReaderUtils.CreateBinaryReader(_slice, _readerSettings);
+            var context = BsonDeserializationContext.CreateRoot(bsonReader);
+
+            bsonReader.ReadStartDocument();
+            while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
             {
-                var context = BsonDeserializationContext.CreateRoot(bsonReader);
-
-                bsonReader.ReadStartDocument();
-                while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
+                if (bsonReader.ReadName() == name)
                 {
-                    if (bsonReader.ReadName() == name)
-                    {
-                        var value = DeserializeBsonValue(context);
-                        element = new BsonElement(name, value);
-                        return true;
-                    }
-
-                    bsonReader.SkipValue();
+                    var value = DeserializeBsonValue(context);
+                    element = new BsonElement(name, value);
+                    return true;
                 }
-                bsonReader.ReadEndDocument();
 
-                element = default(BsonElement);
-                return false;
+                bsonReader.SkipValue();
             }
+            bsonReader.ReadEndDocument();
+
+            element = default;
+            return false;
         }
 
-        /// <summary>
-        /// Tries to get the value of an element of this document.
-        /// </summary>
-        /// <param name="name">The name of the element.</param>
-        /// <param name="value">The value of the element.</param>
-        /// <returns>
-        /// True if an element with that name was found.
-        /// </returns>
+        /// <inheritdoc/>
         public override bool TryGetValue(string name, out BsonValue value)
         {
             ThrowIfDisposed();
-            using (var stream = new ByteBufferStream(_slice, ownsBuffer: false))
-            using (var bsonReader = new BsonBinaryReader(stream, _readerSettings))
+
+            using var bsonReader = BsonBinaryReaderUtils.CreateBinaryReader(_slice, _readerSettings);
+            var context = BsonDeserializationContext.CreateRoot(bsonReader);
+
+            bsonReader.ReadStartDocument();
+            while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
             {
-                var context = BsonDeserializationContext.CreateRoot(bsonReader);
-
-                bsonReader.ReadStartDocument();
-                while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
+                if (bsonReader.ReadName() == name)
                 {
-                    if (bsonReader.ReadName() == name)
-                    {
-                        value = DeserializeBsonValue(context);
-                        return true;
-                    }
-
-                    bsonReader.SkipValue();
+                    value = DeserializeBsonValue(context);
+                    return true;
                 }
-                bsonReader.ReadEndDocument();
 
-                value = null;
-                return false;
+                bsonReader.SkipValue();
             }
+            bsonReader.ReadEndDocument();
+
+            value = null;
+            return false;
         }
 
         // protected methods
