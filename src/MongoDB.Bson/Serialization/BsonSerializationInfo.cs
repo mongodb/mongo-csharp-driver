@@ -28,7 +28,7 @@ namespace MongoDB.Bson.Serialization
     {
         #region static
         /// <summary>
-        /// Creates a new instance of the BsonSerializationinfo class with an element path instead of an element name.
+        /// Creates a new instance of the BsonSerializationInfo class with an element path instead of an element name.
         /// </summary>
         /// <param name="elementPath">The element path.</param>
         /// <param name="serializer">The serializer.</param>
