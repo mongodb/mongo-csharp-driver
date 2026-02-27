@@ -64,7 +64,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 throw new ArgumentNullException("serializerRegistry");
             }
 
-            _lazyItemSerializer = new Lazy<IBsonSerializer>(() => serializerRegistry.GetSerializer(typeof(object)));
+            _lazyItemSerializer = Lazy.CreatePublicationOnly(() => serializerRegistry.GetSerializer(typeof(object)));
         }
 
         /// <summary>
@@ -263,7 +263,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 throw new ArgumentNullException("serializerRegistry");
             }
 
-            _lazyItemSerializer = new Lazy<IBsonSerializer<TItem>>(() => serializerRegistry.GetSerializer<TItem>());
+            _lazyItemSerializer = Lazy.CreatePublicationOnly(() => serializerRegistry.GetSerializer<TItem>());
         }
 
         // public properties

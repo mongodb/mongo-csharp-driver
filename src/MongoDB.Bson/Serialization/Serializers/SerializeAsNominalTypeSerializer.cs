@@ -61,7 +61,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 throw new ArgumentNullException("serializerRegistry");
             }
 
-            _lazyNominalTypeSerializer = new Lazy<IBsonSerializer<TNominalType>>(() => serializerRegistry.GetSerializer<TNominalType>());
+            _lazyNominalTypeSerializer = Lazy.CreatePublicationOnly(() => serializerRegistry.GetSerializer<TNominalType>());
         }
 
         // public methods

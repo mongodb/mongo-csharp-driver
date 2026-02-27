@@ -420,8 +420,8 @@ namespace MongoDB.Bson.Serialization.Serializers
         public DictionarySerializerBase(DictionaryRepresentation dictionaryRepresentation, IBsonSerializerRegistry serializerRegistry)
             : this(
                 dictionaryRepresentation,
-                new Lazy<IBsonSerializer<TKey>>(() => serializerRegistry.GetSerializer<TKey>()),
-                new Lazy<IBsonSerializer<TValue>>(() => serializerRegistry.GetSerializer<TValue>()))
+                Lazy.CreatePublicationOnly(() => serializerRegistry.GetSerializer<TKey>()),
+                Lazy.CreatePublicationOnly(() => serializerRegistry.GetSerializer<TValue>()))
         {
             if (serializerRegistry == null)
             {

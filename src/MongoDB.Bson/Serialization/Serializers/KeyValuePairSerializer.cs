@@ -124,8 +124,8 @@ namespace MongoDB.Bson.Serialization.Serializers
         public KeyValuePairSerializer(BsonType representation, IBsonSerializerRegistry serializerRegistry)
             : this(
                 representation,
-                new Lazy<IBsonSerializer<TKey>>(() => serializerRegistry.GetSerializer<TKey>()),
-                new Lazy<IBsonSerializer<TValue>>(() => serializerRegistry.GetSerializer<TValue>()))
+                Lazy.CreatePublicationOnly(() => serializerRegistry.GetSerializer<TKey>()),
+                Lazy.CreatePublicationOnly(() => serializerRegistry.GetSerializer<TValue>()))
         {
             if (serializerRegistry == null)
             {
