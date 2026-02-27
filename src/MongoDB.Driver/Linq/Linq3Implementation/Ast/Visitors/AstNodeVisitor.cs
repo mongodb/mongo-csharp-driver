@@ -734,11 +734,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors
             return node;
         }
 
-        public virtual AstNode VisitSubtypeFilterOperation(AstSubtypeFilterOperation node)
-        {
-            return node;
-        }
-
         public virtual AstNode VisitSwitchExpression(AstSwitchExpression node)
         {
             return node.Update(VisitAndConvert(node.Branches), VisitAndConvert(node.Default));
