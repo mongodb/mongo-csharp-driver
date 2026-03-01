@@ -155,7 +155,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         {
             var memberType = memberMap.MemberType;
 
-            if (!CouldApply(memberType))
+            if (!CouldApply(memberType) || IsRecursiveCollectionMember(memberMap.ClassMap, memberType))
             {
                 return;
             }
@@ -170,6 +170,9 @@ namespace MongoDB.Bson.Serialization.Conventions
 
             bool CouldApply(Type type)
                 => type == typeof(object) || type.IsNullable() || type.IsArray || typeof(IEnumerable).IsAssignableFrom(type);
+
+            bool IsRecursiveCollectionMember(BsonClassMap classMap, Type type)
+                => (type.IsArray && type.GetElementType() == classMap.ClassType) || typeof(IEnumerable<>).MakeGenericType(classMap.ClassType).IsAssignableFrom(type);
         }
 
         // private methods

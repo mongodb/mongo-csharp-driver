@@ -32,6 +32,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             public object[] ArrayOfObjectProp { get; set; }
             public object[][] ArrayOfArrayOfObjectProp { get; set; }
             public TestClass RecursiveProp { get; set; }
+            public TestClass[] RecursivePropArray { get; set; }
         }
 
         [Fact]
