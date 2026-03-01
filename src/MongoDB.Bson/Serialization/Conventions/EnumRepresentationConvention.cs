@@ -15,7 +15,6 @@
 
 using System;
 using System.Collections;
-using System.Collections.Generic;
 
 namespace MongoDB.Bson.Serialization.Conventions
 {
@@ -71,15 +70,16 @@ namespace MongoDB.Bson.Serialization.Conventions
         {
             var memberType = memberMap.MemberType;
 
-            if (!CouldApply(memberType) || IsRecursiveCollectionMember(memberMap.ClassMap, memberType))
+            if (!CouldApply(memberType))
             {
                 return;
             }
 
             var serializer = memberMap.GetSerializer();
+
             var reconfiguredSerializer = _topLevelOnly && !serializer.ValueType.IsNullableEnum() ?
                 Reconfigure(serializer) :
-                SerializerConfigurator.ReconfigureSerializerRecursively(serializer, Reconfigure);
+                SerializerConfigurator.ReconfigureSerializerRecursively(serializer, Reconfigure, memberMap.ClassMap.ClassType);
 
             if (reconfiguredSerializer is not null)
             {
@@ -91,9 +91,6 @@ namespace MongoDB.Bson.Serialization.Conventions
 
             bool CouldApply(Type type)
                 => type.IsEnum || type.IsNullableEnum() || type.IsArray || typeof(IEnumerable).IsAssignableFrom(type);
-
-            bool IsRecursiveCollectionMember(BsonClassMap classMap, Type type)
-                => (type.IsArray && type.GetElementType() == classMap.ClassType) || typeof(IEnumerable<>).MakeGenericType(classMap.ClassType).IsAssignableFrom(type);
         }
 
         // private methods

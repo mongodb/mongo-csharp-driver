@@ -155,14 +155,14 @@ namespace MongoDB.Bson.Serialization.Conventions
         {
             var memberType = memberMap.MemberType;
 
-            if (!CouldApply(memberType) || IsRecursiveCollectionMember(memberMap.ClassMap, memberType))
+            if (!CouldApply(memberType))
             {
                 return;
             }
 
             var serializer = memberMap.GetSerializer();
 
-            var reconfiguredSerializer = Reconfigure(serializer);
+            var reconfiguredSerializer = SerializerConfigurator.ReconfigureSerializerRecursively(serializer, Reconfigure, memberMap.ClassMap.ClassType);
             if (reconfiguredSerializer is not null)
             {
                 memberMap.SetSerializer(reconfiguredSerializer);
@@ -171,26 +171,15 @@ namespace MongoDB.Bson.Serialization.Conventions
             bool CouldApply(Type type)
                 => type == typeof(object) || type.IsNullable() || type.IsArray || typeof(IEnumerable).IsAssignableFrom(type);
 
-            bool IsRecursiveCollectionMember(BsonClassMap classMap, Type type)
-                => (type.IsArray && type.GetElementType() == classMap.ClassType) || typeof(IEnumerable<>).MakeGenericType(classMap.ClassType).IsAssignableFrom(type);
-        }
-
-        // private methods
-        private IBsonSerializer Reconfigure(IBsonSerializer serializer)
-        {
-            if (serializer is IChildSerializerConfigurable childSerializerConfigurable)
+            IBsonSerializer Reconfigure(IBsonSerializer serializer)
             {
-                var childSerializer = childSerializerConfigurable.ChildSerializer;
-                var reconfiguredChildSerializer = Reconfigure(childSerializer);
-                return reconfiguredChildSerializer is null ? null : childSerializerConfigurable.WithChildSerializer(reconfiguredChildSerializer);
-            }
+                if (serializer.ValueType == typeof(object) && serializer is ObjectSerializer objectSerializer)
+                {
+                    return objectSerializer.WithAllowedTypes(_effectiveAllowedDeserializationTypes.Value, _effectiveAllowedSerializationTypes.Value);
+                }
 
-            if (serializer.ValueType == typeof(object) && serializer is ObjectSerializer objectSerializer)
-            {
-                return objectSerializer.WithAllowedTypes(_effectiveAllowedDeserializationTypes.Value, _effectiveAllowedSerializationTypes.Value);
+                return null;
             }
-
-            return null;
         }
     }
 }

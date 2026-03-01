@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MongoDB.Bson.Serialization
 {
@@ -24,7 +25,16 @@ namespace MongoDB.Bson.Serialization
         // The reconfigure Func should return null if it does not apply to a given serializer.
         internal static IBsonSerializer ReconfigureSerializerRecursively(
             IBsonSerializer serializer,
-            Func<IBsonSerializer, IBsonSerializer> reconfigure)
+            Func<IBsonSerializer, IBsonSerializer> reconfigure,
+            Type classMapType)
+        {
+            return ReconfigureSerializerRecursively(serializer, reconfigure, new HashSet<Type>([classMapType]));
+        }
+
+        private static IBsonSerializer ReconfigureSerializerRecursively(
+            IBsonSerializer serializer,
+            Func<IBsonSerializer, IBsonSerializer> reconfigure,
+            ISet<Type> appliedTypes)
         {
             switch (serializer)
             {
@@ -34,9 +44,15 @@ namespace MongoDB.Bson.Serialization
                     var anyChildSerializerWasReconfigured = false;
                     var reconfiguredChildSerializers = new List<IBsonSerializer>();
 
+                    if (multipleChildSerializerConfigurable.ChildSerializerTypes.Any(appliedTypes.Contains))
+                    {
+                        // at least one child type was already applied to, break out to avoid causing re-entrancy bug with serializer initialization
+                        return null;
+                    }
+
                     foreach (var childSerializer in multipleChildSerializerConfigurable.ChildSerializers)
                     {
-                        var reconfiguredChildSerializer = ReconfigureSerializerRecursively(childSerializer, reconfigure);
+                        var reconfiguredChildSerializer = ReconfigureSerializerRecursively(childSerializer, reconfigure, appliedTypes);
                         anyChildSerializerWasReconfigured |= reconfiguredChildSerializer != null;
                         reconfiguredChildSerializers.Add(reconfiguredChildSerializer ?? childSerializer);
                     }
@@ -46,8 +62,14 @@ namespace MongoDB.Bson.Serialization
 
                 case IChildSerializerConfigurable childSerializerConfigurable:
                 {
+                    if (!appliedTypes.Add(childSerializerConfigurable.ChildSerializerType))
+                    {
+                        // type was already applied to, break out to avoid causing re-entrancy bug with serializer initialization
+                        return null;
+                    }
+
                     var childSerializer = childSerializerConfigurable.ChildSerializer;
-                    var reconfiguredChildSerializer = ReconfigureSerializerRecursively(childSerializer, reconfigure);
+                    var reconfiguredChildSerializer = ReconfigureSerializerRecursively(childSerializer, reconfigure, appliedTypes);
                     return reconfiguredChildSerializer != null ? childSerializerConfigurable.WithChildSerializer(reconfiguredChildSerializer) : null;
                 }
 

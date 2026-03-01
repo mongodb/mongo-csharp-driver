@@ -43,8 +43,13 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             public int[] ArrayInt { get; set; }
             public C RecursiveProp { get; set; }
             public C[] RecursivePropArray { get; set; }
+            public C[][] RecursivePropArrayOfArray { get; set; }
+            public Dictionary<string, C> DictionaryRecursiveProp { get; set; }
+            public Dictionary<string, C>[] DictionaryRecursivePropArray { get; set; }
+            public Dictionary<string, C>[][] DictionaryRecursivePropArrayOfArray { get; set; }
             public IC IndirectlyRecursiveProp { get; set; }
             public IC[] IndirectlyRecursivePropArray { get; set; }
+            public IC[][] IndirectlyRecursivePropArrayOfArray { get; set; }
         }
 
         public class IC

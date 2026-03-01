@@ -76,6 +76,8 @@ namespace MongoDB.Bson.Serialization.Serializers
             return new TValue();
         }
 
+        Type IChildSerializerConfigurable.ChildSerializerType => typeof(object);
+
         // explicit interface implementations
         IBsonSerializer IChildSerializerConfigurable.ChildSerializer
         {
@@ -180,6 +182,8 @@ namespace MongoDB.Bson.Serialization.Serializers
             var message = string.Format("Type '{0}' does not have a suitable constructor or Add method.", typeof(TValue).FullName);
             throw new BsonSerializationException(message);
         }
+
+        Type IChildSerializerConfigurable.ChildSerializerType => typeof(TItem);
 
         // explicit interface implementations
         IBsonSerializer IChildSerializerConfigurable.ChildSerializer
