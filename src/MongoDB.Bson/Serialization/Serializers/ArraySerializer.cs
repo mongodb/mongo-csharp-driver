@@ -122,6 +122,8 @@ namespace MongoDB.Bson.Serialization.Serializers
             return ((List<TItem>)accumulator).ToArray();
         }
 
+        Type IChildSerializerConfigurable.ChildSerializerType => typeof(TItem);
+
         // explicit interface implementations
         IBsonSerializer IChildSerializerConfigurable.ChildSerializer
         {

@@ -200,6 +200,8 @@ namespace MongoDB.Bson.Serialization.Serializers
             return new ThreeDimensionalArraySerializer<TItem>(itemSerializer);
         }
 
+        Type IChildSerializerConfigurable.ChildSerializerType => typeof(TItem);
+
         // explicit interface implementations
         IBsonSerializer IChildSerializerConfigurable.ChildSerializer
         {

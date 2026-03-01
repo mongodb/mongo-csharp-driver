@@ -304,6 +304,8 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
         }
 
+        Type IChildSerializerConfigurable.ChildSerializerType => typeof(TImplementation);
+
         // explicit interface implementations
         IBsonSerializer IChildSerializerConfigurable.ChildSerializer
         {
