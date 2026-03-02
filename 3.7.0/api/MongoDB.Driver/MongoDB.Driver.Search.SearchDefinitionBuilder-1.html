@@ -1,0 +1,499 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>Class SearchDefinitionBuilder&lt;TDocument&gt;
+ | MongoDB CSharp Driver API Reference </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Class SearchDefinitionBuilder&lt;TDocument&gt;
+ | MongoDB CSharp Driver API Reference ">
+      
+      <link rel="icon" href="../../images/favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/mongodb/mongo-csharp-driver/new/main/apiSpec/new?filename=MongoDB_Driver_Search_SearchDefinitionBuilder_1.md&amp;value=---%0Auid%3A%20MongoDB.Driver.Search.SearchDefinitionBuilder%601%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+  </head>
+
+  <script type="module" src="./../../public/docfx.min.js"></script>
+
+  <script>
+    const theme = localStorage.getItem('theme') || 'auto'
+    document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+  </script>
+
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../images/mongodb-logo.svg" alt="">
+            
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+      <div class="toc-offcanvas">
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tocOffcanvasLabel">Table of Contents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#tocOffcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <nav class="toc" id="toc"></nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actionbar">
+          <button class="btn btn-lg border-0 d-md-none" style="margin-top: -.65em; margin-left: -.8em" type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas" aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="MongoDB.Driver.Search.SearchDefinitionBuilder`1">
+
+
+
+  <h1 id="MongoDB_Driver_Search_SearchDefinitionBuilder_1" data-uid="MongoDB.Driver.Search.SearchDefinitionBuilder`1" class="text-break">
+    Class SearchDefinitionBuilder&lt;TDocument&gt;
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/main/src/MongoDB.Driver/Search/SearchDefinitionBuilder.cs/#L28"><i class="bi bi-code-slash"></i></a>
+  </h1>
+
+  <div class="facts text-secondary">
+    <dl><dt>Namespace</dt><dd><a class="xref" href="MongoDB.html">MongoDB</a>.<a class="xref" href="MongoDB.Driver.html">Driver</a>.<a class="xref" href="MongoDB.Driver.Search.html">Search</a></dd></dl>
+  <dl><dt>Assembly</dt><dd>MongoDB.Driver.dll</dd></dl>
+  </div>
+
+  <div class="markdown summary"><p>A builder for a search definition.</p>
+</div>
+  <div class="markdown conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public sealed class SearchDefinitionBuilder&lt;TDocument&gt;</code></pre>
+  </div>
+
+
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TDocument</code></dt>
+    <dd><p>The type of the document.</p>
+</dd>
+  </dl>
+
+  <dl class="typelist inheritance">
+    <dt>Inheritance</dt>
+    <dd>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></div>
+      <div><span class="xref">SearchDefinitionBuilder&lt;TDocument&gt;</span></div>
+    </dd>
+  </dl>
+
+
+
+  <dl class="typelist derived">
+    <dt>Inherited Members</dt>
+    <dd>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)">object.Equals(object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)">object.Equals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gethashcode">object.GetHashCode()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gettype">object.GetType()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.referenceequals">object.ReferenceEquals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.tostring">object.ToString()</a>
+    </div>
+  </dd></dl>
+
+
+
+
+
+  <h2 class="section" id="methods">Methods
+</h2>
+
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.Autocomplete.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_Autocomplete_MongoDB_Driver_Search_SearchPathDefinition__0__MongoDB_Driver_Search_SearchQueryDefinition_MongoDB_Driver_Search_SearchAutocompleteTokenOrder_MongoDB_Driver_Search_SearchFuzzyOptions_MongoDB_Driver_Search_SearchScoreDefinition__0__">Autocomplete(SearchPathDefinition&lt;TDocument&gt;, SearchQueryDefinition, SearchAutocompleteTokenOrder, SearchFuzzyOptions, SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that performs a search for a word or phrase that contains
+a sequence of characters from an incomplete input string.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.Autocomplete.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_Autocomplete__1_System_Linq_Expressions_Expression_System_Func__0___0___MongoDB_Driver_Search_SearchQueryDefinition_MongoDB_Driver_Search_SearchAutocompleteTokenOrder_MongoDB_Driver_Search_SearchFuzzyOptions_MongoDB_Driver_Search_SearchScoreDefinition__0__">Autocomplete&lt;TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt;, SearchQueryDefinition, SearchAutocompleteTokenOrder, SearchFuzzyOptions, SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that performs a search for a word or phrase that contains
+a sequence of characters from an incomplete search string.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.Compound.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_Compound_MongoDB_Driver_Search_SearchScoreDefinition__0__">Compound(SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a builder for a compound search definition.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.EmbeddedDocument.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_EmbeddedDocument__1_MongoDB_Driver_FieldDefinition__0_System_Collections_Generic_IEnumerable___0___MongoDB_Driver_Search_SearchDefinition___0__MongoDB_Driver_Search_SearchScoreDefinition__0__">EmbeddedDocument&lt;TField&gt;(FieldDefinition&lt;TDocument, IEnumerable&lt;TField&gt;&gt;, SearchDefinition&lt;TField&gt;, SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that performs a search for documents where
+the specified query <code class="paramref">operator</code> is satisfied from a single element
+of an array of embedded documents specified by <code class="paramref">path</code>.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.EmbeddedDocument.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_EmbeddedDocument__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0____MongoDB_Driver_Search_SearchDefinition___0__MongoDB_Driver_Search_SearchScoreDefinition__0__">EmbeddedDocument&lt;TField&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TField&gt;&gt;&gt;, SearchDefinition&lt;TField&gt;, SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that performs a search for documents where
+the specified query <code class="paramref">operator</code> is satisfied from a single element
+of an array of embedded documents specified by <code class="paramref">path</code>.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.Equals.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_Equals__1_MongoDB_Driver_FieldDefinition__0___0____0_MongoDB_Driver_Search_SearchScoreDefinition__0__">Equals&lt;TField&gt;(FieldDefinition&lt;TDocument, TField&gt;, TField, SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that queries for documents where an indexed field is equal
+to the specified value.
+Supported value types are null, boolean, numeric, ObjectId, Guid, date and string.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.Equals.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_Equals__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0______0_MongoDB_Driver_Search_SearchScoreDefinition__0__">Equals&lt;TField&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TField&gt;&gt;&gt;, TField, SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that queries for documents where at least one element in an indexed array field is equal
+to the specified value.
+Supported value types are boolean, numeric, ObjectId, date and string.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.Equals.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_Equals__1_System_Linq_Expressions_Expression_System_Func__0___0_____0_MongoDB_Driver_Search_SearchScoreDefinition__0__">Equals&lt;TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt;, TField, SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that queries for documents where an indexed field is equal
+to the specified value.
+Supported value types are null, boolean, numeric, ObjectId, Guid, date and string.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.Exists.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_Exists_MongoDB_Driver_FieldDefinition__0__">Exists(FieldDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that tests if a path to a specified indexed field name
+exists in a document.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.Exists.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_Exists__1_System_Linq_Expressions_Expression_System_Func__0___0___">Exists&lt;TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt;)</a></dt>
+    <dd><p>Creates a search definition that tests if a path to a specified indexed field name
+exists in a document.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.Facet.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_Facet_MongoDB_Driver_Search_SearchDefinition__0__MongoDB_Driver_Search_SearchFacet__0____">Facet(SearchDefinition&lt;TDocument&gt;, params SearchFacet&lt;TDocument&gt;[])</a></dt>
+    <dd><p>Creates a search definition that groups results by values or ranges in the specified
+faceted fields and returns the count for each of those groups.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.Facet.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_Facet_MongoDB_Driver_Search_SearchDefinition__0__System_Collections_Generic_IEnumerable_MongoDB_Driver_Search_SearchFacet__0___">Facet(SearchDefinition&lt;TDocument&gt;, IEnumerable&lt;SearchFacet&lt;TDocument&gt;&gt;)</a></dt>
+    <dd><p>Creates a search definition that groups results by values or ranges in the specified
+faceted fields and returns the count for each of those groups.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.GeoShape.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_GeoShape__1_MongoDB_Driver_Search_SearchPathDefinition__0__MongoDB_Driver_Search_GeoShapeRelation_MongoDB_Driver_GeoJsonObjectModel_GeoJsonGeometry___0__MongoDB_Driver_Search_SearchScoreDefinition__0__">GeoShape&lt;TCoordinates&gt;(SearchPathDefinition&lt;TDocument&gt;, GeoShapeRelation, GeoJsonGeometry&lt;TCoordinates&gt;, SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that queries for shapes with a given geometry.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.GeoShape.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_GeoShape__2_System_Linq_Expressions_Expression_System_Func__0___1___MongoDB_Driver_Search_GeoShapeRelation_MongoDB_Driver_GeoJsonObjectModel_GeoJsonGeometry___0__MongoDB_Driver_Search_SearchScoreDefinition__0__">GeoShape&lt;TCoordinates, TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt;, GeoShapeRelation, GeoJsonGeometry&lt;TCoordinates&gt;, SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that queries for shapes with a given geometry.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.GeoWithin.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_GeoWithin__1_MongoDB_Driver_Search_SearchPathDefinition__0__MongoDB_Driver_GeoJsonObjectModel_GeoJsonGeometry___0__MongoDB_Driver_Search_SearchScoreDefinition__0__">GeoWithin&lt;TCoordinates&gt;(SearchPathDefinition&lt;TDocument&gt;, GeoJsonGeometry&lt;TCoordinates&gt;, SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that queries for geographic points within a given
+geometry.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.GeoWithin.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_GeoWithin__1_MongoDB_Driver_Search_SearchPathDefinition__0__MongoDB_Driver_Search_GeoWithinArea___0__MongoDB_Driver_Search_SearchScoreDefinition__0__">GeoWithin&lt;TCoordinates&gt;(SearchPathDefinition&lt;TDocument&gt;, GeoWithinArea&lt;TCoordinates&gt;, SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that queries for geographic points within a given geo object.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.GeoWithin.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_GeoWithin__2_System_Linq_Expressions_Expression_System_Func__0___1___MongoDB_Driver_GeoJsonObjectModel_GeoJsonGeometry___0__MongoDB_Driver_Search_SearchScoreDefinition__0__">GeoWithin&lt;TCoordinates, TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt;, GeoJsonGeometry&lt;TCoordinates&gt;, SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that queries for geographic points within a given
+geometry.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.GeoWithin.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_GeoWithin__2_System_Linq_Expressions_Expression_System_Func__0___1___MongoDB_Driver_Search_GeoWithinArea___0__MongoDB_Driver_Search_SearchScoreDefinition__0__">GeoWithin&lt;TCoordinates, TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt;, GeoWithinArea&lt;TCoordinates&gt;, SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that queries for geographic points within a given geo object.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.In.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_In__1_MongoDB_Driver_Search_SearchPathDefinition__0__System_Collections_Generic_IEnumerable___0__MongoDB_Driver_Search_SearchScoreDefinition__0__">In&lt;TField&gt;(SearchPathDefinition&lt;TDocument&gt;, IEnumerable&lt;TField&gt;, SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that queries for documents where the value of the field equals to any of specified values.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.In.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_In__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0____System_Collections_Generic_IEnumerable___0__MongoDB_Driver_Search_SearchScoreDefinition__0__">In&lt;TField&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TField&gt;&gt;&gt;, IEnumerable&lt;TField&gt;, SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that queries for documents where the value of the field equals to any of specified values.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.In.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_In__1_System_Linq_Expressions_Expression_System_Func__0___0___System_Collections_Generic_IEnumerable___0__MongoDB_Driver_Search_SearchScoreDefinition__0__">In&lt;TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt;, IEnumerable&lt;TField&gt;, SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that queries for documents where the value of the field equals to any of specified values.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.MoreLikeThis.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_MoreLikeThis__1_System_Collections_Generic_IEnumerable___0__">MoreLikeThis&lt;TLike&gt;(IEnumerable&lt;TLike&gt;)</a></dt>
+    <dd><p>Creates a search definition that returns documents similar to the input documents.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.MoreLikeThis.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_MoreLikeThis__1___0___">MoreLikeThis&lt;TLike&gt;(params TLike[])</a></dt>
+    <dd><p>Creates a search definition that returns documents similar to the input documents.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.Near.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_Near_MongoDB_Driver_Search_SearchPathDefinition__0__System_DateTime_System_Int64_MongoDB_Driver_Search_SearchScoreDefinition__0__">Near(SearchPathDefinition&lt;TDocument&gt;, DateTime, long, SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that supports querying and scoring numeric and date values.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.Near.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_Near_MongoDB_Driver_Search_SearchPathDefinition__0__System_Double_System_Double_MongoDB_Driver_Search_SearchScoreDefinition__0__">Near(SearchPathDefinition&lt;TDocument&gt;, double, double, SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that supports querying and scoring numeric and date values.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.Near.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_Near_MongoDB_Driver_Search_SearchPathDefinition__0__System_Int32_System_Int32_MongoDB_Driver_Search_SearchScoreDefinition__0__">Near(SearchPathDefinition&lt;TDocument&gt;, int, int, SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that supports querying and scoring numeric and date values.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.Near.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_Near_MongoDB_Driver_Search_SearchPathDefinition__0__System_Int64_System_Int64_MongoDB_Driver_Search_SearchScoreDefinition__0__">Near(SearchPathDefinition&lt;TDocument&gt;, long, long, SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that supports querying and scoring numeric and date values.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.Near.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_Near__1_MongoDB_Driver_Search_SearchPathDefinition__0__MongoDB_Driver_GeoJsonObjectModel_GeoJsonPoint___0__System_Double_MongoDB_Driver_Search_SearchScoreDefinition__0__">Near&lt;TCoordinates&gt;(SearchPathDefinition&lt;TDocument&gt;, GeoJsonPoint&lt;TCoordinates&gt;, double, SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that supports querying and scoring numeric and date values.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.Near.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_Near__1_System_Linq_Expressions_Expression_System_Func__0___0___System_DateTime_System_Int64_MongoDB_Driver_Search_SearchScoreDefinition__0__">Near&lt;TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt;, DateTime, long, SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that supports querying and scoring numeric and date values.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.Near.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_Near__1_System_Linq_Expressions_Expression_System_Func__0___0___System_Double_System_Double_MongoDB_Driver_Search_SearchScoreDefinition__0__">Near&lt;TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt;, double, double, SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that supports querying and scoring numeric and date values.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.Near.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_Near__1_System_Linq_Expressions_Expression_System_Func__0___0___System_Int32_System_Int32_MongoDB_Driver_Search_SearchScoreDefinition__0__">Near&lt;TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt;, int, int, SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that supports querying and scoring numeric and date values.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.Near.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_Near__1_System_Linq_Expressions_Expression_System_Func__0___0___System_Int64_System_Int64_MongoDB_Driver_Search_SearchScoreDefinition__0__">Near&lt;TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt;, long, long, SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that supports querying and scoring numeric and date values.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.Near.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_Near__2_System_Linq_Expressions_Expression_System_Func__0___1___MongoDB_Driver_GeoJsonObjectModel_GeoJsonPoint___0__System_Double_MongoDB_Driver_Search_SearchScoreDefinition__0__">Near&lt;TCoordinates, TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt;, GeoJsonPoint&lt;TCoordinates&gt;, double, SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that supports querying and scoring numeric and date values.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.Phrase.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_Phrase_MongoDB_Driver_Search_SearchPathDefinition__0__MongoDB_Driver_Search_SearchQueryDefinition_MongoDB_Driver_Search_SearchPhraseOptions__0__">Phrase(SearchPathDefinition&lt;TDocument&gt;, SearchQueryDefinition, SearchPhraseOptions&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that performs search for documents containing an ordered
+sequence of terms.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.Phrase.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_Phrase_MongoDB_Driver_Search_SearchPathDefinition__0__MongoDB_Driver_Search_SearchQueryDefinition_System_Nullable_System_Int32__MongoDB_Driver_Search_SearchScoreDefinition__0__">Phrase(SearchPathDefinition&lt;TDocument&gt;, SearchQueryDefinition, int?, SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that performs search for documents containing an ordered
+sequence of terms.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.Phrase.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_Phrase__1_System_Linq_Expressions_Expression_System_Func__0___0___MongoDB_Driver_Search_SearchQueryDefinition_MongoDB_Driver_Search_SearchPhraseOptions__0__">Phrase&lt;TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt;, SearchQueryDefinition, SearchPhraseOptions&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that performs search for documents containing an ordered
+sequence of terms.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.Phrase.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_Phrase__1_System_Linq_Expressions_Expression_System_Func__0___0___MongoDB_Driver_Search_SearchQueryDefinition_System_Nullable_System_Int32__MongoDB_Driver_Search_SearchScoreDefinition__0__">Phrase&lt;TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt;, SearchQueryDefinition, int?, SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that performs search for documents containing an ordered
+sequence of terms.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.QueryString.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_QueryString_MongoDB_Driver_FieldDefinition__0__System_String_MongoDB_Driver_Search_SearchScoreDefinition__0__">QueryString(FieldDefinition&lt;TDocument&gt;, string, SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that queries a combination of indexed fields and values.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.QueryString.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_QueryString__1_System_Linq_Expressions_Expression_System_Func__0___0___System_String_MongoDB_Driver_Search_SearchScoreDefinition__0__">QueryString&lt;TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt;, string, SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that queries a combination of indexed fields and values.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.Range.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_Range__1_MongoDB_Driver_Search_SearchPathDefinition__0__MongoDB_Driver_Search_SearchRangeV2___0__MongoDB_Driver_Search_SearchScoreDefinition__0__">Range&lt;TField&gt;(SearchPathDefinition&lt;TDocument&gt;, SearchRangeV2&lt;TField&gt;, SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that queries for documents where a field is in the specified range.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.Range.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_Range__1_MongoDB_Driver_Search_SearchPathDefinition__0__MongoDB_Driver_Search_SearchRange___0__MongoDB_Driver_Search_SearchScoreDefinition__0__">Range&lt;TField&gt;(SearchPathDefinition&lt;TDocument&gt;, SearchRange&lt;TField&gt;, SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that queries for documents where a field is in the specified range.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.Range.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_Range__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0____MongoDB_Driver_Search_SearchRangeV2___0__MongoDB_Driver_Search_SearchScoreDefinition__0__">Range&lt;TField&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TField&gt;&gt;&gt;, SearchRangeV2&lt;TField&gt;, SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that queries for documents where a field is in the specified range.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.Range.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_Range__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0____MongoDB_Driver_Search_SearchRange___0__MongoDB_Driver_Search_SearchScoreDefinition__0__">Range&lt;TField&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TField&gt;&gt;&gt;, SearchRange&lt;TField&gt;, SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that queries for documents where a field is in the specified range.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.Range.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_Range__1_System_Linq_Expressions_Expression_System_Func__0___0___MongoDB_Driver_Search_SearchRangeV2___0__MongoDB_Driver_Search_SearchScoreDefinition__0__">Range&lt;TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt;, SearchRangeV2&lt;TField&gt;, SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that queries for documents where a field is in the specified range.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.Range.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_Range__1_System_Linq_Expressions_Expression_System_Func__0___0___MongoDB_Driver_Search_SearchRange___0__MongoDB_Driver_Search_SearchScoreDefinition__0__">Range&lt;TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt;, SearchRange&lt;TField&gt;, SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that queries for documents where a field is in the specified range.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.Regex.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_Regex_MongoDB_Driver_Search_SearchPathDefinition__0__MongoDB_Driver_Search_SearchQueryDefinition_System_Boolean_MongoDB_Driver_Search_SearchScoreDefinition__0__">Regex(SearchPathDefinition&lt;TDocument&gt;, SearchQueryDefinition, bool, SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that interprets the query as a regular expression.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.Regex.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_Regex__1_System_Linq_Expressions_Expression_System_Func__0___0___MongoDB_Driver_Search_SearchQueryDefinition_System_Boolean_MongoDB_Driver_Search_SearchScoreDefinition__0__">Regex&lt;TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt;, SearchQueryDefinition, bool, SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that interprets the query as a regular expression.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.Span.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_Span_MongoDB_Driver_Search_SearchSpanDefinition__0__">Span(SearchSpanDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that finds text search matches within regions of a text
+field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.Text.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_Text_MongoDB_Driver_Search_SearchPathDefinition__0__MongoDB_Driver_Search_SearchQueryDefinition_MongoDB_Driver_Search_SearchFuzzyOptions_MongoDB_Driver_Search_SearchScoreDefinition__0__">Text(SearchPathDefinition&lt;TDocument&gt;, SearchQueryDefinition, SearchFuzzyOptions, SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that performs full-text search using the analyzer specified
+in the index configuration.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.Text.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_Text_MongoDB_Driver_Search_SearchPathDefinition__0__MongoDB_Driver_Search_SearchQueryDefinition_MongoDB_Driver_Search_SearchTextOptions__0__">Text(SearchPathDefinition&lt;TDocument&gt;, SearchQueryDefinition, SearchTextOptions&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that performs full-text search using the analyzer specified
+in the index configuration.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.Text.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_Text_MongoDB_Driver_Search_SearchPathDefinition__0__MongoDB_Driver_Search_SearchQueryDefinition_System_String_MongoDB_Driver_Search_SearchScoreDefinition__0__">Text(SearchPathDefinition&lt;TDocument&gt;, SearchQueryDefinition, string, SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that performs full-text search with synonyms using the analyzer specified
+in the index configuration.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.Text.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_Text__1_System_Linq_Expressions_Expression_System_Func__0___0___MongoDB_Driver_Search_SearchQueryDefinition_MongoDB_Driver_Search_SearchFuzzyOptions_MongoDB_Driver_Search_SearchScoreDefinition__0__">Text&lt;TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt;, SearchQueryDefinition, SearchFuzzyOptions, SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that performs full-text search using the analyzer specified
+in the index configuration.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.Text.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_Text__1_System_Linq_Expressions_Expression_System_Func__0___0___MongoDB_Driver_Search_SearchQueryDefinition_MongoDB_Driver_Search_SearchTextOptions__0__">Text&lt;TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt;, SearchQueryDefinition, SearchTextOptions&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that performs full-text search using the analyzer specified
+in the index configuration.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.Text.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_Text__1_System_Linq_Expressions_Expression_System_Func__0___0___MongoDB_Driver_Search_SearchQueryDefinition_System_String_MongoDB_Driver_Search_SearchScoreDefinition__0__">Text&lt;TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt;, SearchQueryDefinition, string, SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that performs full-text search with synonyms using the analyzer specified
+in the index configuration.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.VectorSearch.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_VectorSearch_MongoDB_Driver_Search_SearchPathDefinition__0__MongoDB_Driver_QueryVector_System_Int32_MongoDB_Driver_Search_VectorSearchOperatorOptions__0__MongoDB_Driver_Search_SearchScoreDefinition__0__">VectorSearch(SearchPathDefinition&lt;TDocument&gt;, QueryVector, int, VectorSearchOperatorOptions&lt;TDocument&gt;, SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition for a vector search as a search operator.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.VectorSearch.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_VectorSearch__1_System_Linq_Expressions_Expression_System_Func__0___0___MongoDB_Driver_QueryVector_System_Int32_MongoDB_Driver_Search_VectorSearchOperatorOptions__0__MongoDB_Driver_Search_SearchScoreDefinition__0__">VectorSearch&lt;TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt;, QueryVector, int, VectorSearchOperatorOptions&lt;TDocument&gt;, SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition for a vector search as a search operator.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.Wildcard.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_Wildcard_MongoDB_Driver_Search_SearchPathDefinition__0__MongoDB_Driver_Search_SearchQueryDefinition_System_Boolean_MongoDB_Driver_Search_SearchScoreDefinition__0__">Wildcard(SearchPathDefinition&lt;TDocument&gt;, SearchQueryDefinition, bool, SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that uses special characters in the search string that can
+match any character.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.Wildcard.html#MongoDB_Driver_Search_SearchDefinitionBuilder_1_Wildcard__1_System_Linq_Expressions_Expression_System_Func__0___0___MongoDB_Driver_Search_SearchQueryDefinition_System_Boolean_MongoDB_Driver_Search_SearchScoreDefinition__0__">Wildcard&lt;TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt;, SearchQueryDefinition, bool, SearchScoreDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a search definition that uses special characters in the search string that can
+match any character.</p>
+</dd>
+  </dl>
+
+
+
+</article>
+
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          &copy; 2023 MongoDB, Inc.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,440 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>Interface IBsonWriter
+ | MongoDB CSharp Driver API Reference </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Interface IBsonWriter
+ | MongoDB CSharp Driver API Reference ">
+      
+      <link rel="icon" href="../../images/favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/mongodb/mongo-csharp-driver/new/main/apiSpec/new?filename=MongoDB_Bson_IO_IBsonWriter.md&amp;value=---%0Auid%3A%20MongoDB.Bson.IO.IBsonWriter%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+  </head>
+
+  <script type="module" src="./../../public/docfx.min.js"></script>
+
+  <script>
+    const theme = localStorage.getItem('theme') || 'auto'
+    document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+  </script>
+
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../images/mongodb-logo.svg" alt="">
+            
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+      <div class="toc-offcanvas">
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tocOffcanvasLabel">Table of Contents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#tocOffcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <nav class="toc" id="toc"></nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actionbar">
+          <button class="btn btn-lg border-0 d-md-none" style="margin-top: -.65em; margin-left: -.8em" type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas" aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="MongoDB.Bson.IO.IBsonWriter">
+
+
+
+  <h1 id="MongoDB_Bson_IO_IBsonWriter" data-uid="MongoDB.Bson.IO.IBsonWriter" class="text-break">
+    Interface IBsonWriter
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/main/src/MongoDB.Bson/IO/IBsonWriter.cs/#L24"><i class="bi bi-code-slash"></i></a>
+  </h1>
+
+  <div class="facts text-secondary">
+    <dl><dt>Namespace</dt><dd><a class="xref" href="MongoDB.html">MongoDB</a>.<a class="xref" href="MongoDB.Bson.html">Bson</a>.<a class="xref" href="MongoDB.Bson.IO.html">IO</a></dd></dl>
+  <dl><dt>Assembly</dt><dd>MongoDB.Bson.dll</dd></dl>
+  </div>
+
+  <div class="markdown summary"><p>Represents a BSON writer.</p>
+</div>
+  <div class="markdown conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public interface IBsonWriter : IDisposable</code></pre>
+  </div>
+
+
+
+
+
+
+
+  <dl class="typelist derived">
+    <dt>Inherited Members</dt>
+    <dd>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.idisposable.dispose">IDisposable.Dispose()</a>
+    </div>
+  </dd></dl>
+
+  <dl class="typelist extensionMethods">
+    <dt>Extension Methods</dt>
+    <dd>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.ToBsonDocument.html#MongoDB_Bson_BsonExtensionMethods_ToBsonDocument__1___0_MongoDB_Bson_Serialization_IBsonSerializer___0__System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_">BsonExtensionMethods.ToBsonDocument&lt;TNominalType&gt;(TNominalType, IBsonSerializer&lt;TNominalType&gt;, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.ToBson.html#MongoDB_Bson_BsonExtensionMethods_ToBson__1___0_MongoDB_Bson_Serialization_IBsonSerializer___0__MongoDB_Bson_IO_BsonBinaryWriterSettings_System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_System_Int32_">BsonExtensionMethods.ToBson&lt;TNominalType&gt;(TNominalType, IBsonSerializer&lt;TNominalType&gt;, BsonBinaryWriterSettings, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs, int)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.ToJson.html#MongoDB_Bson_BsonExtensionMethods_ToJson__1___0_MongoDB_Bson_IO_JsonWriterSettings_MongoDB_Bson_Serialization_IBsonSerializer___0__System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_">BsonExtensionMethods.ToJson&lt;TNominalType&gt;(TNominalType, JsonWriterSettings, IBsonSerializer&lt;TNominalType&gt;, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonWriterExtensions.WriteBinaryData.html#MongoDB_Bson_IO_IBsonWriterExtensions_WriteBinaryData_MongoDB_Bson_IO_IBsonWriter_System_String_MongoDB_Bson_BsonBinaryData_">IBsonWriterExtensions.WriteBinaryData(IBsonWriter, string, BsonBinaryData)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonWriterExtensions.WriteBoolean.html#MongoDB_Bson_IO_IBsonWriterExtensions_WriteBoolean_MongoDB_Bson_IO_IBsonWriter_System_String_System_Boolean_">IBsonWriterExtensions.WriteBoolean(IBsonWriter, string, bool)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonWriterExtensions.WriteBytes.html#MongoDB_Bson_IO_IBsonWriterExtensions_WriteBytes_MongoDB_Bson_IO_IBsonWriter_System_String_System_Byte___">IBsonWriterExtensions.WriteBytes(IBsonWriter, string, byte[])</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonWriterExtensions.WriteDateTime.html#MongoDB_Bson_IO_IBsonWriterExtensions_WriteDateTime_MongoDB_Bson_IO_IBsonWriter_System_String_System_Int64_">IBsonWriterExtensions.WriteDateTime(IBsonWriter, string, long)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonWriterExtensions.WriteDecimal128.html#MongoDB_Bson_IO_IBsonWriterExtensions_WriteDecimal128_MongoDB_Bson_IO_IBsonWriter_System_String_MongoDB_Bson_Decimal128_">IBsonWriterExtensions.WriteDecimal128(IBsonWriter, string, Decimal128)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonWriterExtensions.WriteDouble.html#MongoDB_Bson_IO_IBsonWriterExtensions_WriteDouble_MongoDB_Bson_IO_IBsonWriter_System_String_System_Double_">IBsonWriterExtensions.WriteDouble(IBsonWriter, string, double)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonWriterExtensions.WriteInt32.html#MongoDB_Bson_IO_IBsonWriterExtensions_WriteInt32_MongoDB_Bson_IO_IBsonWriter_System_String_System_Int32_">IBsonWriterExtensions.WriteInt32(IBsonWriter, string, int)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonWriterExtensions.WriteInt64.html#MongoDB_Bson_IO_IBsonWriterExtensions_WriteInt64_MongoDB_Bson_IO_IBsonWriter_System_String_System_Int64_">IBsonWriterExtensions.WriteInt64(IBsonWriter, string, long)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonWriterExtensions.WriteJavaScript.html#MongoDB_Bson_IO_IBsonWriterExtensions_WriteJavaScript_MongoDB_Bson_IO_IBsonWriter_System_String_System_String_">IBsonWriterExtensions.WriteJavaScript(IBsonWriter, string, string)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonWriterExtensions.WriteJavaScriptWithScope.html#MongoDB_Bson_IO_IBsonWriterExtensions_WriteJavaScriptWithScope_MongoDB_Bson_IO_IBsonWriter_System_String_System_String_">IBsonWriterExtensions.WriteJavaScriptWithScope(IBsonWriter, string, string)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonWriterExtensions.WriteMaxKey.html#MongoDB_Bson_IO_IBsonWriterExtensions_WriteMaxKey_MongoDB_Bson_IO_IBsonWriter_System_String_">IBsonWriterExtensions.WriteMaxKey(IBsonWriter, string)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonWriterExtensions.WriteMinKey.html#MongoDB_Bson_IO_IBsonWriterExtensions_WriteMinKey_MongoDB_Bson_IO_IBsonWriter_System_String_">IBsonWriterExtensions.WriteMinKey(IBsonWriter, string)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonWriterExtensions.WriteNull.html#MongoDB_Bson_IO_IBsonWriterExtensions_WriteNull_MongoDB_Bson_IO_IBsonWriter_System_String_">IBsonWriterExtensions.WriteNull(IBsonWriter, string)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonWriterExtensions.WriteObjectId.html#MongoDB_Bson_IO_IBsonWriterExtensions_WriteObjectId_MongoDB_Bson_IO_IBsonWriter_System_String_MongoDB_Bson_ObjectId_">IBsonWriterExtensions.WriteObjectId(IBsonWriter, string, ObjectId)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonWriterExtensions.WriteRawBsonArray.html#MongoDB_Bson_IO_IBsonWriterExtensions_WriteRawBsonArray_MongoDB_Bson_IO_IBsonWriter_System_String_MongoDB_Bson_IO_IByteBuffer_">IBsonWriterExtensions.WriteRawBsonArray(IBsonWriter, string, IByteBuffer)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonWriterExtensions.WriteRawBsonDocument.html#MongoDB_Bson_IO_IBsonWriterExtensions_WriteRawBsonDocument_MongoDB_Bson_IO_IBsonWriter_System_String_MongoDB_Bson_IO_IByteBuffer_">IBsonWriterExtensions.WriteRawBsonDocument(IBsonWriter, string, IByteBuffer)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonWriterExtensions.WriteRegularExpression.html#MongoDB_Bson_IO_IBsonWriterExtensions_WriteRegularExpression_MongoDB_Bson_IO_IBsonWriter_System_String_MongoDB_Bson_BsonRegularExpression_">IBsonWriterExtensions.WriteRegularExpression(IBsonWriter, string, BsonRegularExpression)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonWriterExtensions.WriteStartArray.html#MongoDB_Bson_IO_IBsonWriterExtensions_WriteStartArray_MongoDB_Bson_IO_IBsonWriter_System_String_">IBsonWriterExtensions.WriteStartArray(IBsonWriter, string)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonWriterExtensions.WriteStartDocument.html#MongoDB_Bson_IO_IBsonWriterExtensions_WriteStartDocument_MongoDB_Bson_IO_IBsonWriter_System_String_">IBsonWriterExtensions.WriteStartDocument(IBsonWriter, string)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonWriterExtensions.WriteString.html#MongoDB_Bson_IO_IBsonWriterExtensions_WriteString_MongoDB_Bson_IO_IBsonWriter_System_String_System_String_">IBsonWriterExtensions.WriteString(IBsonWriter, string, string)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonWriterExtensions.WriteSymbol.html#MongoDB_Bson_IO_IBsonWriterExtensions_WriteSymbol_MongoDB_Bson_IO_IBsonWriter_System_String_System_String_">IBsonWriterExtensions.WriteSymbol(IBsonWriter, string, string)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonWriterExtensions.WriteTimestamp.html#MongoDB_Bson_IO_IBsonWriterExtensions_WriteTimestamp_MongoDB_Bson_IO_IBsonWriter_System_String_System_Int64_">IBsonWriterExtensions.WriteTimestamp(IBsonWriter, string, long)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.IBsonWriterExtensions.WriteUndefined.html#MongoDB_Bson_IO_IBsonWriterExtensions_WriteUndefined_MongoDB_Bson_IO_IBsonWriter_System_String_">IBsonWriterExtensions.WriteUndefined(IBsonWriter, string)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.ToBson.html#MongoDB_Bson_BsonExtensionMethods_ToBson_System_Object_System_Type_MongoDB_Bson_IO_BsonBinaryWriterSettings_MongoDB_Bson_Serialization_IBsonSerializer_System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_System_Int32_">BsonExtensionMethods.ToBson(object, Type, BsonBinaryWriterSettings, IBsonSerializer, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs, int)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.ToBsonDocument.html#MongoDB_Bson_BsonExtensionMethods_ToBsonDocument_System_Object_System_Type_MongoDB_Bson_Serialization_IBsonSerializer_System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_">BsonExtensionMethods.ToBsonDocument(object, Type, IBsonSerializer, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.ToJson.html#MongoDB_Bson_BsonExtensionMethods_ToJson_System_Object_System_Type_MongoDB_Bson_IO_JsonWriterSettings_MongoDB_Bson_Serialization_IBsonSerializer_System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_">BsonExtensionMethods.ToJson(object, Type, JsonWriterSettings, IBsonSerializer, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs)</a>
+  </div>
+  </dd></dl>
+
+
+
+
+  <h2 class="section" id="properties">Properties
+</h2>
+
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.IBsonWriter.Position.html#MongoDB_Bson_IO_IBsonWriter_Position">Position</a></dt>
+    <dd><p>Gets the position.
+Not all writers are able to report the position. Those that can't simply return zero.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.IBsonWriter.SerializationDepth.html#MongoDB_Bson_IO_IBsonWriter_SerializationDepth">SerializationDepth</a></dt>
+    <dd><p>Gets the current serialization depth.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.IBsonWriter.Settings.html#MongoDB_Bson_IO_IBsonWriter_Settings">Settings</a></dt>
+    <dd><p>Gets the settings of the writer.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.IBsonWriter.State.html#MongoDB_Bson_IO_IBsonWriter_State">State</a></dt>
+    <dd><p>Gets the current state of the writer.</p>
+</dd>
+  </dl>
+
+  <h2 class="section" id="methods">Methods
+</h2>
+
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.IBsonWriter.Close.html#MongoDB_Bson_IO_IBsonWriter_Close">Close()</a></dt>
+    <dd><p>Closes the writer.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.IBsonWriter.Flush.html#MongoDB_Bson_IO_IBsonWriter_Flush">Flush()</a></dt>
+    <dd><p>Flushes any pending data to the output destination.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.IBsonWriter.PopElementNameValidator.html#MongoDB_Bson_IO_IBsonWriter_PopElementNameValidator">PopElementNameValidator()</a></dt>
+    <dd><p>Pops the element name validator.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.IBsonWriter.PopSettings.html#MongoDB_Bson_IO_IBsonWriter_PopSettings">PopSettings()</a></dt>
+    <dd><p>Pops the settings.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.IBsonWriter.PushElementNameValidator.html#MongoDB_Bson_IO_IBsonWriter_PushElementNameValidator_MongoDB_Bson_IO_IElementNameValidator_">PushElementNameValidator(IElementNameValidator)</a></dt>
+    <dd><p>Pushes the element name validator.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.IBsonWriter.PushSettings.html#MongoDB_Bson_IO_IBsonWriter_PushSettings_System_Action_MongoDB_Bson_IO_BsonWriterSettings__">PushSettings(Action&lt;BsonWriterSettings&gt;)</a></dt>
+    <dd><p>Pushes new settings for the writer.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.IBsonWriter.WriteBinaryData.html#MongoDB_Bson_IO_IBsonWriter_WriteBinaryData_MongoDB_Bson_BsonBinaryData_">WriteBinaryData(BsonBinaryData)</a></dt>
+    <dd><p>Writes BSON binary data to the writer.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.IBsonWriter.WriteBoolean.html#MongoDB_Bson_IO_IBsonWriter_WriteBoolean_System_Boolean_">WriteBoolean(bool)</a></dt>
+    <dd><p>Writes a BSON Boolean to the writer.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.IBsonWriter.WriteBytes.html#MongoDB_Bson_IO_IBsonWriter_WriteBytes_System_Byte___">WriteBytes(byte[])</a></dt>
+    <dd><p>Writes BSON binary data to the writer.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.IBsonWriter.WriteDateTime.html#MongoDB_Bson_IO_IBsonWriter_WriteDateTime_System_Int64_">WriteDateTime(long)</a></dt>
+    <dd><p>Writes a BSON DateTime to the writer.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.IBsonWriter.WriteDecimal128.html#MongoDB_Bson_IO_IBsonWriter_WriteDecimal128_MongoDB_Bson_Decimal128_">WriteDecimal128(Decimal128)</a></dt>
+    <dd><p>Writes a BSON Decimal128 to the writer.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.IBsonWriter.WriteDouble.html#MongoDB_Bson_IO_IBsonWriter_WriteDouble_System_Double_">WriteDouble(double)</a></dt>
+    <dd><p>Writes a BSON Double to the writer.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.IBsonWriter.WriteEndArray.html#MongoDB_Bson_IO_IBsonWriter_WriteEndArray">WriteEndArray()</a></dt>
+    <dd><p>Writes the end of a BSON array to the writer.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.IBsonWriter.WriteEndDocument.html#MongoDB_Bson_IO_IBsonWriter_WriteEndDocument">WriteEndDocument()</a></dt>
+    <dd><p>Writes the end of a BSON document to the writer.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.IBsonWriter.WriteGuid.html#MongoDB_Bson_IO_IBsonWriter_WriteGuid_System_Guid_">WriteGuid(Guid)</a></dt>
+    <dd><p>Writes a Guid in Standard representation to the writer.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.IBsonWriter.WriteGuid.html#MongoDB_Bson_IO_IBsonWriter_WriteGuid_System_Guid_MongoDB_Bson_GuidRepresentation_">WriteGuid(Guid, GuidRepresentation)</a></dt>
+    <dd><p>Writes a Guid in the specified representation to the writer.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.IBsonWriter.WriteInt32.html#MongoDB_Bson_IO_IBsonWriter_WriteInt32_System_Int32_">WriteInt32(int)</a></dt>
+    <dd><p>Writes a BSON Int32 to the writer.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.IBsonWriter.WriteInt64.html#MongoDB_Bson_IO_IBsonWriter_WriteInt64_System_Int64_">WriteInt64(long)</a></dt>
+    <dd><p>Writes a BSON Int64 to the writer.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.IBsonWriter.WriteJavaScript.html#MongoDB_Bson_IO_IBsonWriter_WriteJavaScript_System_String_">WriteJavaScript(string)</a></dt>
+    <dd><p>Writes a BSON JavaScript to the writer.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.IBsonWriter.WriteJavaScriptWithScope.html#MongoDB_Bson_IO_IBsonWriter_WriteJavaScriptWithScope_System_String_">WriteJavaScriptWithScope(string)</a></dt>
+    <dd><p>Writes a BSON JavaScript to the writer (call WriteStartDocument to start writing the scope).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.IBsonWriter.WriteMaxKey.html#MongoDB_Bson_IO_IBsonWriter_WriteMaxKey">WriteMaxKey()</a></dt>
+    <dd><p>Writes a BSON MaxKey to the writer.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.IBsonWriter.WriteMinKey.html#MongoDB_Bson_IO_IBsonWriter_WriteMinKey">WriteMinKey()</a></dt>
+    <dd><p>Writes a BSON MinKey to the writer.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.IBsonWriter.WriteName.html#MongoDB_Bson_IO_IBsonWriter_WriteName_System_String_">WriteName(string)</a></dt>
+    <dd><p>Writes the name of an element to the writer.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.IBsonWriter.WriteNull.html#MongoDB_Bson_IO_IBsonWriter_WriteNull">WriteNull()</a></dt>
+    <dd><p>Writes a BSON null to the writer.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.IBsonWriter.WriteObjectId.html#MongoDB_Bson_IO_IBsonWriter_WriteObjectId_MongoDB_Bson_ObjectId_">WriteObjectId(ObjectId)</a></dt>
+    <dd><p>Writes a BSON ObjectId to the writer.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.IBsonWriter.WriteRawBsonArray.html#MongoDB_Bson_IO_IBsonWriter_WriteRawBsonArray_MongoDB_Bson_IO_IByteBuffer_">WriteRawBsonArray(IByteBuffer)</a></dt>
+    <dd><p>Writes a raw BSON array.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.IBsonWriter.WriteRawBsonDocument.html#MongoDB_Bson_IO_IBsonWriter_WriteRawBsonDocument_MongoDB_Bson_IO_IByteBuffer_">WriteRawBsonDocument(IByteBuffer)</a></dt>
+    <dd><p>Writes a raw BSON document.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.IBsonWriter.WriteRegularExpression.html#MongoDB_Bson_IO_IBsonWriter_WriteRegularExpression_MongoDB_Bson_BsonRegularExpression_">WriteRegularExpression(BsonRegularExpression)</a></dt>
+    <dd><p>Writes a BSON regular expression to the writer.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.IBsonWriter.WriteStartArray.html#MongoDB_Bson_IO_IBsonWriter_WriteStartArray">WriteStartArray()</a></dt>
+    <dd><p>Writes the start of a BSON array to the writer.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.IBsonWriter.WriteStartDocument.html#MongoDB_Bson_IO_IBsonWriter_WriteStartDocument">WriteStartDocument()</a></dt>
+    <dd><p>Writes the start of a BSON document to the writer.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.IBsonWriter.WriteString.html#MongoDB_Bson_IO_IBsonWriter_WriteString_System_String_">WriteString(string)</a></dt>
+    <dd><p>Writes a BSON String to the writer.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.IBsonWriter.WriteSymbol.html#MongoDB_Bson_IO_IBsonWriter_WriteSymbol_System_String_">WriteSymbol(string)</a></dt>
+    <dd><p>Writes a BSON Symbol to the writer.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.IBsonWriter.WriteTimestamp.html#MongoDB_Bson_IO_IBsonWriter_WriteTimestamp_System_Int64_">WriteTimestamp(long)</a></dt>
+    <dd><p>Writes a BSON timestamp to the writer.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.IBsonWriter.WriteUndefined.html#MongoDB_Bson_IO_IBsonWriter_WriteUndefined">WriteUndefined()</a></dt>
+    <dd><p>Writes a BSON undefined to the writer.</p>
+</dd>
+  </dl>
+
+
+  <h2 id="seealso">See Also</h2>
+  <div class="seealso">
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.idisposable">IDisposable</a></div>
+  </div>
+
+</article>
+
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          &copy; 2023 MongoDB, Inc.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

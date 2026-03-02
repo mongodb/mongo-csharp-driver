@@ -1,0 +1,555 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>Method GraphLookup
+ | MongoDB CSharp Driver API Reference </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Method GraphLookup
+ | MongoDB CSharp Driver API Reference ">
+      
+      <link rel="icon" href="../../images/favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/mongodb/mongo-csharp-driver/new/main/apiSpec/new?filename=MongoDB_Driver_PipelineDefinitionBuilder_GraphLookup_.md&amp;value=---%0Auid%3A%20MongoDB.Driver.PipelineDefinitionBuilder.GraphLookup*%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+  </head>
+
+  <script type="module" src="./../../public/docfx.min.js"></script>
+
+  <script>
+    const theme = localStorage.getItem('theme') || 'auto'
+    document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+  </script>
+
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../images/mongodb-logo.svg" alt="">
+            
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+      <div class="toc-offcanvas">
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tocOffcanvasLabel">Table of Contents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#tocOffcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <nav class="toc" id="toc"></nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actionbar">
+          <button class="btn btn-lg border-0 d-md-none" style="margin-top: -.65em; margin-left: -.8em" type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas" aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="MongoDB.Driver.PipelineDefinitionBuilder.GraphLookup*">
+
+
+
+
+
+<h1 id="MongoDB_Driver_PipelineDefinitionBuilder_GraphLookup_" data-uid="MongoDB.Driver.PipelineDefinitionBuilder.GraphLookup*" class="text-break">
+  Method GraphLookup
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/main/src/MongoDB.Driver/PipelineDefinitionBuilder.cs/#L549"><i class="bi bi-code-slash"></i></a>
+</h1>
+
+<div class="facts text-secondary">
+  <dl><dt>Namespace</dt><dd><a class="xref" href="MongoDB.html">MongoDB</a>.<a class="xref" href="MongoDB.Driver.html">Driver</a></dd></dl>
+  <dl><dt>Assembly</dt><dd>MongoDB.Driver.dll</dd></dl>
+</div>
+
+<div class="markdown summary"></div>
+<div class="markdown conceptual"></div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<a id="MongoDB_Driver_PipelineDefinitionBuilder_GraphLookup_" data-uid="MongoDB.Driver.PipelineDefinitionBuilder.GraphLookup*"></a>
+
+<h3 id="MongoDB_Driver_PipelineDefinitionBuilder_GraphLookup__9_MongoDB_Driver_PipelineDefinition___0___1__MongoDB_Driver_IMongoCollection___2__MongoDB_Driver_FieldDefinition___2___3__MongoDB_Driver_FieldDefinition___2___4__MongoDB_Driver_AggregateExpressionDefinition___1___5__MongoDB_Driver_FieldDefinition___8___7__MongoDB_Driver_FieldDefinition___6_System_Int32__MongoDB_Driver_AggregateGraphLookupOptions___2___6___8__" data-uid="MongoDB.Driver.PipelineDefinitionBuilder.GraphLookup``9(MongoDB.Driver.PipelineDefinition{``0,``1},MongoDB.Driver.IMongoCollection{``2},MongoDB.Driver.FieldDefinition{``2,``3},MongoDB.Driver.FieldDefinition{``2,``4},MongoDB.Driver.AggregateExpressionDefinition{``1,``5},MongoDB.Driver.FieldDefinition{``8,``7},MongoDB.Driver.FieldDefinition{``6,System.Int32},MongoDB.Driver.AggregateGraphLookupOptions{``2,``6,``8})">
+  GraphLookup&lt;TInput, TIntermediate, TFrom, TConnectFrom, TConnectTo, TStartWith, TAsElement, TAs, TOutput&gt;(PipelineDefinition&lt;TInput, TIntermediate&gt;, IMongoCollection&lt;TFrom&gt;, FieldDefinition&lt;TFrom, TConnectFrom&gt;, FieldDefinition&lt;TFrom, TConnectTo&gt;, AggregateExpressionDefinition&lt;TIntermediate, TStartWith&gt;, FieldDefinition&lt;TOutput, TAs&gt;, FieldDefinition&lt;TAsElement, int&gt;, AggregateGraphLookupOptions&lt;TFrom, TAsElement, TOutput&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/main/src/MongoDB.Driver/PipelineDefinitionBuilder.cs/#L549"><i class="bi bi-code-slash"></i></a>
+</h3>
+
+<div class="markdown level1 summary"><p>Appends a $graphLookup stage to the pipeline.</p>
+</div>
+<div class="markdown level1 conceptual"></div>
+
+<div class="codewrapper">
+  <pre><code class="lang-csharp hljs">public static PipelineDefinition&lt;TInput, TOutput&gt; GraphLookup&lt;TInput, TIntermediate, TFrom, TConnectFrom, TConnectTo, TStartWith, TAsElement, TAs, TOutput&gt;(this PipelineDefinition&lt;TInput, TIntermediate&gt; pipeline, IMongoCollection&lt;TFrom&gt; from, FieldDefinition&lt;TFrom, TConnectFrom&gt; connectFromField, FieldDefinition&lt;TFrom, TConnectTo&gt; connectToField, AggregateExpressionDefinition&lt;TIntermediate, TStartWith&gt; startWith, FieldDefinition&lt;TOutput, TAs&gt; @as, FieldDefinition&lt;TAsElement, int&gt; depthField, AggregateGraphLookupOptions&lt;TFrom, TAsElement, TOutput&gt; options = null) where TAs : IEnumerable&lt;TAsElement&gt;</code></pre>
+</div>
+
+<h4 class="section">Parameters</h4>
+<dl class="parameters">
+  <dt><code>pipeline</code> <a class="xref" href="MongoDB.Driver.PipelineDefinition-2.html">PipelineDefinition</a>&lt;TInput, TIntermediate&gt;</dt>
+  <dd><p>The pipeline.</p>
+</dd>
+  <dt><code>from</code> <a class="xref" href="MongoDB.Driver.IMongoCollection-1.html">IMongoCollection</a>&lt;TFrom&gt;</dt>
+  <dd><p>The from collection.</p>
+</dd>
+  <dt><code>connectFromField</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-2.html">FieldDefinition</a>&lt;TFrom, TConnectFrom&gt;</dt>
+  <dd><p>The connect from field.</p>
+</dd>
+  <dt><code>connectToField</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-2.html">FieldDefinition</a>&lt;TFrom, TConnectTo&gt;</dt>
+  <dd><p>The connect to field.</p>
+</dd>
+  <dt><code>startWith</code> <a class="xref" href="MongoDB.Driver.AggregateExpressionDefinition-2.html">AggregateExpressionDefinition</a>&lt;TIntermediate, TStartWith&gt;</dt>
+  <dd><p>The start with value.</p>
+</dd>
+  <dt><code>as</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-2.html">FieldDefinition</a>&lt;TOutput, TAs&gt;</dt>
+  <dd><p>The as field.</p>
+</dd>
+  <dt><code>depthField</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-2.html">FieldDefinition</a>&lt;TAsElement, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>&gt;</dt>
+  <dd><p>The depth field.</p>
+</dd>
+  <dt><code>options</code> <a class="xref" href="MongoDB.Driver.AggregateGraphLookupOptions-3.html">AggregateGraphLookupOptions</a>&lt;TFrom, TAsElement, TOutput&gt;</dt>
+  <dd><p>The options.</p>
+</dd>
+</dl>
+
+<h4 class="section">Returns</h4>
+<dl class="parameters">
+  <dt><a class="xref" href="MongoDB.Driver.PipelineDefinition-2.html">PipelineDefinition</a>&lt;TInput, TOutput&gt;</dt>
+  <dd><p>A new pipeline with an additional stage.</p>
+</dd>
+</dl>
+
+<h4 class="section">Type Parameters</h4>
+<dl class="parameters">
+  <dt><code>TInput</code></dt>
+  <dd><p>The type of the input documents.</p>
+</dd>
+  <dt><code>TIntermediate</code></dt>
+  <dd><p>The type of the intermediate documents.</p>
+</dd>
+  <dt><code>TFrom</code></dt>
+  <dd><p>The type of the from documents.</p>
+</dd>
+  <dt><code>TConnectFrom</code></dt>
+  <dd><p>The type of the connect from field (must be either TConnectTo or a type that implements IEnumerable{TConnectTo}).</p>
+</dd>
+  <dt><code>TConnectTo</code></dt>
+  <dd><p>The type of the connect to field.</p>
+</dd>
+  <dt><code>TStartWith</code></dt>
+  <dd><p>The type of the start with expression (must be either TConnectTo or a type that implements IEnumerable{TConnectTo}).</p>
+</dd>
+  <dt><code>TAsElement</code></dt>
+  <dd><p>The type of the as field elements.</p>
+</dd>
+  <dt><code>TAs</code></dt>
+  <dd><p>The type of the as field.</p>
+</dd>
+  <dt><code>TOutput</code></dt>
+  <dd><p>The type of the output documents.</p>
+</dd>
+</dl>
+
+
+
+
+
+
+
+
+
+
+<a id="MongoDB_Driver_PipelineDefinitionBuilder_GraphLookup_" data-uid="MongoDB.Driver.PipelineDefinitionBuilder.GraphLookup*"></a>
+
+<h3 id="MongoDB_Driver_PipelineDefinitionBuilder_GraphLookup__8_MongoDB_Driver_PipelineDefinition___0___1__MongoDB_Driver_IMongoCollection___2__MongoDB_Driver_FieldDefinition___2___3__MongoDB_Driver_FieldDefinition___2___4__MongoDB_Driver_AggregateExpressionDefinition___1___5__MongoDB_Driver_FieldDefinition___7___6__MongoDB_Driver_AggregateGraphLookupOptions___2___2___7__" data-uid="MongoDB.Driver.PipelineDefinitionBuilder.GraphLookup``8(MongoDB.Driver.PipelineDefinition{``0,``1},MongoDB.Driver.IMongoCollection{``2},MongoDB.Driver.FieldDefinition{``2,``3},MongoDB.Driver.FieldDefinition{``2,``4},MongoDB.Driver.AggregateExpressionDefinition{``1,``5},MongoDB.Driver.FieldDefinition{``7,``6},MongoDB.Driver.AggregateGraphLookupOptions{``2,``2,``7})">
+  GraphLookup&lt;TInput, TIntermediate, TFrom, TConnectFrom, TConnectTo, TStartWith, TAs, TOutput&gt;(PipelineDefinition&lt;TInput, TIntermediate&gt;, IMongoCollection&lt;TFrom&gt;, FieldDefinition&lt;TFrom, TConnectFrom&gt;, FieldDefinition&lt;TFrom, TConnectTo&gt;, AggregateExpressionDefinition&lt;TIntermediate, TStartWith&gt;, FieldDefinition&lt;TOutput, TAs&gt;, AggregateGraphLookupOptions&lt;TFrom, TFrom, TOutput&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/main/src/MongoDB.Driver/PipelineDefinitionBuilder.cs/#L583"><i class="bi bi-code-slash"></i></a>
+</h3>
+
+<div class="markdown level1 summary"><p>Appends a $graphLookup stage to the pipeline.</p>
+</div>
+<div class="markdown level1 conceptual"></div>
+
+<div class="codewrapper">
+  <pre><code class="lang-csharp hljs">public static PipelineDefinition&lt;TInput, TOutput&gt; GraphLookup&lt;TInput, TIntermediate, TFrom, TConnectFrom, TConnectTo, TStartWith, TAs, TOutput&gt;(this PipelineDefinition&lt;TInput, TIntermediate&gt; pipeline, IMongoCollection&lt;TFrom&gt; from, FieldDefinition&lt;TFrom, TConnectFrom&gt; connectFromField, FieldDefinition&lt;TFrom, TConnectTo&gt; connectToField, AggregateExpressionDefinition&lt;TIntermediate, TStartWith&gt; startWith, FieldDefinition&lt;TOutput, TAs&gt; @as, AggregateGraphLookupOptions&lt;TFrom, TFrom, TOutput&gt; options = null) where TAs : IEnumerable&lt;TFrom&gt;</code></pre>
+</div>
+
+<h4 class="section">Parameters</h4>
+<dl class="parameters">
+  <dt><code>pipeline</code> <a class="xref" href="MongoDB.Driver.PipelineDefinition-2.html">PipelineDefinition</a>&lt;TInput, TIntermediate&gt;</dt>
+  <dd><p>The pipeline.</p>
+</dd>
+  <dt><code>from</code> <a class="xref" href="MongoDB.Driver.IMongoCollection-1.html">IMongoCollection</a>&lt;TFrom&gt;</dt>
+  <dd><p>The from collection.</p>
+</dd>
+  <dt><code>connectFromField</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-2.html">FieldDefinition</a>&lt;TFrom, TConnectFrom&gt;</dt>
+  <dd><p>The connect from field.</p>
+</dd>
+  <dt><code>connectToField</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-2.html">FieldDefinition</a>&lt;TFrom, TConnectTo&gt;</dt>
+  <dd><p>The connect to field.</p>
+</dd>
+  <dt><code>startWith</code> <a class="xref" href="MongoDB.Driver.AggregateExpressionDefinition-2.html">AggregateExpressionDefinition</a>&lt;TIntermediate, TStartWith&gt;</dt>
+  <dd><p>The start with value.</p>
+</dd>
+  <dt><code>as</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-2.html">FieldDefinition</a>&lt;TOutput, TAs&gt;</dt>
+  <dd><p>The as field.</p>
+</dd>
+  <dt><code>options</code> <a class="xref" href="MongoDB.Driver.AggregateGraphLookupOptions-3.html">AggregateGraphLookupOptions</a>&lt;TFrom, TFrom, TOutput&gt;</dt>
+  <dd><p>The options.</p>
+</dd>
+</dl>
+
+<h4 class="section">Returns</h4>
+<dl class="parameters">
+  <dt><a class="xref" href="MongoDB.Driver.PipelineDefinition-2.html">PipelineDefinition</a>&lt;TInput, TOutput&gt;</dt>
+  <dd><p>A new pipeline with an additional stage.</p>
+</dd>
+</dl>
+
+<h4 class="section">Type Parameters</h4>
+<dl class="parameters">
+  <dt><code>TInput</code></dt>
+  <dd><p>The type of the input documents.</p>
+</dd>
+  <dt><code>TIntermediate</code></dt>
+  <dd><p>The type of the intermediate documents.</p>
+</dd>
+  <dt><code>TFrom</code></dt>
+  <dd><p>The type of the from documents.</p>
+</dd>
+  <dt><code>TConnectFrom</code></dt>
+  <dd><p>The type of the connect from field (must be either TConnectTo or a type that implements IEnumerable{TConnectTo}).</p>
+</dd>
+  <dt><code>TConnectTo</code></dt>
+  <dd><p>The type of the connect to field.</p>
+</dd>
+  <dt><code>TStartWith</code></dt>
+  <dd><p>The type of the start with expression (must be either TConnectTo or a type that implements IEnumerable{TConnectTo}).</p>
+</dd>
+  <dt><code>TAs</code></dt>
+  <dd><p>The type of the as field.</p>
+</dd>
+  <dt><code>TOutput</code></dt>
+  <dd><p>The type of the output documents.</p>
+</dd>
+</dl>
+
+
+
+
+
+
+
+
+
+
+<a id="MongoDB_Driver_PipelineDefinitionBuilder_GraphLookup_" data-uid="MongoDB.Driver.PipelineDefinitionBuilder.GraphLookup*"></a>
+
+<h3 id="MongoDB_Driver_PipelineDefinitionBuilder_GraphLookup__3_MongoDB_Driver_PipelineDefinition___0___1__MongoDB_Driver_IMongoCollection___2__MongoDB_Driver_FieldDefinition___2_MongoDB_Bson_BsonValue__MongoDB_Driver_FieldDefinition___2_MongoDB_Bson_BsonValue__MongoDB_Driver_AggregateExpressionDefinition___1_MongoDB_Bson_BsonValue__MongoDB_Driver_FieldDefinition_MongoDB_Bson_BsonDocument_System_Collections_Generic_IEnumerable_MongoDB_Bson_BsonDocument___MongoDB_Driver_FieldDefinition_MongoDB_Bson_BsonDocument_System_Int32__" data-uid="MongoDB.Driver.PipelineDefinitionBuilder.GraphLookup``3(MongoDB.Driver.PipelineDefinition{``0,``1},MongoDB.Driver.IMongoCollection{``2},MongoDB.Driver.FieldDefinition{``2,MongoDB.Bson.BsonValue},MongoDB.Driver.FieldDefinition{``2,MongoDB.Bson.BsonValue},MongoDB.Driver.AggregateExpressionDefinition{``1,MongoDB.Bson.BsonValue},MongoDB.Driver.FieldDefinition{MongoDB.Bson.BsonDocument,System.Collections.Generic.IEnumerable{MongoDB.Bson.BsonDocument}},MongoDB.Driver.FieldDefinition{MongoDB.Bson.BsonDocument,System.Int32})">
+  GraphLookup&lt;TInput, TIntermediate, TFrom&gt;(PipelineDefinition&lt;TInput, TIntermediate&gt;, IMongoCollection&lt;TFrom&gt;, FieldDefinition&lt;TFrom, BsonValue&gt;, FieldDefinition&lt;TFrom, BsonValue&gt;, AggregateExpressionDefinition&lt;TIntermediate, BsonValue&gt;, FieldDefinition&lt;BsonDocument, IEnumerable&lt;BsonDocument&gt;&gt;, FieldDefinition&lt;BsonDocument, int&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/main/src/MongoDB.Driver/PipelineDefinitionBuilder.cs/#L611"><i class="bi bi-code-slash"></i></a>
+</h3>
+
+<div class="markdown level1 summary"><p>Appends a $graphLookup stage to the pipeline.</p>
+</div>
+<div class="markdown level1 conceptual"></div>
+
+<div class="codewrapper">
+  <pre><code class="lang-csharp hljs">public static PipelineDefinition&lt;TInput, BsonDocument&gt; GraphLookup&lt;TInput, TIntermediate, TFrom&gt;(this PipelineDefinition&lt;TInput, TIntermediate&gt; pipeline, IMongoCollection&lt;TFrom&gt; from, FieldDefinition&lt;TFrom, BsonValue&gt; connectFromField, FieldDefinition&lt;TFrom, BsonValue&gt; connectToField, AggregateExpressionDefinition&lt;TIntermediate, BsonValue&gt; startWith, FieldDefinition&lt;BsonDocument, IEnumerable&lt;BsonDocument&gt;&gt; @as, FieldDefinition&lt;BsonDocument, int&gt; depthField = null)</code></pre>
+</div>
+
+<h4 class="section">Parameters</h4>
+<dl class="parameters">
+  <dt><code>pipeline</code> <a class="xref" href="MongoDB.Driver.PipelineDefinition-2.html">PipelineDefinition</a>&lt;TInput, TIntermediate&gt;</dt>
+  <dd><p>The pipeline.</p>
+</dd>
+  <dt><code>from</code> <a class="xref" href="MongoDB.Driver.IMongoCollection-1.html">IMongoCollection</a>&lt;TFrom&gt;</dt>
+  <dd><p>The from collection.</p>
+</dd>
+  <dt><code>connectFromField</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-2.html">FieldDefinition</a>&lt;TFrom, <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonValue.html">BsonValue</a>&gt;</dt>
+  <dd><p>The connect from field.</p>
+</dd>
+  <dt><code>connectToField</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-2.html">FieldDefinition</a>&lt;TFrom, <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonValue.html">BsonValue</a>&gt;</dt>
+  <dd><p>The connect to field.</p>
+</dd>
+  <dt><code>startWith</code> <a class="xref" href="MongoDB.Driver.AggregateExpressionDefinition-2.html">AggregateExpressionDefinition</a>&lt;TIntermediate, <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonValue.html">BsonValue</a>&gt;</dt>
+  <dd><p>The start with value.</p>
+</dd>
+  <dt><code>as</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-2.html">FieldDefinition</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;&gt;</dt>
+  <dd><p>The as field.</p>
+</dd>
+  <dt><code>depthField</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-2.html">FieldDefinition</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>&gt;</dt>
+  <dd><p>The depth field.</p>
+</dd>
+</dl>
+
+<h4 class="section">Returns</h4>
+<dl class="parameters">
+  <dt><a class="xref" href="MongoDB.Driver.PipelineDefinition-2.html">PipelineDefinition</a>&lt;TInput, <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
+  <dd><p>A new pipeline with an additional stage.</p>
+</dd>
+</dl>
+
+<h4 class="section">Type Parameters</h4>
+<dl class="parameters">
+  <dt><code>TInput</code></dt>
+  <dd><p>The type of the input documents.</p>
+</dd>
+  <dt><code>TIntermediate</code></dt>
+  <dd><p>The type of the intermediate documents.</p>
+</dd>
+  <dt><code>TFrom</code></dt>
+  <dd><p>The type of the from documents.</p>
+</dd>
+</dl>
+
+
+
+
+
+
+
+
+
+
+<a id="MongoDB_Driver_PipelineDefinitionBuilder_GraphLookup_" data-uid="MongoDB.Driver.PipelineDefinitionBuilder.GraphLookup*"></a>
+
+<h3 id="MongoDB_Driver_PipelineDefinitionBuilder_GraphLookup__8_MongoDB_Driver_PipelineDefinition___0___1__MongoDB_Driver_IMongoCollection___2__System_Linq_Expressions_Expression_System_Func___2___3___System_Linq_Expressions_Expression_System_Func___2___4___System_Linq_Expressions_Expression_System_Func___1___5___System_Linq_Expressions_Expression_System_Func___7___6___MongoDB_Driver_AggregateGraphLookupOptions___2___2___7__" data-uid="MongoDB.Driver.PipelineDefinitionBuilder.GraphLookup``8(MongoDB.Driver.PipelineDefinition{``0,``1},MongoDB.Driver.IMongoCollection{``2},System.Linq.Expressions.Expression{System.Func{``2,``3}},System.Linq.Expressions.Expression{System.Func{``2,``4}},System.Linq.Expressions.Expression{System.Func{``1,``5}},System.Linq.Expressions.Expression{System.Func{``7,``6}},MongoDB.Driver.AggregateGraphLookupOptions{``2,``2,``7})">
+  GraphLookup&lt;TInput, TIntermediate, TFrom, TConnectFrom, TConnectTo, TStartWith, TAs, TOutput&gt;(PipelineDefinition&lt;TInput, TIntermediate&gt;, IMongoCollection&lt;TFrom&gt;, Expression&lt;Func&lt;TFrom, TConnectFrom&gt;&gt;, Expression&lt;Func&lt;TFrom, TConnectTo&gt;&gt;, Expression&lt;Func&lt;TIntermediate, TStartWith&gt;&gt;, Expression&lt;Func&lt;TOutput, TAs&gt;&gt;, AggregateGraphLookupOptions&lt;TFrom, TFrom, TOutput&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/main/src/MongoDB.Driver/PipelineDefinitionBuilder.cs/#L643"><i class="bi bi-code-slash"></i></a>
+</h3>
+
+<div class="markdown level1 summary"><p>Appends a $graphLookup stage to the pipeline.</p>
+</div>
+<div class="markdown level1 conceptual"></div>
+
+<div class="codewrapper">
+  <pre><code class="lang-csharp hljs">public static PipelineDefinition&lt;TInput, TOutput&gt; GraphLookup&lt;TInput, TIntermediate, TFrom, TConnectFrom, TConnectTo, TStartWith, TAs, TOutput&gt;(this PipelineDefinition&lt;TInput, TIntermediate&gt; pipeline, IMongoCollection&lt;TFrom&gt; from, Expression&lt;Func&lt;TFrom, TConnectFrom&gt;&gt; connectFromField, Expression&lt;Func&lt;TFrom, TConnectTo&gt;&gt; connectToField, Expression&lt;Func&lt;TIntermediate, TStartWith&gt;&gt; startWith, Expression&lt;Func&lt;TOutput, TAs&gt;&gt; @as, AggregateGraphLookupOptions&lt;TFrom, TFrom, TOutput&gt; options = null) where TAs : IEnumerable&lt;TFrom&gt;</code></pre>
+</div>
+
+<h4 class="section">Parameters</h4>
+<dl class="parameters">
+  <dt><code>pipeline</code> <a class="xref" href="MongoDB.Driver.PipelineDefinition-2.html">PipelineDefinition</a>&lt;TInput, TIntermediate&gt;</dt>
+  <dd><p>The pipeline.</p>
+</dd>
+  <dt><code>from</code> <a class="xref" href="MongoDB.Driver.IMongoCollection-1.html">IMongoCollection</a>&lt;TFrom&gt;</dt>
+  <dd><p>The from collection.</p>
+</dd>
+  <dt><code>connectFromField</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TFrom, TConnectFrom&gt;&gt;</dt>
+  <dd><p>The connect from field.</p>
+</dd>
+  <dt><code>connectToField</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TFrom, TConnectTo&gt;&gt;</dt>
+  <dd><p>The connect to field.</p>
+</dd>
+  <dt><code>startWith</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TIntermediate, TStartWith&gt;&gt;</dt>
+  <dd><p>The start with value.</p>
+</dd>
+  <dt><code>as</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TOutput, TAs&gt;&gt;</dt>
+  <dd><p>The as field.</p>
+</dd>
+  <dt><code>options</code> <a class="xref" href="MongoDB.Driver.AggregateGraphLookupOptions-3.html">AggregateGraphLookupOptions</a>&lt;TFrom, TFrom, TOutput&gt;</dt>
+  <dd><p>The options.</p>
+</dd>
+</dl>
+
+<h4 class="section">Returns</h4>
+<dl class="parameters">
+  <dt><a class="xref" href="MongoDB.Driver.PipelineDefinition-2.html">PipelineDefinition</a>&lt;TInput, TOutput&gt;</dt>
+  <dd><p>A new pipeline with an additional stage.</p>
+</dd>
+</dl>
+
+<h4 class="section">Type Parameters</h4>
+<dl class="parameters">
+  <dt><code>TInput</code></dt>
+  <dd><p>The type of the input documents.</p>
+</dd>
+  <dt><code>TIntermediate</code></dt>
+  <dd><p>The type of the intermediate documents.</p>
+</dd>
+  <dt><code>TFrom</code></dt>
+  <dd><p>The type of the from documents.</p>
+</dd>
+  <dt><code>TConnectFrom</code></dt>
+  <dd><p>The type of the connect from field (must be either TConnectTo or a type that implements IEnumerable{TConnectTo}).</p>
+</dd>
+  <dt><code>TConnectTo</code></dt>
+  <dd><p>The type of the connect to field.</p>
+</dd>
+  <dt><code>TStartWith</code></dt>
+  <dd><p>The type of the start with expression (must be either TConnectTo or a type that implements IEnumerable{TConnectTo}).</p>
+</dd>
+  <dt><code>TAs</code></dt>
+  <dd><p>The type of the as field.</p>
+</dd>
+  <dt><code>TOutput</code></dt>
+  <dd><p>The type of the output documents.</p>
+</dd>
+</dl>
+
+
+
+
+
+
+
+
+
+
+<a id="MongoDB_Driver_PipelineDefinitionBuilder_GraphLookup_" data-uid="MongoDB.Driver.PipelineDefinitionBuilder.GraphLookup*"></a>
+
+<h3 id="MongoDB_Driver_PipelineDefinitionBuilder_GraphLookup__9_MongoDB_Driver_PipelineDefinition___0___1__MongoDB_Driver_IMongoCollection___2__System_Linq_Expressions_Expression_System_Func___2___3___System_Linq_Expressions_Expression_System_Func___2___4___System_Linq_Expressions_Expression_System_Func___1___5___System_Linq_Expressions_Expression_System_Func___8___7___System_Linq_Expressions_Expression_System_Func___6_System_Int32___MongoDB_Driver_AggregateGraphLookupOptions___2___6___8__" data-uid="MongoDB.Driver.PipelineDefinitionBuilder.GraphLookup``9(MongoDB.Driver.PipelineDefinition{``0,``1},MongoDB.Driver.IMongoCollection{``2},System.Linq.Expressions.Expression{System.Func{``2,``3}},System.Linq.Expressions.Expression{System.Func{``2,``4}},System.Linq.Expressions.Expression{System.Func{``1,``5}},System.Linq.Expressions.Expression{System.Func{``8,``7}},System.Linq.Expressions.Expression{System.Func{``6,System.Int32}},MongoDB.Driver.AggregateGraphLookupOptions{``2,``6,``8})">
+  GraphLookup&lt;TInput, TIntermediate, TFrom, TConnectFrom, TConnectTo, TStartWith, TAsElement, TAs, TOutput&gt;(PipelineDefinition&lt;TInput, TIntermediate&gt;, IMongoCollection&lt;TFrom&gt;, Expression&lt;Func&lt;TFrom, TConnectFrom&gt;&gt;, Expression&lt;Func&lt;TFrom, TConnectTo&gt;&gt;, Expression&lt;Func&lt;TIntermediate, TStartWith&gt;&gt;, Expression&lt;Func&lt;TOutput, TAs&gt;&gt;, Expression&lt;Func&lt;TAsElement, int&gt;&gt;, AggregateGraphLookupOptions&lt;TFrom, TAsElement, TOutput&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/main/src/MongoDB.Driver/PipelineDefinitionBuilder.cs/#L678"><i class="bi bi-code-slash"></i></a>
+</h3>
+
+<div class="markdown level1 summary"><p>Appends a $graphLookup stage to the pipeline.</p>
+</div>
+<div class="markdown level1 conceptual"></div>
+
+<div class="codewrapper">
+  <pre><code class="lang-csharp hljs">public static PipelineDefinition&lt;TInput, TOutput&gt; GraphLookup&lt;TInput, TIntermediate, TFrom, TConnectFrom, TConnectTo, TStartWith, TAsElement, TAs, TOutput&gt;(this PipelineDefinition&lt;TInput, TIntermediate&gt; pipeline, IMongoCollection&lt;TFrom&gt; from, Expression&lt;Func&lt;TFrom, TConnectFrom&gt;&gt; connectFromField, Expression&lt;Func&lt;TFrom, TConnectTo&gt;&gt; connectToField, Expression&lt;Func&lt;TIntermediate, TStartWith&gt;&gt; startWith, Expression&lt;Func&lt;TOutput, TAs&gt;&gt; @as, Expression&lt;Func&lt;TAsElement, int&gt;&gt; depthField, AggregateGraphLookupOptions&lt;TFrom, TAsElement, TOutput&gt; options = null) where TAs : IEnumerable&lt;TAsElement&gt;</code></pre>
+</div>
+
+<h4 class="section">Parameters</h4>
+<dl class="parameters">
+  <dt><code>pipeline</code> <a class="xref" href="MongoDB.Driver.PipelineDefinition-2.html">PipelineDefinition</a>&lt;TInput, TIntermediate&gt;</dt>
+  <dd><p>The pipeline.</p>
+</dd>
+  <dt><code>from</code> <a class="xref" href="MongoDB.Driver.IMongoCollection-1.html">IMongoCollection</a>&lt;TFrom&gt;</dt>
+  <dd><p>The from collection.</p>
+</dd>
+  <dt><code>connectFromField</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TFrom, TConnectFrom&gt;&gt;</dt>
+  <dd><p>The connect from field.</p>
+</dd>
+  <dt><code>connectToField</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TFrom, TConnectTo&gt;&gt;</dt>
+  <dd><p>The connect to field.</p>
+</dd>
+  <dt><code>startWith</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TIntermediate, TStartWith&gt;&gt;</dt>
+  <dd><p>The start with value.</p>
+</dd>
+  <dt><code>as</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TOutput, TAs&gt;&gt;</dt>
+  <dd><p>The as field.</p>
+</dd>
+  <dt><code>depthField</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TAsElement, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>&gt;&gt;</dt>
+  <dd><p>The depth field.</p>
+</dd>
+  <dt><code>options</code> <a class="xref" href="MongoDB.Driver.AggregateGraphLookupOptions-3.html">AggregateGraphLookupOptions</a>&lt;TFrom, TAsElement, TOutput&gt;</dt>
+  <dd><p>The options.</p>
+</dd>
+</dl>
+
+<h4 class="section">Returns</h4>
+<dl class="parameters">
+  <dt><a class="xref" href="MongoDB.Driver.PipelineDefinition-2.html">PipelineDefinition</a>&lt;TInput, TOutput&gt;</dt>
+  <dd><p>A new pipeline with an additional stage.</p>
+</dd>
+</dl>
+
+<h4 class="section">Type Parameters</h4>
+<dl class="parameters">
+  <dt><code>TInput</code></dt>
+  <dd><p>The type of the input documents.</p>
+</dd>
+  <dt><code>TIntermediate</code></dt>
+  <dd><p>The type of the intermediate documents.</p>
+</dd>
+  <dt><code>TFrom</code></dt>
+  <dd><p>The type of the from documents.</p>
+</dd>
+  <dt><code>TConnectFrom</code></dt>
+  <dd><p>The type of the connect from field (must be either TConnectTo or a type that implements IEnumerable{TConnectTo}).</p>
+</dd>
+  <dt><code>TConnectTo</code></dt>
+  <dd><p>The type of the connect to field.</p>
+</dd>
+  <dt><code>TStartWith</code></dt>
+  <dd><p>The type of the start with expression (must be either TConnectTo or a type that implements IEnumerable{TConnectTo}).</p>
+</dd>
+  <dt><code>TAsElement</code></dt>
+  <dd><p>The type of the as field elements.</p>
+</dd>
+  <dt><code>TAs</code></dt>
+  <dd><p>The type of the as field.</p>
+</dd>
+  <dt><code>TOutput</code></dt>
+  <dd><p>The type of the output documents.</p>
+</dd>
+</dl>
+
+
+
+
+
+
+
+
+
+
+</article>
+
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          &copy; 2023 MongoDB, Inc.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

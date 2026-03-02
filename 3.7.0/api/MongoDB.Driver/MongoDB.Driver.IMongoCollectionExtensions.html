@@ -1,0 +1,759 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>Class IMongoCollectionExtensions
+ | MongoDB CSharp Driver API Reference </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Class IMongoCollectionExtensions
+ | MongoDB CSharp Driver API Reference ">
+      
+      <link rel="icon" href="../../images/favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/mongodb/mongo-csharp-driver/new/main/apiSpec/new?filename=MongoDB_Driver_IMongoCollectionExtensions.md&amp;value=---%0Auid%3A%20MongoDB.Driver.IMongoCollectionExtensions%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+  </head>
+
+  <script type="module" src="./../../public/docfx.min.js"></script>
+
+  <script>
+    const theme = localStorage.getItem('theme') || 'auto'
+    document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+  </script>
+
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../images/mongodb-logo.svg" alt="">
+            
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+      <div class="toc-offcanvas">
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tocOffcanvasLabel">Table of Contents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#tocOffcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <nav class="toc" id="toc"></nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actionbar">
+          <button class="btn btn-lg border-0 d-md-none" style="margin-top: -.65em; margin-left: -.8em" type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas" aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="MongoDB.Driver.IMongoCollectionExtensions">
+
+
+
+  <h1 id="MongoDB_Driver_IMongoCollectionExtensions" data-uid="MongoDB.Driver.IMongoCollectionExtensions" class="text-break">
+    Class IMongoCollectionExtensions
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/main/src/MongoDB.Driver/IMongoCollectionExtensions.cs/#L30"><i class="bi bi-code-slash"></i></a>
+  </h1>
+
+  <div class="facts text-secondary">
+    <dl><dt>Namespace</dt><dd><a class="xref" href="MongoDB.html">MongoDB</a>.<a class="xref" href="MongoDB.Driver.html">Driver</a></dd></dl>
+  <dl><dt>Assembly</dt><dd>MongoDB.Driver.dll</dd></dl>
+  </div>
+
+  <div class="markdown summary"><p>Extension methods for <a class="xref" href="MongoDB.Driver.IMongoCollection-1.html">IMongoCollection&lt;TDocument&gt;</a>.</p>
+</div>
+  <div class="markdown conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static class IMongoCollectionExtensions</code></pre>
+  </div>
+
+
+
+
+  <dl class="typelist inheritance">
+    <dt>Inheritance</dt>
+    <dd>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></div>
+      <div><span class="xref">IMongoCollectionExtensions</span></div>
+    </dd>
+  </dl>
+
+
+
+  <dl class="typelist derived">
+    <dt>Inherited Members</dt>
+    <dd>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)">object.Equals(object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)">object.Equals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gethashcode">object.GetHashCode()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gettype">object.GetType()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone">object.MemberwiseClone()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.referenceequals">object.ReferenceEquals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.tostring">object.ToString()</a>
+    </div>
+  </dd></dl>
+
+
+
+
+
+  <h2 class="section" id="methods">Methods
+</h2>
+
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.Aggregate.html#MongoDB_Driver_IMongoCollectionExtensions_Aggregate__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_AggregateOptions_">Aggregate&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, AggregateOptions)</a></dt>
+    <dd><p>Begins a fluent aggregation interface.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.Aggregate.html#MongoDB_Driver_IMongoCollectionExtensions_Aggregate__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_AggregateOptions_">Aggregate&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, AggregateOptions)</a></dt>
+    <dd><p>Begins a fluent aggregation interface.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.AsQueryable.html#MongoDB_Driver_IMongoCollectionExtensions_AsQueryable__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_AggregateOptions_">AsQueryable&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, AggregateOptions)</a></dt>
+    <dd><p>Creates a queryable source of documents.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.AsQueryable.html#MongoDB_Driver_IMongoCollectionExtensions_AsQueryable__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_AggregateOptions_">AsQueryable&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, AggregateOptions)</a></dt>
+    <dd><p>Creates a queryable source of documents.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.CountAsync.html#MongoDB_Driver_IMongoCollectionExtensions_CountAsync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_CountOptions_System_Threading_CancellationToken_">CountAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, CountOptions, CancellationToken)</a></dt>
+    <dd><p>Counts the number of documents in the collection.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.CountAsync.html#MongoDB_Driver_IMongoCollectionExtensions_CountAsync__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_CountOptions_System_Threading_CancellationToken_">CountAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, CountOptions, CancellationToken)</a></dt>
+    <dd><p>Counts the number of documents in the collection.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.CountDocumentsAsync.html#MongoDB_Driver_IMongoCollectionExtensions_CountDocumentsAsync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_CountOptions_System_Threading_CancellationToken_">CountDocumentsAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, CountOptions, CancellationToken)</a></dt>
+    <dd><p>Counts the number of documents in the collection.
+For a fast estimate of the total documents in a collection see <a class="xref" href="MongoDB.Driver.IMongoCollection-1.EstimatedDocumentCountAsync.html#MongoDB_Driver_IMongoCollection_1_EstimatedDocumentCountAsync_MongoDB_Driver_EstimatedDocumentCountOptions_System_Threading_CancellationToken_">EstimatedDocumentCountAsync(EstimatedDocumentCountOptions, CancellationToken)</a>.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.CountDocumentsAsync.html#MongoDB_Driver_IMongoCollectionExtensions_CountDocumentsAsync__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_CountOptions_System_Threading_CancellationToken_">CountDocumentsAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, CountOptions, CancellationToken)</a></dt>
+    <dd><p>Counts the number of documents in the collection.
+For a fast estimate of the total documents in a collection see <a class="xref" href="MongoDB.Driver.IMongoCollection-1.EstimatedDocumentCountAsync.html#MongoDB_Driver_IMongoCollection_1_EstimatedDocumentCountAsync_MongoDB_Driver_EstimatedDocumentCountOptions_System_Threading_CancellationToken_">EstimatedDocumentCountAsync(EstimatedDocumentCountOptions, CancellationToken)</a>.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.CountDocuments.html#MongoDB_Driver_IMongoCollectionExtensions_CountDocuments__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_CountOptions_System_Threading_CancellationToken_">CountDocuments&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, CountOptions, CancellationToken)</a></dt>
+    <dd><p>Counts the number of documents in the collection.
+For a fast estimate of the total documents in a collection see <a class="xref" href="MongoDB.Driver.IMongoCollection-1.EstimatedDocumentCount.html#MongoDB_Driver_IMongoCollection_1_EstimatedDocumentCount_MongoDB_Driver_EstimatedDocumentCountOptions_System_Threading_CancellationToken_">EstimatedDocumentCount(EstimatedDocumentCountOptions, CancellationToken)</a>.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.CountDocuments.html#MongoDB_Driver_IMongoCollectionExtensions_CountDocuments__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_CountOptions_System_Threading_CancellationToken_">CountDocuments&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, CountOptions, CancellationToken)</a></dt>
+    <dd><p>Counts the number of documents in the collection.
+For a fast estimate of the total documents in a collection see <a class="xref" href="MongoDB.Driver.IMongoCollection-1.EstimatedDocumentCount.html#MongoDB_Driver_IMongoCollection_1_EstimatedDocumentCount_MongoDB_Driver_EstimatedDocumentCountOptions_System_Threading_CancellationToken_">EstimatedDocumentCount(EstimatedDocumentCountOptions, CancellationToken)</a>.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.Count.html#MongoDB_Driver_IMongoCollectionExtensions_Count__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_CountOptions_System_Threading_CancellationToken_">Count&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, CountOptions, CancellationToken)</a></dt>
+    <dd><p>Counts the number of documents in the collection.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.Count.html#MongoDB_Driver_IMongoCollectionExtensions_Count__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_CountOptions_System_Threading_CancellationToken_">Count&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, CountOptions, CancellationToken)</a></dt>
+    <dd><p>Counts the number of documents in the collection.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DeleteManyAsync.html#MongoDB_Driver_IMongoCollectionExtensions_DeleteManyAsync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DeleteOptions_System_Threading_CancellationToken_">DeleteManyAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DeleteOptions, CancellationToken)</a></dt>
+    <dd><p>Deletes multiple documents.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DeleteManyAsync.html#MongoDB_Driver_IMongoCollectionExtensions_DeleteManyAsync__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DeleteOptions_System_Threading_CancellationToken_">DeleteManyAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DeleteOptions, CancellationToken)</a></dt>
+    <dd><p>Deletes multiple documents.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DeleteManyAsync.html#MongoDB_Driver_IMongoCollectionExtensions_DeleteManyAsync__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___System_Threading_CancellationToken_">DeleteManyAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, CancellationToken)</a></dt>
+    <dd><p>Deletes multiple documents.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DeleteMany.html#MongoDB_Driver_IMongoCollectionExtensions_DeleteMany__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DeleteOptions_System_Threading_CancellationToken_">DeleteMany&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DeleteOptions, CancellationToken)</a></dt>
+    <dd><p>Deletes multiple documents.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DeleteMany.html#MongoDB_Driver_IMongoCollectionExtensions_DeleteMany__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DeleteOptions_System_Threading_CancellationToken_">DeleteMany&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DeleteOptions, CancellationToken)</a></dt>
+    <dd><p>Deletes multiple documents.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DeleteMany.html#MongoDB_Driver_IMongoCollectionExtensions_DeleteMany__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___System_Threading_CancellationToken_">DeleteMany&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, CancellationToken)</a></dt>
+    <dd><p>Deletes multiple documents.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DeleteOneAsync.html#MongoDB_Driver_IMongoCollectionExtensions_DeleteOneAsync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DeleteOptions_System_Threading_CancellationToken_">DeleteOneAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DeleteOptions, CancellationToken)</a></dt>
+    <dd><p>Deletes a single document.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DeleteOneAsync.html#MongoDB_Driver_IMongoCollectionExtensions_DeleteOneAsync__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DeleteOptions_System_Threading_CancellationToken_">DeleteOneAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DeleteOptions, CancellationToken)</a></dt>
+    <dd><p>Deletes a single document.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DeleteOneAsync.html#MongoDB_Driver_IMongoCollectionExtensions_DeleteOneAsync__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___System_Threading_CancellationToken_">DeleteOneAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, CancellationToken)</a></dt>
+    <dd><p>Deletes a single document.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DeleteOne.html#MongoDB_Driver_IMongoCollectionExtensions_DeleteOne__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DeleteOptions_System_Threading_CancellationToken_">DeleteOne&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DeleteOptions, CancellationToken)</a></dt>
+    <dd><p>Deletes a single document.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DeleteOne.html#MongoDB_Driver_IMongoCollectionExtensions_DeleteOne__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DeleteOptions_System_Threading_CancellationToken_">DeleteOne&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DeleteOptions, CancellationToken)</a></dt>
+    <dd><p>Deletes a single document.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DeleteOne.html#MongoDB_Driver_IMongoCollectionExtensions_DeleteOne__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___System_Threading_CancellationToken_">DeleteOne&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, CancellationToken)</a></dt>
+    <dd><p>Deletes a single document.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DistinctAsync.html#MongoDB_Driver_IMongoCollectionExtensions_DistinctAsync__2_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_FieldDefinition___0___1__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">DistinctAsync&lt;TDocument, TField&gt;(IMongoCollection&lt;TDocument&gt;, FieldDefinition&lt;TDocument, TField&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DistinctOptions, CancellationToken)</a></dt>
+    <dd><p>Gets the distinct values for a specified field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DistinctAsync.html#MongoDB_Driver_IMongoCollectionExtensions_DistinctAsync__2_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FieldDefinition___0___1__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">DistinctAsync&lt;TDocument, TField&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, FieldDefinition&lt;TDocument, TField&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DistinctOptions, CancellationToken)</a></dt>
+    <dd><p>Gets the distinct values for a specified field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DistinctAsync.html#MongoDB_Driver_IMongoCollectionExtensions_DistinctAsync__2_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0___1___MongoDB_Driver_FilterDefinition___0__MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">DistinctAsync&lt;TDocument, TField&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, TField&gt;&gt;, FilterDefinition&lt;TDocument&gt;, DistinctOptions, CancellationToken)</a></dt>
+    <dd><p>Gets the distinct values for a specified field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DistinctAsync.html#MongoDB_Driver_IMongoCollectionExtensions_DistinctAsync__2_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0___1___System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">DistinctAsync&lt;TDocument, TField&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, TField&gt;&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DistinctOptions, CancellationToken)</a></dt>
+    <dd><p>Gets the distinct values for a specified field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DistinctAsync.html#MongoDB_Driver_IMongoCollectionExtensions_DistinctAsync__2_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0___1___MongoDB_Driver_FilterDefinition___0__MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">DistinctAsync&lt;TDocument, TField&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, TField&gt;&gt;, FilterDefinition&lt;TDocument&gt;, DistinctOptions, CancellationToken)</a></dt>
+    <dd><p>Gets the distinct values for a specified field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DistinctAsync.html#MongoDB_Driver_IMongoCollectionExtensions_DistinctAsync__2_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0___1___System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">DistinctAsync&lt;TDocument, TField&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, TField&gt;&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DistinctOptions, CancellationToken)</a></dt>
+    <dd><p>Gets the distinct values for a specified field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DistinctManyAsync.html#MongoDB_Driver_IMongoCollectionExtensions_DistinctManyAsync__2_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_FieldDefinition___0_System_Collections_Generic_IEnumerable___1___System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">DistinctManyAsync&lt;TDocument, TItem&gt;(IMongoCollection&lt;TDocument&gt;, FieldDefinition&lt;TDocument, IEnumerable&lt;TItem&gt;&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DistinctOptions, CancellationToken)</a></dt>
+    <dd><p>Gets the distinct values for a specified array field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DistinctManyAsync.html#MongoDB_Driver_IMongoCollectionExtensions_DistinctManyAsync__2_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FieldDefinition___0_System_Collections_Generic_IEnumerable___1___System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">DistinctManyAsync&lt;TDocument, TItem&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, FieldDefinition&lt;TDocument, IEnumerable&lt;TItem&gt;&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DistinctOptions, CancellationToken)</a></dt>
+    <dd><p>Gets the distinct values for a specified array field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DistinctManyAsync.html#MongoDB_Driver_IMongoCollectionExtensions_DistinctManyAsync__2_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Collections_Generic_IEnumerable___1____MongoDB_Driver_FilterDefinition___0__MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">DistinctManyAsync&lt;TDocument, TItem&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, IEnumerable&lt;TItem&gt;&gt;&gt;, FilterDefinition&lt;TDocument&gt;, DistinctOptions, CancellationToken)</a></dt>
+    <dd><p>Gets the distinct values for a specified array field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DistinctManyAsync.html#MongoDB_Driver_IMongoCollectionExtensions_DistinctManyAsync__2_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Collections_Generic_IEnumerable___1____System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">DistinctManyAsync&lt;TDocument, TItem&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, IEnumerable&lt;TItem&gt;&gt;&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DistinctOptions, CancellationToken)</a></dt>
+    <dd><p>Gets the distinct values for a specified array field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DistinctManyAsync.html#MongoDB_Driver_IMongoCollectionExtensions_DistinctManyAsync__2_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Collections_Generic_IEnumerable___1____MongoDB_Driver_FilterDefinition___0__MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">DistinctManyAsync&lt;TDocument, TItem&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, IEnumerable&lt;TItem&gt;&gt;&gt;, FilterDefinition&lt;TDocument&gt;, DistinctOptions, CancellationToken)</a></dt>
+    <dd><p>Gets the distinct values for a specified array field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DistinctManyAsync.html#MongoDB_Driver_IMongoCollectionExtensions_DistinctManyAsync__2_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Collections_Generic_IEnumerable___1____System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">DistinctManyAsync&lt;TDocument, TItem&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, IEnumerable&lt;TItem&gt;&gt;&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DistinctOptions, CancellationToken)</a></dt>
+    <dd><p>Gets the distinct values for a specified array field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DistinctMany.html#MongoDB_Driver_IMongoCollectionExtensions_DistinctMany__2_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_FieldDefinition___0_System_Collections_Generic_IEnumerable___1___System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">DistinctMany&lt;TDocument, TItem&gt;(IMongoCollection&lt;TDocument&gt;, FieldDefinition&lt;TDocument, IEnumerable&lt;TItem&gt;&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DistinctOptions, CancellationToken)</a></dt>
+    <dd><p>Gets the distinct values for a specified array field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DistinctMany.html#MongoDB_Driver_IMongoCollectionExtensions_DistinctMany__2_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FieldDefinition___0_System_Collections_Generic_IEnumerable___1___System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">DistinctMany&lt;TDocument, TItem&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, FieldDefinition&lt;TDocument, IEnumerable&lt;TItem&gt;&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DistinctOptions, CancellationToken)</a></dt>
+    <dd><p>Gets the distinct values for a specified array field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DistinctMany.html#MongoDB_Driver_IMongoCollectionExtensions_DistinctMany__2_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Collections_Generic_IEnumerable___1____MongoDB_Driver_FilterDefinition___0__MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">DistinctMany&lt;TDocument, TItem&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, IEnumerable&lt;TItem&gt;&gt;&gt;, FilterDefinition&lt;TDocument&gt;, DistinctOptions, CancellationToken)</a></dt>
+    <dd><p>Gets the distinct values for a specified array field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DistinctMany.html#MongoDB_Driver_IMongoCollectionExtensions_DistinctMany__2_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Collections_Generic_IEnumerable___1____System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">DistinctMany&lt;TDocument, TItem&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, IEnumerable&lt;TItem&gt;&gt;&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DistinctOptions, CancellationToken)</a></dt>
+    <dd><p>Gets the distinct values for a specified array field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DistinctMany.html#MongoDB_Driver_IMongoCollectionExtensions_DistinctMany__2_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Collections_Generic_IEnumerable___1____MongoDB_Driver_FilterDefinition___0__MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">DistinctMany&lt;TDocument, TItem&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, IEnumerable&lt;TItem&gt;&gt;&gt;, FilterDefinition&lt;TDocument&gt;, DistinctOptions, CancellationToken)</a></dt>
+    <dd><p>Gets the distinct values for a specified array field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DistinctMany.html#MongoDB_Driver_IMongoCollectionExtensions_DistinctMany__2_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Collections_Generic_IEnumerable___1____System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">DistinctMany&lt;TDocument, TItem&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, IEnumerable&lt;TItem&gt;&gt;&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DistinctOptions, CancellationToken)</a></dt>
+    <dd><p>Gets the distinct values for a specified array field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.Distinct.html#MongoDB_Driver_IMongoCollectionExtensions_Distinct__2_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_FieldDefinition___0___1__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">Distinct&lt;TDocument, TField&gt;(IMongoCollection&lt;TDocument&gt;, FieldDefinition&lt;TDocument, TField&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DistinctOptions, CancellationToken)</a></dt>
+    <dd><p>Gets the distinct values for a specified field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.Distinct.html#MongoDB_Driver_IMongoCollectionExtensions_Distinct__2_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FieldDefinition___0___1__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">Distinct&lt;TDocument, TField&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, FieldDefinition&lt;TDocument, TField&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DistinctOptions, CancellationToken)</a></dt>
+    <dd><p>Gets the distinct values for a specified field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.Distinct.html#MongoDB_Driver_IMongoCollectionExtensions_Distinct__2_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0___1___MongoDB_Driver_FilterDefinition___0__MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">Distinct&lt;TDocument, TField&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, TField&gt;&gt;, FilterDefinition&lt;TDocument&gt;, DistinctOptions, CancellationToken)</a></dt>
+    <dd><p>Gets the distinct values for a specified field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.Distinct.html#MongoDB_Driver_IMongoCollectionExtensions_Distinct__2_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0___1___System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">Distinct&lt;TDocument, TField&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, TField&gt;&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DistinctOptions, CancellationToken)</a></dt>
+    <dd><p>Gets the distinct values for a specified field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.Distinct.html#MongoDB_Driver_IMongoCollectionExtensions_Distinct__2_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0___1___MongoDB_Driver_FilterDefinition___0__MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">Distinct&lt;TDocument, TField&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, TField&gt;&gt;, FilterDefinition&lt;TDocument&gt;, DistinctOptions, CancellationToken)</a></dt>
+    <dd><p>Gets the distinct values for a specified field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.Distinct.html#MongoDB_Driver_IMongoCollectionExtensions_Distinct__2_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0___1___System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">Distinct&lt;TDocument, TField&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, TField&gt;&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DistinctOptions, CancellationToken)</a></dt>
+    <dd><p>Gets the distinct values for a specified field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindAsync.html#MongoDB_Driver_IMongoCollectionExtensions_FindAsync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_FilterDefinition___0__MongoDB_Driver_FindOptions___0___0__System_Threading_CancellationToken_">FindAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, FilterDefinition&lt;TDocument&gt;, FindOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a></dt>
+    <dd><p>Finds the documents matching the filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindAsync.html#MongoDB_Driver_IMongoCollectionExtensions_FindAsync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FilterDefinition___0__MongoDB_Driver_FindOptions___0___0__System_Threading_CancellationToken_">FindAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, FilterDefinition&lt;TDocument&gt;, FindOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a></dt>
+    <dd><p>Finds the documents matching the filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindAsync.html#MongoDB_Driver_IMongoCollectionExtensions_FindAsync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_FindOptions___0___0__System_Threading_CancellationToken_">FindAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, FindOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a></dt>
+    <dd><p>Finds the documents matching the filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindAsync.html#MongoDB_Driver_IMongoCollectionExtensions_FindAsync__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_FindOptions___0___0__System_Threading_CancellationToken_">FindAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, FindOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a></dt>
+    <dd><p>Finds the documents matching the filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndDeleteAsync.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndDeleteAsync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_FilterDefinition___0__MongoDB_Driver_FindOneAndDeleteOptions___0___0__System_Threading_CancellationToken_">FindOneAndDeleteAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, FilterDefinition&lt;TDocument&gt;, FindOneAndDeleteOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a></dt>
+    <dd><p>Finds a single document and deletes it atomically.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndDeleteAsync.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndDeleteAsync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FilterDefinition___0__MongoDB_Driver_FindOneAndDeleteOptions___0___0__System_Threading_CancellationToken_">FindOneAndDeleteAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, FilterDefinition&lt;TDocument&gt;, FindOneAndDeleteOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a></dt>
+    <dd><p>Finds a single document and deletes it atomically.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndDeleteAsync.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndDeleteAsync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_FindOneAndDeleteOptions___0___0__System_Threading_CancellationToken_">FindOneAndDeleteAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, FindOneAndDeleteOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a></dt>
+    <dd><p>Finds a single document and deletes it atomically.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndDeleteAsync.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndDeleteAsync__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_FindOneAndDeleteOptions___0__System_Threading_CancellationToken_">FindOneAndDeleteAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, FindOneAndDeleteOptions&lt;TDocument&gt;, CancellationToken)</a></dt>
+    <dd><p>Finds a single document and deletes it atomically.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndDeleteAsync.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndDeleteAsync__2_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_FindOneAndDeleteOptions___0___1__System_Threading_CancellationToken_">FindOneAndDeleteAsync&lt;TDocument, TProjection&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, FindOneAndDeleteOptions&lt;TDocument, TProjection&gt;, CancellationToken)</a></dt>
+    <dd><p>Finds a single document and deletes it atomically.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndDeleteAsync.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndDeleteAsync__2_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_FindOneAndDeleteOptions___0___1__System_Threading_CancellationToken_">FindOneAndDeleteAsync&lt;TDocument, TProjection&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, FindOneAndDeleteOptions&lt;TDocument, TProjection&gt;, CancellationToken)</a></dt>
+    <dd><p>Finds a single document and deletes it atomically.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndDelete.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndDelete__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_FilterDefinition___0__MongoDB_Driver_FindOneAndDeleteOptions___0___0__System_Threading_CancellationToken_">FindOneAndDelete&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, FilterDefinition&lt;TDocument&gt;, FindOneAndDeleteOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a></dt>
+    <dd><p>Finds a single document and deletes it atomically.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndDelete.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndDelete__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FilterDefinition___0__MongoDB_Driver_FindOneAndDeleteOptions___0___0__System_Threading_CancellationToken_">FindOneAndDelete&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, FilterDefinition&lt;TDocument&gt;, FindOneAndDeleteOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a></dt>
+    <dd><p>Finds a single document and deletes it atomically.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndDelete.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndDelete__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_FindOneAndDeleteOptions___0___0__System_Threading_CancellationToken_">FindOneAndDelete&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, FindOneAndDeleteOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a></dt>
+    <dd><p>Finds a single document and deletes it atomically.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndDelete.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndDelete__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_FindOneAndDeleteOptions___0__System_Threading_CancellationToken_">FindOneAndDelete&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, FindOneAndDeleteOptions&lt;TDocument&gt;, CancellationToken)</a></dt>
+    <dd><p>Finds a single document and deletes it atomically.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndDelete.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndDelete__2_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_FindOneAndDeleteOptions___0___1__System_Threading_CancellationToken_">FindOneAndDelete&lt;TDocument, TProjection&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, FindOneAndDeleteOptions&lt;TDocument, TProjection&gt;, CancellationToken)</a></dt>
+    <dd><p>Finds a single document and deletes it atomically.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndDelete.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndDelete__2_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_FindOneAndDeleteOptions___0___1__System_Threading_CancellationToken_">FindOneAndDelete&lt;TDocument, TProjection&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, FindOneAndDeleteOptions&lt;TDocument, TProjection&gt;, CancellationToken)</a></dt>
+    <dd><p>Finds a single document and deletes it atomically.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndReplaceAsync.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndReplaceAsync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_FilterDefinition___0____0_MongoDB_Driver_FindOneAndReplaceOptions___0___0__System_Threading_CancellationToken_">FindOneAndReplaceAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, FilterDefinition&lt;TDocument&gt;, TDocument, FindOneAndReplaceOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a></dt>
+    <dd><p>Finds a single document and replaces it atomically.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndReplaceAsync.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndReplaceAsync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FilterDefinition___0____0_MongoDB_Driver_FindOneAndReplaceOptions___0___0__System_Threading_CancellationToken_">FindOneAndReplaceAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, FilterDefinition&lt;TDocument&gt;, TDocument, FindOneAndReplaceOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a></dt>
+    <dd><p>Finds a single document and replaces it atomically.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndReplaceAsync.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndReplaceAsync__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_IClientSessionHandle___0_MongoDB_Driver_FindOneAndReplaceOptions___0___0__System_Threading_CancellationToken_">FindOneAndReplaceAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, IClientSessionHandle, TDocument, FindOneAndReplaceOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a></dt>
+    <dd><p>Finds a single document and replaces it atomically.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndReplaceAsync.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndReplaceAsync__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean_____0_MongoDB_Driver_FindOneAndReplaceOptions___0__System_Threading_CancellationToken_">FindOneAndReplaceAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, TDocument, FindOneAndReplaceOptions&lt;TDocument&gt;, CancellationToken)</a></dt>
+    <dd><p>Finds a single document and replaces it atomically.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndReplaceAsync.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndReplaceAsync__2_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean_____0_MongoDB_Driver_FindOneAndReplaceOptions___0___1__System_Threading_CancellationToken_">FindOneAndReplaceAsync&lt;TDocument, TProjection&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, TDocument, FindOneAndReplaceOptions&lt;TDocument, TProjection&gt;, CancellationToken)</a></dt>
+    <dd><p>Finds a single document and replaces it atomically.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndReplaceAsync.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndReplaceAsync__2_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean_____0_MongoDB_Driver_FindOneAndReplaceOptions___0___1__System_Threading_CancellationToken_">FindOneAndReplaceAsync&lt;TDocument, TProjection&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, TDocument, FindOneAndReplaceOptions&lt;TDocument, TProjection&gt;, CancellationToken)</a></dt>
+    <dd><p>Finds a single document and replaces it atomically.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndReplace.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndReplace__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_FilterDefinition___0____0_MongoDB_Driver_FindOneAndReplaceOptions___0___0__System_Threading_CancellationToken_">FindOneAndReplace&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, FilterDefinition&lt;TDocument&gt;, TDocument, FindOneAndReplaceOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a></dt>
+    <dd><p>Finds a single document and replaces it atomically.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndReplace.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndReplace__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FilterDefinition___0____0_MongoDB_Driver_FindOneAndReplaceOptions___0___0__System_Threading_CancellationToken_">FindOneAndReplace&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, FilterDefinition&lt;TDocument&gt;, TDocument, FindOneAndReplaceOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a></dt>
+    <dd><p>Finds a single document and replaces it atomically.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndReplace.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndReplace__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean_____0_MongoDB_Driver_FindOneAndReplaceOptions___0___0__System_Threading_CancellationToken_">FindOneAndReplace&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, TDocument, FindOneAndReplaceOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a></dt>
+    <dd><p>Finds a single document and replaces it atomically.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndReplace.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndReplace__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean_____0_MongoDB_Driver_FindOneAndReplaceOptions___0__System_Threading_CancellationToken_">FindOneAndReplace&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, TDocument, FindOneAndReplaceOptions&lt;TDocument&gt;, CancellationToken)</a></dt>
+    <dd><p>Finds a single document and replaces it atomically.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndReplace.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndReplace__2_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean_____0_MongoDB_Driver_FindOneAndReplaceOptions___0___1__System_Threading_CancellationToken_">FindOneAndReplace&lt;TDocument, TProjection&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, TDocument, FindOneAndReplaceOptions&lt;TDocument, TProjection&gt;, CancellationToken)</a></dt>
+    <dd><p>Finds a single document and replaces it atomically.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndReplace.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndReplace__2_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean_____0_MongoDB_Driver_FindOneAndReplaceOptions___0___1__System_Threading_CancellationToken_">FindOneAndReplace&lt;TDocument, TProjection&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, TDocument, FindOneAndReplaceOptions&lt;TDocument, TProjection&gt;, CancellationToken)</a></dt>
+    <dd><p>Finds a single document and replaces it atomically.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndUpdateAsync.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndUpdateAsync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_FilterDefinition___0__MongoDB_Driver_UpdateDefinition___0__MongoDB_Driver_FindOneAndUpdateOptions___0___0__System_Threading_CancellationToken_">FindOneAndUpdateAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, FilterDefinition&lt;TDocument&gt;, UpdateDefinition&lt;TDocument&gt;, FindOneAndUpdateOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a></dt>
+    <dd><p>Finds a single document and updates it atomically.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndUpdateAsync.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndUpdateAsync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FilterDefinition___0__MongoDB_Driver_UpdateDefinition___0__MongoDB_Driver_FindOneAndUpdateOptions___0___0__System_Threading_CancellationToken_">FindOneAndUpdateAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, FilterDefinition&lt;TDocument&gt;, UpdateDefinition&lt;TDocument&gt;, FindOneAndUpdateOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a></dt>
+    <dd><p>Finds a single document and updates it atomically.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndUpdateAsync.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndUpdateAsync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_UpdateDefinition___0__MongoDB_Driver_FindOneAndUpdateOptions___0___0__System_Threading_CancellationToken_">FindOneAndUpdateAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, UpdateDefinition&lt;TDocument&gt;, FindOneAndUpdateOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a></dt>
+    <dd><p>Finds a single document and updates it atomically.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndUpdateAsync.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndUpdateAsync__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_UpdateDefinition___0__MongoDB_Driver_FindOneAndUpdateOptions___0__System_Threading_CancellationToken_">FindOneAndUpdateAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, UpdateDefinition&lt;TDocument&gt;, FindOneAndUpdateOptions&lt;TDocument&gt;, CancellationToken)</a></dt>
+    <dd><p>Finds a single document and updates it atomically.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndUpdateAsync.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndUpdateAsync__2_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_UpdateDefinition___0__MongoDB_Driver_FindOneAndUpdateOptions___0___1__System_Threading_CancellationToken_">FindOneAndUpdateAsync&lt;TDocument, TProjection&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, UpdateDefinition&lt;TDocument&gt;, FindOneAndUpdateOptions&lt;TDocument, TProjection&gt;, CancellationToken)</a></dt>
+    <dd><p>Finds a single document and updates it atomically.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndUpdateAsync.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndUpdateAsync__2_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_UpdateDefinition___0__MongoDB_Driver_FindOneAndUpdateOptions___0___1__System_Threading_CancellationToken_">FindOneAndUpdateAsync&lt;TDocument, TProjection&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, UpdateDefinition&lt;TDocument&gt;, FindOneAndUpdateOptions&lt;TDocument, TProjection&gt;, CancellationToken)</a></dt>
+    <dd><p>Finds a single document and updates it atomically.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndUpdate.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndUpdate__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_FilterDefinition___0__MongoDB_Driver_UpdateDefinition___0__MongoDB_Driver_FindOneAndUpdateOptions___0___0__System_Threading_CancellationToken_">FindOneAndUpdate&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, FilterDefinition&lt;TDocument&gt;, UpdateDefinition&lt;TDocument&gt;, FindOneAndUpdateOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a></dt>
+    <dd><p>Finds a single document and updates it atomically.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndUpdate.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndUpdate__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FilterDefinition___0__MongoDB_Driver_UpdateDefinition___0__MongoDB_Driver_FindOneAndUpdateOptions___0___0__System_Threading_CancellationToken_">FindOneAndUpdate&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, FilterDefinition&lt;TDocument&gt;, UpdateDefinition&lt;TDocument&gt;, FindOneAndUpdateOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a></dt>
+    <dd><p>Finds a single document and updates it atomically.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndUpdate.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndUpdate__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_UpdateDefinition___0__MongoDB_Driver_FindOneAndUpdateOptions___0___0__System_Threading_CancellationToken_">FindOneAndUpdate&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, UpdateDefinition&lt;TDocument&gt;, FindOneAndUpdateOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a></dt>
+    <dd><p>Finds a single document and updates it atomically.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndUpdate.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndUpdate__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_UpdateDefinition___0__MongoDB_Driver_FindOneAndUpdateOptions___0__System_Threading_CancellationToken_">FindOneAndUpdate&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, UpdateDefinition&lt;TDocument&gt;, FindOneAndUpdateOptions&lt;TDocument&gt;, CancellationToken)</a></dt>
+    <dd><p>Finds a single document and updates it atomically.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndUpdate.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndUpdate__2_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_UpdateDefinition___0__MongoDB_Driver_FindOneAndUpdateOptions___0___1__System_Threading_CancellationToken_">FindOneAndUpdate&lt;TDocument, TProjection&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, UpdateDefinition&lt;TDocument&gt;, FindOneAndUpdateOptions&lt;TDocument, TProjection&gt;, CancellationToken)</a></dt>
+    <dd><p>Finds a single document and updates it atomically.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndUpdate.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndUpdate__2_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_UpdateDefinition___0__MongoDB_Driver_FindOneAndUpdateOptions___0___1__System_Threading_CancellationToken_">FindOneAndUpdate&lt;TDocument, TProjection&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, UpdateDefinition&lt;TDocument&gt;, FindOneAndUpdateOptions&lt;TDocument, TProjection&gt;, CancellationToken)</a></dt>
+    <dd><p>Finds a single document and updates it atomically.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindSync.html#MongoDB_Driver_IMongoCollectionExtensions_FindSync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_FilterDefinition___0__MongoDB_Driver_FindOptions___0___0__System_Threading_CancellationToken_">FindSync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, FilterDefinition&lt;TDocument&gt;, FindOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a></dt>
+    <dd><p>Finds the documents matching the filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindSync.html#MongoDB_Driver_IMongoCollectionExtensions_FindSync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FilterDefinition___0__MongoDB_Driver_FindOptions___0___0__System_Threading_CancellationToken_">FindSync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, FilterDefinition&lt;TDocument&gt;, FindOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a></dt>
+    <dd><p>Finds the documents matching the filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindSync.html#MongoDB_Driver_IMongoCollectionExtensions_FindSync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_FindOptions___0___0__System_Threading_CancellationToken_">FindSync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, FindOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a></dt>
+    <dd><p>Finds the documents matching the filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindSync.html#MongoDB_Driver_IMongoCollectionExtensions_FindSync__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_FindOptions___0___0__System_Threading_CancellationToken_">FindSync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, FindOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a></dt>
+    <dd><p>Finds the documents matching the filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.Find.html#MongoDB_Driver_IMongoCollectionExtensions_Find__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_FilterDefinition___0__MongoDB_Driver_FindOptions_">Find&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, FilterDefinition&lt;TDocument&gt;, FindOptions)</a></dt>
+    <dd><p>Begins a fluent find interface.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.Find.html#MongoDB_Driver_IMongoCollectionExtensions_Find__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FilterDefinition___0__MongoDB_Driver_FindOptions_">Find&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, FilterDefinition&lt;TDocument&gt;, FindOptions)</a></dt>
+    <dd><p>Begins a fluent find interface.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.Find.html#MongoDB_Driver_IMongoCollectionExtensions_Find__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_FindOptions_">Find&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, FindOptions)</a></dt>
+    <dd><p>Begins a fluent find interface.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.Find.html#MongoDB_Driver_IMongoCollectionExtensions_Find__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_FindOptions_">Find&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, FindOptions)</a></dt>
+    <dd><p>Begins a fluent find interface.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.ReplaceOneAsync.html#MongoDB_Driver_IMongoCollectionExtensions_ReplaceOneAsync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean_____0_MongoDB_Driver_ReplaceOptions_System_Threading_CancellationToken_">ReplaceOneAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, TDocument, ReplaceOptions, CancellationToken)</a></dt>
+    <dd><p>Replaces a single document.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.ReplaceOneAsync.html#MongoDB_Driver_IMongoCollectionExtensions_ReplaceOneAsync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean_____0_MongoDB_Driver_UpdateOptions_System_Threading_CancellationToken_">ReplaceOneAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, TDocument, UpdateOptions, CancellationToken)</a></dt>
+    <dd><p>Replaces a single document.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.ReplaceOneAsync.html#MongoDB_Driver_IMongoCollectionExtensions_ReplaceOneAsync__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean_____0_MongoDB_Driver_ReplaceOptions_System_Threading_CancellationToken_">ReplaceOneAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, TDocument, ReplaceOptions, CancellationToken)</a></dt>
+    <dd><p>Replaces a single document.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.ReplaceOneAsync.html#MongoDB_Driver_IMongoCollectionExtensions_ReplaceOneAsync__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean_____0_MongoDB_Driver_UpdateOptions_System_Threading_CancellationToken_">ReplaceOneAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, TDocument, UpdateOptions, CancellationToken)</a></dt>
+    <dd><p>Replaces a single document.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.ReplaceOne.html#MongoDB_Driver_IMongoCollectionExtensions_ReplaceOne__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean_____0_MongoDB_Driver_ReplaceOptions_System_Threading_CancellationToken_">ReplaceOne&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, TDocument, ReplaceOptions, CancellationToken)</a></dt>
+    <dd><p>Replaces a single document.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.ReplaceOne.html#MongoDB_Driver_IMongoCollectionExtensions_ReplaceOne__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean_____0_MongoDB_Driver_UpdateOptions_System_Threading_CancellationToken_">ReplaceOne&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, TDocument, UpdateOptions, CancellationToken)</a></dt>
+    <dd><p>Replaces a single document.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.ReplaceOne.html#MongoDB_Driver_IMongoCollectionExtensions_ReplaceOne__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean_____0_MongoDB_Driver_ReplaceOptions_System_Threading_CancellationToken_">ReplaceOne&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, TDocument, ReplaceOptions, CancellationToken)</a></dt>
+    <dd><p>Replaces a single document.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.ReplaceOne.html#MongoDB_Driver_IMongoCollectionExtensions_ReplaceOne__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean_____0_MongoDB_Driver_UpdateOptions_System_Threading_CancellationToken_">ReplaceOne&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, TDocument, UpdateOptions, CancellationToken)</a></dt>
+    <dd><p>Replaces a single document.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.UpdateManyAsync.html#MongoDB_Driver_IMongoCollectionExtensions_UpdateManyAsync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_UpdateDefinition___0__MongoDB_Driver_UpdateOptions_System_Threading_CancellationToken_">UpdateManyAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, UpdateDefinition&lt;TDocument&gt;, UpdateOptions, CancellationToken)</a></dt>
+    <dd><p>Updates many documents.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.UpdateManyAsync.html#MongoDB_Driver_IMongoCollectionExtensions_UpdateManyAsync__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_UpdateDefinition___0__MongoDB_Driver_UpdateOptions_System_Threading_CancellationToken_">UpdateManyAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, UpdateDefinition&lt;TDocument&gt;, UpdateOptions, CancellationToken)</a></dt>
+    <dd><p>Updates many documents.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.UpdateMany.html#MongoDB_Driver_IMongoCollectionExtensions_UpdateMany__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_UpdateDefinition___0__MongoDB_Driver_UpdateOptions_System_Threading_CancellationToken_">UpdateMany&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, UpdateDefinition&lt;TDocument&gt;, UpdateOptions, CancellationToken)</a></dt>
+    <dd><p>Updates many documents.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.UpdateMany.html#MongoDB_Driver_IMongoCollectionExtensions_UpdateMany__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_UpdateDefinition___0__MongoDB_Driver_UpdateOptions_System_Threading_CancellationToken_">UpdateMany&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, UpdateDefinition&lt;TDocument&gt;, UpdateOptions, CancellationToken)</a></dt>
+    <dd><p>Updates many documents.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.UpdateOneAsync.html#MongoDB_Driver_IMongoCollectionExtensions_UpdateOneAsync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_UpdateDefinition___0__MongoDB_Driver_UpdateOptions_System_Threading_CancellationToken_">UpdateOneAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, UpdateDefinition&lt;TDocument&gt;, UpdateOptions, CancellationToken)</a></dt>
+    <dd><p>Updates a single document.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.UpdateOneAsync.html#MongoDB_Driver_IMongoCollectionExtensions_UpdateOneAsync__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_UpdateDefinition___0__MongoDB_Driver_UpdateOptions_System_Threading_CancellationToken_">UpdateOneAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, UpdateDefinition&lt;TDocument&gt;, UpdateOptions, CancellationToken)</a></dt>
+    <dd><p>Updates a single document.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.UpdateOne.html#MongoDB_Driver_IMongoCollectionExtensions_UpdateOne__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_UpdateDefinition___0__MongoDB_Driver_UpdateOptions_System_Threading_CancellationToken_">UpdateOne&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, UpdateDefinition&lt;TDocument&gt;, UpdateOptions, CancellationToken)</a></dt>
+    <dd><p>Updates a single document.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.UpdateOne.html#MongoDB_Driver_IMongoCollectionExtensions_UpdateOne__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_UpdateDefinition___0__MongoDB_Driver_UpdateOptions_System_Threading_CancellationToken_">UpdateOne&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, UpdateDefinition&lt;TDocument&gt;, UpdateOptions, CancellationToken)</a></dt>
+    <dd><p>Updates a single document.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.WatchAsync.html#MongoDB_Driver_IMongoCollectionExtensions_WatchAsync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_ChangeStreamOptions_System_Threading_CancellationToken_">WatchAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, ChangeStreamOptions, CancellationToken)</a></dt>
+    <dd><p>Watches changes on the collection.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.WatchAsync.html#MongoDB_Driver_IMongoCollectionExtensions_WatchAsync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_ChangeStreamOptions_System_Threading_CancellationToken_">WatchAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, ChangeStreamOptions, CancellationToken)</a></dt>
+    <dd><p>Watches changes on the collection.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.Watch.html#MongoDB_Driver_IMongoCollectionExtensions_Watch__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_ChangeStreamOptions_System_Threading_CancellationToken_">Watch&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, ChangeStreamOptions, CancellationToken)</a></dt>
+    <dd><p>Watches changes on the collection.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.Watch.html#MongoDB_Driver_IMongoCollectionExtensions_Watch__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_ChangeStreamOptions_System_Threading_CancellationToken_">Watch&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, ChangeStreamOptions, CancellationToken)</a></dt>
+    <dd><p>Watches changes on the collection.</p>
+</dd>
+  </dl>
+
+
+
+</article>
+
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          &copy; 2023 MongoDB, Inc.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
