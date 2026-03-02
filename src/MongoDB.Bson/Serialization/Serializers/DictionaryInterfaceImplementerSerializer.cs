@@ -214,6 +214,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
         }
 
+        internal DictionaryInterfaceImplementerSerializer(DictionaryRepresentation dictionaryRepresentation, Lazy<IBsonSerializer<TKey>> keySerializer, Lazy<IBsonSerializer<TValue>> valueSerializer)
+            : base(dictionaryRepresentation, keySerializer, valueSerializer)
+        {
+        }
+
         // public methods
         /// <summary>
         /// Returns a serializer that has been reconfigured with the specified dictionary representation.
@@ -228,7 +233,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
             else
             {
-                return new DictionaryInterfaceImplementerSerializer<TDictionary, TKey, TValue>(dictionaryRepresentation, KeySerializer, ValueSerializer);
+                return new DictionaryInterfaceImplementerSerializer<TDictionary, TKey, TValue>(dictionaryRepresentation, _lazyKeySerializer, _lazyValueSerializer);
             }
         }
 
@@ -258,13 +263,18 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>The reconfigured serializer.</returns>
         public DictionaryInterfaceImplementerSerializer<TDictionary, TKey, TValue> WithKeySerializer(IBsonSerializer<TKey> keySerializer)
         {
+            if (keySerializer == null)
+            {
+                throw new ArgumentNullException(nameof(keySerializer));
+            }
+
             if (keySerializer == KeySerializer)
             {
                 return this;
             }
             else
             {
-                return new DictionaryInterfaceImplementerSerializer<TDictionary, TKey, TValue>(DictionaryRepresentation, keySerializer, ValueSerializer);
+                return new DictionaryInterfaceImplementerSerializer<TDictionary, TKey, TValue>(DictionaryRepresentation, new Lazy<IBsonSerializer<TKey>>(() => keySerializer), _lazyValueSerializer);
             }
         }
 
@@ -275,13 +285,18 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>The reconfigured serializer.</returns>
         public DictionaryInterfaceImplementerSerializer<TDictionary, TKey, TValue> WithValueSerializer(IBsonSerializer<TValue> valueSerializer)
         {
+            if (valueSerializer == null)
+            {
+                throw new ArgumentNullException(nameof(valueSerializer));
+            }
+
             if (valueSerializer == ValueSerializer)
             {
                 return this;
             }
             else
             {
-                return new DictionaryInterfaceImplementerSerializer<TDictionary, TKey, TValue>(DictionaryRepresentation, KeySerializer, valueSerializer);
+                return new DictionaryInterfaceImplementerSerializer<TDictionary, TKey, TValue>(DictionaryRepresentation, _lazyKeySerializer, new Lazy<IBsonSerializer<TValue>>(() => valueSerializer));
             }
         }
 
