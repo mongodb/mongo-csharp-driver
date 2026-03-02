@@ -52,7 +52,7 @@
       }
     },
     {
-      "description": "Ignore application network timeout after connection handshake completes",
+      "description": "Ignore network timeout application error (afterHandshakeCompletes)",
       "applicationErrors": [
         {
           "address": "a:27017",
@@ -85,7 +85,7 @@
       }
     },
     {
-      "description": "Mark server unknown on application network timeout before connection handshake completes",
+      "description": "Ignore network timeout application error (beforeHandshakeCompletes)",
       "applicationErrors": [
         {
           "address": "a:27017",
@@ -97,14 +97,22 @@
       "outcome": {
         "servers": {
           "a:27017": {
-            "type": "Unknown",
-            "topologyVersion": null,
+            "type": "RSPrimary",
+            "setName": "rs",
+            "topologyVersion": {
+              "processId": {
+                "$oid": "000000000000000000000001"
+              },
+              "counter": {
+                "$numberLong": "1"
+              }
+            },
             "pool": {
-              "generation": 1
+              "generation": 0
             }
           }
         },
-        "topologyType": "ReplicaSetNoPrimary",
+        "topologyType": "ReplicaSetWithPrimary",
         "logicalSessionTimeoutMinutes": null,
         "setName": "rs"
       }
