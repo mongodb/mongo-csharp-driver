@@ -29,7 +29,7 @@ phases:
     logicalSessionTimeoutMinutes: null
     setName: rs
 
-- description: Ignore network timeout application error (afterHandshakeCompletes)
+- description: Ignore application network timeout after connection handshake completes
   applicationErrors:
   - address: a:27017
     when: afterHandshakeCompletes
@@ -37,7 +37,7 @@ phases:
     type: timeout
   outcome: *outcome
 
-- description: Mark server unknown on network timeout application error (beforeHandshakeCompletes)
+- description: Mark server unknown on application network timeout before connection handshake completes
   applicationErrors:
   - address: a:27017
     when: beforeHandshakeCompletes
