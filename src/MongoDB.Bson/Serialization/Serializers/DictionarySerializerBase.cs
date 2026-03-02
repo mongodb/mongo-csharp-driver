@@ -369,8 +369,8 @@ namespace MongoDB.Bson.Serialization.Serializers
         // private fields
         private readonly DictionaryRepresentation _dictionaryRepresentation;
         private readonly SerializerHelper _helper;
-        internal readonly Lazy<IBsonSerializer<TKey>> _lazyKeySerializer;
-        internal readonly Lazy<IBsonSerializer<TValue>> _lazyValueSerializer;
+        private protected readonly Lazy<IBsonSerializer<TKey>> _lazyKeySerializer;
+        private protected readonly Lazy<IBsonSerializer<TValue>> _lazyValueSerializer;
 
         // constructors
         /// <summary>
@@ -429,7 +429,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
         }
 
-        internal DictionarySerializerBase(
+        private protected DictionarySerializerBase(
             DictionaryRepresentation dictionaryRepresentation,
             Lazy<IBsonSerializer<TKey>> lazyKeySerializer,
             Lazy<IBsonSerializer<TValue>> lazyValueSerializer)

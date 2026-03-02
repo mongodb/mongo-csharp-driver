@@ -263,6 +263,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>The reconfigured serializer.</returns>
         public DictionaryInterfaceImplementerSerializer<TDictionary, TKey, TValue> WithKeySerializer(IBsonSerializer<TKey> keySerializer)
         {
+            if (keySerializer == null)
+            {
+                throw new ArgumentNullException(nameof(keySerializer));
+            }
+
             if (keySerializer == KeySerializer)
             {
                 return this;
@@ -280,6 +285,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>The reconfigured serializer.</returns>
         public DictionaryInterfaceImplementerSerializer<TDictionary, TKey, TValue> WithValueSerializer(IBsonSerializer<TValue> valueSerializer)
         {
+            if (valueSerializer == null)
+            {
+                throw new ArgumentNullException(nameof(valueSerializer));
+            }
+
             if (valueSerializer == ValueSerializer)
             {
                 return this;
