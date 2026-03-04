@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -48,8 +48,8 @@ namespace MongoDB.Driver.Core.Operations
 
                 try
                 {
-                    server = context.DoServerSelection(operationContext, deprioritizedServers);
-                    context.DoChannelAcquisition(operationContext);
+                    server = context.SelectServer(operationContext, deprioritizedServers);
+                    context.AcquireChannel(operationContext);
                     channelAcquisitionSuccessful = true;
 
                     transactionNumber ??= AreRetriesAllowed(operation.WriteConcern, context, server) ? context.Binding.Session.AdvanceTransactionNumber() : null;
@@ -94,8 +94,8 @@ namespace MongoDB.Driver.Core.Operations
 
                 try
                 {
-                    server = await context.DoServerSelectionAsync(operationContext, deprioritizedServers).ConfigureAwait(false);
-                    await context.DoChannelAcquisitionAsync(operationContext).ConfigureAwait(false);
+                    server = await context.SelectServerAsync(operationContext, deprioritizedServers).ConfigureAwait(false);
+                    await context.AcquireChannelAsync(operationContext).ConfigureAwait(false);
                     channelAcquisitionSuccessful = true;
 
                     transactionNumber ??= AreRetriesAllowed(operation.WriteConcern, context, server) ? context.Binding.Session.AdvanceTransactionNumber() : null;

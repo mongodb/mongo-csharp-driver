@@ -37,8 +37,8 @@ namespace MongoDB.Driver.Core.Operations
 
                 try
                 {
-                    server = context.DoServerSelection(operationContext, deprioritizedServers);
-                    context.DoChannelAcquisition(operationContext);
+                    server = context.SelectServer(operationContext, deprioritizedServers);
+                    context.AcquireChannel(operationContext);
 
                     return operation.ExecuteAttempt(operationContext, context, totalAttempts, transactionNumber: null);
                 }
@@ -69,8 +69,8 @@ namespace MongoDB.Driver.Core.Operations
 
                 try
                 {
-                    server = await context.DoServerSelectionAsync(operationContext, deprioritizedServers).ConfigureAwait(false);
-                    await context.DoChannelAcquisitionAsync(operationContext).ConfigureAwait(false);
+                    server = await context.SelectServerAsync(operationContext, deprioritizedServers).ConfigureAwait(false);
+                    await context.AcquireChannelAsync(operationContext).ConfigureAwait(false);
 
                     return await operation.ExecuteAttemptAsync(operationContext, context, totalAttempts, transactionNumber: null).ConfigureAwait(false);
                 }

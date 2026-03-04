@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public ServerDescription DoServerSelection(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
+        public ServerDescription SelectServer(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             try
             {
@@ -68,7 +68,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public async Task<ServerDescription> DoServerSelectionAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
+        public async Task<ServerDescription> SelectServerAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             try
             {
@@ -85,7 +85,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public void DoChannelAcquisition(OperationContext operationContext)
+        public void AcquireChannel(OperationContext operationContext)
         {
             try
             {
@@ -104,7 +104,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public async Task DoChannelAcquisitionAsync(OperationContext operationContext)
+        public async Task AcquireChannelAsync(OperationContext operationContext)
         {
             try
             {
@@ -121,18 +121,6 @@ namespace MongoDB.Driver.Core.Operations
                 DisposeChannelAndSource();
                 throw;
             }
-        }
-
-        public void AcquireOrReplaceChannel(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
-        {
-            DoServerSelection(operationContext, deprioritizedServers);
-            DoChannelAcquisition(operationContext);
-        }
-
-        public async Task AcquireOrReplaceChannelAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
-        {
-            await DoServerSelectionAsync(operationContext, deprioritizedServers).ConfigureAwait(false);
-            await DoChannelAcquisitionAsync(operationContext).ConfigureAwait(false);
         }
 
         private void ReplaceChannel(IChannelHandle channel)

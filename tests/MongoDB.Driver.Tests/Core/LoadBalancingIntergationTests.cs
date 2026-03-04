@@ -647,11 +647,13 @@ namespace MongoDB.Driver.Core.Tests
             var retryableContext = new RetryableReadContext(readBindingHandle, retryRequested: false);
             if (async)
             {
-                retryableContext.AcquireOrReplaceChannelAsync(OperationContext.NoTimeout, null).GetAwaiter().GetResult();
+                retryableContext.SelectServerAsync(OperationContext.NoTimeout, null).GetAwaiter().GetResult();
+                retryableContext.AcquireChannelAsync(OperationContext.NoTimeout).GetAwaiter().GetResult();
             }
             else
             {
-                retryableContext.AcquireOrReplaceChannel(OperationContext.NoTimeout, null);
+                retryableContext.SelectServer(OperationContext.NoTimeout, null);
+                retryableContext.AcquireChannel(OperationContext.NoTimeout);
             }
             return retryableContext;
         }
@@ -671,11 +673,13 @@ namespace MongoDB.Driver.Core.Tests
             var retryableContext = new RetryableWriteContext(readWriteBindingHandle, retryRequested: false);
             if (async)
             {
-                retryableContext.AcquireOrReplaceChannelAsync(OperationContext.NoTimeout, null).GetAwaiter().GetResult();
+                retryableContext.SelectServerAsync(OperationContext.NoTimeout, null).GetAwaiter().GetResult();
+                retryableContext.AcquireChannelAsync(OperationContext.NoTimeout).GetAwaiter().GetResult();
             }
             else
             {
-                retryableContext.AcquireOrReplaceChannel(OperationContext.NoTimeout, null);
+                retryableContext.SelectServer(OperationContext.NoTimeout, null);
+                retryableContext.AcquireChannel(OperationContext.NoTimeout);
             }
             return retryableContext;
         }

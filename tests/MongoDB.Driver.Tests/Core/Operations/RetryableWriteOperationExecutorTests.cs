@@ -119,7 +119,8 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
         {
             var binding = CreateBinding(areRetryableWritesSupported, hasSessionId, isInTransaction);
             var context = new RetryableWriteContext(binding, retryRequested);
-            context.AcquireOrReplaceChannel(OperationContext.NoTimeout, null);
+            context.SelectServer(OperationContext.NoTimeout, null);
+            context.AcquireChannel(OperationContext.NoTimeout);
             return context;
         }
 
