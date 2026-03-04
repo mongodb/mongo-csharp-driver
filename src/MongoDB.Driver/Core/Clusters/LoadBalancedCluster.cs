@@ -55,14 +55,14 @@ namespace MongoDB.Driver.Core.Clusters
             IClusterableServerFactory serverFactory,
             IEventSubscriber eventSubscriber,
             ILoggerFactory loggerFactory,
-            bool adaptiveRetries)
+            bool adaptiveRetries = false)
             : this(
                   settings,
                   serverFactory,
                   eventSubscriber,
                   loggerFactory,
-                  adaptiveRetries,
-                  dnsMonitorFactory: new DnsMonitorFactory(new EventAggregator(), loggerFactory)) // should not trigger any events
+                  dnsMonitorFactory: new DnsMonitorFactory(new EventAggregator(), loggerFactory),  // should not trigger any events
+                  adaptiveRetries)
         {
         }
 
@@ -71,8 +71,8 @@ namespace MongoDB.Driver.Core.Clusters
             IClusterableServerFactory serverFactory,
             IEventSubscriber eventSubscriber,
             ILoggerFactory loggerFactory,
-            bool adaptiveRetries,
-            IDnsMonitorFactory dnsMonitorFactory)
+            IDnsMonitorFactory dnsMonitorFactory,
+            bool adaptiveRetries = false)
         {
             Ensure.That(!settings.DirectConnection, $"DirectConnection mode is not supported for {nameof(LoadBalancedCluster)}.");
             Ensure.That(settings.LoadBalanced, $"Only Load balanced mode is supported for a {nameof(LoadBalancedCluster)}.");
