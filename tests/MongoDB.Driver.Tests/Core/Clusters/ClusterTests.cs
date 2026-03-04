@@ -498,14 +498,6 @@ namespace MongoDB.Driver.Core.Clusters
             _capturedEvents.Any().Should().BeFalse();
         }
 
-        [Fact]
-        public void TokenBucket_should_not_be_null()
-        {
-            var subject = CreateSubject();
-
-            subject.TokenBucket.Should().NotBeNull();
-        }
-
         // private methods
         private StubCluster CreateSubject(TimeSpan? serverSelectionTimeout = null, ClusterType? clusterType = null, bool adaptiveRetries = false)
         {

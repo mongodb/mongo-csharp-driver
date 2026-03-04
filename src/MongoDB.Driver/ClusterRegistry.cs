@@ -26,7 +26,6 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
-    //TODO Why is this class public?
     /// <summary>
     /// Represents a registry of already created clusters.
     /// </summary>
@@ -57,14 +56,14 @@ namespace MongoDB.Driver
         private IClusterInternal CreateCluster(ClusterKey clusterKey)
         {
             var builder = new ClusterBuilder()
-                .WithAdaptiveRetries(clusterKey.AdaptiveRetries)
                 .ConfigureCluster(settings => ConfigureCluster(settings, clusterKey))
                 .ConfigureServer(settings => ConfigureServer(settings, clusterKey))
                 .ConfigureConnectionPool(settings => ConfigureConnectionPool(settings, clusterKey))
                 .ConfigureConnection(settings => ConfigureConnection(settings, clusterKey))
                 .ConfigureTcp(settings => ConfigureTcp(settings, clusterKey))
                 .ConfigureLoggingSettings(_ => clusterKey.LoggingSettings)
-                .ConfigureTracingOptions(_ => clusterKey.TracingOptions);
+                .ConfigureTracingOptions(_ => clusterKey.TracingOptions)
+                .ConfigureAdaptiveRetries(clusterKey.AdaptiveRetries);
 
             if (clusterKey.UseTls)
             {

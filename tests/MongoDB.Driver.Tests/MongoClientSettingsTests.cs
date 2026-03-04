@@ -129,8 +129,7 @@ namespace MongoDB.Driver.Tests
             var settings = MongoClientSettings.FromUrl(url);
 
             var clone = settings.Clone();
-
-            clone.Should().Be(settings);
+            Assert.Equal(settings, clone);
         }
 
         [Fact]

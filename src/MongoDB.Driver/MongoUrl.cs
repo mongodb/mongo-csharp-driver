@@ -158,10 +158,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets a value indicating whether adaptive retries are enabled.
         /// </summary>
-        public bool? AdaptiveRetries
-        {
-            get { return _adaptiveRetries; }
-        }
+        public bool? AdaptiveRetries => _adaptiveRetries;
 
         /// <summary>
         /// Gets whether to relax TLS constraints as much as possible.

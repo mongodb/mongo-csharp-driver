@@ -221,7 +221,7 @@ namespace MongoDB.Driver.Core.Configuration
             return this;
         }
 
-        internal ClusterBuilder WithAdaptiveRetries(bool adaptiveRetries)
+        internal ClusterBuilder ConfigureAdaptiveRetries(bool adaptiveRetries)
         {
             _adaptiveRetries = adaptiveRetries;
             return this;
