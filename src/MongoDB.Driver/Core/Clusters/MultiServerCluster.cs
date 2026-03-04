@@ -44,8 +44,9 @@ namespace MongoDB.Driver.Core.Clusters
             IClusterableServerFactory serverFactory,
             IEventSubscriber eventSubscriber,
             ILoggerFactory loggerFactory,
+            bool adaptiveRetries,
             IDnsMonitorFactory dnsMonitorFactory = null)
-            : base(settings, serverFactory, eventSubscriber, loggerFactory)
+            : base(settings, serverFactory, eventSubscriber, loggerFactory, adaptiveRetries)
         {
             Ensure.IsGreaterThanZero(settings.EndPoints.Count, nameof(settings.EndPoints.Count));
             Ensure.That(!settings.DirectConnection, $"DirectConnection is not supported for a {nameof(MultiServerCluster)}.");

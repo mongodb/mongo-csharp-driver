@@ -111,6 +111,7 @@ namespace MongoDB.Driver.Tests
                 dummyMap);
 
             var clusterKey = new ClusterKey(
+                adaptiveRetries: false,
                 allowInsecureTls: false,
                 applicationName: "app1",
                 clusterConfigurator: clusterConfigurator,

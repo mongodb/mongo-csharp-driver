@@ -60,12 +60,15 @@ namespace MongoDB.Driver.Core.Operations
                     operationExecutionAttempts++;
 
                     var operationResult = operation.ExecuteAttempt(operationContext, context, operationExecutionAttempts, transactionNumber);
-                    var tokensToDeposit = RetryabilityHelper.OperationRetryBackpressureConstants.RetryTokenReturnRate;
-                    if (totalAttempts > 1)
+                    if (tokenBucket != null)
                     {
-                        tokensToDeposit += 1;
+                        var tokensToDeposit = RetryabilityHelper.OperationRetryBackpressureConstants.RetryTokenReturnRate;
+                        if (totalAttempts > 1)
+                        {
+                            tokensToDeposit += 1;
+                        }
+                        tokenBucket.Deposit(tokensToDeposit);
                     }
-                    tokenBucket.Deposit(tokensToDeposit);
 
                     if (context.Binding.Session.Id != null &&
                         context.Binding.Session.IsInTransaction)
@@ -125,12 +128,15 @@ namespace MongoDB.Driver.Core.Operations
                     //It seems we should change this parameter to another one, as the attempt number is not correct in this new retryability. Also the current operationAttempt is not correct,
                     //probably the attempts should be counted only for the "retryable write" attempts?
                     var operationResult = await operation.ExecuteAttemptAsync(operationContext, context, operationExecutionAttempts, transactionNumber).ConfigureAwait(false);
-                    var tokensToDeposit = RetryabilityHelper.OperationRetryBackpressureConstants.RetryTokenReturnRate;
-                    if (totalAttempts > 1)
+                    if (tokenBucket != null)
                     {
-                        tokensToDeposit += 1;
+                        var tokensToDeposit = RetryabilityHelper.OperationRetryBackpressureConstants.RetryTokenReturnRate;
+                        if (totalAttempts > 1)
+                        {
+                            tokensToDeposit += 1;
+                        }
+                        tokenBucket.Deposit(tokensToDeposit);
                     }
-                    tokenBucket.Deposit(tokensToDeposit);
 
                     if (context.Binding.Session.Id != null &&
                         context.Binding.Session.IsInTransaction)
@@ -194,7 +200,7 @@ namespace MongoDB.Driver.Core.Operations
             var isBackpressureRetry = isSystemOverloadedException
                                       && isRetryableException;
 
-            if (attempt > 1 && !isSystemOverloadedException)
+            if (attempt > 1 && !isSystemOverloadedException && tokenBucket != null)
             {
                 tokenBucket.Deposit(1);
             }
@@ -218,7 +224,7 @@ namespace MongoDB.Driver.Core.Operations
 
                 backoff = RetryabilityHelper.GetOperationRetryBackoffDelay(attempt, random);
 
-                var canConsumeToken = tokenBucket.Consume(1);
+                var canConsumeToken = tokenBucket == null || tokenBucket.Consume(1);
                 return canConsumeToken && attempt <= RetryabilityHelper.OperationRetryBackpressureConstants.MaxRetries;
             }
 

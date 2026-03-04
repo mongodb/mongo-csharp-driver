@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -44,12 +44,15 @@ namespace MongoDB.Driver.Core.Operations
                     context.AcquireChannel(operationContext);
 
                     var operationResult = operation.ExecuteAttempt(operationContext, context, totalAttempts, transactionNumber: null);
-                    var tokensToDeposit = RetryabilityHelper.OperationRetryBackpressureConstants.RetryTokenReturnRate;
-                    if (totalAttempts > 1)
+                    if (tokenBucket != null)
                     {
-                        tokensToDeposit += 1;
+                        var tokensToDeposit = RetryabilityHelper.OperationRetryBackpressureConstants.RetryTokenReturnRate;
+                        if (totalAttempts > 1)
+                        {
+                            tokensToDeposit += 1;
+                        }
+                        tokenBucket.Deposit(tokensToDeposit);
                     }
-                    tokenBucket.Deposit(tokensToDeposit);
 
                     if (context.Binding.Session.Id != null &&
                         context.Binding.Session.IsInTransaction)
@@ -93,12 +96,15 @@ namespace MongoDB.Driver.Core.Operations
                     await context.AcquireChannelAsync(operationContext).ConfigureAwait(false);
 
                     var operationResult = await operation.ExecuteAttemptAsync(operationContext, context, totalAttempts, transactionNumber: null).ConfigureAwait(false);
-                    var tokensToDeposit = RetryabilityHelper.OperationRetryBackpressureConstants.RetryTokenReturnRate;
-                    if (totalAttempts > 1)
+                    if (tokenBucket != null)
                     {
-                        tokensToDeposit += 1;
+                        var tokensToDeposit = RetryabilityHelper.OperationRetryBackpressureConstants.RetryTokenReturnRate;
+                        if (totalAttempts > 1)
+                        {
+                            tokensToDeposit += 1;
+                        }
+                        tokenBucket.Deposit(tokensToDeposit);
                     }
-                    tokenBucket.Deposit(tokensToDeposit);
 
                     //TODO Do we need this also here?
                     if (context.Binding.Session.Id != null &&
@@ -152,7 +158,7 @@ namespace MongoDB.Driver.Core.Operations
             var isBackpressureRetry = isSystemOverloadedException
                                       && isRetryableException;
 
-            if (attempt > 1 && !isSystemOverloadedException)
+            if (attempt > 1 && !isSystemOverloadedException && tokenBucket != null)
             {
                 tokenBucket.Deposit(1);
             }
@@ -176,7 +182,7 @@ namespace MongoDB.Driver.Core.Operations
 
                 backoff = RetryabilityHelper.GetOperationRetryBackoffDelay(attempt, random);
 
-                var canConsumeToken = tokenBucket.Consume(1);
+                var canConsumeToken = tokenBucket == null || tokenBucket.Consume(1);
                 return canConsumeToken && attempt <= RetryabilityHelper.OperationRetryBackpressureConstants.MaxRetries;
             }
 

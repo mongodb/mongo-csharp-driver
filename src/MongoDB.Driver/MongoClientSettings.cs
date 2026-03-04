@@ -1279,6 +1279,7 @@ namespace MongoDB.Driver
         internal ClusterKey ToClusterKey()
         {
             return new ClusterKey(
+                _adaptiveRetries,
                 _allowInsecureTls,
                 _applicationName,
                 _clusterConfigurator,
