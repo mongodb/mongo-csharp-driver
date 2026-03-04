@@ -103,6 +103,22 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         [Fact]
+        public void TokenBucket_should_not_be_null_when_adaptiveRetries_is_true()
+        {
+            var subject = CreateSubject(adaptiveRetries: true);
+
+            subject.TokenBucket.Should().NotBeNull();
+        }
+
+        [Fact]
+        public void TokenBucket_should_be_null_when_adaptiveRetries_is_false()
+        {
+            var subject = CreateSubject(adaptiveRetries: false);
+
+            subject.TokenBucket.Should().BeNull();
+        }
+
+        [Fact]
         public void AcquireServerSession_should_call_serverSessionPool_AcquireSession()
         {
             var subject = CreateSubject();
@@ -491,14 +507,14 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         // private methods
-        private StubCluster CreateSubject(TimeSpan? serverSelectionTimeout = null, ClusterType? clusterType = null)
+        private StubCluster CreateSubject(TimeSpan? serverSelectionTimeout = null, ClusterType? clusterType = null, bool adaptiveRetries = false)
         {
             if (serverSelectionTimeout != null)
             {
                 _settings = _settings.With(serverSelectionTimeout: serverSelectionTimeout.Value);
             }
 
-            return new StubCluster(_settings, _mockServerFactory.Object, _capturedEvents, LoggerFactory, clusterType);
+            return new StubCluster(_settings, _mockServerFactory.Object, _capturedEvents, LoggerFactory, clusterType, adaptiveRetries);
         }
 
         // nested types
@@ -511,8 +527,9 @@ namespace MongoDB.Driver.Core.Clusters
                 IClusterableServerFactory serverFactory,
                 IEventSubscriber eventSubscriber,
                 ILoggerFactory loggerFactory,
-                ClusterType? clusterType = null)
-                : base(settings, serverFactory, eventSubscriber, loggerFactory)
+                ClusterType? clusterType = null,
+                bool adaptiveRetries = true)
+                : base(settings, serverFactory, eventSubscriber, loggerFactory, adaptiveRetries)
             {
                 _clusterType = clusterType;
             }

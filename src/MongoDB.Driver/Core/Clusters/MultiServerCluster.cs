@@ -44,8 +44,8 @@ namespace MongoDB.Driver.Core.Clusters
             IClusterableServerFactory serverFactory,
             IEventSubscriber eventSubscriber,
             ILoggerFactory loggerFactory,
-            bool adaptiveRetries,
-            IDnsMonitorFactory dnsMonitorFactory = null)
+            IDnsMonitorFactory dnsMonitorFactory = null,
+            bool adaptiveRetries = false)
             : base(settings, serverFactory, eventSubscriber, loggerFactory, adaptiveRetries)
         {
             Ensure.IsGreaterThanZero(settings.EndPoints.Count, nameof(settings.EndPoints.Count));

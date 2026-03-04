@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly ClusterSettings _settings;
 
         // constructors
-        public ClusterFactory(ClusterSettings settings, IClusterableServerFactory serverFactory, IEventSubscriber eventSubscriber, ILoggerFactory loggerFactory, bool adaptiveRetries)
+        public ClusterFactory(ClusterSettings settings, IClusterableServerFactory serverFactory, IEventSubscriber eventSubscriber, ILoggerFactory loggerFactory, bool adaptiveRetries = false)
         {
             _settings = Ensure.IsNotNull(settings, nameof(settings));
             _serverFactory = Ensure.IsNotNull(serverFactory, nameof(serverFactory));
@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Core.Clusters
 
         private MultiServerCluster CreateMultiServerCluster(ClusterSettings settings)
         {
-            return new MultiServerCluster(settings, _serverFactory, _eventSubscriber, _loggerFactory, _adaptiveRetries);
+            return new MultiServerCluster(settings, _serverFactory, _eventSubscriber, _loggerFactory, adaptiveRetries: _adaptiveRetries);
         }
 
         private SingleServerCluster CreateSingleServerCluster(ClusterSettings settings)

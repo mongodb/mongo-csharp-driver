@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly InterlockedInt32 _state;
         private readonly string _replicaSetName;
 
-        public SingleServerCluster(ClusterSettings settings, IClusterableServerFactory serverFactory, IEventSubscriber eventSubscriber, ILoggerFactory loggerFactory, bool adaptiveRetries)
+        public SingleServerCluster(ClusterSettings settings, IClusterableServerFactory serverFactory, IEventSubscriber eventSubscriber, ILoggerFactory loggerFactory, bool adaptiveRetries = false)
             : base(settings, serverFactory, eventSubscriber, loggerFactory, adaptiveRetries)
         {
             Ensure.That(settings.DirectConnection, $"DirectConnection mode is not supported for {nameof(SingleServerCluster)}.");
