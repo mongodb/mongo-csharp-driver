@@ -29,11 +29,11 @@ namespace MongoDB.Driver.Core.Connections
     public class HelloHelperTests
     {
         [Theory]
-        [InlineData(true, false, false, "{ hello : 1, helloOk : true }")]
-        [InlineData(false, false, false,"{ " + OppressiveLanguageConstants.LegacyHelloCommandName + " : 1, helloOk : true }")]
-        [InlineData(false, true, false,"{ hello : 1, helloOk : true }")]
-        [InlineData(true, true, false,"{ hello : 1, helloOk : true }")]
-        [InlineData(false, false, true,"{ hello : 1, helloOk : true, loadBalanced : true }")]
+        [InlineData(true, false, false, "{ hello : 1, helloOk : true, backpressure: true }")]
+        [InlineData(false, false, false,"{ " + OppressiveLanguageConstants.LegacyHelloCommandName + " : 1, helloOk : true, backpressure: true }")]
+        [InlineData(false, true, false,"{ hello : 1, helloOk : true, backpressure: true }")]
+        [InlineData(true, true, false,"{ hello : 1, helloOk : true, backpressure: true }")]
+        [InlineData(false, false, true,"{ hello : 1, helloOk : true, loadBalanced : true, backpressure: true }")]
         public void CreateCommand_should_return_correct_hello_command(bool useServerApiVersion, bool helloOk, bool loadBalanced, string expectedResult)
         {
             var serverApi = useServerApiVersion ? new ServerApi(ServerApiVersion.V1) : null;
@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Core.Connections
             var command = HelloHelper.CreateCommand(null);
             var result = HelloHelper.AddClientDocumentToCommand(command, clientDocument);
 
-            result.Should().Be($"{{ {OppressiveLanguageConstants.LegacyHelloCommandName} : 1, helloOk : true, client : {clientDocumentString} }}");
+            result.Should().Be($"{{ {OppressiveLanguageConstants.LegacyHelloCommandName} : 1, helloOk : true, backpressure: true, client : {clientDocumentString} }}");
         }
 
         [Fact]
@@ -66,12 +66,13 @@ namespace MongoDB.Driver.Core.Connections
             var result = HelloHelper.AddClientDocumentToCommand(command, subjectClientDocument);
 
             var names = result.Names.ToList();
-            names.Count.Should().Be(3);
+            names.Count.Should().Be(4);
             names[0].Should().Be(OppressiveLanguageConstants.LegacyHelloCommandName);
             names[1].Should().Be("helloOk");
-            names[2].Should().Be("client");
+            names[2].Should().Be("backpressure");
+            names[3].Should().Be("client");
             result[0].Should().Be(1);
-            var clientDocument = result[2].AsBsonDocument;
+            var clientDocument = result[3].AsBsonDocument;
             var clientDocumentNames = clientDocument.Names.ToList();
             clientDocumentNames.Count.Should().Be(4);
             clientDocumentNames[0].Should().Be("application");
@@ -102,7 +103,7 @@ namespace MongoDB.Driver.Core.Connections
             var result = HelloHelper.AddCompressorsToCommand(command, compressors);
 
             var expectedCompressions = string.Join(",", compressorsParameters.Select(c => $"'{CompressorTypeMapper.ToServerName(c)}'"));
-            result.Should().Be(BsonDocument.Parse($"{{ {OppressiveLanguageConstants.LegacyHelloCommandName} : 1, helloOk : true, compression: [{expectedCompressions}] }}"));
+            result.Should().Be(BsonDocument.Parse($"{{ {OppressiveLanguageConstants.LegacyHelloCommandName} : 1, helloOk : true, backpressure: true, compression: [{expectedCompressions}] }}"));
         }
     }
 }

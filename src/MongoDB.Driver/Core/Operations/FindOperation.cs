@@ -299,7 +299,7 @@ namespace MongoDB.Driver.Core.Operations
 
             using (EventContext.BeginFind(_batchSize, _limit))
             {
-                var operation = CreateOperation(operationContext, context);
+                var operation = CreateOperation(operationContext);
                 var commandResult = operation.Execute(operationContext, context);
                 return CreateCursor(context.ChannelSource, context.Channel, commandResult);
             }
@@ -322,7 +322,7 @@ namespace MongoDB.Driver.Core.Operations
 
             using (EventContext.BeginFind(_batchSize, _limit))
             {
-                var operation = CreateOperation(operationContext, context);
+                var operation = CreateOperation(operationContext);
                 var commandResult = await operation.ExecuteAsync(operationContext, context).ConfigureAwait(false);
                 return CreateCursor(context.ChannelSource, context.Channel, commandResult);
             }
@@ -367,7 +367,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private EventContext.OperationIdDisposer BeginOperation() => EventContext.BeginOperation(null, OperationName);
 
-        private ReadCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, RetryableReadContext context)
+        private ReadCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext)
         {
             var operation = new ReadCommandOperation<BsonDocument>(
                 _collectionNamespace.DatabaseNamespace,

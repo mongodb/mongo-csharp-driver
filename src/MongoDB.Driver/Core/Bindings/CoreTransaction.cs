@@ -163,6 +163,13 @@ namespace MongoDB.Driver.Core.Bindings
             }
         }
 
+        //TODO Let's see if we keep this
+        internal void ResetState()
+        {
+            _state = CoreTransactionState.Starting;
+            _isEmpty = true;
+        }
+
         internal void UnpinAll()
         {
             lock (_lock)
@@ -172,5 +179,8 @@ namespace MongoDB.Driver.Core.Bindings
                 _pinnedServer = null;
             }
         }
+
+        //TODO Let's see if we keep this
+        internal bool HasCompletedCommand { get; set; }
     }
 }
