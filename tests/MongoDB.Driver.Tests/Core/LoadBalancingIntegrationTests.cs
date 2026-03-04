@@ -35,9 +35,9 @@ namespace MongoDB.Driver.Core.Tests
     /// <summary>
     /// Tests in this file emulate internal steps in operations that can work with cursors or transactions.
     /// </summary>
-    public class LoadBalancingIntergationTests : OperationTestBase
+    public class LoadBalancingIntegrationTests : OperationTestBase
     {
-        public LoadBalancingIntergationTests()
+        public LoadBalancingIntegrationTests()
         {
             _collectionNamespace = CollectionNamespace.FromFullName("db.coll");
         }
