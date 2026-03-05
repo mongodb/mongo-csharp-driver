@@ -123,6 +123,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring.pr
                 });
 
                 var collection = client.GetDatabase("test").GetCollection<BsonDocument>("test");
+                collection.DeleteMany(FilterDefinition<BsonDocument>.Empty);
                 collection.InsertOne(new BsonDocument());
 
                 var filter = "{ $where : \"function() { sleep(2000); return true; }\" }";
