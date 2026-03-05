@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Core.Operations
             MessageEncoderSettings messageEncoderSettings)
         {
             _databaseNamespace = Ensure.IsNotNull(databaseNamespace, nameof(databaseNamespace));
-            _command = Ensure.IsNotNull(command, nameof(command));
+            _command = command; //can be null
             _resultSerializer = Ensure.IsNotNull(resultSerializer, nameof(resultSerializer));
             _messageEncoderSettings = messageEncoderSettings;
         }
@@ -144,6 +144,15 @@ namespace MongoDB.Driver.Core.Operations
             {
                 return await ExecuteProtocolAsync(operationContext, channel, session, readPreference).ConfigureAwait(false);
             }
+        }
+
+        /// <summary>
+        /// Sets the command to be executed. This is used by derived classes that build commands dynamically.
+        /// </summary>
+        /// <param name="command">The command.</param>
+        protected void SetCommand(BsonDocument command)
+        {
+            _command = Ensure.IsNotNull(command, nameof(command));
         }
 
         private BsonDocument GetEffectiveAdditionalOptions()
