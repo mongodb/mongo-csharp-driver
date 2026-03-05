@@ -135,20 +135,19 @@ namespace MongoDB.Driver.Core.Operations
         {
             backoff = TimeSpan.Zero;
 
-            //The operation should be retried only if "retryReads" are enabled (context.RetryRequested) and the operation is retryable (context.CanBeRetried).
-            if (!context.CanBeRetried || !context.RetryRequested)
+            if (!context.CanBeRetried)
             {
                 return false;
             }
 
-            //Authentication exceptions are wrapped inside MongoAuthenticationException, we need to unwrap them to be able to detect their retryability.
+            //Authentication exceptions are wrapped inside MongoAuthenticationException, we need to unwrap them to be able to detect their retryability
             exception = exception is MongoAuthenticationException mongoAuthenticationException ? mongoAuthenticationException.InnerException : exception;
 
             var isRetryableReadException = RetryabilityHelper.IsRetryableReadException(exception);
             var isRetryableException = RetryabilityHelper.IsRetryableException(exception);
             var isSystemOverloadedException = RetryabilityHelper.IsSystemOverloadedException(exception);
 
-            var isRetryableRead = !context.Binding.Session.IsInTransaction && isRetryableReadException;
+            var isRetryableRead = context.RetryRequested && !context.Binding.Session.IsInTransaction && isRetryableReadException;
 
             var isBackpressureRetry = isSystemOverloadedException
                                       && isRetryableException;
