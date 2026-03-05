@@ -103,6 +103,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __speculativeAuthentication = new Feature("SpeculativeAuthentication", WireVersion.Server44);
         private static readonly Feature __stableApi = new Feature("StableAPI", WireVersion.Server50);
         private static readonly Feature __streamingHello = new Feature("StreamingHello", WireVersion.Server44);
+        private static readonly Feature __subtypeOperator = new Feature("SubtypeOperator", WireVersion.Server83);
         private static readonly Feature __toConversionOperators = new Feature("ToConversionOperators", WireVersion.Server40);
         private static readonly Feature __trigOperators = new Feature("TrigOperators", WireVersion.Server42);
         private static readonly Feature __trimOperator = new Feature("TrimOperator", WireVersion.Server40);
@@ -503,6 +504,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the streaming hello feature.
         /// </summary>
         public static Feature StreamingHello => __streamingHello;
+
+        /// <summary>
+        /// Gets the $subtype operator feature.
+        /// </summary>
+        public static Feature SubtypeOperator => __subtypeOperator;
 
         /// <summary>
         /// Gets the $toXyz conversion operators feature ($toDouble etc.).

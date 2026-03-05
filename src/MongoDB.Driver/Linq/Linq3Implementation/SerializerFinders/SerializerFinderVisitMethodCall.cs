@@ -30,6 +30,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.SerializerFinders;
 
 internal partial class SerializerFinderVisitor
 {
+    private static readonly IBsonSerializer __binarySubTypeSerializer = new EnumSerializer<BsonBinarySubType>();
+
     private static readonly IReadOnlyMethodInfoSet __averageOrMedianOrPercentileOverloads = MethodInfoSet.Create(
     [
         EnumerableOrQueryableMethod.AverageOverloads,
@@ -144,6 +146,7 @@ internal partial class SerializerFinderVisitor
                 case "StrLenBytes": DeduceStrLenBytesMethodSerializers(); break;
                 case "Subtract": DeduceSubtractMethodSerializers(); break;
                 case "Sum": DeduceSumMethodSerializers(); break;
+                case "Subtype": DeduceSubtypeMethodSerializers(); break;
                 case "ToArray": DeduceToArrayMethodSerializers(); break;
                 case "ToList": DeduceToListSerializers(); break;
                 case "ToString": DeduceToStringSerializers(); break;
@@ -2591,6 +2594,18 @@ internal partial class SerializerFinderVisitor
                 var selectorLambda = (LambdaExpression)arguments[1];
                 DeduceWindowMethodSelectorParameterSerializer(partitionExpression, selectorLambda);
                 DeduceStandardSerializer(node);
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
+        }
+
+        void DeduceSubtypeMethodSerializers()
+        {
+            if (method.Is(MqlMethod.Subtype))
+            {
+                DeduceSerializer(node, __binarySubTypeSerializer);
             }
             else
             {
