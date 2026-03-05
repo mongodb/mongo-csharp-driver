@@ -37,6 +37,17 @@ public sealed class CreateAutoEmbeddingVectorSearchIndexModel<TDocument> : Creat
     public VectorEmbeddingModality Modality { get; init; } = VectorEmbeddingModality.Text;
 
     /// <summary>
+    /// The <see cref="VectorSimilarity"/> to use to search for top K-nearest neighbors. For auto-embedding indexes,
+    /// this defaults to <see cref="VectorSimilarity.DotProduct"/> when
+    /// <see cref="CreateVectorSearchIndexModelBase{TDocument}.Quantization"/> is
+    /// <see cref="VectorQuantization.None"/> or <see cref="VectorQuantization.Scalar"/>, and
+    /// <see cref="VectorSimilarity.Euclidean"/> when
+    /// <see cref="CreateVectorSearchIndexModelBase{TDocument}.Quantization"/> is
+    /// <see cref="VectorQuantization.Binary"/> or <see cref="VectorQuantization.BinaryNoRescore"/>.
+    /// </summary>
+    public VectorSimilarity? Similarity { get; init; }
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="CreateAutoEmbeddingVectorSearchIndexModel{TDocument}"/> for a vector index
     /// that will automatically create embeddings from a given field in the document. The embedding model to use must
     /// be passed to this constructor.
@@ -93,6 +104,11 @@ public sealed class CreateAutoEmbeddingVectorSearchIndexModel<TDocument> : Creat
             IncludedStoredFields = includedStoredFields,
             ExcludedStoredFields = null,
             Modality = Modality,
+            Similarity = Similarity,
+            Dimensions = Dimensions,
+            Quantization = Quantization,
+            HnswMaxEdges = HnswMaxEdges,
+            HnswNumEdgeCandidates = HnswNumEdgeCandidates,
         };
 
     /// <summary>
@@ -121,6 +137,11 @@ public sealed class CreateAutoEmbeddingVectorSearchIndexModel<TDocument> : Creat
             ExcludedStoredFields = excludedStoredFields,
             IncludedStoredFields = null,
             Modality = Modality,
+            Similarity = Similarity,
+            Dimensions = Dimensions,
+            Quantization = Quantization,
+            HnswMaxEdges = HnswMaxEdges,
+            HnswNumEdgeCandidates = HnswNumEdgeCandidates,
         };
 
     /// <summary>
@@ -138,13 +159,21 @@ public sealed class CreateAutoEmbeddingVectorSearchIndexModel<TDocument> : Creat
     /// <inheritdoc/>
     internal override BsonDocument Render(RenderArgs<TDocument> renderArgs)
     {
+        var similarityValue = Similarity == VectorSimilarity.DotProduct
+            ? "dotProduct" // Because neither "DotProduct" or "dotproduct" are allowed.
+            : Similarity?.ToString().ToLowerInvariant();
+
         var vectorField = new BsonDocument
         {
             { "type", "autoEmbed" },
             { "path", Field.Render(renderArgs).FieldName },
             { "modality", Modality.ToString().ToLowerInvariant() },
             { "model", AutoEmbeddingModelName },
+            { "similarity", similarityValue, similarityValue != null },
+            { "numDimensions", Dimensions, Dimensions != 0 },
         };
+
+        RenderCommonFieldElements(renderArgs, vectorField);
 
         var fieldDocuments = new List<BsonDocument> { vectorField };
         RenderFilterFields(renderArgs, fieldDocuments);

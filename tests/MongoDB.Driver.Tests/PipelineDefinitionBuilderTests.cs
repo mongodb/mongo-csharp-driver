@@ -644,6 +644,21 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void VectorSearch_should_add_expected_stage_with_ReturnStoredSource()
+        {
+            var pipeline = new EmptyPipelineDefinition<BsonDocument>();
+            var options = new VectorSearchOptions<BsonDocument>()
+            {
+                IndexName = "index_name",
+                ReturnStoredSource = true
+            };
+            var result = pipeline.VectorSearch("x", new[] { 1.0, 2.0, 3.0 }, 1, options);
+
+            var stages = RenderStages(result, BsonDocumentSerializer.Instance);
+            stages[0].Should().BeEquivalentTo("{ $vectorSearch: { queryVector: [1.0, 2.0, 3.0], path: 'x', limit: 1, numCandidates: 10, index: 'index_name', returnStoredSource: true } }");
+        }
+
+        [Fact]
         public void VectorSearch_should_throw_when_pipeline_is_null()
         {
             PipelineDefinition<BsonDocument, BsonDocument> pipeline = null;

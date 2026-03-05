@@ -32,27 +32,6 @@ public sealed class CreateVectorSearchIndexModel<TDocument> : CreateVectorSearch
     public VectorSimilarity Similarity { get; }
 
     /// <summary>
-    /// Number of vector dimensions that vector search enforces at index-time and query-time.
-    /// </summary>
-    public int Dimensions { get; }
-
-    /// <summary>
-    /// Type of automatic vector quantization for your vectors.
-    /// </summary>
-    public VectorQuantization? Quantization { get; init; }
-
-    /// <summary>
-    /// Maximum number of edges (or connections) that a node can have in the Hierarchical Navigable Small Worlds graph.
-    /// </summary>
-    public int? HnswMaxEdges { get; init; }
-
-    /// <summary>
-    /// Analogous to numCandidates at query-time, this parameter controls the maximum number of nodes to evaluate to
-    /// find the closest neighbors to connect to a new node.
-    /// </summary>
-    public int? HnswNumEdgeCandidates { get; init; }
-
-    /// <summary>
     /// Initializes a new instance of the <see cref="CreateVectorSearchIndexModel{TDocument}"/> class for a vector
     /// index where the vector embeddings are created manually. The required options for <see cref="VectorSimilarity"/>
     /// and the number of vector dimensions are passed to the constructor.
@@ -176,16 +155,7 @@ public sealed class CreateVectorSearchIndexModel<TDocument> : CreateVectorSearch
             { "similarity", similarityValue },
         };
 
-        vectorField.Add("quantization", Quantization.ToString()?.ToLowerInvariant(), Quantization.HasValue);
-
-        if (HnswMaxEdges != null || HnswNumEdgeCandidates != null)
-        {
-            vectorField.Add("hnswOptions",
-                new BsonDocument
-                {
-                    { "maxEdges", HnswMaxEdges ?? 16 }, { "numEdgeCandidates", HnswNumEdgeCandidates ?? 100 }
-                });
-        }
+        RenderCommonFieldElements(renderArgs, vectorField);
 
         var fieldDocuments = new List<BsonDocument> { vectorField };
         RenderFilterFields(renderArgs, fieldDocuments);
