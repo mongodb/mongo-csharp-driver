@@ -83,7 +83,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Ensures that the value of a parameter is greater than a comparand.
         /// </summary>
-        /// <typeparam name="T">Type type of the value.</typeparam>
+        /// <typeparam name="T">Type of the value.</typeparam>
         /// <param name="value">The value of the parameter.</param>
         /// <param name="comparand">The comparand.</param>
         /// <param name="paramName">The name of the parameter.</param>
