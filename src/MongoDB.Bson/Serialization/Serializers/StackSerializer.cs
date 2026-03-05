@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -103,6 +104,8 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             return (Stack)accumulator;
         }
+
+        Type IChildSerializerConfigurable.ChildSerializerType => typeof(object);
 
         // explicit interface implementations
         IBsonSerializer IChildSerializerConfigurable.ChildSerializer
@@ -201,6 +204,8 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             return (Stack<TItem>)accumulator;
         }
+
+        Type IChildSerializerConfigurable.ChildSerializerType => typeof(TItem);
 
         // explicit interface implementations
         IBsonSerializer IChildSerializerConfigurable.ChildSerializer

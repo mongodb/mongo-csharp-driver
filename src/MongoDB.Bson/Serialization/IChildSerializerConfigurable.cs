@@ -13,6 +13,8 @@
 * limitations under the License.
 */
 
+using System;
+
 namespace MongoDB.Bson.Serialization
 {
     // this interface is public so custom serializers can choose to implement it
@@ -24,6 +26,11 @@ namespace MongoDB.Bson.Serialization
     /// </summary>
     public interface IChildSerializerConfigurable
     {
+        /// <summary>
+        /// Gets the type serialized by the child serializer.
+        /// </summary>
+        Type ChildSerializerType { get; }
+
         /// <summary>
         /// Gets the child serializer.
         /// </summary>

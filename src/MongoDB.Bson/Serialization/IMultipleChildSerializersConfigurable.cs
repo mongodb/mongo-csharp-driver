@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+using System;
+
 namespace MongoDB.Bson.Serialization
 {
     /// <summary>
@@ -20,6 +22,11 @@ namespace MongoDB.Bson.Serialization
     /// </summary>
     public interface IMultipleChildSerializersConfigurable
     {
+        /// <summary>
+        /// Gets the types serialized by the child serializers.
+        /// </summary>
+        Type[] ChildSerializerTypes { get; }
+
         /// <summary>
         /// Gets the child serializers.
         /// </summary>

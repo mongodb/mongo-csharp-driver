@@ -178,6 +178,8 @@ namespace MongoDB.Bson.Serialization.Serializers
             return new IEnumerableDeserializingAsCollectionSerializer<TIEnumerable, TItem, TCollection>(itemSerializer);
         }
 
+        Type IChildSerializerConfigurable.ChildSerializerType => typeof(TItem);
+
         // explicit interface implementations
         IBsonSerializer IChildSerializerConfigurable.ChildSerializer => ItemSerializer;
 

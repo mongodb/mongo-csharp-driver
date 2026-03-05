@@ -139,6 +139,8 @@ namespace MongoDB.Bson.Serialization.Serializers
             return new TDictionary();
         }
 
+        Type IChildSerializerConfigurable.ChildSerializerType => typeof(object);
+
         // explicit interface implementations
         IBsonSerializer IChildSerializerConfigurable.ChildSerializer
         {
@@ -154,6 +156,8 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             return WithDictionaryRepresentation(dictionaryRepresentation);
         }
+
+        Type[] IMultipleChildSerializersConfigurable.ChildSerializerTypes => [typeof(object), typeof(object)];
 
         IBsonSerializer[] IMultipleChildSerializersConfigurable.ChildSerializers => [KeySerializer, ValueSerializer];
 
@@ -300,6 +304,8 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
         }
 
+        Type IChildSerializerConfigurable.ChildSerializerType => typeof(TValue);
+
         // explicit interface implementations
         IBsonSerializer IChildSerializerConfigurable.ChildSerializer
         {
@@ -315,6 +321,8 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             return WithDictionaryRepresentation(dictionaryRepresentation);
         }
+
+        Type[] IMultipleChildSerializersConfigurable.ChildSerializerTypes => [typeof(TKey), typeof(TValue)];
 
         IBsonSerializer[] IMultipleChildSerializersConfigurable.ChildSerializers => [KeySerializer, ValueSerializer];
 
