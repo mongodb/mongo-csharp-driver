@@ -117,6 +117,11 @@ namespace MongoDB.Driver.Core.TestHelpers
 
         public static MongoCommandException CreateMongoCommandException(int code = 1, string label = null)
         {
+            return CreateMongoCommandExceptionWithLabels(code, label);
+        }
+
+        public static MongoCommandException CreateMongoCommandExceptionWithLabels(int code = 1, params string[] labels)
+        {
             var clusterId = new ClusterId(1);
             var endPoint = new DnsEndPoint("localhost", 27017);
             var serverId = new ServerId(clusterId, endPoint);
@@ -125,9 +130,12 @@ namespace MongoDB.Driver.Core.TestHelpers
             var command = BsonDocument.Parse("{ command : 1 }");
             var result = BsonDocument.Parse($"{{ ok: 0, code : {code} }}");
             var commandException = new MongoCommandException(connectionId, message, command, result);
-            if (label != null)
+            foreach (var label in labels)
             {
-                commandException.AddErrorLabel(label);
+                if (label != null)
+                {
+                    commandException.AddErrorLabel(label);
+                }
             }
 
             return commandException;
@@ -149,6 +157,5 @@ namespace MongoDB.Driver.Core.TestHelpers
 
             return writeConcernException;
         }
-
     }
 }
