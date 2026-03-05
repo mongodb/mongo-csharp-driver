@@ -35,6 +35,22 @@ public abstract class CreateVectorSearchIndexModelBase<TDocument> : CreateSearch
     public IReadOnlyList<FieldDefinition<TDocument>> FilterFields { get; }
 
     /// <summary>
+    /// The fields that must be stored in the index. Use
+    /// <see cref="CreateVectorSearchIndexModel{TDocument}.WithIncludedStoredFields(FieldDefinition{TDocument}[])"/>
+    /// or <see cref="CreateAutoEmbeddingVectorSearchIndexModel{TDocument}.WithIncludedStoredFields(FieldDefinition{TDocument}[])"/>
+    /// to configure this.
+    /// </summary>
+    public IReadOnlyList<FieldDefinition<TDocument>> IncludedStoredFields { get; protected init; }
+
+    /// <summary>
+    /// The fields that must NOT be stored in the index. Use
+    /// <see cref="CreateVectorSearchIndexModel{TDocument}.WithExcludedStoredFields(FieldDefinition{TDocument}[])"/>
+    /// or <see cref="CreateAutoEmbeddingVectorSearchIndexModel{TDocument}.WithExcludedStoredFields(FieldDefinition{TDocument}[])"/>
+    /// to configure this.
+    /// </summary>
+    public IReadOnlyList<FieldDefinition<TDocument>> ExcludedStoredFields { get; protected init; }
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="CreateVectorSearchIndexModelBase{TDocument}"/> class for a vector
     /// index where the vector embeddings are created manually. The required options for <see cref="VectorSimilarity"/>
     /// and the number of vector dimensions are passed to the constructor.
@@ -78,5 +94,27 @@ public abstract class CreateVectorSearchIndexModelBase<TDocument> : CreateSearch
                 fields.Add(fieldDocument);
             }
         }
+    }
+
+    /// <summary>
+    /// Called by subclasses to render the "storedSource" in the index definition.
+    /// </summary>
+    /// <param name="renderArgs">The render args.</param>
+    /// <param name="indexDocument">The index document into which the stored source fields will go.</param>
+    private protected void RenderStoredSource(RenderArgs<TDocument> renderArgs, BsonDocument indexDocument)
+    {
+        var exclude = ExcludedStoredFields?.Any() == true;
+        if (!exclude && IncludedStoredFields?.Any() != true)
+        {
+            return;
+        }
+
+        var fields = new BsonArray();
+        foreach (var field in exclude ? ExcludedStoredFields : IncludedStoredFields)
+        {
+            fields.Add(field.Render(renderArgs).FieldName);
+        }
+
+        indexDocument.Add("storedSource", new BsonDocument { { exclude ? "exclude" : "include", fields } });
     }
 }

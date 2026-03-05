@@ -101,6 +101,66 @@ public sealed class CreateVectorSearchIndexModel<TDocument> : CreateVectorSearch
     {
     }
 
+    /// <summary>
+    /// Creates a new <see cref="CreateVectorSearchIndexModel{TDocument}"/> with the given fields configured
+    /// to be stored in the index. Note that storing full documents might significantly impact
+    /// performance during indexing and querying. Explicitly storing vector fields is not recommended.
+    /// </summary>
+    /// <param name="includedStoredFields">The fields to store.</param>
+    /// <returns>A new model with the fields configured.</returns>
+    public CreateVectorSearchIndexModel<TDocument> WithIncludedStoredFields(
+        params FieldDefinition<TDocument>[] includedStoredFields)
+        => new(Field, Name, Similarity, Dimensions, FilterFields.ToArray())
+        {
+            IncludedStoredFields = includedStoredFields,
+            ExcludedStoredFields = null,
+            Quantization = Quantization,
+            HnswMaxEdges = HnswMaxEdges,
+            HnswNumEdgeCandidates = HnswNumEdgeCandidates
+        };
+
+    /// <summary>
+    /// Creates a new <see cref="CreateVectorSearchIndexModel{TDocument}"/> with the given fields configured
+    /// to be stored in the index. Note that storing full documents might significantly impact
+    /// performance during indexing and querying. Explicitly storing vector fields is not recommended.
+    /// </summary>
+    /// <param name="includedStoredFields">The fields to store.</param>
+    /// <returns>A new model with the fields configured.</returns>
+    public CreateVectorSearchIndexModel<TDocument> WithIncludedStoredFields(
+        params Expression<Func<TDocument, object>>[] includedStoredFields)
+        => WithIncludedStoredFields(includedStoredFields
+            .Select(f => (FieldDefinition<TDocument>)new ExpressionFieldDefinition<TDocument>(f)).ToArray());
+
+    /// <summary>
+    /// Creates a new <see cref="CreateVectorSearchIndexModel{TDocument}"/> with the given fields configured
+    /// to be excluded from being stored in the index. This is typically used to exclude vector fields from being
+    /// stored when other fields should be stored.
+    /// </summary>
+    /// <param name="excludedStoredFields">The fields to exclude from being stored.</param>
+    /// <returns>A new model with the fields configured.</returns>
+    public CreateVectorSearchIndexModel<TDocument> WithExcludedStoredFields(
+        params FieldDefinition<TDocument>[] excludedStoredFields)
+        => new(Field, Name, Similarity, Dimensions, FilterFields.ToArray())
+        {
+            ExcludedStoredFields = excludedStoredFields,
+            IncludedStoredFields = null,
+            Quantization = Quantization,
+            HnswMaxEdges = HnswMaxEdges,
+            HnswNumEdgeCandidates = HnswNumEdgeCandidates
+        };
+
+    /// <summary>
+    /// Creates a new <see cref="CreateVectorSearchIndexModel{TDocument}"/> with the given fields configured
+    /// to be excluded from being stored in the index. This is typically used to exclude vector fields from being
+    /// stored when other fields should be stored.
+    /// </summary>
+    /// <param name="excludedStoredFields">The fields to exclude from being stored.</param>
+    /// <returns>A new model with the fields configured.</returns>
+    public CreateVectorSearchIndexModel<TDocument> WithExcludedStoredFields(
+        params Expression<Func<TDocument, object>>[] excludedStoredFields)
+        => WithExcludedStoredFields(excludedStoredFields
+            .Select(f => (FieldDefinition<TDocument>)new ExpressionFieldDefinition<TDocument>(f)).ToArray());
+
     /// <inheritdoc/>
     internal override BsonDocument Render(RenderArgs<TDocument> renderArgs)
     {
@@ -129,6 +189,10 @@ public sealed class CreateVectorSearchIndexModel<TDocument> : CreateVectorSearch
 
         var fieldDocuments = new List<BsonDocument> { vectorField };
         RenderFilterFields(renderArgs, fieldDocuments);
-        return new BsonDocument { { "fields", new BsonArray(fieldDocuments) } };
+
+        var indexDefinition = new BsonDocument { { "fields", new BsonArray(fieldDocuments) } };
+        RenderStoredSource(renderArgs, indexDefinition);
+
+        return indexDefinition;
     }
 }
