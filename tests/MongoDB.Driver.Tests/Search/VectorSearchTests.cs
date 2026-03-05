@@ -82,7 +82,8 @@ namespace MongoDB.Driver.Tests.Search
             var options = new VectorSearchOptions<EmbeddedMovie>()
             {
                 Filter = Builders<EmbeddedMovie>.Filter.Gt("runtime", 1) & Builders<EmbeddedMovie>.Filter.Gt("year", 1900),
-                IndexName = "sample_mflix__embedded_movies"
+                IndexName = "sample_mflix__embedded_movies",
+                ReturnStoredSource = true
             };
 
             var results = GetEmbeddedMoviesCollection()

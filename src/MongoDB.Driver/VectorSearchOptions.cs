@@ -46,5 +46,11 @@ namespace MongoDB.Driver
         /// The model to for auto-embedding in the query. Must be compatible with the model used to create the index.
         /// </summary>
         public string AutoEmbeddingModelName { get; set; }
+
+        /// <summary>
+        /// Gets or sets a flag that specifies whether to perform a full document lookup on the backend database
+        /// or return only stored source fields directly from Atlas Search.
+        /// </summary>
+        public bool ReturnStoredSource { get; set; }
     }
 }

@@ -79,6 +79,62 @@ public sealed class CreateAutoEmbeddingVectorSearchIndexModel<TDocument> : Creat
     {
     }
 
+    /// <summary>
+    /// Creates a new <see cref="CreateAutoEmbeddingVectorSearchIndexModel{TDocument}"/> with the given fields
+    /// configured to be stored in the index. Note that storing full documents might significantly impact
+    /// performance during indexing and querying. Explicitly storing vector fields is not recommended.
+    /// </summary>
+    /// <param name="includedStoredFields">The fields to store.</param>
+    /// <returns>A new model with the fields configured.</returns>
+    public CreateAutoEmbeddingVectorSearchIndexModel<TDocument> WithIncludedStoredFields(
+        params FieldDefinition<TDocument>[] includedStoredFields)
+        => new(Field, Name, AutoEmbeddingModelName, FilterFields.ToArray())
+        {
+            IncludedStoredFields = includedStoredFields,
+            ExcludedStoredFields = null,
+            Modality = Modality,
+        };
+
+    /// <summary>
+    /// Creates a new <see cref="CreateAutoEmbeddingVectorSearchIndexModel{TDocument}"/> with the given fields
+    /// configured to be stored in the index. Note that storing full documents might significantly impact
+    /// performance during indexing and querying. Explicitly storing vector fields is not recommended.
+    /// </summary>
+    /// <param name="includedStoredFields">The fields to store.</param>
+    /// <returns>A new model with the fields configured.</returns>
+    public CreateAutoEmbeddingVectorSearchIndexModel<TDocument> WithIncludedStoredFields(
+        params Expression<Func<TDocument, object>>[] includedStoredFields)
+        => WithIncludedStoredFields(includedStoredFields
+            .Select(f => (FieldDefinition<TDocument>)new ExpressionFieldDefinition<TDocument>(f)).ToArray());
+
+    /// <summary>
+    /// Creates a new <see cref="CreateAutoEmbeddingVectorSearchIndexModel{TDocument}"/> with the given fields
+    /// configured to be excluded from being stored in the index. This is typically used to exclude vector fields
+    /// from being stored when other fields should be stored.
+    /// </summary>
+    /// <param name="excludedStoredFields">The fields to exclude from being stored.</param>
+    /// <returns>A new model with the fields configured.</returns>
+    public CreateAutoEmbeddingVectorSearchIndexModel<TDocument> WithExcludedStoredFields(
+        params FieldDefinition<TDocument>[] excludedStoredFields)
+        => new(Field, Name, AutoEmbeddingModelName, FilterFields.ToArray())
+        {
+            ExcludedStoredFields = excludedStoredFields,
+            IncludedStoredFields = null,
+            Modality = Modality,
+        };
+
+    /// <summary>
+    /// Creates a new <see cref="CreateAutoEmbeddingVectorSearchIndexModel{TDocument}"/> with the given fields
+    /// configured to be excluded from being stored in the index. This is typically used to exclude vector fields
+    /// from being stored when other fields should be stored.
+    /// </summary>
+    /// <param name="excludedStoredFields">The fields to exclude from being stored.</param>
+    /// <returns>A new model with the fields configured.</returns>
+    public CreateAutoEmbeddingVectorSearchIndexModel<TDocument> WithExcludedStoredFields(
+        params Expression<Func<TDocument, object>>[] excludedStoredFields)
+        => WithExcludedStoredFields(excludedStoredFields
+            .Select(f => (FieldDefinition<TDocument>)new ExpressionFieldDefinition<TDocument>(f)).ToArray());
+
     /// <inheritdoc/>
     internal override BsonDocument Render(RenderArgs<TDocument> renderArgs)
     {
@@ -92,6 +148,10 @@ public sealed class CreateAutoEmbeddingVectorSearchIndexModel<TDocument> : Creat
 
         var fieldDocuments = new List<BsonDocument> { vectorField };
         RenderFilterFields(renderArgs, fieldDocuments);
-        return new BsonDocument { { "fields", new BsonArray(fieldDocuments) } };
+
+        var indexDefinition = new BsonDocument { { "fields", new BsonArray(fieldDocuments) } };
+        RenderStoredSource(renderArgs, indexDefinition);
+
+        return indexDefinition;
     }
 }

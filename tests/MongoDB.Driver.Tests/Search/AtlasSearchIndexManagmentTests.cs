@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Tests.Search
     public class AtlasSearchIndexManagementTests : LoggableTestClass
     {
         private const int Timeout = 5 * 60 * 1000;
-        private const int IndexesPollPeriod = 5000;
+        private const int IndexesPollPeriod = 10000; // Server polling is every 10 seconds
 
         private readonly IMongoCollection<BsonDocument> _collection;
         private readonly IMongoDatabase _database;
@@ -101,7 +101,7 @@ namespace MongoDB.Driver.Tests.Search
 
             indexNamesActual.Should().BeEquivalentTo(indexDefinition1.Name, indexDefinition2.Name);
 
-            var indexes = await GetIndexes(async, indexDefinition1.Name, indexDefinition2.Name);
+            var indexes = await GetIndexes(async, expectTimeout: false, indexDefinition1.Name, indexDefinition2.Name);
 
             indexes[0]["latestDefinition"].AsBsonDocument.Should().Be(indexDefinitionBson);
             indexes[1]["latestDefinition"].AsBsonDocument.Should().Be(indexDefinitionBson);
@@ -164,7 +164,7 @@ namespace MongoDB.Driver.Tests.Search
                 _collection.SearchIndexes.Update(indexName, indexNewDefinition);
             }
 
-            var updatedIndex = await GetIndexes(async, indexName);
+            var updatedIndex = await GetIndexes(async, expectTimeout: false, indexName);
             updatedIndex[0]["latestDefinition"].AsBsonDocument.Should().Be(indexNewDefinition);
         }
 
@@ -204,7 +204,7 @@ namespace MongoDB.Driver.Tests.Search
 
             indexNameCreated.Should().Be(indexName);
 
-            var indexes = await GetIndexes(async, indexName);
+            var indexes = await GetIndexes(async, expectTimeout: false, indexName);
             indexes[0]["latestDefinition"].AsBsonDocument.Should().Be(indexDefinitionBson);
         }
 
@@ -235,7 +235,7 @@ namespace MongoDB.Driver.Tests.Search
                 : _collection.SearchIndexes.CreateOne(new CreateSearchIndexModel(indexName2, SearchIndexType.Search, _indexDefinition));
             indexNameCreated.Should().Be(indexName2);
 
-            var indexCreated2 = await GetIndexes(async, indexName2);
+            var indexCreated2 = await GetIndexes(async, expectTimeout: false, indexName2);
             indexCreated2[0]["type"].AsString.Should().Be("search");
 
             indexNameCreated = async
@@ -243,7 +243,7 @@ namespace MongoDB.Driver.Tests.Search
                 : _collection.SearchIndexes.CreateOne(new CreateSearchIndexModel(indexName3, SearchIndexType.VectorSearch, _vectorIndexDefinition));
             indexNameCreated.Should().Be(indexName3);
 
-            var indexCreated3 = await GetIndexes(async, indexName3);
+            var indexCreated3 = await GetIndexes(async, expectTimeout: false, indexName3);
             indexCreated3[0]["type"].AsString.Should().Be("vectorSearch");
         }
 
@@ -301,7 +301,7 @@ namespace MongoDB.Driver.Tests.Search
 
             createdName.Should().Be(indexName);
 
-            var index = (await GetIndexes(async, indexName))[0];
+            var index = (await GetIndexes(async, expectTimeout: false, indexName))[0];
             index["type"].AsString.Should().Be("search");
 
             var mappings = index["latestDefinition"].AsBsonDocument["mappings"].AsBsonDocument;
@@ -333,7 +333,7 @@ namespace MongoDB.Driver.Tests.Search
 
             createdName.Should().Be(indexName);
 
-            var index = (await GetIndexes(async, indexName))[0];
+            var index = (await GetIndexes(async, expectTimeout: false, indexName))[0];
             index["type"].AsString.Should().Be("vectorSearch");
 
             var fields = index["latestDefinition"].AsBsonDocument["fields"].AsBsonArray;
@@ -365,7 +365,7 @@ namespace MongoDB.Driver.Tests.Search
 
             createdName.Should().Be(indexName);
 
-            var index = (await GetIndexes(async, indexName))[0];
+            var index = (await GetIndexes(async, expectTimeout: false, indexName))[0];
             index["type"].AsString.Should().Be("vectorSearch");
 
             var fields = index["latestDefinition"].AsBsonDocument["fields"].AsBsonArray;
@@ -400,6 +400,8 @@ namespace MongoDB.Driver.Tests.Search
                 Quantization = VectorQuantization.Scalar,
             };
 
+            indexModel = indexModel.WithIncludedStoredFields(e => e.SomeText, e => e.Filter3);
+
             var collection = _database.GetCollection<EntityWithVector>(_collection.CollectionNamespace.CollectionName);
             var createdName = async
                 ? await collection.SearchIndexes.CreateOneAsync(indexModel)
@@ -407,10 +409,11 @@ namespace MongoDB.Driver.Tests.Search
 
             createdName.Should().Be(indexName);
 
-            var index = (await GetIndexes(async, indexName))[0];
+            var index = (await GetIndexes(async, expectTimeout: false, indexName))[0];
             index["type"].AsString.Should().Be("vectorSearch");
 
-            var fields = index["latestDefinition"].AsBsonDocument["fields"].AsBsonArray;
+            var indexDefinition = index["latestDefinition"];
+            var fields = indexDefinition.AsBsonDocument["fields"].AsBsonArray;
             fields.Count.Should().Be(4);
 
             var indexField = fields[0].AsBsonDocument;
@@ -428,6 +431,12 @@ namespace MongoDB.Driver.Tests.Search
                 filterField["type"].AsString.Should().Be("filter");
                 filterField["path"].AsString.Should().Be($"Filter{i}");
             }
+
+            var storedSource = indexDefinition["storedSource"].AsBsonDocument;
+            var included = storedSource["include"].AsBsonArray;
+            included.Count.Should().Be(2);
+            included[0].AsString.Should().Be("Filter3");
+            included[1].AsString.Should().Be("SomeText");
         }
 
         [Theory(Timeout = Timeout)]
@@ -444,6 +453,8 @@ namespace MongoDB.Driver.Tests.Search
                 dimensions: 4,
                 "f1", "f2", "f3");
 
+            indexModel = indexModel.WithExcludedStoredFields("Floats", "SomeText");
+
             var collection = _database.GetCollection<EntityWithVector>(_collection.CollectionNamespace.CollectionName);
             var createdName = async
                 ? await collection.SearchIndexes.CreateOneAsync(indexModel)
@@ -451,10 +462,11 @@ namespace MongoDB.Driver.Tests.Search
 
             createdName.Should().Be(indexName);
 
-            var index = (await GetIndexes(async, indexName))[0];
+            var index = (await GetIndexes(async, expectTimeout: false, indexName))[0];
             index["type"].AsString.Should().Be("vectorSearch");
 
-            var fields = index["latestDefinition"].AsBsonDocument["fields"].AsBsonArray;
+            var indexDefinition = index["latestDefinition"];
+            var fields = indexDefinition.AsBsonDocument["fields"].AsBsonArray;
             fields.Count.Should().Be(4);
 
             var indexField = fields[0].AsBsonDocument;
@@ -472,6 +484,12 @@ namespace MongoDB.Driver.Tests.Search
                 filterField["type"].AsString.Should().Be("filter");
                 filterField["path"].AsString.Should().Be($"f{i}");
             }
+
+            var storedSource = indexDefinition["storedSource"].AsBsonDocument;
+            var excluded = storedSource["exclude"].AsBsonArray;
+            excluded.Count.Should().Be(2);
+            excluded[0].AsString.Should().Be("Floats");
+            excluded[1].AsString.Should().Be("SomeText");
         }
 
         [Theory(Timeout = Timeout)]
@@ -479,6 +497,7 @@ namespace MongoDB.Driver.Tests.Search
         public async Task Can_create_autoEmbed_vector_index_for_required_only_options(
             [Values(false, true)] bool async)
         {
+            // Note that these tests pass with Atlas local, but fail on the CI.
             SkipTests();
 
             var indexName = "auto-embed-required" + (async ? "-async" : "");
@@ -492,7 +511,7 @@ namespace MongoDB.Driver.Tests.Search
 
             createdName.Should().Be(indexName);
 
-            var index = (await GetIndexes(async, indexName))[0];
+            var index = (await GetIndexes(async, expectTimeout: true, indexName))[0];
             index["type"].AsString.Should().Be("vectorSearch");
 
             var fields = index["latestDefinition"].AsBsonDocument["fields"].AsBsonArray;
@@ -514,6 +533,7 @@ namespace MongoDB.Driver.Tests.Search
         public async Task Can_create_autoEmbed_vector_index_for_all_options(
             [Values(false, true)] bool async)
         {
+            // Note that these tests pass with Atlas local, but fail on the CI.
             SkipTests();
 
             var indexName = "auto-embed-all" + (async ? "-async" : "");
@@ -531,7 +551,7 @@ namespace MongoDB.Driver.Tests.Search
 
             createdName.Should().Be(indexName);
 
-            var index = (await GetIndexes(async, indexName))[0];
+            var index = (await GetIndexes(async, expectTimeout: true, indexName))[0];
             index["type"].AsString.Should().Be("vectorSearch");
 
             var fields = index["latestDefinition"].AsBsonDocument["fields"].AsBsonArray;
@@ -553,6 +573,7 @@ namespace MongoDB.Driver.Tests.Search
         public async Task Can_create_autoEmbed_vector_index_with_filters_as_text(
             [Values(false, true)] bool async)
         {
+            // Note that these tests pass with Atlas local, but fail on the CI.
             SkipTests();
 
             var indexName = "auto-embed-filters-text" + (async ? "-async" : "");
@@ -563,6 +584,8 @@ namespace MongoDB.Driver.Tests.Search
                 "voyage-4",
                 "Filter1", "Filter2", "Filter3");
 
+            indexModel = indexModel.WithExcludedStoredFields("Floats", "SomeText");
+
             var collection = _database.GetCollection<EntityWithVector>(_collection.CollectionNamespace.CollectionName);
             var createdName = async
                 ? await collection.SearchIndexes.CreateOneAsync(indexModel)
@@ -570,10 +593,11 @@ namespace MongoDB.Driver.Tests.Search
 
             createdName.Should().Be(indexName);
 
-            var index = (await GetIndexes(async, indexName))[0];
+            var index = (await GetIndexes(async, expectTimeout: true, indexName))[0];
             index["type"].AsString.Should().Be("vectorSearch");
 
-            var fields = index["latestDefinition"].AsBsonDocument["fields"].AsBsonArray;
+            var indexDefinition = index["latestDefinition"];
+            var fields = indexDefinition.AsBsonDocument["fields"].AsBsonArray;
             fields.Count.Should().Be(4);
 
             var indexField = fields[0].AsBsonDocument;
@@ -592,6 +616,12 @@ namespace MongoDB.Driver.Tests.Search
             indexField.Contains("quantization").Should().Be(false);
             indexField.Contains("hnswOptions").Should().Be(false);
             indexField.Contains("compression").Should().Be(false);
+
+            var storedSource = indexDefinition["storedSource"].AsBsonDocument;
+            var excluded = storedSource["exclude"].AsBsonArray;
+            excluded.Count.Should().Be(2);
+            excluded[0].AsString.Should().Be("Floats");
+            excluded[1].AsString.Should().Be("SomeText");
         }
 
         [Theory(Timeout = Timeout)]
@@ -599,6 +629,7 @@ namespace MongoDB.Driver.Tests.Search
         public async Task Can_create_autoEmbed_vector_index_with_filters_as_expressions(
             [Values(false, true)] bool async)
         {
+            // Note that these tests pass with Atlas local, but fail on the CI.
             SkipTests();
 
             var indexName = "auto-embed-filters-expressions" + (async ? "-async" : "");
@@ -609,6 +640,8 @@ namespace MongoDB.Driver.Tests.Search
                 "voyage-4",
                 e => e.Filter1, e => e.Filter2, e => e.Filter3);
 
+            indexModel = indexModel.WithIncludedStoredFields(e => e.SomeText, e => e.Filter3);
+
             var collection = _database.GetCollection<EntityWithVector>(_collection.CollectionNamespace.CollectionName);
             var createdName = async
                 ? await collection.SearchIndexes.CreateOneAsync(indexModel)
@@ -616,10 +649,11 @@ namespace MongoDB.Driver.Tests.Search
 
             createdName.Should().Be(indexName);
 
-            var index = (await GetIndexes(async, indexName))[0];
+            var index = (await GetIndexes(async, expectTimeout: true, indexName))[0];
             index["type"].AsString.Should().Be("vectorSearch");
 
-            var fields = index["latestDefinition"].AsBsonDocument["fields"].AsBsonArray;
+            var indexDefinition = index["latestDefinition"];
+            var fields = indexDefinition.AsBsonDocument["fields"].AsBsonArray;
             fields.Count.Should().Be(4);
 
             var indexField = fields[0].AsBsonDocument;
@@ -638,6 +672,12 @@ namespace MongoDB.Driver.Tests.Search
             indexField.Contains("quantization").Should().Be(false);
             indexField.Contains("hnswOptions").Should().Be(false);
             indexField.Contains("compression").Should().Be(false);
+
+            var storedSource = indexDefinition["storedSource"].AsBsonDocument;
+            var included = storedSource["include"].AsBsonArray;
+            included.Count.Should().Be(2);
+            included[0].AsString.Should().Be("Filter3");
+            included[1].AsString.Should().Be("SomeText");
         }
 
         private class EntityWithVector
@@ -673,15 +713,14 @@ namespace MongoDB.Driver.Tests.Search
 
             indexNameActual.Should().Be(indexName);
 
-            var result = await GetIndexes(async, indexName);
+            var result = await GetIndexes(async, expectTimeout: false, indexName);
             return result[0];
         }
 
-        private async Task<BsonDocument[]> GetIndexes(bool async, params string[] indexNames)
+        private async Task<BsonDocument[]> GetIndexes(bool async, bool? expectTimeout = null, params string[] indexNames)
         {
             BsonDocument[] indexesFiltered = null!;
             var timeoutCount = 2;
-            bool? expectTimeout = null;
             while (expectTimeout != true || --timeoutCount >= 0)
             {
                 List<BsonDocument> indexes;
@@ -726,6 +765,7 @@ namespace MongoDB.Driver.Tests.Search
             return (T)result;
         }
 
-        private void SkipTests() => throw new SkipException("Test skipped because of CSHARP-5840.");
+        private void SkipTests() => throw new SkipException(
+            "Test skipped because they currently only work against Atlas Local or Community. See CSHARP-5840.");
     }
 }
