@@ -533,7 +533,7 @@ namespace MongoDB.Driver.Tests.Search
         public async Task Can_create_autoEmbed_vector_index_for_all_options(
             [Values(false, true)] bool async)
         {
-            // Note that these tests pass with Atlas local, but fail on the CI.
+            // Note that these tests don't yet pass on real Atlas or Atlas local.
             SkipTests();
 
             var indexName = "auto-embed-all" + (async ? "-async" : "");
@@ -542,6 +542,11 @@ namespace MongoDB.Driver.Tests.Search
                 e => e.SomeText, indexName, "voyage-4")
             {
                 Modality = VectorEmbeddingModality.Text,
+                Dimensions = 512,
+                Quantization = VectorQuantization.BinaryNoRescore,
+                Similarity = VectorSimilarity.Euclidean,
+                HnswMaxEdges = 18,
+                HnswNumEdgeCandidates = 102
             };
 
             var collection = _database.GetCollection<EntityWithVector>(_collection.CollectionNamespace.CollectionName);
@@ -562,6 +567,11 @@ namespace MongoDB.Driver.Tests.Search
             indexField["path"].AsString.Should().Be("SomeText");
             indexField["model"].AsString.Should().Be("voyage-4");
             indexField["modality"].AsString.Should().Be("text");
+            indexField["numDimensions"].AsInt32.Should().Be(512);
+            indexField["similarity"].AsString.Should().Be("euclidean");
+            indexField["quantization"].AsString.Should().Be("binaryNoRescore");
+            indexField["hnswOptions"].AsBsonDocument["maxEdges"].AsInt32.Should().Be(18);
+            indexField["hnswOptions"].AsBsonDocument["numEdgeCandidates"].AsInt32.Should().Be(102);
 
             indexField.Contains("quantization").Should().Be(false);
             indexField.Contains("numDimensions").Should().Be(false);
