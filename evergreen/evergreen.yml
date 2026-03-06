@@ -223,6 +223,18 @@ functions:
       params:
         file: mo-expansion.yml
 
+  generate-sbom:
+    - command: shell.exec
+      params:
+        working_dir: "mongo-csharp-driver"
+        env:
+          GITHUB_USER: ${github_user}
+          GITHUB_APIKEY: ${github_apikey}
+          PACKAGE_VERSION: ${PACKAGE_VERSION}
+        script: |
+          ${PREPARE_SHELL}
+          ./evergreen/generate-sbom.sh
+          
   download-and-promote-augmented-sbom-to-s3-bucket:
     - command: ec2.assume_role
       params:
