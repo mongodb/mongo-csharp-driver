@@ -141,7 +141,8 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.Clear(position, count);
 
-            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("count");
+            var exception = Record.Exception(action).Should().BeOfType<ArgumentOutOfRangeException>().Subject;
+            exception.ParamName.Should().Be("count");
         }
 
         [Theory]
@@ -200,7 +201,8 @@ namespace MongoDB.Bson.Tests.IO
         {
             Action action = () => new ByteArrayBuffer(null, 0);
 
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("bytes");
+            var exception = Record.Exception(action).Should().BeOfType<ArgumentNullException>().Subject;
+            exception.ParamName.Should().Be("bytes");
         }
 
         [Theory]
