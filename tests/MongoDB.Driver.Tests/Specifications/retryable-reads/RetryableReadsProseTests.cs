@@ -198,6 +198,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
                     s.ClusterConfigurator = b => b.Subscribe(eventCapturer);
                 },
                 useMultipleShardRouters: false);
+            DriverTestConfiguration.WaitForAllServersToBeConnected(client.GetClusterInternal());
 
             var failPointServer = client.GetClusterInternal().SelectServer(OperationContext.NoTimeout, new EndPointServerSelector(client.Cluster.Description.Servers[0].EndPoint));
 
