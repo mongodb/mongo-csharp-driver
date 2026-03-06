@@ -236,13 +236,17 @@ namespace MongoDB.Driver.Tests
                 throw new InvalidOperationException($"Cluster is not a replica set: {cluster.Description}.");
             }
 
+            WaitForAllServersToBeConnected(cluster);
+            return cluster.Description.Servers.Count(s => s.IsDataBearing);
+        }
+
+        internal static void WaitForAllServersToBeConnected(IClusterInternal cluster)
+        {
             var allServersAreConnected = SpinWait.SpinUntil(() => cluster.Description.Servers.All(s => s.State == ServerState.Connected), TimeSpan.FromSeconds(10));
             if (!allServersAreConnected)
             {
-                throw new InvalidOperationException($"Unable to connect to all members of the replica set: {cluster.Description}.");
+                throw new InvalidOperationException($"Unable to connect to all members of the cluster: {cluster.Description}.");
             }
-
-            return cluster.Description.Servers.Count(s => s.IsDataBearing);
         }
 
         private static void EnsureUniqueCluster(MongoClientSettings settings)
