@@ -1926,9 +1926,16 @@ tasks:
             LOCAL_PATH: ${workdir}/efcore
             SCRIPT: |
               ${PREPARE_SHELL}
-              ATLAS_URI=Disabled CRYPT_SHARED_LIB_PATH="${CRYPT_SHARED_LIB_PATH}" DRIVER_VERSION="${PACKAGE_VERSION}" BUILD_CONFIGURATION="Debug EF8" MONGODB_VERSION="${VERSION}" bash ./evergreen/run-tests.sh
-              ATLAS_URI=Disabled CRYPT_SHARED_LIB_PATH="${CRYPT_SHARED_LIB_PATH}" DRIVER_VERSION="${PACKAGE_VERSION}" BUILD_CONFIGURATION="Debug EF9" MONGODB_VERSION="${VERSION}" bash ./evergreen/run-tests.sh
-              ATLAS_URI=Disabled CRYPT_SHARED_LIB_PATH="${CRYPT_SHARED_LIB_PATH}" DRIVER_VERSION="${PACKAGE_VERSION}" BUILD_CONFIGURATION="Debug EF10" MONGODB_VERSION="${VERSION}" bash ./evergreen/run-tests.sh
+              export ATLAS_URI=Disabled
+              export CRYPT_SHARED_LIB_PATH="${CRYPT_SHARED_LIB_PATH}"
+              export DRIVER_VERSION="${PACKAGE_VERSION}"
+              export MONGODB_URI="${MONGODB_URI}"
+              export MONGODB_VERSION="${VERSION}"
+              FUNCTIONAL_TESTS_PROJECT_PATH="./tests/MongoDB.EntityFrameworkCore.FunctionalTests/MongoDB.EntityFrameworkCore.FunctionalTests.csproj"
+
+              dotnet test "$FUNCTIONAL_TESTS_PROJECT_PATH" -c "Debug EF8" --results-directory "./artifacts/test-results/EF8" --logger "junit;LogFileName=TEST_{assembly}.xml;FailureBodyFormat=Verbose" --logger "console;verbosity=detailed"
+              dotnet test "$FUNCTIONAL_TESTS_PROJECT_PATH" -c "Debug EF9" --results-directory "./artifacts/test-results/EF9" --logger "junit;LogFileName=TEST_{assembly}.xml;FailureBodyFormat=Verbose" --logger "console;verbosity=detailed"
+              dotnet test "$FUNCTIONAL_TESTS_PROJECT_PATH" -c "Debug EF10" --results-directory "./artifacts/test-results/EF10" --logger "junit;LogFileName=TEST_{assembly}.xml;FailureBodyFormat=Verbose" --logger "console;verbosity=detailed"
 
     - name: x509-auth-tests
       commands:
