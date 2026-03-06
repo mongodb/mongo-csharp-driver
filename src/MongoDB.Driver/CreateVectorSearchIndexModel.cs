@@ -32,27 +32,6 @@ public sealed class CreateVectorSearchIndexModel<TDocument> : CreateVectorSearch
     public VectorSimilarity Similarity { get; }
 
     /// <summary>
-    /// Number of vector dimensions that vector search enforces at index-time and query-time.
-    /// </summary>
-    public int Dimensions { get; }
-
-    /// <summary>
-    /// Type of automatic vector quantization for your vectors.
-    /// </summary>
-    public VectorQuantization? Quantization { get; init; }
-
-    /// <summary>
-    /// Maximum number of edges (or connections) that a node can have in the Hierarchical Navigable Small Worlds graph.
-    /// </summary>
-    public int? HnswMaxEdges { get; init; }
-
-    /// <summary>
-    /// Analogous to numCandidates at query-time, this parameter controls the maximum number of nodes to evaluate to
-    /// find the closest neighbors to connect to a new node.
-    /// </summary>
-    public int? HnswNumEdgeCandidates { get; init; }
-
-    /// <summary>
     /// Initializes a new instance of the <see cref="CreateVectorSearchIndexModel{TDocument}"/> class for a vector
     /// index where the vector embeddings are created manually. The required options for <see cref="VectorSimilarity"/>
     /// and the number of vector dimensions are passed to the constructor.
@@ -101,6 +80,66 @@ public sealed class CreateVectorSearchIndexModel<TDocument> : CreateVectorSearch
     {
     }
 
+    /// <summary>
+    /// Creates a new <see cref="CreateVectorSearchIndexModel{TDocument}"/> with the given fields configured
+    /// to be stored in the index. Note that storing full documents might significantly impact
+    /// performance during indexing and querying. Explicitly storing vector fields is not recommended.
+    /// </summary>
+    /// <param name="includedStoredFields">The fields to store.</param>
+    /// <returns>A new model with the fields configured.</returns>
+    public CreateVectorSearchIndexModel<TDocument> WithIncludedStoredFields(
+        params FieldDefinition<TDocument>[] includedStoredFields)
+        => new(Field, Name, Similarity, Dimensions, FilterFields.ToArray())
+        {
+            IncludedStoredFields = includedStoredFields,
+            ExcludedStoredFields = null,
+            Quantization = Quantization,
+            HnswMaxEdges = HnswMaxEdges,
+            HnswNumEdgeCandidates = HnswNumEdgeCandidates
+        };
+
+    /// <summary>
+    /// Creates a new <see cref="CreateVectorSearchIndexModel{TDocument}"/> with the given fields configured
+    /// to be stored in the index. Note that storing full documents might significantly impact
+    /// performance during indexing and querying. Explicitly storing vector fields is not recommended.
+    /// </summary>
+    /// <param name="includedStoredFields">The fields to store.</param>
+    /// <returns>A new model with the fields configured.</returns>
+    public CreateVectorSearchIndexModel<TDocument> WithIncludedStoredFields(
+        params Expression<Func<TDocument, object>>[] includedStoredFields)
+        => WithIncludedStoredFields(includedStoredFields
+            .Select(f => (FieldDefinition<TDocument>)new ExpressionFieldDefinition<TDocument>(f)).ToArray());
+
+    /// <summary>
+    /// Creates a new <see cref="CreateVectorSearchIndexModel{TDocument}"/> with the given fields configured
+    /// to be excluded from being stored in the index. This is typically used to exclude vector fields from being
+    /// stored when other fields should be stored.
+    /// </summary>
+    /// <param name="excludedStoredFields">The fields to exclude from being stored.</param>
+    /// <returns>A new model with the fields configured.</returns>
+    public CreateVectorSearchIndexModel<TDocument> WithExcludedStoredFields(
+        params FieldDefinition<TDocument>[] excludedStoredFields)
+        => new(Field, Name, Similarity, Dimensions, FilterFields.ToArray())
+        {
+            ExcludedStoredFields = excludedStoredFields,
+            IncludedStoredFields = null,
+            Quantization = Quantization,
+            HnswMaxEdges = HnswMaxEdges,
+            HnswNumEdgeCandidates = HnswNumEdgeCandidates
+        };
+
+    /// <summary>
+    /// Creates a new <see cref="CreateVectorSearchIndexModel{TDocument}"/> with the given fields configured
+    /// to be excluded from being stored in the index. This is typically used to exclude vector fields from being
+    /// stored when other fields should be stored.
+    /// </summary>
+    /// <param name="excludedStoredFields">The fields to exclude from being stored.</param>
+    /// <returns>A new model with the fields configured.</returns>
+    public CreateVectorSearchIndexModel<TDocument> WithExcludedStoredFields(
+        params Expression<Func<TDocument, object>>[] excludedStoredFields)
+        => WithExcludedStoredFields(excludedStoredFields
+            .Select(f => (FieldDefinition<TDocument>)new ExpressionFieldDefinition<TDocument>(f)).ToArray());
+
     /// <inheritdoc/>
     internal override BsonDocument Render(RenderArgs<TDocument> renderArgs)
     {
@@ -116,19 +155,14 @@ public sealed class CreateVectorSearchIndexModel<TDocument> : CreateVectorSearch
             { "similarity", similarityValue },
         };
 
-        vectorField.Add("quantization", Quantization.ToString()?.ToLowerInvariant(), Quantization.HasValue);
-
-        if (HnswMaxEdges != null || HnswNumEdgeCandidates != null)
-        {
-            vectorField.Add("hnswOptions",
-                new BsonDocument
-                {
-                    { "maxEdges", HnswMaxEdges ?? 16 }, { "numEdgeCandidates", HnswNumEdgeCandidates ?? 100 }
-                });
-        }
+        RenderCommonFieldElements(renderArgs, vectorField);
 
         var fieldDocuments = new List<BsonDocument> { vectorField };
         RenderFilterFields(renderArgs, fieldDocuments);
-        return new BsonDocument { { "fields", new BsonArray(fieldDocuments) } };
+
+        var indexDefinition = new BsonDocument { { "fields", new BsonArray(fieldDocuments) } };
+        RenderStoredSource(renderArgs, indexDefinition);
+
+        return indexDefinition;
     }
 }

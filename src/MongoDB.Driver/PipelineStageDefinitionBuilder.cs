@@ -2175,7 +2175,8 @@ namespace MongoDB.Driver
                         { "numCandidates", options?.NumberOfCandidates ?? limit * 10, options?.Exact != true },
                         { "index", options?.IndexName ?? "default" },
                         { "filter", () => options?.Filter.Render(args with { RenderDollarForm = true }), options?.Filter != null },
-                        { "exact", true, options?.Exact == true }
+                        { "exact", true, options?.Exact == true },
+                        { "returnStoredSource", true, options?.ReturnStoredSource == true },
                     };
 
                     if (queryVector.Vector is BsonString bsonString)
