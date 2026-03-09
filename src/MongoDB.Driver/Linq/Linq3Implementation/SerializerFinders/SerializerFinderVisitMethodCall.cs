@@ -1348,7 +1348,7 @@ internal partial class SerializerFinderVisitor
                     var fieldSerializer = fieldSerializerExpression.GetConstantValue<IBsonSerializer>(node);
                     if (fieldSerializer == null)
                     {
-                        throw new ExpressionNotSupportedException(node, because: "fieldSerializer is null");
+                        fieldSerializer = BsonSerializer.LookupSerializer(method.GetGenericArguments()[1]);
                     }
 
                     AddNodeSerializer(node, fieldSerializer);

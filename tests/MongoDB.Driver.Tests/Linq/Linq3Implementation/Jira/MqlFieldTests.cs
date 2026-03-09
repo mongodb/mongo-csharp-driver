@@ -60,6 +60,36 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         }
 
         [Fact]
+        public void Select_Mql_Field_with_default_serializer_should_work_with_BsonDocument()
+        {
+            var collection = Fixture.GetCollection<BsonDocument>();
+
+            var queryable = collection.AsQueryable()
+                .Select(root => Mql.Field<BsonDocument, int>(root, "X", null) + 1); // like root.X except BsonDocument does not have a property called X
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : { $add : ['$X', 1] }, _id : 0 } }");
+
+            var results = queryable.ToList();
+            results.Should().Equal(2, 3);
+        }
+
+        [Fact]
+        public void Select_Mql_Field_with_default_serializer_should_work_with_POCO()
+        {
+            var collection = Fixture.GetCollection<C>();
+
+            var queryable = collection.AsQueryable()
+                .Select(root => Mql.Field<C, int>(root, "X", null) + 1); // like root.X except C does not have a property called X
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : { $add : ['$X', 1] }, _id : 0 } }");
+
+            var results = queryable.ToList();
+            results.Should().Equal(2, 3);
+        }
+
+        [Fact]
         public void Where_Mql_Field_should_work_with_BsonDocument()
         {
             var collection = Fixture.GetCollection<BsonDocument>();
