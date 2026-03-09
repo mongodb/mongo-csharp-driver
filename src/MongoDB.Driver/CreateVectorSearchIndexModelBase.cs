@@ -119,38 +119,48 @@ public abstract class CreateVectorSearchIndexModelBase<TDocument> : CreateSearch
     }
 
     /// <summary>
-    /// Called by subclasses to render the "storedSource" in the index definition.
+    /// Called by subclasses to render common top-level elements in the index definition.
     /// </summary>
     /// <param name="renderArgs">The render args.</param>
-    /// <param name="indexDocument">The index document into which the stored source fields will go.</param>
-    private protected void RenderStoredSource(RenderArgs<TDocument> renderArgs, BsonDocument indexDocument)
+    /// <param name="indexDocument">The index document into which the elements will go.</param>
+    private protected void RenderCommonElements(RenderArgs<TDocument> renderArgs, BsonDocument indexDocument)
     {
+        var fieldName = Field.Render(renderArgs).FieldName;
+        var dotPos = fieldName.LastIndexOf('.');
+        if (dotPos > 0)
+        {
+            indexDocument.Add("nestedRoot", fieldName.Substring(0, dotPos));
+        }
+
         var exclude = ExcludedStoredFields?.Any() == true;
-        if (!exclude && IncludedStoredFields?.Any() != true)
+        if (exclude || IncludedStoredFields?.Any() == true)
         {
-            return;
-        }
+            var fields = new BsonArray();
+            foreach (var field in exclude ? ExcludedStoredFields : IncludedStoredFields)
+            {
+                fields.Add(field.Render(renderArgs).FieldName);
+            }
 
-        var fields = new BsonArray();
-        foreach (var field in exclude ? ExcludedStoredFields : IncludedStoredFields)
-        {
-            fields.Add(field.Render(renderArgs).FieldName);
+            indexDocument.Add("storedSource", new BsonDocument { { exclude ? "exclude" : "include", fields } });
         }
-
-        indexDocument.Add("storedSource", new BsonDocument { { exclude ? "exclude" : "include", fields } });
     }
 
-    private protected void RenderCommonFieldElements(RenderArgs<TDocument> renderArgs, BsonDocument vectorField)
+    /// <summary>
+    /// Called by subclasses to render common elements in a field of the index definition.
+    /// </summary>
+    /// <param name="renderArgs">The render args.</param>
+    /// <param name="fieldDocument">The field document into which the elements will go.</param>
+    private protected void RenderCommonFieldElements(RenderArgs<TDocument> renderArgs, BsonDocument fieldDocument)
     {
         var quantizationValue = Quantization == VectorQuantization.BinaryNoRescore
             ? "binaryNoRescore"
             : Quantization?.ToString().ToLowerInvariant();
 
-        vectorField.Add("quantization", quantizationValue, quantizationValue != null);
+        fieldDocument.Add("quantization", quantizationValue, quantizationValue != null);
 
         if (HnswMaxEdges != null || HnswNumEdgeCandidates != null)
         {
-            vectorField.Add("hnswOptions",
+            fieldDocument.Add("hnswOptions",
                 new BsonDocument
                 {
                     { "maxEdges", HnswMaxEdges ?? 16 }, { "numEdgeCandidates", HnswNumEdgeCandidates ?? 100 }

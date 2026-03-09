@@ -161,7 +161,7 @@ public sealed class CreateVectorSearchIndexModel<TDocument> : CreateVectorSearch
         RenderFilterFields(renderArgs, fieldDocuments);
 
         var indexDefinition = new BsonDocument { { "fields", new BsonArray(fieldDocuments) } };
-        RenderStoredSource(renderArgs, indexDefinition);
+        RenderCommonElements(renderArgs, indexDefinition);
 
         return indexDefinition;
     }

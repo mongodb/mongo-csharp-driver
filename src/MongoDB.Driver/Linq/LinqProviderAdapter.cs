@@ -72,7 +72,8 @@ namespace MongoDB.Driver.Linq
             LambdaExpression expression,
             IBsonSerializer<TDocument> documentSerializer,
             IBsonSerializerRegistry serializerRegistry,
-            ExpressionTranslationOptions translationOptions)
+            ExpressionTranslationOptions translationOptions,
+            string subPathRoot)
         {
             expression = (LambdaExpression)LinqExpressionPreprocessor.Preprocess(expression);
             var parameter = expression.Parameters.Single();
@@ -82,7 +83,9 @@ namespace MongoDB.Driver.Linq
             var body = RemovePossibleConvertToObject(expression.Body);
             var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, body);
 
-            return new RenderedFieldDefinition(fieldTranslation.Ast.Path, fieldTranslation.Serializer);
+            var fieldName = RenderedFieldDefinition.RemoveSubPathRoot(fieldTranslation.Ast.Path, subPathRoot);
+
+            return new RenderedFieldDefinition(fieldName, fieldTranslation.Serializer);
 
             static Expression RemovePossibleConvertToObject(Expression expression)
             {
@@ -102,7 +105,8 @@ namespace MongoDB.Driver.Linq
             IBsonSerializer<TDocument> documentSerializer,
             IBsonSerializerRegistry serializerRegistry,
             ExpressionTranslationOptions translationOptions,
-            bool allowScalarValueForArrayField)
+            bool allowScalarValueForArrayField,
+            string subPathRoot)
         {
             expression = (Expression<Func<TDocument, TField>>)LinqExpressionPreprocessor.Preprocess(expression);
             var parameter = expression.Parameters.Single();
@@ -115,7 +119,9 @@ namespace MongoDB.Driver.Linq
             var fieldSerializer = underlyingSerializer as IBsonSerializer<TField>;
             var valueSerializer = (IBsonSerializer<TField>)FieldValueSerializerHelper.GetSerializerForValueType(underlyingSerializer, serializerRegistry, typeof(TField), allowScalarValueForArrayField);
 
-            return new RenderedFieldDefinition<TField>(fieldTranslation.Ast.Path, fieldSerializer, valueSerializer, underlyingSerializer);
+            var fieldName = RenderedFieldDefinition.RemoveSubPathRoot(fieldTranslation.Ast.Path, subPathRoot);
+
+            return new RenderedFieldDefinition<TField>(fieldName, fieldSerializer, valueSerializer, underlyingSerializer);
         }
 
         internal static BsonDocument TranslateExpressionToElemMatchFilter<TElement>(
