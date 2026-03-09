@@ -26,9 +26,9 @@ namespace MongoDB.Driver.Core.Operations
     internal static class RetryableWriteOperationExecutor
     {
         // public static methods
-        public static TResult Execute<TResult>(OperationContext operationContext, IRetryableWriteOperation<TResult> operation, IWriteBinding binding, bool retryRequested, IMayUseSecondaryCriteria mayUseSecondary = null)
+        public static TResult Execute<TResult>(OperationContext operationContext, IRetryableWriteOperation<TResult> operation, IWriteBinding binding, bool retryRequested, bool canBeRetried, IMayUseSecondaryCriteria mayUseSecondary = null)
         {
-            using var context = new RetryableWriteContext(binding, retryRequested, mayUseSecondaryCriteria: mayUseSecondary);
+            using var context = new RetryableWriteContext(binding, retryRequested, canBeRetried, mayUseSecondaryCriteria: mayUseSecondary);
             return Execute(operationContext, operation, context);
         }
 
@@ -90,9 +90,9 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public static async Task<TResult> ExecuteAsync<TResult>(OperationContext operationContext, IRetryableWriteOperation<TResult> operation, IWriteBinding binding, bool retryRequested, IMayUseSecondaryCriteria mayUseSecondary = null)
+        public static async Task<TResult> ExecuteAsync<TResult>(OperationContext operationContext, IRetryableWriteOperation<TResult> operation, IWriteBinding binding, bool retryRequested, bool canBeRetried, IMayUseSecondaryCriteria mayUseSecondary = null)
         {
-            using var context = new RetryableWriteContext(binding, retryRequested, mayUseSecondaryCriteria: mayUseSecondary);
+            using var context = new RetryableWriteContext(binding, retryRequested, canBeRetried, mayUseSecondaryCriteria: mayUseSecondary);
             return await ExecuteAsync(operationContext, operation, context).ConfigureAwait(false);
         }
 
@@ -168,6 +168,11 @@ namespace MongoDB.Driver.Core.Operations
             out TimeSpan backoff)
         {
             backoff = TimeSpan.Zero;
+
+            if (!context.CanBeRetried)
+            {
+                return false;
+            }
 
             bool isRetryableRead;
             if (errorDuringChannelAcquisition)

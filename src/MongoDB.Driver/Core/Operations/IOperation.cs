@@ -21,7 +21,6 @@ namespace MongoDB.Driver.Core.Operations
     internal interface IReadOperation<TResult>
     {
         string OperationName { get; }
-        bool CanBeRetried { get; }
         TResult Execute(OperationContext operationContext, IReadBinding binding);
         Task<TResult> ExecuteAsync(OperationContext operationContext, IReadBinding binding);
     }

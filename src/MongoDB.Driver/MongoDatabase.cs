@@ -603,7 +603,8 @@ namespace MongoDB.Driver
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern,
                 ReadPreference = _settings.ReadPreference,
-                WriteConcern = _settings.WriteConcern
+                WriteConcern = _settings.WriteConcern,
+                CanBeRetried = _client.Settings.RetryWrites
             };
         }
 
@@ -672,7 +673,8 @@ namespace MongoDB.Driver
             return new CreateViewOperation(_databaseNamespace, viewName, viewOn, pipelineDocuments, GetMessageEncoderSettings())
             {
                 Collation = options.Collation,
-                WriteConcern = _settings.WriteConcern
+                WriteConcern = _settings.WriteConcern,
+                CanBeRetried = _client.Settings.RetryWrites
             };
         }
 
@@ -729,7 +731,8 @@ namespace MongoDB.Driver
                 messageEncoderSettings)
             {
                 DropTarget = options.DropTarget,
-                WriteConcern = _settings.WriteConcern
+                WriteConcern = _settings.WriteConcern,
+                CanBeRetried = _client.Settings.RetryWrites
             };
         }
 

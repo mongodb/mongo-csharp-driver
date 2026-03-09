@@ -601,7 +601,8 @@ namespace MongoDB.Driver.GridFS
             var messageEncoderSettings = this.GetMessageEncoderSettings();
             return new CreateIndexesOperation(collectionNamespace, requests, messageEncoderSettings)
             {
-                WriteConcern = _options.WriteConcern ?? _database.Settings.WriteConcern
+                WriteConcern = _options.WriteConcern ?? _database.Settings.WriteConcern,
+                CanBeRetried = _database.Client.Settings.RetryWrites
             };
         }
 
@@ -612,7 +613,8 @@ namespace MongoDB.Driver.GridFS
             var messageEncoderSettings = this.GetMessageEncoderSettings();
             return new CreateIndexesOperation(collectionNamespace, requests, messageEncoderSettings)
             {
-                WriteConcern = _options.WriteConcern ?? _database.Settings.WriteConcern
+                WriteConcern = _options.WriteConcern ?? _database.Settings.WriteConcern,
+                CanBeRetried = _database.Client.Settings.RetryWrites
             };
         }
 
@@ -622,7 +624,11 @@ namespace MongoDB.Driver.GridFS
             return new BulkMixedWriteOperation(
                 this.GetChunksCollectionNamespace(),
                 new[] { new DeleteRequest(filter) { Limit = 0 } },
-                this.GetMessageEncoderSettings());
+                this.GetMessageEncoderSettings())
+            {
+                RetryRequested = _database.Client.Settings.RetryWrites,
+                CanBeRetried = _database.Client.Settings.RetryWrites
+            };
         }
 
         private GridFSDownloadStream<TFileId> CreateDownloadStream(IReadBindingHandle binding, GridFSFileInfo<TFileId> fileInfo, GridFSDownloadOptions options, CancellationToken cancellationToken = default(CancellationToken))
@@ -644,7 +650,8 @@ namespace MongoDB.Driver.GridFS
         {
             return new DropCollectionOperation(collectionNamespace, messageEncoderSettings)
             {
-                WriteConcern = _options.WriteConcern ?? _database.Settings.WriteConcern
+                WriteConcern = _options.WriteConcern ?? _database.Settings.WriteConcern,
+                CanBeRetried = _database.Client.Settings.RetryWrites
             };
         }
 
@@ -654,7 +661,11 @@ namespace MongoDB.Driver.GridFS
             return new BulkMixedWriteOperation(
                 this.GetFilesCollectionNamespace(),
                 new[] { new DeleteRequest(filter) },
-                this.GetMessageEncoderSettings());
+                this.GetMessageEncoderSettings())
+            {
+                RetryRequested = _database.Client.Settings.RetryWrites,
+                CanBeRetried = _database.Client.Settings.RetryWrites
+            };
         }
 
         private void CreateFilesCollectionIndexes(OperationContext operationContext, IReadWriteBindingHandle binding)
@@ -775,7 +786,11 @@ namespace MongoDB.Driver.GridFS
             var update = new BsonDocument("$set", new BsonDocument("filename", newFilename));
             var requests = new[] { new UpdateRequest(UpdateType.Update, filter, update) };
             var messageEncoderSettings = this.GetMessageEncoderSettings();
-            return new BulkMixedWriteOperation(filesCollectionNamespace, requests, messageEncoderSettings);
+            return new BulkMixedWriteOperation(filesCollectionNamespace, requests, messageEncoderSettings)
+            {
+                RetryRequested = _database.Client.Settings.RetryWrites,
+                CanBeRetried = _database.Client.Settings.RetryWrites
+            };
         }
 
         private GridFSUploadStream<TFileId> CreateUploadStream(IReadWriteBindingHandle binding, TFileId id, string filename, GridFSUploadOptions options)

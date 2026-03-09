@@ -502,6 +502,7 @@ namespace MongoDB.Driver
             var operation = new ClientBulkWriteOperation(models, options, messageEncoderSettings, renderArgs)
             {
                 RetryRequested = _settings.RetryWrites,
+                CanBeRetried = _settings.RetryWrites
             };
             if (options?.WriteConcern == null)
             {
@@ -519,7 +520,8 @@ namespace MongoDB.Driver
         private DropDatabaseOperation CreateDropDatabaseOperation(string name)
             => new(new DatabaseNamespace(name), GetMessageEncoderSettings())
             {
-                WriteConcern = _settings.WriteConcern
+                WriteConcern = _settings.WriteConcern,
+                CanBeRetried = _settings.RetryWrites
             };
 
         private ListDatabasesOperation CreateListDatabasesOperation(ListDatabasesOptions options)

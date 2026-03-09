@@ -710,6 +710,7 @@ namespace MongoDB.Driver.Tests.GridFS
 
             var mockClient = new Mock<IMongoClient>();
             mockClient.SetupGet(c => c.Cluster).Returns(cluster);
+            mockClient.SetupGet(c => c.Settings).Returns(new MongoClientSettings());
 
             var mockDatabase = new Mock<IMongoDatabase>();
             mockDatabase.SetupGet(d => d.Client).Returns(mockClient.Object);
