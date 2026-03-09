@@ -644,7 +644,7 @@ namespace MongoDB.Driver.Core.Tests
 
         private RetryableReadContext CreateRetryableReadContext(IReadBindingHandle readBindingHandle, bool async)
         {
-            var retryableContext = new RetryableReadContext(readBindingHandle, retryRequested: false);
+            var retryableContext = new RetryableReadContext(readBindingHandle, retryRequested: false, canBeRetried: false);
             if (async)
             {
                 retryableContext.SelectServerAsync(OperationContext.NoTimeout, null).GetAwaiter().GetResult();

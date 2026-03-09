@@ -37,6 +37,7 @@ namespace MongoDB.Driver.Core.Operations
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private ReadConcern _readConcern = ReadConcern.Default;
         private bool _retryRequested;
+        private bool _canBeRetried;
         private long? _skip;
 
         public CountDocumentsOperation(CollectionNamespace collectionNamespace, MessageEncoderSettings messageEncoderSettings)
@@ -105,6 +106,12 @@ namespace MongoDB.Driver.Core.Operations
             set => _retryRequested = value;
         }
 
+        public bool CanBeRetried
+        {
+            get => _canBeRetried;
+            set => _canBeRetried = value;
+        }
+
         public long? Skip
         {
             get { return _skip; }
@@ -149,7 +156,8 @@ namespace MongoDB.Driver.Core.Operations
                 Hint = _hint,
                 MaxTime = _maxTime,
                 ReadConcern = _readConcern,
-                RetryRequested = _retryRequested
+                RetryRequested = _retryRequested,
+                CanBeRetried = _canBeRetried
             };
             return operation;
         }

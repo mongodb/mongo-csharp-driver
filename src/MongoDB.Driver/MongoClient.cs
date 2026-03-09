@@ -534,7 +534,8 @@ namespace MongoDB.Driver
                 Comment = options.Comment,
                 Filter = options.Filter?.Render(new(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry, translationOptions: translationOptions)),
                 NameOnly = options.NameOnly,
-                RetryRequested = _settings.RetryReads
+                RetryRequested = _settings.RetryReads,
+                CanBeRetried = _settings.RetryReads
             };
         }
 

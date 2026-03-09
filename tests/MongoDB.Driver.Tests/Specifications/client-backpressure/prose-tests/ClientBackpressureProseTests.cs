@@ -133,7 +133,7 @@ public class ClientBackpressureProseTests
         bindingMock.Setup(b => b.GetReadChannelSourceAsync(It.IsAny<OperationContext>(), It.IsAny<IReadOnlyCollection<ServerDescription>>()))
             .ReturnsAsync(channelSourceMock.Object);
 
-        var context = new RetryableReadContext(bindingMock.Object, retryRequested: true, random: random);
+        var context = new RetryableReadContext(bindingMock.Object, retryRequested: true, canBeRetried: true, random: random);
         SetContextChannelFields(context, channelSourceMock.Object, channelMock.Object, typeof(RetryableReadContext));
 
         return context;

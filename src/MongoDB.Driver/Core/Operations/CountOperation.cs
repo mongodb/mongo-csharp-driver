@@ -37,6 +37,7 @@ namespace MongoDB.Driver.Core.Operations
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private ReadConcern _readConcern = ReadConcern.Default;
         private bool _retryRequested;
+        private bool _canBeRetried;
         private long? _skip;
 
         public CountOperation(CollectionNamespace collectionNamespace, MessageEncoderSettings messageEncoderSettings)
@@ -105,6 +106,12 @@ namespace MongoDB.Driver.Core.Operations
             set => _retryRequested = value;
         }
 
+        public bool CanBeRetried
+        {
+            get => _canBeRetried;
+            set => _canBeRetried = value;
+        }
+
         public long? Skip
         {
             get { return _skip; }
@@ -133,7 +140,7 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = new RetryableReadContext(binding, _retryRequested))
+            using (var context = new RetryableReadContext(binding, _retryRequested, _canBeRetried))
             {
                 return Execute(operationContext, context);
             }
@@ -151,7 +158,7 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = new RetryableReadContext(binding, _retryRequested))
+            using (var context = new RetryableReadContext(binding, _retryRequested, _canBeRetried))
             {
                 return await ExecuteAsync(operationContext, context).ConfigureAwait(false);
             }
@@ -175,7 +182,8 @@ namespace MongoDB.Driver.Core.Operations
                 _messageEncoderSettings,
                 OperationName)
             {
-                RetryRequested = _retryRequested // might be overridden by retryable read context
+                RetryRequested = _retryRequested, // might be overridden by retryable read context
+                CanBeRetried = _canBeRetried
             };
         }
     }

@@ -767,6 +767,7 @@ namespace MongoDB.Driver
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern,
                 RetryRequested = _database.Client.Settings.RetryReads,
+                CanBeRetried = _database.Client.Settings.RetryReads,
 #pragma warning disable 618
                 UseCursor = options.UseCursor
 #pragma warning restore 618
@@ -783,7 +784,8 @@ namespace MongoDB.Driver
                 Collation = options.Collation,
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern,
-                RetryRequested = _database.Client.Settings.RetryReads
+                RetryRequested = _database.Client.Settings.RetryReads,
+                CanBeRetried = _database.Client.Settings.RetryReads
             };
 
             // we want to delay execution of the find because the user may
@@ -905,6 +907,7 @@ namespace MongoDB.Driver
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern,
                 RetryRequested = _database.Client.Settings.RetryReads,
+                CanBeRetried = _database.Client.Settings.RetryReads,
                 Skip = options.Skip
             };
         }
@@ -926,6 +929,7 @@ namespace MongoDB.Driver
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern,
                 RetryRequested = _database.Client.Settings.RetryReads,
+                CanBeRetried = _database.Client.Settings.RetryReads,
                 Skip = options.Skip
             };
         }
@@ -952,6 +956,7 @@ namespace MongoDB.Driver
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern,
                 RetryRequested = _database.Client.Settings.RetryReads,
+                CanBeRetried = _database.Client.Settings.RetryReads,
             };
         }
 
@@ -977,6 +982,7 @@ namespace MongoDB.Driver
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern,
                 RetryRequested = _database.Client.Settings.RetryReads,
+                CanBeRetried = _database.Client.Settings.RetryReads,
             };
         }
 
@@ -986,7 +992,8 @@ namespace MongoDB.Driver
             {
                 Comment = options?.Comment,
                 MaxTime = options?.MaxTime,
-                RetryRequested = _database.Client.Settings.RetryReads
+                RetryRequested = _database.Client.Settings.RetryReads,
+                CanBeRetried = _database.Client.Settings.RetryReads
             };
         }
 
@@ -1118,6 +1125,7 @@ namespace MongoDB.Driver
                 Projection = renderedProjection.Document,
                 ReadConcern = _settings.ReadConcern,
                 RetryRequested = _database.Client.Settings.RetryReads,
+                CanBeRetried = _database.Client.Settings.RetryReads,
                 ReturnKey = options.ReturnKey,
                 ShowRecordId = options.ShowRecordId,
                 Skip = options.Skip,
@@ -1213,7 +1221,8 @@ namespace MongoDB.Driver
                 Collation = options.Collation,
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern,
-                RetryRequested = _database.Client.Settings.RetryReads
+                RetryRequested = _database.Client.Settings.RetryReads,
+                CanBeRetried = _database.Client.Settings.RetryReads
             };
 
             // we want to delay execution of the find because the user may
@@ -1688,7 +1697,8 @@ namespace MongoDB.Driver
                 {
                     BatchSize = options?.BatchSize,
                     Comment = options?.Comment,
-                    RetryRequested = _collection.Database.Client.Settings.RetryReads
+                    RetryRequested = _collection.Database.Client.Settings.RetryReads,
+                    CanBeRetried = _collection.Database.Client.Settings.RetryReads
                 };
             }
         }

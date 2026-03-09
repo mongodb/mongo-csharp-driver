@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Core.Operations
         private bool _canBeRetried;
         private IRandom _random;
 
-        public RetryableReadContext(IReadBinding binding, bool retryRequested, bool canBeRetried = true, IRandom random = null)
+        public RetryableReadContext(IReadBinding binding, bool retryRequested, bool canBeRetried, IRandom random = null)
         {
             _binding = Ensure.IsNotNull(binding, nameof(binding));
             _retryRequested = retryRequested;

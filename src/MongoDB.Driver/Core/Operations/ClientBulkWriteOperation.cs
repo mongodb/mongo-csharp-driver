@@ -286,7 +286,9 @@ namespace MongoDB.Driver.Core.Operations
                 0,
                 0,
                 BsonDocumentSerializer.Instance,
-                MessageEncoderSettings);
+                MessageEncoderSettings,
+                maxTime: null,
+                canBeRetried: RetryRequested); //TODO This is a little strange, but AsyncCursor do read operation, but this a write operation. Do we keep it like this...? It should be CanBeRetried anyways, once we add it to write operations.
         }
 
         private void PopulateBulkWriteResponse(BsonDocument bulkWriteResponse, BulkWriteRawResult bulkWriteResult)

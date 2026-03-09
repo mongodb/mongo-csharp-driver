@@ -40,6 +40,7 @@ namespace MongoDB.Driver.Core.Operations
     internal sealed class ChangeStreamOperation<TResult> : IChangeStreamOperation<TResult>
     {
         private int? _batchSize;
+        private bool _canBeRetried;
         private Collation _collation;
         private BsonValue _comment;
         private readonly CollectionNamespace _collectionNamespace;
@@ -110,6 +111,13 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _collation; }
             set { _collation = value; }
+        }
+
+        /// <inheritdoc />
+        public bool CanBeRetried
+        {
+            get => _canBeRetried;
+            set => _canBeRetried = value;
         }
 
         /// <summary>
@@ -266,7 +274,7 @@ namespace MongoDB.Driver.Core.Operations
             IAsyncCursor<RawBsonDocument> cursor;
             ICursorBatchInfo cursorBatchInfo;
             BsonTimestamp initialOperationTime;
-            using (var context = new RetryableReadContext(binding, _retryRequested))
+            using (var context = new RetryableReadContext(binding, _retryRequested, _canBeRetried))
             {
                 cursor = ExecuteAggregateOperation(operationContext, context);
                 cursorBatchInfo = (ICursorBatchInfo)cursor;
@@ -301,7 +309,7 @@ namespace MongoDB.Driver.Core.Operations
             IAsyncCursor<RawBsonDocument> cursor;
             ICursorBatchInfo cursorBatchInfo;
             BsonTimestamp initialOperationTime;
-            using (var context = new RetryableReadContext(binding, _retryRequested))
+            using (var context = new RetryableReadContext(binding, _retryRequested, _canBeRetried))
             {
                 cursor = await ExecuteAggregateOperationAsync(operationContext, context).ConfigureAwait(false);
                 cursorBatchInfo = (ICursorBatchInfo)cursor;
@@ -326,7 +334,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <inheritdoc />
         public IAsyncCursor<RawBsonDocument> Resume(OperationContext operationContext, IReadBinding binding)
         {
-            using (var context = new RetryableReadContext(binding, retryRequested: false))
+            using (var context = new RetryableReadContext(binding, retryRequested: false, canBeRetried: false))
             {
                 return ExecuteAggregateOperation(operationContext, context);
             }
@@ -335,7 +343,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <inheritdoc />
         public async Task<IAsyncCursor<RawBsonDocument>> ResumeAsync(OperationContext operationContext, IReadBinding binding)
         {
-            using (var context = new RetryableReadContext(binding, retryRequested: false))
+            using (var context = new RetryableReadContext(binding, retryRequested: false, canBeRetried: false))
             {
                 return await ExecuteAggregateOperationAsync(operationContext, context).ConfigureAwait(false);
             }

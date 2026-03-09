@@ -629,6 +629,7 @@ namespace MongoDB.Driver.GridFS
         {
             var seekable = options.Seekable ?? false;
 
+            //TODO In these two methods we never pass RetryReads, is this intentional?
             if (seekable)
             {
                 return new GridFSSeekableDownloadStream<TFileId>(this, binding, fileInfo);
@@ -692,6 +693,7 @@ namespace MongoDB.Driver.GridFS
                 NoCursorTimeout = options.NoCursorTimeout,
                 ReadConcern = GetReadConcern(),
                 RetryRequested = _database.Client.Settings.RetryReads,
+                CanBeRetried = _database.Client.Settings.RetryReads,
                 Skip = options.Skip,
                 Sort = renderedSort
             };
@@ -715,6 +717,7 @@ namespace MongoDB.Driver.GridFS
                 Limit = limit,
                 ReadConcern = GetReadConcern(),
                 RetryRequested = _database.Client.Settings.RetryReads,
+                CanBeRetried = _database.Client.Settings.RetryReads,
                 Skip = skip,
                 Sort = sort
             };
@@ -735,6 +738,7 @@ namespace MongoDB.Driver.GridFS
                 Limit = 1,
                 ReadConcern = GetReadConcern(),
                 RetryRequested = _database.Client.Settings.RetryReads,
+                CanBeRetried = _database.Client.Settings.RetryReads,
                 SingleBatch = true
             };
         }
@@ -749,7 +753,8 @@ namespace MongoDB.Driver.GridFS
                 ReadConcern = GetReadConcern(),
                 SingleBatch = true,
                 Projection = new BsonDocument("_id", 1),
-                RetryRequested = _database.Client.Settings.RetryReads
+                RetryRequested = _database.Client.Settings.RetryReads,
+                CanBeRetried = _database.Client.Settings.RetryReads
             };
         }
 
@@ -758,7 +763,8 @@ namespace MongoDB.Driver.GridFS
             var messageEncoderSettings = this.GetMessageEncoderSettings();
             return new ListIndexesOperation(collectionNamespace, messageEncoderSettings)
             {
-                RetryRequested = _database.Client.Settings.RetryReads
+                RetryRequested = _database.Client.Settings.RetryReads,
+                CanBeRetried = _database.Client.Settings.RetryReads
             };
         }
 
@@ -822,7 +828,7 @@ namespace MongoDB.Driver.GridFS
         private void DownloadToStreamHelper(IReadBindingHandle binding, GridFSFileInfo<TFileId> fileInfo, Stream destination, GridFSDownloadOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             var retryReads = _database.Client.Settings.RetryReads;
-            using (var source = new GridFSForwardOnlyDownloadStream<TFileId>(this, binding.Fork(), fileInfo) { RetryReads = retryReads })
+            using (var source = new GridFSForwardOnlyDownloadStream<TFileId>(this, binding.Fork(), fileInfo) { RetryReads = retryReads})
             {
                 var count = source.Length;
                 var buffer = new byte[fileInfo.ChunkSizeBytes];
@@ -840,7 +846,7 @@ namespace MongoDB.Driver.GridFS
         private async Task DownloadToStreamHelperAsync(IReadBindingHandle binding, GridFSFileInfo<TFileId> fileInfo, Stream destination, GridFSDownloadOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             var retryReads = _database.Client.Settings.RetryReads;
-            using (var source = new GridFSForwardOnlyDownloadStream<TFileId>(this, binding.Fork(), fileInfo) { RetryReads = retryReads })
+            using (var source = new GridFSForwardOnlyDownloadStream<TFileId>(this, binding.Fork(), fileInfo) { RetryReads = retryReads})
             {
                 var count = source.Length;
                 var buffer = new byte[fileInfo.ChunkSizeBytes];

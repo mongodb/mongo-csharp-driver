@@ -57,6 +57,7 @@ namespace MongoDB.Driver.Core.Operations
         private BsonDocument _postBatchResumeToken;
         private readonly IBsonSerializer<TDocument> _serializer;
         private readonly bool _wasFirstBatchEmpty;
+        private readonly bool _canBeRetried;
 
         public AsyncCursor(
             IChannelSource channelSource,
@@ -68,7 +69,8 @@ namespace MongoDB.Driver.Core.Operations
             int? limit,
             IBsonSerializer<TDocument> serializer,
             MessageEncoderSettings messageEncoderSettings,
-            TimeSpan? maxTime = null)
+            TimeSpan? maxTime,
+            bool canBeRetried)
             : this(
                 channelSource,
                 collectionNamespace,
@@ -80,7 +82,8 @@ namespace MongoDB.Driver.Core.Operations
                 limit,
                 serializer,
                 messageEncoderSettings,
-                maxTime)
+                maxTime,
+                canBeRetried)
         {
         }
 
@@ -95,7 +98,8 @@ namespace MongoDB.Driver.Core.Operations
             int? limit,
             IBsonSerializer<TDocument> serializer,
             MessageEncoderSettings messageEncoderSettings,
-            TimeSpan? maxTime)
+            TimeSpan? maxTime,
+            bool canBeRetried)
         {
             _operationId = EventContext.OperationId;
             _channelSource = channelSource;
@@ -109,6 +113,7 @@ namespace MongoDB.Driver.Core.Operations
             _serializer = Ensure.IsNotNull(serializer, nameof(serializer));
             _messageEncoderSettings = messageEncoderSettings;
             _maxTime = maxTime;
+            _canBeRetried = canBeRetried;
 
             if (_limit > 0 && _firstBatch.Count > _limit)
             {
@@ -226,7 +231,10 @@ namespace MongoDB.Driver.Core.Operations
                     _collectionNamespace.DatabaseNamespace,
                     command,
                     __getMoreCommandResultSerializer,
-                    _messageEncoderSettings);
+                    _messageEncoderSettings)
+                {
+                    CanBeRetried = _canBeRetried
+                };
 
                 using var channelBinding = new ChannelReadWriteBinding(
                     _channelSource.Server,
@@ -255,7 +263,10 @@ namespace MongoDB.Driver.Core.Operations
                     _collectionNamespace.DatabaseNamespace,
                     command,
                     __getMoreCommandResultSerializer,
-                    _messageEncoderSettings);
+                    _messageEncoderSettings)
+                {
+                    CanBeRetried = _canBeRetried
+                };
 
                 using var channelBinding = new ChannelReadWriteBinding(
                     _channelSource.Server,

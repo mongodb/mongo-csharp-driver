@@ -68,7 +68,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
             sessionMock.SetupGet(m => m.IsInTransaction).Returns(isInTransaction);
             var bindingMock = new Mock<IReadBinding>();
             bindingMock.SetupGet(m => m.Session).Returns(sessionMock.Object);
-            return new RetryableReadContext(bindingMock.Object, retryRequested);
+            return new RetryableReadContext(bindingMock.Object, retryRequested, canBeRetried: true);
         }
 
         private static class RetryableReadOperationExecutorReflector
