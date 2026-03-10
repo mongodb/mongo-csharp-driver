@@ -786,6 +786,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return new AstUnaryExpression(AstUnaryOperator.Size, arg);
         }
 
+        public static AstExpression SimilarityFunction(AstNaryOperator @operator, AstExpression vectors1, AstExpression vectors2, AstExpression normalize)
+        {
+            return new AstSimilarityFunctionExpression(@operator, vectors1, vectors2, normalize);
+        }
+
         public static AstExpression Slice(AstExpression array, AstExpression n)
         {
             return new AstSliceExpression(array, position: null, n);

@@ -316,6 +316,12 @@ internal partial class SerializerFinderVisitor
                     DeduceToLowerOrToUpperSerializers();
                     break;
 
+                case "DotProduct":
+                case "Euclidean":
+                case "Cosine":
+                    DeduceSimilarityFunctionsSerializers();
+                    break;
+
                 default:
                     DeduceUnknownMethodSerializer();
                     break;
@@ -2427,6 +2433,18 @@ internal partial class SerializerFinderVisitor
             if (method.Is(MqlMethod.Sigmoid))
             {
                 DeduceReturnsDoubleSerializer();
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
+        }
+
+        void DeduceSimilarityFunctionsSerializers()
+        {
+            if (method.IsOneOf(SimilarityFunctionsMethod.SimilarityFunctionOverloads))
+            {
+                DeduceReturnsNumericSerializer();
             }
             else
             {
