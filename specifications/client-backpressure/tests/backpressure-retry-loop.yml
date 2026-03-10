@@ -13,6 +13,7 @@ createEntities:
       id: &client client
       useMultipleMongoses: false
       observeEvents: [commandStartedEvent, commandSucceededEvent, commandFailedEvent]
+      ignoreCommandMonitoringEvents: [killCursors]
 
   - client:
       id: &internal_client internal_client
@@ -32,7 +33,7 @@ createEntities:
       id: &database database
       client: *client
       databaseName: *database_name
-      
+
   - collection:
       id: &collection collection
       database: *database
@@ -60,7 +61,7 @@ tests:
               failCommands: [listDatabases]
               errorLabels: [RetryableError, SystemOverloadedError]
               errorCode: 2
-      
+
       - name: listDatabases
         object: *client
         arguments:
@@ -99,7 +100,7 @@ tests:
               failCommands: [listDatabases]
               errorLabels: [RetryableError, SystemOverloadedError]
               errorCode: 2
-      
+
       - name: listDatabaseNames
         object: *client
 
@@ -136,7 +137,7 @@ tests:
               failCommands: [aggregate]
               errorLabels: [RetryableError, SystemOverloadedError]
               errorCode: 2
-      
+
       - name: createChangeStream
         object: *client
         arguments:
@@ -177,7 +178,7 @@ tests:
               failCommands: [bulkWrite]
               errorLabels: [RetryableError, SystemOverloadedError]
               errorCode: 2
-      
+
       - name: clientBulkWrite
         object: *client
         arguments:
@@ -219,7 +220,7 @@ tests:
               failCommands: [aggregate]
               errorLabels: [RetryableError, SystemOverloadedError]
               errorCode: 2
-      
+
       - name: aggregate
         object: *database
         arguments:
@@ -258,7 +259,7 @@ tests:
               failCommands: [listCollections]
               errorLabels: [RetryableError, SystemOverloadedError]
               errorCode: 2
-      
+
       - name: listCollections
         object: *database
         arguments:
@@ -297,7 +298,7 @@ tests:
               failCommands: [listCollections]
               errorLabels: [RetryableError, SystemOverloadedError]
               errorCode: 2
-      
+
       - name: listCollectionNames
         object: *database
         arguments:
@@ -336,7 +337,7 @@ tests:
               failCommands: [ping]
               errorLabels: [RetryableError, SystemOverloadedError]
               errorCode: 2
-      
+
       - name: runCommand
         object: *database
         arguments:
@@ -376,7 +377,7 @@ tests:
               failCommands: [aggregate]
               errorLabels: [RetryableError, SystemOverloadedError]
               errorCode: 2
-      
+
       - name: createChangeStream
         object: *database
         arguments:
@@ -415,7 +416,7 @@ tests:
               failCommands: [aggregate]
               errorLabels: [RetryableError, SystemOverloadedError]
               errorCode: 2
-      
+
       - name: aggregate
         object: *collection
         arguments:
@@ -454,7 +455,7 @@ tests:
               failCommands: [aggregate]
               errorLabels: [RetryableError, SystemOverloadedError]
               errorCode: 2
-      
+
       - name: countDocuments
         object: *collection
         arguments:
@@ -493,7 +494,7 @@ tests:
               failCommands: [count]
               errorLabels: [RetryableError, SystemOverloadedError]
               errorCode: 2
-      
+
       - name: estimatedDocumentCount
         object: *collection
 
@@ -530,7 +531,7 @@ tests:
               failCommands: [distinct]
               errorLabels: [RetryableError, SystemOverloadedError]
               errorCode: 2
-      
+
       - name: distinct
         object: *collection
         arguments:
@@ -570,7 +571,7 @@ tests:
               failCommands: [find]
               errorLabels: [RetryableError, SystemOverloadedError]
               errorCode: 2
-      
+
       - name: find
         object: *collection
         arguments:
@@ -609,7 +610,7 @@ tests:
               failCommands: [find]
               errorLabels: [RetryableError, SystemOverloadedError]
               errorCode: 2
-      
+
       - name: findOne
         object: *collection
         arguments:
@@ -648,7 +649,7 @@ tests:
               failCommands: [listIndexes]
               errorLabels: [RetryableError, SystemOverloadedError]
               errorCode: 2
-      
+
       - name: listIndexes
         object: *collection
 
@@ -685,7 +686,7 @@ tests:
               failCommands: [listIndexes]
               errorLabels: [RetryableError, SystemOverloadedError]
               errorCode: 2
-      
+
       - name: listIndexNames
         object: *collection
 
@@ -722,7 +723,7 @@ tests:
               failCommands: [aggregate]
               errorLabels: [RetryableError, SystemOverloadedError]
               errorCode: 2
-      
+
       - name: createChangeStream
         object: *collection
         arguments:
@@ -761,7 +762,7 @@ tests:
               failCommands: [insert]
               errorLabels: [RetryableError, SystemOverloadedError]
               errorCode: 2
-      
+
       - name: insertOne
         object: *collection
         arguments:
@@ -800,7 +801,7 @@ tests:
               failCommands: [insert]
               errorLabels: [RetryableError, SystemOverloadedError]
               errorCode: 2
-      
+
       - name: insertMany
         object: *collection
         arguments:
@@ -840,7 +841,7 @@ tests:
               failCommands: [delete]
               errorLabels: [RetryableError, SystemOverloadedError]
               errorCode: 2
-      
+
       - name: deleteOne
         object: *collection
         arguments:
@@ -879,7 +880,7 @@ tests:
               failCommands: [delete]
               errorLabels: [RetryableError, SystemOverloadedError]
               errorCode: 2
-      
+
       - name: deleteMany
         object: *collection
         arguments:
@@ -918,7 +919,7 @@ tests:
               failCommands: [update]
               errorLabels: [RetryableError, SystemOverloadedError]
               errorCode: 2
-      
+
       - name: replaceOne
         object: *collection
         arguments:
@@ -958,7 +959,7 @@ tests:
               failCommands: [update]
               errorLabels: [RetryableError, SystemOverloadedError]
               errorCode: 2
-      
+
       - name: updateOne
         object: *collection
         arguments:
@@ -998,7 +999,7 @@ tests:
               failCommands: [update]
               errorLabels: [RetryableError, SystemOverloadedError]
               errorCode: 2
-      
+
       - name: updateMany
         object: *collection
         arguments:
@@ -1038,7 +1039,7 @@ tests:
               failCommands: [findAndModify]
               errorLabels: [RetryableError, SystemOverloadedError]
               errorCode: 2
-      
+
       - name: findOneAndDelete
         object: *collection
         arguments:
@@ -1077,7 +1078,7 @@ tests:
               failCommands: [findAndModify]
               errorLabels: [RetryableError, SystemOverloadedError]
               errorCode: 2
-      
+
       - name: findOneAndReplace
         object: *collection
         arguments:
@@ -1117,7 +1118,7 @@ tests:
               failCommands: [findAndModify]
               errorLabels: [RetryableError, SystemOverloadedError]
               errorCode: 2
-      
+
       - name: findOneAndUpdate
         object: *collection
         arguments:
@@ -1157,7 +1158,7 @@ tests:
               failCommands: [insert]
               errorLabels: [RetryableError, SystemOverloadedError]
               errorCode: 2
-      
+
       - name: bulkWrite
         object: *collection
         arguments:
@@ -1198,7 +1199,7 @@ tests:
               failCommands: [createIndexes]
               errorLabels: [RetryableError, SystemOverloadedError]
               errorCode: 2
-      
+
       - name: createIndex
         object: *collection
         arguments:
@@ -1243,7 +1244,7 @@ tests:
               failCommands: [dropIndexes]
               errorLabels: [RetryableError, SystemOverloadedError]
               errorCode: 2
-      
+
       - name: dropIndex
         object: *collection
         arguments:
@@ -1282,7 +1283,7 @@ tests:
               failCommands: [dropIndexes]
               errorLabels: [RetryableError, SystemOverloadedError]
               errorCode: 2
-      
+
       - name: dropIndexes
         object: *collection
 

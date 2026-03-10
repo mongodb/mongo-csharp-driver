@@ -20,6 +20,9 @@
           "commandStartedEvent",
           "commandSucceededEvent",
           "commandFailedEvent"
+        ],
+        "ignoreCommandMonitoringEvents": [
+          "killCursors"
         ]
       }
     },

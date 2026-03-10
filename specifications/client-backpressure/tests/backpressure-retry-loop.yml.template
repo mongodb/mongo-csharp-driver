@@ -13,6 +13,7 @@ createEntities:
       id: &client client
       useMultipleMongoses: false
       observeEvents: [commandStartedEvent, commandSucceededEvent, commandFailedEvent]
+      ignoreCommandMonitoringEvents: [killCursors]
 
   - client:
       id: &internal_client internal_client
@@ -32,7 +33,7 @@ createEntities:
       id: &database database
       client: *client
       databaseName: *database_name
-      
+
   - collection:
       id: &collection collection
       database: *database
@@ -69,7 +70,7 @@ tests: {% for operation in operations %}
               failCommands: [{{operation.command_name}}]
               errorLabels: [RetryableError, SystemOverloadedError]
               errorCode: 2
-      
+
       - name: {{operation.operation_name}}
         object: *{{operation.object}}
         {%- if operation.arguments|length > 0 %}
