@@ -14,6 +14,7 @@
 */
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using MongoDB.Bson.Serialization;
@@ -27,7 +28,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToSetSta
 {
     internal static class ExpressionToSetStageTranslator
     {
-        public static AstStage Translate(TranslationContext context, IBsonSerializer inputSerializer, LambdaExpression expression)
+        public static AstStage Translate(IBsonSerializer inputSerializer, LambdaExpression expression, ExpressionTranslationOptions translationOptions)
         {
             if (!DocumentSerializerHelper.AreMembersRepresentedAsFields(inputSerializer, out var documentSerializer))
             {
@@ -36,12 +37,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToSetSta
 
             if (IsNewAnonymousClass(expression, out var newExpression))
             {
-                return TranslateNewAnonymousClass(context, documentSerializer, newExpression);
+                return TranslateNewAnonymousClass(newExpression, expression, documentSerializer, translationOptions);
             }
 
             if (IsNewWithOptionalMemberInitializers(expression, out var memberInitExpression))
             {
-                return TranslateNewWithOptionalMemberInitializers(context, documentSerializer, memberInitExpression);
+                return TranslateNewWithOptionalMemberInitializers(memberInitExpression, expression, documentSerializer, translationOptions);
             }
 
             throw new ExpressionNotSupportedException(expression, because: "expression is not valid for Set");
@@ -91,7 +92,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToSetSta
                     parameters[0].ParameterType == constructor.DeclaringType;
         }
 
-        private static AstStage TranslateNewAnonymousClass(TranslationContext context, IBsonDocumentSerializer documentSerializer, NewExpression newExpression)
+        private static AstStage TranslateNewAnonymousClass(NewExpression newExpression, LambdaExpression expression, IBsonDocumentSerializer documentSerializer, ExpressionTranslationOptions translationOptions)
         {
             var members = newExpression.Members; // will be null in the case of "new { }"
             var arguments = newExpression.Arguments;
@@ -102,8 +103,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToSetSta
                 for (var i = 0; i < members.Count; i++)
                 {
                     var member = members[i];
-                    var valueExpression = LinqExpressionPreprocessor.Preprocess(arguments[i]);
-                    var computedField = CreateComputedField(context, documentSerializer, member, valueExpression);
+                    var computedField = CreateComputedField(member, arguments[i], expression, documentSerializer, translationOptions);
                     fields.Add(computedField);
                 }
             }
@@ -111,7 +111,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToSetSta
             return AstStage.Set(fields);
         }
 
-        private static AstStage TranslateNewWithOptionalMemberInitializers(TranslationContext context, IBsonDocumentSerializer documentSerializer, MemberInitExpression memberInitExpression)
+        private static AstStage TranslateNewWithOptionalMemberInitializers(MemberInitExpression memberInitExpression, LambdaExpression expression, IBsonDocumentSerializer documentSerializer, ExpressionTranslationOptions translationOptions)
         {
             var fields = new List<AstComputedField>();
             if (memberInitExpression != null)
@@ -127,8 +127,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToSetSta
                     }
 
                     var member = binding.Member;
-                    var valueExpression = LinqExpressionPreprocessor.Preprocess(assignment.Expression);
-                    var computedField = CreateComputedField(context, documentSerializer, member, valueExpression);
+                    var computedField = CreateComputedField(member, assignment.Expression, expression, documentSerializer, translationOptions);
                     fields.Add(computedField);
                 }
             }
@@ -136,32 +135,41 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToSetSta
             return AstStage.Set(fields);
         }
 
-        private static AstComputedField CreateComputedField(TranslationContext context, IBsonDocumentSerializer documentSerializer, MemberInfo member, Expression valueExpression)
+        private static AstComputedField CreateComputedField(MemberInfo member, Expression valueExpression, LambdaExpression rootExpression, IBsonDocumentSerializer documentSerializer, ExpressionTranslationOptions translationOptions)
         {
-            string elementName;
+            valueExpression = LinqExpressionPreprocessor.Preprocess(valueExpression);
+            var elementName = member.Name;
             AstExpression valueAst;
-            if (documentSerializer.TryGetMemberSerializationInfo(member.Name, out var serializationInfo))
+
+            var rootDocumentParameter = rootExpression.Parameters.Single();
+            var initialSerializers = new List<(Expression Node, IBsonSerializer Serializer)> { (rootDocumentParameter, documentSerializer) };
+            if (documentSerializer.TryGetMemberSerializationInfo(member.Name, out var serializationInfo) &&
+                valueExpression.Type == serializationInfo.Serializer.ValueType)
             {
                 elementName = serializationInfo.ElementName;
-                var memberSerializer = serializationInfo.Serializer;
+                initialSerializers.Add((valueExpression, serializationInfo.Serializer));
+            }
 
-                if (valueExpression is ConstantExpression constantValueExpression)
-                {
-                    var value = constantValueExpression.Value;
-                    var serializedValue = SerializationHelper.SerializeValue(memberSerializer, value);
-                    valueAst = AstExpression.Constant(serializedValue);
-                }
-                else
-                {
-                    var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
-                    ThrowIfMemberAndValueSerializersAreNotCompatible(valueExpression, memberSerializer, valueTranslation.Serializer);
-                    valueAst = valueTranslation.Ast;
-                }
+            var context = TranslationContext.Create(valueExpression, initialSerializers, translationOptions);
+
+            var valueSerializer = context.GetSerializer(valueExpression);
+            if (valueExpression is ConstantExpression constantValueExpression)
+            {
+                var value = constantValueExpression.Value;
+                var serializedValue = SerializationHelper.SerializeValue(valueSerializer, value);
+                valueAst = AstExpression.Constant(serializedValue);
             }
             else
             {
-                elementName = member.Name;
+                var symbol = context.CreateRootSymbol(rootDocumentParameter, documentSerializer);
+                context = context.WithSymbol(symbol);
+
                 var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
+                if (serializationInfo != null)
+                {
+                    ThrowIfMemberAndValueSerializersAreNotCompatible(valueExpression, serializationInfo.Serializer, valueTranslation.Serializer);
+                }
+
                 valueAst = valueTranslation.Ast;
             }
 
