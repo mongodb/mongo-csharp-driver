@@ -216,7 +216,8 @@ namespace MongoDB.Driver.Linq
             IBsonSerializerRegistry serializerRegistry,
             ExpressionTranslationOptions translationOptions)
         {
-            // do not partially evaluate expression
+            // Pass the expression through without pre-processing here; value expressions in the $set translation
+            // will be partially evaluated while the members translation by ExpressionToSetStageTranslator.
             var setStage = ExpressionToSetStageTranslator.Translate(documentSerializer, expression, translationOptions);
             var simplifiedSetStage = AstSimplifier.SimplifyAndConvert(setStage);
             return simplifiedSetStage.Render().AsBsonDocument;

@@ -139,7 +139,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToSetSta
         {
             valueExpression = LinqExpressionPreprocessor.Preprocess(valueExpression);
             var elementName = member.Name;
-            AstExpression valueAst;
 
             var rootDocumentParameter = rootExpression.Parameters.Single();
             var initialSerializers = new List<(Expression Node, IBsonSerializer Serializer)> { (rootDocumentParameter, documentSerializer) };
@@ -148,32 +147,27 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToSetSta
             {
                 elementName = serializationInfo.ElementName;
                 initialSerializers.Add((valueExpression, serializationInfo.Serializer));
+
+                if (valueExpression is ConstantExpression constantValueExpression)
+                {
+                    var value = constantValueExpression.Value;
+                    var serializedValue = SerializationHelper.SerializeValue(serializationInfo.Serializer, value);
+
+                    return AstExpression.ComputedField(elementName, AstExpression.Constant(serializedValue));
+                }
             }
 
             var context = TranslationContext.Create(valueExpression, initialSerializers, translationOptions);
+            var symbol = context.CreateRootSymbol(rootDocumentParameter, documentSerializer);
+            context = context.WithSymbol(symbol);
 
-            var valueSerializer = context.GetSerializer(valueExpression);
-            if (valueExpression is ConstantExpression constantValueExpression)
+            var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
+            if (serializationInfo != null)
             {
-                var value = constantValueExpression.Value;
-                var serializedValue = SerializationHelper.SerializeValue(valueSerializer, value);
-                valueAst = AstExpression.Constant(serializedValue);
-            }
-            else
-            {
-                var symbol = context.CreateRootSymbol(rootDocumentParameter, documentSerializer);
-                context = context.WithSymbol(symbol);
-
-                var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
-                if (serializationInfo != null)
-                {
-                    ThrowIfMemberAndValueSerializersAreNotCompatible(valueExpression, serializationInfo.Serializer, valueTranslation.Serializer);
-                }
-
-                valueAst = valueTranslation.Ast;
+                ThrowIfMemberAndValueSerializersAreNotCompatible(valueExpression, serializationInfo.Serializer, valueTranslation.Serializer);
             }
 
-            return AstExpression.ComputedField(elementName, valueAst);
+            return AstExpression.ComputedField(elementName, valueTranslation.Ast);
         }
 
         private static void ThrowIfMemberAndValueSerializersAreNotCompatible(Expression expression, IBsonSerializer memberSerializer, IBsonSerializer valueSerializer)
