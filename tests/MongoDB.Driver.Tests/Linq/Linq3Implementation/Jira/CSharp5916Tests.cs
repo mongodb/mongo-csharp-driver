@@ -68,7 +68,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         {
             public int Id { get; set; }
             public Health Health { get; set; }
-            public string Note { get; set; }
         }
 
         [BsonIgnoreExtraElements]
