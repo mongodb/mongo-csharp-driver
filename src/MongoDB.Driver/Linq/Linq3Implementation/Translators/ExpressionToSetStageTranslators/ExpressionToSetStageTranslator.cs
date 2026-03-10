@@ -142,11 +142,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToSetSta
 
             var rootDocumentParameter = rootExpression.Parameters.Single();
             var initialSerializers = new List<(Expression Node, IBsonSerializer Serializer)> { (rootDocumentParameter, documentSerializer) };
-            if (documentSerializer.TryGetMemberSerializationInfo(member.Name, out var serializationInfo) &&
-                valueExpression.Type == serializationInfo.Serializer.ValueType)
+            if (documentSerializer.TryGetMemberSerializationInfo(member.Name, out var serializationInfo))
             {
                 elementName = serializationInfo.ElementName;
-                initialSerializers.Add((valueExpression, serializationInfo.Serializer));
 
                 if (valueExpression is ConstantExpression constantValueExpression)
                 {
@@ -154,6 +152,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToSetSta
                     var serializedValue = SerializationHelper.SerializeValue(serializationInfo.Serializer, value);
 
                     return AstExpression.ComputedField(elementName, AstExpression.Constant(serializedValue));
+                }
+
+                if (valueExpression.Type == serializationInfo.Serializer.ValueType)
+                {
+                    initialSerializers.Add((valueExpression, serializationInfo.Serializer));
                 }
             }
 
