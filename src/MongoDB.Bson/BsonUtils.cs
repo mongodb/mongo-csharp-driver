@@ -15,6 +15,8 @@
 
 using System;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -120,7 +122,8 @@ namespace MongoDB.Bson
         /// <returns>The hex character.</returns>
         public static char ToHexChar(int value)
         {
-            return (char)(value + (value < 10 ? '0' : 'a' - 10));
+            int x = value + '0';
+            return (char)(x + (((9 - value) >> 31) & 39));
         }
 
         /// <summary>
@@ -169,6 +172,16 @@ namespace MongoDB.Bson
             var c = new char[length * 2];
             ToHexChars(bytes, c.AsSpan());
             return c;
+        }
+
+        /// <summary>
+        /// Get the 2-character hex value of the byte, combined into a single uint
+        /// </summary>
+        /// <param name="byteValue">The byte to convert</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static uint GetHexChars(byte byteValue)
+        {
+            return HexConverter.GetHexChars(byteValue);
         }
 
         /// <summary>
@@ -353,19 +366,22 @@ namespace MongoDB.Bson
 
                 return result;
             }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public static uint GetHexChars(byte byteValue)
+            {
+                return s_hexLookup[byteValue];
+            }
+
             public static void ToHexChars(ReadOnlySpan<byte> bytes, Span<char> chars)
             {
                 if (chars.Length != bytes.Length * 2)
                     throw new ArgumentException("Length of character span should be 2x byte span");
 
-                int j = 0;
-
+                var uintSpan = MemoryMarshal.Cast<char, uint>(chars);
                 for (int i = 0; i < bytes.Length; i++)
                 {
-                    uint packed = s_hexLookup[bytes[i]];
-
-                    chars[j++] = (char)packed;
-                    chars[j++] = (char)(packed >> 16);
+                    uintSpan[i] = s_hexLookup[bytes[i]];
                 }
             }
         }

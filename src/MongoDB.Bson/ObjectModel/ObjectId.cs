@@ -512,11 +512,20 @@ namespace MongoDB.Bson
             {
                 throw new ArgumentException("Not enough room in destination span.", "offset");
             }
-            Span<int> intValues = stackalloc int[3];
-            intValues[0] = BinaryPrimitives.ReverseEndianness(_a);
-            intValues[1] = BinaryPrimitives.ReverseEndianness(_b);
-            intValues[2] = BinaryPrimitives.ReverseEndianness(_c);
-            BsonUtils.ToHexChars(MemoryMarshal.AsBytes(intValues), span);
+
+            var uintSpan = MemoryMarshal.Cast<char, uint>(span);
+            uintSpan[0] = BsonUtils.GetHexChars((byte)(_a >> 24));
+            uintSpan[1] = BsonUtils.GetHexChars((byte)(_a >> 16));
+            uintSpan[2] = BsonUtils.GetHexChars((byte)(_a >> 8));
+            uintSpan[3] = BsonUtils.GetHexChars((byte)_a);
+            uintSpan[4] = BsonUtils.GetHexChars((byte)(_b >> 24));
+            uintSpan[5] = BsonUtils.GetHexChars((byte)(_b >> 16));
+            uintSpan[6] = BsonUtils.GetHexChars((byte)(_b >> 8));
+            uintSpan[7] = BsonUtils.GetHexChars((byte)_b);
+            uintSpan[8] = BsonUtils.GetHexChars((byte)(_c >> 24));
+            uintSpan[9] =  BsonUtils.GetHexChars((byte)(_c >> 16));
+            uintSpan[10] = BsonUtils.GetHexChars((byte)(_c >> 8));
+            uintSpan[11] = BsonUtils.GetHexChars((byte)_c);
         }
 
         // explicit IConvertible implementation
