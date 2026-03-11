@@ -1,4 +1,4 @@
-﻿/* Copyright 2017-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ namespace MongoDB.Driver
     /// A client session handle.
     /// </summary>
     /// <seealso cref="MongoDB.Driver.IClientSessionHandle" />
-    internal sealed class ClientSessionHandle : IClientSessionHandle
+    internal sealed class ClientSessionHandle : IClientSessionHandle, IClientSessionInternal
     {
         // private fields
         private readonly IMongoClient _client;
@@ -34,6 +34,7 @@ namespace MongoDB.Driver
         private readonly ICoreSessionHandle _coreSession;
         private bool _disposed;
         private readonly ClientSessionOptions _options;
+        private readonly IRandom _random;
         private IServerSession _serverSession;
 
         // constructors
@@ -44,16 +45,17 @@ namespace MongoDB.Driver
         /// <param name="options">The options.</param>
         /// <param name="coreSession">The wrapped session.</param>
         public ClientSessionHandle(IMongoClient client, ClientSessionOptions options, ICoreSessionHandle coreSession)
-            : this(client, options, coreSession, SystemClock.Instance)
+            : this(client, options, coreSession, SystemClock.Instance, DefaultRandom.Instance)
         {
         }
 
-        internal ClientSessionHandle(IMongoClient client, ClientSessionOptions options, ICoreSessionHandle coreSession, IClock clock)
+        internal ClientSessionHandle(IMongoClient client, ClientSessionOptions options, ICoreSessionHandle coreSession, IClock clock, IRandom random)
         {
             _client = client;
             _options = options;
             _coreSession = coreSession;
             _clock = clock;
+            _random = random;
         }
 
         // public properties
@@ -89,21 +91,27 @@ namespace MongoDB.Driver
             }
         }
 
+        public BsonTimestamp SnapshotTime => _coreSession.SnapshotTime;
+
         /// <inheritdoc />
         public ICoreSessionHandle WrappedCoreSession => _coreSession;
 
         // public methods
         /// <inheritdoc />
-        public void AbortTransaction(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            _coreSession.AbortTransaction(cancellationToken);
-        }
+        public void AbortTransaction(CancellationToken cancellationToken = default)
+            => _coreSession.AbortTransaction(cancellationToken);
+
+        // TODO: CSOT: Make it public when CSOT will be ready for GA and add default value to cancellationToken parameter.
+        void IClientSessionInternal.AbortTransaction(AbortTransactionOptions options, CancellationToken cancellationToken)
+            => _coreSession.AbortTransaction(options, cancellationToken);
 
         /// <inheritdoc />
-        public Task AbortTransactionAsync(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return _coreSession.AbortTransactionAsync(cancellationToken);
-        }
+        public Task AbortTransactionAsync(CancellationToken cancellationToken = default)
+            => _coreSession.AbortTransactionAsync(cancellationToken);
+
+        // TODO: CSOT: Make it public when CSOT will be ready for GA and add default value to cancellationToken parameter.
+        Task IClientSessionInternal.AbortTransactionAsync(AbortTransactionOptions options, CancellationToken cancellationToken)
+            => _coreSession.AbortTransactionAsync(options, cancellationToken);
 
         /// <inheritdoc />
         public void AdvanceClusterTime(BsonDocument newClusterTime)
@@ -118,16 +126,20 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public void CommitTransaction(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            _coreSession.CommitTransaction(cancellationToken);
-        }
+        public void CommitTransaction(CancellationToken cancellationToken = default)
+            => _coreSession.CommitTransaction(cancellationToken);
+
+        // TODO: CSOT: Make it public when CSOT will be ready for GA and add default value to cancellationToken parameter.
+        void IClientSessionInternal.CommitTransaction(CommitTransactionOptions options, CancellationToken cancellationToken)
+            => _coreSession.CommitTransaction(options, cancellationToken);
 
         /// <inheritdoc />
-        public Task CommitTransactionAsync(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return _coreSession.CommitTransactionAsync(cancellationToken);
-        }
+        public Task CommitTransactionAsync(CancellationToken cancellationToken = default)
+            => _coreSession.CommitTransactionAsync(cancellationToken);
+
+        // TODO: CSOT: Make it public when CSOT will be ready for GA and add default value to cancellationToken parameter.
+        Task IClientSessionInternal.CommitTransactionAsync(CommitTransactionOptions options, CancellationToken cancellationToken)
+            => _coreSession.CommitTransactionAsync(options, cancellationToken);
 
         /// <inheritdoc />
         public void Dispose()
@@ -150,7 +162,11 @@ namespace MongoDB.Driver
         public void StartTransaction(TransactionOptions transactionOptions = null)
         {
             var effectiveTransactionOptions = GetEffectiveTransactionOptions(transactionOptions);
-            _coreSession.StartTransaction(effectiveTransactionOptions);
+
+            var tracingOptions = _client?.Settings?.TracingOptions;
+            var isTracingEnabled = tracingOptions == null || !tracingOptions.Disabled;
+
+            ((ICoreSessionInternal)_coreSession).StartTransaction(effectiveTransactionOptions, isTracingEnabled);
         }
 
         /// <inheritdoc />
@@ -158,7 +174,7 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(callback, nameof(callback));
 
-            return TransactionExecutor.ExecuteWithRetries(this, callback, transactionOptions, _clock, cancellationToken);
+            return TransactionExecutor.ExecuteWithRetries(this, callback, transactionOptions, _clock, _random, cancellationToken);
         }
 
         /// <inheritdoc />
@@ -166,7 +182,7 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(callbackAsync, nameof(callbackAsync));
 
-            return TransactionExecutor.ExecuteWithRetriesAsync(this, callbackAsync, transactionOptions, _clock, cancellationToken);
+            return TransactionExecutor.ExecuteWithRetriesAsync(this, callbackAsync, transactionOptions, _clock, _random, cancellationToken);
         }
 
         private TransactionOptions GetEffectiveTransactionOptions(TransactionOptions transactionOptions)

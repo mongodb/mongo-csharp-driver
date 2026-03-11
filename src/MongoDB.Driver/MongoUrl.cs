@@ -64,6 +64,10 @@ namespace MongoDB.Driver
         private readonly bool? _retryReads;
         private readonly bool? _retryWrites;
         private readonly TimeSpan _localThreshold;
+        private readonly string _proxyHost;
+        private readonly int? _proxyPort;
+        private readonly string _proxyUsername;
+        private readonly string _proxyPassword;
         private readonly ConnectionStringScheme _scheme;
         private readonly IEnumerable<MongoServerAddress> _servers;
         private readonly ServerMonitoringMode? _serverMonitoringMode;
@@ -71,6 +75,7 @@ namespace MongoDB.Driver
         private readonly TimeSpan _socketTimeout;
         private readonly int? _srvMaxHosts;
         private readonly string _srvServiceName;
+        private readonly TimeSpan? _timeout;
         private readonly bool _tlsDisableCertificateRevocationCheck;
         private readonly string _username;
         private readonly bool _useTls;
@@ -117,6 +122,10 @@ namespace MongoDB.Driver
             _maxConnectionPoolSize = builder.MaxConnectionPoolSize;
             _minConnectionPoolSize = builder.MinConnectionPoolSize;
             _password = builder.Password;
+            _proxyHost = builder.ProxyHost;
+            _proxyPort = builder.ProxyPort;
+            _proxyUsername = builder.ProxyUsername;
+            _proxyPassword = builder.ProxyPassword;
             _readConcernLevel = builder.ReadConcernLevel;
             _readPreference = builder.ReadPreference;
             _replicaSetName = builder.ReplicaSetName;
@@ -129,6 +138,7 @@ namespace MongoDB.Driver
             _socketTimeout = builder.SocketTimeout;
             _srvMaxHosts = builder.SrvMaxHosts;
             _srvServiceName = builder.SrvServiceName;
+            _timeout = builder.Timeout;
             _tlsDisableCertificateRevocationCheck = builder.TlsDisableCertificateRevocationCheck;
             _username = builder.Username;
             _useTls = builder.UseTls;
@@ -359,6 +369,26 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets the proxy host.
+        /// </summary>
+        public string ProxyHost => _proxyHost;
+
+        /// <summary>
+        /// Gets the proxy port.
+        /// </summary>
+        public int? ProxyPort => _proxyPort;
+
+        /// <summary>
+        /// Gets the proxy username.
+        /// </summary>
+        public string ProxyUsername => _proxyUsername;
+
+        /// <summary>
+        /// Gets the proxy password.
+        /// </summary>
+        public string ProxyPassword => _proxyPassword;
+
+        /// <summary>
         /// Gets the read concern level.
         /// </summary>
         public ReadConcernLevel? ReadConcernLevel
@@ -461,6 +491,12 @@ namespace MongoDB.Driver
         {
             get { return _srvServiceName; }
         }
+
+        /// <summary>
+        /// Gets the per-operation timeout
+        /// </summary>
+        // TODO: CSOT: Make it public when CSOT will be ready for GA
+        internal TimeSpan? Timeout => _timeout;
 
         /// <summary>
         /// Gets whether or not to disable checking certificate revocation status during the TLS handshake.
@@ -750,12 +786,6 @@ namespace MongoDB.Driver
         public override string ToString()
         {
             return _url;
-        }
-
-        // private methods
-        private bool AnyWriteConcernSettingsAreSet()
-        {
-            return _fsync != null || _journal != null || _w != null || _wTimeout != null;
         }
     }
 }

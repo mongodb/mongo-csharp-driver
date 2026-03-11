@@ -29,29 +29,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class DateTimeSubtractWithDateTimeMethodToAggregationExpressionTranslator
     {
-        private readonly static MethodInfo[] __dateTimeSubtractWithDateTimeMethods =
-        {
-            DateTimeMethod.SubtractWithDateTime,
-            DateTimeMethod.SubtractWithDateTimeAndTimezone,
-            DateTimeMethod.SubtractWithDateTimeAndUnit,
-            DateTimeMethod.SubtractWithDateTimeAndUnitAndTimezone
-        };
-
-        private readonly static MethodInfo[] __dateTimeSubtractWithTimezoneMethods =
-        {
-            DateTimeMethod.SubtractWithDateTimeAndTimezone,
-            DateTimeMethod.SubtractWithDateTimeAndUnitAndTimezone
-        };
-
-        private readonly static MethodInfo[] __dateTimeSubtractWithUnitMethods =
-        {
-            DateTimeMethod.SubtractWithDateTimeAndUnit,
-            DateTimeMethod.SubtractWithDateTimeAndUnitAndTimezone
-        };
-
         public static bool CanTranslate(MethodCallExpression expression)
         {
-            return expression.Method.IsOneOf(__dateTimeSubtractWithDateTimeMethods);
+            return expression.Method.IsOneOf(DateTimeMethod.SubtractWithDateTimeOverloads);
         }
 
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
@@ -59,7 +39,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__dateTimeSubtractWithDateTimeMethods))
+            if (method.IsOneOf(DateTimeMethod.SubtractWithDateTimeOverloads))
             {
                 Expression thisExpression, valueExpression;
                 if (method.IsStatic)
@@ -78,7 +58,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                 AstExpression unit, startOfWeek;
                 IBsonSerializer serializer;
-                if (method.IsOneOf(__dateTimeSubtractWithUnitMethods))
+                if (method.IsOneOf(DateTimeMethod.SubtractWithUnitOverloads))
                 {
                     var unitExpression = arguments[2];
                     var unitConstant = unitExpression.GetConstantValue<DateTimeUnit>(containingExpression: expression);
@@ -101,7 +81,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 }
 
                 AstExpression timezone = null;
-                if (method.IsOneOf(__dateTimeSubtractWithTimezoneMethods))
+                if (method.IsOneOf(DateTimeMethod.SubtractWithTimezoneOverloads))
                 {
                     var timezoneExpression = arguments.Last();
                     var timezoneTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, timezoneExpression);

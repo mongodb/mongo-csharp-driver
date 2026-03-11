@@ -13,24 +13,28 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using FluentAssertions;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
-    public class IsMatchMethodToAggregationExpressionTranslatorTests : Linq3IntegrationTest
+    public class IsMatchMethodToAggregationExpressionTranslatorTests : LinqIntegrationTest<IsMatchMethodToAggregationExpressionTranslatorTests.ClassFixture>
     {
+        public IsMatchMethodToAggregationExpressionTranslatorTests(ClassFixture fixture)
+            : base(fixture, server => server.Supports(Feature.RegexMatch))
+        {
+        }
+
         [Fact]
         public void Should_translate_instance_regex_isMatch()
         {
-            RequireServer.Check().Supports(Feature.RegexMatch);
-
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var regex = new Regex(@"\dB.*0");
             var queryable = collection.AsQueryable()
                 .Where(i => regex.IsMatch(i.A + i.B));
@@ -45,9 +49,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Should_translate_static_regex_isMatch()
         {
-            RequireServer.Check().Supports(Feature.RegexMatch);
+            RequireServer.Check();
 
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(i => Regex.IsMatch(i.A + i.B, @"\dB.*0"));
 
@@ -61,9 +65,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Should_translate_static_regex_isMatch_with_options()
         {
-            RequireServer.Check().Supports(Feature.RegexMatch);
-
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(i => Regex.IsMatch(i.A + i.B, @"\dB.*0", RegexOptions.IgnoreCase));
 
@@ -74,21 +76,20 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             result.Id.Should().Be(2);
         }
 
-        private IMongoCollection<Data> CreateCollection()
-        {
-            var collection = GetCollection<Data>("test");
-            CreateCollection(
-                collection,
-                new Data { Id = 1, A = "ABC", B = "1" },
-                new Data { Id = 2, A = "1Br", B = "0" });
-            return collection;
-        }
-
-        private class Data
+        public class Data
         {
             public int Id { get; set; }
             public string A { get; set; }
             public string B { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<Data>
+        {
+            protected override IEnumerable<Data> InitialData =>
+            [
+                new Data { Id = 1, A = "ABC", B = "1" },
+                new Data { Id = 2, A = "1Br", B = "0" }
+            ];
         }
     }
 }

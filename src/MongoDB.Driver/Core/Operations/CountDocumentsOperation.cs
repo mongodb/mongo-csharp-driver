@@ -1,4 +1,4 @@
-﻿/* Copyright 2018-present MongoDB Inc.
+/* Copyright 2018-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
@@ -92,6 +91,8 @@ namespace MongoDB.Driver.Core.Operations
             get { return _messageEncoderSettings; }
         }
 
+        public string OperationName => "countDocuments";
+
         public ReadConcern ReadConcern
         {
             get { return _readConcern; }
@@ -110,33 +111,33 @@ namespace MongoDB.Driver.Core.Operations
             set { _skip = value; }
         }
 
-        public long Execute(IReadBinding binding, CancellationToken cancellationToken)
+        public long Execute(OperationContext operationContext, IReadBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
             {
                 var operation = CreateOperation();
-                var cursor = operation.Execute(binding, cancellationToken);
-                var result = cursor.ToList(cancellationToken);
+                var cursor = operation.Execute(operationContext, binding);
+                var result = cursor.ToList(operationContext.CancellationToken);
                 return ExtractCountFromResult(result);
             }
         }
 
-        public async Task<long> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
+        public async Task<long> ExecuteAsync(OperationContext operationContext, IReadBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
             {
                 var operation = CreateOperation();
-                var cursor = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
-                var result = await cursor.ToListAsync(cancellationToken).ConfigureAwait(false);
+                var cursor = await operation.ExecuteAsync(operationContext, binding).ConfigureAwait(false);
+                var result = await cursor.ToListAsync(operationContext.CancellationToken).ConfigureAwait(false);
                 return ExtractCountFromResult(result);
             }
         }
 
-        private IDisposable BeginOperation() => EventContext.BeginOperation("aggregate");
+        private EventContext.OperationNameDisposer BeginOperation() => EventContext.BeginOperation("aggregate");
 
         private AggregateOperation<BsonDocument> CreateOperation()
         {

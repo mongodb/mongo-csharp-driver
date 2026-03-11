@@ -13,22 +13,26 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
-    public class OrderByMethodToAggregationExpressionTranslatorTests : Linq3IntegrationTest
+    public class OrderByMethodToAggregationExpressionTranslatorTests : LinqIntegrationTest<OrderByMethodToAggregationExpressionTranslatorTests.ClassFixture>
     {
+        public OrderByMethodToAggregationExpressionTranslatorTests(ClassFixture fixture)
+            : base(fixture, server => server.Supports(Feature.SortArrayOperator))
+        {
+        }
+
         [Fact]
         public void Enumerable_OrderBy_should_work()
         {
-            RequireServer.Check().Supports(Feature.SortArrayOperator);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable().Select(x => x.A.OrderBy(x => x.X));
 
@@ -42,8 +46,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Enumerable_OrderByDescending_should_work()
         {
-            RequireServer.Check().Supports(Feature.SortArrayOperator);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable().Select(x => x.A.OrderByDescending(x => x.X));
 
@@ -57,8 +60,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Enumerable_ThenBy_should_work()
         {
-            RequireServer.Check().Supports(Feature.SortArrayOperator);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable().Select(x => x.A.OrderByDescending(x => x.X).ThenBy(x => x.Y));
 
@@ -72,8 +74,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Enumerable_ThenByDescending_should_work()
         {
-            RequireServer.Check().Supports(Feature.SortArrayOperator);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable().Select(x => x.A.OrderBy(x => x.X).ThenByDescending(x => x.Y));
 
@@ -87,8 +88,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Queryable_OrderBy_should_work()
         {
-            RequireServer.Check().Supports(Feature.SortArrayOperator);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable().Select(x => x.A.AsQueryable().OrderBy(x => x.X));
 
@@ -102,8 +102,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Queryable_OrderByDescending_should_work()
         {
-            RequireServer.Check().Supports(Feature.SortArrayOperator);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable().Select(x => x.A.AsQueryable().OrderByDescending(x => x.X));
 
@@ -117,8 +116,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Queryable_ThenBy_should_work()
         {
-            RequireServer.Check().Supports(Feature.SortArrayOperator);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable().Select(x => x.A.AsQueryable().OrderByDescending(x => x.X).ThenBy(x => x.Y));
 
@@ -132,8 +130,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Queryable_ThenByDescending_should_work()
         {
-            RequireServer.Check().Supports(Feature.SortArrayOperator);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable().Select(x => x.A.AsQueryable().OrderBy(x => x.X).ThenByDescending(x => x.Y));
 
@@ -144,16 +141,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             result.Select(x => x.Y).Should().Equal(2, 1, 4, 3);
         }
 
-        private IMongoCollection<C> CreateCollection()
-        {
-            var collection = GetCollection<C>("test");
-            CreateCollection(
-                collection,
-                new C { Id = 1, A = new A[] { new A(1, 1), new A(1, 2), new A(2, 3), new A(2, 4)  } });
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public A[] A { get; set; }
@@ -161,9 +149,17 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
 
         public class A
         {
-            public A(int x, int y) { X = x; Y = y; } 
+            public A(int x, int y) { X = x; Y = y; }
             public int X { get; set; }
             public int Y { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, A = new A[] { new A(1, 1), new A(1, 2), new A(2, 3), new A(2, 4) } }
+            ];
         }
     }
 }

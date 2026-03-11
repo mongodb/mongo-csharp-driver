@@ -23,6 +23,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Examples
 {
+    [Trait("Category", "Integration")]
     public class DocumentationExamples
     {
         private readonly IMongoClient client;
@@ -41,7 +42,7 @@ namespace MongoDB.Driver.Examples
         [Fact]
         public void Example_1()
         {
-            // db.inventory.insertOne( { item: "canvas", qty: 100, tags: ["cotton"], size: { h: 28, w: 35.5, uom: "cm" } } ) 
+            // db.inventory.insertOne( { item: "canvas", qty: 100, tags: ["cotton"], size: { h: 28, w: 35.5, uom: "cm" } } )
 
             // Start Example 1
             var document = new BsonDocument
@@ -76,10 +77,10 @@ namespace MongoDB.Driver.Examples
         [Fact]
         public void Example_3()
         {
-            // db.inventory.insertMany([ 
+            // db.inventory.insertMany([
             //   { item: "journal", qty: 25, tags: ["blank", "red"], size: { h: 14, w: 21, uom: "cm" } },
             //   { item: "mat", qty: 85, tags: ["gray"], size: { h: 27.9, w: 35.5, uom: "cm" } },
-            //   { item: "mousepad", qty: 25, tags: ["gel", "blue"], size: { h: 19, w: 22.85, uom: "cm" } } ]) 
+            //   { item: "mousepad", qty: 25, tags: ["gel", "blue"], size: { h: 19, w: 22.85, uom: "cm" } } ])
 
             // Start Example 3
             var documents = new BsonDocument[]
@@ -125,7 +126,7 @@ namespace MongoDB.Driver.Examples
             //   { item: "notebook", qty: 50, size: { h: 8.5, w: 11, uom: "in" }, status: "A" },
             //   { item: "paper", qty: 100, size: { h: 8.5, w: 11, uom: "in" }, status: "D" },
             //   { item: "planner", qty: 75, size: { h: 22.85, w: 30, uom: "cm" }, status: "D" },
-            //   { item: "postcard", qty: 45, size: { h: 10, w: 15.25, uom: "cm" }, status: "A" } ]) 
+            //   { item: "postcard", qty: 45, size: { h: 10, w: 15.25, uom: "cm" }, status: "A" } ])
 
             // Start Example 6
             var documents = new BsonDocument[]
@@ -265,7 +266,7 @@ namespace MongoDB.Driver.Examples
         [Fact]
         public void Example_14()
         {
-            // db.inventory.insertMany( [ 
+            // db.inventory.insertMany( [
             //   { item: "journal", qty: 25, size: { h: 14, w: 21, uom: "cm" }, status: "A" },
             //   { item: "notebook", qty: 50, size: { h: 8.5, w: 11, uom: "in" }, status: "A" },
             //   { item: "paper", qty: 100, size: { h: 8.5, w: 11, uom: "in" }, status: "D" },
@@ -392,7 +393,7 @@ namespace MongoDB.Driver.Examples
         [Fact]
         public void Example_20()
         {
-            // db.inventory.insertMany([ 
+            // db.inventory.insertMany([
             //   { item: "journal", qty: 25, tags: ["blank", "red"], dim_cm: [ 14, 21 ] },
             //   { item: "notebook", qty: 50, tags: ["red", "blank"], dim_cm: [ 14, 21 ] },
             //   { item: "paper", qty: 100, tags: ["red", "blank", "plain"], dim_cm: [ 14, 21 ] },
@@ -559,7 +560,7 @@ namespace MongoDB.Driver.Examples
         [Fact]
         public void Example_29()
         {
-            // db.inventory.insertMany( [ 
+            // db.inventory.insertMany( [
             //   { item: "journal", instock: [ { warehouse: "A", qty: 5 }, { warehouse: "C", qty: 15 } ] },
             //   { item: "notebook", instock: [ { warehouse: "C", qty: 5 } ] },
             //   { item: "paper", instock: [ { warehouse: "A", qty: 60 }, { warehouse: "B", qty: 15 } ] },
@@ -795,7 +796,7 @@ namespace MongoDB.Driver.Examples
         [Fact]
         public void Example_42()
         {
-            // db.inventory.insertMany( [ 
+            // db.inventory.insertMany( [
             //   { item: "journal", status: "A", size: { h: 14, w: 21, uom: "cm" }, instock: [ { warehouse: "A", qty: 5 } ] },
             //   { item: "notebook", status: "A", size: { h: 8.5, w: 11, uom: "in" }, instock: [ { warehouse: "C", qty: 5 } ] },
             //   { item: "paper", status: "D", size: { h: 8.5, w: 11, uom: "in" }, instock: [ { warehouse: "A", qty: 60 } ] },
@@ -992,7 +993,7 @@ namespace MongoDB.Driver.Examples
         [Fact]
         public void Example_51()
         {
-            // db.inventory.insertMany( [ 
+            // db.inventory.insertMany( [
             //   { item: "canvas", qty: 100, size: { h: 28, w: 35.5, uom: "cm" }, status: "A" },
             //   { item: "journal", qty: 25, size: { h: 14, w: 21, uom: "cm" }, status: "A" },
             //   { item: "mat", qty: 85, size: { h: 27.9, w: 35.5, uom: "cm" }, status: "A" },
@@ -1002,7 +1003,7 @@ namespace MongoDB.Driver.Examples
             //   { item: "planner", qty: 75, size: { h: 22.85, w: 30, uom: "cm" }, status: "D" },
             //   { item: "postcard", qty: 45, size: { h: 10, w: 15.25, uom: "cm" }, status: "A" },
             //   { item: "sketchbook", qty: 80, size: { h: 14, w: 21, uom: "cm" }, status: "A" },
-            //   { item: "sketch pad", qty: 95, size: { h: 22.85, w: 30.5, uom: "cm" }, status: "A" } ]); 
+            //   { item: "sketch pad", qty: 95, size: { h: 22.85, w: 30.5, uom: "cm" }, status: "A" } ]);
 
             // Start Example 51
             var documents = new[]
@@ -1149,12 +1150,12 @@ namespace MongoDB.Driver.Examples
         [Fact]
         public void Example_55()
         {
-            // db.inventory.insertMany( [ 
+            // db.inventory.insertMany( [
             //   { item: "journal", qty: 25, size: { h: 14, w: 21, uom: "cm" }, status: "A" },
             //   { item: "notebook", qty: 50, size: { h: 8.5, w: 11, uom: "in" }, status: "P" },
             //   { item: "paper", qty: 100, size: { h: 8.5, w: 11, uom: "in" }, status: "D" },
             //   { item: "planner", qty: 75, size: { h: 22.85, w: 30, uom: "cm" }, status: "D" },
-            //   { item: "postcard", qty: 45, size: { h: 10, w: 15.25, uom: "cm" }, status: "A" }, ]); 
+            //   { item: "postcard", qty: 45, size: { h: 10, w: 15.25, uom: "cm" }, status: "A" }, ]);
 
             // Start Example 55
             var documents = new[]
@@ -1252,7 +1253,7 @@ namespace MongoDB.Driver.Examples
         {
             RequireServer.Check();
 
-            //db.sales.aggregate([ 
+            //db.sales.aggregate([
             //    { $match : { "items.fruit":"banana" } },
             //    { $sort : { "date" : 1 } }
             //])
@@ -1347,7 +1348,7 @@ namespace MongoDB.Driver.Examples
             //    }
             //},
             //{
-            //    $project: { day: "$_id.day", revenue: 1, items_sold: 1, 
+            //    $project: { day: "$_id.day", revenue: 1, items_sold: 1,
             //                discount: { $cond: { if : { $lte: ["$revenue", 250] }, then: 25, else : 0 }}
             //    }
             //}])
@@ -1421,7 +1422,7 @@ namespace MongoDB.Driver.Examples
             //    $project : {
             //        "_id" : 0,
             //        "name" : 1,
-            //        airlines : { 
+            //        airlines : {
             //            $filter : {
             //                input : "$airlines",
             //                   as : "airline",

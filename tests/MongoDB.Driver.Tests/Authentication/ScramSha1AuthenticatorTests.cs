@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Authentication;
@@ -31,6 +32,7 @@ using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.TestHelpers.XunitExtensions;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Authentication
@@ -52,14 +54,12 @@ namespace MongoDB.Driver.Tests.Authentication
 
         [Theory]
         [ParameterAttributeData]
-        public void Authenticate_should_send_serverApi_with_command_wire_protocol(
+        public async Task Authenticate_should_send_serverApi_with_command_wire_protocol(
             [Values(false, true)] bool useServerApi,
             [Values(false, true)] bool async)
         {
             var serverApi = useServerApi ? new ServerApi(ServerApiVersion.V1, true, true) : null;
-            var randomStringGenerator = new ConstantRandomStringGenerator("fyko+d2lbbFgONRv9qkxdawL");
-
-            var subject = CreateScramSha1SaslAuthenticator(randomStringGenerator, serverApi);
+            var subject = CreateScramSha1SaslAuthenticator("fyko+d2lbbFgONRv9qkxdawL", serverApi);
 
             var connection = new MockConnection(__serverId);
             var saslStartResponse = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson("{ conversationId : 1, payload : BinData(0,'cj1meWtvK2QybGJiRmdPTlJ2OXFreGRhd0xIbytWZ2s3cXZVT0tVd3VXTElXZzRsLzlTcmFHTUhFRSxzPXJROVpZM01udEJldVAzRTFURFZDNHc9PSxpPTEwMDAw'), done : false, ok : 1 }"));
@@ -70,11 +70,11 @@ namespace MongoDB.Driver.Tests.Authentication
 
             if (async)
             {
-                subject.AuthenticateAsync(connection, __descriptionCommandWireProtocol, CancellationToken.None).GetAwaiter().GetResult();
+                await subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
             }
             else
             {
-                subject.Authenticate(connection, __descriptionCommandWireProtocol, CancellationToken.None);
+                subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
             }
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 2, TimeSpan.FromSeconds(5)).Should().BeTrue();
@@ -91,12 +91,10 @@ namespace MongoDB.Driver.Tests.Authentication
 
         [Theory]
         [ParameterAttributeData]
-        public void Authenticate_with_loadBalancedConnection_should_use_command_wire_protocol(
+        public async Task Authenticate_with_loadBalancedConnection_should_use_command_wire_protocol(
             [Values(false, true)] bool async)
         {
-            var randomStringGenerator = new ConstantRandomStringGenerator("fyko+d2lbbFgONRv9qkxdawL");
-
-            var subject = CreateScramSha1SaslAuthenticator(randomStringGenerator, null);
+            var subject = CreateScramSha1SaslAuthenticator("fyko+d2lbbFgONRv9qkxdawL", null);
 
             var connection = new MockConnection(__serverId, new ConnectionSettings(loadBalanced: true), null);
             var saslStartResponse = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson("{ conversationId : 1, payload : BinData(0,'cj1meWtvK2QybGJiRmdPTlJ2OXFreGRhd0xIbytWZ2s3cXZVT0tVd3VXTElXZzRsLzlTcmFHTUhFRSxzPXJROVpZM01udEJldVAzRTFURFZDNHc9PSxpPTEwMDAw'), done : false, ok : 1 }"));
@@ -107,11 +105,11 @@ namespace MongoDB.Driver.Tests.Authentication
 
             if (async)
             {
-                subject.AuthenticateAsync(connection, __descriptionCommandWireProtocol, CancellationToken.None).GetAwaiter().GetResult();
+                await subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
             }
             else
             {
-                subject.Authenticate(connection, __descriptionCommandWireProtocol, CancellationToken.None);
+                subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
             }
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 2, TimeSpan.FromSeconds(5)).Should().BeTrue();
@@ -128,38 +126,31 @@ namespace MongoDB.Driver.Tests.Authentication
 
         [Theory]
         [ParameterAttributeData]
-        public void Authenticate_should_throw_an_AuthenticationException_when_authentication_fails(
+        public async Task Authenticate_should_throw_an_AuthenticationException_when_authentication_fails(
             [Values("MongoConnectionException", "MongoNotPrimaryException")] string exceptionName,
             [Values(false, true)] bool async)
         {
-            var subject = CreateScramSha1SaslAuthenticator(DefaultRandomStringGenerator.Instance, null);
+            var subject = CreateScramSha1SaslAuthenticator("fyko+d2lbbFgONRv9qkxdawL", null);
 
             var responseException = CoreExceptionHelper.CreateException(exceptionName);
             var connection = new MockConnection(__serverId);
             connection.EnqueueCommandResponseMessage(responseException);
             connection.Description = __descriptionCommandWireProtocol;
 
-            Exception exception;
-            if (async)
-            {
-                exception = Record.Exception(() => subject.AuthenticateAsync(connection, __descriptionCommandWireProtocol, CancellationToken.None).GetAwaiter().GetResult());
-            }
-            else
-            {
-                exception = Record.Exception(() => subject.Authenticate(connection, __descriptionCommandWireProtocol, CancellationToken.None));
-            }
+            var exception = async ?
+                await Record.ExceptionAsync(() => subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol)) :
+                Record.Exception(() => subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol));
 
             exception.Should().BeOfType<MongoAuthenticationException>();
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void Authenticate_should_throw_when_server_provides_invalid_r_value(
+        public async Task Authenticate_should_throw_when_server_provides_invalid_r_value(
             [Values(false, true)]
             bool async)
         {
-            var randomStringGenerator = new ConstantRandomStringGenerator("fyko+d2lbbFgONRv9qkxdawL");
-            var subject = CreateScramSha1SaslAuthenticator(randomStringGenerator, null);
+            var subject = CreateScramSha1SaslAuthenticator("fyko+d2lbbFgONRv9qkxdawL", null);
 
             var saslStartResponse = MessageHelper.BuildCommandResponse(
                 RawBsonDocumentHelper.FromJson("{conversationId: 1, payload: BinData(0,'cj1meWtvLWQybGJiRmdPTlJ2OXFreGRhd0xIbytWZ2s3cXZVT0tVd3VXTElXZzRsLzlTcmFHTUhFRSxzPXJROVpZM01udEJldVAzRTFURFZDNHc9PSxpPTEwMDAw'), done: false, ok: 1}"));
@@ -168,27 +159,20 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.EnqueueCommandResponseMessage(saslStartResponse);
             connection.Description = __descriptionCommandWireProtocol;
 
-            Action act;
-            if (async)
-            {
-                act = () => subject.AuthenticateAsync(connection, __descriptionCommandWireProtocol, CancellationToken.None).GetAwaiter().GetResult();
-            }
-            else
-            {
-                act = () => subject.Authenticate(connection, __descriptionCommandWireProtocol, CancellationToken.None);
-            }
+            var exception = async ?
+                await Record.ExceptionAsync(() => subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol)) :
+                Record.Exception(() => subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol));
 
-            act.ShouldThrow<MongoAuthenticationException>();
+            exception.Should().BeOfType<MongoAuthenticationException>();
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void Authenticate_should_throw_when_server_provides_invalid_serverSignature(
+        public async Task Authenticate_should_throw_when_server_provides_invalid_serverSignature(
             [Values(false, true)]
             bool async)
         {
-            var randomStringGenerator = new ConstantRandomStringGenerator("fyko+d2lbbFgONRv9qkxdawL");
-            var subject = CreateScramSha1SaslAuthenticator(randomStringGenerator, null);
+            var subject = CreateScramSha1SaslAuthenticator("fyko+d2lbbFgONRv9qkxdawL", null);
 
             var saslStartResponse = MessageHelper.BuildCommandResponse(
                 RawBsonDocumentHelper.FromJson("{conversationId: 1, payload: BinData(0,'cj1meWtvK2QybGJiRmdPTlJ2OXFreGRhd0xIbytWZ2s3cXZVT0tVd3VXTElXZzRsLzlTcmFHTUhFRSxzPXJROVpZM01udEJldVAzRTFURFZDNHc9PSxpPTEwMDAw'), done: false, ok: 1}"));
@@ -200,28 +184,21 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.EnqueueCommandResponseMessage(saslContinueResponse);
             connection.Description = __descriptionCommandWireProtocol;
 
-            Action act;
-            if (async)
-            {
-                act = () => subject.AuthenticateAsync(connection, __descriptionCommandWireProtocol, CancellationToken.None).GetAwaiter().GetResult();
-            }
-            else
-            {
-                act = () => subject.Authenticate(connection, __descriptionCommandWireProtocol, CancellationToken.None);
-            }
+            var exception = async ?
+                await Record.ExceptionAsync(() => subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol)) :
+                Record.Exception(() => subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol));
 
-            act.ShouldThrow<MongoAuthenticationException>();
+            exception.Should().BeOfType<MongoAuthenticationException>();
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void Authenticate_should_not_throw_when_authentication_succeeds(
+        public async Task Authenticate_should_not_throw_when_authentication_succeeds(
             [Values(false, true)] bool useSpeculativeAuthenticate,
             [Values(false, true)] bool useLongAuthentication,
             [Values(false, true)] bool async)
         {
-            var randomStringGenerator = new ConstantRandomStringGenerator("fyko+d2lbbFgONRv9qkxdawL");
-            var subject = CreateScramSha1SaslAuthenticator(randomStringGenerator, null);
+            var subject = CreateScramSha1SaslAuthenticator("fyko+d2lbbFgONRv9qkxdawL", null);
 
             var saslStartResponse = MessageHelper.BuildCommandResponse(
                 RawBsonDocumentHelper.FromJson("{ conversationId : 1, payload : BinData(0,'cj1meWtvK2QybGJiRmdPTlJ2OXFreGRhd0xIbytWZ2s3cXZVT0tVd3VXTElXZzRsLzlTcmFHTUhFRSxzPXJROVpZM01udEJldVAzRTFURFZDNHc9PSxpPTEwMDAw'), done : false, ok : 1}"));
@@ -250,7 +227,7 @@ namespace MongoDB.Driver.Tests.Authentication
             {
                 // Call CustomizeInitialHelloCommand so that the authenticator thinks its started to speculatively
                 // authenticate
-                helloCommand = subject.CustomizeInitialHelloCommand(new BsonDocument { { OppressiveLanguageConstants.LegacyHelloCommandName, 1 } }, default);
+                helloCommand = subject.CustomizeInitialHelloCommand(OperationContext.NoTimeout, new BsonDocument { { OppressiveLanguageConstants.LegacyHelloCommandName, 1 } });
             }
             else
             {
@@ -263,20 +240,15 @@ namespace MongoDB.Driver.Tests.Authentication
                 connection.EnqueueCommandResponseMessage(saslLastStepResponse);
             }
 
-            Exception exception;
             if (async)
             {
-                exception = Record.Exception(
-                    () => subject.AuthenticateAsync(connection, connection.Description, CancellationToken.None)
-                        .GetAwaiter().GetResult());
+                await subject.AuthenticateAsync(OperationContext.NoTimeout, connection, connection.Description);
             }
             else
             {
-                exception = Record.Exception(
-                    () => subject.Authenticate(connection, connection.Description, CancellationToken.None));
+                subject.Authenticate(OperationContext.NoTimeout, connection, connection.Description);
             }
 
-            exception.Should().BeNull();
             var expectedSentMessageCount = 3 - (useLongAuthentication ? 0 : 1) - (useSpeculativeAuthenticate ? 1 : 0);
             SpinWait.SpinUntil(
                 () => connection.GetSentMessages().Count >= expectedSentMessageCount,
@@ -369,11 +341,10 @@ namespace MongoDB.Driver.Tests.Authentication
 
         [Theory]
         [ParameterAttributeData]
-        public void Authenticate_should_use_cache(
+        public async Task Authenticate_should_use_cache(
             [Values(false, true)] bool async)
         {
-            var randomStringGenerator = new ConstantRandomStringGenerator("fyko+d2lbbFgONRv9qkxdawL");
-            var subject = CreateScramSha1SaslAuthenticator(randomStringGenerator, serverApi: null);
+            var subject = CreateScramSha1SaslAuthenticator("fyko+d2lbbFgONRv9qkxdawL", serverApi: null);
 
             var saslStartResponse = MessageHelper.BuildCommandResponse(
                 RawBsonDocumentHelper.FromJson(
@@ -388,13 +359,11 @@ namespace MongoDB.Driver.Tests.Authentication
 
             if (async)
             {
-                subject.AuthenticateAsync(connection, __descriptionCommandWireProtocol, CancellationToken.None)
-                    .GetAwaiter()
-                    .GetResult();
+                await subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
             }
             else
             {
-                subject.Authenticate(connection, __descriptionCommandWireProtocol, CancellationToken.None);
+                subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
             }
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 2, TimeSpan.FromSeconds(5))
@@ -407,7 +376,7 @@ namespace MongoDB.Driver.Tests.Authentication
             scramShaMechanism._cache()._cachedEntry().Should().NotBe(null);
         }
 
-        private static SaslAuthenticator CreateScramSha1SaslAuthenticator(IRandomStringGenerator randomStringGenerator, ServerApi serverApi)
+        private static SaslAuthenticator CreateScramSha1SaslAuthenticator(string clientNonce, ServerApi serverApi)
         {
             var saslContext = new SaslContext
             {
@@ -419,7 +388,10 @@ namespace MongoDB.Driver.Tests.Authentication
                 MechanismProperties = null,
             };
 
-            var awsSaslMechanism = ScramShaSaslMechanism.CreateScramSha1Mechanism(saslContext, randomStringGenerator);
+            var randomMock = new Mock<IRandom>();
+            randomMock.Setup(r => r.GenerateString(It.IsAny<int>(), It.IsAny<string>())).Returns(clientNonce);
+
+            var awsSaslMechanism = ScramShaSaslMechanism.CreateScramSha1Mechanism(saslContext, randomMock.Object);
             return new SaslAuthenticator(awsSaslMechanism, serverApi);
         }
     }

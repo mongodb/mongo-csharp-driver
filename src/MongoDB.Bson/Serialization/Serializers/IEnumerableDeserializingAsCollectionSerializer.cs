@@ -179,7 +179,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         // explicit interface implementations
-        IBsonSerializer IChildSerializerConfigurable.ChildSerializer => ItemSerializer; 
+        IBsonSerializer IChildSerializerConfigurable.ChildSerializer => ItemSerializer;
 
         IBsonSerializer IChildSerializerConfigurable.WithChildSerializer(IBsonSerializer childSerializer)
             => WithItemSerializer((IBsonSerializer<TItem>)childSerializer);

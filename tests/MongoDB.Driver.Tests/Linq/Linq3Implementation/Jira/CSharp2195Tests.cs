@@ -13,21 +13,27 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp2195Tests : Linq3IntegrationTest
+    public class CSharp2195Tests : LinqIntegrationTest<CSharp2195Tests.ClassFixture>
     {
+        public CSharp2195Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Filter_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var builder = Builders<RawBsonDocument>.Filter;
             var filter = builder.Eq(x => x["life"], 42);
 
@@ -43,7 +49,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -58,16 +64,13 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x["_id"].AsInt32).Should().Equal(2);
         }
 
-        private IMongoCollection<RawBsonDocument> CreateCollection()
+        public sealed class ClassFixture : MongoCollectionFixture<RawBsonDocument, BsonDocument>
         {
-            var collection = GetCollection<BsonDocument>();
-
-            CreateCollection(
-                collection,
+            protected override IEnumerable<BsonDocument> InitialData =>
+            [
                 new BsonDocument { { "_id", 1 }, { "life", 41 } },
-                new BsonDocument { { "_id", 2 }, { "life", 42 } });
-
-            return GetCollection<RawBsonDocument>();
+                new BsonDocument { { "_id", 2 }, { "life", 42 } }
+            ];
         }
     }
 }

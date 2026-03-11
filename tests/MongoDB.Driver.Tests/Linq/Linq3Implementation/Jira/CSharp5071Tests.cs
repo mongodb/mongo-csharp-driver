@@ -134,7 +134,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var queryable = scenario switch
             {
                 "intproperty" => collection.AsQueryable().Select(x => string.Concat(x.I)),
-                "stringproperty" => collection.AsQueryable().Select(x => string.Concat(x.A)),
+                "stringproperty" => collection.AsQueryable().Select(x => string.Concat(new[] { x.A })),
                 _ => throw new Exception()
             };
 
@@ -204,25 +204,25 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
             var queryable = scenario switch
             {
-                "intconstant+stringproperty+intconstant" => collection.AsQueryable().Select(x => string.Concat(1 + x.B + 3)),
-                "intconstant+stringproperty+intproperty" => collection.AsQueryable().Select(x => string.Concat(1 + x.B + x.K)),
-                "intconstant+stringproperty+stringconstant" => collection.AsQueryable().Select(x => string.Concat(1 + x.B + "Z")),
-                "intconstant+stringproperty+stringproperty" => collection.AsQueryable().Select(x => string.Concat(1 + x.B + x.C)),
-                "intproperty+stringproperty+intconstant" => collection.AsQueryable().Select(x => string.Concat(x.I + x.B + 3)),
-                "intproperty+stringproperty+intproperty" => collection.AsQueryable().Select(x => string.Concat(x.I + x.B + x.K)),
-                "intproperty+stringproperty+stringconstant" => collection.AsQueryable().Select(x => string.Concat(x.I + x.B + "Z")),
-                "intproperty+stringproperty+stringproperty" => collection.AsQueryable().Select(x => string.Concat(x.I + x.B + x.C)),
-                "stringconstant+stringproperty+intconstant" => collection.AsQueryable().Select(x => string.Concat("X" + x.B + 3)),
-                "stringconstant+stringproperty+intproperty" => collection.AsQueryable().Select(x => string.Concat("X" + x.B + x.K)),
-                "stringconstant+stringproperty+stringconstant" => collection.AsQueryable().Select(x => string.Concat("X" + x.B + "Z")),
-                "stringconstant+stringproperty+stringproperty" => collection.AsQueryable().Select(x => string.Concat("X" + x.B + x.C)),
-                "stringproperty+intconstant+stringproperty" => collection.AsQueryable().Select(x => string.Concat(x.A + 2 + x.C)),
-                "stringproperty+intproperty+stringproperty" => collection.AsQueryable().Select(x => string.Concat(x.A + x.J + x.C)),
-                "stringproperty+stringconstant+stringproperty" => collection.AsQueryable().Select(x => string.Concat(x.A + "Y" + x.C)),
-                "stringproperty+stringproperty+intconstant" => collection.AsQueryable().Select(x => string.Concat(x.A + x.B + 3)),
-                "stringproperty+stringproperty+intproperty" => collection.AsQueryable().Select(x => string.Concat(x.A + x.B + x.K)),
-                "stringproperty+stringproperty+stringconstant" => collection.AsQueryable().Select(x => string.Concat(x.A + x.B + "Z")),
-                "stringproperty+stringproperty+stringproperty" => collection.AsQueryable().Select(x => string.Concat(x.A + x.B + x.C)),
+                "intconstant+stringproperty+intconstant" => collection.AsQueryable().Select(x => string.Concat(new[] { 1 + x.B + 3 })),
+                "intconstant+stringproperty+intproperty" => collection.AsQueryable().Select(x => string.Concat(new[] { 1 + x.B + x.K })),
+                "intconstant+stringproperty+stringconstant" => collection.AsQueryable().Select(x => string.Concat(new[] { 1 + x.B + "Z" })),
+                "intconstant+stringproperty+stringproperty" => collection.AsQueryable().Select(x => string.Concat(new[] { 1 + x.B + x.C })),
+                "intproperty+stringproperty+intconstant" => collection.AsQueryable().Select(x => string.Concat(new[] { x.I + x.B + 3 })),
+                "intproperty+stringproperty+intproperty" => collection.AsQueryable().Select(x => string.Concat(new[] { x.I + x.B + x.K })),
+                "intproperty+stringproperty+stringconstant" => collection.AsQueryable().Select(x => string.Concat(new[] { x.I + x.B + "Z" })),
+                "intproperty+stringproperty+stringproperty" => collection.AsQueryable().Select(x => string.Concat(new[] { x.I + x.B + x.C })),
+                "stringconstant+stringproperty+intconstant" => collection.AsQueryable().Select(x => string.Concat(new[] { "X" + x.B + 3 })),
+                "stringconstant+stringproperty+intproperty" => collection.AsQueryable().Select(x => string.Concat(new[] { "X" + x.B + x.K })),
+                "stringconstant+stringproperty+stringconstant" => collection.AsQueryable().Select(x => string.Concat(new[] { "X" + x.B + "Z" })),
+                "stringconstant+stringproperty+stringproperty" => collection.AsQueryable().Select(x => string.Concat(new[] { "X" + x.B + x.C })),
+                "stringproperty+intconstant+stringproperty" => collection.AsQueryable().Select(x => string.Concat(new[] { x.A + 2 + x.C })),
+                "stringproperty+intproperty+stringproperty" => collection.AsQueryable().Select(x => string.Concat(new[] { x.A + x.J + x.C })),
+                "stringproperty+stringconstant+stringproperty" => collection.AsQueryable().Select(x => string.Concat(new[] { x.A + "Y" + x.C })),
+                "stringproperty+stringproperty+intconstant" => collection.AsQueryable().Select(x => string.Concat(new[] { x.A + x.B + 3 })),
+                "stringproperty+stringproperty+intproperty" => collection.AsQueryable().Select(x => string.Concat(new[] { x.A + x.B + x.K })),
+                "stringproperty+stringproperty+stringconstant" => collection.AsQueryable().Select(x => string.Concat(new[] { x.A + x.B + "Z" })),
+                "stringproperty+stringproperty+stringproperty" => collection.AsQueryable().Select(x => string.Concat(new[] { x.A + x.B + x.C })),
                 _ => throw new Exception()
             };
 

@@ -1,4 +1,4 @@
-﻿/* Copyright 2017-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -55,12 +55,14 @@ namespace MongoDB.Driver.Core.Operations
             get { return _collectionNamespace; }
         }
 
+        public override string OperationName => null;
+
         public BatchableSource<DeleteRequest> Deletes
         {
             get { return _deletes; }
         }
 
-        protected override BsonDocument CreateCommand(ICoreSessionHandle session, int attempt, long? transactionNumber)
+        protected override BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, int attempt, long? transactionNumber)
         {
             if (WriteConcern != null && !WriteConcern.IsAcknowledged)
             {
@@ -70,7 +72,7 @@ namespace MongoDB.Driver.Core.Operations
                 }
             }
 
-            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(session, WriteConcern);
+            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, session, WriteConcern);
             return new BsonDocument
             {
                 { "delete", _collectionNamespace.CollectionName },

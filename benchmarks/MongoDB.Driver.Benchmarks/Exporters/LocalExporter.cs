@@ -21,52 +21,51 @@ using BenchmarkDotNet.Loggers;
 using BenchmarkDotNet.Reports;
 using static MongoDB.Benchmarks.BenchmarkHelper;
 
-namespace MongoDB.Benchmarks.Exporters
+namespace MongoDB.Benchmarks.Exporters;
+
+public sealed class LocalExporter : IExporter
 {
-    public sealed class LocalExporter : IExporter
+    public string Name => GetType().Name;
+
+    public void ExportToLog(Summary summary, ILogger logger)
     {
-        public string Name => GetType().Name;
+    }
 
-        public void ExportToLog(Summary summary, ILogger logger)
+    public IEnumerable<string> ExportToFiles(Summary summary, ILogger consoleLogger)
+    {
+        var exportedFiles = new List<string>();
+
+        var benchmarksGroupedByRuntime = summary.Reports.GroupBy(b => b.GetRuntimeInfo()).ToArray();
+        foreach (var benchmarkGroup in benchmarksGroupedByRuntime)
         {
-        }
+            var runtime = benchmarkGroup.Key;
+            var filename = $"local-report({runtime}).txt";
+            var path = Path.Combine(summary.ResultsDirectoryPath, filename);
 
-        public IEnumerable<string> ExportToFiles(Summary summary, ILogger consoleLogger)
-        {
-            var exportedFiles = new List<string>();
+            using var writer = new StreamWriter(path, false);
+            var benchmarkResults = benchmarkGroup.Select(report => new BenchmarkResult(report)).ToArray();
 
-            var benchmarksGroupedByRuntime = summary.Reports.GroupBy(b => b.GetRuntimeInfo()).ToArray();
-            foreach (var benchmarkGroup in benchmarksGroupedByRuntime)
+            writer.WriteLine("Scores Summary: ");
+            foreach (var category in DriverBenchmarkCategory.AllCategories)
             {
-                var runtime = benchmarkGroup.Key;
-                var filename = $"local-report({runtime}).txt";
-                var path = Path.Combine(summary.ResultsDirectoryPath, filename);
-
-                using var writer = new StreamWriter(path, false);
-                var benchmarkResults = benchmarkGroup.Select(report => new BenchmarkResult(report)).ToArray();
-
-                writer.WriteLine("Scores Summary: ");
-                foreach (var category in DriverBenchmarkCategory.AllCategories)
-                {
-                    WriteScore(writer, category, CalculateCompositeScore(benchmarkResults, category));
-                }
-
-                foreach (var benchmark in benchmarkResults)
-                {
-                    WriteScore(writer, benchmark.Name, benchmark.Score);
-                }
-
-                exportedFiles.Add(path);
+                WriteScore(writer, category, CalculateCompositeScore(benchmarkResults, category));
             }
 
-            return exportedFiles;
+            foreach (var benchmark in benchmarkResults)
+            {
+                WriteScore(writer, benchmark.Name, benchmark.Score);
+            }
+
+            exportedFiles.Add(path);
         }
 
-        private static void WriteScore(StreamWriter writer, string benchName, double score)
-        {
-            writer.WriteLine(score != 0
-                ? $"Executed {benchName}, score: {score:F3} MB/s"
-                : $"Skipped {benchName}");
-        }
+        return exportedFiles;
+    }
+
+    private static void WriteScore(StreamWriter writer, string benchName, double score)
+    {
+        writer.WriteLine(score != 0
+            ? $"Executed {benchName}, score: {score:F3} MB/s"
+            : $"Skipped {benchName}");
     }
 }

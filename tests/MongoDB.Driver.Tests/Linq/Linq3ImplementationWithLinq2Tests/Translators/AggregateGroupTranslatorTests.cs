@@ -20,6 +20,7 @@ using System.Linq.Expressions;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast;
@@ -162,6 +163,66 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
                 "{ $project : { Result : '$__agg0', _id : 0 } }");
 
             result.Value.Result.Should().Be(1);
+        }
+
+        [Fact]
+        public void Should_translate_median_with_embedded_projector()
+        {
+            RequireServer.Check().Supports(Feature.MedianOperator);
+
+            var result = Group(x => x.A, g => new { Result = g.Median(x=> x.C.E.F) });
+
+            AssertStages(
+                result.Stages,
+                "{ $group : { _id : '$A', __agg0 : { $median : { input : '$C.E.F', method : 'approximate' } } } }",
+                "{ $project : { Result : '$__agg0', _id : 0 } }");
+
+            result.Value.Result.Should().Be(111);
+        }
+
+        [Fact]
+        public void Should_translate_median_with_selected_projector()
+        {
+            RequireServer.Check().Supports(Feature.MedianOperator);
+
+            var result = Group(x => x.A, g => new { Result = g.Select(x => x.C.E.F).Median() });
+
+            AssertStages(
+                result.Stages,
+                "{ $group : { _id : '$A', __agg0 : { $median : { input : '$C.E.F', method : 'approximate' } } } }",
+                "{ $project : { Result : '$__agg0', _id : 0 } }");
+
+            result.Value.Result.Should().Be(111);
+        }
+
+        [Fact]
+        public void Should_translate_percentile_with_embedded_projector()
+        {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
+            var result = Group(x => x.A, g => new { Result = g.Percentile(x => x.C.E.F, new[] { 0.5 }) });
+
+            AssertStages(
+                result.Stages,
+                "{ $group : { _id : '$A', __agg0 : { $percentile : { input : '$C.E.F', p : [0.5], method : 'approximate' } } } }",
+                "{ $project : { Result : '$__agg0', _id : 0 } }");
+
+            result.Value.Result.Should().Equal(111.0);
+        }
+
+        [Fact]
+        public void Should_translate_percentile_with_selected_projector()
+        {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
+            var result = Group(x => x.A, g => new { Result = g.Select(x => x.C.E.F).Percentile(new[] { 0.5 }) });
+
+            AssertStages(
+                result.Stages,
+                "{ $group : { _id : '$A', __agg0 : { $percentile : { input : '$C.E.F', p : [0.5], method : 'approximate' } } } }",
+                "{ $project : { Result : '$__agg0', _id : 0 } }");
+
+            result.Value.Result.Should().Equal(111.0);
         }
 
         [Fact]
@@ -520,6 +581,40 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
         }
 
         [Fact]
+        public void Should_translate_complex_selector_with_quantile_methods()
+        {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
+            var result = Group(x => x.A, g => new
+            {
+                Median = g.Median(x => x.C.E.F + x.C.E.H),
+                Percentile = g.Percentile(x => x.C.E.F + x.C.E.H, new[] { 0.95 })
+            });
+
+            AssertStages(
+                result.Stages,
+                @"
+                {
+                    $group : {
+                        _id : '$A',
+                        __agg0 : { $median : { input : { $add : ['$C.E.F', '$C.E.H'] }, method : 'approximate' } },
+                        __agg1 : { $percentile : { input : { $add : ['$C.E.F', '$C.E.H'] }, p : [0.95], method : 'approximate' } }
+                    }
+                }",
+                @"
+                {
+                    $project : {
+                        Median : '$__agg0',
+                        Percentile : '$__agg1',
+                        _id : 0
+                    }
+                }");
+
+            result.Value.Median.Should().Be(333);
+            result.Value.Percentile.Should().Equal(333);
+        }
+
+        [Fact]
         public void Should_translate_aggregate_expressions_with_user_provided_serializer_if_possible()
         {
             var result = Group(x => 1, g => new
@@ -546,7 +641,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
                 .GroupBy(idProjector)
                 .Select(groupProjector);
 
-            var context = TranslationContext.Create(translationOptions: null);
+            var context = TranslationContext.Create(queryable, translationOptions: null);
             var pipeline = ExpressionToPipelineTranslator.Translate(context, queryable.Expression);
             var optimizedAstPipeline = AstPipelineOptimizer.Optimize(pipeline.Ast);
             pipeline = new TranslatedPipeline(optimizedAstPipeline, pipeline.OutputSerializer);

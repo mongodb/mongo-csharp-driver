@@ -90,6 +90,8 @@ namespace MongoDB.Driver.Core.Clusters
             }
         }
 
+        public override IEnumerable<IClusterableServer> Servers => _servers;
+
         public override void Initialize()
         {
             base.Initialize();
@@ -483,7 +485,9 @@ namespace MongoDB.Driver.Core.Clusters
                 }
 
                 newClusterDescription = newClusterDescription.WithDnsMonitorException(null);
-                UpdateClusterDescription(newClusterDescription);
+
+                var shouldClusterDescriptionChangedEventBePublished = !newClusterDescription.SdamEquals(oldClusterDescription);
+                UpdateClusterDescription(newClusterDescription, shouldClusterDescriptionChangedEventBePublished);
             }
 
             foreach (var addedServer in newServers)

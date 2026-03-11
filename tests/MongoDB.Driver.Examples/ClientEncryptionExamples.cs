@@ -25,6 +25,7 @@ using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Examples
 {
+    [Trait("Category", "Integration")]
     public class ClientEncryptionExamples
     {
         private const string LocalMasterKey = "Mng0NCt4ZHVUYUJCa1kxNkVyNUR1QURhZ2h2UzR2d2RrZzh0cFBwM3R6NmdWMDFBMUN3YkQ5aXRRMkhGRGdQV09wOGVNYUMxT2k3NjZKelhaQmRCZGJkTXVyZG9uSjFk";

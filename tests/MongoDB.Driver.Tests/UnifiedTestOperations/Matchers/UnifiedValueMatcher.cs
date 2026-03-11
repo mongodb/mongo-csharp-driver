@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
@@ -26,6 +27,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
 {
     public class UnifiedValueMatcher
     {
+        private static readonly List<string> __numericTypes = ["int", "long", "double", "decimal"];
+
         private UnifiedEntityMap _entityMap;
 
         public UnifiedValueMatcher(UnifiedEntityMap entityMap)
@@ -71,10 +74,26 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                     case "$$matchAsRoot":
                         AssertValuesMatch(actual, operatorValue, true);
                         break;
+                    case "$$matchAsDocument":
+                        var parsedDocument = BsonDocument.Parse(actual.AsString);
+                        AssertValuesMatch(parsedDocument, operatorValue, false);
+                        break;
                     case "$$unsetOrMatches":
                         if (actual != null)
                         {
                             AssertValuesMatch(actual, operatorValue, true);
+                        }
+                        break;
+                    case "$$sessionLsid":
+                        var sessionId = operatorValue.AsString;
+                        var expectedSessionLsid = _entityMap.SessionIds[sessionId];
+                        if (actual.IsString)
+                        {
+                            actual.AsString.Should().Be(expectedSessionLsid.ToJson());
+                        }
+                        else
+                        {
+                            AssertValuesMatch(actual, expectedSessionLsid, isRoot: false);
                         }
                         break;
                     default:
@@ -135,7 +154,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                                 break;
                             case "$$matchesEntity":
                                 var resultId = operatorValue.AsString;
-                                expectedValue = _entityMap.Resutls[resultId];
+                                expectedValue = _entityMap.Results[resultId];
                                 break;
                             case "$$matchesHexBytes":
                                 expectedValue = operatorValue;
@@ -149,8 +168,18 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                                 break;
                             case "$$sessionLsid":
                                 var sessionId = operatorValue.AsString;
-                                expectedValue = _entityMap.SessionIds[sessionId];
-                                break;
+                                var expectedSessionLsid = _entityMap.SessionIds[sessionId];
+                                actualDocument.Names.Should().Contain(expectedName);
+                                var actualLsid = actualDocument[expectedName];
+                                if (actualLsid.IsString)
+                                {
+                                    actualLsid.AsString.Should().Be(expectedSessionLsid.ToJson());
+                                }
+                                else
+                                {
+                                    AssertValuesMatch(actualLsid, expectedSessionLsid, isRoot: false);
+                                }
+                                continue;
                             default:
                                 throw new FormatException($"Unrecognized special operator: '{operatorName}'.");
                         }
@@ -197,7 +226,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
 
             if (expectedTypes.IsString)
             {
-                expectedTypeNames = new List<string> { expectedTypes.AsString };
+                var expectedType = expectedTypes.AsString;
+                expectedTypeNames = expectedType == "number" ? __numericTypes : [expectedType];
             }
             else if (expectedTypes.IsBsonArray)
             {

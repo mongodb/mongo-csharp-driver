@@ -24,6 +24,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Misc
     public class WireVersionTests
     {
         [Fact]
+        [Trait("Category", "Integration")]
         public void Server_maxWireVersion_should_be_in_supported_range()
         {
             RequireServer.Check().StableServer(stable: true);
@@ -46,7 +47,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Misc
         [Fact]
         public void SupportedWireRange_should_be_correct()
         {
-            WireVersion.SupportedWireVersionRange.Should().Be(new Range<int>(7, 27));
+            WireVersion.SupportedWireVersionRange.Should().Be(new Range<int>(8, 28));
         }
 
         [Fact]
@@ -59,7 +60,8 @@ namespace MongoDB.Driver.Core.Tests.Core.Misc
 
         [Theory]
         [InlineData(99, null, null)]
-        [InlineData(28, null, null)]
+        [InlineData(29, null, null)]
+        [InlineData(28, 8, 3)]
         [InlineData(27, 8, 2)]
         [InlineData(26, 8, 1)]
         [InlineData(25, 8, 0)]

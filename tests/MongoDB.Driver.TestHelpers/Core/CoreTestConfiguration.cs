@@ -29,6 +29,8 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
+using MongoDB.Driver.TestHelpers;
+using Xunit.Sdk;
 
 namespace MongoDB.Driver
 {
@@ -46,12 +48,9 @@ namespace MongoDB.Driver
         private static MessageEncoderSettings __messageEncoderSettings = new MessageEncoderSettings();
         private static Lazy<int> __numberOfMongoses = new Lazy<int>(GetNumberOfMongoses, isThreadSafe: true);
         private static Lazy<ServerApi> __serverApi = new Lazy<ServerApi>(GetServerApi, isThreadSafe: true);
-        private static Lazy<bool> __serverless = new Lazy<bool>(GetServerless, isThreadSafe: true);
         private static Lazy<SemanticVersion> __serverVersion = new Lazy<SemanticVersion>(GetServerVersion, isThreadSafe: true);
         private static Lazy<string> __storageEngine = new Lazy<string>(GetStorageEngine, isThreadSafe: true);
         private static TraceSource __traceSource;
-
-        public static TimeSpan DefaultTestTimeout { get; } = TimeSpan.FromMinutes(3);
 
         // static properties
         internal static IClusterInternal Cluster
@@ -106,11 +105,6 @@ namespace MongoDB.Driver
             get { return __serverApi.Value; }
         }
 
-        public static bool Serverless
-        {
-            get { return __serverless.Value; }
-        }
-
         public static SemanticVersion ServerVersion => __serverVersion.Value;
 
         public static int MaxWireVersion => __maxWireVersion.Value;
@@ -132,7 +126,16 @@ namespace MongoDB.Driver
         {
             builder = builder
                 .ConfigureWithConnectionString(__connectionString.Value, __serverApi.Value)
-                .ConfigureCluster(c => c.With(serverSelectionTimeout: __defaultServerSelectionTimeout.Value));
+                .ConfigureCluster(c => c.With(serverSelectionTimeout: __defaultServerSelectionTimeout.Value))
+                .ConfigureServer(s =>
+                {
+                    if (Debugger.IsAttached)
+                    {
+                        s = s.With(heartbeatTimeout: TimeSpan.FromDays(1), serverMonitoringMode: ServerMonitoringMode.Poll);
+                    }
+
+                    return s;
+                });;
 
             if (__connectionString.Value.Tls.HasValue &&
                 __connectionString.Value.Tls.Value &&
@@ -148,11 +151,11 @@ namespace MongoDB.Driver
                         X509Certificate cert;
                         if (password == null)
                         {
-                            cert = new X509Certificate2(certificateFilename);
+                            cert = X509CertificateLoader.LoadCertificateFromFile(certificateFilename);
                         }
                         else
                         {
-                            cert = new X509Certificate2(certificateFilename, password);
+                            cert = X509CertificateLoader.LoadPkcs12FromFile(certificateFilename, password);
                         }
                         return ssl.With(
                             clientCertificates: new[] { cert });
@@ -290,13 +293,6 @@ namespace MongoDB.Driver
             return new ServerApi(ServerApiVersion.V1);
         }
 
-        private static bool GetServerless()
-        {
-            var serverless = Environment.GetEnvironmentVariable("SERVERLESS");
-
-            return serverless?.ToLower() == "true";
-        }
-
         public static DatabaseNamespace GetDatabaseNamespaceForTestClass(Type testClassType)
         {
             var databaseName = TruncateDatabaseNameIfTooLong(__databaseNamespace.Value.DatabaseName + "-" + testClassType.Name);
@@ -314,7 +310,7 @@ namespace MongoDB.Driver
             {
                 var command = new BsonDocument("hello", 1);
                 var operation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, __messageEncoderSettings);
-                var response = operation.Execute(binding, CancellationToken.None);
+                var response = operation.Execute(OperationContext.NoTimeout, binding);
                 return response["maxWireVersion"].AsInt32;
             }
         }
@@ -326,7 +322,7 @@ namespace MongoDB.Driver
             {
                 var command = new BsonDocument("buildinfo", 1);
                 var operation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, __messageEncoderSettings);
-                var response = operation.Execute(binding, CancellationToken.None);
+                var response = operation.Execute(OperationContext.NoTimeout, binding);
                 return SemanticVersion.Parse(response["version"].AsString);
             }
         }
@@ -338,9 +334,22 @@ namespace MongoDB.Driver
             {
                 var command = new BsonDocument("getParameter", new BsonString("*"));
                 var operation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, __messageEncoderSettings);
-                var serverParameters = operation.Execute(binding, CancellationToken.None);
+                var serverParameters = operation.Execute(OperationContext.NoTimeout, binding);
 
                 return serverParameters;
+            }
+        }
+
+        public static bool ShouldSkipMongocryptdTests_SERVER_106469() =>
+            RequirePlatform.GetCurrentOperatingSystem() == SupportedOperatingSystem.Windows &&
+            ServerVersion >= new SemanticVersion(8, 1, 9999);
+
+        public static void SkipMongocryptdTests_SERVER_106469(bool checkForSharedLib = false)
+        {
+            if (ShouldSkipMongocryptdTests_SERVER_106469() &&
+                (!checkForSharedLib || GetCryptSharedLibPath() == null))
+            {
+                throw new SkipException("Test skipped because of SERVER-106469.");
             }
         }
 
@@ -404,7 +413,7 @@ namespace MongoDB.Driver
             using (var session = StartSession())
             using (var binding = CreateReadWriteBinding(session))
             {
-                operation.Execute(binding, CancellationToken.None);
+                operation.Execute(OperationContext.NoTimeout, binding);
             }
         }
 
@@ -415,7 +424,7 @@ namespace MongoDB.Driver
             {
                 var operation = new FindOperation<BsonDocument>(collectionNamespace, BsonDocumentSerializer.Instance, __messageEncoderSettings);
 
-                return operation.Execute(binding, CancellationToken.None).ToList();
+                return operation.Execute(OperationContext.NoTimeout, binding).ToList();
             }
         }
 
@@ -453,8 +462,7 @@ namespace MongoDB.Driver
             switch (clusterType)
             {
                 case ClusterType.LoadBalanced:
-                case var _ when Serverless:
-                    // Load balancing and serverless are only supported for servers higher than 50
+                    // Load balancing only supported for servers higher than 50
                     result = "wiredTiger";
                     break;
                 case ClusterType.Sharded:
@@ -485,7 +493,7 @@ namespace MongoDB.Driver
                     break;
             }
 
-            return result ?? "mmapv1";
+            return result ?? "wiredTiger";
 
             string GetStorageEngineForCluster(IClusterInternal cluster)
             {
@@ -495,7 +503,7 @@ namespace MongoDB.Driver
                 {
                     var operation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, __messageEncoderSettings);
 
-                    var response = operation.Execute(binding, CancellationToken.None);
+                    var response = operation.Execute(OperationContext.NoTimeout, binding);
                     if (response.TryGetValue("storageEngine", out var storageEngine) && storageEngine.AsBsonDocument.TryGetValue("name", out var name))
                     {
                         return name.AsString;

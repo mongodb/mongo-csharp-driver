@@ -96,10 +96,15 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 cluster.Initialize();
 
                 // Trigger Cluster._rapidHeartbeatTimer
-                var _ = cluster.SelectServerAsync(CreateWritableServerAndEndPointSelector(__endPoint1), CancellationToken.None);
+                using var cancellationTokenSource = new CancellationTokenSource();
+                var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationTokenSource.Token);
+                cluster.SelectServerAsync(operationContext, CreateWritableServerAndEndPointSelector(__endPoint1))
+                    .IgnoreExceptions();
 
                 // Wait for all heartbeats to complete
                 await Task.WhenAny(allHeartbeatsReceived.Task, Task.Delay(1000));
+
+                cancellationTokenSource.Cancel();
             }
 
             allHeartbeatsReceived.Task.Status.Should().Be(TaskStatus.RanToCompletion);
@@ -142,13 +147,13 @@ namespace MongoDB.Driver.Core.Tests.Jira
                     server.DescriptionChanged += ProcessServerDescriptionChanged;
                 }
 
-                var selectedServer = cluster.SelectServer(CreateWritableServerAndEndPointSelector(__endPoint1), CancellationToken.None);
+                var selectedServer = cluster.SelectServer(OperationContext.NoTimeout, CreateWritableServerAndEndPointSelector(__endPoint1));
                 initialSelectedEndpoint = selectedServer.EndPoint;
                 initialSelectedEndpoint.Should().Be(__endPoint1);
 
                 // Change primary
                 currentPrimaries.Add(__serverId2);
-                selectedServer = cluster.SelectServer(CreateWritableServerAndEndPointSelector(__endPoint2), CancellationToken.None);
+                selectedServer = cluster.SelectServer(OperationContext.NoTimeout, CreateWritableServerAndEndPointSelector(__endPoint2));
                 selectedServer.EndPoint.Should().Be(__endPoint2);
 
                 // Ensure stalling happened
@@ -198,10 +203,10 @@ namespace MongoDB.Driver.Core.Tests.Jira
             void SetupConnectionPool(Mock<IConnectionPool> mockConnectionPool, IConnectionHandle connection)
             {
                 mockConnectionPool
-                    .Setup(c => c.AcquireConnection(It.IsAny<CancellationToken>()))
+                    .Setup(c => c.AcquireConnection(It.IsAny<OperationContext>()))
                     .Returns(connection);
                 mockConnectionPool
-                    .Setup(c => c.AcquireConnectionAsync(It.IsAny<CancellationToken>()))
+                    .Setup(c => c.AcquireConnectionAsync(It.IsAny<OperationContext>()))
                     .Returns(Task.FromResult(connection));
             }
 
@@ -243,8 +248,9 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 endPoints: serverInfoCollection.Select(c => c.Endpoint).ToArray());
 
             var serverMonitorSettings = new ServerMonitorSettings(
-                connectTimeout: TimeSpan.FromMilliseconds(1),
-                heartbeatInterval: __heartbeatInterval);
+                ConnectTimeout: TimeSpan.FromMilliseconds(20),
+                HeartbeatTimeout: TimeSpan.FromMilliseconds(10),
+                HeartbeatInterval: __heartbeatInterval);
             var serverSettings = new ServerSettings(serverMonitorSettings.HeartbeatInterval);
 
             var eventCapturer = new EventCapturer();
@@ -270,7 +276,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
         private void ForceClusterId(MultiServerCluster cluster, ClusterId clusterId)
         {
             Reflector.SetFieldValue(cluster, "_clusterId", clusterId);
-            Reflector.SetFieldValue(cluster, "_descriptionWithChangedTaskCompletionSource", new Cluster.ClusterDescriptionChangeSource(ClusterDescription.CreateInitial(clusterId, __directConnection)));
+            Reflector.SetFieldValue(cluster, "_expirableClusterDescription", new Cluster.ExpirableClusterDescription(cluster, ClusterDescription.CreateInitial(clusterId, __directConnection)));
         }
 
         private void SetupServerMonitorConnection(
@@ -282,8 +288,8 @@ namespace MongoDB.Driver.Core.Tests.Jira
             var baseDocument = new BsonDocument
             {
                 { "ok", 1 },
-                { "minWireVersion", WireVersion.Server36 },
-                { "maxWireVersion", WireVersion.Server40 },
+                { "minWireVersion", WireVersion.Server42 },
+                { "maxWireVersion", WireVersion.Server44 },
                 { "setName", "rs" },
                 { "hosts", new BsonArray(new [] { "localhost:27017", "localhost:27018" })},
                 { "topologyVersion", new TopologyVersion(ObjectId.Empty, 1).ToBsonDocument(), false }
@@ -303,9 +309,9 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 .SetupGet(c => c.Description)
                 .Returns(GetConnectionDescription);
 
-            mockConnection.Setup(c => c.Open(It.IsAny<CancellationToken>())); // no action is required
+            mockConnection.Setup(c => c.Open(It.IsAny<OperationContext>())); // no action is required
             mockConnection
-                .Setup(c => c.ReceiveMessage(It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), It.IsAny<MessageEncoderSettings>(), It.IsAny<CancellationToken>()))
+                .Setup(c => c.ReceiveMessage(It.IsAny<OperationContext>(), It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), It.IsAny<MessageEncoderSettings>()))
                 .Returns(GetHelloResponse);
 
             ResponseMessage GetHelloResponse()

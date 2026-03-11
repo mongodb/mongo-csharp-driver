@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,11 +15,8 @@
 
 using System;
 using System.Buffers.Binary;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -48,29 +45,32 @@ namespace MongoDB.Driver.Core.Connections
         private ConnectionInitializerContext _connectionInitializerContext;
         private EndPoint _endPoint;
         private ConnectionDescription _description;
-        private readonly Dropbox _dropbox = new Dropbox();
         private bool _failedEventHasBeenRaised;
         private DateTime _lastUsedAtUtc;
         private DateTime _openedAtUtc;
         private readonly object _openLock = new object();
         private Task _openTask;
-        private readonly SemaphoreSlim _receiveLock;
         private CompressorType? _sendCompressorType;
-        private readonly SemaphoreSlim _sendLock;
         private readonly ConnectionSettings _settings;
+        private readonly TimeSpan _socketReadTimeout;
+        private readonly TimeSpan _socketWriteTimeout;
         private readonly InterlockedInt32 _state;
         private Stream _stream;
         private readonly IStreamFactory _streamFactory;
         private readonly EventLogger<LogCategories.Connection> _eventLogger;
 
         // constructors
-        public BinaryConnection(ServerId serverId,
+        public BinaryConnection(
+            ServerId serverId,
             EndPoint endPoint,
             ConnectionSettings settings,
             IStreamFactory streamFactory,
             IConnectionInitializer connectionInitializer,
             IEventSubscriber eventSubscriber,
-            ILoggerFactory loggerFactory)
+            ILoggerFactory loggerFactory,
+            TracingOptions tracingOptions,
+            TimeSpan socketReadTimeout,
+            TimeSpan socketWriteTimeout)
         {
             Ensure.IsNotNull(serverId, nameof(serverId));
             _endPoint = Ensure.IsNotNull(endPoint, nameof(endPoint));
@@ -80,13 +80,13 @@ namespace MongoDB.Driver.Core.Connections
             Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
 
             _connectionId = new ConnectionId(serverId, settings.ConnectionIdLocalValueProvider());
-            _receiveLock = new SemaphoreSlim(1);
-            _sendLock = new SemaphoreSlim(1);
             _state = new InterlockedInt32(State.Initial);
 
             _compressorSource = new CompressorSource(settings.Compressors);
             _eventLogger = loggerFactory.CreateEventLogger<LogCategories.Connection>(eventSubscriber);
-            _commandEventHelper = new CommandEventHelper(loggerFactory.CreateEventLogger<LogCategories.Command>(eventSubscriber));
+            _commandEventHelper = new CommandEventHelper(loggerFactory.CreateEventLogger<LogCategories.Command>(eventSubscriber), tracingOptions);
+            _socketReadTimeout = socketReadTimeout;
+            _socketWriteTimeout = socketWriteTimeout;
         }
 
         // properties
@@ -174,9 +174,6 @@ namespace MongoDB.Driver.Core.Connections
                     _eventLogger.LogAndPublish(new ConnectionClosingEvent(_connectionId, EventContext.OperationId));
 
                     var stopwatch = Stopwatch.StartNew();
-                    _receiveLock.Dispose();
-                    _sendLock.Dispose();
-
                     if (_stream != null)
                     {
                         try
@@ -205,9 +202,9 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        public void Open(CancellationToken cancellationToken)
+        public void Open(OperationContext operationContext)
         {
-            ThrowIfCancelledOrDisposed(cancellationToken);
+            ThrowIfCancelledOrDisposed(operationContext);
 
             TaskCompletionSource<bool> taskCompletionSource = null;
             var connecting = false;
@@ -227,7 +224,7 @@ namespace MongoDB.Driver.Core.Connections
             {
                 try
                 {
-                    OpenHelper(cancellationToken);
+                    OpenHelper(operationContext);
                     taskCompletionSource.TrySetResult(true);
                 }
                 catch (Exception ex)
@@ -242,82 +239,110 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        public Task OpenAsync(CancellationToken cancellationToken)
+        public Task OpenAsync(OperationContext operationContext)
         {
-            ThrowIfCancelledOrDisposed(cancellationToken);
+            ThrowIfCancelledOrDisposed(operationContext);
 
             lock (_openLock)
             {
                 if (_state.TryChange(State.Initial, State.Connecting))
                 {
                     _openedAtUtc = DateTime.UtcNow;
-                    _openTask = OpenHelperAsync(cancellationToken);
+                    _openTask = OpenHelperAsync(operationContext);
                 }
                 return _openTask;
             }
         }
 
-        private void OpenHelper(CancellationToken cancellationToken)
+        private void OpenHelper(OperationContext operationContext)
         {
             var helper = new OpenConnectionHelper(this);
             ConnectionDescription handshakeDescription = null;
             try
             {
                 helper.OpeningConnection();
-                _stream = _streamFactory.CreateStream(_endPoint, cancellationToken);
+#pragma warning disable CS0618 // Type or member is obsolete
+                _stream = _streamFactory.CreateStream(_endPoint, operationContext.CombinedCancellationToken);
+#pragma warning restore CS0618 // Type or member is obsolete
                 helper.InitializingConnection();
-                _connectionInitializerContext = _connectionInitializer.SendHello(this, cancellationToken);
+                _connectionInitializerContext = _connectionInitializer.SendHello(operationContext, this);
                 handshakeDescription = _connectionInitializerContext.Description;
-                _connectionInitializerContext = _connectionInitializer.Authenticate(this, _connectionInitializerContext, cancellationToken);
+                _connectionInitializerContext = _connectionInitializer.Authenticate(operationContext, this, _connectionInitializerContext);
                 _description = _connectionInitializerContext.Description;
                 _sendCompressorType = ChooseSendCompressorTypeIfAny(_description);
 
                 helper.OpenedConnection();
             }
+            catch (OperationCanceledException) when (operationContext.IsTimedOut())
+            {
+                // OperationCanceledException could be thrown because of CombinedCancellationToken (see line 273),
+                // if we face it and operation context is timed out we should throw TimeoutException instead.
+                throw new TimeoutException();
+            }
             catch (Exception ex)
             {
                 _description ??= handshakeDescription;
-                var wrappedException = WrapExceptionIfRequired(ex, "opening a connection to the server");
+                var wrappedException = WrapExceptionIfRequired(operationContext, ex, "opening a connection to the server");
+                if (handshakeDescription == null)
+                {
+                    // Should apply Backpressure error labels on network errors only during the connection establishment or the `hello` message.
+                    AddBackpressureErrorLabelsIfRequired(wrappedException);
+                }
+
                 helper.FailedOpeningConnection(wrappedException ?? ex);
                 if (wrappedException == null) { throw; } else { throw wrappedException; }
             }
         }
 
-        private async Task OpenHelperAsync(CancellationToken cancellationToken)
+        private async Task OpenHelperAsync(OperationContext operationContext)
         {
             var helper = new OpenConnectionHelper(this);
             ConnectionDescription handshakeDescription = null;
             try
             {
                 helper.OpeningConnection();
-                _stream = await _streamFactory.CreateStreamAsync(_endPoint, cancellationToken).ConfigureAwait(false);
+#pragma warning disable CS0618 // Type or member is obsolete
+                _stream = await _streamFactory.CreateStreamAsync(_endPoint, operationContext.CombinedCancellationToken).ConfigureAwait(false);
+#pragma warning restore CS0618 // Type or member is obsolete
                 helper.InitializingConnection();
-                _connectionInitializerContext = await _connectionInitializer.SendHelloAsync(this, cancellationToken).ConfigureAwait(false);
+                _connectionInitializerContext = await _connectionInitializer.SendHelloAsync(operationContext, this).ConfigureAwait(false);
                 handshakeDescription = _connectionInitializerContext.Description;
-                _connectionInitializerContext = await _connectionInitializer.AuthenticateAsync(this, _connectionInitializerContext, cancellationToken).ConfigureAwait(false);
+                _connectionInitializerContext = await _connectionInitializer.AuthenticateAsync(operationContext, this, _connectionInitializerContext).ConfigureAwait(false);
                 _description = _connectionInitializerContext.Description;
                 _sendCompressorType = ChooseSendCompressorTypeIfAny(_description);
                 helper.OpenedConnection();
             }
+            catch (OperationCanceledException) when (operationContext.IsTimedOut())
+            {
+                // OperationCanceledException could be thrown because of CombinedCancellationToken (see line 307),
+                // if we face it and operation context is timed out we should throw TimeoutException instead.
+                throw new TimeoutException();
+            }
             catch (Exception ex)
             {
                 _description ??= handshakeDescription;
-                var wrappedException = WrapExceptionIfRequired(ex, "opening a connection to the server");
+                var wrappedException = WrapExceptionIfRequired(operationContext, ex, "opening a connection to the server");
+                if (handshakeDescription == null)
+                {
+                    // Should apply Backpressure error labels on network errors only during the connection establishment or the `hello` message.
+                    AddBackpressureErrorLabelsIfRequired(wrappedException);
+                }
+
                 helper.FailedOpeningConnection(wrappedException ?? ex);
                 if (wrappedException == null) { throw; } else { throw wrappedException; }
             }
         }
 
-        public void Reauthenticate(CancellationToken cancellationToken)
+        public void Reauthenticate(OperationContext operationContext)
         {
             InvalidateAuthenticator();
-            _connectionInitializerContext = _connectionInitializer.Authenticate(this, _connectionInitializerContext, cancellationToken);
+            _connectionInitializerContext = _connectionInitializer.Authenticate(operationContext, this, _connectionInitializerContext);
         }
 
-        public async Task ReauthenticateAsync(CancellationToken cancellationToken)
+        public async Task ReauthenticateAsync(OperationContext operationContext)
         {
             InvalidateAuthenticator();
-            _connectionInitializerContext = await _connectionInitializer.AuthenticateAsync(this, _connectionInitializerContext, cancellationToken).ConfigureAwait(false);
+            _connectionInitializerContext = await _connectionInitializer.AuthenticateAsync(operationContext, this, _connectionInitializerContext).ConfigureAwait(false);
         }
 
         private void InvalidateAuthenticator()
@@ -328,342 +353,279 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        private IByteBuffer ReceiveBuffer(CancellationToken cancellationToken)
+        private IByteBuffer ReceiveBuffer(OperationContext operationContext)
         {
             try
             {
                 var messageSizeBytes = new byte[4];
-                _stream.ReadBytes(messageSizeBytes, 0, 4, cancellationToken);
+                _stream.ReadBytes(messageSizeBytes, 0, 4, (int)operationContext.RemainingTimeoutOrDefault(_socketReadTimeout).TotalMilliseconds, operationContext.CancellationToken);
                 var messageSize = BinaryPrimitives.ReadInt32LittleEndian(messageSizeBytes);
                 EnsureMessageSizeIsValid(messageSize);
                 var inputBufferChunkSource = new InputBufferChunkSource(BsonChunkPool.Default);
                 var buffer = ByteBufferFactory.Create(inputBufferChunkSource, messageSize);
                 buffer.Length = messageSize;
                 buffer.SetBytes(0, messageSizeBytes, 0, 4);
-                _stream.ReadBytes(buffer, 4, messageSize - 4, cancellationToken);
+                _stream.ReadBytes(buffer, 4, messageSize - 4, (int)operationContext.RemainingTimeoutOrDefault(_socketReadTimeout).TotalMilliseconds, operationContext.CancellationToken);
                 _lastUsedAtUtc = DateTime.UtcNow;
                 buffer.MakeReadOnly();
                 return buffer;
             }
             catch (Exception ex)
             {
-                var wrappedException = WrapExceptionIfRequired(ex, "receiving a message from the server");
+                var wrappedException = WrapExceptionIfRequired(operationContext, ex, "receiving a message from the server");
                 ConnectionFailed(wrappedException ?? ex);
                 if (wrappedException == null) { throw; } else { throw wrappedException; }
             }
         }
 
-        private IByteBuffer ReceiveBuffer(int responseTo, CancellationToken cancellationToken)
-        {
-            using (var receiveLockRequest = new SemaphoreSlimRequest(_receiveLock, cancellationToken))
-            {
-                var messageTask = _dropbox.GetMessageAsync(responseTo);
-                try
-                {
-                    Task.WaitAny(messageTask, receiveLockRequest.Task);
-                    if (messageTask.IsCompleted)
-                    {
-                        return _dropbox.RemoveMessage(responseTo); // also propagates exception if any
-                    }
-
-                    receiveLockRequest.Task.GetAwaiter().GetResult(); // propagate exceptions
-                    while (true)
-                    {
-                        try
-                        {
-                            var buffer = ReceiveBuffer(cancellationToken);
-                            _dropbox.AddMessage(buffer);
-                        }
-                        catch (Exception ex)
-                        {
-                            _dropbox.AddException(ex);
-                        }
-
-                        if (messageTask.IsCompleted)
-                        {
-                            return _dropbox.RemoveMessage(responseTo); // also propagates exception if any
-                        }
-
-                        cancellationToken.ThrowIfCancellationRequested();
-                    }
-                }
-                catch
-                {
-                    var ignored = messageTask.ContinueWith(
-                        t => { _dropbox.RemoveMessage(responseTo).Dispose(); },
-                        TaskContinuationOptions.OnlyOnRanToCompletion);
-                    throw;
-                }
-            }
-        }
-
-        private async Task<IByteBuffer> ReceiveBufferAsync(CancellationToken cancellationToken)
+        private async Task<IByteBuffer> ReceiveBufferAsync(OperationContext operationContext)
         {
             try
             {
                 var messageSizeBytes = new byte[4];
-                var readTimeout = _stream.CanTimeout ? TimeSpan.FromMilliseconds(_stream.ReadTimeout) : Timeout.InfiniteTimeSpan;
-                await _stream.ReadBytesAsync(messageSizeBytes, 0, 4, readTimeout, cancellationToken).ConfigureAwait(false);
+                await _stream.ReadBytesAsync(messageSizeBytes, 0, 4, (int)operationContext.RemainingTimeoutOrDefault(_socketReadTimeout).TotalMilliseconds, operationContext.CancellationToken).ConfigureAwait(false);
                 var messageSize = BinaryPrimitives.ReadInt32LittleEndian(messageSizeBytes);
                 EnsureMessageSizeIsValid(messageSize);
                 var inputBufferChunkSource = new InputBufferChunkSource(BsonChunkPool.Default);
                 var buffer = ByteBufferFactory.Create(inputBufferChunkSource, messageSize);
                 buffer.Length = messageSize;
                 buffer.SetBytes(0, messageSizeBytes, 0, 4);
-                await _stream.ReadBytesAsync(buffer, 4, messageSize - 4, readTimeout, cancellationToken).ConfigureAwait(false);
+                await _stream.ReadBytesAsync(buffer, 4, messageSize - 4, (int)operationContext.RemainingTimeoutOrDefault(_socketReadTimeout).TotalMilliseconds, operationContext.CancellationToken).ConfigureAwait(false);
                 _lastUsedAtUtc = DateTime.UtcNow;
                 buffer.MakeReadOnly();
                 return buffer;
             }
             catch (Exception ex)
             {
-                var wrappedException = WrapExceptionIfRequired(ex, "receiving a message from the server");
+                var wrappedException = WrapExceptionIfRequired(operationContext, ex, "receiving a message from the server");
                 ConnectionFailed(wrappedException ?? ex);
                 if (wrappedException == null) { throw; } else { throw wrappedException; }
-            }
-        }
-
-        private async Task<IByteBuffer> ReceiveBufferAsync(int responseTo, CancellationToken cancellationToken)
-        {
-            using (var receiveLockRequest = new SemaphoreSlimRequest(_receiveLock, cancellationToken))
-            {
-                var messageTask = _dropbox.GetMessageAsync(responseTo);
-                try
-                {
-                    await Task.WhenAny(messageTask, receiveLockRequest.Task).ConfigureAwait(false);
-                    if (messageTask.IsCompleted)
-                    {
-                        return _dropbox.RemoveMessage(responseTo); // also propagates exception if any
-                    }
-
-                    receiveLockRequest.Task.GetAwaiter().GetResult(); // propagate exceptions
-                    while (true)
-                    {
-                        try
-                        {
-                            var buffer = await ReceiveBufferAsync(cancellationToken).ConfigureAwait(false);
-                            _dropbox.AddMessage(buffer);
-                        }
-                        catch (Exception ex)
-                        {
-                            _dropbox.AddException(ex);
-                        }
-
-                        if (messageTask.IsCompleted)
-                        {
-                            return _dropbox.RemoveMessage(responseTo); // also propagates exception if any
-                        }
-
-                        cancellationToken.ThrowIfCancellationRequested();
-                    }
-                }
-                catch
-                {
-                    var ignored = messageTask.ContinueWith(
-                        t => { _dropbox.RemoveMessage(responseTo).Dispose(); },
-                        TaskContinuationOptions.OnlyOnRanToCompletion);
-                    throw;
-                }
             }
         }
 
         public ResponseMessage ReceiveMessage(
+            OperationContext operationContext,
             int responseTo,
             IMessageEncoderSelector encoderSelector,
-            MessageEncoderSettings messageEncoderSettings,
-            CancellationToken cancellationToken)
+            MessageEncoderSettings messageEncoderSettings)
         {
             Ensure.IsNotNull(encoderSelector, nameof(encoderSelector));
-            ThrowIfCancelledOrDisposedOrNotOpen(cancellationToken);
+            ThrowIfCancelledOrDisposedOrNotOpen(operationContext);
 
             var helper = new ReceiveMessageHelper(this, responseTo, messageEncoderSettings, _compressorSource);
             try
             {
                 helper.ReceivingMessage();
-                using (var buffer = ReceiveBuffer(responseTo, cancellationToken))
+                while (true)
                 {
-                    var message = helper.DecodeMessage(buffer, encoderSelector, cancellationToken);
-                    helper.ReceivedMessage(buffer, message);
-                    return message;
+                    using (var buffer = ReceiveBuffer(operationContext))
+                    {
+                        if (responseTo != GetResponseTo(buffer))
+                        {
+                            continue;
+                        }
+
+                        var message = helper.DecodeMessage(operationContext, buffer, encoderSelector);
+                        helper.ReceivedMessage(buffer, message);
+                        return message;
+                    }
                 }
             }
             catch (Exception ex)
             {
                 helper.FailedReceivingMessage(ex);
-                ThrowOperationCanceledExceptionIfRequired(ex);
                 throw;
             }
         }
 
         public async Task<ResponseMessage> ReceiveMessageAsync(
+            OperationContext operationContext,
             int responseTo,
             IMessageEncoderSelector encoderSelector,
-            MessageEncoderSettings messageEncoderSettings,
-            CancellationToken cancellationToken)
+            MessageEncoderSettings messageEncoderSettings)
         {
             Ensure.IsNotNull(encoderSelector, nameof(encoderSelector));
-            ThrowIfCancelledOrDisposedOrNotOpen(cancellationToken);
+            ThrowIfCancelledOrDisposedOrNotOpen(operationContext);
 
             var helper = new ReceiveMessageHelper(this, responseTo, messageEncoderSettings, _compressorSource);
             try
             {
                 helper.ReceivingMessage();
-                using (var buffer = await ReceiveBufferAsync(responseTo, cancellationToken).ConfigureAwait(false))
+                while (true)
                 {
-                    var message = helper.DecodeMessage(buffer, encoderSelector, cancellationToken);
-                    helper.ReceivedMessage(buffer, message);
-                    return message;
+                    using (var buffer = await ReceiveBufferAsync(operationContext).ConfigureAwait(false))
+                    {
+                        if (responseTo != GetResponseTo(buffer))
+                        {
+                            continue;
+                        }
+
+                        var message = helper.DecodeMessage(operationContext, buffer, encoderSelector);
+                        helper.ReceivedMessage(buffer, message);
+                        return message;
+                    }
                 }
             }
             catch (Exception ex)
             {
                 helper.FailedReceivingMessage(ex);
-                ThrowOperationCanceledExceptionIfRequired(ex);
                 throw;
             }
         }
 
-        private void SendBuffer(IByteBuffer buffer, CancellationToken cancellationToken)
+        private int GetResponseTo(IByteBuffer message)
         {
-            _sendLock.Wait(cancellationToken);
+            var backingBytes = message.AccessBackingBytes(8);
+            return BinaryPrimitives.ReadInt32LittleEndian(backingBytes.Array.AsSpan().Slice(backingBytes.Offset, 4));
+        }
+
+        private void SendBuffer(OperationContext operationContext, IByteBuffer buffer)
+        {
+            if (_state.Value == State.Failed)
+            {
+                throw new MongoConnectionClosedException(_connectionId);
+            }
+
             try
             {
-                if (_state.Value == State.Failed)
-                {
-                    throw new MongoConnectionClosedException(_connectionId);
-                }
-
-                try
-                {
-                    _stream.WriteBytes(buffer, 0, buffer.Length, cancellationToken);
-                    _lastUsedAtUtc = DateTime.UtcNow;
-                }
-                catch (Exception ex)
-                {
-                    var wrappedException = WrapExceptionIfRequired(ex, "sending a message to the server");
-                    ConnectionFailed(wrappedException ?? ex);
-                    if (wrappedException == null) { throw; } else { throw wrappedException; }
-                }
+                var timeout = operationContext.RemainingTimeoutOrDefault(_socketWriteTimeout);
+                _stream.WriteBytes(buffer, 0, buffer.Length, (int)timeout.TotalMilliseconds, operationContext.CancellationToken);
+                _lastUsedAtUtc = DateTime.UtcNow;
             }
-            finally
+            catch (Exception ex)
             {
-                _sendLock.Release();
+                var wrappedException = WrapExceptionIfRequired(operationContext, ex, "sending a message to the server");
+                ConnectionFailed(wrappedException ?? ex);
+                if (wrappedException == null) { throw; } else { throw wrappedException; }
             }
         }
 
-        private async Task SendBufferAsync(IByteBuffer buffer, CancellationToken cancellationToken)
+        private async Task SendBufferAsync(OperationContext operationContext, IByteBuffer buffer)
         {
-            await _sendLock.WaitAsync(cancellationToken).ConfigureAwait(false);
+            if (_state.Value == State.Failed)
+            {
+                throw new MongoConnectionClosedException(_connectionId);
+            }
+
             try
             {
-                if (_state.Value == State.Failed)
-                {
-                    throw new MongoConnectionClosedException(_connectionId);
-                }
-
-                try
-                {
-                    var writeTimeout = _stream.CanTimeout ? TimeSpan.FromMilliseconds(_stream.WriteTimeout) : Timeout.InfiniteTimeSpan;
-                    await _stream.WriteBytesAsync(buffer, 0, buffer.Length, writeTimeout, cancellationToken).ConfigureAwait(false);
-                    _lastUsedAtUtc = DateTime.UtcNow;
-                }
-                catch (Exception ex)
-                {
-                    var wrappedException = WrapExceptionIfRequired(ex, "sending a message to the server");
-                    ConnectionFailed(wrappedException ?? ex);
-                    if (wrappedException == null) { throw; } else { throw wrappedException; }
-                }
+                var timeout = operationContext.RemainingTimeoutOrDefault(_socketWriteTimeout);
+                await _stream.WriteBytesAsync(buffer, 0, buffer.Length, (int)timeout.TotalMilliseconds, operationContext.CancellationToken).ConfigureAwait(false);
+                _lastUsedAtUtc = DateTime.UtcNow;
             }
-            finally
+            catch (Exception ex)
             {
-                _sendLock.Release();
+                var wrappedException = WrapExceptionIfRequired(operationContext, ex, "sending a message to the server");
+                ConnectionFailed(wrappedException ?? ex);
+                if (wrappedException == null) { throw; } else { throw wrappedException; }
             }
         }
 
-        public void SendMessages(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+        public void SendMessage(OperationContext operationContext, RequestMessage message, MessageEncoderSettings messageEncoderSettings)
         {
-            Ensure.IsNotNull(messages, nameof(messages));
-            ThrowIfCancelledOrDisposedOrNotOpen(cancellationToken);
+            Ensure.IsNotNull(message, nameof(message));
+            ThrowIfCancelledOrDisposedOrNotOpen(operationContext);
 
-            var helper = new SendMessagesHelper(this, messages, messageEncoderSettings);
+            var helper = new SendMessageHelper(this, message, messageEncoderSettings);
             try
             {
-                helper.EncodingMessages();
-                using (var uncompressedBuffer = helper.EncodeMessages(cancellationToken, out var sentMessages))
+                helper.EncodingMessage();
+                using (var uncompressedBuffer = helper.EncodeMessage(operationContext, out var sentMessage))
                 {
-                    helper.SendingMessages(uncompressedBuffer);
+                    helper.SendingMessage(uncompressedBuffer);
                     int sentLength;
-                    if (AnyMessageNeedsToBeCompressed(sentMessages))
+                    if (ShouldBeCompressed(sentMessage))
                     {
-                        using (var compressedBuffer = CompressMessages(sentMessages, uncompressedBuffer, messageEncoderSettings))
+                        using (var compressedBuffer = CompressMessage(sentMessage, uncompressedBuffer, messageEncoderSettings))
                         {
-                            SendBuffer(compressedBuffer, cancellationToken);
+                            SendBuffer(operationContext, compressedBuffer);
                             sentLength = compressedBuffer.Length;
                         }
                     }
                     else
                     {
-                        SendBuffer(uncompressedBuffer, cancellationToken);
+                        SendBuffer(operationContext, uncompressedBuffer);
                         sentLength = uncompressedBuffer.Length;
                     }
-                    helper.SentMessages(sentLength);
+                    helper.SentMessage(sentLength);
                 }
             }
             catch (Exception ex)
             {
-                helper.FailedSendingMessages(ex);
-                ThrowOperationCanceledExceptionIfRequired(ex);
+                helper.FailedSendingMessage(ex);
                 throw;
             }
         }
 
-        public async Task SendMessagesAsync(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+        public async Task SendMessageAsync(OperationContext operationContext, RequestMessage message, MessageEncoderSettings messageEncoderSettings)
         {
-            Ensure.IsNotNull(messages, nameof(messages));
-            ThrowIfCancelledOrDisposedOrNotOpen(cancellationToken);
+            Ensure.IsNotNull(message, nameof(message));
+            ThrowIfCancelledOrDisposedOrNotOpen(operationContext);
 
-            var helper = new SendMessagesHelper(this, messages, messageEncoderSettings);
+            var helper = new SendMessageHelper(this, message, messageEncoderSettings);
             try
             {
-                helper.EncodingMessages();
-                using (var uncompressedBuffer = helper.EncodeMessages(cancellationToken, out var sentMessages))
+                helper.EncodingMessage();
+                using (var uncompressedBuffer = helper.EncodeMessage(operationContext, out var sentMessage))
                 {
-                    helper.SendingMessages(uncompressedBuffer);
+                    helper.SendingMessage(uncompressedBuffer);
                     int sentLength;
-                    if (AnyMessageNeedsToBeCompressed(sentMessages))
+                    if (ShouldBeCompressed(sentMessage))
                     {
-                        using (var compressedBuffer = CompressMessages(sentMessages, uncompressedBuffer, messageEncoderSettings))
+                        using (var compressedBuffer = CompressMessage(sentMessage, uncompressedBuffer, messageEncoderSettings))
                         {
-                            await SendBufferAsync(compressedBuffer, cancellationToken).ConfigureAwait(false);
+                            await SendBufferAsync(operationContext, compressedBuffer).ConfigureAwait(false);
                             sentLength = compressedBuffer.Length;
                         }
                     }
                     else
                     {
-                        await SendBufferAsync(uncompressedBuffer, cancellationToken).ConfigureAwait(false);
+                        await SendBufferAsync(operationContext, uncompressedBuffer).ConfigureAwait(false);
                         sentLength = uncompressedBuffer.Length;
                     }
-                    helper.SentMessages(sentLength);
+                    helper.SentMessage(sentLength);
                 }
             }
             catch (Exception ex)
             {
-                helper.FailedSendingMessages(ex);
-                ThrowOperationCanceledExceptionIfRequired(ex);
+                helper.FailedSendingMessage(ex);
                 throw;
             }
         }
 
-        public void SetReadTimeout(TimeSpan timeout)
+        public void CompleteCommandActivityWithException(Exception exception)
         {
-            ThrowIfDisposed();
-            _stream.ReadTimeout = (int)timeout.TotalMilliseconds;
+            _commandEventHelper.CompleteFailedCommandActivity(exception);
+        }
+
+        public void EnsureCommandActivityCompleted()
+        {
+            _commandEventHelper.EnsureCommandActivityCompleted();
         }
 
         // private methods
-        private bool AnyMessageNeedsToBeCompressed(IEnumerable<RequestMessage> messages)
+        private void AddBackpressureErrorLabelsIfRequired(MongoConnectionException exception)
         {
-            return _sendCompressorType.HasValue && messages.Any(m => m.MayBeCompressed);
+            if (exception == null)
+            {
+                return;
+            }
+
+            if (exception.InnerException is MongoProxyConnectionException)
+            {
+                return;
+            }
+
+            if (exception.InnerException is IOException || exception.ContainsTimeoutException)
+            {
+                exception.AddErrorLabel("SystemOverloadedError");
+                exception.AddErrorLabel("RetryableError");
+            }
+        }
+
+        private bool ShouldBeCompressed(RequestMessage message)
+        {
+            return _sendCompressorType.HasValue && message.MayBeCompressed;
         }
 
         private CompressorType? ChooseSendCompressorTypeIfAny(ConnectionDescription connectionDescription)
@@ -672,8 +634,8 @@ namespace MongoDB.Driver.Core.Connections
             return availableCompressors.Count > 0 ? (CompressorType?)availableCompressors[0] : null;
         }
 
-        private IByteBuffer CompressMessages(
-            IEnumerable<RequestMessage> messages,
+        private IByteBuffer CompressMessage(
+            RequestMessage message,
             IByteBuffer uncompressedBuffer,
             MessageEncoderSettings messageEncoderSettings)
         {
@@ -683,24 +645,22 @@ namespace MongoDB.Driver.Core.Connections
             using (var uncompressedStream = new ByteBufferStream(uncompressedBuffer, ownsBuffer: false))
             using (var compressedStream = new ByteBufferStream(compressedBuffer, ownsBuffer: false))
             {
-                foreach (var message in messages)
-                {
-                    var uncompressedMessageLength = uncompressedStream.ReadInt32();
-                    uncompressedStream.Position -= 4;
+                var uncompressedMessageLength = uncompressedStream.ReadInt32();
+                uncompressedStream.Position -= 4;
 
-                    using (var uncompressedMessageSlice = uncompressedBuffer.GetSlice((int)uncompressedStream.Position, uncompressedMessageLength))
-                    using (var uncompressedMessageStream = new ByteBufferStream(uncompressedMessageSlice, ownsBuffer: false))
+                using (var uncompressedMessageSlice = uncompressedBuffer.GetSlice((int)uncompressedStream.Position, uncompressedMessageLength))
+                using (var uncompressedMessageStream = new ByteBufferStream(uncompressedMessageSlice, ownsBuffer: false))
+                {
+                    if (message.MayBeCompressed)
                     {
-                        if (message.MayBeCompressed)
-                        {
-                            CompressMessage(message, uncompressedMessageStream, compressedStream, messageEncoderSettings);
-                        }
-                        else
-                        {
-                            uncompressedMessageStream.EfficientCopyTo(compressedStream);
-                        }
+                        CompressMessage(message, uncompressedMessageStream, compressedStream, messageEncoderSettings);
+                    }
+                    else
+                    {
+                        uncompressedMessageStream.EfficientCopyTo(compressedStream);
                     }
                 }
+
                 compressedBuffer.Length = (int)compressedStream.Length;
             }
 
@@ -719,15 +679,15 @@ namespace MongoDB.Driver.Core.Connections
             compressedMessageEncoder.WriteMessage(compressedMessage);
         }
 
-        private void ThrowIfCancelledOrDisposed(CancellationToken cancellationToken = default)
+        private void ThrowIfCancelledOrDisposed(OperationContext operationContext)
         {
-            cancellationToken.ThrowIfCancellationRequested();
+            operationContext.ThrowIfTimedOutOrCanceled();
             ThrowIfDisposed();
         }
 
-        private void ThrowIfCancelledOrDisposedOrNotOpen(CancellationToken cancellationToken)
+        private void ThrowIfCancelledOrDisposedOrNotOpen(OperationContext operationContext)
         {
-            ThrowIfCancelledOrDisposed(cancellationToken);
+            ThrowIfCancelledOrDisposed(operationContext);
             if (_state.Value == State.Failed)
             {
                 throw new MongoConnectionClosedException(_connectionId);
@@ -746,10 +706,14 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        private Exception WrapExceptionIfRequired(Exception ex, string action)
+        private MongoConnectionException WrapExceptionIfRequired(OperationContext operationContext, Exception ex, string action)
         {
-            if (
-                ex is ThreadAbortException ||
+            if (ex is TimeoutException && operationContext.IsRootContextTimeoutConfigured())
+            {
+                return null;
+            }
+
+            if (ex is ThreadAbortException ||
                 ex is StackOverflowException ||
                 ex is MongoAuthenticationException ||
                 ex is OutOfMemoryException ||
@@ -758,68 +722,17 @@ namespace MongoDB.Driver.Core.Connections
             {
                 return null;
             }
-            else
-            {
-                var message = string.Format("An exception occurred while {0}.", action);
-                return new MongoConnectionException(_connectionId, message, ex);
-            }
-        }
 
-        private void ThrowOperationCanceledExceptionIfRequired(Exception exception)
-        {
-            if (exception is ObjectDisposedException objectDisposedException)
+            if (ex is MongoConnectionException mongoConnectionException)
             {
-                // We expect two cases here:
-                //      objectDisposedException.ObjectName == GetType().Name
-                //      objectDisposedException.Message == "The semaphore has been disposed."
-                // but since the last one is language-specific, the only option we have is avoiding any additional conditions for ObjectDisposedException
-                // TODO: this logic should be reviewed in the scope of https://jira.mongodb.org/browse/CSHARP-3165
-                throw new OperationCanceledException($"The {nameof(BinaryConnection)} operation has been cancelled.", exception);
+                return mongoConnectionException;
             }
+
+            var message = string.Format("An exception occurred while {0}.", action);
+            return new MongoConnectionException(_connectionId, message, ex);
         }
 
         // nested classes
-        private class Dropbox
-        {
-            private readonly ConcurrentDictionary<int, TaskCompletionSource<IByteBuffer>> _messages = new ConcurrentDictionary<int, TaskCompletionSource<IByteBuffer>>();
-
-            // public methods
-            public void AddException(Exception exception)
-            {
-                foreach (var taskCompletionSource in _messages.Values)
-                {
-                    taskCompletionSource.TrySetException(exception); // has no effect on already completed tasks
-                }
-            }
-
-            public void AddMessage(IByteBuffer message)
-            {
-                var responseTo = GetResponseTo(message);
-                var tcs = _messages.GetOrAdd(responseTo, x => new TaskCompletionSource<IByteBuffer>());
-                tcs.TrySetResult(message);
-            }
-
-            public Task<IByteBuffer> GetMessageAsync(int responseTo)
-            {
-                var tcs = _messages.GetOrAdd(responseTo, _ => new TaskCompletionSource<IByteBuffer>());
-                return tcs.Task;
-            }
-
-            public IByteBuffer RemoveMessage(int responseTo)
-            {
-                TaskCompletionSource<IByteBuffer> tcs;
-                _messages.TryRemove(responseTo, out tcs);
-                return tcs.Task.GetAwaiter().GetResult(); // RemoveMessage is only called when Task is complete
-            }
-
-            // private methods
-            private int GetResponseTo(IByteBuffer message)
-            {
-                var backingBytes = message.AccessBackingBytes(8);
-                return BinaryPrimitives.ReadInt32LittleEndian(new ReadOnlySpan<byte>(backingBytes.Array, backingBytes.Offset, 4));
-            }
-        }
-
         private class OpenConnectionHelper
         {
             private readonly BinaryConnection _connection;
@@ -907,9 +820,9 @@ namespace MongoDB.Driver.Core.Connections
                 _messageEncoderSettings = messageEncoderSettings;
             }
 
-            public ResponseMessage DecodeMessage(IByteBuffer buffer, IMessageEncoderSelector encoderSelector, CancellationToken cancellationToken)
+            public ResponseMessage DecodeMessage(OperationContext operationContext, IByteBuffer buffer, IMessageEncoderSelector encoderSelector)
             {
-                cancellationToken.ThrowIfCancellationRequested();
+                operationContext.ThrowIfTimedOutOrCanceled();
 
                 _stopwatch.Stop();
                 _networkDuration = _stopwatch.Elapsed;
@@ -976,30 +889,28 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        private class SendMessagesHelper
+        private class SendMessageHelper
         {
             private readonly Stopwatch _commandStopwatch;
             private readonly BinaryConnection _connection;
             private readonly MessageEncoderSettings _messageEncoderSettings;
-            private readonly List<RequestMessage> _messages;
-            private Lazy<List<int>> _requestIds;
+            private readonly RequestMessage _message;
             private TimeSpan _serializationDuration;
             private Stopwatch _networkStopwatch;
 
-            public SendMessagesHelper(BinaryConnection connection, IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings)
+            public SendMessageHelper(BinaryConnection connection, RequestMessage message, MessageEncoderSettings messageEncoderSettings)
             {
                 _connection = connection;
-                _messages = messages.ToList();
+                _message = message;
                 _messageEncoderSettings = messageEncoderSettings;
 
                 _commandStopwatch = Stopwatch.StartNew();
-                _requestIds = new Lazy<List<int>>(() => _messages.Select(m => m.RequestId).ToList());
             }
 
-            public IByteBuffer EncodeMessages(CancellationToken cancellationToken, out List<RequestMessage> sentMessages)
+            public IByteBuffer EncodeMessage(OperationContext operationContext, out RequestMessage sentMessage)
             {
-                sentMessages = new List<RequestMessage>();
-                cancellationToken.ThrowIfCancellationRequested();
+                sentMessage = null;
+                operationContext.ThrowIfTimedOutOrCanceled();
 
                 var serializationStopwatch = Stopwatch.StartNew();
                 var outputBufferChunkSource = new OutputBufferChunkSource(BsonChunkPool.Default);
@@ -1007,21 +918,17 @@ namespace MongoDB.Driver.Core.Connections
                 using (var stream = new ByteBufferStream(buffer, ownsBuffer: false))
                 {
                     var encoderFactory = new BinaryMessageEncoderFactory(stream, _messageEncoderSettings, compressorSource: null);
-                    foreach (var message in _messages)
-                    {
-                        if (message.ShouldBeSent == null || message.ShouldBeSent())
-                        {
-                            var encoder = message.GetEncoder(encoderFactory);
-                            encoder.WriteMessage(message);
-                            message.WasSent = true;
-                            sentMessages.Add(message);
-                        }
 
-                        // Encoding messages includes serializing the
-                        // documents, so encoding message could be expensive
-                        // and worthy of us honoring cancellation here.
-                        cancellationToken.ThrowIfCancellationRequested();
-                    }
+                    var encoder = _message.GetEncoder(encoderFactory);
+                    encoder.WriteMessage(_message);
+                    _message.WasSent = true;
+                    sentMessage = _message;
+
+                    // Encoding messages includes serializing the
+                    // documents, so encoding message could be expensive
+                    // and worthy of us honoring cancellation here.
+                    operationContext.ThrowIfTimedOutOrCanceled();
+
                     buffer.Length = (int)stream.Length;
                     buffer.MakeReadOnly();
                 }
@@ -1031,42 +938,42 @@ namespace MongoDB.Driver.Core.Connections
                 return buffer;
             }
 
-            public void EncodingMessages()
+            public void EncodingMessage()
             {
-                _connection._eventLogger.LogAndPublish(new ConnectionSendingMessagesEvent(_connection.ConnectionId, _requestIds.Value, EventContext.OperationId));
+                _connection._eventLogger.LogAndPublish(new ConnectionSendingMessagesEvent(_connection.ConnectionId, _message.RequestId, EventContext.OperationId));
             }
 
-            public void FailedSendingMessages(Exception ex)
+            public void FailedSendingMessage(Exception ex)
             {
                 if (_connection._commandEventHelper.ShouldCallErrorSending)
                 {
-                    _connection._commandEventHelper.ErrorSending(_messages, _connection._connectionId, _connection._description?.ServiceId, ex, _connection.IsInitializing);
+                    _connection._commandEventHelper.ErrorSending(_message, _connection._connectionId, _connection._description?.ServiceId, ex, _connection.IsInitializing);
                 }
 
-                _connection._eventLogger.LogAndPublish(new ConnectionSendingMessagesFailedEvent(_connection.ConnectionId, _requestIds.Value, ex, EventContext.OperationId));
+                _connection._eventLogger.LogAndPublish(new ConnectionSendingMessagesFailedEvent(_connection.ConnectionId, _message.RequestId, ex, EventContext.OperationId));
             }
 
-            public void SendingMessages(IByteBuffer buffer)
+            public void SendingMessage(IByteBuffer buffer)
             {
                 if (_connection._commandEventHelper.ShouldCallBeforeSending)
                 {
-                    _connection._commandEventHelper.BeforeSending(_messages, _connection.ConnectionId, _connection.Description?.ServiceId, buffer, _messageEncoderSettings, _commandStopwatch, _connection.IsInitializing);
+                    _connection._commandEventHelper.BeforeSending(_message, _connection.ConnectionId, _connection.Description?.ServiceId, buffer, _messageEncoderSettings, _commandStopwatch, _connection.IsInitializing);
                 }
 
                 _networkStopwatch = Stopwatch.StartNew();
             }
 
-            public void SentMessages(int bufferLength)
+            public void SentMessage(int bufferLength)
             {
                 _networkStopwatch.Stop();
                 var networkDuration = _networkStopwatch.Elapsed;
 
                 if (_connection._commandEventHelper.ShouldCallAfterSending)
                 {
-                    _connection._commandEventHelper.AfterSending(_messages, _connection._connectionId, _connection.Description?.ServiceId, _connection.IsInitializing);
+                    _connection._commandEventHelper.AfterSending(_message, _connection._connectionId, _connection.Description?.ServiceId, _connection.IsInitializing);
                 }
 
-                _connection._eventLogger.LogAndPublish(new ConnectionSentMessagesEvent(_connection.ConnectionId, _requestIds.Value, bufferLength, networkDuration, _serializationDuration, EventContext.OperationId));
+                _connection._eventLogger.LogAndPublish(new ConnectionSentMessagesEvent(_connection.ConnectionId, _message.RequestId, bufferLength, networkDuration, _serializationDuration, EventContext.OperationId));
             }
         }
 

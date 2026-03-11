@@ -98,7 +98,7 @@ namespace MongoDB.Driver.Core.Servers
             var (invalidateAndClear, cancelCheck) = ex switch
             {
                 MongoAuthenticationException => (invalidateAndClear: true, cancelCheck: false),
-                _ => (invalidateAndClear: connectionException.IsNetworkException || connectionException.ContainsTimeoutException,
+                _ => (invalidateAndClear: (connectionException.IsNetworkException || connectionException.ContainsTimeoutException) && !connectionException.HasErrorLabel("SystemOverloadedError"),
                       cancelCheck: connectionException.IsNetworkException && !connectionException.ContainsTimeoutException)
             };
 

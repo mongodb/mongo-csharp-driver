@@ -17,11 +17,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    internal class AsyncCursorEnumerator<TDocument> : IEnumerator<TDocument>
+    internal sealed class AsyncCursorEnumerator<TDocument> : IEnumerator<TDocument>, IAsyncEnumerator<TDocument>
     {
         // private fields
         private IEnumerator<TDocument> _batchEnumerator;
@@ -72,6 +73,15 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
+        public ValueTask DisposeAsync()
+        {
+            // TODO: implement true async disposal (CSHARP-5630)
+            Dispose();
+
+            // TODO: convert to ValueTask.CompletedTask once we stop supporting older target frameworks
+            return default; // Equivalent to ValueTask.CompletedTask which is not available on older target frameworks.
+        }
+
         public bool MoveNext()
         {
             ThrowIfDisposed();
@@ -82,24 +92,46 @@ namespace MongoDB.Driver.Core.Operations
                 return true;
             }
 
-            while (true)
+            while (_cursor.MoveNext(_cancellationToken))
             {
-                if (_cursor.MoveNext(_cancellationToken))
+                _batchEnumerator?.Dispose();
+                _batchEnumerator = _cursor.Current.GetEnumerator();
+                if (_batchEnumerator.MoveNext())
                 {
-                    _batchEnumerator?.Dispose();
-                    _batchEnumerator = _cursor.Current.GetEnumerator();
-                    if (_batchEnumerator.MoveNext())
-                    {
-                        return true;
-                    }
-                }
-                else
-                {
-                    _batchEnumerator = null;
-                    _finished = true;
-                    return false;
+                    return true;
                 }
             }
+
+            _batchEnumerator?.Dispose();
+            _batchEnumerator = null;
+            _finished = true;
+            return false;
+        }
+
+        public async ValueTask<bool> MoveNextAsync()
+        {
+            ThrowIfDisposed();
+            _started = true;
+
+            if (_batchEnumerator != null && _batchEnumerator.MoveNext())
+            {
+                return true;
+            }
+
+            while (await _cursor.MoveNextAsync(_cancellationToken).ConfigureAwait(false))
+            {
+                _batchEnumerator?.Dispose();
+                _batchEnumerator = _cursor.Current.GetEnumerator();
+                if (_batchEnumerator.MoveNext())
+                {
+                    return true;
+                }
+            }
+
+            _batchEnumerator?.Dispose();
+            _batchEnumerator = null;
+            _finished = true;
+            return false;
         }
 
         public void Reset()

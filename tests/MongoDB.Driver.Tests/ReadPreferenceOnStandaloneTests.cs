@@ -29,6 +29,7 @@ using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests
 {
+    [Trait("Category", "Integration")]
     public class ReadPreferenceOnStandaloneTests : LoggableTestClass
     {
         public ReadPreferenceOnStandaloneTests(ITestOutputHelper output) : base(output)

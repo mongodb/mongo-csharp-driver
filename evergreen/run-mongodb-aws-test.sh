@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-set -o xtrace
 set -o errexit  # Exit the script with error if any of the commands fail
 
 # Supported/used environment variables:
@@ -42,8 +41,5 @@ export AWS_TESTS_ENABLED=true
 # show test output
 set -x
 
-if [[ "$OS" =~ Windows|windows ]]; then
-  powershell.exe .\\build.ps1 --target=TestAwsAuthentication
-else
-  ./build.sh --target=TestAwsAuthentication
-fi
+./evergreen/compile-sources.sh
+TEST_CATEGORY=AwsMechanism ./evergreen/execute-tests.sh

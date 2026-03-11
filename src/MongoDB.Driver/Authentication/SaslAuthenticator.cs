@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
@@ -72,7 +71,7 @@ namespace MongoDB.Driver.Authentication
 
         public string Name => Mechanism.Name;
 
-        public void Authenticate(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
+        public void Authenticate(OperationContext operationContext, IConnection connection, ConnectionDescription description)
         {
             Ensure.IsNotNull(connection, nameof(connection));
             Ensure.IsNotNull(description, nameof(description));
@@ -91,7 +90,10 @@ namespace MongoDB.Driver.Authentication
 
                 while (currentStep != null)
                 {
-                    var executionResult = currentStep.Execute(conversation, result?["payload"]?.AsByteArray, cancellationToken);
+                    operationContext.ThrowIfTimedOutOrCanceled();
+#pragma warning disable CS0618 // Type or member is obsolete
+                    var executionResult = currentStep.Execute(conversation, result?["payload"]?.AsByteArray, operationContext.CombinedCancellationToken);
+#pragma warning restore CS0618 // Type or member is obsolete
                     if (executionResult.BytesToSendToServer == null)
                     {
                         currentStep = executionResult.NextStep;
@@ -109,7 +111,7 @@ namespace MongoDB.Driver.Authentication
                     try
                     {
                         var protocol = CreateCommandProtocol(command);
-                        result = protocol.Execute(connection, cancellationToken);
+                        result = protocol.Execute(operationContext, connection);
                         conversationId ??= result?.GetValue("conversationId").AsInt32;
                     }
                     catch (MongoException ex)
@@ -135,7 +137,7 @@ namespace MongoDB.Driver.Authentication
             }
         }
 
-        public async Task AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
+        public async Task AuthenticateAsync(OperationContext operationContext, IConnection connection, ConnectionDescription description)
         {
             Ensure.IsNotNull(connection, nameof(connection));
             Ensure.IsNotNull(description, nameof(description));
@@ -154,7 +156,10 @@ namespace MongoDB.Driver.Authentication
 
                 while (currentStep != null)
                 {
-                    var executionResult = await currentStep.ExecuteAsync(conversation, result?["payload"]?.AsByteArray, cancellationToken).ConfigureAwait(false);
+                    operationContext.ThrowIfTimedOutOrCanceled();
+#pragma warning disable CS0618 // Type or member is obsolete
+                    var executionResult = await currentStep.ExecuteAsync(conversation, result?["payload"]?.AsByteArray, operationContext.CombinedCancellationToken).ConfigureAwait(false);
+#pragma warning restore CS0618 // Type or member is obsolete
                     if (executionResult.BytesToSendToServer == null)
                     {
                         currentStep = executionResult.NextStep;
@@ -172,7 +177,7 @@ namespace MongoDB.Driver.Authentication
                     try
                     {
                         var protocol = CreateCommandProtocol(command);
-                        result = await protocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
+                        result = await protocol.ExecuteAsync(operationContext, connection).ConfigureAwait(false);
                         conversationId ??= result?.GetValue("conversationId").AsInt32;
                     }
                     catch (MongoException ex)
@@ -198,12 +203,14 @@ namespace MongoDB.Driver.Authentication
             }
         }
 
-        public BsonDocument CustomizeInitialHelloCommand(BsonDocument helloCommand, CancellationToken cancellationToken)
+        public BsonDocument CustomizeInitialHelloCommand(OperationContext operationContext, BsonDocument helloCommand)
         {
             var speculativeStep = Mechanism.CreateSpeculativeAuthenticationStep();
             if (speculativeStep != null)
             {
-                (var bytesToSend, _speculativeContinueStep) = speculativeStep.Execute(null, null, cancellationToken);
+#pragma warning disable CS0618 // Type or member is obsolete
+                (var bytesToSend, _speculativeContinueStep) = speculativeStep.Execute(null, null, operationContext.CombinedCancellationToken);
+#pragma warning restore CS0618 // Type or member is obsolete
                 var firstCommand = CreateStartCommand(bytesToSend);
                 firstCommand.Add("db", Mechanism.DatabaseName);
                 helloCommand.Add("speculativeAuthenticate", firstCommand);

@@ -104,8 +104,16 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     case "filter":
                         filter = new BsonDocumentFilterDefinition<BsonDocument>(argument.Value.AsBsonDocument);
                         break;
+                    case "maxTimeMS":
+                        options ??= new CountOptions();
+                        options.MaxTime = TimeSpan.FromMilliseconds(argument.Value.AsInt32);
+                        break;
                     case "session":
                         session = _entityMap.Sessions[argument.Value.AsString];
+                        break;
+                    case "timeoutMS":
+                        options ??= new CountOptions();
+                        options.Timeout = UnifiedEntityMap.ParseTimeout(argument.Value);
                         break;
                     default:
                         throw new FormatException($"Invalid CountOperation argument name: '{argument.Name}'.");

@@ -18,7 +18,7 @@ using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
-using Xunit;
+using MongoDB.Driver.Encryption;
 using Xunit.Sdk;
 
 namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
@@ -53,6 +53,16 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
                 return this;
             }
             throw new SkipException($"Test skipped because authentication is {(actualAuthentication ? "on" : "off")}.");
+        }
+
+        internal RequireServer Cluster(Func<IClusterInternal, bool> condition, string because)
+        {
+            if (condition(CoreTestConfiguration.Cluster))
+            {
+                return this;
+            }
+
+            throw new SkipException($"Test skipped because cluster is not satisfies the provided condition: {because}");
         }
 
         public RequireServer ClusterType(ClusterType clusterType)
@@ -129,18 +139,6 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
             throw new SkipException($"Test skipped because cluster does not meet runOn requirements: {requirements}.");
         }
 
-        public RequireServer Serverless(bool require = true)
-        {
-            var isServerless = CoreTestConfiguration.Serverless;
-
-            if (isServerless == require)
-            {
-                return this;
-            }
-
-            throw new SkipException("Test skipped because serverless is " + (require ? "required" : "not required") + ".");
-        }
-
         public RequireServer StableServer(bool stable = true)
         {
             var serverVersion = CoreTestConfiguration.ServerVersion;
@@ -210,7 +208,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
 
         public RequireServer Tls(bool required = true)
         {
-            var usingTls = CoreTestConfiguration.ConnectionString.Tls;
+            var usingTls = CoreTestConfiguration.ConnectionString.Tls ?? false;
             if (usingTls == required)
             {
                 return this;
@@ -315,18 +313,13 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
                     }
                 case "authMechanism":
                     var actualValue = CoreTestConfiguration.GetServerParameters().GetValue("authenticationMechanisms").AsBsonArray;
-                    var requiredValue = requirement.Value.AsString;
-                    return actualValue.Contains(requiredValue);
+                    return actualValue.Contains(requirement.Value.AsString);
                 case "serverless":
                     var serverlessValue = requirement.Value.AsString;
                     switch (serverlessValue)
                     {
-                        case "allow":
-                            return true;
                         case "forbid":
-                            return CoreTestConfiguration.Serverless == false;
-                        case "require":
-                            return CoreTestConfiguration.Serverless == true;
+                            return true;
                         default:
                             throw new FormatException($"Invalid runOn requirement serverless field value: '{requirement.Value}'.");
                     }
@@ -345,10 +338,31 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
                     var actualClusterType = CoreTestConfiguration.Cluster.Description.Type;
                     var runOnClusterTypes = requirement.Value.AsBsonArray.Select(topology => MapTopologyToClusterType(topology.AsString)).ToList();
                     return runOnClusterTypes.Contains(actualClusterType);
-                case "csfle": return Feature.ClientSideEncryption.IsSupported(CoreTestConfiguration.MaxWireVersion);
+                case "csfle":
+                    return IsCsfleRequirementSatisfied(requirement);
                 default:
                     throw new FormatException($"Unrecognized requirement field: '{requirement.Name}'.");
             }
+        }
+
+        private bool IsCsfleRequirementSatisfied(BsonElement requirement)
+        {
+            var isCsfleSupported = Feature.ClientSideEncryption.IsSupported(CoreTestConfiguration.MaxWireVersion);
+            if (!isCsfleSupported)
+            {
+                return false;
+            }
+
+            var requiredValue = requirement.Value;
+            if (!requiredValue.IsBsonDocument)
+            {
+                return true;
+            }
+
+            // Check if minimum libmongocrypt version requirement is met
+            var minLibmongocryptVersion = SemanticVersion.Parse(requiredValue["minLibmongocryptVersion"].AsString);
+            var actualLibmongocryptVersion = SemanticVersion.Parse(Library.Version);
+            return SemanticVersionCompareToAsReleased(actualLibmongocryptVersion, minLibmongocryptVersion) >= 0;
         }
 
         private ClusterType MapTopologyToClusterType(string topology)

@@ -81,10 +81,11 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             var operations = testCase.Test["operations"].AsBsonArray; // cannot be null
             var expectEvents = testCase.Test.GetValue("expectEvents", null)?.AsBsonArray;
             var expectedLogs = testCase.Test.GetValue("expectLogMessages", null)?.AsBsonArray;
+            var expectTracingMessages = testCase.Test.GetValue("expectTracingMessages", null)?.AsBsonArray;
             var outcome = testCase.Test.GetValue("outcome", null)?.AsBsonArray;
             var async = testCase.Test["async"].AsBoolean; // cannot be null
 
-            Run(schemaVersion, testSetRunOnRequirements, entities, initialData, runOnRequirements, skipReason, operations, expectEvents, expectedLogs, outcome, async);
+            Run(schemaVersion, testSetRunOnRequirements, entities, initialData, runOnRequirements, skipReason, operations, expectEvents, expectedLogs, expectTracingMessages, outcome, async);
         }
 
         public void Run(
@@ -97,6 +98,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             BsonArray operations,
             BsonArray expectedEvents,
             BsonArray expectedLogs,
+            BsonArray expectTracingMessages,
             BsonArray outcome,
             bool async)
         {
@@ -108,7 +110,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
             var schemaSemanticVersion = SemanticVersion.Parse(schemaVersion);
             if (schemaSemanticVersion < new SemanticVersion(1, 0, 0) ||
-                schemaSemanticVersion > new SemanticVersion(1, 22, 0))
+                schemaSemanticVersion > new SemanticVersion(1, 27, 0))
             {
                 throw new FormatException($"Schema version '{schemaVersion}' is not supported.");
             }
@@ -125,14 +127,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 throw new SkipException($"Test skipped because '{skipReason}'.");
             }
 
-            // should skip on KillOpenTransactions for Atlas Data Lake tests.
-            // https://github.com/mongodb/specifications/blob/80f88d0af6e47407c03874512e0d9b73708edad5/source/atlas-data-lake-testing/tests/README.md?plain=1#L23
-            if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ATLAS_DATA_LAKE_TESTS_ENABLED")))
-            {
-                KillOpenTransactions(DriverTestConfiguration.Client);
-            }
-
-            BsonDocument lastKnownClusterTime = AddInitialData(DriverTestConfiguration.Client, initialData);
+            var lastKnownClusterTime = AddInitialData(DriverTestConfiguration.Client, initialData);
             _entityMap = UnifiedEntityMap.Create(_eventFormatters, _loggingService.LoggingSettings, async, lastKnownClusterTime);
             _entityMap.AddRange(entities);
 
@@ -149,6 +144,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             if (expectedLogs != null)
             {
                 AssertLogs(expectedLogs, _entityMap);
+            }
+            if (expectTracingMessages != null)
+            {
+                AssertSpans(expectTracingMessages, _entityMap);
             }
             if (outcome != null)
             {
@@ -193,10 +192,32 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
                 var database = client.GetDatabase(databaseName).WithWriteConcern(WriteConcern.WMajority);
 
+                var createCollectionOptions = new CreateCollectionOptions();
+                if (dataItem.AsBsonDocument.Contains("createOptions"))
+                {
+                    var options = dataItem.AsBsonDocument["createOptions"].AsBsonDocument;
+                    foreach (var option in options)
+                    {
+                        switch (option.Name)
+                        {
+                            case "encryptedFields":
+                                createCollectionOptions.EncryptedFields = option.Value.AsBsonDocument;
+                                break;
+                            default:
+                                throw new FormatException($"Invalid createOptions argument name: '{option.Name}'.");
+                        }
+                    }
+                }
+
                 _logger.LogDebug("Dropping {0}", collectionName);
                 using var session = client.StartSession();
-                database.DropCollection(session, collectionName);
-                database.CreateCollection(session, collectionName);
+
+                // For some QE spec tests we need to drop QE state collections (enxcol_.*.esc, enxcol_.*.ecoc).
+                // DropCollection with EncryptedFields automatically handles cleanup of those QE state collections
+                database.DropCollection(session, collectionName, new DropCollectionOptions { EncryptedFields = createCollectionOptions.EncryptedFields });
+
+                database.CreateCollection(session, collectionName, createCollectionOptions);
+
                 if (documents.Any())
                 {
                     var collection = database.GetCollection<BsonDocument>(collectionName);
@@ -225,6 +246,22 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 _eventsProcessor?.PostProcessEvents(actualEvents, eventType);
 
                 unifiedEventMatcher.AssertEventsMatch(actualEvents, eventItem["events"].AsBsonArray, ignoreExtraEvents);
+            }
+        }
+
+        private void AssertSpans(BsonArray spanItems, UnifiedEntityMap entityMap)
+        {
+            _logger.LogDebug("Asserting spans");
+
+            var unifiedSpanMatcher = new UnifiedSpanMatcher(new UnifiedValueMatcher(entityMap));
+            foreach (var spanItem in spanItems.Cast<BsonDocument>())
+            {
+                var clientId = spanItem["client"].AsString;
+                var ignoreExtraSpans = spanItem.GetValue("ignoreExtraSpans", false).AsBoolean;
+                var spanCapturer = entityMap.SpanCapturers[clientId];
+                var actualSpans = spanCapturer.Spans;
+
+                unifiedSpanMatcher.AssertSpansMatch(actualSpans, spanItem["spans"].AsBsonArray, ignoreExtraSpans);
             }
         }
 
@@ -334,7 +371,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             {
                 if (actualResult.Result != null)
                 {
-                    entityMap.Resutls.Add(saveResultAsEntity.AsString, actualResult.Result);
+                    entityMap.Results.Add(saveResultAsEntity.AsString, actualResult.Result);
                 }
                 else if (actualResult.ChangeStream != null)
                 {
@@ -378,12 +415,11 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 // SERVER-38335
                 serverVersion < new SemanticVersion(4, 1, 9) && ex.Code == (int)ServerErrorCode.Interrupted ||
                 // SERVER-54216
-                ex.Code == (int)ServerErrorCode.Unauthorized ||
-                // Serverless has a different code for Unauthorized error
-                ex.Code == (int)ServerErrorCode.UnauthorizedServerless)
+                ex.Code == (int)ServerErrorCode.Unauthorized)
             {
                 // ignore errors
             }
         }
+
     }
 }

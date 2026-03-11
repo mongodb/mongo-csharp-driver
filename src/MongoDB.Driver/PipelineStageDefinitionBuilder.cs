@@ -2159,7 +2159,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(field, nameof(field));
             Ensure.IsNotNull(queryVector, nameof(queryVector));
             Ensure.IsGreaterThanZero(limit, nameof(limit));
-            Ensure.That(options?.NumberOfCandidates is null || options.Exact == false, "Number of candidates must be omitted for exact nearest neighbour search (ENN).");
+            Ensure.That(options?.NumberOfCandidates is null || !options.Exact, "Number of candidates must be omitted for exact nearest neighbor search (ENN).");
 
             const string operatorName = "$vectorSearch";
             var stage = new DelegatedPipelineStageDefinition<TInput, TInput>(
@@ -2167,9 +2167,9 @@ namespace MongoDB.Driver
                 args =>
                 {
                     ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
+
                     var vectorSearchOperator = new BsonDocument
                     {
-                        { "queryVector", queryVector.Vector },
                         { "path", field.Render(args).FieldName },
                         { "limit", limit },
                         { "numCandidates", options?.NumberOfCandidates ?? limit * 10, options?.Exact != true },
@@ -2177,6 +2177,16 @@ namespace MongoDB.Driver
                         { "filter", () => options?.Filter.Render(args with { RenderDollarForm = true }), options?.Filter != null },
                         { "exact", true, options?.Exact == true }
                     };
+
+                    if (queryVector.Vector is BsonString bsonString)
+                    {
+                        vectorSearchOperator["query"] = new BsonDocument { { "text", bsonString } };
+                        vectorSearchOperator.Add("model", options?.AutoEmbeddingModelName, options?.AutoEmbeddingModelName != null);
+                    }
+                    else
+                    {
+                        vectorSearchOperator["queryVector"] = queryVector.Vector;
+                    }
 
                     var document = new BsonDocument(operatorName, vectorSearchOperator);
                     return new RenderedPipelineStageDefinition<TInput>(operatorName, document, args.DocumentSerializer);

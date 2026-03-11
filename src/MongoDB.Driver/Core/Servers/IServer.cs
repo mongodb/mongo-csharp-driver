@@ -15,9 +15,11 @@
 
 using System;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.ConnectionPools;
+using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver.Core.Servers
 {
@@ -25,21 +27,31 @@ namespace MongoDB.Driver.Core.Servers
     {
         event EventHandler<ServerDescriptionChangedEventArgs> DescriptionChanged;
 
+        IClusterClock ClusterClock { get; }
         ServerDescription Description { get; }
         EndPoint EndPoint { get; }
         ServerId ServerId { get; }
+        ServerApi ServerApi { get; }
 
-        IChannelHandle GetChannel(CancellationToken cancellationToken);
-        Task<IChannelHandle> GetChannelAsync(CancellationToken cancellationToken);
+        void DecrementOutstandingOperationsCount();
+        IChannelHandle GetChannel(OperationContext operationContext);
+        Task<IChannelHandle> GetChannelAsync(OperationContext operationContext);
+        void HandleChannelException(IConnectionHandle connection, Exception exception);
     }
 
     internal interface IClusterableServer : IServer, IDisposable
     {
+        IConnectionPool ConnectionPool { get; }
         bool IsInitialized { get; }
         int OutstandingOperationsCount { get; }
 
         void Initialize();
         void Invalidate(string reasonInvalidated, TopologyVersion responseTopologyVersion);
         void RequestHeartbeat();
+    }
+
+    internal interface ISelectedServer : IServer
+    {
+        ServerDescription DescriptionWhenSelected { get; }
     }
 }

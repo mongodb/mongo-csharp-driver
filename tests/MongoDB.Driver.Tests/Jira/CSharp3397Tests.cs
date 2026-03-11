@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
@@ -24,6 +23,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira
 {
+    [Trait("Category", "Integration")]
     public class CSharp3397Tests
     {
         [Fact]
@@ -37,9 +37,9 @@ namespace MongoDB.Driver.Tests.Jira
             var outCollection = database.GetCollection<BsonDocument>("timeCol");
 
             var writeConcern = WriteConcern.WMajority;
-            if (DriverTestConfiguration.IsReplicaSet(client))
+            if (DriverTestConfiguration.IsReplicaSet(client.GetClusterInternal()))
             {
-                var n = DriverTestConfiguration.GetReplicaSetNumberOfDataBearingMembers(client);
+                var n = DriverTestConfiguration.GetReplicaSetNumberOfDataBearingMembers(client.GetClusterInternal());
                 writeConcern = new WriteConcern(n);
             }
 

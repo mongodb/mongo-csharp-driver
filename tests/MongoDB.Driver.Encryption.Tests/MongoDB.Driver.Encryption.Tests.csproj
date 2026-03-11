@@ -1,11 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-    <Import Project="..\BuildProps\Tests.Build.props" />
+  <Import Project="..\BuildProps\Tests.Build.props" />
 
   <PropertyGroup>
-    <TargetFrameworks>net472;netcoreapp3.1</TargetFrameworks>
-    <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netcoreapp3.1;net6.0</TargetFrameworks>
-
-    <Platforms>AnyCPU</Platforms>
     <IsPackable>false</IsPackable>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\MongoDB.Driver.snk</AssemblyOriginatorKeyFile>
@@ -21,8 +17,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="$(CMakeCurrentSourceDir)/xunit.runner.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <None Update="xunit.runner.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

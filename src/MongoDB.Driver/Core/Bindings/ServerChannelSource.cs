@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
@@ -36,20 +35,11 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         // properties
-        public IServer Server
-        {
-            get { return _server; }
-        }
+        public IServer Server => _server;
 
-        public ServerDescription ServerDescription
-        {
-            get { return _server.Description; }
-        }
+        public ServerDescription ServerDescription => _server.Description;
 
-        public ICoreSessionHandle Session
-        {
-            get { return _session; }
-        }
+        public ICoreSessionHandle Session => _session;
 
         // methods
         public void Dispose()
@@ -61,16 +51,16 @@ namespace MongoDB.Driver.Core.Bindings
             }
         }
 
-        public IChannelHandle GetChannel(CancellationToken cancellationToken)
+        public IChannelHandle GetChannel(OperationContext operationContext)
         {
             ThrowIfDisposed();
-            return _server.GetChannel(cancellationToken);
+            return _server.GetChannel(operationContext);
         }
 
-        public Task<IChannelHandle> GetChannelAsync(CancellationToken cancellationToken)
+        public Task<IChannelHandle> GetChannelAsync(OperationContext operationContext)
         {
             ThrowIfDisposed();
-            return _server.GetChannelAsync(cancellationToken);
+            return _server.GetChannelAsync(operationContext);
         }
 
         private void ThrowIfDisposed()

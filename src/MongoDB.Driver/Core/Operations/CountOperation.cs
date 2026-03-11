@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
@@ -92,6 +91,8 @@ namespace MongoDB.Driver.Core.Operations
             get { return _messageEncoderSettings; }
         }
 
+        public string OperationName => "count";
+
         public ReadConcern ReadConcern
         {
             get { return _readConcern; }
@@ -110,7 +111,7 @@ namespace MongoDB.Driver.Core.Operations
             set { _skip = value; }
         }
 
-        public BsonDocument CreateCommand(ConnectionDescription connectionDescription, ICoreSession session)
+        public BsonDocument CreateCommand(OperationContext operationContext, ICoreSession session, ConnectionDescription connectionDescription)
         {
             var readConcern = ReadConcernHelper.GetReadConcernForCommand(session, connectionDescription, _readConcern);
             return new BsonDocument
@@ -120,55 +121,55 @@ namespace MongoDB.Driver.Core.Operations
                 { "limit", () => _limit.Value, _limit.HasValue },
                 { "skip", () => _skip.Value, _skip.HasValue },
                 { "hint", _hint, _hint != null },
-                { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue },
+                { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue && !operationContext.IsRootContextTimeoutConfigured() },
                 { "collation", () => _collation.ToBsonDocument(), _collation != null },
                 { "comment", _comment, _comment != null },
                 { "readConcern", readConcern, readConcern != null }
             };
         }
 
-        public long Execute(IReadBinding binding, CancellationToken cancellationToken)
+        public long Execute(OperationContext operationContext, IReadBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = RetryableReadContext.Create(binding, _retryRequested, cancellationToken))
+            using (var context = RetryableReadContext.Create(operationContext, binding, _retryRequested))
             {
-                return Execute(context, cancellationToken);
+                return Execute(operationContext, context);
             }
         }
 
-        public long Execute(RetryableReadContext context, CancellationToken cancellationToken)
+        public long Execute(OperationContext operationContext, RetryableReadContext context)
         {
-            var operation = CreateOperation(context);
-            var document = operation.Execute(context, cancellationToken);
+            var operation = CreateOperation(operationContext, context);
+            var document = operation.Execute(operationContext, context);
             return document["n"].ToInt64();
         }
 
-        public async Task<long> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
+        public async Task<long> ExecuteAsync(OperationContext operationContext, IReadBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = await RetryableReadContext.CreateAsync(binding, _retryRequested, cancellationToken).ConfigureAwait(false))
+            using (var context = await RetryableReadContext.CreateAsync(operationContext, binding, _retryRequested).ConfigureAwait(false))
             {
-                return await ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
+                return await ExecuteAsync(operationContext, context).ConfigureAwait(false);
             }
         }
 
-        public async Task<long> ExecuteAsync(RetryableReadContext context, CancellationToken cancellationToken)
+        public async Task<long> ExecuteAsync(OperationContext operationContext, RetryableReadContext context)
         {
-            var operation = CreateOperation(context);
-            var document = await operation.ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
+            var operation = CreateOperation(operationContext, context);
+            var document = await operation.ExecuteAsync(operationContext, context).ConfigureAwait(false);
             return document["n"].ToInt64();
         }
 
-        private IDisposable BeginOperation() => EventContext.BeginOperation("count");
+        private EventContext.OperationNameDisposer BeginOperation() => EventContext.BeginOperation(OperationName);
 
-        private ReadCommandOperation<BsonDocument> CreateOperation(RetryableReadContext context)
+        private ReadCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, RetryableReadContext context)
         {
-            var command = CreateCommand(context.Channel.ConnectionDescription, context.Binding.Session);
-            return new ReadCommandOperation<BsonDocument>(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            var command = CreateCommand(operationContext, context.Binding.Session, context.Channel.ConnectionDescription);
+            return new ReadCommandOperation<BsonDocument>(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings, OperationName)
             {
                 RetryRequested = _retryRequested // might be overridden by retryable read context
             };

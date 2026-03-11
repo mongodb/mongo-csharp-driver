@@ -18,12 +18,13 @@ using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Linq3Implementation;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecutableQueryTranslators;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation
 {
+    [Trait("Category", "Integration")]
     public abstract class Linq3IntegrationTest
     {
         protected void AssertStages(IEnumerable<BsonDocument> stages, params string[] expectedStages)

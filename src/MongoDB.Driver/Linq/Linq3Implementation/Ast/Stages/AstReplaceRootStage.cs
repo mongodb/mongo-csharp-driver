@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages
         private readonly AstExpression _expression;
 
         public AstReplaceRootStage(AstExpression expression)
-        { 
+        {
             _expression = Ensure.IsNotNull(expression, nameof(expression));
         }
 

@@ -21,56 +21,55 @@ using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
 using static MongoDB.Benchmarks.BenchmarkHelper;
 
-namespace MongoDB.Benchmarks.ParallelBench
+namespace MongoDB.Benchmarks.ParallelBench;
+
+[IterationCount(100)]
+[BenchmarkCategory(DriverBenchmarkCategory.ParallelBench, DriverBenchmarkCategory.WriteBench, DriverBenchmarkCategory.DriverBench)]
+public class GridFSMultiFileUploadBenchmark
 {
-    [IterationCount(100)]
-    [BenchmarkCategory(DriverBenchmarkCategory.ParallelBench, DriverBenchmarkCategory.WriteBench, DriverBenchmarkCategory.DriverBench)]
-    public class GridFSMultiFileUploadBenchmark
+    private IMongoClient _client;
+    private GridFSBucket _gridFsBucket;
+    private ConcurrentQueue<(string, int)> _filesToUpload;
+
+    [Params(262_144_000)]
+    public int BenchmarkDataSetSize { get; set; } // used in BenchmarkResult.cs
+
+    [GlobalSetup]
+    public void Setup()
     {
-        private IMongoClient _client;
-        private GridFSBucket _gridFsBucket;
-        private ConcurrentQueue<(string, int)> _filesToUpload;
+        _client = MongoConfiguration.CreateClient();
+        _gridFsBucket = new GridFSBucket(_client.GetDatabase(MongoConfiguration.PerfTestDatabaseName));
+        _filesToUpload = new ConcurrentQueue<(string, int)>();
+    }
 
-        [Params(262_144_000)]
-        public int BenchmarkDataSetSize { get; set; } // used in BenchmarkResult.cs
+    [IterationSetup]
+    public void BeforeTask()
+    {
+        _gridFsBucket.Drop();
+        _gridFsBucket.UploadFromBytes("smallfile", new byte[1]);
 
-        [GlobalSetup]
-        public void Setup()
+        AddFilesToQueue(_filesToUpload, $"{DataFolderPath}parallel/gridfs_multi", "file", 50);
+    }
+
+    [Benchmark]
+    public void GridFsMultiUpload()
+    {
+        ThreadingUtilities.ExecuteOnNewThreads(16, __ =>
         {
-            _client = MongoConfiguration.CreateClient();
-            _gridFsBucket = new GridFSBucket(_client.GetDatabase(MongoConfiguration.PerfTestDatabaseName));
-            _filesToUpload = new ConcurrentQueue<(string, int)>();
-        }
-
-        [IterationSetup]
-        public void BeforeTask()
-        {
-            _gridFsBucket.Drop();
-            _gridFsBucket.UploadFromBytes("smallfile", new byte[1]);
-
-            AddFilesToQueue(_filesToUpload, $"{DataFolderPath}parallel/gridfs_multi", "file", 50);
-        }
-
-        [Benchmark]
-        public void GridFsMultiUpload()
-        {
-            ThreadingUtilities.ExecuteOnNewThreads(16, _ =>
+            while (_filesToUpload.TryDequeue(out var filesToUploadInfo))
             {
-                while (_filesToUpload.TryDequeue(out var filesToUploadInfo))
-                {
-                    var filename = $"file{filesToUploadInfo.Item2:D2}.txt";
-                    var resourcePath = filesToUploadInfo.Item1;
+                var filename = $"file{filesToUploadInfo.Item2:D2}.txt";
+                var resourcePath = filesToUploadInfo.Item1;
 
-                    using var file = File.Open(resourcePath, FileMode.Open);
-                    _gridFsBucket.UploadFromStream(filename, file);
-                }
-            });
-        }
+                using var file = File.Open(resourcePath, FileMode.Open);
+                _ = _gridFsBucket.UploadFromStream(filename, file);
+            }
+        });
+    }
 
-        [GlobalCleanup]
-        public void Teardown()
-        {
-            _client.Dispose();
-        }
+    [GlobalCleanup]
+    public void Teardown()
+    {
+        _client.Dispose();
     }
 }

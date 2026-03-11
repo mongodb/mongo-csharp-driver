@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         public CommandRequestMessage ReadMessage()
         {
             var wrappedMessage = (CommandMessage)_wrappedEncoder.ReadMessage();
-            return new CommandRequestMessage(wrappedMessage, null);
+            return new CommandRequestMessage(wrappedMessage);
         }
 
         public void WriteMessage(CommandRequestMessage message)

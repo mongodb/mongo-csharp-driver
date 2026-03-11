@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
@@ -84,7 +85,27 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __last;
         private static readonly MethodInfo __locf;
         private static readonly MethodInfo __max;
+        private static readonly MethodInfo __medianWithDecimal;
+        private static readonly MethodInfo __medianWithDouble;
+        private static readonly MethodInfo __medianWithInt32;
+        private static readonly MethodInfo __medianWithInt64;
+        private static readonly MethodInfo __medianWithNullableDecimal;
+        private static readonly MethodInfo __medianWithNullableDouble;
+        private static readonly MethodInfo __medianWithNullableInt32;
+        private static readonly MethodInfo __medianWithNullableInt64;
+        private static readonly MethodInfo __medianWithNullableSingle;
+        private static readonly MethodInfo __medianWithSingle;
         private static readonly MethodInfo __min;
+        private static readonly MethodInfo __percentileWithDecimal;
+        private static readonly MethodInfo __percentileWithDouble;
+        private static readonly MethodInfo __percentileWithInt32;
+        private static readonly MethodInfo __percentileWithInt64;
+        private static readonly MethodInfo __percentileWithNullableDecimal;
+        private static readonly MethodInfo __percentileWithNullableDouble;
+        private static readonly MethodInfo __percentileWithNullableInt32;
+        private static readonly MethodInfo __percentileWithNullableInt64;
+        private static readonly MethodInfo __percentileWithNullableSingle;
+        private static readonly MethodInfo __percentileWithSingle;
         private static readonly MethodInfo __push;
         private static readonly MethodInfo __rank;
         private static readonly MethodInfo __shift;
@@ -120,9 +141,28 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __sumWithNullableSingle;
         private static readonly MethodInfo __sumWithSingle;
 
+        // sets of methods
+        private static readonly IReadOnlyMethodInfoSet __averageOverloads;
+        private static readonly IReadOnlyMethodInfoSet __covariancePopulationOverloads;
+        private static readonly IReadOnlyMethodInfoSet __covarianceSampleOverloads;
+        private static readonly IReadOnlyMethodInfoSet __derivativeOverloads;
+        private static readonly IReadOnlyMethodInfoSet __exponentialMovingAverageOverloads;
+        private static readonly IReadOnlyMethodInfoSet __integralOverloads;
+        private static readonly IReadOnlyMethodInfoSet __medianOverloads;
+        private static readonly IReadOnlyMethodInfoSet __percentileOverloads;
+        private static readonly IReadOnlyMethodInfoSet __standardDeviationPopulationOverloads;
+        private static readonly IReadOnlyMethodInfoSet __standardDeviationSampleOverloads;
+        private static readonly IReadOnlyMethodInfoSet __sumOverloads;
+
+        // sets of sets methods
+        private static readonly IReadOnlyMethodInfoSet __covarianceOverloads;
+        private static readonly IReadOnlyMethodInfoSet __derivativeOrIntegralOverloads;
+        private static readonly IReadOnlyMethodInfoSet __standardDeviationOverloads;
+
         // static constructor
         static WindowMethod()
         {
+            // initialize methods before sets of methods
             __addToSet = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, object> selector, SetWindowFieldsWindow window) => partition.AddToSet(selector, window));
             __averageWithDecimal = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, decimal> selector, SetWindowFieldsWindow window) => partition.Average(selector, window));
             __averageWithDouble = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, double> selector, SetWindowFieldsWindow window) => partition.Average(selector, window));
@@ -186,7 +226,27 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __last = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, object> selector, SetWindowFieldsWindow window) => partition.Last(selector, window));
             __locf = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, object> selector, SetWindowFieldsWindow window) => partition.Locf(selector, window));
             __max = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, object> selector, SetWindowFieldsWindow window) => partition.Max(selector, window));
+            __medianWithDecimal = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, decimal> selector, SetWindowFieldsWindow window) => partition.Median(selector, window));
+            __medianWithDouble = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, double> selector, SetWindowFieldsWindow window) => partition.Median(selector, window));
+            __medianWithInt32 = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, int> selector, SetWindowFieldsWindow window) => partition.Median(selector, window));
+            __medianWithInt64 = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, long> selector, SetWindowFieldsWindow window) => partition.Median(selector, window));
+            __medianWithNullableDecimal = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, decimal?> selector, SetWindowFieldsWindow window) => partition.Median(selector, window));
+            __medianWithNullableDouble = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, double?> selector, SetWindowFieldsWindow window) => partition.Median(selector, window));
+            __medianWithNullableInt32 = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, int?> selector, SetWindowFieldsWindow window) => partition.Median(selector, window));
+            __medianWithNullableInt64 = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, long?> selector, SetWindowFieldsWindow window) => partition.Median(selector, window));
+            __medianWithNullableSingle = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, float?> selector, SetWindowFieldsWindow window) => partition.Median(selector, window));
+            __medianWithSingle = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, float> selector, SetWindowFieldsWindow window) => partition.Median(selector, window));
             __min = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, object> selector, SetWindowFieldsWindow window) => partition.Min(selector, window));
+            __percentileWithDecimal = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, decimal> selector, IEnumerable<double> percentiles, SetWindowFieldsWindow window) => partition.Percentile(selector, percentiles, window));
+            __percentileWithDouble = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, double> selector, IEnumerable<double> percentiles, SetWindowFieldsWindow window) => partition.Percentile(selector, percentiles, window));
+            __percentileWithInt32 = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, int> selector, IEnumerable<double> percentiles, SetWindowFieldsWindow window) => partition.Percentile(selector, percentiles, window));
+            __percentileWithInt64 = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, long> selector, IEnumerable<double> percentiles, SetWindowFieldsWindow window) => partition.Percentile(selector, percentiles, window));
+            __percentileWithNullableDecimal = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, decimal?> selector, IEnumerable<double> percentiles, SetWindowFieldsWindow window) => partition.Percentile(selector, percentiles, window));
+            __percentileWithNullableDouble = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, double?> selector, IEnumerable<double> percentiles, SetWindowFieldsWindow window) => partition.Percentile(selector, percentiles, window));
+            __percentileWithNullableInt32 = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, int?> selector, IEnumerable<double> percentiles, SetWindowFieldsWindow window) => partition.Percentile(selector, percentiles, window));
+            __percentileWithNullableInt64 = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, long?> selector, IEnumerable<double> percentiles, SetWindowFieldsWindow window) => partition.Percentile(selector, percentiles, window));
+            __percentileWithNullableSingle = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, float?> selector, IEnumerable<double> percentiles, SetWindowFieldsWindow window) => partition.Percentile(selector, percentiles, window));
+            __percentileWithSingle = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, float> selector, IEnumerable<double> percentiles, SetWindowFieldsWindow window) => partition.Percentile(selector, percentiles, window));
             __push = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, object> selector, SetWindowFieldsWindow window) => partition.Push(selector, window));
             __rank = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition) => partition.Rank());
             __shift = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, object> selector, int by) => partition.Shift(selector, by));
@@ -221,6 +281,175 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __sumWithNullableInt64 = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, long?> selector, SetWindowFieldsWindow window) => partition.Sum(selector, window));
             __sumWithNullableSingle = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, float?> selector, SetWindowFieldsWindow window) => partition.Sum(selector, window));
             __sumWithSingle = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, float> selector, SetWindowFieldsWindow window) => partition.Sum(selector, window));
+
+            // initialize sets of methods after methods
+            __averageOverloads = MethodInfoSet.Create(
+            [
+                __averageWithDecimal,
+                __averageWithDouble,
+                __averageWithInt32,
+                __averageWithInt64,
+                __averageWithNullableDecimal,
+                __averageWithNullableDouble,
+                __averageWithNullableInt32,
+                __averageWithNullableInt64,
+                __averageWithNullableSingle,
+                __averageWithSingle
+            ]);
+
+            __covariancePopulationOverloads = MethodInfoSet.Create(
+            [
+                __covariancePopulationWithDecimals,
+                __covariancePopulationWithDoubles,
+                __covariancePopulationWithInt32s,
+                __covariancePopulationWithInt64s,
+                __covariancePopulationWithNullableDecimals,
+                __covariancePopulationWithNullableDoubles,
+                __covariancePopulationWithNullableInt32s,
+                __covariancePopulationWithNullableInt64s,
+                __covariancePopulationWithNullableSingles,
+                __covariancePopulationWithSingles
+            ]);
+
+            __covarianceSampleOverloads = MethodInfoSet.Create(
+            [
+                __covarianceSampleWithDecimals,
+                __covarianceSampleWithDoubles,
+                __covarianceSampleWithInt32s,
+                __covarianceSampleWithInt64s,
+                __covarianceSampleWithNullableDecimals,
+                __covarianceSampleWithNullableDoubles,
+                __covarianceSampleWithNullableInt32s,
+                __covarianceSampleWithNullableInt64s,
+                __covarianceSampleWithNullableSingles,
+                __covarianceSampleWithSingles
+            ]);
+
+            __derivativeOverloads = MethodInfoSet.Create(
+            [
+                __derivativeWithDecimal,
+                __derivativeWithDecimalAndUnit,
+                __derivativeWithDouble,
+                __derivativeWithDoubleAndUnit,
+                __derivativeWithInt32,
+                __derivativeWithInt32AndUnit,
+                __derivativeWithInt64,
+                __derivativeWithInt64AndUnit,
+                __derivativeWithSingle,
+                __derivativeWithSingleAndUnit
+            ]);
+
+            __exponentialMovingAverageOverloads = MethodInfoSet.Create(
+            [
+                __exponentialMovingAverageWithDecimal,
+                __exponentialMovingAverageWithDouble,
+                __exponentialMovingAverageWithInt32,
+                __exponentialMovingAverageWithInt64,
+                __exponentialMovingAverageWithSingle
+            ]);
+
+            __integralOverloads = MethodInfoSet.Create(
+            [
+                __integralWithDecimal,
+                __integralWithDecimalAndUnit,
+                __integralWithDouble,
+                __integralWithDoubleAndUnit,
+                __integralWithInt32,
+                __integralWithInt32AndUnit,
+                __integralWithInt64,
+                __integralWithInt64AndUnit,
+                __integralWithSingle,
+                __integralWithSingleAndUnit
+            ]);
+
+            __medianOverloads = MethodInfoSet.Create(
+            [
+                __medianWithDecimal,
+                __medianWithDouble,
+                __medianWithInt32,
+                __medianWithInt64,
+                __medianWithNullableDecimal,
+                __medianWithNullableDouble,
+                __medianWithNullableInt32,
+                __medianWithNullableInt64,
+                __medianWithNullableSingle,
+                __medianWithSingle
+            ]);
+
+            __percentileOverloads = MethodInfoSet.Create(
+            [
+                __percentileWithDecimal,
+                __percentileWithDouble,
+                __percentileWithInt32,
+                __percentileWithInt64,
+                __percentileWithNullableDecimal,
+                __percentileWithNullableDouble,
+                __percentileWithNullableInt32,
+                __percentileWithNullableInt64,
+                __percentileWithNullableSingle,
+                __percentileWithSingle
+            ]);
+
+            __standardDeviationPopulationOverloads = MethodInfoSet.Create(
+            [
+                __standardDeviationPopulationWithDecimal,
+                __standardDeviationPopulationWithDouble,
+                __standardDeviationPopulationWithInt32,
+                __standardDeviationPopulationWithInt64,
+                __standardDeviationPopulationWithNullableDecimal,
+                __standardDeviationPopulationWithNullableDouble,
+                __standardDeviationPopulationWithNullableInt32,
+                __standardDeviationPopulationWithNullableInt64,
+                __standardDeviationPopulationWithNullableSingle,
+                __standardDeviationPopulationWithSingle
+            ]);
+
+            __standardDeviationSampleOverloads = MethodInfoSet.Create(
+            [
+                __standardDeviationSampleWithDecimal,
+                __standardDeviationSampleWithDouble,
+                __standardDeviationSampleWithInt32,
+                __standardDeviationSampleWithInt64,
+                __standardDeviationSampleWithNullableDecimal,
+                __standardDeviationSampleWithNullableDouble,
+                __standardDeviationSampleWithNullableInt32,
+                __standardDeviationSampleWithNullableInt64,
+                __standardDeviationSampleWithNullableSingle,
+                __standardDeviationSampleWithSingle
+            ]);
+
+            __sumOverloads = MethodInfoSet.Create(
+            [
+                __sumWithDecimal,
+                __sumWithDouble,
+                __sumWithInt32,
+                __sumWithInt64,
+                __sumWithNullableDecimal,
+                __sumWithNullableDouble,
+                __sumWithNullableInt32,
+                __sumWithNullableInt64,
+                __sumWithNullableSingle,
+                __sumWithSingle
+            ]);
+
+            // initialize sets of sets of methods after sets of methods
+            __covarianceOverloads = MethodInfoSet.Create(
+            [
+                __covariancePopulationOverloads,
+                __covarianceSampleOverloads
+            ]);
+
+            __derivativeOrIntegralOverloads = MethodInfoSet.Create(
+            [
+                __derivativeOverloads,
+                __integralOverloads
+            ]);
+
+            __standardDeviationOverloads = MethodInfoSet.Create(
+            [
+                __standardDeviationPopulationOverloads,
+                __standardDeviationSampleOverloads
+            ]);
         }
 
         // public properties
@@ -287,7 +516,27 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo Last => __last;
         public static MethodInfo Locf => __locf;
         public static MethodInfo Max => __max;
+        public static MethodInfo MedianWithDecimal => __medianWithDecimal;
+        public static MethodInfo MedianWithDouble => __medianWithDouble;
+        public static MethodInfo MedianWithInt32 => __medianWithInt32;
+        public static MethodInfo MedianWithInt64 => __medianWithInt64;
+        public static MethodInfo MedianWithNullableDecimal => __medianWithNullableDecimal;
+        public static MethodInfo MedianWithNullableDouble => __medianWithNullableDouble;
+        public static MethodInfo MedianWithNullableInt32 => __medianWithNullableInt32;
+        public static MethodInfo MedianWithNullableInt64 => __medianWithNullableInt64;
+        public static MethodInfo MedianWithNullableSingle => __medianWithNullableSingle;
+        public static MethodInfo MedianWithSingle => __medianWithSingle;
         public static MethodInfo Min => __min;
+        public static MethodInfo PercentileWithDecimal => __percentileWithDecimal;
+        public static MethodInfo PercentileWithDouble => __percentileWithDouble;
+        public static MethodInfo PercentileWithInt32 => __percentileWithInt32;
+        public static MethodInfo PercentileWithInt64 => __percentileWithInt64;
+        public static MethodInfo PercentileWithNullableDecimal => __percentileWithNullableDecimal;
+        public static MethodInfo PercentileWithNullableDouble => __percentileWithNullableDouble;
+        public static MethodInfo PercentileWithNullableInt32 => __percentileWithNullableInt32;
+        public static MethodInfo PercentileWithNullableInt64 => __percentileWithNullableInt64;
+        public static MethodInfo PercentileWithNullableSingle => __percentileWithNullableSingle;
+        public static MethodInfo PercentileWithSingle => __percentileWithSingle;
         public static MethodInfo Push => __push;
         public static MethodInfo Rank => __rank;
         public static MethodInfo Shift => __shift;
@@ -322,5 +571,23 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo SumWithNullableInt64 => __sumWithNullableInt64;
         public static MethodInfo SumWithNullableSingle => __sumWithNullableSingle;
         public static MethodInfo SumWithSingle => __sumWithSingle;
+
+        // sets of methods
+        public static IReadOnlyMethodInfoSet AverageOverloads => __averageOverloads;
+        public static IReadOnlyMethodInfoSet CovariancePopulationOverloads => __covariancePopulationOverloads;
+        public static IReadOnlyMethodInfoSet CovarianceSampleOverloads => __covarianceSampleOverloads;
+        public static IReadOnlyMethodInfoSet DerivativeOverloads => __derivativeOverloads;
+        public static IReadOnlyMethodInfoSet ExponentialMovingAverageOverloads => __exponentialMovingAverageOverloads;
+        public static IReadOnlyMethodInfoSet IntegralOverloads => __integralOverloads;
+        public static IReadOnlyMethodInfoSet MedianOverloads => __medianOverloads;
+        public static IReadOnlyMethodInfoSet PercentileOverloads => __percentileOverloads;
+        public static IReadOnlyMethodInfoSet StandardDeviationPopulationOverloads => __standardDeviationPopulationOverloads;
+        public static IReadOnlyMethodInfoSet StandardDeviationSampleOverloads => __standardDeviationSampleOverloads;
+        public static IReadOnlyMethodInfoSet SumOverloads => __sumOverloads;
+
+        // sets of sets of methods
+        public static IReadOnlyMethodInfoSet CovarianceOverloads => __covarianceOverloads;
+        public static IReadOnlyMethodInfoSet DerivativeOrIntegralOverloads => __derivativeOrIntegralOverloads;
+        public static IReadOnlyMethodInfoSet StandardDeviationOverloads => __standardDeviationOverloads;
     }
 }

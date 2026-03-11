@@ -28,12 +28,12 @@ using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
 {
+    [Trait("Category", "Integration")]
     public class PoolClearRetryability
     {
         [Theory]
@@ -42,7 +42,8 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
         {
             RequireServer.Check()
                 .Supports(Feature.FailPointsBlockConnection)
-                .ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded);
+                .ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded)
+                .VersionGreaterThanOrEqualTo("4.4.0"); // MongoDB 4.2 does not respect blockTimeMS in combination with errorCode.
 
             var heartbeatInterval = TimeSpan.FromMilliseconds(50);
             var eventsWaitTimeout = TimeSpan.FromMilliseconds(5000);
@@ -82,7 +83,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
                .Capture<ConnectionPoolCheckingOutConnectionFailedEvent>()
                .CaptureCommandEvents("insert");
 
-            var failpointServer = DriverTestConfiguration.Client.GetClusterInternal().SelectServer(failPointSelector, default);
+            var failpointServer = DriverTestConfiguration.Client.GetClusterInternal().SelectServer(OperationContext.NoTimeout, failPointSelector);
             using var failPoint = FailPoint.Configure(failpointServer, NoCoreSession.NewHandle(), failPointCommand);
 
             using var client = CreateClient(settings, eventCapturer, heartbeatInterval);

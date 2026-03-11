@@ -75,7 +75,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 // The next hello or legacy hello response will be delayed because the waiting in the mock.Callbacks
                 cluster.Initialize();
 
-                var selectedServer = cluster.SelectServer(CreateWritableServerAndEndPointSelector(__endPoint1), CancellationToken.None);
+                var selectedServer = cluster.SelectServer(OperationContext.NoTimeout, CreateWritableServerAndEndPointSelector(__endPoint1));
                 initialSelectedEndpoint = selectedServer.EndPoint;
                 initialSelectedEndpoint.Should().Be(__endPoint1);
 
@@ -86,11 +86,11 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 Exception exception;
                 if (async)
                 {
-                    exception = Record.Exception(() => selectedServer.GetChannelAsync(CancellationToken.None).GetAwaiter().GetResult());
+                    exception = Record.Exception(() => selectedServer.GetChannelAsync(OperationContext.NoTimeout).GetAwaiter().GetResult());
                 }
                 else
                 {
-                    exception = Record.Exception(() => selectedServer.GetChannel(CancellationToken.None));
+                    exception = Record.Exception(() => selectedServer.GetChannel(OperationContext.NoTimeout));
                 }
 
                 var e = exception.Should().BeOfType<MongoConnectionException>().Subject;
@@ -107,7 +107,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 }
 
                 // ensure that a new server can be selected
-                selectedServer = cluster.SelectServer(WritableServerSelector.Instance, CancellationToken.None);
+                selectedServer = cluster.SelectServer(OperationContext.NoTimeout, WritableServerSelector.Instance);
 
                 // ensure that the selected server is not the same as the initial
                 selectedServer.EndPoint.Should().Be(__endPoint2);
@@ -187,11 +187,11 @@ namespace MongoDB.Driver.Core.Tests.Jira
             {
                 var dnsException = CreateDnsException(connection.ConnectionId, from: "pool");
                 mockConnectionPool
-                    .Setup(c => c.AcquireConnection(It.IsAny<CancellationToken>()))
+                    .Setup(c => c.AcquireConnection(It.IsAny<OperationContext>()))
                     .Callback(() => exceptionHandlerProvider().HandleExceptionOnOpen(dnsException))
                     .Throws(dnsException); // throw command dns exception
                 mockConnectionPool
-                    .Setup(c => c.AcquireConnectionAsync(It.IsAny<CancellationToken>()))
+                    .Setup(c => c.AcquireConnectionAsync(It.IsAny<OperationContext>()))
                     .Callback(() => exceptionHandlerProvider().HandleExceptionOnOpen(dnsException))
                     .Throws(dnsException); // throw command dns exception
             }
@@ -253,8 +253,9 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 serverApi: null);
 
             var serverMonitorSettings = new ServerMonitorSettings(
-                connectTimeout: TimeSpan.FromMilliseconds(1),
-                heartbeatInterval: __heartbeatInterval);
+                ConnectTimeout: TimeSpan.FromMilliseconds(20),
+                HeartbeatTimeout: TimeSpan.FromMilliseconds(10),
+                HeartbeatInterval: __heartbeatInterval);
             var serverSettings = new ServerSettings(serverMonitorSettings.HeartbeatInterval);
 
             MultiServerCluster cluster = null;
@@ -289,7 +290,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
         private void ForceClusterId(MultiServerCluster cluster, ClusterId clusterId)
         {
             Reflector.SetFieldValue(cluster, "_clusterId", clusterId);
-            Reflector.SetFieldValue(cluster, "_descriptionWithChangedTaskCompletionSource", new Cluster.ClusterDescriptionChangeSource(ClusterDescription.CreateInitial(clusterId, __directConnection)));
+            Reflector.SetFieldValue(cluster, "_expirableClusterDescription", new Cluster.ExpirableClusterDescription(cluster, ClusterDescription.CreateInitial(clusterId, __directConnection)));
         }
 
         private void SetupServerMonitorConnection(
@@ -301,7 +302,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
             bool streamable)
         {
             var connectionId = new ConnectionId(serverId);
-            var maxWireVersion = streamable ? WireVersion.Server44 : WireVersion.Server40;
+            var maxWireVersion = streamable ? WireVersion.Server44 : WireVersion.Server42;
             var helloDocument = new BsonDocument
             {
                 { "ok", 1 },
@@ -353,7 +354,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
                     () => WaitForTaskOrTimeout(hasClusterBeenDisposed.Task, TimeSpan.FromMinutes(1), "cluster dispose")
                 });
                 mockFaultyConnection
-                    .Setup(c => c.Open(It.IsAny<CancellationToken>()))
+                    .Setup(c => c.Open(It.IsAny<OperationContext>()))
                     .Callback(() =>
                     {
                         var responseAction = faultyConnectionResponses.Dequeue();
@@ -361,7 +362,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
                     });
 
                 mockFaultyConnection
-                    .Setup(c => c.ReceiveMessage(It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), It.IsAny<MessageEncoderSettings>(), It.IsAny<CancellationToken>()))
+                    .Setup(c => c.ReceiveMessage(It.IsAny<OperationContext>(), It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), It.IsAny<MessageEncoderSettings>()))
                     .Returns(() =>
                     {
                         WaitForTaskOrTimeout(
@@ -374,13 +375,13 @@ namespace MongoDB.Driver.Core.Tests.Jira
 
             void SetupHealthyConnection(Mock<IConnection> mockHealthyConnection)
             {
-                mockHealthyConnection.Setup(c => c.Open(It.IsAny<CancellationToken>())); // no action is required
-                mockHealthyConnection.Setup(c => c.OpenAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult(true)); // no action is required
+                mockHealthyConnection.Setup(c => c.Open(It.IsAny<OperationContext>())); // no action is required
+                mockHealthyConnection.Setup(c => c.OpenAsync(It.IsAny<OperationContext>())).Returns(Task.FromResult(true)); // no action is required
                 mockHealthyConnection
-                    .Setup(c => c.ReceiveMessage(It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), It.IsAny<MessageEncoderSettings>(), It.IsAny<CancellationToken>()))
+                    .Setup(c => c.ReceiveMessage(It.IsAny<OperationContext>(), It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), It.IsAny<MessageEncoderSettings>()))
                     .Returns(commandResponseAction);
                 mockConnection
-                    .Setup(c => c.ReceiveMessageAsync(It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), It.IsAny<MessageEncoderSettings>(), It.IsAny<CancellationToken>()))
+                    .Setup(c => c.ReceiveMessageAsync(It.IsAny<OperationContext>(), It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), It.IsAny<MessageEncoderSettings>()))
                     .ReturnsAsync(commandResponseAction);
             }
         }

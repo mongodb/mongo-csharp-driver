@@ -25,9 +25,9 @@ using Microsoft.Extensions.Logging;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Encryption;
 using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
@@ -205,10 +205,10 @@ namespace MongoDB.Driver.Tests
         }
 
         [Theory]
-        [InlineData(new[]{CompressorType.Snappy}, "Compressors=[snappy]")]
-        [InlineData(new[]{CompressorType.Zlib}, "Compressors=[zlib]")]
-        [InlineData(new[]{CompressorType.ZStandard}, "Compressors=[zstd]")]
-        [InlineData(new[]{CompressorType.ZStandard, CompressorType.Snappy, CompressorType.Zlib}, "Compressors=[zstd,snappy,zlib]")]
+        [InlineData(new[] {CompressorType.Snappy}, "Compressors=[snappy]")]
+        [InlineData(new[] {CompressorType.Zlib}, "Compressors=[zlib]")]
+        [InlineData(new[] {CompressorType.ZStandard}, "Compressors=[zstd]")]
+        [InlineData(new[] {CompressorType.ZStandard, CompressorType.Snappy, CompressorType.Zlib}, "Compressors=[zstd,snappy,zlib]")]
         public void Compressors_ToString_outputs_correct_compressors(CompressorType[] compressors, string expectedConnectionString)
         {
             var settings = new MongoClientSettings {Compressors = compressors.Select(x => new CompressorConfiguration(x)).ToList()};
@@ -266,6 +266,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(ServerMonitoringMode.Auto, settings.ServerMonitoringMode);
             Assert.Equal(MongoDefaults.ServerSelectionTimeout, settings.ServerSelectionTimeout);
             Assert.Equal(MongoDefaults.SocketTimeout, settings.SocketTimeout);
+            Assert.Equal(null, settings.Socks5ProxySettings);
             Assert.Null(settings.SslSettings);
 #pragma warning disable 618
             Assert.Equal(false, settings.UseSsl);
@@ -436,6 +437,10 @@ namespace MongoDB.Driver.Tests
             Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
+            clone.Socks5ProxySettings = Socks5ProxySettings.Create("host.com", null, null, null);
+            Assert.False(clone.Equals(settings));
+
+            clone = settings.Clone();
             clone.SslSettings = new SslSettings { CheckCertificateRevocation = false };
             Assert.False(clone.Equals(settings));
 
@@ -475,6 +480,7 @@ namespace MongoDB.Driver.Tests
             settings.ReadConcern = ReadConcern.Majority;
             settings.ReadEncoding = new UTF8Encoding(false, false);
             settings.ServerApi = new ServerApi(ServerApiVersion.V1);
+            settings.Socks5ProxySettings = Socks5ProxySettings.Create("host.com", 8080, null, null);
             settings.WriteConcern = WriteConcern.W2;
             settings.WriteEncoding = new UTF8Encoding(false, false);
 
@@ -485,6 +491,7 @@ namespace MongoDB.Driver.Tests
             clone.ReadEncoding = new UTF8Encoding(false, false);
             clone.ReadPreference = clone.ReadPreference.With(settings.ReadPreference.ReadPreferenceMode);
             clone.ServerApi = new ServerApi(settings.ServerApi.Version);
+            clone.Socks5ProxySettings = Socks5ProxySettings.Create("host.com", 8080, null, null);
             clone.WriteConcern = WriteConcern.FromBsonDocument(settings.WriteConcern.ToBsonDocument());
             clone.WriteEncoding = new UTF8Encoding(false, false);
 
@@ -582,7 +589,8 @@ namespace MongoDB.Driver.Tests
                 "maxConnecting=3;maxIdleTime=124;maxLifeTime=125;maxPoolSize=126;minPoolSize=127;readConcernLevel=majority;" +
                 "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;retryReads=false;retryWrites=true;socketTimeout=129;" +
                 "serverMonitoringMode=Stream;serverSelectionTimeout=20s;tls=true;sslVerifyCertificate=false;waitqueuesize=130;waitQueueTimeout=131;" +
-                "w=1;fsync=true;journal=true;w=2;wtimeout=131;gssapiServiceName=other";
+                "w=1;fsync=true;journal=true;w=2;wtimeout=131;gssapiServiceName=other" +
+                "&proxyHost=host.com&proxyPort=2020&proxyUsername=user&proxyPassword=passw";
             var builder = new MongoUrlBuilder(connectionString);
             var url = builder.ToMongoUrl();
 
@@ -620,6 +628,10 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(ServerMonitoringMode.Stream, settings.ServerMonitoringMode);
             Assert.Equal(url.ServerSelectionTimeout, settings.ServerSelectionTimeout);
             Assert.Equal(url.SocketTimeout, settings.SocketTimeout);
+            Assert.Equal(url.ProxyHost, settings.Socks5ProxySettings.Host);
+            Assert.Equal(url.ProxyPort, settings.Socks5ProxySettings.Port);
+            Assert.Equal(url.ProxyUsername, ((Socks5AuthenticationSettings.UsernamePasswordAuthenticationSettings)settings.Socks5ProxySettings.Authentication).Username);
+            Assert.Equal(url.ProxyPassword, ((Socks5AuthenticationSettings.UsernamePasswordAuthenticationSettings)settings.Socks5ProxySettings.Authentication).Password);
 #pragma warning disable 618
             Assert.Equal(url.TlsDisableCertificateRevocationCheck, !settings.SslSettings.CheckCertificateRevocation);
             Assert.Equal(url.UseSsl, settings.UseSsl);
@@ -1110,6 +1122,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        [Trait("Category", "Integration")]
         public void TestSocketConfigurator()
         {
             RequireServer.Check();
@@ -1172,6 +1185,21 @@ namespace MongoDB.Driver.Tests
             settings.Freeze();
             Assert.Equal(socketTimeout, settings.SocketTimeout);
             Assert.Throws<InvalidOperationException>(() => { settings.SocketTimeout = socketTimeout; });
+        }
+
+        [Fact]
+        public void TestSocks5ProxySettings()
+        {
+            var settings = new MongoClientSettings();
+            Assert.Equal(null, settings.Socks5ProxySettings);
+
+            var newProxySettings = Socks5ProxySettings.Create("host.com", 280, "test", "test");
+            settings.Socks5ProxySettings = newProxySettings;
+            Assert.Equal(newProxySettings, settings.Socks5ProxySettings);
+
+            settings.Freeze();
+            Assert.Equal(newProxySettings, settings.Socks5ProxySettings);
+            Assert.Throws<InvalidOperationException>(() => { settings.Socks5ProxySettings = newProxySettings; });
         }
 
         [Fact]
@@ -1325,6 +1353,7 @@ namespace MongoDB.Driver.Tests
                 ServerMonitoringMode = ServerMonitoringMode.Poll,
                 ServerSelectionTimeout = TimeSpan.FromSeconds(6),
                 SocketTimeout = TimeSpan.FromSeconds(4),
+                Socks5ProxySettings = Socks5ProxySettings.Create("host", 2020, null, null),
                 SslSettings = sslSettings,
                 UseTls = true,
 #pragma warning disable 618
@@ -1361,6 +1390,7 @@ namespace MongoDB.Driver.Tests
             result.ServerMonitoringMode.Should().Be(ServerMonitoringMode.Poll);
             result.ServerSelectionTimeout.Should().Be(subject.ServerSelectionTimeout);
             result.SocketTimeout.Should().Be(subject.SocketTimeout);
+            result.Socks5ProxySettings.Should().Be(subject.Socks5ProxySettings);
             result.SslSettings.Should().Be(subject.SslSettings);
             result.UseTls.Should().Be(subject.UseTls);
 #pragma warning disable 618

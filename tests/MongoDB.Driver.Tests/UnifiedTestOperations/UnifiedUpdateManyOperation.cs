@@ -112,6 +112,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             {
                 switch (argument.Name)
                 {
+                    case "bypassDocumentValidation":
+                        options ??= new();
+                        options.BypassDocumentValidation = argument.Value.AsBoolean;
+                        break;
                     case "comment":
                         options ??= new UpdateOptions();
                         options.Comment = argument.Value;
@@ -129,6 +133,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         break;
                     case "session":
                         session = _entityMap.Sessions[argument.Value.AsString];
+                        break;
+                    case "timeoutMS":
+                        options ??= new UpdateOptions();
+                        options.Timeout = UnifiedEntityMap.ParseTimeout(argument.Value);
                         break;
                     case "update":
                         switch (argument.Value)

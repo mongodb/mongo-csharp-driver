@@ -34,80 +34,25 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
     internal static class AverageMethodToExecutableQueryTranslator<TOutput>
     {
         // private static fields
-        private static readonly MethodInfo[] __averageMethods;
-        private static readonly MethodInfo[] __averageWithSelectorMethods;
-        private static readonly IExecutableQueryFinalizer<TOutput, TOutput> __finalizer = new SingleFinalizer<TOutput>();
+        private static readonly IReadOnlyMethodInfoSet __averageOverloads;
+        private static readonly IReadOnlyMethodInfoSet __averageWithSelectorOverloads;
+        private static readonly IExecutableQueryFinalizer<TOutput, TOutput> __singleFinalizer = new SingleFinalizer<TOutput>();
+        private static readonly IExecutableQueryFinalizer<TOutput, TOutput> __singleOrDefaultFinalizer = new SingleOrDefaultFinalizer<TOutput>();
 
         // static constructor
         static AverageMethodToExecutableQueryTranslator()
         {
-            __averageMethods = new[]
-            {
-                QueryableMethod.AverageDecimal,
-                QueryableMethod.AverageDecimalWithSelector,
-                QueryableMethod.AverageDouble,
-                QueryableMethod.AverageDoubleWithSelector,
-                QueryableMethod.AverageInt32,
-                QueryableMethod.AverageInt32WithSelector,
-                QueryableMethod.AverageInt64,
-                QueryableMethod.AverageInt64WithSelector,
-                QueryableMethod.AverageNullableDecimal,
-                QueryableMethod.AverageNullableDecimalWithSelector,
-                QueryableMethod.AverageNullableDouble,
-                QueryableMethod.AverageNullableDoubleWithSelector,
-                QueryableMethod.AverageNullableInt32,
-                QueryableMethod.AverageNullableInt32WithSelector,
-                QueryableMethod.AverageNullableInt64,
-                QueryableMethod.AverageNullableInt64WithSelector,
-                QueryableMethod.AverageNullableSingle,
-                QueryableMethod.AverageNullableSingleWithSelector,
-                QueryableMethod.AverageSingle,
-                QueryableMethod.AverageSingleWithSelector,
-                MongoQueryableMethod.AverageDecimalAsync,
-                MongoQueryableMethod.AverageDecimalWithSelectorAsync,
-                MongoQueryableMethod.AverageDoubleAsync,
-                MongoQueryableMethod.AverageDoubleWithSelectorAsync,
-                MongoQueryableMethod.AverageInt32Async,
-                MongoQueryableMethod.AverageInt32WithSelectorAsync,
-                MongoQueryableMethod.AverageInt64Async,
-                MongoQueryableMethod.AverageInt64WithSelectorAsync,
-                MongoQueryableMethod.AverageNullableDecimalAsync,
-                MongoQueryableMethod.AverageNullableDecimalWithSelectorAsync,
-                MongoQueryableMethod.AverageNullableDoubleAsync,
-                MongoQueryableMethod.AverageNullableDoubleWithSelectorAsync,
-                MongoQueryableMethod.AverageNullableInt32Async,
-                MongoQueryableMethod.AverageNullableInt32WithSelectorAsync,
-                MongoQueryableMethod.AverageNullableInt64Async,
-                MongoQueryableMethod.AverageNullableInt64WithSelectorAsync,
-                MongoQueryableMethod.AverageNullableSingleAsync,
-                MongoQueryableMethod.AverageNullableSingleWithSelectorAsync,
-                MongoQueryableMethod.AverageSingleAsync,
-                MongoQueryableMethod.AverageSingleWithSelectorAsync
-            };
+            __averageOverloads = MethodInfoSet.Create(
+            [
+                QueryableMethod.AverageOverloads,
+                MongoQueryableMethod.AverageOverloads
+            ]);
 
-            __averageWithSelectorMethods = new[]
-            {
-                QueryableMethod.AverageDecimalWithSelector,
-                QueryableMethod.AverageDoubleWithSelector,
-                QueryableMethod.AverageInt32WithSelector,
-                QueryableMethod.AverageInt64WithSelector,
-                QueryableMethod.AverageNullableDecimalWithSelector,
-                QueryableMethod.AverageNullableDoubleWithSelector,
-                QueryableMethod.AverageNullableInt32WithSelector,
-                QueryableMethod.AverageNullableInt64WithSelector,
-                QueryableMethod.AverageNullableSingleWithSelector,
-                QueryableMethod.AverageSingleWithSelector,
-                MongoQueryableMethod.AverageDecimalWithSelectorAsync,
-                MongoQueryableMethod.AverageDoubleWithSelectorAsync,
-                MongoQueryableMethod.AverageInt32WithSelectorAsync,
-                MongoQueryableMethod.AverageInt64WithSelectorAsync,
-                MongoQueryableMethod.AverageNullableDecimalWithSelectorAsync,
-                MongoQueryableMethod.AverageNullableDoubleWithSelectorAsync,
-                MongoQueryableMethod.AverageNullableInt32WithSelectorAsync,
-                MongoQueryableMethod.AverageNullableInt64WithSelectorAsync,
-                MongoQueryableMethod.AverageNullableSingleWithSelectorAsync,
-                MongoQueryableMethod.AverageSingleWithSelectorAsync
-           };
+            __averageWithSelectorOverloads = MethodInfoSet.Create(
+            [
+                QueryableMethod.AverageWithSelectorOverloads,
+                MongoQueryableMethod.AverageWithSelectorOverloads
+           ]);
         }
 
         // public static methods
@@ -116,7 +61,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__averageMethods))
+            if (method.IsOneOf(__averageOverloads))
             {
                 var sourceExpression = arguments[0];
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
@@ -124,7 +69,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
 
                 var sourceSerializer = pipeline.OutputSerializer;
                 AstExpression valueExpression;
-                if (method.IsOneOf(__averageWithSelectorMethods))
+                if (method.IsOneOf(__averageWithSelectorOverloads))
                 {
                     var selectorLambda = ExpressionHelper.UnquoteLambda(arguments[1]);
                     var selectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, selectorLambda, sourceSerializer, asRoot: true);
@@ -138,11 +83,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
 
                 IBsonSerializer outputValueSerializer = expression.GetResultType() switch
                 {
-                    Type t when t == typeof(int) => new Int32Serializer(),
-                    Type t when t == typeof(long) => new Int64Serializer(),
-                    Type t when t == typeof(float) => new SingleSerializer(),
-                    Type t when t == typeof(double) => new DoubleSerializer(),
-                    Type t when t == typeof(decimal) => new DecimalSerializer(),
+                    Type t when t == typeof(int) => Int32Serializer.Instance,
+                    Type t when t == typeof(long) => Int64Serializer.Instance,
+                    Type t when t == typeof(float) => SingleSerializer.Instance,
+                    Type t when t == typeof(double) => DoubleSerializer.Instance,
+                    Type t when t == typeof(decimal) => DecimalSerializer.Instance,
                     Type { IsConstructedGenericType: true } t when t.GetGenericTypeDefinition() == typeof(Nullable<>) => (IBsonSerializer)Activator.CreateInstance(typeof(NullableSerializer<>).MakeGenericType(t.GenericTypeArguments[0])),
                     _ => throw new ExpressionNotSupportedException(expression)
                 };
@@ -155,10 +100,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
                     AstStage.Project(AstProject.ExcludeId()),
                     outputWrappedValueSerializer);
 
+                var returnType = expression.Type;
+
                 return ExecutableQuery.Create(
                     provider,
                     pipeline,
-                    __finalizer);
+                    returnType.IsNullable() // Note: numeric types are never reference types
+                        ? __singleOrDefaultFinalizer
+                        : __singleFinalizer);
             }
 
             throw new ExpressionNotSupportedException(expression);

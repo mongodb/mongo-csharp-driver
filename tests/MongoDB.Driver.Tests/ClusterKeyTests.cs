@@ -21,6 +21,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
@@ -74,8 +75,10 @@ namespace MongoDB.Driver.Tests
         [InlineData("ServerMonitoringMode", true)]
         [InlineData("ServerSelectionTimeout", true)]
         [InlineData("SocketTimeout", true)]
+        [InlineData("Socks5ProxySettings", true)]
         [InlineData("SrvMaxHosts", true)]
         [InlineData("SslSettings", true)]
+        [InlineData("TracingOptions", true)]
         [InlineData("UseTls", true)]
         [InlineData("WaitQueueSize", true)]
         [InlineData("WaitQueueTimeout", true)]
@@ -180,6 +183,7 @@ namespace MongoDB.Driver.Tests
             var serverMonitoringMode = ServerMonitoringMode.Stream;
             var serverSelectionTimeout = TimeSpan.FromSeconds(6);
             var socketTimeout = TimeSpan.FromSeconds(4);
+            var socks5ProxySettings = Socks5ProxySettings.Create("localhost", 1080, "user", "password");
             var srvMaxHosts = 0;
             var srvServiceName = "mongodb";
             var sslSettings = new SslSettings
@@ -187,6 +191,7 @@ namespace MongoDB.Driver.Tests
                 CheckCertificateRevocation = true,
                 EnabledSslProtocols = SslProtocols.Tls12
             };
+            var tracingOptions = new TracingOptions();
             var useTls = false;
             var waitQueueSize = 20;
             var waitQueueTimeout = TimeSpan.FromSeconds(5);
@@ -228,9 +233,11 @@ namespace MongoDB.Driver.Tests
                     case "ServerMonitoringMode": serverMonitoringMode = ServerMonitoringMode.Poll; break;
                     case "ServerSelectionTimeout": serverSelectionTimeout = TimeSpan.FromSeconds(98); break;
                     case "SocketTimeout": socketTimeout = TimeSpan.FromSeconds(99); break;
+                    case "Socks5ProxySettings": socks5ProxySettings = Socks5ProxySettings.Create("different", 1080, "user", "password"); break;
                     case "SrvMaxHosts": srvMaxHosts = 3; break;
                     case "SrvServiceName": srvServiceName = "customname"; break;
                     case "SslSettings": sslSettings.CheckCertificateRevocation = !sslSettings.CheckCertificateRevocation; break;
+                    case "TracingOptions": tracingOptions = new TracingOptions { Disabled = true }; break;
                     case "UseTls": useTls = !useTls; break;
                     case "WaitQueueSize": waitQueueSize = 99; break;
                     case "WaitQueueTimeout": waitQueueTimeout = TimeSpan.FromSeconds(99); break;
@@ -268,9 +275,11 @@ namespace MongoDB.Driver.Tests
                 serverMonitoringMode,
                 serverSelectionTimeout,
                 socketTimeout,
+                socks5ProxySettings,
                 srvMaxHosts,
                 srvServiceName,
                 sslSettings,
+                tracingOptions,
                 useTls,
                 waitQueueSize,
                 waitQueueTimeout);
@@ -312,6 +321,7 @@ namespace MongoDB.Driver.Tests
             var serverMonitoringMode = ServerMonitoringMode.Stream;
             var serverSelectionTimeout = TimeSpan.FromSeconds(6);
             var socketTimeout = TimeSpan.FromSeconds(4);
+            var socks5ProxySettings = Socks5ProxySettings.Create("localhost", 1080, "user", "password");
             var srvMaxHosts = 3;
             var srvServiceName = "customname";
             var sslSettings = new SslSettings
@@ -319,6 +329,7 @@ namespace MongoDB.Driver.Tests
                 CheckCertificateRevocation = true,
                 EnabledSslProtocols = SslProtocols.Tls12
             };
+            var tracingOptions = new TracingOptions();
             var useTls = false;
             var waitQueueSize = 20;
             var waitQueueTimeout = TimeSpan.FromSeconds(5);
@@ -353,9 +364,11 @@ namespace MongoDB.Driver.Tests
                 serverMonitoringMode,
                 serverSelectionTimeout,
                 socketTimeout,
+                socks5ProxySettings,
                 srvMaxHosts,
                 srvServiceName,
                 sslSettings,
+                tracingOptions,
                 useTls,
                 waitQueueSize,
                 waitQueueTimeout);

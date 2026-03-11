@@ -44,6 +44,7 @@ using Xunit;
 namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
 {
     [Trait("Category", "Pool")]
+    [Trait("Category", "Integration")]
     public class ConnectionMonitoringAndPoolingTestRunner
     {
         #region static
@@ -82,12 +83,6 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
             public readonly static string ignore = nameof(ignore);
             public readonly static string async = nameof(async);
 
-            public static class Operations
-            {
-                public const string runOn = nameof(runOn);
-                public readonly static string failPoint = nameof(failPoint);
-            }
-
             public static class Intergration
             {
                 public readonly static string runOn = nameof(runOn);
@@ -98,12 +93,6 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
             {
                 public readonly static string unit = nameof(unit);
                 public readonly static string integration = nameof(integration);
-            }
-
-            public sealed class FailPoint
-            {
-                public readonly static string appName = nameof(appName);
-                public readonly static string data = nameof(data);
             }
 
             public readonly static string[] AllFields = new[]
@@ -280,6 +269,11 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
                     throw new NotImplementedException();
                 }
             }
+
+            if (expectedEvent.TryGetValue("interruptInUseConnections", out var interruptInUseConnections))
+            {
+                actualEvent.CloseInUseConnections().Should().Be(interruptInUseConnections.ToBoolean());
+            }
         }
 
         private void AssertEvents(BsonDocument test, EventCapturer eventCapturer, Func<object, bool> eventsFilter)
@@ -292,7 +286,7 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
                 for (var i = 0; i < minCount; i++)
                 {
                     var expectedEvent = expectedEvents[i];
-                    JsonDrivenHelper.EnsureAllFieldsAreValid(expectedEvent, "type", "address", "connectionId", "duration", "options", "reason");
+                    JsonDrivenHelper.EnsureAllFieldsAreValid(expectedEvent, "type", "address", "connectionId", "duration", "options", "reason", "interruptInUseConnections");
                     AssertEvent(actualEvents[i], expectedEvent);
                 }
 
@@ -398,6 +392,7 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
                     else
                     {
                         tasks[target] = CreateTask(() => CheckOut(operation, connectionPool, map));
+                        tasks[target].IgnoreExceptions();
                     }
                 }
             }
@@ -408,18 +403,9 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
 
             void CheckOut(BsonDocument op, IConnectionPool cp, ConcurrentDictionary<string, IConnection> cm)
             {
-                IConnection conn;
-                if (async)
-                {
-                    conn = cp
-                        .AcquireConnectionAsync(CancellationToken.None)
-                        .GetAwaiter()
-                        .GetResult();
-                }
-                else
-                {
-                    conn = cp.AcquireConnection(CancellationToken.None);
-                }
+                var conn = async ?
+                    cp.AcquireConnectionAsync(OperationContext.NoTimeout).GetAwaiter().GetResult() :
+                    cp.AcquireConnection(OperationContext.NoTimeout);
 
                 if (op.TryGetValue("label", out var label))
                 {
@@ -456,8 +442,8 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
                     ExecuteCheckOut(connectionPool, operation, connectionMap, tasks, async, out exception);
                     break;
                 case "clear":
-                    JsonDrivenHelper.EnsureAllFieldsAreValid(operation, "name", "closeInUseConnections");
-                    var closeInUseConnections = operation.GetValue("closeInUseConnections", defaultValue: false).ToBoolean();
+                    JsonDrivenHelper.EnsureAllFieldsAreValid(operation, "name", "interruptInUseConnections");
+                    var closeInUseConnections = operation.GetValue("interruptInUseConnections", defaultValue: false).ToBoolean();
                     connectionPool.Clear(closeInUseConnections: closeInUseConnections);
                     break;
                 case "close":
@@ -679,7 +665,7 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
                         connectionIdLocalValueProvider: connectionIdProvider))
                     .Subscribe(eventCapturer));
 
-                var server = cluster.SelectServer(WritableServerSelector.Instance, CancellationToken.None);
+                var server = cluster.SelectServer(OperationContext.NoTimeout, WritableServerSelector.Instance);
                 connectionPool = server._connectionPool();
 
                 if (test.TryGetValue(Schema.Intergration.failPoint, out var failPointDocument))
@@ -737,7 +723,7 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
                         eventCapturer.WaitForOrThrowIfTimeout(events => events.Any(e => e is ConnectionPoolClearedEvent), TimeSpan.FromMilliseconds(500));
                     }
 
-                    var failPointServer = CoreTestConfiguration.Cluster.SelectServer(new EndPointServerSelector(server.EndPoint), default);
+                    var failPointServer = CoreTestConfiguration.Cluster.SelectServer(OperationContext.NoTimeout, new EndPointServerSelector(server.EndPoint));
                     failPoint = FailPoint.Configure(failPointServer, NoCoreSession.NewHandle(), failPointDocument.AsBsonDocument, withAsync: async);
 
                     if (resetPool)
@@ -751,33 +737,6 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
             connectionLocalValue = 0;
 
             return (connectionPool, failPoint, cluster, eventsFilter);
-        }
-
-        private IConnectionPool SetupConnectionPoolMock(BsonDocument test, IEventSubscriber eventSubscriber)
-        {
-            var endPoint = new DnsEndPoint("localhost", 27017);
-            var serverId = new ServerId(new ClusterId(), endPoint);
-            ParseSettings(test, out var connectionPoolSettings, out var connectionSettings);
-
-            var connectionFactory = new Mock<IConnectionFactory>();
-            var exceptionHandler = new Mock<IConnectionExceptionHandler>();
-            connectionFactory.Setup(f => f.ConnectionSettings).Returns(() => new ConnectionSettings());
-            connectionFactory
-                .Setup(c => c.CreateConnection(serverId, endPoint))
-                .Returns(() =>
-                {
-                    var connection = new MockConnection(serverId, connectionSettings, eventSubscriber);
-                    return connection;
-                });
-            var connectionPool = new ExclusiveConnectionPool(
-                serverId,
-                endPoint,
-                connectionPoolSettings,
-                connectionFactory.Object,
-                exceptionHandler.Object,
-                eventSubscriber.ToEventLogger<LogCategories.Connection>());
-
-            return connectionPool;
         }
 
         private void Start(BsonDocument operation, ConcurrentDictionary<string, Task> tasks)
@@ -845,6 +804,11 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
 
     internal static class CmapEventsReflector
     {
+        public static bool CloseInUseConnections(this object @event)
+        {
+            return (bool)Reflector.GetPropertyValue(@event, nameof(CloseInUseConnections), BindingFlags.Public | BindingFlags.Instance);
+        }
+
         public static ConnectionId ConnectionId(this object @event)
         {
             return (ConnectionId)Reflector.GetPropertyValue(@event, nameof(ConnectionId), BindingFlags.Public | BindingFlags.Instance);
@@ -863,6 +827,14 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
 
     internal static class IServerReflector
     {
-        public static IConnectionPool _connectionPool(this IServer server) => (IConnectionPool)Reflector.GetFieldValue(server, nameof(_connectionPool));
+        public static IConnectionPool _connectionPool(this IServer server)
+        {
+            if (server is SelectedServer)
+            {
+                server = (IServer)Reflector.GetFieldValue(server, "_server");
+            }
+
+            return (IConnectionPool)Reflector.GetFieldValue(server, nameof(_connectionPool));
+        }
     }
 }

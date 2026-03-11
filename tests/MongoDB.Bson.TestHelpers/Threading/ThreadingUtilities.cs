@@ -29,7 +29,7 @@ namespace MongoDB.Bson.TestHelpers
 
             if (exceptions.Any())
             {
-                throw exceptions.First();
+                throw new AggregateException(exceptions);
             }
         }
 
@@ -102,6 +102,7 @@ namespace MongoDB.Bson.TestHelpers
                         throw new TimeoutException();
                     }
 
+                    await Task.Yield();
                     await action(i);
                 }
                 catch (Exception ex)

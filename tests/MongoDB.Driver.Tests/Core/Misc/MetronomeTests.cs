@@ -15,9 +15,7 @@
 
 using System;
 using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
-using MongoDB.Driver.Core.Async;
 using MongoDB.Driver.Core.Misc;
 using Xunit;
 
@@ -73,7 +71,7 @@ namespace MongoDB.Driver.Core.Async
         public void GetNextTickDelay_should_be_threeQuarterPeriod_when_oneQuarterPeriod_past_the_last_tick()
         {
             var now = _clock.UtcNow;
-            _clock.UtcNow = _clock.UtcNow.Add(_quarterPeriod);
+            _clock.AdvanceCurrentTime(_quarterPeriod);
             _subject.GetNextTickDelay().Should().Be(_threeQuarterPeriod);
             _subject.NextTick.Should().Be(now + _period);
         }
@@ -89,7 +87,7 @@ namespace MongoDB.Driver.Core.Async
         public void GetNextTickDelay_should_be_zero_when_time_equals_nextTick()
         {
             var now = _clock.UtcNow;
-            _clock.UtcNow = _clock.UtcNow.Add(_period);
+            _clock.AdvanceCurrentTime(_period);
             _subject.GetNextTickDelay().Should().Be(TimeSpan.Zero);
             _subject.NextTick.Should().Be(now + _period);
         }
@@ -98,11 +96,11 @@ namespace MongoDB.Driver.Core.Async
         public void GetNextTickDelay_should_not_advance_nextTick_when_called_more_than_once_during_the_same_period()
         {
             var now = _clock.UtcNow;
-            _clock.UtcNow = _clock.UtcNow.Add(_quarterPeriod);
+            _clock.AdvanceCurrentTime(_quarterPeriod);
             _subject.GetNextTickDelay().Should().Be(_threeQuarterPeriod);
             _subject.NextTick.Should().Be(now + _period);
 
-            _clock.UtcNow = _clock.UtcNow.Add(_quarterPeriod);
+            _clock.AdvanceCurrentTime(_quarterPeriod);
             _subject.GetNextTickDelay().Should().Be(_halfPeriod);
             _subject.NextTick.Should().Be(now + _period);
         }
@@ -111,7 +109,7 @@ namespace MongoDB.Driver.Core.Async
         public void GetNextTickDelay_should_skip_one_missed_tick()
         {
             var now = _clock.UtcNow;
-            _clock.UtcNow = _clock.UtcNow.Add(_period + _quarterPeriod);
+            _clock.AdvanceCurrentTime(_period + _quarterPeriod);
             _subject.GetNextTickDelay().Should().Be(_threeQuarterPeriod);
             _subject.NextTick.Should().Be(now + _period + _period);
         }
@@ -120,7 +118,7 @@ namespace MongoDB.Driver.Core.Async
         public void GetNextTickDelay_should_skip_two_missed_ticks()
         {
             var now = _clock.UtcNow;
-            _clock.UtcNow = _clock.UtcNow.Add(_period + _period + _quarterPeriod);
+            _clock.AdvanceCurrentTime(_period + _period + _quarterPeriod);
             _subject.GetNextTickDelay().Should().Be(_threeQuarterPeriod);
             _subject.NextTick.Should().Be(now + _period + _period + _period);
         }

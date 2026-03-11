@@ -107,6 +107,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             {
                 switch (argument.Name)
                 {
+                    case "bypassDocumentValidation":
+                        options ??= new();
+                        options.BypassDocumentValidation = argument.Value.AsBoolean;
+                        break;
                     case "comment":
                         options ??= new BulkWriteOptions();
                         options.Comment = argument.Value;
@@ -124,6 +128,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         break;
                     case "session":
                         session = _entityMap.Sessions[argument.Value.AsString];
+                        break;
+                    case "timeoutMS":
+                        options ??= new();
+                        options.Timeout = UnifiedEntityMap.ParseTimeout(argument.Value);
                         break;
                     default:
                         throw new FormatException($"Invalid BulkWriteOperation argument name: '{argument.Name}'.");

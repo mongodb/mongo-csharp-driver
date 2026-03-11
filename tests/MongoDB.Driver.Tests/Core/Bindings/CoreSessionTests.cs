@@ -46,6 +46,7 @@ namespace MongoDB.Driver.Core.Bindings
             result.IsInTransaction.Should().BeFalse();
             result.Options.Should().BeSameAs(options);
             result.ServerSession.Should().BeSameAs(serverSession);
+            result.SnapshotTime.Should().BeNull();
             result._disposed().Should().BeFalse();
             result._isCommitTransactionInProgress().Should().BeFalse();
         }
@@ -156,6 +157,17 @@ namespace MongoDB.Driver.Core.Bindings
             result.Should().BeSameAs(serverSession);
         }
 
+        [Fact]
+        public void SnapshotTime_should_return_expected_result()
+        {
+            var snapshotTime = new BsonTimestamp(0);
+            var subject = CreateSubject(options: new CoreSessionOptions(isSnapshot: true, snapshotTime: snapshotTime));
+
+            var result = subject.SnapshotTime;
+
+            result.Should().BeSameAs(snapshotTime);
+        }
+
         [Theory]
         [InlineData(false, -1, false, false)]
         [InlineData(true, CoreTransactionState.Aborted, false, false)]
@@ -224,6 +236,7 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         [Fact]
+        [Trait("Category", "Integration")]
         public void StartTransaction_should_throw_when_write_concern_is_unacknowledged()
         {
             RequireServer.Check().ClusterType(ClusterType.ReplicaSet).Supports(Feature.Transactions);

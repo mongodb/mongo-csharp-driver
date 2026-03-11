@@ -97,6 +97,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             {
                 switch (argument.Name)
                 {
+                    case "bypassDocumentValidation":
+                        options ??= new();
+                        options.BypassDocumentValidation = argument.Value.AsBoolean;
+                        break;
                     case "comment":
                         options ??= new FindOneAndReplaceOptions<BsonDocument>();
                         options.Comment = argument.Value;
@@ -112,6 +116,12 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         options ??= new FindOneAndReplaceOptions<BsonDocument>();
                         options.Let = argument.Value.AsBsonDocument;
                         break;
+#pragma warning disable CS0618 // Type or member is obsolete
+                    case "maxTimeMS":
+                        options ??= new FindOneAndReplaceOptions<BsonDocument>();
+                        options.MaxTime = TimeSpan.FromMilliseconds(argument.Value.AsInt32);
+                        break;
+#pragma warning restore CS0618 // Type or member is obsolete
                     case "replacement":
                         replacement = argument.Value.AsBsonDocument;
                         break;
@@ -125,6 +135,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     case "upsert":
                         options ??= new FindOneAndReplaceOptions<BsonDocument>();
                         options.IsUpsert = argument.Value.AsBoolean;
+                        break;
+                    case "timeoutMS":
+                        options ??= new FindOneAndReplaceOptions<BsonDocument>();
+                        options.Timeout = UnifiedEntityMap.ParseTimeout(argument.Value);
                         break;
                     default:
                         throw new FormatException($"Invalid FindOneAndReplaceOperation argument name: '{argument.Name}'.");

@@ -13,24 +13,30 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
-    public class SumMethodToAggregationExpressionTranslatorTests : Linq3IntegrationTest
+    public class SumMethodToAggregationExpressionTranslatorTests : LinqIntegrationTest<SumMethodToAggregationExpressionTranslatorTests.ClassFixture>
     {
+        public SumMethodToAggregationExpressionTranslatorTests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void Sum_with_decimals_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.Decimals.AsQueryable().Sum()) :
@@ -48,7 +54,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Sum_with_decimals_selector_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.Decimals.AsQueryable().Sum(x => x * 2.0M)) :
@@ -66,7 +72,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Sum_with_doubles_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.Doubles.AsQueryable().Sum()) :
@@ -84,7 +90,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Sum_with_doubles_selector_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.Doubles.AsQueryable().Sum(x => x * 2.0)) :
@@ -102,7 +108,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Sum_with_floats_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.Floats.AsQueryable().Sum()) :
@@ -120,7 +126,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Sum_with_floats_selector_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.Floats.AsQueryable().Sum(x => x * 2.0F)) :
@@ -138,7 +144,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Sum_with_ints_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.Ints.AsQueryable().Sum()) :
@@ -156,7 +162,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Sum_with_ints_selector_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.Ints.AsQueryable().Sum(x => x * 2)) :
@@ -174,7 +180,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Sum_with_longs_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.Longs.AsQueryable().Sum()) :
@@ -192,7 +198,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Sum_with_longs_selector_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.Longs.AsQueryable().Sum(x => x * 2L)) :
@@ -210,7 +216,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Sum_with_nullable_decimals_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.NullableDecimals.AsQueryable().Sum()) :
@@ -228,7 +234,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Sum_with_nullable_decimals_selector_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.NullableDecimals.AsQueryable().Sum(x => x * 2.0M)) :
@@ -246,7 +252,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Sum_with_nullable_doubles_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.NullableDoubles.AsQueryable().Sum()) :
@@ -264,7 +270,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Sum_with_nullable_doubles_selector_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.NullableDoubles.AsQueryable().Sum(x => x * 2.0)) :
@@ -282,7 +288,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Sum_with_nullable_floats_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.NullableFloats.AsQueryable().Sum()) :
@@ -300,7 +306,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Sum_with_nullable_floats_selector_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.NullableFloats.AsQueryable().Sum(x => x * 2.0F)) :
@@ -318,7 +324,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Sum_with_nullable_ints_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.NullableInts.AsQueryable().Sum()) :
@@ -336,7 +342,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Sum_with_nullable_ints_selector_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.NullableInts.AsQueryable().Sum(x => x * 2)) :
@@ -354,7 +360,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Sum_with_nullable_longs_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.NullableLongs.AsQueryable().Sum()) :
@@ -372,7 +378,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Sum_with_nullable_longs_selector_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.NullableLongs.AsQueryable().Sum(x => x * 2L)) :
@@ -385,11 +391,25 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             results.Should().Equal(0, 0, 12L);
         }
 
-        private IMongoCollection<C> CreateCollection()
+        public class C
         {
-            var collection = GetCollection<C>("test");
-            CreateCollection(
-                collection,
+            public int Id { get; set; }
+            [BsonRepresentation(BsonType.Decimal128)] public decimal[] Decimals { get; set; }
+            public double[] Doubles { get; set; }
+            public float[] Floats { get; set; }
+            public int[] Ints { get; set; }
+            public long[] Longs { get; set; }
+            [BsonRepresentation(BsonType.Decimal128)] public decimal?[] NullableDecimals { get; set; }
+            public double?[] NullableDoubles { get; set; }
+            public float?[] NullableFloats { get; set; }
+            public int?[] NullableInts { get; set; }
+            public long?[] NullableLongs { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
                 new C
                 {
                     Id = 1,
@@ -431,23 +451,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                     NullableFloats = new float?[] { null, 1.0F, 2.0F, 3.0F },
                     NullableInts = new int?[] { null, 1, 2, 3 },
                     NullableLongs = new long?[] { null, 1L, 2L, 3L }
-                });
-            return collection;
-        }
-
-        private class C
-        {
-            public int Id { get; set; }
-            [BsonRepresentation(BsonType.Decimal128)] public decimal[] Decimals { get; set; }
-            public double[] Doubles { get; set; }
-            public float[] Floats { get; set; }
-            public int[] Ints { get; set; }
-            public long[] Longs { get; set; }
-            [BsonRepresentation(BsonType.Decimal128)] public decimal?[] NullableDecimals { get; set; }
-            public double?[] NullableDoubles { get; set; }
-            public float?[] NullableFloats { get; set; }
-            public int?[] NullableInts { get; set; }
-            public long?[] NullableLongs { get; set; }
+                }
+            ];
         }
     }
 }

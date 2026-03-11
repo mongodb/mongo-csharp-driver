@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
@@ -119,6 +118,8 @@ namespace MongoDB.Driver.Core.Operations
             get { return _messageEncoderSettings; }
         }
 
+        public string OperationName => "aggregate";
+
         public IReadOnlyList<BsonDocument> Pipeline
         {
             get { return _pipeline; }
@@ -148,49 +149,49 @@ namespace MongoDB.Driver.Core.Operations
             set { _writeConcern = value; }
         }
 
-        public BsonDocument Execute(IWriteBinding binding, CancellationToken cancellationToken)
+        public BsonDocument Execute(OperationContext operationContext, IWriteBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             var mayUseSecondary = new MayUseSecondary(_readPreference);
             using (BeginOperation())
-            using (var channelSource = binding.GetWriteChannelSource(mayUseSecondary, cancellationToken))
-            using (var channel = channelSource.GetChannel(cancellationToken))
+            using (var channelSource = binding.GetWriteChannelSource(operationContext, mayUseSecondary))
+            using (var channel = channelSource.GetChannel(operationContext))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
-                var operation = CreateOperation(channelBinding.Session, channel.ConnectionDescription, mayUseSecondary.EffectiveReadPreference);
-                return operation.Execute(channelBinding, cancellationToken);
+                var operation = CreateOperation(operationContext, channelBinding.Session, channel.ConnectionDescription, mayUseSecondary.EffectiveReadPreference);
+                return operation.Execute(operationContext, channelBinding);
             }
         }
 
-        public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
+        public async Task<BsonDocument> ExecuteAsync(OperationContext operationContext, IWriteBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             var mayUseSecondary = new MayUseSecondary(_readPreference);
             using (BeginOperation())
-            using (var channelSource = await binding.GetWriteChannelSourceAsync(mayUseSecondary, cancellationToken).ConfigureAwait(false))
-            using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
+            using (var channelSource = await binding.GetWriteChannelSourceAsync(operationContext, mayUseSecondary).ConfigureAwait(false))
+            using (var channel = await channelSource.GetChannelAsync(operationContext).ConfigureAwait(false))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
-                var operation = CreateOperation(channelBinding.Session, channel.ConnectionDescription, mayUseSecondary.EffectiveReadPreference);
-                return await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
+                var operation = CreateOperation(operationContext, channelBinding.Session, channel.ConnectionDescription, mayUseSecondary.EffectiveReadPreference);
+                return await operation.ExecuteAsync(operationContext, channelBinding).ConfigureAwait(false);
             }
         }
 
-        public BsonDocument CreateCommand(ICoreSessionHandle session, ConnectionDescription connectionDescription)
+        public BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription)
         {
             var readConcern = _readConcern != null
                 ? ReadConcernHelper.GetReadConcernForCommand(session, connectionDescription, _readConcern)
                 : null;
-            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(session, _writeConcern);
+            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, session, _writeConcern);
             return new BsonDocument
             {
                 { "aggregate", _collectionNamespace == null ? (BsonValue)1 : _collectionNamespace.CollectionName },
                 { "pipeline", new BsonArray(_pipeline) },
                 { "allowDiskUse", () => _allowDiskUse.Value, _allowDiskUse.HasValue },
                 { "bypassDocumentValidation", () => _bypassDocumentValidation.Value, _bypassDocumentValidation.HasValue },
-                { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue },
+                { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue && !operationContext.IsRootContextTimeoutConfigured() },
                 { "collation", () => _collation.ToBsonDocument(), _collation != null },
                 { "readConcern", readConcern, readConcern != null },
                 { "writeConcern", writeConcern, writeConcern != null },
@@ -201,12 +202,12 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        private IDisposable BeginOperation() => EventContext.BeginOperation("aggregate");
+        private EventContext.OperationNameDisposer BeginOperation() => EventContext.BeginOperation(OperationName);
 
-        private WriteCommandOperation<BsonDocument> CreateOperation(ICoreSessionHandle session, ConnectionDescription connectionDescription, ReadPreference effectiveReadPreference)
+        private WriteCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, ReadPreference effectiveReadPreference)
         {
-            var command = CreateCommand(session, connectionDescription);
-            var operation = new WriteCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, MessageEncoderSettings);
+            var command = CreateCommand(operationContext, session, connectionDescription);
+            var operation = new WriteCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, MessageEncoderSettings, OperationName);
             if (effectiveReadPreference != null)
             {
                 operation.ReadPreference = effectiveReadPreference;

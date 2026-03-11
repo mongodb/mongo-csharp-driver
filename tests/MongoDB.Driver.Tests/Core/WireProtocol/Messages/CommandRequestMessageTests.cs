@@ -1,4 +1,4 @@
-﻿/* Copyright 2018-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.IO;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -31,12 +30,10 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         {
             var sections = new[] { new Type0CommandMessageSection<BsonDocument>(new BsonDocument(), BsonDocumentSerializer.Instance) };
             var wrappedMessage = new CommandMessage(1, 2, sections, false);
-            Func<bool> shouldBeSent = () => true;
 
-            var result = new CommandRequestMessage(wrappedMessage, shouldBeSent);
+            var result = new CommandRequestMessage(wrappedMessage);
 
             result.WrappedMessage.Should().BeSameAs(wrappedMessage);
-            result.ShouldBeSent.Should().BeSameAs(shouldBeSent);
         }
 
         [Fact]
@@ -75,17 +72,14 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         }
 
         // private methods
-        private CommandRequestMessage CreateSubject(
-            CommandMessage wrappedMessage = null,
-            Func<bool> shouldBeSent = null)
+        private CommandRequestMessage CreateSubject(CommandMessage wrappedMessage = null)
         {
             if (wrappedMessage == null)
             {
                 var sections = new[] { new Type0CommandMessageSection<BsonDocument>(new BsonDocument(), BsonDocumentSerializer.Instance) };
                 wrappedMessage = new CommandMessage(1, 2, sections, false);
             }
-            shouldBeSent = shouldBeSent ?? (() => true);
-            return new CommandRequestMessage(wrappedMessage, shouldBeSent);
+            return new CommandRequestMessage(wrappedMessage);
         }
     }
 }

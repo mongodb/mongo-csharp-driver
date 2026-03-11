@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
@@ -33,7 +32,7 @@ namespace MongoDB.Driver.Core.Operations
     {
         private readonly bool? _bypassDocumentValidation;
         private readonly bool _errorsOnly;
-        private readonly Dictionary<int, BsonValue> _idsMap = new();
+        private readonly Dictionary<int, object> _idsMap = new();
         private readonly BsonDocument _let;
         private readonly RenderArgs<BsonDocument> _renderArgs;
         private readonly IBatchableSource<BulkWriteModel> _writeModels;
@@ -56,9 +55,11 @@ namespace MongoDB.Driver.Core.Operations
             WriteConcern = options?.WriteConcern;
         }
 
-        protected override BsonDocument CreateCommand(ICoreSessionHandle session, int attempt, long? transactionNumber)
+        public override string OperationName => "bulkWrite";
+
+        protected override BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, int attempt, long? transactionNumber)
         {
-            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(session, WriteConcern);
+            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, session, WriteConcern);
             return new BsonDocument
             {
                 { "bulkWrite", 1 },
@@ -89,17 +90,17 @@ namespace MongoDB.Driver.Core.Operations
             return new[] { payload };
         }
 
-        public new ClientBulkWriteResult Execute(IWriteBinding binding, CancellationToken cancellationToken)
+        public new ClientBulkWriteResult Execute(OperationContext operationContext, IWriteBinding binding)
         {
             using var operation = BeginOperation();
             var bulkWriteResults = new BulkWriteRawResult();
             while (true)
             {
-                using var context = RetryableWriteContext.Create(binding, GetEffectiveRetryRequested(), cancellationToken);
+                using var context = RetryableWriteContext.Create(operationContext, binding, GetEffectiveRetryRequested());
                 BsonDocument serverResponse = null;
                 try
                 {
-                    serverResponse = base.Execute(context, cancellationToken);
+                    serverResponse = base.Execute(operationContext, context);
                 }
                 catch (MongoWriteConcernException concernException)
                 {
@@ -124,7 +125,8 @@ namespace MongoDB.Driver.Core.Operations
                     {
                         try
                         {
-                            while (individualResults.MoveNext(cancellationToken))
+                            // TODO: CSOT implement a way to support timeout in cursor methods
+                            while (individualResults.MoveNext(operationContext.CancellationToken))
                             {
                                 PopulateIndividualResponses(individualResults.Current, bulkWriteResults);
                             }
@@ -146,17 +148,17 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public new async Task<ClientBulkWriteResult> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
+        public new async Task<ClientBulkWriteResult> ExecuteAsync(OperationContext operationContext, IWriteBinding binding)
         {
             using var operation = BeginOperation();
             var bulkWriteResults = new BulkWriteRawResult();
             while (true)
             {
-                using var context = RetryableWriteContext.Create(binding, GetEffectiveRetryRequested(), cancellationToken);
+                using var context = RetryableWriteContext.Create(operationContext, binding, GetEffectiveRetryRequested());
                 BsonDocument serverResponse = null;
                 try
                 {
-                    serverResponse = await base.ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
+                    serverResponse = await base.ExecuteAsync(operationContext, context).ConfigureAwait(false);
                 }
                 catch (MongoWriteConcernException concernException)
                 {
@@ -181,7 +183,8 @@ namespace MongoDB.Driver.Core.Operations
                     {
                         try
                         {
-                            while (await individualResults.MoveNextAsync(cancellationToken).ConfigureAwait(false))
+                            // TODO: CSOT implement a way to support timeout in cursor methods
+                            while (await individualResults.MoveNextAsync(operationContext.CancellationToken).ConfigureAwait(false))
                             {
                                 PopulateIndividualResponses(individualResults.Current, bulkWriteResults);
                             }
@@ -203,13 +206,18 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private IDisposable BeginOperation() => EventContext.BeginOperation(null, "bulkWrite");
+        private EventContext.OperationIdDisposer BeginOperation() => EventContext.BeginOperation(null, OperationName);
 
         private void EnsureCanProceedNextBatch(ConnectionId connectionId, BulkWriteRawResult bulkWriteResult)
         {
             if (bulkWriteResult.TopLevelException != null)
             {
-                var partialResult = ToClientBulkWriteResult(bulkWriteResult);
+                ClientBulkWriteResult partialResult = null;
+                if (_writeModels.Offset != 0)
+                {
+                    partialResult = ToClientBulkWriteResult(bulkWriteResult);
+                }
+
                 throw new ClientBulkWriteException(
                     connectionId,
                     "An error occurred during bulkWrite operation. See InnerException for more details.",
@@ -331,7 +339,7 @@ namespace MongoDB.Driver.Core.Operations
                         _idsMap.TryGetValue(operationIndex, out var insertedId);
                         bulkWriteResult.InsertResults.Add(operationIndex, new()
                         {
-                            InsertedId = insertedId
+                            DocumentId = insertedId
                         });
                     }
                     else if (writeModelType == typeof(BulkWriteUpdateOneModel<>) || writeModelType == typeof(BulkWriteUpdateManyModel<>) || writeModelType == typeof(BulkWriteReplaceOneModel<>))

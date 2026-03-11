@@ -296,7 +296,7 @@ namespace MongoDB.Driver.Encryption.Tests
                 var (_, dataKeyDocument) = ProcessContextToCompletion(context, isKmsDecrypt: false);
                 dataKeyDocument.Should().NotBeNull();
                 var actualKeyAltNames = dataKeyDocument["keyAltNames"].AsBsonArray.Select(x => x.AsString);
-                var expectedKeyAltNames = keyAltNames.Reverse(); // https://jira.mongodb.org/browse/CDRIVER-3277?
+                var expectedKeyAltNames = Enumerable.Reverse(keyAltNames); // https://jira.mongodb.org/browse/CDRIVER-3277?
                 actualKeyAltNames.Should().BeEquivalentTo(expectedKeyAltNames);
             }
         }
@@ -322,7 +322,7 @@ namespace MongoDB.Driver.Encryption.Tests
                 state.Should().Be(CryptContext.StateCode.MONGOCRYPT_CTX_READY);
                 dataKeyDocument.Should().NotBeNull();
                 var actualKeyAltNames = dataKeyDocument["keyAltNames"].AsBsonArray.Select(x => x.AsString);
-                var expectedKeyAltNames = keyAltNames.Reverse(); // https://jira.mongodb.org/browse/CDRIVER-3277?
+                var expectedKeyAltNames = Enumerable.Reverse(keyAltNames); // https://jira.mongodb.org/browse/CDRIVER-3277?
                 actualKeyAltNames.Should().BeEquivalentTo(expectedKeyAltNames);
 
                 (state, _, _) = ProcessState(context, isKmsDecrypt: false);
@@ -347,7 +347,7 @@ namespace MongoDB.Driver.Encryption.Tests
                 var (_, dataKeyDocument) = ProcessContextToCompletion(context);
                 dataKeyDocument.Should().NotBeNull();
                 var actualKeyAltNames = dataKeyDocument["keyAltNames"].AsBsonArray.Select(x => x.AsString);
-                var expectedKeyAltNames = keyAltNames.Reverse(); // https://jira.mongodb.org/browse/CDRIVER-3277?
+                var expectedKeyAltNames = Enumerable.Reverse(keyAltNames); // https://jira.mongodb.org/browse/CDRIVER-3277?
                 actualKeyAltNames.Should().BeEquivalentTo(expectedKeyAltNames);
             }
         }
@@ -370,7 +370,7 @@ namespace MongoDB.Driver.Encryption.Tests
                 state.Should().Be(CryptContext.StateCode.MONGOCRYPT_CTX_READY);
                 dataKeyDocument.Should().NotBeNull();
                 var actualKeyAltNames = dataKeyDocument["keyAltNames"].AsBsonArray.Select(x => x.AsString);
-                var expectedKeyAltNames = keyAltNames.Reverse(); // https://jira.mongodb.org/browse/CDRIVER-3277?
+                var expectedKeyAltNames = Enumerable.Reverse(keyAltNames); // https://jira.mongodb.org/browse/CDRIVER-3277?
                 actualKeyAltNames.Should().BeEquivalentTo(expectedKeyAltNames);
 
                 (state, _, _) = ProcessState(context);
@@ -677,7 +677,7 @@ namespace MongoDB.Driver.Encryption.Tests
 
         private static CryptContext StartExplicitEncryptionContextWithKeyId(CryptClient client, byte[] keyId, string encryptionAlgorithm, byte[] message)
         {
-            return client.StartExplicitEncryptionContext(keyId, keyAltName: null, queryType: null, contentionFactor: null, encryptionAlgorithm, message, rangeOptions: null);
+            return client.StartExplicitEncryptionContext(keyId, keyAltName: null, queryType: null, contentionFactor: null, encryptionAlgorithm, message, rangeOptions: null, textOptions: null);
         }
 
         static IEnumerable<string> FindTestDirectories()

@@ -369,8 +369,8 @@ namespace MongoDB.Bson.Serialization.Serializers
         // private fields
         private readonly DictionaryRepresentation _dictionaryRepresentation;
         private readonly SerializerHelper _helper;
-        private readonly Lazy<IBsonSerializer<TKey>> _lazyKeySerializer;
-        private readonly Lazy<IBsonSerializer<TValue>> _lazyValueSerializer;
+        private protected readonly Lazy<IBsonSerializer<TKey>> _lazyKeySerializer;
+        private protected readonly Lazy<IBsonSerializer<TValue>> _lazyValueSerializer;
 
         // constructors
         /// <summary>
@@ -429,7 +429,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
         }
 
-        private DictionarySerializerBase(
+        private protected DictionarySerializerBase(
             DictionaryRepresentation dictionaryRepresentation,
             Lazy<IBsonSerializer<TKey>> lazyKeySerializer,
             Lazy<IBsonSerializer<TValue>> lazyValueSerializer)
@@ -499,20 +499,14 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <inheritdoc/>
         public bool TryGetItemSerializationInfo(out BsonSerializationInfo serializationInfo)
         {
-            if (_dictionaryRepresentation != DictionaryRepresentation.ArrayOfDocuments)
-            {
-                serializationInfo = null;
-                return false;
-            }
+            var representation = _dictionaryRepresentation == DictionaryRepresentation.ArrayOfArrays
+                ? BsonType.Array
+                : BsonType.Document;
+            var keySerializer = _lazyKeySerializer.Value;
+            var valueSerializer = _lazyValueSerializer.Value;
+            var keyValuePairSerializer = new KeyValuePairSerializer<TKey, TValue>(representation, keySerializer, valueSerializer);
 
-            var serializer = new KeyValuePairSerializer<TKey, TValue>(
-                BsonType.Document,
-                _lazyKeySerializer.Value,
-                _lazyValueSerializer.Value);
-            serializationInfo = new BsonSerializationInfo(
-                null,
-                serializer,
-                serializer.ValueType);
+            serializationInfo = new BsonSerializationInfo(null, keyValuePairSerializer, keyValuePairSerializer.ValueType);
             return true;
         }
 

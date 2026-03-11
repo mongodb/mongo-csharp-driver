@@ -20,6 +20,7 @@ using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Operations;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -34,7 +35,7 @@ namespace MongoDB.Driver.Tests
         [InlineData(12582, ServerErrorCategory.DuplicateKey)]
         public void Should_translate_category_correctly(int code, ServerErrorCategory expectedCategory)
         {
-            var coreError = new Core.Operations.BulkWriteOperationError(0, code, "blah", new BsonDocument());
+            var coreError = new BulkWriteOperationError(0, code, "blah", new BsonDocument());
             var subject = BulkWriteError.FromCore(coreError);
 
             subject.Category.Should().Be(expectedCategory);

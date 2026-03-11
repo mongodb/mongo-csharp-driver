@@ -22,67 +22,66 @@ using BenchmarkDotNet.Reports;
 using MongoDB.Bson.IO;
 using static MongoDB.Benchmarks.BenchmarkHelper;
 
-namespace MongoDB.Benchmarks.Exporters
+namespace MongoDB.Benchmarks.Exporters;
+
+public sealed class EvergreenExporter : IExporter
 {
-    public sealed class EvergreenExporter : IExporter
+    private readonly string _outputFile;
+
+    public string Name => GetType().Name;
+
+    public EvergreenExporter(string outputFile)
     {
-        private readonly string _outputFile;
+        _outputFile = outputFile;
+    }
 
-        public string Name => GetType().Name;
+    public void ExportToLog(Summary summary, ILogger logger)
+    {
+    }
 
-        public EvergreenExporter(string outputFile)
+    public IEnumerable<string> ExportToFiles(Summary summary, ILogger consoleLogger)
+    {
+        var benchmarkResults = summary.Reports.Select(report => new BenchmarkResult(report)).ToArray();
+
+        var resultsPath = Path.Combine(summary.ResultsDirectoryPath, _outputFile);
+
+        using (var resultsFileWriter = File.CreateText(resultsPath))
+        using (var jsonWriter = new JsonWriter(resultsFileWriter, new JsonWriterSettings { Indent = true }))
         {
-            _outputFile = outputFile;
-        }
+            jsonWriter.WriteStartArray();
 
-        public void ExportToLog(Summary summary, ILogger logger)
-        {
-        }
-
-        public IEnumerable<string> ExportToFiles(Summary summary, ILogger consoleLogger)
-        {
-            var benchmarkResults = summary.Reports.Select(report => new BenchmarkResult(report)).ToArray();
-
-            var resultsPath = Path.Combine(summary.ResultsDirectoryPath, _outputFile);
-
-            using (var resultsFileWriter = File.CreateText(resultsPath))
-            using (var jsonWriter = new JsonWriter(resultsFileWriter, new JsonWriterSettings { Indent = true }))
+            // write composite scores e.g ReadBench
+            foreach (var category in DriverBenchmarkCategory.AllCategories)
             {
-                jsonWriter.WriteStartArray();
-
-                // write composite scores e.g ReadBench
-                foreach (var category in DriverBenchmarkCategory.AllCategories)
-                {
-                    WriteScoreToResults(jsonWriter, category, CalculateCompositeScore(benchmarkResults, category));
-                }
-
-                // write individual benchmarks results
-                foreach (var benchmark in benchmarkResults)
-                {
-                    WriteScoreToResults(jsonWriter, benchmark.Name, benchmark.Score);
-                }
-
-                jsonWriter.WriteEndArray();
+                WriteScoreToResults(jsonWriter, category, CalculateCompositeScore(benchmarkResults, category));
             }
 
-            return new[] { resultsPath };
-        }
+            // write individual benchmarks results
+            foreach (var benchmark in benchmarkResults)
+            {
+                WriteScoreToResults(jsonWriter, benchmark.Name, benchmark.Score);
+            }
 
-        private static void WriteScoreToResults(JsonWriter jsonWriter, string name, double score)
-        {
-            jsonWriter.WriteStartDocument();
-            jsonWriter.WriteStartDocument("info");
-            jsonWriter.WriteString("test_name", name);
-            jsonWriter.WriteEndDocument();
-
-            jsonWriter.WriteStartArray("metrics");
-            jsonWriter.WriteStartDocument();
-            jsonWriter.WriteString("name", "megabytes_per_second");
-            jsonWriter.WriteDouble("value", score);
-            jsonWriter.WriteEndDocument();
             jsonWriter.WriteEndArray();
-
-            jsonWriter.WriteEndDocument();
         }
+
+        return new[] { resultsPath };
+    }
+
+    private static void WriteScoreToResults(JsonWriter jsonWriter, string name, double score)
+    {
+        jsonWriter.WriteStartDocument();
+        jsonWriter.WriteStartDocument("info");
+        jsonWriter.WriteString("test_name", name);
+        jsonWriter.WriteEndDocument();
+
+        jsonWriter.WriteStartArray("metrics");
+        jsonWriter.WriteStartDocument();
+        jsonWriter.WriteString("name", "megabytes_per_second");
+        jsonWriter.WriteDouble("value", score);
+        jsonWriter.WriteEndDocument();
+        jsonWriter.WriteEndArray();
+
+        jsonWriter.WriteEndDocument();
     }
 }

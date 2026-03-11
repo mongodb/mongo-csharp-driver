@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
 
 using System;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
@@ -68,6 +67,8 @@ namespace MongoDB.Driver.Core.Operations
             get { return _messageEncoderSettings; }
         }
 
+        public string OperationName => "findAndModify";
+
         public IBsonSerializer<TResult> ResultSerializer
         {
             get { return _resultSerializer; }
@@ -85,39 +86,39 @@ namespace MongoDB.Driver.Core.Operations
             set { _retryRequested = value; }
         }
 
-        public TResult Execute(IWriteBinding binding, CancellationToken cancellationToken)
+        public TResult Execute(OperationContext operationContext, IWriteBinding binding)
         {
             using (BeginOperation())
             {
-                return RetryableWriteOperationExecutor.Execute(this, binding, _retryRequested, cancellationToken);
+                return RetryableWriteOperationExecutor.Execute(operationContext, this, binding, _retryRequested);
             }
         }
 
-        public TResult Execute(RetryableWriteContext context, CancellationToken cancellationToken)
+        public TResult Execute(OperationContext operationContext, RetryableWriteContext context)
         {
             using (BeginOperation())
             {
-                return RetryableWriteOperationExecutor.Execute(this, context, cancellationToken);
+                return RetryableWriteOperationExecutor.Execute(operationContext, this, context);
             }
         }
 
-        public Task<TResult> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
-        {
-            using (BeginOperation())
-            { 
-                return RetryableWriteOperationExecutor.ExecuteAsync(this, binding, _retryRequested, cancellationToken);
-            }
-        }
-
-        public Task<TResult> ExecuteAsync(RetryableWriteContext context, CancellationToken cancellationToken)
+        public Task<TResult> ExecuteAsync(OperationContext operationContext, IWriteBinding binding)
         {
             using (BeginOperation())
             {
-                return RetryableWriteOperationExecutor.ExecuteAsync(this, context, cancellationToken);
+                return RetryableWriteOperationExecutor.ExecuteAsync(operationContext, this, binding, _retryRequested);
             }
         }
 
-        public TResult ExecuteAttempt(RetryableWriteContext context, int attempt, long? transactionNumber, CancellationToken cancellationToken)
+        public Task<TResult> ExecuteAsync(OperationContext operationContext, RetryableWriteContext context)
+        {
+            using (BeginOperation())
+            {
+                return RetryableWriteOperationExecutor.ExecuteAsync(operationContext, this, context);
+            }
+        }
+
+        public TResult ExecuteAttempt(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
         {
             var binding = context.Binding;
             var channelSource = context.ChannelSource;
@@ -125,15 +126,15 @@ namespace MongoDB.Driver.Core.Operations
 
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
-                var operation = CreateOperation(channelBinding.Session, channel.ConnectionDescription, transactionNumber);
-                using (var rawBsonDocument = operation.Execute(channelBinding, cancellationToken))
+                var operation = CreateOperation(operationContext, channelBinding.Session, channel.ConnectionDescription, transactionNumber);
+                using (var rawBsonDocument = operation.Execute(operationContext, channelBinding))
                 {
                     return ProcessCommandResult(channel.ConnectionDescription.ConnectionId, rawBsonDocument);
                 }
             }
         }
 
-        public async Task<TResult> ExecuteAttemptAsync(RetryableWriteContext context, int attempt, long? transactionNumber, CancellationToken cancellationToken)
+        public async Task<TResult> ExecuteAttemptAsync(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
         {
             var binding = context.Binding;
             var channelSource = context.ChannelSource;
@@ -141,24 +142,24 @@ namespace MongoDB.Driver.Core.Operations
 
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
-                var operation = CreateOperation(channelBinding.Session, channel.ConnectionDescription, transactionNumber);
-                using (var rawBsonDocument = await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false))
+                var operation = CreateOperation(operationContext, channelBinding.Session, channel.ConnectionDescription, transactionNumber);
+                using (var rawBsonDocument = await operation.ExecuteAsync(operationContext, channelBinding).ConfigureAwait(false))
                 {
                     return ProcessCommandResult(channel.ConnectionDescription.ConnectionId, rawBsonDocument);
                 }
             }
         }
 
-        public abstract BsonDocument CreateCommand(ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber);
+        public abstract BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber);
 
         protected abstract IElementNameValidator GetCommandValidator();
 
-        private IDisposable BeginOperation() => EventContext.BeginOperation("findAndModify");
+        private EventContext.OperationNameDisposer BeginOperation() => EventContext.BeginOperation(OperationName);
 
-        private WriteCommandOperation<RawBsonDocument> CreateOperation(ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber)
+        private WriteCommandOperation<RawBsonDocument> CreateOperation(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber)
         {
-            var command = CreateCommand(session, connectionDescription, transactionNumber);
-            return new WriteCommandOperation<RawBsonDocument>(_collectionNamespace.DatabaseNamespace, command, RawBsonDocumentSerializer.Instance, _messageEncoderSettings)
+            var command = CreateCommand(operationContext, session, connectionDescription, transactionNumber);
+            return new WriteCommandOperation<RawBsonDocument>(_collectionNamespace.DatabaseNamespace, command, RawBsonDocumentSerializer.Instance, _messageEncoderSettings, OperationName)
             {
                 CommandValidator = GetCommandValidator()
             };

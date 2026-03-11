@@ -19,9 +19,5 @@ fi
 export MONGODB_URI="${MONGODB_URI}"
 export PLAIN_AUTH_TESTS_ENABLED=true
 
-if [[ "$OS" =~ Windows|windows ]]; then
-  powershell.exe \
-    '.\build.ps1 --target TestPlainAuthentication'
-else
-  ./build.sh --target=TestPlainAuthentication
-fi
+./evergreen/compile-sources.sh
+TEST_CATEGORY=PlainMechanism ./evergreen/execute-tests.sh

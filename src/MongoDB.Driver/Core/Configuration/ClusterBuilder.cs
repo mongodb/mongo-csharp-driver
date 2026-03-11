@@ -30,19 +30,18 @@ namespace MongoDB.Driver.Core.Configuration
     /// </summary>
     public class ClusterBuilder
     {
-        // constants
-        private const string __traceSourceName = "MongoDB-SDAM";
-
         // fields
         private EventAggregator _eventAggregator;
         private ClusterSettings _clusterSettings;
         private ConnectionPoolSettings _connectionPoolSettings;
         private ConnectionSettings _connectionSettings;
         private LoggingSettings _loggingSettings;
+        private TracingOptions _tracingOptions;
         private ServerSettings _serverSettings;
         private SslStreamSettings _sslStreamSettings;
         private Func<IStreamFactory, IStreamFactory> _streamFactoryWrapper;
         private TcpStreamSettings _tcpStreamSettings;
+        private Socks5ProxyStreamSettings _socks5ProxyStreamSettings;
 
         // constructors
         /// <summary>
@@ -126,6 +125,19 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         /// <summary>
+        /// Configures the tracing options.
+        /// </summary>
+        /// <param name="configurator">The tracing options configurator delegate.</param>
+        /// <returns>A reconfigured cluster builder.</returns>
+        public ClusterBuilder ConfigureTracingOptions(Func<TracingOptions, TracingOptions> configurator)
+        {
+            Ensure.IsNotNull(configurator, nameof(configurator));
+
+            _tracingOptions = configurator(_tracingOptions);
+            return this;
+        }
+
+        /// <summary>
         /// Configures the server settings.
         /// </summary>
         /// <param name="configurator">The server settings configurator delegate.</param>
@@ -157,6 +169,19 @@ namespace MongoDB.Driver.Core.Configuration
             Ensure.IsNotNull(configurator, nameof(configurator));
 
             _tcpStreamSettings = configurator(_tcpStreamSettings);
+            return this;
+        }
+
+        /// <summary>
+        /// Configures the SOCKS5 proxy settings for the cluster.
+        /// </summary>
+        /// <param name="configurator"> The SOCKS5 proxy settings configurator delegate.</param>
+        /// <returns>A reconfigured cluster builder.</returns>
+        public ClusterBuilder ConfigureSocks5Proxy(Func<Socks5ProxyStreamSettings, Socks5ProxyStreamSettings> configurator)
+        {
+            Ensure.IsNotNull(configurator, nameof(configurator));
+
+            _socks5ProxyStreamSettings = configurator(_socks5ProxyStreamSettings ?? new Socks5ProxyStreamSettings());
             return this;
         }
 
@@ -216,7 +241,10 @@ namespace MongoDB.Driver.Core.Configuration
                 streamFactory,
                 _eventAggregator,
                 _clusterSettings.ServerApi,
-                _loggingSettings.ToInternalLoggerFactory());
+                _loggingSettings.ToInternalLoggerFactory(),
+                _tracingOptions,
+                _tcpStreamSettings.ReadTimeout,
+                _tcpStreamSettings.WriteTimeout);
 
             var connectionPoolSettings = _connectionPoolSettings.WithInternal(isPausable: !_connectionSettings.LoadBalanced);
 
@@ -252,30 +280,34 @@ namespace MongoDB.Driver.Core.Configuration
             {
                 heartbeatConnectTimeout = TimeSpan.FromSeconds(30);
             }
-            var heartbeatSocketTimeout = _serverSettings.HeartbeatTimeout;
-            if (heartbeatSocketTimeout == TimeSpan.Zero || heartbeatSocketTimeout == Timeout.InfiniteTimeSpan)
+            var heartbeatTimeout = _serverSettings.HeartbeatTimeout;
+            if (heartbeatTimeout == TimeSpan.Zero || heartbeatTimeout == Timeout.InfiniteTimeSpan)
             {
-                heartbeatSocketTimeout = heartbeatConnectTimeout;
+                heartbeatTimeout = heartbeatConnectTimeout;
             }
             var serverMonitorTcpStreamSettings = new TcpStreamSettings(_tcpStreamSettings)
                 .With(
                     connectTimeout: heartbeatConnectTimeout,
-                    readTimeout: heartbeatSocketTimeout,
-                    writeTimeout: heartbeatSocketTimeout
+                    readTimeout: null,
+                    writeTimeout: null
                 );
 
             var serverMonitorStreamFactory = CreateTcpStreamFactory(serverMonitorTcpStreamSettings);
             var serverMonitorSettings = new ServerMonitorSettings(
-                connectTimeout: serverMonitorTcpStreamSettings.ConnectTimeout,
-                heartbeatInterval: _serverSettings.HeartbeatInterval,
-                serverMonitoringMode: _serverSettings.ServerMonitoringMode);
+                ConnectTimeout: heartbeatConnectTimeout,
+                HeartbeatInterval: _serverSettings.HeartbeatInterval,
+                HeartbeatTimeout: heartbeatTimeout,
+                _serverSettings.ServerMonitoringMode);
 
             var serverMonitorConnectionFactory = new BinaryConnectionFactory(
                 serverMonitorConnectionSettings,
                 serverMonitorStreamFactory,
                 new EventAggregator(),
                 _clusterSettings.ServerApi,
-                loggerFactory: null);
+                loggerFactory: null,
+                tracingOptions: new TracingOptions { Disabled = true },
+                _tcpStreamSettings.ReadTimeout,
+                _tcpStreamSettings.WriteTimeout);
 
             return new ServerMonitorFactory(
                 serverMonitorSettings,
@@ -288,6 +320,12 @@ namespace MongoDB.Driver.Core.Configuration
         private IStreamFactory CreateTcpStreamFactory(TcpStreamSettings tcpStreamSettings)
         {
             var streamFactory = (IStreamFactory)new TcpStreamFactory(tcpStreamSettings);
+
+            if (_socks5ProxyStreamSettings != null)
+            {
+                streamFactory = new Socks5ProxyStreamFactory(_socks5ProxyStreamSettings, streamFactory);
+            }
+
             if (_sslStreamSettings != null)
             {
                 streamFactory = new SslStreamFactory(_sslStreamSettings, streamFactory);

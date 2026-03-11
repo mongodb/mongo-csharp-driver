@@ -15,7 +15,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
@@ -64,23 +63,25 @@ namespace MongoDB.Driver.Core.Operations
             get { return _messageEncoderSettings; }
         }
 
+        public string OperationName => "listIndexes";
+
         public bool RetryRequested
         {
             get => _retryRequested;
             set => _retryRequested = value;
         }
 
-        public IAsyncCursor<BsonDocument> Execute(IReadBinding binding, CancellationToken cancellationToken)
+        public IAsyncCursor<BsonDocument> Execute(OperationContext operationContext, IReadBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (var context = RetryableReadContext.Create(binding, _retryRequested, cancellationToken))
+            using (var context = RetryableReadContext.Create(operationContext, binding, _retryRequested))
             {
-                return Execute(context, cancellationToken);
+                return Execute(operationContext, context);
             }
         }
 
-        public IAsyncCursor<BsonDocument> Execute(RetryableReadContext context, CancellationToken cancellationToken)
+        public IAsyncCursor<BsonDocument> Execute(OperationContext operationContext, RetryableReadContext context)
         {
             Ensure.IsNotNull(context, nameof(context));
 
@@ -89,7 +90,7 @@ namespace MongoDB.Driver.Core.Operations
                 var operation = CreateOperation();
                 try
                 {
-                    var result = operation.Execute(context, cancellationToken);
+                    var result = operation.Execute(operationContext, context);
                     return CreateCursor(context.ChannelSource, context.Channel, result);
                 }
                 catch (MongoCommandException ex) when (IsCollectionNotFoundException(ex))
@@ -99,17 +100,17 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public async Task<IAsyncCursor<BsonDocument>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
+        public async Task<IAsyncCursor<BsonDocument>> ExecuteAsync(OperationContext operationContext, IReadBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (var context = await RetryableReadContext.CreateAsync(binding, _retryRequested, cancellationToken).ConfigureAwait(false))
+            using (var context = await RetryableReadContext.CreateAsync(operationContext, binding, _retryRequested).ConfigureAwait(false))
             {
-                return await ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
+                return await ExecuteAsync(operationContext, context).ConfigureAwait(false);
             }
         }
 
-        public async Task<IAsyncCursor<BsonDocument>> ExecuteAsync(RetryableReadContext context, CancellationToken cancellationToken)
+        public async Task<IAsyncCursor<BsonDocument>> ExecuteAsync(OperationContext operationContext, RetryableReadContext context)
         {
             Ensure.IsNotNull(context, nameof(context));
 
@@ -118,7 +119,7 @@ namespace MongoDB.Driver.Core.Operations
                 var operation = CreateOperation();
                 try
                 {
-                    var result = await operation.ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
+                    var result = await operation.ExecuteAsync(operationContext, context).ConfigureAwait(false);
                     return CreateCursor(context.ChannelSource, context.Channel, result);
                 }
                 catch (MongoCommandException ex) when (IsCollectionNotFoundException(ex))
@@ -137,7 +138,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "cursor", () => new BsonDocument("batchSize", _batchSize.Value), _batchSize.HasValue },
                 { "comment", _comment, _comment != null },
             };
-            return new ReadCommandOperation<BsonDocument>(databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            return new ReadCommandOperation<BsonDocument>(databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings, OperationName)
             {
                 RetryRequested = _retryRequested // might be overridden by retryable read context
             };

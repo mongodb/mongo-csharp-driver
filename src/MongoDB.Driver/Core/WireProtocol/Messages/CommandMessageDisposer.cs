@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,10 +18,10 @@ using MongoDB.Bson;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages
 {
-    internal sealed class CommandMessageDisposer : IDisposable
+    internal readonly struct CommandMessageDisposer : IDisposable
     {
         // private fields
-        private CommandMessage _message;
+        private readonly CommandMessage _message;
 
         // constructors
         public CommandMessageDisposer(CommandMessage message)
@@ -30,16 +30,19 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         }
 
         // public methods
-        public void Dispose()
+        public readonly void Dispose()
         {
-            foreach (var section in _message.Sections)
+            if (_message is not null)
             {
-                DisposeSection(section);
+                foreach (var section in _message.Sections)
+                {
+                    DisposeSection(section);
+                }
             }
         }
 
         // private methods
-        private void DisposeSection(CommandMessageSection section)
+        private static void DisposeSection(CommandMessageSection section)
         {
             switch (section.PayloadType)
             {
@@ -53,12 +56,12 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             }
         }
 
-        private void DisposeType0Section(Type0CommandMessageSection<RawBsonDocument> section)
+        private static void DisposeType0Section(Type0CommandMessageSection<RawBsonDocument> section)
         {
             section.Document.Dispose();
         }
 
-        private void DisposeType1Section(Type1CommandMessageSection<RawBsonDocument> section)
+        private static void DisposeType1Section(Type1CommandMessageSection<RawBsonDocument> section)
         {
             foreach (var document in section.Documents.GetBatchItems())
             {

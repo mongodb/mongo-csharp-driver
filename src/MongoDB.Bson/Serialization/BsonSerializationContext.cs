@@ -38,7 +38,7 @@ namespace MongoDB.Bson.Serialization
 
         // public properties
         /// <summary>
-        /// Gets a function that, when executed, will indicate whether the type 
+        /// Gets a function that, when executed, will indicate whether the type
         /// is a dynamic type.
         /// </summary>
         public Func<Type, bool> IsDynamicType

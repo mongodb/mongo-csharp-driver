@@ -224,6 +224,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return new AstComputedDocumentExpression(fields);
         }
 
+        public static AstExpression ComputedDocument(IEnumerable<(string Name, AstExpression Value)> fields)
+        {
+            return new AstComputedDocumentExpression(fields.Select(f => AstExpression.ComputedField(f.Name, f.Value)));
+        }
+
         public static AstComputedField ComputedField(string name, AstExpression value)
         {
             return new AstComputedField(name, value);
@@ -597,6 +602,21 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return new AstNaryExpression(AstNaryOperator.Max, [arg1, arg2]);
         }
 
+        public static AstExpression Median(AstExpression input)
+        {
+            return new AstMedianExpression(input);
+        }
+
+        public static AstAccumulatorExpression MedianAccumulator(AstExpression input)
+        {
+            return new AstMedianAccumulatorExpression(input);
+        }
+
+        public static AstWindowExpression MedianWindowExpression(AstExpression input, AstWindow window)
+        {
+            return new AstMedianWindowExpression(input, window);
+        }
+
         public static AstExpression Min(AstExpression array)
         {
             return new AstUnaryExpression(AstUnaryOperator.Min, array);
@@ -651,6 +671,21 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
 
             var flattenedArgs = FlattenNaryArgs(args, AstNaryOperator.Or);
             return new AstNaryExpression(AstNaryOperator.Or, flattenedArgs);
+        }
+
+        public static AstExpression Percentile(AstExpression input, AstExpression percentiles)
+        {
+            return new AstPercentileExpression(input, percentiles);
+        }
+
+        public static AstAccumulatorExpression PercentileAccumulator(AstExpression input, AstExpression percentiles)
+        {
+            return new AstPercentileAccumulatorExpression(input, percentiles);
+        }
+
+        public static AstWindowExpression PercentileWindowExpression(AstExpression input, AstExpression percentiles, AstWindow window)
+        {
+            return new AstPercentileWindowExpression(input, percentiles, window);
         }
 
         public static AstExpression PickExpression(AstPickOperator @operator, AstExpression source, AstSortFields sortBy, AstVarExpression @as, AstExpression selector, AstExpression n)

@@ -94,6 +94,7 @@ namespace MongoDB.Driver.Tests.GridFS
 
         [Theory]
         [ParameterAttributeData]
+        [Trait("Category", "Integration")]
         public void Read_should_return_expected_result(
             [Values(0.0, 0.5, 1.0, 1.5, 2.0, 2.5)] double fileLengthMultiple,
             [Values(0.0, 0.5)] double positionMultiple,
@@ -138,7 +139,7 @@ namespace MongoDB.Driver.Tests.GridFS
         {
             var subject = CreateSubject();
 
-            Action action = () => subject.Read(null, 0, 0);
+            Action action = () => _ = subject.Read(null!, 0, 0);
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("buffer");
         }
@@ -170,7 +171,7 @@ namespace MongoDB.Driver.Tests.GridFS
             }
             else
             {
-                action = () => subject.Read(buffer, offset, count);
+                action = () => _ = subject.Read(buffer, offset, count);
             }
 
             action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("count");
@@ -195,7 +196,7 @@ namespace MongoDB.Driver.Tests.GridFS
             }
             else
             {
-                action = () => subject.Read(buffer, offset, 0);
+                action = () => _ = subject.Read(buffer, offset, 0);
             }
 
             action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("offset");

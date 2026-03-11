@@ -30,6 +30,7 @@ using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests
 {
+    [Trait("Category", "Integration")]
     public class RetryableWritesTests : LoggableTestClass
     {
         // public constructors
@@ -92,26 +93,6 @@ namespace MongoDB.Driver.Tests
 
                 var e = exception.Should().BeOfType<MongoCommandException>().Subject;
                 e.HasErrorLabel("RetryableWriteError").Should().BeFalse();
-            }
-        }
-
-        [Fact]
-        public void Retryable_write_operation_should_throw_custom_exception_on_servers_using_mmapv1()
-        {
-            RequireSupportForRetryableWrites();
-            RequireServer.Check().ClusterType(ClusterType.ReplicaSet).StorageEngine("mmapv1");
-
-            using (var client = GetClient())
-            using (var session = client.StartSession())
-            {
-                var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
-                var collection = database.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
-                var document = new BsonDocument("x", 1);
-                var exception = Record.Exception(() => collection.InsertOne(document));
-
-                exception.Message.Should().Contain(
-                    "This MongoDB deployment does not support retryable writes. " +
-                    "Please add retryWrites=false to your connection string.");
             }
         }
 

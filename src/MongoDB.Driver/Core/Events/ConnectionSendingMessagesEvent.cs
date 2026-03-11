@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
@@ -28,7 +29,7 @@ namespace MongoDB.Driver.Core.Events
     {
         private readonly ConnectionId _connectionId;
         private readonly long? _operationId;
-        private readonly IReadOnlyList<int> _requestIds;
+        private readonly int _requestId;
         private readonly DateTime _timestamp;
 
         /// <summary>
@@ -37,10 +38,25 @@ namespace MongoDB.Driver.Core.Events
         /// <param name="connectionId">The connection identifier.</param>
         /// <param name="requestIds">The request ids.</param>
         /// <param name="operationId">The operation identifier.</param>
+        [Obsolete("Support for sending multiple messages has been removed, use the constructor with single requestId instead.")]
         public ConnectionSendingMessagesEvent(ConnectionId connectionId, IReadOnlyList<int> requestIds, long? operationId)
         {
             _connectionId = connectionId;
-            _requestIds = requestIds;
+            _requestId = requestIds.Single();
+            _operationId = operationId;
+            _timestamp = DateTime.UtcNow;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConnectionSendingMessagesEvent" /> struct.
+        /// </summary>
+        /// <param name="connectionId">The connection identifier.</param>
+        /// <param name="requestId">The request id.</param>
+        /// <param name="operationId">The operation identifier.</param>
+        public ConnectionSendingMessagesEvent(ConnectionId connectionId, int requestId, long? operationId)
+        {
+            _connectionId = connectionId;
+            _requestId = requestId;
             _operationId = operationId;
             _timestamp = DateTime.UtcNow;
         }
@@ -62,11 +78,20 @@ namespace MongoDB.Driver.Core.Events
         }
 
         /// <summary>
+        /// Gets the request id.
+        /// </summary>
+        public int RequestId
+        {
+            get { return _requestId; }
+        }
+
+        /// <summary>
         /// Gets the request ids.
         /// </summary>
+        [Obsolete($"Support for sending multiple messages has been removed, use {nameof(RequestId)} instead.")]
         public IReadOnlyList<int> RequestIds
         {
-            get { return _requestIds; }
+            get { return [_requestId]; }
         }
 
         /// <summary>

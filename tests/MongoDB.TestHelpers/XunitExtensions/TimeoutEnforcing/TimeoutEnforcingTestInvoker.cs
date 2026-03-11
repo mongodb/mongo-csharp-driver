@@ -90,11 +90,11 @@ namespace MongoDB.TestHelpers.XunitExtensions.TimeoutEnforcing
             var testExceptionHandler = testClassInstance as ITestExceptionHandler;
 
             decimal result;
+            using var unobservedExceptionDebugger = UnobservedExceptionDebugger.Create();
             try
             {
                 var baseTask = InvokeBaseOnTaskScheduler(testClassInstance);
                 var resultTask = await Task.WhenAny(baseTask, Task.Delay(timeout));
-
                 if (resultTask != baseTask)
                 {
                     throw new TestTimeoutException((int)timeout.TotalMilliseconds);
@@ -120,6 +120,42 @@ namespace MongoDB.TestHelpers.XunitExtensions.TimeoutEnforcing
             }
 
             return result;
+        }
+
+        private class UnobservedExceptionDebugger : IDisposable
+        {
+            private Exception _unobservedException;
+
+            private UnobservedExceptionDebugger()
+            {
+                TaskScheduler.UnobservedTaskException += UnobservedTaskExceptionEventHandler;
+            }
+
+            public static UnobservedExceptionDebugger Create()
+            {
+#if UNOBSERVED_TASK_EXCEPTION_DEBUGGING
+                return new UnobservedExceptionDebugger();
+#else
+                return null;
+#endif
+            }
+
+            public void Dispose()
+            {
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                TaskScheduler.UnobservedTaskException -= UnobservedTaskExceptionEventHandler;
+
+                if (_unobservedException != null)
+                {
+                    throw _unobservedException;
+                }
+            }
+
+            private void UnobservedTaskExceptionEventHandler(object sender, UnobservedTaskExceptionEventArgs unobservedExceptionArgs)
+            {
+                _unobservedException = unobservedExceptionArgs.Exception;
+            }
         }
     }
 }

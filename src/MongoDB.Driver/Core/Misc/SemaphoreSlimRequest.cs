@@ -22,6 +22,7 @@ namespace MongoDB.Driver.Core.Misc
     /// <summary>
     /// Represents a tentative request to acquire a SemaphoreSlim.
     /// </summary>
+    [Obsolete("SemaphoreSlimRequest is deprecated and will be removed in future release")]
     public sealed class SemaphoreSlimRequest : IDisposable
     {
         // private fields
@@ -39,12 +40,23 @@ namespace MongoDB.Driver.Core.Misc
         /// <param name="semaphore">The semaphore.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         public SemaphoreSlimRequest(SemaphoreSlim semaphore, CancellationToken cancellationToken)
+            : this(semaphore, Timeout.InfiniteTimeSpan, cancellationToken)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SemaphoreSlimRequest"/> class.
+        /// </summary>
+        /// <param name="semaphore">The semaphore.</param>
+        /// <param name="timeout">The timeout.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        public SemaphoreSlimRequest(SemaphoreSlim semaphore, TimeSpan timeout, CancellationToken cancellationToken)
         {
             _semaphore = Ensure.IsNotNull(semaphore, nameof(semaphore));
 
             _disposeCancellationTokenSource = new CancellationTokenSource();
             _linkedCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _disposeCancellationTokenSource.Token);
-            _task = semaphore.WaitAsync(_linkedCancellationTokenSource.Token);
+            _task = semaphore.WaitAsync(timeout, _linkedCancellationTokenSource.Token);
         }
 
         // public properties
@@ -56,7 +68,7 @@ namespace MongoDB.Driver.Core.Misc
         /// </value>
         public Task Task => _task;
 
-        // public methods        
+        // public methods
         /// <inheritdoc/>
         public void Dispose()
         {

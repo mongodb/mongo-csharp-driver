@@ -18,9 +18,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using MongoDB.Bson;
+using Xunit;
 
 namespace MongoDB.Driver.Examples
 {
+    [Trait("Category", "Integration")]
     public abstract class PrimerTestFixture
     {
         protected static IMongoClient __client;

@@ -14,22 +14,39 @@
 */
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
-using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Operations;
 
 namespace MongoDB.Driver
 {
-    internal interface IOperationExecutor
+    internal interface IOperationExecutor : IDisposable
     {
-        TResult ExecuteReadOperation<TResult>(IReadBinding binding, IReadOperation<TResult> operation, CancellationToken cancellationToken);
-        Task<TResult> ExecuteReadOperationAsync<TResult>(IReadBinding binding, IReadOperation<TResult> operation, CancellationToken cancellationToken);
+        TResult ExecuteReadOperation<TResult>(
+            OperationContext operationContext,
+            IClientSessionHandle session,
+            IReadOperation<TResult> operation,
+            ReadPreference readPreference,
+            bool allowChannelPinning);
 
-        TResult ExecuteWriteOperation<TResult>(IWriteBinding binding, IWriteOperation<TResult> operation, CancellationToken cancellationToken);
-        Task<TResult> ExecuteWriteOperationAsync<TResult>(IWriteBinding binding, IWriteOperation<TResult> operation, CancellationToken cancellationToken);
+        Task<TResult> ExecuteReadOperationAsync<TResult>(
+            OperationContext operationContext,
+            IClientSessionHandle session,
+            IReadOperation<TResult> operation,
+            ReadPreference readPreference,
+            bool allowChannelPinning);
 
-        IClientSessionHandle StartImplicitSession(CancellationToken cancellationToken);
-        Task<IClientSessionHandle> StartImplicitSessionAsync(CancellationToken cancellationToken);
+        TResult ExecuteWriteOperation<TResult>(
+            OperationContext operationContext,
+            IClientSessionHandle session,
+            IWriteOperation<TResult> operation,
+            bool allowChannelPinning);
+
+        Task<TResult> ExecuteWriteOperationAsync<TResult>(
+            OperationContext operationContext,
+            IClientSessionHandle session,
+            IWriteOperation<TResult> operation,
+            bool allowChannelPinning);
+
+        IClientSessionHandle StartImplicitSession();
     }
 }

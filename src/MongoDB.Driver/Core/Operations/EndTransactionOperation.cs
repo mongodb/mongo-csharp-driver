@@ -1,4 +1,4 @@
-﻿/* Copyright 2018-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
@@ -49,48 +48,56 @@ namespace MongoDB.Driver.Core.Operations
 
         public WriteConcern WriteConcern => _writeConcern;
 
+        public string OperationName => CommandName;
+
         protected abstract string CommandName { get; }
 
-        public virtual BsonDocument Execute(IReadBinding binding, CancellationToken cancellationToken)
+        public virtual BsonDocument Execute(OperationContext operationContext, IReadBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (var channelSource = binding.GetReadChannelSource(cancellationToken))
-            using (var channel = channelSource.GetChannel(cancellationToken))
+            using (var channelSource = binding.GetReadChannelSource(operationContext))
+            using (var channel = channelSource.GetChannel(operationContext))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
-                var operation = CreateOperation();
-                return operation.Execute(channelBinding, cancellationToken);
+                var operation = CreateOperation(operationContext);
+                return operation.Execute(operationContext, channelBinding);
             }
         }
 
-        public virtual async Task<BsonDocument> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
+        public virtual async Task<BsonDocument> ExecuteAsync(OperationContext operationContext, IReadBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (var channelSource = await binding.GetReadChannelSourceAsync(cancellationToken).ConfigureAwait(false))
-            using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
+            using (var channelSource = await binding.GetReadChannelSourceAsync(operationContext).ConfigureAwait(false))
+            using (var channel = await channelSource.GetChannelAsync(operationContext).ConfigureAwait(false))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
-                var operation = CreateOperation();
-                return await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
+                var operation = CreateOperation(operationContext);
+                return await operation.ExecuteAsync(operationContext, channelBinding).ConfigureAwait(false);
             }
         }
 
-        protected virtual BsonDocument CreateCommand()
+        protected virtual BsonDocument CreateCommand(OperationContext operationContext)
         {
+            var writeConcern = _writeConcern;
+            if (operationContext.IsRootContextTimeoutConfigured())
+            {
+                writeConcern = writeConcern.With(wTimeout: null);
+            }
+
             return new BsonDocument
             {
                 { CommandName, 1 },
-                { "writeConcern", () => _writeConcern.ToBsonDocument(), !_writeConcern.IsServerDefault },
+                { "writeConcern", () => _writeConcern.ToBsonDocument(), !writeConcern.IsServerDefault },
                 { "recoveryToken", _recoveryToken, _recoveryToken != null }
             };
         }
 
-        private IReadOperation<BsonDocument> CreateOperation()
+        private IReadOperation<BsonDocument> CreateOperation(OperationContext operationContext)
         {
-            var command = CreateCommand();
-            return new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            var command = CreateCommand(operationContext);
+            return new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, _messageEncoderSettings, OperationName)
             {
                 RetryRequested = false
             };
@@ -134,11 +141,11 @@ namespace MongoDB.Driver.Core.Operations
 
         protected override string CommandName => "commitTransaction";
 
-        public override BsonDocument Execute(IReadBinding binding, CancellationToken cancellationToken)
+        public override BsonDocument Execute(OperationContext operationContext, IReadBinding binding)
         {
             try
             {
-                return base.Execute(binding, cancellationToken);
+                return base.Execute(operationContext, binding);
             }
             catch (MongoException exception) when (ShouldReplaceTransientTransactionErrorWithUnknownTransactionCommitResult(exception))
             {
@@ -147,11 +154,11 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public override async Task<BsonDocument> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
+        public override async Task<BsonDocument> ExecuteAsync(OperationContext operationContext, IReadBinding binding)
         {
             try
             {
-                return await base.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+                return await base.ExecuteAsync(operationContext, binding).ConfigureAwait(false);
             }
             catch (MongoException exception) when (ShouldReplaceTransientTransactionErrorWithUnknownTransactionCommitResult(exception))
             {
@@ -160,10 +167,10 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        protected override BsonDocument CreateCommand()
+        protected override BsonDocument CreateCommand(OperationContext operationContext)
         {
-            var command = base.CreateCommand();
-            if (_maxCommitTime.HasValue)
+            var command = base.CreateCommand(operationContext);
+            if (_maxCommitTime.HasValue && !operationContext.IsRootContextTimeoutConfigured())
             {
                 command.Add("maxTimeMS", (long)_maxCommitTime.Value.TotalMilliseconds);
             }

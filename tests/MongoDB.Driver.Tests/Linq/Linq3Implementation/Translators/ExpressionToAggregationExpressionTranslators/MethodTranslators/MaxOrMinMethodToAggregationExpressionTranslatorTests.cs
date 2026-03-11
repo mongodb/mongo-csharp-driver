@@ -13,24 +13,30 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
-    public class MaxOrMinMethodToAggregationExpressionTranslatorTests : Linq3IntegrationTest
+    public class MaxOrMinMethodToAggregationExpressionTranslatorTests : LinqIntegrationTest<MaxOrMinMethodToAggregationExpressionTranslatorTests.ClassFixture>
     {
+        public MaxOrMinMethodToAggregationExpressionTranslatorTests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void Max_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.Documents.AsQueryable().Max()) :
@@ -48,7 +54,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Max_with_selector_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.Documents.AsQueryable().Max(x => x["X"])) :
@@ -66,7 +72,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Max_of_decimals_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.Decimals.AsQueryable().Max()) :
@@ -84,7 +90,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Max_of_decimals_with_selector_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.Decimals.AsQueryable().Max(x => x * 2.0M)) :
@@ -102,7 +108,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Max_of_doubles_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.Doubles.AsQueryable().Max()) :
@@ -120,7 +126,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Max_of_doubles_with_selector_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.Doubles.AsQueryable().Max(x => x * 2.0)) :
@@ -138,7 +144,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Max_of_floats_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.Floats.AsQueryable().Max()) :
@@ -156,7 +162,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Max_of_floats_with_selector_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.Floats.AsQueryable().Max(x => x * 2.0F)) :
@@ -174,7 +180,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Max_of_ints_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.Ints.AsQueryable().Max()) :
@@ -192,7 +198,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Max_of_ints_with_selector_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.Ints.AsQueryable().Max(x => x * 2)) :
@@ -210,7 +216,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Max_of_longs_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.Longs.AsQueryable().Max()) :
@@ -228,7 +234,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Max_of_longs_with_selector_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.Longs.AsQueryable().Max(x => x * 2L)) :
@@ -246,7 +252,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Max_of_nullable_decimals_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.NullableDecimals.AsQueryable().Max()) :
@@ -264,7 +270,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Max_of_nullable_decimals_with_selector_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.NullableDecimals.AsQueryable().Max(x => x * 2.0M)) :
@@ -282,7 +288,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Max_of_nullable_doubles_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.NullableDoubles.AsQueryable().Max()) :
@@ -300,7 +306,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Max_of_nullable_doubles_with_selector_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.NullableDoubles.AsQueryable().Max(x => x * 2.0)) :
@@ -318,7 +324,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Max_of_nullable_floats_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.NullableFloats.AsQueryable().Max()) :
@@ -336,7 +342,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Max_of_nullable_floats_with_selector_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.NullableFloats.AsQueryable().Max(x => x * 2.0F)) :
@@ -354,7 +360,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Max_of_nullable_ints_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.NullableInts.AsQueryable().Max()) :
@@ -372,7 +378,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Max_of_nullable_ints_with_selector_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.NullableInts.AsQueryable().Max(x => x * 2)) :
@@ -390,7 +396,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Max_of_nullable_longs_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.NullableLongs.AsQueryable().Max()) :
@@ -408,7 +414,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Max_of_nullable_longs_with_selector_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.NullableLongs.AsQueryable().Max(x => x * 2L)) :
@@ -426,7 +432,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Min_should_work(
            [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.Documents.AsQueryable().Min()) :
@@ -444,7 +450,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Min_with_selector_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.Documents.AsQueryable().Min(x => x["X"])) :
@@ -462,7 +468,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Min_of_decimals_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.Decimals.AsQueryable().Min()) :
@@ -480,7 +486,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Min_of_decimals_with_selector_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.Decimals.AsQueryable().Min(x => x * 2.0M)) :
@@ -498,7 +504,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Min_of_doubles_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.Doubles.AsQueryable().Min()) :
@@ -516,7 +522,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Min_of_doubles_with_selector_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.Doubles.AsQueryable().Min(x => x * 2.0)) :
@@ -534,7 +540,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Min_of_floats_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.Floats.AsQueryable().Min()) :
@@ -552,7 +558,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Min_of_floats_with_selector_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.Floats.AsQueryable().Min(x => x * 2.0F)) :
@@ -570,7 +576,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Min_of_ints_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.Ints.AsQueryable().Min()) :
@@ -588,7 +594,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Min_of_ints_with_selector_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.Ints.AsQueryable().Min(x => x * 2)) :
@@ -605,7 +611,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Min_of_longs_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.Longs.AsQueryable().Min()) :
@@ -623,7 +629,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Min_of_longs_with_selector_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.Longs.AsQueryable().Min(x => x * 2L)) :
@@ -641,7 +647,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Min_of_nullable_decimals_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.NullableDecimals.AsQueryable().Min()) :
@@ -659,7 +665,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Min_of_nullable_decimals_with_selector_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.NullableDecimals.AsQueryable().Min(x => x * 2.0M)) :
@@ -677,7 +683,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Min_of_nullable_doubles_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.NullableDoubles.AsQueryable().Min()) :
@@ -695,7 +701,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Min_of_nullable_doubles_with_selector_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.NullableDoubles.AsQueryable().Min(x => x * 2.0)) :
@@ -713,7 +719,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Min_of_nullable_floats_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.NullableFloats.AsQueryable().Min()) :
@@ -731,7 +737,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Min_of_nullable_floats_with_selector_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.NullableFloats.AsQueryable().Min(x => x * 2.0F)) :
@@ -749,7 +755,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Min_of_nullable_ints_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.NullableInts.AsQueryable().Min()) :
@@ -766,7 +772,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Min_of_nullable_ints_with_selector_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.NullableInts.AsQueryable().Min(x => x * 2)) :
@@ -784,7 +790,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Min_of_nullable_longs_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.NullableLongs.AsQueryable().Min()) :
@@ -802,7 +808,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Min_of_nullable_longs_with_selector_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.NullableLongs.AsQueryable().Min(x => x * 2L)) :
@@ -815,11 +821,26 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             results.Should().Equal(null, null, 6L);
         }
 
-        private IMongoCollection<C> CreateCollection()
+        public class C
         {
-            var collection = GetCollection<C>("test");
-            CreateCollection(
-                collection,
+            public int Id { get; set; }
+            [BsonRepresentation(BsonType.Decimal128)] public decimal[] Decimals { get; set; }
+            public BsonDocument[] Documents { get; set; }
+            public double[] Doubles { get; set; }
+            public float[] Floats { get; set; }
+            public int[] Ints { get; set; }
+            public long[] Longs { get; set; }
+            [BsonRepresentation(BsonType.Decimal128)] public decimal?[] NullableDecimals { get; set; }
+            public double?[] NullableDoubles { get; set; }
+            public float?[] NullableFloats { get; set; }
+            public int?[] NullableInts { get; set; }
+            public long?[] NullableLongs { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
                 new C
                 {
                     Id = 1,
@@ -864,24 +885,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                     NullableFloats = new float?[] { null, 3.0F },
                     NullableInts = new int?[] { null, 3 },
                     NullableLongs = new long?[] { null, 3L }
-                });
-            return collection;
-        }
-
-        private class C
-        {
-            public int Id { get; set; }
-            [BsonRepresentation(BsonType.Decimal128)] public decimal[] Decimals { get; set; }
-            public BsonDocument[] Documents { get; set; }
-            public double[] Doubles { get; set; }
-            public float[] Floats { get; set; }
-            public int[] Ints { get; set; }
-            public long[] Longs { get; set; }
-            [BsonRepresentation(BsonType.Decimal128)] public decimal?[] NullableDecimals { get; set; }
-            public double?[] NullableDoubles { get; set; }
-            public float?[] NullableFloats { get; set; }
-            public int?[] NullableInts { get; set; }
-            public long?[] NullableLongs { get; set; }
+                }
+            ];
         }
     }
 }

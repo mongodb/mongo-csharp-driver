@@ -20,32 +20,17 @@ using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
 using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
-using MongoDB.Driver.Support;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
     internal static class DefaultIfEmptyMethodToAggregationExpressionTranslator
     {
-        private static readonly MethodInfo[] __defaultIfEmptyMethods =
-        {
-            EnumerableMethod.DefaultIfEmpty,
-            EnumerableMethod.DefaultIfEmptyWithDefaultValue,
-            QueryableMethod.DefaultIfEmpty,
-            QueryableMethod.DefaultIfEmptyWithDefaultValue,
-        };
-
-        private static readonly MethodInfo[] __defaultIfEmptyWithDefaultValueMethods =
-        {
-            EnumerableMethod.DefaultIfEmptyWithDefaultValue,
-            QueryableMethod.DefaultIfEmptyWithDefaultValue,
-        };
-
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__defaultIfEmptyMethods))
+            if (method.IsOneOf(EnumerableOrQueryableMethod.DefaultIfEmptyOverloads))
             {
                 var sourceExpression = arguments[0];
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
@@ -54,7 +39,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                 var (sourceVarBinding, sourceAst) = AstExpression.UseVarIfNotSimple("source", sourceTranslation.Ast);
                 AstExpression defaultValueAst;
-                if (method.IsOneOf(__defaultIfEmptyWithDefaultValueMethods))
+                if (method.IsOneOf(EnumerableOrQueryableMethod.DefaultIfEmptyWithDefaultValue))
                 {
                     var defaultValueExpression = arguments[1];
                     var defaultValueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, defaultValueExpression);

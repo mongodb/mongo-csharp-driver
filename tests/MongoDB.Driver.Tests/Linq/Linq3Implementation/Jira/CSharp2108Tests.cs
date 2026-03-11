@@ -14,23 +14,29 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp2108Tests : Linq3IntegrationTest
+    public class CSharp2108Tests : LinqIntegrationTest<CSharp2108Tests.ClassFixture>
     {
+        public CSharp2108Tests(ClassFixture fixture)
+            : base(fixture, server => server.Supports(Feature.DateOperatorsNewIn50))
+        {
+        }
+
         [Fact]
         public void Aggregate_Project_should_work()
         {
-            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var endDate = DateTime.Parse("2020-01-03Z", null, DateTimeStyles.AdjustToUniversal);
 
             var queryable = collection.Aggregate()
@@ -52,8 +58,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Queryable_Select_should_work()
         {
-            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var endDate = DateTime.Parse("2020-01-03Z", null, DateTimeStyles.AdjustToUniversal);
 
             var queryable = collection.AsQueryable()
@@ -72,24 +77,19 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results[1].ShouldBeEquivalentTo(new { Days = 1 });
         }
 
-        private IMongoCollection<C> CreateCollection()
-        {
-            var collection = GetCollection<C>();
-
-            var documents = new[]
-            {
-                new C { Id = 1, StartDate = DateTime.Parse("2020-01-01Z", null, DateTimeStyles.AdjustToUniversal) },
-                new C { Id = 2, StartDate = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal) }
-            };
-            CreateCollection(collection, documents);
-
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public DateTime StartDate { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, StartDate = DateTime.Parse("2020-01-01Z", null, DateTimeStyles.AdjustToUniversal) },
+                new C { Id = 2, StartDate = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal) }
+            ];
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Diagnostics;
 
 namespace MongoDB.Driver.Core.Misc
 {
@@ -28,9 +29,13 @@ namespace MongoDB.Driver.Core.Misc
         }
 
         // public properties
+        public long Frequency => Stopwatch.Frequency;
+
         public DateTime UtcNow
         {
             get { return DateTime.UtcNow; }
         }
+
+        public long GetTimestamp() => Stopwatch.GetTimestamp();
     }
 }

@@ -16,7 +16,6 @@
 using System;
 using System.Net;
 using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Driver.Core.Clusters;
@@ -75,29 +74,23 @@ namespace MongoDB.Driver.Core.Bindings
 
         [Theory]
         [ParameterAttributeData]
-        public void GetReadChannelSource_should_throw_if_disposed(
+        public async Task GetReadChannelSource_should_throw_if_disposed(
             [Values(false, true)]
             bool async)
         {
             var subject = new ReadPreferenceBinding(_mockCluster.Object, ReadPreference.Primary, NoCoreSession.NewHandle());
             subject.Dispose();
 
-            Action act;
-            if (async)
-            {
-                act = () => subject.GetReadChannelSourceAsync(CancellationToken.None).GetAwaiter().GetResult();
-            }
-            else
-            {
-                act = () => subject.GetReadChannelSource(CancellationToken.None);
-            }
+            var exception = async ?
+                await Record.ExceptionAsync(() => subject.GetReadChannelSourceAsync(OperationContext.NoTimeout)) :
+                Record.Exception(() => subject.GetReadChannelSource(OperationContext.NoTimeout));
 
-            act.ShouldThrow<ObjectDisposedException>();
+            exception.Should().BeOfType<ObjectDisposedException>();
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void GetReadChannelSource_should_use_a_read_preference_server_selector_to_select_the_server_from_the_cluster(
+        public async Task GetReadChannelSource_should_use_a_read_preference_server_selector_to_select_the_server_from_the_cluster(
             [Values(false, true)]
             bool async)
         {
@@ -118,35 +111,32 @@ namespace MongoDB.Driver.Core.Bindings
 
             if (async)
             {
-                _mockCluster.Setup(c => c.SelectServerAsync(It.IsAny<ReadPreferenceServerSelector>(), CancellationToken.None)).Returns(Task.FromResult(selectedServer));
+                _mockCluster.Setup(c => c.SelectServerAsync(It.IsAny<OperationContext>(), It.IsAny<ReadPreferenceServerSelector>())).Returns(Task.FromResult(selectedServer));
 
-                subject.GetReadChannelSourceAsync(CancellationToken.None).GetAwaiter().GetResult();
+                await subject.GetReadChannelSourceAsync(OperationContext.NoTimeout);
 
-                _mockCluster.Verify(c => c.SelectServerAsync(It.IsAny<ReadPreferenceServerSelector>(), CancellationToken.None), Times.Once);
+                _mockCluster.Verify(c => c.SelectServerAsync(It.IsAny<OperationContext>(), It.IsAny<ReadPreferenceServerSelector>()), Times.Once);
             }
             else
             {
-                _mockCluster.Setup(c => c.SelectServer(It.IsAny<ReadPreferenceServerSelector>(), CancellationToken.None)).Returns(selectedServer);
+                _mockCluster.Setup(c => c.SelectServer(It.IsAny<OperationContext>(), It.IsAny<ReadPreferenceServerSelector>())).Returns(selectedServer);
 
-                subject.GetReadChannelSource(CancellationToken.None);
+                subject.GetReadChannelSource(OperationContext.NoTimeout);
 
-                _mockCluster.Verify(c => c.SelectServer(It.IsAny<ReadPreferenceServerSelector>(), CancellationToken.None), Times.Once);
+                _mockCluster.Verify(c => c.SelectServer(It.IsAny<OperationContext>(), It.IsAny<ReadPreferenceServerSelector>()), Times.Once);
             }
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void GetReadChannelSource_should_fork_the_session(
+        public async Task GetReadChannelSource_should_fork_the_session(
             [Values(false, true)] bool async)
         {
             var mockSession = new Mock<ICoreSessionHandle>();
             var subject = new ReadPreferenceBinding(_mockCluster.Object, ReadPreference.Primary, mockSession.Object);
-            using var cancellationTokenSource = new CancellationTokenSource();
-            var cancellationToken = cancellationTokenSource.Token;
-
             var selectedServer = new Mock<IServer>().Object;
-            _mockCluster.Setup(m => m.SelectServer(It.IsAny<IServerSelector>(), cancellationToken)).Returns(selectedServer);
-            _mockCluster.Setup(m => m.SelectServerAsync(It.IsAny<IServerSelector>(), cancellationToken)).Returns(Task.FromResult(selectedServer));
+            _mockCluster.Setup(m => m.SelectServer(It.IsAny<OperationContext>(), It.IsAny<IServerSelector>())).Returns(selectedServer);
+            _mockCluster.Setup(m => m.SelectServerAsync(It.IsAny<OperationContext>(), It.IsAny<IServerSelector>())).Returns(Task.FromResult(selectedServer));
             var forkedSession = new Mock<ICoreSessionHandle>().Object;
             mockSession.Setup(m => m.Fork()).Returns(forkedSession);
 
@@ -162,15 +152,9 @@ namespace MongoDB.Driver.Core.Bindings
             var finalClusterDescription = initialClusterDescription.WithType(ClusterType.Standalone);
             _mockCluster.SetupSequence(c => c.Description).Returns(initialClusterDescription).Returns(finalClusterDescription);
 
-            IChannelSourceHandle result;
-            if (async)
-            {
-                result = subject.GetReadChannelSourceAsync(cancellationToken).GetAwaiter().GetResult();
-            }
-            else
-            {
-                result = subject.GetReadChannelSource(cancellationToken);
-            }
+            var result = async ?
+                await subject.GetReadChannelSourceAsync(OperationContext.NoTimeout) :
+                subject.GetReadChannelSource(OperationContext.NoTimeout);
 
             var handle = result.Should().BeOfType<ChannelSourceHandle>().Subject;
             var referenceCounted = handle._reference().Should().BeOfType<ReferenceCounted<IChannelSource>>().Subject;

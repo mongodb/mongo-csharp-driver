@@ -13,20 +13,29 @@
 * limitations under the License.
 */
 
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionToPipelineTranslators
 {
-    public class OfTypeMethodToPipelineTranslatorTests: Linq3IntegrationTest
+    public class OfTypeMethodToPipelineTranslatorTests: LinqIntegrationTest<OfTypeMethodToPipelineTranslatorTests.ClassFixture>
     {
+        public OfTypeMethodToPipelineTranslatorTests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void OfType_should_return_expected_results()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             AssertTypeOf<Account>(collection, "{ $match: { _t : 'Account' } }", 1, 2, 3);
             AssertTypeOf<Company>(collection, "{ $match: { _t : 'Company' } }", 1, 2);
@@ -47,18 +56,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             results.Select(x => x.Id).Should().BeEquivalentTo(expectedIds);
         }
 
-        private IMongoCollection<Entity> CreateCollection()
-        {
-            var collection = GetCollection<Entity>("test");
-            CreateCollection(
-                collection,
-                new Company { Id = 1 },
-                new Company { Id = 2 },
-                new Contact { Id = 3 });
-
-            return collection;
-        }
-
         [BsonDiscriminator(RootClass = true)]
         [BsonKnownTypes(typeof(Account), typeof(Contact), typeof(Company))]
         public abstract class Entity
@@ -76,6 +73,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
 
         public class Company : Account
         {
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<Entity>
+        {
+            protected override IEnumerable<Entity> InitialData =>
+            [
+                new Company { Id = 1 },
+                new Company { Id = 2 },
+                new Contact { Id = 3 }
+            ];
         }
     }
 }

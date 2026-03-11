@@ -30,24 +30,24 @@ namespace MongoDB.Driver.Core.Bindings
     {
         ReadPreference ReadPreference { get; }
 
-        IChannelSourceHandle GetReadChannelSource(CancellationToken cancellationToken);
-        Task<IChannelSourceHandle> GetReadChannelSourceAsync(CancellationToken cancellationToken);
+        IChannelSourceHandle GetReadChannelSource(OperationContext operationContext);
+        Task<IChannelSourceHandle> GetReadChannelSourceAsync(OperationContext operationContext);
 
-        IChannelSourceHandle GetReadChannelSource(IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken);
-        Task<IChannelSourceHandle> GetReadChannelSourceAsync(IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken);
+        IChannelSourceHandle GetReadChannelSource(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers);
+        Task<IChannelSourceHandle> GetReadChannelSourceAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers);
     }
 
     internal interface IWriteBinding : IBinding
     {
-        IChannelSourceHandle GetWriteChannelSource(CancellationToken cancellationToken);
-        IChannelSourceHandle GetWriteChannelSource(IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken);
-        IChannelSourceHandle GetWriteChannelSource(IMayUseSecondaryCriteria mayUseSecondary, CancellationToken cancellationToken);
-        IChannelSourceHandle GetWriteChannelSource(IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondary, CancellationToken cancellationToken);
+        IChannelSourceHandle GetWriteChannelSource(OperationContext operationContext);
+        IChannelSourceHandle GetWriteChannelSource(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers);
+        IChannelSourceHandle GetWriteChannelSource(OperationContext operationContext, IMayUseSecondaryCriteria mayUseSecondary);
+        IChannelSourceHandle GetWriteChannelSource(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondary);
 
-        Task<IChannelSourceHandle> GetWriteChannelSourceAsync(CancellationToken cancellationToken);
-        Task<IChannelSourceHandle> GetWriteChannelSourceAsync(IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken);
-        Task<IChannelSourceHandle> GetWriteChannelSourceAsync(IMayUseSecondaryCriteria mayUseSecondary, CancellationToken cancellationToken);
-        Task<IChannelSourceHandle> GetWriteChannelSourceAsync(IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondary, CancellationToken cancellationToken);
+        Task<IChannelSourceHandle> GetWriteChannelSourceAsync(OperationContext operationContext);
+        Task<IChannelSourceHandle> GetWriteChannelSourceAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers);
+        Task<IChannelSourceHandle> GetWriteChannelSourceAsync(OperationContext operationContext, IMayUseSecondaryCriteria mayUseSecondary);
+        Task<IChannelSourceHandle> GetWriteChannelSourceAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondary);
     }
 
     internal interface IReadWriteBinding : IReadBinding, IWriteBinding

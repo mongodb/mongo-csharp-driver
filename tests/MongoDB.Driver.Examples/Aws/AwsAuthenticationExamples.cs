@@ -53,6 +53,7 @@ namespace MongoDB.Driver.Examples.Aws
     /// 4. To work with EC2 container credentials from EC2 instance metadata make sure a test is launched on EC2 env and AWS_CONTAINER_CREDENTIALS_* is not set
     /// 5. To work with Aws WebIdentityToken make sure that AWS_WEB_IDENTITY_TOKEN_FILE, AWS_ROLE_ARN and AWS_ROLE_SESSION_NAME are configured
     /// </summary>
+    [Trait("Category", "Integration")]
     public class AwsAuthenticationExamples
     {
         private static readonly string __connectionStringHosts = "<host_address>";

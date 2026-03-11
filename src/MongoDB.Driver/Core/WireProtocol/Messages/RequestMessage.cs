@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Threading;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages
@@ -39,25 +38,18 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
 
         // fields
         private readonly int _requestId;
-        private readonly Func<bool> _shouldBeSent;
         private bool _wasSent;
 
         // constructors
-        protected RequestMessage(int requestId, Func<bool> shouldBeSent = null)
+        protected RequestMessage(int requestId)
         {
             _requestId = requestId;
-            _shouldBeSent = shouldBeSent;
         }
 
         // properties
         public int RequestId
         {
             get { return _requestId; }
-        }
-
-        public Func<bool> ShouldBeSent
-        {
-            get { return _shouldBeSent; }
         }
 
         public bool WasSent

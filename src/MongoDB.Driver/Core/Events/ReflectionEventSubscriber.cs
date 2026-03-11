@@ -22,7 +22,7 @@ using MongoDB.Driver.Core.Misc;
 namespace MongoDB.Driver.Core.Events
 {
     /// <summary>
-    /// Subscribes methods with a single argument to events 
+    /// Subscribes methods with a single argument to events
     /// of that single argument's type.
     /// </summary>
     public sealed class ReflectionEventSubscriber : IEventSubscriber

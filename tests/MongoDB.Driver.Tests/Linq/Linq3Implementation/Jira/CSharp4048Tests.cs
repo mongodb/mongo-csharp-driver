@@ -16,17 +16,26 @@
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4048Tests : Linq3IntegrationTest
+    public class CSharp4048Tests : LinqIntegrationTest<CSharp4048Tests.ClassFixture>
     {
+        private static readonly bool FilterLimitIsSupported = Feature.FilterLimit.IsSupported(CoreTestConfiguration.MaxWireVersion);
+
+        public CSharp4048Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Array_ArrayIndex_of_root_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -51,7 +60,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Array_ArrayIndex_of_scalar_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -76,7 +85,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void List_get_Item_of_root_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -101,7 +110,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void List_get_Item_of_scalar_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -112,7 +121,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var expectedStages = new[]
             {
                 "{ $group : { _id : '$_id', _elements : { $push: '$X' } } }",
-                "{ $project : { _id : '$_id' Result : { $arrayElemAt : ['$_elements', 0] } } }",
+                "{ $project : { _id : '$_id', Result : { $arrayElemAt : ['$_elements', 0] } } }",
                 "{ $sort : { _id : 1 } }"
             };
             AssertStages(stages, expectedStages);
@@ -126,7 +135,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Aggregate_with_func_of_root_should_return_expected_result()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -151,7 +160,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Aggregate_with_func_of_scalar_should_return_expected_result()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -176,7 +185,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Aggregate_with_seed_and_func_of_root_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -201,7 +210,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Aggregate_with_seed_and_func_of_scalar_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -226,7 +235,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Aggregate_with_seed_and_func_and_resultSelector_of_root_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -251,7 +260,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Aggregate_with_seed_and_func_and_resultSelector_of_scalar_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -276,7 +285,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_All_of_root_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -301,7 +310,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_All_of_scalar_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -326,7 +335,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Any_of_root_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -351,7 +360,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Any_of_scalar_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -376,7 +385,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Any_with_predicate_of_root_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -401,7 +410,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Any_with_predicate_of_scalar_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -426,7 +435,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Average_of_root_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -451,7 +460,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Average_of_scalar_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -476,7 +485,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Average_with_selector_of_root_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -501,7 +510,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Average_with_selector_of_scalar_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -526,7 +535,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Concat_of_root_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -551,7 +560,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Concat_of_scalar_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -576,7 +585,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Contains_of_root_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -601,7 +610,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Contains_of_scalar_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -626,7 +635,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Count_of_root_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -651,7 +660,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Count_of_scalar_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -676,7 +685,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Count_with_predicate_of_root_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -701,7 +710,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Count_with_predicate_of_scalar_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -726,7 +735,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_DefaultIfEmpty_of_root_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -751,7 +760,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_DefaultIfEmpty_of_scalar_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -776,7 +785,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Distinct_of_root_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -801,7 +810,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Distinct_of_scalar_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -826,7 +835,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_ElementAt_of_root_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -851,7 +860,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_ElementAt_of_scalar_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -876,7 +885,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_ElementAtOrDefault_of_root_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -901,7 +910,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_ElementAtOrDefault_of_scalar_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -926,7 +935,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Except_of_root_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -951,7 +960,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Except_of_scalar_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -976,7 +985,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_First_of_root_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -1001,7 +1010,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_First_of_scalar_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -1026,7 +1035,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_First_with_predicate_of_root_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -1034,12 +1043,21 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 .OrderBy(x => x.Id);
 
             var stages = Translate(collection, queryable);
-            var expectedStages = new[]
-            {
-                "{ $group : { _id : '$_id', _elements : { $push : '$$ROOT' } } }",
-                "{ $project : { _id : '$_id', Result : { $arrayElemAt : [{ $filter : { input : '$_elements', as : 'e', cond : { $ne : ['$$e.X', 1] } } }, 0] } } }",
-                "{ $sort : { _id : 1 } }"
-            };
+
+            var expectedStages = FilterLimitIsSupported
+                ? new[]
+                {
+                    "{ $group : { _id : '$_id', _elements : { $push : '$$ROOT' } } }",
+                    "{ $project : { _id : '$_id', Result : { $arrayElemAt : [{ $filter : { input : '$_elements', as : 'e', cond : { $ne : ['$$e.X', 1] }, limit : 1 } }, 0] } } }",
+                    "{ $sort : { _id : 1 } }"
+                }
+                : new[]
+                {
+                    "{ $group : { _id : '$_id', _elements : { $push : '$$ROOT' } } }",
+                    "{ $project : { _id : '$_id', Result : { $arrayElemAt : [{ $filter : { input : '$_elements', as : 'e', cond : { $ne : ['$$e.X', 1] } } }, 0] } } }",
+                    "{ $sort : { _id : 1 } }"
+                };
+
             AssertStages(stages, expectedStages);
 
             var results = queryable.ToList();
@@ -1051,7 +1069,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_First_with_predicate_of_scalar_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -1059,12 +1077,21 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 .OrderBy(x => x.Id);
 
             var stages = Translate(collection, queryable);
-            var expectedStages = new[]
-            {
-                "{ $group : { _id : '$_id', _elements : { $push : '$X' } } }",
-                "{ $project : { _id : '$_id', Result : { $arrayElemAt : [{ $filter : { input : '$_elements', as : 'e', cond : { $ne : ['$$e', 1] } } }, 0] } } }",
-                "{ $sort : { _id : 1 } }"
-            };
+
+            var expectedStages = FilterLimitIsSupported
+                ? new[]
+                {
+                    "{ $group : { _id : '$_id', _elements : { $push : '$X' } } }",
+                    "{ $project : { _id : '$_id', Result : { $arrayElemAt : [{ $filter : { input : '$_elements', as : 'e', cond : { $ne : ['$$e', 1] }, limit : 1 } }, 0] } } }",
+                    "{ $sort : { _id : 1 } }"
+                }
+                : new[]
+                {
+                    "{ $group : { _id : '$_id', _elements : { $push : '$X' } } }",
+                    "{ $project : { _id : '$_id', Result : { $arrayElemAt : [{ $filter : { input : '$_elements', as : 'e', cond : { $ne : ['$$e', 1] } } }, 0] } } }",
+                    "{ $sort : { _id : 1 } }"
+                };
+
             AssertStages(stages, expectedStages);
 
             var results = queryable.ToList();
@@ -1076,7 +1103,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_FirstOrDefault_of_root_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -1101,7 +1128,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_FirstOrDefault_of_scalar_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -1126,7 +1153,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_FirstOrDefault_with_predicate_of_root_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -1134,12 +1161,21 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 .OrderBy(x => x.Id);
 
             var stages = Translate(collection, queryable);
-            var expectedStages = new[]
-            {
-                "{ $group : { _id : '$_id', _elements : { $push : '$$ROOT' } } }",
-                "{ $project : { _id : '$_id', Result : { $let : { vars : { values : { $filter : { input : '$_elements', as : 'e', cond : { $ne : ['$$e.X', 1] } } } }, in : { $cond : { if : { $eq : [{ $size : '$$values' }, 0] }, then : null, else : { $arrayElemAt : ['$$values', 0] } } } } } } }",
-                "{ $sort : { _id : 1 } }"
-            };
+
+            var expectedStages = FilterLimitIsSupported
+                ? new[]
+                {
+                    "{ $group : { _id : '$_id', _elements : { $push : '$$ROOT' } } }",
+                    "{ $project : { _id : '$_id', Result : { $let : { vars : { values : { $filter : { input : '$_elements', as : 'e', cond : { $ne : ['$$e.X', 1] }, limit : 1 } } }, in : { $cond : { if : { $eq : [{ $size : '$$values' }, 0] }, then : null, else : { $arrayElemAt : ['$$values', 0] } } } } } } }",
+                    "{ $sort : { _id : 1 } }"
+                }
+                : new[]
+                {
+                    "{ $group : { _id : '$_id', _elements : { $push : '$$ROOT' } } }",
+                    "{ $project : { _id : '$_id', Result : { $let : { vars : { values : { $filter : { input : '$_elements', as : 'e', cond : { $ne : ['$$e.X', 1] } } } }, in : { $cond : { if : { $eq : [{ $size : '$$values' }, 0] }, then : null, else : { $arrayElemAt : ['$$values', 0] } } } } } } }",
+                    "{ $sort : { _id : 1 } }"
+                };
+
             AssertStages(stages, expectedStages);
 
             var results = queryable.ToList();
@@ -1152,7 +1188,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_FirstOrDefault_with_predicate_of_scalar_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -1160,12 +1196,21 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 .OrderBy(x => x.Id);
 
             var stages = Translate(collection, queryable);
-            var expectedStages = new[]
-            {
-                "{ $group : { _id : '$_id', _elements : { $push : '$X' } } }",
-                "{ $project : { _id : '$_id', Result : { $let : { vars : { values : { $filter : { input : '$_elements', as : 'e', cond : { $ne : ['$$e', 1] } } } }, in : { $cond : { if : { $eq : [{ $size : '$$values' }, 0] }, then : 0, else : { $arrayElemAt : ['$$values', 0] } } } } } } }",
-                "{ $sort : { _id : 1 } }"
-            };
+
+            var expectedStages = FilterLimitIsSupported
+                ? new[]
+                {
+                    "{ $group : { _id : '$_id', _elements : { $push : '$X' } } }",
+                    "{ $project : { _id : '$_id', Result : { $let : { vars : { values : { $filter : { input : '$_elements', as : 'e', cond : { $ne : ['$$e', 1] }, limit : 1 } } }, in : { $cond : { if : { $eq : [{ $size : '$$values' }, 0] }, then : 0, else : { $arrayElemAt : ['$$values', 0] } } } } } } }",
+                    "{ $sort : { _id : 1 } }"
+                }
+                : new[]
+                {
+                    "{ $group : { _id : '$_id', _elements : { $push : '$X' } } }",
+                    "{ $project : { _id : '$_id', Result : { $let : { vars : { values : { $filter : { input : '$_elements', as : 'e', cond : { $ne : ['$$e', 1] } } } }, in : { $cond : { if : { $eq : [{ $size : '$$values' }, 0] }, then : 0, else : { $arrayElemAt : ['$$values', 0] } } } } } } }",
+                    "{ $sort : { _id : 1 } }"
+                };
+
             AssertStages(stages, expectedStages);
 
             var results = queryable.ToList();
@@ -1177,7 +1222,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Intersect_of_root_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -1202,7 +1247,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Intersect_of_scalar_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -1227,7 +1272,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Last_of_root_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -1252,7 +1297,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Last_of_scalar_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -1277,7 +1322,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Last_with_predicate_of_root_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -1302,7 +1347,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Last_with_predicate_of_scalar_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -1327,7 +1372,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_LastOrDefault_of_root_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -1352,7 +1397,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_LastOrDefault_of_scalar_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -1377,7 +1422,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_LastOrDefault_with_predicate_of_root_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -1403,7 +1448,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_LastOrDefault_with_predicate_of_scalar_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -1428,7 +1473,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_LongCount_of_root_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -1453,7 +1498,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_LongCount_of_scalar_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -1478,7 +1523,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_LongCount_with_predicate_of_root_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -1503,7 +1548,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_LongCount_with_predicate_of_scalar_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -1528,7 +1573,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Max_of_root_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -1553,7 +1598,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Max_of_scalar_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -1578,7 +1623,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Max_with_selector_of_root_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -1603,7 +1648,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Max_with_selector_of_scalar_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -1628,7 +1673,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Min_of_root_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -1653,7 +1698,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Min_of_scalar_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -1678,7 +1723,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Min_with_selector_of_root_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -1703,7 +1748,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Min_with_selector_of_scalar_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -1728,7 +1773,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Reverse_of_root_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -1753,7 +1798,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Reverse_of_scalar_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -1778,7 +1823,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Select_of_root_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -1803,7 +1848,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Select_of_scalar_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -1828,7 +1873,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_StandardDeviationPopulation_of_root_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -1853,7 +1898,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_StandardDeviationPopulation_of_scalar_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -1878,7 +1923,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_StandardDeviationPopulation_with_selector_of_root_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -1903,7 +1948,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_StandardDeviationPopulation_with_selector_of_scalar_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -1928,7 +1973,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_StandardDeviationSample_of_root_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -1953,7 +1998,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_StandardDeviationSample_of_scalar_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -1978,7 +2023,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_StandardDeviationSample_with_selector_of_root_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -2003,7 +2048,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_StandardDeviationSample_with_selector_of_scalar_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -2028,7 +2073,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Sum_of_root_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -2053,7 +2098,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Sum_of_scalar_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -2078,7 +2123,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Take_of_root_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -2103,7 +2148,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Take_of_scalar_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -2128,7 +2173,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_ToArray_of_root_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -2153,7 +2198,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_ToArray_of_scalar_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -2178,7 +2223,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_ToList_of_root_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -2203,7 +2248,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_ToList_of_scalar_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -2228,7 +2273,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Union_of_root_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -2253,7 +2298,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Union_of_scalar_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -2278,7 +2323,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Where_of_root_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -2303,7 +2348,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Where_of_scalar_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -2328,7 +2373,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Zip_of_root_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
@@ -2353,7 +2398,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void IGrouping_Zip_of_scalar_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id, c => c.X)
@@ -2375,27 +2420,24 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results[1].ShouldBeEquivalentTo(new { Id = 2, Result = CreateList(new { X = 2, Y = 3 }) });
         }
 
-        private IMongoCollection<C>  CreateCollection()
-        {
-            var collection = GetCollection<C>();
-            var documents = new[]
-            {
-                new C { Id = 1, X = 1 },
-                new C { Id = 2, X = 2 }
-            };
-            CreateCollection(collection, documents);
-            return collection;
-        }
-
         private List<TAnonymous> CreateList<TAnonymous>(params TAnonymous[] items)
         {
             return new List<TAnonymous>(items);
         }
 
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public int X { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, X = 1 },
+                new C { Id = 2, X = 2 }
+            ];
         }
     }
 }

@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -39,9 +40,10 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void constructor_should_throw_when_databaseNamespace_is_null()
         {
-            Action action = () => { new DropDatabaseOperation(null, _messageEncoderSettings); };
+            var exception = Record.Exception(() => { new DropDatabaseOperation(null, _messageEncoderSettings); });
 
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("databaseNamespace");
+            exception.Should().BeOfType<ArgumentNullException>().Subject
+                .ParamName.Should().Be("databaseNamespace");
         }
 
         [Fact]
@@ -54,7 +56,7 @@ namespace MongoDB.Driver.Core.Operations
             };
             var session = OperationTestHelper.CreateSession();
 
-            var result = subject.CreateCommand(session);
+            var result = subject.CreateCommand(OperationContext.NoTimeout, session);
 
             result.Should().Be(expectedResult);
         }
@@ -62,22 +64,36 @@ namespace MongoDB.Driver.Core.Operations
         [Theory]
         [ParameterAttributeData]
         public void CreateCommand_should_return_expected_result_when_WriteConcern_is_set(
-            [Values(null, 1, 2)]
-            int? w)
+            [Values(null, 1, 2)] int? w,
+            [Values(null, 100)] int? wtimeout,
+            [Values(true, false)] bool hasOperationTimeout)
         {
             var writeConcern = w.HasValue ? new WriteConcern(w.Value) : null;
+            if (wtimeout.HasValue)
+            {
+                writeConcern ??= WriteConcern.Acknowledged;
+                writeConcern = writeConcern.With(wTimeout: TimeSpan.FromMilliseconds(wtimeout.Value));
+            }
+
             var subject = new DropDatabaseOperation(_databaseNamespace, _messageEncoderSettings)
             {
                 WriteConcern = writeConcern
             };
+            var operationContext = hasOperationTimeout ? new OperationContext(TimeSpan.FromSeconds(42), CancellationToken.None) : OperationContext.NoTimeout;
             var session = OperationTestHelper.CreateSession();
 
-            var result = subject.CreateCommand(session);
+            var result = subject.CreateCommand(operationContext, session);
+
+            var expectedWriteConcern = writeConcern?.ToBsonDocument();
+            if (hasOperationTimeout)
+            {
+                expectedWriteConcern?.Remove("wtimeout");
+            }
 
             var expectedResult = new BsonDocument
             {
                 { "dropDatabase", 1 },
-                { "writeConcern", () => writeConcern.ToBsonDocument(), writeConcern != null }
+                { "writeConcern", () => expectedWriteConcern, w.HasValue || (wtimeout.HasValue && !hasOperationTimeout) }
             };
             result.Should().Be(expectedResult);
         }

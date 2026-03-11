@@ -1,6 +1,5 @@
 #!/bin/bash
 
-set -o xtrace
 set -o errexit  # Exit the script with error if any of the commands fail
 
 # Environment variables used as input:
@@ -22,4 +21,8 @@ echo "Running Azure Credential Acquisition Test"
 export DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
 export CSFLE_AZURE_KMS_TESTS_ENABLED=true
 
-./build.sh --target=TestCsfleWithAzureKms
+export FRAMEWORK=net6.0
+. ./evergreen/install-dotnet.sh
+
+./evergreen/compile-sources.sh
+TEST_CATEGORY=CsfleAZUREKMS ./evergreen/execute-tests.sh

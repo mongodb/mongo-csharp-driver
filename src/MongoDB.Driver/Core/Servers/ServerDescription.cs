@@ -1,19 +1,20 @@
 /* Copyright 2013-present MongoDB Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Text;
 using MongoDB.Driver.Core.Clusters;
@@ -45,6 +46,35 @@ namespace MongoDB.Driver.Core.Servers
                 string.Equals(x.StackTrace, y.StackTrace, StringComparison.Ordinal) &&
                 Equals(x.InnerException, y.InnerException);
         }
+
+        internal sealed class SdamEqualityComparer : IEqualityComparer<ServerDescription>
+        {
+            public static SdamEqualityComparer Instance { get; } = new SdamEqualityComparer();
+
+            public bool Equals(ServerDescription x, ServerDescription y)
+            {
+                if (ReferenceEquals(x, y))
+                {
+                    return true;
+                }
+
+                if (x is null || y is null)
+                {
+                    return false;
+                }
+
+                if (x.GetType() != y.GetType())
+                {
+                    return false;
+                }
+
+                return x.SdamEquals(y);
+            }
+
+            public int GetHashCode(ServerDescription obj) =>
+                obj.GetHashCode();
+        }
+
         #endregion
 
         // fields

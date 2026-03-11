@@ -24,6 +24,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira
 {
+    [Trait("Category", "Integration")]
     public class CSharp3225Tests
     {
         // these examples are taken from: https://www.mongodb.com/docs/manual/reference/operator/aggregation/setWindowFields/#examples

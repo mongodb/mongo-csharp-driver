@@ -127,9 +127,9 @@ namespace MongoDB.Driver.Tests.Specifications.server_selection
             var lastWriteTimestamp = serverData.lastWrite != null ? BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(serverData.lastWrite.lastWriteDate) : utcNow;
             var lastUpdateTimestamp = serverData.lastUpdateTime != null ? BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(serverData.lastUpdateTime.Value) : utcNow;
 
-            var maxWireVersion = serverData.maxWireVersion ?? 7;
+            var maxWireVersion = serverData.maxWireVersion ?? 8;
             var wireVersionRange = new Range<int>(0, maxWireVersion);
-            var serverVersion = new SemanticVersion(4, 0, 0);
+            var serverVersion = new SemanticVersion(4, 2, 0);
 
             var serverId = new ServerId(clusterId, endPoint);
             return new ServerDescription(

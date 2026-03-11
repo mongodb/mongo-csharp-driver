@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Core.Servers
         #region static
         private static readonly EndPoint __endPoint = new DnsEndPoint("localhost", 27017);
         private static readonly ServerId __serverId = new ServerId(new ClusterId(), __endPoint);
-        private static readonly ServerMonitorSettings __serverMonitorSettings = new ServerMonitorSettings(TimeSpan.FromSeconds(30), Timeout.InfiniteTimeSpan);
+        private static readonly ServerMonitorSettings __serverMonitorSettings = new ServerMonitorSettings(TimeSpan.FromSeconds(30), Timeout.InfiniteTimeSpan, TimeSpan.FromSeconds(30));
         #endregion
 
         public ServerMonitorTests(ITestOutputHelper output) : base(output)
@@ -67,7 +67,7 @@ namespace MongoDB.Driver.Core.Servers
         [Fact]
         public void CancelCurrentCheck_should_do_nothing_if_disposed()
         {
-            using var subject = CreateSubject(out _, out _, out _);
+            var subject = CreateSubject(out _, out _, out _);
 
             subject.Dispose();
             subject.CancelCurrentCheck();
@@ -141,7 +141,7 @@ namespace MongoDB.Driver.Core.Servers
         [Fact]
         public void Description_should_return_default_when_disposed()
         {
-            using var subject = CreateSubject(out _, out _, out _);
+            var subject = CreateSubject(out _, out _, out _);
 
             subject.Dispose();
 
@@ -151,7 +151,6 @@ namespace MongoDB.Driver.Core.Servers
             description.State.Should().Be(ServerState.Disconnected);
         }
 
-#if WINDOWS
         [Fact]
         public void DescriptionChanged_should_be_raised_during_initial_handshake()
         {
@@ -179,7 +178,6 @@ namespace MongoDB.Driver.Core.Servers
             capturedEvents.Next().Should().BeOfType<ServerHeartbeatStartedEvent>();
             capturedEvents.Next().Should().BeOfType<ServerHeartbeatSucceededEvent>();
         }
-#endif
 
         [Fact]
         public void Description_should_be_connected_after_successful_heartbeat()
@@ -204,7 +202,7 @@ namespace MongoDB.Driver.Core.Servers
         {
             var capturedEvents = new EventCapturer();
 
-            using var subject = CreateSubject(out var mockConnection, out _, out var mockRoundTripTimeMonitor, capturedEvents, captureConnectionEvents: true);
+            var subject = CreateSubject(out var mockConnection, out _, out var mockRoundTripTimeMonitor, capturedEvents, captureConnectionEvents: true);
 
             SetupHeartbeatConnection(mockConnection);
             subject.Initialize();
@@ -308,11 +306,9 @@ namespace MongoDB.Driver.Core.Servers
             using var subject = CreateSubject(out var mockConnection, out _, out _);
             SetupHeartbeatConnection(mockConnection, isStreamable, autoFillStreamingResponses: true);
 
-            mockConnection.WasReadTimeoutChanged.Should().Be(null);
             var resultProtocol = subject.InitializeHelloProtocol(mockConnection, helloOk);
             if (isStreamable)
             {
-                mockConnection.WasReadTimeoutChanged.Should().BeTrue();
                 resultProtocol._command().Should().Contain(expectedCommand);
                 resultProtocol._command().Should().Contain("topologyVersion");
                 resultProtocol._command().Should().Contain("maxAwaitTimeMS");
@@ -320,7 +316,6 @@ namespace MongoDB.Driver.Core.Servers
             }
             else
             {
-                mockConnection.WasReadTimeoutChanged.Should().Be(null);
                 resultProtocol._command().Should().Contain(expectedCommand);
                 resultProtocol._command().Should().NotContain("topologyVersion");
                 resultProtocol._command().Should().NotContain("maxAwaitTimeMS");
@@ -332,7 +327,7 @@ namespace MongoDB.Driver.Core.Servers
         public void RoundTripTimeMonitor_should_be_started_only_once_if_using_streaming_protocol()
         {
             var capturedEvents = new EventCapturer().Capture<ServerHeartbeatSucceededEvent>();
-            var serverMonitorSettings = new ServerMonitorSettings(TimeSpan.FromSeconds(5), TimeSpan.FromMilliseconds(10));
+            var serverMonitorSettings = new ServerMonitorSettings(TimeSpan.FromSeconds(5), TimeSpan.FromMilliseconds(10), TimeSpan.FromSeconds(5));
             using var subject = CreateSubject(out var mockConnection, out _, out var mockRoundTripTimeMonitor, capturedEvents, serverMonitorSettings: serverMonitorSettings);
 
             SetupHeartbeatConnection(mockConnection, isStreamable: true, autoFillStreamingResponses: false);
@@ -345,16 +340,16 @@ namespace MongoDB.Driver.Core.Servers
             SpinWait.SpinUntil(() => capturedEvents.Count >= 4, TimeSpan.FromSeconds(5)).Should().BeTrue();
             mockRoundTripTimeMonitor.Verify(m => m.Start(), Times.Once);
             mockRoundTripTimeMonitor.Verify(m => m.IsStarted, Times.AtLeast(4));
-            subject.Dispose();
         }
 
         [Fact]
         public void RoundTripTimeMonitor_should_not_be_started_if_using_polling_protocol()
         {
             var serverMonitorSettings = new ServerMonitorSettings(
-                TimeSpan.FromSeconds(5),
-                TimeSpan.FromMilliseconds(10),
-                serverMonitoringMode: ServerMonitoringMode.Poll);
+                ConnectTimeout: TimeSpan.FromSeconds(5),
+                HeartbeatInterval: TimeSpan.FromMilliseconds(10),
+                HeartbeatTimeout: TimeSpan.FromSeconds(5),
+                ServerMonitoringMode: ServerMonitoringMode.Poll);
 
             var capturedEvents = new EventCapturer().Capture<ServerHeartbeatSucceededEvent>();
             using var subject = CreateSubject(out var mockConnection, out _, out var mockRoundTripTimeMonitor, capturedEvents, serverMonitorSettings: serverMonitorSettings);
@@ -368,7 +363,6 @@ namespace MongoDB.Driver.Core.Servers
             SpinWait.SpinUntil(() => capturedEvents.Count >= 4, TimeSpan.FromSeconds(5)).Should().BeTrue();
 
             mockRoundTripTimeMonitor.Verify(m => m.Start(), Times.Never);
-            subject.Dispose();
         }
 
         [Fact]
@@ -420,16 +414,16 @@ namespace MongoDB.Driver.Core.Servers
                 .Capture<ServerHeartbeatStartedEvent>()
                 .Capture<ServerHeartbeatSucceededEvent>();
 
-            var serverMonitorSettings = new ServerMonitorSettings(TimeSpan.FromSeconds(5), TimeSpan.FromMilliseconds(10), serverMonitoringMode: ServerMonitoringMode.Poll);
-            using var subject = CreateSubject(out var mockConnection, out _, out _, capturedEvents, serverMonitorSettings: serverMonitorSettings);
+            var serverMonitorSettings = new ServerMonitorSettings(TimeSpan.FromSeconds(5), TimeSpan.FromMilliseconds(10), TimeSpan.FromSeconds(5), ServerMonitoringMode.Poll);
+            using (var subject = CreateSubject(out var mockConnection, out _, out _, capturedEvents, serverMonitorSettings: serverMonitorSettings))
+            {
+                SetupHeartbeatConnection(mockConnection, isStreamable: true, autoFillStreamingResponses: false);
+                mockConnection.EnqueueCommandResponseMessage(CreateHeartbeatCommandResponseMessage());
+                mockConnection.EnqueueCommandResponseMessage(CreateHeartbeatCommandResponseMessage());
 
-            SetupHeartbeatConnection(mockConnection, isStreamable: true, autoFillStreamingResponses: false);
-            mockConnection.EnqueueCommandResponseMessage(CreateHeartbeatCommandResponseMessage());
-            mockConnection.EnqueueCommandResponseMessage(CreateHeartbeatCommandResponseMessage());
-
-            subject.Initialize();
-            SpinWait.SpinUntil(() => capturedEvents.Count >= 6, TimeSpan.FromSeconds(5)).Should().BeTrue();
-            subject.Dispose();
+                subject.Initialize();
+                SpinWait.SpinUntil(() => capturedEvents.Count >= 6, TimeSpan.FromSeconds(5)).Should().BeTrue();
+            }
 
             capturedEvents.Next().Should().BeOfType<ServerHeartbeatStartedEvent>().Subject.Awaited.Should().Be(false);
             capturedEvents.Next().Should().BeOfType<ServerHeartbeatSucceededEvent>().Subject.Awaited.Should().Be(false);
@@ -516,16 +510,16 @@ namespace MongoDB.Driver.Core.Servers
                 .Capture<ServerHeartbeatStartedEvent>()
                 .Capture<ServerHeartbeatSucceededEvent>();
 
-            var serverMonitorSettings = new ServerMonitorSettings(TimeSpan.FromSeconds(5), TimeSpan.FromMilliseconds(10));
-            using var subject = CreateSubject(out var mockConnection, out _, out _, capturedEvents, serverMonitorSettings: serverMonitorSettings, environmentVariableProviderMock: environmentVariableProviderMock);
+            var serverMonitorSettings = new ServerMonitorSettings(TimeSpan.FromSeconds(5), TimeSpan.FromMilliseconds(10), TimeSpan.FromSeconds(5));
+            using (var subject = CreateSubject(out var mockConnection, out _, out _, capturedEvents, serverMonitorSettings: serverMonitorSettings, environmentVariableProviderMock: environmentVariableProviderMock))
+            {
+                SetupHeartbeatConnection(mockConnection, isStreamable: true, autoFillStreamingResponses: false);
+                mockConnection.EnqueueCommandResponseMessage(CreateHeartbeatCommandResponseMessage());
+                mockConnection.EnqueueCommandResponseMessage(CreateHeartbeatCommandResponseMessage());
 
-            SetupHeartbeatConnection(mockConnection, isStreamable: true, autoFillStreamingResponses: false);
-            mockConnection.EnqueueCommandResponseMessage(CreateHeartbeatCommandResponseMessage());
-            mockConnection.EnqueueCommandResponseMessage(CreateHeartbeatCommandResponseMessage());
-
-            subject.Initialize();
-            SpinWait.SpinUntil(() => capturedEvents.Count >= 6, TimeSpan.FromSeconds(5)).Should().BeTrue();
-            subject.Dispose();
+                subject.Initialize();
+                SpinWait.SpinUntil(() => capturedEvents.Count >= 6, TimeSpan.FromSeconds(5)).Should().BeTrue();
+            }
 
             capturedEvents.Next().Should().BeOfType<ServerHeartbeatStartedEvent>().Subject.Awaited.Should().Be(false);
             capturedEvents.Next().Should().BeOfType<ServerHeartbeatSucceededEvent>().Subject.Awaited.Should().Be(false);

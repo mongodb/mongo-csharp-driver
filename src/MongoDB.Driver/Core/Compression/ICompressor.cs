@@ -33,11 +33,11 @@ namespace MongoDB.Driver.Core.Compression
         /// </summary>
         Snappy = 1,
         /// <summary>
-        /// The content of the message is compressed using zlib. 
+        /// The content of the message is compressed using zlib.
         /// </summary>
         Zlib = 2,
         /// <summary>
-        /// The content of the message is compressed using zstandard. 
+        /// The content of the message is compressed using zstandard.
         /// </summary>
         ZStandard = 3
     }

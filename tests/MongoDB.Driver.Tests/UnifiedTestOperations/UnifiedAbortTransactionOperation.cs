@@ -20,20 +20,22 @@ using MongoDB.Bson;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
-    public class UnifiedAbortTransactionOperation : IUnifiedEntityTestOperation
+    internal class UnifiedAbortTransactionOperation : IUnifiedEntityTestOperation
     {
         private readonly IClientSessionHandle _session;
+        private readonly AbortTransactionOptions _options;
 
-        public UnifiedAbortTransactionOperation(IClientSessionHandle session)
+        public UnifiedAbortTransactionOperation(IClientSessionHandle session, AbortTransactionOptions options)
         {
             _session = session;
+            _options = options;
         }
 
         public OperationResult Execute(CancellationToken cancellationToken)
         {
             try
             {
-                _session.AbortTransaction(cancellationToken);
+                _session.AbortTransaction(_options, cancellationToken);
                 return OperationResult.Empty();
             }
             catch (Exception ex)
@@ -46,7 +48,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             try
             {
-                await _session.AbortTransactionAsync(cancellationToken).ConfigureAwait(false);
+                await _session.AbortTransactionAsync(_options, cancellationToken).ConfigureAwait(false);
                 return OperationResult.Empty();
             }
             catch (Exception ex)
@@ -56,7 +58,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         }
     }
 
-    public class UnifiedAbortTransactionOperationBuilder
+    internal class UnifiedAbortTransactionOperationBuilder
     {
         private readonly UnifiedEntityMap _entityMap;
 
@@ -68,13 +70,30 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         public UnifiedAbortTransactionOperation Build(string targetSessionId, BsonDocument arguments)
         {
             var session = _entityMap.Sessions[targetSessionId];
+            TimeSpan? timeout = null;
 
             if (arguments != null)
             {
-                throw new FormatException("AbortTransactionOperation is not expected to contain arguments.");
+                foreach (var argument in arguments)
+                {
+                    switch (argument.Name)
+                    {
+                        case "timeoutMS":
+                            timeout = UnifiedEntityMap.ParseTimeout(argument.Value);
+                            break;
+                        default:
+                            throw new FormatException($"Invalid AbortTransactionOperation argument name: '{argument.Name}'.");
+                    }
+                }
             }
 
-            return new UnifiedAbortTransactionOperation(session);
+            AbortTransactionOptions options = null;
+            if (timeout.HasValue)
+            {
+                options = new AbortTransactionOptions(timeout);
+            }
+
+            return new UnifiedAbortTransactionOperation(session, options);
         }
     }
 }

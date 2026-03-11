@@ -19,13 +19,13 @@ using System.Linq;
 using System.Linq.Expressions;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Driver;
 using MongoDB.Driver.Linq.Linq3Implementation;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecutableQueryTranslators;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translators
 {
+    [Trait("Category", "Integration")]
     public class PredicateTranslatorValidationTests
     {
         private IMongoCollection<TestObject> _collection;

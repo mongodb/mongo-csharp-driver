@@ -1,4 +1,4 @@
-﻿/* Copyright 2016-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,9 +13,8 @@
 * limitations under the License.
 */
 
-using System;
+using System.Collections.Generic;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -33,7 +32,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    public class WriteCommandOperationTests
+    public class WriteCommandOperationTests : OperationTestBase
     {
         // public methods
         [Fact]
@@ -43,8 +42,9 @@ namespace MongoDB.Driver.Core.Operations
             var command = new BsonDocument("command", 1);
             var resultSerializer = BsonDocumentSerializer.Instance;
             var messageEncoderSettings = new MessageEncoderSettings();
+            var operationName = "testOperation";
 
-            var result = new WriteCommandOperation<BsonDocument>(databaseNamespace, command, resultSerializer, messageEncoderSettings);
+            var result = new WriteCommandOperation<BsonDocument>(databaseNamespace, command, resultSerializer, messageEncoderSettings, operationName);
 
             result.AdditionalOptions.Should().BeNull();
             result.Command.Should().BeSameAs(command);
@@ -52,6 +52,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Comment.Should().BeNull();
             result.DatabaseNamespace.Should().BeSameAs(databaseNamespace);
             result.MessageEncoderSettings.Should().BeSameAs(messageEncoderSettings);
+            result.OperationName.Should().Be(operationName);
             result.ResultSerializer.Should().BeSameAs(resultSerializer);
         }
 
@@ -65,16 +66,13 @@ namespace MongoDB.Driver.Core.Operations
             var mockChannel = CreateMockChannel();
             var channelSource = CreateMockChannelSource(serverDescription, mockChannel.Object).Object;
             var binding = CreateMockWriteBinding(channelSource).Object;
-            using var cancellationTokenSource = new CancellationTokenSource();
-            var cancellationToken = cancellationTokenSource.Token;
 
-            BsonDocument result;
+            ExecuteOperation(subject, binding, async);
             if (async)
             {
-                result = subject.ExecuteAsync(binding, cancellationToken).GetAwaiter().GetResult();
-
                 mockChannel.Verify(
                     c => c.CommandAsync(
+                        It.IsAny<OperationContext>(),
                         binding.Session,
                         ReadPreference.Primary,
                         subject.DatabaseNamespace,
@@ -85,16 +83,14 @@ namespace MongoDB.Driver.Core.Operations
                         null, // postWriteAction
                         CommandResponseHandling.Return,
                         subject.ResultSerializer,
-                        subject.MessageEncoderSettings,
-                        cancellationToken),
+                        subject.MessageEncoderSettings),
                     Times.Once);
             }
             else
             {
-                result = subject.Execute(binding, cancellationToken);
-
                 mockChannel.Verify(
                     c => c.Command(
+                        It.IsAny<OperationContext>(),
                         binding.Session,
                         ReadPreference.Primary,
                         subject.DatabaseNamespace,
@@ -105,8 +101,7 @@ namespace MongoDB.Driver.Core.Operations
                         null, // postWriteAction
                         CommandResponseHandling.Return,
                         subject.ResultSerializer,
-                        subject.MessageEncoderSettings,
-                        cancellationToken),
+                        subject.MessageEncoderSettings),
                     Times.Once);
             }
         }
@@ -122,17 +117,14 @@ namespace MongoDB.Driver.Core.Operations
             var mockChannel = CreateMockChannel();
             var channelSource = CreateMockChannelSource(serverDescription, mockChannel.Object).Object;
             var binding = CreateMockWriteBinding(channelSource).Object;
-            using var cancellationTokenSource = new CancellationTokenSource();
-            var cancellationToken = cancellationTokenSource.Token;
             var command = BsonDocument.Parse("{ command : 1 }");
 
-            BsonDocument result;
+            ExecuteOperation(subject, binding, async);
             if (async)
             {
-                result = subject.ExecuteAsync(binding, cancellationToken).GetAwaiter().GetResult();
-
                 mockChannel.Verify(
                     c => c.CommandAsync(
+                        It.IsAny<OperationContext>(),
                         It.IsAny<ICoreSessionHandle>(),
                         It.IsAny<ReadPreference>(),
                         subject.DatabaseNamespace,
@@ -143,16 +135,14 @@ namespace MongoDB.Driver.Core.Operations
                         null, // postWriteAction
                         CommandResponseHandling.Return,
                         subject.ResultSerializer,
-                        subject.MessageEncoderSettings,
-                        cancellationToken),
+                        subject.MessageEncoderSettings),
                     Times.Once);
             }
             else
             {
-                result = subject.Execute(binding, cancellationToken);
-
                 mockChannel.Verify(
                     c => c.Command(
+                        It.IsAny<OperationContext>(),
                         It.IsAny<ICoreSessionHandle>(),
                         It.IsAny<ReadPreference>(),
                         subject.DatabaseNamespace,
@@ -163,8 +153,7 @@ namespace MongoDB.Driver.Core.Operations
                         null, // postWriteAction
                         CommandResponseHandling.Return,
                         subject.ResultSerializer,
-                        subject.MessageEncoderSettings,
-                        cancellationToken),
+                        subject.MessageEncoderSettings),
                     Times.Once);
             }
         }
@@ -180,17 +169,14 @@ namespace MongoDB.Driver.Core.Operations
             var mockChannel = CreateMockChannel();
             var channelSource = CreateMockChannelSource(serverDescription, mockChannel.Object).Object;
             var binding = CreateMockWriteBinding(channelSource).Object;
-            using var cancellationTokenSource = new CancellationTokenSource();
-            var cancellationToken = cancellationTokenSource.Token;
             var additionalOptions = BsonDocument.Parse("{ $comment : \"comment\" }");
 
-            BsonDocument result;
+            ExecuteOperation(subject, binding, async);
             if (async)
             {
-                result = subject.ExecuteAsync(binding, cancellationToken).GetAwaiter().GetResult();
-
                 mockChannel.Verify(
                     c => c.CommandAsync(
+                        It.IsAny<OperationContext>(),
                         binding.Session,
                         ReadPreference.Primary,
                         subject.DatabaseNamespace,
@@ -201,16 +187,14 @@ namespace MongoDB.Driver.Core.Operations
                         null, // postWriteAction
                         CommandResponseHandling.Return,
                         subject.ResultSerializer,
-                        subject.MessageEncoderSettings,
-                        cancellationToken),
+                        subject.MessageEncoderSettings),
                     Times.Once);
             }
             else
             {
-                result = subject.Execute(binding, cancellationToken);
-
                 mockChannel.Verify(
                     c => c.Command(
+                        It.IsAny<OperationContext>(),
                         binding.Session,
                         ReadPreference.Primary,
                         subject.DatabaseNamespace,
@@ -221,8 +205,7 @@ namespace MongoDB.Driver.Core.Operations
                         null, // postWriteAction
                         CommandResponseHandling.Return,
                         subject.ResultSerializer,
-                        subject.MessageEncoderSettings,
-                        cancellationToken),
+                        subject.MessageEncoderSettings),
                     Times.Once);
             }
         }
@@ -233,8 +216,10 @@ namespace MongoDB.Driver.Core.Operations
             var mockBinding = new Mock<IWriteBinding>();
             var mockSession = new Mock<ICoreSessionHandle>();
             mockBinding.SetupGet(b => b.Session).Returns(mockSession.Object);
-            mockBinding.Setup(b => b.GetWriteChannelSource(It.IsAny<CancellationToken>())).Returns(channelSource);
-            mockBinding.Setup(b => b.GetWriteChannelSourceAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult(channelSource));
+            mockBinding.Setup(b => b.GetWriteChannelSource(It.IsAny<OperationContext>())).Returns(channelSource);
+            mockBinding.Setup(b => b.GetWriteChannelSourceAsync(It.IsAny<OperationContext>())).Returns(Task.FromResult(channelSource));
+            mockBinding.Setup(b => b.GetWriteChannelSource(It.IsAny<OperationContext>(), It.IsAny<IReadOnlyCollection<ServerDescription>>())).Returns(channelSource);
+            mockBinding.Setup(b => b.GetWriteChannelSourceAsync(It.IsAny<OperationContext>(), It.IsAny<IReadOnlyCollection<ServerDescription>>())).Returns(Task.FromResult(channelSource));
             return mockBinding;
         }
 
@@ -248,8 +233,8 @@ namespace MongoDB.Driver.Core.Operations
         {
             var mockChannelSource = new Mock<IChannelSourceHandle>();
             mockChannelSource.SetupGet(s => s.ServerDescription).Returns(serverDescription);
-            mockChannelSource.Setup(s => s.GetChannel(It.IsAny<CancellationToken>())).Returns(channel);
-            mockChannelSource.Setup(s => s.GetChannelAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult(channel));
+            mockChannelSource.Setup(s => s.GetChannel(It.IsAny<OperationContext>())).Returns(channel);
+            mockChannelSource.Setup(s => s.GetChannelAsync(It.IsAny<OperationContext>())).Returns(Task.FromResult(channel));
             return mockChannelSource;
         }
 

@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-# DO NOT set xtrace
 set -o errexit  # Exit the script with error if any of the commands fail
 
 ############################################
@@ -8,5 +7,5 @@ set -o errexit  # Exit the script with error if any of the commands fail
 ############################################
 
 # Provision the correct connection string and set up SSL if needed
-for var in TMP TEMP NUGET_PACKAGES NUGET_HTTP_CACHE_PATH APPDATA; do setx $var z:\\data\\tmp; export $var=z:\\data\\tmp; done
-powershell.exe .\\build.ps1 --target TestAtlasConnectivity
+./evergreen/compile-sources.sh
+TEST_PROJECT_PATH=./tests/**/AtlasConnectivity.Tests.csproj ./evergreen/execute-tests.sh

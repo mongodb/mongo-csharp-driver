@@ -681,7 +681,9 @@ namespace MongoDB.Bson.Tests.Serialization
 
         private BsonClassMap Clone(BsonClassMap classMap)
         {
+#pragma warning disable SYSLIB0050
             var clone = (BsonClassMap)FormatterServices.GetUninitializedObject(classMap.GetType());
+#pragma warning restore SYSLIB0050
             Reflector.SetFieldValue(clone, "_baseClassMap", Reflector.GetFieldValue(classMap, "_baseClassMap"));
             Reflector.SetFieldValue(clone, "_classType", Reflector.GetFieldValue(classMap, "_classType"));
             Reflector.SetFieldValue(clone, "_creator", Reflector.GetFieldValue(classMap, "_creator"));

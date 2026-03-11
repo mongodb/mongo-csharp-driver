@@ -24,7 +24,6 @@ using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
-using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Encryption;
 
@@ -184,6 +183,13 @@ namespace MongoDB.Driver.Tests
             {
                 serverSelectionTimeoutString = "30000";
             }
+
+            if (System.Diagnostics.Debugger.IsAttached)
+            {
+                clientSettings.HeartbeatTimeout = TimeSpan.FromDays(1);
+                clientSettings.ServerMonitoringMode = ServerMonitoringMode.Poll;
+            }
+
             clientSettings.ServerSelectionTimeout = TimeSpan.FromMilliseconds(int.Parse(serverSelectionTimeoutString));
             clientSettings.ClusterConfigurator = cb => CoreTestConfiguration.ConfigureLogging(cb);
             clientSettings.ServerApi = CoreTestConfiguration.ServerApi;
@@ -197,8 +203,8 @@ namespace MongoDB.Driver.Tests
         {
             var cluster = Client.GetClusterInternal();
             using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster, NoCoreSession.NewHandle())))
-            using (var channelSource = binding.GetWriteChannelSource(default))
-            using (var channel = channelSource.GetChannel(default))
+            using (var channelSource = binding.GetWriteChannelSource(OperationContext.NoTimeout))
+            using (var channel = channelSource.GetChannel(OperationContext.NoTimeout))
             {
                 return channel.ConnectionDescription;
             }
@@ -213,30 +219,34 @@ namespace MongoDB.Driver.Tests
             };
         }
 
-        public static bool IsReplicaSet(IMongoClient client)
+        internal static bool IsReplicaSet(IClusterInternal cluster)
         {
-            var clusterTypeIsKnown = SpinWait.SpinUntil(() => client.Cluster.Description.Type != ClusterType.Unknown, TimeSpan.FromSeconds(10));
+            var clusterTypeIsKnown = SpinWait.SpinUntil(() => cluster.Description.Type != ClusterType.Unknown, TimeSpan.FromSeconds(10));
             if (!clusterTypeIsKnown)
             {
-                throw new InvalidOperationException($"Unable to determine cluster type: {client.Cluster.Description}.");
+                throw new InvalidOperationException($"Unable to determine cluster type: {cluster.Description}.");
             }
-            return client.Cluster.Description.Type == ClusterType.ReplicaSet;
+            return cluster.Description.Type == ClusterType.ReplicaSet;
         }
 
-        public static int GetReplicaSetNumberOfDataBearingMembers(IMongoClient client)
+        internal static int GetReplicaSetNumberOfDataBearingMembers(IClusterInternal cluster)
         {
-            if (!IsReplicaSet(client))
+            if (!IsReplicaSet(cluster))
             {
-                throw new InvalidOperationException($"Cluster is not a replica set: {client.Cluster.Description}.");
+                throw new InvalidOperationException($"Cluster is not a replica set: {cluster.Description}.");
             }
 
-            var allServersAreConnected = SpinWait.SpinUntil(() => client.Cluster.Description.Servers.All(s => s.State == ServerState.Connected), TimeSpan.FromSeconds(10));
+            WaitForAllServersToBeConnected(cluster);
+            return cluster.Description.Servers.Count(s => s.IsDataBearing);
+        }
+
+        internal static void WaitForAllServersToBeConnected(IClusterInternal cluster)
+        {
+            var allServersAreConnected = SpinWait.SpinUntil(() => cluster.Description.Servers.All(s => s.State == ServerState.Connected), TimeSpan.FromSeconds(10));
             if (!allServersAreConnected)
             {
-                throw new InvalidOperationException($"Unable to connect to all members of the replica set: {client.Cluster.Description}.");
+                throw new InvalidOperationException($"Unable to connect to all members of the cluster: {cluster.Description}.");
             }
-
-            return client.Cluster.Description.Servers.Count(s => s.IsDataBearing);
         }
 
         private static void EnsureUniqueCluster(MongoClientSettings settings)

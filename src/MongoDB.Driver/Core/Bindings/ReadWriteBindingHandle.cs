@@ -15,7 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
@@ -47,76 +46,76 @@ namespace MongoDB.Driver.Core.Bindings
             get { return _reference.Instance.Session; }
         }
 
-        public IChannelSourceHandle GetReadChannelSource(CancellationToken cancellationToken)
+        public IChannelSourceHandle GetReadChannelSource(OperationContext operationContext)
         {
             ThrowIfDisposed();
-            return _reference.Instance.GetReadChannelSource(cancellationToken);
+            return _reference.Instance.GetReadChannelSource(operationContext);
         }
 
-        public Task<IChannelSourceHandle> GetReadChannelSourceAsync(CancellationToken cancellationToken)
+        public Task<IChannelSourceHandle> GetReadChannelSourceAsync(OperationContext operationContext)
         {
             ThrowIfDisposed();
-            return _reference.Instance.GetReadChannelSourceAsync(cancellationToken);
+            return _reference.Instance.GetReadChannelSourceAsync(operationContext);
         }
 
-        public IChannelSourceHandle GetReadChannelSource(IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken)
+        public IChannelSourceHandle GetReadChannelSource(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             ThrowIfDisposed();
-            return _reference.Instance.GetReadChannelSource(deprioritizedServers, cancellationToken);
+            return _reference.Instance.GetReadChannelSource(operationContext, deprioritizedServers);
         }
 
-        public Task<IChannelSourceHandle> GetReadChannelSourceAsync(IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken)
+        public Task<IChannelSourceHandle> GetReadChannelSourceAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             ThrowIfDisposed();
-            return _reference.Instance.GetReadChannelSourceAsync(deprioritizedServers, cancellationToken);
+            return _reference.Instance.GetReadChannelSourceAsync(operationContext, deprioritizedServers);
         }
 
-        public IChannelSourceHandle GetWriteChannelSource(CancellationToken cancellationToken)
+        public IChannelSourceHandle GetWriteChannelSource(OperationContext operationContext)
         {
             ThrowIfDisposed();
-            return _reference.Instance.GetWriteChannelSource(cancellationToken);
+            return _reference.Instance.GetWriteChannelSource(operationContext);
         }
 
-        public IChannelSourceHandle GetWriteChannelSource(IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken)
+        public IChannelSourceHandle GetWriteChannelSource(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             ThrowIfDisposed();
-            return _reference.Instance.GetWriteChannelSource(deprioritizedServers, cancellationToken);
+            return _reference.Instance.GetWriteChannelSource(operationContext, deprioritizedServers);
         }
 
-        public IChannelSourceHandle GetWriteChannelSource(IMayUseSecondaryCriteria mayUseSecondary, CancellationToken cancellationToken)
+        public IChannelSourceHandle GetWriteChannelSource(OperationContext operationContext, IMayUseSecondaryCriteria mayUseSecondary)
         {
             ThrowIfDisposed();
-            return _reference.Instance.GetWriteChannelSource(mayUseSecondary, cancellationToken);
+            return _reference.Instance.GetWriteChannelSource(operationContext, mayUseSecondary);
         }
 
-        public IChannelSourceHandle GetWriteChannelSource(IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondary, CancellationToken cancellationToken)
+        public IChannelSourceHandle GetWriteChannelSource(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondary)
         {
             ThrowIfDisposed();
-            return _reference.Instance.GetWriteChannelSource(deprioritizedServers, mayUseSecondary, cancellationToken);
+            return _reference.Instance.GetWriteChannelSource(operationContext, deprioritizedServers, mayUseSecondary);
         }
 
-        public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(CancellationToken cancellationToken)
+        public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(OperationContext operationContext)
         {
             ThrowIfDisposed();
-            return _reference.Instance.GetWriteChannelSourceAsync(cancellationToken);
+            return _reference.Instance.GetWriteChannelSourceAsync(operationContext);
         }
 
-        public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(IReadOnlyCollection<ServerDescription> deprioritizedServers, CancellationToken cancellationToken)
+        public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             ThrowIfDisposed();
-            return _reference.Instance.GetWriteChannelSourceAsync(deprioritizedServers, cancellationToken);
+            return _reference.Instance.GetWriteChannelSourceAsync(operationContext, deprioritizedServers);
         }
 
-        public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(IMayUseSecondaryCriteria mayUseSecondary, CancellationToken cancellationToken)
+        public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(OperationContext operationContext, IMayUseSecondaryCriteria mayUseSecondary)
         {
             ThrowIfDisposed();
-            return _reference.Instance.GetWriteChannelSourceAsync(mayUseSecondary, cancellationToken);
+            return _reference.Instance.GetWriteChannelSourceAsync(operationContext, mayUseSecondary);
         }
 
-        public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondary, CancellationToken cancellationToken)
+        public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondary)
         {
             ThrowIfDisposed();
-            return _reference.Instance.GetWriteChannelSourceAsync(deprioritizedServers, mayUseSecondary, cancellationToken);
+            return _reference.Instance.GetWriteChannelSourceAsync(operationContext, deprioritizedServers, mayUseSecondary);
         }
 
         public void Dispose()

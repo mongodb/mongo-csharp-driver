@@ -29,118 +29,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class WindowMethodToAggregationExpressionTranslator
     {
-        private static readonly MethodInfo[] __windowMethods =
-        {
-            WindowMethod.AddToSet,
-            WindowMethod.AverageWithDecimal,
-            WindowMethod.AverageWithDouble,
-            WindowMethod.AverageWithInt32,
-            WindowMethod.AverageWithInt64,
-            WindowMethod.AverageWithNullableDecimal,
-            WindowMethod.AverageWithNullableDouble,
-            WindowMethod.AverageWithNullableInt32,
-            WindowMethod.AverageWithNullableInt64,
-            WindowMethod.AverageWithNullableSingle,
-            WindowMethod.AverageWithSingle,
-            WindowMethod.Count,
-            WindowMethod.CovariancePopulationWithDecimals,
-            WindowMethod.CovariancePopulationWithDoubles,
-            WindowMethod.CovariancePopulationWithInt32s,
-            WindowMethod.CovariancePopulationWithInt64s,
-            WindowMethod.CovariancePopulationWithNullableDecimals,
-            WindowMethod.CovariancePopulationWithNullableDoubles,
-            WindowMethod.CovariancePopulationWithNullableInt32s,
-            WindowMethod.CovariancePopulationWithNullableInt64s,
-            WindowMethod.CovariancePopulationWithNullableSingles,
-            WindowMethod.CovariancePopulationWithSingles,
-            WindowMethod.CovarianceSampleWithDecimals,
-            WindowMethod.CovarianceSampleWithDoubles,
-            WindowMethod.CovarianceSampleWithInt32s,
-            WindowMethod.CovarianceSampleWithInt64s,
-            WindowMethod.CovarianceSampleWithNullableDecimals,
-            WindowMethod.CovarianceSampleWithNullableDoubles,
-            WindowMethod.CovarianceSampleWithNullableInt32s,
-            WindowMethod.CovarianceSampleWithNullableInt64s,
-            WindowMethod.CovarianceSampleWithNullableSingles,
-            WindowMethod.CovarianceSampleWithSingles,
-            WindowMethod.DenseRank,
-            WindowMethod.DerivativeWithDecimal,
-            WindowMethod.DerivativeWithDecimalAndUnit,
-            WindowMethod.DerivativeWithDouble,
-            WindowMethod.DerivativeWithDoubleAndUnit,
-            WindowMethod.DerivativeWithInt32,
-            WindowMethod.DerivativeWithInt32AndUnit,
-            WindowMethod.DerivativeWithInt64,
-            WindowMethod.DerivativeWithInt64AndUnit,
-            WindowMethod.DerivativeWithSingle,
-            WindowMethod.DerivativeWithSingleAndUnit,
-            WindowMethod.DocumentNumber,
-            WindowMethod.ExponentialMovingAverageWithDecimal,
-            WindowMethod.ExponentialMovingAverageWithDouble,
-            WindowMethod.ExponentialMovingAverageWithInt32,
-            WindowMethod.ExponentialMovingAverageWithInt64,
-            WindowMethod.ExponentialMovingAverageWithSingle,
-            WindowMethod.First,
-            WindowMethod.IntegralWithDecimal,
-            WindowMethod.IntegralWithDecimalAndUnit,
-            WindowMethod.IntegralWithDouble,
-            WindowMethod.IntegralWithDoubleAndUnit,
-            WindowMethod.IntegralWithInt32,
-            WindowMethod.IntegralWithInt32AndUnit,
-            WindowMethod.IntegralWithInt64,
-            WindowMethod.IntegralWithInt64AndUnit,
-            WindowMethod.IntegralWithSingle,
-            WindowMethod.IntegralWithSingleAndUnit,
-            WindowMethod.Last,
-            WindowMethod.Locf,
-            WindowMethod.Max,
-            WindowMethod.Min,
-            WindowMethod.Push,
-            WindowMethod.Rank,
-            WindowMethod.Shift,
-            WindowMethod.ShiftWithDefaultValue,
-            WindowMethod.StandardDeviationPopulationWithDecimal,
-            WindowMethod.StandardDeviationPopulationWithDouble,
-            WindowMethod.StandardDeviationPopulationWithInt32,
-            WindowMethod.StandardDeviationPopulationWithInt64,
-            WindowMethod.StandardDeviationPopulationWithNullableDecimal,
-            WindowMethod.StandardDeviationPopulationWithNullableDouble,
-            WindowMethod.StandardDeviationPopulationWithNullableInt32,
-            WindowMethod.StandardDeviationPopulationWithNullableInt64,
-            WindowMethod.StandardDeviationPopulationWithNullableSingle,
-            WindowMethod.StandardDeviationPopulationWithSingle,
-            WindowMethod.StandardDeviationSampleWithDecimal,
-            WindowMethod.StandardDeviationSampleWithDouble,
-            WindowMethod.StandardDeviationSampleWithInt32,
-            WindowMethod.StandardDeviationSampleWithInt64,
-            WindowMethod.StandardDeviationSampleWithNullableDecimal,
-            WindowMethod.StandardDeviationSampleWithNullableDouble,
-            WindowMethod.StandardDeviationSampleWithNullableInt32,
-            WindowMethod.StandardDeviationSampleWithNullableInt64,
-            WindowMethod.StandardDeviationSampleWithNullableSingle,
-            WindowMethod.StandardDeviationSampleWithSingle,
-            WindowMethod.SumWithDecimal,
-            WindowMethod.SumWithDouble,
-            WindowMethod.SumWithInt32,
-            WindowMethod.SumWithInt64,
-            WindowMethod.SumWithNullableDecimal,
-            WindowMethod.SumWithNullableDouble,
-            WindowMethod.SumWithNullableInt32,
-            WindowMethod.SumWithNullableInt64,
-            WindowMethod.SumWithNullableSingle,
-            WindowMethod.SumWithSingle
-        };
-
-        private static readonly MethodInfo[] __nullaryMethods =
-        {
+        private static readonly IReadOnlyMethodInfoSet __nullaryOverloads = MethodInfoSet.Create(
+        [
             WindowMethod.Count,
             WindowMethod.DenseRank,
             WindowMethod.DocumentNumber,
             WindowMethod.Rank
-        };
+        ]);
 
-        private static readonly MethodInfo[] __unaryMethods =
-       {
+        private static readonly IReadOnlyMethodInfoSet __unaryOverloads = MethodInfoSet.Create(
+        [
             WindowMethod.AddToSet,
             WindowMethod.AverageWithDecimal,
             WindowMethod.AverageWithDouble,
@@ -188,10 +86,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             WindowMethod.SumWithNullableInt64,
             WindowMethod.SumWithNullableSingle,
             WindowMethod.SumWithSingle
-        };
+        ]);
 
-        private static readonly MethodInfo[] __binaryMethods =
-        {
+        private static readonly IReadOnlyMethodInfoSet __binaryOverloads = MethodInfoSet.Create(
+        [
             WindowMethod.CovariancePopulationWithDecimals,
             WindowMethod.CovariancePopulationWithDoubles,
             WindowMethod.CovariancePopulationWithInt32s,
@@ -212,10 +110,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             WindowMethod.CovarianceSampleWithNullableInt64s,
             WindowMethod.CovarianceSampleWithNullableSingles,
             WindowMethod.CovarianceSampleWithSingles
-        };
+        ]);
 
-        private static readonly MethodInfo[] __derivativeOrIntegralMethods =
-        {
+        private static readonly IReadOnlyMethodInfoSet __derivativeOrIntegralOverloads = MethodInfoSet.Create(
+        [
             WindowMethod.DerivativeWithDecimal,
             WindowMethod.DerivativeWithDecimalAndUnit,
             WindowMethod.DerivativeWithDouble,
@@ -236,26 +134,50 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             WindowMethod.IntegralWithInt64AndUnit,
             WindowMethod.IntegralWithSingle,
             WindowMethod.IntegralWithSingleAndUnit
-        };
+        ]);
 
-        private static readonly MethodInfo[] __exponentialMovingAverageMethods =
-        {
+        private static readonly IReadOnlyMethodInfoSet __exponentialMovingAverageOverloads = MethodInfoSet.Create(
+        [
             WindowMethod.ExponentialMovingAverageWithDecimal,
             WindowMethod.ExponentialMovingAverageWithDouble,
             WindowMethod.ExponentialMovingAverageWithInt32,
             WindowMethod.ExponentialMovingAverageWithInt64,
             WindowMethod.ExponentialMovingAverageWithSingle
-        };
+        ]);
 
-        private static readonly MethodInfo[] __shiftMethods =
-        {
+        private static readonly IReadOnlyMethodInfoSet __shiftOverloads = MethodInfoSet.Create(
+        [
             WindowMethod.Shift,
             WindowMethod.ShiftWithDefaultValue
-        };
+        ]);
+
+        private static readonly IReadOnlyMethodInfoSet __quantileOverloads = MethodInfoSet.Create(
+        [
+            WindowMethod.MedianWithDecimal,
+            WindowMethod.MedianWithDouble,
+            WindowMethod.MedianWithInt32,
+            WindowMethod.MedianWithInt64,
+            WindowMethod.MedianWithNullableDecimal,
+            WindowMethod.MedianWithNullableDouble,
+            WindowMethod.MedianWithNullableInt32,
+            WindowMethod.MedianWithNullableInt64,
+            WindowMethod.MedianWithNullableSingle,
+            WindowMethod.MedianWithSingle,
+            WindowMethod.PercentileWithDecimal,
+            WindowMethod.PercentileWithDouble,
+            WindowMethod.PercentileWithInt32,
+            WindowMethod.PercentileWithInt64,
+            WindowMethod.PercentileWithNullableDecimal,
+            WindowMethod.PercentileWithNullableDouble,
+            WindowMethod.PercentileWithNullableInt32,
+            WindowMethod.PercentileWithNullableInt64,
+            WindowMethod.PercentileWithNullableSingle,
+            WindowMethod.PercentileWithSingle
+        ]);
 
         public static bool CanTranslate(MethodCallExpression expression)
         {
-            return expression.Method.IsOneOf(__windowMethods);
+            return IsWindowMethod(expression.Method);
         }
 
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
@@ -264,7 +186,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var parameters = method.GetParameters();
             var arguments = expression.Arguments.ToArray();
 
-            if (method.IsOneOf(__windowMethods))
+            if (IsWindowMethod(method))
             {
                 var partitionExpression = arguments[0];
                 var partitionTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, partitionExpression);
@@ -277,7 +199,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     window = TranslateWindow(context, expression, windowExpression, inputSerializer);
                 }
 
-                if (method.IsOneOf(__nullaryMethods))
+                if (method.IsOneOf(__nullaryOverloads))
                 {
                     var @operator = GetNullaryWindowOperator(method);
                     var ast = AstExpression.NullaryWindowExpression(@operator, window);
@@ -291,7 +213,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     selectorTranslation = TranslateSelector(context, selectorLambda, inputSerializer);
                 }
 
-                if (method.IsOneOf(__unaryMethods))
+                if (method.IsOneOf(__unaryOverloads))
                 {
                     ThrowIfSelectorTranslationIsNull(selectorTranslation);
                     var @operator = GetUnaryWindowOperator(method);
@@ -300,7 +222,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     return new TranslatedExpression(expression, ast, serializer);
                 }
 
-                if (method.IsOneOf(__binaryMethods))
+                if (method.IsOneOf(__binaryOverloads))
                 {
                     var selector1Lambda = GetArgument<LambdaExpression>(parameters, "selector1", arguments);
                     var selector2Lambda = GetArgument<LambdaExpression>(parameters, "selector2", arguments);
@@ -313,7 +235,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     return new TranslatedExpression(expression, ast, serializer);
                 }
 
-                if (method.IsOneOf(__derivativeOrIntegralMethods))
+                if (method.IsOneOf(__derivativeOrIntegralOverloads))
                 {
                     ThrowIfSelectorTranslationIsNull(selectorTranslation);
                     WindowTimeUnit? unit = default;
@@ -328,7 +250,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     return new TranslatedExpression(expression, ast, serializer);
                 }
 
-                if (method.IsOneOf(__exponentialMovingAverageMethods))
+                if (method.IsOneOf(__exponentialMovingAverageOverloads))
                 {
                     ThrowIfSelectorTranslationIsNull(selectorTranslation);
                     var weightingExpression = arguments[2];
@@ -339,7 +261,28 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     return new TranslatedExpression(expression, ast, serializer);
                 }
 
-                if (method.IsOneOf(__shiftMethods))
+                if (method.IsOneOf(__quantileOverloads))
+                {
+                    ThrowIfSelectorTranslationIsNull(selectorTranslation);
+                    AstExpression ast;
+
+                    if (method.Name == "Percentile")
+                    {
+                        // Get the percentiles parameter
+                        var percentilesExpression = GetArgument<Expression>(parameters, "percentiles", arguments);
+                        var percentilesTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, percentilesExpression);
+                        ast = AstExpression.PercentileWindowExpression(selectorTranslation.Ast, percentilesTranslation.Ast, window);
+                    }
+                    else
+                    {
+                        ast = AstExpression.MedianWindowExpression(selectorTranslation.Ast, window);
+                    }
+
+                    var serializer = StandardSerializers.GetSerializer(method.ReturnType);
+                    return new TranslatedExpression(expression, ast, serializer);
+                }
+
+                if (method.IsOneOf(__shiftOverloads))
                 {
                     ThrowIfSelectorTranslationIsNull(selectorTranslation);
                     var byExpression = arguments[2];
@@ -557,6 +500,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var renderedField = field.Render(new(documentSerializer, serializerRegistry, translationOptions: translationOptions));
 
             return renderedField.FieldSerializer;
+        }
+
+        private static bool IsWindowMethod(MethodInfo method)
+        {
+            return method.DeclaringType == typeof(ISetWindowFieldsPartitionExtensions);
         }
     }
 }

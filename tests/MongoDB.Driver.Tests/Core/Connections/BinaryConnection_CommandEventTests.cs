@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -47,7 +46,7 @@ namespace MongoDB.Driver.Core.Connections
         private BlockingMemoryStream _stream;
         private Mock<IStreamFactory> _mockStreamFactory;
         private BinaryConnection _subject;
-        private IDisposable _operationIdDisposer;
+        private EventContext.OperationIdDisposer _operationIdDisposer;
 
         public static IEnumerable<object[]> GetPotentiallyRedactedCommandTestCases()
         {
@@ -88,9 +87,9 @@ namespace MongoDB.Driver.Core.Connections
                     new HelloResult(new BsonDocument { { "maxWireVersion", WireVersion.Server36 } }));
 
             _mockConnectionInitializer = new Mock<IConnectionInitializer>();
-            _mockConnectionInitializer.Setup(i => i.SendHelloAsync(It.IsAny<IConnection>(), CancellationToken.None))
+            _mockConnectionInitializer.Setup(i => i.SendHelloAsync(It.IsAny<OperationContext>(), It.IsAny<IConnection>()))
                 .Returns(() => Task.FromResult(new ConnectionInitializerContext(connectionDescriptionFunc(), null)));
-            _mockConnectionInitializer.Setup(i => i.AuthenticateAsync(It.IsAny<IConnection>(), It.IsAny<ConnectionInitializerContext>(), CancellationToken.None))
+            _mockConnectionInitializer.Setup(i => i.AuthenticateAsync(It.IsAny<OperationContext>(), It.IsAny<IConnection>(), It.IsAny<ConnectionInitializerContext>()))
                 .Returns(() => Task.FromResult(new ConnectionInitializerContext(connectionDescriptionFunc(), null)));
 
             _subject = new BinaryConnection(
@@ -100,12 +99,15 @@ namespace MongoDB.Driver.Core.Connections
                 streamFactory: _mockStreamFactory.Object,
                 connectionInitializer: _mockConnectionInitializer.Object,
                 eventSubscriber: _capturedEvents,
-                LoggerFactory);
+                loggerFactory: LoggerFactory,
+                tracingOptions: null,
+                socketReadTimeout: Timeout.InfiniteTimeSpan,
+                socketWriteTimeout: Timeout.InfiniteTimeSpan);
 
             _stream = new BlockingMemoryStream();
-            _mockStreamFactory.Setup(f => f.CreateStreamAsync(_endPoint, CancellationToken.None))
+            _mockStreamFactory.Setup(f => f.CreateStreamAsync(_endPoint, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult<Stream>(_stream));
-            _subject.OpenAsync(CancellationToken.None).Wait();
+            _subject.OpenAsync(OperationContext.NoTimeout).Wait();
             _capturedEvents.Clear();
 
             _operationIdDisposer = EventContext.BeginOperation();
@@ -126,13 +128,13 @@ namespace MongoDB.Driver.Core.Connections
             var requestMessage = MessageHelper.BuildCommand(
                 expectedCommand,
                 requestId: 10);
-            SendMessages(requestMessage);
+            SendMessage(requestMessage);
 
             var replyMessage = MessageHelper.BuildReply<BsonDocument>(
                 expectedReply,
                 BsonDocumentSerializer.Instance,
                 responseTo: requestMessage.RequestId);
-            ReceiveMessages(replyMessage);
+            ReceiveMessage(replyMessage);
 
             var commandStartedEvent = (CommandStartedEvent)_capturedEvents.Next();
             var commandSucceededEvent = (CommandSucceededEvent)_capturedEvents.Next();
@@ -162,13 +164,13 @@ namespace MongoDB.Driver.Core.Connections
             var requestMessage = MessageHelper.BuildCommand(
                 command,
                 requestId: 10);
-            SendMessages(requestMessage);
+            SendMessage(requestMessage);
 
             var replyMessage = MessageHelper.BuildReply<BsonDocument>(
                 reply,
                 BsonDocumentSerializer.Instance,
                 responseTo: requestMessage.RequestId);
-            ReceiveMessages(replyMessage);
+            ReceiveMessage(replyMessage);
 
             var commandStartedEvent = (CommandStartedEvent)_capturedEvents.Next();
             var commandSucceededEvent = (CommandSucceededEvent)_capturedEvents.Next();
@@ -197,13 +199,13 @@ namespace MongoDB.Driver.Core.Connections
             var requestMessage = MessageHelper.BuildCommand(
                 expectedCommand,
                 requestId: 10);
-            SendMessages(requestMessage);
+            SendMessage(requestMessage);
 
             var replyMessage = MessageHelper.BuildReply<BsonDocument>(
                 expectedReply,
                 BsonDocumentSerializer.Instance,
                 responseTo: requestMessage.RequestId);
-            ReceiveMessages(replyMessage);
+            ReceiveMessage(replyMessage);
 
             var commandStartedEvent = (CommandStartedEvent)_capturedEvents.Next();
             var commandFailedEvent = (CommandFailedEvent)_capturedEvents.Next();
@@ -233,13 +235,13 @@ namespace MongoDB.Driver.Core.Connections
             var requestMessage = MessageHelper.BuildCommand(
                 command,
                 requestId: 10);
-            SendMessages(requestMessage);
+            SendMessage(requestMessage);
 
             var replyMessage = MessageHelper.BuildReply<BsonDocument>(
                 reply,
                 BsonDocumentSerializer.Instance,
                 responseTo: requestMessage.RequestId);
-            ReceiveMessages(replyMessage);
+            ReceiveMessage(replyMessage);
 
             var commandStartedEvent = (CommandStartedEvent)_capturedEvents.Next();
             var commandFailedEvent = (CommandFailedEvent)_capturedEvents.Next();
@@ -288,15 +290,14 @@ namespace MongoDB.Driver.Core.Connections
             var requestMessage = MessageHelper.BuildQuery(
                 (BsonDocument)expectedCommand["filter"],
                 requestId: 10);
-            SendMessages(requestMessage);
-
+            SendMessage(requestMessage);
 
             var replyMessage = MessageHelper.BuildReply<BsonDocument>(
                 expectedReplyDocuments,
                 BsonDocumentSerializer.Instance,
                 responseTo: requestMessage.RequestId,
                 cursorId: expectedReply["cursor"]["id"].ToInt64());
-            ReceiveMessages(replyMessage);
+            ReceiveMessage(replyMessage);
 
             var commandStartedEvent = (CommandStartedEvent)_capturedEvents.Next();
             var commandSucceededEvent = (CommandSucceededEvent)_capturedEvents.Next();
@@ -374,7 +375,7 @@ namespace MongoDB.Driver.Core.Connections
 
             using (EventContext.BeginFind(expectedCommand["batchSize"].ToInt32(), expectedCommand["limit"].ToInt32()))
             {
-                SendMessages(requestMessage);
+                SendMessage(requestMessage);
             }
 
             var replyMessage = MessageHelper.BuildReply<BsonDocument>(
@@ -382,7 +383,7 @@ namespace MongoDB.Driver.Core.Connections
                 BsonDocumentSerializer.Instance,
                 responseTo: requestMessage.RequestId,
                 cursorId: expectedReply["cursor"]["id"].ToInt64());
-            ReceiveMessages(replyMessage);
+            ReceiveMessage(replyMessage);
 
             var commandStartedEvent = (CommandStartedEvent)_capturedEvents.Next();
             var commandSucceededEvent = (CommandSucceededEvent)_capturedEvents.Next();
@@ -420,13 +421,13 @@ namespace MongoDB.Driver.Core.Connections
             var requestMessage = MessageHelper.BuildQuery(
                 query,
                 requestId: 10);
-            SendMessages(requestMessage);
+            SendMessage(requestMessage);
 
             var replyMessage = MessageHelper.BuildReply(
                 expectedReply,
                 BsonDocumentSerializer.Instance,
                 responseTo: requestMessage.RequestId);
-            ReceiveMessages(replyMessage);
+            ReceiveMessage(replyMessage);
 
             var commandStartedEvent = (CommandStartedEvent)_capturedEvents.Next();
             var commandSucceededEvent = (CommandSucceededEvent)_capturedEvents.Next();
@@ -459,13 +460,12 @@ namespace MongoDB.Driver.Core.Connections
             var requestMessage = MessageHelper.BuildQuery(
                 (BsonDocument)expectedCommand["filter"],
                 requestId: 10);
-            SendMessages(requestMessage);
-
+            SendMessage(requestMessage);
 
             var replyMessage = MessageHelper.BuildQueryFailedReply<BsonDocument>(
                 queryFailureDocument,
                 requestMessage.RequestId);
-            ReceiveMessages(replyMessage);
+            ReceiveMessage(replyMessage);
 
             var commandStartedEvent = (CommandStartedEvent)_capturedEvents.Next();
             var commandFailedEvent = (CommandFailedEvent)_capturedEvents.Next();
@@ -485,19 +485,16 @@ namespace MongoDB.Driver.Core.Connections
             commandFailedEvent.RequestId.Should().Be(commandStartedEvent.RequestId);
         }
 
-        private void SendMessages(params RequestMessage[] messages)
+        private void SendMessage(RequestMessage message)
         {
-            _subject.SendMessagesAsync(messages, _messageEncoderSettings, CancellationToken.None).Wait();
+            _subject.SendMessageAsync(OperationContext.NoTimeout, message, _messageEncoderSettings).Wait();
         }
 
-        private void ReceiveMessages(params ReplyMessage<BsonDocument>[] messages)
+        private void ReceiveMessage(ReplyMessage<BsonDocument> message)
         {
-            MessageHelper.WriteResponsesToStream(_stream, messages);
+            MessageHelper.WriteResponsesToStream(_stream, message);
             var encoderSelector = new ReplyMessageEncoderSelector<BsonDocument>(BsonDocumentSerializer.Instance);
-            foreach (var message in messages)
-            {
-                _subject.ReceiveMessageAsync(message.ResponseTo, encoderSelector, _messageEncoderSettings, CancellationToken.None).Wait();
-            }
+            _subject.ReceiveMessageAsync(OperationContext.NoTimeout, message.ResponseTo, encoderSelector, _messageEncoderSettings).Wait();
         }
     }
 }

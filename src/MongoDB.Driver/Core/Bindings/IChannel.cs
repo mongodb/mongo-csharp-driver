@@ -15,7 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
@@ -33,6 +32,7 @@ namespace MongoDB.Driver.Core.Bindings
         ConnectionDescription ConnectionDescription { get; }
 
         TResult Command<TResult>(
+            OperationContext operationContext,
             ICoreSession session,
             ReadPreference readPreference,
             DatabaseNamespace databaseNamespace,
@@ -43,10 +43,10 @@ namespace MongoDB.Driver.Core.Bindings
             Action<IMessageEncoderPostProcessor> postWriteAction,
             CommandResponseHandling responseHandling,
             IBsonSerializer<TResult> resultSerializer,
-            MessageEncoderSettings messageEncoderSettings,
-            CancellationToken cancellationToken);
+            MessageEncoderSettings messageEncoderSettings);
 
         Task<TResult> CommandAsync<TResult>(
+            OperationContext operationContext,
             ICoreSession session,
             ReadPreference readPreference,
             DatabaseNamespace databaseNamespace,
@@ -57,76 +57,7 @@ namespace MongoDB.Driver.Core.Bindings
             Action<IMessageEncoderPostProcessor> postWriteAction,
             CommandResponseHandling responseHandling,
             IBsonSerializer<TResult> resultSerializer,
-            MessageEncoderSettings messageEncoderSettings,
-            CancellationToken cancellationToken);
-
-        CursorBatch<TDocument> Query<TDocument>(
-            CollectionNamespace collectionNamespace,
-            BsonDocument query,
-            BsonDocument fields,
-            IElementNameValidator queryValidator,
-            int skip,
-            int batchSize,
-            bool secondaryOk,
-            bool partialOk,
-            bool noCursorTimeout,
-            bool tailableCursor,
-            bool awaitData,
-            IBsonSerializer<TDocument> serializer,
-            MessageEncoderSettings messageEncoderSettings,
-            CancellationToken cancellationToken);
-
-        [Obsolete("Use an overload that does not have an oplogReplay parameter instead.")]
-        CursorBatch<TDocument> Query<TDocument>(
-            CollectionNamespace collectionNamespace,
-            BsonDocument query,
-            BsonDocument fields,
-            IElementNameValidator queryValidator,
-            int skip,
-            int batchSize,
-            bool secondaryOk,
-            bool partialOk,
-            bool noCursorTimeout,
-            bool oplogReplay, // obsolete: OplogReplay is ignored by server versions 4.4.0 and newer
-            bool tailableCursor,
-            bool awaitData,
-            IBsonSerializer<TDocument> serializer,
-            MessageEncoderSettings messageEncoderSettings,
-            CancellationToken cancellationToken);
-
-        Task<CursorBatch<TDocument>> QueryAsync<TDocument>(
-            CollectionNamespace collectionNamespace,
-            BsonDocument query,
-            BsonDocument fields,
-            IElementNameValidator queryValidator,
-            int skip,
-            int batchSize,
-            bool secondaryOk,
-            bool partialOk,
-            bool noCursorTimeout,
-            bool tailableCursor,
-            bool awaitData,
-            IBsonSerializer<TDocument> serializer,
-            MessageEncoderSettings messageEncoderSettings,
-            CancellationToken cancellationToken);
-
-        [Obsolete("Use an overload that does not have an oplogReplay parameter instead.")]
-        Task<CursorBatch<TDocument>> QueryAsync<TDocument>(
-            CollectionNamespace collectionNamespace,
-            BsonDocument query,
-            BsonDocument fields,
-            IElementNameValidator queryValidator,
-            int skip,
-            int batchSize,
-            bool secondaryOk,
-            bool partialOk,
-            bool noCursorTimeout,
-            bool oplogReplay, // obsolete: OplogReplay is ignored by server versions 4.4.0 and newer
-            bool tailableCursor,
-            bool awaitData,
-            IBsonSerializer<TDocument> serializer,
-            MessageEncoderSettings messageEncoderSettings,
-            CancellationToken cancellationToken);
+            MessageEncoderSettings messageEncoderSettings);
     }
 
     internal interface IChannelHandle : IChannel

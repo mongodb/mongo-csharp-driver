@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -112,7 +112,7 @@ namespace MongoDB.Driver.Core.Operations
             get { return _update; }
         }
 
-        public override BsonDocument CreateCommand(ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber)
+        public override BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber)
         {
             var wireVersion = connectionDescription.MaxWireVersion;
             FindProjectionChecker.ThrowIfAggregationExpressionIsUsedWhenNotSupported(_projection, wireVersion);
@@ -125,7 +125,7 @@ namespace MongoDB.Driver.Core.Operations
                 }
             }
 
-            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(session, WriteConcern);
+            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, session, WriteConcern);
             return new BsonDocument
             {
                 { "findAndModify", CollectionNamespace.CollectionName },
@@ -135,7 +135,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "sort", _sort, _sort != null },
                 { "fields", _projection, _projection != null },
                 { "upsert", true, _isUpsert },
-                { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue },
+                { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue && !operationContext.IsRootContextTimeoutConfigured() },
                 { "writeConcern", writeConcern, writeConcern != null },
                 { "bypassDocumentValidation", () => _bypassDocumentValidation.Value, _bypassDocumentValidation.HasValue },
                 { "collation", () => Collation.ToBsonDocument(), Collation != null },

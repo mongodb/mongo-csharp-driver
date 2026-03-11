@@ -22,7 +22,6 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Driver;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators;
@@ -31,6 +30,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translators
 {
+    [Trait("Category", "Integration")]
     public class LegacyPredicateTranslatorTests
     {
         private static IMongoDatabase __database;
@@ -1180,11 +1180,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
 
         private void Assert<TDocument>(Expression<Func<TDocument, bool>> expression, int expectedCount, string expectedFilter)
         {
-            expression = (Expression<Func<TDocument, bool>>)PartialEvaluator.EvaluatePartially(expression);
+            expression = (Expression<Func<TDocument, bool>>)LinqExpressionPreprocessor.Preprocess(expression);
 
             var parameter = expression.Parameters.Single();
             var serializer = BsonSerializer.LookupSerializer<TDocument>();
-            var context = TranslationContext.Create(translationOptions: null);
+            var context = TranslationContext.Create(expression, parameter, serializer, translationOptions: null);
             var symbol = context.CreateSymbol(parameter, serializer, isCurrent: true);
             context = context.WithSymbol(symbol);
             var filterAst = ExpressionToFilterTranslator.Translate(context, expression.Body);

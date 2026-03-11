@@ -1,4 +1,4 @@
-﻿/* Copyright 2018-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,11 +20,19 @@ namespace MongoDB.Driver.Core.Operations
 {
     internal static class WriteConcernHelper
     {
-        public static BsonDocument GetEffectiveWriteConcern(ICoreSession session, WriteConcern writeConcern)
+        public static BsonDocument GetEffectiveWriteConcern(OperationContext operationContext, ICoreSession session, WriteConcern writeConcern)
         {
-            if (!session.IsInTransaction && writeConcern != null && !writeConcern.IsServerDefault)
+            if (writeConcern != null)
             {
-                return writeConcern.ToBsonDocument();
+                if (operationContext.IsRootContextTimeoutConfigured())
+                {
+                    writeConcern = writeConcern.With(wTimeout: null);
+                }
+
+                if (!session.IsInTransaction && !writeConcern.IsServerDefault)
+                {
+                    return writeConcern.ToBsonDocument();
+                }
             }
 
             return null;

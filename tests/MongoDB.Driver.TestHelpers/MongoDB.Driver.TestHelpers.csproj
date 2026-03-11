@@ -2,6 +2,7 @@
   <Import Project="..\BuildProps\Tests.Build.props" />
 
   <PropertyGroup>
+    <IsTestProject>false</IsTestProject>
     <CodeAnalysisRuleSet>..\..\MongoDBTest.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
@@ -13,7 +14,6 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Diagnostics.Runtime" Version="2.0.226801" />
-    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" PrivateAssets="All" Version="1.0.0" />
   </ItemGroup>
 
   <ItemGroup>

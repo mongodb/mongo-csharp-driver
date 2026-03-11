@@ -16,12 +16,12 @@
 using System.Collections.Generic;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
+    [Trait("Category", "Integration")]
     public class AggregateGraphLookupEnumerableFromOrToTests
     {
         // public methods

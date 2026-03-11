@@ -131,7 +131,18 @@ namespace MongoDB.Driver
     public sealed class SortDefinitionBuilder<TDocument>
     {
         /// <summary>
-        /// Creates an ascending sort.
+        /// Creates an ascending sort on a value rather than on a field of a document. For example, "$sort : 1".
+        /// This is used when sorting primitive values like strings or numbers, but can also be used to sort whole documents.
+        /// </summary>
+        /// <returns>A value ascending sort.</returns>
+        public SortDefinition<TDocument> Ascending()
+        {
+            return new ValueDirectionalSortDefinition<TDocument>(SortDirection.Ascending);
+        }
+
+        /// <summary>
+        /// Creates an ascending sort based on a specific field within the document. For example, "$sort : { field : 1 }".
+        /// This is used when values are documents, and you want to sort by a particular field's value.
         /// </summary>
         /// <param name="field">The field.</param>
         /// <returns>An ascending sort.</returns>
@@ -141,7 +152,8 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates an ascending sort.
+        /// Creates an ascending sort based on a specific field within the document. For example, "$sort : { field : 1 }".
+        /// This is used when values are documents, and you want to sort by a particular field's value.
         /// </summary>
         /// <param name="field">The field.</param>
         /// <returns>An ascending sort.</returns>
@@ -171,7 +183,18 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates a descending sort.
+        /// Creates a descending sort on a value rather than on a field of a document. For example, "$sort : -1".
+        /// This is used when sorting primitive values like strings or numbers, but can also be used to sort whole documents.
+        /// </summary>
+        /// <returns>A value descending sort.</returns>
+        public SortDefinition<TDocument> Descending()
+        {
+            return new ValueDirectionalSortDefinition<TDocument>(SortDirection.Descending);
+        }
+
+        /// <summary>
+        /// Creates a descending sort based on a specific field within the document. For example, "$sort: { field: -1 }".
+        /// This is used when values are documents, and you want to sort by a particular field's value.
         /// </summary>
         /// <param name="field">The field.</param>
         /// <returns>A descending sort.</returns>
@@ -181,7 +204,8 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates a descending sort.
+        /// Creates a descending sort based on a specific field within the document. For example, "$sort: { field: -1 }".
+        /// This is used when values are documents, and you want to sort by a particular field's value.
         /// </summary>
         /// <param name="field">The field.</param>
         /// <returns>A descending sort.</returns>
@@ -232,6 +256,11 @@ namespace MongoDB.Driver
         public CombinedSortDefinition(IEnumerable<SortDefinition<TDocument>> sorts)
         {
             _sorts = Ensure.IsNotNull(sorts, nameof(sorts)).ToList();
+
+            if (_sorts.Any(sort => sort is ValueDirectionalSortDefinition<TDocument>))
+            {
+                throw new InvalidOperationException("Value-based sort cannot be combined with other sorts. When sorting by the entire element value, no other sorting criteria can be applied.");
+            }
         }
 
         public override BsonDocument Render(RenderArgs<TDocument> args)
@@ -272,20 +301,25 @@ namespace MongoDB.Driver
         {
             var renderedField = _field.Render(args);
 
-            BsonValue value;
-            switch (_direction)
-            {
-                case SortDirection.Ascending:
-                    value = 1;
-                    break;
-                case SortDirection.Descending:
-                    value = -1;
-                    break;
-                default:
-                    throw new InvalidOperationException("Unknown value for " + typeof(SortDirection) + ".");
-            }
-
-            return new BsonDocument(renderedField.FieldName, value);
+            return new BsonDocument(renderedField.FieldName, _direction.Render());
         }
+    }
+
+    internal sealed class ValueDirectionalSortDefinition<TDocument> : SortDefinition<TDocument>
+    {
+        private readonly SortDirection _direction;
+
+        public ValueDirectionalSortDefinition(SortDirection direction)
+        {
+            _direction = direction;
+        }
+
+        public override BsonDocument Render(RenderArgs<TDocument> args)
+        {
+            throw new InvalidOperationException(
+                "Value-based sort cannot be rendered as a document. You might be trying to use a value-based sort where a field-based sort is expected.");
+        }
+
+        internal override BsonValue RenderAsBsonValue(RenderArgs<TDocument> args) => _direction.Render();
     }
 }

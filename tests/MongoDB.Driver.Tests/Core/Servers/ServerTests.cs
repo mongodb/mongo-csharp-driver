@@ -71,8 +71,8 @@ namespace MongoDB.Driver.Core.Servers
             _clusterClock = new Mock<IClusterClock>().Object;
             _directConnection = false;
             _mockConnectionPool = new Mock<IConnectionPool>();
-            _mockConnectionPool.Setup(p => p.AcquireConnection(It.IsAny<CancellationToken>())).Returns(new Mock<IConnectionHandle>().Object);
-            _mockConnectionPool.Setup(p => p.AcquireConnectionAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult(new Mock<IConnectionHandle>().Object));
+            _mockConnectionPool.Setup(p => p.AcquireConnection(It.IsAny<OperationContext>())).Returns(new Mock<IConnectionHandle>().Object);
+            _mockConnectionPool.Setup(p => p.AcquireConnectionAsync(It.IsAny<OperationContext>())).Returns(Task.FromResult(new Mock<IConnectionHandle>().Object));
             _mockConnectionPoolFactory = new Mock<IConnectionPoolFactory>();
             _mockConnectionPoolFactory
                 .Setup(f => f.CreateConnectionPool(It.IsAny<ServerId>(), _endPoint, It.IsAny<IConnectionExceptionHandler>()))
@@ -95,28 +95,6 @@ namespace MongoDB.Driver.Core.Servers
         protected override void DisposeInternal()
         {
             _subject.Dispose();
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void ChannelFork_should_not_affect_operations_count([Values(false, true)] bool async)
-        {
-            IClusterableServer server = SetupServer(false, false);
-
-            var channel = async ?
-                server.GetChannelAsync(CancellationToken.None).GetAwaiter().GetResult() :
-                server.GetChannel(CancellationToken.None);
-
-            server.OutstandingOperationsCount.Should().Be(1);
-
-            var forkedChannel = channel.Fork();
-            server.OutstandingOperationsCount.Should().Be(1);
-
-            forkedChannel.Dispose();
-            server.OutstandingOperationsCount.Should().Be(1);
-
-            channel.Dispose();
-            server.OutstandingOperationsCount.Should().Be(0);
         }
 
         [Fact]
@@ -200,12 +178,10 @@ namespace MongoDB.Driver.Core.Servers
 
         [Theory]
         [ParameterAttributeData]
-        public void GetChannel_should_clear_connection_pool_when_opening_connection_throws_MongoAuthenticationException(
+        public async Task GetChannel_should_clear_connection_pool_when_opening_connection_throws_MongoAuthenticationException(
             [Values(false, true)] bool async)
         {
             var connectionId = new ConnectionId(new ServerId(_clusterId, _endPoint));
-            var mockConnectionHandle = new Mock<IConnectionHandle>();
-
             var mockConnectionPool = new Mock<IConnectionPool>();
 
             var mockConnectionPoolFactory = new Mock<IConnectionPoolFactory>();
@@ -226,28 +202,20 @@ namespace MongoDB.Driver.Core.Servers
 
             var exceptionToThrow = new MongoAuthenticationException(connectionId, "Invalid login.");
             mockConnectionPool
-                .Setup(p => p.AcquireConnection(It.IsAny<CancellationToken>()))
+                .Setup(p => p.AcquireConnection(It.IsAny<OperationContext>()))
                 .Callback(() => server.HandleExceptionOnOpen(exceptionToThrow))
                 .Throws(exceptionToThrow);
             mockConnectionPool
-                .Setup(p => p.AcquireConnectionAsync(It.IsAny<CancellationToken>()))
+                .Setup(p => p.AcquireConnectionAsync(It.IsAny<OperationContext>()))
                 .Callback(() => server.HandleExceptionOnOpen(exceptionToThrow))
                 .Throws(exceptionToThrow);
             mockConnectionPool.Setup(p => p.Clear(It.IsAny<bool>()));
 
             server.Initialize();
 
-            var exception = Record.Exception(() =>
-            {
-                if (async)
-                {
-                    server.GetChannelAsync(CancellationToken.None).GetAwaiter().GetResult();
-                }
-                else
-                {
-                    server.GetChannel(CancellationToken.None);
-                }
-            });
+            var exception = async ?
+                await Record.ExceptionAsync(() => server.GetChannelAsync(OperationContext.NoTimeout)) :
+                Record.Exception(() => server.GetChannel(OperationContext.NoTimeout));
 
             exception.Should().BeOfType<MongoAuthenticationException>();
             mockConnectionPool.Verify(p => p.Clear(It.IsAny<bool>()), Times.Once());
@@ -255,120 +223,91 @@ namespace MongoDB.Driver.Core.Servers
 
         [Theory]
         [ParameterAttributeData]
-        public void GetChannel_should_get_a_connection(
+        public async Task GetChannel_should_get_a_connection(
             [Values(false, true)]
             bool async)
         {
             _subject.Initialize();
 
-            IChannelHandle channel;
-            if (async)
-            {
-                channel = _subject.GetChannelAsync(CancellationToken.None).GetAwaiter().GetResult();
-            }
-            else
-            {
-                channel = _subject.GetChannel(CancellationToken.None);
-            }
+            var connection = async ?
+                await _subject.GetChannelAsync(OperationContext.NoTimeout) :
+                _subject.GetChannel(OperationContext.NoTimeout);
 
-            channel.Should().NotBeNull();
+            connection.Should().NotBeNull();
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void GetChannel_should_not_increase_operations_count_on_exception(
+        public async Task GetChannel_should_not_increase_operations_count_on_exception(
             [Values(false, true)] bool async,
             [Values(false, true)] bool connectionOpenException)
         {
             IClusterableServer server = SetupServer(connectionOpenException, !connectionOpenException);
 
-            _ = Record.Exception(() =>
-            {
-                if (async)
-                {
-                    server.GetChannelAsync(CancellationToken.None).GetAwaiter().GetResult();
-                }
-                else
-                {
-                    server.GetChannel(CancellationToken.None);
-                }
-            });
+            var exception = async ?
+                await Record.ExceptionAsync(() => _subject.GetChannelAsync(OperationContext.NoTimeout)) :
+                Record.Exception(() => _subject.GetChannel(OperationContext.NoTimeout));
 
+            exception.Should().NotBeNull();
             server.OutstandingOperationsCount.Should().Be(0);
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void GetChannel_should_set_operations_count_correctly(
+        public async Task GetChannel_should_set_operations_count_correctly(
             [Values(false, true)] bool async,
             [Values(0, 1, 2, 10)] int operationsCount)
         {
             IClusterableServer server = SetupServer(false, false);
 
-            var channels = new List<IChannel>();
+            var channels = new List<IChannelHandle>();
             for (int i = 0; i < operationsCount; i++)
             {
-                if (async)
-                {
-                    channels.Add(server.GetChannelAsync(CancellationToken.None).GetAwaiter().GetResult());
-                }
-                else
-                {
-                    channels.Add(server.GetChannel(CancellationToken.None));
-                }
+                var connection = async ?
+                    await server.GetChannelAsync(OperationContext.NoTimeout) :
+                    server.GetChannel(OperationContext.NoTimeout);
+                channels.Add(connection);
             }
 
             server.OutstandingOperationsCount.Should().Be(operationsCount);
 
             foreach (var channel in channels)
             {
-                channel.Dispose();
+                server.DecrementOutstandingOperationsCount();
                 server.OutstandingOperationsCount.Should().Be(--operationsCount);
             }
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void GetChannel_should_throw_when_not_initialized(
+        public async Task GetChannel_should_throw_when_not_initialized(
             [Values(false, true)] bool async)
         {
-            Action act;
-            if (async)
-            {
-                act = () => _subject.GetChannelAsync(CancellationToken.None).GetAwaiter().GetResult();
-            }
-            else
-            {
-                act = () => _subject.GetChannel(CancellationToken.None);
-            }
+            var exception = async ?
+                await Record.ExceptionAsync(() => _subject.GetChannelAsync(OperationContext.NoTimeout)) :
+                Record.Exception(() => _subject.GetChannel(OperationContext.NoTimeout));
 
-            act.ShouldThrow<InvalidOperationException>();
+            exception.Should().BeOfType<InvalidOperationException>();
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void GetChannel_should_throw_when_disposed(
+        public async Task GetChannel_should_throw_when_disposed(
             [Values(false, true)]
             bool async)
         {
             _subject.Dispose();
 
-            Action act;
-            if (async)
-            {
-                act = () => _subject.GetChannelAsync(CancellationToken.None).GetAwaiter().GetResult();
-            }
-            else
-            {
-                act = () => _subject.GetChannel(CancellationToken.None);
-            }
+            var exception = async ?
+                await Record.ExceptionAsync(() => _subject.GetChannelAsync(OperationContext.NoTimeout)) :
+                Record.Exception(() => _subject.GetChannel(OperationContext.NoTimeout));
 
-            act.ShouldThrow<ObjectDisposedException>();
+            exception.Should().BeOfType<ObjectDisposedException>();
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void GetChannel_should_update_topology_and_clear_connection_pool_on_network_error_or_timeout(
+        public async Task GetChannel_should_update_topology_and_clear_connection_pool_on_network_error_or_timeout(
             [Values("TimedOutSocketException", "NetworkUnreachableSocketException")] string errorType,
             [Values(false, true)] bool async)
         {
@@ -379,8 +318,8 @@ namespace MongoDB.Driver.Core.Servers
             var openConnectionException = new MongoConnectionException(connectionId, "Oops", new IOException("Cry", innerMostException));
             var mockConnection = new Mock<IConnectionHandle>();
             mockConnection.Setup(c => c.ConnectionId).Returns(connectionId);
-            mockConnection.Setup(c => c.Open(It.IsAny<CancellationToken>())).Throws(openConnectionException);
-            mockConnection.Setup(c => c.OpenAsync(It.IsAny<CancellationToken>())).ThrowsAsync(openConnectionException);
+            mockConnection.Setup(c => c.Open(It.IsAny<OperationContext>())).Throws(openConnectionException);
+            mockConnection.Setup(c => c.OpenAsync(It.IsAny<OperationContext>())).ThrowsAsync(openConnectionException);
 
             var connectionFactory = new Mock<IConnectionFactory>();
             connectionFactory.Setup(f => f.ConnectionSettings).Returns(() => new ConnectionSettings());
@@ -406,18 +345,10 @@ namespace MongoDB.Driver.Core.Servers
             subject.Initialize();
             connectionPool.SetReady();
 
-            IChannelHandle channel = null;
-            Exception exception;
-            if (async)
-            {
-                exception = Record.Exception(() => channel = subject.GetChannelAsync(CancellationToken.None).GetAwaiter().GetResult());
-            }
-            else
-            {
-                exception = Record.Exception(() => channel = subject.GetChannel(CancellationToken.None));
-            }
+            var exception = async ?
+                    await Record.ExceptionAsync(() => subject.GetChannelAsync(OperationContext.NoTimeout)) :
+                    Record.Exception(() => subject.GetChannel(OperationContext.NoTimeout));
 
-            channel.Should().BeNull();
             exception.Should().Be(openConnectionException);
             subject.Description.Type.Should().Be(ServerType.Unknown);
             subject.Description.ReasonChanged.Should().Contain("ChannelException during handshake");
@@ -449,8 +380,8 @@ namespace MongoDB.Driver.Core.Servers
             mockConnection.SetupGet(c => c.Description)
                 .Returns(new ConnectionDescription(new ConnectionId(serverId, 0), helloResult));
             var mockConnectionPool = new Mock<IConnectionPool>();
-            mockConnectionPool.Setup(p => p.AcquireConnection(It.IsAny<CancellationToken>())).Returns(mockConnection.Object);
-            mockConnectionPool.Setup(p => p.AcquireConnectionAsync(It.IsAny<CancellationToken>())).ReturnsAsync(mockConnection.Object);
+            mockConnectionPool.Setup(p => p.AcquireConnection(It.IsAny<OperationContext>())).Returns(mockConnection.Object);
+            mockConnectionPool.Setup(p => p.AcquireConnectionAsync(It.IsAny<OperationContext>())).ReturnsAsync(mockConnection.Object);
             var mockConnectionPoolFactory = new Mock<IConnectionPoolFactory>();
             mockConnectionPoolFactory
                 .Setup(f => f.CreateConnectionPool(It.IsAny<ServerId>(), _endPoint, It.IsAny<IConnectionExceptionHandler>()))
@@ -834,30 +765,30 @@ namespace MongoDB.Driver.Core.Servers
             if (exceptionOnConnectionAcquire)
             {
                 mockConnectionPool
-                    .Setup(p => p.AcquireConnection(It.IsAny<CancellationToken>()))
+                    .Setup(p => p.AcquireConnection(It.IsAny<OperationContext>()))
                     .Throws(new TimeoutException("Timeout"));
                 mockConnectionPool
-                    .Setup(p => p.AcquireConnectionAsync(It.IsAny<CancellationToken>()))
+                    .Setup(p => p.AcquireConnectionAsync(It.IsAny<OperationContext>()))
                     .Throws(new TimeoutException("Timeout"));
                 mockConnectionPool.Setup(p => p.Clear(It.IsAny<bool>()));
             }
             else if (exceptionOnConnectionOpen)
             {
                 mockConnectionPool
-                    .Setup(p => p.AcquireConnection(It.IsAny<CancellationToken>()))
+                    .Setup(p => p.AcquireConnection(It.IsAny<OperationContext>()))
                     .Throws(new MongoAuthenticationException(connectionId, "Invalid login."));
                 mockConnectionPool
-                    .Setup(p => p.AcquireConnectionAsync(It.IsAny<CancellationToken>()))
+                    .Setup(p => p.AcquireConnectionAsync(It.IsAny<OperationContext>()))
                     .Throws(new MongoAuthenticationException(connectionId, "Invalid login."));
                 mockConnectionPool.Setup(p => p.Clear(It.IsAny<bool>()));
             }
             else
             {
                 mockConnectionPool
-                    .Setup(p => p.AcquireConnection(It.IsAny<CancellationToken>()))
+                    .Setup(p => p.AcquireConnection(It.IsAny<OperationContext>()))
                     .Returns(mockConnectionHandle.Object);
                 mockConnectionPool
-                    .Setup(p => p.AcquireConnectionAsync(It.IsAny<CancellationToken>()))
+                    .Setup(p => p.AcquireConnectionAsync(It.IsAny<OperationContext>()))
                     .Returns(Task.FromResult(mockConnectionHandle.Object));
                 mockConnectionPool.Setup(p => p.Clear(It.IsAny<bool>()));
             }
@@ -883,6 +814,7 @@ namespace MongoDB.Driver.Core.Servers
         }
     }
 
+    [Trait("Category", "Integration")]
     public class ServerChannelTests
     {
         [Theory]
@@ -899,9 +831,8 @@ namespace MongoDB.Driver.Core.Servers
             using (var cluster = CoreTestConfiguration.CreateCluster(b => b.Subscribe(eventCapturer)))
             using (var session = cluster.StartSession())
             {
-                var cancellationToken = CancellationToken.None;
-                var server = (Server)cluster.SelectServer(WritableServerSelector.Instance, cancellationToken);
-                using (var channel = server.GetChannel(cancellationToken))
+                var server = cluster.SelectServer(OperationContext.NoTimeout, WritableServerSelector.Instance);
+                using (var channel = server.GetChannel(OperationContext.NoTimeout))
                 {
                     session.AdvanceClusterTime(sessionClusterTime);
                     server.ClusterClock.AdvanceClusterTime(clusterClusterTime);
@@ -910,6 +841,7 @@ namespace MongoDB.Driver.Core.Servers
                     try
                     {
                         channel.Command<BsonDocument>(
+                            OperationContext.NoTimeout,
                             session,
                             ReadPreference.Primary,
                             DatabaseNamespace.Admin,
@@ -920,8 +852,7 @@ namespace MongoDB.Driver.Core.Servers
                             null, // postWriteAction
                             CommandResponseHandling.Return,
                             BsonDocumentSerializer.Instance,
-                            new MessageEncoderSettings(),
-                            cancellationToken);
+                            new MessageEncoderSettings());
                     }
                     catch (MongoCommandException ex)
                     {
@@ -947,12 +878,12 @@ namespace MongoDB.Driver.Core.Servers
             using (var cluster = CoreTestConfiguration.CreateCluster(b => b.Subscribe(eventCapturer)))
             using (var session = cluster.StartSession())
             {
-                var cancellationToken = CancellationToken.None;
-                var server = (Server)cluster.SelectServer(WritableServerSelector.Instance, cancellationToken);
-                using (var channel = server.GetChannel(cancellationToken))
+                var server = cluster.SelectServer(OperationContext.NoTimeout, WritableServerSelector.Instance);
+                using (var channel = server.GetChannel(OperationContext.NoTimeout))
                 {
                     var command = BsonDocument.Parse("{ ping : 1 }");
                     channel.Command<BsonDocument>(
+                        OperationContext.NoTimeout,
                         session,
                         ReadPreference.Primary,
                         DatabaseNamespace.Admin,
@@ -963,21 +894,20 @@ namespace MongoDB.Driver.Core.Servers
                         null, // postWriteAction
                         CommandResponseHandling.Return,
                         BsonDocumentSerializer.Instance,
-                        new MessageEncoderSettings(),
-                        cancellationToken);
-                }
+                        new MessageEncoderSettings());
 
-                var commandSucceededEvent = eventCapturer.Next().Should().BeOfType<CommandSucceededEvent>().Subject;
-                var actualReply = commandSucceededEvent.Reply;
-                var actualClusterTime = actualReply["$clusterTime"].AsBsonDocument;
-                session.ClusterTime.Should().Be(actualClusterTime);
-                server.ClusterClock.ClusterTime.Should().Be(actualClusterTime);
+                    var commandSucceededEvent = eventCapturer.Next().Should().BeOfType<CommandSucceededEvent>().Subject;
+                    var actualReply = commandSucceededEvent.Reply;
+                    var actualClusterTime = actualReply["$clusterTime"].AsBsonDocument;
+                    session.ClusterTime.Should().Be(actualClusterTime);
+                    server.ClusterClock.ClusterTime.Should().Be(actualClusterTime);
+                }
             }
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void Command_should_use_serverApi([Values(false, true)] bool async)
+        public async Task Command_should_use_serverApi([Values(false, true)] bool async)
         {
             RequireServer.Check();
 
@@ -991,15 +921,15 @@ namespace MongoDB.Driver.Core.Servers
             using (var cluster = CoreTestConfiguration.CreateCluster(builder))
             using (var session = cluster.StartSession())
             {
-                var cancellationToken = CancellationToken.None;
-                var server = (Server)cluster.SelectServer(WritableServerSelector.Instance, cancellationToken);
-                using (var channel = server.GetChannel(cancellationToken))
+                var server = cluster.SelectServer(OperationContext.NoTimeout, WritableServerSelector.Instance);
+                using (var channel = server.GetChannel(OperationContext.NoTimeout))
                 {
                     var command = BsonDocument.Parse("{ ping : 1 }");
                     if (async)
                     {
-                        channel
+                        await channel
                             .CommandAsync(
+                                OperationContext.NoTimeout,
                                 session,
                                 ReadPreference.Primary,
                                 DatabaseNamespace.Admin,
@@ -1010,14 +940,12 @@ namespace MongoDB.Driver.Core.Servers
                                 null, // postWriteAction
                                 CommandResponseHandling.Return,
                                 BsonDocumentSerializer.Instance,
-                                new MessageEncoderSettings(),
-                                cancellationToken)
-                            .GetAwaiter()
-                            .GetResult();
+                                new MessageEncoderSettings());
                     }
                     else
                     {
                         channel.Command(
+                            OperationContext.NoTimeout,
                             session,
                             ReadPreference.Primary,
                             DatabaseNamespace.Admin,
@@ -1028,8 +956,7 @@ namespace MongoDB.Driver.Core.Servers
                             null, // postWriteAction
                             CommandResponseHandling.Return,
                             BsonDocumentSerializer.Instance,
-                            new MessageEncoderSettings(),
-                            cancellationToken);
+                            new MessageEncoderSettings());
                     }
                 }
             }

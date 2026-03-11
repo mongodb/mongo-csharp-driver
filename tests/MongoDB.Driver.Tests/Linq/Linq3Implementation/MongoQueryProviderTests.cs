@@ -24,6 +24,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation
 {
+    [Trait("Category", "Integration")]
     public class MongoQueryProviderTests
     {
         [Fact]

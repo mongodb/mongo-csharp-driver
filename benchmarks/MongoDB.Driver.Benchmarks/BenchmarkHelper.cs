@@ -21,74 +21,73 @@ using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
-namespace MongoDB.Benchmarks
+namespace MongoDB.Benchmarks;
+
+public static class BenchmarkHelper
 {
-    public static class BenchmarkHelper
+    public const string DataFolderPath = "../../../../../../../data/";
+
+    public static void AddFilesToQueue(ConcurrentQueue<(string, int)> filesQueue, string directoryPath, string fileNamePrefix, int fileCount)
     {
-        public const string DataFolderPath = "../../../../../../../data/";
-
-        public static void AddFilesToQueue(ConcurrentQueue<(string, int)> filesQueue, string directoryPath, string fileNamePrefix, int fileCount)
+        var addingLDJSONfiles = fileNamePrefix == "ldjson";
+        for (int i = 0; i < fileCount; i++)
         {
-            var addingLDJSONfiles = fileNamePrefix == "ldjson";
-            for (int i = 0; i < fileCount; i++)
-            {
-                var fileName = addingLDJSONfiles ? $"{fileNamePrefix}{i:D3}.txt" : $"{fileNamePrefix}{i:D2}.txt";
-                filesQueue.Enqueue(($"{directoryPath}/{fileName}", i)); // enqueue complete filepath and filenumber
-            }
+            var fileName = addingLDJSONfiles ? $"{fileNamePrefix}{i:D3}.txt" : $"{fileNamePrefix}{i:D2}.txt";
+            filesQueue.Enqueue(($"{directoryPath}/{fileName}", i)); // enqueue complete filepath and filenumber
+        }
+    }
+
+    public static double CalculateCompositeScore(IEnumerable<BenchmarkResult> benchmarkResults, string benchmarkCategory)
+    {
+        var identifiedBenchmarksScores = benchmarkResults
+            .Where(benchmark => benchmark.Categories.Contains(benchmarkCategory))
+            .Select(benchmark => benchmark.Score).ToArray();
+
+        if (identifiedBenchmarksScores.Any())
+        {
+            return identifiedBenchmarksScores.Average();
         }
 
-        public static double CalculateCompositeScore(IEnumerable<BenchmarkResult> benchmarkResults, string benchmarkCategory)
+        return 0;
+    }
+
+    public static void CreateEmptyDirectory(string path)
+    {
+        if (Directory.Exists(path))
         {
-            var identifiedBenchmarksScores = benchmarkResults
-                .Where(benchmark => benchmark.Categories.Contains(benchmarkCategory))
-                .Select(benchmark => benchmark.Score).ToArray();
-
-            if (identifiedBenchmarksScores.Any())
-            {
-                return identifiedBenchmarksScores.Average();
-            }
-
-            return 0;
+            Directory.Delete(path, true);
         }
+        Directory.CreateDirectory(path);
+    }
 
-        public static void CreateEmptyDirectory(string path)
+    public static BsonDocument ReadExtendedJson(string resourcePath)
+    {
+        var extendedJson = File.ReadAllText(DataFolderPath + resourcePath);
+        return BsonDocument.Parse(extendedJson);
+    }
+
+    public static byte[] ReadExtendedJsonToBytes(string resourcePath)
+    {
+        var extendedJson = File.ReadAllText(DataFolderPath + resourcePath);
+        var document = BsonDocument.Parse(extendedJson);
+        return document.ToBson();
+    }
+
+    public static class MongoConfiguration
+    {
+        public const string PerfTestDatabaseName = "perftest";
+        public const string PerfTestCollectionName = "corpus";
+
+        public static IMongoClient CreateClient()
         {
-            if (Directory.Exists(path))
-            {
-                Directory.Delete(path, true);
-            }
-            Directory.CreateDirectory(path);
-        }
+            var mongoUri = Environment.GetEnvironmentVariable("MONGODB_URI");
+            var settings = mongoUri != null ? MongoClientSettings.FromConnectionString(mongoUri) : new();
+            settings.ClusterSource = DisposingClusterSource.Instance;
 
-        public static BsonDocument ReadExtendedJson(string resourcePath)
-        {
-            var extendedJson = File.ReadAllText(DataFolderPath + resourcePath);
-            return BsonDocument.Parse(extendedJson);
-        }
+            var client = new MongoClient(settings);
+            client.DropDatabase(PerfTestDatabaseName);
 
-        public static byte[] ReadExtendedJsonToBytes(string resourcePath)
-        {
-            var extendedJson = File.ReadAllText(DataFolderPath + resourcePath);
-            var document = BsonDocument.Parse(extendedJson);
-            return document.ToBson();
-        }
-
-        public static class MongoConfiguration
-        {
-            public const string PerfTestDatabaseName = "perftest";
-            public const string PerfTestCollectionName = "corpus";
-
-            public static IMongoClient CreateClient()
-            {
-                var mongoUri = Environment.GetEnvironmentVariable("MONGODB_URI");
-                var settings = mongoUri != null ? MongoClientSettings.FromConnectionString(mongoUri) : new();
-                settings.ClusterSource = DisposingClusterSource.Instance;
-
-                var client = new MongoClient(settings);
-                client.DropDatabase(PerfTestDatabaseName);
-
-                return client;
-            }
+            return client;
         }
     }
 }

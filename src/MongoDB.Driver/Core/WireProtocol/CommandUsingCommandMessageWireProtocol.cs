@@ -49,6 +49,7 @@ namespace MongoDB.Driver.Core.WireProtocol
         private readonly CommandResponseHandling _responseHandling;
         private readonly IBsonSerializer<TCommandResult> _resultSerializer;
         private readonly ServerApi _serverApi;
+        private readonly TimeSpan _roundTripTime;
         private readonly ICoreSession _session;
         // streamable fields
         private bool _moreToCome = false; // MoreToCome from the previous response
@@ -67,7 +68,8 @@ namespace MongoDB.Driver.Core.WireProtocol
             IBsonSerializer<TCommandResult> resultSerializer,
             MessageEncoderSettings messageEncoderSettings,
             Action<IMessageEncoderPostProcessor> postWriteAction,
-            ServerApi serverApi)
+            ServerApi serverApi,
+            TimeSpan roundTripTime)
         {
             if (responseHandling != CommandResponseHandling.Return &&
                 responseHandling != CommandResponseHandling.NoResponseExpected &&
@@ -88,6 +90,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             _messageEncoderSettings = messageEncoderSettings;
             _postWriteAction = postWriteAction; // can be null
             _serverApi = serverApi; // can be null
+            _roundTripTime = roundTripTime;
 
             if (messageEncoderSettings != null)
             {
@@ -100,7 +103,7 @@ namespace MongoDB.Driver.Core.WireProtocol
         public bool MoreToCome => _moreToCome;
 
         // public methods
-        public TCommandResult Execute(IConnection connection, CancellationToken cancellationToken)
+        public TCommandResult Execute(OperationContext operationContext, IConnection connection)
         {
             try
             {
@@ -113,19 +116,20 @@ namespace MongoDB.Driver.Core.WireProtocol
                 }
                 else
                 {
-                    message = CreateCommandMessage(connection.Description);
-                    message = AutoEncryptFieldsIfNecessary(message, connection, cancellationToken);
+                    message = CreateCommandMessage(operationContext, connection.Description);
+                    // TODO: CSOT: Propagate operationContext into Encryption
+                    message = AutoEncryptFieldsIfNecessary(message, connection, operationContext.CancellationToken);
                     responseTo = message.WrappedMessage.RequestId;
                 }
 
                 try
                 {
-                    return SendMessageAndProcessResponse(message, responseTo, connection, cancellationToken);
+                    return SendMessageAndProcessResponse(operationContext, message, responseTo, connection);
                 }
                 catch (MongoCommandException commandException) when (RetryabilityHelper.IsReauthenticationRequested(commandException, _command))
                 {
-                    connection.Reauthenticate(cancellationToken);
-                    return SendMessageAndProcessResponse(message, responseTo, connection, cancellationToken);
+                    connection.Reauthenticate(operationContext);
+                    return SendMessageAndProcessResponse(operationContext, message, responseTo, connection);
                 }
             }
             catch (Exception exception)
@@ -137,7 +141,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
         }
 
-        public async Task<TCommandResult> ExecuteAsync(IConnection connection, CancellationToken cancellationToken)
+        public async Task<TCommandResult> ExecuteAsync(OperationContext operationContext, IConnection connection)
         {
             try
             {
@@ -150,19 +154,20 @@ namespace MongoDB.Driver.Core.WireProtocol
                 }
                 else
                 {
-                    message = CreateCommandMessage(connection.Description);
-                    message = await AutoEncryptFieldsIfNecessaryAsync(message, connection, cancellationToken).ConfigureAwait(false);
+                    message = CreateCommandMessage(operationContext, connection.Description);
+                    // TODO: CSOT: Propagate operationContext into Encryption
+                    message = await AutoEncryptFieldsIfNecessaryAsync(message, connection, operationContext.CancellationToken).ConfigureAwait(false);
                     responseTo = message.WrappedMessage.RequestId;
                 }
 
                 try
                 {
-                    return await SendMessageAndProcessResponseAsync(message, responseTo, connection, cancellationToken).ConfigureAwait(false);
+                    return await SendMessageAndProcessResponseAsync(operationContext, message, responseTo, connection).ConfigureAwait(false);
                 }
                 catch (MongoCommandException commandException) when (RetryabilityHelper.IsReauthenticationRequested(commandException, _command))
                 {
-                    await connection.ReauthenticateAsync(cancellationToken).ConfigureAwait(false);
-                    return await SendMessageAndProcessResponseAsync(message, responseTo, connection, cancellationToken).ConfigureAwait(false);
+                    await connection.ReauthenticateAsync(operationContext).ConfigureAwait(false);
+                    return await SendMessageAndProcessResponseAsync(operationContext, message, responseTo, connection).ConfigureAwait(false);
                 }
             }
             catch (Exception exception)
@@ -253,11 +258,11 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
         }
 
-        private CommandRequestMessage CreateCommandMessage(ConnectionDescription connectionDescription)
+        private CommandRequestMessage CreateCommandMessage(OperationContext operationContext, ConnectionDescription connectionDescription)
         {
             var requestId = RequestMessage.GetNextRequestId();
             var responseTo = 0;
-            var sections = CreateSections(connectionDescription);
+            var sections = CreateSections(operationContext, connectionDescription);
 
             var moreToComeRequest = _responseHandling == CommandResponseHandling.NoResponseExpected;
 
@@ -266,14 +271,13 @@ namespace MongoDB.Driver.Core.WireProtocol
                 PostWriteAction = _postWriteAction,
                 ExhaustAllowed = _responseHandling == CommandResponseHandling.ExhaustAllowed,
             };
-            var shouldBeSent = (Func<bool>)(() => true);
 
-            return new CommandRequestMessage(wrappedMessage, shouldBeSent);
+            return new CommandRequestMessage(wrappedMessage);
         }
 
-        private IEnumerable<CommandMessageSection> CreateSections(ConnectionDescription connectionDescription)
+        private IEnumerable<CommandMessageSection> CreateSections(OperationContext operationContext, ConnectionDescription connectionDescription)
         {
-            var type0Section = CreateType0Section(connectionDescription);
+            var type0Section = CreateType0Section(operationContext, connectionDescription);
             if (_commandPayloads == null)
             {
                 return new[] { type0Section };
@@ -284,9 +288,11 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
         }
 
-        private Type0CommandMessageSection<BsonDocument> CreateType0Section(ConnectionDescription connectionDescription)
+        private Type0CommandMessageSection<BsonDocument> CreateType0Section(OperationContext operationContext, ConnectionDescription connectionDescription)
         {
             var extraElements = new List<BsonElement>();
+            BsonDocument sessionId = null;
+            long? transactionNumber = null;
 
             AddIfNotAlreadyAdded("$db", _databaseNamespace.DatabaseName);
 
@@ -316,6 +322,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 else if (IsSessionAcknowledged())
                 {
                     AddIfNotAlreadyAdded("lsid", _session.Id);
+                    sessionId = _session.Id;
                 }
                 else
                 {
@@ -345,7 +352,8 @@ namespace MongoDB.Driver.Core.WireProtocol
             if (_session.IsInTransaction)
             {
                 var transaction = _session.CurrentTransaction;
-                AddIfNotAlreadyAdded("txnNumber", transaction.TransactionNumber);
+                transactionNumber = transaction.TransactionNumber;
+                AddIfNotAlreadyAdded("txnNumber", transactionNumber.Value);
                 if (transaction.State == CoreTransactionState.Starting)
                 {
                     AddIfNotAlreadyAdded("startTransaction", true);
@@ -370,8 +378,26 @@ namespace MongoDB.Driver.Core.WireProtocol
                 }
             }
 
+            if (operationContext.IsRootContextTimeoutConfigured() && _roundTripTime > TimeSpan.Zero)
+            {
+                var serverTimeout = operationContext.RemainingTimeout;
+                if (serverTimeout != Timeout.InfiniteTimeSpan)
+                {
+                    serverTimeout -= _roundTripTime;
+                    // Server expects maxTimeMS as an integer, we should truncate it to give server a chance to reply with Timeout.
+                    // Do not want to use MaxTimeHelper here, because it has different logic (rounds up, allow zero value and throw ArgumentException on negative values instead of TimeoutException).
+                    var maxtimeMs = (int)serverTimeout.TotalMilliseconds;
+                    if (maxtimeMs <= 0)
+                    {
+                        throw new TimeoutException();
+                    }
+
+                    AddIfNotAlreadyAdded("maxTimeMS", maxtimeMs);
+                }
+            }
+
             var elementAppendingSerializer = new ElementAppendingSerializer<BsonDocument>(BsonDocumentSerializer.Instance, extraElements);
-            return new Type0CommandMessageSection<BsonDocument>(_command, elementAppendingSerializer);
+            return new Type0CommandMessageSection<BsonDocument>(_command, elementAppendingSerializer, _databaseNamespace, sessionId, transactionNumber);
 
             void AddIfNotAlreadyAdded(string key, BsonValue value)
             {
@@ -527,14 +553,15 @@ namespace MongoDB.Driver.Core.WireProtocol
             _moreToCome = response.WrappedMessage.MoreToCome;
         }
 
-        private TCommandResult SendMessageAndProcessResponse(CommandRequestMessage message, int responseTo, IConnection connection, CancellationToken cancellationToken)
+        private TCommandResult SendMessageAndProcessResponse(OperationContext operationContext, CommandRequestMessage message, int responseTo, IConnection connection)
         {
             var responseExpected = true;
             if (message != null)
             {
                 try
                 {
-                    connection.SendMessage(message, _messageEncoderSettings, cancellationToken);
+                    ThrowIfRemainingTimeoutLessThenRoundTripTime(operationContext);
+                    connection.SendMessage(operationContext, message, _messageEncoderSettings);
                 }
                 finally
                 {
@@ -550,11 +577,29 @@ namespace MongoDB.Driver.Core.WireProtocol
             if (responseExpected)
             {
                 var encoderSelector = new CommandResponseMessageEncoderSelector();
-                var response = (CommandResponseMessage)connection.ReceiveMessage(responseTo, encoderSelector, _messageEncoderSettings, cancellationToken);
-                response = AutoDecryptFieldsIfNecessary(response, cancellationToken);
-                var result = ProcessResponse(connection.ConnectionId, response.WrappedMessage);
-                SaveResponseInfo(response);
-                return result;
+                var response = (CommandResponseMessage)connection.ReceiveMessage(operationContext, responseTo, encoderSelector, _messageEncoderSettings);
+                try
+                {
+                    // TODO: CSOT: Propagate operationContext into Encryption
+                    response = AutoDecryptFieldsIfNecessary(response, operationContext.CancellationToken);
+                    var result = ProcessResponse(connection.ConnectionId, response.WrappedMessage);
+                    SaveResponseInfo(response);
+                    return result;
+                }
+                catch (MongoCommandException ex) when (ex is not MongoWriteConcernException)
+                {
+                    connection.CompleteCommandActivityWithException(ex);
+                    throw;
+                }
+                catch (MongoExecutionTimeoutException ex)
+                {
+                    connection.CompleteCommandActivityWithException(ex);
+                    throw;
+                }
+                finally
+                {
+                    connection.EnsureCommandActivityCompleted();
+                }
             }
             else
             {
@@ -562,14 +607,15 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
         }
 
-        private async Task<TCommandResult> SendMessageAndProcessResponseAsync(CommandRequestMessage message, int responseTo, IConnection connection, CancellationToken cancellationToken)
+        private async Task<TCommandResult> SendMessageAndProcessResponseAsync(OperationContext operationContext, CommandRequestMessage message, int responseTo, IConnection connection)
         {
             var responseExpected = true;
             if (message != null)
             {
                 try
                 {
-                    await connection.SendMessageAsync(message, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
+                    ThrowIfRemainingTimeoutLessThenRoundTripTime(operationContext);
+                    await connection.SendMessageAsync(operationContext, message, _messageEncoderSettings).ConfigureAwait(false);
                 }
                 finally
                 {
@@ -584,11 +630,29 @@ namespace MongoDB.Driver.Core.WireProtocol
             if (responseExpected)
             {
                 var encoderSelector = new CommandResponseMessageEncoderSelector();
-                var response = (CommandResponseMessage)await connection.ReceiveMessageAsync(responseTo, encoderSelector, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
-                response = await AutoDecryptFieldsIfNecessaryAsync(response, cancellationToken).ConfigureAwait(false);
-                var result = ProcessResponse(connection.ConnectionId, response.WrappedMessage);
-                SaveResponseInfo(response);
-                return result;
+                var response = (CommandResponseMessage)await connection.ReceiveMessageAsync(operationContext, responseTo, encoderSelector, _messageEncoderSettings).ConfigureAwait(false);
+                try
+                {
+                    // TODO: CSOT: Propagate operationContext into Encryption
+                    response = await AutoDecryptFieldsIfNecessaryAsync(response, operationContext.CancellationToken).ConfigureAwait(false);
+                    var result = ProcessResponse(connection.ConnectionId, response.WrappedMessage);
+                    SaveResponseInfo(response);
+                    return result;
+                }
+                catch (MongoCommandException ex) when (ex is not MongoWriteConcernException)
+                {
+                    connection.CompleteCommandActivityWithException(ex);
+                    throw;
+                }
+                catch (MongoExecutionTimeoutException ex)
+                {
+                    connection.CompleteCommandActivityWithException(ex);
+                    throw;
+                }
+                finally
+                {
+                    connection.EnsureCommandActivityCompleted();
+                }
             }
             else
             {
@@ -607,6 +671,18 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
 
             return false;
+        }
+
+        private void ThrowIfRemainingTimeoutLessThenRoundTripTime(OperationContext operationContext)
+        {
+            if (operationContext.RemainingTimeout == Timeout.InfiniteTimeSpan ||
+                _roundTripTime == TimeSpan.Zero ||
+                operationContext.RemainingTimeout > _roundTripTime)
+            {
+                return;
+            }
+
+            throw new TimeoutException();
         }
 
         private MongoException WrapNotSupportedRetryableWriteException(MongoCommandException exception)

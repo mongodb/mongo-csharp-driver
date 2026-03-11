@@ -13,7 +13,9 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
@@ -23,6 +25,7 @@ namespace MongoDB.Driver
     public class DropCollectionOptions
     {
         private BsonDocument _encryptedFields;
+        private TimeSpan? _timeout;
 
         /// <summary>
         /// Gets or sets encrypted fields.
@@ -31,6 +34,16 @@ namespace MongoDB.Driver
         {
             get { return _encryptedFields; }
             set { _encryptedFields = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the operation timeout.
+        /// </summary>
+        // TODO: CSOT: Make it public when CSOT will be ready for GA
+        internal TimeSpan? Timeout
+        {
+            get => _timeout;
+            set => _timeout = Ensure.IsNullOrValidTimeout(value, nameof(Timeout));
         }
     }
 }

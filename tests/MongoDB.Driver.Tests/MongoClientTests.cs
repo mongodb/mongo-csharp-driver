@@ -28,6 +28,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
+    [Trait("Category", "Integration")]
     public class MongoClientTests
     {
         [Fact]
@@ -118,9 +119,6 @@ namespace MongoDB.Driver.Tests
 
             var exception = Record.Exception(() => client.Cluster);
             exception.Should().BeOfType<ObjectDisposedException>();
-
-            exception = Record.Exception(() => client.StartImplicitSession(default));
-            exception.Should().BeOfType<ObjectDisposedException>();
         }
 
         [Theory]
@@ -131,7 +129,7 @@ namespace MongoDB.Driver.Tests
         {
             var operationExecutor = new MockOperationExecutor();
             var writeConcern = new WriteConcern(1);
-            var subject = new MongoClient(operationExecutor, DriverTestConfiguration.GetClientSettings()).WithWriteConcern(writeConcern);
+            var subject = new MongoClient(DriverTestConfiguration.GetClientSettings(), _ => operationExecutor).WithWriteConcern(writeConcern);
             var session = CreateClientSession();
             using var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
@@ -182,7 +180,7 @@ namespace MongoDB.Driver.Tests
             [Values(false, true)] bool async)
         {
             var operationExecutor = new MockOperationExecutor();
-            var subject = new MongoClient(operationExecutor, DriverTestConfiguration.GetClientSettings());
+            var subject = new MongoClient(DriverTestConfiguration.GetClientSettings(), _ => operationExecutor);
             var session = CreateClientSession();
             using var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
@@ -276,7 +274,7 @@ namespace MongoDB.Driver.Tests
             [Values(false, true)] bool async)
         {
             var operationExecutor = new MockOperationExecutor();
-            var subject = new MongoClient(operationExecutor, DriverTestConfiguration.GetClientSettings());
+            var subject = new MongoClient(DriverTestConfiguration.GetClientSettings(), _ => operationExecutor);
             var session = CreateClientSession();
             using var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
@@ -336,7 +334,7 @@ namespace MongoDB.Driver.Tests
         {
             var operationExecutor = new MockOperationExecutor();
             var clientSettings = DriverTestConfiguration.GetClientSettings();
-            var subject = new MongoClient(operationExecutor, clientSettings);
+            var subject = new MongoClient(clientSettings, _ => operationExecutor);
             var session = usingSession ? CreateClientSession() : null;
             var pipeline = new EmptyPipelineDefinition<ChangeStreamDocument<BsonDocument>>().Limit(1);
             var options = new ChangeStreamOptions

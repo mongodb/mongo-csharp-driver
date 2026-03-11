@@ -13,10 +13,10 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using MongoDB.Bson.Serialization;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators
@@ -44,28 +44,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
 
             var ast = AstExpression.ComputedDocument([
-                AstExpression.ComputedField("Key", keyTranslation.Ast),
-                AstExpression.ComputedField("Value", valueTranslation.Ast)
+                AstExpression.ComputedField("k", keyTranslation.Ast),
+                AstExpression.ComputedField("v", valueTranslation.Ast)
             ]);
 
-            var serializer = CreateResultSerializer(expression.Type, keyTranslation.Serializer, valueTranslation.Serializer);
+            var keySerializer = keyTranslation.Serializer;
+            var valueSerializer = valueTranslation.Serializer;
+            var keyValuePairSerializer = KeyValuePairSerializer.Create(BsonType.Document, keySerializer, valueSerializer);
 
-            return new TranslatedExpression(expression, ast, serializer);
-        }
-
-        private static IBsonSerializer CreateResultSerializer(Type resultType, IBsonSerializer keySerializer, IBsonSerializer valueSerializer)
-        {
-            var constructorInfo = resultType.GetConstructor([keySerializer.ValueType, valueSerializer.ValueType]);
-            var classMap = new BsonClassMap(resultType);
-            classMap.MapConstructor(constructorInfo);
-            classMap.AutoMap();
-            classMap.GetMemberMap("Key").SetSerializer(keySerializer);
-            classMap.GetMemberMap("Value").SetSerializer(valueSerializer);
-            classMap.Freeze();
-
-            // have to use BsonClassMapSerializer here to mimic the MemberInitExpressionToAggregationExpressionTranslator to avoid risking a behavioral breaking change
-            var serializerType = typeof(BsonClassMapSerializer<>).MakeGenericType(resultType);
-            return (IBsonSerializer)Activator.CreateInstance(serializerType, classMap);
+            return new TranslatedExpression(expression, ast, keyValuePairSerializer);
         }
     }
 }

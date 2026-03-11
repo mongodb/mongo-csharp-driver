@@ -15,25 +15,12 @@
 
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
-using MongoDB.Bson;
 using MongoDB.Driver.Core.Configuration;
 
 namespace MongoDB.Driver.Encryption
 {
     internal static class LibmongocryptExtensionsMethods
     {
-        public static BsonDocument CreateDocument(this RangeOptions rangeOptions)
-        {
-            return new BsonDocument
-            {
-                { "min", rangeOptions.Min, rangeOptions.Min != null },
-                { "max", rangeOptions.Max, rangeOptions.Max != null },
-                { "precision", rangeOptions.Precision, rangeOptions.Precision != null },
-                { "sparsity", rangeOptions.Sparsity, rangeOptions.Sparsity != null },
-                { "trimFactor", rangeOptions.TrimFactor, rangeOptions.TrimFactor != null }
-            };
-        }
-
         public static SslStreamSettings ToSslStreamSettings(this SslSettings sslSettings)
         {
             var clientCertificates = sslSettings.ClientCertificateCollection != null ? (sslSettings.ClientCertificateCollection).Cast<X509Certificate>() : Enumerable.Empty<X509Certificate>();

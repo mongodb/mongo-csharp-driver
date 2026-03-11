@@ -102,7 +102,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 switch (argument.Name)
                 {
                     case "comment":
-                        options = new DistinctOptions { Comment = argument.Value };
+                        options ??= new DistinctOptions();
+                        options.Comment = argument.Value;
                         break;
                     case "fieldName":
                         fieldName = argument.Value.AsString;
@@ -110,8 +111,16 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     case "filter":
                         filter = argument.Value.AsBsonDocument;
                         break;
+                    case "maxTimeMS":
+                        options ??= new DistinctOptions();
+                        options.MaxTime = TimeSpan.FromMilliseconds(argument.Value.AsInt32);
+                        break;
                     case "session":
                         session = _entityMap.Sessions[argument.Value.AsString];
+                        break;
+                    case "timeoutMS":
+                        options ??= new DistinctOptions();
+                        options.Timeout = UnifiedEntityMap.ParseTimeout(argument.Value);
                         break;
                     default:
                         throw new FormatException($"Invalid DistinctOperation argument name: '{argument.Name}'.");

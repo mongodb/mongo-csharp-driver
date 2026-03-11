@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -36,194 +36,319 @@ namespace MongoDB.Driver.Core.Misc
             }
         }
 
-        public static async Task<int> ReadAsync(this Stream stream, byte[] buffer, int offset, int count, TimeSpan timeout, CancellationToken cancellationToken)
+        public static void ReadBytes(this Stream stream, byte[] buffer, int offset, int count, int timeoutMs = Timeout.Infinite, CancellationToken cancellationToken = default)
         {
-            var state = 1; // 1 == reading, 2 == done reading, 3 == timedout, 4 == cancelled
+            Ensure.IsNotNull(stream, nameof(stream));
+            Ensure.IsNotNull(buffer, nameof(buffer));
+            Ensure.IsBetween(offset, 0, buffer.Length, nameof(offset));
+            Ensure.IsBetween(count, 0, buffer.Length - offset, nameof(count));
 
-            var bytesRead = 0;
-            using (new Timer(_ => ChangeState(3), null, timeout, Timeout.InfiniteTimeSpan))
-            using (cancellationToken.Register(() => ChangeState(4)))
+            ExecuteOperationWithTimeout(
+                stream,
+                (buffer, offset, count),
+                (currentStream, state) =>
+                {
+                    var position = state.offset;
+                    var remainingBytes = state.count;
+                    while (remainingBytes > 0)
+                    {
+                        var readResult = currentStream.Read(state.buffer, position, remainingBytes);
+                        if (readResult == 0)
+                        {
+                            throw new EndOfStreamException();
+                        }
+
+                        position += readResult;
+                        remainingBytes -= readResult;
+                    }
+                },
+                timeoutMs,
+                cancellationToken);
+        }
+
+        public static void ReadBytes(this Stream stream, IByteBuffer buffer, int offset, int count, int timeoutMs = Timeout.Infinite, CancellationToken cancellationToken = default)
+        {
+            Ensure.IsNotNull(stream, nameof(stream));
+            Ensure.IsNotNull(buffer, nameof(buffer));
+            Ensure.IsBetween(offset, 0, buffer.Length, nameof(offset));
+            Ensure.IsBetween(count, 0, buffer.Length - offset, nameof(count));
+
+            ExecuteOperationWithTimeout(
+                stream,
+                (buffer, offset, count),
+                (currentStream, state) =>
+                {
+                    var position = state.offset;
+                    var remainingBytes = state.count;
+                    while (remainingBytes > 0)
+                    {
+                        var backingBytes = state.buffer.AccessBackingBytes(position);
+                        var bytesToRead = Math.Min(remainingBytes, backingBytes.Count);
+                        var readResult = currentStream.Read(backingBytes.Array, backingBytes.Offset, bytesToRead);
+                        if (readResult == 0)
+                        {
+                            throw new EndOfStreamException();
+                        }
+
+                        position += readResult;
+                        remainingBytes -= readResult;
+                    }
+                },
+                timeoutMs,
+                cancellationToken);
+        }
+
+        public static Task ReadBytesAsync(this Stream stream, byte[] buffer, int offset, int count, int timeoutMs = Timeout.Infinite, CancellationToken cancellationToken = default)
+        {
+            Ensure.IsNotNull(stream, nameof(stream));
+            Ensure.IsNotNull(buffer, nameof(buffer));
+            Ensure.IsBetween(offset, 0, buffer.Length, nameof(offset));
+            Ensure.IsBetween(count, 0, buffer.Length - offset, nameof(count));
+
+            return ExecuteOperationWithTimeoutAsync(
+                stream,
+                (buffer, offset, count),
+                async (currentStream, state) =>
+                {
+                    var position = state.offset;
+                    var remainingBytes = state.count;
+                    while (remainingBytes > 0)
+                    {
+                        var readResult = await currentStream.ReadAsync(state.buffer, position, remainingBytes).ConfigureAwait(false);
+                        if (readResult == 0)
+                        {
+                            throw new EndOfStreamException();
+                        }
+
+                        position += readResult;
+                        remainingBytes -= readResult;
+                    }
+                },
+                timeoutMs,
+                cancellationToken
+            );
+        }
+
+        public static Task ReadBytesAsync(this Stream stream, IByteBuffer buffer, int offset, int count, int timeoutMs = Timeout.Infinite, CancellationToken cancellationToken = default)
+        {
+            Ensure.IsNotNull(stream, nameof(stream));
+            Ensure.IsNotNull(buffer, nameof(buffer));
+            Ensure.IsBetween(offset, 0, buffer.Length, nameof(offset));
+            Ensure.IsBetween(count, 0, buffer.Length - offset, nameof(count));
+
+            return ExecuteOperationWithTimeoutAsync(
+                stream,
+                (buffer, offset, count),
+                async (currentStream, state) =>
+                {
+                    var position = state.offset;
+                    var remainingBytes = state.count;
+                    while (remainingBytes > 0)
+                    {
+                        var backingBytes = state.buffer.AccessBackingBytes(position);
+                        var bytesToRead = Math.Min(remainingBytes, backingBytes.Count);
+                        var readResult = await currentStream.ReadAsync(backingBytes.Array, backingBytes.Offset, bytesToRead).ConfigureAwait(false);
+                        if (readResult == 0)
+                        {
+                            throw new EndOfStreamException();
+                        }
+
+                        position += readResult;
+                        remainingBytes -= readResult;
+                    }
+                },
+                timeoutMs,
+                cancellationToken);
+        }
+
+        public static void WriteBytes(this Stream stream, byte[] buffer, int offset, int count, int timeoutMs = Timeout.Infinite, CancellationToken cancellationToken = default)
+        {
+            Ensure.IsNotNull(stream, nameof(stream));
+            Ensure.IsNotNull(buffer, nameof(buffer));
+            Ensure.IsBetween(offset, 0, buffer.Length, nameof(offset));
+            Ensure.IsBetween(count, 0, buffer.Length - offset, nameof(count));
+
+            ExecuteOperationWithTimeout(
+                stream,
+                (buffer, offset, count),
+                (currentStream, state) => currentStream.Write(state.buffer, state.offset, state.count),
+                timeoutMs,
+                cancellationToken);
+        }
+
+        public static void WriteBytes(this Stream stream, IByteBuffer buffer, int offset, int count, int timeoutMs = Timeout.Infinite, CancellationToken cancellationToken = default)
+        {
+            Ensure.IsNotNull(stream, nameof(stream));
+            Ensure.IsNotNull(buffer, nameof(buffer));
+            Ensure.IsBetween(offset, 0, buffer.Length, nameof(offset));
+            Ensure.IsBetween(count, 0, buffer.Length - offset, nameof(count));
+
+            ExecuteOperationWithTimeout(
+                stream,
+                (buffer, offset, count),
+                (currentStream, state) =>
+                {
+                    var position = state.offset;
+                    var remainingBytes = state.count;
+                    while (remainingBytes > 0)
+                    {
+                        var backingBytes = state.buffer.AccessBackingBytes(position);
+                        var bytesToWrite = Math.Min(remainingBytes, backingBytes.Count);
+                        currentStream.Write(backingBytes.Array, backingBytes.Offset, bytesToWrite);
+                        position += bytesToWrite;
+                        remainingBytes -= bytesToWrite;
+                    }
+                },
+                timeoutMs,
+                cancellationToken);
+        }
+
+        public static Task WriteBytesAsync(this Stream stream, byte[] buffer, int offset, int count, int timeoutMs = Timeout.Infinite, CancellationToken cancellationToken = default)
+        {
+            Ensure.IsNotNull(stream, nameof(stream));
+            Ensure.IsNotNull(buffer, nameof(buffer));
+            Ensure.IsBetween(offset, 0, buffer.Length, nameof(offset));
+            Ensure.IsBetween(count, 0, buffer.Length - offset, nameof(count));
+
+            return ExecuteOperationWithTimeoutAsync(
+                stream,
+                (buffer, offset, count),
+                (currentStream, state) => currentStream.WriteAsync(state.buffer, state.offset, state.count),
+                timeoutMs,
+                cancellationToken);
+        }
+
+        public static Task WriteBytesAsync(this Stream stream, IByteBuffer buffer, int offset, int count, int timeoutMs = Timeout.Infinite, CancellationToken cancellationToken = default)
+        {
+            Ensure.IsNotNull(stream, nameof(stream));
+            Ensure.IsNotNull(buffer, nameof(buffer));
+            Ensure.IsBetween(offset, 0, buffer.Length, nameof(offset));
+            Ensure.IsBetween(count, 0, buffer.Length - offset, nameof(count));
+
+            return ExecuteOperationWithTimeoutAsync(
+                stream,
+                (buffer, offset, count),
+                async (currentStream, state) =>
+                {
+                    var position = state.offset;
+                    var remainingBytes = state.count;
+                    while (remainingBytes > 0)
+                    {
+                        var backingBytes = state.buffer.AccessBackingBytes(position);
+                        var bytesToWrite = Math.Min(remainingBytes, backingBytes.Count);
+                        await currentStream.WriteAsync(backingBytes.Array, backingBytes.Offset, bytesToWrite).ConfigureAwait(false);
+                        position += bytesToWrite;
+                        remainingBytes -= bytesToWrite;
+                    }
+                },
+                timeoutMs,
+                cancellationToken);
+        }
+
+        private static async Task ExecuteOperationWithTimeoutAsync<TState>(Stream stream, TState state, Func<Stream, TState, Task> operation, int timeoutMs, CancellationToken cancellationToken)
+        {
+            if (timeoutMs == 0)
             {
+                throw new TimeoutException();
+            }
+
+            var timeout = TimeSpan.FromMilliseconds(timeoutMs);
+            Task operationTask = null;
+
+            try
+            {
+                operationTask = operation(stream, state);
+                await operationTask.WaitAsync(timeout, cancellationToken).ConfigureAwait(false);
+            }
+            catch (ObjectDisposedException)
+            {
+                throw new IOException();
+            }
+            catch (Exception e) when (e is TaskCanceledException or TimeoutException)
+            {
+                operationTask?.IgnoreExceptions();
                 try
                 {
-                    bytesRead = await stream.ReadAsync(buffer, offset, count, cancellationToken).ConfigureAwait(false);
-                    ChangeState(2); // note: might not actually go to state 2 if already in state 3 or 4
+                    stream.Dispose();
                 }
-                catch when (state == 1)
+                catch (Exception)
                 {
-                    try { stream.Dispose(); } catch { }
-                    throw;
-                }
-                catch when (state >= 3)
-                {
-                    // a timeout or operation cancelled exception will be thrown instead
+                    // suppress any exception
                 }
 
-                if (state == 3) { throw new TimeoutException(); }
-                if (state == 4) { throw new OperationCanceledException(); }
-            }
-
-            return bytesRead;
-
-            void ChangeState(int to)
-            {
-                var from = Interlocked.CompareExchange(ref state, to, 1);
-                if (from == 1 && to >= 3)
-                {
-                    try { stream.Dispose(); } catch { } // disposing the stream aborts the read attempt
-                }
+                throw;
             }
         }
 
-        public static void ReadBytes(this Stream stream, byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        private static void ExecuteOperationWithTimeout<TState>(Stream stream, TState state, Action<Stream, TState> operation, int timeoutMs, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(stream, nameof(stream));
-            Ensure.IsNotNull(buffer, nameof(buffer));
-            Ensure.IsBetween(offset, 0, buffer.Length, nameof(offset));
-            Ensure.IsBetween(count, 0, buffer.Length - offset, nameof(count));
-
-            while (count > 0)
+            if (timeoutMs == 0)
             {
-                var bytesRead = stream.Read(buffer, offset, count); // TODO: honor cancellationToken?
-                if (bytesRead == 0)
-                {
-                    throw new EndOfStreamException();
-                }
-                offset += bytesRead;
-                count -= bytesRead;
+                throw new TimeoutException();
             }
-        }
 
-        public static void ReadBytes(this Stream stream, IByteBuffer buffer, int offset, int count, CancellationToken cancellationToken)
-        {
-            Ensure.IsNotNull(stream, nameof(stream));
-            Ensure.IsNotNull(buffer, nameof(buffer));
-            Ensure.IsBetween(offset, 0, buffer.Length, nameof(offset));
-            Ensure.IsBetween(count, 0, buffer.Length - offset, nameof(count));
-
-            while (count > 0)
+            OperationCallbackState<Stream> callbackState = null;
+            Timer timer = null;
+            CancellationTokenRegistration cancellationSubscription = default;
+            if (timeoutMs > 0)
             {
-                var backingBytes = buffer.AccessBackingBytes(offset);
-                var bytesToRead = Math.Min(count, backingBytes.Count);
-                var bytesRead = stream.Read(backingBytes.Array, backingBytes.Offset, bytesToRead); // TODO: honor cancellationToken?
-                if (bytesRead == 0)
-                {
-                    throw new EndOfStreamException();
-                }
-                offset += bytesRead;
-                count -= bytesRead;
+                callbackState = new OperationCallbackState<Stream>(stream);
+                timer = new Timer(DisposeStreamCallback, callbackState, timeoutMs, Timeout.Infinite);
             }
-        }
 
-        public static async Task ReadBytesAsync(this Stream stream, byte[] buffer, int offset, int count, TimeSpan timeout, CancellationToken cancellationToken)
-        {
-            Ensure.IsNotNull(stream, nameof(stream));
-            Ensure.IsNotNull(buffer, nameof(buffer));
-            Ensure.IsBetween(offset, 0, buffer.Length, nameof(offset));
-            Ensure.IsBetween(count, 0, buffer.Length - offset, nameof(count));
-
-            while (count > 0)
+            if (cancellationToken.CanBeCanceled)
             {
-                var bytesRead = await stream.ReadAsync(buffer, offset, count, timeout, cancellationToken).ConfigureAwait(false);
-                if (bytesRead == 0)
-                {
-                    throw new EndOfStreamException();
-                }
-                offset += bytesRead;
-                count -= bytesRead;
+                callbackState ??= new OperationCallbackState<Stream>(stream);
+                cancellationSubscription = cancellationToken.Register(DisposeStreamCallback, callbackState);
             }
-        }
 
-        public static async Task ReadBytesAsync(this Stream stream, IByteBuffer buffer, int offset, int count, TimeSpan timeout, CancellationToken cancellationToken)
-        {
-            Ensure.IsNotNull(stream, nameof(stream));
-            Ensure.IsNotNull(buffer, nameof(buffer));
-            Ensure.IsBetween(offset, 0, buffer.Length, nameof(offset));
-            Ensure.IsBetween(count, 0, buffer.Length - offset, nameof(count));
-
-            while (count > 0)
+            try
             {
-                var backingBytes = buffer.AccessBackingBytes(offset);
-                var bytesToRead = Math.Min(count, backingBytes.Count);
-                var bytesRead = await stream.ReadAsync(backingBytes.Array, backingBytes.Offset, bytesToRead, timeout, cancellationToken).ConfigureAwait(false);
-                if (bytesRead == 0)
+                operation(stream, state);
+                if (callbackState?.TryChangeStatusFromInProgress(OperationCallbackState<Stream>.OperationStatus.Done) == false)
                 {
-                    throw new EndOfStreamException();
+                    // If the state can't be changed - then the stream was/will be disposed, throw here
+                    throw new IOException();
                 }
-                offset += bytesRead;
-                count -= bytesRead;
             }
-        }
-
-
-        public static async Task WriteAsync(this Stream stream, byte[] buffer, int offset, int count, TimeSpan timeout, CancellationToken cancellationToken)
-        {
-            var state = 1; // 1 == writing, 2 == done writing, 3 == timedout, 4 == cancelled
-
-            using (new Timer(_ => ChangeState(3), null, timeout, Timeout.InfiniteTimeSpan))
-            using (cancellationToken.Register(() => ChangeState(4)))
+            catch (Exception ex)
             {
+                if (callbackState?.Status == OperationCallbackState<Stream>.OperationStatus.Interrupted)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    throw new TimeoutException();
+                }
+
+                if (ex is ObjectDisposedException)
+                {
+                    throw new IOException();
+                }
+
+                throw;
+            }
+            finally
+            {
+                timer?.Dispose();
+                cancellationSubscription.Dispose();
+            }
+
+            static void DisposeStreamCallback(object state)
+            {
+                var disposeCallbackState = (OperationCallbackState<Stream>)state;
+                if (!disposeCallbackState.TryChangeStatusFromInProgress(OperationCallbackState<Stream>.OperationStatus.Interrupted))
+                {
+                    // If the state can't be changed - then I/O had already succeeded
+                    return;
+                }
+
                 try
                 {
-                    await stream.WriteAsync(buffer, offset, count, cancellationToken).ConfigureAwait(false);
-                    ChangeState(2); // note: might not actually go to state 2 if already in state 3 or 4
+                    disposeCallbackState.Subject.Dispose();
                 }
-                catch when (state == 1)
+                catch (Exception)
                 {
-                    try { stream.Dispose(); } catch { }
-                    throw;
+                    // callbacks should not fail, suppress any exceptions here
                 }
-                catch when (state >= 3)
-                {
-                    // a timeout or operation cancelled exception will be thrown instead
-                }
-
-                if (state == 3) { throw new TimeoutException(); }
-                if (state == 4) { throw new OperationCanceledException(); }
-            }
-
-            void ChangeState(int to)
-            {
-                var from = Interlocked.CompareExchange(ref state, to, 1);
-                if (from == 1 && to >= 3)
-                {
-                    try { stream.Dispose(); } catch { } // disposing the stream aborts the write attempt
-                }
-            }
-        }
-
-        public static void WriteBytes(this Stream stream, IByteBuffer buffer, int offset, int count, CancellationToken cancellationToken)
-        {
-            Ensure.IsNotNull(stream, nameof(stream));
-            Ensure.IsNotNull(buffer, nameof(buffer));
-            Ensure.IsBetween(offset, 0, buffer.Length, nameof(offset));
-            Ensure.IsBetween(count, 0, buffer.Length - offset, nameof(count));
-
-            while (count > 0)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                var backingBytes = buffer.AccessBackingBytes(offset);
-                var bytesToWrite = Math.Min(count, backingBytes.Count);
-                stream.Write(backingBytes.Array, backingBytes.Offset, bytesToWrite); // TODO: honor cancellationToken?
-                offset += bytesToWrite;
-                count -= bytesToWrite;
-            }
-        }
-
-        public static async Task WriteBytesAsync(this Stream stream, IByteBuffer buffer, int offset, int count, TimeSpan timeout, CancellationToken cancellationToken)
-        {
-            Ensure.IsNotNull(stream, nameof(stream));
-            Ensure.IsNotNull(buffer, nameof(buffer));
-            Ensure.IsBetween(offset, 0, buffer.Length, nameof(offset));
-            Ensure.IsBetween(count, 0, buffer.Length - offset, nameof(count));
-
-            while (count > 0)
-            {
-                var backingBytes = buffer.AccessBackingBytes(offset);
-                var bytesToWrite = Math.Min(count, backingBytes.Count);
-                await stream.WriteAsync(backingBytes.Array, backingBytes.Offset, bytesToWrite, timeout, cancellationToken).ConfigureAwait(false);
-                offset += bytesToWrite;
-                count -= bytesToWrite;
             }
         }
     }

@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
@@ -88,6 +87,8 @@ namespace MongoDB.Driver.Core.Operations
             get { return _messageEncoderSettings; }
         }
 
+        public string OperationName => "distinct";
+
         public ReadConcern ReadConcern
         {
             get { return _readConcern; }
@@ -105,15 +106,15 @@ namespace MongoDB.Driver.Core.Operations
             get { return _valueSerializer; }
         }
 
-        public IAsyncCursor<TValue> Execute(IReadBinding binding, CancellationToken cancellationToken)
+        public IAsyncCursor<TValue> Execute(OperationContext operationContext, IReadBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = RetryableReadContext.Create(binding, _retryRequested, cancellationToken))
+            using (var context = RetryableReadContext.Create(operationContext, binding, _retryRequested))
             {
-                var operation = CreateOperation(context);
-                var result = operation.Execute(context, cancellationToken);
+                var operation = CreateOperation(operationContext, context);
+                var result = operation.Execute(operationContext, context);
 
                 binding.Session.SetSnapshotTimeIfNeeded(result.AtClusterTime);
 
@@ -121,15 +122,15 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public async Task<IAsyncCursor<TValue>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
+        public async Task<IAsyncCursor<TValue>> ExecuteAsync(OperationContext operationContext, IReadBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = await RetryableReadContext.CreateAsync(binding, _retryRequested, cancellationToken).ConfigureAwait(false))
+            using (var context = await RetryableReadContext.CreateAsync(operationContext, binding, _retryRequested).ConfigureAwait(false))
             {
-                var operation = CreateOperation(context);
-                var result = await operation.ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
+                var operation = CreateOperation(operationContext, context);
+                var result = await operation.ExecuteAsync(operationContext, context).ConfigureAwait(false);
 
                 binding.Session.SetSnapshotTimeIfNeeded(result.AtClusterTime);
 
@@ -137,7 +138,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public BsonDocument CreateCommand(ConnectionDescription connectionDescription, ICoreSession session)
+        public BsonDocument CreateCommand(OperationContext operationContext, ICoreSession session, ConnectionDescription connectionDescription)
         {
             var readConcern = ReadConcernHelper.GetReadConcernForCommand(session, connectionDescription, _readConcern);
             return new BsonDocument
@@ -145,21 +146,21 @@ namespace MongoDB.Driver.Core.Operations
                 { "distinct", _collectionNamespace.CollectionName },
                 { "key", _fieldName },
                 { "query", _filter, _filter != null },
-                { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue },
+                { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue && !operationContext.IsRootContextTimeoutConfigured() },
                 { "collation", () => _collation.ToBsonDocument(), _collation != null },
                 { "comment", _comment, _comment != null },
                 { "readConcern", readConcern, readConcern != null }
             };
         }
 
-        private IDisposable BeginOperation() => EventContext.BeginOperation("distinct");
+        private EventContext.OperationNameDisposer BeginOperation() => EventContext.BeginOperation(OperationName);
 
-        private ReadCommandOperation<DistinctResult> CreateOperation(RetryableReadContext context)
+        private ReadCommandOperation<DistinctResult> CreateOperation(OperationContext operationContext, RetryableReadContext context)
         {
-            var command = CreateCommand(context.Channel.ConnectionDescription, context.Binding.Session);
+            var command = CreateCommand(operationContext, context.Binding.Session, context.Channel.ConnectionDescription);
             var serializer = new DistinctResultDeserializer(_valueSerializer);
 
-            return new ReadCommandOperation<DistinctResult>(_collectionNamespace.DatabaseNamespace, command, serializer, _messageEncoderSettings)
+            return new ReadCommandOperation<DistinctResult>(_collectionNamespace.DatabaseNamespace, command, serializer, _messageEncoderSettings, OperationName)
             {
                 RetryRequested = _retryRequested // might be overridden by retryable read context
             };

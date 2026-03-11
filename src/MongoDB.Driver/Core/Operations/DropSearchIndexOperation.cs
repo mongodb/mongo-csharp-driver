@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
@@ -51,6 +50,9 @@ namespace MongoDB.Driver.Core.Operations
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
         }
 
+        // public properties
+        public string OperationName => "dropSearchIndex";
+
         // methods
         private BsonDocument CreateCommand() =>
             new()
@@ -63,20 +65,20 @@ namespace MongoDB.Driver.Core.Operations
             new(_collectionNamespace.DatabaseNamespace, CreateCommand(), BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
         /// <inheritdoc/>
-        public BsonDocument Execute(IWriteBinding binding, CancellationToken cancellationToken)
+        public BsonDocument Execute(OperationContext operationContext, IWriteBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (EventContext.BeginOperation("dropSearchIndex"))
-            using (var channelSource = binding.GetWriteChannelSource(cancellationToken))
-            using (var channel = channelSource.GetChannel(cancellationToken))
+            using (EventContext.BeginOperation(OperationName))
+            using (var channelSource = binding.GetWriteChannelSource(operationContext))
+            using (var channel = channelSource.GetChannel(operationContext))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
                 var operation = CreateOperation();
 
                 try
                 {
-                    return operation.Execute(channelBinding, cancellationToken);
+                    return operation.Execute(operationContext, channelBinding);
                 }
                 catch (MongoCommandException ex) when (ShouldIgnoreException(ex))
                 {
@@ -86,20 +88,20 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <inheritdoc/>
-        public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
+        public async Task<BsonDocument> ExecuteAsync(OperationContext operationContext, IWriteBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (EventContext.BeginOperation("dropSearchIndex"))
-            using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false))
-            using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
+            using (EventContext.BeginOperation(OperationName))
+            using (var channelSource = await binding.GetWriteChannelSourceAsync(operationContext).ConfigureAwait(false))
+            using (var channel = await channelSource.GetChannelAsync(operationContext).ConfigureAwait(false))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
                 var operation = CreateOperation();
 
                 try
                 {
-                    return await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
+                    return await operation.ExecuteAsync(operationContext, channelBinding).ConfigureAwait(false);
                 }
                 catch (MongoCommandException ex) when (ShouldIgnoreException(ex))
                 {

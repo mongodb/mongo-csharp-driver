@@ -108,7 +108,15 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
                 var matchingServers = new List<ServerDescription>();
                 foreach (var server in servers)
                 {
-                    if (server.Tags != null && server.Tags.ContainsAll(tagSet))
+                    // A server with no tags should match an empty tag set
+                    if (server.Tags == null)
+                    {
+                        if (tagSet.IsEmpty)
+                        {
+                            matchingServers.Add(server);
+                        }
+                    }
+                    else if (server.Tags.ContainsAll(tagSet))
                     {
                         matchingServers.Add(server);
                     }

@@ -27,6 +27,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
+    [Trait("Category", "Integration")]
     public class PipelineStageDefinitionBuilderTests
     {
         // public methods
@@ -150,15 +151,15 @@ namespace MongoDB.Driver.Tests
 
             var stage = RenderStage(result);
             stage.Document.Should().Be("""
-                                       { 
-                                        "$geoNear" : { 
-                                                "near" : [34.0, 67.0], 
-                                                "distanceField" : "calculatedDistance", 
-                                                "maxDistance" : 3.0, 
-                                                "query" : { "testfield" : "testvalue" }, 
-                                                "includeLocs" : "usedLocation", 
-                                                "spherical" : true 
-                                            } 
+                                       {
+                                        "$geoNear" : {
+                                                "near" : [34.0, 67.0],
+                                                "distanceField" : "calculatedDistance",
+                                                "maxDistance" : 3.0,
+                                                "query" : { "testfield" : "testvalue" },
+                                                "includeLocs" : "usedLocation",
+                                                "spherical" : true
+                                            }
                                        }
                                        """);
         }
@@ -179,15 +180,15 @@ namespace MongoDB.Driver.Tests
 
             var stage = RenderStage(result);
             stage.Document.Should().Be("""
-                                       { 
-                                        "$geoNear" : { 
-                                                "near" : { "type" : "Point", "coordinates" : [34.0, 67.0] }, 
-                                                "distanceField" : "calculatedDistance", 
-                                                "maxDistance" : 3.0, 
-                                                "query" : { "testfield" : "testvalue" }, 
-                                                "includeLocs" : "usedLocation", 
-                                                "spherical" : true 
-                                            } 
+                                       {
+                                        "$geoNear" : {
+                                                "near" : { "type" : "Point", "coordinates" : [34.0, 67.0] },
+                                                "distanceField" : "calculatedDistance",
+                                                "maxDistance" : 3.0,
+                                                "query" : { "testfield" : "testvalue" },
+                                                "includeLocs" : "usedLocation",
+                                                "spherical" : true
+                                            }
                                        }
                                        """);
         }

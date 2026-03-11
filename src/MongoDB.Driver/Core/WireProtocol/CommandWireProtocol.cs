@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
@@ -45,6 +44,7 @@ namespace MongoDB.Driver.Core.WireProtocol
         private readonly CommandResponseHandling _responseHandling;
         private readonly IBsonSerializer<TCommandResult> _resultSerializer;
         private readonly ServerApi _serverApi;
+        private readonly TimeSpan _roundTripTime;
         private readonly ICoreSession _session;
 
         // constructors
@@ -86,7 +86,8 @@ namespace MongoDB.Driver.Core.WireProtocol
                 commandResponseHandling,
                 resultSerializer,
                 messageEncoderSettings,
-                serverApi)
+                serverApi,
+                roundTripTime: TimeSpan.Zero)
         {
         }
 
@@ -102,7 +103,8 @@ namespace MongoDB.Driver.Core.WireProtocol
             CommandResponseHandling responseHandling,
             IBsonSerializer<TCommandResult> resultSerializer,
             MessageEncoderSettings messageEncoderSettings,
-            ServerApi serverApi)
+            ServerApi serverApi,
+            TimeSpan roundTripTime)
         {
             if (responseHandling != CommandResponseHandling.Return &&
                 responseHandling != CommandResponseHandling.NoResponseExpected &&
@@ -123,22 +125,23 @@ namespace MongoDB.Driver.Core.WireProtocol
             _messageEncoderSettings = messageEncoderSettings;
             _postWriteAction = postWriteAction; // can be null
             _serverApi = serverApi; // can be null
+            _roundTripTime = roundTripTime;
         }
 
         // public properties
         public bool MoreToCome => _cachedWireProtocol?.MoreToCome ?? false;
 
         // public methods
-        public TCommandResult Execute(IConnection connection, CancellationToken cancellationToken)
+        public TCommandResult Execute(OperationContext operationContext, IConnection connection)
         {
             var supportedProtocol = CreateSupportedWireProtocol(connection);
-            return supportedProtocol.Execute(connection, cancellationToken);
+            return supportedProtocol.Execute(operationContext, connection);
         }
 
-        public Task<TCommandResult> ExecuteAsync(IConnection connection, CancellationToken cancellationToken)
+        public Task<TCommandResult> ExecuteAsync(OperationContext operationContext, IConnection connection)
         {
             var supportedProtocol = CreateSupportedWireProtocol(connection);
-            return supportedProtocol.ExecuteAsync(connection, cancellationToken);
+            return supportedProtocol.ExecuteAsync(operationContext, connection);
         }
 
         // private methods
@@ -156,7 +159,8 @@ namespace MongoDB.Driver.Core.WireProtocol
                 _resultSerializer,
                 _messageEncoderSettings,
                 _postWriteAction,
-                _serverApi);
+                _serverApi,
+                _roundTripTime);
         }
 
         private IWireProtocol<TCommandResult> CreateCommandUsingQueryMessageWireProtocol()
@@ -205,7 +209,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 }
                 else
                 {
-                    // The driver doesn't support servers less than 4.0. However it's still useful to support OP_QUERY for initial handshake.
+                    // The driver doesn't support servers less than 4.2. However it's still useful to support OP_QUERY for initial handshake.
                     // For pre-3.6 servers, it will allow throwing unsupported wire protocol exception on the driver side.
                     // If we only supported OP_MSG, we would throw a general server error about closing connection without actual reason of why it happened
                     return _cachedWireProtocol = CreateCommandUsingQueryMessageWireProtocol();

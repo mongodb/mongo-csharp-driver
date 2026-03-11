@@ -15,7 +15,6 @@
 
 using System.Collections.Generic;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
@@ -34,17 +33,17 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
         {
             var pinnedServerEndpoint = GetPinnedServerEndpointAndAssertNotNull();
             var pinnedServerSelector = CreateServerSelector(pinnedServerEndpoint);
-            return TestRunner.FailPointCluster.SelectServer(pinnedServerSelector, CancellationToken.None);
+            return TestRunner.FailPointCluster.SelectServer(OperationContext.NoTimeout, pinnedServerSelector);
         }
 
         protected async override Task<IServer> GetFailPointServerAsync()
         {
             var pinnedServerEndpoint = GetPinnedServerEndpointAndAssertNotNull();
             var pinnedServerSelector = CreateServerSelector(pinnedServerEndpoint);
-            return await TestRunner.FailPointCluster.SelectServerAsync(pinnedServerSelector, CancellationToken.None).ConfigureAwait(false);
+            return await TestRunner.FailPointCluster.SelectServerAsync(OperationContext.NoTimeout, pinnedServerSelector).ConfigureAwait(false);
         }
 
-        // private methods 
+        // private methods
         private IServerSelector CreateServerSelector(EndPoint endpoint)
         {
             return new CompositeServerSelector(new IServerSelector[]

@@ -15,7 +15,6 @@
 
 using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
@@ -63,6 +62,8 @@ namespace MongoDB.Driver.Core.Operations
             get { return _messageEncoderSettings; }
         }
 
+        public string OperationName => "listDatabases";
+
         public bool? NameOnly
         {
             get { return _nameOnly; }
@@ -87,31 +88,31 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        public IAsyncCursor<BsonDocument> Execute(IReadBinding binding, CancellationToken cancellationToken)
+        public IAsyncCursor<BsonDocument> Execute(OperationContext operationContext, IReadBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
             {
                 var operation = CreateOperation();
-                var reply = operation.Execute(binding, cancellationToken);
+                var reply = operation.Execute(operationContext, binding);
                 return CreateCursor(reply);
             }
         }
 
-        public async Task<IAsyncCursor<BsonDocument>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
+        public async Task<IAsyncCursor<BsonDocument>> ExecuteAsync(OperationContext operationContext, IReadBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
             {
                 var operation = CreateOperation();
-                var reply = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+                var reply = await operation.ExecuteAsync(operationContext, binding).ConfigureAwait(false);
                 return CreateCursor(reply);
             }
         }
 
-        private IDisposable BeginOperation() => EventContext.BeginOperation(null, "listDatabases");
+        private EventContext.OperationIdDisposer BeginOperation() => EventContext.BeginOperation(null, "listDatabases");
 
         private IAsyncCursor<BsonDocument> CreateCursor(BsonDocument reply)
         {
@@ -122,7 +123,7 @@ namespace MongoDB.Driver.Core.Operations
         private ReadCommandOperation<BsonDocument> CreateOperation()
         {
             var command = CreateCommand();
-            return new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            return new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, _messageEncoderSettings, OperationName)
             {
                 RetryRequested = _retryRequested
             };

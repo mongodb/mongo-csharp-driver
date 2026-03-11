@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
@@ -212,6 +211,11 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <summary>
+        /// Gets the name of the operation.
+        /// </summary>
+        public string OperationName => "aggregate";
+
+        /// <summary>
         /// Gets the pipeline.
         /// </summary>
         /// <value>
@@ -270,27 +274,27 @@ namespace MongoDB.Driver.Core.Operations
 
         // methods
         /// <inheritdoc/>
-        public IAsyncCursor<TResult> Execute(IReadBinding binding, CancellationToken cancellationToken)
+        public IAsyncCursor<TResult> Execute(OperationContext operationContext, IReadBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = RetryableReadContext.Create(binding, _retryRequested, cancellationToken))
+            using (var context = RetryableReadContext.Create(operationContext, binding, _retryRequested))
             {
-                return Execute(context, cancellationToken);
+                return Execute(operationContext, context);
             }
         }
 
         /// <inheritdoc/>
-        public IAsyncCursor<TResult> Execute(RetryableReadContext context, CancellationToken cancellationToken)
+        public IAsyncCursor<TResult> Execute(OperationContext operationContext, RetryableReadContext context)
         {
             Ensure.IsNotNull(context, nameof(context));
             EnsureIsReadOnlyPipeline();
 
             using (EventContext.BeginOperation())
             {
-                var operation = CreateOperation(context);
-                var result = operation.Execute(context, cancellationToken);
+                var operation = CreateOperation(operationContext, context);
+                var result = operation.Execute(operationContext, context);
 
                 context.ChannelSource.Session.SetSnapshotTimeIfNeeded(result.AtClusterTime);
 
@@ -299,27 +303,27 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <inheritdoc/>
-        public async Task<IAsyncCursor<TResult>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
+        public async Task<IAsyncCursor<TResult>> ExecuteAsync(OperationContext operationContext, IReadBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = await RetryableReadContext.CreateAsync(binding, _retryRequested, cancellationToken).ConfigureAwait(false))
+            using (var context = await RetryableReadContext.CreateAsync(operationContext, binding, _retryRequested).ConfigureAwait(false))
             {
-                return await ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
+                return await ExecuteAsync(operationContext, context).ConfigureAwait(false);
             }
         }
 
         /// <inheritdoc/>
-        public async Task<IAsyncCursor<TResult>> ExecuteAsync(RetryableReadContext context, CancellationToken cancellationToken)
+        public async Task<IAsyncCursor<TResult>> ExecuteAsync(OperationContext operationContext, RetryableReadContext context)
         {
             Ensure.IsNotNull(context, nameof(context));
             EnsureIsReadOnlyPipeline();
 
             using (EventContext.BeginOperation())
             {
-                var operation = CreateOperation(context);
-                var result = await operation.ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
+                var operation = CreateOperation(operationContext, context);
+                var result = await operation.ExecuteAsync(operationContext, context).ConfigureAwait(false);
 
                 context.ChannelSource.Session.SetSnapshotTimeIfNeeded(result.AtClusterTime);
 
@@ -327,7 +331,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        internal BsonDocument CreateCommand(ConnectionDescription connectionDescription, ICoreSession session)
+        internal BsonDocument CreateCommand(OperationContext operationContext, ICoreSession session, ConnectionDescription connectionDescription)
         {
             var readConcern = ReadConcernHelper.GetReadConcernForCommand(session, connectionDescription, _readConcern);
             var command = new BsonDocument
@@ -335,7 +339,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "aggregate", _collectionNamespace == null ? (BsonValue)1 : _collectionNamespace.CollectionName },
                 { "pipeline", new BsonArray(_pipeline) },
                 { "allowDiskUse", () => _allowDiskUse.Value, _allowDiskUse.HasValue },
-                { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue },
+                { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue && !operationContext.IsRootContextTimeoutConfigured() },
                 { "collation", () => _collation.ToBsonDocument(), _collation != null },
                 { "hint", _hint, _hint != null },
                 { "let", _let, _let != null },
@@ -353,14 +357,14 @@ namespace MongoDB.Driver.Core.Operations
             return command;
         }
 
-        private IDisposable BeginOperation() => EventContext.BeginOperation(null, "aggregate");
+        private EventContext.OperationIdDisposer BeginOperation() => EventContext.BeginOperation(null, OperationName);
 
-        private ReadCommandOperation<AggregateResult> CreateOperation(RetryableReadContext context)
+        private ReadCommandOperation<AggregateResult> CreateOperation(OperationContext operationContext, RetryableReadContext context)
         {
             var databaseNamespace = _collectionNamespace == null ? _databaseNamespace : _collectionNamespace.DatabaseNamespace;
-            var command = CreateCommand(context.Channel.ConnectionDescription, context.Binding.Session);
+            var command = CreateCommand(operationContext, context.Binding.Session, context.Channel.ConnectionDescription);
             var serializer = new AggregateResultDeserializer(_resultSerializer);
-            return new ReadCommandOperation<AggregateResult>(databaseNamespace, command, serializer, MessageEncoderSettings)
+            return new ReadCommandOperation<AggregateResult>(databaseNamespace, command, serializer, MessageEncoderSettings, OperationName)
             {
                 RetryRequested = _retryRequested // might be overridden by retryable read context
             };

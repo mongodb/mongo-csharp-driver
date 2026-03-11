@@ -37,6 +37,7 @@ using Xunit;
 namespace MongoDB.Driver.Tests.Encryption
 {
     [Trait("Category", "CSFLE")]
+    [Trait("Category", "Integration")]
     public class ClientEncryptionTests
     {
         #region static
@@ -135,15 +136,15 @@ namespace MongoDB.Driver.Tests.Encryption
             mockCluster.SetupGet(c => c.Description).Returns(clusterDescription);
             var mockServer = new Mock<IServer>();
             mockServer.SetupGet(s => s.Description).Returns(serverDescription);
-            var channel = Mock.Of<IChannelHandle>(c => c.ConnectionDescription == new ConnectionDescription(new ConnectionId(serverId), new HelloResult(new BsonDocument("maxWireVersion", serverDescription.WireVersionRange.Max))));
-            mockServer.Setup(s => s.GetChannel(It.IsAny<CancellationToken>())).Returns(channel);
-            mockServer.Setup(s => s.GetChannelAsync(It.IsAny<CancellationToken>())).ReturnsAsync(channel);
+            var connection = Mock.Of<IChannelHandle>(c => c.ConnectionDescription == new ConnectionDescription(new ConnectionId(serverId), new HelloResult(new BsonDocument("maxWireVersion", serverDescription.WireVersionRange.Max))));
+            mockServer.Setup(s => s.GetChannel(It.IsAny<OperationContext>())).Returns(connection);
+            mockServer.Setup(s => s.GetChannelAsync(It.IsAny<OperationContext>())).ReturnsAsync(connection);
 
             mockCluster
-                .Setup(m => m.SelectServer(It.IsAny<IServerSelector>(), It.IsAny<CancellationToken>()))
+                .Setup(m => m.SelectServer(It.IsAny<OperationContext>(), It.IsAny<IServerSelector>()))
                 .Returns(mockServer.Object);
             mockCluster
-                .Setup(m => m.SelectServerAsync(It.IsAny<IServerSelector>(), It.IsAny<CancellationToken>()))
+                .Setup(m => m.SelectServerAsync(It.IsAny<OperationContext>(), It.IsAny<IServerSelector>()))
                 .ReturnsAsync(mockServer.Object);
 
             var database = Mock.Of<IMongoDatabase>(d =>
@@ -224,15 +225,15 @@ namespace MongoDB.Driver.Tests.Encryption
             mockCluster.SetupGet(c => c.Description).Returns(clusterDescription);
             var mockServer = new Mock<IServer>();
             mockServer.SetupGet(s => s.Description).Returns(serverDescription);
-            var channel = Mock.Of<IChannelHandle>(c => c.ConnectionDescription == new ConnectionDescription(new ConnectionId(serverId), new HelloResult(new BsonDocument("maxWireVersion", serverDescription.WireVersionRange.Max))));
-            mockServer.Setup(s => s.GetChannel(It.IsAny<CancellationToken>())).Returns(channel);
-            mockServer.Setup(s => s.GetChannelAsync(It.IsAny<CancellationToken>())).ReturnsAsync(channel);
+            var connection = Mock.Of<IChannelHandle>(c => c.ConnectionDescription == new ConnectionDescription(new ConnectionId(serverId), new HelloResult(new BsonDocument("maxWireVersion", serverDescription.WireVersionRange.Max))));
+            mockServer.Setup(s => s.GetChannel(It.IsAny<OperationContext>())).Returns(connection);
+            mockServer.Setup(s => s.GetChannelAsync(It.IsAny<OperationContext>())).ReturnsAsync(connection);
 
             mockCluster
-                .Setup(m => m.SelectServer(It.IsAny<IServerSelector>(), It.IsAny<CancellationToken>()))
+                .Setup(m => m.SelectServer(It.IsAny<OperationContext>(), It.IsAny<IServerSelector>()))
                 .Returns(mockServer.Object);
             mockCluster
-                .Setup(m => m.SelectServerAsync(It.IsAny<IServerSelector>(), It.IsAny<CancellationToken>()))
+                .Setup(m => m.SelectServerAsync(It.IsAny<OperationContext>(), It.IsAny<IServerSelector>()))
                 .ReturnsAsync(mockServer.Object);
 
             var database = Mock.Of<IMongoDatabase>(d =>

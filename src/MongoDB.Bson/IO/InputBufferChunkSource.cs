@@ -132,7 +132,7 @@ namespace MongoDB.Bson.IO
             get { return _maxUnpooledChunkSize; }
         }
 
-        // methods        
+        // methods
         /// <inheritdoc/>
         public void Dispose()
         {

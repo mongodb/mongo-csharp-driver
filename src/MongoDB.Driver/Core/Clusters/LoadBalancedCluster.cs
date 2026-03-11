@@ -142,6 +142,19 @@ namespace MongoDB.Driver.Core.Clusters
             }
         }
 
+        public IEnumerable<IClusterableServer> Servers
+        {
+            get
+            {
+                if (_server == null)
+                {
+                    return [];
+                }
+
+                return [_server];
+            }
+        }
+
         public void Initialize()
         {
             ThrowIfDisposed();
@@ -170,9 +183,13 @@ namespace MongoDB.Driver.Core.Clusters
             }
         }
 
-        public IServer SelectServer(IServerSelector selector, CancellationToken cancellationToken)
+        public IServer SelectServer(OperationContext operationContext, IServerSelector selector)
         {
+            Ensure.IsNotNull(selector, nameof(selector));
+            Ensure.IsNotNull(operationContext, nameof(operationContext));
             ThrowIfDisposed();
+
+            using var serverSelectionOperationContext = operationContext.WithTimeout(_settings.ServerSelectionTimeout);
 
             _serverSelectionEventLogger.LogAndPublish(new ClusterSelectingServerEvent(
                 _description,
@@ -180,31 +197,41 @@ namespace MongoDB.Driver.Core.Clusters
                 null,
                 EventContext.OperationName));
 
-            var index = Task.WaitAny(new[] { _serverReadyTaskCompletionSource.Task }, (int)_settings.ServerSelectionTimeout.TotalMilliseconds, cancellationToken);
-            if (index != 0)
+            var stopwatch = Stopwatch.StartNew();
+            try
             {
-                cancellationToken.ThrowIfCancellationRequested();
+                serverSelectionOperationContext.WaitTask(_serverReadyTaskCompletionSource.Task);
+            }
+            catch (TimeoutException)
+            {
                 throw CreateTimeoutException(_description); // _description will contain dnsException
             }
 
             if (_server != null)
             {
+                stopwatch.Stop();
+
                 _serverSelectionEventLogger.LogAndPublish(new ClusterSelectedServerEvent(
                    _description,
                    selector,
                    _server.Description,
-                   TimeSpan.FromSeconds(1),
+                   stopwatch.Elapsed,
                    null,
                    EventContext.OperationName));
+
+                return new SelectedServer(_server, _server.Description);
             }
 
-            return _server ??
-                throw new InvalidOperationException("The server must be created before usage."); // should not be reached
+            throw new InvalidOperationException("The server must be created before usage."); // should not be reached
         }
 
-        public async Task<IServer> SelectServerAsync(IServerSelector selector, CancellationToken cancellationToken)
+        public async Task<IServer> SelectServerAsync(OperationContext operationContext, IServerSelector selector)
         {
+            Ensure.IsNotNull(selector, nameof(selector));
+            Ensure.IsNotNull(operationContext, nameof(operationContext));
             ThrowIfDisposed();
+
+            using var serverSelectionOperationContext = operationContext.WithTimeout(_settings.ServerSelectionTimeout);
 
             _serverSelectionEventLogger.LogAndPublish(new ClusterSelectingServerEvent(
                 _description,
@@ -212,27 +239,31 @@ namespace MongoDB.Driver.Core.Clusters
                 null,
                 EventContext.OperationName));
 
-            var timeoutTask = Task.Delay(_settings.ServerSelectionTimeout, cancellationToken);
-            var triggeredTask = await Task.WhenAny(_serverReadyTaskCompletionSource.Task, timeoutTask).ConfigureAwait(false);
-            if (triggeredTask == timeoutTask)
+            var stopwatch = Stopwatch.StartNew();
+            try
             {
-                cancellationToken.ThrowIfCancellationRequested();
+                await serverSelectionOperationContext.WaitTaskAsync(_serverReadyTaskCompletionSource.Task).ConfigureAwait(false);
+            }
+            catch (TimeoutException)
+            {
                 throw CreateTimeoutException(_description); // _description will contain dnsException
             }
 
             if (_server != null)
             {
+                stopwatch.Stop();
                 _serverSelectionEventLogger.LogAndPublish(new ClusterSelectedServerEvent(
                    _description,
                    selector,
                    _server.Description,
-                   TimeSpan.FromSeconds(1),
+                   stopwatch.Elapsed,
                    null,
                    EventContext.OperationName));
+
+                return new SelectedServer(_server, _server.Description);
             }
 
-            return _server ??
-                throw new InvalidOperationException("The server must be created before usage."); // should not be reached
+            throw new InvalidOperationException("The server must be created before usage."); // should not be reached
         }
 
         public ICoreSessionHandle StartSession(CoreSessionOptions options = null)

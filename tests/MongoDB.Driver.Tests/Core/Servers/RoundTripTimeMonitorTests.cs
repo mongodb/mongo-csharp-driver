@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
         [Fact]
         public void Constructor_should_throw_connection_endpoint_is_null()
         {
-            var exception = Record.Exception(() => new RoundTripTimeMonitor(Mock.Of<IConnectionFactory>(), __serverId, endpoint: null, TimeSpan.Zero, serverApi: null, logger: null));
+            var exception = Record.Exception(() => new RoundTripTimeMonitor(Mock.Of<IConnectionFactory>(), __serverId, endpoint: null, TimeSpan.Zero, TimeSpan.Zero, serverApi: null, logger: null));
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("endpoint");
         }
@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
         [Fact]
         public void Constructor_should_throw_connection_factory_is_null()
         {
-            var exception = Record.Exception(() => new RoundTripTimeMonitor(connectionFactory: null, __serverId, __endPoint, TimeSpan.Zero, serverApi: null, logger: null));
+            var exception = Record.Exception(() => new RoundTripTimeMonitor(connectionFactory: null, __serverId, __endPoint, TimeSpan.Zero, TimeSpan.Zero, serverApi: null, logger: null));
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("connectionFactory");
         }
@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
         [Fact]
         public void Constructor_should_throw_connection_serverId_is_null()
         {
-            var exception = Record.Exception(() => new RoundTripTimeMonitor(Mock.Of<IConnectionFactory>(), serverId: null, __endPoint, TimeSpan.Zero, serverApi: null, logger: null));
+            var exception = Record.Exception(() => new RoundTripTimeMonitor(Mock.Of<IConnectionFactory>(), serverId: null, __endPoint, TimeSpan.Zero, TimeSpan.Zero, serverApi: null, logger: null));
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("serverId");
         }
@@ -107,7 +107,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
                     });
 
             mockConnection
-                .SetupSequence(c => c.ReceiveMessage(It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), It.IsAny<MessageEncoderSettings>(), It.IsAny<CancellationToken>()))
+                .SetupSequence(c => c.ReceiveMessage(It.IsAny<OperationContext>(), It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), It.IsAny<MessageEncoderSettings>()))
                 .Returns(
                     () =>
                     {
@@ -176,6 +176,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
                 __serverId,
                 __endPoint,
                 TimeSpan.FromMilliseconds(10),
+                TimeSpan.FromMilliseconds(10),
                 serverApi,
                 logger: null))
             {
@@ -216,6 +217,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
                 mockConnectionFactory.Object,
                 __serverId,
                 __endPoint,
+                TimeSpan.FromMilliseconds(10),
                 TimeSpan.FromMilliseconds(10),
                 null,
                 logger: null))
@@ -262,6 +264,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
                 __serverId,
                 __endPoint,
                 frequency,
+                TimeSpan.FromMilliseconds(10),
                 serverApi: null,
                 logger: null);
         }
@@ -281,7 +284,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
         private RoundTripTimeMonitor CreateSubject(TimeSpan frequency, Mock<IConnection> mockConnection)
         {
             mockConnection
-                .Setup(c => c.ReceiveMessage(It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), It.IsAny<MessageEncoderSettings>(), It.IsAny<CancellationToken>()))
+                .Setup(c => c.ReceiveMessage(It.IsAny<OperationContext>(), It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), It.IsAny<MessageEncoderSettings>()))
                 .Returns(() => CreateResponseMessage());
 
             var mockConnectionFactory = new Mock<IConnectionFactory>();

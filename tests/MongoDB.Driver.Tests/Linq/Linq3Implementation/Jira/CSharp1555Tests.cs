@@ -13,19 +13,26 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp1555Tests : Linq3IntegrationTest
+    public class CSharp1555Tests : LinqIntegrationTest<CSharp1555Tests.ClassFixture>
     {
+        public CSharp1555Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Queryable_should_work()
         {
-            var collection = CreatePeopleCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable();
 
             var stages = Translate(collection, queryable);
@@ -38,7 +45,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Select_new_Person_should_work()
         {
-            var collection = CreatePeopleCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(p => new Person { Id = p.Id, Name = p.Name });
 
@@ -52,7 +59,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Select_new_Person_without_Name_should_work()
         {
-            var collection = CreatePeopleCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(p => new Person { Id = p.Id });
 
@@ -66,7 +73,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Select_new_Person_without_Id_should_work()
         {
-            var collection = CreatePeopleCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(p => new Person { Name = p.Name });
 
@@ -77,25 +84,20 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.ShouldBeEquivalentTo(new Person { Id = 0, Name = "A" });
         }
 
-        private IMongoCollection<Person> CreatePeopleCollection()
-        {
-            var collection = GetCollection<Person>();
-
-            var documents = new[]
-            {
-                new Person { Id = 1, Name = "A" }
-            };
-            CreateCollection(collection, documents);
-
-            return collection;
-        }
-
-        private class Person
+        public class Person
         {
             [BsonIgnoreIfNull]
             public int Id { get; set; }
             [BsonIgnoreIfNull]
             public string Name { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<Person>
+        {
+            protected override IEnumerable<Person> InitialData =>
+            [
+                new Person { Id = 1, Name = "A" }
+            ];
         }
     }
 }

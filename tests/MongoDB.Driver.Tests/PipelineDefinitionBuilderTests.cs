@@ -181,6 +181,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        [Trait("Category", "Integration")]
         public void Merge_should_add_expected_stage()
         {
             var pipeline = new EmptyPipelineDefinition<BsonDocument>();
@@ -193,7 +194,7 @@ namespace MongoDB.Driver.Tests
 
             var stages = RenderStages(result, BsonDocumentSerializer.Instance);
             stages.Count.Should().Be(1);
-            stages[0].Should().Be("{ $merge : { into : { db : 'database', coll : 'collection' } } }");
+            stages[0].Should().BeEquivalentTo("{ $merge : { into : { db : 'database', coll : 'collection' } } }");
         }
 
         [Fact]
@@ -233,15 +234,15 @@ namespace MongoDB.Driver.Tests
             stages.Count.Should().Be(1);
             stages[0].Should().Be("""
                                   {
-                                      $rankFusion: { 
-                                          "input" : { 
-                                              "pipelines" : { 
+                                      $rankFusion: {
+                                          "input" : {
+                                              "pipelines" : {
                                                  "p1" : [{ "$match" : { "x" : 1 } }, { "$sort" : { "y" : 1 } }],
-                                                 "p2" : [{ "$match" : { "x" : 2 } }, { "$sort" : { "y" : -1 } }] 
-                                               } 
+                                                 "p2" : [{ "$match" : { "x" : 2 } }, { "$sort" : { "y" : -1 } }]
+                                               }
                                            },
                                            "combination" : { "weights" : { "p1" : 0.3, "p2" : 0.7 } }
-                                           "scoreDetails" : true 
+                                           "scoreDetails" : true
                                       }
                                   }
                                   """);
@@ -260,12 +261,12 @@ namespace MongoDB.Driver.Tests
             stages.Count.Should().Be(1);
             stages[0].Should().Be("""
                                   {
-                                      $rankFusion: { 
-                                          "input" : { 
-                                              "pipelines" : { 
+                                      $rankFusion: {
+                                          "input" : {
+                                              "pipelines" : {
                                                  "pipeline1" : [{ "$match" : { "x" : 1 } }, { "$sort" : { "y" : 1 } }],
-                                                 "pipeline2" : [{ "$match" : { "x" : 2 } }, { "$sort" : { "y" : -1 } }] 
-                                               } 
+                                                 "pipeline2" : [{ "$match" : { "x" : 2 } }, { "$sort" : { "y" : -1 } }]
+                                               }
                                            }
                                       }
                                   }
@@ -286,13 +287,13 @@ namespace MongoDB.Driver.Tests
             stages.Count.Should().Be(1);
             stages[0].Should().Be("""
                                   {
-                                      $rankFusion: { 
-                                          "input" : { 
-                                              "pipelines" : { 
+                                      $rankFusion: {
+                                          "input" : {
+                                              "pipelines" : {
                                                  "pipeline1" : [{ "$match" : { "x" : 1 } }, { "$sort" : { "y" : 1 } }],
-                                                 "pipeline2" : [{ "$match" : { "x" : 2 } }, { "$sort" : { "y" : -1 } }], 
-                                                 "pipeline3" : [{ "$match" : { "x" : 3 } }, { "$sort" : { "y" : 1 } }] 
-                                               } 
+                                                 "pipeline2" : [{ "$match" : { "x" : 2 } }, { "$sort" : { "y" : -1 } }],
+                                                 "pipeline3" : [{ "$match" : { "x" : 3 } }, { "$sort" : { "y" : 1 } }]
+                                               }
                                            },
                                            "combination" : { "weights" : { "pipeline1" : 0.3, "pipeline2" : 0.7 } }
                                       }
@@ -613,7 +614,7 @@ namespace MongoDB.Driver.Tests
             var result = pipeline.VectorSearch("x", new[] { 1.0, 2.0, 3.0 }, 1);
 
             var stages = RenderStages(result, BsonDocumentSerializer.Instance);
-            stages[0].Should().Be("{ $vectorSearch: { queryVector: [1.0, 2.0, 3.0], path: 'x', limit: 1, numCandidates: 10, index : 'default' } }");
+            stages[0].Should().BeEquivalentTo("{ $vectorSearch: { queryVector: [1.0, 2.0, 3.0], path: 'x', limit: 1, numCandidates: 10, index : 'default' } }");
         }
 
         [Fact]
@@ -623,7 +624,7 @@ namespace MongoDB.Driver.Tests
             var result = pipeline.VectorSearch("x", new[] { 1f, 2f, 3f }, 1);
 
             var stages = RenderStages(result, BsonDocumentSerializer.Instance);
-            stages[0].Should().Be("{ $vectorSearch: { queryVector: [1.0, 2.0, 3.0],  path: 'x', limit: 1, numCandidates: 10, index : 'default'  } }");
+            stages[0].Should().BeEquivalentTo("{ $vectorSearch: { queryVector: [1.0, 2.0, 3.0],  path: 'x', limit: 1, numCandidates: 10, index : 'default'  } }");
         }
 
         [Fact]
@@ -639,7 +640,7 @@ namespace MongoDB.Driver.Tests
             var result = pipeline.VectorSearch("x", new[] { 1.0, 2.0, 3.0 }, 1, options);
 
             var stages = RenderStages(result, BsonDocumentSerializer.Instance);
-            stages[0].Should().Be("{ $vectorSearch: { queryVector: [1.0, 2.0, 3.0], path: 'x', limit: 1, numCandidates: 123, index: 'index_name', filter : { $and : [{ x : { $eq : 1 } }, { y : { $eq : 2 } }] } } }");
+            stages[0].Should().BeEquivalentTo("{ $vectorSearch: { queryVector: [1.0, 2.0, 3.0], path: 'x', limit: 1, numCandidates: 123, index: 'index_name', filter : { $and : [{ x : { $eq : 1 } }, { y : { $eq : 2 } }] } } }");
         }
 
         [Fact]

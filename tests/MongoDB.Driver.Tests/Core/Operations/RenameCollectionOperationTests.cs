@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -62,17 +63,19 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void constructor_should_throw_when_collectionNamespace_is_null()
         {
-            Action action = () => new RenameCollectionOperation(null, _newCollectionNamespace, _messageEncoderSettings);
+            var exception = Record.Exception(() => new RenameCollectionOperation(null, _newCollectionNamespace, _messageEncoderSettings));
 
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("collectionNamespace");
+            exception.Should().BeOfType<ArgumentNullException>().Subject
+                .ParamName.Should().Be("collectionNamespace");
         }
 
         [Fact]
         public void constructor_should_throw_when_newCollectionNamespace_is_null()
         {
-            Action action = () => new RenameCollectionOperation(_collectionNamespace, null, _messageEncoderSettings);
+            var exception = Record.Exception(() => new RenameCollectionOperation(_collectionNamespace, null, _messageEncoderSettings));
 
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("newCollectionNamespace");
+            exception.Should().BeOfType<ArgumentNullException>().Subject
+                .ParamName.Should().Be("newCollectionNamespace");
         }
 
         [Fact]
@@ -87,7 +90,7 @@ namespace MongoDB.Driver.Core.Operations
             var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
-            var result = subject.CreateCommand(session, connectionDescription);
+            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription);
 
             result.Should().Be(expectedResult);
         }
@@ -111,7 +114,7 @@ namespace MongoDB.Driver.Core.Operations
             var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
-            var result = subject.CreateCommand(session, connectionDescription);
+            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription);
 
             result.Should().Be(expectedResult);
         }
@@ -119,24 +122,39 @@ namespace MongoDB.Driver.Core.Operations
         [Theory]
         [ParameterAttributeData]
         public void CreateCommand_should_return_expected_result_when_WriteConcern_is_set(
-            [Values(null, 1, 2)]
-            int? w)
+            [Values(null, 1, 2)] int? w,
+            [Values(null, 100)] int? wtimeout,
+            [Values(true, false)] bool hasOperationTimeout
+            )
         {
             var writeConcern = w.HasValue ? new WriteConcern(w.Value) : null;
+            if (wtimeout.HasValue)
+            {
+                writeConcern ??= WriteConcern.Acknowledged;
+                writeConcern = writeConcern.With(wTimeout: TimeSpan.FromMilliseconds(wtimeout.Value));
+            }
+
             var subject = new RenameCollectionOperation(_collectionNamespace, _newCollectionNamespace, _messageEncoderSettings)
             {
                 WriteConcern = writeConcern
             };
+            var operationContext = hasOperationTimeout ? new OperationContext(TimeSpan.FromSeconds(42), CancellationToken.None) : OperationContext.NoTimeout;
             var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
-            var result = subject.CreateCommand(session, connectionDescription);
+            var result = subject.CreateCommand(operationContext, session, connectionDescription);
+
+            var expectedWriteConcern = writeConcern?.ToBsonDocument();
+            if (hasOperationTimeout)
+            {
+                expectedWriteConcern?.Remove("wtimeout");
+            }
 
             var expectedResult = new BsonDocument
             {
                 { "renameCollection", _collectionNamespace.FullName },
                 { "to", _newCollectionNamespace.FullName },
-                { "writeConcern", () => writeConcern.ToBsonDocument(), writeConcern != null }
+                { "writeConcern", () => expectedWriteConcern, w.HasValue || (wtimeout.HasValue && !hasOperationTimeout) }
             };
             result.Should().Be(expectedResult);
         }

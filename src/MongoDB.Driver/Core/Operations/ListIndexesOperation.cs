@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
@@ -62,37 +61,39 @@ namespace MongoDB.Driver.Core.Operations
             get { return _messageEncoderSettings; }
         }
 
+        public string OperationName => "listIndexes";
+
         public bool RetryRequested
         {
             get => _retryRequested;
             set => _retryRequested = value;
         }
 
-        public IAsyncCursor<BsonDocument> Execute(IReadBinding binding, CancellationToken cancellationToken)
+        public IAsyncCursor<BsonDocument> Execute(OperationContext operationContext, IReadBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = RetryableReadContext.Create(binding, _retryRequested, cancellationToken))
+            using (var context = RetryableReadContext.Create(operationContext, binding, _retryRequested))
             {
                 var operation = CreateOperation();
-                return operation.Execute(context, cancellationToken);
+                return operation.Execute(operationContext, context);
             }
         }
 
-        public async Task<IAsyncCursor<BsonDocument>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
+        public async Task<IAsyncCursor<BsonDocument>> ExecuteAsync(OperationContext operationContext, IReadBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = await RetryableReadContext.CreateAsync(binding, _retryRequested, cancellationToken).ConfigureAwait(false))
+            using (var context = await RetryableReadContext.CreateAsync(operationContext, binding, _retryRequested).ConfigureAwait(false))
             {
                 var operation = CreateOperation();
-                return await operation.ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
+                return await operation.ExecuteAsync(operationContext, context).ConfigureAwait(false);
             }
         }
 
-        private IDisposable BeginOperation() => EventContext.BeginOperation(null, "listIndexes");
+        private EventContext.OperationIdDisposer BeginOperation() => EventContext.BeginOperation(null, "listIndexes");
 
         private IExecutableInRetryableReadContext<IAsyncCursor<BsonDocument>> CreateOperation()
         {

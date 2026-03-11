@@ -23,7 +23,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
@@ -42,6 +41,7 @@ namespace MongoDB.Driver
         private readonly IClusterInternal _cluster;
 #pragma warning restore CA2213 // Disposable fields should be disposed
         private readonly IAutoEncryptionLibMongoCryptController _libMongoCryptController;
+        private readonly Func<IMongoClient, IOperationExecutor> _operationExecutorFactory;
         private readonly IOperationExecutor _operationExecutor;
         private readonly MongoClientSettings _settings;
         private readonly ILogger<LogCategories.Client> _logger;
@@ -60,23 +60,9 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="settings">The settings.</param>
         public MongoClient(MongoClientSettings settings)
+            : this(settings, client => new OperationExecutor(client))
         {
-            _settings = Ensure.IsNotNull(settings, nameof(settings)).FrozenCopy();
-            _logger = _settings.LoggingSettings?.CreateLogger<LogCategories.Client>();
 
-            _cluster = _settings.ClusterSource.Get(_settings.ToClusterKey());
-            _operationExecutor = new OperationExecutor(this);
-            if (settings.AutoEncryptionOptions != null)
-            {
-                _libMongoCryptController =
-                    MongoClientSettings.Extensions.AutoEncryptionProvider.CreateAutoCryptClientController(this, settings.AutoEncryptionOptions);
-
-                _settings.LoggingSettings?.CreateLogger<LogCategories.Client>()?.LogTrace(
-                    StructuredLogTemplateProviders.TopologyId_Message_SharedLibraryVersion,
-                    _cluster.ClusterId,
-                    "CryptClient created. Configured shared library version: ",
-                    _libMongoCryptController.CryptSharedLibraryVersion() ?? "None");
-            }
         }
 
         /// <summary>
@@ -97,10 +83,25 @@ namespace MongoDB.Driver
         {
         }
 
-        internal MongoClient(IOperationExecutor operationExecutor, MongoClientSettings settings)
-            : this(settings)
+        internal MongoClient(MongoClientSettings settings, Func<IMongoClient, IOperationExecutor> operationExecutorFactory)
         {
-            _operationExecutor = operationExecutor;
+            _settings = Ensure.IsNotNull(settings, nameof(settings)).FrozenCopy();
+            _operationExecutorFactory = Ensure.IsNotNull(operationExecutorFactory, nameof(operationExecutorFactory));
+            _logger = _settings.LoggingSettings?.CreateLogger<LogCategories.Client>();
+            _cluster = _settings.ClusterSource.Get(_settings.ToClusterKey());
+            _operationExecutor = _operationExecutorFactory(this);
+
+            if (settings.AutoEncryptionOptions != null)
+            {
+                _libMongoCryptController =
+                    MongoClientSettings.Extensions.AutoEncryptionProvider.CreateAutoCryptClientController(this, settings.AutoEncryptionOptions);
+
+                _settings.LoggingSettings?.CreateLogger<LogCategories.Client>()?.LogTrace(
+                    StructuredLogTemplateProviders.TopologyId_Message_SharedLibraryVersion,
+                    _cluster.ClusterId,
+                    "CryptClient created. Configured shared library version: ",
+                    _libMongoCryptController.CryptSharedLibraryVersion() ?? "None");
+            }
         }
 
         // public properties
@@ -112,13 +113,11 @@ namespace MongoDB.Driver
 
         // internal properties
         internal IAutoEncryptionLibMongoCryptController LibMongoCryptController => ThrowIfDisposed(_libMongoCryptController);
-        internal IOperationExecutor OperationExecutor => ThrowIfDisposed(_operationExecutor);
 
         // internal methods
         internal void ConfigureAutoEncryptionMessageEncoderSettings(MessageEncoderSettings messageEncoderSettings)
         {
             ThrowIfDisposed();
-
             var autoEncryptionOptions = _settings.AutoEncryptionOptions;
             if (autoEncryptionOptions != null)
             {
@@ -133,32 +132,36 @@ namespace MongoDB.Driver
         // public methods
         /// <inheritdoc/>
         public ClientBulkWriteResult BulkWrite(IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null, CancellationToken cancellationToken = default)
-            => UsingImplicitSession(session => BulkWrite(session, models, options, cancellationToken), cancellationToken);
+        {
+            ThrowIfDisposed();
+            using var session = _operationExecutor.StartImplicitSession();
+            return BulkWrite(session, models, options, cancellationToken);
+        }
 
         /// <inheritdoc/>
         public ClientBulkWriteResult BulkWrite(IClientSessionHandle session, IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null, CancellationToken cancellationToken = default)
         {
+            Ensure.IsNotNull(session, nameof(session));
+            ThrowIfDisposed();
             var operation = CreateClientBulkWriteOperation(models, options);
-            return ExecuteWriteOperation<ClientBulkWriteResult>(session, operation, cancellationToken);
+            return ExecuteWriteOperation<ClientBulkWriteResult>(session, operation, options?.Timeout, cancellationToken);
         }
 
         /// <inheritdoc/>
-        public Task<ClientBulkWriteResult> BulkWriteAsync(IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null, CancellationToken cancellationToken = default)
-            => UsingImplicitSession(session => BulkWriteAsync(session, models, options, cancellationToken), cancellationToken);
+        public async Task<ClientBulkWriteResult> BulkWriteAsync(IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null, CancellationToken cancellationToken = default)
+        {
+            ThrowIfDisposed();
+            using var session = _operationExecutor.StartImplicitSession();
+            return await BulkWriteAsync(session, models, options, cancellationToken).ConfigureAwait(false);
+        }
 
         /// <inheritdoc/>
         public Task<ClientBulkWriteResult> BulkWriteAsync(IClientSessionHandle session, IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null, CancellationToken cancellationToken = default)
         {
-            var operation = CreateClientBulkWriteOperation(models, options);
-            return ExecuteWriteOperationAsync<ClientBulkWriteResult>(session, operation, cancellationToken);
-        }
-
-        /// <inheritdoc/>
-        public void DropDatabase(string name, CancellationToken cancellationToken = default(CancellationToken))
-        {
+            Ensure.IsNotNull(session, nameof(session));
             ThrowIfDisposed();
-
-            UsingImplicitSession(session => DropDatabase(session, name, cancellationToken), cancellationToken);
+            var operation = CreateClientBulkWriteOperation(models, options);
+            return ExecuteWriteOperationAsync<ClientBulkWriteResult>(session, operation, options?.Timeout, cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -180,6 +183,7 @@ namespace MongoDB.Driver
                 {
                     _logger?.LogDebug(_cluster.ClusterId, "MongoClient disposing");
 
+                    _operationExecutor.Dispose();
                     _settings.ClusterSource.Return(_cluster);
                     _libMongoCryptController?.Dispose();
 
@@ -191,39 +195,39 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc/>
-        public void DropDatabase(IClientSessionHandle session, string name, CancellationToken cancellationToken = default(CancellationToken))
+        public void DropDatabase(string name, CancellationToken cancellationToken = default)
         {
-            Ensure.IsNotNull(session, nameof(session));
             ThrowIfDisposed();
-
-            var messageEncoderSettings = GetMessageEncoderSettings();
-            var operation = new DropDatabaseOperation(new DatabaseNamespace(name), messageEncoderSettings)
-            {
-                WriteConcern = _settings.WriteConcern
-            };
-            ExecuteWriteOperation(session, operation, cancellationToken);
+            using var session = _operationExecutor.StartImplicitSession();
+            DropDatabase(session, name, cancellationToken);
         }
 
         /// <inheritdoc/>
-        public Task DropDatabaseAsync(string name, CancellationToken cancellationToken = default(CancellationToken))
+        public void DropDatabase(IClientSessionHandle session, string name, CancellationToken cancellationToken = default)
         {
+            Ensure.IsNotNull(session, nameof(session));
             ThrowIfDisposed();
-
-            return UsingImplicitSessionAsync(session => DropDatabaseAsync(session, name, cancellationToken), cancellationToken);
+            var operation = CreateDropDatabaseOperation(name);
+            // TODO: CSOT: find a way to add timeout parameter to the interface method
+            ExecuteWriteOperation(session, operation, null, cancellationToken);
         }
 
         /// <inheritdoc/>
-        public Task DropDatabaseAsync(IClientSessionHandle session, string name, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task DropDatabaseAsync(string name, CancellationToken cancellationToken = default)
         {
             ThrowIfDisposed();
+            using var session = _operationExecutor.StartImplicitSession();
+            await DropDatabaseAsync(session, name, cancellationToken).ConfigureAwait(false);
+        }
 
+        /// <inheritdoc/>
+        public Task DropDatabaseAsync(IClientSessionHandle session, string name, CancellationToken cancellationToken = default)
+        {
             Ensure.IsNotNull(session, nameof(session));
-            var messageEncoderSettings = GetMessageEncoderSettings();
-            var operation = new DropDatabaseOperation(new DatabaseNamespace(name), messageEncoderSettings)
-            {
-                WriteConcern = _settings.WriteConcern
-            };
-            return ExecuteWriteOperationAsync(session, operation, cancellationToken);
+            ThrowIfDisposed();
+            var opertion = CreateDropDatabaseOperation(name);
+            // TODO: CSOT: find a way to add timeout parameter to the interface method
+            return ExecuteWriteOperationAsync(session, opertion, null, cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -241,205 +245,143 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public IAsyncCursor<string> ListDatabaseNames(
-            CancellationToken cancellationToken = default(CancellationToken))
-        {
-            ThrowIfDisposed();
-
-            return ListDatabaseNames(options: null, cancellationToken);
-        }
+        public IAsyncCursor<string> ListDatabaseNames(CancellationToken cancellationToken = default)
+            => ListDatabaseNames(options: null, cancellationToken);
 
         /// <inheritdoc />
         public IAsyncCursor<string> ListDatabaseNames(
             ListDatabaseNamesOptions options,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             ThrowIfDisposed();
-
-            return UsingImplicitSession(session => ListDatabaseNames(session, options, cancellationToken), cancellationToken);
+            using var session = _operationExecutor.StartImplicitSession();
+            return ListDatabaseNames(session, options, cancellationToken);
         }
 
         /// <inheritdoc />
         public IAsyncCursor<string> ListDatabaseNames(
             IClientSessionHandle session,
-            CancellationToken cancellationToken = default(CancellationToken))
-        {
-            ThrowIfDisposed();
-
-            return ListDatabaseNames(session, options: null, cancellationToken);
-        }
+            CancellationToken cancellationToken = default)
+            => ListDatabaseNames(session, options: null, cancellationToken);
 
         /// <inheritdoc />
         public IAsyncCursor<string> ListDatabaseNames(
             IClientSessionHandle session,
             ListDatabaseNamesOptions options,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             ThrowIfDisposed();
-
             var listDatabasesOptions = CreateListDatabasesOptionsFromListDatabaseNamesOptions(options);
             var databases = ListDatabases(session, listDatabasesOptions, cancellationToken);
-
             return CreateDatabaseNamesCursor(databases);
         }
 
         /// <inheritdoc />
-        public Task<IAsyncCursor<string>> ListDatabaseNamesAsync(
-            CancellationToken cancellationToken = default(CancellationToken))
-        {
-            ThrowIfDisposed();
-
-            return ListDatabaseNamesAsync(options: null, cancellationToken);
-        }
+        public Task<IAsyncCursor<string>> ListDatabaseNamesAsync(CancellationToken cancellationToken = default)
+            => ListDatabaseNamesAsync(options: null, cancellationToken);
 
         /// <inheritdoc />
-        public Task<IAsyncCursor<string>> ListDatabaseNamesAsync(
+        public async Task<IAsyncCursor<string>> ListDatabaseNamesAsync(
             ListDatabaseNamesOptions options,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             ThrowIfDisposed();
-
-            return UsingImplicitSessionAsync(session => ListDatabaseNamesAsync(session, options, cancellationToken), cancellationToken);
+            using var session = _operationExecutor.StartImplicitSession();
+            return await ListDatabaseNamesAsync(session, options, cancellationToken).ConfigureAwait(false);
         }
 
         /// <inheritdoc />
         public Task<IAsyncCursor<string>> ListDatabaseNamesAsync(
             IClientSessionHandle session,
-            CancellationToken cancellationToken = default(CancellationToken))
-        {
-            ThrowIfDisposed();
-
-            return ListDatabaseNamesAsync(session, options: null, cancellationToken);
-        }
+            CancellationToken cancellationToken = default)
+            => ListDatabaseNamesAsync(session, options: null, cancellationToken);
 
         /// <inheritdoc />
         public async Task<IAsyncCursor<string>> ListDatabaseNamesAsync(
             IClientSessionHandle session,
             ListDatabaseNamesOptions options,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             ThrowIfDisposed();
-
             var listDatabasesOptions = CreateListDatabasesOptionsFromListDatabaseNamesOptions(options);
             var databases = await ListDatabasesAsync(session, listDatabasesOptions, cancellationToken).ConfigureAwait(false);
-
             return CreateDatabaseNamesCursor(databases);
         }
 
         /// <inheritdoc/>
-        public IAsyncCursor<BsonDocument> ListDatabases(
-            CancellationToken cancellationToken = default(CancellationToken))
+        public IAsyncCursor<BsonDocument> ListDatabases(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
-
-            return UsingImplicitSession(session => ListDatabases(session, cancellationToken), cancellationToken);
+            using var session = _operationExecutor.StartImplicitSession();
+            return ListDatabases(session, cancellationToken);
         }
 
         /// <inheritdoc/>
         public IAsyncCursor<BsonDocument> ListDatabases(
             ListDatabasesOptions options,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             ThrowIfDisposed();
-
-            return UsingImplicitSession(session => ListDatabases(session, options, cancellationToken), cancellationToken);
+            using var session = _operationExecutor.StartImplicitSession();
+            return ListDatabases(session, options, cancellationToken);
         }
 
         /// <inheritdoc/>
         public IAsyncCursor<BsonDocument> ListDatabases(
             IClientSessionHandle session,
-            CancellationToken cancellationToken = default(CancellationToken))
-        {
-            ThrowIfDisposed();
-
-            return ListDatabases(session, null, cancellationToken);
-        }
+            CancellationToken cancellationToken = default)
+            => ListDatabases(session, null, cancellationToken);
 
         /// <inheritdoc/>
         public IAsyncCursor<BsonDocument> ListDatabases(
             IClientSessionHandle session,
             ListDatabasesOptions options,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             ThrowIfDisposed();
-
             Ensure.IsNotNull(session, nameof(session));
-            options = options ?? new ListDatabasesOptions();
-            var messageEncoderSettings = GetMessageEncoderSettings();
-            var translationOptions = _settings.TranslationOptions;
-            var operation = CreateListDatabaseOperation(options, messageEncoderSettings, translationOptions);
-            return ExecuteReadOperation(session, operation, cancellationToken);
+            var operation = CreateListDatabasesOperation(options);
+            return ExecuteReadOperation(session, operation, options?.Timeout, cancellationToken);
         }
 
         /// <inheritdoc/>
-        public Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(
-            CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(CancellationToken cancellationToken = default)
         {
             ThrowIfDisposed();
-
-            return UsingImplicitSessionAsync(session => ListDatabasesAsync(session, null, cancellationToken), cancellationToken);
+            using var session = _operationExecutor.StartImplicitSession();
+            return await ListDatabasesAsync(session, cancellationToken).ConfigureAwait(false);
         }
 
         /// <inheritdoc/>
-        public Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(
+        public async Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(
             ListDatabasesOptions options,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             ThrowIfDisposed();
-
-            return UsingImplicitSessionAsync(session => ListDatabasesAsync(session, options, cancellationToken), cancellationToken);
+            using var session = _operationExecutor.StartImplicitSession();
+            return await ListDatabasesAsync(session, options, cancellationToken).ConfigureAwait(false);
         }
 
         /// <inheritdoc/>
         public Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(
             IClientSessionHandle session,
-            CancellationToken cancellationToken = default(CancellationToken))
-        {
-            ThrowIfDisposed();
-
-            return ListDatabasesAsync(session, null, cancellationToken);
-        }
+            CancellationToken cancellationToken = default)
+            => ListDatabasesAsync(session, null, cancellationToken);
 
         /// <inheritdoc/>
         public Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(
             IClientSessionHandle session,
             ListDatabasesOptions options,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Ensure.IsNotNull(session, nameof(session));
             ThrowIfDisposed();
-
-            options = options ?? new ListDatabasesOptions();
-            var messageEncoderSettings = GetMessageEncoderSettings();
-            var translationOptions = _settings.TranslationOptions;
-            var operation = CreateListDatabaseOperation(options, messageEncoderSettings, translationOptions);
-            return ExecuteReadOperationAsync(session, operation, cancellationToken);
-        }
-
-        /// <summary>
-        /// Starts an implicit session.
-        /// </summary>
-        /// <returns>A session.</returns>
-        internal IClientSessionHandle StartImplicitSession(CancellationToken cancellationToken)
-        {
-            ThrowIfDisposed();
-
-            return StartImplicitSession();
-        }
-
-        /// <summary>
-        /// Starts an implicit session.
-        /// </summary>
-        /// <returns>A Task whose result is a session.</returns>
-        internal Task<IClientSessionHandle> StartImplicitSessionAsync(CancellationToken cancellationToken)
-        {
-            ThrowIfDisposed();
-
-            return Task.FromResult(StartImplicitSession());
+            var operation = CreateListDatabasesOperation(options);
+            return ExecuteReadOperationAsync(session, operation, options?.Timeout, cancellationToken);
         }
 
         /// <inheritdoc/>
-        public IClientSessionHandle StartSession(ClientSessionOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public IClientSessionHandle StartSession(ClientSessionOptions options = null, CancellationToken cancellationToken = default)
         {
             ThrowIfDisposed();
 
@@ -447,7 +389,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc/>
-        public Task<IClientSessionHandle> StartSessionAsync(ClientSessionOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IClientSessionHandle> StartSessionAsync(ClientSessionOptions options = null, CancellationToken cancellationToken = default)
         {
             ThrowIfDisposed();
 
@@ -458,11 +400,11 @@ namespace MongoDB.Driver
         public IChangeStreamCursor<TResult> Watch<TResult>(
             PipelineDefinition<ChangeStreamDocument<BsonDocument>, TResult> pipeline,
             ChangeStreamOptions options = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             ThrowIfDisposed();
-
-            return UsingImplicitSession(session => Watch(session, pipeline, options, cancellationToken), cancellationToken);
+            using var session = _operationExecutor.StartImplicitSession();
+            return Watch(session, pipeline, options, cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -470,26 +412,24 @@ namespace MongoDB.Driver
             IClientSessionHandle session,
             PipelineDefinition<ChangeStreamDocument<BsonDocument>, TResult> pipeline,
             ChangeStreamOptions options = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Ensure.IsNotNull(session, nameof(session));
             Ensure.IsNotNull(pipeline, nameof(pipeline));
             ThrowIfDisposed();
-
-            var translationOptions = _settings.TranslationOptions;
-            var operation = CreateChangeStreamOperation(pipeline, options, translationOptions);
-            return ExecuteReadOperation(session, operation, cancellationToken);
+            var operation = CreateChangeStreamOperation(pipeline, options);
+            return ExecuteReadOperation(session, operation, options?.Timeout, cancellationToken);
         }
 
         /// <inheritdoc/>
-        public Task<IChangeStreamCursor<TResult>> WatchAsync<TResult>(
+        public async Task<IChangeStreamCursor<TResult>> WatchAsync<TResult>(
             PipelineDefinition<ChangeStreamDocument<BsonDocument>, TResult> pipeline,
             ChangeStreamOptions options = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             ThrowIfDisposed();
-
-            return UsingImplicitSessionAsync(session => WatchAsync(session, pipeline, options, cancellationToken), cancellationToken);
+            using var session = _operationExecutor.StartImplicitSession();
+            return await WatchAsync(session, pipeline, options, cancellationToken).ConfigureAwait(false);
         }
 
         /// <inheritdoc/>
@@ -497,56 +437,50 @@ namespace MongoDB.Driver
             IClientSessionHandle session,
             PipelineDefinition<ChangeStreamDocument<BsonDocument>, TResult> pipeline,
             ChangeStreamOptions options = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Ensure.IsNotNull(session, nameof(session));
             Ensure.IsNotNull(pipeline, nameof(pipeline));
-
             ThrowIfDisposed();
-
-            var translationOptions = _settings.TranslationOptions;
-            var operation = CreateChangeStreamOperation(pipeline, options, translationOptions);
-            return ExecuteReadOperationAsync(session, operation, cancellationToken);
+            var operation = CreateChangeStreamOperation(pipeline, options);
+            return ExecuteReadOperationAsync(session, operation, options?.Timeout, cancellationToken);
         }
 
         /// <inheritdoc/>
         public IMongoClient WithReadConcern(ReadConcern readConcern)
         {
             Ensure.IsNotNull(readConcern, nameof(readConcern));
-
             ThrowIfDisposed();
 
             var newSettings = Settings.Clone();
             newSettings.ReadConcern = readConcern;
-            return new MongoClient(_operationExecutor, newSettings);
+            return new MongoClient(newSettings, _operationExecutorFactory);
         }
 
         /// <inheritdoc/>
         public IMongoClient WithReadPreference(ReadPreference readPreference)
         {
             Ensure.IsNotNull(readPreference, nameof(readPreference));
-
             ThrowIfDisposed();
 
             var newSettings = Settings.Clone();
             newSettings.ReadPreference = readPreference;
-            return new MongoClient(_operationExecutor, newSettings);
+            return new MongoClient(newSettings, _operationExecutorFactory);
         }
 
         /// <inheritdoc/>
         public IMongoClient WithWriteConcern(WriteConcern writeConcern)
         {
             Ensure.IsNotNull(writeConcern, nameof(writeConcern));
-
             ThrowIfDisposed();
 
             var newSettings = Settings.Clone();
             newSettings.WriteConcern = writeConcern;
-            return new MongoClient(_operationExecutor, newSettings);
+            return new MongoClient(newSettings, _operationExecutorFactory);
         }
 
         // private methods
-        private ClientBulkWriteOperation CreateClientBulkWriteOperation(IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null)
+        private ClientBulkWriteOperation CreateClientBulkWriteOperation(IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options)
         {
             if (_settings.AutoEncryptionOptions != null)
             {
@@ -578,17 +512,22 @@ namespace MongoDB.Driver
         }
 
         private IAsyncCursor<string> CreateDatabaseNamesCursor(IAsyncCursor<BsonDocument> cursor)
-        {
-            return new BatchTransformingAsyncCursor<BsonDocument, string>(
+            => new BatchTransformingAsyncCursor<BsonDocument, string>(
                 cursor,
                 databases => databases.Select(database => database["name"].AsString));
-        }
 
-        private ListDatabasesOperation CreateListDatabaseOperation(
-            ListDatabasesOptions options,
-            MessageEncoderSettings messageEncoderSettings,
-            ExpressionTranslationOptions translationOptions)
+        private DropDatabaseOperation CreateDropDatabaseOperation(string name)
+            => new(new DatabaseNamespace(name), GetMessageEncoderSettings())
+            {
+                WriteConcern = _settings.WriteConcern
+            };
+
+        private ListDatabasesOperation CreateListDatabasesOperation(ListDatabasesOptions options)
         {
+            options ??= new ListDatabasesOptions();
+            var messageEncoderSettings = GetMessageEncoderSettings();
+            var translationOptions = _settings.TranslationOptions;
+
             return new ListDatabasesOperation(messageEncoderSettings)
             {
                 AuthorizedDatabases = options.AuthorizedDatabases,
@@ -607,73 +546,70 @@ namespace MongoDB.Driver
                 listDatabasesOptions.AuthorizedDatabases = options.AuthorizedDatabases;
                 listDatabasesOptions.Filter = options.Filter;
                 listDatabasesOptions.Comment = options.Comment;
+                listDatabasesOptions.Timeout = options.Timeout;
             }
 
             return listDatabasesOptions;
         }
 
-        private IReadBindingHandle CreateReadBinding(IClientSessionHandle session)
-        {
-            var readPreference = _settings.ReadPreference;
-            if (session.IsInTransaction && readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary)
-            {
-                throw new InvalidOperationException("Read preference in a transaction must be primary.");
-            }
-
-            var binding = new ReadPreferenceBinding(_cluster, readPreference, session.WrappedCoreSession.Fork());
-            return new ReadBindingHandle(binding);
-        }
-
-        private IReadWriteBindingHandle CreateReadWriteBinding(IClientSessionHandle session)
-        {
-            var binding = new WritableServerBinding(_cluster, session.WrappedCoreSession.Fork());
-            return new ReadWriteBindingHandle(binding);
-        }
-
         private ChangeStreamOperation<TResult> CreateChangeStreamOperation<TResult>(
             PipelineDefinition<ChangeStreamDocument<BsonDocument>, TResult> pipeline,
-            ChangeStreamOptions options,
-            ExpressionTranslationOptions translationOptions)
-        {
-            return ChangeStreamHelper.CreateChangeStreamOperation(
+            ChangeStreamOptions options)
+            => ChangeStreamHelper.CreateChangeStreamOperation(
                 pipeline,
                 options,
                 _settings.ReadConcern,
                 GetMessageEncoderSettings(),
                 _settings.RetryReads,
-                translationOptions);
+                _settings.TranslationOptions);
+
+        private OperationContext CreateOperationContext(IClientSessionHandle session, TimeSpan? timeout, string operationName, CancellationToken cancellationToken)
+        {
+            var operationContext = session.WrappedCoreSession.CurrentTransaction?.OperationContext;
+            if (operationContext != null && timeout != null)
+            {
+                throw new InvalidOperationException("Cannot specify per operation timeout inside transaction.");
+            }
+
+            var tracingOptions = _settings.TracingOptions;
+            var isTracingEnabled = tracingOptions?.Disabled != true && MongoTelemetry.ActivitySource.HasListeners();
+
+            if (operationContext != null)
+            {
+                return isTracingEnabled
+                    ? operationContext.ForkWithOperationMetadata(operationName, "admin", null, isTracingEnabled)
+                    : operationContext.Fork();
+            }
+
+            return isTracingEnabled
+                ? new OperationContext(timeout ?? _settings.Timeout, operationName, "admin", null, isTracingEnabled, cancellationToken)
+                : new OperationContext(timeout ?? _settings.Timeout, cancellationToken);
         }
 
-        private TResult ExecuteReadOperation<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, CancellationToken cancellationToken = default(CancellationToken))
+        private TResult ExecuteReadOperation<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, TimeSpan? timeout, CancellationToken cancellationToken)
         {
-            using (var binding = CreateReadBinding(session))
-            {
-                return _operationExecutor.ExecuteReadOperation(binding, operation, cancellationToken);
-            }
+            var readPreference = session.GetEffectiveReadPreference(_settings.ReadPreference);
+            using var operationContext = CreateOperationContext(session, timeout, operation.OperationName, cancellationToken);
+            return _operationExecutor.ExecuteReadOperation(operationContext, session, operation, readPreference, false);
         }
 
-        private async Task<TResult> ExecuteReadOperationAsync<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, CancellationToken cancellationToken = default(CancellationToken))
+        private async Task<TResult> ExecuteReadOperationAsync<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, TimeSpan? timeout, CancellationToken cancellationToken)
         {
-            using (var binding = CreateReadBinding(session))
-            {
-                return await _operationExecutor.ExecuteReadOperationAsync(binding, operation, cancellationToken).ConfigureAwait(false);
-            }
+            var readPreference = session.GetEffectiveReadPreference(_settings.ReadPreference);
+            using var operationContext = CreateOperationContext(session, timeout, operation.OperationName, cancellationToken);
+            return await _operationExecutor.ExecuteReadOperationAsync(operationContext, session, operation, readPreference, false).ConfigureAwait(false);
         }
 
-        private TResult ExecuteWriteOperation<TResult>(IClientSessionHandle session, IWriteOperation<TResult> operation, CancellationToken cancellationToken = default(CancellationToken))
+        private TResult ExecuteWriteOperation<TResult>(IClientSessionHandle session, IWriteOperation<TResult> operation, TimeSpan? timeout, CancellationToken cancellationToken)
         {
-            using (var binding = CreateReadWriteBinding(session))
-            {
-                return _operationExecutor.ExecuteWriteOperation(binding, operation, cancellationToken);
-            }
+            using var operationContext = CreateOperationContext(session, timeout, operation.OperationName, cancellationToken);
+            return _operationExecutor.ExecuteWriteOperation(operationContext, session, operation, false);
         }
 
-        private async Task<TResult> ExecuteWriteOperationAsync<TResult>(IClientSessionHandle session, IWriteOperation<TResult> operation, CancellationToken cancellationToken = default(CancellationToken))
+        private async Task<TResult> ExecuteWriteOperationAsync<TResult>(IClientSessionHandle session, IWriteOperation<TResult> operation, TimeSpan? timeout, CancellationToken cancellationToken)
         {
-            using (var binding = CreateReadWriteBinding(session))
-            {
-                return await _operationExecutor.ExecuteWriteOperationAsync(binding, operation, cancellationToken).ConfigureAwait(false);
-            }
+            using var operationContext = CreateOperationContext(session, timeout, operation.OperationName, cancellationToken);
+            return await _operationExecutor.ExecuteWriteOperationAsync(operationContext, session, operation, false).ConfigureAwait(false);
         }
 
         private MessageEncoderSettings GetMessageEncoderSettings()
@@ -696,21 +632,32 @@ namespace MongoDB.Driver
             return new RenderArgs<BsonDocument>(BsonDocumentSerializer.Instance, serializerRegistry, translationOptions: translationOptions);
         }
 
-        private IClientSessionHandle StartImplicitSession()
-        {
-            var options = new ClientSessionOptions { CausalConsistency = false, Snapshot = false };
-            ICoreSessionHandle coreSession = _cluster.StartSession(options.ToCore(isImplicit: true));
-            return new ClientSessionHandle(this, options, coreSession);
-        }
-
         private IClientSessionHandle StartSession(ClientSessionOptions options)
         {
-            if (options != null && options.Snapshot && options.CausalConsistency == true)
+            if (options != null)
             {
-                throw new NotSupportedException("Combining both causal consistency and snapshot options is not supported.");
+                if (options.SnapshotTime != null && !options.Snapshot)
+                {
+                    throw new InvalidOperationException("Specifying a snapshot time requires snapshot to be true.");
+                }
+
+                if (options.Snapshot && options.CausalConsistency == true)
+                {
+                    throw new NotSupportedException("Combining both causal consistency and snapshot options is not supported.");
+                }
             }
 
-            options = options ?? new ClientSessionOptions();
+            options ??= new ClientSessionOptions();
+            if (_settings.Timeout.HasValue && options.DefaultTransactionOptions?.Timeout == null)
+            {
+                options.DefaultTransactionOptions = new TransactionOptions(
+                    _settings.Timeout,
+                    options.DefaultTransactionOptions?.ReadConcern,
+                    options.DefaultTransactionOptions?.ReadPreference,
+                    options.DefaultTransactionOptions?.WriteConcern,
+                    options.DefaultTransactionOptions?.MaxCommitTime);
+            }
+
             var coreSession = _cluster.StartSession(options.ToCore());
 
             return new ClientSessionHandle(this, options, coreSession);
@@ -718,37 +665,5 @@ namespace MongoDB.Driver
 
         private void ThrowIfDisposed() => ThrowIfDisposed(string.Empty);
         private T ThrowIfDisposed<T>(T value) => _disposed ? throw new ObjectDisposedException(GetType().Name) : value;
-
-        private void UsingImplicitSession(Action<IClientSessionHandle> func, CancellationToken cancellationToken)
-        {
-            using (var session = StartImplicitSession(cancellationToken))
-            {
-                func(session);
-            }
-        }
-
-        private TResult UsingImplicitSession<TResult>(Func<IClientSessionHandle, TResult> func, CancellationToken cancellationToken)
-        {
-            using (var session = StartImplicitSession(cancellationToken))
-            {
-                return func(session);
-            }
-        }
-
-        private async Task UsingImplicitSessionAsync(Func<IClientSessionHandle, Task> funcAsync, CancellationToken cancellationToken)
-        {
-            using (var session = await StartImplicitSessionAsync(cancellationToken).ConfigureAwait(false))
-            {
-                await funcAsync(session).ConfigureAwait(false);
-            }
-        }
-
-        private async Task<TResult> UsingImplicitSessionAsync<TResult>(Func<IClientSessionHandle, Task<TResult>> funcAsync, CancellationToken cancellationToken)
-        {
-            using (var session = await StartImplicitSessionAsync(cancellationToken).ConfigureAwait(false))
-            {
-                return await funcAsync(session).ConfigureAwait(false);
-            }
-        }
     }
 }

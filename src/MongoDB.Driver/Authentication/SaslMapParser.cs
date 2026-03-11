@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Authentication
     /// "SCRAM is a SASL mechanism whose client response and server challenge
     /// messages are text-based messages containing one or more attribute-
     /// value pairs separated by commas. Each attribute has a one-letter
-    /// name."  
+    /// name."
     /// </summary>
     internal static class SaslMapParser
     {

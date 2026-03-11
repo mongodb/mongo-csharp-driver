@@ -1,17 +1,17 @@
-﻿/* Copyright 2018-present MongoDB Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+﻿/* Copyright 2010-present MongoDB Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 using System;
 using System.Collections.Generic;
@@ -40,13 +40,19 @@ namespace MongoDB.Bson.TestHelpers
             return fieldInfo.GetValue(null);
         }
 
+        public static TFieldType GetStaticFieldValue<TObjectType, TFieldType>(string name, BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Static)
+        {
+            var fieldInfo = GetDeclaredOrInheritedField(typeof(TObjectType), name, flags);
+            return (TFieldType)fieldInfo.GetValue(null);
+        }
+
         public static object Invoke(object obj, string name, BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance)
         {
             try
             {
-                var methodInfo = obj.GetType().GetMethods(flags)
-                    .Where(m => m.Name == name && m.GetParameters().Length == 0)
-                    .Single();
+                var methodInfo = obj.GetType()
+                    .GetMethods(flags)
+                    .Single(m => m.Name == name && m.GetParameters().Length == 0);
                 return methodInfo.Invoke(obj, new object[] { });
             }
             catch (TargetInvocationException exception)
@@ -58,9 +64,9 @@ namespace MongoDB.Bson.TestHelpers
         public static object Invoke<T1>(object obj, string name, T1 arg1)
         {
             var parameterTypes = new[] { typeof(T1) };
-            var methodInfo = obj.GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
-                .Where(m => m.Name == name && m.GetParameters().Select(p => p.ParameterType).SequenceEqual(parameterTypes))
-                .Single();
+            var methodInfo = obj.GetType()
+                .GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
+                .Single(m => m.Name == name && m.GetParameters().Select(p => p.ParameterType).SequenceEqual(parameterTypes));
             try
             {
                 return methodInfo.Invoke(obj, new object[] { arg1 });

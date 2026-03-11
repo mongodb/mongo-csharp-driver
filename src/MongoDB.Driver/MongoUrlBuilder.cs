@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
@@ -60,6 +59,10 @@ namespace MongoDB.Driver
         private string _replicaSetName;
         private bool? _retryReads;
         private bool? _retryWrites;
+        private string _proxyHost;
+        private int? _proxyPort;
+        private string _proxyUsername;
+        private string _proxyPassword;
         private ConnectionStringScheme _scheme;
         private IEnumerable<MongoServerAddress> _servers;
         private ServerMonitoringMode? _serverMonitoringMode;
@@ -67,6 +70,7 @@ namespace MongoDB.Driver
         private TimeSpan _socketTimeout;
         private int? _srvMaxHosts;
         private string _srvServiceName;
+        private TimeSpan? _timeout;
         private bool? _tlsDisableCertificateRevocationCheck;
         private string _username;
         private bool _useTls;
@@ -104,6 +108,10 @@ namespace MongoDB.Driver
             _maxConnectionPoolSize = MongoDefaults.MaxConnectionPoolSize;
             _minConnectionPoolSize = MongoDefaults.MinConnectionPoolSize;
             _password = null;
+            _proxyHost = null;
+            _proxyPort = null;
+            _proxyUsername = null;
+            _proxyPassword = null;
             _readConcernLevel = null;
             _readPreference = null;
             _replicaSetName = null;
@@ -116,6 +124,7 @@ namespace MongoDB.Driver
             _socketTimeout = MongoDefaults.SocketTimeout;
             _srvMaxHosts = null;
             _srvServiceName = MongoInternalDefaults.MongoClientSettings.SrvServiceName;
+            _timeout = null;
             _username = null;
             _useTls = false;
             _w = null;
@@ -296,7 +305,7 @@ namespace MongoDB.Driver
             get { return _heartbeatTimeout; }
             set
             {
-                if (value < TimeSpan.Zero && value != Timeout.InfiniteTimeSpan)
+                if (value < TimeSpan.Zero && value != System.Threading.Timeout.InfiniteTimeSpan)
                 {
                     throw new ArgumentOutOfRangeException("value", "HeartbeatTimeout must be greater than or equal to zero.");
                 }
@@ -436,6 +445,55 @@ namespace MongoDB.Driver
         {
             get { return _password; }
             set { _password = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the proxy host.
+        /// </summary>
+        public string ProxyHost
+        {
+            get => _proxyHost;
+            set
+            {
+                _proxyHost = Ensure.IsNotNullOrEmpty(value, nameof(ProxyHost));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the proxy port.
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        public int? ProxyPort
+        {
+            get => _proxyPort;
+            set
+            {
+                _proxyPort = Ensure.IsNullOrBetween(value, 1, 65535, nameof(ProxyPort));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the proxy username.
+        /// </summary>
+        public string ProxyUsername
+        {
+            get => _proxyUsername;
+            set
+            {
+                _proxyUsername = Ensure.IsNotNullOrEmpty(value, nameof(ProxyUsername));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the proxy password.
+        /// </summary>
+        public string ProxyPassword
+        {
+            get => _proxyPassword;
+            set
+            {
+                _proxyPassword = Ensure.IsNotNullOrEmpty(value, nameof(ProxyPassword));
+            }
         }
 
         /// <summary>
@@ -589,6 +647,19 @@ namespace MongoDB.Driver
             set
             {
                 _srvServiceName = Ensure.IsNotNullOrEmpty(value, nameof(SrvServiceName));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the per-operation timeout
+        /// </summary>
+        // TODO: CSOT: Make it public when CSOT will be ready for GA
+        internal TimeSpan? Timeout
+        {
+            get { return _timeout; }
+            set
+            {
+                _timeout = Ensure.IsNullOrValidTimeout(value, nameof(Timeout));
             }
         }
 
@@ -956,6 +1027,10 @@ namespace MongoDB.Driver
             {
                 query.AppendFormat("socketTimeout={0}&", FormatTimeSpan(_socketTimeout));
             }
+            if (_timeout.HasValue)
+            {
+                query.AppendFormat("timeout={0}&", _timeout == System.Threading.Timeout.InfiniteTimeSpan ? "0" : FormatTimeSpan(_timeout.Value));
+            }
 #pragma warning disable 618
             if (_waitQueueMultiple != 0.0 && _waitQueueMultiple != MongoDefaults.WaitQueueMultiple)
 #pragma warning restore 618
@@ -979,6 +1054,22 @@ namespace MongoDB.Driver
             if (_retryWrites.HasValue)
             {
                 query.AppendFormat("retryWrites={0}&", JsonConvert.ToString(_retryWrites.Value));
+            }
+            if(!string.IsNullOrEmpty(_proxyHost))
+            {
+                query.AppendFormat("proxyHost={0}&", _proxyHost);
+            }
+            if (_proxyPort.HasValue)
+            {
+                query.AppendFormat("proxyPort={0}&", _proxyPort);
+            }
+            if (!string.IsNullOrEmpty(_proxyUsername))
+            {
+                query.AppendFormat("proxyUsername={0}&", _proxyUsername);
+            }
+            if (!string.IsNullOrEmpty(_proxyPassword))
+            {
+                query.AppendFormat("proxyPassword={0}&", _proxyPassword);
             }
             if (_srvMaxHosts.HasValue)
             {
@@ -1026,6 +1117,10 @@ namespace MongoDB.Driver
             _maxConnectionPoolSize = connectionString.MaxPoolSize.GetValueOrDefault(MongoDefaults.MaxConnectionPoolSize);
             _minConnectionPoolSize = connectionString.MinPoolSize.GetValueOrDefault(MongoDefaults.MinConnectionPoolSize);
             _password = connectionString.Password;
+            _proxyHost = connectionString.ProxyHost;
+            _proxyPort = connectionString.ProxyPort;
+            _proxyUsername = connectionString.ProxyUsername;
+            _proxyPassword = connectionString.ProxyPassword;
             _readConcernLevel = connectionString.ReadConcernLevel;
             if (connectionString.ReadPreference.HasValue || connectionString.ReadPreferenceTags != null || connectionString.MaxStaleness.HasValue)
             {
@@ -1045,6 +1140,7 @@ namespace MongoDB.Driver
             _socketTimeout = connectionString.SocketTimeout.GetValueOrDefault(MongoDefaults.SocketTimeout);
             _srvMaxHosts = connectionString.SrvMaxHosts;
             _srvServiceName = connectionString.SrvServiceName ?? MongoInternalDefaults.MongoClientSettings.SrvServiceName;
+            _timeout = connectionString.Timeout;
             _tlsDisableCertificateRevocationCheck = connectionString.TlsDisableCertificateRevocationCheck;
             _username = connectionString.Username;
             _useTls = connectionString.Tls.GetValueOrDefault(false);
@@ -1063,11 +1159,6 @@ namespace MongoDB.Driver
 #pragma warning restore 618
             _waitQueueTimeout = connectionString.WaitQueueTimeout.GetValueOrDefault(MongoDefaults.WaitQueueTimeout);
             _wTimeout = connectionString.WTimeout;
-        }
-
-        private bool AnyWriteConcernSettingsAreSet()
-        {
-            return _fsync != null || _journal != null || _w != null || _wTimeout != null;
         }
 
         private string FormatTimeSpan(TimeSpan value)

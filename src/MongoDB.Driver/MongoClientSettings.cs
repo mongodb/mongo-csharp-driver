@@ -20,9 +20,9 @@ using System.Linq;
 using System.Text;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
-using MongoDB.Driver.Encryption;
 using MongoDB.Shared;
 
 namespace MongoDB.Driver
@@ -71,9 +71,12 @@ namespace MongoDB.Driver
         private ServerMonitoringMode _serverMonitoringMode;
         private TimeSpan _serverSelectionTimeout;
         private TimeSpan _socketTimeout;
+        private Socks5ProxySettings _socks5ProxySettings;
         private int _srvMaxHosts;
         private string _srvServiceName;
         private SslSettings _sslSettings;
+        private TimeSpan? _timeout;
+        private TracingOptions _tracingOptions;
         private ExpressionTranslationOptions _translationOptions;
         private bool _useTls;
         private int _waitQueueSize;
@@ -122,9 +125,11 @@ namespace MongoDB.Driver
             _serverMonitoringMode = ServerMonitoringMode.Auto;
             _serverSelectionTimeout = MongoDefaults.ServerSelectionTimeout;
             _socketTimeout = MongoDefaults.SocketTimeout;
+            _socks5ProxySettings = null;
             _srvMaxHosts = 0;
             _srvServiceName = MongoInternalDefaults.MongoClientSettings.SrvServiceName;
             _sslSettings = null;
+            _timeout = System.Threading.Timeout.InfiniteTimeSpan;
             _translationOptions = null;
             _useTls = false;
 #pragma warning disable 618
@@ -364,6 +369,19 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets or sets the tracing options for OpenTelemetry instrumentation.
+        /// </summary>
+        public TracingOptions TracingOptions
+        {
+            get { return _tracingOptions; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
+                _tracingOptions = value;
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the maximum concurrently connecting connections.
         /// </summary>
         public int MaxConnecting
@@ -425,6 +443,19 @@ namespace MongoDB.Driver
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
                 _minConnectionPoolSize = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the SOCKS5 proxy settings.
+        /// </summary>
+        public Socks5ProxySettings Socks5ProxySettings
+        {
+            get => _socks5ProxySettings;
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
+                _socks5ProxySettings = value;
             }
         }
 
@@ -667,6 +698,21 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets or sets the per-operation timeout
+        /// </summary>
+        // TODO: CSOT: Make it public when CSOT will be ready for GA
+        internal TimeSpan? Timeout
+        {
+            get { return _timeout; }
+            set
+            {
+                ThrowIfFrozen();
+                _timeout = Ensure.IsNullOrValidTimeout(value, nameof(Timeout));
+            }
+        }
+        TimeSpan? IInheritableMongoClientSettings.Timeout => Timeout;
+
+        /// <summary>
         /// Gets or sets the translation options.
         /// </summary>
         public ExpressionTranslationOptions TranslationOptions
@@ -874,6 +920,10 @@ namespace MongoDB.Driver
             clientSettings.ServerMonitoringMode = url.ServerMonitoringMode ?? ServerMonitoringMode.Auto;
             clientSettings.ServerSelectionTimeout = url.ServerSelectionTimeout;
             clientSettings.SocketTimeout = url.SocketTimeout;
+            if (!string.IsNullOrEmpty(url.ProxyHost))
+            {
+                clientSettings.Socks5ProxySettings = Socks5ProxySettings.Create(url.ProxyHost, url.ProxyPort, url.ProxyUsername, url.ProxyPassword);
+            }
             clientSettings.SrvMaxHosts = url.SrvMaxHosts.GetValueOrDefault(0);
             clientSettings.SrvServiceName = url.SrvServiceName;
             clientSettings.SslSettings = null;
@@ -881,6 +931,7 @@ namespace MongoDB.Driver
             {
                 clientSettings.SslSettings = new SslSettings { CheckCertificateRevocation = false };
             }
+            clientSettings.Timeout = url.Timeout;
             clientSettings.UseTls = url.UseTls;
 #pragma warning disable 618
             clientSettings.WaitQueueSize = url.ComputedWaitQueueSize;
@@ -915,6 +966,7 @@ namespace MongoDB.Driver
             clone._loadBalanced = _loadBalanced;
             clone._localThreshold = _localThreshold;
             clone._loggingSettings = _loggingSettings;
+            clone._tracingOptions = _tracingOptions?.Clone();
             clone._maxConnecting = _maxConnecting;
             clone._maxConnectionIdleTime = _maxConnectionIdleTime;
             clone._maxConnectionLifeTime = _maxConnectionLifeTime;
@@ -932,9 +984,11 @@ namespace MongoDB.Driver
             clone._serverMonitoringMode = _serverMonitoringMode;
             clone._serverSelectionTimeout = _serverSelectionTimeout;
             clone._socketTimeout = _socketTimeout;
+            clone._socks5ProxySettings = _socks5ProxySettings;
             clone._srvMaxHosts = _srvMaxHosts;
             clone._srvServiceName = _srvServiceName;
             clone._sslSettings = (_sslSettings == null) ? null : _sslSettings.Clone();
+            clone._timeout = _timeout;
             clone._translationOptions = _translationOptions;
             clone._useTls = _useTls;
             clone._waitQueueSize = _waitQueueSize;
@@ -984,6 +1038,7 @@ namespace MongoDB.Driver
                 _loadBalanced == rhs._loadBalanced &&
                 _localThreshold == rhs._localThreshold &&
                 _loggingSettings == rhs._loggingSettings &&
+                object.Equals(_tracingOptions, rhs._tracingOptions) &&
                 _maxConnecting == rhs._maxConnecting &&
                 _maxConnectionIdleTime == rhs._maxConnectionIdleTime &&
                 _maxConnectionLifeTime == rhs._maxConnectionLifeTime &&
@@ -1001,9 +1056,11 @@ namespace MongoDB.Driver
                 _serverMonitoringMode == rhs._serverMonitoringMode &&
                 _serverSelectionTimeout == rhs._serverSelectionTimeout &&
                 _socketTimeout == rhs._socketTimeout &&
+                object.Equals(_socks5ProxySettings, rhs._socks5ProxySettings) &&
                 _srvMaxHosts == rhs._srvMaxHosts &&
                 _srvServiceName == rhs._srvServiceName &&
                 _sslSettings == rhs._sslSettings &&
+                _timeout == rhs._timeout &&
                 object.Equals(_translationOptions, rhs._translationOptions) &&
                 _useTls == rhs._useTls &&
                 _waitQueueSize == rhs._waitQueueSize &&
@@ -1088,9 +1145,11 @@ namespace MongoDB.Driver
                 .Hash(_serverMonitoringMode)
                 .Hash(_serverSelectionTimeout)
                 .Hash(_socketTimeout)
+                .Hash(_socks5ProxySettings)
                 .Hash(_srvMaxHosts)
                 .Hash(_srvServiceName)
                 .Hash(_sslSettings)
+                .Hash(_timeout)
                 .Hash(_translationOptions)
                 .Hash(_useTls)
                 .Hash(_waitQueueSize)
@@ -1145,6 +1204,10 @@ namespace MongoDB.Driver
             sb.AppendFormat("MaxConnectionLifeTime={0};", _maxConnectionLifeTime);
             sb.AppendFormat("MaxConnectionPoolSize={0};", _maxConnectionPoolSize);
             sb.AppendFormat("MinConnectionPoolSize={0};", _minConnectionPoolSize);
+            if (_socks5ProxySettings != null)
+            {
+                sb.AppendFormat("ProxyHost={0};", _socks5ProxySettings);
+            }
             if (_readEncoding != null)
             {
                 sb.Append("ReadEncoding=UTF8Encoding;");
@@ -1171,6 +1234,10 @@ namespace MongoDB.Driver
             if (_sslSettings != null)
             {
                 sb.AppendFormat("SslSettings={0};", _sslSettings);
+            }
+            if(_timeout != null)
+            {
+                sb.AppendFormat("Timeout={0};", _timeout);
             }
             sb.AppendFormat("Tls={0};", _useTls);
             sb.AppendFormat("TlsInsecure={0};", _allowInsecureTls);
@@ -1221,9 +1288,11 @@ namespace MongoDB.Driver
                 _serverMonitoringMode,
                 _serverSelectionTimeout,
                 _socketTimeout,
+                _socks5ProxySettings,
                 _srvMaxHosts,
                 _srvServiceName,
                 _sslSettings,
+                _tracingOptions,
                 _useTls,
                 _waitQueueSize,
                 _waitQueueTimeout);

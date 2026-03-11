@@ -47,13 +47,13 @@ functions:
           fi
 
           PACKAGE_VERSION=$(bash ./evergreen/get-version.sh)
-          export DOTNET_SDK_PATH="$(pwd)/../.dotnet"
+          export DOTNET_ROOT="$(pwd)/../.dotnet"
           export DRIVERS_TOOLS="$(pwd)/../drivers-tools"
 
           if [ "Windows_NT" = "$OS" ]; then # Magic variable in cygwin
             # Python has cygwin path problems on Windows. Detect prospective mongo-orchestration home directory
             export DRIVERS_TOOLS=$(cygpath -m $DRIVERS_TOOLS)
-            export DOTNET_SDK_PATH=$(cygpath -m $DOTNET_SDK_PATH)
+            export DOTNET_ROOT=$(cygpath -m $DOTNET_ROOT)
           else
             # non windows OSs don't have dotnet in the PATH
             export PATH=$PATH:/usr/share/dotnet
@@ -72,11 +72,10 @@ functions:
           UPLOAD_BUCKET: "$UPLOAD_BUCKET"
           PROJECT_DIRECTORY: "$PROJECT_DIRECTORY"
           PACKAGE_VERSION: "$PACKAGE_VERSION"
-          DOTNET_SDK_PATH: "$DOTNET_SDK_PATH"
+          DOTNET_ROOT: "$DOTNET_ROOT"
           TEST_RESULTS_PATH: "./mongo-csharp-driver/build/test-results/TEST-*.xml"
           PREPARE_SHELL: |
             set -o errexit
-            set -o xtrace
             export DRIVERS_TOOLS="$DRIVERS_TOOLS"
             export MONGO_ORCHESTRATION_HOME="$MONGO_ORCHESTRATION_HOME"
             export MONGODB_BINARIES="$MONGODB_BINARIES"
@@ -84,7 +83,8 @@ functions:
             export PROJECT_DIRECTORY="$PROJECT_DIRECTORY"
             export PACKAGE_VERSION="$PACKAGE_VERSION"
             export TMPDIR="$MONGO_ORCHESTRATION_HOME/db"
-            export PATH="$DOTNET_SDK_PATH:$MONGODB_BINARIES:$PATH"
+            export PATH="$DOTNET_ROOT:$MONGODB_BINARIES:$PATH"
+            export DOTNET_ROOT="$DOTNET_ROOT"
             export PROJECT="${project}"
           EOT
           # See what we've done
@@ -95,20 +95,40 @@ functions:
       params:
         file: mongo-csharp-driver/expansion.yml
 
-  install-dotnet:
-    - command: shell.exec
+  configure-framework:
+    - command: expansions.update
       params:
+        updates:
+          - key: 'FRAMEWORK'
+            value: ${FRAMEWORK}
+    - command: shell.exec
+      type: system
+      params:
+        working_dir: mongo-csharp-driver
+        include_expansions_in_env:
+          - "OS"
+          - "DOTNET_SDK_VERSION"
+          - "FRAMEWORK"
         script: |
           ${PREPARE_SHELL}
-          OS=${OS} DOTNET_SDK_VERSION=${DOTNET_SDK_VERSION} bash ${PROJECT_DIRECTORY}/evergreen/install-dotnet.sh
+          RUNTIME_VERSIONS=${RUNTIME_VERSIONS} bash evergreen/install-dotnet.sh
 
   prepare-resources:
     - command: shell.exec
       params:
+        working_dir: mongo-csharp-driver
+        include_expansions_in_env:
+          - "EG_TOOLS_COMMIT"
         script: |
           ${PREPARE_SHELL}
           rm -rf $DRIVERS_TOOLS
           git clone https://github.com/mongodb-labs/drivers-evergreen-tools.git $DRIVERS_TOOLS
+
+          if [ "$EG_TOOLS_COMMIT" != "" ]; then
+            cd "$DRIVERS_TOOLS"
+            git checkout "$EG_TOOLS_COMMIT"
+          fi
+
           echo "{ \"releases\": { \"default\": \"$MONGODB_BINARIES\" }}" > $MONGO_ORCHESTRATION_HOME/orchestration.config
 
   # Upload build artifacts that other tasks may depend on
@@ -133,15 +153,6 @@ functions:
         bucket: mciuploads
         permissions: public-read
         content_type: ${content_type|application/x-gzip}
-
-  exec-script:
-    - command: shell.exec
-      type: test
-      params:
-        working_dir: mongo-csharp-driver
-        script: |
-          ${PREPARE_SHELL}
-          ${PROJECT_DIRECTORY}/${file}
 
   run-external-script:
     - command: shell.exec
@@ -185,40 +196,6 @@ functions:
         permissions: public-read
         content_type: ${content_type|text/plain}
         display_name: "orchestration.log"
-
-  upload-working-dir:
-    - command: archive.targz_pack
-      params:
-        target: "working-dir.tar.gz"
-        source_dir: ${PROJECT_DIRECTORY}/
-        include:
-          - "./**"
-    - command: s3.put
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: working-dir.tar.gz
-        remote_file: ${UPLOAD_BUCKET}/${build_variant}/${revision}/${version_id}/${build_id}/artifacts/${task_id}-${execution}-working-dir.tar.gz
-        bucket: mciuploads
-        permissions: public-read
-        content_type: ${content_type|application/x-gzip}
-        display_name: "working-dir.tar.gz"
-    - command: archive.targz_pack
-      params:
-        target: "drivers-dir.tar.gz"
-        source_dir: ${DRIVERS_TOOLS}
-        include:
-          - "./**"
-    - command: s3.put
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: drivers-dir.tar.gz
-        remote_file: ${UPLOAD_BUCKET}/${build_variant}/${revision}/${version_id}/${build_id}/artifacts/${task_id}-${execution}-drivers-dir.tar.gz
-        bucket: mciuploads
-        permissions: public-read
-        content_type: ${content_type|application/x-gzip}
-        display_name: "drivers-dir.tar.gz"
 
   upload-test-results:
     - command: attach.xunit_results
@@ -314,6 +291,10 @@ functions:
   bootstrap-mongohoused:
     - command: shell.exec
       params:
+        include_expansions_in_env:
+          - "AWS_ACCESS_KEY_ID"
+          - "AWS_SECRET_ACCESS_KEY"
+          - "AWS_SESSION_TOKEN"
         script: |
           DRIVERS_TOOLS="${DRIVERS_TOOLS}" bash ${DRIVERS_TOOLS}/.evergreen/atlas_data_lake/pull-mongohouse-image.sh
     - command: shell.exec
@@ -352,6 +333,19 @@ functions:
           cd ${DRIVERS_TOOLS}/.evergreen
           DRIVERS_TOOLS=${DRIVERS_TOOLS} MONGODB_URI=${MONGODB_URI} bash ${DRIVERS_TOOLS}/.evergreen/run-load-balancer.sh stop
 
+  run-unit-tests:
+    - command: shell.exec
+      type: test
+      params:
+        working_dir: mongo-csharp-driver
+        shell: "bash"
+        include_expansions_in_env:
+          - "FRAMEWORK"
+          - "CONFIGURATION"
+        script: |
+          ${PREPARE_SHELL}
+          bash ./evergreen/run-unit-tests.sh
+
   run-tests:
     - command: shell.exec
       type: test
@@ -359,8 +353,6 @@ functions:
         working_dir: mongo-csharp-driver
         shell: "bash"
         script: |
-          . ./evergreen/set-virtualenv.sh
-          DRIVERS_TOOLS=${DRIVERS_TOOLS} . ./evergreen/set-temp-fle-aws-creds.sh
           ${PREPARE_SHELL}
           OS=${OS} \
             evergreen/add-ca-certs.sh
@@ -374,10 +366,10 @@ functions:
           REQUIRE_API_VERSION=${REQUIRE_API_VERSION} \
           FRAMEWORK=${FRAMEWORK} \
           CRYPT_SHARED_LIB_PATH=${CRYPT_SHARED_LIB_PATH} \
+          TEST_CATEGORY=${TEST_CATEGORY} \
+          CSFLE_AWS_TEMPORARY_CREDS_ENABLED=true \
             evergreen/run-tests.sh
           echo "Skipping certificate removal..."
-          OS=${OS} \
-            evergreen/cleanup-test-resources.sh
 
   run-csfle-with-mocked-kms-tests:
     - command: shell.exec
@@ -399,11 +391,9 @@ functions:
           OS=${OS} \
           CLIENT_PEM=${DRIVERS_TOOLS}/.evergreen/x509gen/client.pem \
           FRAMEWORK=${FRAMEWORK} \
-          TARGET="TestCsfleWithMockedKms" \
+          TEST_CATEGORY="CSFLE" \
           CRYPT_SHARED_LIB_PATH=${CRYPT_SHARED_LIB_PATH} \
             evergreen/run-tests.sh
-          OS=${OS} \
-            evergreen/cleanup-test-resources.sh
 
   run-csfle-with-mongocryptd-tests:
     - command: shell.exec
@@ -412,8 +402,6 @@ functions:
         working_dir: mongo-csharp-driver
         shell: "bash"
         script: |
-          . ./evergreen/set-virtualenv.sh
-          DRIVERS_TOOLS=${DRIVERS_TOOLS} . ./evergreen/set-temp-fle-aws-creds.sh
           ${PREPARE_SHELL}
           OS=${OS} \
             evergreen/add-ca-certs.sh
@@ -425,13 +413,12 @@ functions:
           COMPRESSOR=${COMPRESSOR} \
           CLIENT_PEM=${DRIVERS_TOOLS}/.evergreen/x509gen/client.pem \
           REQUIRE_API_VERSION=${REQUIRE_API_VERSION} \
-          TARGET="TestCsfleWithMongocryptd" \
+          TEST_CATEGORY="CSFLE" \
           FRAMEWORK=${FRAMEWORK} \
           CRYPT_SHARED_LIB_PATH="" \
+          CSFLE_AWS_TEMPORARY_CREDS_ENABLED=true \
             evergreen/run-tests.sh
           echo "Skipping certificate removal..."
-          OS=${OS} \
-            evergreen/cleanup-test-resources.sh
 
   run-atlas-connectivity-tests:
     - command: shell.exec
@@ -439,7 +426,13 @@ functions:
       params:
         shell: "bash"
         working_dir: mongo-csharp-driver
+        include_expansions_in_env:
+          - "AWS_ACCESS_KEY_ID"
+          - "AWS_SECRET_ACCESS_KEY"
+          - "AWS_SESSION_TOKEN"
+          - "FRAMEWORK"
         script: |
+          ${PREPARE_SHELL}
           . ${DRIVERS_TOOLS}/.evergreen/secrets_handling/setup-secrets.sh drivers/atlas_connect
           . evergreen/run-atlas-connectivity-tests.sh
 
@@ -451,16 +444,18 @@ functions:
         include_expansions_in_env:
           - "AUTH_GSSAPI"
           - "AUTH_HOST"
+          - "FRAMEWORK"
         script: |
-          PROJECT_DIRECTORY=${PROJECT_DIRECTORY} \
-            FRAMEWORK=${FRAMEWORK} \
-            evergreen/run-gssapi-auth-tests.sh
+          ${PREPARE_SHELL}
+          PROJECT_DIRECTORY=${PROJECT_DIRECTORY} evergreen/run-gssapi-auth-tests.sh
 
   run-plain-auth-tests:
     - command: shell.exec
       type: test
       params:
         working_dir: mongo-csharp-driver
+        include_expansions_in_env:
+          - "FRAMEWORK"
         env:
           MONGODB_URI: ${plain_auth_mongodb_uri}
         script: |
@@ -476,11 +471,40 @@ functions:
         script: |
           ${PREPARE_SHELL}
           MONGODB_URI="${MONGODB_URI}" ../../evergreen/run-perf-tests.sh
-    - command: perf.send
+    - command: shell.exec
       params:
-        file: mongo-csharp-driver/benchmarks/MongoDB.Driver.Benchmarks/Benchmark.Artifacts/results/evergreen-results.json
+        script: |
+          # We use the requester expansion to determine whether the data is from a mainline evergreen run or not
+          if [ "${requester}" == "commit" ]; then
+            is_mainline=true
+          else
+            is_mainline=false
+          fi
 
-  assume-ec2-role:
+          # We parse the username out of the order_id as patches append that in and SPS does not need that information
+          parsed_order_id=$(echo "${revision_order_id}" | awk -F'_' '{print $NF}')
+
+          # Submit the performance data to the SPS endpoint
+          response=$(curl -s -w "\nHTTP_STATUS:%{http_code}" -X 'POST' \
+            "https://performance-monitoring-api.corp.mongodb.com/raw_perf_results/cedar_report?project=${project_id}&version=${version_id}&variant=${build_variant}&order=$parsed_order_id&task_name=${task_name}&task_id=${task_id}&execution=${execution}&mainline=$is_mainline" \
+            -H 'accept: application/json' \
+            -H 'Content-Type: application/json' \
+            -d @mongo-csharp-driver/benchmarks/MongoDB.Driver.Benchmarks/Benchmark.Artifacts/results/evergreen-results.json)
+
+          http_status=$(echo "$response" | grep "HTTP_STATUS" | awk -F':' '{print $2}')
+          response_body=$(echo "$response" | sed '/HTTP_STATUS/d')
+
+          # We want to throw an error if the data was not successfully submitted
+          if [ "$http_status" -ne 200 ]; then
+            echo "Error: Received HTTP status $http_status"
+            echo "Response Body: $response_body"
+            exit 1
+          fi
+
+          echo "Response Body: $response_body"
+          echo "HTTP Status: $http_status"
+
+  assume-aws-test-secrets-role:
     - command: ec2.assume_role
       params:
         role_arn: ${aws_test_secrets_role}
@@ -507,11 +531,14 @@ functions:
     - command: shell.exec
       type: test
       params:
+        include_expansions_in_env:
+          - "FRAMEWORK"
         env:
           IAM_AUTH_ECS_ACCOUNT: ${iam_auth_ecs_account}
           IAM_AUTH_ECS_SECRET_ACCESS_KEY: ${iam_auth_ecs_secret_access_key}
         working_dir: mongo-csharp-driver
         script: |
+          ${PREPARE_SHELL}
           DRIVERS_TOOLS=${DRIVERS_TOOLS} OS=${OS} evergreen/run-mongodb-aws-test.sh regular
 
   run-aws-auth-test-with-assume-role-credentials:
@@ -519,7 +546,10 @@ functions:
       type: test
       params:
         working_dir: mongo-csharp-driver
+        include_expansions_in_env:
+          - "FRAMEWORK"
         script: |
+          ${PREPARE_SHELL}
           DRIVERS_TOOLS=${DRIVERS_TOOLS} OS=${OS} evergreen/run-mongodb-aws-test.sh assume-role
 
   run-aws-auth-test-with-aws-EC2-credentials:
@@ -527,6 +557,8 @@ functions:
       type: test
       params:
         working_dir: mongo-csharp-driver
+        include_expansions_in_env:
+          - "FRAMEWORK"
         script: |
           ${PREPARE_SHELL}
           if [ "${skip_EC2_auth_test}" = "true" ]; then
@@ -541,12 +573,15 @@ functions:
       params:
         shell: "bash"
         working_dir: mongo-csharp-driver
+        include_expansions_in_env:
+          - "FRAMEWORK"
         script: |
           ${PREPARE_SHELL}
           if [ "${skip_ECS_auth_test}" = "true" ]; then
              echo "This platform does not support the ECS auth test, skipping..."
              exit 0
           fi
+          ./evergreen/compile-sources.sh
           echo "Project Directory: $PROJECT_DIRECTORY"
           # SRC_DIRECTORY is workaround since EG_TOOLS expects "src" folder as a root
           SRC_DIRECTORY=$(dirname $PROJECT_DIRECTORY)/src
@@ -563,7 +598,10 @@ functions:
     - command: shell.exec
       type: test
       params:
+        shell: "bash"
         working_dir: mongo-csharp-driver
+        include_expansions_in_env:
+          - "FRAMEWORK"
         script: |
           ${PREPARE_SHELL}
           if [ "${skip_web_identity_auth_test}" = "true" ]; then
@@ -576,6 +614,8 @@ functions:
       params:
         shell: "bash"
         working_dir: mongo-csharp-driver
+        include_expansions_in_env:
+          - "FRAMEWORK"
         script: |
           ${PREPARE_SHELL}
           if [ "${skip_web_identity_auth_test}" = "true" ]; then
@@ -589,11 +629,14 @@ functions:
     - command: shell.exec
       type: test
       params:
+        include_expansions_in_env:
+          - "FRAMEWORK"
         env:
           IAM_AUTH_ECS_ACCOUNT: ${iam_auth_ecs_account}
           IAM_AUTH_ECS_SECRET_ACCESS_KEY: ${iam_auth_ecs_secret_access_key}
         working_dir: mongo-csharp-driver
         script: |
+          ${PREPARE_SHELL}
           DRIVERS_TOOLS=${DRIVERS_TOOLS} OS=${OS} ASSERT_NO_URI_CREDS=true evergreen/run-mongodb-aws-test.sh env-creds
 
   run-aws-auth-test-with-aws-credentials-and-session-token-as-environment-variables:
@@ -601,17 +644,11 @@ functions:
       type: test
       params:
         working_dir: mongo-csharp-driver
-        script: |
-          DRIVERS_TOOLS=${DRIVERS_TOOLS} OS=${OS} ASSERT_NO_URI_CREDS=true evergreen/run-mongodb-aws-test.sh session-creds
-
-  run-atlas-data-lake-test:
-    - command: shell.exec
-      type: test
-      params:
-        working_dir: mongo-csharp-driver
+        include_expansions_in_env:
+          - "FRAMEWORK"
         script: |
           ${PREPARE_SHELL}
-          evergreen/run-atlas-data-lake-test.sh
+          DRIVERS_TOOLS=${DRIVERS_TOOLS} OS=${OS} ASSERT_NO_URI_CREDS=true evergreen/run-mongodb-aws-test.sh session-creds
 
   run-atlas-search-test:
     - command: shell.exec
@@ -619,9 +656,13 @@ functions:
       params:
         working_dir: mongo-csharp-driver
         include_expansions_in_env:
-          - "ATLAS_SEARCH"
+          - "AWS_ACCESS_KEY_ID"
+          - "AWS_SECRET_ACCESS_KEY"
+          - "AWS_SESSION_TOKEN"
+          - "FRAMEWORK"
         script: |
           ${PREPARE_SHELL}
+          . ${DRIVERS_TOOLS}/.evergreen/secrets_handling/setup-secrets.sh drivers/atlas-qa
           evergreen/run-atlas-search-test.sh
 
   run-atlas-search-index-helpers-test:
@@ -629,6 +670,8 @@ functions:
       type: test
       params:
         working_dir: mongo-csharp-driver
+        include_expansions_in_env:
+          - "FRAMEWORK"
         script: |
           ${PREPARE_SHELL}
           MONGODB_URI="${MONGODB_URI}" evergreen/run-atlas-search-index-helpers-test.sh
@@ -663,7 +706,7 @@ functions:
           OCSP_ALGORITHM=${OCSP_ALGORITHM} SERVER_TYPE=${SERVER_TYPE} ${DRIVERS_TOOLS}/.evergreen/ocsp/setup.sh
 
   run-mongodb-oidc-tests:
-    - command: subprocess.exec
+    - command: shell.exec
       type: test
       params:
         working_dir: mongo-csharp-driver
@@ -672,21 +715,9 @@ functions:
           - "DRIVERS_TOOLS"
           - "OS"
           - "FRAMEWORK"
-        args:
-          - evergreen/run-mongodb-oidc-tests.sh
-
-  run-serverless-tests:
-    - command: shell.exec
-      type: test
-      params:
-        working_dir: mongo-csharp-driver
         script: |
           ${PREPARE_SHELL}
-          AUTH=${AUTH} \
-          FRAMEWORK=${FRAMEWORK} \
-          SSL=${SSL} \
-          CRYPT_SHARED_LIB_PATH=${CRYPT_SHARED_LIB_PATH} \
-            evergreen/run-serverless-tests.sh
+          evergreen/run-mongodb-oidc-tests.sh
 
   run-smoke-tests:
     - command: shell.exec
@@ -696,30 +727,9 @@ functions:
         script: |
           set +x
           ${PREPARE_SHELL}
-          AUTH=${AUTH} \
-          SSL=${SSL} \
           MONGODB_URI="${MONGODB_URI}" \
-          TOPOLOGY=${TOPOLOGY} \
-          OS=${OS} \
-          COMPRESSOR=${COMPRESSOR} \
-          CLIENT_PEM=${DRIVERS_TOOLS}/.evergreen/x509gen/client.pem \
-          REQUIRE_API_VERSION=${REQUIRE_API_VERSION} \
-          TARGET="SmokeTests" \
           FRAMEWORK=${FRAMEWORK} \
-            evergreen/run-tests.sh
-
-  run-test-SK:
-    - command: shell.exec
-      params:
-        shell: bash
-        working_dir: mongo-csharp-driver
-        env:
-          ATLAS_SK: ${ATLAS_SK}
-        script: |
-          ${PREPARE_SHELL}
-          echo "cloning sk rep"
-          git clone https://github.com/microsoft/semantic-kernel.git
-          ./evergreen/run-sk.sh
+            evergreen/run-smoke-tests.sh "${PACKAGE_VERSION}"
 
   setup-csfle-secrets:
     - command: ec2.assume_role
@@ -780,18 +790,20 @@ functions:
           fi
     - command: shell.exec
       params:
+        working_dir: mongo-csharp-driver
+        shell: "bash"
         script: |
           ${PREPARE_SHELL}
-          cd "$MONGO_ORCHESTRATION_HOME"
-          # source the mongo-orchestration virtualenv if it exists
-          if [ -f venv/bin/activate ]; then
-            . venv/bin/activate
-          elif [ -f venv/Scripts/activate ]; then
-            . venv/Scripts/activate
-          fi
-          mongo-orchestration stop
-          cd -
+          bash ${DRIVERS_TOOLS}/.evergreen/stop-orchestration.sh
           rm -rf $DRIVERS_TOOLS || true
+    - command: subprocess.exec
+      params:
+        binary: bash
+        working_dir: mongo-csharp-driver
+        include_expansions_in_env:
+          - "OS"
+        args:
+          - evergreen/cleanup-test-resources.sh
 
   fix-absolute-paths:
     - command: shell.exec
@@ -980,6 +992,9 @@ functions:
         script: |
           ${PREPARE_SHELL}
 
+          evergreen/compile-sources.sh
+          tar czf /tmp/mongo-csharp-driver.tgz tests/*.Tests/bin/Release/net6.0/ evergreen/install-dotnet.sh evergreen/run-mongodb-oidc-env-tests.sh
+
           export K8S_VARIANT=${K8S_VARIANT}
           export K8S_DRIVERS_TAR_FILE=/tmp/mongo-csharp-driver.tgz
           export K8S_TEST_CMD="OIDC_ENV=k8s ./evergreen/run-mongodb-oidc-env-tests.sh"
@@ -987,6 +1002,84 @@ functions:
           bash $DRIVERS_TOOLS/.evergreen/auth_oidc/k8s/setup-pod.sh
           bash $DRIVERS_TOOLS/.evergreen/auth_oidc/k8s/run-driver-test.sh
           bash $DRIVERS_TOOLS/.evergreen/auth_oidc/k8s/teardown-pod.sh
+
+  setup-x509-tests:
+    - command: shell.exec
+      params:
+        shell: "bash"
+        include_expansions_in_env:
+          - "AWS_ACCESS_KEY_ID"
+          - "AWS_SECRET_ACCESS_KEY"
+          - "AWS_SESSION_TOKEN"
+        script: |
+          ${DRIVERS_TOOLS}/.evergreen/secrets_handling/setup-secrets.sh drivers/atlas_connect
+          source secrets-export.sh
+
+          echo $ATLAS_X509_DEV_CERT_BASE64 | base64 --decode > ${DRIVERS_TOOLS}/CLIENT_CERT.pem
+          echo $ATLAS_X509_DEV_CERT_NOUSER_BASE64 | base64 --decode > ${DRIVERS_TOOLS}/CLIENT_NO_USER_CERT.pem
+
+  run-x509-tests:
+    - command: shell.exec
+      type: test
+      params:
+        shell: "bash"
+        working_dir: mongo-csharp-driver
+        script: |
+          source ../secrets-export.sh
+          ${PREPARE_SHELL}
+          OS=${OS} \
+            evergreen/add-ca-certs.sh
+          P12_FRIENDLY_NAME="Drivers No-User Client Certificate" \
+          P12_FILENAME="client_no_user.p12" \
+          OUT_CLIENT_PASSWORD_VAR="MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PASSWORD" \
+          OUT_CLIENT_PATH_VAR="MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PATH" \
+          CLIENT_PEM=${DRIVERS_TOOLS}/CLIENT_NO_USER_CERT.pem \
+            source evergreen/convert-client-cert-to-pkcs12.sh
+          MONGODB_URI="$ATLAS_X509_DEV" \
+          CLIENT_PEM=${DRIVERS_TOOLS}/CLIENT_CERT.pem \
+          TOPOLOGY=${TOPOLOGY} \
+          OS=${OS} \
+          FRAMEWORK=${FRAMEWORK} \
+          TEST_CATEGORY="X509" \
+            evergreen/run-tests.sh
+
+  setup-socks5-proxy:
+    - command: shell.exec
+      params:
+        background: true
+        script: |
+          ${PREPARE_SHELL}
+          MONGODB_URI="${MONGODB_URI}"
+          # Read the MongoDB URI connection string and extract an arbitrary member's host:port
+          HOST_PORT=$(echo "$MONGODB_URI" | sed 's|mongodb://||' | cut -d',' -f1)
+
+          MAP_ARG="localhost:12345 to $HOST_PORT"
+          python3 $DRIVERS_TOOLS/.evergreen/socks5srv.py --map "$MAP_ARG" --port 1080 --auth username:p4ssw0rd & PROXY_PID1=$!
+          python3 $DRIVERS_TOOLS/.evergreen/socks5srv.py --map "$MAP_ARG" --port 1081 & PROXY_PID2=$!
+
+          echo "$PROXY_PID1" > socks5_pids.txt
+          echo "$PROXY_PID2" >> socks5_pids.txt
+
+          echo "Started proxies with PIDs: $PROXY_PID1, $PROXY_PID2"
+
+  run-socks5-proxy-tests:
+    - command: shell.exec
+      type: test
+      params:
+        working_dir: "mongo-csharp-driver"
+        shell: "bash"
+        script: |
+          export SOCKS5_PROXY_SERVERS_ENABLED=true
+          ${PREPARE_SHELL}
+          OS=${OS} \
+            evergreen/add-ca-certs.sh
+          SSL=${SSL} \
+          MONGODB_URI="${MONGODB_URI}" \
+          TOPOLOGY=${TOPOLOGY} \
+          OS=${OS} \
+          FRAMEWORK=${FRAMEWORK} \
+          TEST_CATEGORY="Socks5Proxy" \
+            evergreen/run-tests.sh
 
 pre:
   - func: fetch-source
@@ -1002,80 +1095,127 @@ post:
   - func: cleanup
 
 tasks:
+    - name: unit-tests-net472
+      commands:
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net472
+        - func: run-unit-tests
+
+    - name: unit-tests-netstandard21
+      commands:
+        - func: configure-framework
+          vars:
+            FRAMEWORK: netstandard2.1
+        - func: run-unit-tests
+
+    - name: unit-tests-net60
+      commands:
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net6.0
+        - func: run-unit-tests
+
+    - name: unit-tests-net100
+      commands:
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net10.0
+        - func: run-unit-tests
+
+    - name: unit-tests-net100-csharp14
+      commands:
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net10.0
+            DOTNET_SDK_VERSION: 10.0
+        - func: run-unit-tests
+          vars:
+            CONFIGURATION: "Release_CSharp_14"
+
     - name: test-net472
       commands:
         - func: setup-csfle-secrets
         - func: bootstrap-mongo-orchestration
-        - func: run-tests
+        - func: configure-framework
           vars:
             FRAMEWORK: net472
+        - func: run-tests
 
     - name: test-netstandard21
       commands:
         - func: setup-csfle-secrets
         - func: bootstrap-mongo-orchestration
-        - func: run-tests
+        - func: configure-framework
           vars:
-            FRAMEWORK: netstandard21
+            FRAMEWORK: netstandard2.1
+        - func: run-tests
 
     - name: test-net60
       commands:
         - func: setup-csfle-secrets
         - func: bootstrap-mongo-orchestration
-        - func: run-tests
+        - func: configure-framework
           vars:
-            FRAMEWORK: net60
+            FRAMEWORK: net6.0
+        - func: run-tests
 
     - name: test-csfle-with-mongocryptd-net472
       commands:
         - func: setup-csfle-secrets
         - func: bootstrap-mongo-orchestration
-        - func: run-csfle-with-mongocryptd-tests
+        - func: configure-framework
           vars:
             FRAMEWORK: net472
+        - func: run-csfle-with-mongocryptd-tests
 
     - name: test-csfle-with-mongocryptd-netstandard21
       commands:
         - func: setup-csfle-secrets
         - func: bootstrap-mongo-orchestration
-        - func: run-csfle-with-mongocryptd-tests
+        - func: configure-framework
           vars:
-            FRAMEWORK: netstandard21
+            FRAMEWORK: netstandard2.1
+        - func: run-csfle-with-mongocryptd-tests
 
     - name: test-csfle-with-mongocryptd-net60
       commands:
         - func: setup-csfle-secrets
         - func: bootstrap-mongo-orchestration
-        - func: run-csfle-with-mongocryptd-tests
+        - func: configure-framework
           vars:
-            FRAMEWORK: net60
+            FRAMEWORK: net6.0
+        - func: run-csfle-with-mongocryptd-tests
 
     - name: test-csfle-with-mocked-kms-tls-net472
       commands:
         - func: setup-csfle-secrets
         - func: start-cse-servers
         - func: bootstrap-mongo-orchestration
-        - func: run-csfle-with-mocked-kms-tests
+        - func: configure-framework
           vars:
             FRAMEWORK: net472
+        - func: run-csfle-with-mocked-kms-tests
 
     - name: test-csfle-with-mocked-kms-tls-netstandard21
       commands:
         - func: setup-csfle-secrets
         - func: start-cse-servers
         - func: bootstrap-mongo-orchestration
-        - func: run-csfle-with-mocked-kms-tests
+        - func: configure-framework
           vars:
-            FRAMEWORK: netstandard21
+            FRAMEWORK: netstandard2.1
+        - func: run-csfle-with-mocked-kms-tests
 
     - name: test-csfle-with-mocked-kms-tls-net60
       commands:
         - func: setup-csfle-secrets
         - func: start-cse-servers
         - func: bootstrap-mongo-orchestration
-        - func: run-csfle-with-mocked-kms-tests
+        - func: configure-framework
           vars:
-            FRAMEWORK: net60
+            FRAMEWORK: net6.0
+        - func: run-csfle-with-mocked-kms-tests
 
     - name: test-load-balancer-netstandard21
       commands:
@@ -1083,9 +1223,10 @@ tasks:
           vars:
             LOAD_BALANCER: 'true'
         - func: run-load-balancer
-        - func: run-load-balancer-tests
+        - func: configure-framework
           vars:
-            FRAMEWORK: netstandard21
+            FRAMEWORK: netstandard2.1
+        - func: run-load-balancer-tests
         - func: stop-load-balancer
 
     - name: test-load-balancer-net60
@@ -1094,40 +1235,73 @@ tasks:
           vars:
             LOAD_BALANCER: 'true'
         - func: run-load-balancer
-        - func: run-load-balancer-tests
+        - func: configure-framework
           vars:
-            FRAMEWORK: net60
+            FRAMEWORK: net6.0
+        - func: run-load-balancer-tests
         - func: stop-load-balancer
 
     - name: atlas-connectivity-tests
       commands:
-        - func: assume-ec2-role
+        - func: assume-aws-test-secrets-role
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net6.0
         - func: run-atlas-connectivity-tests
-
-    - name: test-gssapi
-      commands:
-        - func: run-gssapi-auth-tests
 
     - name: test-gssapi-net472
       commands:
-        - func: run-gssapi-auth-tests
+        - func: configure-framework
           vars:
             FRAMEWORK: net472
+        - func: run-gssapi-auth-tests
 
     - name: test-gssapi-netstandard21
       commands:
-        - func: run-gssapi-auth-tests
+        - func: configure-framework
           vars:
-            FRAMEWORK: netstandard21
+            FRAMEWORK: netstandard2.1
+        - func: run-gssapi-auth-tests
 
     - name: test-gssapi-net60
       commands:
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net6.0
         - func: run-gssapi-auth-tests
+
+    - name: test-socks5-proxy-net472
+      commands:
+        - func: bootstrap-mongo-orchestration
+        - func: setup-socks5-proxy
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net472
+        - func: run-socks5-proxy-tests
+
+    - name: test-socks5-proxy-netstandard21
+      commands:
+        - func: bootstrap-mongo-orchestration
+        - func: setup-socks5-proxy
+        - func: configure-framework
+          vars:
+            FRAMEWORK: netstandard21
+        - func: run-socks5-proxy-tests
+
+    - name: test-socks5-proxy-net60
+      commands:
+        - func: bootstrap-mongo-orchestration
+        - func: setup-socks5-proxy
+        - func: configure-framework
           vars:
             FRAMEWORK: net60
+        - func: run-socks5-proxy-tests
 
     - name: plain-auth-tests
       commands:
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net6.0
         - func: run-plain-auth-tests
 
     - name: aws-auth-tests
@@ -1138,6 +1312,9 @@ tasks:
             ORCHESTRATION_FILE: "auth-aws.json"
             TOPOLOGY: "server"
         - func: add-aws-auth-variables-to-file
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net6.0
         # This step also creates test related users, so don't avoid this step in order to run other tests
         - func: run-aws-auth-test-with-regular-aws-credentials
         - func: run-aws-auth-test-with-assume-role-credentials
@@ -1154,9 +1331,11 @@ tasks:
         - func: bootstrap-mongo-orchestration
           vars:
             REQUIRE_API_VERSION: true
-        - func: run-tests
+        - func: configure-framework
           vars:
             FRAMEWORK: net472
+        - func: run-tests
+          vars:
             REQUIRE_API_VERSION: true
 
     - name: stable-api-tests-netstandard21
@@ -1165,9 +1344,11 @@ tasks:
         - func: bootstrap-mongo-orchestration
           vars:
             REQUIRE_API_VERSION: true
+        - func: configure-framework
+          vars:
+            FRAMEWORK: netstandard2.1
         - func: run-tests
           vars:
-            FRAMEWORK: netstandard21
             REQUIRE_API_VERSION: true
 
     - name: stable-api-tests-net60
@@ -1176,26 +1357,33 @@ tasks:
         - func: bootstrap-mongo-orchestration
           vars:
             REQUIRE_API_VERSION: true
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net6.0
         - func: run-tests
           vars:
-            FRAMEWORK: net60
             REQUIRE_API_VERSION: true
-
-    - name: atlas-data-lake-test
-      commands:
-        - func: bootstrap-mongohoused
-        - func: run-atlas-data-lake-test
 
     - name: atlas-search-test
       commands:
+        - func: assume-aws-test-secrets-role
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net6.0
         - func: run-atlas-search-test
 
     - name: atlas-search-index-helpers-test
       commands:
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net6.0
         - func: run-atlas-search-index-helpers-test
 
     - name: test-oidc-auth
       commands:
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net6.0
         - func: run-mongodb-oidc-tests
 
     - name: test-oidc-azure
@@ -1208,8 +1396,8 @@ tasks:
               set -o errexit
               ${PREPARE_SHELL}
 
-              dotnet build
-              tar czf /tmp/mongo-csharp-driver.tgz tests/*.Tests/bin/Debug/net6.0/ ./evergreen/run-mongodb-oidc-env-tests.sh
+              evergreen/compile-sources.sh
+              tar czf /tmp/mongo-csharp-driver.tgz tests/*.Tests/bin/Release/net6.0/ evergreen/install-dotnet.sh evergreen/run-mongodb-oidc-env-tests.sh
 
               export AZUREOIDC_DRIVERS_TAR_FILE=/tmp/mongo-csharp-driver.tgz
               export AZUREOIDC_TEST_CMD="OIDC_ENV=azure ./evergreen/run-mongodb-oidc-env-tests.sh"
@@ -1228,39 +1416,33 @@ tasks:
               # Copy secrets-export.sh created by '${DRIVERS_TOOLS}/.evergreen/auth_oidc/gcp/setup.sh' script to read secrets inside the vm
               cp $DRIVERS_TOOLS/.evergreen/auth_oidc/gcp/secrets-export.sh ./secrets-export.sh
 
-              dotnet build
-              tar czf /tmp/mongo-csharp-driver.tgz tests/*.Tests/bin/Debug/net6.0/ ./evergreen/run-mongodb-oidc-env-tests.sh ./secrets-export.sh
+              evergreen/compile-sources.sh
+              tar czf /tmp/mongo-csharp-driver.tgz tests/*.Tests/bin/Release/net6.0/ evergreen/run-mongodb-oidc-env-tests.sh evergreen/install-dotnet.sh secrets-export.sh
 
               export GCPOIDC_DRIVERS_TAR_FILE=/tmp/mongo-csharp-driver.tgz
               export GCPOIDC_TEST_CMD="OIDC_ENV=gcp ./evergreen/run-mongodb-oidc-env-tests.sh"
               bash $DRIVERS_TOOLS/.evergreen/auth_oidc/gcp/run-driver-test.sh
 
-    - name: test-oidc-k8s
+    - name: test-oidc-k8s-eks
       commands:
-        - command: shell.exec
-          params:
-            shell: bash
-            working_dir: mongo-csharp-driver
-            script: |-
-              ${PREPARE_SHELL}
-              dotnet build
-              tar czf /tmp/mongo-csharp-driver.tgz tests/*.Tests/bin/Debug/net6.0/ ./evergreen/run-mongodb-oidc-env-tests.sh
-        - func: assume-ec2-role
+        - func: configure-framework
         - func: run_oidc_k8s_tests
           vars:
             K8S_VARIANT: eks
+
+    - name: test-oidc-k8s-gke
+      commands:
+        - func: configure-framework
         - func: run_oidc_k8s_tests
           vars:
             K8S_VARIANT: gke
+
+    - name: test-oidc-k8s-aks
+      commands:
+        - func: configure-framework
         - func: run_oidc_k8s_tests
           vars:
             K8S_VARIANT: aks
-
-    - name: test-serverless
-      exec_timeout_secs: 2700 # 45 minutes: 15 for setup + 30 for tests
-      commands:
-        - func: setup-csfle-secrets
-        - func: run-serverless-tests
 
     - name: test-ocsp-rsa-valid-cert-server-staples-ca-responder
       tags: ["ocsp"]
@@ -1272,6 +1454,9 @@ tasks:
         - func: bootstrap-mongo-orchestration
           vars:
             ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-mustStaple.json"
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net6.0
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -1287,6 +1472,9 @@ tasks:
         - func: bootstrap-mongo-orchestration
           vars:
             ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-mustStaple.json"
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net6.0
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -1302,6 +1490,9 @@ tasks:
         - func: bootstrap-mongo-orchestration
           vars:
             ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-disableStapling.json"
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net6.0
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -1317,6 +1508,9 @@ tasks:
         - func: bootstrap-mongo-orchestration
           vars:
             ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-disableStapling.json"
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net6.0
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -1328,6 +1522,9 @@ tasks:
         - func: bootstrap-mongo-orchestration
           vars:
             ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-disableStapling.json"
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net6.0
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -1343,6 +1540,9 @@ tasks:
         - func: bootstrap-mongo-orchestration
           vars:
             ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-mustStaple-disableStapling.json"
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net6.0
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -1354,6 +1554,9 @@ tasks:
         - func: bootstrap-mongo-orchestration
           vars:
             ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-mustStaple-disableStapling.json"
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net6.0
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -1369,6 +1572,9 @@ tasks:
         - func: bootstrap-mongo-orchestration
           vars:
             ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-mustStaple.json"
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net6.0
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -1384,6 +1590,9 @@ tasks:
         - func: bootstrap-mongo-orchestration
           vars:
             ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-mustStaple.json"
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net6.0
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -1399,6 +1608,9 @@ tasks:
         - func: bootstrap-mongo-orchestration
           vars:
             ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-disableStapling.json"
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net6.0
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -1414,6 +1626,9 @@ tasks:
         - func: bootstrap-mongo-orchestration
           vars:
             ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-disableStapling.json"
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net6.0
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -1429,13 +1644,77 @@ tasks:
         - func: bootstrap-mongo-orchestration
           vars:
             ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-mustStaple-disableStapling.json"
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net6.0
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
             OCSP_TLS_SHOULD_SUCCEED: "false"
 
-    - name: test-smoke-tests
+    - name: test-smoke-tests-net472
+      depends_on:
+        - name: push-packages-myget
+          variant: ".push-packages-myget"
       commands:
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net472
+        - func: bootstrap-mongo-orchestration
+        - func: run-smoke-tests
+
+    - name: test-smoke-tests-netcoreapp31
+      depends_on:
+        - name: push-packages-myget
+          variant: ".push-packages-myget"
+      commands:
+        - func: configure-framework
+          vars:
+            FRAMEWORK: netcoreapp3.1
+        - func: bootstrap-mongo-orchestration
+        - func: run-smoke-tests
+
+    - name: test-smoke-tests-net50
+      depends_on:
+        - name: push-packages-myget
+          variant: ".push-packages-myget"
+      commands:
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net5.0
+        - func: bootstrap-mongo-orchestration
+        - func: run-smoke-tests
+
+    - name: test-smoke-tests-net60
+      depends_on:
+        - name: push-packages-myget
+          variant: ".push-packages-myget"
+      commands:
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net6.0
+        - func: bootstrap-mongo-orchestration
+        - func: run-smoke-tests
+
+    - name: test-smoke-tests-net80
+      depends_on:
+        - name: push-packages-myget
+          variant: ".push-packages-myget"
+      commands:
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net8.0
+        - func: bootstrap-mongo-orchestration
+        - func: run-smoke-tests
+
+    - name: test-smoke-tests-net100
+      depends_on:
+        - name: push-packages-myget
+          variant: ".push-packages-myget"
+      commands:
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net10.0
         - func: bootstrap-mongo-orchestration
         - func: run-smoke-tests
 
@@ -1448,7 +1727,9 @@ tasks:
             SSL: "nossl"
             AUTH: "noauth"
             SKIP_LEGACY_SHELL: "true"
-        - func: install-dotnet
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net8.0
         - func: run-performance-tests
 
     - name: test-aws-lambda-deployed
@@ -1457,9 +1738,7 @@ tasks:
           params:
             role_arn: ${LAMBDA_AWS_ROLE_ARN}
             duration_seconds: 3600
-        - func: install-dotnet
-          vars:
-            DOTNET_SDK_VERSION: 8.0
+        - func: configure-framework
         - command: shell.exec
           params:
             working_dir: mongo-csharp-driver
@@ -1530,20 +1809,15 @@ tasks:
               source $DRIVERS_TOOLS/.evergreen/csfle/gcpkms/secrets-export.sh
               GCPKMS_CMD="MONGODB_URI='mongodb://localhost:27017' OS='${OS}' ./evergreen/run-csfle-gcp-tests.sh" $DRIVERS_TOOLS/.evergreen/csfle/gcpkms/run-command.sh
 
-    - name: test-SK
-      commands:
-        - func: install-dotnet
-        - func: run-test-SK
-
     - name: build-packages
       commands:
-        - func: install-dotnet
+        - func: configure-framework
         - func: build-packages
         - func: upload-packages
 
     - name: validate-apicompat
       commands:
-        - func: install-dotnet
+        - func: configure-framework
           vars:
             DOTNET_SDK_VERSION: 6.0
         - func: download-packages
@@ -1558,7 +1832,7 @@ tasks:
 
     - name: push-packages-nuget
       commands:
-        - func: install-dotnet
+        - func: configure-framework
         - func: download-packages
         - func: sign-packages
         - func: push-packages
@@ -1568,7 +1842,7 @@ tasks:
 
     - name: push-packages-myget
       commands:
-        - func: install-dotnet
+        - func: configure-framework
         - func: download-packages
         - func: sign-packages
         - func: push-packages
@@ -1578,7 +1852,7 @@ tasks:
 
     - name: generate-apidocs
       commands:
-        - func: install-dotnet
+        - func: configure-framework
         - func: build-apidocs
         - func: upload-apidocs
 
@@ -1598,7 +1872,7 @@ tasks:
 
     - name: validate-apidocs
       commands:
-        - func: install-dotnet
+        - func: configure-framework
         - func: build-apidocs
 
     - name: test-odata
@@ -1615,7 +1889,7 @@ tasks:
             LOCAL_PATH: ${workdir}/odata
             SCRIPT: |
               ${PREPARE_SHELL}
-              DOTNET_SDK_PATH="${DOTNET_SDK_PATH}" bash ./evergreen/install-dependencies.sh
+              DOTNET_SDK_PATH="${DOTNET_ROOT}" bash ./evergreen/install-dependencies.sh
               DRIVER_VERSION="${PACKAGE_VERSION}" bash ./evergreen/run-tests.sh
 
     - name: test-analyzer
@@ -1631,25 +1905,46 @@ tasks:
             LOCAL_PATH: ${workdir}/analyzer
             SCRIPT: |
               ${PREPARE_SHELL}
-              DOTNET_SDK_PATH="${DOTNET_SDK_PATH}" bash ./evergreen/install-dependencies.sh
+              DOTNET_SDK_PATH="${DOTNET_ROOT}" bash ./evergreen/install-dependencies.sh
               DRIVER_VERSION="${PACKAGE_VERSION}" TARGET_FRAMEWORK=netcoreapp3.1 bash ./evergreen/run-tests.sh
 
     - name: test-efcore
       commands:
-        - func: install-dotnet
+        - func: configure-framework
+          vars:
+            DOTNET_SDK_VERSION: 10.0
+            RUNTIME_VERSIONS: 8.0,9.0,10.0
         - func: bootstrap-mongo-orchestration
         - command: expansions.update
           params:
             updates:
               - key: TEST_RESULTS_PATH
-                value: "./efcore/artifacts/test-results/TEST*.xml"
+                value: "./efcore/artifacts/test-results/**/TEST*.xml"
         - func: run-external-script
           vars:
             GIT_REPO: "https://github.com/mongodb/mongo-efcore-provider.git"
             LOCAL_PATH: ${workdir}/efcore
             SCRIPT: |
               ${PREPARE_SHELL}
-              CRYPT_SHARED_LIB_PATH="${CRYPT_SHARED_LIB_PATH}" DRIVER_VERSION="${PACKAGE_VERSION}" MONGODB_VERSION="${VERSION}" bash ./evergreen/run-tests.sh
+              export ATLAS_URI=Disabled
+              export CRYPT_SHARED_LIB_PATH="${CRYPT_SHARED_LIB_PATH}"
+              export DRIVER_VERSION="${PACKAGE_VERSION}"
+              export MONGODB_URI="${MONGODB_URI}"
+              export MONGODB_VERSION="${VERSION}"
+              FUNCTIONAL_TESTS_PROJECT_PATH="./tests/MongoDB.EntityFrameworkCore.FunctionalTests/MongoDB.EntityFrameworkCore.FunctionalTests.csproj"
+
+              dotnet test "$FUNCTIONAL_TESTS_PROJECT_PATH" -c "Debug EF8" --results-directory "./artifacts/test-results/EF8" --logger "junit;LogFileName=TEST_{assembly}.xml;FailureBodyFormat=Verbose" --logger "console;verbosity=detailed"
+              dotnet test "$FUNCTIONAL_TESTS_PROJECT_PATH" -c "Debug EF9" --results-directory "./artifacts/test-results/EF9" --logger "junit;LogFileName=TEST_{assembly}.xml;FailureBodyFormat=Verbose" --logger "console;verbosity=detailed"
+              dotnet test "$FUNCTIONAL_TESTS_PROJECT_PATH" -c "Debug EF10" --results-directory "./artifacts/test-results/EF10" --logger "junit;LogFileName=TEST_{assembly}.xml;FailureBodyFormat=Verbose" --logger "console;verbosity=detailed"
+
+    - name: x509-auth-tests
+      commands:
+        - func: assume-aws-test-secrets-role
+        - func: setup-x509-tests
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net6.0
+        - func: run-x509-tests
 
 axes:
   - id: version
@@ -1687,10 +1982,6 @@ axes:
         display_name: "4.2"
         variables:
            VERSION: "4.2"
-      - id: "4.0"
-        display_name: "4.0"
-        variables:
-           VERSION: "4.0"
 
   - id: os
     display_name: OS
@@ -1701,11 +1992,12 @@ axes:
           OS: "windows-64"
           skip_ECS_auth_test: true
           skip_web_identity_auth_test: true
-        run_on: windows-64-vs2017-test
+        run_on: windows-2022-latest-small
       - id: "ubuntu-1804"
         display_name: "Ubuntu 18.04"
         variables:
           OS: "ubuntu-1804"
+          EG_TOOLS_COMMIT: "9e9a306820c4a517736691e34d141e2ad56e4af6"  # Pin drivers-evergreen-tools for Ubuntu 18.04 as a temporary workaround to run MongoDB 4.2 variants
         run_on: ubuntu1804-test
       - id: "ubuntu-2004"
         display_name: "Ubuntu 20.04"
@@ -1793,40 +2085,13 @@ axes:
         variables:
           FRAMEWORK: net472
       - id: "netstandard21"
-        display_name: netstandard21
+        display_name: netstandard2.1
         variables:
-          FRAMEWORK: netstandard21
+          FRAMEWORK: netstandard2.1
       - id: "net60"
-        display_name: net60
+        display_name: net6.0
         variables:
-          FRAMEWORK: net60
-
-  - id: runtime_framework
-    display_name: Runtime .net
-    values:
-      - id: "net472"
-        variables:
-          FRAMEWORK: net472
-      - id: "netcoreapp31"
-        variables:
-          FRAMEWORK: netcoreapp31
-      - id: "net50"
-        variables:
-          FRAMEWORK: net50
-      - id: "net60"
-        variables:
-          FRAMEWORK: net60
-      - id: "net80"
-        variables:
-          FRAMEWORK: net80
-
-  - id: serverless
-    display_name: Serverless
-    values:
-      - id: "Passthrough"
-        display_name: "Serverless Passthrough Proxy"
-        variables:
-          VAULT_NAME: "serverless"
+          FRAMEWORK: net6.0
 
 task_groups:
   - name: testazurekms-task-group
@@ -1839,7 +2104,7 @@ task_groups:
       - func: fix-absolute-paths
       - func: init-test-results
       - func: make-files-executable
-      - func: assume-ec2-role
+      - func: assume-aws-test-secrets-role
       - command: subprocess.exec
         params:
           binary: bash
@@ -1885,7 +2150,7 @@ task_groups:
       - func: fix-absolute-paths
       - func: init-test-results
       - func: make-files-executable
-      - func: assume-ec2-role
+      - func: assume-aws-test-secrets-role
       - command: subprocess.exec
         params:
           binary: bash
@@ -1929,7 +2194,7 @@ task_groups:
       - func: fix-absolute-paths
       - func: init-test-results
       - func: make-files-executable
-      - func: assume-ec2-role
+      - func: assume-aws-test-secrets-role
       - command: subprocess.exec
         params:
           binary: bash
@@ -1937,14 +2202,9 @@ task_groups:
             - "AWS_ACCESS_KEY_ID"
             - "AWS_SECRET_ACCESS_KEY"
             - "AWS_SESSION_TOKEN"
-          args:
-            - ${DRIVERS_TOOLS}/.evergreen/atlas/setup-secrets.sh
-            - "atlas"
-      - command: subprocess.exec
-        params:
-          binary: bash
           env:
-            LAMBDA_STACK_NAME: dbx-csharp-lambda
+            CLUSTER_PREFIX: dbx-csharp-search-index
+            MONGODB_VERSION: "8.0"
           args:
             - ${DRIVERS_TOOLS}/.evergreen/atlas/setup-atlas-cluster.sh
       - command: expansions.update
@@ -1955,8 +2215,6 @@ task_groups:
       - command: subprocess.exec
         params:
           binary: bash
-          env:
-            LAMBDA_STACK_NAME: dbx-csharp-lambda
           args:
             - ${DRIVERS_TOOLS}/.evergreen/atlas/teardown-atlas-cluster.sh
     tasks:
@@ -1968,11 +2226,17 @@ task_groups:
     setup_group:
       - func: fetch-source
       - func: prepare-resources
+      - func: assume-aws-test-secrets-role
       - command: subprocess.exec
         params:
           binary: bash
+          include_expansions_in_env:
+            - "AWS_ACCESS_KEY_ID"
+            - "AWS_SECRET_ACCESS_KEY"
+            - "AWS_SESSION_TOKEN"
           env:
             LAMBDA_STACK_NAME: dbx-csharp-lambda
+            MONGODB_VERSION: "7.0"
           args:
             - ${DRIVERS_TOOLS}/.evergreen/atlas/setup-atlas-cluster.sh
       - command: expansions.update
@@ -1997,7 +2261,7 @@ task_groups:
       - func: fix-absolute-paths
       - func: init-test-results
       - func: make-files-executable
-      - func: assume-ec2-role
+      - func: assume-aws-test-secrets-role
       - command: subprocess.exec
         params:
           binary: bash
@@ -2025,12 +2289,17 @@ task_groups:
       - func: prepare-resources
       - func: fix-absolute-paths
       - func: make-files-executable
-      - func: install-dotnet
+      - func: assume-aws-test-secrets-role
+      - func: configure-framework
       - command: subprocess.exec
         params:
           binary: bash
           env:
             AZUREOIDC_VMNAME_PREFIX: "CSHARP_DRIVER"
+          include_expansions_in_env:
+            - "AWS_ACCESS_KEY_ID"
+            - "AWS_SECRET_ACCESS_KEY"
+            - "AWS_SESSION_TOKEN"
           args:
             - ${DRIVERS_TOOLS}/.evergreen/auth_oidc/azure/create-and-setup-vm.sh
     teardown_group:
@@ -2051,12 +2320,17 @@ task_groups:
       - func: prepare-resources
       - func: fix-absolute-paths
       - func: make-files-executable
-      - func: install-dotnet
+      - func: assume-aws-test-secrets-role
+      - func: configure-framework
       - command: subprocess.exec
         params:
           binary: bash
           env:
             GCPOIDC_VMNAME_PREFIX: "CSHARP_DRIVER"
+          include_expansions_in_env:
+            - "AWS_ACCESS_KEY_ID"
+            - "AWS_SECRET_ACCESS_KEY"
+            - "AWS_SESSION_TOKEN"
           args:
             - ${DRIVERS_TOOLS}/.evergreen/auth_oidc/gcp/setup.sh
     teardown_group:
@@ -2068,16 +2342,20 @@ task_groups:
     tasks:
       - test-oidc-gcp
 
-  - name: oidc-auth-k8s-task-group
+  - name: oidc-auth-k8s-eks-task-group
     setup_group_can_fail_task: true
     setup_group_timeout_secs: 1800 # 30 minutes
     setup_group:
+      - command: expansions.update
+        params:
+          updates:
+            - key: 'K8S_VARIANT'
+              value: eks
       - func: fetch-source
       - func: prepare-resources
       - func: fix-absolute-paths
       - func: make-files-executable
-      - func: install-dotnet
-      - func: assume-ec2-role
+      - func: assume-aws-test-secrets-role
       - command: subprocess.exec
         params:
           binary: bash
@@ -2094,36 +2372,71 @@ task_groups:
           args:
             - ${DRIVERS_TOOLS}/.evergreen/auth_oidc/k8s/teardown.sh
     tasks:
-      - test-oidc-k8s
+      - test-oidc-k8s-eks
 
-  - name: serverless-task-group
+  - name: oidc-auth-k8s-aks-task-group
     setup_group_can_fail_task: true
     setup_group_timeout_secs: 1800 # 30 minutes
     setup_group:
+      - command: expansions.update
+        params:
+          updates:
+            - key: 'K8S_VARIANT'
+              value: aks
       - func: fetch-source
       - func: prepare-resources
       - func: fix-absolute-paths
       - func: make-files-executable
-      - func: assume-ec2-role
+      - func: assume-aws-test-secrets-role
       - command: subprocess.exec
         params:
           binary: bash
-          env:
-            VAULT_NAME: ${VAULT_NAME}
+          include_expansions_in_env:
+            - "AWS_ACCESS_KEY_ID"
+            - "AWS_SECRET_ACCESS_KEY"
+            - "AWS_SESSION_TOKEN"
           args:
-            - ${DRIVERS_TOOLS}/.evergreen/serverless/create-instance.sh
+            - ${DRIVERS_TOOLS}/.evergreen/auth_oidc/k8s/setup.sh
+    teardown_group:
+      - command: subprocess.exec
+        params:
+          binary: bash
+          args:
+            - ${DRIVERS_TOOLS}/.evergreen/auth_oidc/k8s/teardown.sh
+    tasks:
+      - test-oidc-k8s-aks
+
+  - name: oidc-auth-k8s-gke-task-group
+    setup_group_can_fail_task: true
+    setup_group_timeout_secs: 1800 # 30 minutes
+    setup_group:
       - command: expansions.update
         params:
-          file: serverless-expansion.yml
+          updates:
+            - key: 'K8S_VARIANT'
+              value: gke
+      - func: fetch-source
+      - func: prepare-resources
+      - func: fix-absolute-paths
+      - func: make-files-executable
+      - func: assume-aws-test-secrets-role
+      - command: subprocess.exec
+        params:
+          binary: bash
+          include_expansions_in_env:
+            - "AWS_ACCESS_KEY_ID"
+            - "AWS_SECRET_ACCESS_KEY"
+            - "AWS_SESSION_TOKEN"
+          args:
+            - ${DRIVERS_TOOLS}/.evergreen/auth_oidc/k8s/setup.sh
     teardown_group:
-      - func: upload-test-results
       - command: subprocess.exec
         params:
           binary: bash
           args:
-            - ${DRIVERS_TOOLS}/.evergreen/serverless/delete-instance.sh
+            - ${DRIVERS_TOOLS}/.evergreen/auth_oidc/k8s/teardown.sh
     tasks:
-      - test-serverless
+      - test-oidc-k8s-gke
 
   - name: validate-apicompat-task-group
     setup_group_can_fail_task: true
@@ -2133,7 +2446,7 @@ task_groups:
       - func: prepare-resources
       - func: fix-absolute-paths
       - func: make-files-executable
-      - func: install-dotnet
+      - func: configure-framework
     teardown_group:
       - command: s3.put
         params:
@@ -2150,11 +2463,55 @@ task_groups:
       - validate-apicompat
 
 buildvariants:
+- name: unit-tests-windows
+  display_name: Unit Tests on Windows
+  run_on: windows-2022-latest-small
+  expansions:
+    OS: "windows-64"
+  tasks:
+    - name: unit-tests-net472
+    - name: unit-tests-netstandard21
+    - name: unit-tests-net60
+    - name: unit-tests-net100
+    - name: unit-tests-net100-csharp14
+
+- name: unit-tests-ubuntu
+  display_name: Unit Tests on Ubuntu
+  run_on: ubuntu2004-small
+  expansions:
+    OS: "ubuntu-2004"
+  tasks:
+    - name: unit-tests-netstandard21
+    - name: unit-tests-net60
+    - name: unit-tests-net100
+    - name: unit-tests-net100-csharp14
+
+- name: unit-tests-macos
+  display_name: Unit Tests on MacOs
+  run_on: macos-14
+  expansions:
+    OS: "macos-14"
+  tasks:
+    - name: unit-tests-netstandard21
+    - name: unit-tests-net60
+    - name: unit-tests-net100
+    - name: unit-tests-net100-csharp14
+
+- name: unit-tests-macos-arm
+  display_name: Unit Tests on MacOs Arm
+  run_on: macos-14-arm64
+  expansions:
+    OS: "macos-14-arm64"
+  tasks:
+    - name: unit-tests-net60
+    - name: unit-tests-net100
+    - name: unit-tests-net100-csharp14
+
 - matrix_name: stable-api-tests
-  matrix_spec: { version: ["5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: "standalone", auth: "auth", ssl: "nossl", os: "windows-64" }
+  matrix_spec: { version: ["5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: ["standalone", "sharded-cluster"], auth: "auth", ssl: "nossl", os: "windows-64" }
   display_name: "Stable API ${version} ${topology} ${auth} ${ssl} ${os}"
   run_on:
-    - windows-64-vs2017-test
+    - windows-2022-latest-small
   tasks:
     - name: stable-api-tests-net472
     - name: stable-api-tests-netstandard21
@@ -2178,9 +2535,14 @@ buildvariants:
   tasks:
     - name: test-netstandard21
     - name: test-net60
+  rules:
+    - if: { version: "*", topology: "*", auth: "*", ssl: "*", os: "macos-14-arm64" }
+      then:
+        remove_tasks:
+          - test-netstandard21 # Apple M1 (arm64) cannot load runtimes lower then .NET 6.
 
 - matrix_name: "secure-tests-linux-1804"
-  matrix_spec: { version: ["4.0", "4.2", "4.4", "5.0", "6.0"], topology: "*", auth: "auth", ssl: "ssl", os: "ubuntu-1804" }
+  matrix_spec: { version: ["4.2"], topology: "*", auth: "auth", ssl: "ssl", os: "ubuntu-1804" }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
@@ -2188,7 +2550,7 @@ buildvariants:
     - name: test-net60
 
 - matrix_name: "secure-tests-linux-2004"
-  matrix_spec: { version: ["7.0", "8.0", "rapid", "latest"], topology: "*", auth: "auth", ssl: "ssl", os: "ubuntu-2004" }
+  matrix_spec: { version: ["4.4", "5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: "*", auth: "auth", ssl: "ssl", os: "ubuntu-2004" }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
@@ -2213,9 +2575,14 @@ buildvariants:
   tasks:
     - name: test-netstandard21
     - name: test-net60
+  rules:
+    - if: { version: "*", topology: "*", auth: "*", ssl: "*", os: "macos-14-arm64" }
+      then:
+        remove_tasks:
+          - test-netstandard21 # Apple M1 (arm64) cannot load runtimes lower then .NET 6.
 
 - matrix_name: "unsecure-tests-linux-1804"
-  matrix_spec: { version: ["4.0", "4.2", "4.4", "5.0", "6.0"], topology: "*", auth: "noauth", ssl: "nossl", os: "ubuntu-1804" }
+  matrix_spec: { version: ["4.2"], topology: "*", auth: "noauth", ssl: "nossl", os: "ubuntu-1804" }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
@@ -2223,7 +2590,7 @@ buildvariants:
     - name: test-net60
 
 - matrix_name: "unsecure-tests-linux-2004"
-  matrix_spec: { version: ["7.0", "8.0", "rapid", "latest"], topology: "*", auth: "noauth", ssl: "nossl", os: "ubuntu-2004" }
+  matrix_spec: { version: ["4.4", "5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: "*", auth: "noauth", ssl: "nossl", os: "ubuntu-2004" }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
@@ -2248,9 +2615,14 @@ buildvariants:
   tasks:
     - name: test-netstandard21
     - name: test-net60
+  rules:
+    - if: { compressor : "*", auth: "*", ssl: "*", version: "*", topology: "*", os: "macos-14-arm64" }
+      then:
+        remove_tasks:
+          - test-netstandard21 # Apple M1 (arm64) cannot load runtimes lower then .NET 6.
 
 - matrix_name: "tests-compression-linux-1804"
-  matrix_spec: { compressor: "*", auth: "noauth", ssl: "nossl", version: ["4.0", "4.2", "4.4", "5.0", "6.0"], topology: "standalone", os: "ubuntu-1804" }
+  matrix_spec: { compressor: "*", auth: "noauth", ssl: "nossl", version: ["4.2"], topology: "standalone", os: "ubuntu-1804" }
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
@@ -2258,7 +2630,7 @@ buildvariants:
     - name: test-net60
 
 - matrix_name: "tests-compression-linux-2004"
-  matrix_spec: { compressor: "*", auth: "noauth", ssl: "nossl", version: ["7.0", "8.0", "rapid", "latest"], topology: "standalone", os: "ubuntu-2004" }
+  matrix_spec: { compressor: "*", auth: "noauth", ssl: "nossl", version: ["4.4", "5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: "standalone", os: "ubuntu-2004" }
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
@@ -2298,7 +2670,9 @@ buildvariants:
   display_name: "MongoDB-OIDC Auth (k8s) - ${os}"
   batchtime: 20160 # 14 days
   tasks:
-    - name: oidc-auth-k8s-task-group
+    - name: oidc-auth-k8s-eks-task-group
+    - name: oidc-auth-k8s-aks-task-group
+    - name: oidc-auth-k8s-gke-task-group
 
 - matrix_name: "ocsp-tests"
   matrix_spec: { version: ["4.4", "5.0", "6.0", "7.0", "8.0", "rapid", "latest"], auth: "noauth", ssl: "ssl", topology: "standalone", os: "windows-64" }
@@ -2311,7 +2685,7 @@ buildvariants:
   matrix_spec: { version: ["4.4", "5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: "standalone", os: "windows-64" }
   display_name: "MONGODB-AWS Auth test ${version} ${os}"
   run_on:
-    - windows-64-vs2017-test
+    - windows-2022-latest-small
   tasks:
     - name: aws-auth-tests
 
@@ -2329,7 +2703,7 @@ buildvariants:
 
 - name: gssapi-auth-tests-windows
   run_on:
-    - windows-64-vs2017-test
+    - windows-2022-latest-small
   display_name: "GSSAPI (Kerberos) Auth tests - Windows"
   tasks:
     - name: test-gssapi-net472
@@ -2338,11 +2712,17 @@ buildvariants:
 
 - name: gssapi-auth-tests-linux
   run_on:
-    - ubuntu1804-test
+    - ubuntu2004-test
   display_name: "GSSAPI (Kerberos) Auth tests - Linux"
   tasks:
     - name: test-gssapi-netstandard21
     - name: test-gssapi-net60
+
+- matrix_name: "x509-tests"
+  matrix_spec: { os: ["ubuntu-2004", "macos-14", "windows-64"], ssl: ["ssl"], version: ["latest"], topology: ["standalone"] }
+  display_name: "X509 tests ${version} ${os}"
+  tasks:
+    - name: x509-auth-tests
 
 # Load balancer tests
 - matrix_name: load-balancer-tests
@@ -2358,21 +2738,6 @@ buildvariants:
   tasks:
     - name: "test-load-balancer-netstandard21"
     - name: "test-load-balancer-net60"
-
-# Serverless tests
-- matrix_name: serverless-tests-windows
-  matrix_spec: { auth: "auth", ssl: "ssl", compressor: "zlib", os: "windows-64", target_framework: ["net472", "netstandard21", "net60"], serverless: "*" }
-  display_name: "${serverless} ${compressor} ${auth} ${ssl} ${os} ${target_framework}"
-  batchtime: 10080  # 7 days
-  tasks:
-    - name: serverless-task-group
-
-- matrix_name: serverless-tests-ubuntu
-  matrix_spec: { auth: "auth", ssl: "ssl", compressor: "zlib", os: "ubuntu-2004", target_framework: ["netstandard21", "net60"], serverless: "*" }
-  display_name: "${serverless} ${compressor} ${auth} ${ssl} ${os} ${target_framework}"
-  batchtime: 10080  # 7 days
-  tasks:
-    - name: serverless-task-group
 
 # Performance tests
 - name: driver-performance-tests
@@ -2394,30 +2759,46 @@ buildvariants:
 - name: atlas-connectivity-tests
   display_name: "Atlas Connectivity Tests"
   run_on:
-    - windows-64-vs2017-test
+    - windows-2022-latest-small # Why on windows?
   tasks:
     - name: atlas-connectivity-tests
-
-- name: atlas-data-lake-test
-  display_name: "Atlas Data Lake Tests"
-  run_on:
-    - ubuntu2004-large
-  tasks:
-    - name: atlas-data-lake-test
 
 - name: atlas-search-test
   display_name: "Atlas Search Tests"
   run_on:
-    - windows-64-vs2017-test
+    - windows-2022-latest-small # Why on windows?
   tasks:
     - name: atlas-search-test
 
 - name: atlas-search-index-helpers-test
   display_name: "Atlas Search Index Helpers Tests"
   run_on:
-    - ubuntu1804-test
+    - ubuntu2004-test
   tasks:
     - name: atlas-search-index-helpers-task-group
+
+# Socks5 Proxy tests
+- matrix_name: "socks5-proxy-tests-linux"
+  matrix_spec: { os: "ubuntu-2004", ssl: ["nossl", "ssl"], version: ["latest"], topology: ["replicaset"] }
+  display_name: "Socks5 Proxy ${version} ${os} ${ssl}"
+  tasks:
+    - name: test-socks5-proxy-netstandard21
+    - name: test-socks5-proxy-net60
+
+- matrix_name: "socks5-proxy-tests-windows"
+  matrix_spec: { os: "windows-64", ssl: ["nossl", "ssl"], version: ["latest"], topology: ["replicaset"] }
+  display_name: "Socks5 Proxy ${version} ${os} ${ssl}"
+  tasks:
+    - name: test-socks5-proxy-net472
+    - name: test-socks5-proxy-netstandard21
+    - name: test-socks5-proxy-net60
+
+- matrix_name: "socks5-proxy-tests-macos"
+  matrix_spec: { os: "macos-14", ssl: ["nossl", "ssl"], version: ["latest"], topology: ["replicaset"] }
+  display_name: "Socks5 Proxy ${version} ${os} ${ssl}"
+  tasks:
+    - name: test-socks5-proxy-netstandard21
+    - name: test-socks5-proxy-net60
 
 # CSFLE tests
 - matrix_name: "csfle-with-mocked-kms-tests-windows"
@@ -2432,7 +2813,7 @@ buildvariants:
     - name: test-csfle-with-mongocryptd-net60
 
 - matrix_name: "csfle-with-mocked-kms-tests-linux-1804"
-  matrix_spec: { os: "ubuntu-1804", ssl: "nossl", version: ["4.2", "4.4", "5.0", "6.0"], topology: ["replicaset"] }
+  matrix_spec: { os: "ubuntu-1804", ssl: "nossl", version: ["4.2"], topology: ["replicaset"] }
   display_name: "CSFLE Mocked KMS ${version} ${os}"
   tasks:
     - name: test-csfle-with-mocked-kms-tls-netstandard21
@@ -2441,7 +2822,7 @@ buildvariants:
     - name: test-csfle-with-mongocryptd-net60
 
 - matrix_name: "csfle-with-mocked-kms-tests-linux-2004"
-  matrix_spec: { os: "ubuntu-2004", ssl: "nossl", version: ["7.0", "8.0", "rapid", "latest"], topology: ["replicaset"] }
+  matrix_spec: { os: "ubuntu-2004", ssl: "nossl", version: ["4.4", "5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: ["replicaset"] }
   display_name: "CSFLE Mocked KMS ${version} ${os}"
   tasks:
     - name: test-csfle-with-mocked-kms-tls-netstandard21
@@ -2458,6 +2839,13 @@ buildvariants:
     - name: test-csfle-with-mocked-kms-tls-net60
     - name: test-csfle-with-mongocryptd-netstandard21
     - name: test-csfle-with-mongocryptd-net60
+  rules:
+    - if: { os: "macos-14-arm64", ssl: "*", version: "*", topology: "*" }
+      then:
+        remove_tasks:
+        # Apple M1 (arm64) cannot load runtimes lower then .NET 6.
+          - test-csfle-with-mocked-kms-tls-netstandard21
+          - test-csfle-with-mongocryptd-netstandard21
 
 - matrix_name: "csfle-with-azure-kms-tests-linux"
   matrix_spec: { ssl: "nossl", os: "ubuntu-2004" }
@@ -2484,21 +2872,20 @@ buildvariants:
     ssl: "nossl"
     version: ["5.0", "6.0", "7.0", "8.0", "latest"]
     topology: ["replicaset"]
-    runtime_framework: "*"
-  exclude_spec:
-    # We do not support net472 for non-Windows platforms
-    - os: ["ubuntu-2004", "macos-14"]
-      ssl: "*"
-      version: "*"
-      topology: "*"
-      runtime_framework: "net472"
-  display_name: "smoke-tests ${version} on ${os} ${runtime_framework}"
+  display_name: "smoke-tests ${version} on ${os}"
   batchtime: 1440 # 1 day
   tasks:
-    - name: test-smoke-tests
-      depends_on:
-        - name: push-packages-myget
-          variant: ".push-packages-myget"
+    - name: test-smoke-tests-net472
+    - name: test-smoke-tests-netcoreapp31
+    - name: test-smoke-tests-net50
+    - name: test-smoke-tests-net60
+    - name: test-smoke-tests-net80
+    - name: test-smoke-tests-net100
+  rules:
+    - if: { version: "*", topology: "*", ssl: "*", os: ["ubuntu-2004", "macos-14"] }
+      then:
+        remove_tasks:
+          - test-smoke-tests-net472 # net472 is supported on Windows only.
 
 # Package release variants
 - matrix_name: build-packages
@@ -2540,16 +2927,6 @@ buildvariants:
       depends_on:
         - name: build-packages
           variant: ".build-packages"
-
-- matrix_name: test-SK
-  matrix_spec:
-    os: "ubuntu-2004"
-  display_name: "Semantic Kernel Connector"
-  tasks:
-    - name: test-SK
-      depends_on:
-        - name: push-packages-myget
-          variant: ".push-packages-myget"
 
 - matrix_name: push-packages-nuget
   matrix_spec:

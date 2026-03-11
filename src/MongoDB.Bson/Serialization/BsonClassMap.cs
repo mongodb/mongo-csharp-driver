@@ -1057,7 +1057,7 @@ namespace MongoDB.Bson.Serialization
             _creatorMaps.Clear();
             _creator = null;
             _declaredMemberMaps = new List<BsonMemberMap>();
-            _discriminator = _classType.Name;
+            _discriminator = BsonUtils.GetFriendlyTypeName(_classType);
             _discriminatorIsRequired = false;
             _extraElementsMemberMap = null;
             _idMemberMap = null;
@@ -1323,11 +1323,36 @@ namespace MongoDB.Bson.Serialization
             var discriminatorConvention = _discriminatorConvention;
             if (discriminatorConvention == null)
             {
-                // it's possible but harmless for multiple threads to do the discriminator convention lookukp at the same time
+                // it's possible but harmless for multiple threads to do the discriminator convention lookup at the same time
                 discriminatorConvention = LookupDiscriminatorConvention();
                 _discriminatorConvention = discriminatorConvention;
+
+                if (discriminatorConvention != null)
+                {
+                    EnsureNoMemberMapConflicts(discriminatorConvention.ElementName);
+                }
             }
+
             return discriminatorConvention;
+
+            void EnsureNoMemberMapConflicts(string elementName)
+            {
+                if (AppContext.TryGetSwitch("Switch.MongoDB.Driver.DisableDiscriminatorFieldConflictCheck", out bool disableConflictCheck) && disableConflictCheck)
+                {
+                    return;
+                }
+
+                var conflictingMemberMap = _allMemberMaps.FirstOrDefault(memberMap => memberMap.ElementName == elementName);
+
+                if (conflictingMemberMap != null)
+                {
+                    var fieldOrProperty = conflictingMemberMap.MemberInfo is FieldInfo ? "field" : "property";
+
+                    throw new BsonSerializationException(
+                        $"The discriminator element name cannot be {discriminatorConvention.ElementName} " +
+                        $"because it is already being used by the {fieldOrProperty} {conflictingMemberMap.MemberName} of type {_classType.FullName}");
+                }
+            }
 
             IDiscriminatorConvention LookupDiscriminatorConvention()
             {

@@ -23,13 +23,13 @@ using Xunit.Abstractions;
 
 namespace MongoDB.Driver.SmokeTests.Sdk
 {
+    [Trait("Category", "Integration")]
     public sealed class LoggingTests
     {
         private readonly ITestOutputHelper _output;
 
         public LoggingTests(ITestOutputHelper output)
         {
-            InfrastructureUtilities.ValidateMongoDBPackageVersion();
             _output = output;
         }
 

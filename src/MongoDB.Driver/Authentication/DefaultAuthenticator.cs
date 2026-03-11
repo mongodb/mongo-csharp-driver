@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Authentication.ScramSha;
@@ -54,7 +53,7 @@ namespace MongoDB.Driver.Authentication
 
         public string Name => "DEFAULT";
 
-        public void Authenticate(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
+        public void Authenticate(OperationContext operationContext, IConnection connection, ConnectionDescription description)
         {
             Ensure.IsNotNull(connection, nameof(connection));
             Ensure.IsNotNull(description, nameof(description));
@@ -65,9 +64,9 @@ namespace MongoDB.Driver.Authentication
             if (!description.HelloResult.HasSaslSupportedMechs
                 && Feature.ScramSha256Authentication.IsSupported(description.MaxWireVersion))
             {
-                var command = CustomizeInitialHelloCommand(HelloHelper.CreateCommand(_serverApi, loadBalanced: connection.Settings.LoadBalanced), cancellationToken);
+                var command = CustomizeInitialHelloCommand(operationContext, HelloHelper.CreateCommand(_serverApi, loadBalanced: connection.Settings.LoadBalanced));
                 var helloProtocol = HelloHelper.CreateProtocol(command, _serverApi);
-                var helloResult = HelloHelper.GetResult(connection, helloProtocol, cancellationToken);
+                var helloResult = HelloHelper.GetResult(operationContext, connection, helloProtocol);
                 var mergedHelloResult = new HelloResult(description.HelloResult.Wrapped.Merge(helloResult.Wrapped));
                 description = new ConnectionDescription(
                     description.ConnectionId,
@@ -75,10 +74,10 @@ namespace MongoDB.Driver.Authentication
             }
 
             var authenticator = GetOrCreateAuthenticator(connection, description);
-            authenticator.Authenticate(connection, description, cancellationToken);
+            authenticator.Authenticate(operationContext, connection, description);
         }
 
-        public async Task AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
+        public async Task AuthenticateAsync(OperationContext operationContext, IConnection connection, ConnectionDescription description)
         {
             Ensure.IsNotNull(connection, nameof(connection));
             Ensure.IsNotNull(description, nameof(description));
@@ -89,9 +88,9 @@ namespace MongoDB.Driver.Authentication
             if (!description.HelloResult.HasSaslSupportedMechs
                 && Feature.ScramSha256Authentication.IsSupported(description.MaxWireVersion))
             {
-                var command = CustomizeInitialHelloCommand(HelloHelper.CreateCommand(_serverApi, loadBalanced: connection.Settings.LoadBalanced), cancellationToken);
+                var command = CustomizeInitialHelloCommand(operationContext, HelloHelper.CreateCommand(_serverApi, loadBalanced: connection.Settings.LoadBalanced));
                 var helloProtocol = HelloHelper.CreateProtocol(command, _serverApi);
-                var helloResult = await HelloHelper.GetResultAsync(connection, helloProtocol, cancellationToken).ConfigureAwait(false);
+                var helloResult = await HelloHelper.GetResultAsync(operationContext, connection, helloProtocol).ConfigureAwait(false);
                 var mergedHelloResult = new HelloResult(description.HelloResult.Wrapped.Merge(helloResult.Wrapped));
                 description = new ConnectionDescription(
                     description.ConnectionId,
@@ -99,10 +98,10 @@ namespace MongoDB.Driver.Authentication
             }
 
             var authenticator = GetOrCreateAuthenticator(connection, description);
-            await authenticator.AuthenticateAsync(connection, description, cancellationToken).ConfigureAwait(false);
+            await authenticator.AuthenticateAsync(operationContext, connection, description).ConfigureAwait(false);
         }
 
-        public BsonDocument CustomizeInitialHelloCommand(BsonDocument helloCommand, CancellationToken cancellationToken)
+        public BsonDocument CustomizeInitialHelloCommand(OperationContext operationContext, BsonDocument helloCommand)
         {
             var saslSupportedMechs = CreateSaslSupportedMechsRequest(_identity);
             helloCommand = helloCommand.Merge(saslSupportedMechs);
@@ -116,7 +115,7 @@ namespace MongoDB.Driver.Authentication
                 out var authenticator))
             {
                 _speculativeAuthenticator = authenticator;
-                return _speculativeAuthenticator.CustomizeInitialHelloCommand(helloCommand, cancellationToken);
+                return _speculativeAuthenticator.CustomizeInitialHelloCommand(operationContext, helloCommand);
             }
 
             return helloCommand;

@@ -1,6 +1,5 @@
 #!/bin/bash
 
-set -o xtrace
 set -o errexit  # Exit the script with error if any of the commands fail
 
 # Supported/used environment variables:
@@ -15,4 +14,8 @@ echo "Running GCP Credential Acquisition Test"
 export DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
 export CSFLE_GCP_KMS_TESTS_ENABLED=true
 
-./build.sh --target=TestCsfleWithGcpKms
+export FRAMEWORK=net6.0
+. ./evergreen/install-dotnet.sh
+
+./evergreen/compile-sources.sh
+TEST_CATEGORY=CsfleGCPKMS ./evergreen/execute-tests.sh

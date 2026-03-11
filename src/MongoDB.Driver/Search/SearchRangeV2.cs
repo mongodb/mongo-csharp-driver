@@ -16,7 +16,7 @@
 namespace MongoDB.Driver.Search
 {
     /// <summary>
-    /// Object that specifies the boundaries for a range query. 
+    /// Object that specifies the boundaries for a range query.
     /// </summary>
     /// <typeparam name="TValue">The type of the range value.</typeparam>
     public struct SearchRangeV2<TValue>
@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Search
         /// <summary>Gets the lower bound of the range.</summary>
         public Bound<TValue> Min { get; }
     }
-    
+
     /// <summary>
     /// Represents a bound value.
     /// </summary>
@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Search
         /// Gets the bound value.
         /// </summary>
         public TValue Value { get; }
-        
+
         /// <summary>
         /// Gets whether the bound is inclusive or not.
         /// </summary>
@@ -71,7 +71,7 @@ namespace MongoDB.Driver.Search
             Inclusive = inclusive;
         }
     }
-    
+
     /// <summary>
     /// A builder for a SearchRangeV2.
     /// </summary>

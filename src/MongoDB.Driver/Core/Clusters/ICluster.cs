@@ -14,7 +14,7 @@
 */
 
 using System;
-using System.Threading;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
@@ -56,14 +56,16 @@ namespace MongoDB.Driver.Core.Clusters
 
     internal interface IClusterInternal : ICluster
     {
+        IEnumerable<IClusterableServer> Servers { get; }
+
         event EventHandler<ClusterDescriptionChangedEventArgs> DescriptionChanged;
 
         ICoreServerSession AcquireServerSession();
 
         void Initialize();
 
-        IServer SelectServer(IServerSelector selector, CancellationToken cancellationToken);
-        Task<IServer> SelectServerAsync(IServerSelector selector, CancellationToken cancellationToken);
+        IServer SelectServer(OperationContext operationContext, IServerSelector selector);
+        Task<IServer> SelectServerAsync(OperationContext operationContext, IServerSelector selector);
 
         ICoreSessionHandle StartSession(CoreSessionOptions options = null);
     }

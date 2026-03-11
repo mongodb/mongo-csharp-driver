@@ -327,6 +327,7 @@ namespace MongoDB.Driver.Tests.GridFS
 
         [Theory]
         [ParameterAttributeData]
+        [Trait("Category", "Integration")]
         public void Drop_should_drop_the_files_and_chunks_collections(
             [Values(false, true)] bool async)
         {
@@ -352,6 +353,7 @@ namespace MongoDB.Driver.Tests.GridFS
 
         [Theory]
         [ParameterAttributeData]
+        [Trait("Category", "Integration")]
         public void Drop_should_throw_when_a_write_concern_error_occurss(
             [Values(false, true)]
             bool async)
@@ -629,6 +631,7 @@ namespace MongoDB.Driver.Tests.GridFS
 
         [Theory]
         [ParameterAttributeData]
+        [Trait("Category", "Integration")]
         public void GridFS_should_work_with_strict_stable_api(
             [Values(false, true)] bool async)
         {

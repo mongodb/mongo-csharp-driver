@@ -16,6 +16,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,6 +25,7 @@ using MongoDB.Driver.Authentication.Oidc;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
@@ -31,6 +33,7 @@ using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Encryption;
 using MongoDB.Driver.GridFS;
+using MongoDB.Driver.TestHelpers.Core;
 using MongoDB.Driver.Tests.Specifications.client_side_encryption;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
@@ -55,6 +58,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         private readonly Dictionary<string, IMongoClient> _clients = new();
         private readonly Dictionary<string, ClientEncryption> _clientEncryptions = new();
         private readonly Dictionary<string, EventCapturer> _clientEventCapturers = new();
+        private readonly Dictionary<string, SpanCapturer> _spanCapturers = new();
         private readonly Dictionary<string, ClusterId> _clientIdToClusterId = new();
         private readonly Dictionary<string, IMongoCollection<BsonDocument>> _collections = new();
         private readonly Dictionary<string, IEnumerator<BsonDocument>> _cursors = new();
@@ -175,6 +179,15 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             }
         }
 
+        public Dictionary<string, SpanCapturer> SpanCapturers
+        {
+            get
+            {
+                ThrowIfDisposed();
+                return _spanCapturers;
+            }
+        }
+
         public Dictionary<string, BsonArray> FailureDocuments
         {
             get
@@ -202,7 +215,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             }
         }
 
-        public Dictionary<string, BsonValue> Resutls
+        public Dictionary<string, BsonValue> Results
         {
             get
             {
@@ -282,7 +295,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     _disposables[i].Dispose();
                 }
 
-                var toDisposeCollection = SelectDisposables(_changeStreams?.Values, _sessions?.Values, _clients?.Values, _clientEncryptions?.Values);
+                var toDisposeCollection = SelectDisposables(_changeStreams?.Values, _sessions?.Values, _clients?.Values, _clientEncryptions?.Values, _spanCapturers?.Values);
                 foreach (var toDispose in toDisposeCollection)
                 {
                     toDispose.Dispose();
@@ -303,6 +316,65 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         }
 
         // private methods
+        private AutoEncryptionOptions ConfigureAutoEncryptionOptions(BsonDocument autoEncryptOpts)
+        {
+            var extraOptions = new Dictionary<string, object>();
+            EncryptionTestHelper.ConfigureDefaultExtraOptions(extraOptions);
+
+            var bypassAutoEncryption = false;
+            bool? bypassQueryAnalysis = null;
+            Optional<IReadOnlyDictionary<string, BsonDocument>> encryptedFieldsMap = null;
+            CollectionNamespace keyVaultNamespace = null;
+            IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders = null;
+            Optional<IReadOnlyDictionary<string, BsonDocument>> schemaMap = null;
+            Optional<IReadOnlyDictionary<string, SslSettings>> tlsOptions = null;
+
+            foreach (var option in autoEncryptOpts.Elements)
+            {
+                switch (option.Name)
+                {
+                    case "bypassAutoEncryption":
+                        bypassAutoEncryption = option.Value.AsBoolean;
+                        break;
+                    case "bypassQueryAnalysis":
+                        bypassQueryAnalysis = option.Value.AsBoolean;
+                        break;
+                    case "encryptedFieldsMap":
+                        var encryptedFieldsMapDocument = option.Value.AsBsonDocument;
+                        encryptedFieldsMap = encryptedFieldsMapDocument.Elements.ToDictionary(e => e.Name, e => e.Value.AsBsonDocument);
+                        break;
+                    case "extraOptions":
+                        ParseExtraOptions(option.Value.AsBsonDocument, extraOptions);
+                        break;
+                    case "keyVaultNamespace":
+                        keyVaultNamespace = CollectionNamespace.FromFullName(option.Value.AsString);
+                        break;
+                    case "kmsProviders":
+                        kmsProviders = EncryptionTestHelper.ParseKmsProviders(option.Value.AsBsonDocument);
+                        tlsOptions = EncryptionTestHelper.CreateTlsOptionsIfAllowed(kmsProviders, allowClientCertificateFunc: (kms) => kms.StartsWith("kmip"));
+                        break;
+                    case "schemaMap":
+                        var schemaMapDocument = option.Value.AsBsonDocument;
+                        schemaMap = schemaMapDocument.Elements.ToDictionary(e => e.Name, e => e.Value.AsBsonDocument);
+                        break;
+                    default:
+                        throw new FormatException($"Invalid autoEncryption option argument name {option.Name}.");
+                }
+            }
+
+            var autoEncryptionOptions = new AutoEncryptionOptions(
+                keyVaultNamespace,
+                kmsProviders,
+                bypassAutoEncryption,
+                extraOptions,
+                bypassQueryAnalysis: bypassQueryAnalysis,
+                encryptedFieldsMap: encryptedFieldsMap,
+                schemaMap: schemaMap,
+                tlsOptions: tlsOptions);
+
+            return autoEncryptionOptions;
+        }
+
         private void CreateEntities(BsonArray entitiesArray)
         {
             if (entitiesArray != null)
@@ -326,7 +398,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                             break;
                         case "client":
                             EnsureIsNotHandled(_clients, id);
-                            var (client, eventCapturers, clientLoggingComponents) = CreateClient(entity, _async);
+                            var (client, eventCapturers, clientLoggingComponents, clientSpanCapturer) = CreateClient(entity, _async);
                             _clients.Add(id, client);
                             _clientIdToClusterId.Add(id, client.Cluster.ClusterId);
                             foreach (var createdEventCapturer in eventCapturers)
@@ -335,6 +407,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                             }
 
                             _loggingComponents.Add(id, clientLoggingComponents);
+                            if (clientSpanCapturer != null)
+                            {
+                                _spanCapturers.Add(id, clientSpanCapturer);
+                            }
                             break;
                         case "clientEncryption":
                             {
@@ -402,15 +478,18 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             return new GridFSBucket(database);
         }
 
-        private (IMongoClient Client, Dictionary<string, EventCapturer> ClientEventCapturers, Dictionary<string, LogLevel> LoggingComponents) CreateClient(BsonDocument entity, bool async)
+        private (IMongoClient Client, Dictionary<string, EventCapturer> ClientEventCapturers, Dictionary<string, LogLevel> LoggingComponents, SpanCapturer SpanCapturer) CreateClient(BsonDocument entity, bool async)
         {
             string appName = null;
             string authMechanism = null;
             var authMechanismProperties = new Dictionary<string, object>();
+            AutoEncryptionOptions autoEncryptionOptions = null;
             var clientEventCapturers = new Dictionary<string, EventCapturer>();
             Dictionary<string, LogLevel> loggingComponents = null;
             string clientId = null;
             var commandNamesToSkipInEvents = new List<string>();
+            SpanCapturer spanCapturer = null;
+            TracingOptions tracingOptions = null;
             TimeSpan? connectTimeout = null;
             List<(string Key, IEnumerable<string> Events, List<string> CommandNotToCapture)> eventTypesToCapture = new();
             TimeSpan? heartbeatFrequency = null;
@@ -428,10 +507,13 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             TimeSpan? serverSelectionTimeout = null;
             int? waitQueueSize = null;
             TimeSpan? socketTimeout = null;
+            TimeSpan? timeout = null;
             var useMultipleShardRouters = false;
             TimeSpan? waitQueueTimeout = null;
             var writeConcern = WriteConcern.Acknowledged;
             var serverApi = CoreTestConfiguration.ServerApi;
+            TimeSpan? wTimeout = null;
+            TimeSpan? awaitMinPoolSizeTimeout = null;
 
             foreach (var element in entity)
             {
@@ -439,6 +521,12 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 {
                     case "id":
                         clientId = element.Value.AsString;
+                        break;
+                    case "autoEncryptOpts":
+                        autoEncryptionOptions = ConfigureAutoEncryptionOptions(element.Value.AsBsonDocument);
+                        break;
+                    case "awaitMinPoolSizeMS":
+                        awaitMinPoolSizeTimeout = TimeSpan.FromMilliseconds(element.Value.AsInt32);
                         break;
                     case "uriOptions":
                         foreach (var option in element.Value.AsBsonDocument)
@@ -534,6 +622,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                                 case "socketTimeoutMS":
                                     socketTimeout = TimeSpan.FromMilliseconds(option.Value.AsInt32);
                                     break;
+                                case "timeoutMS":
+                                    timeout = ParseTimeout(option.Value);
+                                    break;
                                 case "w":
                                     writeConcern = new WriteConcern(WriteConcern.WValue.Parse(option.Value.ToString()));
                                     break;
@@ -542,6 +633,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                                     break;
                                 case "waitQueueTimeoutMS":
                                     waitQueueTimeout = TimeSpan.FromMilliseconds(option.Value.ToInt32());
+                                    break;
+                                case "wTimeoutMS":
+                                    wTimeout = TimeSpan.FromMilliseconds(option.Value.ToInt32());
                                     break;
                                 default:
                                     throw new FormatException($"Invalid client uriOption argument name: '{option.Name}'.");
@@ -568,6 +662,15 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         break;
                     case "observeSensitiveCommands":
                         observeSensitiveCommands = element.Value.AsBoolean;
+                        break;
+                    case "observeTracingMessages":
+                        spanCapturer = new SpanCapturer();
+                        tracingOptions = new TracingOptions();
+                        var tracingConfig = element.Value.AsBsonDocument;
+                        if (tracingConfig.TryGetValue("enableCommandPayload", out var enableCommandPayload) && enableCommandPayload.ToBoolean())
+                        {
+                            tracingOptions.QueryTextMaxLength = 1024; // Default value when enabled
+                        }
                         break;
                     case "ignoreCommandMonitoringEvents":
                         commandNamesToSkipInEvents.AddRange(element.Value.AsBsonArray.Select(x => x.AsString));
@@ -624,6 +727,11 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 }
             }
 
+            if (wTimeout.HasValue)
+            {
+                writeConcern = writeConcern.With(wTimeout: wTimeout);
+            }
+
             // Regardless of whether events are observed, we still need to track some info about the pool in order to implement
             // the assertNumberConnectionsCheckedOut operation
             if (eventTypesToCapture.Count == 0)
@@ -660,6 +768,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 settings =>
                 {
                     settings.ApplicationName = FailPoint.DecorateApplicationName(appName, async);
+                    settings.AutoEncryptionOptions = autoEncryptionOptions;
                     settings.ConnectTimeout = connectTimeout.GetValueOrDefault(defaultValue: settings.ConnectTimeout);
                     settings.LoadBalanced = loadBalanced.GetValueOrDefault(defaultValue: settings.LoadBalanced);
                     settings.LoggingSettings = _loggingSettings;
@@ -685,6 +794,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     settings.ServerMonitoringMode = serverMonitoringMode.GetValueOrDefault(settings.ServerMonitoringMode);
                     settings.ServerSelectionTimeout = serverSelectionTimeout.GetValueOrDefault(defaultValue: settings.ServerSelectionTimeout);
                     settings.SocketTimeout = socketTimeout.GetValueOrDefault(defaultValue: settings.SocketTimeout);
+                    settings.Timeout = timeout;
+                    settings.TracingOptions = tracingOptions ?? new TracingOptions { Disabled = true };
                     if (eventCapturers.Length > 0)
                     {
                         settings.ClusterConfigurator = c =>
@@ -715,7 +826,25 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 },
                 useMultipleShardRouters);
 
-            return (client, clientEventCapturers, loggingComponents);
+            if (awaitMinPoolSizeTimeout.HasValue && minPoolSize is > 0)
+            {
+                if (!SpinWait.SpinUntil(() =>
+                    {
+                        var servers = ((IClusterInternal)client.Cluster).Servers.Where(s => s.Description.IsDataBearing).ToArray();
+                        return servers.Any() && servers.All(s => ((ExclusiveConnectionPool)s.ConnectionPool).DormantCount >= minPoolSize);
+                    }, awaitMinPoolSizeTimeout.Value))
+                {
+                    client.Dispose();
+                    throw new TimeoutException("MinPoolSize population took too long");
+                }
+
+                foreach (var eventCapturer in clientEventCapturers.Values)
+                {
+                    eventCapturer.Clear();
+                }
+            }
+
+            return (client, clientEventCapturers, loggingComponents, spanCapturer);
         }
 
         private ClientEncryption CreateClientEncryption(Dictionary<string, IMongoClient> clients, BsonDocument entity)
@@ -751,7 +880,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                                     keyExpiration = TimeSpan.FromMilliseconds(option.Value.AsInt32);
                                     break;
                                 default:
-                                    throw new FormatException($"Invalid collection option argument name: '{option.Name}'.");
+                                    throw new FormatException($"Invalid clientEncryption option argument name: '{option.Name}'.");
                             }
                         }
 
@@ -764,7 +893,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         options.SetKeyExpiration(keyExpiration);
                         break;
                     default:
-                        throw new FormatException($"Invalid {nameof(ClientEncryptionOptions)} argument name: '{element.Name}'.");
+                        throw new FormatException($"Invalid clientEncryption argument name: '{element.Name}'.");
                 }
             }
 
@@ -801,6 +930,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                                     break;
                                 case "readPreference":
                                     settings.ReadPreference = ReadPreference.FromBsonDocument(option.Value.AsBsonDocument);
+                                    break;
+                                case "timeoutMS":
+                                    settings.Timeout = ParseTimeout(option.Value);
                                     break;
                                 case "writeConcern":
                                     settings.WriteConcern = ParseWriteConcern(option.Value.AsBsonDocument);
@@ -850,6 +982,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                                     break;
                                 case "readPreference":
                                     databaseSettings.ReadPreference = ReadPreference.FromBsonDocument(option.Value.AsBsonDocument);
+                                    break;
+                                case "timeoutMS":
+                                    databaseSettings.Timeout = ParseTimeout(option.Value);
                                     break;
                                 case "writeConcern":
                                     databaseSettings.WriteConcern = ParseWriteConcern(option.Value.AsBsonDocument);
@@ -972,8 +1107,20 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                                 case "snapshot":
                                     options.Snapshot = option.Value.ToBoolean();
                                     break;
+                                case "snapshotTime":
+                                    options.SnapshotTime = _results[option.Value.AsString].AsBsonTimestamp;
+                                    break;
                                 case "causalConsistency":
                                     options.CausalConsistency = option.Value.ToBoolean();
+                                    break;
+                                case "defaultTimeoutMS":
+                                    var timeout = ParseTimeout(option.Value);
+                                    options.DefaultTransactionOptions = new TransactionOptions(
+                                        timeout,
+                                        options.DefaultTransactionOptions?.ReadConcern,
+                                        options.DefaultTransactionOptions?.ReadPreference,
+                                        options.DefaultTransactionOptions?.WriteConcern,
+                                        options.DefaultTransactionOptions?.MaxCommitTime);
                                     break;
                                 case "defaultTransactionOptions":
                                     ReadConcern readConcern = null;
@@ -1001,7 +1148,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                                         }
                                     }
 
-                                    options.DefaultTransactionOptions = new TransactionOptions(readConcern, readPreference, writeConcern, maxCommitTime);
+                                    options.DefaultTransactionOptions = new TransactionOptions(options.DefaultTransactionOptions?.Timeout, readConcern, readPreference, writeConcern, maxCommitTime);
                                     break;
                                 default:
                                     throw new FormatException($"Invalid session option argument name: '{option.Name}'.");
@@ -1021,6 +1168,21 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             }
 
             return session;
+        }
+
+        private void ParseExtraOptions(BsonDocument extraOptionsDocument, Dictionary<string, object> extraOptions)
+        {
+            foreach (var extraOption in extraOptionsDocument.Elements)
+            {
+                switch (extraOption.Name)
+                {
+                    case "mongocryptdBypassSpawn":
+                        extraOptions.Add(extraOption.Name, extraOption.Value.ToBoolean());
+                        break;
+                    default:
+                        throw new FormatException($"Invalid extraOption argument name {extraOption.Name}.");
+                }
+            }
         }
 
         private void ThrowIfDisposed()
@@ -1048,5 +1210,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
             return writeConcern;
         }
+
+        public static TimeSpan ParseTimeout(BsonValue value)
+            => value.AsInt32 == 0 ? Timeout.InfiniteTimeSpan : TimeSpan.FromMilliseconds(value.AsInt32);
     }
 }

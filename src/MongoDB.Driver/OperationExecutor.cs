@@ -13,50 +13,188 @@
 * limitations under the License.
 */
 
-using System.Threading;
+using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
+using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 
 namespace MongoDB.Driver
 {
     internal sealed class OperationExecutor : IOperationExecutor
     {
-        private readonly MongoClient _client;
+        private readonly IMongoClient _client;
+        private bool _isDisposed;
 
-        public OperationExecutor(MongoClient client)
+        public OperationExecutor(IMongoClient client)
         {
             _client = client;
         }
 
-        public TResult ExecuteReadOperation<TResult>(IReadBinding binding, IReadOperation<TResult> operation, CancellationToken cancellationToken)
+        public void Dispose()
         {
-            return operation.Execute(binding, cancellationToken);
+            _isDisposed = true;
         }
 
-        public async Task<TResult> ExecuteReadOperationAsync<TResult>(IReadBinding binding, IReadOperation<TResult> operation, CancellationToken cancellationToken)
+        public TResult ExecuteReadOperation<TResult>(
+            OperationContext operationContext,
+            IClientSessionHandle session,
+            IReadOperation<TResult> operation,
+            ReadPreference readPreference,
+            bool allowChannelPinning)
         {
-            return await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+            Ensure.IsNotNull(operationContext, nameof(operationContext));
+            Ensure.IsNotNull(session, nameof(session));
+            Ensure.IsNotNull(operation, nameof(operation));
+            Ensure.IsNotNull(readPreference, nameof(readPreference));
+            ThrowIfDisposed();
+
+            using var transactionActivityScope = TransactionActivityScope.CreateIfNeeded(session.WrappedCoreSession.CurrentTransaction);
+            using var activity = MongoTelemetry.StartOperationActivity(operationContext);
+
+            try
+            {
+                using var binding = CreateReadBinding(session, readPreference, allowChannelPinning);
+                var result = operation.Execute(operationContext, binding);
+                activity?.SetStatus(ActivityStatusCode.Ok);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                MongoTelemetry.RecordException(activity, ex, isOperationLevel: true);
+                throw;
+            }
         }
 
-        public TResult ExecuteWriteOperation<TResult>(IWriteBinding binding, IWriteOperation<TResult> operation, CancellationToken cancellationToken)
+        public async Task<TResult> ExecuteReadOperationAsync<TResult>(
+            OperationContext operationContext,
+            IClientSessionHandle session,
+            IReadOperation<TResult> operation,
+            ReadPreference readPreference,
+            bool allowChannelPinning)
         {
-            return operation.Execute(binding, cancellationToken);
+            Ensure.IsNotNull(operationContext, nameof(operationContext));
+            Ensure.IsNotNull(session, nameof(session));
+            Ensure.IsNotNull(operation, nameof(operation));
+            Ensure.IsNotNull(readPreference, nameof(readPreference));
+            ThrowIfDisposed();
+
+            using var transactionActivityScope = TransactionActivityScope.CreateIfNeeded(session.WrappedCoreSession.CurrentTransaction);
+            using var activity = MongoTelemetry.StartOperationActivity(operationContext);
+
+            try
+            {
+                using var binding = CreateReadBinding(session, readPreference, allowChannelPinning);
+                var result = await operation.ExecuteAsync(operationContext, binding).ConfigureAwait(false);
+                activity?.SetStatus(ActivityStatusCode.Ok);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                MongoTelemetry.RecordException(activity, ex, isOperationLevel: true);
+                throw;
+            }
         }
 
-        public async Task<TResult> ExecuteWriteOperationAsync<TResult>(IWriteBinding binding, IWriteOperation<TResult> operation, CancellationToken cancellationToken)
+        public TResult ExecuteWriteOperation<TResult>(
+            OperationContext operationContext,
+            IClientSessionHandle session,
+            IWriteOperation<TResult> operation,
+            bool allowChannelPinning)
         {
-            return await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+            Ensure.IsNotNull(operationContext, nameof(operationContext));
+            Ensure.IsNotNull(session, nameof(session));
+            Ensure.IsNotNull(operation, nameof(operation));
+            ThrowIfDisposed();
+
+            using var transactionActivityScope = TransactionActivityScope.CreateIfNeeded(session.WrappedCoreSession.CurrentTransaction);
+            using var activity = MongoTelemetry.StartOperationActivity(operationContext);
+
+            try
+            {
+                using var binding = CreateReadWriteBinding(session, allowChannelPinning);
+                var result = operation.Execute(operationContext, binding);
+                activity?.SetStatus(ActivityStatusCode.Ok);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                MongoTelemetry.RecordException(activity, ex, isOperationLevel: true);
+                throw;
+            }
         }
 
-        public IClientSessionHandle StartImplicitSession(CancellationToken cancellationToken)
+        public async Task<TResult> ExecuteWriteOperationAsync<TResult>(
+            OperationContext operationContext,
+            IClientSessionHandle session,
+            IWriteOperation<TResult> operation,
+            bool allowChannelPinning)
         {
-            return _client.StartImplicitSession(cancellationToken);
+            Ensure.IsNotNull(operationContext, nameof(operationContext));
+            Ensure.IsNotNull(session, nameof(session));
+            Ensure.IsNotNull(operation, nameof(operation));
+            ThrowIfDisposed();
+
+            using var transactionActivityScope = TransactionActivityScope.CreateIfNeeded(session.WrappedCoreSession.CurrentTransaction);
+            using var activity = MongoTelemetry.StartOperationActivity(operationContext);
+
+            try
+            {
+                using var binding = CreateReadWriteBinding(session, allowChannelPinning);
+                var result = await operation.ExecuteAsync(operationContext, binding).ConfigureAwait(false);
+                activity?.SetStatus(ActivityStatusCode.Ok);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                MongoTelemetry.RecordException(activity, ex, isOperationLevel: true);
+                throw;
+            }
         }
 
-        public Task<IClientSessionHandle> StartImplicitSessionAsync(CancellationToken cancellationToken)
+        public IClientSessionHandle StartImplicitSession()
         {
-            return _client.StartImplicitSessionAsync(cancellationToken);
+            ThrowIfDisposed();
+            var options = new ClientSessionOptions { CausalConsistency = false, Snapshot = false };
+            var coreSession = _client.GetClusterInternal().StartSession(options.ToCore(isImplicit: true));
+            return new ClientSessionHandle(_client, options, coreSession);
+        }
+
+        private IReadBindingHandle CreateReadBinding(IClientSessionHandle session, ReadPreference readPreference, bool allowChannelPinning)
+        {
+            if (session.IsInTransaction && readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary)
+            {
+                throw new InvalidOperationException("Read preference in a transaction must be primary.");
+            }
+
+            if (allowChannelPinning)
+            {
+                return ChannelPinningHelper.CreateReadBinding(_client.GetClusterInternal(), session.WrappedCoreSession.Fork(), readPreference);
+            }
+
+            var binding = new ReadPreferenceBinding(_client.GetClusterInternal(), readPreference, session.WrappedCoreSession.Fork());
+            return new ReadBindingHandle(binding);
+        }
+
+        private IReadWriteBindingHandle CreateReadWriteBinding(IClientSessionHandle session, bool allowChannelPinning)
+        {
+            if (allowChannelPinning)
+            {
+                return ChannelPinningHelper.CreateReadWriteBinding(_client.GetClusterInternal(), session.WrappedCoreSession.Fork());
+            }
+
+            var binding = new WritableServerBinding(_client.GetClusterInternal(), session.WrappedCoreSession.Fork());
+            return new ReadWriteBindingHandle(binding);
+        }
+
+        private void ThrowIfDisposed()
+        {
+            if (_isDisposed)
+            {
+                throw new ObjectDisposedException(nameof(OperationExecutor));
+            }
         }
     }
 }

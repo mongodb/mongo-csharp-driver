@@ -1,4 +1,4 @@
-﻿/* Copyright 2018–present MongoDB Inc.
+﻿/* Copyright 2010–present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
@@ -61,10 +60,10 @@ namespace MongoDB.Driver.Core.Connections
             };
         }
 
-        internal static BsonDocument CustomizeCommand(BsonDocument command, IAuthenticator authenticator, CancellationToken cancellationToken)
+        internal static BsonDocument CustomizeCommand(OperationContext operationContext, BsonDocument command, IAuthenticator authenticator)
         {
             return authenticator != null
-                ? authenticator.CustomizeInitialHelloCommand(command, cancellationToken)
+                ? authenticator.CustomizeInitialHelloCommand(operationContext, command)
                 : command;
         }
 
@@ -84,13 +83,13 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         internal static HelloResult GetResult(
+            OperationContext operationContext,
             IConnection connection,
-            CommandWireProtocol<BsonDocument> helloProtocol,
-            CancellationToken cancellationToken)
+            CommandWireProtocol<BsonDocument> helloProtocol)
         {
             try
             {
-                var helloResultDocument = helloProtocol.Execute(connection, cancellationToken);
+                var helloResultDocument = helloProtocol.Execute(operationContext, connection);
                 return new HelloResult(helloResultDocument);
             }
             catch (MongoCommandException ex) when (ex.Code == 11)
@@ -103,13 +102,13 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         internal static async Task<HelloResult> GetResultAsync(
+            OperationContext operationContext,
             IConnection connection,
-            CommandWireProtocol<BsonDocument> helloProtocol,
-            CancellationToken cancellationToken)
+            CommandWireProtocol<BsonDocument> helloProtocol)
         {
             try
             {
-                var helloResultDocument = await helloProtocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
+                var helloResultDocument = await helloProtocol.ExecuteAsync(operationContext, connection).ConfigureAwait(false);
                 return new HelloResult(helloResultDocument);
             }
             catch (MongoCommandException ex) when (ex.Code == 11)

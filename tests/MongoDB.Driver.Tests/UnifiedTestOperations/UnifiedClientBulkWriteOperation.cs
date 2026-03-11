@@ -102,7 +102,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 { "deletedCount", (int)result.DeletedCount },
                 {
                     "insertResults", ConvertResults(result.InsertResults,
-                        item => new() { { "insertedId", item.InsertedId } })
+                        item => new() { { "insertedId", BsonValue.Create(item.DocumentId) } })
                 },
                 {
                     "updateResults", ConvertResults(result.UpdateResults,

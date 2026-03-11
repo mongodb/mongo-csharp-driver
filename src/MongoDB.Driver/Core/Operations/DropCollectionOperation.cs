@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
@@ -47,6 +46,7 @@ namespace MongoDB.Driver.Core.Operations
             if (encryptedFields != null)
             {
                 return new CompositeWriteOperation<BsonDocument>(
+                    mainOperation.OperationName,
                     (CreateInnerDropOperation(EncryptedCollectionHelper.GetAdditionalCollectionName(encryptedFields, collectionNamespace, HelperCollectionForEncryption.Esc)), IsMainOperation: false),
                     (CreateInnerDropOperation(EncryptedCollectionHelper.GetAdditionalCollectionName(encryptedFields, collectionNamespace, HelperCollectionForEncryption.Ecos)), IsMainOperation: false),
                     (mainOperation, IsMainOperation: true));
@@ -90,26 +90,28 @@ namespace MongoDB.Driver.Core.Operations
             get { return _messageEncoderSettings; }
         }
 
+        public string OperationName => "dropCollection";
+
         public WriteConcern WriteConcern
         {
             get { return _writeConcern; }
             set { _writeConcern = value; }
         }
 
-        public BsonDocument Execute(IWriteBinding binding, CancellationToken cancellationToken)
+        public BsonDocument Execute(OperationContext operationContext, IWriteBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var channelSource = binding.GetWriteChannelSource(cancellationToken))
-            using (var channel = channelSource.GetChannel(cancellationToken))
+            using (var channelSource = binding.GetWriteChannelSource(operationContext))
+            using (var channel = channelSource.GetChannel(operationContext))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
-                var operation = CreateOperation(channelBinding.Session);
+                var operation = CreateOperation(operationContext, channelBinding.Session);
                 BsonDocument result;
                 try
                 {
-                    result = operation.Execute(channelBinding, cancellationToken);
+                    result = operation.Execute(operationContext, channelBinding);
                 }
                 catch (MongoCommandException ex)
                 {
@@ -123,20 +125,20 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
+        public async Task<BsonDocument> ExecuteAsync(OperationContext operationContext, IWriteBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false))
-            using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
+            using (var channelSource = await binding.GetWriteChannelSourceAsync(operationContext).ConfigureAwait(false))
+            using (var channel = await channelSource.GetChannelAsync(operationContext).ConfigureAwait(false))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
-                var operation = CreateOperation(channelBinding.Session);
+                var operation = CreateOperation(operationContext, channelBinding.Session);
                 BsonDocument result;
                 try
                 {
-                    result = await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
+                    result = await operation.ExecuteAsync(operationContext, channelBinding).ConfigureAwait(false);
                 }
                 catch (MongoCommandException ex)
                 {
@@ -150,9 +152,9 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        internal BsonDocument CreateCommand(ICoreSessionHandle session)
+        internal BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session)
         {
-            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(session, _writeConcern);
+            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, session, _writeConcern);
             return new BsonDocument
             {
                 { "drop", _collectionNamespace.CollectionName },
@@ -160,12 +162,12 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        private IDisposable BeginOperation() => EventContext.BeginOperation("drop");
+        private EventContext.OperationNameDisposer BeginOperation() => EventContext.BeginOperation("drop");
 
-        private WriteCommandOperation<BsonDocument> CreateOperation(ICoreSessionHandle session)
+        private WriteCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, ICoreSessionHandle session)
         {
-            var command = CreateCommand(session);
-            return new WriteCommandOperation<BsonDocument>(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            var command = CreateCommand(operationContext, session);
+            return new WriteCommandOperation<BsonDocument>(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings, OperationName);
         }
 
         private bool ShouldIgnoreException(MongoCommandException ex)

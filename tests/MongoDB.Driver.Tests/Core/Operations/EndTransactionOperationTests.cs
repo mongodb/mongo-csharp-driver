@@ -223,7 +223,7 @@ namespace MongoDB.Driver.Core.Operations
         public static BsonDocument CreateCommand(this EndTransactionOperation obj)
         {
             var methodInfo = typeof(EndTransactionOperation).GetMethod("CreateCommand", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (BsonDocument)methodInfo.Invoke(obj, null);
+            return (BsonDocument)methodInfo.Invoke(obj, [OperationContext.NoTimeout]);
         }
     }
 }

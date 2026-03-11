@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
@@ -102,6 +101,8 @@ namespace MongoDB.Driver.Core.Operations
             set { _messageEncoderSettings = value; }
         }
 
+        public string OperationName => "bulkWrite";
+
         public IEnumerable<TWriteRequest> Requests
         {
             get { return _requests; }
@@ -120,37 +121,35 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // public methods
-        public BulkWriteOperationResult Execute(RetryableWriteContext context, CancellationToken cancellationToken)
+        public BulkWriteOperationResult Execute(OperationContext operationContext, RetryableWriteContext context)
         {
             EnsureHintIsSupportedIfAnyRequestHasHint();
 
-            return ExecuteBatches(context, cancellationToken);
+            return ExecuteBatches(operationContext, context);
         }
 
-        public BulkWriteOperationResult Execute(IWriteBinding binding, CancellationToken cancellationToken)
+        public BulkWriteOperationResult Execute(OperationContext operationContext, IWriteBinding binding)
         {
             using (BeginOperation())
-            using (var context = RetryableWriteContext.Create(binding, _retryRequested, cancellationToken))
+            using (var context = RetryableWriteContext.Create(operationContext, binding, IsOperationRetryable()))
             {
-                context.DisableRetriesIfAnyWriteRequestIsNotRetryable(_requests);
-                return Execute(context, cancellationToken);
+                return Execute(operationContext, context);
             }
         }
 
-        public Task<BulkWriteOperationResult> ExecuteAsync(RetryableWriteContext context, CancellationToken cancellationToken)
+        public Task<BulkWriteOperationResult> ExecuteAsync(OperationContext operationContext, RetryableWriteContext context)
         {
             EnsureHintIsSupportedIfAnyRequestHasHint();
 
-            return ExecuteBatchesAsync(context, cancellationToken);
+            return ExecuteBatchesAsync(operationContext, context);
         }
 
-        public async Task<BulkWriteOperationResult> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
+        public async Task<BulkWriteOperationResult> ExecuteAsync(OperationContext operationContext, IWriteBinding binding)
         {
             using (BeginOperation())
-            using (var context = await RetryableWriteContext.CreateAsync(binding, _retryRequested, cancellationToken).ConfigureAwait(false))
+            using (var context = await RetryableWriteContext.CreateAsync(operationContext, binding, IsOperationRetryable()).ConfigureAwait(false))
             {
-                context.DisableRetriesIfAnyWriteRequestIsNotRetryable(_requests);
-                return await ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
+                return await ExecuteAsync(operationContext, context).ConfigureAwait(false);
             }
         }
 
@@ -160,7 +159,10 @@ namespace MongoDB.Driver.Core.Operations
         protected abstract bool RequestHasHint(TWriteRequest request);
 
         // private methods
-        private IDisposable BeginOperation() =>
+        private bool IsOperationRetryable()
+            => _retryRequested && _requests.All(r => r.IsRetryable());
+
+        private EventContext.OperationIdDisposer BeginOperation() =>
             EventContext.BeginOperation(null, _requests.FirstOrDefault()?.RequestType.ToString().ToLower());
 
         private BulkWriteBatchResult CreateBatchResult(
@@ -190,14 +192,14 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private BulkWriteBatchResult ExecuteBatch(RetryableWriteContext context, Batch batch, CancellationToken cancellationToken)
+        private BulkWriteBatchResult ExecuteBatch(OperationContext operationContext, RetryableWriteContext context, Batch batch)
         {
             var operation = CreateBatchOperation(batch);
             BsonDocument operationResult;
             MongoWriteConcernException writeConcernException = null;
             try
             {
-                operationResult = RetryableWriteOperationExecutor.Execute(operation, context, cancellationToken);
+                operationResult = RetryableWriteOperationExecutor.Execute(operationContext, operation, context);
             }
             catch (MongoWriteConcernException exception) when (exception.IsWriteConcernErrorOnly())
             {
@@ -208,14 +210,14 @@ namespace MongoDB.Driver.Core.Operations
             return CreateBatchResult(batch, operationResult, writeConcernException);
         }
 
-        private async Task<BulkWriteBatchResult> ExecuteBatchAsync(RetryableWriteContext context, Batch batch, CancellationToken cancellationToken)
+        private async Task<BulkWriteBatchResult> ExecuteBatchAsync(OperationContext operationContext, RetryableWriteContext context, Batch batch)
         {
             var operation = CreateBatchOperation(batch);
             BsonDocument operationResult;
             MongoWriteConcernException writeConcernException = null;
             try
             {
-                operationResult = await RetryableWriteOperationExecutor.ExecuteAsync(operation, context, cancellationToken).ConfigureAwait(false);
+                operationResult = await RetryableWriteOperationExecutor.ExecuteAsync(operationContext, operation, context).ConfigureAwait(false);
             }
             catch (MongoWriteConcernException exception) when (exception.IsWriteConcernErrorOnly())
             {
@@ -226,22 +228,22 @@ namespace MongoDB.Driver.Core.Operations
             return CreateBatchResult(batch, operationResult, writeConcernException);
         }
 
-        private BulkWriteOperationResult ExecuteBatches(RetryableWriteContext context, CancellationToken cancellationToken)
+        private BulkWriteOperationResult ExecuteBatches(OperationContext operationContext, RetryableWriteContext context)
         {
             var helper = new BatchHelper(_requests, _writeConcern, _isOrdered);
             foreach (var batch in helper.GetBatches())
             {
-                batch.Result = ExecuteBatch(context, batch, cancellationToken);
+                batch.Result = ExecuteBatch(operationContext, context, batch);
             }
             return helper.CreateFinalResultOrThrow(context.Channel);
         }
 
-        private async Task<BulkWriteOperationResult> ExecuteBatchesAsync(RetryableWriteContext context, CancellationToken cancellationToken)
+        private async Task<BulkWriteOperationResult> ExecuteBatchesAsync(OperationContext operationContext, RetryableWriteContext context)
         {
             var helper = new BatchHelper(_requests, _writeConcern, _isOrdered);
             foreach (var batch in helper.GetBatches())
             {
-                batch.Result = await ExecuteBatchAsync(context, batch, cancellationToken).ConfigureAwait(false);
+                batch.Result = await ExecuteBatchAsync(operationContext, context, batch).ConfigureAwait(false);
             }
             return helper.CreateFinalResultOrThrow(context.Channel);
         }

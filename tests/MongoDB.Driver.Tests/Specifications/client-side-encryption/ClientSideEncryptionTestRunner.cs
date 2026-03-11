@@ -28,7 +28,7 @@ using Xunit.Abstractions;
 namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
 {
     [Trait("Category", "CSFLE")]
-    [Trait("Category", "Serverless")]
+    [Trait("Category", "Integration")]
     public class ClientSideEncryptionTestRunner : MongoClientJsonDrivenTestRunnerBase
     {
         #region static
@@ -39,6 +39,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
         public ClientSideEncryptionTestRunner(ITestOutputHelper testOutputHelper)
             : base(testOutputHelper)
         {
+            CoreTestConfiguration.SkipMongocryptdTests_SERVER_106469(true);
         }
 
         [Theory]
@@ -49,7 +50,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
             {
                 // This test requires setting of some temporary environment variables that can be set by mongo orchestration or manually.
                 // Add this environment variable on your local machine only together with FLE_AWS_TEMP_* variables (note: they will be expired in 12 hours)
-                RequireEnvironment.Check().EnvironmentVariable("FLE_AWS_TEMPORARY_CREDS_ENABLED");
+                RequireEnvironment.Check().EnvironmentVariable("CSFLE_AWS_TEMPORARY_CREDS_ENABLED");
             }
 
             if (testCase.Name.Contains("kmip"))
