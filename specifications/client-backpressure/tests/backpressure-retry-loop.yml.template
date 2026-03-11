@@ -39,6 +39,42 @@ createEntities:
       database: *database
       collectionName: *collection_name
 
+  - client:
+      id: &client_retryReads_false client_retryReads_false
+      useMultipleMongoses: false
+      observeEvents: [commandStartedEvent, commandSucceededEvent, commandFailedEvent]
+      ignoreCommandMonitoringEvents: [killCursors]
+      uriOptions:
+        retryReads: false
+
+  - database:
+      id: &database_retryReads_false database_retryReads_false
+      client: *client_retryReads_false
+      databaseName: *database_name
+
+  - collection:
+      id: &collection_retryReads_false collection_retryReads_false
+      database: *database_retryReads_false
+      collectionName: *collection_name
+
+  - client:
+      id: &client_retryWrites_false client_retryWrites_false
+      useMultipleMongoses: false
+      observeEvents: [commandStartedEvent, commandSucceededEvent, commandFailedEvent]
+      ignoreCommandMonitoringEvents: [killCursors]
+      uriOptions:
+        retryWrites: false
+
+  - database:
+      id: &database_retryWrites_false database_retryWrites_false
+      client: *client_retryWrites_false
+      databaseName: *database_name
+
+  - collection:
+      id: &collection_retryWrites_false collection_retryWrites_false
+      database: *database_retryWrites_false
+      collectionName: *collection_name
+
 initialData:
 - collectionName: *collection_name
   databaseName: *database_name
@@ -99,4 +135,86 @@ tests: {% for operation in operations %}
               commandName: {{operation.command_name}}
           - commandSucceededEvent:
               commandName: {{operation.command_name}}
+
+  {%- if operation.operation_type == 'read' or operation.operation_name == "runCommand" %}
+  - description: '{{operation.object}}.{{operation.operation_name}} (read) does not retry if retryReads=false'
+    operations:
+      - name: failPoint
+        object: testRunner
+        arguments:
+          client: *internal_client
+          failPoint:
+            configureFailPoint: failCommand
+            mode: { times: 1 }
+            data:
+              failCommands: [{{operation.command_name}}]
+              errorLabels: [RetryableError, SystemOverloadedError]
+              errorCode: 2
+
+      - name: {{operation.operation_name}}
+        object: *{{operation.object}}_retryReads_false
+        {%- if operation.arguments|length > 0 %}
+        arguments:
+          {%- for arg in operation.arguments %}
+          {{arg}}
+          {%- endfor -%}
+        {%- endif %}
+        expectError:
+          isError: true
+          isClientError: false
+
+    expectEvents:
+      - client: *client_retryReads_false
+        events:
+          - commandStartedEvent:
+              commandName: {{operation.command_name}}
+          - commandFailedEvent:
+              commandName: {{operation.command_name}}
+  {%- endif %}
+
+  {%- if operation.operation_type == 'write' or operation.operation_name == "runCommand" %}
+  - description: '{{operation.object}}.{{operation.operation_name}} (write) does not retry if retryWrites=false' {%- if ((operation.operation_name == 'clientBulkWrite')) %}
+    runOnRequirements:
+      - minServerVersion: '8.0' # client bulk write added to server in 8.0
+    {%- endif %}
+    operations:  {%- if operation.operation_name == "dropIndex" %}
+      - name: createIndex
+        object: *internal_collection
+        arguments:
+          keys: { x: 11 }
+          name: "x_11"
+        {%- endif %}
+      - name: failPoint
+        object: testRunner
+        arguments:
+          client: *internal_client
+          failPoint:
+            configureFailPoint: failCommand
+            mode: { times: 1 }
+            data:
+              failCommands: [{{operation.command_name}}]
+              errorLabels: [RetryableError, SystemOverloadedError]
+              errorCode: 2
+
+      - name: {{operation.operation_name}}
+        object: *{{operation.object}}_retryWrites_false
+        {%- if operation.arguments|length > 0 %}
+        arguments:
+          {%- for arg in operation.arguments %}
+          {{arg}}
+          {%- endfor -%}
+        {%- endif %}
+        expectError:
+          isError: true
+          isClientError: false
+
+    expectEvents:
+      - client: *client_retryWrites_false
+        events:
+          - commandStartedEvent:
+              commandName: {{operation.command_name}}
+          - commandFailedEvent:
+              commandName: {{operation.command_name}}
+  {%- endif %}
+
 {% endfor -%}

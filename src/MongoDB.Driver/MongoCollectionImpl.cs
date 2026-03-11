@@ -767,6 +767,7 @@ namespace MongoDB.Driver
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern,
                 RetryRequested = _database.Client.Settings.RetryReads,
+                CanBeRetried = _database.Client.Settings.RetryReads,
 #pragma warning disable 618
                 UseCursor = options.UseCursor
 #pragma warning restore 618
@@ -783,7 +784,8 @@ namespace MongoDB.Driver
                 Collation = options.Collation,
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern,
-                RetryRequested = _database.Client.Settings.RetryReads
+                RetryRequested = _database.Client.Settings.RetryReads,
+                CanBeRetried = _database.Client.Settings.RetryReads
             };
 
             // we want to delay execution of the find because the user may
@@ -812,7 +814,8 @@ namespace MongoDB.Driver
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern,
                 ReadPreference = _settings.ReadPreference,
-                WriteConcern = _settings.WriteConcern
+                WriteConcern = _settings.WriteConcern,
+                CanBeRetried = _database.Client.Settings.RetryWrites
             };
         }
 
@@ -868,6 +871,7 @@ namespace MongoDB.Driver
                 IsOrdered = options.IsOrdered,
                 Let = options.Let,
                 RetryRequested = _database.Client.Settings.RetryWrites,
+                CanBeRetried = _database.Client.Settings.RetryWrites,
                 WriteConcern = effectiveWriteConcern
             };
         }
@@ -905,6 +909,7 @@ namespace MongoDB.Driver
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern,
                 RetryRequested = _database.Client.Settings.RetryReads,
+                CanBeRetried = _database.Client.Settings.RetryReads,
                 Skip = options.Skip
             };
         }
@@ -926,6 +931,7 @@ namespace MongoDB.Driver
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern,
                 RetryRequested = _database.Client.Settings.RetryReads,
+                CanBeRetried = _database.Client.Settings.RetryReads,
                 Skip = options.Skip
             };
         }
@@ -952,6 +958,7 @@ namespace MongoDB.Driver
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern,
                 RetryRequested = _database.Client.Settings.RetryReads,
+                CanBeRetried = _database.Client.Settings.RetryReads,
             };
         }
 
@@ -977,6 +984,7 @@ namespace MongoDB.Driver
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern,
                 RetryRequested = _database.Client.Settings.RetryReads,
+                CanBeRetried = _database.Client.Settings.RetryReads,
             };
         }
 
@@ -986,7 +994,8 @@ namespace MongoDB.Driver
             {
                 Comment = options?.Comment,
                 MaxTime = options?.MaxTime,
-                RetryRequested = _database.Client.Settings.RetryReads
+                RetryRequested = _database.Client.Settings.RetryReads,
+                CanBeRetried = _database.Client.Settings.RetryReads
             };
         }
 
@@ -1013,7 +1022,8 @@ namespace MongoDB.Driver
                 Projection = renderedProjection.Document,
                 Sort = options.Sort?.Render(renderArgs),
                 WriteConcern = _settings.WriteConcern,
-                RetryRequested = _database.Client.Settings.RetryWrites
+                RetryRequested = _database.Client.Settings.RetryWrites,
+                CanBeRetried = _database.Client.Settings.RetryWrites
             };
         }
 
@@ -1046,7 +1056,8 @@ namespace MongoDB.Driver
                 ReturnDocument = options.ReturnDocument,
                 Sort = options.Sort?.Render(renderArgs),
                 WriteConcern = _settings.WriteConcern,
-                RetryRequested = _database.Client.Settings.RetryWrites
+                RetryRequested = _database.Client.Settings.RetryWrites,
+                CanBeRetried = _database.Client.Settings.RetryWrites
             };
         }
 
@@ -1078,7 +1089,8 @@ namespace MongoDB.Driver
                 ReturnDocument = options.ReturnDocument,
                 Sort = options.Sort?.Render(renderArgs),
                 WriteConcern = _settings.WriteConcern,
-                RetryRequested = _database.Client.Settings.RetryWrites
+                RetryRequested = _database.Client.Settings.RetryWrites,
+                CanBeRetried = _database.Client.Settings.RetryWrites
             };
         }
 
@@ -1118,6 +1130,7 @@ namespace MongoDB.Driver
                 Projection = renderedProjection.Document,
                 ReadConcern = _settings.ReadConcern,
                 RetryRequested = _database.Client.Settings.RetryReads,
+                CanBeRetried = _database.Client.Settings.RetryReads,
                 ReturnKey = options.ReturnKey,
                 ShowRecordId = options.ShowRecordId,
                 Skip = options.Skip,
@@ -1197,7 +1210,8 @@ namespace MongoDB.Driver
 #pragma warning restore 618
                 Sort = options.Sort?.Render(renderArgs),
                 Verbose = options.Verbose,
-                WriteConcern = _settings.WriteConcern
+                WriteConcern = _settings.WriteConcern,
+                CanBeRetried = _database.Client.Settings.RetryWrites
             };
         }
 
@@ -1213,7 +1227,8 @@ namespace MongoDB.Driver
                 Collation = options.Collation,
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern,
-                RetryRequested = _database.Client.Settings.RetryReads
+                RetryRequested = _database.Client.Settings.RetryReads,
+                CanBeRetried = _database.Client.Settings.RetryReads
             };
 
             // we want to delay execution of the find because the user may
@@ -1620,7 +1635,8 @@ namespace MongoDB.Driver
                     Comment = options?.Comment,
                     CommitQuorum = options?.CommitQuorum,
                     MaxTime = options?.MaxTime,
-                    WriteConcern = _collection.Settings.WriteConcern
+                    WriteConcern = _collection.Settings.WriteConcern,
+                    CanBeRetried = _collection.Database.Client.Settings.RetryWrites
                 };
             }
 
@@ -1668,7 +1684,8 @@ namespace MongoDB.Driver
                 {
                     Comment = options?.Comment,
                     MaxTime = options?.MaxTime,
-                    WriteConcern = _collection.Settings.WriteConcern
+                    WriteConcern = _collection.Settings.WriteConcern,
+                    CanBeRetried = _collection.Database.Client.Settings.RetryWrites
                 };
             }
 
@@ -1678,7 +1695,8 @@ namespace MongoDB.Driver
                 {
                     Comment = options?.Comment,
                     MaxTime = options?.MaxTime,
-                    WriteConcern = _collection.Settings.WriteConcern
+                    WriteConcern = _collection.Settings.WriteConcern,
+                    CanBeRetried = _collection.Database.Client.Settings.RetryWrites
                 };
             }
 
@@ -1688,7 +1706,8 @@ namespace MongoDB.Driver
                 {
                     BatchSize = options?.BatchSize,
                     Comment = options?.Comment,
-                    RetryRequested = _collection.Database.Client.Settings.RetryReads
+                    RetryRequested = _collection.Database.Client.Settings.RetryReads,
+                    CanBeRetried = _collection.Database.Client.Settings.RetryReads
                 };
             }
         }
@@ -1743,7 +1762,10 @@ namespace MongoDB.Driver
             public void DropOne(string indexName, CancellationToken cancellationToken = default)
             {
                 using var session = _collection._operationExecutor.StartImplicitSession();
-                var operation = new DropSearchIndexOperation(_collection.CollectionNamespace, indexName, _collection._messageEncoderSettings);
+                var operation = new DropSearchIndexOperation(_collection.CollectionNamespace, indexName, _collection._messageEncoderSettings)
+                {
+                    CanBeRetried = _collection.Database.Client.Settings.RetryWrites
+                };
                 // TODO: CSOT: find a way to add timeout parameter to the interface method
                 _collection.ExecuteWriteOperation(session, operation, null, cancellationToken);
             }
@@ -1751,7 +1773,10 @@ namespace MongoDB.Driver
             public async Task DropOneAsync(string indexName, CancellationToken cancellationToken = default)
             {
                 using var session = _collection._operationExecutor.StartImplicitSession();
-                var operation = new DropSearchIndexOperation(_collection.CollectionNamespace, indexName, _collection._messageEncoderSettings);
+                var operation = new DropSearchIndexOperation(_collection.CollectionNamespace, indexName, _collection._messageEncoderSettings)
+                {
+                    CanBeRetried = _collection.Database.Client.Settings.RetryWrites
+                };
                 // TODO: CSOT: find a way to add timeout parameter to the interface method
                 await _collection.ExecuteWriteOperationAsync(session, operation, null, cancellationToken).ConfigureAwait(false);
             }
@@ -1769,7 +1794,10 @@ namespace MongoDB.Driver
             public void Update(string indexName, BsonDocument definition, CancellationToken cancellationToken = default)
             {
                 using var session = _collection._operationExecutor.StartImplicitSession();
-                var operation = new UpdateSearchIndexOperation(_collection.CollectionNamespace, indexName, definition, _collection._messageEncoderSettings);
+                var operation = new UpdateSearchIndexOperation(_collection.CollectionNamespace, indexName, definition, _collection._messageEncoderSettings)
+                {
+                    CanBeRetried = _collection.Database.Client.Settings.RetryWrites
+                };
                 // TODO: CSOT: find a way to add timeout parameter to the interface method
                 _collection.ExecuteWriteOperation(session, operation, null, cancellationToken);
             }
@@ -1777,7 +1805,10 @@ namespace MongoDB.Driver
             public async Task UpdateAsync(string indexName, BsonDocument definition, CancellationToken cancellationToken = default)
             {
                 using var session = _collection._operationExecutor.StartImplicitSession();
-                var operation = new UpdateSearchIndexOperation(_collection.CollectionNamespace, indexName, definition, _collection._messageEncoderSettings);
+                var operation = new UpdateSearchIndexOperation(_collection.CollectionNamespace, indexName, definition, _collection._messageEncoderSettings)
+                {
+                    CanBeRetried = _collection.Database.Client.Settings.RetryWrites
+                };
                 // TODO: CSOT: find a way to add timeout parameter to the interface method
                 await _collection.ExecuteWriteOperationAsync(session, operation, null, cancellationToken).ConfigureAwait(false);
             }
@@ -1804,7 +1835,10 @@ namespace MongoDB.Driver
                             model is CreateVectorSearchIndexModelBase<TDocument> createVectorSearchIndexModel
                                 ? createVectorSearchIndexModel.Render(renderArgs)
                                 : model.Definition)),
-                    _collection._messageEncoderSettings);
+                    _collection._messageEncoderSettings)
+                {
+                    CanBeRetried = _collection.Database.Client.Settings.RetryWrites
+                };
             }
 
             private string[] GetIndexNames(BsonDocument createSearchIndexesResponse) =>

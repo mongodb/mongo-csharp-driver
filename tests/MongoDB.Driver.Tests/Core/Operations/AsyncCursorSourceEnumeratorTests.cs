@@ -179,7 +179,8 @@ namespace MongoDB.Driver.Tests.Core.Operations
                 limit: null,
                 serializer: BsonDocumentSerializer.Instance,
                 messageEncoderSettings: new MessageEncoderSettings(),
-                maxTime: null);
+                maxTime: null,
+                canBeRetried: false);
         }
 
         private IAsyncCursorSource<BsonDocument> CreateCursorSource(int count)

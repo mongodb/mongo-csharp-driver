@@ -23,7 +23,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    internal abstract class EndTransactionOperation : IReadOperation<BsonDocument>
+    internal abstract class EndTransactionOperation : IReadOperation<BsonDocument>  //TODO This should be a write operation, but maybe we should do it when we fix operations.
     {
         private MessageEncoderSettings _messageEncoderSettings;
         private readonly BsonDocument _recoveryToken;
@@ -49,6 +49,9 @@ namespace MongoDB.Driver.Core.Operations
         public WriteConcern WriteConcern => _writeConcern;
 
         public string OperationName => CommandName;
+
+        // abort/commitTransaction can be retried regardless of the value of retryWrites
+        public bool CanBeRetried => true;
 
         protected abstract string CommandName { get; }
 
@@ -99,7 +102,8 @@ namespace MongoDB.Driver.Core.Operations
             var command = CreateCommand(operationContext);
             return new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, _messageEncoderSettings, OperationName)
             {
-                RetryRequested = false
+                RetryRequested = false,
+                CanBeRetried = CanBeRetried,
             };
         }
     }

@@ -35,6 +35,7 @@ namespace MongoDB.Driver.Core.Operations
         private readonly IReadOnlyList<BsonDocument> _pipeline;
         private readonly string _viewName;
         private readonly string _viewOn;
+        private bool _canBeRetried;
         private WriteConcern _writeConcern;
 
         public CreateViewOperation(
@@ -90,11 +91,17 @@ namespace MongoDB.Driver.Core.Operations
             set { _writeConcern = value; }
         }
 
+        public bool CanBeRetried
+        {
+            get { return _canBeRetried; }
+            set { _canBeRetried = value; }
+        }
+
         public BsonDocument Execute(OperationContext operationContext, IWriteBinding binding)
         {
             using (BeginOperation())
             {
-                return RetryableWriteOperationExecutor.Execute(operationContext, this, binding, retryRequested: false);
+                return RetryableWriteOperationExecutor.Execute(operationContext, this, binding, retryRequested: false, canBeRetried: CanBeRetried);
             }
         }
 
@@ -110,7 +117,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             using (BeginOperation())
             {
-                return RetryableWriteOperationExecutor.ExecuteAsync(operationContext, this, binding, retryRequested: false);
+                return RetryableWriteOperationExecutor.ExecuteAsync(operationContext, this, binding, retryRequested: false, canBeRetried: CanBeRetried);
             }
         }
 

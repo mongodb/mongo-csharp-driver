@@ -86,6 +86,7 @@ namespace MongoDB.Driver.Core.Operations
         private DocumentValidationAction? _validationAction;
         private DocumentValidationLevel? _validationLevel;
         private BsonDocument _validator;
+        private bool _canBeRetried;
         private WriteConcern _writeConcern;
 
         private readonly Feature _supportedFeature;
@@ -209,6 +210,12 @@ namespace MongoDB.Driver.Core.Operations
             set { _writeConcern = value; }
         }
 
+        public bool CanBeRetried
+        {
+            get { return _canBeRetried; }
+            set { _canBeRetried = value; }
+        }
+
         public BsonDocument ClusteredIndex
         {
             get => _clusteredIndex;
@@ -244,7 +251,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             using (BeginOperation())
             {
-                return RetryableWriteOperationExecutor.Execute(operationContext, this, binding, retryRequested: false);
+                return RetryableWriteOperationExecutor.Execute(operationContext, this, binding, retryRequested: false, canBeRetried: CanBeRetried);
             }
         }
 
@@ -260,7 +267,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             using (BeginOperation())
             {
-                return RetryableWriteOperationExecutor.ExecuteAsync(operationContext, this, binding, retryRequested: false);
+                return RetryableWriteOperationExecutor.ExecuteAsync(operationContext, this, binding, retryRequested: false, canBeRetried: CanBeRetried);
             }
         }
 

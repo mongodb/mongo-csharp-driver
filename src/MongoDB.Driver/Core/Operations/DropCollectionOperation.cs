@@ -65,6 +65,7 @@ namespace MongoDB.Driver.Core.Operations
         private readonly CollectionNamespace _collectionNamespace;
         private BsonDocument _encryptedFields;
         private readonly MessageEncoderSettings _messageEncoderSettings;
+        private bool _canBeRetried;
         private WriteConcern _writeConcern;
 
         public DropCollectionOperation(
@@ -99,11 +100,17 @@ namespace MongoDB.Driver.Core.Operations
             set { _writeConcern = value; }
         }
 
+        public bool CanBeRetried
+        {
+            get { return _canBeRetried; }
+            set { _canBeRetried = value; }
+        }
+
         public BsonDocument Execute(OperationContext operationContext, IWriteBinding binding)
         {
             using (BeginOperation())
             {
-                return RetryableWriteOperationExecutor.Execute(operationContext, this, binding, retryRequested: false);
+                return RetryableWriteOperationExecutor.Execute(operationContext, this, binding, retryRequested: false, canBeRetried: CanBeRetried);
             }
         }
 
@@ -119,7 +126,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             using (BeginOperation())
             {
-                return RetryableWriteOperationExecutor.ExecuteAsync(operationContext, this, binding, retryRequested: false);
+                return RetryableWriteOperationExecutor.ExecuteAsync(operationContext, this, binding, retryRequested: false, canBeRetried: CanBeRetried);
             }
         }
 

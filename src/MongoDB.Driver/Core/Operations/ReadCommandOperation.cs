@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Core.Operations
         private readonly string _operationName;
         private readonly ICommandCreator _commandCreator;
         private bool _retryRequested;
-        private bool _canBeRetried = true;
+        private bool _canBeRetried;
 
         public ReadCommandOperation(
             DatabaseNamespace databaseNamespace,
@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Core.Operations
         public bool CanBeRetried
         {
             get => _canBeRetried;
-            init => _canBeRetried = value;
+            set => _canBeRetried = value;
         }
 
         public TCommandResult Execute(OperationContext operationContext, IReadBinding binding)

@@ -32,6 +32,7 @@ namespace MongoDB.Driver.Core.Operations
     {
         private bool? _allowDiskUse;
         private bool? _bypassDocumentValidation;
+        private bool _canBeRetried;
         private Collation _collation;
         private readonly CollectionNamespace _collectionNamespace;
         private BsonValue _comment;
@@ -71,6 +72,12 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _bypassDocumentValidation; }
             set { _bypassDocumentValidation = value; }
+        }
+
+        public bool CanBeRetried
+        {
+            get { return _canBeRetried; }
+            set { _canBeRetried = value; }
         }
 
         public Collation Collation
@@ -153,7 +160,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             using (BeginOperation())
             {
-                return RetryableWriteOperationExecutor.Execute(operationContext, this, binding, retryRequested: false, mayUseSecondary: new MayUseSecondary(_readPreference));
+                return RetryableWriteOperationExecutor.Execute(operationContext, this, binding, retryRequested: false, canBeRetried: CanBeRetried, mayUseSecondary: new MayUseSecondary(_readPreference));
             }
         }
 
@@ -169,7 +176,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             using (BeginOperation())
             {
-                return RetryableWriteOperationExecutor.ExecuteAsync(operationContext, this, binding, retryRequested: false, mayUseSecondary: new MayUseSecondary(_readPreference));
+                return RetryableWriteOperationExecutor.ExecuteAsync(operationContext, this, binding, retryRequested: false, canBeRetried: CanBeRetried, mayUseSecondary: new MayUseSecondary(_readPreference));
             }
         }
 

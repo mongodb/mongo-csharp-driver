@@ -41,6 +41,7 @@ namespace MongoDB.Driver.Core.Operations
         private readonly string _operationName;
         private readonly List<WriteRequest> _requests;
         private bool _retryRequested;
+        private bool _canBeRetried;
         private WriteConcern _writeConcern;
 
         public BulkMixedWriteOperation(
@@ -136,6 +137,12 @@ namespace MongoDB.Driver.Core.Operations
             set { _retryRequested = value; }
         }
 
+        public bool CanBeRetried
+        {
+            get { return _canBeRetried; }
+            set { _canBeRetried = value; }
+        }
+
         public WriteConcern WriteConcern
         {
             get { return _writeConcern; }
@@ -145,7 +152,7 @@ namespace MongoDB.Driver.Core.Operations
         public BulkWriteOperationResult Execute(OperationContext operationContext, IWriteBinding binding)
         {
             using (BeginOperation())
-            using (var context = new RetryableWriteContext(binding, IsOperationRetryable()))
+            using (var context = new RetryableWriteContext(binding, IsOperationRetryable(), CanBeRetried))
             {
                 EnsureHintIsSupportedIfAnyRequestHasHint();
                 var helper = new BatchHelper(_requests, _isOrdered, _writeConcern);
@@ -160,7 +167,7 @@ namespace MongoDB.Driver.Core.Operations
         public async Task<BulkWriteOperationResult> ExecuteAsync(OperationContext operationContext, IWriteBinding binding)
         {
             using (BeginOperation())
-            using (var context = new RetryableWriteContext(binding, IsOperationRetryable()))
+            using (var context = new RetryableWriteContext(binding, IsOperationRetryable(), CanBeRetried))
             {
                 EnsureHintIsSupportedIfAnyRequestHasHint();
                 var helper = new BatchHelper(_requests, _isOrdered, _writeConcern);
