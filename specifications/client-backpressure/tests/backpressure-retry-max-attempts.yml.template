@@ -14,6 +14,7 @@ createEntities:
       id: &client client
       useMultipleMongoses: false
       observeEvents: [commandStartedEvent, commandSucceededEvent, commandFailedEvent]
+      ignoreCommandMonitoringEvents: [killCursors]
 
   - client:
       id: &fail_point_client fail_point_client
@@ -57,7 +58,7 @@ tests: {% for operation in operations %}
               failCommands: [{{operation.command_name}}]
               errorLabels: [RetryableError, SystemOverloadedError]
               errorCode: 2
-      
+
       - name: {{operation.operation_name}}
         object: *{{operation.object}}  {%- if operation.arguments|length > 0 %}
         arguments:
@@ -65,14 +66,14 @@ tests: {% for operation in operations %}
           {{arg}}
           {%- endfor -%}
         {%- endif %}
-        expectError: 
+        expectError:
           isError: true
           isClientError: false
 
     expectEvents:
       - client: *client
         events:
-          # we expect 6 pairs of command started and succeeded events: 
+          # we expect 6 pairs of command started and succeeded events:
           #   1 initial attempt and 5 retries.
           - commandStartedEvent:
               commandName: {{operation.command_name}}
