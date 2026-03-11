@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
                     }
                 }");
 
-            var secondFailPointConfigured = 0;
+            var secondFailPointConfigured = false;
             FailPoint secondFailPoint = null;
 
             using var firstFailPoint = FailPoint.Configure(DriverTestConfiguration.Client.GetClusterInternal(), NoCoreSession.NewHandle(), firstFailPointCommand);
@@ -73,10 +73,10 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
                 s.RetryWrites = true;
                 s.ClusterConfigurator = b => b.Subscribe<CommandFailedEvent>(e =>
                 {
-                    if (e is { CommandName: "insert", Failure: MongoCommandException { Code: 91 } } &&
-                        Interlocked.CompareExchange(ref secondFailPointConfigured, 1, 0) == 0)
+                    if (e is { CommandName: "insert", Failure: MongoCommandException { Code: 91 } } && !secondFailPointConfigured)
                     {
                         secondFailPoint = FailPoint.Configure(DriverTestConfiguration.Client.GetClusterInternal(), NoCoreSession.NewHandle(), secondFailPointCommand);
+                        secondFailPointConfigured = true;
                     }
                 });
             });
@@ -127,7 +127,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
                     }
                 }");
 
-            var secondFailPointConfigured = 0;
+            var secondFailPointConfigured = false;
             FailPoint secondFailPoint = null;
 
             using var firstFailPoint = FailPoint.Configure(DriverTestConfiguration.Client.GetClusterInternal(), NoCoreSession.NewHandle(), firstFailPointCommand);
@@ -137,10 +137,10 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
                 s.RetryWrites = true;
                 s.ClusterConfigurator = b => b.Subscribe<CommandFailedEvent>(e =>
                 {
-                    if (e is { CommandName: "insert", Failure: MongoCommandException { Code: 91 } } &&
-                        Interlocked.CompareExchange(ref secondFailPointConfigured, 1, 0) == 0)
+                    if (e is { CommandName: "insert", Failure: MongoCommandException { Code: 91 } } && !secondFailPointConfigured)
                     {
                         secondFailPoint = FailPoint.Configure(DriverTestConfiguration.Client.GetClusterInternal(), NoCoreSession.NewHandle(), secondFailPointCommand);
+                        secondFailPointConfigured = true;
                     }
                 });
             });
@@ -167,20 +167,6 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
                 .ClusterTypes(ClusterType.ReplicaSet)
                 .VersionGreaterThanOrEqualTo("6.0.0");
 
-            // The CommandFailedEvent handler will configure this fail point (alwaysOn, with NoWritesPerformed).
-            var secondFailPointCommand = BsonDocument.Parse(
-                @"{
-                    configureFailPoint: ""failCommand"",
-                    mode: ""alwaysOn"",
-                    data:
-                    {
-                        failCommands: [""insert""],
-                        errorCode: 91,
-                        errorLabels: [""RetryableError"", ""SystemOverloadedError"", ""NoWritesPerformed""]
-                    }
-                }");
-
-            // Initial fail point: error 91 without NoWritesPerformed, fires once.
             var firstFailPointCommand = BsonDocument.Parse(
                 @"{
                     configureFailPoint: ""failCommand"",
@@ -193,23 +179,35 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
                     }
                 }");
 
-            var secondFailPointConfigured = 0;
+            var secondFailPointCommand = BsonDocument.Parse(
+                @"{
+                    configureFailPoint: ""failCommand"",
+                    mode: ""alwaysOn"",
+                    data:
+                    {
+                        failCommands: [""insert""],
+                        errorCode: 91,
+                        errorLabels: [""RetryableError"", ""SystemOverloadedError"", ""NoWritesPerformed""]
+                    }
+                }");
+
+            var secondFailPointConfigured = false;
             FailPoint secondFailPoint = null;
+
+            using var firstFailPoint = FailPoint.Configure(DriverTestConfiguration.Client.GetClusterInternal(), NoCoreSession.NewHandle(), firstFailPointCommand);
 
             using var client = DriverTestConfiguration.CreateMongoClient(s =>
             {
                 s.RetryWrites = true;
                 s.ClusterConfigurator = b => b.Subscribe<CommandFailedEvent>(e =>
                 {
-                    if (e.CommandName == "insert" &&
-                        Interlocked.CompareExchange(ref secondFailPointConfigured, 1, 0) == 0)
+                    if (e is { CommandName: "insert", Failure: MongoCommandException { Code: 91 } } && !secondFailPointConfigured)
                     {
                         secondFailPoint = FailPoint.Configure(DriverTestConfiguration.Client.GetClusterInternal(), NoCoreSession.NewHandle(), secondFailPointCommand);
+                        secondFailPointConfigured = true;
                     }
                 });
             });
-
-            using var firstFailPoint = FailPoint.Configure(DriverTestConfiguration.Client.GetClusterInternal(), NoCoreSession.NewHandle(), firstFailPointCommand);
 
             try
             {
