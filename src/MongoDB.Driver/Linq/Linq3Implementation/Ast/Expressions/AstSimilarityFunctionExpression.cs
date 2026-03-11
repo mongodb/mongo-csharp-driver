@@ -24,9 +24,10 @@ internal sealed class AstSimilarityFunctionExpression : AstExpression
     private readonly AstExpression _vectors1;
     private readonly AstExpression _vectors2;
     private readonly AstExpression _normalize;
-    private readonly AstNaryOperator _operator;
+    private readonly string _operator;
 
-    public AstSimilarityFunctionExpression(AstNaryOperator @operator, AstExpression vectors1, AstExpression vectors2, AstExpression normalize)
+    public AstSimilarityFunctionExpression(
+        string @operator, AstExpression vectors1, AstExpression vectors2, AstExpression normalize)
     {
         _vectors1 = Ensure.IsNotNull(vectors1, nameof(vectors1));
         _vectors2 = Ensure.IsNotNull(vectors2, nameof(vectors2));
@@ -35,7 +36,6 @@ internal sealed class AstSimilarityFunctionExpression : AstExpression
     }
 
     public AstExpression Normalize => _normalize;
-    public AstNaryOperator Operator => _operator;
     public AstExpression Vectors1 => _vectors1;
     public AstExpression Vectors2 => _vectors2;
     public override AstNodeType NodeType => AstNodeType.SimilarityFunctionExpression;
@@ -44,7 +44,7 @@ internal sealed class AstSimilarityFunctionExpression : AstExpression
         => visitor.VisitSimilarityFunctionExpression(this);
 
     public override BsonValue Render()
-        => new BsonDocument(_operator.Render(),
+        => new BsonDocument(_operator,
             new BsonDocument
             {
                 { "vectors", new BsonArray { _vectors1.Render(), _vectors2.Render() } },
@@ -52,19 +52,17 @@ internal sealed class AstSimilarityFunctionExpression : AstExpression
             });
 
     public AstSimilarityFunctionExpression Update(
-        AstNaryOperator @operator,
         AstExpression vectors1,
         AstExpression vectors2,
         AstExpression normalize)
     {
-        if (@operator == _operator &&
-            vectors1 == _vectors1 &&
+        if (vectors1 == _vectors1 &&
             vectors2 == _vectors2 &&
             normalize == _normalize)
         {
             return this;
         }
 
-        return new AstSimilarityFunctionExpression(@operator, vectors1, vectors2, normalize);
+        return new AstSimilarityFunctionExpression(_operator, vectors1, vectors2, normalize);
     }
 }

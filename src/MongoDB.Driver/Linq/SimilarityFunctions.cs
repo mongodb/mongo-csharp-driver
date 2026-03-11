@@ -38,7 +38,7 @@ public static class SimilarityFunctions
         IEnumerable<TElement> vector1,
         IEnumerable<TElement> vector2,
         bool normalizeScore)
-        => Throw<TElement>(nameof(DotProduct));
+        => Throw(nameof(DotProduct));
 
     /// <summary>
     /// Translated to the "$similarityDotProduct" operator in MQL to measure the similarity between two vectors.
@@ -53,7 +53,7 @@ public static class SimilarityFunctions
         ReadOnlyMemory<TElement> vector1,
         ReadOnlyMemory<TElement> vector2,
         bool normalizeScore)
-        => Throw<TElement>(nameof(DotProduct));
+        => Throw(nameof(DotProduct));
 
     /// <summary>
     /// Translated to the "$similarityCosine" operator in MQL to measure the similarity between two vectors.
@@ -68,7 +68,7 @@ public static class SimilarityFunctions
         IEnumerable<TElement> vector1,
         IEnumerable<TElement> vector2,
         bool normalizeScore)
-        => Throw<TElement>(nameof(Cosine));
+        => Throw(nameof(Cosine));
 
     /// <summary>
     /// Translated to the "$similarityCosine" operator in MQL to measure the similarity between two vectors.
@@ -83,7 +83,7 @@ public static class SimilarityFunctions
         ReadOnlyMemory<TElement> vector1,
         ReadOnlyMemory<TElement> vector2,
         bool normalizeScore)
-        => Throw<TElement>(nameof(Cosine));
+        => Throw(nameof(Cosine));
 
     /// <summary>
     /// Translated to the "$similarityEuclidean" operator in MQL to measure the similarity between two vectors.
@@ -98,7 +98,7 @@ public static class SimilarityFunctions
         IEnumerable<TElement> vector1,
         IEnumerable<TElement> vector2,
         bool normalizeScore)
-        => Throw<TElement>(nameof(Euclidean));
+        => Throw(nameof(Euclidean));
 
     /// <summary>
     /// Translated to the "$similarityEuclidean" operator in MQL to measure the similarity between two vectors.
@@ -113,10 +113,10 @@ public static class SimilarityFunctions
         ReadOnlyMemory<TElement> vector1,
         ReadOnlyMemory<TElement> vector2,
         bool normalizeScore)
-        => Throw<TElement>(nameof(Euclidean));
+        => Throw(nameof(Euclidean));
 
-    private static double Throw<TElement>(string methodName)
-        => throw new InvalidOperationException(
+    private static double Throw(string methodName)
+        => throw new NotSupportedException(
             $"Local evaluation of '{nameof(SimilarityFunctions)}.{methodName}' is not supported. " +
             "This method can only be used when translating C# to Mongo Query Language (MQL) for execution in the MongoDB database.");
 }
