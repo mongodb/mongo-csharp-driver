@@ -23,7 +23,6 @@ using MongoDB.Driver.Linq.Linq3Implementation;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
-using MongoDB.Driver.Linq.Linq3Implementation.SerializerFinders;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilterTranslators;
@@ -217,21 +216,9 @@ namespace MongoDB.Driver.Linq
             IBsonSerializerRegistry serializerRegistry,
             ExpressionTranslationOptions translationOptions)
         {
-            var parameter = expression.Parameters.Single();
-            var body = expression.Body;
-
-            var nodeSerializers = new SerializerMap();
-            nodeSerializers.AddSerializer(parameter, documentSerializer);
-            if (body.Type == typeof(TDocument))
-            {
-                nodeSerializers.AddSerializer(body, documentSerializer);
-            }
-            SerializerFinder.FindSerializers(expression, translationOptions, nodeSerializers);
-
-            var context = TranslationContext.Create(translationOptions, nodeSerializers); // do not partially evaluate expression
-            var symbol = context.CreateRootSymbol(parameter, documentSerializer);
-            context = context.WithSymbol(symbol);
-            var setStage = ExpressionToSetStageTranslator.Translate(context, documentSerializer, expression);
+            // Pass the expression through without pre-processing here; value expressions in the $set translation
+            // will be partially evaluated while the members translation by ExpressionToSetStageTranslator.
+            var setStage = ExpressionToSetStageTranslator.Translate(documentSerializer, expression, translationOptions);
             var simplifiedSetStage = AstSimplifier.SimplifyAndConvert(setStage);
             return simplifiedSetStage.Render().AsBsonDocument;
         }
