@@ -97,7 +97,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
 
         // Case 2: only errors with NoWritesPerformed — driver should return the original error (91).
         [Fact]
-        public void Case2_Only_errors_with_NoWritesPerformed_return_original_error()
+        public void Only_errors_with_NoWritesPerformed_return_original_error()
         {
             RequireServer.Check()
                 .ClusterTypes(ClusterType.ReplicaSet)
@@ -161,7 +161,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
 
         // Case 3: mixed errors (first without NoWritesPerformed, retry with NoWritesPerformed) — driver should return the original error (91) without the NoWritesPerformed label.
         [Fact]
-        public void Case3_Mixed_errors_return_original_error_without_NoWritesPerformed()
+        public void Mixed_errors_return_original_error_without_NoWritesPerformed()
         {
             RequireServer.Check()
                 .ClusterTypes(ClusterType.ReplicaSet)
