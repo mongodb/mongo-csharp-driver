@@ -481,10 +481,9 @@ namespace MongoDB.Bson
             {
                 throw new ArgumentException("Not enough room in destination buffer.", "offset");
             }
-            var intValues = MemoryMarshal.Cast<byte, int>(destination);
-            intValues[0] = BinaryPrimitives.ReverseEndianness(_a);
-            intValues[1] = BinaryPrimitives.ReverseEndianness(_b);
-            intValues[2] = BinaryPrimitives.ReverseEndianness(_c);
+            BinaryPrimitives.WriteInt32BigEndian(destination, _a);
+            BinaryPrimitives.WriteInt32BigEndian(destination.Slice(4), _b);
+            BinaryPrimitives.WriteInt32BigEndian(destination.Slice(8), _c);
         }
 
         /// <summary>
@@ -512,7 +511,6 @@ namespace MongoDB.Bson
             {
                 throw new ArgumentException("Not enough room in destination span.", "offset");
             }
-
             var uintSpan = MemoryMarshal.Cast<char, uint>(span);
             uintSpan[0] = BsonUtils.GetHexChars((byte)(_a >> 24));
             uintSpan[1] = BsonUtils.GetHexChars((byte)(_a >> 16));
