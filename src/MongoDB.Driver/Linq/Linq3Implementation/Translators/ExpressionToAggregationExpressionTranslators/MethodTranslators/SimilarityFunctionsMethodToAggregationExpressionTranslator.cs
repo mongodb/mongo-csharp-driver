@@ -40,16 +40,16 @@ internal static class SimilarityFunctionsMethodToAggregationExpressionTranslator
             var normalizeTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, arguments[2]);
             SerializationHelper.EnsureRepresentationIsBoolean(expression, arguments[2], normalizeTranslation);
 
-            var @operator = method.Name switch
+            var ast = method.Name switch
             {
-                "Cosine" => AstNaryOperator.Cosine,
-                "DotProduct" => AstNaryOperator.DotProduct,
-                "Euclidean" => AstNaryOperator.Euclidean,
+                "Cosine" => AstExpression.Cosine(
+                    vectors1Translation.Ast, vectors2Translation.Ast, normalizeTranslation.Ast),
+                "DotProduct" => AstExpression.DotProduct(
+                    vectors1Translation.Ast, vectors2Translation.Ast, normalizeTranslation.Ast),
+                "Euclidean" => AstExpression.Euclidean(
+                    vectors1Translation.Ast, vectors2Translation.Ast, normalizeTranslation.Ast),
                 _ => throw new ArgumentException($"Unexpected method name: {method.Name}.", nameof(method))
             };
-
-            var ast = AstExpression.SimilarityFunction(@operator, vectors1Translation.Ast,
-                vectors2Translation.Ast, normalizeTranslation.Ast);
 
             return new TranslatedExpression(expression, ast, DoubleSerializer.Instance);
         }
