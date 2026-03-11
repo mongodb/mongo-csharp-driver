@@ -36,6 +36,7 @@ namespace MongoDB.Driver
         private static Dictionary<string, MongoUrl> __cache = new Dictionary<string, MongoUrl>();
 
         // private fields
+        private readonly bool? _adaptiveRetries;
         private readonly bool _allowInsecureTls;
         private readonly string _applicationName;
         private readonly string _authenticationMechanism;
@@ -99,6 +100,7 @@ namespace MongoDB.Driver
 
         internal MongoUrl(MongoUrlBuilder builder)
         {
+            _adaptiveRetries = builder.AdaptiveRetries;
             _allowInsecureTls = builder.AllowInsecureTls;
             _applicationName = builder.ApplicationName;
             _authenticationMechanism = builder.AuthenticationMechanism;
@@ -153,6 +155,11 @@ namespace MongoDB.Driver
         }
 
         // public properties
+        /// <summary>
+        /// Gets a value indicating whether adaptive retries are enabled.
+        /// </summary>
+        public bool? AdaptiveRetries => _adaptiveRetries;
+
         /// <summary>
         /// Gets whether to relax TLS constraints as much as possible.
         /// </summary>

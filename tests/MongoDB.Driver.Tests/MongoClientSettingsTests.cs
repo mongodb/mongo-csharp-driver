@@ -39,6 +39,21 @@ namespace MongoDB.Driver.Tests
         private readonly MongoServerAddress _localHost = new MongoServerAddress("localhost");
 
         [Fact]
+        public void TestAdaptiveRetries()
+        {
+            var settings = new MongoClientSettings();
+            Assert.Equal(false, settings.AdaptiveRetries);
+
+            var adaptiveRetries = true;
+            settings.AdaptiveRetries = adaptiveRetries;
+            Assert.Equal(adaptiveRetries, settings.AdaptiveRetries);
+
+            settings.Freeze();
+            Assert.Equal(adaptiveRetries, settings.AdaptiveRetries);
+            Assert.Throws<InvalidOperationException>(() => { settings.AdaptiveRetries = false; });
+        }
+
+        [Fact]
         public void TestAllowInsecureTls()
         {
             var settings = new MongoClientSettings();
@@ -100,6 +115,18 @@ namespace MongoDB.Driver.Tests
             settings.Credential = MongoCredential.CreateCredential("database", "username", "password").WithMechanismProperty("SERVICE_NAME", "other");
             settings.SslSettings = new SslSettings { CheckCertificateRevocation = false };
             settings.ServerApi = new ServerApi(ServerApiVersion.V1, true, true);
+
+            var clone = settings.Clone();
+            Assert.Equal(settings, clone);
+        }
+
+        [Fact]
+        public void TestCloneAdaptiveRetries()
+        {
+            var connectionString = "mongodb://somehost/?adaptiveRetries=true";
+            var builder = new MongoUrlBuilder(connectionString);
+            var url = builder.ToMongoUrl();
+            var settings = MongoClientSettings.FromUrl(url);
 
             var clone = settings.Clone();
             Assert.Equal(settings, clone);
@@ -237,6 +264,7 @@ namespace MongoDB.Driver.Tests
         public void TestDefaults()
         {
             var settings = new MongoClientSettings();
+            Assert.Equal(false, settings.AdaptiveRetries);
             Assert.Equal(false, settings.AllowInsecureTls);
             Assert.Equal(null, settings.ApplicationName);
             Assert.Equal(DefaultClusterSource.Instance, settings.ClusterSource);
@@ -326,6 +354,10 @@ namespace MongoDB.Driver.Tests
 
             clone = settings.Clone();
             clone.ApplicationName = "app2";
+            Assert.False(clone.Equals(settings));
+
+            clone = settings.Clone();
+            clone.AdaptiveRetries = !settings.AdaptiveRetries;
             Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
@@ -584,7 +616,7 @@ namespace MongoDB.Driver.Tests
             // with the exception of tlsDisableCertificateRevocationCheck because setting that with tlsInsecure is
             // not allowed in a connection string
             var connectionString =
-                "mongodb://user1:password1@somehost/?appname=app1;authSource=db;authMechanismProperties=CANONICALIZE_HOST_NAME:true;" +
+                "mongodb://user1:password1@somehost/?adaptiveRetries=true;appname=app1;authSource=db;authMechanismProperties=CANONICALIZE_HOST_NAME:true;" +
                 "compressors=zlib,snappy;zlibCompressionLevel=9;connectTimeout=123;directConnection=true;ipv6=true;heartbeatInterval=1m;heartbeatTimeout=2m;loadBalanced=false;localThreshold=128;" +
                 "maxConnecting=3;maxIdleTime=124;maxLifeTime=125;maxPoolSize=126;minPoolSize=127;readConcernLevel=majority;" +
                 "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;retryReads=false;retryWrites=true;socketTimeout=129;" +
@@ -595,6 +627,7 @@ namespace MongoDB.Driver.Tests
             var url = builder.ToMongoUrl();
 
             var settings = MongoClientSettings.FromUrl(url);
+            Assert.Equal(url.AdaptiveRetries, settings.AdaptiveRetries);
             Assert.Equal(url.AllowInsecureTls, settings.AllowInsecureTls);
             Assert.Equal(url.ApplicationName, settings.ApplicationName);
             Assert.Equal(DefaultClusterSource.Instance, settings.ClusterSource);

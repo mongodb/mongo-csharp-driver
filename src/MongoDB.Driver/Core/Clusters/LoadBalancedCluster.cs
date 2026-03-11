@@ -48,19 +48,21 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly InterlockedInt32 _state;
         private readonly EventLogger<LogCategories.SDAM> _eventLogger;
         private readonly EventLogger<LogCategories.ServerSelection> _serverSelectionEventLogger;
-        private readonly TokenBucket _tokenBucket = new();
+        private readonly TokenBucket _tokenBucket;
 
         public LoadBalancedCluster(
             ClusterSettings settings,
             IClusterableServerFactory serverFactory,
             IEventSubscriber eventSubscriber,
-            ILoggerFactory loggerFactory)
+            ILoggerFactory loggerFactory,
+            bool adaptiveRetries = false)
             : this(
                   settings,
                   serverFactory,
                   eventSubscriber,
                   loggerFactory,
-                  dnsMonitorFactory: new DnsMonitorFactory(new EventAggregator(), loggerFactory)) // should not trigger any events
+                  dnsMonitorFactory: new DnsMonitorFactory(new EventAggregator(), loggerFactory),  // should not trigger any events
+                  adaptiveRetries)
         {
         }
 
@@ -69,7 +71,8 @@ namespace MongoDB.Driver.Core.Clusters
             IClusterableServerFactory serverFactory,
             IEventSubscriber eventSubscriber,
             ILoggerFactory loggerFactory,
-            IDnsMonitorFactory dnsMonitorFactory)
+            IDnsMonitorFactory dnsMonitorFactory,
+            bool adaptiveRetries = false)
         {
             Ensure.That(!settings.DirectConnection, $"DirectConnection mode is not supported for {nameof(LoadBalancedCluster)}.");
             Ensure.That(settings.LoadBalanced, $"Only Load balanced mode is supported for a {nameof(LoadBalancedCluster)}.");
@@ -95,6 +98,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             _eventLogger = loggerFactory.CreateEventLogger<LogCategories.SDAM>(eventSubscriber);
             _serverSelectionEventLogger = loggerFactory.CreateEventLogger<LogCategories.ServerSelection>(eventSubscriber);
+            _tokenBucket = adaptiveRetries ? new TokenBucket() : null;
         }
 
         public ClusterId ClusterId => _clusterId;

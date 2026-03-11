@@ -144,7 +144,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestAll()
         {
-            var readPreference = new ReadPreference(ReadPreferenceMode.Secondary, new[] { new TagSet(new[] { new Tag("dc", "1") }) }, TimeSpan.FromSeconds(11));
+            var readPreference = new ReadPreference(ReadPreferenceMode.Secondary, [new TagSet([new Tag("dc", "1")])], TimeSpan.FromSeconds(11));
             var authMechanismProperties = new Dictionary<string, string>
             {
                 { "SERVICE_NAME", "other" },
@@ -156,6 +156,7 @@ namespace MongoDB.Driver.Tests
 
             var built = new MongoUrlBuilder()
             {
+                AdaptiveRetries = true,
                 AllowInsecureTls = true,
                 ApplicationName = "app",
                 AuthenticationMechanism = "GSSAPI",
@@ -200,6 +201,7 @@ namespace MongoDB.Driver.Tests
             };
 
             var connectionString = "mongodb://username:password@host/database?" + string.Join("&", new[] {
+                "adaptiveRetries=true",
                 "authMechanism=GSSAPI",
                 "authMechanismProperties=SERVICE_NAME:other,CANONICALIZE_HOST_NAME:true",
                 "authSource=db",
@@ -239,6 +241,7 @@ namespace MongoDB.Driver.Tests
 
             foreach (var url in EnumerateBuiltAndParsedUrls(built, connectionString))
             {
+                Assert.Equal(true, url.AdaptiveRetries);
                 Assert.Equal(true, url.AllowInsecureTls);
                 Assert.Equal("app", url.ApplicationName);
                 Assert.Equal("GSSAPI", url.AuthenticationMechanism);
