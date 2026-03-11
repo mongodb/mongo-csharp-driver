@@ -178,17 +178,7 @@ namespace MongoDB.Bson
         /// <param name="chars">The result span of characters.</param>
         public static void ToHexChars(ReadOnlySpan<byte> bytes, Span<char> chars)
         {
-            if (chars.Length != bytes.Length * 2)
-            {
-                throw new ArgumentException("Length of character span should be 2 times the length of byte span");
-            }
-            int length = bytes.Length;
-            for (int i = 0, j = 0; i < length; i++)
-            {
-                var b = bytes[i];
-                chars[j++] = ToHexChar(b >> 4);
-                chars[j++] = ToHexChar(b & 0x0f);
-            }
+            HexConverter.ToHexChars(bytes, chars);
         }
 
         /// <summary>
@@ -290,94 +280,92 @@ namespace MongoDB.Bson
 
         private static class HexParser
         {
-            private static readonly int s_min = Math.Min(Math.Min('a', 'A'), '0');
-            private static readonly int s_max = Math.Max(Math.Max('f', 'F'), '9');
-
-            private static readonly byte[] s_lookup = CreateLookup();
-
-            private static byte[] CreateLookup()
-            {
-                var result = new byte[s_max - s_min + 1];
-                for (var i = 0; i < result.Length; i++)
-                {
-                    result[i] = HexToByte((char)(i + s_min));
-                }
-                return result;
-                static byte HexToByte(char ch)
-                {
-                    if (char.IsDigit(ch))
-                    {
-                        return (byte)(ch - '0');
-                    }
-                    else if ('A' <= ch && ch <= 'F')
-                    {
-                        return (byte)(10 + ch - 'A');
-                    }
-                    else if ('a' <= ch && ch <= 'f')
-                    {
-                        return (byte)(10 + ch - 'a');
-                    }
-                    else
-                    {
-                        return byte.MaxValue;
-                    }
-                }
-            }
-
             public static bool TryParse(ReadOnlySpan<char> chars, Span<byte> bytes)
             {
                 if (bytes.Length != (chars.Length + 1) / 2)
                     return false;
+
                 int j = 0;
-                if ((chars.Length & 1) == 1)
+                int i = 0;
+
+                if ((chars.Length & 1) != 0)
                 {
-                    // if chars has an odd length assume an implied leading "0"
                     if (!TryParseChar(chars[0], out byte b))
                         return false;
+
                     bytes[j++] = b;
-                    chars = chars.Slice(1);
+                    i = 1;
                 }
-                for (int i = 0; i < chars.Length; i += 2)
+
+                for (; i < chars.Length; i += 2)
                 {
-                    if (!TryParseChars(chars.Slice(i, 2), out byte b))
+                    if (!TryParseChar(chars[i], out byte upper) ||
+                        !TryParseChar(chars[i + 1], out byte lower))
                         return false;
-                    bytes[j++] = b;
+
+                    bytes[j++] = (byte)((upper << 4) | lower);
                 }
+
                 return true;
             }
 
-            public static bool TryParseChars(ReadOnlySpan<char> chars, out byte value)
+            public static bool TryParseChar(char c, out byte value)
             {
-                if (chars.Length == 1)
-                {
-                    return TryParseChar(chars[0], out value);
-                }
-                if (chars.Length >= 2
-                    && TryParseChar(chars[0], out byte upper)
-                    && TryParseChar(chars[1], out byte lower))
-                {
-                    value = (byte)((upper << 4) | lower);
-                    return true;
-                }
-                else
-                {
-                    value = default;
-                    return false;
-                }
-            }
+                int x = c;
 
-            public static bool TryParseChar(char ch, out byte result)
-            {
-                int index = ch - s_min;
-                if (0 <= index && index < s_lookup.Length && s_lookup[index] != byte.MaxValue)
+                int digit = x - '0';
+                if ((uint)digit <= 9)
                 {
-                    result = s_lookup[index];
+                    value = (byte)digit;
                     return true;
                 }
-                else
+
+                int alpha = (x & ~0x20) - 'A';
+                if ((uint)alpha <= 5)
                 {
-                    result = default;
-                    return false;
+                    value = (byte)(alpha + 10);
+                    return true;
+                }
+
+                value = default;
+                return false;
+            }
+        }
+
+        private static class HexConverter
+        {
+            private static readonly uint[] s_hexLookup = CreateLookup();
+
+            private static uint[] CreateLookup()
+            {
+                var result = new uint[256];
+
+                for (int i = 0; i < 256; i++)
+                {
+                    int hi = i >> 4;
+                    int lo = i & 0xF;
+
+                    uint c1 = (uint)(hi + (hi < 10 ? '0' : 'a' - 10));
+                    uint c2 = (uint)(lo + (lo < 10 ? '0' : 'a' - 10));
+
+                    result[i] = c1 | (c2 << 16);
+                }
+
+                return result;
+            }
+            public static void ToHexChars(ReadOnlySpan<byte> bytes, Span<char> chars)
+            {
+                if (chars.Length != bytes.Length * 2)
+                    throw new ArgumentException("Length of character span should be 2x byte span");
+
+                int j = 0;
+
+                for (int i = 0; i < bytes.Length; i++)
+                {
+                    uint packed = s_hexLookup[bytes[i]];
+
+                    chars[j++] = (char)packed;
+                    chars[j++] = (char)(packed >> 16);
                 }
             }
         }
