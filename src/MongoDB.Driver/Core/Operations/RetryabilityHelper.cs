@@ -33,6 +33,7 @@ namespace MongoDB.Driver.Core.Operations
         private const string RetryableWriteErrorLabel = "RetryableWriteError";
         private const string RetryableErrorLabel = "RetryableError";
         private const string SystemOverloadedErrorLabel = "SystemOverloadedError";
+        public const string NoWritesPerformedErrorLabel = "NoWritesPerformed";
 
         // private static fields
         private static readonly HashSet<ServerErrorCode> __resumableChangeStreamErrorCodes;

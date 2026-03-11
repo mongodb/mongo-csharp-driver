@@ -80,7 +80,10 @@ namespace MongoDB.Driver.Core.Operations
                 }
                 catch (Exception ex)
                 {
-                    originalException ??= ex;
+                    if (originalException == null || !HasNoWritesPerformedLabel(ex))
+                    {
+                        originalException = ex;
+                    }
 
                     if (!ShouldRetry(operationContext, !channelAcquisitionSuccessful, server, operation.WriteConcern, context, tokenBucket, ex, totalAttempts, context.Random, out var backoff))
                     {
@@ -148,7 +151,10 @@ namespace MongoDB.Driver.Core.Operations
                 }
                 catch (Exception ex)
                 {
-                    originalException ??= ex;
+                    if (originalException == null || !HasNoWritesPerformedLabel(ex))
+                    {
+                        originalException = ex;
+                    }
 
                     if (!ShouldRetry(operationContext, !channelAcquisitionSuccessful, server, operation.WriteConcern, context, tokenBucket, ex, totalAttempts, context.Random, out var backoff))
                     {
@@ -251,6 +257,10 @@ namespace MongoDB.Driver.Core.Operations
                AreRetryableWritesSupported(server) &&
                context.Binding.Session.Id != null &&
                !context.Binding.Session.IsInTransaction;
+
+        private static bool HasNoWritesPerformedLabel(Exception exception)
+            => exception is MongoException mongoException &&
+               mongoException.HasErrorLabel(RetryabilityHelper.NoWritesPerformedErrorLabel);
 
         private static bool IsOperationAcknowledged(WriteConcern writeConcern)
             => writeConcern == null || // null means use server default write concern which implies acknowledged
