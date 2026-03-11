@@ -382,10 +382,9 @@ namespace MongoDB.Bson
 
         private static void FromSpan(ReadOnlySpan<byte> bytes, out int a, out int b, out int c)
         {
-            var ints = MemoryMarshal.Cast<byte, int>(bytes);
-            a = BinaryPrimitives.ReverseEndianness(ints[0]);
-            b = BinaryPrimitives.ReverseEndianness(ints[1]);
-            c = BinaryPrimitives.ReverseEndianness(ints[2]);
+            a = BinaryPrimitives.ReadInt32BigEndian(bytes);
+            b = BinaryPrimitives.ReadInt32BigEndian(bytes.Slice(4));
+            c = BinaryPrimitives.ReadInt32BigEndian(bytes.Slice(8));
         }
 
         // public methods
