@@ -227,6 +227,11 @@ namespace MongoDB.Driver.Core.Operations
             return exception is MongoException mongoException && mongoException.HasErrorLabel(RetryableErrorLabel);
         }
 
+        public static bool IsNoWritesPerformedException(Exception exception)
+        {
+            return exception is MongoException mongoException && mongoException.HasErrorLabel(NoWritesPerformedErrorLabel);
+        }
+
         // private static methods
         private static bool IsNetworkException(Exception exception)
         {

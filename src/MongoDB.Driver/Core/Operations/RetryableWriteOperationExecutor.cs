@@ -80,7 +80,7 @@ namespace MongoDB.Driver.Core.Operations
                 }
                 catch (Exception ex)
                 {
-                    if (originalException == null || !HasNoWritesPerformedLabel(ex))
+                    if (originalException == null || WritesWereAttempted(ex, channelAcquisitionSuccessful))
                     {
                         originalException = ex;
                     }
@@ -151,7 +151,7 @@ namespace MongoDB.Driver.Core.Operations
                 }
                 catch (Exception ex)
                 {
-                    if (originalException == null || !HasNoWritesPerformedLabel(ex))
+                    if (originalException == null || WritesWereAttempted(ex, channelAcquisitionSuccessful))
                     {
                         originalException = ex;
                     }
@@ -258,9 +258,8 @@ namespace MongoDB.Driver.Core.Operations
                context.Binding.Session.Id != null &&
                !context.Binding.Session.IsInTransaction;
 
-        private static bool HasNoWritesPerformedLabel(Exception exception)
-            => exception is MongoException mongoException &&
-               mongoException.HasErrorLabel(RetryabilityHelper.NoWritesPerformedErrorLabel);
+        private static bool WritesWereAttempted(Exception exception, bool channelAcquisitionSuccessful)
+            => channelAcquisitionSuccessful && !RetryabilityHelper.IsNoWritesPerformedException(exception);
 
         private static bool IsOperationAcknowledged(WriteConcern writeConcern)
             => writeConcern == null || // null means use server default write concern which implies acknowledged
