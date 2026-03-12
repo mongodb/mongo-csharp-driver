@@ -291,8 +291,39 @@ namespace MongoDB.Bson
             return HexParser.TryParse(s, bytes);
         }
 
+        /// <summary>
+        /// Tries to parse 2 hex characters and combine them into a single byte
+        /// </summary>
+        /// <param name="c1">The first character</param>
+        /// <param name="c2">The second character</param>
+        /// <param name="value">The combined byte value</param>
+        /// <returns>True if the hex characters were successfully parsed.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool TryParseByte(char c1, char c2, out byte value)
+        {
+            return HexParser.TryParseByte(c1, c2, out value);
+        }
+
         private static class HexParser
         {
+            private static readonly int[] s_lookup = CreateLookup();
+
+            private static int[] CreateLookup()
+            {
+                var table = new int[128];
+                table.AsSpan().Fill(0xFF);
+                for (int i = 0; i < 10; i++)
+                {
+                    table[i + '0'] = (byte)i;
+                }
+                for (int i = 0; i < 6; i++)
+                {
+                    table[i + 'a'] = (byte)(i + 10);
+                    table[i + 'A'] = (byte)(i + 10);
+                }
+                return table;
+            }
+
             public static bool TryParse(ReadOnlySpan<char> chars, Span<byte> bytes)
             {
                 if (bytes.Length != (chars.Length + 1) / 2)
@@ -303,7 +334,7 @@ namespace MongoDB.Bson
 
                 if ((chars.Length & 1) != 0)
                 {
-                    if (!TryParseChar(chars[0], out byte b))
+                    if (!TryParseByte('0', chars[0], out byte b))
                         return false;
 
                     bytes[j++] = b;
@@ -312,36 +343,29 @@ namespace MongoDB.Bson
 
                 for (; i < chars.Length; i += 2)
                 {
-                    if (!TryParseChar(chars[i], out byte upper) ||
-                        !TryParseChar(chars[i + 1], out byte lower))
+                    if (!TryParseByte(chars[i], chars[i + 1], out byte b))
                         return false;
 
-                    bytes[j++] = (byte)((upper << 4) | lower);
+                    bytes[j++] = b;
                 }
 
                 return true;
             }
 
-            public static bool TryParseChar(char c, out byte value)
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public static bool TryParseByte(char c1, char c2, out byte value)
             {
-                int x = c;
+                int n1 = c1 < 128 ? s_lookup[c1] : 0xFF;
+                int n2 = c2 < 128 ? s_lookup[c2] : 0xFF;
 
-                int digit = x - '0';
-                if ((uint)digit <= 9)
+                if ((n1 | n2) == 0xFF)
                 {
-                    value = (byte)digit;
-                    return true;
+                    value = default;
+                    return false;
                 }
 
-                int alpha = (x & ~0x20) - 'A';
-                if ((uint)alpha <= 5)
-                {
-                    value = (byte)(alpha + 10);
-                    return true;
-                }
-
-                value = default;
-                return false;
+                value = (byte)((n1 << 4) | n2);
+                return true;
             }
         }
 

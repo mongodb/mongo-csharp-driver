@@ -80,7 +80,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">The value.</param>
         public ObjectId(string value)
-            : this(value is null ? throw new ArgumentNullException("value") :value.AsSpan())
+            : this(value is null ? throw new ArgumentNullException("value") : value.AsSpan())
         {
         }
 
@@ -96,7 +96,10 @@ namespace MongoDB.Bson
             }
 
             Span<byte> bytes = stackalloc byte[12];
-            BsonUtils.ParseHexChars(value, bytes);
+            if (!TryFillBytes(value, bytes))
+            {
+                throw new FormatException("String should contain only hexadecimal digits.");
+            }
             FromSpan(bytes, out _a, out _b, out _c);
         }
 
@@ -275,15 +278,15 @@ namespace MongoDB.Bson
         /// <summary>
         /// Tries to parse a string and create a new ObjectId.
         /// </summary>
-        /// <param name="s">The string value.</param>
+        /// <param name="chars">The string value.</param>
         /// <param name="objectId">The new ObjectId.</param>
         /// <returns>True if the string was parsed successfully.</returns>
-        public static bool TryParse(ReadOnlySpan<char> s, out ObjectId objectId)
+        public static bool TryParse(ReadOnlySpan<char> chars, out ObjectId objectId)
         {
-            if (s.Length == 24)
+            if (chars.Length == 24)
             {
                 Span<byte> bytes = stackalloc byte[12];
-                if (BsonUtils.TryParseHexChars(s, bytes))
+                if (TryFillBytes(chars, bytes))
                 {
                     objectId = new ObjectId(bytes);
                     return true;
@@ -293,6 +296,22 @@ namespace MongoDB.Bson
             objectId = default(ObjectId);
             return false;
         }
+
+        private static bool TryFillBytes(ReadOnlySpan<char> chars, Span<byte> bytes) =>
+            chars.Length == 24 &&
+            bytes.Length == 12 &&
+            BsonUtils.TryParseByte(chars[0], chars[1], out bytes[0]) &&
+            BsonUtils.TryParseByte(chars[2], chars[3], out bytes[1]) &&
+            BsonUtils.TryParseByte(chars[4], chars[5], out bytes[2]) &&
+            BsonUtils.TryParseByte(chars[6], chars[7], out bytes[3]) &&
+            BsonUtils.TryParseByte(chars[8], chars[9], out bytes[4]) &&
+            BsonUtils.TryParseByte(chars[10], chars[11], out bytes[5]) &&
+            BsonUtils.TryParseByte(chars[12], chars[13], out bytes[6]) &&
+            BsonUtils.TryParseByte(chars[14], chars[15], out bytes[7]) &&
+            BsonUtils.TryParseByte(chars[16], chars[17], out bytes[8]) &&
+            BsonUtils.TryParseByte(chars[18], chars[19], out bytes[9]) &&
+            BsonUtils.TryParseByte(chars[20], chars[21], out bytes[10]) &&
+            BsonUtils.TryParseByte(chars[22], chars[23], out bytes[11]);
 
         // internal static methods
         internal static long CalculateRandomValue()
@@ -520,7 +539,7 @@ namespace MongoDB.Bson
             uintSpan[6] = BsonUtils.GetHexChars((byte)(_b >> 8));
             uintSpan[7] = BsonUtils.GetHexChars((byte)_b);
             uintSpan[8] = BsonUtils.GetHexChars((byte)(_c >> 24));
-            uintSpan[9] =  BsonUtils.GetHexChars((byte)(_c >> 16));
+            uintSpan[9] = BsonUtils.GetHexChars((byte)(_c >> 16));
             uintSpan[10] = BsonUtils.GetHexChars((byte)(_c >> 8));
             uintSpan[11] = BsonUtils.GetHexChars((byte)_c);
         }
