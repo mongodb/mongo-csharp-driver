@@ -212,9 +212,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case "TrimStart":
                     return TrimMethodToAggregationExpressionTranslator.Translate(context, expression);
 
-                case "DotProduct":
-                case "Euclidean":
-                case "Cosine":
+                case nameof(Mql.SimilarityDotProduct):
+                case nameof(Mql.SimilarityEuclidean):
+                case nameof(Mql.SimilarityCosine):
                     return SimilarityFunctionsMethodToAggregationExpressionTranslator.Translate(context, expression);
             }
 

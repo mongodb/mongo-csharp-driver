@@ -319,9 +319,9 @@ internal partial class SerializerFinderVisitor
                     DeduceToLowerOrToUpperSerializers();
                     break;
 
-                case "DotProduct":
-                case "Euclidean":
-                case "Cosine":
+                case nameof(Mql.SimilarityDotProduct):
+                case nameof(Mql.SimilarityEuclidean):
+                case nameof(Mql.SimilarityCosine):
                     DeduceSimilarityFunctionsSerializers();
                     break;
 
@@ -2445,7 +2445,7 @@ internal partial class SerializerFinderVisitor
 
         void DeduceSimilarityFunctionsSerializers()
         {
-            if (method.IsOneOf(SimilarityFunctionsMethod.SimilarityFunctionOverloads))
+            if (method.IsOneOf(MqlMethod.SimilarityFunctionOverloads))
             {
                 DeduceReturnsNumericSerializer();
             }

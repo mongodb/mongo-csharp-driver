@@ -29,7 +29,7 @@ internal static class SimilarityFunctionsMethodToAggregationExpressionTranslator
         var method = expression.Method;
         var arguments = expression.Arguments;
 
-        if (method.IsOneOf(SimilarityFunctionsMethod.SimilarityFunctionOverloads))
+        if (method.IsOneOf(MqlMethod.SimilarityFunctionOverloads))
         {
             var vectors1Translation = ExpressionToAggregationExpressionTranslator.Translate(context, arguments[0]);
             SerializationHelper.EnsureRepresentationIsArray(expression, vectors1Translation.Serializer);
@@ -42,11 +42,11 @@ internal static class SimilarityFunctionsMethodToAggregationExpressionTranslator
 
             var ast = method.Name switch
             {
-                "Cosine" => AstExpression.Cosine(
+                nameof(Mql.SimilarityCosine) => AstExpression.Cosine(
                     vectors1Translation.Ast, vectors2Translation.Ast, normalizeTranslation.Ast),
-                "DotProduct" => AstExpression.DotProduct(
+                nameof(Mql.SimilarityDotProduct) => AstExpression.DotProduct(
                     vectors1Translation.Ast, vectors2Translation.Ast, normalizeTranslation.Ast),
-                "Euclidean" => AstExpression.Euclidean(
+                nameof(Mql.SimilarityEuclidean) => AstExpression.Euclidean(
                     vectors1Translation.Ast, vectors2Translation.Ast, normalizeTranslation.Ast),
                 _ => throw new ArgumentException($"Unexpected method name: {method.Name}.", nameof(method))
             };
