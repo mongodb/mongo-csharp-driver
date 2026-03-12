@@ -14,10 +14,10 @@
 */
 
 using System;
+using System.Collections.Generic;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
 namespace MongoDB.Driver
 {
@@ -177,5 +177,95 @@ namespace MongoDB.Driver
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
+
+        /// <summary>
+        /// Translated to the "$similarityDotProduct" operator in MQL to measure the similarity between two vectors.
+        /// </summary>
+        /// <param name="vector1">The first vector to compare. Must have the same length as the second vector.</param>
+        /// <param name="vector2">The second vector to compare. Must have the same length as the first vector.</param>
+        /// <param name="normalizeScore">Whether to normalize the result for use as a vector search score.</param>
+        /// <typeparam name="TElement">The vector element type</typeparam>
+        /// <returns>The dot-product measure between the two vectors.</returns>
+        /// <exception cref="NotSupportedException">if executed.</exception>
+        public static double SimilarityDotProduct<TElement>(
+            IEnumerable<TElement> vector1,
+            IEnumerable<TElement> vector2,
+            bool normalizeScore)
+            => throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+
+        /// <summary>
+        /// Translated to the "$similarityDotProduct" operator in MQL to measure the similarity between two vectors.
+        /// </summary>
+        /// <param name="vector1">The first vector to compare. Must have the same length as the second vector.</param>
+        /// <param name="vector2">The second vector to compare. Must have the same length as the first vector.</param>
+        /// <param name="normalizeScore">Whether to normalize the result for use as a vector search score.</param>
+        /// <typeparam name="TElement">The vector element type</typeparam>
+        /// <returns>The dot-product measure between the two vectors.</returns>
+        /// <exception cref="NotSupportedException">if executed.</exception>
+        public static double SimilarityDotProduct<TElement>(
+            ReadOnlyMemory<TElement> vector1,
+            ReadOnlyMemory<TElement> vector2,
+            bool normalizeScore)
+            => throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+
+        /// <summary>
+        /// Translated to the "$similarityCosine" operator in MQL to measure the similarity between two vectors.
+        /// </summary>
+        /// <param name="vector1">The first vector to compare. Must have the same length as the second vector.</param>
+        /// <param name="vector2">The second vector to compare. Must have the same length as the first vector.</param>
+        /// <param name="normalizeScore">Whether to normalize the result for use as a vector search score.</param>
+        /// <typeparam name="TElement">The vector element type</typeparam>
+        /// <returns>The cosine measure between the two vectors.</returns>
+        /// <exception cref="NotSupportedException">if executed.</exception>
+        public static double SimilarityCosine<TElement>(
+            IEnumerable<TElement> vector1,
+            IEnumerable<TElement> vector2,
+            bool normalizeScore)
+            => throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+
+        /// <summary>
+        /// Translated to the "$similarityCosine" operator in MQL to measure the similarity between two vectors.
+        /// </summary>
+        /// <param name="vector1">The first vector to compare. Must have the same length as the second vector.</param>
+        /// <param name="vector2">The second vector to compare. Must have the same length as the first vector.</param>
+        /// <param name="normalizeScore">Whether to normalize the result for use as a vector search score.</param>
+        /// <typeparam name="TElement">The vector element type</typeparam>
+        /// <returns>The cosine measure between the two vectors.</returns>
+        /// <exception cref="NotSupportedException">if executed.</exception>
+        public static double SimilarityCosine<TElement>(
+            ReadOnlyMemory<TElement> vector1,
+            ReadOnlyMemory<TElement> vector2,
+            bool normalizeScore)
+            => throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+
+        /// <summary>
+        /// Translated to the "$similarityEuclidean" operator in MQL to measure the similarity between two vectors.
+        /// </summary>
+        /// <param name="vector1">The first vector to compare. Must have the same length as the second vector.</param>
+        /// <param name="vector2">The second vector to compare. Must have the same length as the first vector.</param>
+        /// <param name="normalizeScore">Whether to normalize the result for use as a vector search score.</param>
+        /// <typeparam name="TElement">The vector element type</typeparam>
+        /// <returns>The Euclidean measure between the two vectors.</returns>
+        /// <exception cref="NotSupportedException">if executed.</exception>
+        public static double SimilarityEuclidean<TElement>(
+            IEnumerable<TElement> vector1,
+            IEnumerable<TElement> vector2,
+            bool normalizeScore)
+            => throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+
+        /// <summary>
+        /// Translated to the "$similarityEuclidean" operator in MQL to measure the similarity between two vectors.
+        /// </summary>
+        /// <param name="vector1">The first vector to compare. Must have the same length as the second vector.</param>
+        /// <param name="vector2">The second vector to compare. Must have the same length as the first vector.</param>
+        /// <param name="normalizeScore">Whether to normalize the result for use as a vector search score.</param>
+        /// <typeparam name="TElement">The vector element type</typeparam>
+        /// <returns>The Euclidean measure between the two vectors.</returns>
+        /// <exception cref="NotSupportedException">if executed.</exception>
+        public static double SimilarityEuclidean<TElement>(
+            ReadOnlyMemory<TElement> vector1,
+            ReadOnlyMemory<TElement> vector2,
+            bool normalizeScore)
+            => throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
     }
 }

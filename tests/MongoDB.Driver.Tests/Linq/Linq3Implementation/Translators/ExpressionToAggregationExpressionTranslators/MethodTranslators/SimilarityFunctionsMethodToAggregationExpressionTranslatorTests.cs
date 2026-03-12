@@ -38,7 +38,7 @@ public class SimilarityFunctionsMethodToAggregationExpressionTranslatorTests : L
         var collection = Fixture.Collection;
         var queryable = collection
             .AsQueryable()
-            .Select(i => SimilarityFunctions.DotProduct(i.FloatArray1, i.FloatArray2, true));
+            .Select(i => Mql.SimilarityDotProduct(i.FloatArray1, i.FloatArray2, true));
 
         var stages = Translate(collection, queryable);
 
@@ -54,7 +54,7 @@ public class SimilarityFunctionsMethodToAggregationExpressionTranslatorTests : L
         var collection = Fixture.Collection;
         var queryable = collection
             .AsQueryable()
-            .Select(i => SimilarityFunctions.DotProduct(i.FloatList1, i.FloatList2, true));
+            .Select(i => Mql.SimilarityDotProduct(i.FloatList1, i.FloatList2, true));
 
         var stages = Translate(collection, queryable);
 
@@ -70,7 +70,7 @@ public class SimilarityFunctionsMethodToAggregationExpressionTranslatorTests : L
         var collection = Fixture.Collection;
         var queryable = collection
             .AsQueryable()
-            .Select(i => SimilarityFunctions.DotProduct(i.FloatCollection1, i.FloatCollection2, true));
+            .Select(i => Mql.SimilarityDotProduct(i.FloatCollection1, i.FloatCollection2, true));
 
         var stages = Translate(collection, queryable);
 
@@ -86,7 +86,7 @@ public class SimilarityFunctionsMethodToAggregationExpressionTranslatorTests : L
         var collection = Fixture.Collection;
         var queryable = collection
             .AsQueryable()
-            .Select(i => SimilarityFunctions.DotProduct(i.FloatMemory1, i.FloatMemory2, true));
+            .Select(i => Mql.SimilarityDotProduct(i.FloatMemory1, i.FloatMemory2, true));
 
         var stages = Translate(collection, queryable);
 
@@ -102,7 +102,7 @@ public class SimilarityFunctionsMethodToAggregationExpressionTranslatorTests : L
         var collection = Fixture.Collection;
         var queryable = collection
             .AsQueryable()
-            .Select(i => SimilarityFunctions.DotProduct(i.DoubleArray1, i.DoubleArray2, true));
+            .Select(i => Mql.SimilarityDotProduct(i.DoubleArray1, i.DoubleArray2, true));
 
         var stages = Translate(collection, queryable);
 
@@ -119,7 +119,7 @@ public class SimilarityFunctionsMethodToAggregationExpressionTranslatorTests : L
         var collection = Fixture.Collection;
         var queryable = collection
             .AsQueryable()
-            .Select(i => SimilarityFunctions.DotProduct(i.DoubleList1, i.DoubleList2, normalize));
+            .Select(i => Mql.SimilarityDotProduct(i.DoubleList1, i.DoubleList2, normalize));
 
         var stages = Translate(collection, queryable);
 
@@ -139,7 +139,7 @@ public class SimilarityFunctionsMethodToAggregationExpressionTranslatorTests : L
         var collection = Fixture.Collection;
         var queryable = collection
             .AsQueryable()
-            .Select(i => SimilarityFunctions.DotProduct(i.DoubleCollection1, i.DoubleCollection2, true));
+            .Select(i => Mql.SimilarityDotProduct(i.DoubleCollection1, i.DoubleCollection2, true));
 
         var stages = Translate(collection, queryable);
 
@@ -155,7 +155,7 @@ public class SimilarityFunctionsMethodToAggregationExpressionTranslatorTests : L
         var collection = Fixture.Collection;
         var queryable = collection
             .AsQueryable()
-            .Select(i => SimilarityFunctions.DotProduct(i.DoubleMemory1, i.DoubleMemory2, true));
+            .Select(i => Mql.SimilarityDotProduct(i.DoubleMemory1, i.DoubleMemory2, true));
 
         var stages = Translate(collection, queryable);
 
@@ -172,7 +172,7 @@ public class SimilarityFunctionsMethodToAggregationExpressionTranslatorTests : L
         var collection = Fixture.Collection;
         var queryable = collection
             .AsQueryable()
-            .Select(i => SimilarityFunctions.Cosine(i.FloatArray1, i.FloatArray2, normalize));
+            .Select(i => Mql.SimilarityCosine(i.FloatArray1, i.FloatArray2, normalize));
 
         var stages = Translate(collection, queryable);
 
@@ -188,7 +188,7 @@ public class SimilarityFunctionsMethodToAggregationExpressionTranslatorTests : L
         var collection = Fixture.Collection;
         var queryable = collection
             .AsQueryable()
-            .Select(i => SimilarityFunctions.Cosine(i.FloatList1, i.FloatList2, true));
+            .Select(i => Mql.SimilarityCosine(i.FloatList1, i.FloatList2, true));
 
         var stages = Translate(collection, queryable);
 
@@ -204,7 +204,7 @@ public class SimilarityFunctionsMethodToAggregationExpressionTranslatorTests : L
         var collection = Fixture.Collection;
         var queryable = collection
             .AsQueryable()
-            .Select(i => SimilarityFunctions.Cosine(i.FloatCollection1, i.FloatCollection2, true));
+            .Select(i => Mql.SimilarityCosine(i.FloatCollection1, i.FloatCollection2, true));
 
         var stages = Translate(collection, queryable);
 
@@ -220,7 +220,7 @@ public class SimilarityFunctionsMethodToAggregationExpressionTranslatorTests : L
         var collection = Fixture.Collection;
         var queryable = collection
             .AsQueryable()
-            .Select(i => SimilarityFunctions.Cosine(i.FloatMemory1, i.FloatMemory2, true));
+            .Select(i => Mql.SimilarityCosine(i.FloatMemory1, i.FloatMemory2, true));
 
         var stages = Translate(collection, queryable);
 
@@ -236,7 +236,7 @@ public class SimilarityFunctionsMethodToAggregationExpressionTranslatorTests : L
         var collection = Fixture.Collection;
         var queryable = collection
             .AsQueryable()
-            .Select(i => SimilarityFunctions.Cosine(i.DoubleArray1, i.DoubleArray2, true));
+            .Select(i => Mql.SimilarityCosine(i.DoubleArray1, i.DoubleArray2, true));
 
         var stages = Translate(collection, queryable);
 
@@ -252,7 +252,7 @@ public class SimilarityFunctionsMethodToAggregationExpressionTranslatorTests : L
         var collection = Fixture.Collection;
         var queryable = collection
             .AsQueryable()
-            .Select(i => SimilarityFunctions.Cosine(i.DoubleList1, i.DoubleList2, true));
+            .Select(i => Mql.SimilarityCosine(i.DoubleList1, i.DoubleList2, true));
 
         var stages = Translate(collection, queryable);
 
@@ -268,7 +268,7 @@ public class SimilarityFunctionsMethodToAggregationExpressionTranslatorTests : L
         var collection = Fixture.Collection;
         var queryable = collection
             .AsQueryable()
-            .Select(i => SimilarityFunctions.Cosine(i.DoubleCollection1, i.DoubleCollection2, true));
+            .Select(i => Mql.SimilarityCosine(i.DoubleCollection1, i.DoubleCollection2, true));
 
         var stages = Translate(collection, queryable);
 
@@ -284,7 +284,7 @@ public class SimilarityFunctionsMethodToAggregationExpressionTranslatorTests : L
         var collection = Fixture.Collection;
         var queryable = collection
             .AsQueryable()
-            .Select(i => SimilarityFunctions.Cosine(i.DoubleMemory1, i.DoubleMemory2, true));
+            .Select(i => Mql.SimilarityCosine(i.DoubleMemory1, i.DoubleMemory2, true));
 
         var stages = Translate(collection, queryable);
 
@@ -300,7 +300,7 @@ public class SimilarityFunctionsMethodToAggregationExpressionTranslatorTests : L
         var collection = Fixture.Collection;
         var queryable = collection
             .AsQueryable()
-            .Select(i => SimilarityFunctions.Euclidean(i.FloatArray1, i.FloatArray2, true));
+            .Select(i => Mql.SimilarityEuclidean(i.FloatArray1, i.FloatArray2, true));
 
         var stages = Translate(collection, queryable);
 
@@ -316,7 +316,7 @@ public class SimilarityFunctionsMethodToAggregationExpressionTranslatorTests : L
         var collection = Fixture.Collection;
         var queryable = collection
             .AsQueryable()
-            .Select(i => SimilarityFunctions.Euclidean(i.FloatList1, i.FloatList2, true));
+            .Select(i => Mql.SimilarityEuclidean(i.FloatList1, i.FloatList2, true));
 
         var stages = Translate(collection, queryable);
 
@@ -332,7 +332,7 @@ public class SimilarityFunctionsMethodToAggregationExpressionTranslatorTests : L
         var collection = Fixture.Collection;
         var queryable = collection
             .AsQueryable()
-            .Select(i => SimilarityFunctions.Euclidean(i.FloatCollection1, i.FloatCollection2, true));
+            .Select(i => Mql.SimilarityEuclidean(i.FloatCollection1, i.FloatCollection2, true));
 
         var stages = Translate(collection, queryable);
 
@@ -349,7 +349,7 @@ public class SimilarityFunctionsMethodToAggregationExpressionTranslatorTests : L
         var collection = Fixture.Collection;
         var queryable = collection
             .AsQueryable()
-            .Select(i => SimilarityFunctions.Euclidean(i.FloatMemory1, i.FloatMemory2, normalize));
+            .Select(i => Mql.SimilarityEuclidean(i.FloatMemory1, i.FloatMemory2, normalize));
 
         var stages = Translate(collection, queryable);
 
@@ -369,7 +369,7 @@ public class SimilarityFunctionsMethodToAggregationExpressionTranslatorTests : L
         var collection = Fixture.Collection;
         var queryable = collection
             .AsQueryable()
-            .Select(i => SimilarityFunctions.Euclidean(i.DoubleArray1, i.DoubleArray2, true));
+            .Select(i => Mql.SimilarityEuclidean(i.DoubleArray1, i.DoubleArray2, true));
 
         var stages = Translate(collection, queryable);
 
@@ -385,7 +385,7 @@ public class SimilarityFunctionsMethodToAggregationExpressionTranslatorTests : L
         var collection = Fixture.Collection;
         var queryable = collection
             .AsQueryable()
-            .Select(i => SimilarityFunctions.Euclidean(i.DoubleList1, i.DoubleList2, true));
+            .Select(i => Mql.SimilarityEuclidean(i.DoubleList1, i.DoubleList2, true));
 
         var stages = Translate(collection, queryable);
 
@@ -401,7 +401,7 @@ public class SimilarityFunctionsMethodToAggregationExpressionTranslatorTests : L
         var collection = Fixture.Collection;
         var queryable = collection
             .AsQueryable()
-            .Select(i => SimilarityFunctions.Euclidean(i.DoubleCollection1, i.DoubleCollection2, true));
+            .Select(i => Mql.SimilarityEuclidean(i.DoubleCollection1, i.DoubleCollection2, true));
 
         var stages = Translate(collection, queryable);
 
@@ -417,7 +417,7 @@ public class SimilarityFunctionsMethodToAggregationExpressionTranslatorTests : L
         var collection = Fixture.Collection;
         var queryable = collection
             .AsQueryable()
-            .Select(i => SimilarityFunctions.Euclidean(i.DoubleMemory1, i.DoubleMemory2, true));
+            .Select(i => Mql.SimilarityEuclidean(i.DoubleMemory1, i.DoubleMemory2, true));
 
         var stages = Translate(collection, queryable);
 
