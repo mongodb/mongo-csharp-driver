@@ -13,14 +13,9 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
-using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
-using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
@@ -37,10 +32,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
                 NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsQueryableSource(expression, sourceTranslation);
 
-                var listItemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
-                var listSerializer = ListSerializer.Create(listItemSerializer);
-
-                return new TranslatedExpression(expression, sourceTranslation.Ast, listSerializer);
+                var resultSerializer = context.GetSerializer(expression);
+                return new TranslatedExpression(expression, sourceTranslation.Ast, resultSerializer);
             }
 
             throw new ExpressionNotSupportedException(expression);
