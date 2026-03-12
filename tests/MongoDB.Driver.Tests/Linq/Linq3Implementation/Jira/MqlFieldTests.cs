@@ -105,12 +105,42 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         }
 
         [Fact]
+        public void Where_Mql_Field_with_default_serializer_should_work_with_BsonDocument()
+        {
+            var collection = Fixture.GetCollection<BsonDocument>();
+
+            var queryable = collection.AsQueryable()
+                .Where(root => Mql.Field<BsonDocument, int>(root, "X", null) == 1); // like root.X except BsonDocument does not have a property called X
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $match : { X : 1 } }");
+
+            var results = queryable.ToList();
+            results.Select(x => x["_id"].AsInt32).Should().Equal(1);
+        }
+
+        [Fact]
         public void Where_Mql_Field_should_work_with_POCO()
         {
             var collection = Fixture.GetCollection<C>();
 
             var queryable = collection.AsQueryable()
                 .Where(root => Mql.Field(root, "X", Int32Serializer.Instance) == 1); // like root.X except C does not have a property called X
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $match : { X : 1 } }");
+
+            var results = queryable.ToList();
+            results.Select(x => x.Id).Should().Equal(1);
+        }
+
+        [Fact]
+        public void Where_Mql_Field_with_default_serializer__should_work_with_POCO()
+        {
+            var collection = Fixture.GetCollection<C>();
+
+            var queryable = collection.AsQueryable()
+                .Where(root => Mql.Field<C, int>(root, "X", null) == 1); // like root.X except C does not have a property called X
 
             var stages = Translate(collection, queryable);
             AssertStages(stages, "{ $match : { X : 1 } }");

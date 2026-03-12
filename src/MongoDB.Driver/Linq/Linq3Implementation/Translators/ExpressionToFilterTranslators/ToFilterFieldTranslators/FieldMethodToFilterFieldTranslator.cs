@@ -33,11 +33,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             {
                 var documentExpression = arguments[0];
                 var fieldNameExpression = arguments[1];
-                var fieldSerializerExpression = arguments[2];
 
                 var documentField = ExpressionToFilterFieldTranslator.Translate(context, documentExpression);
                 var fieldName = fieldNameExpression.GetConstantValue<string>(expression);
-                var fieldSerializer = fieldSerializerExpression.GetConstantValue<IBsonSerializer>(expression);
+                var fieldSerializer = context.GetSerializer(expression);
 
                 return documentField.SubField(fieldName, fieldSerializer);
             }
