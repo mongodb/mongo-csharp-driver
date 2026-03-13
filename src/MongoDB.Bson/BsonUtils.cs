@@ -15,6 +15,8 @@
 
 using System;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -73,6 +75,19 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
+        /// Parses a hex string into its equivalent byte array.
+        /// </summary>
+        /// <param name="s">The hex string to parse.</param>
+        /// <param name="bytes">The output buffer containing the byte equivalent of the hex string.</param>
+        public static void ParseHexChars(ReadOnlySpan<char> s, Span<byte> bytes)
+        {
+            if (!TryParseHexChars(s, bytes))
+            {
+                throw new FormatException("String should contain only hexadecimal digits.");
+            }
+        }
+
+        /// <summary>
         /// Converts from number of milliseconds since Unix epoch to DateTime.
         /// </summary>
         /// <param name="millisecondsSinceEpoch">The number of milliseconds since Unix epoch.</param>
@@ -107,7 +122,8 @@ namespace MongoDB.Bson
         /// <returns>The hex character.</returns>
         public static char ToHexChar(int value)
         {
-            return (char)(value + (value < 10 ? '0' : 'a' - 10));
+            int x = value + '0';
+            return (char)(x + (((9 - value) >> 31) & 39));
         }
 
         /// <summary>
@@ -119,25 +135,63 @@ namespace MongoDB.Bson
         {
 #if NET5_0_OR_GREATER
             ArgumentNullException.ThrowIfNull(bytes);
-            return Convert.ToHexString(bytes).ToLowerInvariant();
 #else
             if (bytes == null)
             {
                 throw new ArgumentNullException(nameof(bytes));
             }
+#endif
+            return ToHexString(bytes.AsMemory());
+        }
 
+        /// <summary>
+        /// Converts a memory of bytes to a hex string.
+        /// </summary>
+        /// <param name="bytes">The memory of bytes.</param>
+        /// <returns>A hex string.</returns>
+        public static string ToHexString(ReadOnlyMemory<byte> bytes)
+        {
+#if NET5_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            return string.Create(bytes.Length * 2, bytes, static (chars, bytes) =>
+            {
+                ToHexChars(bytes.Span, chars);
+            });
+#else
+            return new string(ToHexChars(bytes.Span));
+#endif
+        }
+
+        /// <summary>
+        /// Converts a span of byte to a span of hex characters.
+        /// </summary>
+        /// <param name="bytes">The input span of bytes.</param>
+        /// <returns>An array of hex characters.</returns>
+        public static char[] ToHexChars(ReadOnlySpan<byte> bytes)
+        {
             var length = bytes.Length;
             var c = new char[length * 2];
+            ToHexChars(bytes, c.AsSpan());
+            return c;
+        }
 
-            for (int i = 0, j = 0; i < length; i++)
-            {
-                var b = bytes[i];
-                c[j++] = ToHexChar(b >> 4);
-                c[j++] = ToHexChar(b & 0x0f);
-            }
+        /// <summary>
+        /// Get the 2-character hex value of the byte, combined into a single uint
+        /// </summary>
+        /// <param name="byteValue">The byte to convert</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static uint GetHexChars(byte byteValue)
+        {
+            return HexConverter.GetHexChars(byteValue);
+        }
 
-            return new string(c);
-#endif
+        /// <summary>
+        /// Converts a span of bytes to a span of hex characters.
+        /// </summary>
+        /// <param name="bytes">The input span of bytes.</param>
+        /// <param name="chars">The result span of characters.</param>
+        public static void ToHexChars(ReadOnlySpan<byte> bytes, Span<char> chars)
+        {
+            HexConverter.ToHexChars(bytes, chars);
         }
 
         /// <summary>
@@ -203,7 +257,6 @@ namespace MongoDB.Bson
                 return dateTime.ToUniversalTime();
             }
         }
-
         /// <summary>
         /// Tries to parse a hex string to a byte array.
         /// </summary>
@@ -213,69 +266,148 @@ namespace MongoDB.Bson
         public static bool TryParseHexString(string s, out byte[] bytes)
         {
             bytes = null;
-
             if (s == null)
             {
                 return false;
             }
 
             var buffer = new byte[(s.Length + 1) / 2];
-
-            var i = 0;
-            var j = 0;
-
-            if ((s.Length % 2) == 1)
+            if (!TryParseHexChars(s.AsSpan(), buffer.AsSpan()))
             {
-                // if s has an odd length assume an implied leading "0"
-                int y;
-                if (!TryParseHexChar(s[i++], out y))
-                {
-                    return false;
-                }
-                buffer[j++] = (byte)y;
+                return false;
             }
-
-            while (i < s.Length)
-            {
-                int x, y;
-                if (!TryParseHexChar(s[i++], out x))
-                {
-                    return false;
-                }
-                if (!TryParseHexChar(s[i++], out y))
-                {
-                    return false;
-                }
-                buffer[j++] = (byte)((x << 4) | y);
-            }
-
             bytes = buffer;
             return true;
         }
 
-        // private static methods
-        private static bool TryParseHexChar(char c, out int value)
+        /// <summary>
+        /// Tries to parse hex characters into a span of bytes.
+        /// </summary>
+        /// <param name="s">The span containing hex characters.</param>
+        /// <param name="bytes">The result byte span.</param>
+        /// <returns>True if the hex string was successfully parsed.</returns>
+        public static bool TryParseHexChars(ReadOnlySpan<char> s, Span<byte> bytes)
         {
-            if (c >= '0' && c <= '9')
+            return HexParser.TryParse(s, bytes);
+        }
+
+        /// <summary>
+        /// Tries to parse 2 hex characters and combine them into a single byte
+        /// </summary>
+        /// <param name="c1">The first character</param>
+        /// <param name="c2">The second character</param>
+        /// <param name="value">The combined byte value</param>
+        /// <returns>True if the hex characters were successfully parsed.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool TryParseByte(char c1, char c2, out byte value)
+        {
+            return HexParser.TryParseByte(c1, c2, out value);
+        }
+
+        private static class HexParser
+        {
+            private static readonly int[] s_lookup = CreateLookup();
+
+            private static int[] CreateLookup()
             {
-                value = c - '0';
+                var table = new int[128];
+                table.AsSpan().Fill(0xFF);
+                for (int i = 0; i < 10; i++)
+                {
+                    table[i + '0'] = (byte)i;
+                }
+                for (int i = 0; i < 6; i++)
+                {
+                    table[i + 'a'] = (byte)(i + 10);
+                    table[i + 'A'] = (byte)(i + 10);
+                }
+                return table;
+            }
+
+            public static bool TryParse(ReadOnlySpan<char> chars, Span<byte> bytes)
+            {
+                if (bytes.Length != (chars.Length + 1) / 2)
+                    return false;
+
+                int j = 0;
+                int i = 0;
+
+                if ((chars.Length & 1) != 0)
+                {
+                    if (!TryParseByte('0', chars[0], out byte b))
+                        return false;
+
+                    bytes[j++] = b;
+                    i = 1;
+                }
+
+                for (; i < chars.Length; i += 2)
+                {
+                    if (!TryParseByte(chars[i], chars[i + 1], out byte b))
+                        return false;
+
+                    bytes[j++] = b;
+                }
+
                 return true;
             }
 
-            if (c >= 'a' && c <= 'f')
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public static bool TryParseByte(char c1, char c2, out byte value)
             {
-                value = 10 + (c - 'a');
+                int n1 = c1 < 128 ? s_lookup[c1] : 0xFF;
+                int n2 = c2 < 128 ? s_lookup[c2] : 0xFF;
+
+                if ((n1 | n2) == 0xFF)
+                {
+                    value = default;
+                    return false;
+                }
+
+                value = (byte)((n1 << 4) | n2);
                 return true;
             }
+        }
 
-            if (c >= 'A' && c <= 'F')
+        private static class HexConverter
+        {
+            private static readonly uint[] s_hexLookup = CreateLookup();
+
+            private static uint[] CreateLookup()
             {
-                value = 10 + (c - 'A');
-                return true;
+                var result = new uint[256];
+
+                for (int i = 0; i < 256; i++)
+                {
+                    int hi = i >> 4;
+                    int lo = i & 0xF;
+
+                    uint c1 = (uint)(hi + (hi < 10 ? '0' : 'a' - 10));
+                    uint c2 = (uint)(lo + (lo < 10 ? '0' : 'a' - 10));
+
+                    result[i] = c1 | (c2 << 16);
+                }
+
+                return result;
             }
 
-            value = 0;
-            return false;
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public static uint GetHexChars(byte byteValue)
+            {
+                return s_hexLookup[byteValue];
+            }
+
+            public static void ToHexChars(ReadOnlySpan<byte> bytes, Span<char> chars)
+            {
+                if (chars.Length != bytes.Length * 2)
+                    throw new ArgumentException("Length of character span should be 2x byte span");
+
+                var uintSpan = MemoryMarshal.Cast<char, uint>(chars);
+                for (int i = 0; i < bytes.Length; i++)
+                {
+                    uintSpan[i] = s_hexLookup[bytes[i]];
+                }
+            }
         }
     }
 }
