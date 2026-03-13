@@ -100,6 +100,26 @@ namespace MongoDB.Driver.Tests.Specifications.initial_dns_seedlist_discovery
                     actualValue.Should().Be(expectedValue);
                 }
             }
+
+            if (definition.Contains("parsed_options"))
+            {
+                foreach (BsonElement option in definition["parsed_options"].AsBsonDocument)
+                {
+                    var expectedValue = ValueToString(option.Name, option.Value);
+
+                    var optionName = GetOptionName(option);
+                    var actualValue = optionName switch
+                    {
+                        "user" => connectionString.Username,
+                        "password" => connectionString.Password,
+                        "auth_database" => connectionString.DatabaseName,
+                        "db" => connectionString.DatabaseName,
+                        _ => throw new FormatException($"Unexpected option name: {optionName}")
+                    };
+
+                    actualValue.Should().Be(expectedValue);
+                }
+            }
         }
 
         private string GetOptionName(BsonElement option)
