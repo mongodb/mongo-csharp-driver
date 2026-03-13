@@ -31,7 +31,6 @@ namespace MongoDB.Driver.Core.TestHelpers.Logging
         public int ClusterId { get; }
         public IEnumerable<KeyValuePair<string, object>> State { get; }
         public Exception Exception { get; }
-        public Func<object, Exception, string> Formatter { get; }
 
         public string Message { get; }
         public string FormattedMessage => _formatedMessage.Value;
@@ -40,15 +39,16 @@ namespace MongoDB.Driver.Core.TestHelpers.Logging
             string category,
             IEnumerable<KeyValuePair<string, object>> state,
             Exception exception,
-            Func<object, Exception, string> formatter)
+            Func<string> messageGenerator)
         {
+            messageGenerator ??= () => "";
+
             Timestamp = DateTime.UtcNow;
             LogLevel = logLevel;
             Category = category;
             State = state;
             Exception = exception;
-            Formatter = formatter;
-            _formatedMessage = new Lazy<string>(() => Formatter(State, Exception));
+            _formatedMessage = new Lazy<string>(messageGenerator);
 
             ClusterId = GetParameter(StructuredLogTemplateProviders.TopologyId) is int clusterId ? clusterId : -1;
             Message = GetParameter(StructuredLogTemplateProviders.Message) as string;

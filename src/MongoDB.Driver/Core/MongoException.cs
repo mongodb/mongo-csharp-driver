@@ -53,6 +53,9 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="info">The SerializationInfo.</param>
         /// <param name="context">The StreamingContext.</param>
+#if NET8_0_OR_GREATER
+        [Obsolete("This API supports obsolete formatter-based serialization. It should not be called or extended by application code.", error: true)]
+#endif
         public MongoException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -104,6 +107,9 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc/>
+#if NET8_0_OR_GREATER
+        [Obsolete("This API supports obsolete formatter-based serialization. It should not be called or extended by application code.", error: true)]
+#endif
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);

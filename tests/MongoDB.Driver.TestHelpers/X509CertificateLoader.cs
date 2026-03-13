@@ -18,7 +18,7 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace MongoDB.Driver.TestHelpers;
 
-#if !NET8_0_OR_GREATER
+#if !NET9_0_OR_GREATER
 
 public static class X509CertificateLoader
 {
