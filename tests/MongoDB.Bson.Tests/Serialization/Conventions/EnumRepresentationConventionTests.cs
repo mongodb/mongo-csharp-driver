@@ -42,6 +42,19 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             public int NI { get; set; }
             public int[] ArrayInt { get; set; }
             public C RecursiveProp { get; set; }
+            public C[] RecursivePropArray { get; set; }
+            public C[][] RecursivePropArrayOfArray { get; set; }
+            public Dictionary<string, C> DictionaryRecursiveProp { get; set; }
+            public Dictionary<string, C>[] DictionaryRecursivePropArray { get; set; }
+            public IC IndirectlyRecursiveProp { get; set; }
+            public IC[] IndirectlyRecursivePropArray { get; set; }
+            public Dictionary<string,IC> IndirectlyRecursivePropDictionary { get; set; }
+            // public Dictionary<E, C> RecursiveDictionary { get; set; } - this is not supported.
+        }
+
+        public class IC
+        {
+            public C C { get; set; }
         }
 
         [Theory]
@@ -209,6 +222,17 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         public void Convention_should_work_with_recursive_type()
         {
             var pack = new ConventionPack { new EnumRepresentationConvention(BsonType.String) };
+            ConventionRegistry.Register("enumRecursive", pack, t => t == typeof(C));
+
+            _ = new BsonClassMap<C>(cm => cm.AutoMap()).Freeze();
+
+            ConventionRegistry.Remove("enumRecursive");
+        }
+
+        [Fact]
+        public void Convention_should_work_with_recursive_type_when_top_level_is_false()
+        {
+            var pack = new ConventionPack { new EnumRepresentationConvention(BsonType.String, topLevelOnly: false) };
             ConventionRegistry.Register("enumRecursive", pack, t => t == typeof(C));
 
             _ = new BsonClassMap<C>(cm => cm.AutoMap()).Freeze();
