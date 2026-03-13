@@ -210,6 +210,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case "TrimEnd":
                 case "TrimStart":
                     return TrimMethodToAggregationExpressionTranslator.Translate(context, expression);
+
+                case nameof(Mql.SimilarityDotProduct):
+                case nameof(Mql.SimilarityEuclidean):
+                case nameof(Mql.SimilarityCosine):
+                    return SimilarityFunctionsMethodToAggregationExpressionTranslator.Translate(context, expression);
             }
 
             throw new ExpressionNotSupportedException(expression);

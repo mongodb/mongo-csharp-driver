@@ -709,6 +709,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors
             return node;
         }
 
+        public virtual AstNode VisitSimilarityFunctionExpression(AstSimilarityFunctionExpression node)
+        {
+            return node.Update(
+                VisitAndConvert(node.Vectors1),
+                VisitAndConvert(node.Vectors2),
+                VisitAndConvert(node.Normalize));
+        }
+
         public virtual AstNode VisitSkipStage(AstSkipStage node)
         {
             return node;
