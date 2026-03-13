@@ -107,6 +107,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>A NullableSerializer</returns>
         public static IBsonSerializer Create(IBsonSerializer valueSerializer)
         {
+            if (valueSerializer == null)
+            {
+                throw new ArgumentNullException(nameof(valueSerializer));
+            }
+
             var valueType = valueSerializer.ValueType;
             var nullableSerializerType = typeof(NullableSerializer<>).MakeGenericType(valueType);
             return (IBsonSerializer)Activator.CreateInstance(nullableSerializerType, valueSerializer);
