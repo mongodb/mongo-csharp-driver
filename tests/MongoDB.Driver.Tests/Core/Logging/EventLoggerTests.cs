@@ -51,15 +51,11 @@ namespace MongoDB.Driver.Core.Logging
                     .Returns(true);
             }
 
-            Mock<ILogger<TEventCategory>> logger = null;
+            var logger = isLoggingEnabled
+                ? new FakeLogger<TEventCategory>()
+                : null;
 
-            if (isLoggingEnabled)
-            {
-                logger = new Mock<ILogger<TEventCategory>>();
-                logger.Setup(l => l.IsEnabled(LogLevel.Debug)).Returns(true);
-            }
-
-            var eventLogger = new EventLogger<TEventCategory>(eventSubscriber.Object, logger?.Object);
+            var eventLogger = new EventLogger<TEventCategory>(eventSubscriber.Object, logger);
             eventLogger.LogAndPublish(@event);
 
             eventSubscriber.Verify(s => s.TryGetEventHandler(out eventHandler), Times.Once);
@@ -75,10 +71,31 @@ namespace MongoDB.Driver.Core.Logging
 
             if (isLoggingEnabled)
             {
-                logger.Verify(l => l.Log(LogLevel.Debug, It.IsAny<EventId>(), It.IsNotNull<object>(), null, It.IsNotNull<Func<object, Exception, string>>()), Times.Once);
+                logger.Logged.Should().BeTrue();
             }
 
             eventLogger.IsEventTracked<TEvent>().Should().Be(isLoggingEnabled || isHandlerRegistered);
+        }
+
+        // Using explicit fake instead of a Mock because TState is an internal type when Log is called.
+        private class FakeLogger<TEventCategory> : ILogger<TEventCategory>
+            where TEventCategory : LogCategories.EventCategory
+        {
+            public bool Logged { get; private set; }
+
+            public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+            {
+                Logged = true;
+
+                logLevel.Should().Be(LogLevel.Debug);
+                state.Should().NotBeNull();
+                exception.Should().BeNull();
+                formatter.Should().NotBeNull();
+            }
+
+            public bool IsEnabled(LogLevel logLevel) => true;
+
+            public IDisposable BeginScope<TState>(TState state) => throw new NotImplementedException();
         }
 
         private static IEnumerable<object[]> EventsData()

@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Core.TestHelpers.Logging
             string category,
             IEnumerable<KeyValuePair<string, object>> state,
             Exception exception,
-            Func<object, Exception, string> formatter)
+            Func<string> messageGenerator)
         {
             if (logLevel <= LogLevel.Warning && _categoriesToExclude?.Contains(category) == true)
             {
@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Core.TestHelpers.Logging
 
             lock (_logs)
             {
-                _logs.Add(new LogEntry(logLevel, category, state, exception, formatter));
+                _logs.Add(new LogEntry(logLevel, category, state, exception, messageGenerator));
             }
         }
     }

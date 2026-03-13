@@ -24,6 +24,8 @@ namespace MongoDB.Driver
             "netstandard21";
 #elif NET6_0
             "net60";
+#elif NET8_0
+            "net80";
 #endif
     }
 }
