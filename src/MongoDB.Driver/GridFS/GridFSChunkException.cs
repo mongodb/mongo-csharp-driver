@@ -52,6 +52,9 @@ namespace MongoDB.Driver.GridFS
         /// </summary>
         /// <param name="info">The SerializationInfo.</param>
         /// <param name="context">The StreamingContext.</param>
+#if NET8_0_OR_GREATER
+        [Obsolete("This API supports obsolete formatter-based serialization. It should not be called or extended by application code.", error: true)]
+#endif
         public GridFSChunkException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {

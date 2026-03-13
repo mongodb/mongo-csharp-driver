@@ -1444,7 +1444,10 @@ namespace MongoDB.Bson.Serialization
                 }
                 else
                 {
+#pragma warning disable SYSLIB0050
+                    // Error SYSLIB0050 : 'FormatterServices' is obsolete: 'Formatter-based serialization is obsolete and should not be used.'
                     _creator = () => FormatterServices.GetUninitializedObject(_classType);
+#pragma warning restore SYSLIB0050
                 }
             }
 
