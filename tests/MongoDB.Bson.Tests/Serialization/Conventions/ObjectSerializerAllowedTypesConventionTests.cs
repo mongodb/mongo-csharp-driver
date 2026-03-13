@@ -37,7 +37,17 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             public TestClass RecursiveProp { get; set; }
             public TestClass[] RecursivePropArray { get; set; }
             public TestClass[][] RecursivePropArrayOfArray { get; set; }
+            public Dictionary<string, TestClass> DictionaryRecursiveProp { get; set; }
+            public Dictionary<string, TestClass>[] DictionaryRecursivePropArray { get; set; }
+            public IC IndirectlyRecursiveProp { get; set; }
+            public IC[] IndirectlyRecursivePropArray { get; set; }
+            public Dictionary<string, IC> IndirectlyRecursivePropDictionary { get; set; }
             // public Dictionary<TestClass, object> RecursivePropDictionary { get; set; } - this is not supported.
+        }
+
+        private class IC
+        {
+            public TestClass TestClass { get; set; }
         }
 
         [Fact]
