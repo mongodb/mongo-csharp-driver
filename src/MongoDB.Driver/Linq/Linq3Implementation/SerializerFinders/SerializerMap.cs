@@ -60,20 +60,9 @@ internal class SerializerMap : IReadOnlySerializerMap
             }
         }
 
-        if (serializer.ValueType != node.Type)
+        if (!node.Type.IsAssignableFrom(serializer.ValueType) && !serializer.ValueType.IsAssignableFrom(node.Type))
         {
-            if (node.Type.IsAssignableFrom(serializer.ValueType))
-            {
-                serializer = DowncastingSerializer.Create(baseType: node.Type, derivedType: serializer.ValueType, derivedTypeSerializer: serializer);
-            }
-            else if (serializer.ValueType.IsAssignableFrom(node.Type))
-            {
-                serializer = UpcastingSerializer.Create(baseType: serializer.ValueType, derivedType: node.Type, baseTypeSerializer: serializer);
-            }
-            else
-            {
-                throw new ArgumentException($"Serializer value type {serializer.ValueType} does not match expression value type {node.Type}", nameof(serializer));
-            }
+            throw new ArgumentException($"Serializer value type {serializer.ValueType} is incompatible with expression value type {node.Type}", nameof(serializer));
         }
 
         if (_map.TryGetValue(node, out var existingSerializer))
