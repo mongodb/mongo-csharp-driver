@@ -60,6 +60,11 @@ internal class SerializerMap : IReadOnlySerializerMap
             }
         }
 
+        if (!node.Type.IsAssignableFrom(serializer.ValueType) && !serializer.ValueType.IsAssignableFrom(node.Type))
+        {
+            throw new ArgumentException($"Serializer value type {serializer.ValueType} is incompatible with expression value type {node.Type}", nameof(serializer));
+        }
+
         if (_map.TryGetValue(node, out var existingSerializer))
         {
             throw new ExpressionNotSupportedException(
