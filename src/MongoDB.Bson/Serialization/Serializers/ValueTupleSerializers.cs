@@ -99,7 +99,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (serializerRegistry == null) { throw new ArgumentNullException(nameof(serializerRegistry)); }
 
-            _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(() => serializerRegistry.GetSerializer<T1>());
+            _lazyItem1Serializer = Lazy.CreatePublicationOnly(() => serializerRegistry.GetSerializer<T1>());
         }
 
         // public properties
@@ -221,8 +221,8 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (serializerRegistry == null) { throw new ArgumentNullException(nameof(serializerRegistry)); }
 
-            _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(() => serializerRegistry.GetSerializer<T1>());
-            _lazyItem2Serializer = new Lazy<IBsonSerializer<T2>>(() => serializerRegistry.GetSerializer<T2>());
+            _lazyItem1Serializer = Lazy.CreatePublicationOnly(() => serializerRegistry.GetSerializer<T1>());
+            _lazyItem2Serializer = Lazy.CreatePublicationOnly(() => serializerRegistry.GetSerializer<T2>());
         }
 
         // public properties
@@ -361,9 +361,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (serializerRegistry == null) { throw new ArgumentNullException(nameof(serializerRegistry)); }
 
-            _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(() => serializerRegistry.GetSerializer<T1>());
-            _lazyItem2Serializer = new Lazy<IBsonSerializer<T2>>(() => serializerRegistry.GetSerializer<T2>());
-            _lazyItem3Serializer = new Lazy<IBsonSerializer<T3>>(() => serializerRegistry.GetSerializer<T3>());
+            _lazyItem1Serializer = Lazy.CreatePublicationOnly(() => serializerRegistry.GetSerializer<T1>());
+            _lazyItem2Serializer = Lazy.CreatePublicationOnly(() => serializerRegistry.GetSerializer<T2>());
+            _lazyItem3Serializer = Lazy.CreatePublicationOnly(() => serializerRegistry.GetSerializer<T3>());
         }
 
         // public properties
@@ -519,10 +519,10 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (serializerRegistry == null) { throw new ArgumentNullException(nameof(serializerRegistry)); }
 
-            _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(() => serializerRegistry.GetSerializer<T1>());
-            _lazyItem2Serializer = new Lazy<IBsonSerializer<T2>>(() => serializerRegistry.GetSerializer<T2>());
-            _lazyItem3Serializer = new Lazy<IBsonSerializer<T3>>(() => serializerRegistry.GetSerializer<T3>());
-            _lazyItem4Serializer = new Lazy<IBsonSerializer<T4>>(() => serializerRegistry.GetSerializer<T4>());
+            _lazyItem1Serializer = Lazy.CreatePublicationOnly(() => serializerRegistry.GetSerializer<T1>());
+            _lazyItem2Serializer = Lazy.CreatePublicationOnly(() => serializerRegistry.GetSerializer<T2>());
+            _lazyItem3Serializer = Lazy.CreatePublicationOnly(() => serializerRegistry.GetSerializer<T3>());
+            _lazyItem4Serializer = Lazy.CreatePublicationOnly(() => serializerRegistry.GetSerializer<T4>());
         }
 
         // public properties
@@ -695,11 +695,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (serializerRegistry == null) { throw new ArgumentNullException(nameof(serializerRegistry)); }
 
-            _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(() => serializerRegistry.GetSerializer<T1>());
-            _lazyItem2Serializer = new Lazy<IBsonSerializer<T2>>(() => serializerRegistry.GetSerializer<T2>());
-            _lazyItem3Serializer = new Lazy<IBsonSerializer<T3>>(() => serializerRegistry.GetSerializer<T3>());
-            _lazyItem4Serializer = new Lazy<IBsonSerializer<T4>>(() => serializerRegistry.GetSerializer<T4>());
-            _lazyItem5Serializer = new Lazy<IBsonSerializer<T5>>(() => serializerRegistry.GetSerializer<T5>());
+            _lazyItem1Serializer = Lazy.CreatePublicationOnly(() => serializerRegistry.GetSerializer<T1>());
+            _lazyItem2Serializer = Lazy.CreatePublicationOnly(() => serializerRegistry.GetSerializer<T2>());
+            _lazyItem3Serializer = Lazy.CreatePublicationOnly(() => serializerRegistry.GetSerializer<T3>());
+            _lazyItem4Serializer = Lazy.CreatePublicationOnly(() => serializerRegistry.GetSerializer<T4>());
+            _lazyItem5Serializer = Lazy.CreatePublicationOnly(() => serializerRegistry.GetSerializer<T5>());
         }
 
         // public properties
@@ -889,12 +889,12 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (serializerRegistry == null) { throw new ArgumentNullException(nameof(serializerRegistry)); }
 
-            _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(() => serializerRegistry.GetSerializer<T1>());
-            _lazyItem2Serializer = new Lazy<IBsonSerializer<T2>>(() => serializerRegistry.GetSerializer<T2>());
-            _lazyItem3Serializer = new Lazy<IBsonSerializer<T3>>(() => serializerRegistry.GetSerializer<T3>());
-            _lazyItem4Serializer = new Lazy<IBsonSerializer<T4>>(() => serializerRegistry.GetSerializer<T4>());
-            _lazyItem5Serializer = new Lazy<IBsonSerializer<T5>>(() => serializerRegistry.GetSerializer<T5>());
-            _lazyItem6Serializer = new Lazy<IBsonSerializer<T6>>(() => serializerRegistry.GetSerializer<T6>());
+            _lazyItem1Serializer = Lazy.CreatePublicationOnly(() => serializerRegistry.GetSerializer<T1>());
+            _lazyItem2Serializer = Lazy.CreatePublicationOnly(() => serializerRegistry.GetSerializer<T2>());
+            _lazyItem3Serializer = Lazy.CreatePublicationOnly(() => serializerRegistry.GetSerializer<T3>());
+            _lazyItem4Serializer = Lazy.CreatePublicationOnly(() => serializerRegistry.GetSerializer<T4>());
+            _lazyItem5Serializer = Lazy.CreatePublicationOnly(() => serializerRegistry.GetSerializer<T5>());
+            _lazyItem6Serializer = Lazy.CreatePublicationOnly(() => serializerRegistry.GetSerializer<T6>());
         }
 
         // public properties
@@ -1101,13 +1101,13 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (serializerRegistry == null) { throw new ArgumentNullException(nameof(serializerRegistry)); }
 
-            _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(() => serializerRegistry.GetSerializer<T1>());
-            _lazyItem2Serializer = new Lazy<IBsonSerializer<T2>>(() => serializerRegistry.GetSerializer<T2>());
-            _lazyItem3Serializer = new Lazy<IBsonSerializer<T3>>(() => serializerRegistry.GetSerializer<T3>());
-            _lazyItem4Serializer = new Lazy<IBsonSerializer<T4>>(() => serializerRegistry.GetSerializer<T4>());
-            _lazyItem5Serializer = new Lazy<IBsonSerializer<T5>>(() => serializerRegistry.GetSerializer<T5>());
-            _lazyItem6Serializer = new Lazy<IBsonSerializer<T6>>(() => serializerRegistry.GetSerializer<T6>());
-            _lazyItem7Serializer = new Lazy<IBsonSerializer<T7>>(() => serializerRegistry.GetSerializer<T7>());
+            _lazyItem1Serializer = Lazy.CreatePublicationOnly(() => serializerRegistry.GetSerializer<T1>());
+            _lazyItem2Serializer = Lazy.CreatePublicationOnly(() => serializerRegistry.GetSerializer<T2>());
+            _lazyItem3Serializer = Lazy.CreatePublicationOnly(() => serializerRegistry.GetSerializer<T3>());
+            _lazyItem4Serializer = Lazy.CreatePublicationOnly(() => serializerRegistry.GetSerializer<T4>());
+            _lazyItem5Serializer = Lazy.CreatePublicationOnly(() => serializerRegistry.GetSerializer<T5>());
+            _lazyItem6Serializer = Lazy.CreatePublicationOnly(() => serializerRegistry.GetSerializer<T6>());
+            _lazyItem7Serializer = Lazy.CreatePublicationOnly(() => serializerRegistry.GetSerializer<T7>());
         }
 
         // public properties
@@ -1332,14 +1332,14 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (serializerRegistry == null) { throw new ArgumentNullException(nameof(serializerRegistry)); }
 
-            _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(() => serializerRegistry.GetSerializer<T1>());
-            _lazyItem2Serializer = new Lazy<IBsonSerializer<T2>>(() => serializerRegistry.GetSerializer<T2>());
-            _lazyItem3Serializer = new Lazy<IBsonSerializer<T3>>(() => serializerRegistry.GetSerializer<T3>());
-            _lazyItem4Serializer = new Lazy<IBsonSerializer<T4>>(() => serializerRegistry.GetSerializer<T4>());
-            _lazyItem5Serializer = new Lazy<IBsonSerializer<T5>>(() => serializerRegistry.GetSerializer<T5>());
-            _lazyItem6Serializer = new Lazy<IBsonSerializer<T6>>(() => serializerRegistry.GetSerializer<T6>());
-            _lazyItem7Serializer = new Lazy<IBsonSerializer<T7>>(() => serializerRegistry.GetSerializer<T7>());
-            _lazyRestSerializer = new Lazy<IBsonSerializer<TRest>>(() => serializerRegistry.GetSerializer<TRest>());
+            _lazyItem1Serializer = Lazy.CreatePublicationOnly(() => serializerRegistry.GetSerializer<T1>());
+            _lazyItem2Serializer = Lazy.CreatePublicationOnly(() => serializerRegistry.GetSerializer<T2>());
+            _lazyItem3Serializer = Lazy.CreatePublicationOnly(() => serializerRegistry.GetSerializer<T3>());
+            _lazyItem4Serializer = Lazy.CreatePublicationOnly(() => serializerRegistry.GetSerializer<T4>());
+            _lazyItem5Serializer = Lazy.CreatePublicationOnly(() => serializerRegistry.GetSerializer<T5>());
+            _lazyItem6Serializer = Lazy.CreatePublicationOnly(() => serializerRegistry.GetSerializer<T6>());
+            _lazyItem7Serializer = Lazy.CreatePublicationOnly(() => serializerRegistry.GetSerializer<T7>());
+            _lazyRestSerializer = Lazy.CreatePublicationOnly(() => serializerRegistry.GetSerializer<TRest>());
         }
 
         // public properties
