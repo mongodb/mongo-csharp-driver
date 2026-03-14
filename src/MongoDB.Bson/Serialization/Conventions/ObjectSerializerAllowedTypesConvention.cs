@@ -162,26 +162,27 @@ namespace MongoDB.Bson.Serialization.Conventions
 
             var serializer = memberMap.GetSerializer();
 
-            var reconfiguredSerializer = Reconfigure(serializer);
+            var reconfiguredSerializer = SerializerConfigurator.ReconfigureSerializerRecursively(serializer, Reconfigure);
+
             if (reconfiguredSerializer is not null)
             {
                 memberMap.SetSerializer(reconfiguredSerializer);
             }
 
             bool CouldApply(Type type)
-                => type == typeof(object) || type.IsNullable() || type.IsArray || typeof(IEnumerable).IsAssignableFrom(type);
+                => type == typeof(object) ||
+                   type.IsNullable() ||
+                   (type.IsArray && CouldApply(type.GetElementType())) ||
+                   type.GetInterfaces().Any(
+                       i =>
+                           i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>) && CouldApply(i.GetGenericArguments()[0]) || // IEnumerable<T>
+                           i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IDictionary<,>) && (CouldApply(i.GetGenericArguments()[0]) || CouldApply(i.GetGenericArguments()[1])) // IDictionary<TKey, TValue>
+                   );
         }
 
         // private methods
         private IBsonSerializer Reconfigure(IBsonSerializer serializer)
         {
-            if (serializer is IChildSerializerConfigurable childSerializerConfigurable)
-            {
-                var childSerializer = childSerializerConfigurable.ChildSerializer;
-                var reconfiguredChildSerializer = Reconfigure(childSerializer);
-                return reconfiguredChildSerializer is null ? null : childSerializerConfigurable.WithChildSerializer(reconfiguredChildSerializer);
-            }
-
             if (serializer.ValueType == typeof(object) && serializer is ObjectSerializer objectSerializer)
             {
                 return objectSerializer.WithAllowedTypes(_effectiveAllowedDeserializationTypes.Value, _effectiveAllowedSerializationTypes.Value);

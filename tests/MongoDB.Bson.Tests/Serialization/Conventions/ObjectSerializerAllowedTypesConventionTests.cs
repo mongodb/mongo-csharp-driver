@@ -14,6 +14,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using FluentAssertions;
@@ -31,7 +32,22 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             public object ObjectProp { get; set; }
             public object[] ArrayOfObjectProp { get; set; }
             public object[][] ArrayOfArrayOfObjectProp { get; set; }
+            public Dictionary<string, object> DictionaryStringObjectProp { get; set; }
+            public Dictionary<object, string> DictionaryObjectStringProp { get; set; }
             public TestClass RecursiveProp { get; set; }
+            public TestClass[] RecursivePropArray { get; set; }
+            public TestClass[][] RecursivePropArrayOfArray { get; set; }
+            public Dictionary<string, TestClass> DictionaryRecursiveProp { get; set; }
+            public Dictionary<string, TestClass>[] DictionaryRecursivePropArray { get; set; }
+            public IC IndirectlyRecursiveProp { get; set; }
+            public IC[] IndirectlyRecursivePropArray { get; set; }
+            public Dictionary<string, IC> IndirectlyRecursivePropDictionary { get; set; }
+            // public Dictionary<TestClass, object> RecursivePropDictionary { get; set; } - this is not supported.
+        }
+
+        private class IC
+        {
+            public TestClass TestClass { get; set; }
         }
 
         [Fact]
@@ -241,6 +257,51 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             // Type not in assembly
             childSerializer.AllowedDeserializationTypes(typeof(EnumSerializer)).Should().BeFalse();
             childSerializer.AllowedSerializationTypes(typeof(EnumSerializer)).Should().BeFalse();
+        }
+
+        [Fact]
+        public void Apply_should_configure_serializer_when_member_is_a_dictionary_with_object_value()
+        {
+            var subject = new ObjectSerializerAllowedTypesConvention(Assembly.GetExecutingAssembly());
+
+            var memberMap = CreateMemberMap(c => c.DictionaryStringObjectProp);
+            subject.Apply(memberMap);
+
+            var serializer = (IMultipleChildSerializersConfigurable)memberMap.GetSerializer();
+            var childrenSerializers = serializer.ChildSerializers;
+
+            var valueSerializer = (ObjectSerializer)childrenSerializers[1];
+
+            // Type in assembly
+            valueSerializer.AllowedDeserializationTypes(typeof(TestClass)).Should().BeTrue();
+            valueSerializer.AllowedSerializationTypes(typeof(TestClass)).Should().BeTrue();
+
+            // Type not in assembly
+            valueSerializer.AllowedDeserializationTypes(typeof(EnumSerializer)).Should().BeFalse();
+            valueSerializer.AllowedSerializationTypes(typeof(EnumSerializer)).Should().BeFalse();
+        }
+
+
+        [Fact]
+        public void Apply_should_configure_serializer_when_member_is_a_dictionary_with_object_key()
+        {
+            var subject = new ObjectSerializerAllowedTypesConvention(Assembly.GetExecutingAssembly());
+
+            var memberMap = CreateMemberMap(c => c.DictionaryObjectStringProp);
+            subject.Apply(memberMap);
+
+            var serializer = (IMultipleChildSerializersConfigurable)memberMap.GetSerializer();
+            var childrenSerializers = serializer.ChildSerializers;
+
+            var keySerializer = (ObjectSerializer)childrenSerializers[0];
+
+            // Type in assembly
+            keySerializer.AllowedDeserializationTypes(typeof(TestClass)).Should().BeTrue();
+            keySerializer.AllowedSerializationTypes(typeof(TestClass)).Should().BeTrue();
+
+            // Type not in assembly
+            keySerializer.AllowedDeserializationTypes(typeof(EnumSerializer)).Should().BeFalse();
+            keySerializer.AllowedSerializationTypes(typeof(EnumSerializer)).Should().BeFalse();
         }
 
         [Fact]
