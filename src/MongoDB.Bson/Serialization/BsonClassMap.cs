@@ -1444,7 +1444,10 @@ namespace MongoDB.Bson.Serialization
                 }
                 else
                 {
+#pragma warning disable SYSLIB0050
+                    // See issue https://jira.mongodb.org/browse/CSHARP-5926
                     _creator = () => FormatterServices.GetUninitializedObject(_classType);
+#pragma warning restore SYSLIB0050
                 }
             }
 
