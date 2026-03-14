@@ -26,6 +26,7 @@ namespace MongoDB.Driver
     internal sealed class ClusterKey
     {
         // fields
+        private readonly bool _adaptiveRetries;
         private readonly bool _allowInsecureTls;
         private readonly string _applicationName;
         private readonly Action<ClusterBuilder> _clusterConfigurator;
@@ -67,6 +68,7 @@ namespace MongoDB.Driver
 
         // constructors
         public ClusterKey(
+            bool adaptiveRetries,
             bool allowInsecureTls,
             string applicationName,
             Action<ClusterBuilder> clusterConfigurator,
@@ -105,6 +107,7 @@ namespace MongoDB.Driver
             int waitQueueSize,
             TimeSpan waitQueueTimeout)
         {
+            _adaptiveRetries = adaptiveRetries;
             _allowInsecureTls = allowInsecureTls;
             _applicationName = applicationName;
             _clusterConfigurator = clusterConfigurator;
@@ -147,6 +150,7 @@ namespace MongoDB.Driver
         }
 
         // properties
+        public bool AdaptiveRetries => _adaptiveRetries;
         public bool AllowInsecureTls => _allowInsecureTls;
         public string ApplicationName { get { return _applicationName; } }
         public Action<ClusterBuilder> ClusterConfigurator { get { return _clusterConfigurator; } }
@@ -190,6 +194,7 @@ namespace MongoDB.Driver
         {
             // keep calculation simple (leave out fields that are rarely used)
             return new Hasher()
+                .Hash(_adaptiveRetries)
                 .Hash(_credential)
                 .HashElements(_servers)
                 .GetHashCode();
@@ -204,6 +209,7 @@ namespace MongoDB.Driver
             var rhs = (ClusterKey)obj;
             return
                 _hashCode == rhs._hashCode && // fail fast
+                _adaptiveRetries == rhs._adaptiveRetries &&
                 _allowInsecureTls == rhs._allowInsecureTls &&
                 _applicationName == rhs._applicationName &&
                 object.ReferenceEquals(_clusterConfigurator, rhs._clusterConfigurator) &&

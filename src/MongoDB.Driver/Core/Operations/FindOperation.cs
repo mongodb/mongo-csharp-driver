@@ -28,7 +28,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    internal sealed class FindOperation<TDocument> : IReadOperation<IAsyncCursor<TDocument>>, IExecutableInRetryableReadContext<IAsyncCursor<TDocument>>
+    internal sealed class FindOperation<TDocument> : IReadOperation<IAsyncCursor<TDocument>>, IExecutableInRetryableReadContext<IAsyncCursor<TDocument>>, ICommandCreator
     {
         #region static
         // private static fields
@@ -60,6 +60,7 @@ namespace MongoDB.Driver.Core.Operations
         private ReadConcern _readConcern = ReadConcern.Default;
         private readonly IBsonSerializer<TDocument> _resultSerializer;
         private bool _retryRequested;
+        private bool _canBeRetried;
         private bool? _returnKey;
         private bool? _showRecordId;
         private bool? _singleBatch;
@@ -209,6 +210,12 @@ namespace MongoDB.Driver.Core.Operations
             set => _retryRequested = value;
         }
 
+        public bool CanBeRetried
+        {
+            get => _canBeRetried;
+            set => _canBeRetried = value;
+        }
+
         public bool? ReturnKey
         {
             get { return _returnKey; }
@@ -287,7 +294,7 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = RetryableReadContext.Create(operationContext, binding, _retryRequested))
+            using (var context = new RetryableReadContext(binding, _retryRequested, _canBeRetried))
             {
                 return Execute(operationContext, context);
             }
@@ -299,7 +306,7 @@ namespace MongoDB.Driver.Core.Operations
 
             using (EventContext.BeginFind(_batchSize, _limit))
             {
-                var operation = CreateOperation(operationContext, context);
+                var operation = CreateOperation(operationContext);
                 var commandResult = operation.Execute(operationContext, context);
                 return CreateCursor(context.ChannelSource, context.Channel, commandResult);
             }
@@ -310,7 +317,7 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = await RetryableReadContext.CreateAsync(operationContext, binding, _retryRequested).ConfigureAwait(false))
+            using (var context = new RetryableReadContext(binding, _retryRequested, _canBeRetried))
             {
                 return await ExecuteAsync(operationContext, context).ConfigureAwait(false);
             }
@@ -322,7 +329,7 @@ namespace MongoDB.Driver.Core.Operations
 
             using (EventContext.BeginFind(_batchSize, _limit))
             {
-                var operation = CreateOperation(operationContext, context);
+                var operation = CreateOperation(operationContext);
                 var commandResult = await operation.ExecuteAsync(operationContext, context).ConfigureAwait(false);
                 return CreateCursor(context.ChannelSource, context.Channel, commandResult);
             }
@@ -350,7 +357,8 @@ namespace MongoDB.Driver.Core.Operations
                 _limit < 0 ? Math.Abs(_limit.Value) : _limit,
                 _resultSerializer,
                 _messageEncoderSettings,
-                _cursorType == CursorType.TailableAwait ? _maxAwaitTime : null);
+                _cursorType == CursorType.TailableAwait ? _maxAwaitTime : null,
+                _canBeRetried);
         }
 
         private CursorBatch<TDocument> CreateFirstCursorBatch(BsonDocument cursorDocument)
@@ -367,17 +375,17 @@ namespace MongoDB.Driver.Core.Operations
 
         private EventContext.OperationIdDisposer BeginOperation() => EventContext.BeginOperation(null, OperationName);
 
-        private ReadCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, RetryableReadContext context)
+        private ReadCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext)
         {
-            var command = CreateCommand(operationContext, context.Binding.Session, context.Channel.ConnectionDescription);
             var operation = new ReadCommandOperation<BsonDocument>(
                 _collectionNamespace.DatabaseNamespace,
-                command,
+                this,
                 __findCommandResultSerializer,
                 _messageEncoderSettings,
                 OperationName)
             {
-                RetryRequested = _retryRequested // might be overridden by retryable read context
+                RetryRequested = _retryRequested, // might be overridden by retryable read context
+                CanBeRetried = _canBeRetried
             };
             return operation;
         }

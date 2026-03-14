@@ -44,6 +44,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Theory]
+        [InlineData("AdaptiveRetries", false)]
         [InlineData("AllowInsecureTls", true)]
         [InlineData("ApplicationName", true)]
         [InlineData("BypassQueryAnalysis", true)]
@@ -151,6 +152,7 @@ namespace MongoDB.Driver.Tests
         // private methods
         private ClusterKey CreateSubject(string notEqualFieldName = null)
         {
+            var adaptiveRetries = false;
             var allowInsecureTls = true;
             var applicationName = "app1";
             var bypassQueryAnalysis = false;
@@ -200,6 +202,7 @@ namespace MongoDB.Driver.Tests
             {
                 switch (notEqualFieldName)
                 {
+                    case "AdaptiveRetries": adaptiveRetries = !adaptiveRetries; break;
                     case "AllowInsecureTls": allowInsecureTls = !allowInsecureTls; break;
                     case "ApplicationName": applicationName = "app2"; break;
                     case "BypassQueryAnalysis": bypassQueryAnalysis = true; break;
@@ -246,6 +249,7 @@ namespace MongoDB.Driver.Tests
             }
 
             return new ClusterKey(
+                adaptiveRetries,
                 allowInsecureTls,
                 applicationName,
                 clusterConfigurator,
@@ -290,6 +294,7 @@ namespace MongoDB.Driver.Tests
             Dictionary<string, BsonDocument> schemaMapValue = null,
             Dictionary<string, BsonDocument> encryptedFieldsMap = null)
         {
+            var adaptiveRetries = false;
             var allowInsecureTls = true;
             var applicationName = "app1";
             var bypassQueryAnalysis = false;
@@ -335,6 +340,7 @@ namespace MongoDB.Driver.Tests
             var waitQueueTimeout = TimeSpan.FromSeconds(5);
 
             return new ClusterKey(
+                adaptiveRetries,
                 allowInsecureTls,
                 applicationName,
                 clusterConfigurator,

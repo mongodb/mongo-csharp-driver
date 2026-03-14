@@ -31,6 +31,7 @@ namespace MongoDB.Driver.Core.Configuration
     public class ClusterBuilder
     {
         // fields
+        private bool _adaptiveRetries;
         private EventAggregator _eventAggregator;
         private ClusterSettings _clusterSettings;
         private ConnectionPoolSettings _connectionPoolSettings;
@@ -220,6 +221,12 @@ namespace MongoDB.Driver.Core.Configuration
             return this;
         }
 
+        internal ClusterBuilder ConfigureAdaptiveRetries(bool adaptiveRetries)
+        {
+            _adaptiveRetries = adaptiveRetries;
+            return this;
+        }
+
         // private methods
         private IClusterFactory CreateClusterFactory()
         {
@@ -229,7 +236,8 @@ namespace MongoDB.Driver.Core.Configuration
                 _clusterSettings,
                 serverFactory,
                 _eventAggregator,
-                _loggingSettings?.ToInternalLoggerFactory());
+                _loggingSettings?.ToInternalLoggerFactory(),
+                _adaptiveRetries);
         }
 
         private IConnectionPoolFactory CreateConnectionPoolFactory()

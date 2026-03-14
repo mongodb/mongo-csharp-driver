@@ -27,18 +27,20 @@ namespace MongoDB.Driver.Core.Clusters
     internal sealed class ClusterFactory : IClusterFactory
     {
         // fields
+        private readonly bool _adaptiveRetries;
         private readonly IEventSubscriber _eventSubscriber;
         private readonly ILoggerFactory _loggerFactory;
         private readonly IClusterableServerFactory _serverFactory;
         private readonly ClusterSettings _settings;
 
         // constructors
-        public ClusterFactory(ClusterSettings settings, IClusterableServerFactory serverFactory, IEventSubscriber eventSubscriber, ILoggerFactory loggerFactory)
+        public ClusterFactory(ClusterSettings settings, IClusterableServerFactory serverFactory, IEventSubscriber eventSubscriber, ILoggerFactory loggerFactory, bool adaptiveRetries = false)
         {
             _settings = Ensure.IsNotNull(settings, nameof(settings));
             _serverFactory = Ensure.IsNotNull(serverFactory, nameof(serverFactory));
             _eventSubscriber = Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
             _loggerFactory = loggerFactory;
+            _adaptiveRetries = adaptiveRetries;
         }
 
         // methods
@@ -64,17 +66,17 @@ namespace MongoDB.Driver.Core.Clusters
 
         private MultiServerCluster CreateMultiServerCluster(ClusterSettings settings)
         {
-            return new MultiServerCluster(settings, _serverFactory, _eventSubscriber, _loggerFactory);
+            return new MultiServerCluster(settings, _serverFactory, _eventSubscriber, _loggerFactory, adaptiveRetries: _adaptiveRetries);
         }
 
         private SingleServerCluster CreateSingleServerCluster(ClusterSettings settings)
         {
-            return new SingleServerCluster(settings, _serverFactory, _eventSubscriber, _loggerFactory);
+            return new SingleServerCluster(settings, _serverFactory, _eventSubscriber, _loggerFactory, _adaptiveRetries);
         }
 
         private LoadBalancedCluster CreateLoadBalancedCluster(ClusterSettings setting)
         {
-            return new LoadBalancedCluster(setting, _serverFactory, _eventSubscriber, _loggerFactory);
+            return new LoadBalancedCluster(setting, _serverFactory, _eventSubscriber, _loggerFactory, _adaptiveRetries);
         }
 
         private void ProcessClusterEnvironment(ClusterSettings settings)

@@ -37,6 +37,7 @@ namespace MongoDB.Driver.Core.Operations
         private readonly IBsonSerializer<TResult> _resultSerializer;
         private WriteConcern _writeConcern;
         private bool _retryRequested;
+        private bool _canBeRetried;
 
         public FindAndModifyOperationBase(CollectionNamespace collectionNamespace, IBsonSerializer<TResult> resultSerializer, MessageEncoderSettings messageEncoderSettings)
         {
@@ -86,11 +87,17 @@ namespace MongoDB.Driver.Core.Operations
             set { _retryRequested = value; }
         }
 
+        public bool CanBeRetried
+        {
+            get { return _canBeRetried; }
+            set { _canBeRetried = value; }
+        }
+
         public TResult Execute(OperationContext operationContext, IWriteBinding binding)
         {
             using (BeginOperation())
             {
-                return RetryableWriteOperationExecutor.Execute(operationContext, this, binding, _retryRequested);
+                return RetryableWriteOperationExecutor.Execute(operationContext, this, binding, _retryRequested, _canBeRetried);
             }
         }
 
@@ -106,7 +113,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             using (BeginOperation())
             {
-                return RetryableWriteOperationExecutor.ExecuteAsync(operationContext, this, binding, _retryRequested);
+                return RetryableWriteOperationExecutor.ExecuteAsync(operationContext, this, binding, _retryRequested, _canBeRetried);
             }
         }
 

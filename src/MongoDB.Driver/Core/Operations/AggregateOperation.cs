@@ -29,7 +29,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    internal sealed class AggregateOperation<TResult> : IReadOperation<IAsyncCursor<TResult>>, IExecutableInRetryableReadContext<IAsyncCursor<TResult>>
+    internal sealed class AggregateOperation<TResult> : IReadOperation<IAsyncCursor<TResult>>, IExecutableInRetryableReadContext<IAsyncCursor<TResult>>, ICommandCreator
     {
         // fields
         private bool? _allowDiskUse;
@@ -47,6 +47,7 @@ namespace MongoDB.Driver.Core.Operations
         private ReadConcern _readConcern = ReadConcern.Default;
         private readonly IBsonSerializer<TResult> _resultSerializer;
         private bool _retryRequested;
+        private bool _canBeRetried;
         private bool? _useCursor;
 
         // constructors
@@ -260,6 +261,16 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the operation can be retried.
+        /// </summary>
+        /// <value>Whether the operation can be retried.</value>
+        public bool CanBeRetried
+        {
+            get => _canBeRetried;
+            set => _canBeRetried = value;
+        }
+
+        /// <summary>
         /// Gets or sets a value indicating whether the server should use a cursor to return the results.
         /// </summary>
         /// <value>
@@ -279,7 +290,7 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = RetryableReadContext.Create(operationContext, binding, _retryRequested))
+            using (var context = new RetryableReadContext(binding, _retryRequested, _canBeRetried))
             {
                 return Execute(operationContext, context);
             }
@@ -308,7 +319,7 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = await RetryableReadContext.CreateAsync(operationContext, binding, _retryRequested).ConfigureAwait(false))
+            using (var context = new RetryableReadContext(binding, _retryRequested, _canBeRetried))
             {
                 return await ExecuteAsync(operationContext, context).ConfigureAwait(false);
             }
@@ -331,7 +342,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        internal BsonDocument CreateCommand(OperationContext operationContext, ICoreSession session, ConnectionDescription connectionDescription)
+        public BsonDocument CreateCommand(OperationContext operationContext, ICoreSession session, ConnectionDescription connectionDescription)
         {
             var readConcern = ReadConcernHelper.GetReadConcernForCommand(session, connectionDescription, _readConcern);
             var command = new BsonDocument
@@ -362,11 +373,16 @@ namespace MongoDB.Driver.Core.Operations
         private ReadCommandOperation<AggregateResult> CreateOperation(OperationContext operationContext, RetryableReadContext context)
         {
             var databaseNamespace = _collectionNamespace == null ? _databaseNamespace : _collectionNamespace.DatabaseNamespace;
-            var command = CreateCommand(operationContext, context.Binding.Session, context.Channel.ConnectionDescription);
             var serializer = new AggregateResultDeserializer(_resultSerializer);
-            return new ReadCommandOperation<AggregateResult>(databaseNamespace, command, serializer, MessageEncoderSettings, OperationName)
+            return new ReadCommandOperation<AggregateResult>(
+                databaseNamespace,
+                this,
+                serializer,
+                MessageEncoderSettings,
+                OperationName)
             {
-                RetryRequested = _retryRequested // might be overridden by retryable read context
+                RetryRequested = _retryRequested, // might be overridden by retryable read context
+                CanBeRetried = _canBeRetried
             };
         }
 
@@ -398,7 +414,8 @@ namespace MongoDB.Driver.Core.Operations
                 null, // limit
                 _resultSerializer,
                 MessageEncoderSettings,
-                _maxAwaitTime);
+                _maxAwaitTime,
+                _canBeRetried);
         }
 
         private AsyncCursor<TResult> CreateCursorFromInlineResult(AggregateResult result)
@@ -414,7 +431,8 @@ namespace MongoDB.Driver.Core.Operations
                 null, // limit
                 _resultSerializer,
                 MessageEncoderSettings,
-                _maxAwaitTime);
+                _maxAwaitTime,
+                _canBeRetried);
         }
 
         private void EnsureIsReadOnlyPipeline()

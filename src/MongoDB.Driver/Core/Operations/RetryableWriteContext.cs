@@ -24,43 +24,6 @@ namespace MongoDB.Driver.Core.Operations
 {
     internal sealed class RetryableWriteContext : IDisposable
     {
-        #region static
-
-        public static RetryableWriteContext Create(OperationContext operationContext, IWriteBinding binding, bool retryRequested)
-        {
-            var context = new RetryableWriteContext(binding, retryRequested);
-            try
-            {
-                context.AcquireOrReplaceChannel(operationContext, null);
-            }
-            catch
-            {
-                context.Dispose();
-                throw;
-            }
-
-            ChannelPinningHelper.PinChannellIfRequired(context.ChannelSource, context.Channel, context.Binding.Session);
-            return context;
-        }
-
-        public static async Task<RetryableWriteContext> CreateAsync(OperationContext operationContext, IWriteBinding binding, bool retryRequested)
-        {
-            var context = new RetryableWriteContext(binding, retryRequested);
-            try
-            {
-                await context.AcquireOrReplaceChannelAsync(operationContext, null).ConfigureAwait(false);
-            }
-            catch
-            {
-                context.Dispose();
-                throw;
-            }
-
-            ChannelPinningHelper.PinChannellIfRequired(context.ChannelSource, context.Channel, context.Binding.Session);
-            return context;
-        }
-        #endregion
-
 #pragma warning disable CA2213 // Disposable fields should be disposed
         private readonly IWriteBinding _binding;
 #pragma warning restore CA2213 // Disposable fields should be disposed
@@ -68,65 +31,114 @@ namespace MongoDB.Driver.Core.Operations
         private IChannelSourceHandle _channelSource;
         private bool _disposed;
         private bool _retryRequested;
+        private bool _canBeRetried;
+        private IRandom _random;
+        private IMayUseSecondaryCriteria _mayUseSecondaryCriteria;
 
-        public RetryableWriteContext(IWriteBinding binding, bool retryRequested)
+        public RetryableWriteContext(IWriteBinding binding, bool retryRequested, bool canBeRetried, IRandom random = null, IMayUseSecondaryCriteria mayUseSecondaryCriteria = null)
         {
             _binding = Ensure.IsNotNull(binding, nameof(binding));
             _retryRequested = retryRequested;
+            _canBeRetried = canBeRetried;
+            _random = random ?? DefaultRandom.Instance;
+            _mayUseSecondaryCriteria = mayUseSecondaryCriteria;
         }
 
         public IWriteBinding Binding => _binding;
         public IChannelHandle Channel => _channel;
         public IChannelSourceHandle ChannelSource => _channelSource;
+        public IMayUseSecondaryCriteria MayUseSecondaryCriteria => _mayUseSecondaryCriteria;
+        public IRandom Random => _random;
+        /// <summary>
+        /// This property only influences the retryability for retryable reads/writes and has no effect
+        /// on client backpressure errors.
+        /// </summary>
         public bool RetryRequested => _retryRequested;
+        /// <summary>
+        /// Indicates whether the operation can be retried. If false, retries are disabled entirely.
+        /// </summary>
+        public bool CanBeRetried => _canBeRetried;
 
         public void Dispose()
         {
             if (!_disposed)
             {
-                _channelSource?.Dispose();
-                _channel?.Dispose();
+                DisposeChannelAndSource();
                 _disposed = true;
             }
         }
 
-        public void AcquireOrReplaceChannel(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
+        public ServerDescription SelectServer(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
-            var attempt = 1;
-            while (true)
+            try
             {
                 operationContext.ThrowIfTimedOutOrCanceled();
-                ReplaceChannelSource(Binding.GetWriteChannelSource(operationContext, deprioritizedServers));
-                var server = ChannelSource.ServerDescription;
-                try
-                {
-                    ReplaceChannel(ChannelSource.GetChannel(operationContext));
-                    return;
-                }
-                catch (Exception ex) when (RetryableWriteOperationExecutor.ShouldConnectionAcquireBeRetried(operationContext, this, server, ex, attempt))
-                {
-                    attempt++;
-                }
+                //TODO The implementation of the two overloads is different, need to understand if it's an issue and we can just call the second overload from the first one.
+                var writeChannelSource = _mayUseSecondaryCriteria == null ?
+                    Binding.GetWriteChannelSource(operationContext, deprioritizedServers)
+                    : Binding.GetWriteChannelSource(operationContext, deprioritizedServers, _mayUseSecondaryCriteria);                ReplaceChannelSource(writeChannelSource);
+                return ChannelSource.ServerDescription;
+            }
+            catch
+            {
+                DisposeChannelAndSource();
+                throw;
             }
         }
 
-        public async Task AcquireOrReplaceChannelAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
+        public async Task<ServerDescription> SelectServerAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
-            var attempt = 1;
-            while (true)
+            try
             {
                 operationContext.ThrowIfTimedOutOrCanceled();
-                ReplaceChannelSource(await Binding.GetWriteChannelSourceAsync(operationContext, deprioritizedServers).ConfigureAwait(false));
-                var server = ChannelSource.ServerDescription;
-                try
+                var writeChannelSource = _mayUseSecondaryCriteria == null ?
+                    await Binding.GetWriteChannelSourceAsync(operationContext, deprioritizedServers).ConfigureAwait(false)
+                    : await Binding.GetWriteChannelSourceAsync(operationContext, deprioritizedServers, _mayUseSecondaryCriteria).ConfigureAwait(false);
+                ReplaceChannelSource(writeChannelSource);
+                return ChannelSource.ServerDescription;
+            }
+            catch
+            {
+                DisposeChannelAndSource();
+                throw;
+            }
+        }
+
+        public void AcquireChannel(OperationContext operationContext)
+        {
+            try
+            {
+                if (_channelSource is null)
                 {
-                    ReplaceChannel(await ChannelSource.GetChannelAsync(operationContext).ConfigureAwait(false));
-                    return;
+                    throw new InvalidOperationException("Channel source is not initialized. Server selection must be performed before channel acquisition.");
                 }
-                catch (Exception ex) when (RetryableWriteOperationExecutor.ShouldConnectionAcquireBeRetried(operationContext, this, server, ex, attempt))
+                operationContext.ThrowIfTimedOutOrCanceled();
+                ReplaceChannel(ChannelSource.GetChannel(operationContext));
+                ChannelPinningHelper.PinChannellIfRequired(ChannelSource, Channel, Binding.Session);
+            }
+            catch
+            {
+                DisposeChannelAndSource();
+                throw;
+            }
+        }
+
+        public async Task AcquireChannelAsync(OperationContext operationContext)
+        {
+            try
+            {
+                if (_channelSource is null)
                 {
-                    attempt++;
+                    throw new InvalidOperationException("Channel source is not initialized. Server selection must be performed before channel acquisition.");
                 }
+                operationContext.ThrowIfTimedOutOrCanceled();
+                ReplaceChannel(await ChannelSource.GetChannelAsync(operationContext).ConfigureAwait(false));
+                ChannelPinningHelper.PinChannellIfRequired(ChannelSource, Channel, Binding.Session);
+            }
+            catch
+            {
+                DisposeChannelAndSource();
+                throw;
             }
         }
 
@@ -144,6 +156,12 @@ namespace MongoDB.Driver.Core.Operations
             _channel?.Dispose();
             _channelSource = channelSource;
             _channel = null;
+        }
+
+        private void DisposeChannelAndSource()
+        {
+            _channelSource?.Dispose();
+            _channel?.Dispose();
         }
     }
 }

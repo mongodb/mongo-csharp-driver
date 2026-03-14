@@ -57,6 +57,7 @@ namespace MongoDB.Driver.Core.Operations
         private BsonDocument _postBatchResumeToken;
         private readonly IBsonSerializer<TDocument> _serializer;
         private readonly bool _wasFirstBatchEmpty;
+        private readonly bool _canBeRetried;
 
         public AsyncCursor(
             IChannelSource channelSource,
@@ -68,7 +69,8 @@ namespace MongoDB.Driver.Core.Operations
             int? limit,
             IBsonSerializer<TDocument> serializer,
             MessageEncoderSettings messageEncoderSettings,
-            TimeSpan? maxTime = null)
+            TimeSpan? maxTime,
+            bool canBeRetried)
             : this(
                 channelSource,
                 collectionNamespace,
@@ -80,7 +82,8 @@ namespace MongoDB.Driver.Core.Operations
                 limit,
                 serializer,
                 messageEncoderSettings,
-                maxTime)
+                maxTime,
+                canBeRetried)
         {
         }
 
@@ -95,7 +98,8 @@ namespace MongoDB.Driver.Core.Operations
             int? limit,
             IBsonSerializer<TDocument> serializer,
             MessageEncoderSettings messageEncoderSettings,
-            TimeSpan? maxTime)
+            TimeSpan? maxTime,
+            bool canBeRetried)
         {
             _operationId = EventContext.OperationId;
             _channelSource = channelSource;
@@ -109,6 +113,7 @@ namespace MongoDB.Driver.Core.Operations
             _serializer = Ensure.IsNotNull(serializer, nameof(serializer));
             _messageEncoderSettings = messageEncoderSettings;
             _maxTime = maxTime;
+            _canBeRetried = canBeRetried;
 
             if (_limit > 0 && _firstBatch.Count > _limit)
             {
@@ -221,19 +226,21 @@ namespace MongoDB.Driver.Core.Operations
             {
                 // TODO: CSOT: Implement operation context support for Cursors
                 var operationContext = new OperationContext(null, cancellationToken);
-                result = channel.Command<BsonDocument>(
-                    operationContext,
-                    _channelSource.Session,
-                    null, // readPreference
+
+                var operation = new ReadCommandOperation<BsonDocument>(
                     _collectionNamespace.DatabaseNamespace,
                     command,
-                    null, // commandPayloads
-                    NoOpElementNameValidator.Instance,
-                    null, // additionalOptions
-                    null, // postWriteAction
-                    CommandResponseHandling.Return,
                     __getMoreCommandResultSerializer,
-                    _messageEncoderSettings);
+                    _messageEncoderSettings)
+                {
+                    CanBeRetried = _canBeRetried
+                };
+
+                using var channelBinding = new ChannelReadWriteBinding(
+                    _channelSource.Server,
+                    channel,
+                    _channelSource.Session.Fork());
+                result = operation.Execute(operationContext, channelBinding);
             }
             catch (MongoCommandException ex) when (IsMongoCursorNotFoundException(ex))
             {
@@ -251,19 +258,21 @@ namespace MongoDB.Driver.Core.Operations
             {
                 // TODO: CSOT: Implement operation context support for Cursors
                 var operationContext = new OperationContext(null, cancellationToken);
-                result = await channel.CommandAsync<BsonDocument>(
-                    operationContext,
-                    _channelSource.Session,
-                    null, // readPreference
+
+                var operation = new ReadCommandOperation<BsonDocument>(
                     _collectionNamespace.DatabaseNamespace,
                     command,
-                    null, // commandPayloads
-                    NoOpElementNameValidator.Instance,
-                    null, // additionalOptions
-                    null, // postWriteAction
-                    CommandResponseHandling.Return,
                     __getMoreCommandResultSerializer,
-                    _messageEncoderSettings).ConfigureAwait(false);
+                    _messageEncoderSettings)
+                {
+                    CanBeRetried = _canBeRetried
+                };
+
+                using var channelBinding = new ChannelReadWriteBinding(
+                    _channelSource.Server,
+                    channel,
+                    _channelSource.Session.Fork());
+                result = await operation.ExecuteAsync(operationContext, channelBinding).ConfigureAwait(false);
             }
             catch (MongoCommandException ex) when (IsMongoCursorNotFoundException(ex))
             {

@@ -63,6 +63,7 @@ namespace MongoDB.Driver.Core.Configuration
 
         // these are all readonly, but since they are not assigned
         // from the ctor, they cannot be marked as such.
+        private bool? _adaptiveRetries;
         private string _applicationName;
         private string _authMechanism;
         private string _authSource;
@@ -172,6 +173,14 @@ namespace MongoDB.Driver.Core.Configuration
         public IEnumerable<string> AllUnknownOptionNames
         {
             get { return _unknownOptions.AllKeys; }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether adaptive retries are enabled.
+        /// </summary>
+        public bool? AdaptiveRetries
+        {
+            get { return _adaptiveRetries; }
         }
 
         /// <summary>
@@ -969,6 +978,9 @@ namespace MongoDB.Driver.Core.Configuration
         {
             switch (name.ToLowerInvariant())
             {
+                case "adaptiveretries":
+                    _adaptiveRetries = ParseBoolean(name, value);
+                    break;
                 case "appname":
                     string invalidApplicationNameMessage;
                     if (!ApplicationNameHelper.IsApplicationNameValid(value, out invalidApplicationNameMessage))

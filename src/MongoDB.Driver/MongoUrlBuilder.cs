@@ -32,6 +32,7 @@ namespace MongoDB.Driver
     public class MongoUrlBuilder
     {
         // private fields
+        private bool? _adaptiveRetries;
         private bool _allowInsecureTls;
         private string _applicationName;
         private string _authenticationMechanism;
@@ -86,6 +87,7 @@ namespace MongoDB.Driver
         /// </summary>
         public MongoUrlBuilder()
         {
+            _adaptiveRetries = null;
             _allowInsecureTls = false;
             _applicationName = null;
             _authenticationMechanism = MongoDefaults.AuthenticationMechanism;
@@ -153,6 +155,15 @@ namespace MongoDB.Driver
         }
 
         // public properties
+        /// <summary>
+        /// Gets or sets whether adaptive retries are enabled.
+        /// </summary>
+        public bool? AdaptiveRetries
+        {
+            get { return _adaptiveRetries; }
+            set { _adaptiveRetries = value; }
+        }
+
         /// <summary>
         /// Gets or sets whether to relax TLS constraints as much as possible.
         /// </summary>
@@ -877,6 +888,10 @@ namespace MongoDB.Driver
                 url.Append(_databaseName);
             }
             var query = new StringBuilder();
+            if (_adaptiveRetries.GetValueOrDefault(false))
+            {
+                query.AppendFormat("adaptiveRetries=true&");
+            }
             if (_authenticationMechanism != null)
             {
                 query.AppendFormat("authMechanism={0}&", _authenticationMechanism);
@@ -1095,6 +1110,7 @@ namespace MongoDB.Driver
         // private methods
         private void InitializeFromConnectionString(ConnectionString connectionString)
         {
+            _adaptiveRetries = connectionString.AdaptiveRetries;
             _allowInsecureTls = connectionString.TlsInsecure.GetValueOrDefault(false);
             _applicationName = connectionString.ApplicationName;
             _authenticationMechanism = connectionString.AuthMechanism;
