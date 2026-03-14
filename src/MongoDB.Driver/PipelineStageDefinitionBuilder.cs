@@ -2168,15 +2168,34 @@ namespace MongoDB.Driver
                 {
                     ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
 
+                    var path = field.Render(args).FieldName;
+                    var dotPos = path.LastIndexOf('.');
+                    var nestedRoot = dotPos > 0 ? path.Substring(0, dotPos) : null;
+
                     var vectorSearchOperator = new BsonDocument
                     {
-                        { "path", field.Render(args).FieldName },
+                        { "path", path },
                         { "limit", limit },
                         { "numCandidates", options?.NumberOfCandidates ?? limit * 10, options?.Exact != true },
                         { "index", options?.IndexName ?? "default" },
-                        { "filter", () => options?.Filter.Render(args with { RenderDollarForm = true }), options?.Filter != null },
-                        { "exact", true, options?.Exact == true }
+                        { nestedRoot != null ? "parentFilter" : "filter", () => options?.Filter.Render(args with { RenderDollarForm = true }), options?.Filter != null },
+                        { "exact", true, options?.Exact == true },
+                        { "returnStoredSource", true, options?.ReturnStoredSource == true },
                     };
+
+                    if (nestedRoot != null && options?.NestedFilter != null)
+                    {
+                        vectorSearchOperator.Add("filter", options.NestedFilter.Render(
+                            (args with { SubPathRoot = nestedRoot }) with { RenderDollarForm = true }));
+                    }
+
+                    if (options?.EmbeddedScoreMode != null)
+                    {
+                        vectorSearchOperator.Add("nestedOptions", new BsonDocument
+                        {
+                            { "scoreMode", options.EmbeddedScoreMode == SearchScoreFunction.Average ? "avg" : "max" }
+                        });
+                    }
 
                     if (queryVector.Vector is BsonString bsonString)
                     {

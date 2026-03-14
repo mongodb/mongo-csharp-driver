@@ -215,5 +215,20 @@ public class AutoEmbedVectorSearchTests : LoggableTestClass
 
         [BsonElement("score")]
         public double Score { get; set; }
+
+        [BsonElement("proposal")]
+        public Proposal Proposal { get; set; }
+    }
+
+    public class Proposal
+    {
+        [BsonElement("title")]
+        public string Outline { get; set; }
+
+        [BsonElement("receivedYear")]
+        public int ReceivedYear  { get; set; }
+
+        [BsonElement("initiallyApproved")]
+        public bool InitiallyApproved  { get; set; }
     }
 }

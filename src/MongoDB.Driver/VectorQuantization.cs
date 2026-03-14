@@ -36,7 +36,16 @@ public enum VectorQuantization
     /// <summary>
     /// Indicates binary quantization, which transforms values to a single bit.
     /// To use this value, numDimensions must be a multiple of 8.
-    /// If precision is critical, select <see cref="None"/> or <see cref="Scalar"/> instead of <see cref="Binary"/>.
+    /// If precision is critical, select <see cref="None"/> or <see cref="Scalar"/> instead of <see cref="Binary"/>
+    /// or <see cref="BinaryNoRescore"/>.
     /// </summary>
     Binary,
+
+    /// <summary>
+    /// Indicates binary quantization, which transforms values to a single bit, but does not rescore the results.
+    /// To use this value, numDimensions must be a multiple of 8.
+    /// If precision is critical, select <see cref="None"/> or <see cref="Scalar"/> instead of <see cref="Binary"/>
+    /// or <see cref="BinaryNoRescore"/>.
+    /// </summary>
+    BinaryNoRescore,
 }

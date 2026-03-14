@@ -21,6 +21,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.GeoJsonObjectModel;
 using MongoDB.Driver.Search;
+using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
 
@@ -641,6 +642,100 @@ namespace MongoDB.Driver.Tests
 
             var stages = RenderStages(result, BsonDocumentSerializer.Instance);
             stages[0].Should().BeEquivalentTo("{ $vectorSearch: { queryVector: [1.0, 2.0, 3.0], path: 'x', limit: 1, numCandidates: 123, index: 'index_name', filter : { $and : [{ x : { $eq : 1 } }, { y : { $eq : 2 } }] } } }");
+        }
+
+        [Fact]
+        public void VectorSearch_should_add_expected_stage_with_ReturnStoredSource()
+        {
+            var pipeline = new EmptyPipelineDefinition<BsonDocument>();
+            var options = new VectorSearchOptions<BsonDocument>()
+            {
+                IndexName = "index_name",
+                ReturnStoredSource = true
+            };
+            var result = pipeline.VectorSearch("x", new[] { 1.0, 2.0, 3.0 }, 1, options);
+
+            var stages = RenderStages(result, BsonDocumentSerializer.Instance);
+            stages[0].Should().BeEquivalentTo("{ $vectorSearch: { queryVector: [1.0, 2.0, 3.0], path: 'x', limit: 1, numCandidates: 10, index: 'index_name', returnStoredSource: true } }");
+        }
+
+        [Fact]
+        public void VectorSearch_should_add_expected_stage_with_nested_options()
+        {
+            var pipeline = new EmptyPipelineDefinition<BsonDocument>();
+            var options = new VectorSearchOptions<BsonDocument>()
+            {
+                IndexName = "index_name",
+                EmbeddedScoreMode = SearchScoreFunction.Average,
+            };
+            var result = pipeline.VectorSearch("x", new[] { 1.0, 2.0, 3.0 }, 1, options);
+
+            var stages = RenderStages(result, BsonDocumentSerializer.Instance);
+            stages[0].Should().BeEquivalentTo("{ $vectorSearch: { queryVector: [1.0, 2.0, 3.0], path: 'x', limit: 1, numCandidates: 10, index: 'index_name', nestedOptions: { scoreMode: 'avg' } } }");
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void VectorSearch_should_add_expected_stage_with_parent_filters([Values(false, true)] bool expressions)
+        {
+            var pipeline = new EmptyPipelineDefinition<MovieWithPlot>();
+            var options = new VectorSearchOptions<MovieWithPlot>()
+            {
+                IndexName = "index_name",
+            };
+
+            if (expressions)
+            {
+                options.Filter = Builders<MovieWithPlot>.Filter.Gt(m => m.Year, 1900);
+                options.NestedFilter = Builders<MovieWithPlot>.Filter.Lt(m => m.Plot.Rating, 6)
+                                       & Builders<MovieWithPlot>.Filter.Eq(m => m.Plot.Synced, true);
+            }
+            else
+            {
+                options.Filter = Builders<MovieWithPlot>.Filter.Gt("Year", 1900);
+                options.NestedFilter = Builders<MovieWithPlot>.Filter.Lt("Plot.Rating", 6)
+                                       & Builders<MovieWithPlot>.Filter.Eq("Plot.Synced", true);
+            }
+
+            var result = pipeline.VectorSearch(m => m.Plot.PlotEmbedding, new[] { 1.0, 2.0, 3.0 }, 1, options);
+
+            var stages = RenderStages(result, BsonSerializer.SerializerRegistry.GetSerializer<MovieWithPlot>());
+            stages[0].Should().BeEquivalentTo("{ $vectorSearch: { queryVector: [1.0, 2.0, 3.0], path: 'Plot.PlotEmbedding', limit: 1, numCandidates: 10, index: 'index_name', filter: { '$and' : [{ Rating: { '$lt' : 6 } }, { Synced: { '$eq' : true } }] }, parentFilter: { 'Year' : { '$gt' : 1900 } } } }");
+        }
+
+        private class MovieWithPlot
+        {
+            public int Year { get; set; }
+            public NestedPlot Plot { get; set; }
+        }
+
+        private class NestedPlot
+        {
+            public bool Synced { get; set; }
+            public int Rating  { get; set; }
+            public float[] PlotEmbedding  { get; set; }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void VectorSearch_should_throw_when_filter_is_at_wrong_level([Values(false, true)] bool expressions)
+        {
+            var pipeline = new EmptyPipelineDefinition<MovieWithPlot>();
+            var options = new VectorSearchOptions<MovieWithPlot>()
+            {
+                IndexName = "index_name",
+            };
+
+            options.NestedFilter = expressions
+                ? Builders<MovieWithPlot>.Filter.Lt(m => m.Year, 1900)
+                : Builders<MovieWithPlot>.Filter.Lt("Year", 1900);
+
+            var result = pipeline.VectorSearch(m => m.Plot.PlotEmbedding, new[] { 1.0, 2.0, 3.0 }, 1, options);
+
+            var exception = Record.Exception(() => RenderStages(result, BsonSerializer.SerializerRegistry.GetSerializer<MovieWithPlot>()));
+
+            exception.Should().BeOfType<InvalidOperationException>()
+                .Which.Message.Should().Contain("The field 'Year' is not part of the nested document 'Plot', which is the root of this search.");
         }
 
         [Fact]

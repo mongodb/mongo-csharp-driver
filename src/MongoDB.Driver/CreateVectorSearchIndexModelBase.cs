@@ -35,6 +35,44 @@ public abstract class CreateVectorSearchIndexModelBase<TDocument> : CreateSearch
     public IReadOnlyList<FieldDefinition<TDocument>> FilterFields { get; }
 
     /// <summary>
+    /// The fields that must be stored in the index. Use
+    /// <see cref="CreateVectorSearchIndexModel{TDocument}.WithIncludedStoredFields(FieldDefinition{TDocument}[])"/>
+    /// or <see cref="CreateAutoEmbeddingVectorSearchIndexModel{TDocument}.WithIncludedStoredFields(FieldDefinition{TDocument}[])"/>
+    /// to configure this.
+    /// </summary>
+    public IReadOnlyList<FieldDefinition<TDocument>> IncludedStoredFields { get; protected init; }
+
+    /// <summary>
+    /// The fields that must NOT be stored in the index. Use
+    /// <see cref="CreateVectorSearchIndexModel{TDocument}.WithExcludedStoredFields(FieldDefinition{TDocument}[])"/>
+    /// or <see cref="CreateAutoEmbeddingVectorSearchIndexModel{TDocument}.WithExcludedStoredFields(FieldDefinition{TDocument}[])"/>
+    /// to configure this.
+    /// </summary>
+    public IReadOnlyList<FieldDefinition<TDocument>> ExcludedStoredFields { get; protected init; }
+
+    /// <summary>
+    /// Number of vector dimensions that vector search enforces at index-time and query-time, or uses to build
+    /// the embeddings for auto-embedding indexes.
+    /// </summary>
+    public int Dimensions { get; init; }
+
+    /// <summary>
+    /// Type of automatic vector quantization for your vectors.
+    /// </summary>
+    public VectorQuantization? Quantization { get; init; }
+
+    /// <summary>
+    /// Maximum number of edges (or connections) that a node can have in the Hierarchical Navigable Small Worlds graph.
+    /// </summary>
+    public int? HnswMaxEdges { get; init; }
+
+    /// <summary>
+    /// Analogous to numCandidates at query-time, this parameter controls the maximum number of nodes to evaluate to
+    /// find the closest neighbors to connect to a new node.
+    /// </summary>
+    public int? HnswNumEdgeCandidates { get; init; }
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="CreateVectorSearchIndexModelBase{TDocument}"/> class for a vector
     /// index where the vector embeddings are created manually. The required options for <see cref="VectorSimilarity"/>
     /// and the number of vector dimensions are passed to the constructor.
@@ -77,6 +115,56 @@ public abstract class CreateVectorSearchIndexModelBase<TDocument> : CreateSearch
 
                 fields.Add(fieldDocument);
             }
+        }
+    }
+
+    /// <summary>
+    /// Called by subclasses to render common top-level elements in the index definition.
+    /// </summary>
+    /// <param name="renderArgs">The render args.</param>
+    /// <param name="indexDocument">The index document into which the elements will go.</param>
+    private protected void RenderCommonElements(RenderArgs<TDocument> renderArgs, BsonDocument indexDocument)
+    {
+        var fieldName = Field.Render(renderArgs).FieldName;
+        var dotPos = fieldName.LastIndexOf('.');
+        if (dotPos > 0)
+        {
+            indexDocument.Add("nestedRoot", fieldName.Substring(0, dotPos));
+        }
+
+        var exclude = ExcludedStoredFields?.Any() == true;
+        if (exclude || IncludedStoredFields?.Any() == true)
+        {
+            var fields = new BsonArray();
+            foreach (var field in exclude ? ExcludedStoredFields : IncludedStoredFields)
+            {
+                fields.Add(field.Render(renderArgs).FieldName);
+            }
+
+            indexDocument.Add("storedSource", new BsonDocument { { exclude ? "exclude" : "include", fields } });
+        }
+    }
+
+    /// <summary>
+    /// Called by subclasses to render common elements in a field of the index definition.
+    /// </summary>
+    /// <param name="renderArgs">The render args.</param>
+    /// <param name="fieldDocument">The field document into which the elements will go.</param>
+    private protected void RenderCommonFieldElements(RenderArgs<TDocument> renderArgs, BsonDocument fieldDocument)
+    {
+        var quantizationValue = Quantization == VectorQuantization.BinaryNoRescore
+            ? "binaryNoRescore"
+            : Quantization?.ToString().ToLowerInvariant();
+
+        fieldDocument.Add("quantization", quantizationValue, quantizationValue != null);
+
+        if (HnswMaxEdges != null || HnswNumEdgeCandidates != null)
+        {
+            fieldDocument.Add("hnswOptions",
+                new BsonDocument
+                {
+                    { "maxEdges", HnswMaxEdges ?? 16 }, { "numEdgeCandidates", HnswNumEdgeCandidates ?? 100 }
+                });
         }
     }
 }
