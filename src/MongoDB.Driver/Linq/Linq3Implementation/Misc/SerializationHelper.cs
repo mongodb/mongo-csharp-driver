@@ -49,6 +49,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             }
         }
 
+        public static void EnsureRepresentationIsBinary(Expression expression, Expression argumentExpression, IBsonSerializer argumentSerializer)
+        {
+            var argumentRepresentation = GetRepresentation(argumentSerializer);
+            if (argumentRepresentation != BsonType.Binary)
+            {
+                throw new ExpressionNotSupportedException(expression, because: $"{argumentExpression} uses a non-binary representation: {argumentRepresentation}");
+            }
+        }
+
         public static void EnsureRepresentationIsBoolean(Expression expression, Expression argumentExpression, TranslatedExpression argumentTranslation)
         {
             EnsureRepresentationIsBoolean(expression, argumentExpression, argumentTranslation.Serializer);
