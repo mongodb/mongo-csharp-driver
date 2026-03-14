@@ -32,8 +32,8 @@ namespace MongoDB.Bson
     {
         // private fields
         private IByteBuffer _slice;
-        private List<IDisposable> _disposableItems = new List<IDisposable>();
-        private BsonBinaryReaderSettings _readerSettings = BsonBinaryReaderSettings.Defaults;
+        private List<IDisposable> _disposableItems = new();
+        private readonly BsonBinaryReaderSettings _readerSettings = BsonBinaryReaderSettings.Defaults;
 
         // constructors
         /// <summary>
@@ -150,7 +150,7 @@ namespace MongoDB.Bson
             return _slice.GetSlice(0, _slice.Length);
         }
 
-        private LazyBsonArray DeserializeLazyBsonArray(BsonBinaryReader bsonReader)
+        private LazyBsonArray DeserializeLazyBsonArray(IBsonReader bsonReader)
         {
             var slice = bsonReader.ReadRawBsonArray();
             var nestedArray = new LazyBsonArray(slice);
@@ -158,7 +158,7 @@ namespace MongoDB.Bson
             return nestedArray;
         }
 
-        private LazyBsonDocument DeserializeLazyBsonDocument(BsonBinaryReader bsonReader)
+        private LazyBsonDocument DeserializeLazyBsonDocument(IBsonReader bsonReader)
         {
             var slice = bsonReader.ReadRawBsonDocument();
             var nestedDocument = new LazyBsonDocument(slice);
@@ -170,27 +170,24 @@ namespace MongoDB.Bson
         {
             var values = new List<BsonValue>();
 
-            using (var stream = new ByteBufferStream(_slice, ownsBuffer: false))
-            using (var bsonReader = new BsonBinaryReader(stream, _readerSettings))
-            {
-                var context = BsonDeserializationContext.CreateRoot(bsonReader);
+            using var bsonReader = BsonBinaryReaderUtils.CreateBinaryReader(_slice, _readerSettings);
+            var context = BsonDeserializationContext.CreateRoot(bsonReader);
 
-                bsonReader.ReadStartDocument();
-                BsonType bsonType;
-                while ((bsonType = bsonReader.ReadBsonType()) != BsonType.EndOfDocument)
+            bsonReader.ReadStartDocument();
+            BsonType bsonType;
+            while ((bsonType = bsonReader.ReadBsonType()) != BsonType.EndOfDocument)
+            {
+                bsonReader.SkipName();
+                BsonValue value;
+                switch (bsonType)
                 {
-                    bsonReader.SkipName();
-                    BsonValue value;
-                    switch (bsonType)
-                    {
-                        case BsonType.Array: value = DeserializeLazyBsonArray(bsonReader); break;
-                        case BsonType.Document: value = DeserializeLazyBsonDocument(bsonReader); break;
-                        default: value = BsonValueSerializer.Instance.Deserialize(context); break;
-                    }
-                    values.Add(value);
+                    case BsonType.Array: value = DeserializeLazyBsonArray(bsonReader); break;
+                    case BsonType.Document: value = DeserializeLazyBsonDocument(bsonReader); break;
+                    default: value = BsonValueSerializer.Instance.Deserialize(context); break;
                 }
-                bsonReader.ReadEndDocument();
+                values.Add(value);
             }
+            bsonReader.ReadEndDocument();
 
             return values;
         }
