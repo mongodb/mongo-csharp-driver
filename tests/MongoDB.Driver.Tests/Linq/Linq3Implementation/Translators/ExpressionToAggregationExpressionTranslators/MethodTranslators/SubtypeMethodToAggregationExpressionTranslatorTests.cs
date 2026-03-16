@@ -90,11 +90,8 @@ public class SubtypeMethodToAggregationExpressionTranslatorTests
     {
         var modelParameter = expression.Parameters.Single();
         var modelSerializer = BsonSerializer.LookupSerializer(modelParameter.Type);
-        var nodeSerializers = new SerializerMap();
-        nodeSerializers.AddSerializer(modelParameter, modelSerializer);
 
-        SerializerFinder.FindSerializers(expression, null, nodeSerializers);
-        var context = TranslationContext.Create(null, nodeSerializers);
+        var context = TranslationContext.Create(expression.Body, modelParameter, modelSerializer, null);
         var symbol = context.CreateRootSymbol(modelParameter, modelSerializer);
         return context.WithSymbol(symbol);
     }
