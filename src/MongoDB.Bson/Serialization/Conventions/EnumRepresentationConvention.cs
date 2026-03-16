@@ -93,7 +93,7 @@ namespace MongoDB.Bson.Serialization.Conventions
                 => type.IsEnum ||
                    type.IsNullableEnum() ||
                    (type.IsArray && CouldApply(type.GetElementType())) ||
-                   type.GetInterfaces().Any(
+                   type.GetInterfaces().Prepend(type).Any(
                        i =>
                            i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>) && CouldApply(i.GetGenericArguments()[0]) || // IEnumerable<T>
                            i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IDictionary<,>) && (CouldApply(i.GetGenericArguments()[0]) || CouldApply(i.GetGenericArguments()[1])) // IDictionary<TKey, TValue>

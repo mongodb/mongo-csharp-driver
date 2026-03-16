@@ -49,6 +49,9 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             public IC IndirectlyRecursiveProp { get; set; }
             public IC[] IndirectlyRecursivePropArray { get; set; }
             public Dictionary<string, IC> IndirectlyRecursivePropDictionary { get; set; }
+            public IEnumerable<E> IEnumerableEnum { get; set; }
+            public IDictionary<string, E> IDictionaryEnumValue { get; set; }
+            public IDictionary<E, string> IDictionaryEnumKey { get; set; }
             // public Dictionary<E, C> RecursiveDictionary { get; set; } - this is not supported.
         }
 
@@ -164,6 +167,58 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 
             var serializer = (IChildSerializerConfigurable)memberMap.GetSerializer();
             var childSerializer = (EnumSerializer<E>)((IChildSerializerConfigurable)serializer.ChildSerializer).ChildSerializer;
+            childSerializer.Representation.Should().Be(representation);
+        }
+
+        [Theory]
+        [InlineData(BsonType.Int32)]
+        [InlineData(BsonType.Int64)]
+        [InlineData(BsonType.String)]
+        public void Apply_should_configure_serializer_when_member_is_an_IEnumerable_of_enum(BsonType representation)
+        {
+            var subject = new EnumRepresentationConvention(representation, false);
+            var memberMap = CreateMemberMap(c => c.IEnumerableEnum);
+
+            subject.Apply(memberMap);
+
+            var serializer = (IChildSerializerConfigurable)memberMap.GetSerializer();
+            var childSerializer = (EnumSerializer<E>)serializer.ChildSerializer;
+            childSerializer.Representation.Should().Be(representation);
+        }
+
+        [Theory]
+        [InlineData(BsonType.Int32)]
+        [InlineData(BsonType.Int64)]
+        [InlineData(BsonType.String)]
+        public void Apply_should_configure_serializer_when_member_is_an_IDictionary_interface_with_enum_value(BsonType representation)
+        {
+            var subject = new EnumRepresentationConvention(representation, false);
+            var memberMap = CreateMemberMap(c => c.IDictionaryEnumValue);
+
+            subject.Apply(memberMap);
+
+            // IDictionary<K,V> members use ImpliedImplementationInterfaceSerializer wrapping the actual DictionarySerializer
+            var outerSerializer = (IChildSerializerConfigurable)memberMap.GetSerializer();
+            var innerSerializer = (IChildSerializerConfigurable)outerSerializer.ChildSerializer;
+            var childSerializer = (EnumSerializer<E>)innerSerializer.ChildSerializer;
+            childSerializer.Representation.Should().Be(representation);
+        }
+
+        [Theory]
+        [InlineData(BsonType.Int32)]
+        [InlineData(BsonType.Int64)]
+        [InlineData(BsonType.String)]
+        public void Apply_should_configure_serializer_when_member_is_an_IDictionary_interface_with_enum_key(BsonType representation)
+        {
+            var subject = new EnumRepresentationConvention(representation, false);
+            var memberMap = CreateMemberMap(c => c.IDictionaryEnumKey);
+
+            subject.Apply(memberMap);
+
+            // IDictionary<K,V> members use ImpliedImplementationInterfaceSerializer wrapping the actual DictionarySerializer
+            var outerSerializer = (IChildSerializerConfigurable)memberMap.GetSerializer();
+            var innerSerializer = (IMultipleChildSerializersConfigurable)outerSerializer.ChildSerializer;
+            var childSerializer = (EnumSerializer<E>)innerSerializer.ChildSerializers[0];
             childSerializer.Representation.Should().Be(representation);
         }
 
