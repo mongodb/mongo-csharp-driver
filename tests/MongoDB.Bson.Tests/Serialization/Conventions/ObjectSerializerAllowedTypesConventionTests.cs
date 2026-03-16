@@ -414,7 +414,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 
             _ = new BsonClassMap<TestClass>(cm => cm.AutoMap()).Freeze();
 
-            ConventionRegistry.Remove("enumRecursive");
+            ConventionRegistry.Remove("objectRecursive");
         }
 
         // private methods
