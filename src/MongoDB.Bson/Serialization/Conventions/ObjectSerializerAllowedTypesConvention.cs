@@ -171,13 +171,19 @@ namespace MongoDB.Bson.Serialization.Conventions
 
             bool CouldApply(Type type)
                 => type == typeof(object) ||
-                   type.IsNullable() ||
-                   (type.IsArray && CouldApply(type.GetElementType())) ||
-                   type.GetInterfaces().Any(
+                   (type.IsArray && CouldApply(type.GetElementType())) || // This is covered by IEnumerable<T>, but it's a good short-circuit
+                   IsNonGenericEnumerable(type) ||
+                   type.GetInterfaces().Prepend(type).Any(
                        i =>
                            i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>) && CouldApply(i.GetGenericArguments()[0]) || // IEnumerable<T>
                            i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IDictionary<,>) && (CouldApply(i.GetGenericArguments()[0]) || CouldApply(i.GetGenericArguments()[1])) // IDictionary<TKey, TValue>
                    );
+
+            // A type that implements IEnumerable but not IEnumerable<T> (e.g. ArrayList, Hashtable).
+            static bool IsNonGenericEnumerable(Type type)
+                => !type.IsArray &&
+                   typeof(IEnumerable).IsAssignableFrom(type) &&
+                   !type.GetInterfaces().Prepend(type).Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
         }
 
         // private methods

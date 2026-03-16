@@ -92,7 +92,7 @@ namespace MongoDB.Bson.Serialization.Conventions
             bool CouldApply(Type type)
                 => type.IsEnum ||
                    type.IsNullableEnum() ||
-                   (type.IsArray && CouldApply(type.GetElementType())) ||
+                   (type.IsArray && CouldApply(type.GetElementType())) || // This is covered by IEnumerable<T>, but it's a good short-circuit
                    type.GetInterfaces().Prepend(type).Any(
                        i =>
                            i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>) && CouldApply(i.GetGenericArguments()[0]) || // IEnumerable<T>
