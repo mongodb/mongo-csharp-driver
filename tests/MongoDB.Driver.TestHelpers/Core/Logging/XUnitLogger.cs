@@ -61,6 +61,4 @@ namespace MongoDB.Driver.Core.TestHelpers.Logging
             }
         }
     }
-
-
 }
