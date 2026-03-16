@@ -18,6 +18,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
+using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators
 {
@@ -33,6 +34,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         {
             _expression = Ensure.IsNotNull(expression, nameof(expression));
             _ast = Ensure.IsNotNull(ast, nameof(ast));
+            if (serializer != null)
+            {
+                SerializationHelper.EnsureValidResultSerializer(expression, serializer);
+            }
+
             _serializer = serializer; // can be null
         }
 
