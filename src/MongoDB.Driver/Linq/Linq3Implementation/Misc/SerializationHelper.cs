@@ -89,7 +89,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         {
             if (serializer is IIgnoreSubtreeSerializer or IUnknowableSerializer)
             {
-                throw new ExpressionNotSupportedException(expression, because: "we were unable to determine which serializer to use for the result");
+                throw new ExpressionNotSupportedException(expression, because: "unable to determine which serializer to use for the result");
             }
         }
 
