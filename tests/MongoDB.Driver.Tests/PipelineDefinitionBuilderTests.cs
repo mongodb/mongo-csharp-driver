@@ -707,6 +707,7 @@ namespace MongoDB.Driver.Tests
         {
             public int Year { get; set; }
             public NestedPlot Plot { get; set; }
+            public float[] NonNestedEmbedding  { get; set; }
         }
 
         private class NestedPlot
@@ -736,6 +737,28 @@ namespace MongoDB.Driver.Tests
 
             exception.Should().BeOfType<InvalidOperationException>()
                 .Which.Message.Should().Contain("The field 'Year' is not part of the nested document 'Plot', which is the root of this search.");
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void VectorSearch_should_throw_when_nested_filter_is_used_without_nesting([Values(false, true)] bool expressions)
+        {
+            var pipeline = new EmptyPipelineDefinition<MovieWithPlot>();
+            var options = new VectorSearchOptions<MovieWithPlot>()
+            {
+                IndexName = "index_name",
+            };
+
+            options.NestedFilter = expressions
+                ? Builders<MovieWithPlot>.Filter.Lt(m => m.Plot.Rating, 1900)
+                : Builders<MovieWithPlot>.Filter.Lt("Plot.Rating", 1900);
+
+            var result = pipeline.VectorSearch(m => m.NonNestedEmbedding, new[] { 1.0, 2.0, 3.0 }, 1, options);
+
+            var exception = Record.Exception(() => RenderStages(result, BsonSerializer.SerializerRegistry.GetSerializer<MovieWithPlot>()));
+
+            exception.Should().BeOfType<InvalidOperationException>()
+                .Which.Message.Should().Contain("A nested filter was specified for the search against field 'NonNestedEmbedding',");
         }
 
         [Fact]

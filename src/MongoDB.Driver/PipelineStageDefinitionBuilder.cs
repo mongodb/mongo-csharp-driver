@@ -2183,8 +2183,14 @@ namespace MongoDB.Driver
                         { "returnStoredSource", true, options?.ReturnStoredSource == true },
                     };
 
-                    if (nestedRoot != null && options?.NestedFilter != null)
+                    if (options?.NestedFilter != null)
                     {
+                        if (nestedRoot == null)
+                        {
+                            throw new InvalidOperationException(
+                                $"A nested filter was specified for the search against field '{path}', but the field is not nested. Nested filters can only be used when searching against vectors in nested (embedded) documents.");
+                        }
+
                         vectorSearchOperator.Add("filter", options.NestedFilter.Render(
                             (args with { SubPathRoot = nestedRoot }) with { RenderDollarForm = true }));
                     }

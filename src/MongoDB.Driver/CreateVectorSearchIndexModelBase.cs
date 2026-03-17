@@ -16,6 +16,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver;
 
@@ -86,6 +87,8 @@ public abstract class CreateVectorSearchIndexModelBase<TDocument> : CreateSearch
         params FieldDefinition<TDocument>[] filterFields)
         : base(name, SearchIndexType.VectorSearch)
     {
+        Ensure.IsNotNull(field, nameof(field));
+
         Field = field;
         FilterFields = filterFields?.ToList() ?? [];
     }
@@ -152,11 +155,12 @@ public abstract class CreateVectorSearchIndexModelBase<TDocument> : CreateSearch
     /// <param name="fieldDocument">The field document into which the elements will go.</param>
     private protected void RenderCommonFieldElements(RenderArgs<TDocument> renderArgs, BsonDocument fieldDocument)
     {
-        var quantizationValue = Quantization == VectorQuantization.BinaryNoRescore
-            ? "binaryNoRescore"
-            : Quantization?.ToString().ToLowerInvariant();
-
-        fieldDocument.Add("quantization", quantizationValue, quantizationValue != null);
+        if (Quantization != null && Quantization != VectorQuantization.None)
+        {
+            fieldDocument.Add("quantization", Quantization == VectorQuantization.BinaryNoRescore
+                ? "binaryNoRescore"
+                : Quantization.ToString().ToLowerInvariant());
+        }
 
         if (HnswMaxEdges != null || HnswNumEdgeCandidates != null)
         {
