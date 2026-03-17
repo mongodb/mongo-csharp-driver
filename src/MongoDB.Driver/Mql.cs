@@ -186,7 +186,7 @@ namespace MongoDB.Driver
         /// <param name="normalizeScore">Whether to normalize the result for use as a vector search score.</param>
         /// <typeparam name="TElement">The vector element type</typeparam>
         /// <returns>The dot-product measure between the two vectors.</returns>
-        /// <exception cref="NotSupportedException">if executed.</exception>
+        /// <exception cref="NotSupportedException">if used for anything other than translating to MQL.</exception>
         public static double SimilarityDotProduct<TElement>(
             IEnumerable<TElement> vector1,
             IEnumerable<TElement> vector2,
@@ -201,7 +201,7 @@ namespace MongoDB.Driver
         /// <param name="normalizeScore">Whether to normalize the result for use as a vector search score.</param>
         /// <typeparam name="TElement">The vector element type</typeparam>
         /// <returns>The dot-product measure between the two vectors.</returns>
-        /// <exception cref="NotSupportedException">if executed.</exception>
+        /// <exception cref="NotSupportedException">if used for anything other than translating to MQL.</exception>
         public static double SimilarityDotProduct<TElement>(
             ReadOnlyMemory<TElement> vector1,
             ReadOnlyMemory<TElement> vector2,
@@ -216,7 +216,7 @@ namespace MongoDB.Driver
         /// <param name="normalizeScore">Whether to normalize the result for use as a vector search score.</param>
         /// <typeparam name="TElement">The vector element type</typeparam>
         /// <returns>The cosine measure between the two vectors.</returns>
-        /// <exception cref="NotSupportedException">if executed.</exception>
+        /// <exception cref="NotSupportedException">if used for anything other than translating to MQL.</exception>
         public static double SimilarityCosine<TElement>(
             IEnumerable<TElement> vector1,
             IEnumerable<TElement> vector2,
@@ -231,7 +231,7 @@ namespace MongoDB.Driver
         /// <param name="normalizeScore">Whether to normalize the result for use as a vector search score.</param>
         /// <typeparam name="TElement">The vector element type</typeparam>
         /// <returns>The cosine measure between the two vectors.</returns>
-        /// <exception cref="NotSupportedException">if executed.</exception>
+        /// <exception cref="NotSupportedException">if used for anything other than translating to MQL.</exception>
         public static double SimilarityCosine<TElement>(
             ReadOnlyMemory<TElement> vector1,
             ReadOnlyMemory<TElement> vector2,
@@ -246,7 +246,7 @@ namespace MongoDB.Driver
         /// <param name="normalizeScore">Whether to normalize the result for use as a vector search score.</param>
         /// <typeparam name="TElement">The vector element type</typeparam>
         /// <returns>The Euclidean measure between the two vectors.</returns>
-        /// <exception cref="NotSupportedException">if executed.</exception>
+        /// <exception cref="NotSupportedException">if used for anything other than translating to MQL.</exception>
         public static double SimilarityEuclidean<TElement>(
             IEnumerable<TElement> vector1,
             IEnumerable<TElement> vector2,
@@ -261,7 +261,7 @@ namespace MongoDB.Driver
         /// <param name="normalizeScore">Whether to normalize the result for use as a vector search score.</param>
         /// <typeparam name="TElement">The vector element type</typeparam>
         /// <returns>The Euclidean measure between the two vectors.</returns>
-        /// <exception cref="NotSupportedException">if executed.</exception>
+        /// <exception cref="NotSupportedException">if used for anything other than translating to MQL.</exception>
         public static double SimilarityEuclidean<TElement>(
             ReadOnlyMemory<TElement> vector1,
             ReadOnlyMemory<TElement> vector2,
