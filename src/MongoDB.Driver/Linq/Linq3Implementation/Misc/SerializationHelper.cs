@@ -85,14 +85,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             }
         }
 
-        public static void EnsureValidResultSerializer(Expression expression, IBsonSerializer serializer)
-        {
-            if (serializer is IIgnoreSubtreeSerializer or IUnknowableSerializer)
-            {
-                throw new ExpressionNotSupportedException(expression, because: "unable to determine which serializer to use for the result");
-            }
-        }
-
         public static BsonType GetRepresentation(IBsonSerializer serializer)
         {
             if (serializer is IDiscriminatedInterfaceSerializer discriminatedInterfaceSerializer)
