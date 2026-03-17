@@ -105,7 +105,9 @@ internal partial class SerializerFinderVisitor
                 if (IsConvertToNullableType(targetType, out var valueType))
                 {
                     var valueSerializer = valueType == targetType ? sourceSerializer : GetTargetSerializer(node, sourceType, valueType, sourceSerializer);
-                    return valueSerializer != null ? GetConvertToNullableTypeSerializer(node, sourceType, targetType, valueSerializer) : null;
+                    return valueSerializer is null or IUnknowableSerializer
+                        ? valueSerializer
+                        : GetConvertToNullableTypeSerializer(node, sourceType, targetType, valueSerializer);
                 }
 
                 // from here on we know there are no longer any Nullable<T> types involved
@@ -145,7 +147,7 @@ internal partial class SerializerFinderVisitor
                     return GetNumericConversionSerializer(node, sourceType, targetType, sourceSerializer);
                 }
 
-                return UnknowableSerializer.Create(node.Type);
+                return UnknowableSerializer.Create(targetType);
             }
 
             static IBsonSerializer GetConvertFromBsonValueSerializer(UnaryExpression expression, Type targetType)
@@ -210,7 +212,9 @@ internal partial class SerializerFinderVisitor
                 if (targetType.IsNullable(out var targetValueType))
                 {
                     var targetValueSerializer = GetTargetSerializer(expression, sourceValueType, targetValueType, sourceValueSerializer);
-                    return NullableSerializer.Create(targetValueSerializer);
+                    return targetValueSerializer is IUnknowableSerializer
+                        ? targetValueSerializer
+                        : NullableSerializer.Create(targetValueSerializer);
                 }
                 else
                 {

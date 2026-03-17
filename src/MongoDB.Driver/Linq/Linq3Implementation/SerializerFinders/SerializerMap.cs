@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
@@ -96,12 +95,7 @@ internal class SerializerMap : IReadOnlySerializerMap
 
     public bool IsNotKnown(Expression node)
     {
-        return !IsKnown(node);
-    }
-
-    public bool IsKnown(Expression node)
-    {
-        return _map.ContainsKey(node);
+        return !IsKnown(node, out _);
     }
 
     public bool IsKnown(Expression node, out IBsonSerializer serializer)

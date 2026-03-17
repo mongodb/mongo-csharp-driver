@@ -246,9 +246,10 @@ internal partial class SerializerFinderVisitor
         return false;
     }
 
-    private bool IsKnown(Expression node) => _nodeSerializers.IsKnown(node);
-
-    private bool IsKnown(Expression node, out IBsonSerializer nodeSerializer) => _nodeSerializers.IsKnown(node, out nodeSerializer);
+    private bool IsKnown(Expression node, out IBsonSerializer nodeSerializer)
+    {
+        return _nodeSerializers.IsKnown(node, out nodeSerializer) && nodeSerializer is not IUnknowableSerializer and not IIgnoreSubtreeSerializer;
+    }
 
     private bool IsNotKnown(Expression node) => _nodeSerializers.IsNotKnown(node);
 }
