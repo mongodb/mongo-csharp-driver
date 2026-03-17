@@ -22,10 +22,12 @@ using FluentAssertions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization.Conventions
 {
+    [Collection(RegisterObjectSerializerFixture.CollectionName)]
     public class ObjectSerializerAllowedTypesConventionTests
     {
         private class TestClass
