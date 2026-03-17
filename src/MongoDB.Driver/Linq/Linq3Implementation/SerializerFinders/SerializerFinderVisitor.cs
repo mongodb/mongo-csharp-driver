@@ -58,7 +58,7 @@ internal partial class SerializerFinderVisitor : ExpressionVisitor
 
     public override Expression Visit(Expression node)
     {
-        if (IsKnown(node, out var nodeSerializer))
+        if (_nodeSerializers.IsKnown(node, out var nodeSerializer))
         {
             if (nodeSerializer is IIgnoreSubtreeSerializer or IUnknowableSerializer)
             {
