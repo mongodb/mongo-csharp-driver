@@ -103,6 +103,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
                     {
                         var innerException = CoreExceptionHelper.CreateException("IOExceptionWithTimedOutSocketException");
                         simulatedException = new MongoConnectionException(connectionId, "Chaos, yet harmony.", innerException);
+                        ((MongoConnectionException)simulatedException).AddErrorLabel("SystemOverloadedError");
                         break;
                     }
                 default:
