@@ -143,6 +143,8 @@ namespace MongoDB.Driver.Core.Operations
         {
             _channelSource?.Dispose();
             _channel?.Dispose();
+            _channelSource = null;
+            _channel = null;
         }
     }
 }
