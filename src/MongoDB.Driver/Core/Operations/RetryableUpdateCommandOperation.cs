@@ -101,7 +101,7 @@ namespace MongoDB.Driver.Core.Operations
             }
             else
             {
-                updates = new BatchableSource<UpdateRequest>(_updates.Items, _updates.Offset, _updates.Count, _updates.ProcessedCount, canBeSplit: false);
+                updates = new BatchableSource<UpdateRequest>(_updates.Items, _updates.Offset, _updates.ProcessedCount, canBeSplit: false);
             }
             var maxBatchCount = Math.Min(MaxBatchCount ?? int.MaxValue, channel.ConnectionDescription.MaxBatchCount);
             var maxDocumentSize = channel.ConnectionDescription.MaxWireDocumentSize;
