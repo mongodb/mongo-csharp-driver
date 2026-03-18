@@ -44,13 +44,11 @@ namespace MongoDB.Driver.Core.Operations
                 totalAttempts++;
                 operationContext.ThrowIfTimedOutOrCanceled();
                 ServerDescription server = null;
-                bool channelAcquisitionSuccessful = false;
 
                 try
                 {
                     server = context.SelectServer(operationContext, deprioritizedServers);
                     context.AcquireChannel(operationContext);
-                    channelAcquisitionSuccessful = true;
 
                     transactionNumber ??= AreRetriesAllowed(operation.WriteConcern, context, server) ? context.Binding.Session.AdvanceTransactionNumber() : null;
 
@@ -59,7 +57,7 @@ namespace MongoDB.Driver.Core.Operations
                 }
                 catch (Exception ex)
                 {
-                    if (!ShouldRetryOperation(operationContext, !channelAcquisitionSuccessful, operation.WriteConcern, context, server, ex, totalAttempts))
+                    if (!ShouldRetryOperation(operationContext, context.Channel is null, operation.WriteConcern, context, server, ex, totalAttempts))
                     {
                         throw originalException ?? ex;
                     }
