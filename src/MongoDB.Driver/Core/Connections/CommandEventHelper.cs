@@ -223,7 +223,7 @@ namespace MongoDB.Driver.Core.Connections
 
         public void ConnectionFailed(ConnectionId connectionId, ObjectId? serviceId, Exception exception, bool skipLogging)
         {
-            if (!_shouldTrackFailed && _tracingDisabled)
+            if (!_shouldTrackFailed && (_tracingDisabled || !MongoTelemetry.ActivitySource.HasListeners()))
             {
                 return;
             }
