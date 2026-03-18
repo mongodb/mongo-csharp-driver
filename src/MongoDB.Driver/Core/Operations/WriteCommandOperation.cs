@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Core.Operations
             using (EventContext.BeginOperation())
             using (var channelSource = binding.GetWriteChannelSource(operationContext))
             {
-                return ExecuteProtocol(operationContext, channelSource, binding.Session, _readPreference);
+                return ExecuteProtocol(operationContext, channelSource, binding.Session, _readPreference, Command);
             }
         }
 
@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Core.Operations
             using (EventContext.BeginOperation())
             using (var channelSource = await binding.GetWriteChannelSourceAsync(operationContext).ConfigureAwait(false))
             {
-                return await ExecuteProtocolAsync(operationContext, channelSource, binding.Session, _readPreference).ConfigureAwait(false);
+                return await ExecuteProtocolAsync(operationContext, channelSource, binding.Session, _readPreference, Command).ConfigureAwait(false);
             }
         }
     }
