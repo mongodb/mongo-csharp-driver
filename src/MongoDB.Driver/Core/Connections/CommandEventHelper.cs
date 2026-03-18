@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Core.Connections
         private readonly bool _shouldTrackState;
         private readonly bool _shouldTrackFailed;
         private readonly bool _shouldTrackSucceeded;
-        private readonly bool _shouldTrace;
+        private readonly bool _tracingDisabled;
         private readonly int _queryTextMaxLength;
 
         private Activity _currentCommandActivity;
@@ -54,10 +54,10 @@ namespace MongoDB.Driver.Core.Connections
             _shouldTrackFailed = _eventLogger.IsEventTracked<CommandFailedEvent>();
             _shouldTrackStarted = _eventLogger.IsEventTracked<CommandStartedEvent>();
 
-            _shouldTrace = tracingOptions?.Disabled != true && MongoTelemetry.ActivitySource.HasListeners();
+            _tracingDisabled = tracingOptions?.Disabled == true;
             _queryTextMaxLength = tracingOptions?.QueryTextMaxLength ?? 0;
 
-            _shouldTrackState = _shouldTrackSucceeded || _shouldTrackFailed || _shouldTrace;
+            _shouldTrackState = _shouldTrackSucceeded || _shouldTrackFailed || !_tracingDisabled;
             _shouldProcessRequestMessages = _shouldTrackStarted || _shouldTrackState;
 
             if (_shouldTrackState)
@@ -223,7 +223,7 @@ namespace MongoDB.Driver.Core.Connections
 
         public void ConnectionFailed(ConnectionId connectionId, ObjectId? serviceId, Exception exception, bool skipLogging)
         {
-            if (!_shouldTrackFailed && !_shouldTrace)
+            if (!_shouldTrackFailed && _tracingDisabled)
             {
                 return;
             }
@@ -746,7 +746,7 @@ namespace MongoDB.Driver.Core.Connections
                 ShouldRedactReply = shouldRedactCommand
             };
 
-            if (_shouldTrace && !shouldRedactCommand && !skipLogging)
+            if (!_tracingDisabled && MongoTelemetry.ActivitySource.HasListeners() && !shouldRedactCommand && !skipLogging)
             {
                 _currentCommandActivity = MongoTelemetry.StartCommandActivity(
                     commandName,

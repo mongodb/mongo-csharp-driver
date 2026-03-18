@@ -13,9 +13,11 @@
 * limitations under the License.
 */
 
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Configuration;
@@ -43,6 +45,8 @@ namespace MongoDB.Driver.SmokeTests.Sdk
                 collection.InsertOne(new BsonDocument("name", "test"));
                 collection.Find(Builders<BsonDocument>.Filter.Empty).FirstOrDefault();
                 collection.DeleteOne(Builders<BsonDocument>.Filter.Eq("name", "test"));
+
+                SpinWait.SpinUntil(() => capturedActivities.Count >= 6, millisecondsTimeout: 10000);
             }
             finally
             {
@@ -84,9 +88,9 @@ namespace MongoDB.Driver.SmokeTests.Sdk
             capturedActivities.Should().BeEmpty();
         }
 
-        private static ActivityListener CreateActivityListener(out List<Activity> capturedActivities)
+        private static ActivityListener CreateActivityListener(out IReadOnlyCollection<Activity> capturedActivities)
         {
-            var activities = new List<Activity>();
+            var activities = new ConcurrentBag<Activity>();
             var listener = new ActivityListener
             {
                 ShouldListenTo = source => source.Name == MongoTelemetry.ActivitySourceName,
