@@ -27,6 +27,7 @@ namespace MongoDB.Driver.Core.Operations
     {
         private readonly string _operationName;
         private readonly ICommandCreator _commandCreator;
+        private readonly BsonDocument _command;
         private bool _retryRequested;
 
         public ReadCommandOperation(
@@ -35,10 +36,13 @@ namespace MongoDB.Driver.Core.Operations
             IBsonSerializer<TCommandResult> resultSerializer,
             MessageEncoderSettings messageEncoderSettings,
             string operationName = null)
-            : base(databaseNamespace, command, resultSerializer, messageEncoderSettings)
+            : base(databaseNamespace, resultSerializer, messageEncoderSettings)
         {
+            _command = Ensure.IsNotNull(command, nameof(command));
             _operationName = operationName;
         }
+
+        public BsonDocument Command => _command;
 
         public string OperationName => _operationName;
 
@@ -48,7 +52,7 @@ namespace MongoDB.Driver.Core.Operations
             IBsonSerializer<TCommandResult> resultSerializer,
             MessageEncoderSettings messageEncoderSettings,
             string operationName = null)
-            : base(databaseNamespace, null, resultSerializer, messageEncoderSettings)
+            : base(databaseNamespace, resultSerializer, messageEncoderSettings)
         {
             _commandCreator = Ensure.IsNotNull(commandCreator, nameof(commandCreator));
             _operationName = operationName;
@@ -104,7 +108,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var command = _commandCreator != null
                 ? _commandCreator.CreateCommand(operationContext, context.Binding.Session, context.Channel.ConnectionDescription)
-                : Command;
+                : _command;
 
             return ExecuteProtocol(operationContext, context.Channel, context.Binding.Session, context.Binding.ReadPreference, command);
         }
@@ -113,7 +117,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var command = _commandCreator != null
                 ? _commandCreator.CreateCommand(operationContext, context.Binding.Session, context.Channel.ConnectionDescription)
-                : Command;
+                : _command;
 
             return ExecuteProtocolAsync(operationContext, context.Channel, context.Binding.Session, context.Binding.ReadPreference, command);
         }

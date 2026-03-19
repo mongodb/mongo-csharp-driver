@@ -25,14 +25,18 @@ namespace MongoDB.Driver.Core.Operations
 {
     internal sealed class WriteCommandOperation<TCommandResult> : CommandOperationBase<TCommandResult>, IWriteOperation<TCommandResult>
     {
+        private readonly BsonDocument _command;
         private readonly string _operationName;
         private ReadPreference _readPreference = ReadPreference.Primary;
 
         public WriteCommandOperation(DatabaseNamespace databaseNamespace, BsonDocument command, IBsonSerializer<TCommandResult> resultSerializer, MessageEncoderSettings messageEncoderSettings, string operationName = null)
-            : base(databaseNamespace, command, resultSerializer, messageEncoderSettings)
+            : base(databaseNamespace, resultSerializer, messageEncoderSettings)
         {
+            _command = Ensure.IsNotNull(command, nameof(command));
             _operationName = operationName;
         }
+
+        public BsonDocument Command => _command;
 
         public string OperationName => _operationName;
 
@@ -49,7 +53,7 @@ namespace MongoDB.Driver.Core.Operations
             using (EventContext.BeginOperation())
             using (var channelSource = binding.GetWriteChannelSource(operationContext))
             {
-                return ExecuteProtocol(operationContext, channelSource, binding.Session, _readPreference, Command);
+                return ExecuteProtocol(operationContext, channelSource, binding.Session, _readPreference, _command);
             }
         }
 
@@ -60,7 +64,7 @@ namespace MongoDB.Driver.Core.Operations
             using (EventContext.BeginOperation())
             using (var channelSource = await binding.GetWriteChannelSourceAsync(operationContext).ConfigureAwait(false))
             {
-                return await ExecuteProtocolAsync(operationContext, channelSource, binding.Session, _readPreference, Command).ConfigureAwait(false);
+                return await ExecuteProtocolAsync(operationContext, channelSource, binding.Session, _readPreference, _command).ConfigureAwait(false);
             }
         }
     }

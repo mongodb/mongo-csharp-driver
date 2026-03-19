@@ -47,17 +47,6 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Fact]
-        public void Command_get_should_return_expected_result()
-        {
-            var command = new BsonDocument("command", 1);
-            var subject = CreateSubject<BsonDocument>(command: command);
-
-            var result = subject.Command;
-
-            result.Should().BeSameAs(command);
-        }
-
-        [Fact]
         public void CommandValidator_get_and_set_should_work()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -100,10 +89,9 @@ namespace MongoDB.Driver.Core.Operations
             var resultSerializer = new BsonDocumentSerializer();
             var messageEncoderSettings = new MessageEncoderSettings();
 
-            var result = new FakeCommandOperation<BsonDocument>(databaseNamespace, command, resultSerializer, messageEncoderSettings);
+            var result = new FakeCommandOperation<BsonDocument>(databaseNamespace, resultSerializer, messageEncoderSettings);
 
             result.AdditionalOptions.Should().BeNull();
-            result.Command.Should().BeSameAs(command);
             result.CommandValidator.Should().BeOfType<NoOpElementNameValidator>();
             result.Comment.Should().BeNull();
             result.DatabaseNamespace.Should().BeSameAs(databaseNamespace);
@@ -119,7 +107,7 @@ namespace MongoDB.Driver.Core.Operations
             var resultSerializer = new BsonDocumentSerializer();
             MessageEncoderSettings messageEncoderSettings = null;
 
-            var result = new FakeCommandOperation<BsonDocument>(databaseNamespace, command, resultSerializer, messageEncoderSettings);
+            var result = new FakeCommandOperation<BsonDocument>(databaseNamespace, resultSerializer, messageEncoderSettings);
 
             result.MessageEncoderSettings.Should().BeNull();
         }
@@ -132,7 +120,7 @@ namespace MongoDB.Driver.Core.Operations
             var resultSerializer = new BsonDocumentSerializer();
             var messageEncoderSettings = new MessageEncoderSettings();
 
-            Action action = () => new FakeCommandOperation<BsonDocument>(databaseNamespace, command, resultSerializer, messageEncoderSettings);
+            Action action = () => new FakeCommandOperation<BsonDocument>(databaseNamespace, resultSerializer, messageEncoderSettings);
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("databaseNamespace");
         }
@@ -145,7 +133,7 @@ namespace MongoDB.Driver.Core.Operations
             BsonDocumentSerializer resultSerializer = null;
             var messageEncoderSettings = new MessageEncoderSettings();
 
-            Action action = () => new FakeCommandOperation<BsonDocument>(databaseNamespace, command, resultSerializer, messageEncoderSettings);
+            Action action = () => new FakeCommandOperation<BsonDocument>(databaseNamespace, resultSerializer, messageEncoderSettings);
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("resultSerializer");
         }
@@ -195,14 +183,12 @@ namespace MongoDB.Driver.Core.Operations
 
         private CommandOperationBase<TCommandResult> CreateSubject<TCommandResult>(
             DatabaseNamespace databaseNamespace = null,
-            BsonDocument command = null,
             IBsonSerializer<TCommandResult> resultSerializer = null,
             MessageEncoderSettings messageEncoderSettings = null)
         {
             databaseNamespace = databaseNamespace ?? new DatabaseNamespace("databaseName");
-            command = command ?? new BsonDocument("command", 1);
             resultSerializer = resultSerializer ?? BsonSerializer.LookupSerializer<TCommandResult>();
-            return new FakeCommandOperation<TCommandResult>(databaseNamespace, command, resultSerializer, messageEncoderSettings);
+            return new FakeCommandOperation<TCommandResult>(databaseNamespace, resultSerializer, messageEncoderSettings);
         }
 
         // nested types
@@ -210,10 +196,9 @@ namespace MongoDB.Driver.Core.Operations
         {
             public FakeCommandOperation(
                 DatabaseNamespace databaseNamespace,
-                BsonDocument command,
                 IBsonSerializer<TCommandResult> resultSerializer,
                 MessageEncoderSettings messageEncoderSettings)
-                : base(databaseNamespace, command, resultSerializer, messageEncoderSettings)
+                : base(databaseNamespace, resultSerializer, messageEncoderSettings)
             {
             }
         }

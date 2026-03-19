@@ -27,21 +27,17 @@ namespace MongoDB.Driver.Core.Operations
     internal abstract class CommandOperationBase<TCommandResult>
     {
         private BsonDocument _additionalOptions;
-        private BsonDocument _command;
         private IElementNameValidator _commandValidator = NoOpElementNameValidator.Instance;
         private string _comment;
         private DatabaseNamespace _databaseNamespace;
         private MessageEncoderSettings _messageEncoderSettings;
         private IBsonSerializer<TCommandResult> _resultSerializer;
 
-        protected CommandOperationBase(
-            DatabaseNamespace databaseNamespace,
-            BsonDocument command,
+        protected CommandOperationBase(DatabaseNamespace databaseNamespace,
             IBsonSerializer<TCommandResult> resultSerializer,
             MessageEncoderSettings messageEncoderSettings)
         {
             _databaseNamespace = Ensure.IsNotNull(databaseNamespace, nameof(databaseNamespace));
-            _command = command; //can be null
             _resultSerializer = Ensure.IsNotNull(resultSerializer, nameof(resultSerializer));
             _messageEncoderSettings = messageEncoderSettings;
         }
@@ -50,11 +46,6 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _additionalOptions; }
             set { _additionalOptions = value; }
-        }
-
-        public BsonDocument Command
-        {
-            get { return _command; }
         }
 
         public IElementNameValidator CommandValidator
