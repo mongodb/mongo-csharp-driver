@@ -13,12 +13,8 @@
  * limitations under the License.
  */
 
-using System;
-using System.Linq;
-using System.Linq.Expressions;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.SerializerFinders;
 using Xunit;
@@ -30,8 +26,8 @@ public class MqlSubtypeTests
     [Fact]
     public void SerializerFinder_should_resolve_mql_subtype()
     {
-        var expression = MakeLambda<MyModel, BsonBinarySubType?>(model => Mql.Subtype(model.Data));
-        var serializerMap = InitializerSerializerMap(expression);
+        var expression = TestHelpers.MakeLambda<MyModel, BsonBinarySubType?>(model => Mql.Subtype(model.Data));
+        var serializerMap = TestHelpers.CreateSerializerMap(expression);
 
         SerializerFinder.FindSerializers(expression.Body, null, serializerMap);
 
@@ -42,19 +38,6 @@ public class MqlSubtypeTests
     private class MyModel
     {
         public byte[] Data { get; set; }
-    }
-
-    // TODO: move to a shared location if the team agrees to start writing unit tests.
-    private static LambdaExpression MakeLambda<T1, TResult>(Expression<Func<T1, TResult>> func)
-        => func;
-
-    private static SerializerMap InitializerSerializerMap(LambdaExpression expression)
-    {
-        var modelParameter = expression.Parameters.Single();
-        var modelSerializer = BsonSerializer.LookupSerializer(modelParameter.Type);
-        var nodeSerializers = new SerializerMap();
-        nodeSerializers.AddSerializer(modelParameter, modelSerializer);
-        return nodeSerializers;
     }
 }
 
