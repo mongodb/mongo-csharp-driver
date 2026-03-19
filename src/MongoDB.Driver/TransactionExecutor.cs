@@ -65,7 +65,7 @@ namespace MongoDB.Driver
                         clientSession.AbortTransaction(abortOptions, cancellationToken);
                     }
 
-                    if (!ShouldRetryTransaction(operationContext, ex, random, attempt, out var delay))
+                    if (!CanRetryTransaction(operationContext, ex, random, attempt, out var delay))
                     {
                         throw;
                     }
@@ -111,7 +111,7 @@ namespace MongoDB.Driver
                         await clientSession.AbortTransactionAsync(abortOptions, cancellationToken).ConfigureAwait(false);
                     }
 
-                    if (!ShouldRetryTransaction(operationContext, ex, random, attempt, out var delay))
+                    if (!CanRetryTransaction(operationContext, ex, random, attempt, out var delay))
                     {
                         throw;
                     }
@@ -258,7 +258,7 @@ namespace MongoDB.Driver
                 !IsMaxTimeMSExpiredException(ex);
         }
 
-        private static bool ShouldRetryTransaction(OperationContext operationContext, Exception ex, IRandom random, int attempt, out TimeSpan delay)
+        private static bool CanRetryTransaction(OperationContext operationContext, Exception ex, IRandom random, int attempt, out TimeSpan delay)
         {
             if (!HasErrorLabel(ex, TransientTransactionErrorLabel))
             {
@@ -269,6 +269,12 @@ namespace MongoDB.Driver
             delay = TimeSpan.FromMilliseconds(RetryabilityHelper.GetRetryDelayMs(random, attempt, 1.5, 5, 500));
             if (IsTimedOut(operationContext, delay))
             {
+                delay = TimeSpan.Zero;
+                if (operationContext.IsRootContextTimeoutConfigured())
+                {
+                    throw new TimeoutException("The operation has timed out", ex);
+                }
+
                 delay = TimeSpan.Zero;
                 return false;
             }
