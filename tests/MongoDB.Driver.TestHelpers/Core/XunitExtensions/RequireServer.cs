@@ -172,7 +172,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
 
         public RequireServer SupportsCausalConsistency()
         {
-            return ClusterTypes(Clusters.ClusterType.Sharded, Clusters.ClusterType.ReplicaSet).SupportsSessions();
+            return ClusterTypes(Clusters.ClusterType.Sharded, Clusters.ClusterType.ReplicaSet, Clusters.ClusterType.Standalone).SupportsSessions();
         }
 
         public RequireServer SupportsSessions()

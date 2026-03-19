@@ -120,9 +120,10 @@ namespace MongoDB.Driver.Examples
             DropCollection(CreateClient(), "myDatabase", "myCollection");
 
             // Start Tunable Consistency Controls Example
-            var connectionString = "mongodb://localhost/?readPreference=secondaryPreferred";
+            var clientSettings = MongoClientSettings.FromConnectionString(CoreTestConfiguration.ConnectionString.ToString());
+            clientSettings.ReadPreference = ReadPreference.SecondaryPreferred;
 
-            var client = new MongoClient(connectionString);
+            var client = new MongoClient(clientSettings);
             var database = client.GetDatabase("myDatabase");
             var collection = database.GetCollection<BsonDocument>("myCollection");
 
@@ -147,11 +148,7 @@ namespace MongoDB.Driver.Examples
             result.Should().Be("{ name: 'John' }");
         }
 
-        private IMongoClient CreateClient()
-        {
-            var connectionString = CoreTestConfiguration.ConnectionString.ToString();
-            return new MongoClient(connectionString);
-        }
+        private IMongoClient CreateClient() => new MongoClient(CoreTestConfiguration.ConnectionString.ToString());
 
         private void DropCollection(IMongoClient client, string databaseName, string collectionName)
         {

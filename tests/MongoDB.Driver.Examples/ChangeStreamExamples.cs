@@ -16,7 +16,6 @@
 using System;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
@@ -37,12 +36,13 @@ namespace MongoDB.Driver.Examples
             var inventory = database.GetCollection<BsonDocument>("inventory");
 
             var document = new BsonDocument("x", 1);
-            new Thread(() =>
+            var thread = new Thread(() =>
             {
                 Thread.Sleep(TimeSpan.FromMilliseconds(100));
                 inventory.InsertOne(document);
-            })
-            .Start();
+            });
+
+            thread.Start();
 
             // Start Changestream Example 1
             var cursor = inventory.Watch();
@@ -52,6 +52,9 @@ namespace MongoDB.Driver.Examples
             // End Changestream Example 1
 
             next.FullDocument.Should().Be(document);
+
+            // Make sure worker thread is finished before we let the next test run.
+            thread.Join();
         }
 
         [Fact]
@@ -64,14 +67,15 @@ namespace MongoDB.Driver.Examples
 
             var document = new BsonDocument("x", 1);
             inventory.InsertOne(document);
-            new Thread(() =>
+            var thread = new Thread(() =>
             {
                 Thread.Sleep(TimeSpan.FromMilliseconds(100));
                 var filter = new BsonDocument("_id", document["_id"]);
                 var update = "{ $set : { x : 2 } }";
                 inventory.UpdateOne(filter, update);
-            })
-            .Start();
+            });
+
+            thread.Start();
 
             // Start Changestream Example 2
             var options = new ChangeStreamOptions { FullDocument = ChangeStreamFullDocumentOption.UpdateLookup };
@@ -83,6 +87,9 @@ namespace MongoDB.Driver.Examples
 
             var expectedFullDocument = document.Set("x", 2);
             next.FullDocument.Should().Be(expectedFullDocument);
+
+            // Make sure worker thread is finished before we let the next test run.
+            thread.Join();
         }
 
         [Fact]
@@ -101,15 +108,19 @@ namespace MongoDB.Driver.Examples
 
             IChangeStreamCursor<ChangeStreamDocument<BsonDocument>> previousCursor;
             {
-                new Thread(() =>
+                var thread = new Thread(() =>
                 {
                     Thread.Sleep(TimeSpan.FromMilliseconds(100));
                     inventory.InsertMany(documents);
-                })
-                .Start();
+                });
+
+                thread.Start();
 
                 previousCursor = inventory.Watch(new ChangeStreamOptions { BatchSize = 1 });
                 while (previousCursor.MoveNext() && previousCursor.Current.Count() == 0) { } // keep calling MoveNext until we've read the first batch
+
+                // Make sure worker thread is finished before we let the next test run.
+                thread.Join();
             }
 
             {
@@ -135,22 +146,24 @@ namespace MongoDB.Driver.Examples
             var database = client.GetDatabase("ChangeStreamExamples");
             database.DropCollection("inventory");
 
-            using var cancelationTokenSource = new CancellationTokenSource();
+            var stopEvent = new ManualResetEventSlim(false);
+            var document = new BsonDocument("username", "alice");
+
+            var thread = new Thread(() =>
+            {
+                var inventoryCollection = database.GetCollection<BsonDocument>("inventory");
+
+                while (!stopEvent.IsSet)
+                {
+                    Thread.Sleep(TimeSpan.FromMilliseconds(100));
+                    document["_id"] = ObjectId.GenerateNewId();
+                    inventoryCollection.InsertOne(document);
+                }
+            });
+
             try
             {
-                var document = new BsonDocument("username", "alice");
-
-                Task.Run(() =>
-                {
-                    var inventoryCollection = database.GetCollection<BsonDocument>("inventory");
-
-                    while (!cancelationTokenSource.IsCancellationRequested)
-                    {
-                        Thread.Sleep(TimeSpan.FromMilliseconds(100));
-                        document["_id"] = ObjectId.GenerateNewId();
-                        inventoryCollection.InsertOne(document);
-                    }
-                }, cancelationTokenSource.Token);
+                thread.Start();
 
                 // Start Changestream Example 4
                 var pipeline = new EmptyPipelineDefinition<ChangeStreamDocument<BsonDocument>>()
@@ -170,7 +183,12 @@ namespace MongoDB.Driver.Examples
             }
             finally
             {
-                cancelationTokenSource.Cancel();
+                stopEvent.Set();
+
+                // Make sure the worker thread is finished before we let the next test run.
+                // Especially important for this test case since the thread continually inserts documents.
+                thread.Join();
+                stopEvent.Dispose();
             }
         }
     }

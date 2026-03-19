@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Examples.TransactionExamplesForDocs
         [Fact]
         public void Example1()
         {
-            RequireServer.Check().ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded).Supports(Feature.Transactions);
+            RequireServer.Check().ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.Standalone).Supports(Feature.Transactions);
 
             var connectionString = CoreTestConfiguration.ConnectionString.ToString();
             DropCollections(

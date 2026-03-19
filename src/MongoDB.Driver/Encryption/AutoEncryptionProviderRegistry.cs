@@ -28,10 +28,16 @@ namespace MongoDB.Driver.Encryption
 
         public void Register(Func<IMongoClient, AutoEncryptionOptions, IAutoEncryptionLibMongoCryptController> factory)
         {
+            if(ReferenceEquals(factory, _autoCryptClientControllerFactory))
+            {
+                return;
+            }
+
             if (_autoCryptClientControllerFactory != null)
             {
                 throw new MongoConfigurationException("AutoEncryption Provider already registered.");
             }
+
             _autoCryptClientControllerFactory = factory;
         }
 

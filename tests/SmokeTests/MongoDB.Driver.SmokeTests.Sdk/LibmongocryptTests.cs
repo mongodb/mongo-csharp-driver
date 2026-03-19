@@ -59,7 +59,7 @@ namespace MongoDB.Driver.SmokeTests.Sdk
                 kmsProviders.Add("local", localKey);
 
                 var keyVaultNamespace = CollectionNamespace.FromFullName("encryption.__keyVault");
-                var keyVaultMongoClient = new MongoClient();
+                var keyVaultMongoClient = new MongoClient(InfrastructureUtilities.MongoUri);
                 var clientEncryptionSettings = new ClientEncryptionOptions(
                     keyVaultMongoClient,
                     keyVaultNamespace,

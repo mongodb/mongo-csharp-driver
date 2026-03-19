@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Examples
         public void ConfigureServerApi()
         {
             // Start Stable API Example 1
-            var connectionString = "mongodb://localhost";
+            var connectionString = InfrastructureUtilities.MongoUri;
             var serverApi = new ServerApi(ServerApiVersion.V1);
             var mongoClientSettings = MongoClientSettings.FromConnectionString(connectionString);
             mongoClientSettings.ServerApi = serverApi;
@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Examples
         public void ConfigureServerApiStrict()
         {
             // Start Stable API Example 2
-            var connectionString = "mongodb://localhost";
+            var connectionString = InfrastructureUtilities.MongoUri;
             var serverApi = new ServerApi(ServerApiVersion.V1, strict: true);
             var mongoClientSettings = MongoClientSettings.FromConnectionString(connectionString);
             mongoClientSettings.ServerApi = serverApi;
@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Examples
         public void ConfigureServerApiNonStrict()
         {
             // Start Stable API Example 3
-            var connectionString = "mongodb://localhost";
+            var connectionString = InfrastructureUtilities.MongoUri;
             var serverApi = new ServerApi(ServerApiVersion.V1, strict: false);
             var mongoClientSettings = MongoClientSettings.FromConnectionString(connectionString);
             mongoClientSettings.ServerApi = serverApi;
@@ -62,7 +62,7 @@ namespace MongoDB.Driver.Examples
         public void ConfigureServerApiDeprecationErrors()
         {
             // Start Stable API Example 4
-            var connectionString = "mongodb://localhost";
+            var connectionString = InfrastructureUtilities.MongoUri;
             var serverApi = new ServerApi(ServerApiVersion.V1, deprecationErrors: true);
             var mongoClientSettings = MongoClientSettings.FromConnectionString(connectionString);
             mongoClientSettings.ServerApi = serverApi;
@@ -73,7 +73,7 @@ namespace MongoDB.Driver.Examples
         [Fact]
         public void StableAPI_Strict_Migration_Example()
         {
-            var connectionString = "mongodb://localhost";
+            var connectionString = InfrastructureUtilities.MongoUri;
             var serverApi = new ServerApi(ServerApiVersion.V1, strict: true);
             var mongoClientSettings = MongoClientSettings.FromConnectionString(connectionString);
             mongoClientSettings.ServerApi = serverApi;

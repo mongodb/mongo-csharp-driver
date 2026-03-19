@@ -987,7 +987,7 @@ namespace MongoDB.Driver.Examples
             // End Example 50
 
             Render(filter).Should().Be("{ status: \"A\" }");
-            Render(projection).Should().Be("{ item: 1, status: 1, instock: { $slice: -1 } }");
+            Render(projection).Should().Be("{ item: 1, status: 1, instock: { $slice: [ '$instock', -1 ] } }");
         }
 
         [Fact]
