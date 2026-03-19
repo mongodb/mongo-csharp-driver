@@ -119,7 +119,9 @@ namespace MongoDB.Driver.Core.Connections
                 var tracingOptions = traceCommands ? new TracingOptions() : new TracingOptions { Disabled = true };
                 var commandHelper = new CommandEventHelper(eventLogger, tracingOptions);
 
-                commandHelper._shouldTrackState().Should().Be(logCommands || captureCommandSucceeded || captureCommandFailed || traceCommands);
+                // With the new implementation, _shouldTrackState only reflects event tracking,
+                // not tracing with listeners (which is checked dynamically at execution time)
+                commandHelper._shouldTrackState().Should().Be(logCommands || captureCommandSucceeded || captureCommandFailed);
             }
             finally
             {
