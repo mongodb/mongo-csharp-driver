@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Examples
         [Fact]
         public void FLE2AutomaticEncryption()
         {
-            RequireServer.Check().Supports(Feature.Csfle2).ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced, ClusterType.Standalone);
+            RequireServer.Check().Supports(Feature.Csfle2);
 
             var unencryptedClient = DriverTestConfiguration.Client;
 

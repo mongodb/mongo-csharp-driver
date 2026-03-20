@@ -171,9 +171,18 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
         }
 
         public RequireServer SupportsCausalConsistency()
-        {
-            return ClusterTypes(Clusters.ClusterType.Sharded, Clusters.ClusterType.ReplicaSet, Clusters.ClusterType.Standalone).SupportsSessions();
-        }
+            // Determine if we are running against Atlas local by determining if the Atlas connection
+            // string is the same as the regular connection string when the cluster is standalone.
+            // This means that if someone has setup Atlas specific tests locally, then these tests will
+            // also run, otherwise we will skip them on a standalone cluster.
+            => CoreTestConfiguration.Cluster.Description.Type == Clusters.ClusterType.Standalone
+               && string.Equals(
+                   CoreTestConfiguration.ConnectionString.ToString(),
+                   Environment.GetEnvironmentVariable("ATLAS_SEARCH_URI"),
+                   StringComparison.Ordinal)
+                ? this
+                // If the server is not standalone, then use the previous logic.
+                : ClusterTypes(Clusters.ClusterType.Sharded, Clusters.ClusterType.ReplicaSet).SupportsSessions();
 
         public RequireServer SupportsSessions()
         {

@@ -16,7 +16,6 @@
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
@@ -29,7 +28,7 @@ namespace MongoDB.Driver.Examples.TransactionExamplesForDocs
         [Fact]
         public void Example1()
         {
-            RequireServer.Check().ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.Standalone).Supports(Feature.Transactions);
+            RequireServer.Check().Supports(Feature.Transactions);
 
             var connectionString = CoreTestConfiguration.ConnectionString.ToString();
             DropCollections(
