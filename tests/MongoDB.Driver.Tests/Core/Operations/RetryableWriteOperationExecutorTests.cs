@@ -56,7 +56,6 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
         [InlineData(true, true, false, false, false)]
         [InlineData(true, true, false, true, false)]
         [InlineData(true, true, true, false, true)]
-        [InlineData(true, true, true, false, true)]
         public void DoesContextAllowRetries_should_return_expected_result(
             bool retryRequested,
             bool areRetryableWritesSupported,
