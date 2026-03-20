@@ -2197,6 +2197,12 @@ namespace MongoDB.Driver
 
                     if (options?.EmbeddedScoreMode != null)
                     {
+                        if (nestedRoot == null)
+                        {
+                            throw new InvalidOperationException(
+                                $"The option '{nameof(VectorSearchOptions<TInput>.EmbeddedScoreMode)}' was set for the search against field '{path}', but the field is not nested. Embedded score mode can only be used when searching against vectors in nested (embedded) documents.");
+                        }
+
                         vectorSearchOperator.Add("nestedOptions", new BsonDocument
                         {
                             { "scoreMode", options.EmbeddedScoreMode == SearchScoreFunction.Average ? "avg" : "max" }

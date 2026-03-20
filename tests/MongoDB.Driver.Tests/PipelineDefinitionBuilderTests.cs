@@ -668,10 +668,10 @@ namespace MongoDB.Driver.Tests
                 IndexName = "index_name",
                 EmbeddedScoreMode = SearchScoreFunction.Average,
             };
-            var result = pipeline.VectorSearch("x", new[] { 1.0, 2.0, 3.0 }, 1, options);
+            var result = pipeline.VectorSearch("x.y", new[] { 1.0, 2.0, 3.0 }, 1, options);
 
             var stages = RenderStages(result, BsonDocumentSerializer.Instance);
-            stages[0].Should().BeEquivalentTo("{ $vectorSearch: { queryVector: [1.0, 2.0, 3.0], path: 'x', limit: 1, numCandidates: 10, index: 'index_name', nestedOptions: { scoreMode: 'avg' } } }");
+            stages[0].Should().BeEquivalentTo("{ $vectorSearch: { queryVector: [1.0, 2.0, 3.0], path: 'x.y', limit: 1, numCandidates: 10, index: 'index_name', nestedOptions: { scoreMode: 'avg' } } }");
         }
 
         [Theory]
@@ -759,6 +759,24 @@ namespace MongoDB.Driver.Tests
 
             exception.Should().BeOfType<InvalidOperationException>()
                 .Which.Message.Should().Contain("A nested filter was specified for the search against field 'NonNestedEmbedding',");
+        }
+
+        [Fact]
+        public void VectorSearch_should_throw_when_embedded_score_is_used_without_nesting()
+        {
+            var pipeline = new EmptyPipelineDefinition<MovieWithPlot>();
+            var options = new VectorSearchOptions<MovieWithPlot>()
+            {
+                IndexName = "index_name",
+                EmbeddedScoreMode = SearchScoreFunction.Average,
+            };
+
+            var result = pipeline.VectorSearch(m => m.NonNestedEmbedding, new[] { 1.0, 2.0, 3.0 }, 1, options);
+
+            var exception = Record.Exception(() => RenderStages(result, BsonSerializer.SerializerRegistry.GetSerializer<MovieWithPlot>()));
+
+            exception.Should().BeOfType<InvalidOperationException>()
+                .Which.Message.Should().Contain("The option 'EmbeddedScoreMode' was set for the search against field 'NonNestedEmbedding', but the field is not nested.");
         }
 
         [Fact]
