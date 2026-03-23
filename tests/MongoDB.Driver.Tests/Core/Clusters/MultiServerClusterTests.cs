@@ -776,14 +776,6 @@ namespace MongoDB.Driver.Core.Clusters
         [InlineData(ServerType.ShardRouter, ServerType.ReplicaSetPrimary)]
         [InlineData(ServerType.ShardRouter, ServerType.ReplicaSetSecondary)]
         [InlineData(ServerType.ShardRouter, ServerType.Standalone)]
-        [InlineData(ServerType.ReplicaSetPrimary, ServerType.ShardRouter)]
-        [InlineData(ServerType.ReplicaSetPrimary, ServerType.Standalone)]
-        [InlineData(ServerType.ShardRouter, ServerType.ReplicaSetArbiter)]
-        [InlineData(ServerType.ShardRouter, ServerType.ReplicaSetGhost)]
-        [InlineData(ServerType.ShardRouter, ServerType.ReplicaSetOther)]
-        [InlineData(ServerType.ShardRouter, ServerType.ReplicaSetPrimary)]
-        [InlineData(ServerType.ShardRouter, ServerType.ReplicaSetSecondary)]
-        [InlineData(ServerType.ShardRouter, ServerType.Standalone)]
         public void Should_hide_a_seedlist_server_of_the_wrong_type(ServerType initialType, ServerType wrongType)
         {
             _settings = _settings.With(

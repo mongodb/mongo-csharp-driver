@@ -1216,7 +1216,6 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [InlineData(false, false, 0, "mongodb://localhost/?w=0")]
-        [InlineData(false, false, 0, "mongodb://localhost/?w=0")]
         [InlineData(false, true, 1, "mongodb://localhost/?w=1")]
         [InlineData(false, true, 2, "mongodb://localhost/?w=2")]
         [InlineData(false, true, "mode", "mongodb://localhost/?w=mode")]
