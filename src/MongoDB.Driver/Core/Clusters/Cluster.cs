@@ -54,9 +54,10 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly ICoreServerSessionPool _serverSessionPool;
         private readonly ClusterSettings _settings;
         private readonly InterlockedInt32 _state;
+        private readonly TokenBucket _tokenBucket;
 
         // constructors
-        protected Cluster(ClusterSettings settings, IClusterableServerFactory serverFactory, IEventSubscriber eventSubscriber, ILoggerFactory loggerFactory)
+        protected Cluster(ClusterSettings settings, IClusterableServerFactory serverFactory, IEventSubscriber eventSubscriber, ILoggerFactory loggerFactory, bool adaptiveRetries)
         {
             _settings = Ensure.IsNotNull(settings, nameof(settings));
             Ensure.That(!_settings.LoadBalanced, "LoadBalanced mode is not supported.");
@@ -70,31 +71,22 @@ namespace MongoDB.Driver.Core.Clusters
             _serverSessionPool = new CoreServerSessionPool(this);
             _clusterEventLogger = loggerFactory.CreateEventLogger<LogCategories.SDAM>(eventSubscriber);
             _serverSelectionEventLogger = loggerFactory.CreateEventLogger<LogCategories.ServerSelection>(eventSubscriber);
+            _tokenBucket = adaptiveRetries ? new TokenBucket() : null;
         }
 
         // events
         public event EventHandler<ClusterDescriptionChangedEventArgs> DescriptionChanged;
 
         // properties
-        public ClusterId ClusterId
-        {
-            get { return _clusterId; }
-        }
+        public ClusterId ClusterId => _clusterId;
 
-        public ClusterDescription Description
-        {
-            get
-            {
-                return _expirableClusterDescription.ClusterDescription;
-            }
-        }
+        public ClusterDescription Description => _expirableClusterDescription.ClusterDescription;
 
         public abstract IEnumerable<IClusterableServer> Servers { get; }
 
-        public ClusterSettings Settings
-        {
-            get { return _settings; }
-        }
+        public ClusterSettings Settings => _settings;
+
+        public TokenBucket TokenBucket => _tokenBucket;
 
         // methods
         public ICoreServerSession AcquireServerSession()
@@ -104,7 +96,7 @@ namespace MongoDB.Driver.Core.Clusters
 
         protected IClusterableServer CreateServer(EndPoint endPoint)
         {
-            return _serverFactory.CreateServer(_settings.GetInitialClusterType(), _clusterId, _clusterClock, endPoint);
+            return _serverFactory.CreateServer(_settings.GetInitialClusterType(), _clusterId, _clusterClock, endPoint, _tokenBucket);
         }
 
         public void Dispose()

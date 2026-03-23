@@ -248,7 +248,9 @@ namespace MongoDB.Driver.Core.Operations
                 batchSize: null,
                 limit: null,
                 serializer: BsonDocumentSerializer.Instance,
-                messageEncoderSettings: new MessageEncoderSettings());
+                messageEncoderSettings: new MessageEncoderSettings(),
+                maxTime: null,
+                canBeRetried: false);
 
             return new AsyncCursorEnumerator<BsonDocument>(cursor, CancellationToken.None);
         }

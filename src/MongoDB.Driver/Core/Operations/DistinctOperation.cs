@@ -38,6 +38,7 @@ namespace MongoDB.Driver.Core.Operations
         private MessageEncoderSettings _messageEncoderSettings;
         private ReadConcern _readConcern = ReadConcern.Default;
         private bool _retryRequested;
+        private bool _canBeRetried;
         private IBsonSerializer<TValue> _valueSerializer;
 
         public DistinctOperation(CollectionNamespace collectionNamespace, IBsonSerializer<TValue> valueSerializer, string fieldName, MessageEncoderSettings messageEncoderSettings)
@@ -101,6 +102,12 @@ namespace MongoDB.Driver.Core.Operations
             set => _retryRequested = value;
         }
 
+        public bool CanBeRetried
+        {
+            get => _canBeRetried;
+            set => _canBeRetried = value;
+        }
+
         public IBsonSerializer<TValue> ValueSerializer
         {
             get { return _valueSerializer; }
@@ -111,9 +118,9 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = new RetryableReadContext(binding, _retryRequested))
+            using (var context = new RetryableReadContext(binding, _retryRequested, _canBeRetried))
             {
-                var operation = CreateOperation(operationContext, context);
+                var operation = CreateOperation(operationContext);
                 var result = operation.Execute(operationContext, context);
 
                 binding.Session.SetSnapshotTimeIfNeeded(result.AtClusterTime);
@@ -127,9 +134,9 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = new RetryableReadContext(binding, _retryRequested))
+            using (var context = new RetryableReadContext(binding, _retryRequested, _canBeRetried))
             {
-                var operation = CreateOperation(operationContext, context);
+                var operation = CreateOperation(operationContext);
                 var result = await operation.ExecuteAsync(operationContext, context).ConfigureAwait(false);
 
                 binding.Session.SetSnapshotTimeIfNeeded(result.AtClusterTime);
@@ -155,7 +162,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private EventContext.OperationIdDisposer BeginOperation() => EventContext.BeginOperation(null, OperationName);
 
-        private ReadCommandOperation<DistinctResult> CreateOperation(OperationContext operationContext, RetryableReadContext context)
+        private ReadCommandOperation<DistinctResult> CreateOperation(OperationContext operationContext)
         {
             var serializer = new DistinctResultDeserializer(_valueSerializer);
 
@@ -166,7 +173,8 @@ namespace MongoDB.Driver.Core.Operations
                 _messageEncoderSettings,
                 OperationName)
             {
-                RetryRequested = _retryRequested // might be overridden by retryable read context
+                RetryRequested = _retryRequested, // might be overridden by retryable read context
+                CanBeRetried = _canBeRetried
             };
         }
 

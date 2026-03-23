@@ -38,7 +38,9 @@ namespace MongoDB.Driver.Core.Operations
                 null, // batchSize
                 null, // limit
                 BsonDocumentSerializer.Instance,
-                null); // messageEncoderSettings
+                null, // messageEncoderSettings
+                maxTime: null,
+                canBeRetried: false);
 
             mockChannelSource.Verify(s => s.Dispose(), Times.Exactly(shouldCallDispose ? 1 : 0));
         }

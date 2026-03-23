@@ -443,6 +443,22 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
             }
         }
 
+        [Fact]
+        public void TokenBucket_should_not_be_null_when_adaptiveRetries_is_true()
+        {
+            var subject = CreateSubject(adaptiveRetries: true);
+
+            subject.TokenBucket.Should().NotBeNull();
+        }
+
+        [Fact]
+        public void TokenBucket_should_be_null_when_adaptiveRetries_is_false()
+        {
+            var subject = CreateSubject(adaptiveRetries: false);
+
+            subject.TokenBucket.Should().BeNull();
+        }
+
         // private methods
         private Mock<IDnsMonitorFactory> CreateMockDnsMonitorFactory()
         {
@@ -453,11 +469,11 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
             return mockDnsMonitorFactory;
         }
 
-        private LoadBalancedCluster CreateSubject(ClusterSettings settings = null, IDnsMonitorFactory dnsMonitorFactory = null)
+        private LoadBalancedCluster CreateSubject(ClusterSettings settings = null, IDnsMonitorFactory dnsMonitorFactory = null, bool adaptiveRetries = false)
         {
             return dnsMonitorFactory != null
-                ? new LoadBalancedCluster(settings ?? _settings, _mockServerFactory, _capturedEvents, LoggerFactory, dnsMonitorFactory)
-                : new LoadBalancedCluster(settings ?? _settings, _mockServerFactory, _capturedEvents, LoggerFactory);
+                ? new LoadBalancedCluster(settings ?? _settings, _mockServerFactory, _capturedEvents, LoggerFactory, dnsMonitorFactory, adaptiveRetries)
+                : new LoadBalancedCluster(settings ?? _settings, _mockServerFactory, _capturedEvents, LoggerFactory, adaptiveRetries);
         }
 
         private void PublishDnsException(IDnsMonitoringCluster cluster, Exception exception)

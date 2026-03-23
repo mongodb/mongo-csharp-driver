@@ -36,6 +36,7 @@ namespace MongoDB.Driver.Core.Operations
         private int? _maxBatchCount;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private bool _retryRequested;
+        private bool _canBeRetried;
         private WriteConcern _writeConcern = WriteConcern.Acknowledged;
 
         public RetryableWriteCommandOperationBase(
@@ -82,6 +83,12 @@ namespace MongoDB.Driver.Core.Operations
             set { _retryRequested = value; }
         }
 
+        public bool CanBeRetried
+        {
+            get { return _canBeRetried; }
+            set { _canBeRetried = value; }
+        }
+
         public WriteConcern WriteConcern
         {
             get { return _writeConcern; }
@@ -90,7 +97,7 @@ namespace MongoDB.Driver.Core.Operations
 
         public virtual BsonDocument Execute(OperationContext operationContext, IWriteBinding binding)
         {
-            using (var context = new RetryableWriteContext(binding, _retryRequested))
+            using (var context = new RetryableWriteContext(binding, _retryRequested, _canBeRetried))
             {
                 return Execute(operationContext, context);
             }
@@ -103,7 +110,7 @@ namespace MongoDB.Driver.Core.Operations
 
         public virtual async Task<BsonDocument> ExecuteAsync(OperationContext operationContext, IWriteBinding binding)
         {
-            using (var context = new RetryableWriteContext(binding, _retryRequested))
+            using (var context = new RetryableWriteContext(binding, _retryRequested, _canBeRetried))
             {
                 return await ExecuteAsync(operationContext, context).ConfigureAwait(false);
             }
@@ -150,7 +157,7 @@ namespace MongoDB.Driver.Core.Operations
                 args.MessageEncoderSettings);
         }
 
-        protected abstract BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, int attempt, long? transactionNumber);
+        protected abstract BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, long? transactionNumber);
 
         protected abstract IEnumerable<BatchableCommandMessageSection> CreateCommandPayloads(IChannelHandle channel, int attempt);
 
@@ -166,7 +173,7 @@ namespace MongoDB.Driver.Core.Operations
         private CommandArgs GetCommandArgs(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
         {
             var args = new CommandArgs();
-            args.Command = CreateCommand(operationContext, context.Binding.Session, attempt, transactionNumber);
+            args.Command = CreateCommand(operationContext, context.Binding.Session, transactionNumber);
             args.CommandPayloads = CreateCommandPayloads(context.Channel, attempt).ToList();
             args.PostWriteAction = GetPostWriteAction(args.CommandPayloads);
             args.ResponseHandling = GetResponseHandling();

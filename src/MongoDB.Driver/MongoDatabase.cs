@@ -550,6 +550,7 @@ namespace MongoDB.Driver
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern,
                 RetryRequested = _client.Settings.RetryReads,
+                CanBeRetried = _client.Settings.RetryReads,
 #pragma warning disable 618
                 UseCursor = options.UseCursor
 #pragma warning restore 618
@@ -571,7 +572,8 @@ namespace MongoDB.Driver
                 Collation = options.Collation,
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern,
-                RetryRequested = _client.Settings.RetryReads
+                RetryRequested = _client.Settings.RetryReads,
+                CanBeRetried = _client.Settings.RetryReads
             };
 
             // we want to delay execution of the find because the user may
@@ -601,7 +603,8 @@ namespace MongoDB.Driver
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern,
                 ReadPreference = _settings.ReadPreference,
-                WriteConcern = _settings.WriteConcern
+                WriteConcern = _settings.WriteConcern,
+                CanBeRetried = _client.Settings.RetryWrites
             };
         }
 
@@ -670,7 +673,8 @@ namespace MongoDB.Driver
             return new CreateViewOperation(_databaseNamespace, viewName, viewOn, pipelineDocuments, GetMessageEncoderSettings())
             {
                 Collation = options.Collation,
-                WriteConcern = _settings.WriteConcern
+                WriteConcern = _settings.WriteConcern,
+                CanBeRetried = _client.Settings.RetryWrites
             };
         }
 
@@ -697,7 +701,8 @@ namespace MongoDB.Driver
                 Comment = options?.Comment,
                 Filter = options?.Filter?.Render(renderArgs),
                 NameOnly = true,
-                RetryRequested = _client.Settings.RetryReads
+                RetryRequested = _client.Settings.RetryReads,
+                CanBeRetried = _client.Settings.RetryReads
             };
         }
 
@@ -710,7 +715,8 @@ namespace MongoDB.Driver
                 BatchSize = options?.BatchSize,
                 Comment = options?.Comment,
                 Filter = options?.Filter?.Render(renderArgs),
-                RetryRequested = _client.Settings.RetryReads
+                RetryRequested = _client.Settings.RetryReads,
+                CanBeRetried = _client.Settings.RetryReads
             };
         }
 
@@ -725,7 +731,8 @@ namespace MongoDB.Driver
                 messageEncoderSettings)
             {
                 DropTarget = options.DropTarget,
-                WriteConcern = _settings.WriteConcern
+                WriteConcern = _settings.WriteConcern,
+                CanBeRetried = _client.Settings.RetryWrites
             };
         }
 
@@ -735,7 +742,9 @@ namespace MongoDB.Driver
             var messageEncoderSettings = GetMessageEncoderSettings();
             return new ReadCommandOperation<TResult>(_databaseNamespace, renderedCommand.Document, renderedCommand.ResultSerializer, messageEncoderSettings, operationName: "runCommand")
             {
-                RetryRequested = false
+                RetryRequested = false,
+                // RunCommand is only retryable in the context of client backpressure, and only if both "retryWrites" and "retryReads" are enabled.
+                CanBeRetried = Client.Settings.RetryWrites && Client.Settings.RetryReads
             };
         }
 

@@ -54,7 +54,8 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestAll()
         {
-            var readPreference = new ReadPreference(ReadPreferenceMode.Secondary, new[] { new TagSet(new[] { new Tag("dc", "1") }) }, TimeSpan.FromSeconds(11));
+            var readPreference = new ReadPreference(ReadPreferenceMode.Secondary, [new TagSet([new Tag("dc", "1")])
+            ], TimeSpan.FromSeconds(11));
             var authMechanismProperties = new Dictionary<string, string>
             {
                 { "SERVICE_NAME", "other" },
@@ -62,8 +63,9 @@ namespace MongoDB.Driver.Tests
             };
             var zlibCompressor = new CompressorConfiguration(CompressorType.Zlib);
             zlibCompressor.Properties.Add("Level", 4);
-            var built = new MongoUrlBuilder()
+            var built = new MongoUrlBuilder
             {
+                AdaptiveRetries = true,
                 AllowInsecureTls = true,
                 ApplicationName = "app",
                 AuthenticationMechanism = "GSSAPI",
@@ -114,6 +116,7 @@ namespace MongoDB.Driver.Tests
             };
 
             var connectionString = "mongodb://username:password@host/database?" + string.Join("&", new[] {
+                "adaptiveRetries=true",
                 "authMechanism=GSSAPI",
                 "authMechanismProperties=SERVICE_NAME:other,CANONICALIZE_HOST_NAME:true",
                 "authSource=db",
@@ -154,6 +157,7 @@ namespace MongoDB.Driver.Tests
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
+                Assert.Equal(true, builder.AdaptiveRetries);
                 Assert.Equal(true, builder.AllowInsecureTls);
                 Assert.Equal("app", builder.ApplicationName);
                 Assert.Equal("GSSAPI", builder.AuthenticationMechanism);
@@ -951,6 +955,16 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(name, builder.ReplicaSetName);
                 Assert.Equal(connectionString, builder.ToString());
             }
+        }
+
+        [Theory]
+        [InlineData("mongodb://localhost/", null)]
+        [InlineData("mongodb://localhost/?adaptiveRetries=true", true)]
+        [InlineData("mongodb://localhost/?adaptiveRetries=false", false)]
+        public void TestAdaptiveRetries(string url, bool? adaptiveRetries)
+        {
+            var builder = new MongoUrlBuilder(url);
+            Assert.Equal(adaptiveRetries, builder.AdaptiveRetries);
         }
 
         [Theory]

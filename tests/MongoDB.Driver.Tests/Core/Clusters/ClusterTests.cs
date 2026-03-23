@@ -48,8 +48,8 @@ namespace MongoDB.Driver.Core.Clusters
         {
             _settings = new ClusterSettings(serverSelectionTimeout: TimeSpan.FromSeconds(2));
             _mockServerFactory = new Mock<IClusterableServerFactory>();
-            _mockServerFactory.Setup(f => f.CreateServer(It.IsAny<ClusterType>(), It.IsAny<ClusterId>(), It.IsAny<IClusterClock>(), It.IsAny<EndPoint>()))
-                .Returns((ClusterType _, ClusterId clusterId, IClusterClock _, EndPoint endPoint) =>
+            _mockServerFactory.Setup(f => f.CreateServer(It.IsAny<ClusterType>(), It.IsAny<ClusterId>(), It.IsAny<IClusterClock>(), It.IsAny<EndPoint>(), It.IsAny<TokenBucket>()))
+                .Returns((ClusterType _, ClusterId clusterId, IClusterClock _, EndPoint endPoint, TokenBucket tokenBucket) =>
                 {
                     var mockServer = new Mock<IClusterableServer>();
                     mockServer.SetupGet(s => s.EndPoint).Returns(endPoint);
@@ -100,6 +100,22 @@ namespace MongoDB.Driver.Core.Clusters
             description.Servers.Should().BeEmpty();
             description.State.Should().Be(ClusterState.Disconnected);
             description.Type.Should().Be(ClusterType.Unknown);
+        }
+
+        [Fact]
+        public void TokenBucket_should_not_be_null_when_adaptiveRetries_is_true()
+        {
+            var subject = CreateSubject(adaptiveRetries: true);
+
+            subject.TokenBucket.Should().NotBeNull();
+        }
+
+        [Fact]
+        public void TokenBucket_should_be_null_when_adaptiveRetries_is_false()
+        {
+            var subject = CreateSubject(adaptiveRetries: false);
+
+            subject.TokenBucket.Should().BeNull();
         }
 
         [Fact]
@@ -394,8 +410,8 @@ namespace MongoDB.Driver.Core.Clusters
             [Values(false, true)]
             bool async)
         {
-            _mockServerFactory.Setup(f => f.CreateServer(It.IsAny<ClusterType>(), It.IsAny<ClusterId>(), It.IsAny<IClusterClock>(), It.IsAny<EndPoint>()))
-                .Returns((ClusterType _, ClusterId clusterId, IClusterClock clusterClock, EndPoint endPoint) =>
+            _mockServerFactory.Setup(f => f.CreateServer(It.IsAny<ClusterType>(), It.IsAny<ClusterId>(), It.IsAny<IClusterClock>(), It.IsAny<EndPoint>(), It.IsAny<TokenBucket>()))
+                .Returns((ClusterType _, ClusterId clusterId, IClusterClock clusterClock, EndPoint endPoint, TokenBucket tokenBucket) =>
                 {
                     var mockServer = new Mock<IClusterableServer>();
                     mockServer.SetupGet(s => s.EndPoint).Returns(endPoint);
@@ -483,14 +499,14 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         // private methods
-        private StubCluster CreateSubject(TimeSpan? serverSelectionTimeout = null, ClusterType? clusterType = null)
+        private StubCluster CreateSubject(TimeSpan? serverSelectionTimeout = null, ClusterType? clusterType = null, bool adaptiveRetries = false)
         {
             if (serverSelectionTimeout != null)
             {
                 _settings = _settings.With(serverSelectionTimeout: serverSelectionTimeout.Value);
             }
 
-            return new StubCluster(_settings, _mockServerFactory.Object, _capturedEvents, LoggerFactory, clusterType);
+            return new StubCluster(_settings, _mockServerFactory.Object, _capturedEvents, LoggerFactory, clusterType, adaptiveRetries);
         }
 
         // nested types
@@ -503,8 +519,9 @@ namespace MongoDB.Driver.Core.Clusters
                 IClusterableServerFactory serverFactory,
                 IEventSubscriber eventSubscriber,
                 ILoggerFactory loggerFactory,
-                ClusterType? clusterType = null)
-                : base(settings, serverFactory, eventSubscriber, loggerFactory)
+                ClusterType? clusterType = null,
+                bool adaptiveRetries = true)
+                : base(settings, serverFactory, eventSubscriber, loggerFactory, adaptiveRetries)
             {
                 _clusterType = clusterType;
             }

@@ -27,7 +27,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    internal sealed class CreateIndexesOperation : IWriteOperation<BsonDocument>
+    internal sealed class CreateIndexesOperation : IWriteOperation<BsonDocument>, IRetryableWriteOperation<BsonDocument>
     {
         private readonly CollectionNamespace _collectionNamespace;
         private BsonValue _comment;
@@ -35,6 +35,7 @@ namespace MongoDB.Driver.Core.Operations
         private TimeSpan? _maxTime;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly IEnumerable<CreateIndexRequest> _requests;
+        private bool _canBeRetried;
         private WriteConcern _writeConcern = WriteConcern.Acknowledged;
 
         public CreateIndexesOperation(
@@ -82,6 +83,12 @@ namespace MongoDB.Driver.Core.Operations
             set { _writeConcern = Ensure.IsNotNull(value, nameof(value)); }
         }
 
+        public bool CanBeRetried
+        {
+            get { return _canBeRetried; }
+            set { _canBeRetried = value; }
+        }
+
         public TimeSpan? MaxTime
         {
             get { return _maxTime; }
@@ -91,28 +98,62 @@ namespace MongoDB.Driver.Core.Operations
         public BsonDocument Execute(OperationContext operationContext, IWriteBinding binding)
         {
             using (BeginOperation())
-            using (var channelSource = binding.GetWriteChannelSource(operationContext))
-            using (var channel = channelSource.GetChannel(operationContext))
+            {
+                return RetryableWriteOperationExecutor.Execute(operationContext, this, binding, retryRequested: false, canBeRetried: CanBeRetried);
+            }
+        }
+
+        public BsonDocument Execute(OperationContext operationContext, RetryableWriteContext context)
+        {
+            using (BeginOperation())
+            {
+                return RetryableWriteOperationExecutor.Execute(operationContext, this, context);
+            }
+        }
+
+        public Task<BsonDocument> ExecuteAsync(OperationContext operationContext, IWriteBinding binding)
+        {
+            using (BeginOperation())
+            {
+                return RetryableWriteOperationExecutor.ExecuteAsync(operationContext, this, binding, retryRequested: false, canBeRetried: CanBeRetried);
+            }
+        }
+
+        public Task<BsonDocument> ExecuteAsync(OperationContext operationContext, RetryableWriteContext context)
+        {
+            using (BeginOperation())
+            {
+                return RetryableWriteOperationExecutor.ExecuteAsync(operationContext, this, context);
+            }
+        }
+
+        public BsonDocument ExecuteAttempt(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
+        {
+            var binding = context.Binding;
+            var channelSource = context.ChannelSource;
+            var channel = context.Channel;
+
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
-                var operation = CreateOperation(operationContext, channelBinding.Session, channel.ConnectionDescription);
+                var operation = CreateOperation(operationContext, channelBinding.Session, channel.ConnectionDescription, transactionNumber);
                 return operation.Execute(operationContext, channelBinding);
             }
         }
 
-        public async Task<BsonDocument> ExecuteAsync(OperationContext operationContext, IWriteBinding binding)
+        public async Task<BsonDocument> ExecuteAttemptAsync(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
         {
-            using (BeginOperation())
-            using (var channelSource = await binding.GetWriteChannelSourceAsync(operationContext).ConfigureAwait(false))
-            using (var channel = await channelSource.GetChannelAsync(operationContext).ConfigureAwait(false))
+            var binding = context.Binding;
+            var channelSource = context.ChannelSource;
+            var channel = context.Channel;
+
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
-                var operation = CreateOperation(operationContext, channelBinding.Session, channel.ConnectionDescription);
+                var operation = CreateOperation(operationContext, channelBinding.Session, channel.ConnectionDescription, transactionNumber);
                 return await operation.ExecuteAsync(operationContext, channelBinding).ConfigureAwait(false);
             }
         }
 
-        internal BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription)
+        internal BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber)
         {
             var maxWireVersion = connectionDescription.MaxWireVersion;
             var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, session, _writeConcern);
@@ -134,10 +175,10 @@ namespace MongoDB.Driver.Core.Operations
 
         private EventContext.OperationIdDisposer BeginOperation() => EventContext.BeginOperation(null, OperationName);
 
-        private WriteCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription)
+        private WriteCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber)
         {
             var databaseNamespace = _collectionNamespace.DatabaseNamespace;
-            var command = CreateCommand(operationContext, session, connectionDescription);
+            var command = CreateCommand(operationContext, session, connectionDescription, transactionNumber);
             var resultSerializer = BsonDocumentSerializer.Instance;
             return new WriteCommandOperation<BsonDocument>(databaseNamespace, command, resultSerializer, _messageEncoderSettings, OperationName);
         }

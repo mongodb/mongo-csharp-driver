@@ -23,7 +23,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    internal abstract class EndTransactionOperation : IReadOperation<BsonDocument>
+    internal abstract class EndTransactionOperation : IRetryableWriteOperation<BsonDocument>
     {
         private MessageEncoderSettings _messageEncoderSettings;
         private readonly BsonDocument _recoveryToken;
@@ -50,57 +50,74 @@ namespace MongoDB.Driver.Core.Operations
 
         public string OperationName => CommandName;
 
+        // abort/commitTransaction can be retried regardless of the value of retryWrites
+        public bool CanBeRetried => true;
+
         protected abstract string CommandName { get; }
 
-        public virtual BsonDocument Execute(OperationContext operationContext, IReadBinding binding)
+        public BsonDocument Execute(OperationContext operationContext, RetryableWriteContext context)
         {
-            Ensure.IsNotNull(binding, nameof(binding));
+            return RetryableWriteOperationExecutor.Execute(operationContext, this, context);
+        }
 
-            using (var channelSource = binding.GetReadChannelSource(operationContext))
-            using (var channel = channelSource.GetChannel(operationContext))
-            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
+        public Task<BsonDocument> ExecuteAsync(OperationContext operationContext, RetryableWriteContext context)
+        {
+            return RetryableWriteOperationExecutor.ExecuteAsync(operationContext, this, context);
+        }
+
+        public virtual BsonDocument ExecuteAttempt(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
+        {
+            var channelSource = context.ChannelSource;
+            var channel = context.Channel;
+
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, context.Binding.Session.Fork()))
             {
-                var operation = CreateOperation(operationContext);
+                var operation = CreateWriteOperation(operationContext, GetEffectiveWriteConcern(operationContext, attempt));
                 return operation.Execute(operationContext, channelBinding);
             }
         }
 
-        public virtual async Task<BsonDocument> ExecuteAsync(OperationContext operationContext, IReadBinding binding)
+        public virtual async Task<BsonDocument> ExecuteAttemptAsync(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
         {
-            Ensure.IsNotNull(binding, nameof(binding));
+            var channelSource = context.ChannelSource;
+            var channel = context.Channel;
 
-            using (var channelSource = await binding.GetReadChannelSourceAsync(operationContext).ConfigureAwait(false))
-            using (var channel = await channelSource.GetChannelAsync(operationContext).ConfigureAwait(false))
-            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, context.Binding.Session.Fork()))
             {
-                var operation = CreateOperation(operationContext);
+                var operation = CreateWriteOperation(operationContext, GetEffectiveWriteConcern(operationContext, attempt));
                 return await operation.ExecuteAsync(operationContext, channelBinding).ConfigureAwait(false);
             }
         }
 
-        protected virtual BsonDocument CreateCommand(OperationContext operationContext)
+        internal virtual void OnRetry(RetryableWriteContext context, Exception exception)
         {
-            var writeConcern = _writeConcern;
+        }
+
+        protected virtual WriteConcern GetEffectiveWriteConcern(OperationContext operationContext, int attempt)
+        {
+            return _writeConcern;
+        }
+
+        protected virtual BsonDocument CreateCommand(OperationContext operationContext, WriteConcern writeConcern)
+        {
+            var effectiveWriteConcern = writeConcern;
             if (operationContext.IsRootContextTimeoutConfigured())
             {
-                writeConcern = writeConcern.With(wTimeout: null);
+                effectiveWriteConcern = effectiveWriteConcern.With(wTimeout: null);
             }
 
             return new BsonDocument
             {
                 { CommandName, 1 },
-                { "writeConcern", () => _writeConcern.ToBsonDocument(), !writeConcern.IsServerDefault },
+                { "writeConcern", () => effectiveWriteConcern.ToBsonDocument(), !effectiveWriteConcern.IsServerDefault },
                 { "recoveryToken", _recoveryToken, _recoveryToken != null }
             };
         }
 
-        private IReadOperation<BsonDocument> CreateOperation(OperationContext operationContext)
+        private IWriteOperation<BsonDocument> CreateWriteOperation(OperationContext operationContext, WriteConcern writeConcern)
         {
-            var command = CreateCommand(operationContext);
-            return new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, _messageEncoderSettings, OperationName)
-            {
-                RetryRequested = false
-            };
+            var command = CreateCommand(operationContext, writeConcern);
+            return new WriteCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, _messageEncoderSettings, OperationName);
         }
     }
 
@@ -117,6 +134,11 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         protected override string CommandName => "abortTransaction";
+
+        internal override void OnRetry(RetryableWriteContext context, Exception exception)
+        {
+            context.Binding.Session.CurrentTransaction?.UnpinAll();
+        }
     }
 
     internal sealed class CommitTransactionOperation : EndTransactionOperation
@@ -139,13 +161,30 @@ namespace MongoDB.Driver.Core.Operations
             set => _maxCommitTime = Ensure.IsNullOrGreaterThanZero(value, nameof(value));
         }
 
+        /// <summary>
+        /// When true, the write concern is upgraded to w:majority to prevent the transaction
+        /// from being committed twice. Set when a non-overload error occurs during a retry
+        /// attempt, or when the user explicitly re-calls commitTransaction.
+        /// </summary>
+        public bool RequiresMajorityWriteConcern { get; set; }
+
         protected override string CommandName => "commitTransaction";
 
-        public override BsonDocument Execute(OperationContext operationContext, IReadBinding binding)
+        internal override void OnRetry(RetryableWriteContext context, Exception exception)
+        {
+            TransactionHelper.UnpinServerIfNeededOnRetryableCommitException(context.Binding.Session.CurrentTransaction, exception);
+
+            if (!RetryabilityHelper.IsSystemOverloadedException(exception))
+            {
+                RequiresMajorityWriteConcern = true;
+            }
+        }
+
+        public override BsonDocument ExecuteAttempt(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
         {
             try
             {
-                return base.Execute(operationContext, binding);
+                return base.ExecuteAttempt(operationContext, context, attempt, transactionNumber);
             }
             catch (MongoException exception) when (ShouldReplaceTransientTransactionErrorWithUnknownTransactionCommitResult(exception))
             {
@@ -154,11 +193,11 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public override async Task<BsonDocument> ExecuteAsync(OperationContext operationContext, IReadBinding binding)
+        public override async Task<BsonDocument> ExecuteAttemptAsync(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
         {
             try
             {
-                return await base.ExecuteAsync(operationContext, binding).ConfigureAwait(false);
+                return await base.ExecuteAttemptAsync(operationContext, context, attempt, transactionNumber).ConfigureAwait(false);
             }
             catch (MongoException exception) when (ShouldReplaceTransientTransactionErrorWithUnknownTransactionCommitResult(exception))
             {
@@ -167,9 +206,25 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        protected override BsonDocument CreateCommand(OperationContext operationContext)
+        protected override WriteConcern GetEffectiveWriteConcern(OperationContext operationContext, int attempt)
         {
-            var command = base.CreateCommand(operationContext);
+            var writeConcern = base.GetEffectiveWriteConcern(operationContext, attempt);
+
+            if (RequiresMajorityWriteConcern)
+            {
+                writeConcern = writeConcern.With(mode: "majority");
+                if (writeConcern.WTimeout == null && !operationContext.IsRootContextTimeoutConfigured())
+                {
+                    writeConcern = writeConcern.With(wTimeout: TimeSpan.FromMilliseconds(10000));
+                }
+            }
+
+            return writeConcern;
+        }
+
+        protected override BsonDocument CreateCommand(OperationContext operationContext, WriteConcern writeConcern)
+        {
+            var command = base.CreateCommand(operationContext, writeConcern);
             if (_maxCommitTime.HasValue && !operationContext.IsRootContextTimeoutConfigured())
             {
                 command.Add("maxTimeMS", (long)_maxCommitTime.Value.TotalMilliseconds);

@@ -38,6 +38,7 @@ namespace MongoDB.Driver
         public static readonly IExtensionManager Extensions = new ExtensionManager();
 
         // private fields
+        private bool _adaptiveRetries;
         private bool _allowInsecureTls;
         private string _applicationName;
         private AutoEncryptionOptions _autoEncryptionOptions;
@@ -95,6 +96,7 @@ namespace MongoDB.Driver
         /// </summary>
         public MongoClientSettings()
         {
+            _adaptiveRetries = false;
             _allowInsecureTls = false;
             _applicationName = null;
             _autoEncryptionOptions = null;
@@ -152,6 +154,19 @@ namespace MongoDB.Driver
         }
 
         // public properties
+        /// <summary>
+        /// Gets or sets whether adaptive retries are enabled.
+        /// </summary>
+        public bool AdaptiveRetries
+        {
+            get { return _adaptiveRetries; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
+                _adaptiveRetries = value;
+            }
+        }
+
         /// <summary>
         /// Gets or sets whether to relax TLS constraints as much as possible.
         /// Setting this variable to true will also set SslSettings.CheckCertificateRevocation to false.
@@ -877,6 +892,7 @@ namespace MongoDB.Driver
             var credential = url.GetCredential();
 
             var clientSettings = new MongoClientSettings();
+            clientSettings.AdaptiveRetries = url.AdaptiveRetries.GetValueOrDefault(false);
             clientSettings.AllowInsecureTls = url.AllowInsecureTls;
             clientSettings.ApplicationName = url.ApplicationName;
             clientSettings.AutoEncryptionOptions = null; // must be configured via code
@@ -950,6 +966,7 @@ namespace MongoDB.Driver
         public MongoClientSettings Clone()
         {
             var clone = new MongoClientSettings();
+            clone._adaptiveRetries = _adaptiveRetries;
             clone._allowInsecureTls = _allowInsecureTls;
             clone._applicationName = _applicationName;
             clone._autoEncryptionOptions = _autoEncryptionOptions;
@@ -1022,6 +1039,7 @@ namespace MongoDB.Driver
             if (object.ReferenceEquals(obj, null) || GetType() != obj.GetType()) { return false; }
             var rhs = (MongoClientSettings)obj;
             return
+                _adaptiveRetries == rhs._adaptiveRetries &&
                 _allowInsecureTls == rhs._allowInsecureTls &&
                 _applicationName == rhs._applicationName &&
                 object.Equals(_autoEncryptionOptions, rhs._autoEncryptionOptions) &&
@@ -1113,6 +1131,7 @@ namespace MongoDB.Driver
             }
 
             return new Hasher()
+                .Hash(_adaptiveRetries)
                 .Hash(_allowInsecureTls)
                 .Hash(_applicationName)
                 .Hash(_autoEncryptionOptions)
@@ -1171,6 +1190,7 @@ namespace MongoDB.Driver
             }
 
             var sb = new StringBuilder();
+            sb.AppendFormat("AdaptiveRetries={0};", _adaptiveRetries);
             if (_applicationName != null)
             {
                 sb.AppendFormat("ApplicationName={0};", _applicationName);
@@ -1259,6 +1279,7 @@ namespace MongoDB.Driver
         internal ClusterKey ToClusterKey()
         {
             return new ClusterKey(
+                _adaptiveRetries,
                 _allowInsecureTls,
                 _applicationName,
                 _clusterConfigurator,

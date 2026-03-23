@@ -406,6 +406,7 @@ namespace MongoDB.Driver.Core.Configuration
         public void When_everything_is_specified()
         {
             var connectionString = @"mongodb://user:pass@localhost1,localhost2:30000/test?" +
+                "adaptiveRetries=true;" +
                 "appname=app;" +
                 "authMechanism=GSSAPI;" +
                 "authMechanismProperties=CANONICALIZE_HOST_NAME:true;" +
@@ -452,6 +453,7 @@ namespace MongoDB.Driver.Core.Configuration
 
             var subject = new ConnectionString(connectionString);
 
+            subject.AdaptiveRetries.Should().BeTrue();
             subject.ApplicationName.Should().Be("app");
             subject.AuthMechanism.Should().Be("GSSAPI");
             subject.AuthMechanismProperties.Count.Should().Be(1);
@@ -946,6 +948,17 @@ namespace MongoDB.Driver.Core.Configuration
             var subject = new ConnectionString(connectionString);
 
             subject.ReplicaSet.Should().Be(replicaSet);
+        }
+
+        [Theory]
+        [InlineData("mongodb://localhost", null)]
+        [InlineData("mongodb://localhost?adaptiveRetries=true", true)]
+        [InlineData("mongodb://localhost?adaptiveRetries=false", false)]
+        public void When_adaptiveRetries_is_specified(string connectionString, bool? adaptiveRetries)
+        {
+            var subject = new ConnectionString(connectionString);
+
+            subject.AdaptiveRetries.Should().Be(adaptiveRetries);
         }
 
         [Theory]

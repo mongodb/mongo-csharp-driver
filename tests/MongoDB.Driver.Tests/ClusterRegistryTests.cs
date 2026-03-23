@@ -111,6 +111,7 @@ namespace MongoDB.Driver.Tests
                 dummyMap);
 
             var clusterKey = new ClusterKey(
+                adaptiveRetries: true,
                 allowInsecureTls: false,
                 applicationName: "app1",
                 clusterConfigurator: clusterConfigurator,
@@ -171,6 +172,7 @@ namespace MongoDB.Driver.Tests
                 cluster.Settings.ServerApi.Should().Be(clusterKey.ServerApi);
                 cluster.Settings.ServerSelectionTimeout.Should().Be(clusterKey.ServerSelectionTimeout);
 
+                cluster.TokenBucket.Should().NotBeNull();
                 cluster.Description.Servers.Select(s => s.EndPoint).Should().BeEquivalentTo(expectedEndPoints);
 
                 // TODO: don't know how to test the rest of the settings because they are all private to the cluster
