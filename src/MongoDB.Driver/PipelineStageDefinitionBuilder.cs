@@ -2168,15 +2168,46 @@ namespace MongoDB.Driver
                 {
                     ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
 
+                    var path = field.Render(args).FieldName;
+                    var dotPos = path.LastIndexOf('.');
+                    var nestedRoot = dotPos > 0 ? path.Substring(0, dotPos) : null;
+
                     var vectorSearchOperator = new BsonDocument
                     {
-                        { "path", field.Render(args).FieldName },
+                        { "path", path },
                         { "limit", limit },
                         { "numCandidates", options?.NumberOfCandidates ?? limit * 10, options?.Exact != true },
                         { "index", options?.IndexName ?? "default" },
-                        { "filter", () => options?.Filter.Render(args with { RenderDollarForm = true }), options?.Filter != null },
-                        { "exact", true, options?.Exact == true }
+                        { nestedRoot != null ? "parentFilter" : "filter", () => options?.Filter.Render(args with { RenderDollarForm = true }), options?.Filter != null },
+                        { "exact", true, options?.Exact == true },
+                        { "returnStoredSource", true, options?.ReturnStoredSource == true },
                     };
+
+                    if (options?.NestedFilter != null)
+                    {
+                        if (nestedRoot == null)
+                        {
+                            throw new InvalidOperationException(
+                                $"A nested filter was specified for the search against field '{path}', but the field is not nested. Nested filters can only be used when searching against vectors in nested (embedded) documents.");
+                        }
+
+                        vectorSearchOperator.Add("filter", options.NestedFilter.Render(
+                            (args with { SubPathRoot = nestedRoot }) with { RenderDollarForm = true }));
+                    }
+
+                    if (options?.EmbeddedScoreMode != null)
+                    {
+                        if (nestedRoot == null)
+                        {
+                            throw new InvalidOperationException(
+                                $"The option '{nameof(VectorSearchOptions<TInput>.EmbeddedScoreMode)}' was set for the search against field '{path}', but the field is not nested. Embedded score mode can only be used when searching against vectors in nested (embedded) documents.");
+                        }
+
+                        vectorSearchOperator.Add("nestedOptions", new BsonDocument
+                        {
+                            { "scoreMode", options.EmbeddedScoreMode == SearchScoreFunction.Average ? "avg" : "max" }
+                        });
+                    }
 
                     if (queryVector.Vector is BsonString bsonString)
                     {

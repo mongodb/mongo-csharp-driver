@@ -37,6 +37,17 @@ public sealed class CreateAutoEmbeddingVectorSearchIndexModel<TDocument> : Creat
     public VectorEmbeddingModality Modality { get; init; } = VectorEmbeddingModality.Text;
 
     /// <summary>
+    /// The <see cref="VectorSimilarity"/> to use to search for top K-nearest neighbors. For auto-embedding indexes,
+    /// this defaults to <see cref="VectorSimilarity.DotProduct"/> when
+    /// <see cref="CreateVectorSearchIndexModelBase{TDocument}.Quantization"/> is
+    /// <see cref="VectorQuantization.None"/> or <see cref="VectorQuantization.Scalar"/>, and
+    /// <see cref="VectorSimilarity.Euclidean"/> when
+    /// <see cref="CreateVectorSearchIndexModelBase{TDocument}.Quantization"/> is
+    /// <see cref="VectorQuantization.Binary"/> or <see cref="VectorQuantization.BinaryNoRescore"/>.
+    /// </summary>
+    public VectorSimilarity? Similarity { get; init; }
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="CreateAutoEmbeddingVectorSearchIndexModel{TDocument}"/> for a vector index
     /// that will automatically create embeddings from a given field in the document. The embedding model to use must
     /// be passed to this constructor.
@@ -79,19 +90,97 @@ public sealed class CreateAutoEmbeddingVectorSearchIndexModel<TDocument> : Creat
     {
     }
 
+    /// <summary>
+    /// Creates a new <see cref="CreateAutoEmbeddingVectorSearchIndexModel{TDocument}"/> with the given fields
+    /// configured to be stored in the index. Note that storing full documents might significantly impact
+    /// performance during indexing and querying. Explicitly storing vector fields is not recommended.
+    /// </summary>
+    /// <param name="includedStoredFields">The fields to store.</param>
+    /// <returns>A new model with the fields configured.</returns>
+    public CreateAutoEmbeddingVectorSearchIndexModel<TDocument> WithIncludedStoredFields(
+        params FieldDefinition<TDocument>[] includedStoredFields)
+        => new(Field, Name, AutoEmbeddingModelName, FilterFields.ToArray())
+        {
+            IncludedStoredFields = includedStoredFields,
+            ExcludedStoredFields = null,
+            Modality = Modality,
+            Similarity = Similarity,
+            Dimensions = Dimensions,
+            Quantization = Quantization,
+            HnswMaxEdges = HnswMaxEdges,
+            HnswNumEdgeCandidates = HnswNumEdgeCandidates,
+        };
+
+    /// <summary>
+    /// Creates a new <see cref="CreateAutoEmbeddingVectorSearchIndexModel{TDocument}"/> with the given fields
+    /// configured to be stored in the index. Note that storing full documents might significantly impact
+    /// performance during indexing and querying. Explicitly storing vector fields is not recommended.
+    /// </summary>
+    /// <param name="includedStoredFields">The fields to store.</param>
+    /// <returns>A new model with the fields configured.</returns>
+    public CreateAutoEmbeddingVectorSearchIndexModel<TDocument> WithIncludedStoredFields(
+        params Expression<Func<TDocument, object>>[] includedStoredFields)
+        => WithIncludedStoredFields(includedStoredFields
+            .Select(f => (FieldDefinition<TDocument>)new ExpressionFieldDefinition<TDocument>(f)).ToArray());
+
+    /// <summary>
+    /// Creates a new <see cref="CreateAutoEmbeddingVectorSearchIndexModel{TDocument}"/> with the given fields
+    /// configured to be excluded from being stored in the index. This is typically used to exclude vector fields
+    /// from being stored when other fields should be stored.
+    /// </summary>
+    /// <param name="excludedStoredFields">The fields to exclude from being stored.</param>
+    /// <returns>A new model with the fields configured.</returns>
+    public CreateAutoEmbeddingVectorSearchIndexModel<TDocument> WithExcludedStoredFields(
+        params FieldDefinition<TDocument>[] excludedStoredFields)
+        => new(Field, Name, AutoEmbeddingModelName, FilterFields.ToArray())
+        {
+            ExcludedStoredFields = excludedStoredFields,
+            IncludedStoredFields = null,
+            Modality = Modality,
+            Similarity = Similarity,
+            Dimensions = Dimensions,
+            Quantization = Quantization,
+            HnswMaxEdges = HnswMaxEdges,
+            HnswNumEdgeCandidates = HnswNumEdgeCandidates,
+        };
+
+    /// <summary>
+    /// Creates a new <see cref="CreateAutoEmbeddingVectorSearchIndexModel{TDocument}"/> with the given fields
+    /// configured to be excluded from being stored in the index. This is typically used to exclude vector fields
+    /// from being stored when other fields should be stored.
+    /// </summary>
+    /// <param name="excludedStoredFields">The fields to exclude from being stored.</param>
+    /// <returns>A new model with the fields configured.</returns>
+    public CreateAutoEmbeddingVectorSearchIndexModel<TDocument> WithExcludedStoredFields(
+        params Expression<Func<TDocument, object>>[] excludedStoredFields)
+        => WithExcludedStoredFields(excludedStoredFields
+            .Select(f => (FieldDefinition<TDocument>)new ExpressionFieldDefinition<TDocument>(f)).ToArray());
+
     /// <inheritdoc/>
     internal override BsonDocument Render(RenderArgs<TDocument> renderArgs)
     {
+        var similarityValue = Similarity == VectorSimilarity.DotProduct
+            ? "dotProduct" // Because neither "DotProduct" or "dotproduct" are allowed.
+            : Similarity?.ToString().ToLowerInvariant();
+
         var vectorField = new BsonDocument
         {
             { "type", "autoEmbed" },
             { "path", Field.Render(renderArgs).FieldName },
             { "modality", Modality.ToString().ToLowerInvariant() },
             { "model", AutoEmbeddingModelName },
+            { "similarity", similarityValue, similarityValue != null },
+            { "numDimensions", Dimensions, Dimensions != 0 },
         };
+
+        RenderCommonFieldElements(renderArgs, vectorField);
 
         var fieldDocuments = new List<BsonDocument> { vectorField };
         RenderFilterFields(renderArgs, fieldDocuments);
-        return new BsonDocument { { "fields", new BsonArray(fieldDocuments) } };
+
+        var indexDefinition = new BsonDocument { { "fields", new BsonArray(fieldDocuments) } };
+        RenderCommonElements(renderArgs, indexDefinition);
+
+        return indexDefinition;
     }
 }

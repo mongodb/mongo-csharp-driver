@@ -57,6 +57,22 @@ namespace MongoDB.Driver
         {
             get { return _fieldSerializer; }
         }
+
+        internal static string RemoveSubPathRoot(string fieldName, string subPathRoot)
+        {
+            if (subPathRoot == null)
+            {
+                return fieldName;
+            }
+
+            if (fieldName.StartsWith(subPathRoot + ".", StringComparison.Ordinal))
+            {
+                return fieldName.Remove(0, subPathRoot.Length + 1);
+            }
+
+            throw new InvalidOperationException(
+                $"The field '{fieldName}' is not part of the nested document '{subPathRoot}', which is the root of this search. Search over nested documents requires filters either on the root or on at the nested document level being searched.");
+        }
     }
 
     /// <summary>
@@ -242,7 +258,8 @@ namespace MongoDB.Driver
         /// <inheritdoc />
         public override RenderedFieldDefinition Render(RenderArgs<TDocument> args)
         {
-            return LinqProviderAdapter.TranslateExpressionToField(_expression, args.DocumentSerializer, args.SerializerRegistry, args.TranslationOptions);
+            return LinqProviderAdapter.TranslateExpressionToField(_expression, args.DocumentSerializer,
+                args.SerializerRegistry, args.TranslationOptions, args.SubPathRoot);
         }
     }
 
@@ -275,7 +292,9 @@ namespace MongoDB.Driver
         /// <inheritdoc />
         public override RenderedFieldDefinition<TField> Render(RenderArgs<TDocument> args)
         {
-            return LinqProviderAdapter.TranslateExpressionToField(_expression, args.DocumentSerializer, args.SerializerRegistry, args.TranslationOptions, args.PathRenderArgs.AllowScalarValueForArray);
+            return LinqProviderAdapter.TranslateExpressionToField(_expression, args.DocumentSerializer,
+                args.SerializerRegistry, args.TranslationOptions, args.PathRenderArgs.AllowScalarValueForArray,
+                args.SubPathRoot);
         }
     }
 
@@ -302,6 +321,8 @@ namespace MongoDB.Driver
             string resolvedName;
             IBsonSerializer resolvedSerializer;
             StringFieldDefinitionHelper.Resolve<TDocument>(_fieldName, args.DocumentSerializer, out resolvedName, out resolvedSerializer);
+
+            resolvedName = RenderedFieldDefinition.RemoveSubPathRoot(resolvedName, args.SubPathRoot);
 
             return new RenderedFieldDefinition(resolvedName, resolvedSerializer);
         }
@@ -350,6 +371,8 @@ namespace MongoDB.Driver
             {
                 valueSerializer = args.SerializerRegistry.GetSerializer<TField>();
             }
+
+            resolvedName = RenderedFieldDefinition.RemoveSubPathRoot(resolvedName, args.SubPathRoot);
 
             return new RenderedFieldDefinition<TField>(resolvedName, fieldSerializer, valueSerializer, underlyingSerializer);
         }
@@ -451,7 +474,9 @@ namespace MongoDB.Driver
         public override RenderedFieldDefinition Render(RenderArgs<TDocument> args)
         {
             var rendered = _adaptee.Render(args);
-            return new RenderedFieldDefinition(rendered.FieldName, rendered.UnderlyingSerializer);
+            var fieldName = RenderedFieldDefinition.RemoveSubPathRoot(rendered.FieldName, args.SubPathRoot);
+
+            return new RenderedFieldDefinition(fieldName, rendered.UnderlyingSerializer);
         }
     }
 }
