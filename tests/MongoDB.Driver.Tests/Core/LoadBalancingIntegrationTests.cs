@@ -35,9 +35,9 @@ namespace MongoDB.Driver.Core.Tests
     /// <summary>
     /// Tests in this file emulate internal steps in operations that can work with cursors or transactions.
     /// </summary>
-    public class LoadBalancingIntergationTests : OperationTestBase
+    public class LoadBalancingIntegrationTests : OperationTestBase
     {
-        public LoadBalancingIntergationTests()
+        public LoadBalancingIntegrationTests()
         {
             _collectionNamespace = CollectionNamespace.FromFullName("db.coll");
         }
@@ -644,9 +644,18 @@ namespace MongoDB.Driver.Core.Tests
 
         private RetryableReadContext CreateRetryableReadContext(IReadBindingHandle readBindingHandle, bool async)
         {
-            return async
-                ? RetryableReadContext.CreateAsync(OperationContext.NoTimeout, readBindingHandle, retryRequested: false).GetAwaiter().GetResult()
-                : RetryableReadContext.Create(OperationContext.NoTimeout, readBindingHandle, retryRequested: false);
+            var retryableContext = new RetryableReadContext(readBindingHandle, retryRequested: false);
+            if (async)
+            {
+                retryableContext.SelectServerAsync(OperationContext.NoTimeout, null).GetAwaiter().GetResult();
+                retryableContext.AcquireChannelAsync(OperationContext.NoTimeout).GetAwaiter().GetResult();
+            }
+            else
+            {
+                retryableContext.SelectServer(OperationContext.NoTimeout, null);
+                retryableContext.AcquireChannel(OperationContext.NoTimeout);
+            }
+            return retryableContext;
         }
 
         private DisposableBindingBundle<IReadBindingHandle, RetryableReadContext> CreateReadBindingsAndRetryableReadContext(IClusterInternal cluster, ICoreSessionHandle sessionHandle, bool async)
@@ -661,9 +670,18 @@ namespace MongoDB.Driver.Core.Tests
 
         private RetryableWriteContext CreateRetryableWriteContext(IReadWriteBindingHandle readWriteBindingHandle, bool async)
         {
-            return async
-                    ? RetryableWriteContext.CreateAsync(OperationContext.NoTimeout, readWriteBindingHandle, retryRequested: false).GetAwaiter().GetResult()
-                    : RetryableWriteContext.Create(OperationContext.NoTimeout, readWriteBindingHandle, retryRequested: false);
+            var retryableContext = new RetryableWriteContext(readWriteBindingHandle, retryRequested: false);
+            if (async)
+            {
+                retryableContext.SelectServerAsync(OperationContext.NoTimeout, null).GetAwaiter().GetResult();
+                retryableContext.AcquireChannelAsync(OperationContext.NoTimeout).GetAwaiter().GetResult();
+            }
+            else
+            {
+                retryableContext.SelectServer(OperationContext.NoTimeout, null);
+                retryableContext.AcquireChannel(OperationContext.NoTimeout);
+            }
+            return retryableContext;
         }
 
         private DisposableBindingBundle<IReadWriteBindingHandle, RetryableWriteContext> CreateReadWriteBindingsAndRetryableWriteContext(IClusterInternal cluster, ICoreSessionHandle sessionHandle, bool async)

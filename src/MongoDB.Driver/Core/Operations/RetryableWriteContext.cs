@@ -24,43 +24,6 @@ namespace MongoDB.Driver.Core.Operations
 {
     internal sealed class RetryableWriteContext : IDisposable
     {
-        #region static
-
-        public static RetryableWriteContext Create(OperationContext operationContext, IWriteBinding binding, bool retryRequested)
-        {
-            var context = new RetryableWriteContext(binding, retryRequested);
-            try
-            {
-                context.AcquireOrReplaceChannel(operationContext, null);
-            }
-            catch
-            {
-                context.Dispose();
-                throw;
-            }
-
-            ChannelPinningHelper.PinChannellIfRequired(context.ChannelSource, context.Channel, context.Binding.Session);
-            return context;
-        }
-
-        public static async Task<RetryableWriteContext> CreateAsync(OperationContext operationContext, IWriteBinding binding, bool retryRequested)
-        {
-            var context = new RetryableWriteContext(binding, retryRequested);
-            try
-            {
-                await context.AcquireOrReplaceChannelAsync(operationContext, null).ConfigureAwait(false);
-            }
-            catch
-            {
-                context.Dispose();
-                throw;
-            }
-
-            ChannelPinningHelper.PinChannellIfRequired(context.ChannelSource, context.Channel, context.Binding.Session);
-            return context;
-        }
-        #endregion
-
 #pragma warning disable CA2213 // Disposable fields should be disposed
         private readonly IWriteBinding _binding;
 #pragma warning restore CA2213 // Disposable fields should be disposed
@@ -84,49 +47,79 @@ namespace MongoDB.Driver.Core.Operations
         {
             if (!_disposed)
             {
-                _channelSource?.Dispose();
-                _channel?.Dispose();
+                DisposeChannelAndSource();
                 _disposed = true;
             }
         }
 
-        public void AcquireOrReplaceChannel(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
+        public ServerDescription SelectServer(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
-            var attempt = 1;
-            while (true)
+            try
             {
                 operationContext.ThrowIfTimedOutOrCanceled();
-                ReplaceChannelSource(Binding.GetWriteChannelSource(operationContext, deprioritizedServers));
-                var server = ChannelSource.ServerDescription;
-                try
-                {
-                    ReplaceChannel(ChannelSource.GetChannel(operationContext));
-                    return;
-                }
-                catch (Exception ex) when (RetryableWriteOperationExecutor.ShouldConnectionAcquireBeRetried(operationContext, this, server, ex, attempt))
-                {
-                    attempt++;
-                }
+                var writeChannelSource = Binding.GetWriteChannelSource(operationContext, deprioritizedServers);
+                ReplaceChannelSource(writeChannelSource);
+                return ChannelSource.ServerDescription;
+            }
+            catch
+            {
+                DisposeChannelAndSource();
+                throw;
             }
         }
 
-        public async Task AcquireOrReplaceChannelAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
+        public async Task<ServerDescription> SelectServerAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
-            var attempt = 1;
-            while (true)
+            try
             {
                 operationContext.ThrowIfTimedOutOrCanceled();
-                ReplaceChannelSource(await Binding.GetWriteChannelSourceAsync(operationContext, deprioritizedServers).ConfigureAwait(false));
-                var server = ChannelSource.ServerDescription;
-                try
+                var writeChannelSource = await Binding
+                    .GetWriteChannelSourceAsync(operationContext, deprioritizedServers).ConfigureAwait(false);
+                ReplaceChannelSource(writeChannelSource);
+                return ChannelSource.ServerDescription;
+            }
+            catch
+            {
+                DisposeChannelAndSource();
+                throw;
+            }
+        }
+
+        public void AcquireChannel(OperationContext operationContext)
+        {
+            try
+            {
+                if (_channelSource is null)
                 {
-                    ReplaceChannel(await ChannelSource.GetChannelAsync(operationContext).ConfigureAwait(false));
-                    return;
+                    throw new InvalidOperationException("Channel source is not initialized. Server selection must be performed before channel acquisition.");
                 }
-                catch (Exception ex) when (RetryableWriteOperationExecutor.ShouldConnectionAcquireBeRetried(operationContext, this, server, ex, attempt))
+                operationContext.ThrowIfTimedOutOrCanceled();
+                ReplaceChannel(ChannelSource.GetChannel(operationContext));
+                ChannelPinningHelper.PinChannellIfRequired(ChannelSource, Channel, Binding.Session);
+            }
+            catch
+            {
+                DisposeChannelAndSource();
+                throw;
+            }
+        }
+
+        public async Task AcquireChannelAsync(OperationContext operationContext)
+        {
+            try
+            {
+                if (_channelSource is null)
                 {
-                    attempt++;
+                    throw new InvalidOperationException("Channel source is not initialized. Server selection must be performed before channel acquisition.");
                 }
+                operationContext.ThrowIfTimedOutOrCanceled();
+                ReplaceChannel(await ChannelSource.GetChannelAsync(operationContext).ConfigureAwait(false));
+                ChannelPinningHelper.PinChannellIfRequired(ChannelSource, Channel, Binding.Session);
+            }
+            catch
+            {
+                DisposeChannelAndSource();
+                throw;
             }
         }
 
@@ -143,6 +136,14 @@ namespace MongoDB.Driver.Core.Operations
             _channelSource?.Dispose();
             _channel?.Dispose();
             _channelSource = channelSource;
+            _channel = null;
+        }
+
+        private void DisposeChannelAndSource()
+        {
+            _channelSource?.Dispose();
+            _channel?.Dispose();
+            _channelSource = null;
             _channel = null;
         }
     }
