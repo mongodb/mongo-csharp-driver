@@ -41,7 +41,7 @@ namespace MongoDB.TestHelpers.XunitExtensions.TimeoutEnforcing
                 executionMessageSink,
                 executionOptions)
         {
-            _unobservedExceptionTrackingTestCase = testCases.SingleOrDefault(IsUnobservedExceptionTrackingTestCase);
+            _unobservedExceptionTrackingTestCase = testCases.FirstOrDefault(IsUnobservedExceptionTrackingTestCase);
         }
 
         protected override Task<RunSummary> RunTestCollectionAsync(
