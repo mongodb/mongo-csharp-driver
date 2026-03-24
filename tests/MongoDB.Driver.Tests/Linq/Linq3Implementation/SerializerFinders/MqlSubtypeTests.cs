@@ -31,7 +31,7 @@ public class MqlSubtypeTests
 
         SerializerFinder.FindSerializers(expression.Body, null, serializerMap);
 
-        serializerMap.IsKnown(expression.Body).Should().BeTrue();
+        serializerMap.IsKnown(expression.Body, out _).Should().BeTrue();
         serializerMap.GetSerializer(expression.Body).Should().BeOfType<NullableSerializer<BsonBinarySubType>>();
     }
 
