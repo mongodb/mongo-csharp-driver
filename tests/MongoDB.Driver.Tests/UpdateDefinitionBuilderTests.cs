@@ -157,7 +157,7 @@ namespace MongoDB.Driver.Tests
         {
             // When a dictionary key is all-digits (e.g., "10"), the string path resolver
             // treats it as an array index rather than a dictionary member name.
-            // This is the exact scenario reported in the user bug: "Buckets.10" where
+            // This is the exact scenario reported in CSHARP-5924 - "Buckets.10" where
             // Buckets is IDictionary<string, IEnumerable<DataRecord>>.
             var subject = CreateSubject<DataContainer>();
 
