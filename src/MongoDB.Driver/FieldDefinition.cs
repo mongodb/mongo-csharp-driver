@@ -420,31 +420,8 @@ namespace MongoDB.Driver
             resolvedFieldSerializer = documentSerializer;
             for (int i = 0; i < nameParts.Length; i++)
             {
-                if (nameParts[i] == "$")
+                if (nameParts[i] == "$" || nameParts[i].All(char.IsDigit))
                 {
-                    arraySerializer = resolvedFieldSerializer as IBsonArraySerializer;
-                    if (arraySerializer != null && arraySerializer.TryGetItemSerializationInfo(out serializationInfo))
-                    {
-                        resolvedFieldSerializer = serializationInfo.Serializer;
-                        continue;
-                    }
-
-                    resolvedFieldSerializer = null;
-                    break;
-                }
-
-                if (nameParts[i].All(char.IsDigit))
-                {
-                    // For all-digit segments, first try as a document member (e.g., dictionary with numeric string keys),
-                    // then fall back to array index resolution.
-                    documentSerializer = resolvedFieldSerializer as IBsonDocumentSerializer;
-                    if (documentSerializer != null && documentSerializer.TryGetMemberSerializationInfo(nameParts[i], out serializationInfo))
-                    {
-                        nameParts[i] = serializationInfo.ElementName;
-                        resolvedFieldSerializer = serializationInfo.Serializer;
-                        continue;
-                    }
-
                     arraySerializer = resolvedFieldSerializer as IBsonArraySerializer;
                     if (arraySerializer != null && arraySerializer.TryGetItemSerializationInfo(out serializationInfo))
                     {
