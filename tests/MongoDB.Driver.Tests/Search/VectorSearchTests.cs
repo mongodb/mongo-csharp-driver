@@ -38,13 +38,21 @@ namespace MongoDB.Driver.Tests.Search
             _mongoClient = AtlasSearchTestsUtils.CreateAtlasSearchMongoClient();
         }
 
-        protected override void DisposeInternal() => _mongoClient.Dispose();
+        protected override void DisposeInternal() => _mongoClient?.Dispose();
 
-        [Theory]
-        [MemberData(nameof(BinaryVectorSearchTestData))]
-        public void BinaryVectorSearch<T>(BinaryVector<T> binaryVector, string fieldName)
+        [Fact]
+        public void BinaryVectorSearch_Int8()
+            => BinaryVectorSearch(new BinaryVectorInt8(new sbyte[] { 0, 1, 2, 3, 4 }), "int8Vector");
+
+        [Fact]
+        public void BinaryVectorSearch_Float32()
+            => BinaryVectorSearch(new BinaryVectorFloat32(new float[] { 0.0001f, 1.12345f, 2.23456f, 3.34567f, 4.45678f }), "float32Vector");
+
+        private void BinaryVectorSearch<T>(BinaryVector<T> binaryVector, string fieldName)
             where T : struct
         {
+            AtlasSearchTestsUtils.RequireAtlasSearch();
+
             const int Limit = 5;
             var collection = _mongoClient.GetDatabase("csharpExtraTests").GetCollection<BinaryVectorSearchItem>("binaryVectorTests");
 
@@ -62,15 +70,11 @@ namespace MongoDB.Driver.Tests.Search
             result[0].Score.Should().Be(1);
         }
 
-        public static IEnumerable<object[]> BinaryVectorSearchTestData =>
-           [
-                [new BinaryVectorInt8(new sbyte[] { 0, 1, 2, 3, 4 }), "int8Vector"],
-                [new BinaryVectorFloat32(new float[] { 0.0001f, 1.12345f, 2.23456f, 3.34567f, 4.45678f }), "float32Vector"],
-           ];
-
         [Fact]
         public void VectorSearch()
         {
+            AtlasSearchTestsUtils.RequireAtlasSearch();
+
             var expectedTitles = new[]
             {
                 "Willy Wonka & the Chocolate Factory",
@@ -103,6 +107,8 @@ namespace MongoDB.Driver.Tests.Search
         [Fact]
         public void VectorSearchExact()
         {
+            AtlasSearchTestsUtils.RequireAtlasSearch();
+
             var expectedTitles = new[]
             {
                 "Red Dawn",
@@ -135,6 +141,7 @@ namespace MongoDB.Driver.Tests.Search
         [Fact]
         public void VectorSearch_on_embedded_documents()
         {
+            AtlasSearchTestsUtils.RequireAtlasSearch();
             SkipTests();
 
             var nestedVectorCollection =

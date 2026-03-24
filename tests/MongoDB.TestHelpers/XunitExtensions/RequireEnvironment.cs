@@ -65,6 +65,54 @@ namespace MongoDB.TestHelpers.XunitExtensions
             throw new SkipException($"Test skipped because an OS process {processName} has not been detected.");
         }
 
+        public RequireEnvironment RequireKmsProviders(string names)
+        {
+            foreach (var name in names.Split([";"], StringSplitOptions.None))
+            {
+                switch (name)
+                {
+                    case "aws":
+                    case "aws:name1":
+                        EnvironmentVariable("FLE_AWS_KEY");
+                        EnvironmentVariable("FLE_AWS_SECRET");
+                        break;
+                    case "aws:name2":
+                        EnvironmentVariable("FLE_AWS_KEY2");
+                        EnvironmentVariable("FLE_AWS_SECRET2");
+                        break;
+                    case "azure":
+                    case "azure:name1":
+                        EnvironmentVariable("FLE_AZURE_TENANTID");
+                        EnvironmentVariable("FLE_AZURE_CLIENTID");
+                        EnvironmentVariable("FLE_AZURE_CLIENTSECRET");
+                        break;
+                    case "gcp":
+                    case "gcp:name1":
+                        EnvironmentVariable("FLE_GCP_EMAIL");
+                        EnvironmentVariable("FLE_GCP_PRIVATEKEY");
+                        break;
+                    case "awsTemporary":
+                        EnvironmentVariable("CSFLE_AWS_TEMP_SESSION_TOKEN");
+                        goto case "awsTemporaryNoSessionToken";
+                    case "awsTemporaryNoSessionToken":
+                        EnvironmentVariable("CSFLE_AWS_TEMP_ACCESS_KEY_ID");
+                        EnvironmentVariable("CSFLE_AWS_TEMP_SECRET_ACCESS_KEY");
+                        break;
+                    case "local":
+                    case "local:name1":
+                    case "local:name2":
+                    case "kmip":
+                    case "kmip:name1":
+                        break;
+                    default:
+                        throw new NotImplementedException($"KMS provider {name} is not not known.");
+                }
+            }
+
+            return this;
+        }
+
+
         public RequireEnvironment HostReachable(DnsEndPoint endPoint)
         {
             if (IsReachable())

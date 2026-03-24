@@ -18,6 +18,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Core.TestHelpers.Logging;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -46,6 +47,8 @@ namespace AtlasConnectivity.Tests
         [InlineData("ATLAS_SRV_TLS12")]
         public void Connection_to_Atlas_should_work(string environmentVariableName)
         {
+            RequireEnvironment.Check().EnvironmentVariable(environmentVariableName);
+
             var connectionString = Environment.GetEnvironmentVariable(environmentVariableName);
             connectionString.Should().NotBeNull();
 

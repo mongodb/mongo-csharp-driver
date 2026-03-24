@@ -40,24 +40,93 @@ public class AutoEmbedVectorSearchTests : LoggableTestClass
 
     public AutoEmbedVectorSearchTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
     {
-        SkipTests();
+        if (SkipTestsBool())
+        {
+            return;
+        }
 
         _mongoClient = AtlasSearchTestsUtils.CreateAtlasSearchMongoClient();
+        if (_mongoClient == null)
+        {
+            return;
+        }
 
         _collection = _mongoClient.GetDatabase("dotnet-test").GetCollection<Movie>(GetRandomName());
         _autoEmbedIndexName = GetRandomName();
 
         _collection.InsertMany([
-            new Movie { Title = "Tigers on the Moon", Plot = "Tigers escape from a moonbase and run amok in the lunar dust.", Runtime = 60, Year = 1986 },
-            new Movie { Title = "Red Dawn", Plot = "A group of teenagers form a guerrilla army to fight off an invading force.", Runtime = 114, Year = 1984 },
-            new Movie { Title = "Sands of Iwo Jima", Plot = "A tough sergeant leads his platoon of recruits through the battle of Iwo Jima.", Runtime = 100, Year = 1949 },
-            new Movie { Title = "White Tiger", Plot = "A Russian tank commander searches for a mysterious German tank during WWII.", Runtime = 104, Year = 2012 },
-            new Movie { Title = "P-51 Dragon Fighter", Plot = "Allied pilots in North Africa must fight off a swarm of Nazi dragons.", Runtime = 85, Year = 2014 },
-            new Movie { Title = "When Trumpets Fade", Plot = "A soldier's struggle for survival during the Battle of Hurtgen Forest.", Runtime = 95, Year = 1998 },
-            new Movie { Title = "The Great Escape", Plot = "Allied prisoners of war plan a massive escape from a German camp.", Runtime = 172, Year = 1963 },
-            new Movie { Title = "Saving Private Ryan", Plot = "Soldiers go behind enemy lines to rescue a paratrooper whose brothers have been killed.", Runtime = 169, Year = 1998 },
-            new Movie { Title = "Dunkirk", Plot = "Allied soldiers from Belgium, the British Empire, and France are surrounded by the German Army.", Runtime = 106, Year = 2017 },
-            new Movie { Title = "Fury", Plot = "A battle-hardened sergeant and his tank crew fight their way across Germany.", Runtime = 134, Year = 2014 }
+            new Movie
+            {
+                Title = "Tigers on the Moon",
+                Plot = "Tigers escape from a moonbase and run amok in the lunar dust.",
+                Runtime = 60,
+                Year = 1986
+            },
+            new Movie
+            {
+                Title = "Red Dawn",
+                Plot = "A group of teenagers form a guerrilla army to fight off an invading force.",
+                Runtime = 114,
+                Year = 1984
+            },
+            new Movie
+            {
+                Title = "Sands of Iwo Jima",
+                Plot = "A tough sergeant leads his platoon of recruits through the battle of Iwo Jima.",
+                Runtime = 100,
+                Year = 1949
+            },
+            new Movie
+            {
+                Title = "White Tiger",
+                Plot = "A Russian tank commander searches for a mysterious German tank during WWII.",
+                Runtime = 104,
+                Year = 2012
+            },
+            new Movie
+            {
+                Title = "P-51 Dragon Fighter",
+                Plot = "Allied pilots in North Africa must fight off a swarm of Nazi dragons.",
+                Runtime = 85,
+                Year = 2014
+            },
+            new Movie
+            {
+                Title = "When Trumpets Fade",
+                Plot = "A soldier's struggle for survival during the Battle of Hurtgen Forest.",
+                Runtime = 95,
+                Year = 1998
+            },
+            new Movie
+            {
+                Title = "The Great Escape",
+                Plot = "Allied prisoners of war plan a massive escape from a German camp.",
+                Runtime = 172,
+                Year = 1963
+            },
+            new Movie
+            {
+                Title = "Saving Private Ryan",
+                Plot =
+                    "Soldiers go behind enemy lines to rescue a paratrooper whose brothers have been killed.",
+                Runtime = 169,
+                Year = 1998
+            },
+            new Movie
+            {
+                Title = "Dunkirk",
+                Plot =
+                    "Allied soldiers from Belgium, the British Empire, and France are surrounded by the German Army.",
+                Runtime = 106,
+                Year = 2017
+            },
+            new Movie
+            {
+                Title = "Fury",
+                Plot = "A battle-hardened sergeant and his tank crew fight their way across Germany.",
+                Runtime = 134,
+                Year = 2014
+            }
         ]);
 
         _collection.SearchIndexes.CreateOne(new CreateAutoEmbeddingVectorSearchIndexModel<Movie>(
@@ -83,6 +152,7 @@ public class AutoEmbedVectorSearchTests : LoggableTestClass
     }
 
     private void SkipTests() => throw new SkipException("Test skipped because of CSHARP-5840.");
+    private bool SkipTestsBool() => true;
 
     private bool TryGetIndex<TDocument>(
         IMongoCollection<TDocument> collection, string indexName, out BsonDocument indexDefinition)
@@ -95,13 +165,15 @@ public class AutoEmbedVectorSearchTests : LoggableTestClass
 
     protected override void DisposeInternal()
     {
-        _collection.Database.DropCollection(_collection.CollectionNamespace.CollectionName);
-        _mongoClient.Dispose();
+        _collection?.Database.DropCollection(_collection?.CollectionNamespace.CollectionName);
+        _mongoClient?.Dispose();
     }
 
     [Fact(Timeout = Timeout)]
     public async Task VectorSearchAutoEmbed()
     {
+        SkipTests();
+
         var expectedTitles = new[]
         {
             "Tigers on the Moon", "Dunkirk", "P-51 Dragon Fighter", "Red Dawn", "Fury"
@@ -132,6 +204,8 @@ public class AutoEmbedVectorSearchTests : LoggableTestClass
     [Fact(Timeout = Timeout)]
     public async Task VectorSearchAutoEmbed_Filters()
     {
+        SkipTests();
+
         var expectedTitles = new[]
         {
             "Dunkirk", "P-51 Dragon Fighter", "White Tiger", "When Trumpets Fade"
@@ -169,6 +243,8 @@ public class AutoEmbedVectorSearchTests : LoggableTestClass
     [Fact(Timeout = Timeout)]
     public async Task VectorSearchAutoEmbed_Exact()
     {
+        SkipTests();
+
         var expectedTitles = new[]
         {
             "Tigers on the Moon", "Dunkirk", "P-51 Dragon Fighter", "Red Dawn", "Fury"

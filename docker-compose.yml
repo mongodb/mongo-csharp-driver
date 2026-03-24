@@ -1,0 +1,35 @@
+services:
+  mongodb:
+    image: mongo:8
+    container_name: mongodb-test
+    command: >
+      mongod
+      --replSet rs0
+      --bind_ip_all
+      --setParameter enableTestCommands=1
+    ports:
+      - "56665:27017"
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: |
+        mongosh --quiet --eval "
+          try {
+            rs.status();
+            print('Replica set initialized');
+          } catch(e) {
+            print('Initializing replica set...');
+            rs.initiate({
+              _id: 'rs0',
+              members: [{ _id: 0, host: 'localhost:27017' }]
+            });
+          }
+        "
+      interval: 5s
+      timeout: 10s
+      retries: 10
+      start_period: 10s
+
+volumes:
+  mongodb_data:
+    driver: local

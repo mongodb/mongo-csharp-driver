@@ -703,6 +703,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true);
             }
 
+            RequireEnvironment.Check().RequireKmsProviders(kmsProvider);
+
             using (var client = ConfigureClient())
             using (var clientEncrypted = ConfigureClientEncrypted(BsonDocument.Parse(SchemaMap), kmsProviderFilter: kmsProvider))
             using (var clientEncryption = ConfigureClientEncryption(clientEncrypted, kmsProviderFilter: kmsProvider))
@@ -794,6 +796,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             {
                 RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true);
             }
+
+            RequireEnvironment.Check().RequireKmsProviders(kmsType);
 
             using (var client = ConfigureClient())
             using (var clientEncryption = ConfigureClientEncryption(client, ValidKmsEndpointConfigurator, kmsProviderFilter: kmsType))
@@ -2467,6 +2471,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true);
             }
 
+            RequireEnvironment.Check().RequireKmsProviders(kmsProviderFilter);
+
             const string value = "test";
 
             using (var client1 = ConfigureClient(clearCollections: true))
@@ -3054,6 +3060,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             [Values("gcp")] string kmsProvider, // the rest kms providers are supported on all supported TFs
             [Values(false, true)] bool async)
         {
+            RequireEnvironment.Check().EnvironmentVariable("FLE_GCP_EMAIL");
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
 
             using (var clientEncrypted = ConfigureClientEncrypted(kmsProviderFilter: kmsProvider))
@@ -3193,7 +3200,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             bool? retryReads = null,
             CollectionNamespace keyVaultCollectionNamespace = null)
         {
-            var kmsProviders = EncryptionTestHelper.GetKmsProviders(filter: kmsProviderFilter);
+            var kmsProviders = EncryptionTestHelper.GetKmsProviders(kmsProviderFilter);
             var tlsOptions = EncryptionTestHelper.CreateTlsOptionsIfAllowed(
                 kmsProviders,
                 // only kmip currently requires tls configuration for ClientEncrypted
@@ -3232,7 +3239,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             if (kmsDocument == null)
             {
                 kmsProviders = EncryptionTestHelper
-                    .GetKmsProviders(filter: kmsProviderFilter)
+                    .GetKmsProviders(kmsProviderFilter)
                     .Select(k =>
                     {
                         if (kmsProviderConfigurator != null)

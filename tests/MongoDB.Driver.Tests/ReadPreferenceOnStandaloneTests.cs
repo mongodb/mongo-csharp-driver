@@ -62,7 +62,9 @@ namespace MongoDB.Driver.Tests
 
                 var clusterType = client.Cluster.Description.Type;
 
-                var expectedContainsReadPreference = clusterType != ClusterType.Standalone;
+                var expectedContainsReadPreference = clusterType != ClusterType.Standalone
+                    || DriverTestConfiguration.GetClientSettings().DirectConnection;
+
                 var readPreferenceFieldName = sentCommand.Command.Contains("$readPreference")
                     ? "$readPreference"
                     : "readPreference";

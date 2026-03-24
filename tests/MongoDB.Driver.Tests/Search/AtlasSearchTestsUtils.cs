@@ -21,9 +21,16 @@ namespace MongoDB.Driver.Tests.Search;
 
 public static class AtlasSearchTestsUtils
 {
+    public static void RequireAtlasSearch()
+        => RequireEnvironment.Check().EnvironmentVariable("ATLAS_SEARCH_TESTS_ENABLED");
+
     public static IMongoClient CreateAtlasSearchMongoClient()
     {
-        RequireEnvironment.Check().EnvironmentVariable("ATLAS_SEARCH_TESTS_ENABLED");
+        var testsEnabled = Environment.GetEnvironmentVariable("ATLAS_SEARCH_TESTS_ENABLED");
+        if (string.IsNullOrWhiteSpace(testsEnabled) || testsEnabled == "0")
+        {
+            return null;
+        }
 
         var atlasSearchUri = Environment.GetEnvironmentVariable("ATLAS_SEARCH_URI");
         Ensure.IsNotNullOrEmpty(atlasSearchUri, nameof(atlasSearchUri));

@@ -49,6 +49,7 @@ namespace MongoDB.Driver.Tests.Encryption
         [Fact]
         public async Task AddAlternateKeyName_should_correctly_handle_input_arguments()
         {
+            RequireEnvironment.Check().EnvironmentVariable("FLE_AWS_KEY");
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
 
             var guid = new Guid();
@@ -63,6 +64,7 @@ namespace MongoDB.Driver.Tests.Encryption
         [Fact]
         public async Task CreateDataKey_should_correctly_handle_input_arguments()
         {
+            RequireEnvironment.Check().EnvironmentVariable("FLE_AWS_KEY");
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
 
             using (var subject = CreateSubject())
@@ -78,6 +80,8 @@ namespace MongoDB.Driver.Tests.Encryption
         [Fact]
         public async Task CreateEncryptedCollection_should_handle_input_arguments()
         {
+            RequireEnvironment.Check().EnvironmentVariable("FLE_AWS_KEY");
+
             const string kmsProvider = "local";
             const string collectionName = "collName";
             var createCollectionOptions = new CreateCollectionOptions();
@@ -119,6 +123,8 @@ namespace MongoDB.Driver.Tests.Encryption
         [Fact]
         public async Task CreateEncryptedCollection_should_handle_generated_key_when_second_key_failed()
         {
+            RequireEnvironment.Check().EnvironmentVariable("FLE_AWS_KEY");
+
             const string kmsProvider = "local";
             const string collectionName = "collName";
             const string encryptedFieldsStr = "{ fields : [{ keyId : null }, { keyId : null }] }";
@@ -210,6 +216,8 @@ namespace MongoDB.Driver.Tests.Encryption
         [InlineData("{ fields : [{ keyId : 3 }, { keyId : null }] }", "{ fields: [{ keyId : 3 }, { keyId : '#binary_generated#' }] }")]
         public async Task CreateEncryptedCollection_should_handle_various_encryptedFields(string encryptedFieldsStr, string expectedResult)
         {
+            RequireEnvironment.Check().EnvironmentVariable("FLE_AWS_KEY");
+
             const string kmsProvider = "local";
             const string collectionName = "collName";
             var serverId = new ServerId(__clusterId, __endPoint);
@@ -287,6 +295,7 @@ namespace MongoDB.Driver.Tests.Encryption
         [Fact]
         public void CryptClient_should_be_initialized()
         {
+            RequireEnvironment.Check().EnvironmentVariable("FLE_AWS_KEY");
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
 
             using (var subject = CreateSubject())
@@ -299,6 +308,7 @@ namespace MongoDB.Driver.Tests.Encryption
         [Fact]
         public async Task Decrypt_should_correctly_handle_input_arguments()
         {
+            RequireEnvironment.Check().EnvironmentVariable("FLE_AWS_KEY");
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
 
             using (var subject = CreateSubject())
@@ -311,6 +321,7 @@ namespace MongoDB.Driver.Tests.Encryption
         [Fact]
         public async Task Encrypt_should_correctly_handle_input_arguments()
         {
+            RequireEnvironment.Check().EnvironmentVariable("FLE_AWS_KEY");
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
 
             using (var subject = CreateSubject())
@@ -327,6 +338,7 @@ namespace MongoDB.Driver.Tests.Encryption
         [ParameterAttributeData]
         public async Task Encryption_should_use_correct_binarySubType([Values(false, true)] bool async)
         {
+            RequireEnvironment.Check().EnvironmentVariable("FLE_AWS_KEY");
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
 
             using (var subject = CreateSubject())
@@ -347,6 +359,7 @@ namespace MongoDB.Driver.Tests.Encryption
         [Fact]
         public async Task GetKeyByAlternateKeyName_should_correctly_handle_input_arguments()
         {
+            RequireEnvironment.Check().EnvironmentVariable("FLE_AWS_KEY");
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
 
             using (var subject = CreateSubject())
@@ -359,6 +372,7 @@ namespace MongoDB.Driver.Tests.Encryption
         [Fact]
         public async Task RemoveAlternateKeyName_should_correctly_handle_input_arguments()
         {
+            RequireEnvironment.Check().EnvironmentVariable("FLE_AWS_KEY");
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
 
             var guid = new Guid();
@@ -373,6 +387,7 @@ namespace MongoDB.Driver.Tests.Encryption
         [Fact]
         public async Task RewrapManyDataKey_should_correctly_handle_input_arguments()
         {
+            RequireEnvironment.Check().EnvironmentVariable("FLE_AWS_KEY");
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
 
             using (var subject = CreateSubject())
@@ -391,7 +406,7 @@ namespace MongoDB.Driver.Tests.Encryption
             var clientEncryptionOptions = new ClientEncryptionOptions(
                 client ?? DriverTestConfiguration.Client,
                 __keyVaultCollectionNamespace,
-                kmsProviders: EncryptionTestHelper.GetKmsProviders(filter: "local"));
+                kmsProviders: EncryptionTestHelper.GetKmsProviders("local"));
 
             return new ClientEncryption(clientEncryptionOptions);
         }

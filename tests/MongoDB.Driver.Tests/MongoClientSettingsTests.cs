@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Text;
@@ -726,6 +727,8 @@ namespace MongoDB.Driver.Tests
         [ParameterAttributeData]
         public void TestFromUrlWithMongoDBAWS_should_parse_credentials_correctly([Values(false, true)] bool escapeToken)
         {
+            RequireEnvironment.Check().HostReachable(new DnsEndPoint("awssessiontokentest.example.net", 53));
+
             const string authMechanism = "MONGODB-AWS";
             const string username = "AKIAIOSFODNN7EXAMPLE";
             const string password = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYzEXAMPLEKEY";

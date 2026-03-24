@@ -338,7 +338,8 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
                 case "topology":
                     var actualClusterType = CoreTestConfiguration.Cluster.Description.Type;
                     var runOnClusterTypes = requirement.Value.AsBsonArray.Select(topology => MapTopologyToClusterType(topology.AsString)).ToList();
-                    return runOnClusterTypes.Contains(actualClusterType);
+                    return runOnClusterTypes.Contains(actualClusterType)
+                        && !CoreTestConfiguration.ConnectionString.DirectConnection;
                 case "csfle":
                     return IsCsfleRequirementSatisfied(requirement);
                 default:

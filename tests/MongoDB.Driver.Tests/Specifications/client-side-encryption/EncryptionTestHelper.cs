@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -25,123 +26,95 @@ using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Encryption;
 using MongoDB.Driver.TestHelpers;
+using MongoDB.TestHelpers.XunitExtensions;
 
 namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
 {
     public static class EncryptionTestHelper
     {
-        private static readonly Lazy<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>>> __kmsProviders = new Lazy<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>>>(ConfigureDefaultKmsProviders, isThreadSafe: true);
+        private static readonly ConcurrentDictionary<string,  IReadOnlyDictionary<string, object>> __kmsProviders = new();
         private const string KmsProviderFilterDelimiter = ";";
         private static readonly string __defaultMongocryptdPath = Environment.GetEnvironmentVariable("MONGODB_BINARIES") ?? "";
-        private static readonly Lazy<(bool IsValid, SemanticVersion Version)> __defaultCsfleSetupState = new Lazy<(bool IsValid, SemanticVersion Version)>(IsDefaultCsfleSetupValid, isThreadSafe: true);
+        private static readonly Lazy<(bool IsValid, SemanticVersion Version)> __defaultCsfleSetupState = new(IsDefaultCsfleSetupValid, isThreadSafe: true);
 
-        private static IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> ConfigureDefaultKmsProviders()
+        private static IReadOnlyDictionary<string, object> CreateKmsProvider(string name)
         {
-            var kmsProviders = new Dictionary<string, IReadOnlyDictionary<string, object>>
+            return name switch
             {
+                "aws" => new Dictionary<string, object>
                 {
-                    "aws", new Dictionary<string, object>
+                    { "accessKeyId", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_KEY") },
+                    { "secretAccessKey", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_SECRET") }
+                },
+                "aws:name1" => new Dictionary<string, object>
+                {
+                    { "accessKeyId", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_KEY") },
+                    { "secretAccessKey", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_SECRET") }
+                },
+                "aws:name2" => new Dictionary<string, object>
+                {
+                    { "accessKeyId", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_KEY2") },
+                    { "secretAccessKey", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_SECRET2") }
+                },
+                "local" => new Dictionary<string, object>
+                {
+                    { "key", new BsonBinaryData(Convert.FromBase64String(LocalMasterKey)).Bytes }
+                },
+                "local:name1" => new Dictionary<string, object>
+                {
+                    { "key", new BsonBinaryData(Convert.FromBase64String(LocalMasterKey)).Bytes }
+                },
+                "local:name2" => new Dictionary<string, object>
+                {
+                    { "key", new BsonBinaryData(Convert.FromBase64String(LocalMasterKey)).Bytes }
+                },
+                "azure" => new Dictionary<string, object>
+                {
+                    { "tenantId", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AZURE_TENANTID") },
+                    { "clientId", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AZURE_CLIENTID") },
+                    { "clientSecret", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AZURE_CLIENTSECRET") }
+                },
+                "azure:name1" => new Dictionary<string, object>
+                {
+                    { "tenantId", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AZURE_TENANTID") },
+                    { "clientId", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AZURE_CLIENTID") },
+                    { "clientSecret", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AZURE_CLIENTSECRET") }
+                },
+                "gcp" => new Dictionary<string, object>
+                {
+                    { "email", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_GCP_EMAIL") },
+                    { "privateKey", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_GCP_PRIVATEKEY") }
+                },
+                "gcp:name1" => new Dictionary<string, object>
+                {
+                    { "email", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_GCP_EMAIL") },
+                    { "privateKey", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_GCP_PRIVATEKEY") }
+                },
+                "kmip" => new Dictionary<string, object> { { "endpoint", "localhost:5698" } },
+                "kmip:name1" => new Dictionary<string, object> { { "endpoint", "localhost:5698" } },
+                "awsTemporary" => new Dictionary<string, object>
+                {
                     {
-                        { "accessKeyId", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_KEY") },
-                        { "secretAccessKey", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_SECRET") }
+                        "accessKeyId", GetEnvironmentVariableOrDefaultOrThrowIfNothing("CSFLE_AWS_TEMP_ACCESS_KEY_ID")
+                    },
+                    {
+                        "secretAccessKey",
+                        GetEnvironmentVariableOrDefaultOrThrowIfNothing("CSFLE_AWS_TEMP_SECRET_ACCESS_KEY")
+                    },
+                    { "sessionToken", GetEnvironmentVariableOrDefaultOrThrowIfNothing("CSFLE_AWS_TEMP_SESSION_TOKEN") }
+                },
+                "awsTemporaryNoSessionToken" => new Dictionary<string, object>
+                {
+                    {
+                        "accessKeyId", GetEnvironmentVariableOrDefaultOrThrowIfNothing("CSFLE_AWS_TEMP_ACCESS_KEY_ID")
+                    },
+                    {
+                        "secretAccessKey",
+                        GetEnvironmentVariableOrDefaultOrThrowIfNothing("CSFLE_AWS_TEMP_SECRET_ACCESS_KEY")
                     }
                 },
-                {
-                    "aws:name1", new Dictionary<string, object>
-                    {
-                        { "accessKeyId", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_KEY") },
-                        { "secretAccessKey", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_SECRET") }
-                    }
-                },
-                {
-                    "aws:name2", new Dictionary<string, object>
-                    {
-                        { "accessKeyId", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_KEY2") },
-                        { "secretAccessKey", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_SECRET2") }
-                    }
-                },
-                {
-                    "local", new Dictionary<string, object>
-                    {
-                        { "key", new BsonBinaryData(Convert.FromBase64String(LocalMasterKey)).Bytes }
-                    }
-                },
-                {
-                    "local:name1", new Dictionary<string, object>
-                    {
-                        { "key", new BsonBinaryData(Convert.FromBase64String(LocalMasterKey)).Bytes }
-                    }
-                },
-                {
-                    "local:name2", new Dictionary<string, object>
-                    {
-                        { "key", new BsonBinaryData(Convert.FromBase64String(LocalMasterKey)).Bytes }
-                    }
-                },
-                {
-                    "azure", new Dictionary<string, object>
-                    {
-                        { "tenantId", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AZURE_TENANTID") },
-                        { "clientId", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AZURE_CLIENTID") },
-                        { "clientSecret", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AZURE_CLIENTSECRET") }
-                    }
-                },
-                {
-                    "azure:name1", new Dictionary<string, object>
-                    {
-                        { "tenantId", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AZURE_TENANTID") },
-                        { "clientId", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AZURE_CLIENTID") },
-                        { "clientSecret", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AZURE_CLIENTSECRET") }
-                    }
-                },
-                {
-                    "gcp", new Dictionary<string, object>
-                    {
-                        { "email", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_GCP_EMAIL") },
-                        { "privateKey", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_GCP_PRIVATEKEY") }
-                    }
-                },
-                {
-                    "gcp:name1", new Dictionary<string, object>
-                    {
-                        { "email", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_GCP_EMAIL") },
-                        { "privateKey", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_GCP_PRIVATEKEY") }
-                    }
-                },
-                {
-                    "kmip", new Dictionary<string, object>
-                    {
-                        { "endpoint", "localhost:5698" }
-                    }
-                },
-                {
-                    "kmip:name1", new Dictionary<string, object>
-                    {
-                        { "endpoint", "localhost:5698" }
-                    }
-                }
+                _ => throw new ArgumentException($"Unsupported KMS provider: {name}.", nameof(name))
             };
-
-            if (Environment.GetEnvironmentVariable("CSFLE_AWS_TEMPORARY_CREDS_ENABLED") != null)
-            {
-                kmsProviders.Add(
-                    "awsTemporary",
-                    new Dictionary<string, object>
-                    {
-                        { "accessKeyId", GetEnvironmentVariableOrDefaultOrThrowIfNothing("CSFLE_AWS_TEMP_ACCESS_KEY_ID") },
-                        { "secretAccessKey", GetEnvironmentVariableOrDefaultOrThrowIfNothing("CSFLE_AWS_TEMP_SECRET_ACCESS_KEY") },
-                        { "sessionToken", GetEnvironmentVariableOrDefaultOrThrowIfNothing("CSFLE_AWS_TEMP_SESSION_TOKEN") }
-                    });
-                kmsProviders.Add(
-                    "awsTemporaryNoSessionToken",
-                    new Dictionary<string, object>
-                    {
-                        { "accessKeyId", GetEnvironmentVariableOrDefaultOrThrowIfNothing("CSFLE_AWS_TEMP_ACCESS_KEY_ID") },
-                        { "secretAccessKey", GetEnvironmentVariableOrDefaultOrThrowIfNothing("CSFLE_AWS_TEMP_SECRET_ACCESS_KEY") }
-                    });
-            }
-
-            return kmsProviders;
 
             string GetEnvironmentVariableOrDefaultOrThrowIfNothing(string variableName, string defaultValue = null) =>
                 Environment.GetEnvironmentVariable(variableName) ??
@@ -289,18 +262,16 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
             return null;
         }
 
-        public static IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> GetKmsProviders(string filter = null) =>
-            __kmsProviders
-                .Value
-                .Where(kms => filter == null || filter.Split(new[] { KmsProviderFilterDelimiter }, StringSplitOptions.None).Contains(kms.Key))
-                .ToDictionary(
-                    k => k.Key,
-                    v => (IReadOnlyDictionary<string, object>)v.Value.ToDictionary(ik => ik.Key, iv => iv.Value)); // ensure that inner dictionary is a new instance
+        public static IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> GetKmsProviders(string names)
+            => names.Split([KmsProviderFilterDelimiter], StringSplitOptions.None).Distinct().ToDictionary(
+                n => n,
+                n => (IReadOnlyDictionary<string, object>)__kmsProviders
+                    .GetOrAdd(n, CreateKmsProvider)
+                    .ToDictionary(k => k.Key, v => v.Value)); // ensure that inner dictionary is a new instance
 
         public static IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> ParseKmsProviders(BsonDocument kmsProviders, bool legacy = false)
         {
             var providers = new Dictionary<string, IReadOnlyDictionary<string, object>>();
-            var kmsProvidersFromEnvs = GetKmsProviders();
             foreach (var kmsProvider in kmsProviders.Elements)
             {
                 var kmsOptions = new Dictionary<string, object>();
@@ -333,7 +304,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                             if (legacy)
                             {
                                 kmsProviderDocument.ElementCount.Should().Be(0);
-                                kmsOptions = (Dictionary<string, object>)kmsProvidersFromEnvs[kmsProvider.Name];
+                                RequireEnvironment.Check().RequireKmsProviders(kmsProvider.Name);
+                                kmsOptions = (Dictionary<string, object>)GetKmsProviders(kmsProvider.Name);
                             }
                             else
                             {
@@ -364,7 +336,12 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
             return providers;
 
             bool IsPlaceholder(BsonValue value) => value.IsBsonDocument && value.AsBsonDocument.Contains("$$placeholder");
-            string GetFromEnvVariables(string kmsProvider, string key) => kmsProvidersFromEnvs[kmsProvider][key].ToString();
+            string GetFromEnvVariables(string kmsProvider, string key)
+            {
+                RequireEnvironment.Check().RequireKmsProviders(kmsProvider);
+
+                return GetKmsProviders(kmsProvider)[key].ToString();
+            }
         }
 
         // private methods
@@ -379,7 +356,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                 var dummyNamespace = CollectionNamespace.FromFullName("db.dummy");
                 var autoEncryptionOptions = new AutoEncryptionOptions(
                     dummyNamespace,
-                    kmsProviders: GetKmsProviders(filter: "local"),
+                    kmsProviders: GetKmsProviders("local"),
                     extraOptions: new Dictionary<string, object>() { { "cryptSharedLibPath", cryptSharedLibPath } });
 
                 var mongoClientSettings = new MongoClientSettings

@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Net;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Driver.Core.Compression;
@@ -66,6 +67,8 @@ namespace MongoDB.Driver.Tests
         [InlineData("mongodb+srv://test2.test.build.10gen.cc")]
         public void constructor_with_resolved_connection_string_should_initialize_resolved_instance(string url)
         {
+            RequireEnvironment.Check().HostReachable(new DnsEndPoint("test2.test.build.10gen.cc", 53));
+
             var connectionString = new ConnectionString(url);
             var resolvedConnectionString = connectionString.Resolve();
             var builder = new MongoUrlBuilder(resolvedConnectionString);
@@ -126,6 +129,8 @@ namespace MongoDB.Driver.Tests
         [InlineData("mongodb+srv://test1.test.build.10gen.cc/?srvMaxHosts=2", true, 2, true)]
         public void Resolve_with_srvMaxHosts_should_return_expected_result(string url, bool resolveHosts, int expectedSrvMaxHosts, bool async)
         {
+            RequireEnvironment.Check().HostReachable(new DnsEndPoint("test1.test.build.10gen.cc", 53));
+
             var subject = new MongoUrl(url);
 
             MongoUrl result;
