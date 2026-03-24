@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
@@ -61,7 +62,54 @@ public class MqlSubtypeTests : LinqIntegrationTest<MqlSubtypeTests.ClassFixture>
         AssertStages(renderedStages, "{ '$project' : { '_v' : { '$subtype' : '$Data' }, '_id' : 0 } }");
 
         var result = queryable.ToList();
+        result.Should().BeEquivalentTo(BsonBinarySubType.Binary, BsonBinarySubType.Vector, BsonBinarySubType.UuidStandard, null);
+    }
+
+    [Fact]
+    public async Task MqlSubtype_in_filter_builder()
+    {
+        var collection = Fixture.Collection;
+
+        var filter = Builders<C>.Filter.Where(d => Mql.Subtype(d.Data) == BsonBinarySubType.UuidStandard);
+        var result = await collection.Find(filter).SingleAsync();
+
+        var renderedFilter = Translate(collection, filter);
+        renderedFilter.Should().Be("{ '$expr' : { '$eq' : [ { '$subtype' : '$Data' }, 4 ] } }");
+        result.Id.Should().Be(3);
+    }
+
+    [Fact]
+    public async Task MqlSubtype_in_projection_builder()
+    {
+        var collection = Fixture.Collection;
+
+        var projection = Builders<C>.Projection.Expression(c => Mql.Subtype(c.Data));
+        var result = await collection.Find(Builders<C>.Filter.Empty).Project(projection).ToListAsync();
+
+        var renderedProjection = TranslateFindProjection(collection, projection, null);
+        renderedProjection.Should().Be("{ '_v' : { '$subtype' : '$Data' }, '_id' : 0 }");
+
         result.Should().BeEquivalentTo([BsonBinarySubType.Binary, BsonBinarySubType.Vector, BsonBinarySubType.UuidStandard, null]);
+    }
+
+    [Fact]
+    public async Task MqlSubtype_in_aggregate()
+    {
+        var collection = Fixture.Collection;
+
+        var pipeline = new EmptyPipelineDefinition<C>()
+            .Match(d => Mql.Subtype(d.Data) == BsonBinarySubType.UuidStandard)
+            .Project(d => new { d.Id, Subtype = Mql.Subtype(d.Data) });
+
+        var result = await collection.Aggregate(pipeline).SingleAsync();
+
+        var renderedPipeline = Translate(collection, pipeline, null);
+        AssertStages(
+            renderedPipeline,
+            "{ '$match' : { '$expr' : { '$eq' : [ { '$subtype' : '$Data' }, 4 ] } } }",
+            "{ '$project' : { '_id' : '$_id', 'Subtype' : { '$subtype' : '$Data' } } }");
+
+        result.Subtype.Should().Be(BsonBinarySubType.UuidStandard);
     }
 
     public class C

@@ -96,6 +96,12 @@ namespace MongoDB.Driver.Tests
         }
 
         protected static List<BsonDocument> Translate<TDocument, TResult>(
+            IMongoCollection<TDocument> collection,
+            PipelineDefinition<TDocument, TResult> pipelineDefinition,
+            ExpressionTranslationOptions translationOptions) =>
+            Translate(pipelineDefinition, collection.DocumentSerializer, translationOptions, out _);
+
+        protected static List<BsonDocument> Translate<TDocument, TResult>(
             PipelineDefinition<TDocument, TResult> pipelineDefinition,
             IBsonSerializer<TDocument> documentSerializer,
             ExpressionTranslationOptions translationOptions) =>
