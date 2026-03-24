@@ -35,6 +35,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __isMissing;
         private static readonly MethodInfo __isNullOrMissing;
         private static readonly MethodInfo __sigmoid;
+        private static readonly MethodInfo __subtype;
 
         // sets of methods
         private static readonly IReadOnlyMethodInfoSet __dateFromStringOverloads;
@@ -57,6 +58,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __isMissing = ReflectionInfo.Method((object field) => Mql.IsMissing(field));
             __isNullOrMissing = ReflectionInfo.Method((object field) => Mql.IsNullOrMissing(field));
             __sigmoid = ReflectionInfo.Method((double value) => Mql.Sigmoid(value));
+            __subtype = ReflectionInfo.Method((object value) => Mql.Subtype(value));
 
             // initialize sets of methods after methods
             __dateFromStringOverloads = MethodInfoSet.Create(
@@ -94,6 +96,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo IsMissing => __isMissing;
         public static MethodInfo IsNullOrMissing => __isNullOrMissing;
         public static MethodInfo Sigmoid => __sigmoid;
+        public static MethodInfo Subtype => __subtype;
 
         // sets of methods
         public static IReadOnlyMethodInfoSet DateFromStringOverloads => __dateFromStringOverloads;
