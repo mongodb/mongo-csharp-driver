@@ -65,7 +65,7 @@ namespace MongoDB.Driver
                         clientSession.AbortTransaction(abortOptions, cancellationToken);
                     }
 
-                    if (!CanRetryTransaction(operationContext, ex, random, attempt, out var delay))
+                    if (!ShouldRetryTransaction(operationContext, ex, random, attempt, out var delay))
                     {
                         throw;
                     }
@@ -111,7 +111,7 @@ namespace MongoDB.Driver
                         await clientSession.AbortTransactionAsync(abortOptions, cancellationToken).ConfigureAwait(false);
                     }
 
-                    if (!CanRetryTransaction(operationContext, ex, random, attempt, out var delay))
+                    if (!ShouldRetryTransaction(operationContext, ex, random, attempt, out var delay))
                     {
                         throw;
                     }
@@ -258,7 +258,7 @@ namespace MongoDB.Driver
                 !IsMaxTimeMSExpiredException(ex);
         }
 
-        private static bool CanRetryTransaction(OperationContext operationContext, Exception ex, IRandom random, int attempt, out TimeSpan delay)
+        private static bool ShouldRetryTransaction(OperationContext operationContext, Exception ex, IRandom random, int attempt, out TimeSpan delay)
         {
             if (!HasErrorLabel(ex, TransientTransactionErrorLabel))
             {
