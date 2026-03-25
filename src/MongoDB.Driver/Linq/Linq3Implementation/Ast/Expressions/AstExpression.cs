@@ -456,6 +456,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return new AstBinaryExpression(AstBinaryOperator.Gte, arg1, arg2);
         }
 
+        public static AstHashExpression HashExpression(AstExpression input, MqlHashAlgorithm mqlHashAlgorithm)
+            => new AstHashExpression(input, mqlHashAlgorithm);
+
+        public static AstHexHashExpression HexHashExpression(AstExpression input, MqlHashAlgorithm mqlHashAlgorithm)
+            => new AstHexHashExpression(input, mqlHashAlgorithm);
+
         public static AstExpression IfNull(AstExpression arg, AstExpression replacement)
         {
             return new AstBinaryExpression(AstBinaryOperator.IfNull, arg, replacement);

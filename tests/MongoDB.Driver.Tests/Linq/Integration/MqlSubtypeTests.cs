@@ -45,7 +45,7 @@ public class MqlSubtypeTests : LinqIntegrationTest<MqlSubtypeTests.ClassFixture>
             .Where(d => Mql.Subtype(d.Data) == subtype);
 
         var renderedStages = Translate(collection, queryable);
-        AssertStages(renderedStages, $"{{ '$match' : {{ '$expr' : {{ '$eq' : [{{ '$subtype' : '$Data' }}, { (subtype.HasValue ? (int)subtype : "null") }] }} }} }}");
+        AssertStages(renderedStages, $"{{ $match : {{ $expr : {{ $eq : [{{ $subtype : '$Data' }}, { (subtype.HasValue ? (int)subtype : "null") }] }} }} }}");
 
         var result = queryable.Single();
         result.Id.Should().Be(expectedId);
@@ -56,13 +56,13 @@ public class MqlSubtypeTests : LinqIntegrationTest<MqlSubtypeTests.ClassFixture>
     {
         var collection = Fixture.Collection;
         var queryable = collection.AsQueryable()
-            .Select(d => Mql.Subtype(d.Data));
+            .Select(d => new { Subtype = Mql.Subtype(d.Data) });
 
         var renderedStages = Translate(collection, queryable);
-        AssertStages(renderedStages, "{ '$project' : { '_v' : { '$subtype' : '$Data' }, '_id' : 0 } }");
+        AssertStages(renderedStages, "{ $project : { Subtype : { $subtype : '$Data' }, _id : 0 } }");
 
         var result = queryable.ToList();
-        result.Should().BeEquivalentTo(BsonBinarySubType.Binary, BsonBinarySubType.Vector, BsonBinarySubType.UuidStandard, null);
+        result.Select(d => d.Subtype).Should().BeEquivalentTo(BsonBinarySubType.Binary, BsonBinarySubType.Vector, BsonBinarySubType.UuidStandard, null);
     }
 
     [Fact]
@@ -74,7 +74,7 @@ public class MqlSubtypeTests : LinqIntegrationTest<MqlSubtypeTests.ClassFixture>
         var result = await collection.Find(filter).SingleAsync();
 
         var renderedFilter = Translate(collection, filter);
-        renderedFilter.Should().Be("{ '$expr' : { '$eq' : [ { '$subtype' : '$Data' }, 4 ] } }");
+        renderedFilter.Should().Be("{ $expr : { $eq : [{ $subtype : '$Data' }, 4 ]} }");
         result.Id.Should().Be(3);
     }
 
@@ -83,13 +83,13 @@ public class MqlSubtypeTests : LinqIntegrationTest<MqlSubtypeTests.ClassFixture>
     {
         var collection = Fixture.Collection;
 
-        var projection = Builders<C>.Projection.Expression(c => Mql.Subtype(c.Data));
+        var projection = Builders<C>.Projection.Expression(c => new { Subtype = Mql.Subtype(c.Data) });
         var result = await collection.Find(Builders<C>.Filter.Empty).Project(projection).ToListAsync();
 
         var renderedProjection = TranslateFindProjection(collection, projection, null);
-        renderedProjection.Should().Be("{ '_v' : { '$subtype' : '$Data' }, '_id' : 0 }");
+        renderedProjection.Should().Be("{ Subtype : { $subtype : '$Data' }, _id : 0 }");
 
-        result.Should().BeEquivalentTo([BsonBinarySubType.Binary, BsonBinarySubType.Vector, BsonBinarySubType.UuidStandard, null]);
+        result.Select(d => d.Subtype).Should().BeEquivalentTo([BsonBinarySubType.Binary, BsonBinarySubType.Vector, BsonBinarySubType.UuidStandard, null]);
     }
 
     [Fact]
@@ -106,8 +106,8 @@ public class MqlSubtypeTests : LinqIntegrationTest<MqlSubtypeTests.ClassFixture>
         var renderedPipeline = Translate(collection, pipeline, null);
         AssertStages(
             renderedPipeline,
-            "{ '$match' : { '$expr' : { '$eq' : [ { '$subtype' : '$Data' }, 4 ] } } }",
-            "{ '$project' : { '_id' : '$_id', 'Subtype' : { '$subtype' : '$Data' } } }");
+            "{ $match : { $expr : { $eq : [{ '$subtype' : '$Data' }, 4 ]} } }",
+            "{ $project : { _id : '$_id', Subtype : { $subtype : '$Data' } } }");
 
         result.Subtype.Should().Be(BsonBinarySubType.UuidStandard);
     }
@@ -125,7 +125,7 @@ public class MqlSubtypeTests : LinqIntegrationTest<MqlSubtypeTests.ClassFixture>
         protected override IEnumerable<C> InitialData =>
         [
             new() { Id = 1, Data = new BsonBinaryData([0x01, 0x02]) },
-            new() { Id = 2, Data = new BsonBinaryData([0x03, 0x04], BsonBinarySubType.Vector) },
+            new() { Id = 2, Data = new BsonBinaryData([0x00, 0x03, 0x04], BsonBinarySubType.Vector) },
             new() { Id = 3, Data = new BsonBinaryData(Guid.Parse("E4A10FB8-7A83-494C-9710-29BBFFB1C262"), GuidRepresentation.Standard) },
             new() { Id = 4 },
         ];
