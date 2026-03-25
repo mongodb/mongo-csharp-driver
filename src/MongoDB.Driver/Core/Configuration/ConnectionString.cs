@@ -963,6 +963,11 @@ namespace MongoDB.Driver.Core.Configuration
                 var protectedString = Regex.Replace(connectionString, @"(?<=://)[^/]*(?=@)", "<hidden>");
                 return protectedString;
             }
+
+            if (_minPoolSize > _maxPoolSize)
+            {
+                throw new MongoConfigurationException("MaxPoolSize should be >= MinPoolSize.");
+            }
         }
 
         private void ParseOption(string name, string value)
@@ -1055,7 +1060,7 @@ namespace MongoDB.Driver.Core.Configuration
                     {
                         throw new MongoConfigurationException("Multiple proxyHost options are not allowed.");
                     }
-                    
+
                     _proxyHost = value;
                     if (_proxyHost.Length == 0)
                     {

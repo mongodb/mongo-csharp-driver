@@ -1320,6 +1320,24 @@ namespace MongoDB.Driver.Core.Configuration
             exception.Should().BeOfType<MongoConfigurationException>();
         }
 
+        [Theory]
+        [InlineData("mongodb://localhost?maxPoolSize=5&minPoolSize=10", true)]
+        [InlineData("mongodb://localhost?maxPoolSize=10&minPoolSize=10", false)]
+        [InlineData("mongodb://localhost?maxPoolSize=10&minPoolSize=5", false)]
+        public void MaxPoolSize_less_than_MinPoolSize_should_throw(string connectionString, bool shouldThrow)
+        {
+            var exception = Record.Exception(() => new ConnectionString(connectionString));
+
+            if (shouldThrow)
+            {
+                exception.Should().BeOfType<MongoConfigurationException>();
+            }
+            else
+            {
+                exception.Should().BeNull();
+            }
+        }
+
         [Fact]
         public void When_calling_resolve_on_a_srv_connection_string()
         {
