@@ -23,7 +23,6 @@ using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
-
 namespace MongoDB.Driver.Tests
 {
     [Trait("Category", "ConnectionString")]
@@ -223,8 +222,8 @@ namespace MongoDB.Driver.Tests
                 "maxConnecting=3",
                 "maxIdleTime=2s",
                 "maxLifeTime=3s",
-                "maxPoolSize=4",
-                "minPoolSize=5",
+                "maxPoolSize=5",
+                "minPoolSize=4",
                 "serverMonitoringMode=Poll",
                 "serverSelectionTimeout=10s",
                 "socketTimeout=7s",
