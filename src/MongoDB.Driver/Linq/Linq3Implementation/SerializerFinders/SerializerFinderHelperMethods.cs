@@ -17,7 +17,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
@@ -81,7 +83,21 @@ internal partial class SerializerFinderVisitor
             return UnknowableSerializer.Create(collectionType);
         }
 
-        var itemSerializer = collectionSerializer.GetItemSerializer();
+        IBsonSerializer itemSerializer;
+        if (collectionSerializer is IBsonDictionarySerializer dictionarySerializer &&
+            collectionSerializer is IBsonArraySerializer arraySerializer &&
+            !arraySerializer.TryGetItemSerializationInfo(out _))
+        {
+            var representation = dictionarySerializer.DictionaryRepresentation == DictionaryRepresentation.ArrayOfArrays
+                ? BsonType.Array
+                : BsonType.Document;
+            itemSerializer = KeyValuePairSerializer.Create(representation, dictionarySerializer.KeySerializer, dictionarySerializer.ValueSerializer);
+        }
+        else
+        {
+            itemSerializer = collectionSerializer.GetItemSerializer();
+        }
+
         return CreateCollectionSerializerFromItemSerializer(collectionType, itemSerializer);
     }
 
