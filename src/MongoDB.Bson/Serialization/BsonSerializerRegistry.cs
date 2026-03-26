@@ -95,6 +95,12 @@ namespace MongoDB.Bson.Serialization
             }
             EnsureRegisteringASerializerForThisTypeIsAllowed(type);
 
+            if (type != serializer.ValueType)
+            {
+                var message = string.Format("A serializer of type {0} cannot be registered for type {1}.", BsonUtils.GetFriendlyTypeName(serializer.ValueType), BsonUtils.GetFriendlyTypeName(type));
+                throw new BsonSerializationException(message);
+            }
+
             if (!_cache.TryAdd(type, serializer))
             {
                 var message = string.Format("There is already a serializer registered for type {0}.", BsonUtils.GetFriendlyTypeName(type));
@@ -192,5 +198,6 @@ namespace MongoDB.Bson.Serialization
                 throw new ArgumentException(message, "type");
             }
         }
+
     }
 }
