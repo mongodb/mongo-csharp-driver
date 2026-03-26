@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -41,6 +42,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly IReadOnlyMethodInfoSet __dateFromStringOverloads;
         private static readonly IReadOnlyMethodInfoSet __dateFromStringWithFormatOverloads;
         private static readonly IReadOnlyMethodInfoSet __dateFromStringWithTimezoneOverloads;
+        private static readonly IReadOnlyMethodInfoSet __similarityFunctionOverloads;
 
         // static constructor
         static MqlMethod()
@@ -59,6 +61,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __isNullOrMissing = ReflectionInfo.Method((object field) => Mql.IsNullOrMissing(field));
             __sigmoid = ReflectionInfo.Method((double value) => Mql.Sigmoid(value));
             __subtype = ReflectionInfo.Method((object value) => Mql.Subtype(value));
+
+            var dotProductEnumerable = ReflectionInfo.Method((IEnumerable<object> vectors1, IEnumerable<object> vectors2, bool normalizeScore) => Mql.SimilarityDotProduct(vectors1, vectors2, normalizeScore));
+            var dotProductMemory = ReflectionInfo.Method((ReadOnlyMemory<object> vectors1, ReadOnlyMemory<object> vectors2, bool normalizeScore) => Mql.SimilarityDotProduct(vectors1, vectors2, normalizeScore));
+            var euclideanEnumerable = ReflectionInfo.Method((IEnumerable<object> vectors1, IEnumerable<object> vectors2, bool normalizeScore) => Mql.SimilarityEuclidean(vectors1, vectors2, normalizeScore));
+            var euclideanMemory = ReflectionInfo.Method((ReadOnlyMemory<object> vectors1, ReadOnlyMemory<object> vectors2, bool normalizeScore) => Mql.SimilarityEuclidean(vectors1, vectors2, normalizeScore));
+            var cosineEnumerable = ReflectionInfo.Method((IEnumerable<object> vectors1, IEnumerable<object> vectors2, bool normalizeScore) => Mql.SimilarityCosine(vectors1, vectors2, normalizeScore));
+            var cosineMemory = ReflectionInfo.Method((ReadOnlyMemory<object> vectors1, ReadOnlyMemory<object> vectors2, bool normalizeScore) => Mql.SimilarityCosine(vectors1, vectors2, normalizeScore));
 
             // initialize sets of methods after methods
             __dateFromStringOverloads = MethodInfoSet.Create(
@@ -81,6 +90,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
                 __dateFromStringWithFormatAndTimezone,
                 __dateFromStringWithFormatAndTimezoneAndOnErrorAndOnNull
             ]);
+
+            __similarityFunctionOverloads = MethodInfoSet.Create(
+            [
+                dotProductEnumerable,
+                dotProductMemory,
+                euclideanEnumerable,
+                euclideanMemory,
+                cosineEnumerable,
+                cosineMemory,
+            ]);
         }
 
         // public properties
@@ -102,5 +121,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static IReadOnlyMethodInfoSet DateFromStringOverloads => __dateFromStringOverloads;
         public static IReadOnlyMethodInfoSet DateFromStringWithFormatOverloads => __dateFromStringWithFormatOverloads;
         public static IReadOnlyMethodInfoSet DateFromStringWithTimezoneOverloads => __dateFromStringWithTimezoneOverloads;
+        public static IReadOnlyMethodInfoSet SimilarityFunctionOverloads => __similarityFunctionOverloads;
     }
 }
