@@ -686,7 +686,7 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [InlineData(0, int.MaxValue)]
-        [InlineData(126, 126)]
+        [InlineData(127, 127)]
         public void TestFromUrlWithMaxPoolSize(int inputValue, int expectedValue)
         {
             var connectionString = $"mongodb://the-next-generation/?maxPoolSize={inputValue}";
