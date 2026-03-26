@@ -149,12 +149,12 @@ namespace MongoDB.Driver.Core.Connections
 
         public void ErrorSending(RequestMessage message, ConnectionId connectionId, ObjectId? serviceId, Exception exception, bool skipLogging)
         {
-            CompleteCommandActivityWithException(exception);
-
             if (_state == null)
             {
                 return;
             }
+
+            CompleteFailedCommandActivity(exception);
 
             if (_state.TryRemove(message.RequestId, out var state))
             {
@@ -198,12 +198,12 @@ namespace MongoDB.Driver.Core.Connections
 
         public void ErrorReceiving(int responseTo, ConnectionId connectionId, ObjectId? serviceId, Exception exception, bool skipLogging)
         {
-            CompleteCommandActivityWithException(exception);
-
             if (_state == null)
             {
                 return;
             }
+
+            CompleteFailedCommandActivity(exception);
 
             if (!_state.TryRemove(responseTo, out var state))
             {
@@ -232,12 +232,12 @@ namespace MongoDB.Driver.Core.Connections
                 return;
             }
 
-            CompleteCommandActivityWithException(exception);
-
             if (_state == null)
             {
                 return;
             }
+
+            CompleteFailedCommandActivity(exception);
 
             var requestIds = _state.Keys;
             foreach (var requestId in requestIds)
@@ -783,16 +783,6 @@ namespace MongoDB.Driver.Core.Connections
             if (_currentCommandActivity is not null)
             {
                 MongoTelemetry.CompleteCommandActivity(_currentCommandActivity, reply);
-                _currentCommandActivity = null;
-            }
-        }
-
-        private void CompleteCommandActivityWithException(Exception exception)
-        {
-            if (_currentCommandActivity is not null)
-            {
-                MongoTelemetry.RecordException(_currentCommandActivity, exception);
-                _currentCommandActivity.Dispose();
                 _currentCommandActivity = null;
             }
         }

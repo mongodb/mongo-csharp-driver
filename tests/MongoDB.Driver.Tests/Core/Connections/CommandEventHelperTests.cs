@@ -58,8 +58,7 @@ namespace MongoDB.Driver.Core.Connections
         public void ShouldTrackState_should_be_correct(
             [Values(false, true)] bool logCommands,
             [Values(false, true)] bool captureCommandSucceeded,
-            [Values(false, true)] bool captureCommandFailed,
-            [Values(false, true)] bool traceCommands)
+            [Values(false, true)] bool captureCommandFailed)
         {
             var mockLogger = new Mock<ILogger<LogCategories.Command>>();
             mockLogger.Setup(m => m.IsEnabled(LogLevel.Debug)).Returns(logCommands);
@@ -76,7 +75,7 @@ namespace MongoDB.Driver.Core.Connections
             }
 
             var eventLogger = new EventLogger<LogCategories.Command>(eventCapturer, mockLogger.Object);
-            var tracingOptions = traceCommands ? new TracingOptions() : new TracingOptions { Disabled = true };
+            var tracingOptions = new TracingOptions { Disabled = true };
             var commandHelper = new CommandEventHelper(eventLogger, tracingOptions);
 
             // No ActivityListener, so tracing doesn't contribute to _shouldTrackState
@@ -85,7 +84,7 @@ namespace MongoDB.Driver.Core.Connections
 
         [Theory]
         [ParameterAttributeData]
-        public void ShouldTrackState_should_be_correct_with_activity_listener(
+        public void Callbacks_turn_on_when_listener_is_added_even_if_no_events(
             [Values(false, true)] bool logCommands,
             [Values(false, true)] bool captureCommandSucceeded,
             [Values(false, true)] bool captureCommandFailed,
@@ -94,13 +93,6 @@ namespace MongoDB.Driver.Core.Connections
             ActivityListener listener = null;
             try
             {
-                listener = new ActivityListener
-                {
-                    ShouldListenTo = source => source.Name == "MongoDB.Driver",
-                    Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData
-                };
-                ActivitySource.AddActivityListener(listener);
-
                 var mockLogger = new Mock<ILogger<LogCategories.Command>>();
                 mockLogger.Setup(m => m.IsEnabled(LogLevel.Debug)).Returns(logCommands);
 
@@ -119,9 +111,27 @@ namespace MongoDB.Driver.Core.Connections
                 var tracingOptions = traceCommands ? new TracingOptions() : new TracingOptions { Disabled = true };
                 var commandHelper = new CommandEventHelper(eventLogger, tracingOptions);
 
-                // With the new implementation, _shouldTrackState only reflects event tracking,
-                // not tracing with listeners (which is checked dynamically at execution time)
-                commandHelper._shouldTrackState().Should().Be(logCommands || captureCommandSucceeded || captureCommandFailed);
+                // When there are no listeners, these only return true if logging is enabled or an event is registered,
+                // regardless of whether tracing is enabled.
+                commandHelper.ShouldCallBeforeSending.Should().Be(captureCommandSucceeded || captureCommandFailed || logCommands);
+                commandHelper.ShouldCallAfterSending.Should().Be(captureCommandSucceeded || captureCommandFailed || logCommands);
+                commandHelper.ShouldCallErrorSending.Should().Be(captureCommandSucceeded || captureCommandFailed || logCommands);
+                commandHelper.ShouldCallAfterReceiving.Should().Be(captureCommandSucceeded || captureCommandFailed || logCommands);
+                commandHelper.ShouldCallErrorReceiving.Should().Be(captureCommandSucceeded || captureCommandFailed || logCommands);
+
+                listener = new ActivityListener
+                {
+                    ShouldListenTo = source => source.Name == "MongoDB.Driver",
+                    Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData
+                };
+                ActivitySource.AddActivityListener(listener);
+
+                // With listeners registered, these always return true when unless everything is disabled.
+                commandHelper.ShouldCallBeforeSending.Should().Be(captureCommandSucceeded || captureCommandFailed || logCommands || traceCommands);
+                commandHelper.ShouldCallAfterSending.Should().Be(captureCommandSucceeded || captureCommandFailed || logCommands || traceCommands);
+                commandHelper.ShouldCallErrorSending.Should().Be(captureCommandSucceeded || captureCommandFailed || logCommands || traceCommands);
+                commandHelper.ShouldCallAfterReceiving.Should().Be(captureCommandSucceeded || captureCommandFailed || logCommands || traceCommands);
+                commandHelper.ShouldCallErrorReceiving.Should().Be(captureCommandSucceeded || captureCommandFailed || logCommands || traceCommands);
             }
             finally
             {

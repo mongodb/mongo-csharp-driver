@@ -17,7 +17,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Configuration;
@@ -45,8 +44,6 @@ namespace MongoDB.Driver.SmokeTests.Sdk
                 collection.InsertOne(new BsonDocument("name", "test"));
                 collection.Find(Builders<BsonDocument>.Filter.Empty).FirstOrDefault();
                 collection.DeleteOne(Builders<BsonDocument>.Filter.Eq("name", "test"));
-
-                SpinWait.SpinUntil(() => capturedActivities.Count >= 6, millisecondsTimeout: 10000);
             }
             finally
             {
