@@ -929,7 +929,7 @@ namespace MongoDB.Driver.Tests
             var settings = new MongoClientSettings();
             Assert.Equal(MongoDefaults.MinConnectionPoolSize, settings.MinConnectionPoolSize);
 
-            var minConnectionPoolSize = 123;
+            var minConnectionPoolSize = 90;
             settings.MinConnectionPoolSize = minConnectionPoolSize;
             Assert.Equal(minConnectionPoolSize, settings.MinConnectionPoolSize);
 
