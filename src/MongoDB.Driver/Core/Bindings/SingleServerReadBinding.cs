@@ -51,13 +51,13 @@ namespace MongoDB.Driver.Core.Bindings
         public IChannelSourceHandle GetReadChannelSource(OperationContext operationContext)
         {
             ThrowIfDisposed();
-            return GetChannelSourceHelper();
+            return GetChannelSourceHelper(operationContext);
         }
 
         public Task<IChannelSourceHandle> GetReadChannelSourceAsync(OperationContext operationContext)
         {
             ThrowIfDisposed();
-            return Task.FromResult(GetChannelSourceHelper());
+            return Task.FromResult(GetChannelSourceHelper(operationContext));
         }
 
         public IChannelSourceHandle GetReadChannelSource(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
@@ -79,7 +79,7 @@ namespace MongoDB.Driver.Core.Bindings
             }
         }
 
-        private IChannelSourceHandle GetChannelSourceHelper()
+        private IChannelSourceHandle GetChannelSourceHelper(OperationContext operationContext)
         {
             // server might be in unknown state due to previous failed operation, allow description to be updated
             // this is done instead of server selection
@@ -87,7 +87,14 @@ namespace MongoDB.Driver.Core.Bindings
             // Should be addressed by CSHARP-3556
             if (_server.Description.State == ServerState.Disconnected)
             {
-                SpinWait.SpinUntil(() => _server.Description.State == ServerState.Connected, _serverSelectionTimeout);
+                using var serverSelectionContext = operationContext.WithTimeout(_serverSelectionTimeout);
+
+                SpinWait.SpinUntil(() =>
+                    _server.Description.State == ServerState.Connected ||
+                    serverSelectionContext.CancellationToken.IsCancellationRequested,
+                    serverSelectionContext.RemainingTimeout);
+
+                serverSelectionContext.CancellationToken.ThrowIfCancellationRequested();
             }
 
             return new ChannelSourceHandle(new ServerChannelSource(_server, _session.Fork()));
