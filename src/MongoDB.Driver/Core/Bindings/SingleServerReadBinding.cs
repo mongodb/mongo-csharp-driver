@@ -24,18 +24,18 @@ namespace MongoDB.Driver.Core.Bindings
 {
     internal sealed class SingleServerReadBinding : IReadBinding
     {
-        private const int SingleServerSelectionTimeoutMS = 1000;
-
         private bool _disposed;
         private readonly ReadPreference _readPreference;
         private readonly IServer _server;
+        private readonly TimeSpan _serverSelectionTimeout;
         private readonly ICoreSessionHandle _session;
 
-        public SingleServerReadBinding(IServer server, ReadPreference readPreference, ICoreSessionHandle session)
+        public SingleServerReadBinding(IServer server, ReadPreference readPreference, ICoreSessionHandle session, TimeSpan serverSelectionTimeout)
         {
             _server = Ensure.IsNotNull(server, nameof(server));
             _readPreference = Ensure.IsNotNull(readPreference, nameof(readPreference));
             _session = Ensure.IsNotNull(session, nameof(session));
+            _serverSelectionTimeout = serverSelectionTimeout;
         }
 
         public ReadPreference ReadPreference
@@ -87,7 +87,7 @@ namespace MongoDB.Driver.Core.Bindings
             // Should be addressed by CSHARP-3556
             if (_server.Description.State == ServerState.Disconnected)
             {
-                SpinWait.SpinUntil(() => _server.Description.State == ServerState.Connected, SingleServerSelectionTimeoutMS);
+                SpinWait.SpinUntil(() => _server.Description.State == ServerState.Connected, _serverSelectionTimeout);
             }
 
             return new ChannelSourceHandle(new ServerChannelSource(_server, _session.Fork()));

@@ -28,6 +28,8 @@ namespace MongoDB.Driver.Core.Bindings
 {
     public class SingleServerReadBindingTests
     {
+        private static readonly TimeSpan __defaultServerSelectionTimeout = TimeSpan.FromSeconds(30);
+
         [Fact]
         public void constructor_should_initialize_instance()
         {
@@ -35,11 +37,12 @@ namespace MongoDB.Driver.Core.Bindings
             var readPreference = ReadPreference.Primary;
             var session = new Mock<ICoreSessionHandle>().Object;
 
-            var result = new SingleServerReadBinding(server, readPreference, session);
+            var result = new SingleServerReadBinding(server, readPreference, session, __defaultServerSelectionTimeout);
 
             result._disposed().Should().BeFalse();
             result.ReadPreference.Should().BeSameAs(readPreference);
             result._server().Should().BeSameAs(server);
+            result._serverSelectionTimeout().Should().Be(__defaultServerSelectionTimeout);
             result.Session.Should().BeSameAs(session);
         }
 
@@ -49,7 +52,7 @@ namespace MongoDB.Driver.Core.Bindings
             var readPreference = ReadPreference.Primary;
             var session = new Mock<ICoreSessionHandle>().Object;
 
-            var exception = Record.Exception(() => new SingleServerReadBinding(null, readPreference, session));
+            var exception = Record.Exception(() => new SingleServerReadBinding(null, readPreference, session, __defaultServerSelectionTimeout));
 
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("server");
@@ -61,7 +64,7 @@ namespace MongoDB.Driver.Core.Bindings
             var server = new Mock<IServer>().Object;
             var session = new Mock<ICoreSessionHandle>().Object;
 
-            var exception = Record.Exception(() => new SingleServerReadBinding(server, null, session));
+            var exception = Record.Exception(() => new SingleServerReadBinding(server, null, session, __defaultServerSelectionTimeout));
 
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("readPreference");
@@ -73,7 +76,7 @@ namespace MongoDB.Driver.Core.Bindings
             var server = new Mock<IServer>().Object;
             var readPreference = ReadPreference.Primary;
 
-            var exception = Record.Exception(() => new SingleServerReadBinding(server, readPreference, null));
+            var exception = Record.Exception(() => new SingleServerReadBinding(server, readPreference, null, __defaultServerSelectionTimeout));
 
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("session");
@@ -173,7 +176,8 @@ namespace MongoDB.Driver.Core.Bindings
             return new SingleServerReadBinding(
                 server ?? CreateMockServer().Object,
                 readPreference ?? ReadPreference.Primary,
-                session ?? new Mock<ICoreSessionHandle>().Object);
+                session ?? new Mock<ICoreSessionHandle>().Object,
+                __defaultServerSelectionTimeout);
         }
 
         private Mock<IServer> CreateMockServer()
@@ -200,6 +204,12 @@ namespace MongoDB.Driver.Core.Bindings
         {
             var fieldInfo = typeof(SingleServerReadBinding).GetField("_server", BindingFlags.NonPublic | BindingFlags.Instance);
             return (IServer)fieldInfo.GetValue(obj);
+        }
+
+        public static TimeSpan _serverSelectionTimeout(this SingleServerReadBinding obj)
+        {
+            var fieldInfo = typeof(SingleServerReadBinding).GetField("_serverSelectionTimeout", BindingFlags.NonPublic | BindingFlags.Instance);
+            return (TimeSpan)fieldInfo.GetValue(obj);
         }
     }
 }
