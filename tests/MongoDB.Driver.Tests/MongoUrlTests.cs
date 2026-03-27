@@ -23,6 +23,7 @@ using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
+
 namespace MongoDB.Driver.Tests
 {
     [Trait("Category", "ConnectionString")]

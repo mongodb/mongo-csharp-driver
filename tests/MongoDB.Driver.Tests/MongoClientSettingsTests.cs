@@ -686,7 +686,7 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [InlineData(0, int.MaxValue)]
-        [InlineData(127, 127)]
+        [InlineData(126, 126)]
         public void TestFromUrlWithMaxPoolSize(int inputValue, int expectedValue)
         {
             var connectionString = $"mongodb://the-next-generation/?maxPoolSize={inputValue}";
@@ -936,6 +936,23 @@ namespace MongoDB.Driver.Tests
             settings.Freeze();
             Assert.Equal(minConnectionPoolSize, settings.MinConnectionPoolSize);
             Assert.Throws<InvalidOperationException>(() => { settings.MinConnectionPoolSize = minConnectionPoolSize; });
+        }
+
+        [Fact]
+        public void TestMaxAndMinConnectionPoolSize()
+        {
+            var settings = new MongoClientSettings();
+            Assert.Equal(MongoDefaults.MinConnectionPoolSize, settings.MinConnectionPoolSize);
+
+            var minConnectionPoolSize = 10;
+            var maxConnectionPoolSize = 5;
+            settings.MinConnectionPoolSize = minConnectionPoolSize;
+            settings.MaxConnectionPoolSize = maxConnectionPoolSize;
+            Assert.Equal(minConnectionPoolSize, settings.MinConnectionPoolSize);
+            Assert.Equal(maxConnectionPoolSize, settings.MaxConnectionPoolSize);
+
+            Assert.Throws<InvalidOperationException>(() => { settings.Freeze(); });
+
         }
 
         [Fact]

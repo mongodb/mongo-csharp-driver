@@ -958,15 +958,15 @@ namespace MongoDB.Driver.Core.Configuration
                 throw new MongoConfigurationException("proxyUsername and proxyPassword must both be specified or neither.");
             }
 
+            if (_minPoolSize > _maxPoolSize)
+            {
+                throw new MongoConfigurationException("_maxPoolSize should be >= _minPoolSize.");
+            }
+
             string ProtectConnectionString(string connectionString)
             {
                 var protectedString = Regex.Replace(connectionString, @"(?<=://)[^/]*(?=@)", "<hidden>");
                 return protectedString;
-            }
-
-            if (_minPoolSize > _maxPoolSize)
-            {
-                throw new MongoConfigurationException("MaxPoolSize should be >= MinPoolSize.");
             }
         }
 
