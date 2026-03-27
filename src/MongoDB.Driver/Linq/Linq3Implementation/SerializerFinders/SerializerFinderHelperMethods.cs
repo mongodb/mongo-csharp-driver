@@ -251,11 +251,22 @@ internal partial class SerializerFinderVisitor
     private bool IsItemSerializerKnown(Expression node, out IBsonSerializer itemSerializer)
     {
         if (IsKnown(node, out var nodeSerializer) &&
-            nodeSerializer is IBsonArraySerializer arraySerializer &&
-            arraySerializer.TryGetItemSerializationInfo(out var itemSerializationInfo))
+            nodeSerializer is IBsonArraySerializer arraySerializer)
         {
-            itemSerializer = itemSerializationInfo.Serializer;
-            return true;
+            if (arraySerializer.TryGetItemSerializationInfo(out var itemSerializationInfo))
+            {
+                itemSerializer = itemSerializationInfo.Serializer;
+                return true;
+            }
+
+            if (nodeSerializer is IBsonDictionarySerializer dictionarySerializer)
+            {
+                var representation = dictionarySerializer.DictionaryRepresentation == DictionaryRepresentation.ArrayOfArrays
+                    ? BsonType.Array
+                    : BsonType.Document;
+                itemSerializer = KeyValuePairSerializer.Create(representation, dictionarySerializer.KeySerializer, dictionarySerializer.ValueSerializer);
+                return true;
+            }
         }
 
         itemSerializer = null;
