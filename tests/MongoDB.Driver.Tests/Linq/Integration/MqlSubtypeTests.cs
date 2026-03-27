@@ -106,7 +106,7 @@ public class MqlSubtypeTests : LinqIntegrationTest<MqlSubtypeTests.ClassFixture>
         var renderedPipeline = Translate(collection, pipeline, null);
         AssertStages(
             renderedPipeline,
-            "{ $match : { $expr : { $eq : [{ '$subtype' : '$Data' }, 4 ]} } }",
+            "{ $match : { $expr : { $eq : [{ $subtype : '$Data' }, 4 ]} } }",
             "{ $project : { _id : '$_id', Subtype : { $subtype : '$Data' } } }");
 
         result.Subtype.Should().Be(BsonBinarySubType.UuidStandard);
