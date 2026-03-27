@@ -198,6 +198,5 @@ namespace MongoDB.Bson.Serialization
                 throw new ArgumentException(message, "type");
             }
         }
-
     }
 }
