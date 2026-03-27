@@ -36,7 +36,7 @@ public class MqlHexHashTests : LinqIntegrationTest<MqlHexHashTests.ClassFixture>
     [Theory]
     [InlineData("A12871FEE210FB8619291EAEA194581CBD2531E4B23759D225F6806923F63222", 1)]
     [InlineData(null, 3)]
-    public void MqlSubtype_in_where(string hexHash, int expectedId)
+    public void MqlHexHash_in_where(string hexHash, int expectedId)
     {
         var collection = Fixture.Collection;
         var queryable = collection.AsQueryable()
