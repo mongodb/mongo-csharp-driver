@@ -1333,7 +1333,7 @@ namespace MongoDB.Driver.Core.Configuration
             if (shouldThrow)
             {
                 exception.Should().BeOfType<MongoConfigurationException>();
-                exception.Message.Should().Contain("_maxPoolSize should be >= _minPoolSize.");
+                exception.Message.Should().Contain("maxPoolSize must be greater than or equal to minPoolSize.");
 
             }
             else

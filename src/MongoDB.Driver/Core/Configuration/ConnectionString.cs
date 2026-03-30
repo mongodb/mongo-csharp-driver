@@ -960,7 +960,7 @@ namespace MongoDB.Driver.Core.Configuration
 
             if (_minPoolSize > _maxPoolSize)
             {
-                throw new MongoConfigurationException("_maxPoolSize should be >= _minPoolSize.");
+                throw new MongoConfigurationException("maxPoolSize must be greater than or equal to minPoolSize.");
             }
 
             string ProtectConnectionString(string connectionString)

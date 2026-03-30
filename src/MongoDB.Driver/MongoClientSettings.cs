@@ -1369,7 +1369,7 @@ namespace MongoDB.Driver
 
             if (_maxConnectionPoolSize < _minConnectionPoolSize)
             {
-                throw new InvalidOperationException("_maxConnectionPoolSize must be greater than or equal to _minConnectionPoolSize.");
+                throw new InvalidOperationException("MaxConnectionPoolSize must be greater than or equal to MinConnectionPoolSize.");
             }
         }
     }

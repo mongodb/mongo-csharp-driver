@@ -952,7 +952,6 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(maxConnectionPoolSize, settings.MaxConnectionPoolSize);
 
             Assert.Throws<InvalidOperationException>(() => { settings.Freeze(); });
-
         }
 
         [Fact]
