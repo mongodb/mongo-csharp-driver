@@ -113,6 +113,7 @@ internal partial class SerializerFinderVisitor
                 case "Exp": DeduceExpMethodSerializers(); break;
                 case "ExponentialMovingAverage": DeduceExponentialMovingAverageMethodSerializers(); break;
                 case "Field": DeduceFieldMethodSerializers(); break;
+                case "GenerateNewId": DeduceGenerateNewIdMethodSerializers(); break;
                 case "get_Item": DeduceGetItemMethodSerializers(); break;
                 case "get_Chars": DeduceGetCharsMethodSerializers(); break;
                 case "GroupBy": DeduceGroupByMethodSerializers(); break;
@@ -1365,6 +1366,21 @@ internal partial class SerializerFinderVisitor
                     }
 
                     AddNodeSerializer(node, fieldSerializer);
+                }
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
+        }
+
+        void DeduceGenerateNewIdMethodSerializers()
+        {
+            if (method.Is(ObjectIdMethod.GenerateNewIdMethod))
+            {
+                if (IsNotKnown(node))
+                {
+                    DeduceSerializer(node, ObjectIdSerializer.Instance);
                 }
             }
             else

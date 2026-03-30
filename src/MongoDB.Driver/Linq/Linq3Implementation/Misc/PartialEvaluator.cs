@@ -325,7 +325,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 
                 var method = node.Method;
                 if (IsCustomLinqExtensionMethod(method) ||
-                    method.Is(QueryableMethod.AsQueryable))
+                    method.Is(QueryableMethod.AsQueryable) ||
+                    method.Is(ObjectIdMethod.GenerateNewIdMethod))
                 {
                     _cannotBeEvaluated = true;
                 }

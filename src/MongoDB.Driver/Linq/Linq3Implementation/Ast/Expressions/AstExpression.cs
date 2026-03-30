@@ -443,6 +443,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return new AstUnaryExpression(AstUnaryOperator.Floor, arg);
         }
 
+        public static AstCreateObjectIdExpression CreateObjectId()
+            => new();
+
         public static AstGetFieldExpression GetField(AstExpression input, AstExpression fieldName)
         {
             return new AstGetFieldExpression(input, fieldName);

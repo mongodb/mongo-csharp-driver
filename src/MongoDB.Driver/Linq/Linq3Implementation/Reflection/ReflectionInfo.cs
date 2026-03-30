@@ -16,7 +16,6 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
-using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
 {
@@ -60,6 +59,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static ConstructorInfo Constructor<T1, T2, T3, T4, T5, T6, T7, TObject>(Expression<Func<T1, T2, T3, T4, T5, T6, T7, TObject>> lambda)
         {
             return ExtractConstructorInfoFromLambda(lambda);
+        }
+
+        public static MethodInfo Method<TResult>(Expression<Func<TResult>> lambda)
+        {
+            return ExtractMethodInfoFromLambda(lambda);
         }
 
         public static MethodInfo Method<T1, TResult>(Expression<Func<T1, TResult>> lambda)
