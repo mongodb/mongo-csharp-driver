@@ -21,10 +21,10 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.SerializerFinders;
 
-public class ObjectIdCreateNewIdTests
+public class ObjectIdGenerateNewIdTests
 {
     [Fact]
-    public void SerializerFinder_should_resolve_objectId_createNewId()
+    public void SerializerFinder_should_resolve_objectId_generateNewId()
     {
         var expression = TestHelpers.MakeLambda<MyModel, ObjectId>(model => ObjectId.GenerateNewId());
         var serializerMap = TestHelpers.CreateSerializerMap(expression);
