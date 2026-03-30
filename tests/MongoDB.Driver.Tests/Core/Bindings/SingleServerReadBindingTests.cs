@@ -83,6 +83,19 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         [Fact]
+        public void constructor_should_throw_when_serverSelectionTimeout_is_negative()
+        {
+            var server = new Mock<IServer>().Object;
+            var readPreference = ReadPreference.Primary;
+            var session = new Mock<ICoreSessionHandle>().Object;
+
+            var exception = Record.Exception(() => new SingleServerReadBinding(server, readPreference, session, TimeSpan.FromSeconds(-1)));
+
+            var e = exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject;
+            e.ParamName.Should().Be("serverSelectionTimeout");
+        }
+
+        [Fact]
         public void ReadPreference_should_return_expected_result()
         {
             var readPreference = ReadPreference.Secondary;
@@ -161,6 +174,25 @@ namespace MongoDB.Driver.Core.Bindings
 
             var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
             e.ObjectName.Should().Be(subject.GetType().FullName);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task GetReadChannelSource_should_throw_TimeoutException_when_server_remains_disconnected(
+            [Values(false, true)] bool async)
+        {
+            var mockServer = new Mock<IServer>();
+            mockServer.Setup(s => s.Description).Returns(new ServerDescription(
+                new ServerId(new Clusters.ClusterId(), new DnsEndPoint("localhost", 20017)),
+                new DnsEndPoint("localhost", 20017),
+                state: ServerState.Disconnected));
+            var subject = new SingleServerReadBinding(mockServer.Object, ReadPreference.Primary, new Mock<ICoreSessionHandle>().Object, TimeSpan.FromMilliseconds(50));
+
+            var exception = async ?
+                await Record.ExceptionAsync(() => subject.GetReadChannelSourceAsync(OperationContext.NoTimeout)) :
+                Record.Exception(() => subject.GetReadChannelSource(OperationContext.NoTimeout));
+
+            exception.Should().BeOfType<TimeoutException>();
         }
 
         // private methods

@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Core.Bindings
             _server = Ensure.IsNotNull(server, nameof(server));
             _readPreference = Ensure.IsNotNull(readPreference, nameof(readPreference));
             _session = Ensure.IsNotNull(session, nameof(session));
-            _serverSelectionTimeout = serverSelectionTimeout;
+            _serverSelectionTimeout = Ensure.IsGreaterThanOrEqualToZero(serverSelectionTimeout, nameof(serverSelectionTimeout));
         }
 
         public ReadPreference ReadPreference
@@ -95,6 +95,11 @@ namespace MongoDB.Driver.Core.Bindings
                     serverSelectionContext.RemainingTimeout);
 
                 serverSelectionContext.CancellationToken.ThrowIfCancellationRequested();
+
+                if (_server.Description.State != ServerState.Connected)
+                {
+                    throw new TimeoutException($"A timeout occurred after {serverSelectionContext.Elapsed.TotalMilliseconds}ms waiting for the server to become available.");
+                }
             }
 
             return new ChannelSourceHandle(new ServerChannelSource(_server, _session.Fork()));
