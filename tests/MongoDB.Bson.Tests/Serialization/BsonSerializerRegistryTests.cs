@@ -103,11 +103,16 @@ namespace MongoDB.Bson.Tests.Serialization
             var intSerializer = new Int32Serializer();
             var exception = Record.Exception(() => BsonSerializer.RegisterSerializer(typeof(long), intSerializer));
             exception.Should().BeOfType<BsonSerializationException>();
-            exception.Message.Should().Contain("A serializer of type Int32 cannot be registered for type Int64.");
+            exception.Message.Should().Contain($"A serializer for Int32 cannot be registered for type Int64.");
+        }
 
+        [Fact]
+        public void TryRegisterSerializer_should_throw_when_type_and_serializer_do_not_match()
+        {
+            var intSerializer = new Int32Serializer();
             var tryException = Record.Exception(() => BsonSerializer.TryRegisterSerializer(typeof(long), intSerializer));
             tryException.Should().BeOfType<BsonSerializationException>();
-            tryException.Message.Should().Contain("A serializer of type Int32 cannot be registered for type Int64.");
+            tryException.Message.Should().Contain("A serializer for Int32 cannot be registered for type Int64.");
         }
 
         [Fact]
