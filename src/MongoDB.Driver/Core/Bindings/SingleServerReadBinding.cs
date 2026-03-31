@@ -89,14 +89,13 @@ namespace MongoDB.Driver.Core.Bindings
             {
                 using var serverSelectionContext = operationContext.WithTimeout(_serverSelectionTimeout);
 
-                SpinWait.SpinUntil(() =>
-                    _server.Description.State == ServerState.Connected ||
-                    serverSelectionContext.CancellationToken.IsCancellationRequested,
-                    serverSelectionContext.RemainingTimeout);
-
-                serverSelectionContext.CancellationToken.ThrowIfCancellationRequested();
-
-                if (_server.Description.State != ServerState.Connected)
+                if (SpinWait.SpinUntil(() =>
+                            _server.Description.State == ServerState.Connected || serverSelectionContext.CancellationToken.IsCancellationRequested,
+                        serverSelectionContext.RemainingTimeout))
+                {
+                    serverSelectionContext.CancellationToken.ThrowIfCancellationRequested();
+                }
+                else
                 {
                     throw new TimeoutException($"A timeout occurred after {serverSelectionContext.Elapsed.TotalMilliseconds}ms waiting for the server to become available.");
                 }
