@@ -314,6 +314,50 @@ namespace MongoDB.Driver.Search
                 new GeoWithinSearchDefinition<TDocument, TCoordinates>(path, area, score);
 
         /// <summary>
+        /// Creates a search definition that moves the context back up the tree of embedded documents
+        /// to one of the ancestors of the current embedded document such that ancestor fields can be used in searches
+        /// of embedded documents.
+        /// </summary>
+        /// <typeparam name="TField">The type of the ancestor documents.</typeparam>
+        /// <param name="path">The path from the root to the ancestor.</param>
+        /// <param name="operator">The operator to execute at the root.</param>
+        /// <param name="score">The score modifier.</param>
+        /// <returns>A search definition for the ancestor.</returns>
+        public SearchDefinition<TDocument> HasAncestor<TField>(
+            FieldDefinition<TDocument, IEnumerable<TField>> path,
+            SearchDefinition<TDocument> @operator,
+            SearchScoreDefinition<TDocument> score = null)
+            => new HasAncestorSearchDefinition<TDocument>(path, @operator, score);
+
+        /// <summary>
+        /// Creates a search definition that moves the context back up the tree of embedded documents
+        /// to one of the ancestors of the current embedded document such that ancestor fields can be used in searches
+        /// of embedded documents.
+        /// </summary>
+        /// <typeparam name="TField">The type of the ancestor documents.</typeparam>
+        /// <param name="path">The path from the root to the ancestor.</param>
+        /// <param name="operator">The operator to execute at the root.</param>
+        /// <param name="score">The score modifier.</param>
+        /// <returns>A search definition for the ancestor.</returns>
+        public SearchDefinition<TDocument> HasAncestor<TField>(
+            Expression<Func<TDocument, IEnumerable<TField>>> path,
+            SearchDefinition<TDocument> @operator,
+            SearchScoreDefinition<TDocument> score = null)
+            => HasAncestor(new ExpressionFieldDefinition<TDocument, IEnumerable<TField>>(path), @operator, score);
+
+        /// <summary>
+        /// Creates a search definition that moves the context back up the tree of embedded documents
+        /// to the root such that root fields can be used in searches of embedded documents.
+        /// </summary>
+        /// <param name="operator">The operator to execute at the root.</param>
+        /// <param name="score">The score modifier.</param>
+        /// <returns>A search definition for the root.</returns>
+        public SearchDefinition<TDocument> HasRoot(
+            SearchDefinition<TDocument> @operator,
+            SearchScoreDefinition<TDocument> score = null)
+            => new HasRootSearchDefinition<TDocument>(@operator, score);
+
+        /// <summary>
         /// Creates a search definition that queries for documents where the value of the field equals to any of specified values.
         /// </summary>
         /// <typeparam name="TField">The type of the field. Valid types are: boolean, ObjectId, Guid, number, date, string.</typeparam>

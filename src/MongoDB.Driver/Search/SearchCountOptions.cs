@@ -45,6 +45,12 @@ namespace MongoDB.Driver.Search
             set => _type = value;
         }
 
+        /// <summary>
+        /// Creates a clone of the options.
+        /// </summary>
+        /// <returns>A clone of the options.</returns>
+        public SearchCountOptions Clone() => new() { Threshold = Threshold, Type = Type };
+
         internal BsonDocument Render() =>
             new()
             {

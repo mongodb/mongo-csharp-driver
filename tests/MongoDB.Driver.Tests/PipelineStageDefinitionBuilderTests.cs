@@ -653,6 +653,19 @@ namespace MongoDB.Driver.Tests
             });
         }
 
+        [Fact]
+        public void Search_without_returnScope_should_throw_when_output_type_differs_from_input_type()
+        {
+            var stage = PipelineStageDefinitionBuilder.Search<BsonDocument, ManyToOne>(
+                Builders<BsonDocument>.Search.Exists("x"),
+                returnScope: null,
+                searchOptions: null);
+
+            var exception = Assert.Throws<InvalidOperationException>(() => RenderStage(stage));
+            exception.Message.Should().Contain(nameof(BsonDocument));
+            exception.Message.Should().Contain(nameof(ManyToOne));
+        }
+
         // private methods
         private IMongoDatabase GetDatabase()
         {

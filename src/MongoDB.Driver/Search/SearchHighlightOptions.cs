@@ -95,6 +95,13 @@ namespace MongoDB.Driver.Search
         }
 
         /// <summary>
+        /// Creates a clone of the options.
+        /// </summary>
+        /// <returns>A clone of the options.</returns>
+        public SearchHighlightOptions<TDocument> Clone()
+            => new(Path, MaxCharsToExamine, MaxNumPassages);
+
+        /// <summary>
         /// Renders the options to a <see cref="BsonDocument"/>.
         /// </summary>
         /// <param name="args">The render arguments.</param>

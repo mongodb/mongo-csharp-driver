@@ -19,12 +19,13 @@ using System.Linq;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.GeoJsonObjectModel;
 using MongoDB.Driver.Search;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 using Xunit.Abstractions;
 using Builders = MongoDB.Driver.Builders<MongoDB.Driver.Tests.Search.AtlasSearchTests.HistoricalDocument>;
@@ -280,10 +281,186 @@ namespace MongoDB.Driver.Tests.Search
         #endregion
 
         private readonly IMongoClient _mongoClient;
+        private readonly EventCapturer _eventCapturer;
+        private static bool __indexesCreated;
+        private static readonly string __databaseUniquifier = Guid.NewGuid().ToString();
 
         public AtlasSearchTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
-            _mongoClient = AtlasSearchTestsUtils.CreateAtlasSearchMongoClient();
+            (_mongoClient, _eventCapturer) = AtlasSearchTestsUtils.CreateAtlasSearchMongoClient();
+
+            if (__indexesCreated)
+            {
+                return;
+            }
+
+            var directors =
+                """
+                [
+                {
+                    _id: 0,
+                    director: "Peyton Reed",
+                    birthDate: "1964-07-03",
+                    age: 35,
+                    movies: [
+                      {
+                        title: "Ant-Man",
+                        release: 2015,
+                        genre: "Action",
+                        reviews: [
+                          { rating: 8.5, text: "Funny and thrilling" },
+                          { rating: 8.0, text: "Great cast performances" }
+                        ]
+                      },
+                      {
+                        title: "Ant-Man-2",
+                        release: 2017,
+                        genre: "Action",
+                        reviews: [
+                          { rating: 8.5, text: "Funny and thrilling" },
+                          { rating: 8.0, text: "Great cast performances" }
+                        ]
+                      },
+                      {
+                        title: "Yes Man",
+                        release: 2008,
+                        genre: "Comedy",
+                        reviews: [
+                          { rating: 7.0, text: "Hilarious and uplifting" },
+                          { rating: 6.5, text: "Feel-good comedy flick" }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    _id: 1,
+                    director: "M. Night Shyamalan",
+                    birthDate: "1970-08-06",
+                    age: 25,
+                    movies: [
+                      {
+                        title: "The Sixth Sense",
+                        releaseYear: 1999,
+                        genre: "Thriller",
+                        reviews: [
+                          { rating: 9.0, text: "Mind-blowing and suspenseful" },
+                          { rating: 8.5, text: "Incredible plot twist" },
+                          { rating: 5.5, text: "Amazing plot twist" }
+                        ]
+                      },
+                      {
+                        title: "Split",
+                        releaseYear: 2016,
+                        genre: "Thriller",
+                        reviews: [
+                          { rating: 8.0, text: "Intense psychological thriller" },
+                          { rating: 7.5, text: "Amazing lead performance" }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+                """;
+
+            var returnScopeIndex1 = new CreateSearchIndexModel(
+                name: "returnScopeIndex1",
+                definition: BsonDocument.Parse(
+                    """
+                    {
+                      "mappings": {
+                        "dynamic": true,
+                        "fields": {
+                          "movies": {
+                              "type": "embeddedDocuments",
+                              "dynamic": true,
+                              "storedSource": {
+                                 "exclude": ["title"]
+                               }
+                          }
+                        }
+                      }
+                    }
+                    """));
+
+            var returnScopeIndex2 = new CreateSearchIndexModel(
+                name: "returnScopeIndex2",
+                definition: BsonDocument.Parse(
+                    """
+                    {
+                      "mappings": {
+                        "dynamic": true,
+                        "fields": {
+                          "movies": {
+                              "type": "embeddedDocuments",
+                              "dynamic": true,
+                              "storedSource": {
+                                 "exclude": ["title"]
+                               },
+                               "fields": {
+                                 "reviews": {
+                                   "type": "embeddedDocuments",
+                                   "storedSource": {
+                                      "exclude": ["author", "creation_time"]
+                                   }
+                                }
+                             }
+                          }
+                        }
+                      }
+                    }
+                    """));
+
+            var returnScopeIndex3 = new CreateSearchIndexModel(
+                name: "returnScopeIndex3",
+                definition: BsonDocument.Parse(
+                    """
+                    {
+                      "mappings": {
+                        "fields": {
+                          "movies": {
+                            "type": "embeddedDocuments",
+                            "fields": {
+                              "reviews": {
+                                "type": "embeddedDocuments",
+                                "storedSource": {
+                                  "exclude": ["author", "creation_time"]
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                    """));
+
+            var collection = GetReturnScopeCollection<BsonDocument>();
+            if (!collection.AsQueryable().Any())
+            {
+                collection.InsertMany(BsonSerializer.Deserialize<BsonArray>(directors).Select(e => e.AsBsonDocument));
+            }
+
+            var indexModels = new[] { returnScopeIndex1, returnScopeIndex2, returnScopeIndex3 };
+            collection.SearchIndexes.CreateMany(indexModels);
+            var indexNames = indexModels.Select(i => i.Name).ToList();
+
+            var timeoutCount = 3;
+            while (--timeoutCount >= 0)
+            {
+                var filtered = collection.SearchIndexes.List().ToList()
+                    .Where(d => indexNames.Contains(d["name"].AsString))
+                    .ToArray();
+
+                if (filtered.Length == indexNames.Count &&
+                    filtered.All(i => i["status"] == "READY"))
+                {
+                    break;
+                }
+
+                Thread.Sleep(10000);
+            }
+
+            _eventCapturer.Clear();
+            __indexesCreated = true;
         }
 
         protected override void DisposeInternal() => _mongoClient.Dispose();
@@ -337,7 +514,7 @@ namespace MongoDB.Driver.Tests.Search
             var builderHistoricalDocument = Builders<HistoricalDocumentWithCommentsOnly>.Search;
             var builderComments = Builders<Comment>.Search;
 
-            var result = GetTestCollection< HistoricalDocumentWithCommentsOnly>()
+            var result = GetTestCollection<HistoricalDocumentWithCommentsOnly>()
                 .Aggregate()
                 .Search(builderHistoricalDocument.EmbeddedDocument(
                     p => p.Comments,
@@ -349,6 +526,40 @@ namespace MongoDB.Driver.Tests.Search
             {
                 document.Comments.Should().Contain(c => c.Author == "Corliss Zuk");
             }
+        }
+
+        [Fact]
+        public void EmbeddedDocument_with_HasAncestor()
+        {
+            var query = GetReturnScopeCollection<Director>().Aggregate().Search(
+                Builders<Director>.Search.EmbeddedDocument(
+                    "movies.reviews",
+                    Builders<Director>.Search.HasAncestor(
+                        b => b.Movies,
+                        Builders<Director>.Search.Text("movies.title", "Ant-Man"))),
+                new() { IndexName = "returnScopeIndex3" });
+
+            var results = query.ToList();
+            results.Count.Should().Be(0);
+
+            ValidateSearchStage(
+                "{ $search: { embeddedDocument: { operator: { hasAncestor: { ancestorPath: 'movies', operator: { text: { query: 'Ant-Man', path: 'movies.title' } } } }, path: 'movies.reviews' }, index: 'returnScopeIndex3' } }");
+        }
+
+        [Fact]
+        public void EmbeddedDocument_with_HasRoot()
+        {
+            var query = GetReturnScopeCollection<Director>().Aggregate().Search(Builders<Director>.Search.EmbeddedDocument(
+                "movies.reviews",
+                Builders<Director>.Search.HasRoot(
+                    Builders<Director>.Search.Text("movies.title", "Ant-Man"))),
+                new() { IndexName = "returnScopeIndex3" });
+
+            var results = query.ToList();
+            results.Count.Should().Be(0);
+
+            ValidateSearchStage(
+                "{ $search: { embeddedDocument: { operator: { hasRoot: { operator: { text: { query: 'Ant-Man', path: 'movies.title' } } } }, path: 'movies.reviews' }, index: 'returnScopeIndex3' } }");
         }
 
         [Fact]
@@ -734,6 +945,99 @@ namespace MongoDB.Driver.Tests.Search
                 "Battle for the Planet of the Apes", "King Kong Lives", "Mighty Joe Young");
         }
 
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void ReturnScope(bool useExpression)
+        {
+            var searchDefinition = Builders<Director>.Search.Range("movies.releaseYear", SearchRangeBuilder.Gt(2000));
+            var aggregate = GetReturnScopeCollection<Director>().Aggregate();
+            var searchOptions = new SearchOptions<Director> { IndexName = "returnScopeIndex2" };
+
+            var query = useExpression
+                ? aggregate.Search(searchDefinition, e => e.Movies, searchOptions)
+                : aggregate.Search<DirectedMovie>(searchDefinition, "movies", searchOptions);
+
+            var results = query.ToList();
+            results.Count.Should().Be(1);
+            results[0].ReleaseYear.Should().Be(2016);
+
+            ValidateSearchStage(
+                "{ $search: { range: { gt: 2000, path: 'movies.releaseYear' }, returnScope: { path: 'movies' }, index: 'returnScopeIndex2', returnStoredSource: true } }");
+        }
+
+        [Fact]
+        public void ReturnScope_nested_path()
+        {
+            var searchDefinition = Builders<Director>.Search.Range("movies.reviews.rating", SearchRangeBuilder.Gte(8.0));
+            var aggregate = GetReturnScopeCollection<Director>().Aggregate();
+
+            var results = aggregate.Search<DirectedMovieReview>(
+                searchDefinition,
+                "movies.reviews",
+                new() { IndexName = "returnScopeIndex2" }).ToList();
+
+            results.Count.Should().Be(0);
+
+            ValidateSearchStage(
+                "{ $search: { range: { gte: 8.0, path: 'movies.reviews.rating' }, returnScope: { path: 'movies.reviews' }, index: 'returnScopeIndex2', returnStoredSource: true } }");
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void ReturnScope_HasRoot(bool useExpression)
+        {
+            var searchDefinition = Builders<Director>.Search.Compound()
+                .Must(Builders<Director>.Search.HasRoot(
+                        Builders<Director>.Search.Text(e => e.Name, "M. Night Shyamalan")),
+                    Builders<Director>.Search.Text("movies.reviews.text", "Amazing"));
+
+            var aggregate = GetReturnScopeCollection<Director>().Aggregate();
+
+            var searchOptions = new SearchOptions<Director>() { IndexName = "returnScopeIndex1" };
+            var query = useExpression
+                ? aggregate.Search(searchDefinition, e => e.Movies, searchOptions)
+                : aggregate.Search<DirectedMovie>(searchDefinition, "movies", searchOptions);
+
+            var results = query.ToList();
+            results.Count.Should().Be(2);
+            results[0].ReleaseYear.Should().Be(2016);
+            results[1].ReleaseYear.Should().Be(1999);
+
+            ValidateSearchStage(
+                "{ $search: { compound: { must: [ { hasRoot: { operator: { text: { query: 'M. Night Shyamalan', path: 'director' } } } }, { text: { query: 'Amazing', path: 'movies.reviews.text' } } ] }, returnScope: { path: 'movies' }, index: 'returnScopeIndex1', returnStoredSource: true } }");
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void ReturnScope_HasAncestor(bool useExpression)
+        {
+            var hasAncestor = useExpression
+                ? Builders<Director>.Search.HasAncestor(
+                    b => b.Movies,
+                    Builders<Director>.Search.Text("movies.title", "Split"))
+                : Builders<Director>.Search.HasAncestor<DirectedMovie>(
+                    "movies",
+                    Builders<Director>.Search.Text("movies.title", "Split"));
+
+            var searchDefinition = Builders<Director>.Search.Compound()
+                .Must(hasAncestor, Builders<Director>.Search.Text("movies.reviews.text", "Amazing"));
+
+            var aggregate = GetReturnScopeCollection<Director>().Aggregate();
+
+            var results = aggregate.Search<DirectedMovieReview>(
+                searchDefinition,
+                "movies.reviews",
+                new() { IndexName = "returnScopeIndex2" }).ToList();
+
+            results.Count.Should().Be(0);
+
+            ValidateSearchStage(
+                "{ $search: { compound: { must: [ { hasAncestor: { ancestorPath: 'movies', operator: { text: { query: 'Split', path: 'movies.title' } } } }, { text: { query: 'Amazing', path: 'movies.reviews.text' } } ] }, returnScope: { path: 'movies.reviews' }, index: 'returnScopeIndex2', returnStoredSource: true } }");
+        }
+
         [Fact]
         public void SearchSequenceToken()
         {
@@ -862,6 +1166,39 @@ namespace MongoDB.Driver.Tests.Search
             bucket = result.Facet["date"].Buckets.Should().NotBeNull().And.ContainSingle().Subject;
             bucket.Id.Should().Be((BsonDateTime)DateTime.MinValue);
             bucket.Count.Should().Be(108);
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void SearchMeta_with_ReturnScope(bool useExpression)
+        {
+            var searchDefinition = Builders<Director>.Search.Range("movies.releaseYear", SearchRangeBuilder.Gt(2000));
+            var aggregate = GetReturnScopeCollection<Director>().Aggregate();
+
+            var query = useExpression
+                ? aggregate.SearchMeta(searchDefinition, e => e.Movies, "returnScopeIndex1")
+                : aggregate.SearchMeta(searchDefinition, "movies", "returnScopeIndex1");
+
+            var results = query.ToList();
+            results.Count.Should().Be(1);
+
+            ValidateSearchStage(
+                "{ $searchMeta: { range: { gt: 2000, path: 'movies.releaseYear' }, index: 'returnScopeIndex1', returnScope: { path: 'movies' } } }");
+        }
+
+        [Fact]
+        public void SearchMeta_with_ReturnScope_nested_path()
+        {
+            var searchDefinition = Builders<Director>.Search.Range("movies.reviews.rating", SearchRangeBuilder.Gte(8.0));
+            var aggregate = GetReturnScopeCollection<Director>().Aggregate();
+
+            var results = aggregate.SearchMeta(searchDefinition, "movies.reviews", "returnScopeIndex2").ToList();
+
+            results.Count.Should().Be(1);
+
+            ValidateSearchStage(
+                "{ $searchMeta: { range: { gte: 8.0, path: 'movies.reviews.rating' }, index: 'returnScopeIndex2', returnScope: { path: 'movies.reviews' } } }");
         }
 
         [Fact]
@@ -1214,6 +1551,14 @@ namespace MongoDB.Driver.Tests.Search
             .GetDatabase("csharpExtraTests")
             .GetCollection<TestClass>("testClasses");
 
+        private IMongoCollection<T> GetReturnScopeCollection<T>() => _mongoClient
+            .GetDatabase("return_scope_" + __databaseUniquifier)
+            .GetCollection<T>("directors");
+
+        private void ValidateSearchStage(string mql)
+            => _eventCapturer.Events.OfType<CommandStartedEvent>().Single().Command["pipeline"].AsBsonArray.Single()
+                .Should().Be(mql);
+
         [BsonIgnoreExtraElements]
         public class Comment
         {
@@ -1342,5 +1687,50 @@ namespace MongoDB.Driver.Tests.Search
             [BsonElement("testGuid")]
             public Guid TestGuid { get; set; }
         }
+    }
+
+    [BsonIgnoreExtraElements]
+    public class Director
+    {
+        [BsonId]
+        public int Id { get; set; }
+
+        [BsonElement("director")]
+        public string Name { get; set; }
+
+        [BsonElement("birthDate")]
+        public string BirthDate { get; set; }
+
+        [BsonElement("age")]
+        public int Age { get; set; }
+
+        [BsonElement("movies")]
+        public List<DirectedMovie> Movies { get; set; } = new();
+    }
+
+    [BsonIgnoreExtraElements]
+    public class DirectedMovie
+    {
+        [BsonElement("title")]
+        public string Title { get; set; }
+
+        [BsonElement("releaseYear")]
+        public int ReleaseYear { get; set; }
+
+        [BsonElement("genre")]
+        public string Genre { get; set; }
+
+        [BsonElement("reviews")]
+        public List<DirectedMovieReview> Reviews { get; set; } = new();
+    }
+
+    [BsonIgnoreExtraElements]
+    public class DirectedMovieReview
+    {
+        [BsonElement("rating")]
+        public double Rating { get; set; }
+
+        [BsonElement("text")]
+        public string Text { get; set; }
     }
 }

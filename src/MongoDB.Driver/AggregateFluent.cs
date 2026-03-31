@@ -299,6 +299,12 @@ namespace MongoDB.Driver
             return WithPipeline(_pipeline.Search(searchDefinition, searchOptions));
         }
 
+        public override IAggregateFluent<TNewResult> Search<TNewResult>(
+            SearchDefinition<TResult> searchDefinition,
+            FieldDefinition<TResult, IEnumerable<TNewResult>> returnScope,
+            SearchOptions<TResult> searchOptions = null)
+            => WithPipeline(_pipeline.Search(searchDefinition, returnScope, searchOptions));
+
         public override IAggregateFluent<SearchMetaResult> SearchMeta(
             SearchDefinition<TResult> searchDefinition,
             string indexName = null,
@@ -306,6 +312,13 @@ namespace MongoDB.Driver
         {
             return WithPipeline(_pipeline.SearchMeta(searchDefinition, indexName, count));
         }
+
+        public override IAggregateFluent<SearchMetaResult> SearchMeta(
+            SearchDefinition<TResult> searchDefinition,
+            FieldDefinition<TResult> returnScope,
+            string indexName = null,
+            SearchCountOptions count = null)
+            => WithPipeline(_pipeline.SearchMeta(searchDefinition, returnScope, indexName, count));
 
         public override IAggregateFluent<TResult> Set(SetFieldDefinitions<TResult> fields)
         {

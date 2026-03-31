@@ -34,6 +34,12 @@ namespace MongoDB.Driver.Search
             set => _searchTerms = Ensure.IsNotNullOrEmpty(value, nameof(value));
         }
 
+        /// <summary>
+        /// Creates a clone of the options.
+        /// </summary>
+        /// <returns>A clone of the options.</returns>
+        public SearchTrackingOptions Clone() => new() { SearchTerms = SearchTerms };
+
         internal BsonDocument Render() =>
             new()
             {

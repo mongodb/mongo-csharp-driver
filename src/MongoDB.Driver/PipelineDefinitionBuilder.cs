@@ -1218,6 +1218,27 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Appends a $search stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TIntermediate">The type of the intermediate documents.</typeparam>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="searchDefinition">The search definition.</param>
+        /// <param name="returnScope">The level of nested documents to return.</param>
+        /// <param name="searchOptions">The search options.</param>
+        /// <returns>A new pipeline with an additional stage.</returns>
+        public static PipelineDefinition<TInput, TOutput> Search<TInput, TIntermediate, TOutput>(
+            this PipelineDefinition<TInput, TIntermediate> pipeline,
+            SearchDefinition<TIntermediate> searchDefinition,
+            FieldDefinition<TIntermediate, IEnumerable<TOutput>> returnScope,
+            SearchOptions<TIntermediate> searchOptions)
+        {
+            Ensure.IsNotNull(pipeline, nameof(pipeline));
+            return pipeline.AppendStage(PipelineStageDefinitionBuilder.Search(searchDefinition, returnScope, searchOptions));
+        }
+
+        /// <summary>
         /// Appends a $searchMeta stage to the pipeline.
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents.</typeparam>
@@ -1235,6 +1256,28 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(pipeline, nameof(pipeline));
             return pipeline.AppendStage(PipelineStageDefinitionBuilder.SearchMeta(query, indexName, count));
+        }
+
+        /// <summary>
+        /// Appends a $searchMeta stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="query">The search definition.</param>
+        /// <param name="returnScope">The level of nested documents to return.</param>
+        /// <param name="indexName">The index name.</param>
+        /// <param name="count">The count options.</param>
+        /// <returns>A new pipeline with an additional stage.</returns>
+        public static PipelineDefinition<TInput, SearchMetaResult> SearchMeta<TInput, TOutput>(
+            this PipelineDefinition<TInput, TOutput> pipeline,
+            SearchDefinition<TOutput> query,
+            FieldDefinition<TOutput> returnScope,
+            string indexName = null,
+            SearchCountOptions count = null)
+        {
+            Ensure.IsNotNull(pipeline, nameof(pipeline));
+            return pipeline.AppendStage(PipelineStageDefinitionBuilder.SearchMeta(query, returnScope, indexName, count));
         }
 
         /// <summary>

@@ -1437,16 +1437,53 @@ namespace MongoDB.Driver
         public static PipelineStageDefinition<TInput, TInput> Search<TInput>(
             SearchDefinition<TInput> searchDefinition,
             SearchOptions<TInput> searchOptions)
+            => Search<TInput, TInput>(searchDefinition, returnScope: null, searchOptions);
+
+        /// <summary>
+        /// Creates a $search stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <param name="searchDefinition">The search definition.</param>
+        /// <param name="returnScope">The level of nested documents to return.</param>
+        /// <param name="searchOptions">The search options.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, TOutput> Search<TInput, TOutput>(
+            SearchDefinition<TInput> searchDefinition,
+            FieldDefinition<TInput, IEnumerable<TOutput>> returnScope,
+            SearchOptions<TInput> searchOptions)
         {
             Ensure.IsNotNull(searchDefinition, nameof(searchDefinition));
 
+            searchOptions ??= new SearchOptions<TInput>();
+
             const string operatorName = "$search";
-            var stage = new DelegatedPipelineStageDefinition<TInput, TInput>(
+            var stage = new DelegatedPipelineStageDefinition<TInput, TOutput>(
                 operatorName,
                 args =>
                 {
                     ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
                     var renderedSearchDefinition = searchDefinition.Render(args);
+
+                    IBsonSerializer<TOutput> outputSerializer;
+                    if (returnScope == null)
+                    {
+                        if (typeof(TOutput) != typeof(TInput))
+                        {
+                            throw new InvalidOperationException(
+                                $"The search output type '{typeof(TOutput).Name}' must be the same as the input type '{typeof(TInput).Name}' when 'returnScope' is not specified. Use the overload that specifies 'returnScope' to return documents of a nested collection type.");
+                        }
+
+                        outputSerializer = (IBsonSerializer<TOutput>)args.DocumentSerializer;
+                    }
+                    else
+                    {
+                        outputSerializer = args.SerializerRegistry.GetSerializer<TOutput>();
+                        renderedSearchDefinition.Add("returnScope", new BsonDocument { { "path", returnScope.Render(args).FieldName } });
+                        searchOptions = searchOptions.Clone();
+                        searchOptions.ReturnStoredSource = true;
+                    }
+
                     renderedSearchDefinition.Add("highlight", () => searchOptions.Highlight.Render(args), searchOptions.Highlight != null);
                     renderedSearchDefinition.Add("count", () => searchOptions.CountOptions.Render(), searchOptions.CountOptions != null);
                     renderedSearchDefinition.Add("sort", () => searchOptions.Sort.Render(args), searchOptions.Sort != null);
@@ -1458,7 +1495,7 @@ namespace MongoDB.Driver
                     renderedSearchDefinition.Add("searchBefore", () => searchOptions.SearchBefore, searchOptions.SearchBefore != null);
 
                     var document = new BsonDocument(operatorName, renderedSearchDefinition);
-                    return new RenderedPipelineStageDefinition<TInput>(operatorName, document, args.DocumentSerializer);
+                    return new RenderedPipelineStageDefinition<TOutput>(operatorName, document, outputSerializer);
                 });
 
             return stage;
@@ -1476,6 +1513,22 @@ namespace MongoDB.Driver
             SearchDefinition<TInput> searchDefinition,
             string indexName = null,
             SearchCountOptions count = null)
+            => SearchMeta(searchDefinition, returnScope: null, indexName, count);
+
+        /// <summary>
+        /// Creates a $searchMeta stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <param name="searchDefinition">The search definition.</param>
+        /// <param name="returnScope">The level of nested documents to return.</param>
+        /// <param name="indexName">The index name.</param>
+        /// <param name="count">The count options.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, SearchMetaResult> SearchMeta<TInput>(
+            SearchDefinition<TInput> searchDefinition,
+            FieldDefinition<TInput> returnScope,
+            string indexName = null,
+            SearchCountOptions count = null)
         {
             Ensure.IsNotNull(searchDefinition, nameof(searchDefinition));
 
@@ -1488,6 +1541,7 @@ namespace MongoDB.Driver
                     var renderedSearchDefinition = searchDefinition.Render(args);
                     renderedSearchDefinition.Add("count", () => count.Render(), count != null);
                     renderedSearchDefinition.Add("index", indexName, indexName != null);
+                    renderedSearchDefinition.Add("returnScope", () => new BsonDocument { { "path", returnScope!.Render(args).FieldName } }, returnScope != null);
 
                     var document = new BsonDocument(operatorName, renderedSearchDefinition);
                     return new RenderedPipelineStageDefinition<SearchMetaResult>(
