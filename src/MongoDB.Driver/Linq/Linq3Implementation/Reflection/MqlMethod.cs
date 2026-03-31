@@ -28,6 +28,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __constantWithSerializer;
         private static readonly MethodInfo __convert;
         private static readonly MethodInfo __dateFromString;
+        private static readonly MethodInfo __deserializeEJson;
         private static readonly MethodInfo __dateFromStringWithFormat;
         private static readonly MethodInfo __dateFromStringWithFormatAndTimezone;
         private static readonly MethodInfo __dateFromStringWithFormatAndTimezoneAndOnErrorAndOnNull;
@@ -35,6 +36,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __field;
         private static readonly MethodInfo __isMissing;
         private static readonly MethodInfo __isNullOrMissing;
+        private static readonly MethodInfo __serializeEJson;
         private static readonly MethodInfo __sigmoid;
         private static readonly MethodInfo __subtype;
 
@@ -52,6 +54,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __constantWithSerializer = ReflectionInfo.Method((object value, IBsonSerializer<object> serializer) => Mql.Constant(value, serializer));
             __convert = ReflectionInfo.Method((object value, ConvertOptions<object> options) => Mql.Convert(value, options));
             __dateFromString = ReflectionInfo.Method((string dateStringl) => Mql.DateFromString(dateStringl));
+            __deserializeEJson = ReflectionInfo.Method((object value, DeserializeEJsonOptions<object> options) => Mql.DeserializeEJson(value, options));
             __dateFromStringWithFormat = ReflectionInfo.Method((string dateString, string format) => Mql.DateFromString(dateString, format));
             __dateFromStringWithFormatAndTimezone = ReflectionInfo.Method((string dateString, string format, string timezone) => Mql.DateFromString(dateString, format, timezone));
             __dateFromStringWithFormatAndTimezoneAndOnErrorAndOnNull = ReflectionInfo.Method((string dateString, string format, string timezone, DateTime? onError, DateTime? onNull) => Mql.DateFromString(dateString, format, timezone, onError, onNull));
@@ -59,6 +62,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __field = ReflectionInfo.Method((object container, string fieldName, IBsonSerializer<object> serializer) => Mql.Field<object, object>(container, fieldName, serializer));
             __isMissing = ReflectionInfo.Method((object field) => Mql.IsMissing(field));
             __isNullOrMissing = ReflectionInfo.Method((object field) => Mql.IsNullOrMissing(field));
+            __serializeEJson = ReflectionInfo.Method((object value, SerializeEJsonOptions<object> options) => Mql.SerializeEJson(value, options));
             __sigmoid = ReflectionInfo.Method((double value) => Mql.Sigmoid(value));
             __subtype = ReflectionInfo.Method((object value) => Mql.Subtype(value));
 
@@ -107,6 +111,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo ConstantWithSerializer => __constantWithSerializer;
         public static MethodInfo Convert => __convert;
         public static MethodInfo DateFromString => __dateFromString;
+        public static MethodInfo DeserializeEJson => __deserializeEJson;
         public static MethodInfo DateFromStringWithFormat => __dateFromStringWithFormat;
         public static MethodInfo DateFromStringWithFormatAndTimezone => __dateFromStringWithFormatAndTimezone;
         public static MethodInfo DateFromStringWithFormatAndTimezoneAndOnErrorAndOnNull => __dateFromStringWithFormatAndTimezoneAndOnErrorAndOnNull;
@@ -114,6 +119,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo Field => __field;
         public static MethodInfo IsMissing => __isMissing;
         public static MethodInfo IsNullOrMissing => __isNullOrMissing;
+        public static MethodInfo SerializeEJson => __serializeEJson;
         public static MethodInfo Sigmoid => __sigmoid;
         public static MethodInfo Subtype => __subtype;
 

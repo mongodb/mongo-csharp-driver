@@ -59,6 +59,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __dateFromStringFormatArgument = new Feature("DateFromStringFormatArgument", WireVersion.Server40);
         private static readonly Feature __dateOperatorsNewIn50 = new Feature("DateOperatorsNewIn50", WireVersion.Server50);
         private static readonly Feature __densifyStage = new Feature("DensifyStage", WireVersion.Server51);
+        private static readonly Feature __deserializeEJsonOperator = new Feature("DeserializeEJsonOperator", WireVersion.Server83);
         private static readonly Feature __documentsStage = new Feature("DocumentsStage", WireVersion.Server51);
         private static readonly Feature __directConnectionSetting = new Feature("DirectConnectionSetting", WireVersion.Server44);
         private static readonly Feature __electionIdPriorityInSDAM = new Feature("ElectionIdPriorityInSDAM ", WireVersion.Server60);
@@ -99,6 +100,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __setWindowFields = new Feature("SetWindowFields", WireVersion.Server50);
         private static readonly Feature __setWindowFieldsLocf = new Feature("SetWindowFieldsLocf", WireVersion.Server52);
         private static readonly Feature __shardedTransactions = new Feature("ShardedTransactions", WireVersion.Server42);
+        private static readonly Feature __serializeEJsonOperator = new Feature("SerializeEJsonOperator", WireVersion.Server83);
         private static readonly Feature __sigmoidOperator = new Feature("SigmoidOperator", WireVersion.Server81);
         private static readonly Feature __similarityFunctions = new Feature("SimilarityFunctions", WireVersion.Server82);
         private static readonly Feature __snapshotReads = new Feature("SnapshotReads", WireVersion.Server50, notSupportedMessage: "Snapshot reads require MongoDB 5.0 or later");
@@ -279,6 +281,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the aggregate $densify stage feature.
         /// </summary>
         public static Feature DensifyStage => __densifyStage;
+
+        /// <summary>
+        /// Gets the $deserializeEJSON operator feature.
+        /// </summary>
+        public static Feature DeserializeEJsonOperator => __deserializeEJsonOperator;
 
         /// <summary>
         /// Gets the documents stage feature.
@@ -467,6 +474,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the server returns retryable writeError label feature.
         /// </summary>
         public static Feature ServerReturnsRetryableWriteErrorLabel => __serverReturnsRetryableWriteErrorLabel;
+
+        /// <summary>
+        /// Gets the $serializeEJSON operator feature.
+        /// </summary>
+        public static Feature SerializeEJsonOperator => __serializeEJsonOperator;
 
         /// <summary>
         /// Gets the $set stage feature.
