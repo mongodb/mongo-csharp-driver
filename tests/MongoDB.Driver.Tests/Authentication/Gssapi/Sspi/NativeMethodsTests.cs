@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Tests.Authentication.Gssapi.Sspi
         [InlineData(NativeMethods.SEC_E_LOGON_DENIED, "The logon failed.")]
         [InlineData(NativeMethods.SEC_E_NO_CREDENTIALS, "No credentials are available in the security package.")]
         [InlineData(NativeMethods.SEC_I_RENEGOTIATE, "The remote party requires a new handshake sequence or the application has just initiated a shutdown.")]
-        public void CreateException_with_known_error_code_does_not_use_default_message(long errorCode, string message)
+        public void CreateException_with_known_error_code_returns_specific_message(long errorCode, string message)
         {
             var exception = NativeMethods.CreateException(errorCode, "default");
             Assert.Equal(message, exception.Message);
