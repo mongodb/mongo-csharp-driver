@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Authentication.Gssapi.Sspi
         /// <returns>A Win32Exception.</returns>
         public static Win32Exception CreateException(long errorCode, string defaultMessage)
         {
-            string message = defaultMessage + "$ Error code {errorCode}.";
+            string message = defaultMessage + $" Error code {errorCode}.";
             switch (errorCode)
             {
                 case SEC_E_BUFFER_TOO_SMALL:
