@@ -191,7 +191,7 @@ namespace MongoDB.Bson.Serialization
                 var message = string.Format("Generic type {0} has unassigned type parameters.", BsonUtils.GetFriendlyTypeName(type));
                 throw new ArgumentException(message, "type");
             }
-            if (type != serializer.ValueType)
+            if (!serializer.ValueType.IsAssignableFrom(type))
             {
                 throw new BsonSerializationException($"A serializer for {BsonUtils.GetFriendlyTypeName(serializer.ValueType)} cannot be registered for type {BsonUtils.GetFriendlyTypeName(type)}.");
             }

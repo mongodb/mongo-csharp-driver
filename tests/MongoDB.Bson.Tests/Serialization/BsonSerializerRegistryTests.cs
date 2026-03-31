@@ -116,6 +116,72 @@ namespace MongoDB.Bson.Tests.Serialization
         }
 
         [Fact]
+        public void RegisterSerializer_should_allow_serializer_for_base_type()
+        {
+            var subject = new BsonSerializerRegistry();
+            var serializer = new PeopleSerializer();
+
+            var exception = Record.Exception(() => subject.RegisterSerializer(typeof(List<Person>), serializer));
+            exception.Should().BeNull();
+
+            var people = new List<Person>
+            {
+                new Person { Name = "Alice" },
+                new Person { Name = "Bob" }
+            };
+
+            var json = people.ToJson<IEnumerable<Person>>();
+            json.Should().Contain("Alice");
+            json.Should().Contain("Bob");
+
+        }
+
+        [Fact]
+        public void TryRegisterSerializer_should_allow_serializer_for_base_type()
+        {
+            var subject = new BsonSerializerRegistry();
+            var serializer = new PeopleSerializer();
+
+            var exception = Record.Exception(() => subject.TryRegisterSerializer(typeof(List<Person>), serializer));
+            exception.Should().BeNull();
+
+            var people = new List<Person>
+            {
+              new Person { Name = "Alice" },
+              new Person { Name = "Bob" }
+            };
+
+            var json = people.ToJson<IEnumerable<Person>>();
+            json.Should().Contain("Alice");
+            json.Should().Contain("Bob");
+
+        }
+
+        private class Person
+        {
+            public string Name { get; set; }
+        }
+
+        private class PeopleSerializer : SerializerBase<IEnumerable<Person>>
+        {
+            public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, IEnumerable<Person> value)
+            {
+                context.Writer.WriteStartArray();
+                foreach (var person in value)
+                {
+                  context.Writer.WriteStartDocument();
+                  context.Writer.WriteName("Name");
+                  context.Writer.WriteString(person.Name);
+                  context.Writer.WriteEndDocument();
+                }
+                context.Writer.WriteEndArray();
+            }
+
+        public override IEnumerable<Person> Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
+              => throw new NotImplementedException();
+        }
+
+        [Fact]
         public void TryRegisterSerializer_should_return_true_when_serializer_is_not_already_registered()
         {
             var subject = new BsonSerializerRegistry();
