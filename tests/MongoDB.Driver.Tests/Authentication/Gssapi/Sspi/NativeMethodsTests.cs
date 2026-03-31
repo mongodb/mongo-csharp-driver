@@ -21,21 +21,21 @@ namespace MongoDB.Driver.Tests.Authentication.Gssapi.Sspi
     public class NativeMethodsTests
     {
         [Theory]
-        [InlineData(NativeMethods.SEC_E_LOGON_DENIED)]
-        [InlineData(NativeMethods.SEC_E_NO_CREDENTIALS)]
-        [InlineData(NativeMethods.SEC_I_RENEGOTIATE)]
-        public void CreateException_with_known_error_code_does_not_use_default_message(long errorCode)
+        [InlineData(NativeMethods.SEC_E_LOGON_DENIED, "The logon failed.")]
+        [InlineData(NativeMethods.SEC_E_NO_CREDENTIALS, "No credentials are available in the security package.")]
+        [InlineData(NativeMethods.SEC_I_RENEGOTIATE, "The remote party requires a new handshake sequence or the application has just initiated a shutdown.")]
+        public void CreateException_with_known_error_code_does_not_use_default_message(long errorCode, string message)
         {
             var exception = NativeMethods.CreateException(errorCode, "default");
-            Assert.DoesNotContain("default", exception.Message);
+            Assert.Equal(message, exception.Message);
         }
 
         [Fact]
         public void CreateException_with_unknown_error_code_uses_default_message()
         {
-            var errorCode = 0x99999999;
-            var exception = NativeMethods.CreateException(errorCode, "default");
-            Assert.Contains("default", exception.Message);
+            var errorCode = 0x99999999L; // arbitrary long not in the switch
+            var exception = NativeMethods.CreateException(errorCode, "Default message.");
+            Assert.Equal("Default message. Error code 0x99999999.", exception.Message);
         }
     }
 }
