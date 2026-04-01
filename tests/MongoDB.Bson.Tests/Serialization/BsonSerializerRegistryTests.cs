@@ -100,17 +100,23 @@ namespace MongoDB.Bson.Tests.Serialization
         [Fact]
         public void RegisterSerializer_should_throw_when_type_and_serializer_do_not_match()
         {
+            var subject = new BsonSerializerRegistry();
             var intSerializer = new Int32Serializer();
-            var exception = Record.Exception(() => BsonSerializer.RegisterSerializer(typeof(long), intSerializer));
+
+            var exception = Record.Exception(() => subject.RegisterSerializer(typeof(long), intSerializer));
+
             exception.Should().BeOfType<BsonSerializationException>();
-            exception.Message.Should().Contain($"A serializer for Int32 cannot be registered for type Int64.");
+            exception.Message.Should().Contain("A serializer for Int32 cannot be registered for type Int64.");
         }
 
         [Fact]
         public void TryRegisterSerializer_should_throw_when_type_and_serializer_do_not_match()
         {
+            var subject = new BsonSerializerRegistry();
             var intSerializer = new Int32Serializer();
-            var tryException = Record.Exception(() => BsonSerializer.TryRegisterSerializer(typeof(long), intSerializer));
+
+            var tryException = Record.Exception(() => subject.TryRegisterSerializer(typeof(long), intSerializer));
+
             tryException.Should().BeOfType<BsonSerializationException>();
             tryException.Message.Should().Contain("A serializer for Int32 cannot be registered for type Int64.");
         }
@@ -124,16 +130,7 @@ namespace MongoDB.Bson.Tests.Serialization
             var exception = Record.Exception(() => subject.RegisterSerializer(typeof(List<Person>), serializer));
             exception.Should().BeNull();
 
-            var people = new List<Person>
-            {
-                new Person { Name = "Alice" },
-                new Person { Name = "Bob" }
-            };
-
-            var json = people.ToJson<IEnumerable<Person>>();
-            json.Should().Contain("Alice");
-            json.Should().Contain("Bob");
-
+            subject.GetSerializer(typeof(List<Person>)).Should().BeSameAs(serializer);
         }
 
         [Fact]
@@ -142,19 +139,10 @@ namespace MongoDB.Bson.Tests.Serialization
             var subject = new BsonSerializerRegistry();
             var serializer = new PeopleSerializer();
 
-            var exception = Record.Exception(() => subject.TryRegisterSerializer(typeof(List<Person>), serializer));
-            exception.Should().BeNull();
+            var result = subject.TryRegisterSerializer(typeof(List<Person>), serializer);
+            result.Should().BeTrue();
 
-            var people = new List<Person>
-            {
-              new Person { Name = "Alice" },
-              new Person { Name = "Bob" }
-            };
-
-            var json = people.ToJson<IEnumerable<Person>>();
-            json.Should().Contain("Alice");
-            json.Should().Contain("Bob");
-
+            subject.GetSerializer(typeof(List<Person>)).Should().BeSameAs(serializer);
         }
 
         private class Person
@@ -169,16 +157,16 @@ namespace MongoDB.Bson.Tests.Serialization
                 context.Writer.WriteStartArray();
                 foreach (var person in value)
                 {
-                  context.Writer.WriteStartDocument();
-                  context.Writer.WriteName("Name");
-                  context.Writer.WriteString(person.Name);
-                  context.Writer.WriteEndDocument();
+                    context.Writer.WriteStartDocument();
+                    context.Writer.WriteName("Name");
+                    context.Writer.WriteString(person.Name);
+                    context.Writer.WriteEndDocument();
                 }
                 context.Writer.WriteEndArray();
             }
 
-        public override IEnumerable<Person> Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
-              => throw new NotImplementedException();
+            public override IEnumerable<Person> Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
+                => throw new NotImplementedException();
         }
 
         [Fact]
