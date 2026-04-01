@@ -46,6 +46,7 @@ internal partial class SerializerFinderVisitor
 
                 var resultSerializer = node.Member switch
                 {
+                    _ when declaringType == typeof(BsonDocument) && !node.Member.IsIndexer() => UnknowableSerializer.Create(node.Type), // we do not support translation of BsonDocument properties other than indexer
                     _ when declaringType == typeof(BsonValue) => GetBsonValuePropertySerializer(),
                     _ when IsCollectionCountOrLengthProperty() => GetCollectionCountOrLengthPropertySerializer(),
                     _ when declaringType == typeof(DateTime) => GetDateTimePropertySerializer(),
