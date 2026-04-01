@@ -81,8 +81,8 @@ namespace MongoDB.Driver.Tests
                 MaxConnecting = 3,
                 MaxConnectionIdleTime = TimeSpan.FromSeconds(2),
                 MaxConnectionLifeTime = TimeSpan.FromSeconds(3),
-                MaxConnectionPoolSize = 4,
-                MinConnectionPoolSize = 5,
+                MaxConnectionPoolSize = 5,
+                MinConnectionPoolSize = 4,
                 Password = "password",
                 ReadConcernLevel = ReadConcernLevel.Majority,
                 ReadPreference = readPreference,
@@ -138,8 +138,8 @@ namespace MongoDB.Driver.Tests
                 "maxConnecting=3",
                 "maxIdleTime=2s",
                 "maxLifeTime=3s",
-                "maxPoolSize=4",
-                "minPoolSize=5",
+                "maxPoolSize=5",
+                "minPoolSize=4",
                 "serverMonitoringMode=Poll",
                 "serverSelectionTimeout=10s",
                 "socketTimeout=7s",
@@ -177,8 +177,8 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(TimeSpan.FromSeconds(2), builder.MaxConnectionIdleTime);
                 Assert.Equal(TimeSpan.FromSeconds(3), builder.MaxConnectionLifeTime);
                 Assert.Equal(3, builder.MaxConnecting);
-                Assert.Equal(4, builder.MaxConnectionPoolSize);
-                Assert.Equal(5, builder.MinConnectionPoolSize);
+                Assert.Equal(4, builder.MinConnectionPoolSize);
+                Assert.Equal(5, builder.MaxConnectionPoolSize);
                 Assert.Equal("password", builder.Password);
                 Assert.Equal(ReadConcernLevel.Majority, builder.ReadConcernLevel);
                 Assert.Equal(readPreference, builder.ReadPreference);

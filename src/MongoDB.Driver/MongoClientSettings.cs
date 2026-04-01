@@ -1366,6 +1366,11 @@ namespace MongoDB.Driver
                     throw new InvalidOperationException("Load balanced mode cannot be used with direct connection.");
                 }
             }
+
+            if (_maxConnectionPoolSize < _minConnectionPoolSize)
+            {
+                throw new InvalidOperationException("MaxConnectionPoolSize must be greater than or equal to MinConnectionPoolSize.");
+            }
         }
     }
 }

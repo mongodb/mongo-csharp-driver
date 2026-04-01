@@ -958,6 +958,11 @@ namespace MongoDB.Driver.Core.Configuration
                 throw new MongoConfigurationException("proxyUsername and proxyPassword must both be specified or neither.");
             }
 
+            if (_minPoolSize > _maxPoolSize)
+            {
+                throw new MongoConfigurationException("maxPoolSize must be greater than or equal to minPoolSize.");
+            }
+
             string ProtectConnectionString(string connectionString)
             {
                 var protectedString = Regex.Replace(connectionString, @"(?<=://)[^/]*(?=@)", "<hidden>");
@@ -1055,7 +1060,7 @@ namespace MongoDB.Driver.Core.Configuration
                     {
                         throw new MongoConfigurationException("Multiple proxyHost options are not allowed.");
                     }
-                    
+
                     _proxyHost = value;
                     if (_proxyHost.Length == 0)
                     {
