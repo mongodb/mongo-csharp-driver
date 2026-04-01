@@ -64,7 +64,6 @@ public class MqlSerializeEJsonTests : LinqIntegrationTest<MqlSerializeEJsonTests
             "{ '$project' : { '_v' : { '$serializeEJSON' : { 'input' : '$IntValue', 'relaxed' : false } }, '_id' : 0 } }");
 
         // Canonical: int gets wrapped as { "$numberInt": "42" }
-        // Can't use BsonDocument.Parse here because it interprets EJSON wrappers
         var result = queryable.Single();
         result.Should().Be(new BsonDocument("$numberInt", "42"));
     }
@@ -103,7 +102,6 @@ public class MqlSerializeEJsonTests : LinqIntegrationTest<MqlSerializeEJsonTests
             "{ '$project' : { '_v' : { '$serializeEJSON' : { 'input' : '$Document', 'relaxed' : false } }, '_id' : 0 } }");
 
         // Document { a: 1 } in canonical should become { a: { "$numberInt": "1" } }
-        // Can't use BsonDocument.Parse here because it interprets EJSON wrappers
         var result = queryable.Single();
         result.Should().Be(new BsonDocument("a", new BsonDocument("$numberInt", "1")));
     }
@@ -122,7 +120,6 @@ public class MqlSerializeEJsonTests : LinqIntegrationTest<MqlSerializeEJsonTests
             "{ '$match' : { '_id' : 3 } }",
             "{ '$project' : { '_v' : { '$serializeEJSON' : { 'input' : '$LongValue', 'relaxed' : false } }, '_id' : 0 } }");
 
-        // Can't use BsonDocument.Parse here because it interprets EJSON wrappers
         var result = queryable.Single();
         result.Should().Be(new BsonDocument("$numberLong", "100"));
     }
