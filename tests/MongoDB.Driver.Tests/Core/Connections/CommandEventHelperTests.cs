@@ -126,7 +126,7 @@ namespace MongoDB.Driver.Core.Connections
                 };
                 ActivitySource.AddActivityListener(listener);
 
-                // With listeners registered, these always return true when unless everything is disabled.
+                // With listeners registered, these always return true unless everything is disabled.
                 commandHelper.ShouldCallBeforeSending.Should().Be(captureCommandSucceeded || captureCommandFailed || logCommands || traceCommands);
                 commandHelper.ShouldCallAfterSending.Should().Be(captureCommandSucceeded || captureCommandFailed || logCommands || traceCommands);
                 commandHelper.ShouldCallErrorSending.Should().Be(captureCommandSucceeded || captureCommandFailed || logCommands || traceCommands);

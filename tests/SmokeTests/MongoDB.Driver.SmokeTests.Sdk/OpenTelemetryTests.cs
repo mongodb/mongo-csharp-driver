@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -87,7 +86,7 @@ namespace MongoDB.Driver.SmokeTests.Sdk
 
         private static ActivityListener CreateActivityListener(out IReadOnlyCollection<Activity> capturedActivities)
         {
-            var activities = new ConcurrentBag<Activity>();
+            var activities = new List<Activity>();
             var listener = new ActivityListener
             {
                 ShouldListenTo = source => source.Name == MongoTelemetry.ActivitySourceName,
