@@ -155,27 +155,47 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
-        public void Ascending_with_field_and_expression_using_extension_methods()
-        {
-            var subject = CreateSubject<Person>();
-
-            var sort = subject.Ascending("FirstName")
-                .Ascending(x => x.LastName)
-                .Ascending(x => x.Age);
-
-            Assert(sort, "{fn: 1, ln: 1, age: 1}");
-        }
-
-        [Fact]
-        public void Descending_with_field_and_expression_using_extension_methods()
+        public void Ascending_using_extension_methods()
         {
             var subject = CreateSubject<Person>();
 
             var sort = subject.Descending("FirstName")
-                .Descending(x => x.LastName)
-                .Descending(x => x.Age);
+                .Ascending("LastName");
 
-            Assert(sort, "{fn: -1, ln: -1, age: -1}");
+            Assert(sort, "{fn: -1, ln: 1}");
+        }
+
+        [Fact]
+        public void Ascending_typed_using_extension_methods()
+        {
+            var subject = CreateSubject<Person>();
+
+            var sort = subject.Descending("FirstName")
+                .Ascending(x => x.LastName);
+
+            Assert(sort, "{fn: -1, ln: 1}");
+        }
+
+        [Fact]
+        public void Descending_using_extension_methods()
+        {
+            var subject = CreateSubject<Person>();
+
+            var sort = subject.Ascending("FirstName")
+                .Descending("LastName");
+
+            Assert(sort, "{fn: 1, ln: -1}");
+        }
+
+        [Fact]
+        public void Descending_typed_using_extension_methods()
+        {
+            var subject = CreateSubject<Person>();
+
+            var sort = subject.Ascending("FirstName")
+                .Descending("LastName");
+
+            Assert(sort, "{fn: 1, ln: -1}");
         }
 
         [Fact]
