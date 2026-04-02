@@ -193,7 +193,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<Person>();
 
             var sort = subject.Ascending("FirstName")
-                .Descending("LastName");
+                .Descending(x => x.LastName);
 
             Assert(sort, "{fn: 1, ln: -1}");
         }
