@@ -437,8 +437,8 @@ namespace MongoDB.Driver.Tests.Search
             var storedSource = indexDefinition["storedSource"].AsBsonDocument;
             var included = storedSource["include"].AsBsonArray;
             included.Count.Should().Be(2);
-            included[0].AsString.Should().Be("Filter3");
-            included[1].AsString.Should().Be("SomeText");
+            included.Select(b => b.AsString).Should().Contain("SomeText");
+            included.Select(b => b.AsString).Should().Contain("Filter3");
         }
 
         [Theory(Timeout = Timeout)]
