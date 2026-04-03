@@ -713,6 +713,45 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
+        [Fact]
+        public void IsExpired_should_return_false_when_maxIdleTime_has_no_limit()
+        {
+            var subject = new BinaryConnection(
+                serverId: _serverId,
+                endPoint: _endPoint,
+                settings: new ConnectionSettings(maxIdleTime: TimeSpan.FromMilliseconds(0)),
+                streamFactory: _mockStreamFactory.Object,
+                connectionInitializer: _mockConnectionInitializer.Object,
+                eventSubscriber: _capturedEvents,
+                loggerFactory: LoggerFactory,
+                tracingOptions: null,
+                socketReadTimeout: TimeSpan.FromMilliseconds(1000),
+                socketWriteTimeout: TimeSpan.FromMilliseconds(1000));
+
+            subject.Open(OperationContext.NoTimeout);
+            subject.IsExpired.Should().BeFalse();
+        }
+
+        [Fact]
+        public void IsExpired_should_return_true_when_maxIdleTime_is_exceeded()
+        {
+            var subject = new BinaryConnection(
+                serverId: _serverId,
+                endPoint: _endPoint,
+                settings: new ConnectionSettings(maxIdleTime: TimeSpan.FromMilliseconds(10)),
+                streamFactory: _mockStreamFactory.Object,
+                connectionInitializer: _mockConnectionInitializer.Object,
+                eventSubscriber: _capturedEvents,
+                loggerFactory: LoggerFactory,
+                tracingOptions: null,
+                socketReadTimeout: TimeSpan.FromMilliseconds(1000),
+                socketWriteTimeout: TimeSpan.FromMilliseconds(1000));
+
+            subject.Open(OperationContext.NoTimeout);
+            Thread.Sleep(20);
+            subject.IsExpired.Should().BeTrue();
+        }
+
         private void SetupStreamRead(Mock<Stream> streamMock, TaskCompletionSource<int> tcs)
         {
             streamMock.Setup(s => s.Read(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>()))
