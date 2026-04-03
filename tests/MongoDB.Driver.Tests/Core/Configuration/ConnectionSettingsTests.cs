@@ -61,15 +61,19 @@ namespace MongoDB.Driver.Core.Configuration
             e.ParamName.Should().Be("compressors");
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void constructor_should_throw_when_maxIdleTime_is_negative_or_zero(
-            [Values(-1, 0)]
-            int maxIdleTime)
+        [Fact]
+        public void constructor_should_throw_when_maxIdleTime_is_negative()
         {
-            Action action = () => new ConnectionSettings(maxIdleTime: TimeSpan.FromSeconds(maxIdleTime));
+            Action action = () => new ConnectionSettings(maxIdleTime: TimeSpan.FromSeconds(-1));
 
             action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("maxIdleTime");
+        }
+
+        [Fact]
+        public void constructor_with_maxIdleTime_of_zero_should_return_expected_result()
+        {
+            var subject = new ConnectionSettings(maxIdleTime: TimeSpan.FromSeconds(0));
+            subject.MaxIdleTime.Should().Be(TimeSpan.Zero);
         }
 
         [Theory]

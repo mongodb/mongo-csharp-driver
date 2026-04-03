@@ -123,7 +123,7 @@ namespace MongoDB.Driver.Core.Connections
                 }
 
                 // connection has been idle for too long
-                if (_settings.MaxIdleTime.TotalMilliseconds > -1 && now > _lastUsedAtUtc.Add(_settings.MaxIdleTime))
+                if (_settings.MaxIdleTime.TotalMilliseconds > 0 && now > _lastUsedAtUtc.Add(_settings.MaxIdleTime))
                 {
                     return true;
                 }
