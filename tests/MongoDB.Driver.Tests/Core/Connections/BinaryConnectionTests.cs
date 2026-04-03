@@ -728,7 +728,7 @@ namespace MongoDB.Driver.Core.Connections
                 socketReadTimeout: TimeSpan.FromMilliseconds(1000),
                 socketWriteTimeout: TimeSpan.FromMilliseconds(1000));
 
-            subject.Open(OperationContext.NoTimeout); // Open so that we don't return early in IsExpired
+            subject.Open(OperationContext.NoTimeout);
             subject.IsExpired.Should().BeFalse();
         }
 
@@ -748,7 +748,6 @@ namespace MongoDB.Driver.Core.Connections
                 socketWriteTimeout: TimeSpan.FromMilliseconds(1000));
 
             subject.Open(OperationContext.NoTimeout);
-            Thread.Sleep(200);
             subject.IsExpired.Should().BeTrue();
         }
 
