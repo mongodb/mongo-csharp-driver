@@ -323,6 +323,102 @@ namespace MongoDB.Driver.Tests
             }).ParamName.Should().Be("pipeline");
         }
 
+        [Fact]
+        public void Rerank_with_single_string_path_should_render_expected_stage()
+        {
+            var pipeline = new EmptyPipelineDefinition<BsonDocument>();
+
+            var result = pipeline.Rerank(RerankQuery.Text("machine learning"), "plot", 25, "rerank-2.5");
+
+            var stages = RenderStages(result, BsonDocumentSerializer.Instance);
+            stages.Count.Should().Be(1);
+            stages[0].Should().Be("""
+                                  {
+                                      $rerank: {
+                                          "query": { "text": "machine learning" },
+                                          "path": "plot",
+                                          "numDocsToRerank": 25,
+                                          "model": "rerank-2.5"
+                                      }
+                                  }
+                                  """);
+        }
+
+        [Fact]
+        public void Rerank_with_multiple_string_paths_should_render_expected_stage()
+        {
+            var pipeline = new EmptyPipelineDefinition<BsonDocument>();
+            FieldDefinition<BsonDocument>[] paths = ["plot", "title"];
+
+            var result = pipeline.Rerank(RerankQuery.Text("machine learning"), paths, 100, "rerank-2.5-lite");
+
+            var stages = RenderStages(result, BsonDocumentSerializer.Instance);
+            stages.Count.Should().Be(1);
+            stages[0].Should().Be("""
+                                  {
+                                      $rerank: {
+                                          "query": { "text": "machine learning" },
+                                          "path": ["plot", "title"],
+                                          "numDocsToRerank": 100,
+                                          "model": "rerank-2.5-lite"
+                                      }
+                                  }
+                                  """);
+        }
+
+        [Fact]
+        public void Rerank_with_expression_path_should_render_expected_stage()
+        {
+            var pipeline = new EmptyPipelineDefinition<MovieWithPlot>();
+
+            var result = pipeline.Rerank(RerankQuery.Text("tutorials"), x => x.Title, 50, "rerank-2");
+
+            var stages = RenderStages(result, BsonSerializer.SerializerRegistry.GetSerializer<MovieWithPlot>());
+            stages.Count.Should().Be(1);
+            stages[0].Should().Be("""
+                                  {
+                                      $rerank: {
+                                          "query": { "text": "tutorials" },
+                                          "path": "Title",
+                                          "numDocsToRerank": 50,
+                                          "model": "rerank-2"
+                                      }
+                                  }
+                                  """);
+        }
+
+        [Fact]
+        public void Rerank_with_params_expression_paths_should_render_expected_stage()
+        {
+            var pipeline = new EmptyPipelineDefinition<MovieWithPlot>();
+
+            var result = pipeline.Rerank(RerankQuery.Text("machine learning"), 25, "rerank-2.5", x => x.Title, x => x.Synopsis);
+
+            var stages = RenderStages(result, BsonSerializer.SerializerRegistry.GetSerializer<MovieWithPlot>());
+            stages.Count.Should().Be(1);
+            stages[0].Should().Be("""
+                                  {
+                                      $rerank: {
+                                          "query": { "text": "machine learning" },
+                                          "path": ["Title", "Synopsis"],
+                                          "numDocsToRerank": 25,
+                                          "model": "rerank-2.5"
+                                      }
+                                  }
+                                  """);
+        }
+
+        [Fact]
+        public void Rerank_should_throw_when_pipeline_is_null()
+        {
+            PipelineDefinition<BsonDocument, BsonDocument> pipeline = null;
+
+            var exception = Record.Exception(() => pipeline.Rerank(RerankQuery.Text("query"), "field", 10, "rerank-2.5"));
+
+            exception.Should().BeOfType<ArgumentNullException>()
+                .Which.ParamName.Should().Be("pipeline");
+        }
+
         [Theory]
         [InlineData(0)]
         [InlineData(15)]
@@ -705,6 +801,8 @@ namespace MongoDB.Driver.Tests
 
         private class MovieWithPlot
         {
+            public string Title { get; set; }
+            public string Synopsis { get; set; }
             public int Year { get; set; }
             public NestedPlot Plot { get; set; }
             public float[] NonNestedEmbedding  { get; set; }

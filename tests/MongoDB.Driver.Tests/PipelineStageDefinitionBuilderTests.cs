@@ -654,6 +654,45 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void Rerank_with_incorrect_params_should_throw_expected_exception()
+        {
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                PipelineStageDefinitionBuilder.Rerank<BsonDocument>(null, "field", 10, "rerank-2.5");
+            }).ParamName.Should().Be("query");
+
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                PipelineStageDefinitionBuilder.Rerank(RerankQuery.Text("query"), (IEnumerable<FieldDefinition<BsonDocument>>)null, 10, "rerank-2.5");
+            }).ParamName.Should().Be("paths");
+
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                PipelineStageDefinitionBuilder.Rerank<BsonDocument>(RerankQuery.Text("query"), "field", 10, null);
+            }).ParamName.Should().Be("model");
+
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
+            {
+                PipelineStageDefinitionBuilder.Rerank<BsonDocument>(RerankQuery.Text("query"), "field", 0, "rerank-2.5");
+            }).ParamName.Should().Be("numDocsToRerank");
+
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                PipelineStageDefinitionBuilder.Rerank<BsonDocument, string>(null, 10, "rerank-2.5");
+            }).ParamName.Should().Be("query");
+
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                PipelineStageDefinitionBuilder.Rerank(RerankQuery.Text("query"), (FieldDefinition<BsonDocument>)null, 10, "rerank-2.5");
+            }).ParamName.Should().Be("path");
+
+            Assert.Throws<ArgumentException>(() =>
+            {
+                PipelineStageDefinitionBuilder.Rerank(RerankQuery.Text("query"), Array.Empty<FieldDefinition<BsonDocument>>(), 10, "rerank-2.5");
+            }).ParamName.Should().Be("paths");
+        }
+
+        [Fact]
         public void Search_without_returnScope_should_throw_when_output_type_differs_from_input_type()
         {
             var stage = PipelineStageDefinitionBuilder.Search<BsonDocument, ManyToOne>(

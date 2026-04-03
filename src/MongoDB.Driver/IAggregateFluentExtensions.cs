@@ -1136,6 +1136,52 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Appends a $rerank stage.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="query">The rerank query.</param>
+        /// <param name="path">The field to send to the reranker.</param>
+        /// <param name="numDocsToRerank">The maximum number of documents to rerank.</param>
+        /// <param name="model">The reranking model name.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<TResult> Rerank<TResult, TField>(
+            this IAggregateFluent<TResult> aggregate,
+            RerankQuery query,
+            Expression<Func<TResult, TField>> path,
+            int numDocsToRerank,
+            string model)
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+
+            return aggregate.Rerank(query, new ExpressionFieldDefinition<TResult>(path), numDocsToRerank, model);
+        }
+
+        /// <summary>
+        /// Appends a $rerank stage.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="query">The rerank query.</param>
+        /// <param name="numDocsToRerank">The maximum number of documents to rerank.</param>
+        /// <param name="model">The reranking model name.</param>
+        /// <param name="paths">The fields to send to the reranker.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<TResult> Rerank<TResult, TField>(
+            this IAggregateFluent<TResult> aggregate,
+            RerankQuery query,
+            int numDocsToRerank,
+            string model,
+            params Expression<Func<TResult, TField>>[] paths)
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.Rerank(query, numDocsToRerank, model, paths));
+        }
+
+        /// <summary>
         /// Appends a $vectorSearch stage.
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>
