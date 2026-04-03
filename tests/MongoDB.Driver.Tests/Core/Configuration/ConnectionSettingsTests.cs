@@ -70,7 +70,7 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         [Fact]
-        public void constructor_with_maxIdleTime_of_zero_should_return_expected_result()
+        public void constructor_should_not_throw_when_maxIdleTime_is_zero()
         {
             var subject = new ConnectionSettings(maxIdleTime: TimeSpan.FromSeconds(0));
             subject.MaxIdleTime.Should().Be(TimeSpan.Zero);
