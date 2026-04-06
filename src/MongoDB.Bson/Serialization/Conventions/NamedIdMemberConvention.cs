@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace MongoDB.Bson.Serialization.Conventions
 {
@@ -118,6 +119,12 @@ namespace MongoDB.Bson.Serialization.Conventions
                 {
                     return false;
                 }
+            }
+
+            var bsonElement = member.GetCustomAttribute<BsonElementAttribute>();
+            if (bsonElement != null && bsonElement.ElementName != "_id")
+            {
+                return false;
             }
             return true;
         }
