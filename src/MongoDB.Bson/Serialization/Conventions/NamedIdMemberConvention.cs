@@ -122,7 +122,7 @@ namespace MongoDB.Bson.Serialization.Conventions
             }
 
             var bsonElement = member.GetCustomAttribute<BsonElementAttribute>();
-            if (bsonElement != null && bsonElement.ElementName != "_id")
+            if (bsonElement != null && !string.IsNullOrEmpty(bsonElement.ElementName) && bsonElement.ElementName != "_id")
             {
                 return false;
             }
