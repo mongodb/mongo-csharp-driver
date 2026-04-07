@@ -45,6 +45,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __clientSideEncryption = new Feature("ClientSideEncryption", WireVersion.Server42);
         private static readonly Feature __clusteredIndexes = new Feature("ClusteredIndexes", WireVersion.Server53);
         private static readonly Feature __convertOperatorAnyToString = new Feature("ConvertOperatorAnyToString", WireVersion.Server83);
+        private static readonly Feature __convertOperatorBaseConversion = new Feature("ConvertOperatorBaseConversion", WireVersion.Server83);
         private static readonly Feature __convertOperatorBinDataToFromNumeric = new Feature("ConvertOperatorBinDataToFromNumeric", WireVersion.Server81);
         private static readonly Feature __convertOperatorBinDataToFromString= new Feature("ConvertOperatorBinDataToFromString", WireVersion.Server80);
         private static readonly Feature __convertOperatorStringToObjectOrArray = new Feature("ConvertOperatorStringToObjectOrArray", WireVersion.Server83);
@@ -208,6 +209,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the conversion of any type to string feature.
         /// </summary>
         public static Feature ConvertOperatorAnyToString => __convertOperatorAnyToString;
+
+        /// <summary>
+        /// Gets the base conversion in $convert feature.
+        /// </summary>
+        public static Feature ConvertOperatorBaseConversion => __convertOperatorBaseConversion;
 
         /// <summary>
         /// Gets the conversion of binary data to/from numeric types feature.

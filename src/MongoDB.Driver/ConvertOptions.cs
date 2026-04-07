@@ -22,9 +22,19 @@ namespace MongoDB.Driver
     /// </summary>
     public abstract class ConvertOptions
     {
+        private int? _base;
         private ByteOrder? _byteOrder;
         private string _format;
         private BsonBinarySubType? _subType;
+
+        /// <summary>
+        /// The base parameter. Must be 2, 8, 10, or 16.
+        /// </summary>
+        public int? Base
+        {
+            get => _base;
+            set => _base = value;
+        }
 
         /// <summary>
         /// The byteOrder parameter.
