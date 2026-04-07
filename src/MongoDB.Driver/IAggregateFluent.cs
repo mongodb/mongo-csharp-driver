@@ -546,20 +546,6 @@ namespace MongoDB.Driver
         IAggregateFluent<TNewResult> Unwind<TNewResult>(FieldDefinition<TResult> field, AggregateUnwindOptions<TNewResult> options = null);
 
         /// <summary>
-        /// Appends a $rerank stage.
-        /// </summary>
-        /// <param name="query">The rerank query.</param>
-        /// <param name="path">The field to send to the reranker.</param>
-        /// <param name="numDocsToRerank">The maximum number of documents to rerank.</param>
-        /// <param name="model">The reranking model name.</param>
-        /// <returns>The fluent aggregate interface.</returns>
-        IAggregateFluent<TResult> Rerank(
-            RerankQuery query,
-            FieldDefinition<TResult> path,
-            int numDocsToRerank,
-            string model);
-
-        /// <summary>
         /// Appends a vector search stage.
         /// </summary>
         /// <param name="field">The field.</param>

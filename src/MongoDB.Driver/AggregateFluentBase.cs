@@ -326,16 +326,6 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public virtual IAggregateFluent<TResult> Rerank(
-            RerankQuery query,
-            FieldDefinition<TResult> path,
-            int numDocsToRerank,
-            string model)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <inheritdoc />
         public virtual IAggregateFluent<TResult> VectorSearch(
             FieldDefinition<TResult> field,
             QueryVector queryVector,

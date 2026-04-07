@@ -379,15 +379,6 @@ namespace MongoDB.Driver
             return WithPipeline(_pipeline.Unwind(field, options));
         }
 
-        public override IAggregateFluent<TResult> Rerank(
-            RerankQuery query,
-            FieldDefinition<TResult> path,
-            int numDocsToRerank,
-            string model)
-        {
-            return WithPipeline(_pipeline.Rerank(query, path, numDocsToRerank, model));
-        }
-
         public override IAggregateFluent<TResult> VectorSearch(
             FieldDefinition<TResult> field,
             QueryVector queryVector,
