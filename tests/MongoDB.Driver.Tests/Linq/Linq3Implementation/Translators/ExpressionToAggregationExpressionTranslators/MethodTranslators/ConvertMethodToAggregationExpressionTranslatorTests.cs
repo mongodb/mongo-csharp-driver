@@ -500,6 +500,28 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             AssertOutcome(collection, queryable, expectedStages, expectedValue);
         }
 
+        [Theory]
+        [InlineData(30, """{"a":1,"b":"hello"}""")]
+        [InlineData(31, """[1,"two",3]""")]
+        public void Convert_to_string_from_any_type_should_work(int id, string expectedResult)
+        {
+            RequireServer.Check().Supports(Feature.ConvertOperatorAnyToString);
+
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == id)
+                .Select(x => Mql.Convert<BsonValue, string>(x.BsonValueProperty, null));
+
+            var expectedStages =
+                new[]
+                {
+                    $"{{ $match : {{ _id : {id} }} }}",
+                    "{ $project: { _v : { $toString : '$BsonValueProperty' }, _id : 0 } }",
+                };
+
+            AssertOutcome(collection, queryable, expectedStages, expectedResult);
+        }
+
         [Fact]
         public void Convert_to_BsonDocument_should_work()
         {
@@ -656,6 +678,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                 BsonDocument.Parse("{ _id : 22, IntProperty: 33 }"),
                 BsonDocument.Parse("{ _id : 23, StringProperty: '2018-03-03' }"),
                 BsonDocument.Parse("{ _id : 24, StringProperty: '5ab9cbfa31c2ab715d42129e' }"),
+                BsonDocument.Parse("{ _id : 30, BsonValueProperty: { a: 1, b: 'hello' } }"),
+                BsonDocument.Parse("{ _id : 31, BsonValueProperty: [1, 'two', 3] }"),
                 BsonDocument.Parse("{ _id : 40, StringProperty: '{\"a\": 1, \"b\": \"hello\"}' }"),
                 BsonDocument.Parse("{ _id : 41, StringProperty: '[1, 2, 3]' }"),
             ];
@@ -665,6 +689,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         {
             public int Id { get; set; }
             public BsonBinaryData BinaryProperty { get; set; }
+            public BsonValue BsonValueProperty { get; set; }
             public double DoubleProperty { get; set; }
             public int IntProperty { get; set; }
             public long LongProperty { get; set; }
