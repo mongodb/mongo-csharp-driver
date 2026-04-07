@@ -109,6 +109,24 @@ public class MqlDeserializeEJsonTests : LinqIntegrationTest<MqlDeserializeEJsonT
     }
 
     [Fact]
+    public void DeserializeEJson_with_string_output_should_return_native_string()
+    {
+        var collection = Fixture.Collection;
+        var queryable = collection.AsQueryable()
+            .Where(d => d.Id == 3)
+            .Select(d => Mql.DeserializeEJson<BsonValue, string>(d.Value, null));
+
+        var renderedStages = Translate(collection, queryable);
+        AssertStages(
+            renderedStages,
+            "{ '$match' : { '_id' : 3 } }",
+            "{ '$project' : { '_v' : { '$deserializeEJSON' : { 'input' : '$Value' } }, '_id' : 0 } }");
+
+        var result = queryable.Single();
+        result.Should().Be("hello");
+    }
+
+    [Fact]
     public void DeserializeEJson_with_onError_should_return_fallback_on_invalid_input()
     {
         var collection = Fixture.Collection;
