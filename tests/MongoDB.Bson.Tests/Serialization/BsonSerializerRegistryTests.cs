@@ -105,8 +105,8 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var exception = Record.Exception(() => subject.RegisterSerializer(typeof(long), intSerializer));
 
-            exception.Should().BeOfType<BsonSerializationException>();
-            exception.Message.Should().Contain("A serializer for Int32 cannot be registered for type Int64.");
+            exception.Should().BeOfType<ArgumentException>();
+            exception.Message.Should().Be("A serializer for Int32 cannot be registered for type Int64.");
         }
 
         [Fact]
@@ -117,8 +117,8 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var tryException = Record.Exception(() => subject.TryRegisterSerializer(typeof(long), intSerializer));
 
-            tryException.Should().BeOfType<BsonSerializationException>();
-            tryException.Message.Should().Contain("A serializer for Int32 cannot be registered for type Int64.");
+            tryException.Should().BeOfType<ArgumentException>();
+            tryException.Message.Should().Be("A serializer for Int32 cannot be registered for type Int64.");
         }
 
         [Fact]
@@ -153,17 +153,7 @@ namespace MongoDB.Bson.Tests.Serialization
         private class PeopleSerializer : SerializerBase<IEnumerable<Person>>
         {
             public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, IEnumerable<Person> value)
-            {
-                context.Writer.WriteStartArray();
-                foreach (var person in value)
-                {
-                    context.Writer.WriteStartDocument();
-                    context.Writer.WriteName("Name");
-                    context.Writer.WriteString(person.Name);
-                    context.Writer.WriteEndDocument();
-                }
-                context.Writer.WriteEndArray();
-            }
+                => throw new NotImplementedException();
 
             public override IEnumerable<Person> Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
                 => throw new NotImplementedException();

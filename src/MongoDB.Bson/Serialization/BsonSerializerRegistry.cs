@@ -93,7 +93,8 @@ namespace MongoDB.Bson.Serialization
             {
                 throw new ArgumentNullException("serializer");
             }
-            EnsureRegisteringASerializerForThisTypeIsAllowed(serializer, type);
+            EnsureRegisteringASerializerForThisTypeIsAllowed(type);
+            EnsureSerializerIsCompatibleWithType(serializer, type);
 
             if (!_cache.TryAdd(type, serializer))
             {
@@ -133,7 +134,8 @@ namespace MongoDB.Bson.Serialization
             {
                 throw new ArgumentNullException(nameof(serializer));
             }
-            EnsureRegisteringASerializerForThisTypeIsAllowed(serializer, type);
+            EnsureRegisteringASerializerForThisTypeIsAllowed(type);
+            EnsureSerializerIsCompatibleWithType(serializer, type);
 
             if (_cache.TryAdd(type, serializer))
             {
@@ -178,7 +180,7 @@ namespace MongoDB.Bson.Serialization
             throw new BsonSerializationException(message);
         }
 
-        private void EnsureRegisteringASerializerForThisTypeIsAllowed(IBsonSerializer serializer, Type type)
+        private void EnsureRegisteringASerializerForThisTypeIsAllowed(Type type)
         {
             var typeInfo = type.GetTypeInfo();
             if (typeof(BsonValue).GetTypeInfo().IsAssignableFrom(type))
@@ -191,9 +193,13 @@ namespace MongoDB.Bson.Serialization
                 var message = string.Format("Generic type {0} has unassigned type parameters.", BsonUtils.GetFriendlyTypeName(type));
                 throw new ArgumentException(message, "type");
             }
+        }
+
+        private void EnsureSerializerIsCompatibleWithType(IBsonSerializer serializer, Type type)
+        {
             if (!serializer.ValueType.IsAssignableFrom(type))
             {
-                throw new BsonSerializationException($"A serializer for {BsonUtils.GetFriendlyTypeName(serializer.ValueType)} cannot be registered for type {BsonUtils.GetFriendlyTypeName(type)}.");
+                throw new ArgumentException($"A serializer for {BsonUtils.GetFriendlyTypeName(serializer.ValueType)} cannot be registered for type {BsonUtils.GetFriendlyTypeName(type)}.");
             }
         }
     }
