@@ -145,20 +145,6 @@ namespace MongoDB.Bson.Tests.Serialization
             subject.GetSerializer(typeof(List<Person>)).Should().BeSameAs(serializer);
         }
 
-        private class Person
-        {
-            public string Name { get; set; }
-        }
-
-        private class PeopleSerializer : SerializerBase<IEnumerable<Person>>
-        {
-            public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, IEnumerable<Person> value)
-                => throw new NotImplementedException();
-
-            public override IEnumerable<Person> Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
-                => throw new NotImplementedException();
-        }
-
         [Fact]
         public void TryRegisterSerializer_should_return_true_when_serializer_is_not_already_registered()
         {
@@ -250,6 +236,20 @@ namespace MongoDB.Bson.Tests.Serialization
             subject.GetSerializer(typeof(object)).Should().NotBeSameAs(serializer2);
             exception.Should().BeOfType<BsonSerializationException>();
             exception.Message.Should().Contain("There is already a different serializer registered for type Object");
+        }
+
+        private class Person
+        {
+            public string Name { get; set; }
+        }
+
+        private class PeopleSerializer : SerializerBase<IEnumerable<Person>>
+        {
+            public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, IEnumerable<Person> value)
+                => throw new NotImplementedException();
+
+            public override IEnumerable<Person> Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
+                => throw new NotImplementedException();
         }
     }
 }
