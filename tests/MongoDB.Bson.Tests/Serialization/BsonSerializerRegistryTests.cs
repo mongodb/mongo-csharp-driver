@@ -98,6 +98,54 @@ namespace MongoDB.Bson.Tests.Serialization
         }
 
         [Fact]
+        public void RegisterSerializer_should_throw_when_type_and_serializer_do_not_match()
+        {
+            var subject = new BsonSerializerRegistry();
+            var intSerializer = new Int32Serializer();
+
+            var exception = Record.Exception(() => subject.RegisterSerializer(typeof(long), intSerializer));
+
+            exception.Should().BeOfType<ArgumentException>();
+            exception.Message.Should().Be("A serializer for Int32 cannot be registered for type Int64.");
+        }
+
+        [Fact]
+        public void TryRegisterSerializer_should_throw_when_type_and_serializer_do_not_match()
+        {
+            var subject = new BsonSerializerRegistry();
+            var intSerializer = new Int32Serializer();
+
+            var tryException = Record.Exception(() => subject.TryRegisterSerializer(typeof(long), intSerializer));
+
+            tryException.Should().BeOfType<ArgumentException>();
+            tryException.Message.Should().Be("A serializer for Int32 cannot be registered for type Int64.");
+        }
+
+        [Fact]
+        public void RegisterSerializer_should_allow_serializer_for_base_type()
+        {
+            var subject = new BsonSerializerRegistry();
+            var serializer = new PeopleSerializer();
+
+            var exception = Record.Exception(() => subject.RegisterSerializer(typeof(List<Person>), serializer));
+            exception.Should().BeNull();
+
+            subject.GetSerializer(typeof(List<Person>)).Should().BeSameAs(serializer);
+        }
+
+        [Fact]
+        public void TryRegisterSerializer_should_allow_serializer_for_base_type()
+        {
+            var subject = new BsonSerializerRegistry();
+            var serializer = new PeopleSerializer();
+
+            var result = subject.TryRegisterSerializer(typeof(List<Person>), serializer);
+            result.Should().BeTrue();
+
+            subject.GetSerializer(typeof(List<Person>)).Should().BeSameAs(serializer);
+        }
+
+        [Fact]
         public void TryRegisterSerializer_should_return_true_when_serializer_is_not_already_registered()
         {
             var subject = new BsonSerializerRegistry();
@@ -188,6 +236,20 @@ namespace MongoDB.Bson.Tests.Serialization
             subject.GetSerializer(typeof(object)).Should().NotBeSameAs(serializer2);
             exception.Should().BeOfType<BsonSerializationException>();
             exception.Message.Should().Contain("There is already a different serializer registered for type Object");
+        }
+
+        private class Person
+        {
+            public string Name { get; set; }
+        }
+
+        private class PeopleSerializer : SerializerBase<IEnumerable<Person>>
+        {
+            public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, IEnumerable<Person> value)
+                => throw new NotImplementedException();
+
+            public override IEnumerable<Person> Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
+                => throw new NotImplementedException();
         }
     }
 }
