@@ -16,23 +16,22 @@
 using MongoDB.Bson;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors;
 
-namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
+namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
+
+internal sealed class AstCreateObjectIdExpression : AstExpression
 {
-    internal sealed class AstCreateObjectIdExpression : AstExpression
+    public override AstNodeType NodeType => AstNodeType.CreateObjectIdExpression;
+
+    public override AstNode Accept(AstNodeVisitor visitor)
     {
-        public override AstNodeType NodeType => AstNodeType.CreateObjectIdExpression;
+        return visitor.VisitCreateObjectIdExpression(this);
+    }
 
-        public override AstNode Accept(AstNodeVisitor visitor)
+    public override BsonValue Render()
+    {
+        return new BsonDocument
         {
-            return visitor.VisitCreateObjectIdExpression(this);
-        }
-
-        public override BsonValue Render()
-        {
-            return new BsonDocument
-            {
-                { "$createObjectId", new BsonDocument() }
-            };
-        }
+            { "$createObjectId", new BsonDocument() }
+        };
     }
 }

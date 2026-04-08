@@ -100,6 +100,7 @@ internal partial class SerializerFinderVisitor
                 case "ContainsValue": DeduceContainsValueMethodSerializers(); break;
                 case "Convert": DeduceConvertMethodSerializers(); break;
                 case "Create": DeduceCreateMethodSerializers(); break;
+                case "CreateObjectId": DeduceCreateObjectIdMethodSerializers(); break;
                 case "DateFromString": DeduceDateFromStringMethodSerializers(); break;
                 case "DefaultIfEmpty": DeduceDefaultIfEmptyMethodSerializers(); break;
                 case "DegreesToRadians": DeduceDegreesToRadiansMethodSerializers(); break;
@@ -113,7 +114,6 @@ internal partial class SerializerFinderVisitor
                 case "Exp": DeduceExpMethodSerializers(); break;
                 case "ExponentialMovingAverage": DeduceExponentialMovingAverageMethodSerializers(); break;
                 case "Field": DeduceFieldMethodSerializers(); break;
-                case "GenerateNewId": DeduceGenerateNewIdMethodSerializers(); break;
                 case "get_Item": DeduceGetItemMethodSerializers(); break;
                 case "get_Chars": DeduceGetCharsMethodSerializers(); break;
                 case "GroupBy": DeduceGroupByMethodSerializers(); break;
@@ -1374,9 +1374,9 @@ internal partial class SerializerFinderVisitor
             }
         }
 
-        void DeduceGenerateNewIdMethodSerializers()
+        void DeduceCreateObjectIdMethodSerializers()
         {
-            if (method.Is(ObjectIdMethod.GenerateNewIdMethod))
+            if (method.Is(MqlMethod.CreateObjectId))
             {
                 if (IsNotKnown(node))
                 {

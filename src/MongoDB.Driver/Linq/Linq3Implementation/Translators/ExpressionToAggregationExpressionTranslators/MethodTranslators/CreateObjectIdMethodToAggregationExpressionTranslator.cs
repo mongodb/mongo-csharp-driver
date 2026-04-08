@@ -20,13 +20,13 @@ using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
-    internal static class GenerateNewIdMethodToAggregationExpressionTranslator
+    internal static class CreateObjectIdMethodToAggregationExpressionTranslator
     {
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
 
-            if (method.Is(ObjectIdMethod.GenerateNewIdMethod))
+            if (method.Is(MqlMethod.CreateObjectId))
             {
                 var ast = AstExpression.CreateObjectId();
                 var serializer = context.GetSerializer(expression);

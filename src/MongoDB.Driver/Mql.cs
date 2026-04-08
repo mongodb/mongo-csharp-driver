@@ -65,6 +65,13 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Represents the creation of a new ObjectId, translates to $createObjectId in MQL.
+        /// </summary>
+        /// <returns>A ObjectId.</returns>
+        public static ObjectId CreateObjectId() =>
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+
+        /// <summary>
         /// Converts a string to a DateTime using the $dateFromString aggregation operator.
         /// </summary>
         /// <param name="dateString">The string.</param>

@@ -13,46 +13,27 @@
  * limitations under the License.
  */
 
-using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators;
 
-public class GenerateNewIdMethodToAggregationExpressionTranslatorTests
+public class CreateObjectIdMethodToAggregationExpressionTranslatorTests
 {
     [Fact]
     public void Translate_should_produce_proper_ast()
     {
-        var expression = TestHelpers.MakeLambda<MyModel, ObjectId>(model => ObjectId.GenerateNewId());
+        var expression = TestHelpers.MakeLambda<MyModel, ObjectId>(model => Mql.CreateObjectId());
         var translationContext = TestHelpers.CreateTranslationContext(expression);
-        var translation = GenerateNewIdMethodToAggregationExpressionTranslator.Translate(translationContext, (MethodCallExpression)expression.Body);
+        var translation = CreateObjectIdMethodToAggregationExpressionTranslator.Translate(translationContext, (MethodCallExpression)expression.Body);
 
         translation.Serializer.Should().BeOfType<ObjectIdSerializer>();
         translation.Ast.Render().Should().Be(BsonDocument.Parse("{ $createObjectId: { } }"));
     }
-
-    [Theory]
-    [MemberData(nameof(NonSupportedTestCases))]
-    public void Translate_should_throw_on_non_supported_expressions(LambdaExpression expression)
-    {
-        var translationContext = TestHelpers.CreateTranslationContext(expression);
-        var exception = Record.Exception(() => GenerateNewIdMethodToAggregationExpressionTranslator.Translate(translationContext, (MethodCallExpression)expression.Body));
-
-        exception.Should().BeOfType<ExpressionNotSupportedException>();
-    }
-
-    public static IEnumerable<object[]> NonSupportedTestCases =
-    [
-        [TestHelpers.MakeLambda<MyModel, ObjectId>(model => ObjectId.GenerateNewId(42))],
-        [TestHelpers.MakeLambda<MyModel, ObjectId>(model => ObjectId.GenerateNewId(DateTime.Parse("2026-01-01T00:00:00Z")))],
-    ];
 
     public class MyModel
     {

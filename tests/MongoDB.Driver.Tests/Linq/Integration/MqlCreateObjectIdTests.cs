@@ -24,9 +24,9 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Integration;
 
-public class ObjectIdGenerateNewIdTests : LinqIntegrationTest<ObjectIdGenerateNewIdTests.ClassFixture>
+public class MqlCreateObjectIdTests : LinqIntegrationTest<MqlCreateObjectIdTests.ClassFixture>
 {
-    public ObjectIdGenerateNewIdTests(ClassFixture fixture)
+    public MqlCreateObjectIdTests(ClassFixture fixture)
         : base(fixture, server => server.Supports(Feature.CreateObjectIdExpression))
     {
     }
@@ -36,7 +36,7 @@ public class ObjectIdGenerateNewIdTests : LinqIntegrationTest<ObjectIdGenerateNe
     {
         var collection = Fixture.Collection;
         var queryable = collection.AsQueryable()
-            .Where(d => d.Id == ObjectId.GenerateNewId());
+            .Where(d => d.Id == Mql.CreateObjectId());
 
         var renderedStages = Translate(collection, queryable);
         AssertStages(renderedStages, "{ $match : { $expr : { $eq : ['$_id', { $createObjectId : {} }] } } }");
@@ -50,7 +50,7 @@ public class ObjectIdGenerateNewIdTests : LinqIntegrationTest<ObjectIdGenerateNe
     {
         var collection = Fixture.Collection;
         var queryable = collection.AsQueryable()
-            .Select(d => new { NewId = ObjectId.GenerateNewId() });
+            .Select(d => new { NewId = Mql.CreateObjectId() });
 
         var renderedStages = Translate(collection, queryable);
         AssertStages(renderedStages, "{ $project : { 'NewId' : { $createObjectId : {} }, '_id' : 0 } }");
@@ -69,7 +69,7 @@ public class ObjectIdGenerateNewIdTests : LinqIntegrationTest<ObjectIdGenerateNe
     {
         var collection = Fixture.Collection;
 
-        var filter = Builders<C>.Filter.Where(d => d.Id == ObjectId.GenerateNewId());
+        var filter = Builders<C>.Filter.Where(d => d.Id == Mql.CreateObjectId());
         var result = await collection.Find(filter).ToListAsync();
 
         var renderedFilter = Translate(collection, filter);
@@ -82,7 +82,7 @@ public class ObjectIdGenerateNewIdTests : LinqIntegrationTest<ObjectIdGenerateNe
     {
         var collection = Fixture.Collection;
 
-        var projection = Builders<C>.Projection.Expression(c => new { NewId = ObjectId.GenerateNewId() });
+        var projection = Builders<C>.Projection.Expression(c => new { NewId = Mql.CreateObjectId() });
         var result = await collection.Find(Builders<C>.Filter.Empty).Project(projection).ToListAsync();
 
         var renderedProjection = TranslateFindProjection(collection, projection, null);
@@ -103,7 +103,7 @@ public class ObjectIdGenerateNewIdTests : LinqIntegrationTest<ObjectIdGenerateNe
 
         var pipeline = new EmptyPipelineDefinition<C>()
             .Match(d => d.Id != ObjectId.GenerateNewId())
-            .Project(d => new { NewId = ObjectId.GenerateNewId() });
+            .Project(d => new { NewId = Mql.CreateObjectId() });
 
         var result = await collection.Aggregate(pipeline).ToListAsync();
 
