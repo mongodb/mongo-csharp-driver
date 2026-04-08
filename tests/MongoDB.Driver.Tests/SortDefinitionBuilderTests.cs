@@ -166,7 +166,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
-        public void Ascending_typed_using_extension_methods()
+        public void Ascending_Typed_using_extension_methods()
         {
             var subject = CreateSubject<Person>();
 
@@ -188,7 +188,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
-        public void Descending_typed_using_extension_methods()
+        public void Descending_Typed_using_extension_methods()
         {
             var subject = CreateSubject<Person>();
 
@@ -248,9 +248,6 @@ namespace MongoDB.Driver.Tests
 
             [BsonElement("ln")]
             public string LastName { get; set; }
-
-            [BsonElement("age")]
-            public int Age { get; set; }
         }
     }
 }
