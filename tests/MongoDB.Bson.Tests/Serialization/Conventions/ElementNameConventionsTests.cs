@@ -23,12 +23,6 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
     public class ElementNameConventionsTests
     {
 
-        private class BookWithBsonElementAttribute
-        {
-            [BsonElement("notId")]
-            public ObjectId Id { get; set; } // should not be set to _id
-        }
-
         [Fact]
         public void TestBsonElementAttributeOverridesNamedIdMemberConvention()
         {
@@ -38,14 +32,6 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             classMap.Freeze();
             Assert.Null(classMap.IdMemberMap);
             Assert.Equal("notId", classMap.GetMemberMap(x => x.Id).ElementName);
-        }
-
-        private class BookWithBsonIdAttribute
-        {
-            public ObjectId id { get; set; }
-
-            [BsonId]
-            public string Title { get; set; } // should be set to _id
         }
 
         [Fact]
@@ -61,15 +47,6 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             Assert.Equal("id", classMap.GetMemberMap(x => x.id).ElementName);
         }
 
-        private class BookWithBsonElementAndBsonId
-        {
-            [BsonElement("notId")]
-            public ObjectId Id { get; set; }
-
-            [BsonId]
-            public string Title { get; set; } // should be set to _id
-        }
-
         [Fact]
         public void TestBsonIdAttributeWinsWhenBsonElementSkipsIdProperty()
         {
@@ -79,12 +56,6 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 
             Assert.Equal("Title", classMap.IdMemberMap.MemberName);
             Assert.Equal("notId", classMap.GetMemberMap(x => x.Id).ElementName);
-        }
-
-        private class BookWithExplicitBsonElementId
-        {
-            [BsonElement("_id")]
-            public string Id { get; set; } // should not be set to _id
         }
 
         [Fact]
@@ -99,12 +70,6 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             Assert.Equal("_id", classMap.GetMemberMap(x => x.Id).ElementName);
         }
 
-        private class BookWithExplicitBsonElementIdButNoIdProperty
-        {
-            [BsonElement("_id")]
-            public string Title { get; set; } // should be set to _id
-        }
-
         [Fact]
         public void TestBsonElementWithUnderscoreIdButNoIdPropertyDoesNotBecomeIdMember()
         {
@@ -114,13 +79,6 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 
             Assert.Null(classMap.IdMemberMap);
             Assert.Equal("_id", classMap.GetMemberMap(x => x.Title).ElementName);
-        }
-
-        private class BookWithBsonElementAndFallthrough
-        {
-            [BsonElement("notId")]
-            public ObjectId Id { get; set; }
-            public ObjectId id { get; set; } // should be set to _id
         }
 
         [Fact]
@@ -133,14 +91,6 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             Assert.Equal("id", classMap.IdMemberMap.MemberName);
             Assert.Equal("_id", classMap.GetMemberMap(x => x.id).ElementName);
             Assert.Equal("notId", classMap.GetMemberMap(x => x.Id).ElementName);
-        }
-
-        private class TestClass
-        {
-            public string FirstName { get; set; }
-            public int Age { get; set; }
-            public string _DumbName { get; set; }
-            public string lowerCase { get; set; }
         }
 
         [Fact]
@@ -171,6 +121,56 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             Assert.Equal("age", classMap.GetMemberMap(x => x.Age).ElementName);
             Assert.Equal("_DumbName", classMap.GetMemberMap(x => x._DumbName).ElementName);
             Assert.Equal("lowerCase", classMap.GetMemberMap(x => x.lowerCase).ElementName);
+        }
+
+        private class BookWithBsonElementAttribute
+        {
+            [BsonElement("notId")]
+            public ObjectId Id { get; set; } // should not be set to _id
+        }
+
+        private class BookWithBsonIdAttribute
+        {
+            public ObjectId id { get; set; }
+
+            [BsonId]
+            public string Title { get; set; } // should be set to _id
+        }
+
+        private class BookWithBsonElementAndBsonId
+        {
+            [BsonElement("notId")]
+            public ObjectId Id { get; set; }
+
+            [BsonId]
+            public string Title { get; set; } // should be set to _id
+        }
+
+        private class BookWithExplicitBsonElementId
+        {
+            [BsonElement("_id")]
+            public string Id { get; set; } // should not be set to _id
+        }
+
+        private class BookWithExplicitBsonElementIdButNoIdProperty
+        {
+            [BsonElement("_id")]
+            public string Title { get; set; } // should be set to _id
+        }
+
+        private class BookWithBsonElementAndFallthrough
+        {
+            [BsonElement("notId")]
+            public ObjectId Id { get; set; }
+            public ObjectId id { get; set; } // should be set to _id
+        }
+
+        private class TestClass
+        {
+            public string FirstName { get; set; }
+            public int Age { get; set; }
+            public string _DumbName { get; set; }
+            public string lowerCase { get; set; }
         }
     }
 }
