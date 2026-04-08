@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Authentication.Gssapi.Sspi
         /// <returns>A Win32Exception.</returns>
         public static Win32Exception CreateException(long errorCode, string defaultMessage)
         {
-            string message = defaultMessage + $" Error code 0x{errorCode:X8}.";
+            string message;
             switch (errorCode)
             {
                 case SEC_E_BUFFER_TOO_SMALL:
@@ -116,6 +116,9 @@ namespace MongoDB.Driver.Authentication.Gssapi.Sspi
                     break;
                 case SEC_I_RENEGOTIATE:
                     message = "The remote party requires a new handshake sequence or the application has just initiated a shutdown.";
+                    break;
+                default:
+                    message = defaultMessage + $" Error code 0x{errorCode:X8}.";
                     break;
             }
 
