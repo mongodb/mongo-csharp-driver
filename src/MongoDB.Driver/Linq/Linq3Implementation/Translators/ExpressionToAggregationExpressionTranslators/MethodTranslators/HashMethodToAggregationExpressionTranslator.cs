@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     }
                 }
 
-                AstExpression ast;
+                AstExpression ast = null;
                 if (method.Is(MqlMethod.Hash))
                 {
                     ast = AstExpression.HashExpression(valueTranslation.Ast, algorithm);
@@ -59,10 +59,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 else if (method.Is(MqlMethod.HexHash))
                 {
                     ast = AstExpression.HexHashExpression(valueTranslation.Ast, algorithm);
-                }
-                else
-                {
-                    throw new ExpressionNotSupportedException(expression, $"unsupported hash method: {method}");
                 }
 
                 return new TranslatedExpression(expression, ast, context.GetSerializer(expression));

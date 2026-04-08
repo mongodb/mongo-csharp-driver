@@ -19,7 +19,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
@@ -112,7 +111,6 @@ public class MqlHashTests : LinqIntegrationTest<MqlHashTests.ClassFixture>
     {
         public int Id { get; set; }
 
-        [BsonIgnoreIfNull]
         public BsonBinaryData Data { get; set; }
     }
 
@@ -122,7 +120,6 @@ public class MqlHashTests : LinqIntegrationTest<MqlHashTests.ClassFixture>
         [
             new() { Id = 1, Data = new BsonBinaryData([0x01, 0x02]) },
             new() { Id = 2, Data = new BsonBinaryData(Guid.Parse("E4A10FB8-7A83-494C-9710-29BBFFB1C262"), GuidRepresentation.Standard) },
-            //new() { Id = 4 }, TODO: investigate why BsonIgnoreIfNull is not working on deserialization
         ];
     }
 }
