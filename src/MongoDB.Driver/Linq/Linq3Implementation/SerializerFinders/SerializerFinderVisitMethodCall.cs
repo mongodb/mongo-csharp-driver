@@ -935,6 +935,8 @@ internal partial class SerializerFinderVisitor
                     TypeCode.UInt32 => Int32Serializer.Instance,
                     TypeCode.UInt64 => UInt64Serializer.Instance,
 
+                    _ when valueType == typeof(BsonArray) => BsonArraySerializer.Instance,
+                    _ when valueType == typeof(BsonDocument) => BsonDocumentSerializer.Instance,
                     _ when valueType == typeof(byte[]) => ByteArraySerializer.Instance,
                     _ when valueType == typeof(BsonBinaryData) => BsonBinaryDataSerializer.Instance,
                     _ when valueType == typeof(Decimal128) => Decimal128Serializer.Instance,
