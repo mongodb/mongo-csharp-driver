@@ -63,7 +63,12 @@ public class BsonDocumentTests
         [TestHelpers.MakeLambda((BsonDocument d) => d.ElementCount)],
         [TestHelpers.MakeLambda((BsonDocument d) => d.Elements)],
         [TestHelpers.MakeLambda((BsonDocument d) => d.Values)],
-        [TestHelpers.MakeLambda((BsonDocument d) => d.Names)]
+        [TestHelpers.MakeLambda((BsonDocument d) => d.Names)],
+
+        [TestHelpers.MakeLambda((RawBsonDocument d) => d.ElementCount)],
+        [TestHelpers.MakeLambda((RawBsonDocument d) => d.Elements)],
+        [TestHelpers.MakeLambda((RawBsonDocument d) => d.Values)],
+        [TestHelpers.MakeLambda((RawBsonDocument d) => d.Names)],
     ];
 }
 
