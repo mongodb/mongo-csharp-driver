@@ -501,10 +501,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         }
 
         [Theory]
-        [InlineData(22, 2, "100001")]
-        [InlineData(22, 8, "41")]
-        [InlineData(22, 16, "21")]
-        public void Convert_to_string_with_base_should_work(int id, int @base, string expectedResult)
+        [InlineData(22, ConvertBase.Binary, "100001")]
+        [InlineData(22, ConvertBase.Octal, "41")]
+        [InlineData(22, ConvertBase.Hexadecimal, "21")]
+        public void Convert_to_string_with_base_should_work(int id, ConvertBase @base, string expectedResult)
         {
             RequireServer.Check().Supports(Feature.ConvertOperatorBaseConversion);
 
@@ -517,17 +517,17 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                 new[]
                 {
                     $"{{ $match : {{ _id : {id} }} }}",
-                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$IntProperty', to : 'string', base : {@base} }} }}, _id : 0 }} }}",
+                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$IntProperty', to : 'string', base : {(int)@base} }} }}, _id : 0 }} }}",
                 };
 
             AssertOutcome(collection, queryable, expectedStages, expectedResult);
         }
 
         [Theory]
-        [InlineData(25, 2, 10)]
-        [InlineData(26, 8, 42)]
-        [InlineData(27, 16, 255)]
-        public void Convert_to_int_with_base_should_work(int id, int @base, int expectedResult)
+        [InlineData(25, ConvertBase.Binary, 10)]
+        [InlineData(26, ConvertBase.Octal, 42)]
+        [InlineData(27, ConvertBase.Hexadecimal, 255)]
+        public void Convert_to_int_with_base_should_work(int id, ConvertBase @base, int expectedResult)
         {
             RequireServer.Check().Supports(Feature.ConvertOperatorBaseConversion);
 
@@ -540,7 +540,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                 new[]
                 {
                     $"{{ $match : {{ _id : {id} }} }}",
-                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$StringProperty', to : 'int', base : {@base} }} }}, _id : 0 }} }}",
+                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$StringProperty', to : 'int', base : {(int)@base} }} }}, _id : 0 }} }}",
                 };
 
             AssertOutcome(collection, queryable, expectedStages, expectedResult);

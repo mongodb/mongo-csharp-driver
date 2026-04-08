@@ -22,15 +22,15 @@ namespace MongoDB.Driver
     /// </summary>
     public abstract class ConvertOptions
     {
-        private int? _base;
+        private ConvertBase? _base;
         private ByteOrder? _byteOrder;
         private string _format;
         private BsonBinarySubType? _subType;
 
         /// <summary>
-        /// The base parameter. Must be 2, 8, 10, or 16.
+        /// The base parameter for conversions between string and numeric types.
         /// </summary>
-        public int? Base
+        public ConvertBase? Base
         {
             get => _base;
             set => _base = value;
@@ -117,6 +117,29 @@ namespace MongoDB.Driver
             onNull = _onNull;
             return _onNullWasSet;
         }
+    }
+
+    /// <summary>
+    /// Represents the integer base for conversions between string and numeric types using <see cref="Mql.Convert{TFrom, TTo}(TFrom, ConvertOptions{TTo})"/>.
+    /// </summary>
+    public enum ConvertBase
+    {
+        /// <summary>
+        /// Base 2 (binary).
+        /// </summary>
+        Binary = 2,
+        /// <summary>
+        /// Base 8 (octal).
+        /// </summary>
+        Octal = 8,
+        /// <summary>
+        /// Base 10 (decimal).
+        /// </summary>
+        Decimal = 10,
+        /// <summary>
+        /// Base 16 (hexadecimal).
+        /// </summary>
+        Hexadecimal = 16,
     }
 
     /// <summary>

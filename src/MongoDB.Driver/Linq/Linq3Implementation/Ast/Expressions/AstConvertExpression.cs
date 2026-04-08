@@ -21,7 +21,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
 {
     internal sealed class AstConvertExpression : AstExpression
     {
-        private readonly int? _base;
+        private readonly ConvertBase? _base;
         private readonly ByteOrder? _byteOrder;
         private readonly string _format;
         private readonly AstExpression _input;
@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
         public AstConvertExpression(
             AstExpression input,
             AstExpression to,
-            int? @base = null,
+            ConvertBase? @base = null,
             BsonBinarySubType? subType = null,
             ByteOrder? byteOrder = null,
             string format = null,
@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             _onNull = onNull;
         }
 
-        public int? Base => _base;
+        public ConvertBase? Base => _base;
         public ByteOrder? ByteOrder => _byteOrder;
         public string Format => _format;
         public AstExpression Input => _input;
@@ -82,7 +82,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
                         },
                         { "onError", () => _onError.Render(), _onError != null },
                         { "onNull", () => _onNull.Render(), _onNull != null },
-                        { "base", () => _base!.Value, _base != null },
+                        { "base", () => (int)_base!.Value, _base != null },
                         { "format", () => _format, _format != null },
                         { "byteOrder", () => _byteOrder!.Value.Render(), _byteOrder != null }
                     }

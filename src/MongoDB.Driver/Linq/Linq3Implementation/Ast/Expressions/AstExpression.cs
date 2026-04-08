@@ -263,7 +263,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
         public static AstExpression Convert(
             AstExpression input,
             AstExpression to,
-            int? @base = null,
+            ConvertBase? @base = null,
             BsonBinarySubType? subType = null,
             ByteOrder? byteOrder = null,
             string format = null,
