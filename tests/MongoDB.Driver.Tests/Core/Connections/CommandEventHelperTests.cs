@@ -78,8 +78,8 @@ namespace MongoDB.Driver.Core.Connections
             var tracingOptions = new TracingOptions { Disabled = true };
             var commandHelper = new CommandEventHelper(eventLogger, tracingOptions);
 
-            // No ActivityListener, so tracing doesn't contribute to _shouldTrackState
-            commandHelper._shouldTrackState().Should().Be(logCommands || captureCommandSucceeded || captureCommandFailed);
+            // No ActivityListener, so tracing doesn't contribute to _eventsNeedState
+            commandHelper._eventsNeedState().Should().Be(logCommands || captureCommandSucceeded || captureCommandFailed);
         }
 
         [Theory]
@@ -142,8 +142,8 @@ namespace MongoDB.Driver.Core.Connections
 
     internal static class CommandEventHelperReflector
     {
-        public static bool _shouldTrackState(this CommandEventHelper commandEventHelper) =>
-            (bool)Reflector.GetFieldValue(commandEventHelper, nameof(_shouldTrackState));
+        public static bool _eventsNeedState(this CommandEventHelper commandEventHelper) =>
+            (bool)Reflector.GetFieldValue(commandEventHelper, nameof(_eventsNeedState));
 
 
         public static bool ShouldRedactCommand(BsonDocument command) =>

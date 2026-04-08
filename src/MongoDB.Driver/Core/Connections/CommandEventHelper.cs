@@ -36,9 +36,9 @@ namespace MongoDB.Driver.Core.Connections
         private readonly EventLogger<LogCategories.Command> _eventLogger;
         private ConcurrentDictionary<int, CommandState> _state;
 
-        private readonly bool _shouldProcessRequestMessages;
+        private readonly bool _eventsNeedBeforeSending;
         private readonly bool _shouldTrackStarted;
-        private readonly bool _shouldTrackState;
+        private readonly bool _eventsNeedState;
         private readonly bool _shouldTrackFailed;
         private readonly bool _shouldTrackSucceeded;
         private readonly bool _tracingDisabled;
@@ -57,10 +57,10 @@ namespace MongoDB.Driver.Core.Connections
             _tracingDisabled = tracingOptions?.Disabled == true;
             _queryTextMaxLength = tracingOptions?.QueryTextMaxLength ?? 0;
 
-            _shouldTrackState = _shouldTrackSucceeded || _shouldTrackFailed;
-            _shouldProcessRequestMessages = _shouldTrackStarted || _shouldTrackState;
+            _eventsNeedState = _shouldTrackSucceeded || _shouldTrackFailed;
+            _eventsNeedBeforeSending = _shouldTrackStarted || _eventsNeedState;
 
-            if (_shouldTrackState)
+            if (_eventsNeedState)
             {
                 // we only need to track state if we have to raise
                 // a succeeded or failed event or for tracing
@@ -68,15 +68,15 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        public bool ShouldCallBeforeSending => _shouldProcessRequestMessages || ShouldTraceWithActivityListener();
+        public bool ShouldCallBeforeSending => _eventsNeedBeforeSending || ShouldTraceWithActivityListener();
 
-        public bool ShouldCallAfterSending => _shouldTrackState || ShouldTraceWithActivityListener();
+        public bool ShouldCallAfterSending => _eventsNeedState || ShouldTraceWithActivityListener();
 
-        public bool ShouldCallErrorSending => _shouldTrackState || ShouldTraceWithActivityListener();
+        public bool ShouldCallErrorSending => _eventsNeedState || ShouldTraceWithActivityListener();
 
-        public bool ShouldCallAfterReceiving => _shouldTrackState || ShouldTraceWithActivityListener();
+        public bool ShouldCallAfterReceiving => _eventsNeedState || ShouldTraceWithActivityListener();
 
-        public bool ShouldCallErrorReceiving => _shouldTrackState || ShouldTraceWithActivityListener();
+        public bool ShouldCallErrorReceiving => _eventsNeedState || ShouldTraceWithActivityListener();
 
         private bool ShouldTraceWithActivityListener()
             => !_tracingDisabled && MongoTelemetry.ActivitySource.HasListeners();
@@ -742,16 +742,12 @@ namespace MongoDB.Driver.Core.Connections
         {
             var shouldTraceCommand = ShouldTraceWithActivityListener() && !shouldRedactCommand && !skipLogging;
 
-            if (!_shouldTrackState && !shouldTraceCommand)
+            if (!_eventsNeedState && !shouldTraceCommand)
             {
                 return;
             }
 
-            if (!_shouldTrackState && shouldTraceCommand)
-            {
-                // Lazy initialize state dictionary when tracing is needed but event tracking is not
-                _state ??= new ConcurrentDictionary<int, CommandState>();
-            }
+            _state ??= new ConcurrentDictionary<int, CommandState>();
 
             var commandState = new CommandState
             {
