@@ -348,9 +348,8 @@ namespace MongoDB.Driver.Tests
         public void Rerank_with_multiple_string_paths_should_render_expected_stage()
         {
             var pipeline = new EmptyPipelineDefinition<BsonDocument>();
-            FieldDefinition<BsonDocument>[] paths = ["plot", "title"];
 
-            var result = pipeline.Rerank(RerankQuery.Text("machine learning"), paths, 100, "rerank-2.5-lite");
+            var result = pipeline.Rerank(RerankQuery.Text("machine learning"), ["plot", "title"], 100, "rerank-2.5-lite");
 
             var stages = RenderStages(result, BsonDocumentSerializer.Instance);
             stages.Count.Should().Be(1);

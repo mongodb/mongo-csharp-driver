@@ -23,11 +23,11 @@ namespace MongoDB.Driver
     /// </summary>
     public sealed class RerankQuery
     {
-        private readonly BsonDocument _rendered;
+        private readonly string _text;
 
-        private RerankQuery(BsonDocument rendered)
+        private RerankQuery(string text)
         {
-            _rendered = rendered;
+            _text = text;
         }
 
         /// <summary>
@@ -36,8 +36,8 @@ namespace MongoDB.Driver
         /// <param name="text">The text to rerank against.</param>
         /// <returns>A text rerank query.</returns>
         public static RerankQuery Text(string text) =>
-            new RerankQuery(new BsonDocument("text", Ensure.IsNotNull(text, nameof(text))));
+            new RerankQuery(Ensure.IsNotNullOrEmpty(text, nameof(text)));
 
-        internal BsonDocument Render() => _rendered;
+        internal BsonDocument Render() => new BsonDocument("text", _text);
     }
 }
