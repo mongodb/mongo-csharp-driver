@@ -102,7 +102,7 @@ public class MqlCreateObjectIdTests : LinqIntegrationTest<MqlCreateObjectIdTests
         var collection = Fixture.Collection;
 
         var pipeline = new EmptyPipelineDefinition<C>()
-            .Match(d => d.Id != ObjectId.GenerateNewId())
+            .Match(d => d.Id != Mql.CreateObjectId())
             .Project(d => new { NewId = Mql.CreateObjectId() });
 
         var result = await collection.Aggregate(pipeline).ToListAsync();
