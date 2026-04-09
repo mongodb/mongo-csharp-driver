@@ -32,7 +32,7 @@ public class MqlCreateObjectIdTests : LinqIntegrationTest<MqlCreateObjectIdTests
     }
 
     [Fact]
-    public void ObjectIdGenerateNewId_in_where()
+    public void MqlCreateObjectId_in_where()
     {
         var collection = Fixture.Collection;
         var queryable = collection.AsQueryable()
@@ -46,7 +46,7 @@ public class MqlCreateObjectIdTests : LinqIntegrationTest<MqlCreateObjectIdTests
     }
 
     [Fact]
-    public void ObjectIdGenerateNewId_in_select()
+    public void MqlCreateObjectId_in_select()
     {
         var collection = Fixture.Collection;
         var queryable = collection.AsQueryable()
@@ -65,7 +65,7 @@ public class MqlCreateObjectIdTests : LinqIntegrationTest<MqlCreateObjectIdTests
     }
 
     [Fact]
-    public async Task ObjectIdGenerateNewId_in_filter_builder()
+    public async Task MqlCreateObjectId_in_filter_builder()
     {
         var collection = Fixture.Collection;
 
@@ -78,7 +78,7 @@ public class MqlCreateObjectIdTests : LinqIntegrationTest<MqlCreateObjectIdTests
     }
 
     [Fact]
-    public async Task ObjectIdGenerateNewId_in_projection_builder()
+    public async Task MqlCreateObjectId_in_projection_builder()
     {
         var collection = Fixture.Collection;
 
@@ -97,7 +97,7 @@ public class MqlCreateObjectIdTests : LinqIntegrationTest<MqlCreateObjectIdTests
     }
 
     [Fact]
-    public async Task ObjectIdGenerateNewId_in_aggregate()
+    public async Task MqlCreateObjectId_in_aggregate()
     {
         var collection = Fixture.Collection;
 
