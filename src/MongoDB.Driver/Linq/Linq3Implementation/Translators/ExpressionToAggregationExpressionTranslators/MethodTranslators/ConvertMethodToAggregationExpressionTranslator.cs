@@ -167,6 +167,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 TypeCode.UInt32 => BsonType.Int64,
                 TypeCode.UInt64 => BsonType.Decimal128,
 
+                _ when valueType == typeof(BsonArray) => BsonType.Array,
+                _ when valueType == typeof(BsonDocument) => BsonType.Document,
                 _ when valueType == typeof(byte[]) => BsonType.Binary,
                 _ when valueType == typeof(BsonBinaryData) => BsonType.Binary,
                 _ when valueType == typeof(Decimal128) => BsonType.Decimal128,

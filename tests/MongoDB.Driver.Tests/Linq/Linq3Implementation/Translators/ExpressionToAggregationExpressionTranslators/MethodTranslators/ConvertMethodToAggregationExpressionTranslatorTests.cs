@@ -501,6 +501,94 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         }
 
         [Fact]
+        public void Convert_to_BsonDocument_should_work()
+        {
+            RequireServer.Check().Supports(Feature.ConvertOperatorStringToObjectOrArray);
+
+            const int id = 40;
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == id)
+                .Select(x => Mql.Convert<string, BsonDocument>(x.StringProperty, null));
+
+            var expectedStages =
+                new[]
+                {
+                    $"{{ $match : {{ _id : {id} }} }}",
+                    "{ $project: { _v : { $toObject : '$StringProperty' }, _id : 0 } }",
+                };
+
+            var expectedResult = new BsonDocument { { "a", 1 }, { "b", "hello" } };
+            AssertOutcome(collection, queryable, expectedStages, expectedResult);
+        }
+
+        [Fact]
+        public void Convert_to_BsonDocument_with_options_should_work()
+        {
+            RequireServer.Check().Supports(Feature.ConvertOperatorStringToObjectOrArray);
+
+            const int id = 40;
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == id)
+                .Select(x => Mql.Convert(x.StringProperty, new ConvertOptions<BsonDocument>()));
+
+            var expectedStages =
+                new[]
+                {
+                    $"{{ $match : {{ _id : {id} }} }}",
+                    "{ $project: { _v : { $toObject : '$StringProperty' }, _id : 0 } }",
+                };
+
+            var expectedResult = new BsonDocument { { "a", 1 }, { "b", "hello" } };
+            AssertOutcome(collection, queryable, expectedStages, expectedResult);
+        }
+
+        [Fact]
+        public void Convert_to_BsonArray_should_work()
+        {
+            RequireServer.Check().Supports(Feature.ConvertOperatorStringToObjectOrArray);
+
+            const int id = 41;
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == id)
+                .Select(x => Mql.Convert<string, BsonArray>(x.StringProperty, null));
+
+            var expectedStages =
+                new[]
+                {
+                    $"{{ $match : {{ _id : {id} }} }}",
+                    "{ $project: { _v : { $toArray : '$StringProperty' }, _id : 0 } }",
+                };
+
+            var expectedResult = new BsonArray { 1, 2, 3 };
+            AssertOutcome(collection, queryable, expectedStages, expectedResult);
+        }
+
+        [Fact]
+        public void Convert_to_BsonArray_with_options_should_work()
+        {
+            RequireServer.Check().Supports(Feature.ConvertOperatorStringToObjectOrArray);
+
+            const int id = 41;
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == id)
+                .Select(x => Mql.Convert(x.StringProperty, new ConvertOptions<BsonArray>()));
+
+            var expectedStages =
+                new[]
+                {
+                    $"{{ $match : {{ _id : {id} }} }}",
+                    "{ $project: { _v : { $toArray : '$StringProperty' }, _id : 0 } }",
+                };
+
+            var expectedResult = new BsonArray { 1, 2, 3 };
+            AssertOutcome(collection, queryable, expectedStages, expectedResult);
+        }
+
+        [Fact]
         public void Convert_should_throw_when_using_unrecognized_to_type()
         {
             var collection = Fixture.Collection;
@@ -568,6 +656,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                 BsonDocument.Parse("{ _id : 22, IntProperty: 33 }"),
                 BsonDocument.Parse("{ _id : 23, StringProperty: '2018-03-03' }"),
                 BsonDocument.Parse("{ _id : 24, StringProperty: '5ab9cbfa31c2ab715d42129e' }"),
+                BsonDocument.Parse("{ _id : 40, StringProperty: '{\"a\": 1, \"b\": \"hello\"}' }"),
+                BsonDocument.Parse("{ _id : 41, StringProperty: '[1, 2, 3]' }"),
             ];
         }
 

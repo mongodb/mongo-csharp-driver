@@ -46,6 +46,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __clusteredIndexes = new Feature("ClusteredIndexes", WireVersion.Server53);
         private static readonly Feature __convertOperatorBinDataToFromNumeric = new Feature("ConvertOperatorBinDataToFromNumeric", WireVersion.Server81);
         private static readonly Feature __convertOperatorBinDataToFromString= new Feature("ConvertOperatorBinDataToFromString", WireVersion.Server80);
+        private static readonly Feature __convertOperatorStringToObjectOrArray = new Feature("ConvertOperatorStringToObjectOrArray", WireVersion.Server83);
         private static readonly Feature __createIndexCommitQuorum = new Feature("CreateIndexCommitQuorum", WireVersion.Server44);
         private static readonly Feature __createIndexesUsingInsertOperations = new Feature("CreateIndexesUsingInsertOperations", WireVersion.Zero, WireVersion.Server42);
         private static readonly Feature __csfleRangeAlgorithm = new Feature("CsfleRangeAlgorithm", WireVersion.Server62);
@@ -211,6 +212,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the conversion of binary data to/from string feature.
         /// </summary>
         public static Feature ConvertOperatorBinDataToFromString => __convertOperatorBinDataToFromString;
+
+        /// <summary>
+        /// Gets the conversion of string to object or array feature.
+        /// </summary>
+        public static Feature ConvertOperatorStringToObjectOrArray => __convertOperatorStringToObjectOrArray;
 
         /// <summary>
         /// Gets the create index commit quorum feature.

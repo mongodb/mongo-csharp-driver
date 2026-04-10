@@ -281,12 +281,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             {
                 var unaryOperator = toValue switch
                 {
+                    "array" => AstUnaryOperator.ToArray,
                     "bool" => AstUnaryOperator.ToBool,
                     "date" => AstUnaryOperator.ToDate,
                     "decimal" => AstUnaryOperator.ToDecimal,
                     "double" => AstUnaryOperator.ToDouble,
                     "int" => AstUnaryOperator.ToInt,
                     "long" => AstUnaryOperator.ToLong,
+                    "object" => AstUnaryOperator.ToObject,
                     "objectId" => AstUnaryOperator.ToObjectId,
                     "string" => AstUnaryOperator.ToString,
                     _ => (AstUnaryOperator?)null
