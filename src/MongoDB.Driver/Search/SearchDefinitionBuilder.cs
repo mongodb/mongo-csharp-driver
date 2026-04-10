@@ -201,6 +201,24 @@ namespace MongoDB.Driver.Search
                 Facet(@operator, (IEnumerable<SearchFacet<TDocument>>)facets);
 
         /// <summary>
+        /// Creates a search definition that groups results by values or ranges in the specified
+        /// faceted fields and returns the count for each of those groups.
+        /// </summary>
+        /// <param name="facets">Information for bucketing the data for each facet.</param>
+        /// <returns>A facet search definition.</returns>
+        public SearchDefinition<TDocument> Facet(IEnumerable<SearchFacet<TDocument>> facets) =>
+            new FacetSearchDefinition<TDocument>(null, facets);
+
+        /// <summary>
+        /// Creates a search definition that groups results by values or ranges in the specified
+        /// faceted fields and returns the count for each of those groups.
+        /// </summary>
+        /// <param name="facets">Information for bucketing the data for each facet.</param>
+        /// <returns>A facet search definition.</returns>
+        public SearchDefinition<TDocument> Facet(params SearchFacet<TDocument>[] facets) =>
+            Facet((IEnumerable<SearchFacet<TDocument>>)facets);
+
+        /// <summary>
         /// Creates a search definition that queries for shapes with a given geometry.
         /// </summary>
         /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>

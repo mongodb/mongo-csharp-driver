@@ -174,7 +174,7 @@ namespace MongoDB.Driver.Search
         public FacetSearchDefinition(SearchDefinition<TDocument> @operator, IEnumerable<SearchFacet<TDocument>> facets)
             : base(OperatorType.Facet)
         {
-            _operator = Ensure.IsNotNull(@operator, nameof(@operator));
+            _operator = @operator;
             _facets = Ensure.IsNotNull(facets, nameof(facets)).ToArray();
         }
 
@@ -183,7 +183,7 @@ namespace MongoDB.Driver.Search
             IBsonSerializer fieldSerializer) =>
             new()
             {
-                { "operator", _operator.Render(args) },
+                { "operator", () => _operator.Render(args), _operator != null },
                 { "facets", new BsonDocument(_facets.Select(f => new BsonElement(f.Name, f.Render(args)))) }
             };
     }
