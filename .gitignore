@@ -79,4 +79,4 @@ packages
 **/*.so
 **/*.dylib
 **/*.dll
-.claude
+.claude/settings.local.json
