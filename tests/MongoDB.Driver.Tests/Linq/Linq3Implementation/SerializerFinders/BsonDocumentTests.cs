@@ -29,7 +29,7 @@ public class BsonDocumentTests
 {
     [Theory]
     [MemberData(nameof(SupportedTestCases))]
-    public void SerializerFinder_resolve_serializer_for_supported_BsonDocument_members(LambdaExpression expression, IBsonSerializer expected)
+    public void SerializerFinder_should_resolve_serializer_for_BsonDocument_members(LambdaExpression expression, IBsonSerializer expected)
     {
         var serializerMap = TestHelpers.CreateSerializerMap(expression);
 
