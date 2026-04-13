@@ -155,10 +155,6 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void AddToSet_with_numeric_string_key_through_dictionary()
         {
-            // When a dictionary key is all-digits (e.g., "10"), the string path resolver
-            // treats it as an array index rather than a dictionary member name.
-            // This is the exact scenario reported in CSHARP-5924 - "Buckets.10" where
-            // Buckets is IDictionary<string, IEnumerable<DataRecord>>.
             var subject = CreateSubject<DataContainer>();
 
             Assert(subject.AddToSet("Buckets.10", new DataRecord { Label = "test" }), "{$addToSet: {'buckets.10': { CreatedAt: ISODate('0001-01-01T00:00:00Z'), Label: 'test' }}}");
@@ -167,8 +163,6 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void AddToSet_with_numeric_string_key_through_dictionary_of_List()
         {
-            // Same scenario but with Dictionary<string, List<string>> - numeric key "10"
-            // is still treated as array index by the path resolver.
             var subject = CreateSubject<DocumentWithDictionaryOfLists>();
 
             Assert(subject.AddToSet("Buckets.10", "newValue"), "{$addToSet: {'buckets.10': 'newValue'}}");
