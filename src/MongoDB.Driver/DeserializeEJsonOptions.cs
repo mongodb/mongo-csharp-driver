@@ -25,7 +25,7 @@ namespace MongoDB.Driver
 
     /// <summary>
     /// Represents the options parameter for <see cref="Mql.DeserializeEJson{TInput, TOutput}(TInput, DeserializeEJsonOptions{TOutput})"/>.
-    /// This class allows to set 'onError'.
+    /// This class allows setting 'onError'.
     /// </summary>
     /// <typeparam name="TOutput">The type of 'onError'.</typeparam>
     public class DeserializeEJsonOptions<TOutput> : DeserializeEJsonOptions

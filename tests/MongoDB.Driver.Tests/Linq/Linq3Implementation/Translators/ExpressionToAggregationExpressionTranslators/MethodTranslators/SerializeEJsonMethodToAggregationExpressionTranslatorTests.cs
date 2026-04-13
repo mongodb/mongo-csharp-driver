@@ -62,6 +62,11 @@ public class SerializeEJsonMethodToAggregationExpressionTranslatorTests
             TestHelpers.MakeLambda<MyModel, BsonDocument>(model => Mql.SerializeEJson<BsonDocument, BsonDocument>(model.Document, null)),
             "{ $serializeEJSON : { input : { $getField : { field : 'Document', input : '$$ROOT' } } } }"
         ],
+        // With relaxed = null (not specified, should not emit relaxed field)
+        [
+            TestHelpers.MakeLambda<MyModel, BsonDocument>(model => Mql.SerializeEJson<int, BsonDocument>(model.IntValue, new SerializeEJsonOptions<BsonDocument> { Relaxed = null })),
+            "{ $serializeEJSON : { input : { $getField : { field : 'IntValue', input : '$$ROOT' } } } }"
+        ],
         // With relaxed and onError
         [
             TestHelpers.MakeLambda<MyModel, BsonValue>(model => Mql.SerializeEJson<int, BsonValue>(model.IntValue, new SerializeEJsonOptions<BsonValue> { Relaxed = false, OnError = "error" })),

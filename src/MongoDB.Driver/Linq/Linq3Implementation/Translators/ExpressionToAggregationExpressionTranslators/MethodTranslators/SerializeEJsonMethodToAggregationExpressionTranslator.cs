@@ -110,8 +110,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 {
                     case nameof(SerializeEJsonOptions.Relaxed):
                         var relaxedExpression = memberExpression.IsConvert(out var unwrapped) ? unwrapped : memberExpression;
-                        var relaxedValue = relaxedExpression.GetConstantValue<bool>(expression);
-                        relaxedAst = AstExpression.Constant(relaxedValue);
+                        var relaxedValue = relaxedExpression.GetConstantValue<bool?>(expression);
+                        if (relaxedValue.HasValue)
+                        {
+                            relaxedAst = AstExpression.Constant(relaxedValue.Value);
+                        }
                         break;
                     case nameof(SerializeEJsonOptions<object>.OnError):
                         onErrorTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, memberExpression);
