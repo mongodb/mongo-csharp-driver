@@ -956,7 +956,7 @@ namespace MongoDB.Driver.Tests.Search
 
             var query = useExpression
                 ? aggregate.Search(searchDefinition, e => e.Movies, searchOptions)
-                : aggregate.Search<DirectedMovie>(searchDefinition, "movies", searchOptions);
+                : aggregate.Search<Director, DirectedMovie>(searchDefinition, "movies", searchOptions);
 
             var results = query.ToList();
             results.Count.Should().Be(1);
@@ -972,7 +972,7 @@ namespace MongoDB.Driver.Tests.Search
             var searchDefinition = Builders<Director>.Search.Range("movies.reviews.rating", SearchRangeBuilder.Gte(8.0));
             var aggregate = GetReturnScopeCollection<Director>().Aggregate();
 
-            var results = aggregate.Search<DirectedMovieReview>(
+            var results = aggregate.Search<Director, DirectedMovieReview>(
                 searchDefinition,
                 "movies.reviews",
                 new() { IndexName = "returnScopeIndex2" }).ToList();
@@ -998,7 +998,7 @@ namespace MongoDB.Driver.Tests.Search
             var searchOptions = new SearchOptions<Director>() { IndexName = "returnScopeIndex1" };
             var query = useExpression
                 ? aggregate.Search(searchDefinition, e => e.Movies, searchOptions)
-                : aggregate.Search<DirectedMovie>(searchDefinition, "movies", searchOptions);
+                : aggregate.Search<Director, DirectedMovie>(searchDefinition, "movies", searchOptions);
 
             var results = query.ToList();
             results.Count.Should().Be(2);
@@ -1027,7 +1027,7 @@ namespace MongoDB.Driver.Tests.Search
 
             var aggregate = GetReturnScopeCollection<Director>().Aggregate();
 
-            var results = aggregate.Search<DirectedMovieReview>(
+            var results = aggregate.Search<Director, DirectedMovieReview>(
                 searchDefinition,
                 "movies.reviews",
                 new() { IndexName = "returnScopeIndex2" }).ToList();

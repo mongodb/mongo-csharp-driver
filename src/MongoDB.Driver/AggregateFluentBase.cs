@@ -15,7 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -258,48 +257,11 @@ namespace MongoDB.Driver
             => throw new NotImplementedException();
 
         /// <inheritdoc />
-        public virtual IAggregateFluent<TNewResult> Search<TNewResult>(
-            SearchDefinition<TResult> searchDefinition,
-            FieldDefinition<TResult, IEnumerable<TNewResult>> returnScope,
-            SearchOptions<TResult> searchOptions = null)
-            => throw new NotImplementedException();
-
-        /// <inheritdoc />
-        public virtual IAggregateFluent<TNewResult> Search<TNewResult>(
-            SearchDefinition<TResult> searchDefinition,
-            Expression<Func<TResult, IEnumerable<TNewResult>>> returnScope,
-            SearchOptions<TResult> searchOptions = null)
-            => Search(
-                searchDefinition,
-                new ExpressionFieldDefinition<TResult, IEnumerable<TNewResult>>(returnScope),
-                searchOptions);
-
-        /// <inheritdoc />
         public virtual IAggregateFluent<SearchMetaResult> SearchMeta(
             SearchDefinition<TResult> searchDefinition,
             string indexName = null,
             SearchCountOptions count = null)
             => throw new NotImplementedException();
-
-        /// <inheritdoc />
-        public virtual IAggregateFluent<SearchMetaResult> SearchMeta(
-            SearchDefinition<TResult> searchDefinition,
-            FieldDefinition<TResult> returnScope,
-            string indexName = null,
-            SearchCountOptions count = null)
-            => throw new NotImplementedException();
-
-        /// <inheritdoc />
-        public virtual IAggregateFluent<SearchMetaResult> SearchMeta(
-            SearchDefinition<TResult> searchDefinition,
-            Expression<Func<TResult, object>> returnScope,
-            string indexName = null,
-            SearchCountOptions count = null)
-            => SearchMeta(
-                searchDefinition,
-                new ExpressionFieldDefinition<TResult>(returnScope),
-                indexName,
-                count);
 
         /// <inheritdoc />
         public virtual IAggregateFluent<TResult> Set(SetFieldDefinitions<TResult> fields) => throw new NotImplementedException();

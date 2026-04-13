@@ -442,34 +442,6 @@ namespace MongoDB.Driver
             SearchOptions<TResult> searchOptions);
 
         /// <summary>
-        /// Appends a $search stage to the pipeline, returning documents from a nested scope.
-        /// </summary>
-        /// <param name="searchDefinition">The search definition.</param>
-        /// <param name="returnScope">The level of nested documents to return.</param>
-        /// <param name="searchOptions">The search options.</param>
-        /// <returns>
-        /// The fluent aggregate interface.
-        /// </returns>
-        IAggregateFluent<TNewResult> Search<TNewResult>(
-            SearchDefinition<TResult> searchDefinition,
-            FieldDefinition<TResult, IEnumerable<TNewResult>> returnScope,
-            SearchOptions<TResult> searchOptions = null);
-
-        /// <summary>
-        /// Appends a $search stage to the pipeline, returning documents from a nested scope.
-        /// </summary>
-        /// <param name="searchDefinition">The search definition.</param>
-        /// <param name="returnScope">The level of nested documents to return.</param>
-        /// <param name="searchOptions">The search options.</param>
-        /// <returns>
-        /// The fluent aggregate interface.
-        /// </returns>
-        IAggregateFluent<TNewResult> Search<TNewResult>(
-            SearchDefinition<TResult> searchDefinition,
-            Expression<Func<TResult, IEnumerable<TNewResult>>> returnScope,
-            SearchOptions<TResult> searchOptions = null);
-
-        /// <summary>
         /// Appends a $searchMeta stage to the pipeline.
         /// </summary>
         /// <param name="searchDefinition">The search definition.</param>
@@ -478,34 +450,6 @@ namespace MongoDB.Driver
         /// <returns>The fluent aggregate interface.</returns>
         IAggregateFluent<SearchMetaResult> SearchMeta(
             SearchDefinition<TResult> searchDefinition,
-            string indexName = null,
-            SearchCountOptions count = null);
-
-        /// <summary>
-        /// Appends a $searchMeta stage to the pipeline.
-        /// </summary>
-        /// <param name="searchDefinition">The search definition.</param>
-        /// <param name="returnScope">The level of nested documents to return.</param>
-        /// <param name="indexName">The index name.</param>
-        /// <param name="count">The count options.</param>
-        /// <returns>The fluent aggregate interface.</returns>
-        IAggregateFluent<SearchMetaResult> SearchMeta(
-            SearchDefinition<TResult> searchDefinition,
-            FieldDefinition<TResult> returnScope,
-            string indexName = null,
-            SearchCountOptions count = null);
-
-        /// <summary>
-        /// Appends a $searchMeta stage to the pipeline.
-        /// </summary>
-        /// <param name="searchDefinition">The search definition.</param>
-        /// <param name="returnScope">The level of nested documents to return.</param>
-        /// <param name="indexName">The index name.</param>
-        /// <param name="count">The count options.</param>
-        /// <returns>The fluent aggregate interface.</returns>
-        IAggregateFluent<SearchMetaResult> SearchMeta(
-            SearchDefinition<TResult> searchDefinition,
-            Expression<Func<TResult, object>> returnScope,
             string indexName = null,
             SearchCountOptions count = null);
 
