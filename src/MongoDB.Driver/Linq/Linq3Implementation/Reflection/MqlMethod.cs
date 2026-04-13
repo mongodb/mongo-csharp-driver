@@ -28,10 +28,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __constantWithSerializer;
         private static readonly MethodInfo __convert;
         private static readonly MethodInfo __dateFromString;
-        private static readonly MethodInfo __deserializeEJson;
         private static readonly MethodInfo __dateFromStringWithFormat;
         private static readonly MethodInfo __dateFromStringWithFormatAndTimezone;
         private static readonly MethodInfo __dateFromStringWithFormatAndTimezoneAndOnErrorAndOnNull;
+        private static readonly MethodInfo __deserializeEJson;
         private static readonly MethodInfo __exists;
         private static readonly MethodInfo __field;
         private static readonly MethodInfo __isMissing;
@@ -54,10 +54,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __constantWithSerializer = ReflectionInfo.Method((object value, IBsonSerializer<object> serializer) => Mql.Constant(value, serializer));
             __convert = ReflectionInfo.Method((object value, ConvertOptions<object> options) => Mql.Convert(value, options));
             __dateFromString = ReflectionInfo.Method((string dateStringl) => Mql.DateFromString(dateStringl));
-            __deserializeEJson = ReflectionInfo.Method((object value, DeserializeEJsonOptions<object> options) => Mql.DeserializeEJson(value, options));
             __dateFromStringWithFormat = ReflectionInfo.Method((string dateString, string format) => Mql.DateFromString(dateString, format));
             __dateFromStringWithFormatAndTimezone = ReflectionInfo.Method((string dateString, string format, string timezone) => Mql.DateFromString(dateString, format, timezone));
             __dateFromStringWithFormatAndTimezoneAndOnErrorAndOnNull = ReflectionInfo.Method((string dateString, string format, string timezone, DateTime? onError, DateTime? onNull) => Mql.DateFromString(dateString, format, timezone, onError, onNull));
+            __deserializeEJson = ReflectionInfo.Method((object value, DeserializeEJsonOptions<object> options) => Mql.DeserializeEJson(value, options));
             __exists = ReflectionInfo.Method((object field) => Mql.Exists(field));
             __field = ReflectionInfo.Method((object container, string fieldName, IBsonSerializer<object> serializer) => Mql.Field<object, object>(container, fieldName, serializer));
             __isMissing = ReflectionInfo.Method((object field) => Mql.IsMissing(field));
@@ -111,10 +111,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo ConstantWithSerializer => __constantWithSerializer;
         public static MethodInfo Convert => __convert;
         public static MethodInfo DateFromString => __dateFromString;
-        public static MethodInfo DeserializeEJson => __deserializeEJson;
         public static MethodInfo DateFromStringWithFormat => __dateFromStringWithFormat;
         public static MethodInfo DateFromStringWithFormatAndTimezone => __dateFromStringWithFormatAndTimezone;
         public static MethodInfo DateFromStringWithFormatAndTimezoneAndOnErrorAndOnNull => __dateFromStringWithFormatAndTimezoneAndOnErrorAndOnNull;
+        public static MethodInfo DeserializeEJson => __deserializeEJson;
         public static MethodInfo Exists => __exists;
         public static MethodInfo Field => __field;
         public static MethodInfo IsMissing => __isMissing;

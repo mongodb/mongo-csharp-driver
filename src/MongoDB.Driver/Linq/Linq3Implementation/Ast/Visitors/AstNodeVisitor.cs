@@ -234,11 +234,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors
             return node;
         }
 
-        public virtual AstNode VisitDeserializeEJsonExpression(AstDeserializeEJsonExpression node)
-        {
-            return node.Update(VisitAndConvert(node.Input), VisitAndConvert(node.OnError));
-        }
-
         public virtual AstNode VisitCurrentOpStage(AstCurrentOpStage node)
         {
             return node;
@@ -307,6 +302,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors
         public virtual AstNode VisitDerivativeOrIntegralWindowExpression(AstDerivativeOrIntegralWindowExpression node)
         {
             return node.Update(node.Operator, VisitAndConvert(node.Arg), node.Unit, node.Window);
+        }
+
+        public virtual AstNode VisitDeserializeEJsonExpression(AstDeserializeEJsonExpression node)
+        {
+            return node.Update(VisitAndConvert(node.Input), VisitAndConvert(node.OnError));
         }
 
         public virtual AstNode VisitDocumentsStage(AstDocumentsStage node)
@@ -694,6 +694,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors
             return node;
         }
 
+        public virtual AstNode VisitSerializeEJsonExpression(AstSerializeEJsonExpression node)
+        {
+            return node.Update(VisitAndConvert(node.Input), VisitAndConvert(node.Relaxed), VisitAndConvert(node.OnError));
+        }
+
         public virtual AstNode VisitSetStage(AstSetStage node)
         {
             return node.Update(VisitAndConvert(node.Fields));
@@ -702,11 +707,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors
         public virtual AstNode VisitSetWindowFieldsStage(AstSetWindowFieldsStage node)
         {
             return node.Update(VisitAndConvert(node.PartitionBy), node.SortBy, VisitAndConvert(node.Output));
-        }
-
-        public virtual AstNode VisitSerializeEJsonExpression(AstSerializeEJsonExpression node)
-        {
-            return node.Update(VisitAndConvert(node.Input), VisitAndConvert(node.Relaxed), VisitAndConvert(node.OnError));
         }
 
         public virtual AstNode VisitShiftWindowExpression(AstShiftWindowExpression node)

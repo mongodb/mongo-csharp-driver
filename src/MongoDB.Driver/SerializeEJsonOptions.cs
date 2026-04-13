@@ -23,7 +23,7 @@ namespace MongoDB.Driver
         private bool? _relaxed;
 
         /// <summary>
-        /// The relaxed parameter. When true, produces relaxed Extended JSON format. When false, produces canonical format. Defaults to true.
+        /// The relaxed parameter. When true, produces relaxed Extended JSON format. When false, produces canonical format. The server defaults to true when this is not specified.
         /// </summary>
         public bool? Relaxed
         {
