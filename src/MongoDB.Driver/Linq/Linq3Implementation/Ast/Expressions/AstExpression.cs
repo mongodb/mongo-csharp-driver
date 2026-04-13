@@ -303,13 +303,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return new AstConvertExpression(input, to, subType, byteOrder, format, onError, onNull);
         }
 
-        public static AstExpression DeserializeEJson(
-            AstExpression input,
-            AstExpression onError = null)
-        {
-            return new AstDeserializeEJsonExpression(input, onError);
-        }
-
         public static AstExpression DateAdd(
             AstExpression startDate,
             AstExpression unit,
@@ -384,6 +377,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
         public static AstExpression DerivativeOrIntegralWindowExpression(AstDerivativeOrIntegralWindowOperator @operator, AstExpression arg, WindowTimeUnit? unit, AstWindow window)
         {
             return new AstDerivativeOrIntegralWindowExpression(@operator, arg, unit, window);
+        }
+
+        public static AstExpression DeserializeEJson(
+            AstExpression input,
+            AstExpression onError = null)
+        {
+            return new AstDeserializeEJsonExpression(input, onError);
         }
 
         public static AstExpression Divide(AstExpression arg1, AstExpression arg2)
@@ -750,6 +750,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return new AstRTrimExpression(input, chars);
         }
 
+        public static AstExpression SerializeEJson(
+            AstExpression input,
+            AstExpression relaxed = null,
+            AstExpression onError = null)
+        {
+            return new AstSerializeEJsonExpression(input, relaxed, onError);
+        }
+
         public static AstExpression SetDifference(AstExpression arg1, AstExpression arg2)
         {
             return new AstBinaryExpression(AstBinaryOperator.SetDifference, arg1, arg2);
@@ -783,14 +791,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
         public static AstExpression SetUnion(params AstExpression[] args)
         {
             return new AstNaryExpression(AstNaryOperator.SetUnion, args);
-        }
-
-        public static AstExpression SerializeEJson(
-            AstExpression input,
-            AstExpression relaxed = null,
-            AstExpression onError = null)
-        {
-            return new AstSerializeEJsonExpression(input, relaxed, onError);
         }
 
         public static AstExpression ShiftWindowExpression(AstExpression arg, int by, AstExpression defaultValue)

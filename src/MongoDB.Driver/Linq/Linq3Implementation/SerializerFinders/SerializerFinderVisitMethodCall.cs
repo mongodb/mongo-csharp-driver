@@ -102,9 +102,9 @@ internal partial class SerializerFinderVisitor
                 case "Create": DeduceCreateMethodSerializers(); break;
                 case "DateFromString": DeduceDateFromStringMethodSerializers(); break;
                 case "DefaultIfEmpty": DeduceDefaultIfEmptyMethodSerializers(); break;
-                case "DeserializeEJson": DeduceDeserializeEJsonMethodSerializers(); break;
                 case "DegreesToRadians": DeduceDegreesToRadiansMethodSerializers(); break;
                 case "Densify": DeduceDensifyMethodSerializers(); break;
+                case "DeserializeEJson": DeduceDeserializeEJsonMethodSerializers(); break;
                 case "Distinct": DeduceDistinctMethodSerializers(); break;
                 case "DocumentNumber": DeduceDocumentNumberMethodSerializers(); break;
                 case "Documents": DeduceDocumentsMethodSerializers(); break;
@@ -1160,6 +1160,23 @@ internal partial class SerializerFinderVisitor
                     }
                 }
                 DeduceCollectionAndCollectionSerializers(node, sourceExpression);
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
+        }
+
+        void DeduceDeserializeEJsonMethodSerializers()
+        {
+            if (method.Is(MqlMethod.DeserializeEJson))
+            {
+                if (IsNotKnown(node))
+                {
+                    var outputType = method.GetGenericArguments()[1];
+                    var outputSerializer = BsonSerializer.LookupSerializer(outputType);
+                    AddNodeSerializer(node, outputSerializer);
+                }
             }
             else
             {
@@ -2388,6 +2405,23 @@ internal partial class SerializerFinderVisitor
             }
         }
 
+        void DeduceSerializeEJsonMethodSerializers()
+        {
+            if (method.Is(MqlMethod.SerializeEJson))
+            {
+                if (IsNotKnown(node))
+                {
+                    var outputType = method.GetGenericArguments()[1];
+                    var outputSerializer = BsonSerializer.LookupSerializer(outputType);
+                    AddNodeSerializer(node, outputSerializer);
+                }
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
+        }
+
         void DeduceSetEqualsMethodSerializers()
         {
             if (ISetMethod.IsSetEqualsMethod(method))
@@ -2628,40 +2662,6 @@ internal partial class SerializerFinderVisitor
             if (method.Is(MqlMethod.Subtype))
             {
                 DeduceSerializer(node, __binarySubTypeSerializer);
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceSerializeEJsonMethodSerializers()
-        {
-            if (method.Is(MqlMethod.SerializeEJson))
-            {
-                if (IsNotKnown(node))
-                {
-                    var outputType = method.GetGenericArguments()[1];
-                    var outputSerializer = BsonSerializer.LookupSerializer(outputType);
-                    AddNodeSerializer(node, outputSerializer);
-                }
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceDeserializeEJsonMethodSerializers()
-        {
-            if (method.Is(MqlMethod.DeserializeEJson))
-            {
-                if (IsNotKnown(node))
-                {
-                    var outputType = method.GetGenericArguments()[1];
-                    var outputSerializer = BsonSerializer.LookupSerializer(outputType);
-                    AddNodeSerializer(node, outputSerializer);
-                }
             }
             else
             {
