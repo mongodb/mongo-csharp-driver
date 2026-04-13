@@ -101,7 +101,7 @@ tests: {% for operation in operations %}
           client: *internal_client
           failPoint:
             configureFailPoint: failCommand
-            mode: { times: 3 }
+            mode: { times: 2 }
             data:
               failCommands: [{{operation.command_name}}]
               errorLabels: [RetryableError, SystemOverloadedError]
@@ -119,10 +119,6 @@ tests: {% for operation in operations %}
     expectEvents:
       - client: *client
         events:
-          - commandStartedEvent:
-              commandName: {{operation.command_name}}
-          - commandFailedEvent:
-              commandName: {{operation.command_name}}
           - commandStartedEvent:
               commandName: {{operation.command_name}}
           - commandFailedEvent:
