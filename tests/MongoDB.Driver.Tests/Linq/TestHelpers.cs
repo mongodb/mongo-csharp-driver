@@ -17,6 +17,7 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.SerializerFinders;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators;
 
@@ -43,7 +44,12 @@ internal static class TestHelpers
         return context.WithSymbol(symbol);
     }
 
-    public static LambdaExpression MakeLambda<T1, TResult>(Expression<Func<T1, TResult>> func)
-        => func;
+    public static LambdaExpression MakeLambda<T1, TResult>(Expression<Func<T1, TResult>> expression)
+    {
+        // The ClrCompatExpressionRewriter must be applied because SerializerFinder does not support methods added in
+        // .NET 10, such as MemoryExtensions.Contains. The rewriter rewrites the expression so that the next stages
+        // of LINQ translation can work correctly.
+        return (LambdaExpression)ClrCompatExpressionRewriter.Rewrite(expression);
+    }
 }
 
