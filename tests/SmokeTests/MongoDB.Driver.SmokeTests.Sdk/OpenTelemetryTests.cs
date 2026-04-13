@@ -26,7 +26,6 @@ namespace MongoDB.Driver.SmokeTests.Sdk
     [Trait("Category", "Integration")]
     public sealed class OpenTelemetryTests
     {
-
         [Fact]
         public void MongoClient_should_create_activities_when_tracing_enabled()
         {
@@ -84,7 +83,7 @@ namespace MongoDB.Driver.SmokeTests.Sdk
             capturedActivities.Should().BeEmpty();
         }
 
-        private static ActivityListener CreateActivityListener(out List<Activity> capturedActivities)
+        private static ActivityListener CreateActivityListener(out IReadOnlyCollection<Activity> capturedActivities)
         {
             var activities = new List<Activity>();
             var listener = new ActivityListener

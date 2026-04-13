@@ -34,14 +34,14 @@ namespace MongoDB.Driver.Core.Connections
     internal class CommandEventHelper
     {
         private readonly EventLogger<LogCategories.Command> _eventLogger;
-        private readonly ConcurrentDictionary<int, CommandState> _state;
+        private ConcurrentDictionary<int, CommandState> _state;
 
-        private readonly bool _shouldProcessRequestMessages;
+        private readonly bool _eventsNeedBeforeSending;
         private readonly bool _shouldTrackStarted;
-        private readonly bool _shouldTrackState;
+        private readonly bool _eventsNeedState;
         private readonly bool _shouldTrackFailed;
         private readonly bool _shouldTrackSucceeded;
-        private readonly bool _shouldTrace;
+        private readonly bool _tracingDisabled;
         private readonly int _queryTextMaxLength;
 
         private Activity _currentCommandActivity;
@@ -54,13 +54,13 @@ namespace MongoDB.Driver.Core.Connections
             _shouldTrackFailed = _eventLogger.IsEventTracked<CommandFailedEvent>();
             _shouldTrackStarted = _eventLogger.IsEventTracked<CommandStartedEvent>();
 
-            _shouldTrace = tracingOptions?.Disabled != true && MongoTelemetry.ActivitySource.HasListeners();
+            _tracingDisabled = tracingOptions?.Disabled == true;
             _queryTextMaxLength = tracingOptions?.QueryTextMaxLength ?? 0;
 
-            _shouldTrackState = _shouldTrackSucceeded || _shouldTrackFailed || _shouldTrace;
-            _shouldProcessRequestMessages = _shouldTrackStarted || _shouldTrackState;
+            _eventsNeedState = _shouldTrackSucceeded || _shouldTrackFailed;
+            _eventsNeedBeforeSending = _shouldTrackStarted || _eventsNeedState;
 
-            if (_shouldTrackState)
+            if (_eventsNeedState)
             {
                 // we only need to track state if we have to raise
                 // a succeeded or failed event or for tracing
@@ -68,30 +68,20 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        public bool ShouldCallBeforeSending
-        {
-            get { return _shouldProcessRequestMessages; }
-        }
+        public bool ShouldCallBeforeSending => _eventsNeedBeforeSending || ShouldTraceWithActivityListener();
 
-        public bool ShouldCallAfterSending
-        {
-            get { return _shouldTrackState; }
-        }
+        public bool ShouldCallAfterSending => _eventsNeedState || ShouldTraceWithActivityListener();
 
-        public bool ShouldCallErrorSending
-        {
-            get { return _shouldTrackState; }
-        }
+        public bool ShouldCallErrorSending => _eventsNeedState || ShouldTraceWithActivityListener();
 
-        public bool ShouldCallAfterReceiving
-        {
-            get { return _shouldTrackState; }
-        }
+        public bool ShouldCallAfterReceiving => _eventsNeedState || ShouldTraceWithActivityListener();
 
-        public bool ShouldCallErrorReceiving
-        {
-            get { return _shouldTrackState; }
-        }
+        public bool ShouldCallErrorReceiving => _eventsNeedState || ShouldTraceWithActivityListener();
+
+        public bool ShouldCallConnectionFailed => (_shouldTrackFailed || ShouldTraceWithActivityListener()) && _state != null;
+
+        private bool ShouldTraceWithActivityListener()
+            => !_tracingDisabled && MongoTelemetry.ActivitySource.HasListeners();
 
         public void CompleteFailedCommandActivity(Exception exception)
         {
@@ -129,8 +119,12 @@ namespace MongoDB.Driver.Core.Connections
 
         public void AfterSending(RequestMessage message, ConnectionId connectionId, ObjectId? serviceId, bool skipLogging)
         {
-            CommandState state;
-            if (_state.TryGetValue(message.RequestId, out state) &&
+            if (_state == null)
+            {
+                return;
+            }
+
+            if (_state.TryGetValue(message.RequestId, out var state) &&
                 state.ExpectedResponseType == ExpectedResponseType.None)
             {
                 state.Stopwatch.Stop();
@@ -157,12 +151,16 @@ namespace MongoDB.Driver.Core.Connections
 
         public void ErrorSending(RequestMessage message, ConnectionId connectionId, ObjectId? serviceId, Exception exception, bool skipLogging)
         {
-            CommandState state;
-            if (_state.TryRemove(message.RequestId, out state))
+            if (_state == null)
+            {
+                return;
+            }
+
+            CompleteFailedCommandActivity(exception);
+
+            if (_state.TryRemove(message.RequestId, out var state))
             {
                 state.Stopwatch.Stop();
-
-                CompleteCommandActivityWithException(exception);
 
                 _eventLogger.LogAndPublish(new CommandFailedEvent(
                         state.CommandName,
@@ -179,8 +177,12 @@ namespace MongoDB.Driver.Core.Connections
 
         public void AfterReceiving(ResponseMessage message, IByteBuffer buffer, ConnectionId connectionId, ObjectId? serviceId, MessageEncoderSettings encoderSettings, bool skipLogging)
         {
-            CommandState state;
-            if (!_state.TryRemove(message.ResponseTo, out state))
+            if (_state == null)
+            {
+                return;
+            }
+
+            if (!_state.TryRemove(message.ResponseTo, out var state))
             {
                 // this indicates a bug in the sending portion...
                 return;
@@ -198,16 +200,20 @@ namespace MongoDB.Driver.Core.Connections
 
         public void ErrorReceiving(int responseTo, ConnectionId connectionId, ObjectId? serviceId, Exception exception, bool skipLogging)
         {
-            CommandState state;
-            if (!_state.TryRemove(responseTo, out state))
+            if (_state == null)
+            {
+                return;
+            }
+
+            CompleteFailedCommandActivity(exception);
+
+            if (!_state.TryRemove(responseTo, out var state))
             {
                 // this indicates a bug in the sending portion...
                 return;
             }
 
             state.Stopwatch.Stop();
-
-            CompleteCommandActivityWithException(exception);
 
             _eventLogger.LogAndPublish(new CommandFailedEvent(
                 state.CommandName,
@@ -223,12 +229,7 @@ namespace MongoDB.Driver.Core.Connections
 
         public void ConnectionFailed(ConnectionId connectionId, ObjectId? serviceId, Exception exception, bool skipLogging)
         {
-            if (!_shouldTrackFailed && !_shouldTrace)
-            {
-                return;
-            }
-
-            CompleteCommandActivityWithException(exception);
+            CompleteFailedCommandActivity(exception);
 
             var requestIds = _state.Keys;
             foreach (var requestId in requestIds)
@@ -731,10 +732,14 @@ namespace MongoDB.Driver.Core.Connections
             BsonDocument sessionId,
             long? transactionNumber)
         {
-            if (!_shouldTrackState)
+            var shouldTraceCommand = ShouldTraceWithActivityListener() && !shouldRedactCommand && !skipLogging;
+
+            if (!_eventsNeedState && !shouldTraceCommand)
             {
                 return;
             }
+
+            _state ??= new ConcurrentDictionary<int, CommandState>();
 
             var commandState = new CommandState
             {
@@ -746,7 +751,7 @@ namespace MongoDB.Driver.Core.Connections
                 ShouldRedactReply = shouldRedactCommand
             };
 
-            if (_shouldTrace && !shouldRedactCommand && !skipLogging)
+            if (shouldTraceCommand)
             {
                 _currentCommandActivity = MongoTelemetry.StartCommandActivity(
                     commandName,
@@ -766,16 +771,6 @@ namespace MongoDB.Driver.Core.Connections
             if (_currentCommandActivity is not null)
             {
                 MongoTelemetry.CompleteCommandActivity(_currentCommandActivity, reply);
-                _currentCommandActivity = null;
-            }
-        }
-
-        private void CompleteCommandActivityWithException(Exception exception)
-        {
-            if (_currentCommandActivity is not null)
-            {
-                MongoTelemetry.RecordException(_currentCommandActivity, exception);
-                _currentCommandActivity.Dispose();
                 _currentCommandActivity = null;
             }
         }

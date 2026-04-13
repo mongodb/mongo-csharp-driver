@@ -155,7 +155,11 @@ namespace MongoDB.Driver.Core.Connections
             {
                 _failedEventHasBeenRaised = true;
                 _eventLogger.LogAndPublish(new ConnectionFailedEvent(_connectionId, exception));
-                _commandEventHelper.ConnectionFailed(_connectionId, _description?.ServiceId, exception, IsInitializing);
+
+                if (_commandEventHelper.ShouldCallConnectionFailed)
+                {
+                    _commandEventHelper.ConnectionFailed(_connectionId, _description?.ServiceId, exception, IsInitializing);
+                }
             }
         }
 
