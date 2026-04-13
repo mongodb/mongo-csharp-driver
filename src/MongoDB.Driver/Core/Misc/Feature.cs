@@ -96,11 +96,11 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __scramSha256Authentication = new Feature("ScramSha256Authentication", WireVersion.Server40);
         private static readonly Feature __serverReturnsResumableChangeStreamErrorLabel = new Feature("ServerReturnsResumableChangeStreamErrorLabel", WireVersion.Server44);
         private static readonly Feature __serverReturnsRetryableWriteErrorLabel = new Feature("ServerReturnsRetryableWriteErrorLabel", WireVersion.Server44);
+        private static readonly Feature __serializeEJsonOperator = new Feature("SerializeEJsonOperator", WireVersion.Server83);
         private static readonly Feature __setStage = new Feature("SetStage", WireVersion.Server42);
         private static readonly Feature __setWindowFields = new Feature("SetWindowFields", WireVersion.Server50);
         private static readonly Feature __setWindowFieldsLocf = new Feature("SetWindowFieldsLocf", WireVersion.Server52);
         private static readonly Feature __shardedTransactions = new Feature("ShardedTransactions", WireVersion.Server42);
-        private static readonly Feature __serializeEJsonOperator = new Feature("SerializeEJsonOperator", WireVersion.Server83);
         private static readonly Feature __sigmoidOperator = new Feature("SigmoidOperator", WireVersion.Server81);
         private static readonly Feature __similarityFunctions = new Feature("SimilarityFunctions", WireVersion.Server82);
         private static readonly Feature __snapshotReads = new Feature("SnapshotReads", WireVersion.Server50, notSupportedMessage: "Snapshot reads require MongoDB 5.0 or later");
