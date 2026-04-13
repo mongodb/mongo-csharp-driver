@@ -78,6 +78,8 @@ namespace MongoDB.Driver.Core.Connections
 
         public bool ShouldCallErrorReceiving => _eventsNeedState || ShouldTraceWithActivityListener();
 
+        public bool ShouldCallConnectionFailed => (_shouldTrackFailed || ShouldTraceWithActivityListener()) && _state != null;
+
         private bool ShouldTraceWithActivityListener()
             => !_tracingDisabled && MongoTelemetry.ActivitySource.HasListeners();
 
@@ -227,16 +229,6 @@ namespace MongoDB.Driver.Core.Connections
 
         public void ConnectionFailed(ConnectionId connectionId, ObjectId? serviceId, Exception exception, bool skipLogging)
         {
-            if (!_shouldTrackFailed && !ShouldTraceWithActivityListener())
-            {
-                return;
-            }
-
-            if (_state == null)
-            {
-                return;
-            }
-
             CompleteFailedCommandActivity(exception);
 
             var requestIds = _state.Keys;
