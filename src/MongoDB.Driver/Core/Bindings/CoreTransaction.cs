@@ -179,6 +179,10 @@ namespace MongoDB.Driver.Core.Bindings
             }
         }
 
+        /// <summary>
+        /// Tracks whether any command has been successfully processed by the server in this transaction.
+        /// Used to prevent ResetState() after a backpressure retry when the server has already seen a command.
+        /// </summary>
         internal bool HasCompletedCommand { get; set; }
     }
 }

@@ -152,6 +152,7 @@ namespace MongoDB.Driver.Core.Operations
 
             if (isSystemOverloadedException)
             {
+                // If the first command in a transaction was rejected due to overload, reset to Starting so the retry re-sends startTransaction:true.
                 if (context.Binding.Session.Id != null
                     && context.Binding.Session.IsInTransaction
                     && context.Binding.Session.CurrentTransaction is { HasCompletedCommand: false } currentTransaction)

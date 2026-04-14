@@ -70,7 +70,8 @@ namespace MongoDB.Driver.Core.Operations
                 //TODO The implementation of the two overloads is different, need to understand if it's an issue and we can just call the second overload from the first one.
                 var writeChannelSource = _mayUseSecondaryCriteria == null ?
                     Binding.GetWriteChannelSource(operationContext, deprioritizedServers)
-                    : Binding.GetWriteChannelSource(operationContext, deprioritizedServers, _mayUseSecondaryCriteria);                ReplaceChannelSource(writeChannelSource);
+                    : Binding.GetWriteChannelSource(operationContext, deprioritizedServers, _mayUseSecondaryCriteria);
+                ReplaceChannelSource(writeChannelSource);
                 return ChannelSource.ServerDescription;
             }
             catch

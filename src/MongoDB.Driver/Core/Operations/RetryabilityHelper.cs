@@ -303,7 +303,7 @@ namespace MongoDB.Driver.Core.Operations
             return false;
         }
 
-        public static class OperationRetryBackpressureConstants
+        internal static class OperationRetryBackpressureConstants
         {
             public const int BasePowerBackoff = 2;
             public const int InitialBackoff = 100;
