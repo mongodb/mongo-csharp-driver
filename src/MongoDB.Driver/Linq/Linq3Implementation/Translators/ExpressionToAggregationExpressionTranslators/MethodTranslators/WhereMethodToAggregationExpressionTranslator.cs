@@ -74,6 +74,40 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 return new TranslatedExpression(expression, ast, resultSerializer);
             }
 
+            if (method.IsOneOf(EnumerableOrQueryableMethod.WhereWithPredicateTakingIndex))
+            {
+                var sourceExpression = arguments[0];
+                var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
+                NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsQueryableSource(expression, sourceTranslation);
+
+                var sourceAst = sourceTranslation.Ast;
+                var sourceSerializer = sourceTranslation.Serializer;
+                if (sourceSerializer is IWrappedValueSerializer wrappedValueSerializer)
+                {
+                    sourceAst = AstExpression.GetField(sourceAst, wrappedValueSerializer.FieldName);
+                    sourceSerializer = wrappedValueSerializer.ValueSerializer;
+                }
+                var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceSerializer);
+
+                var predicateLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
+                var itemParameter = predicateLambda.Parameters[0];
+                var indexParameter = predicateLambda.Parameters[1];
+                var itemSymbol = context.CreateSymbol(itemParameter, itemSerializer);
+                var indexSerializer = context.GetSerializer(indexParameter);
+                var indexSymbol = context.CreateSymbol(indexParameter, indexSerializer);
+                var predicateContext = context.WithSymbols(itemSymbol, indexSymbol);
+                var predicateTranslation = ExpressionToAggregationExpressionTranslator.Translate(predicateContext, predicateLambda.Body);
+
+                var ast = AstExpression.Filter(
+                    sourceAst,
+                    predicateTranslation.Ast,
+                    @as: itemSymbol.Var.Name,
+                    arrayIndexAs: indexSymbol.Var.Name);
+
+                var resultSerializer = context.GetSerializer(expression);
+                return new TranslatedExpression(expression, ast, resultSerializer);
+            }
+
             throw new ExpressionNotSupportedException(expression);
         }
     }

@@ -496,7 +496,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors
 
         public virtual AstNode VisitMapExpression(AstMapExpression node)
         {
-            return node.Update(VisitAndConvert(node.Input), VisitAndConvert(node.As), VisitAndConvert(node.In));
+            return node.Update(VisitAndConvert(node.Input), VisitAndConvert(node.As), VisitAndConvert(node.ArrayIndexAs), VisitAndConvert(node.In));
         }
 
         public virtual AstNode VisitMatchesEverythingFilter(AstMatchesEverythingFilter node)

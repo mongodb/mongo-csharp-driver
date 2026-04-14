@@ -51,6 +51,32 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 return new TranslatedExpression(expression, ast, serializer);
             }
 
+            if (method.IsOneOf(EnumerableOrQueryableMethod.SelectWithSelectorTakingIndex))
+            {
+                var sourceExpression = arguments[0];
+                var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
+                NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsQueryableSource(expression, sourceTranslation);
+
+                var selectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
+                var itemParameter = selectorLambda.Parameters[0];
+                var indexParameter = selectorLambda.Parameters[1];
+                var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
+                var itemSymbol = context.CreateSymbol(itemParameter, itemSerializer);
+                var indexSerializer = context.GetSerializer(indexParameter);
+                var indexSymbol = context.CreateSymbol(indexParameter, indexSerializer);
+                var selectorContext = context.WithSymbols(itemSymbol, indexSymbol);
+                var translatedSelector = ExpressionToAggregationExpressionTranslator.Translate(selectorContext, selectorLambda.Body);
+
+                var ast = AstExpression.Map(
+                    sourceTranslation.Ast,
+                    itemSymbol.Var,
+                    translatedSelector.Ast,
+                    arrayIndexAs: indexSymbol.Var);
+                var serializer = NestedAsQueryableSerializer.CreateIEnumerableOrNestedAsQueryableSerializer(expression.Type, itemSerializer: translatedSelector.Serializer);
+
+                return new TranslatedExpression(expression, ast, serializer);
+            }
+
             throw new ExpressionNotSupportedException(expression);
         }
     }

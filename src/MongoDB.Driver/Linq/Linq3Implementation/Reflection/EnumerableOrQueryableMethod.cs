@@ -57,6 +57,8 @@ internal static class EnumerableOrQueryableMethod
     private static readonly IReadOnlyMethodInfoSet __select;
     private static readonly IReadOnlyMethodInfoSet __selectManyWithCollectionSelectorAndResultSelector;
     private static readonly IReadOnlyMethodInfoSet __selectManyWithSelector;
+    private static readonly IReadOnlyMethodInfoSet __selectManyWithSelectorTakingIndex;
+    private static readonly IReadOnlyMethodInfoSet __selectWithSelectorTakingIndex;
     private static readonly IReadOnlyMethodInfoSet __single;
     private static readonly IReadOnlyMethodInfoSet __singleOrDefault;
     private static readonly IReadOnlyMethodInfoSet __singleWithPredicate;
@@ -69,6 +71,7 @@ internal static class EnumerableOrQueryableMethod
     private static readonly IReadOnlyMethodInfoSet __thenByDescending;
     private static readonly IReadOnlyMethodInfoSet __union;
     private static readonly IReadOnlyMethodInfoSet __where;
+    private static readonly IReadOnlyMethodInfoSet __whereWithPredicateTakingIndex;
     private static readonly IReadOnlyMethodInfoSet __zip;
 
     // sets of methods
@@ -350,6 +353,18 @@ internal static class EnumerableOrQueryableMethod
             QueryableMethod.SelectManyWithSelector
         ]);
 
+        __selectManyWithSelectorTakingIndex = MethodInfoSet.Create(
+        [
+            EnumerableMethod.SelectManyWithSelectorTakingIndex,
+            QueryableMethod.SelectManyWithSelectorTakingIndex
+        ]);
+
+        __selectWithSelectorTakingIndex = MethodInfoSet.Create(
+        [
+            EnumerableMethod.SelectWithSelectorTakingIndex,
+            QueryableMethod.SelectWithSelectorTakingIndex
+        ]);
+
         __single = MethodInfoSet.Create(
         [
             EnumerableMethod.Single,
@@ -420,6 +435,12 @@ internal static class EnumerableOrQueryableMethod
         [
             EnumerableMethod.Where,
             QueryableMethod.Where,
+        ]);
+
+        __whereWithPredicateTakingIndex = MethodInfoSet.Create(
+        [
+            EnumerableMethod.WhereWithPredicateTakingIndex,
+            QueryableMethod.WhereWithPredicateTakingIndex
         ]);
 
         __zip = MethodInfoSet.Create(
@@ -899,6 +920,8 @@ internal static class EnumerableOrQueryableMethod
     public static IReadOnlyMethodInfoSet Select => __select;
     public static IReadOnlyMethodInfoSet SelectManyWithCollectionSelectorAndResultSelector => __selectManyWithCollectionSelectorAndResultSelector;
     public static IReadOnlyMethodInfoSet SelectManyWithSelector => __selectManyWithSelector;
+    public static IReadOnlyMethodInfoSet SelectManyWithSelectorTakingIndex => __selectManyWithSelectorTakingIndex;
+    public static IReadOnlyMethodInfoSet SelectWithSelectorTakingIndex => __selectWithSelectorTakingIndex;
     public static IReadOnlyMethodInfoSet Single => __single;
     public static IReadOnlyMethodInfoSet SingleOrDefault => __singleOrDefault;
     public static IReadOnlyMethodInfoSet SingleOrDefaultWithPredicate => __singleOrDefaultWithPredicate;
@@ -909,6 +932,7 @@ internal static class EnumerableOrQueryableMethod
     public static IReadOnlyMethodInfoSet TakeWhile => __takeWhile;
     public static IReadOnlyMethodInfoSet Union => __union;
     public static IReadOnlyMethodInfoSet Where => __where;
+    public static IReadOnlyMethodInfoSet WhereWithPredicateTakingIndex => __whereWithPredicateTakingIndex;
     public static IReadOnlyMethodInfoSet Zip => __zip;
 
     // sets of methods
