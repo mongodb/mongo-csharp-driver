@@ -43,20 +43,6 @@ public class SelectManyMethodToAggregationExpressionTranslatorTests : LinqIntegr
     }
 
     [Fact]
-    public void Queryable_SelectMany_should_work()
-    {
-        var collection = Fixture.Collection;
-
-        var queryable = collection.AsQueryable().Select(x => x.B.AsQueryable().SelectMany(a => a));
-
-        var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $reduce : { input : { $map : { input : '$B', as : 'a', in : '$$a' } }, initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } } }, _id : 0 } }");
-
-        var result = queryable.Single();
-        result.Should().Equal(10, 20, 30);
-    }
-
-    [Fact]
     public void Enumerable_SelectMany_with_index_should_work()
     {
         var collection = Fixture.Collection;
@@ -68,6 +54,20 @@ public class SelectManyMethodToAggregationExpressionTranslatorTests : LinqIntegr
 
         var result = queryable.Single();
         result.Should().Equal(10, 20, 31);
+    }
+
+    [Fact]
+    public void Queryable_SelectMany_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable().Select(x => x.B.AsQueryable().SelectMany(a => a));
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : { $reduce : { input : { $map : { input : '$B', as : 'a', in : '$$a' } }, initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } } }, _id : 0 } }");
+
+        var result = queryable.Single();
+        result.Should().Equal(10, 20, 30);
     }
 
     [Fact]

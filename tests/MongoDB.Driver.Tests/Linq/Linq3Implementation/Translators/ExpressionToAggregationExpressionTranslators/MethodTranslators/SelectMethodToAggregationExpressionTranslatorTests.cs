@@ -43,20 +43,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         }
 
         [Fact]
-        public void Queryable_Select_should_work()
-        {
-            var collection = Fixture.Collection;
-
-            var queryable = collection.AsQueryable().Select(x => x.A.AsQueryable().Select(x => x + 1));
-
-            var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $project : { _v : { $map : { input : '$A', as : 'x', in : { $add : ['$$x', 1] } } }, _id : 0 } }");
-
-            var result = queryable.Single();
-            result.Should().Equal(2, 3, 4);
-        }
-
-        [Fact]
         public void Enumerable_Select_with_index_should_work()
         {
             var collection = Fixture.Collection;
@@ -68,6 +54,20 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
 
             var result = queryable.Single();
             result.Should().Equal(1, 3, 5);
+        }
+
+        [Fact]
+        public void Queryable_Select_should_work()
+        {
+            var collection = Fixture.Collection;
+
+            var queryable = collection.AsQueryable().Select(x => x.A.AsQueryable().Select(x => x + 1));
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : { $map : { input : '$A', as : 'x', in : { $add : ['$$x', 1] } } }, _id : 0 } }");
+
+            var result = queryable.Single();
+            result.Should().Equal(2, 3, 4);
         }
 
         [Fact]

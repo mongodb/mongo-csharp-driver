@@ -65,6 +65,24 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         }
 
         [Fact]
+        public void Enumerable_Where_with_index_should_work()
+        {
+            var collection = Fixture.Collection;
+
+            var queryable = collection.AsQueryable().Select(x => x.A.Where((x, i) => i < 2));
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : { $filter : { input : '$A', as : 'x', arrayIndexAs : 'i', cond : { $lt : ['$$i', 2] } } }, _id : 0 } }");
+
+            var results = queryable.ToList();
+            results.Should().HaveCount(4);
+            results[0].Should().Equal();
+            results[1].Should().Equal(1);
+            results[2].Should().Equal(1, 2);
+            results[3].Should().Equal(1, 2);
+        }
+
+        [Fact]
         public void Queryable_Where_should_work()
         {
             var collection = Fixture.Collection;
@@ -98,24 +116,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             results[1].Should().Be(0);
             results[2].Should().Be(1);
             results[3].Should().Be(2);
-        }
-
-        [Fact]
-        public void Enumerable_Where_with_index_should_work()
-        {
-            var collection = Fixture.Collection;
-
-            var queryable = collection.AsQueryable().Select(x => x.A.Where((x, i) => i < 2));
-
-            var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $project : { _v : { $filter : { input : '$A', as : 'x', arrayIndexAs : 'i', cond : { $lt : ['$$i', 2] } } }, _id : 0 } }");
-
-            var results = queryable.ToList();
-            results.Should().HaveCount(4);
-            results[0].Should().Equal();
-            results[1].Should().Equal(1);
-            results[2].Should().Equal(1, 2);
-            results[3].Should().Equal(1, 2);
         }
 
         [Fact]
