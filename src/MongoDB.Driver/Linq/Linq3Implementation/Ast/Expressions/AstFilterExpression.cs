@@ -74,7 +74,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             AstExpression cond,
             AstExpression limit)
         {
-            if (input == _input && cond == _cond)
+            if (input == _input && cond == _cond && limit == _limit)
             {
                 return this;
             }
