@@ -634,14 +634,14 @@ namespace MongoDB.Driver.GridFS
         {
             var seekable = options.Seekable ?? false;
 
-            //TODO In these two methods we never pass RetryReads, is this intentional?
+            var retryReads = _database.Client.Settings.RetryReads;
             if (seekable)
             {
-                return new GridFSSeekableDownloadStream<TFileId>(this, binding, fileInfo);
+                return new GridFSSeekableDownloadStream<TFileId>(this, binding, fileInfo) { RetryReads = retryReads };
             }
             else
             {
-                return new GridFSForwardOnlyDownloadStream<TFileId>(this, binding, fileInfo);
+                return new GridFSForwardOnlyDownloadStream<TFileId>(this, binding, fileInfo) { RetryReads = retryReads };
             }
         }
 

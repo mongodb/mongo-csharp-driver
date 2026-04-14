@@ -34,7 +34,7 @@ namespace MongoDB.Driver.GridFS
         private readonly BsonValue _idAsBsonValue;
         private long _n = -1;
         private long _position;
-        private bool _retryReads;  //TODO This value is never set to true, should it be?
+        private bool _retryReads;
 
         // constructors
         public GridFSSeekableDownloadStream(
