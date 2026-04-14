@@ -163,7 +163,6 @@ namespace MongoDB.Driver.Core.Bindings
             }
         }
 
-        //TODO Let's see if we keep this
         internal void ResetState()
         {
             _state = CoreTransactionState.Starting;
@@ -180,7 +179,6 @@ namespace MongoDB.Driver.Core.Bindings
             }
         }
 
-        //TODO Let's see if we keep this
         internal bool HasCompletedCommand { get; set; }
     }
 }
