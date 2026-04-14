@@ -156,6 +156,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case "LastOrDefault":
                     return FirstOrLastMethodToAggregationExpressionTranslator.Translate(context, expression);
 
+                case "Hash":
+                case "HexHash":
+                    return HashMethodToAggregationExpressionTranslator.Translate(context, expression);
+
                 case "IndexOf":
                 case "IndexOfBytes":
                     return IndexOfMethodToAggregationExpressionTranslator.Translate(context, expression);

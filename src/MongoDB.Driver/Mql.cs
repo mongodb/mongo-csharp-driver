@@ -147,6 +147,26 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Generates a binary hash for an input expression.
+        /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="value">The value.</param>
+        /// <param name="algorithm">The hashing algorithm.</param>
+        /// <returns>Generated hash as binary data.</returns>
+        public static BsonBinaryData Hash<TValue>(TValue value, MqlHashAlgorithm algorithm) =>
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+
+        /// <summary>
+        /// Generates a hexadecimal hash string for an input expression.
+        /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="value">The value.</param>
+        /// <param name="algorithm">The hashing algorithm.</param>
+        /// <returns>Generated hash as an uppercase string of hexadecimal digits.</returns>
+        public static string HexHash<TValue>(TValue value, MqlHashAlgorithm algorithm) =>
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+
+        /// <summary>
         /// Tests whether a field is missing.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>

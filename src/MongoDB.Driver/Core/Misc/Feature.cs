@@ -72,6 +72,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __geoNearCommand = new Feature("GeoNearCommand", WireVersion.Zero, WireVersion.Server42);
         private static readonly Feature __getField = new Feature("GetField", WireVersion.Server50);
         private static readonly Feature __getMoreComment = new Feature("GetMoreComment", WireVersion.Server44);
+        private static readonly Feature __hashOperator = new Feature("HashOperator", WireVersion.Server83);
         private static readonly Feature __groupCommand = new Feature("GroupCommand", WireVersion.Zero, WireVersion.Server42);
         private static readonly Feature __hedgedReads = new Feature("HedgedReads", WireVersion.Server44);
         private static readonly Feature __hiddenIndex = new Feature("HiddenIndex", WireVersion.Server44);
@@ -354,6 +355,11 @@ namespace MongoDB.Driver.Core.Misc
         /// </summary>
         [Obsolete("This feature was removed in server version 4.2. As such, this property will be removed in a later release.")]
         public static Feature GroupCommand => __groupCommand;
+
+        /// <summary>
+        /// Gets the $hash operator feature.
+        /// </summary>
+        public static Feature HashOperator => __hashOperator;
 
         /// <summary>
         /// Gets the hedged reads feature.

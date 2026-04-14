@@ -74,6 +74,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast
         GetFieldExpression,
         GraphLookupStage,
         GroupStage,
+        HashExpression,
+        HexHashExpression,
         ImpliedOperationFilterOperation,
         IndexOfArrayExpression,
         IndexOfBytesExpression,

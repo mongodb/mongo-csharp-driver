@@ -51,6 +51,8 @@ public class MqlTests
         [TestHelpers.MakeLambda((MyModel model) => Mql.SimilarityDotProduct(model.Vector1, model.Vector2, false)), typeof(DoubleSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => Mql.SimilarityEuclidean(model.Vector1, model.Vector2, false)), typeof(DoubleSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => Mql.Subtype(model.Data)), typeof(NullableSerializer<BsonBinarySubType>)],
+        [TestHelpers.MakeLambda((MyModel model) => Mql.Hash(model.Data, MqlHashAlgorithm.SHA256)), typeof(BsonBinaryDataSerializer)],
+        [TestHelpers.MakeLambda((MyModel model) => Mql.HexHash(model.Data, MqlHashAlgorithm.SHA256)), typeof(StringSerializer)]
     ];
 
     private class MyModel

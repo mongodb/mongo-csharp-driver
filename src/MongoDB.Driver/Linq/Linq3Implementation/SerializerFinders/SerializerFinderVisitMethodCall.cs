@@ -118,6 +118,8 @@ internal partial class SerializerFinderVisitor
                 case "GroupBy": DeduceGroupByMethodSerializers(); break;
                 case "GroupJoin": DeduceGroupJoinMethodSerializers(); break;
                 case "HasFlag": DeduceHasFlagMethodSerializers(); break;
+                case "Hash": DeduceHashMethodSerializers(); break;
+                case "HexHash": DeduceHexHashMethodSerializers(); break;
                 case "Inject": DeduceInjectMethodSerializers(); break;
                 case "Intersect": DeduceIntersectMethodSerializers(); break;
                 case "IsMatch": DeduceIsMatchMethodSerializers(); break;
@@ -1579,6 +1581,30 @@ internal partial class SerializerFinderVisitor
                     AddNodeSerializer(flagExpression, enumSerializer);
                 }
                 DeduceReturnsBooleanSerializer();
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
+        }
+
+        void DeduceHashMethodSerializers()
+        {
+            if (method.Is(MqlMethod.Hash))
+            {
+                DeduceSerializer(node, BsonBinaryDataSerializer.Instance);
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
+        }
+
+        void DeduceHexHashMethodSerializers()
+        {
+            if (method.Is(MqlMethod.HexHash))
+            {
+                DeduceSerializer(node, StringSerializer.Instance);
             }
             else
             {
