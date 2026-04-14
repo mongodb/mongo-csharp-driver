@@ -444,19 +444,19 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
         }
 
         [Fact]
-        public void TokenBucket_should_not_be_null_when_adaptiveRetries_is_true()
+        public void MaxAdaptiveRetries_should_return_expected_value()
         {
-            var subject = CreateSubject(adaptiveRetries: true);
+            var subject = CreateSubject(maxAdaptiveRetries: 5);
 
-            subject.TokenBucket.Should().NotBeNull();
+            subject.MaxAdaptiveRetries.Should().Be(5);
         }
 
         [Fact]
-        public void TokenBucket_should_be_null_when_adaptiveRetries_is_false()
+        public void EnableOverloadRetargeting_should_return_expected_value()
         {
-            var subject = CreateSubject(adaptiveRetries: false);
+            var subject = CreateSubject(enableOverloadRetargeting: true);
 
-            subject.TokenBucket.Should().BeNull();
+            subject.EnableOverloadRetargeting.Should().BeTrue();
         }
 
         // private methods
@@ -469,11 +469,11 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
             return mockDnsMonitorFactory;
         }
 
-        private LoadBalancedCluster CreateSubject(ClusterSettings settings = null, IDnsMonitorFactory dnsMonitorFactory = null, bool adaptiveRetries = false)
+        private LoadBalancedCluster CreateSubject(ClusterSettings settings = null, IDnsMonitorFactory dnsMonitorFactory = null, int maxAdaptiveRetries = 2, bool enableOverloadRetargeting = false)
         {
             return dnsMonitorFactory != null
-                ? new LoadBalancedCluster(settings ?? _settings, _mockServerFactory, _capturedEvents, LoggerFactory, dnsMonitorFactory, adaptiveRetries)
-                : new LoadBalancedCluster(settings ?? _settings, _mockServerFactory, _capturedEvents, LoggerFactory, adaptiveRetries);
+                ? new LoadBalancedCluster(settings ?? _settings, _mockServerFactory, _capturedEvents, LoggerFactory, dnsMonitorFactory, maxAdaptiveRetries, enableOverloadRetargeting)
+                : new LoadBalancedCluster(settings ?? _settings, _mockServerFactory, _capturedEvents, LoggerFactory, maxAdaptiveRetries, enableOverloadRetargeting);
         }
 
         private void PublishDnsException(IDnsMonitoringCluster cluster, Exception exception)

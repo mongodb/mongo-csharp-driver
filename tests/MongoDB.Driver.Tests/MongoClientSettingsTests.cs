@@ -39,18 +39,43 @@ namespace MongoDB.Driver.Tests
         private readonly MongoServerAddress _localHost = new MongoServerAddress("localhost");
 
         [Fact]
-        public void TestAdaptiveRetries()
+        public void TestEnableOverloadRetargeting()
         {
             var settings = new MongoClientSettings();
-            Assert.Equal(false, settings.AdaptiveRetries);
+            Assert.Equal(false, settings.EnableOverloadRetargeting);
 
-            var adaptiveRetries = true;
-            settings.AdaptiveRetries = adaptiveRetries;
-            Assert.Equal(adaptiveRetries, settings.AdaptiveRetries);
+            var enableOverloadRetargeting = true;
+            settings.EnableOverloadRetargeting = enableOverloadRetargeting;
+            Assert.Equal(enableOverloadRetargeting, settings.EnableOverloadRetargeting);
 
             settings.Freeze();
-            Assert.Equal(adaptiveRetries, settings.AdaptiveRetries);
-            Assert.Throws<InvalidOperationException>(() => { settings.AdaptiveRetries = false; });
+            Assert.Equal(enableOverloadRetargeting, settings.EnableOverloadRetargeting);
+            Assert.Throws<InvalidOperationException>(() => { settings.EnableOverloadRetargeting = false; });
+        }
+
+        [Fact]
+        public void TestMaxAdaptiveRetries()
+        {
+            var settings = new MongoClientSettings();
+            Assert.Equal(2, settings.MaxAdaptiveRetries);
+
+            var maxAdaptiveRetries = 5;
+            settings.MaxAdaptiveRetries = maxAdaptiveRetries;
+            Assert.Equal(maxAdaptiveRetries, settings.MaxAdaptiveRetries);
+
+            settings.Freeze();
+            Assert.Equal(maxAdaptiveRetries, settings.MaxAdaptiveRetries);
+            Assert.Throws<InvalidOperationException>(() => { settings.MaxAdaptiveRetries = 0; });
+        }
+
+        [Fact]
+        public void TestMaxAdaptiveRetries_with_negative_value_should_throw()
+        {
+            var settings = new MongoClientSettings();
+
+            var exception = Record.Exception(() => settings.MaxAdaptiveRetries = -1);
+
+            exception.Should().BeOfType<ArgumentOutOfRangeException>();
         }
 
         [Fact]
@@ -121,9 +146,9 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
-        public void TestCloneAdaptiveRetries()
+        public void TestCloneEnableOverloadRetargeting()
         {
-            var connectionString = "mongodb://somehost/?adaptiveRetries=true";
+            var connectionString = "mongodb://somehost/?enableOverloadRetargeting=true";
             var builder = new MongoUrlBuilder(connectionString);
             var url = builder.ToMongoUrl();
             var settings = MongoClientSettings.FromUrl(url);
@@ -264,7 +289,6 @@ namespace MongoDB.Driver.Tests
         public void TestDefaults()
         {
             var settings = new MongoClientSettings();
-            Assert.Equal(false, settings.AdaptiveRetries);
             Assert.Equal(false, settings.AllowInsecureTls);
             Assert.Equal(null, settings.ApplicationName);
             Assert.Equal(DefaultClusterSource.Instance, settings.ClusterSource);
@@ -272,10 +296,12 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(MongoDefaults.ConnectTimeout, settings.ConnectTimeout);
             Assert.Null(settings.Credential);
             Assert.Equal(false, settings.DirectConnection);
+            Assert.Equal(false, settings.EnableOverloadRetargeting);
             Assert.Equal(ServerSettings.DefaultHeartbeatInterval, settings.HeartbeatInterval);
             Assert.Equal(ServerSettings.DefaultHeartbeatTimeout, settings.HeartbeatTimeout);
             Assert.Equal(false, settings.IPv6);
             Assert.Equal(false, settings.LoadBalanced);
+            Assert.Equal(2, settings.MaxAdaptiveRetries);
             Assert.Equal(MongoInternalDefaults.ConnectionPool.MaxConnecting, settings.MaxConnecting);
             Assert.Equal(MongoDefaults.MaxConnectionIdleTime, settings.MaxConnectionIdleTime);
             Assert.Equal(MongoDefaults.MaxConnectionLifeTime, settings.MaxConnectionLifeTime);
@@ -357,10 +383,6 @@ namespace MongoDB.Driver.Tests
             Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
-            clone.AdaptiveRetries = !settings.AdaptiveRetries;
-            Assert.False(clone.Equals(settings));
-
-            clone = settings.Clone();
             clone.ClusterSource = (new Mock<IClusterSource>()).Object;
             Assert.False(clone.Equals(settings));
 
@@ -385,6 +407,10 @@ namespace MongoDB.Driver.Tests
             Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
+            clone.EnableOverloadRetargeting = !settings.EnableOverloadRetargeting;
+            Assert.False(clone.Equals(settings));
+
+            clone = settings.Clone();
             clone.LibraryInfo = new LibraryInfo("name", "version");
             Assert.False(clone.Equals(settings));
 
@@ -402,6 +428,10 @@ namespace MongoDB.Driver.Tests
 
             clone = settings.Clone();
             clone.LocalThreshold = new TimeSpan(1, 2, 3);
+            Assert.False(clone.Equals(settings));
+
+            clone = settings.Clone();
+            clone.MaxAdaptiveRetries = settings.MaxAdaptiveRetries + 1;
             Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
@@ -616,9 +646,9 @@ namespace MongoDB.Driver.Tests
             // with the exception of tlsDisableCertificateRevocationCheck because setting that with tlsInsecure is
             // not allowed in a connection string
             var connectionString =
-                "mongodb://user1:password1@somehost/?adaptiveRetries=true;appname=app1;authSource=db;authMechanismProperties=CANONICALIZE_HOST_NAME:true;" +
-                "compressors=zlib,snappy;zlibCompressionLevel=9;connectTimeout=123;directConnection=true;ipv6=true;heartbeatInterval=1m;heartbeatTimeout=2m;loadBalanced=false;localThreshold=128;" +
-                "maxConnecting=3;maxIdleTime=124;maxLifeTime=125;maxPoolSize=127;minPoolSize=126;readConcernLevel=majority;" +
+                "mongodb://user1:password1@somehost/?appname=app1;authSource=db;authMechanismProperties=CANONICALIZE_HOST_NAME:true;" +
+                "compressors=zlib,snappy;zlibCompressionLevel=9;connectTimeout=123;directConnection=true;enableOverloadRetargeting=true;ipv6=true;heartbeatInterval=1m;heartbeatTimeout=2m;loadBalanced=false;localThreshold=128;" +
+                "maxAdaptiveRetries=3;maxConnecting=3;maxIdleTime=124;maxLifeTime=125;maxPoolSize=127;minPoolSize=126;readConcernLevel=majority;" +
                 "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;retryReads=false;retryWrites=true;socketTimeout=129;" +
                 "serverMonitoringMode=Stream;serverSelectionTimeout=20s;tls=true;sslVerifyCertificate=false;waitqueuesize=130;waitQueueTimeout=131;" +
                 "w=1;fsync=true;journal=true;w=2;wtimeout=131;gssapiServiceName=other" +
@@ -627,7 +657,6 @@ namespace MongoDB.Driver.Tests
             var url = builder.ToMongoUrl();
 
             var settings = MongoClientSettings.FromUrl(url);
-            Assert.Equal(url.AdaptiveRetries, settings.AdaptiveRetries);
             Assert.Equal(url.AllowInsecureTls, settings.AllowInsecureTls);
             Assert.Equal(url.ApplicationName, settings.ApplicationName);
             Assert.Equal(DefaultClusterSource.Instance, settings.ClusterSource);
@@ -635,6 +664,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(url.ConnectTimeout, settings.ConnectTimeout);
             Assert.NotNull(settings.Credential);
             Assert.Equal(url.DirectConnection, settings.DirectConnection);
+            Assert.Equal(url.EnableOverloadRetargeting, settings.EnableOverloadRetargeting);
             Assert.Equal(url.Username, settings.Credential.Username);
             Assert.Equal(url.AuthenticationMechanism, settings.Credential.Mechanism);
             Assert.Equal("other", settings.Credential.GetMechanismProperty<string>("SERVICE_NAME", "mongodb"));
@@ -646,6 +676,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(url.IPv6, settings.IPv6);
             Assert.Equal(url.LoadBalanced, settings.LoadBalanced);
             Assert.Equal(url.LocalThreshold, settings.LocalThreshold);
+            Assert.Equal(url.MaxAdaptiveRetries, settings.MaxAdaptiveRetries);
             Assert.Equal(url.MaxConnecting, settings.MaxConnecting);
             Assert.Equal(url.MaxConnectionIdleTime, settings.MaxConnectionIdleTime);
             Assert.Equal(url.MaxConnectionLifeTime, settings.MaxConnectionLifeTime);

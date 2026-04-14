@@ -23,6 +23,7 @@ using Microsoft.Extensions.Logging;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Clusters
@@ -45,8 +46,9 @@ namespace MongoDB.Driver.Core.Clusters
             IEventSubscriber eventSubscriber,
             ILoggerFactory loggerFactory,
             IDnsMonitorFactory dnsMonitorFactory = null,
-            bool adaptiveRetries = false)
-            : base(settings, serverFactory, eventSubscriber, loggerFactory, adaptiveRetries)
+            int maxAdaptiveRetries = RetryabilityHelper.OperationRetryBackpressureConstants.DefaultMaxRetries,
+            bool enableOverloadRetargeting = false)
+            : base(settings, serverFactory, eventSubscriber, loggerFactory, maxAdaptiveRetries, enableOverloadRetargeting)
         {
             Ensure.IsGreaterThanZero(settings.EndPoints.Count, nameof(settings.EndPoints.Count));
             Ensure.That(!settings.DirectConnection, $"DirectConnection is not supported for a {nameof(MultiServerCluster)}.");

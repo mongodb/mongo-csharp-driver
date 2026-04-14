@@ -305,12 +305,10 @@ namespace MongoDB.Driver.Core.Operations
 
         public static class OperationRetryBackpressureConstants
         {
-            //TODO Should these be here...?
             public const int BasePowerBackoff = 2;
             public const int InitialBackoff = 100;
             public const int MaxBackoff = 10000;
-            public const int MaxRetries = 5;
-            public const double RetryTokenReturnRate = 0.1;
+            public const int DefaultMaxRetries = 2;
         }
     }
 }

@@ -32,7 +32,6 @@ namespace MongoDB.Driver.Core.Servers
         EndPoint EndPoint { get; }
         ServerId ServerId { get; }
         ServerApi ServerApi { get; }
-        TokenBucket TokenBucket { get; }
 
         void DecrementOutstandingOperationsCount();
         IChannelHandle GetChannel(OperationContext operationContext);

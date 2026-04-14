@@ -35,7 +35,6 @@ namespace MongoDB.Driver.Core.Servers
         private ServerApi _serverApi;
         private IServerMonitorFactory _serverMonitorFactory;
         private ServerSettings _settings;
-        private TokenBucket _tokenBucket;
 
         public ServerFactoryTests()
         {
@@ -51,7 +50,6 @@ namespace MongoDB.Driver.Core.Servers
             _serverMonitorFactory = mockServerMonitorFactory.Object;
             _eventSubscriber = new Mock<IEventSubscriber>().Object;
             _settings = new ServerSettings();
-            _tokenBucket = new TokenBucket();
         }
 
         [Fact]
@@ -100,7 +98,7 @@ namespace MongoDB.Driver.Core.Servers
             var subject = new ServerFactory(_directConnection, _settings, _connectionPoolFactory, _serverMonitorFactory, _eventSubscriber, _serverApi, null);
             var clusterClock = new Mock<IClusterClock>().Object;
 
-            Action act = () => subject.CreateServer(ClusterType.Unknown, null, clusterClock, _endPoint, _tokenBucket);
+            Action act = () => subject.CreateServer(ClusterType.Unknown, null, clusterClock, _endPoint);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -111,7 +109,7 @@ namespace MongoDB.Driver.Core.Servers
             var subject = new ServerFactory(_directConnection, _settings, _connectionPoolFactory, _serverMonitorFactory, _eventSubscriber, _serverApi, null);
             var clusterId = new ClusterId();
 
-            Action act = () => subject.CreateServer(ClusterType.Unknown, clusterId, null, _endPoint, _tokenBucket);
+            Action act = () => subject.CreateServer(ClusterType.Unknown, clusterId, null, _endPoint);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -122,7 +120,7 @@ namespace MongoDB.Driver.Core.Servers
             var subject = new ServerFactory(_directConnection, _settings, _connectionPoolFactory, _serverMonitorFactory, _eventSubscriber, _serverApi, null);
             var clusterClock = new Mock<IClusterClock>().Object;
 
-            Action act = () => subject.CreateServer(ClusterType.Unknown, _clusterId, clusterClock, null, _tokenBucket);
+            Action act = () => subject.CreateServer(ClusterType.Unknown, _clusterId, clusterClock, null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -136,7 +134,7 @@ namespace MongoDB.Driver.Core.Servers
             var clusterClock = new Mock<IClusterClock>().Object;
 
 
-            var result = subject.CreateServer(clusterType, _clusterId, clusterClock, _endPoint, _tokenBucket);
+            var result = subject.CreateServer(clusterType, _clusterId, clusterClock, _endPoint);
 
             result.Should().NotBeNull();
             result.Should().BeOfType(expectedServerType);

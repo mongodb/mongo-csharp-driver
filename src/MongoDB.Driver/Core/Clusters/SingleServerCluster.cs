@@ -20,6 +20,7 @@ using Microsoft.Extensions.Logging;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Clusters
@@ -30,8 +31,10 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly InterlockedInt32 _state;
         private readonly string _replicaSetName;
 
-        public SingleServerCluster(ClusterSettings settings, IClusterableServerFactory serverFactory, IEventSubscriber eventSubscriber, ILoggerFactory loggerFactory, bool adaptiveRetries = false)
-            : base(settings, serverFactory, eventSubscriber, loggerFactory, adaptiveRetries)
+        public SingleServerCluster(ClusterSettings settings, IClusterableServerFactory serverFactory, IEventSubscriber eventSubscriber, ILoggerFactory loggerFactory,
+            int maxAdaptiveRetries = RetryabilityHelper.OperationRetryBackpressureConstants.DefaultMaxRetries,
+            bool enableOverloadRetargeting = false)
+            : base(settings, serverFactory, eventSubscriber, loggerFactory, maxAdaptiveRetries, enableOverloadRetargeting)
         {
             Ensure.That(settings.DirectConnection, $"DirectConnection mode is not supported for {nameof(SingleServerCluster)}.");
             Ensure.That(settings.SrvMaxHosts == 0, "srvMaxHosts cannot be used with a single server cluster.");

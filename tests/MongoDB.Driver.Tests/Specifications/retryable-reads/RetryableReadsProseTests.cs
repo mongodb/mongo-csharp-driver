@@ -248,6 +248,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
                 s =>
                 {
                     s.RetryReads = true;
+                    s.EnableOverloadRetargeting = true;
                     s.ClusterConfigurator = b => b.Subscribe(eventCapturer);
                     s.ReadPreference = ReadPreference.PrimaryPreferred;
                 },

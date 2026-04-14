@@ -38,7 +38,6 @@ namespace MongoDB.Driver
         public static readonly IExtensionManager Extensions = new ExtensionManager();
 
         // private fields
-        private bool _adaptiveRetries;
         private bool _allowInsecureTls;
         private string _applicationName;
         private AutoEncryptionOptions _autoEncryptionOptions;
@@ -48,6 +47,7 @@ namespace MongoDB.Driver
         private TimeSpan _connectTimeout;
         private MongoCredential _credential;
         private bool _directConnection;
+        private bool _enableOverloadRetargeting;
         private TimeSpan _heartbeatInterval;
         private TimeSpan _heartbeatTimeout;
         private bool _ipv6;
@@ -55,6 +55,7 @@ namespace MongoDB.Driver
         private bool _loadBalanced;
         private TimeSpan _localThreshold;
         private LoggingSettings _loggingSettings;
+        private int _maxAdaptiveRetries;
         private int _maxConnecting;
         private TimeSpan _maxConnectionIdleTime;
         private TimeSpan _maxConnectionLifeTime;
@@ -96,7 +97,6 @@ namespace MongoDB.Driver
         /// </summary>
         public MongoClientSettings()
         {
-            _adaptiveRetries = false;
             _allowInsecureTls = false;
             _applicationName = null;
             _autoEncryptionOptions = null;
@@ -104,12 +104,14 @@ namespace MongoDB.Driver
             _compressors = new CompressorConfiguration[0];
             _connectTimeout = MongoDefaults.ConnectTimeout;
             _directConnection = false;
+            _enableOverloadRetargeting = false;
             _heartbeatInterval = ServerSettings.DefaultHeartbeatInterval;
             _heartbeatTimeout = ServerSettings.DefaultHeartbeatTimeout;
             _ipv6 = false;
             _libraryInfo = null;
             _loadBalanced = false;
             _localThreshold = MongoDefaults.LocalThreshold;
+            _maxAdaptiveRetries = Core.Operations.RetryabilityHelper.OperationRetryBackpressureConstants.DefaultMaxRetries;
             _maxConnecting = MongoInternalDefaults.ConnectionPool.MaxConnecting;
             _maxConnectionIdleTime = MongoDefaults.MaxConnectionIdleTime;
             _maxConnectionLifeTime = MongoDefaults.MaxConnectionLifeTime;
@@ -154,19 +156,6 @@ namespace MongoDB.Driver
         }
 
         // public properties
-        /// <summary>
-        /// Gets or sets whether adaptive retries are enabled.
-        /// </summary>
-        public bool AdaptiveRetries
-        {
-            get { return _adaptiveRetries; }
-            set
-            {
-                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
-                _adaptiveRetries = value;
-            }
-        }
-
         /// <summary>
         /// Gets or sets whether to relax TLS constraints as much as possible.
         /// Setting this variable to true will also set SslSettings.CheckCertificateRevocation to false.
@@ -285,6 +274,19 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets or sets whether overload retargeting is enabled.
+        /// </summary>
+        public bool EnableOverloadRetargeting
+        {
+            get { return _enableOverloadRetargeting; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
+                _enableOverloadRetargeting = value;
+            }
+        }
+
+        /// <summary>
         /// Gets a value indicating whether the settings have been frozen to prevent further changes.
         /// </summary>
         public bool IsFrozen
@@ -380,6 +382,19 @@ namespace MongoDB.Driver
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
                 _loggingSettings = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the maximum number of adaptive retries for overload errors.
+        /// </summary>
+        public int MaxAdaptiveRetries
+        {
+            get { return _maxAdaptiveRetries; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
+                _maxAdaptiveRetries = Ensure.IsGreaterThanOrEqualToZero(value, nameof(value));
             }
         }
 
@@ -892,7 +907,6 @@ namespace MongoDB.Driver
             var credential = url.GetCredential();
 
             var clientSettings = new MongoClientSettings();
-            clientSettings.AdaptiveRetries = url.AdaptiveRetries.GetValueOrDefault(false);
             clientSettings.AllowInsecureTls = url.AllowInsecureTls;
             clientSettings.ApplicationName = url.ApplicationName;
             clientSettings.AutoEncryptionOptions = null; // must be configured via code
@@ -914,12 +928,14 @@ namespace MongoDB.Driver
                 clientSettings.Credential = credential;
             }
             clientSettings.DirectConnection = url.DirectConnection;
+            clientSettings.EnableOverloadRetargeting = url.EnableOverloadRetargeting.GetValueOrDefault(false);
             clientSettings.HeartbeatInterval = url.HeartbeatInterval;
             clientSettings.HeartbeatTimeout = url.HeartbeatTimeout;
             clientSettings.IPv6 = url.IPv6;
             clientSettings.LibraryInfo = null;
             clientSettings.LoadBalanced = url.LoadBalanced;
             clientSettings.LocalThreshold = url.LocalThreshold;
+            clientSettings.MaxAdaptiveRetries = url.MaxAdaptiveRetries ?? Core.Operations.RetryabilityHelper.OperationRetryBackpressureConstants.DefaultMaxRetries;
             clientSettings.MaxConnecting = url.MaxConnecting;
             clientSettings.MaxConnectionIdleTime = url.MaxConnectionIdleTime;
             clientSettings.MaxConnectionLifeTime = url.MaxConnectionLifeTime;
@@ -966,7 +982,6 @@ namespace MongoDB.Driver
         public MongoClientSettings Clone()
         {
             var clone = new MongoClientSettings();
-            clone._adaptiveRetries = _adaptiveRetries;
             clone._allowInsecureTls = _allowInsecureTls;
             clone._applicationName = _applicationName;
             clone._autoEncryptionOptions = _autoEncryptionOptions;
@@ -976,6 +991,7 @@ namespace MongoDB.Driver
             clone._connectTimeout = _connectTimeout;
             clone._credential = _credential;
             clone._directConnection = _directConnection;
+            clone._enableOverloadRetargeting = _enableOverloadRetargeting;
             clone._heartbeatInterval = _heartbeatInterval;
             clone._heartbeatTimeout = _heartbeatTimeout;
             clone._ipv6 = _ipv6;
@@ -983,6 +999,7 @@ namespace MongoDB.Driver
             clone._loadBalanced = _loadBalanced;
             clone._localThreshold = _localThreshold;
             clone._loggingSettings = _loggingSettings;
+            clone._maxAdaptiveRetries = _maxAdaptiveRetries;
             clone._tracingOptions = _tracingOptions?.Clone();
             clone._maxConnecting = _maxConnecting;
             clone._maxConnectionIdleTime = _maxConnectionIdleTime;
@@ -1039,7 +1056,6 @@ namespace MongoDB.Driver
             if (object.ReferenceEquals(obj, null) || GetType() != obj.GetType()) { return false; }
             var rhs = (MongoClientSettings)obj;
             return
-                _adaptiveRetries == rhs._adaptiveRetries &&
                 _allowInsecureTls == rhs._allowInsecureTls &&
                 _applicationName == rhs._applicationName &&
                 object.Equals(_autoEncryptionOptions, rhs._autoEncryptionOptions) &&
@@ -1049,6 +1065,7 @@ namespace MongoDB.Driver
                 _connectTimeout == rhs._connectTimeout &&
                 _credential == rhs._credential &&
                 _directConnection.Equals(rhs._directConnection) &&
+                _enableOverloadRetargeting == rhs._enableOverloadRetargeting &&
                 _heartbeatInterval == rhs._heartbeatInterval &&
                 _heartbeatTimeout == rhs._heartbeatTimeout &&
                 _ipv6 == rhs._ipv6 &&
@@ -1056,6 +1073,7 @@ namespace MongoDB.Driver
                 _loadBalanced == rhs._loadBalanced &&
                 _localThreshold == rhs._localThreshold &&
                 _loggingSettings == rhs._loggingSettings &&
+                _maxAdaptiveRetries == rhs._maxAdaptiveRetries &&
                 object.Equals(_tracingOptions, rhs._tracingOptions) &&
                 _maxConnecting == rhs._maxConnecting &&
                 _maxConnectionIdleTime == rhs._maxConnectionIdleTime &&
@@ -1131,7 +1149,6 @@ namespace MongoDB.Driver
             }
 
             return new Hasher()
-                .Hash(_adaptiveRetries)
                 .Hash(_allowInsecureTls)
                 .Hash(_applicationName)
                 .Hash(_autoEncryptionOptions)
@@ -1141,12 +1158,14 @@ namespace MongoDB.Driver
                 .Hash(_connectTimeout)
                 .Hash(_credential)
                 .Hash(_directConnection)
+                .Hash(_enableOverloadRetargeting)
                 .Hash(_heartbeatInterval)
                 .Hash(_heartbeatTimeout)
                 .Hash(_ipv6)
                 .Hash(_libraryInfo)
                 .Hash(_loadBalanced)
                 .Hash(_localThreshold)
+                .Hash(_maxAdaptiveRetries)
                 .Hash(_maxConnecting)
                 .Hash(_maxConnectionIdleTime)
                 .Hash(_maxConnectionLifeTime)
@@ -1190,7 +1209,6 @@ namespace MongoDB.Driver
             }
 
             var sb = new StringBuilder();
-            sb.AppendFormat("AdaptiveRetries={0};", _adaptiveRetries);
             if (_applicationName != null)
             {
                 sb.AppendFormat("ApplicationName={0};", _applicationName);
@@ -1206,7 +1224,7 @@ namespace MongoDB.Driver
             sb.AppendFormat("ConnectTimeout={0};", _connectTimeout);
             sb.AppendFormat("Credential={{{0}}};", _credential);
             sb.AppendFormat("DirectConnection={0};", _directConnection);
-
+            sb.AppendFormat("EnableOverloadRetargeting={0};", _enableOverloadRetargeting);
             sb.AppendFormat("HeartbeatInterval={0};", _heartbeatInterval);
             sb.AppendFormat("HeartbeatTimeout={0};", _heartbeatTimeout);
             sb.AppendFormat("IPv6={0};", _ipv6);
@@ -1219,6 +1237,7 @@ namespace MongoDB.Driver
                 sb.AppendFormat("LoadBalanced={0};", _loadBalanced);
             }
             sb.AppendFormat("LocalThreshold={0};", _localThreshold);
+            sb.AppendFormat("MaxAdaptiveRetries={0};", _maxAdaptiveRetries);
             sb.AppendFormat("MaxConnecting={0};", _maxConnecting);
             sb.AppendFormat("MaxConnectionIdleTime={0};", _maxConnectionIdleTime);
             sb.AppendFormat("MaxConnectionLifeTime={0};", _maxConnectionLifeTime);
@@ -1279,7 +1298,6 @@ namespace MongoDB.Driver
         internal ClusterKey ToClusterKey()
         {
             return new ClusterKey(
-                _adaptiveRetries,
                 _allowInsecureTls,
                 _applicationName,
                 _clusterConfigurator,
@@ -1288,6 +1306,7 @@ namespace MongoDB.Driver
                 _credential,
                 _autoEncryptionOptions?.ToCryptClientSettings(),
                 _directConnection,
+                _enableOverloadRetargeting,
                 _heartbeatInterval,
                 _heartbeatTimeout,
                 _ipv6,
@@ -1295,6 +1314,7 @@ namespace MongoDB.Driver
                 _loadBalanced,
                 _localThreshold,
                 _loggingSettings,
+                _maxAdaptiveRetries,
                 _maxConnecting,
                 _maxConnectionIdleTime,
                 _maxConnectionLifeTime,

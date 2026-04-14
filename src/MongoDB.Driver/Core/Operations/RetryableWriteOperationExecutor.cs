@@ -38,7 +38,6 @@ namespace MongoDB.Driver.Core.Operations
             var totalAttempts = 0;
             var operationExecutionAttempts = 0;
             Exception originalException = null;
-            var tokenBucket = context.Binding.TokenBucket;
             var isEndTransactionOperation = operation is EndTransactionOperation;
 
             long? transactionNumber = null;
@@ -59,15 +58,6 @@ namespace MongoDB.Driver.Core.Operations
                     operationExecutionAttempts++;
 
                     var operationResult = operation.ExecuteAttempt(operationContext, context, operationExecutionAttempts, transactionNumber);
-                    if (tokenBucket != null)
-                    {
-                        var tokensToDeposit = RetryabilityHelper.OperationRetryBackpressureConstants.RetryTokenReturnRate;
-                        if (totalAttempts > 1)
-                        {
-                            tokensToDeposit += 1;
-                        }
-                        tokenBucket.Deposit(tokensToDeposit);
-                    }
 
                     if (context.Binding.Session.Id != null &&
                         context.Binding.Session.IsInTransaction)
@@ -84,7 +74,7 @@ namespace MongoDB.Driver.Core.Operations
                         originalException = ex;
                     }
 
-                    if (!ShouldRetry(operationContext, context.Channel is null, server, operation.WriteConcern, context, tokenBucket, ex, totalAttempts, context.Random, isEndTransactionOperation, out var backoff))
+                    if (!ShouldRetry(operationContext, context.Channel is null, server, operation.WriteConcern, context, ex, totalAttempts, context.Random, isEndTransactionOperation, out var backoff))
                     {
                         throw originalException;
                     }
@@ -95,7 +85,7 @@ namespace MongoDB.Driver.Core.Operations
                     }
 
                     Thread.Sleep(backoff);
-                    deprioritizedServers = UpdateServerList(server, deprioritizedServers, ex);
+                    deprioritizedServers = UpdateServerList(server, deprioritizedServers, ex, context.Binding.EnableOverloadRetargeting);
                 }
             }
         }
@@ -112,7 +102,6 @@ namespace MongoDB.Driver.Core.Operations
             var totalAttempts = 0;
             var operationExecutionAttempts = 0;
             Exception originalException = null;
-            var tokenBucket = context.Binding.TokenBucket;
             var isEndTransactionOperation = operation is EndTransactionOperation;
 
             long? transactionNumber = null;
@@ -130,19 +119,7 @@ namespace MongoDB.Driver.Core.Operations
                     operationExecutionAttempts++;
                     transactionNumber ??= AreRetriesAllowed(operation.WriteConcern, context, context.ChannelSource.ServerDescription) ? context.Binding.Session.AdvanceTransactionNumber() : null;
 
-                    //TODO The "attempt" parameter is only used in RetryableWriteCommandOperationBase, and in particular in "CreateCommandPayloads", that uses it to decide what to include in the bulk write payloads
-                    //It seems we should change this parameter to another one, as the attempt number is not correct in this new retryability. Also the current operationAttempt is not correct,
-                    //probably the attempts should be counted only for the "retryable write" attempts?
                     var operationResult = await operation.ExecuteAttemptAsync(operationContext, context, operationExecutionAttempts, transactionNumber).ConfigureAwait(false);
-                    if (tokenBucket != null)
-                    {
-                        var tokensToDeposit = RetryabilityHelper.OperationRetryBackpressureConstants.RetryTokenReturnRate;
-                        if (totalAttempts > 1)
-                        {
-                            tokensToDeposit += 1;
-                        }
-                        tokenBucket.Deposit(tokensToDeposit);
-                    }
 
                     if (context.Binding.Session.Id != null &&
                         context.Binding.Session.IsInTransaction)
@@ -159,7 +136,7 @@ namespace MongoDB.Driver.Core.Operations
                         originalException = ex;
                     }
 
-                    if (!ShouldRetry(operationContext, context.Channel is null, server, operation.WriteConcern, context, tokenBucket, ex, totalAttempts, context.Random, isEndTransactionOperation, out var backoff))
+                    if (!ShouldRetry(operationContext, context.Channel is null, server, operation.WriteConcern, context, ex, totalAttempts, context.Random, isEndTransactionOperation, out var backoff))
                     {
                         throw originalException;
                     }
@@ -170,7 +147,7 @@ namespace MongoDB.Driver.Core.Operations
                     }
 
                     await Task.Delay(backoff, operationContext.CancellationToken).ConfigureAwait(false);
-                    deprioritizedServers = UpdateServerList(server, deprioritizedServers, ex);
+                    deprioritizedServers = UpdateServerList(server, deprioritizedServers, ex, context.Binding.EnableOverloadRetargeting);
                 }
             }
         }
@@ -181,7 +158,6 @@ namespace MongoDB.Driver.Core.Operations
             ServerDescription server,
             WriteConcern writeConcern,
             RetryableWriteContext context,
-            TokenBucket tokenBucket,
             Exception exception,
             int attempt,
             IRandom random,
@@ -225,11 +201,6 @@ namespace MongoDB.Driver.Core.Operations
             var isBackpressureRetry = isSystemOverloadedException
                                       && isRetryableException;
 
-            if (attempt > 1 && !isSystemOverloadedException && tokenBucket != null)
-            {
-                tokenBucket.Deposit(1);
-            }
-
             if (!isRetryableReadOrWrite && !isBackpressureRetry)
             {
                 return false;
@@ -237,9 +208,6 @@ namespace MongoDB.Driver.Core.Operations
 
             if (isSystemOverloadedException)
             {
-                //TODO When the first command of a transaction fails with a backpressure error, we need to reset the transaction state
-                //It needs to be put to "Starting" again. I've tried to cancel its transition to "InProgress" state in the first place, but that did not work well with the current implementation
-                //(I was getting an end of error stream from the binary connection). This "reset" of the transaction state seems to work fine and is the same approach done by Python
                 if (context.Binding.Session.Id != null
                     && context.Binding.Session.IsInTransaction
                     && context.Binding.Session.CurrentTransaction is { HasCompletedCommand: false } currentTransaction)
@@ -249,8 +217,7 @@ namespace MongoDB.Driver.Core.Operations
 
                 backoff = RetryabilityHelper.GetOperationRetryBackoffDelay(attempt, random);
 
-                var canConsumeToken = tokenBucket == null || tokenBucket.Consume(1);
-                return canConsumeToken && attempt <= RetryabilityHelper.OperationRetryBackpressureConstants.MaxRetries;
+                return attempt <= context.Binding.MaxAdaptiveRetries;
             }
 
             //If a retryable write (not backpressure related), we retry "infinite" times (until timeout) with CSOT enabled, otherwise just once.
@@ -279,10 +246,10 @@ namespace MongoDB.Driver.Core.Operations
             => writeConcern == null || // null means use server default write concern which implies acknowledged
                writeConcern.IsAcknowledged;
 
-        private static HashSet<ServerDescription> UpdateServerList(ServerDescription server, HashSet<ServerDescription> deprioritizedServers, Exception ex)
+        private static HashSet<ServerDescription> UpdateServerList(ServerDescription server, HashSet<ServerDescription> deprioritizedServers, Exception ex, bool enableOverloadRetargeting)
         {
             if (server != null && (server.Type == ServerType.ShardRouter ||
-                                   (ex is MongoException mongoException && mongoException.HasErrorLabel("SystemOverloadedError"))))
+                                   (enableOverloadRetargeting && ex is MongoException mongoException && mongoException.HasErrorLabel("SystemOverloadedError"))))
             {
                 deprioritizedServers ??= [];
                 deprioritizedServers.Add(server);

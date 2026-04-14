@@ -63,7 +63,8 @@ namespace MongoDB.Driver
                 .ConfigureTcp(settings => ConfigureTcp(settings, clusterKey))
                 .ConfigureLoggingSettings(_ => clusterKey.LoggingSettings)
                 .ConfigureTracingOptions(_ => clusterKey.TracingOptions)
-                .ConfigureAdaptiveRetries(clusterKey.AdaptiveRetries);
+                .ConfigureMaxAdaptiveRetries(clusterKey.MaxAdaptiveRetries)
+                .ConfigureEnableOverloadRetargeting(clusterKey.EnableOverloadRetargeting);
 
             if (clusterKey.UseTls)
             {

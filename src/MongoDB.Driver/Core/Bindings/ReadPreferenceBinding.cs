@@ -51,10 +51,9 @@ namespace MongoDB.Driver.Core.Bindings
             get { return _session; }
         }
 
-        public TokenBucket TokenBucket
-        {
-            get { return _cluster.TokenBucket; }
-        }
+        public bool EnableOverloadRetargeting => _cluster.EnableOverloadRetargeting;
+
+        public int MaxAdaptiveRetries => _cluster.MaxAdaptiveRetries;
 
         public IChannelSourceHandle GetReadChannelSource(OperationContext operationContext)
         {

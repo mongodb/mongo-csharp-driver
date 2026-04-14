@@ -406,7 +406,7 @@ namespace MongoDB.Driver.Core.Configuration
         public void When_everything_is_specified()
         {
             var connectionString = @"mongodb://user:pass@localhost1,localhost2:30000/test?" +
-                "adaptiveRetries=true;" +
+                "enableOverloadRetargeting=true;" +
                 "appname=app;" +
                 "authMechanism=GSSAPI;" +
                 "authMechanismProperties=CANONICALIZE_HOST_NAME:true;" +
@@ -453,7 +453,7 @@ namespace MongoDB.Driver.Core.Configuration
 
             var subject = new ConnectionString(connectionString);
 
-            subject.AdaptiveRetries.Should().BeTrue();
+            subject.EnableOverloadRetargeting.Should().BeTrue();
             subject.ApplicationName.Should().Be("app");
             subject.AuthMechanism.Should().Be("GSSAPI");
             subject.AuthMechanismProperties.Count.Should().Be(1);
@@ -952,13 +952,34 @@ namespace MongoDB.Driver.Core.Configuration
 
         [Theory]
         [InlineData("mongodb://localhost", null)]
-        [InlineData("mongodb://localhost?adaptiveRetries=true", true)]
-        [InlineData("mongodb://localhost?adaptiveRetries=false", false)]
-        public void When_adaptiveRetries_is_specified(string connectionString, bool? adaptiveRetries)
+        [InlineData("mongodb://localhost?enableOverloadRetargeting=true", true)]
+        [InlineData("mongodb://localhost?enableOverloadRetargeting=false", false)]
+        public void When_enableOverloadRetargeting_is_specified(string connectionString, bool? enableOverloadRetargeting)
         {
             var subject = new ConnectionString(connectionString);
 
-            subject.AdaptiveRetries.Should().Be(adaptiveRetries);
+            subject.EnableOverloadRetargeting.Should().Be(enableOverloadRetargeting);
+        }
+
+        [Theory]
+        [InlineData("mongodb://localhost", null)]
+        [InlineData("mongodb://localhost?maxAdaptiveRetries=3", 3)]
+        [InlineData("mongodb://localhost?maxAdaptiveRetries=0", 0)]
+        public void When_maxAdaptiveRetries_is_specified(string connectionString, int? maxAdaptiveRetries)
+        {
+            var subject = new ConnectionString(connectionString);
+
+            subject.MaxAdaptiveRetries.Should().Be(maxAdaptiveRetries);
+        }
+
+        [Theory]
+        [InlineData("mongodb://localhost?maxAdaptiveRetries=-1")]
+        [InlineData("mongodb://localhost?maxAdaptiveRetries=-5")]
+        public void Invalid_maxAdaptiveRetries_configuration_should_throw(string connectionString)
+        {
+            var exception = Record.Exception(() => new ConnectionString(connectionString));
+
+            exception.Should().BeOfType<MongoConfigurationException>();
         }
 
         [Theory]

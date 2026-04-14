@@ -63,13 +63,13 @@ namespace MongoDB.Driver.Core.Configuration
 
         // these are all readonly, but since they are not assigned
         // from the ctor, they cannot be marked as such.
-        private bool? _adaptiveRetries;
         private string _applicationName;
         private string _authMechanism;
         private string _authSource;
         private TimeSpan? _connectTimeout;
         private string _databaseName;
         private bool _directConnection;
+        private bool? _enableOverloadRetargeting;
         private bool? _fsync;
         private TimeSpan? _heartbeatInterval;
         private TimeSpan? _heartbeatTimeout;
@@ -80,6 +80,7 @@ namespace MongoDB.Driver.Core.Configuration
         private bool? _journal;
         private bool _loadBalanced;
         private TimeSpan? _localThreshold;
+        private int? _maxAdaptiveRetries;
         private int? _maxConnecting;
         private TimeSpan? _maxIdleTime;
         private TimeSpan? _maxLifeTime;
@@ -176,14 +177,6 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         /// <summary>
-        /// Gets a value indicating whether adaptive retries are enabled.
-        /// </summary>
-        public bool? AdaptiveRetries
-        {
-            get { return _adaptiveRetries; }
-        }
-
-        /// <summary>
         /// Gets the application name.
         /// </summary>
         public string ApplicationName
@@ -245,6 +238,14 @@ namespace MongoDB.Driver.Core.Configuration
         public bool DirectConnection
         {
             get { return _directConnection; }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether overload retargeting is enabled.
+        /// </summary>
+        public bool? EnableOverloadRetargeting
+        {
+            get { return _enableOverloadRetargeting; }
         }
 
         /// <summary>
@@ -314,6 +315,14 @@ namespace MongoDB.Driver.Core.Configuration
         public TimeSpan? LocalThreshold
         {
             get { return _localThreshold; }
+        }
+
+        /// <summary>
+        /// Gets the maximum number of adaptive retries for overload errors.
+        /// </summary>
+        public int? MaxAdaptiveRetries
+        {
+            get { return _maxAdaptiveRetries; }
         }
 
         /// <summary>
@@ -983,9 +992,6 @@ namespace MongoDB.Driver.Core.Configuration
         {
             switch (name.ToLowerInvariant())
             {
-                case "adaptiveretries":
-                    _adaptiveRetries = ParseBoolean(name, value);
-                    break;
                 case "appname":
                     string invalidApplicationNameMessage;
                     if (!ApplicationNameHelper.IsApplicationNameValid(value, out invalidApplicationNameMessage))
@@ -1016,6 +1022,9 @@ namespace MongoDB.Driver.Core.Configuration
                 case "directconnection":
                     _directConnection = ParseBoolean(name, value);
                     break;
+                case "enableoverloadretargeting":
+                    _enableOverloadRetargeting = ParseBoolean(name, value);
+                    break;
                 case "fsync":
                     _fsync = ParseBoolean(name, value);
                     break;
@@ -1041,6 +1050,14 @@ namespace MongoDB.Driver.Core.Configuration
                     break;
                 case "loadbalanced":
                     _loadBalanced = ParseBoolean(name, value);
+                    break;
+                case "maxadaptiveretries":
+                    var maxAdaptiveRetriesValue = ParseInt32(name, value);
+                    if (maxAdaptiveRetriesValue < 0)
+                    {
+                        throw new MongoConfigurationException("maxAdaptiveRetries must be greater than or equal to 0.");
+                    }
+                    _maxAdaptiveRetries = maxAdaptiveRetriesValue;
                     break;
                 case "maxconnecting":
                     _maxConnecting = ParseInt32(name, value);

@@ -156,7 +156,8 @@ namespace MongoDB.Driver.Tests
 
             var built = new MongoUrlBuilder()
             {
-                AdaptiveRetries = true,
+                EnableOverloadRetargeting = true,
+                MaxAdaptiveRetries = 3,
                 AllowInsecureTls = true,
                 ApplicationName = "app",
                 AuthenticationMechanism = "GSSAPI",
@@ -201,7 +202,6 @@ namespace MongoDB.Driver.Tests
             };
 
             var connectionString = "mongodb://username:password@host/database?" + string.Join("&", new[] {
-                "adaptiveRetries=true",
                 "authMechanism=GSSAPI",
                 "authMechanismProperties=SERVICE_NAME:other,CANONICALIZE_HOST_NAME:true",
                 "authSource=db",
@@ -211,6 +211,7 @@ namespace MongoDB.Driver.Tests
                 "tlsInsecure=true",
                 "compressors=zlib",
                 "zlibCompressionLevel=4",
+                "enableOverloadRetargeting=true",
                 "replicaSet=name",
                 "readConcernLevel=majority",
                 "readPreference=secondary&readPreferenceTags=dc:1&maxStaleness=11s",
@@ -222,6 +223,7 @@ namespace MongoDB.Driver.Tests
                 "heartbeatInterval=11s",
                 "heartbeatTimeout=12s",
                 "localThreshold=6s",
+                "maxAdaptiveRetries=3",
                 "maxConnecting=3",
                 "maxIdleTime=2s",
                 "maxLifeTime=3s",
@@ -241,7 +243,8 @@ namespace MongoDB.Driver.Tests
 
             foreach (var url in EnumerateBuiltAndParsedUrls(built, connectionString))
             {
-                Assert.Equal(true, url.AdaptiveRetries);
+                Assert.Equal(true, url.EnableOverloadRetargeting);
+                Assert.Equal(3, url.MaxAdaptiveRetries);
                 Assert.Equal(true, url.AllowInsecureTls);
                 Assert.Equal("app", url.ApplicationName);
                 Assert.Equal("GSSAPI", url.AuthenticationMechanism);

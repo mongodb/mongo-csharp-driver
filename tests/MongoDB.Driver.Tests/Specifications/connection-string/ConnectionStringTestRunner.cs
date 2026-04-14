@@ -87,8 +87,11 @@ namespace MongoDB.Driver.Tests.Specifications.connection_string
                     var lowerName = expectedOption.Name.ToLowerInvariant();
                     switch (lowerName)
                     {
-                        case "adaptiveretries":
-                            connectionString.AdaptiveRetries.Should().Be(expectedOption.Value.AsBoolean);
+                        case "enableoverloadretargeting":
+                            connectionString.EnableOverloadRetargeting.Should().Be(expectedOption.Value.AsBoolean);
+                            break;
+                        case "maxadaptiveretries":
+                            connectionString.MaxAdaptiveRetries.Should().Be(expectedOption.Value.AsInt32);
                             break;
                         case "appname":
                             connectionString.ApplicationName.Should().Be(expectedOption.Value.AsString);

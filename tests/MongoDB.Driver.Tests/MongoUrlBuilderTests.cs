@@ -65,7 +65,8 @@ namespace MongoDB.Driver.Tests
             zlibCompressor.Properties.Add("Level", 4);
             var built = new MongoUrlBuilder
             {
-                AdaptiveRetries = true,
+                EnableOverloadRetargeting = true,
+                MaxAdaptiveRetries = 3,
                 AllowInsecureTls = true,
                 ApplicationName = "app",
                 AuthenticationMechanism = "GSSAPI",
@@ -116,7 +117,6 @@ namespace MongoDB.Driver.Tests
             };
 
             var connectionString = "mongodb://username:password@host/database?" + string.Join("&", new[] {
-                "adaptiveRetries=true",
                 "authMechanism=GSSAPI",
                 "authMechanismProperties=SERVICE_NAME:other,CANONICALIZE_HOST_NAME:true",
                 "authSource=db",
@@ -127,6 +127,7 @@ namespace MongoDB.Driver.Tests
                 "compressors=zlib",
                 "zlibCompressionLevel=4",
                 "directConnection=true",
+                "enableOverloadRetargeting=true",
                 "replicaSet=name",
                 "readConcernLevel=majority",
                 "readPreference=secondary&readPreferenceTags=dc:1&maxStaleness=11s",
@@ -138,6 +139,7 @@ namespace MongoDB.Driver.Tests
                 "heartbeatInterval=1m",
                 "heartbeatTimeout=2m",
                 "localThreshold=6s",
+                "maxAdaptiveRetries=3",
                 "maxConnecting=3",
                 "maxIdleTime=2s",
                 "maxLifeTime=3s",
@@ -157,7 +159,8 @@ namespace MongoDB.Driver.Tests
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
-                Assert.Equal(true, builder.AdaptiveRetries);
+                Assert.Equal(true, builder.EnableOverloadRetargeting);
+                Assert.Equal(3, builder.MaxAdaptiveRetries);
                 Assert.Equal(true, builder.AllowInsecureTls);
                 Assert.Equal("app", builder.ApplicationName);
                 Assert.Equal("GSSAPI", builder.AuthenticationMechanism);
@@ -959,12 +962,22 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [InlineData("mongodb://localhost/", null)]
-        [InlineData("mongodb://localhost/?adaptiveRetries=true", true)]
-        [InlineData("mongodb://localhost/?adaptiveRetries=false", false)]
-        public void TestAdaptiveRetries(string url, bool? adaptiveRetries)
+        [InlineData("mongodb://localhost/?enableOverloadRetargeting=true", true)]
+        [InlineData("mongodb://localhost/?enableOverloadRetargeting=false", false)]
+        public void TestEnableOverloadRetargeting(string url, bool? enableOverloadRetargeting)
         {
             var builder = new MongoUrlBuilder(url);
-            Assert.Equal(adaptiveRetries, builder.AdaptiveRetries);
+            Assert.Equal(enableOverloadRetargeting, builder.EnableOverloadRetargeting);
+        }
+
+        [Theory]
+        [InlineData("mongodb://localhost/", null)]
+        [InlineData("mongodb://localhost/?maxAdaptiveRetries=3", 3)]
+        [InlineData("mongodb://localhost/?maxAdaptiveRetries=0", 0)]
+        public void TestMaxAdaptiveRetries(string url, int? maxAdaptiveRetries)
+        {
+            var builder = new MongoUrlBuilder(url);
+            Assert.Equal(maxAdaptiveRetries, builder.MaxAdaptiveRetries);
         }
 
         [Theory]

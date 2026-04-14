@@ -45,8 +45,10 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly TimeSpan _minHeartbeatInterval = __minHeartbeatIntervalDefault;
         private readonly IClusterClock _clusterClock = new ClusterClock();
         private readonly ClusterId _clusterId;
+        private readonly bool _enableOverloadRetargeting;
         private ExpirableClusterDescription _expirableClusterDescription;
         private readonly LatencyLimitingServerSelector _latencyLimitingServerSelector;
+        private readonly int _maxAdaptiveRetries;
         protected readonly EventLogger<LogCategories.SDAM> _clusterEventLogger;
         protected readonly EventLogger<LogCategories.ServerSelection> _serverSelectionEventLogger;
         private readonly IClusterableServerFactory _serverFactory;
@@ -54,10 +56,9 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly ICoreServerSessionPool _serverSessionPool;
         private readonly ClusterSettings _settings;
         private readonly InterlockedInt32 _state;
-        private readonly TokenBucket _tokenBucket;
 
         // constructors
-        protected Cluster(ClusterSettings settings, IClusterableServerFactory serverFactory, IEventSubscriber eventSubscriber, ILoggerFactory loggerFactory, bool adaptiveRetries)
+        protected Cluster(ClusterSettings settings, IClusterableServerFactory serverFactory, IEventSubscriber eventSubscriber, ILoggerFactory loggerFactory, int maxAdaptiveRetries, bool enableOverloadRetargeting)
         {
             _settings = Ensure.IsNotNull(settings, nameof(settings));
             Ensure.That(!_settings.LoadBalanced, "LoadBalanced mode is not supported.");
@@ -71,7 +72,8 @@ namespace MongoDB.Driver.Core.Clusters
             _serverSessionPool = new CoreServerSessionPool(this);
             _clusterEventLogger = loggerFactory.CreateEventLogger<LogCategories.SDAM>(eventSubscriber);
             _serverSelectionEventLogger = loggerFactory.CreateEventLogger<LogCategories.ServerSelection>(eventSubscriber);
-            _tokenBucket = adaptiveRetries ? new TokenBucket() : null;
+            _maxAdaptiveRetries = maxAdaptiveRetries;
+            _enableOverloadRetargeting = enableOverloadRetargeting;
         }
 
         // events
@@ -84,9 +86,11 @@ namespace MongoDB.Driver.Core.Clusters
 
         public abstract IEnumerable<IClusterableServer> Servers { get; }
 
-        public ClusterSettings Settings => _settings;
+        public bool EnableOverloadRetargeting => _enableOverloadRetargeting;
 
-        public TokenBucket TokenBucket => _tokenBucket;
+        public int MaxAdaptiveRetries => _maxAdaptiveRetries;
+
+        public ClusterSettings Settings => _settings;
 
         // methods
         public ICoreServerSession AcquireServerSession()
@@ -96,7 +100,7 @@ namespace MongoDB.Driver.Core.Clusters
 
         protected IClusterableServer CreateServer(EndPoint endPoint)
         {
-            return _serverFactory.CreateServer(_settings.GetInitialClusterType(), _clusterId, _clusterClock, endPoint, _tokenBucket);
+            return _serverFactory.CreateServer(_settings.GetInitialClusterType(), _clusterId, _clusterClock, endPoint);
         }
 
         public void Dispose()

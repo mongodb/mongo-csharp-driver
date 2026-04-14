@@ -46,10 +46,9 @@ namespace MongoDB.Driver.Core.Bindings
             get { return _reference.Instance.Session; }
         }
 
-        public TokenBucket TokenBucket
-        {
-            get { return _reference.Instance.TokenBucket; }
-        }
+        public bool EnableOverloadRetargeting => _reference.Instance.EnableOverloadRetargeting;
+
+        public int MaxAdaptiveRetries => _reference.Instance.MaxAdaptiveRetries;
 
         public IChannelSourceHandle GetReadChannelSource(OperationContext operationContext)
         {

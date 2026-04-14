@@ -44,7 +44,8 @@ namespace MongoDB.Driver.Tests
         }
 
         [Theory]
-        [InlineData("AdaptiveRetries", false)]
+        [InlineData("EnableOverloadRetargeting", false)]
+        [InlineData("MaxAdaptiveRetries", false)]
         [InlineData("AllowInsecureTls", true)]
         [InlineData("ApplicationName", true)]
         [InlineData("BypassQueryAnalysis", true)]
@@ -152,7 +153,8 @@ namespace MongoDB.Driver.Tests
         // private methods
         private ClusterKey CreateSubject(string notEqualFieldName = null)
         {
-            var adaptiveRetries = false;
+            var enableOverloadRetargeting = false;
+            var maxAdaptiveRetries = 2;
             var allowInsecureTls = true;
             var applicationName = "app1";
             var bypassQueryAnalysis = false;
@@ -202,7 +204,8 @@ namespace MongoDB.Driver.Tests
             {
                 switch (notEqualFieldName)
                 {
-                    case "AdaptiveRetries": adaptiveRetries = !adaptiveRetries; break;
+                    case "EnableOverloadRetargeting": enableOverloadRetargeting = !enableOverloadRetargeting; break;
+                    case "MaxAdaptiveRetries": maxAdaptiveRetries = 5; break;
                     case "AllowInsecureTls": allowInsecureTls = !allowInsecureTls; break;
                     case "ApplicationName": applicationName = "app2"; break;
                     case "BypassQueryAnalysis": bypassQueryAnalysis = true; break;
@@ -249,7 +252,6 @@ namespace MongoDB.Driver.Tests
             }
 
             return new ClusterKey(
-                adaptiveRetries,
                 allowInsecureTls,
                 applicationName,
                 clusterConfigurator,
@@ -258,6 +260,7 @@ namespace MongoDB.Driver.Tests
                 credential,
                 new CryptClientSettings(bypassQueryAnalysis, null, null, encryptedFieldsMap, false, kmsProviders, schemaMap),
                 directConnection,
+                enableOverloadRetargeting,
                 heartbeatInterval,
                 heartbeatTimeout,
                 ipv6,
@@ -265,6 +268,7 @@ namespace MongoDB.Driver.Tests
                 loadBalanced,
                 localThreshold,
                 loggingSettings,
+                maxAdaptiveRetries,
                 maxConnecting,
                 maxConnectionIdleTime,
                 maxConnectionLifeTime,
@@ -294,7 +298,8 @@ namespace MongoDB.Driver.Tests
             Dictionary<string, BsonDocument> schemaMapValue = null,
             Dictionary<string, BsonDocument> encryptedFieldsMap = null)
         {
-            var adaptiveRetries = false;
+            var enableOverloadRetargeting = false;
+            var maxAdaptiveRetries = 2;
             var allowInsecureTls = true;
             var applicationName = "app1";
             var bypassQueryAnalysis = false;
@@ -340,7 +345,6 @@ namespace MongoDB.Driver.Tests
             var waitQueueTimeout = TimeSpan.FromSeconds(5);
 
             return new ClusterKey(
-                adaptiveRetries,
                 allowInsecureTls,
                 applicationName,
                 clusterConfigurator,
@@ -349,6 +353,7 @@ namespace MongoDB.Driver.Tests
                 credential,
                 new CryptClientSettings(bypassQueryAnalysis, null, null, encryptedFieldsMap, false, kmsProviders, schemaMap),
                 directConnection,
+                enableOverloadRetargeting,
                 heartbeatInterval,
                 heartbeatTimeout,
                 ipv6,
@@ -356,6 +361,7 @@ namespace MongoDB.Driver.Tests
                 loadBalanced,
                 localThreshold,
                 loggingSettings,
+                maxAdaptiveRetries,
                 maxConnecting,
                 maxConnectionIdleTime,
                 maxConnectionLifeTime,

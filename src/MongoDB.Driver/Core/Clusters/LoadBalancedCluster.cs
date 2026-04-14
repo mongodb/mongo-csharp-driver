@@ -27,6 +27,7 @@ using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Clusters
@@ -48,21 +49,22 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly InterlockedInt32 _state;
         private readonly EventLogger<LogCategories.SDAM> _eventLogger;
         private readonly EventLogger<LogCategories.ServerSelection> _serverSelectionEventLogger;
-        private readonly TokenBucket _tokenBucket;
 
         public LoadBalancedCluster(
             ClusterSettings settings,
             IClusterableServerFactory serverFactory,
             IEventSubscriber eventSubscriber,
             ILoggerFactory loggerFactory,
-            bool adaptiveRetries = false)
+            int maxAdaptiveRetries = RetryabilityHelper.OperationRetryBackpressureConstants.DefaultMaxRetries,
+            bool enableOverloadRetargeting = false)
             : this(
                   settings,
                   serverFactory,
                   eventSubscriber,
                   loggerFactory,
                   dnsMonitorFactory: new DnsMonitorFactory(new EventAggregator(), loggerFactory),  // should not trigger any events
-                  adaptiveRetries)
+                  maxAdaptiveRetries,
+                  enableOverloadRetargeting)
         {
         }
 
@@ -72,7 +74,8 @@ namespace MongoDB.Driver.Core.Clusters
             IEventSubscriber eventSubscriber,
             ILoggerFactory loggerFactory,
             IDnsMonitorFactory dnsMonitorFactory,
-            bool adaptiveRetries = false)
+            int maxAdaptiveRetries = RetryabilityHelper.OperationRetryBackpressureConstants.DefaultMaxRetries,
+            bool enableOverloadRetargeting = false)
         {
             Ensure.That(!settings.DirectConnection, $"DirectConnection mode is not supported for {nameof(LoadBalancedCluster)}.");
             Ensure.That(settings.LoadBalanced, $"Only Load balanced mode is supported for a {nameof(LoadBalancedCluster)}.");
@@ -98,16 +101,19 @@ namespace MongoDB.Driver.Core.Clusters
 
             _eventLogger = loggerFactory.CreateEventLogger<LogCategories.SDAM>(eventSubscriber);
             _serverSelectionEventLogger = loggerFactory.CreateEventLogger<LogCategories.ServerSelection>(eventSubscriber);
-            _tokenBucket = adaptiveRetries ? new TokenBucket() : null;
+            MaxAdaptiveRetries = maxAdaptiveRetries;
+            EnableOverloadRetargeting = enableOverloadRetargeting;
         }
 
         public ClusterId ClusterId => _clusterId;
 
         public ClusterDescription Description => _description;
 
-        public ClusterSettings Settings => _settings;
+        public bool EnableOverloadRetargeting { get; }
 
-        public TokenBucket TokenBucket => _tokenBucket;
+        public int MaxAdaptiveRetries { get; }
+
+        public ClusterSettings Settings => _settings;
 
         public event EventHandler<ClusterDescriptionChangedEventArgs> DescriptionChanged;
 
@@ -174,7 +180,7 @@ namespace MongoDB.Driver.Core.Clusters
                 var endPoint = _settings.EndPoints.Single();
                 if (_settings.Scheme != ConnectionStringScheme.MongoDBPlusSrv)
                 {
-                    _server = _serverFactory.CreateServer(_clusterType, _clusterId, _clusterClock, endPoint, _tokenBucket);
+                    _server = _serverFactory.CreateServer(_clusterType, _clusterId, _clusterClock, endPoint);
                     InitializeServer(_server);
                 }
                 else
@@ -356,7 +362,7 @@ namespace MongoDB.Driver.Core.Clusters
             }
 
             var resolvedEndpoint = endPoints.Single();
-            _server = _serverFactory.CreateServer(_clusterType, _clusterId, _clusterClock, resolvedEndpoint, _tokenBucket);
+            _server = _serverFactory.CreateServer(_clusterType, _clusterId, _clusterClock, resolvedEndpoint);
             InitializeServer(_server);
         }
 

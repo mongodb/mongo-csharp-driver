@@ -25,17 +25,23 @@ namespace MongoDB.Driver.Core.Bindings
     internal sealed class SingleServerReadBinding : IReadBinding
     {
         private bool _disposed;
+        private readonly bool _enableOverloadRetargeting;
+        private readonly int _maxAdaptiveRetries;
         private readonly ReadPreference _readPreference;
         private readonly IServer _server;
         private readonly TimeSpan _serverSelectionTimeout;
         private readonly ICoreSessionHandle _session;
 
-        public SingleServerReadBinding(IServer server, ReadPreference readPreference, ICoreSessionHandle session, TimeSpan serverSelectionTimeout)
+        public SingleServerReadBinding(IServer server, ReadPreference readPreference, ICoreSessionHandle session, TimeSpan serverSelectionTimeout,
+            int maxAdaptiveRetries = Operations.RetryabilityHelper.OperationRetryBackpressureConstants.DefaultMaxRetries,
+            bool enableOverloadRetargeting = false)
         {
             _server = Ensure.IsNotNull(server, nameof(server));
             _readPreference = Ensure.IsNotNull(readPreference, nameof(readPreference));
             _session = Ensure.IsNotNull(session, nameof(session));
             _serverSelectionTimeout = Ensure.IsGreaterThanOrEqualToZero(serverSelectionTimeout, nameof(serverSelectionTimeout));
+            _maxAdaptiveRetries = maxAdaptiveRetries;
+            _enableOverloadRetargeting = enableOverloadRetargeting;
         }
 
         public ReadPreference ReadPreference
@@ -48,10 +54,9 @@ namespace MongoDB.Driver.Core.Bindings
             get { return _session; }
         }
 
-        public TokenBucket TokenBucket
-        {
-            get { return _server.TokenBucket; }
-        }
+        public bool EnableOverloadRetargeting => _enableOverloadRetargeting;
+
+        public int MaxAdaptiveRetries => _maxAdaptiveRetries;
 
         public IChannelSourceHandle GetReadChannelSource(OperationContext operationContext)
         {

@@ -20,6 +20,7 @@ using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Clusters
@@ -27,20 +28,24 @@ namespace MongoDB.Driver.Core.Clusters
     internal sealed class ClusterFactory : IClusterFactory
     {
         // fields
-        private readonly bool _adaptiveRetries;
+        private readonly bool _enableOverloadRetargeting;
         private readonly IEventSubscriber _eventSubscriber;
         private readonly ILoggerFactory _loggerFactory;
+        private readonly int _maxAdaptiveRetries;
         private readonly IClusterableServerFactory _serverFactory;
         private readonly ClusterSettings _settings;
 
         // constructors
-        public ClusterFactory(ClusterSettings settings, IClusterableServerFactory serverFactory, IEventSubscriber eventSubscriber, ILoggerFactory loggerFactory, bool adaptiveRetries = false)
+        public ClusterFactory(ClusterSettings settings, IClusterableServerFactory serverFactory, IEventSubscriber eventSubscriber, ILoggerFactory loggerFactory,
+            int maxAdaptiveRetries = RetryabilityHelper.OperationRetryBackpressureConstants.DefaultMaxRetries,
+            bool enableOverloadRetargeting = false)
         {
             _settings = Ensure.IsNotNull(settings, nameof(settings));
             _serverFactory = Ensure.IsNotNull(serverFactory, nameof(serverFactory));
             _eventSubscriber = Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
             _loggerFactory = loggerFactory;
-            _adaptiveRetries = adaptiveRetries;
+            _maxAdaptiveRetries = maxAdaptiveRetries;
+            _enableOverloadRetargeting = enableOverloadRetargeting;
         }
 
         // methods
@@ -66,17 +71,17 @@ namespace MongoDB.Driver.Core.Clusters
 
         private MultiServerCluster CreateMultiServerCluster(ClusterSettings settings)
         {
-            return new MultiServerCluster(settings, _serverFactory, _eventSubscriber, _loggerFactory, adaptiveRetries: _adaptiveRetries);
+            return new MultiServerCluster(settings, _serverFactory, _eventSubscriber, _loggerFactory, maxAdaptiveRetries: _maxAdaptiveRetries, enableOverloadRetargeting: _enableOverloadRetargeting);
         }
 
         private SingleServerCluster CreateSingleServerCluster(ClusterSettings settings)
         {
-            return new SingleServerCluster(settings, _serverFactory, _eventSubscriber, _loggerFactory, _adaptiveRetries);
+            return new SingleServerCluster(settings, _serverFactory, _eventSubscriber, _loggerFactory, _maxAdaptiveRetries, _enableOverloadRetargeting);
         }
 
         private LoadBalancedCluster CreateLoadBalancedCluster(ClusterSettings setting)
         {
-            return new LoadBalancedCluster(setting, _serverFactory, _eventSubscriber, _loggerFactory, _adaptiveRetries);
+            return new LoadBalancedCluster(setting, _serverFactory, _eventSubscriber, _loggerFactory, _maxAdaptiveRetries, _enableOverloadRetargeting);
         }
 
         private void ProcessClusterEnvironment(ClusterSettings settings)

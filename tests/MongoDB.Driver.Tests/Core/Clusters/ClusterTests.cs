@@ -48,8 +48,8 @@ namespace MongoDB.Driver.Core.Clusters
         {
             _settings = new ClusterSettings(serverSelectionTimeout: TimeSpan.FromSeconds(2));
             _mockServerFactory = new Mock<IClusterableServerFactory>();
-            _mockServerFactory.Setup(f => f.CreateServer(It.IsAny<ClusterType>(), It.IsAny<ClusterId>(), It.IsAny<IClusterClock>(), It.IsAny<EndPoint>(), It.IsAny<TokenBucket>()))
-                .Returns((ClusterType _, ClusterId clusterId, IClusterClock _, EndPoint endPoint, TokenBucket tokenBucket) =>
+            _mockServerFactory.Setup(f => f.CreateServer(It.IsAny<ClusterType>(), It.IsAny<ClusterId>(), It.IsAny<IClusterClock>(), It.IsAny<EndPoint>()))
+                .Returns((ClusterType _, ClusterId clusterId, IClusterClock _, EndPoint endPoint) =>
                 {
                     var mockServer = new Mock<IClusterableServer>();
                     mockServer.SetupGet(s => s.EndPoint).Returns(endPoint);
@@ -103,19 +103,19 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         [Fact]
-        public void TokenBucket_should_not_be_null_when_adaptiveRetries_is_true()
+        public void MaxAdaptiveRetries_should_return_expected_value()
         {
-            var subject = CreateSubject(adaptiveRetries: true);
+            var subject = CreateSubject(maxAdaptiveRetries: 5);
 
-            subject.TokenBucket.Should().NotBeNull();
+            subject.MaxAdaptiveRetries.Should().Be(5);
         }
 
         [Fact]
-        public void TokenBucket_should_be_null_when_adaptiveRetries_is_false()
+        public void EnableOverloadRetargeting_should_return_expected_value()
         {
-            var subject = CreateSubject(adaptiveRetries: false);
+            var subject = CreateSubject(enableOverloadRetargeting: true);
 
-            subject.TokenBucket.Should().BeNull();
+            subject.EnableOverloadRetargeting.Should().BeTrue();
         }
 
         [Fact]
@@ -410,8 +410,8 @@ namespace MongoDB.Driver.Core.Clusters
             [Values(false, true)]
             bool async)
         {
-            _mockServerFactory.Setup(f => f.CreateServer(It.IsAny<ClusterType>(), It.IsAny<ClusterId>(), It.IsAny<IClusterClock>(), It.IsAny<EndPoint>(), It.IsAny<TokenBucket>()))
-                .Returns((ClusterType _, ClusterId clusterId, IClusterClock clusterClock, EndPoint endPoint, TokenBucket tokenBucket) =>
+            _mockServerFactory.Setup(f => f.CreateServer(It.IsAny<ClusterType>(), It.IsAny<ClusterId>(), It.IsAny<IClusterClock>(), It.IsAny<EndPoint>()))
+                .Returns((ClusterType _, ClusterId clusterId, IClusterClock clusterClock, EndPoint endPoint) =>
                 {
                     var mockServer = new Mock<IClusterableServer>();
                     mockServer.SetupGet(s => s.EndPoint).Returns(endPoint);
@@ -499,14 +499,14 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         // private methods
-        private StubCluster CreateSubject(TimeSpan? serverSelectionTimeout = null, ClusterType? clusterType = null, bool adaptiveRetries = false)
+        private StubCluster CreateSubject(TimeSpan? serverSelectionTimeout = null, ClusterType? clusterType = null, int maxAdaptiveRetries = 2, bool enableOverloadRetargeting = false)
         {
             if (serverSelectionTimeout != null)
             {
                 _settings = _settings.With(serverSelectionTimeout: serverSelectionTimeout.Value);
             }
 
-            return new StubCluster(_settings, _mockServerFactory.Object, _capturedEvents, LoggerFactory, clusterType, adaptiveRetries);
+            return new StubCluster(_settings, _mockServerFactory.Object, _capturedEvents, LoggerFactory, clusterType, maxAdaptiveRetries, enableOverloadRetargeting);
         }
 
         // nested types
@@ -520,8 +520,9 @@ namespace MongoDB.Driver.Core.Clusters
                 IEventSubscriber eventSubscriber,
                 ILoggerFactory loggerFactory,
                 ClusterType? clusterType = null,
-                bool adaptiveRetries = true)
-                : base(settings, serverFactory, eventSubscriber, loggerFactory, adaptiveRetries)
+                int maxAdaptiveRetries = 2,
+                bool enableOverloadRetargeting = false)
+                : base(settings, serverFactory, eventSubscriber, loggerFactory, maxAdaptiveRetries, enableOverloadRetargeting)
             {
                 _clusterType = clusterType;
             }
