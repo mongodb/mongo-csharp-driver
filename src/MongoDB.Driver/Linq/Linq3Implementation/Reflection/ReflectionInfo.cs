@@ -21,105 +21,64 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
 {
     internal static class ReflectionInfo
     {
-        public static ConstructorInfo Constructor<TObject>(Expression<Func<TObject>> lambda)
-        {
-            return ExtractConstructorInfoFromLambda(lambda);
-        }
+        public static ConstructorInfo Constructor<TObject>(Expression<Func<TObject>> lambda) =>
+            ExtractConstructorInfoFromLambda(lambda);
 
-        public static ConstructorInfo Constructor<T1, TObject>(Expression<Func<T1, TObject>> lambda)
-        {
-            return ExtractConstructorInfoFromLambda(lambda);
-        }
+        public static ConstructorInfo Constructor<T1, TObject>(Expression<Func<T1, TObject>> lambda) =>
+            ExtractConstructorInfoFromLambda(lambda);
 
-        public static ConstructorInfo Constructor<T1, T2, TObject>(Expression<Func<T1, T2, TObject>> lambda)
-        {
-            return ExtractConstructorInfoFromLambda(lambda);
-        }
+        public static ConstructorInfo Constructor<T1, T2, TObject>(Expression<Func<T1, T2, TObject>> lambda) =>
+            ExtractConstructorInfoFromLambda(lambda);
 
-        public static ConstructorInfo Constructor<T1, T2, T3, TObject>(Expression<Func<T1, T2, T3, TObject>> lambda)
-        {
-            return ExtractConstructorInfoFromLambda(lambda);
-        }
+        public static ConstructorInfo Constructor<T1, T2, T3, TObject>(Expression<Func<T1, T2, T3, TObject>> lambda) =>
+            ExtractConstructorInfoFromLambda(lambda);
 
-        public static ConstructorInfo Constructor<T1, T2, T3, T4, TObject>(Expression<Func<T1, T2, T3, T4, TObject>> lambda)
-        {
-            return ExtractConstructorInfoFromLambda(lambda);
-        }
+        public static ConstructorInfo Constructor<T1, T2, T3, T4, TObject>(Expression<Func<T1, T2, T3, T4, TObject>> lambda) =>
+            ExtractConstructorInfoFromLambda(lambda);
 
-        public static ConstructorInfo Constructor<T1, T2, T3, T4, T5, TObject>(Expression<Func<T1, T2, T3, T4, T5, TObject>> lambda)
-        {
-            return ExtractConstructorInfoFromLambda(lambda);
-        }
+        public static ConstructorInfo Constructor<T1, T2, T3, T4, T5, TObject>(Expression<Func<T1, T2, T3, T4, T5, TObject>> lambda) =>
+            ExtractConstructorInfoFromLambda(lambda);
 
-        public static ConstructorInfo Constructor<T1, T2, T3, T4, T5, T6, TObject>(Expression<Func<T1, T2, T3, T4, T5, T6, TObject>> lambda)
-        {
-            return ExtractConstructorInfoFromLambda(lambda);
-        }
+        public static ConstructorInfo Constructor<T1, T2, T3, T4, T5, T6, TObject>(Expression<Func<T1, T2, T3, T4, T5, T6, TObject>> lambda) =>
+            ExtractConstructorInfoFromLambda(lambda);
 
-        public static ConstructorInfo Constructor<T1, T2, T3, T4, T5, T6, T7, TObject>(Expression<Func<T1, T2, T3, T4, T5, T6, T7, TObject>> lambda)
-        {
-            return ExtractConstructorInfoFromLambda(lambda);
-        }
+        public static ConstructorInfo Constructor<T1, T2, T3, T4, T5, T6, T7, TObject>(Expression<Func<T1, T2, T3, T4, T5, T6, T7, TObject>> lambda) =>
+            ExtractConstructorInfoFromLambda(lambda);
 
-        public static MethodInfo Method<TResult>(Expression<Func<TResult>> lambda)
-        {
-            return ExtractMethodInfoFromLambda(lambda);
-        }
+        public static MethodInfo Method<TResult>(Expression<Func<TResult>> lambda) =>
+            ExtractMethodInfoFromLambda(lambda);
 
-        public static MethodInfo Method<T1, TResult>(Expression<Func<T1, TResult>> lambda)
-        {
-            return ExtractMethodInfoFromLambda(lambda);
-        }
+        public static MethodInfo Method<T1, TResult>(Expression<Func<T1, TResult>> lambda) =>
+            ExtractMethodInfoFromLambda(lambda);
 
-        public static MethodInfo Method<T1, T2, TResult>(Expression<Func<T1, T2, TResult>> lambda)
-        {
-            return ExtractMethodInfoFromLambda(lambda);
-        }
+        public static MethodInfo Method<T1, T2, TResult>(Expression<Func<T1, T2, TResult>> lambda) =>
+            ExtractMethodInfoFromLambda(lambda);
 
-        public static MethodInfo Method<T1, T2, T3, TResult>(Expression<Func<T1, T2, T3, TResult>> lambda)
-        {
-            return ExtractMethodInfoFromLambda(lambda);
-        }
+        public static MethodInfo Method<T1, T2, T3, TResult>(Expression<Func<T1, T2, T3, TResult>> lambda) =>
+            ExtractMethodInfoFromLambda(lambda);
 
-        public static MethodInfo Method<T1, T2, T3, T4, TResult>(Expression<Func<T1, T2, T3, T4, TResult>> lambda)
-        {
-            return ExtractMethodInfoFromLambda(lambda);
-        }
+        public static MethodInfo Method<T1, T2, T3, T4, TResult>(Expression<Func<T1, T2, T3, T4, TResult>> lambda) =>
+            ExtractMethodInfoFromLambda(lambda);
 
-        public static MethodInfo Method<T1, T2, T3, T4, T5, TResult>(Expression<Func<T1, T2, T3, T4, T5, TResult>> lambda)
-        {
-            return ExtractMethodInfoFromLambda(lambda);
-        }
+        public static MethodInfo Method<T1, T2, T3, T4, T5, TResult>(Expression<Func<T1, T2, T3, T4, T5, TResult>> lambda) => ExtractMethodInfoFromLambda(lambda);
 
-        public static MethodInfo Method<T1, T2, T3, T4, T5, T6, TResult>(Expression<Func<T1, T2, T3, T4, T5, T6, TResult>> lambda)
-        {
-            return ExtractMethodInfoFromLambda(lambda);
-        }
+        public static MethodInfo Method<T1, T2, T3, T4, T5, T6, TResult>(Expression<Func<T1, T2, T3, T4, T5, T6, TResult>> lambda) =>
+            ExtractMethodInfoFromLambda(lambda);
 
-        public static MethodInfo Method<T1, T2, T3, T4, T5, T6, T7, TResult>(Expression<Func<T1, T2, T3, T4, T5, T6, T7, TResult>> lambda)
-        {
-            return ExtractMethodInfoFromLambda(lambda);
-        }
+        public static MethodInfo Method<T1, T2, T3, T4, T5, T6, T7, TResult>(Expression<Func<T1, T2, T3, T4, T5, T6, T7, TResult>> lambda) =>
+            ExtractMethodInfoFromLambda(lambda);
 
-        public static MethodInfo Method<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(Expression<Func<T1, T2, T3, T4, T5, T6, T7, T8, TResult>> lambda)
-        {
-            return ExtractMethodInfoFromLambda(lambda);
-        }
+        public static MethodInfo Method<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(Expression<Func<T1, T2, T3, T4, T5, T6, T7, T8, TResult>> lambda) =>
+            ExtractMethodInfoFromLambda(lambda);
 
-        public static PropertyInfo Property<TObject, TProperty>(Expression<Func<TObject, TProperty>> lambda)
-        {
-            return ExtractPropertyInfoFromLambda(lambda);
-        }
+        public static PropertyInfo Property<TObject, TProperty>(Expression<Func<TObject, TProperty>> lambda) =>
+            ExtractPropertyInfoFromLambda(lambda);
 
-        public static MethodInfo IndexerGet<TObject, TIndex, TValue>(Expression<Func<TObject, TIndex, TValue>> lambda)
-        {
-            return ExtractMethodInfoFromLambda(lambda);
-        }
+        public static MethodInfo IndexerGet<TObject, TIndex, TValue>(Expression<Func<TObject, TIndex, TValue>> lambda) =>
+            ExtractMethodInfoFromLambda(lambda);
 
-        public static MethodInfo IndexerSet<TObject, TIndex, TValue>(Expression<Func<TObject, TIndex, TValue>> lambda)
-        {
-            return ExtractIndexerSetMethodInfoFromLambda(lambda);
-        }
+        public static MethodInfo IndexerSet<TObject, TIndex, TValue>(Expression<Func<TObject, TIndex, TValue>> lambda) =>
+            ExtractIndexerSetMethodInfoFromLambda(lambda);
 
         // private static methods
         private static ConstructorInfo ExtractConstructorInfoFromLambda(LambdaExpression lambda)
