@@ -81,20 +81,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsQueryableSource(expression, sourceTranslation);
 
                 var sourceAst = sourceTranslation.Ast;
-                var sourceSerializer = sourceTranslation.Serializer;
-                if (sourceSerializer is IWrappedValueSerializer wrappedValueSerializer)
+                if (sourceTranslation.Serializer is IWrappedValueSerializer wrappedValueSerializer)
                 {
                     sourceAst = AstExpression.GetField(sourceAst, wrappedValueSerializer.FieldName);
-                    sourceSerializer = wrappedValueSerializer.ValueSerializer;
                 }
-                var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceSerializer);
 
                 var predicateLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
                 var itemParameter = predicateLambda.Parameters[0];
                 var indexParameter = predicateLambda.Parameters[1];
-                var itemSymbol = context.CreateSymbol(itemParameter, itemSerializer);
-                var indexSerializer = context.GetSerializer(indexParameter);
-                var indexSymbol = context.CreateSymbol(indexParameter, indexSerializer);
+                var itemSymbol = context.CreateSymbol(itemParameter, context.GetSerializer(itemParameter));
+                var indexSymbol = context.CreateSymbol(indexParameter, context.GetSerializer(indexParameter));
                 var predicateContext = context.WithSymbols(itemSymbol, indexSymbol);
                 var predicateTranslation = ExpressionToAggregationExpressionTranslator.Translate(predicateContext, predicateLambda.Body);
 
