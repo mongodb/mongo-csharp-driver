@@ -150,8 +150,8 @@ internal partial class SerializerFinderVisitor
                 case "Subtype": DeduceSubtypeMethodSerializers(); break;
                 case "Sum": DeduceSumMethodSerializers(); break;
                 case "ToArray": DeduceToArrayMethodSerializers(); break;
-                case "ToList": DeduceToListSerializers(); break;
                 case "ToHashedIndexKey": DeduceToHashedIndexKeySerializers(); break;
+                case "ToList": DeduceToListSerializers(); break;
                 case "ToString": DeduceToStringSerializers(); break;
                 case "Trim": DeduceTrimSerializers(); break;
                 case "Truncate": DeduceTruncateSerializers(); break;
@@ -2707,6 +2707,18 @@ internal partial class SerializerFinderVisitor
             }
         }
 
+        void DeduceToHashedIndexKeySerializers()
+        {
+            if (method.Is(MqlMethod.ToHashedIndexKey))
+            {
+                DeduceReturnsInt64Serializer();
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
+        }
+
         void DeduceToListSerializers()
         {
             if (IsNotKnown(node))
@@ -2718,18 +2730,6 @@ internal partial class SerializerFinderVisitor
                     var resultSerializer = ListSerializer.Create(sourceItemSerializer);
                     AddNodeSerializer(node, resultSerializer);
                 }
-            }
-        }
-
-        void DeduceToHashedIndexKeySerializers()
-        {
-            if (method.Is(MqlMethod.ToHashedIndexKey))
-            {
-                DeduceReturnsInt64Serializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
             }
         }
 
