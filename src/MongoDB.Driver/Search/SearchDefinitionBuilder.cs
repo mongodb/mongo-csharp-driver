@@ -320,7 +320,7 @@ namespace MongoDB.Driver.Search
         /// </summary>
         /// <typeparam name="TField">The type of the ancestor documents.</typeparam>
         /// <param name="path">The path from the root to the ancestor.</param>
-        /// <param name="operator">The operator to execute at the root.</param>
+        /// <param name="operator">The operator to execute in the ancestor context specified by <paramref name="path"/>.</param>
         /// <param name="score">The score modifier.</param>
         /// <returns>A search definition for the ancestor.</returns>
         public SearchDefinition<TDocument> HasAncestor<TField>(
@@ -336,7 +336,7 @@ namespace MongoDB.Driver.Search
         /// </summary>
         /// <typeparam name="TField">The type of the ancestor documents.</typeparam>
         /// <param name="path">The path from the root to the ancestor.</param>
-        /// <param name="operator">The operator to execute at the root.</param>
+        /// <param name="operator">The operator to execute in the ancestor context specified by <paramref name="path"/>.</param>
         /// <param name="score">The score modifier.</param>
         /// <returns>A search definition for the ancestor.</returns>
         public SearchDefinition<TDocument> HasAncestor<TField>(

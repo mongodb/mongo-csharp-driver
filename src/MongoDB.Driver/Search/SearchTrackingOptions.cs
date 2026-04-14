@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Search
         /// Creates a clone of the options.
         /// </summary>
         /// <returns>A clone of the options.</returns>
-        public SearchTrackingOptions Clone() => new() { SearchTerms = SearchTerms };
+        public SearchTrackingOptions Clone() => new() { _searchTerms = SearchTerms };
 
         internal BsonDocument Render() =>
             new()

@@ -1478,10 +1478,9 @@ namespace MongoDB.Driver
                     }
                     else
                     {
-                        outputSerializer = args.SerializerRegistry.GetSerializer<TOutput>();
-                        renderedSearchDefinition.Add("returnScope", new BsonDocument { { "path", returnScope.Render(args).FieldName } });
-                        searchOptions = searchOptions.Clone();
-                        searchOptions.ReturnStoredSource = true;
+                        var renderedField = returnScope.Render(args);
+                        outputSerializer = (IBsonSerializer<TOutput>)renderedField.ValueSerializer.GetItemSerializer();
+                        renderedSearchDefinition.Add("returnScope", new BsonDocument { { "path", renderedField.FieldName } });
                     }
 
                     renderedSearchDefinition.Add("highlight", () => searchOptions.Highlight.Render(args), searchOptions.Highlight != null);

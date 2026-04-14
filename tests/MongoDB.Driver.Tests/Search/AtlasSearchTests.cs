@@ -40,6 +40,11 @@ namespace MongoDB.Driver.Tests.Search
 
         #region static
 
+        // Temporary shared resource management--will be replaced with appropriate fixture as part of test updates.
+        private static bool __indexesCreated;
+        private static readonly string __databaseUniquifier = Guid.NewGuid().ToString();
+        private static int __returnScopeTestCount = 12;
+
         private static readonly GeoJsonPolygon<GeoJson2DGeographicCoordinates> __testPolygon =
             new(new(new(new GeoJson2DGeographicCoordinates[]
             {
@@ -282,8 +287,6 @@ namespace MongoDB.Driver.Tests.Search
 
         private readonly IMongoClient _mongoClient;
         private readonly EventCapturer _eventCapturer;
-        private static bool __indexesCreated;
-        private static readonly string __databaseUniquifier = Guid.NewGuid().ToString();
 
         public AtlasSearchTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
@@ -463,7 +466,15 @@ namespace MongoDB.Driver.Tests.Search
             __indexesCreated = true;
         }
 
-        protected override void DisposeInternal() => _mongoClient.Dispose();
+        protected override void DisposeInternal()
+        {
+            if (__returnScopeTestCount == 0)
+            {
+                _mongoClient.DropDatabase("return_scope_" + __databaseUniquifier);
+                __returnScopeTestCount = -1;
+            }
+            _mongoClient.Dispose();
+        }
 
         [Fact]
         public void Autocomplete()
@@ -531,35 +542,51 @@ namespace MongoDB.Driver.Tests.Search
         [Fact]
         public void EmbeddedDocument_with_HasAncestor()
         {
-            var query = GetReturnScopeCollection<Director>().Aggregate().Search(
-                Builders<Director>.Search.EmbeddedDocument(
-                    "movies.reviews",
-                    Builders<Director>.Search.HasAncestor(
-                        b => b.Movies,
-                        Builders<Director>.Search.Text("movies.title", "Ant-Man"))),
-                new() { IndexName = "returnScopeIndex3" });
+            try
+            {
+                var query = GetReturnScopeCollection<Director>().Aggregate().Search(
+                    Builders<Director>.Search.EmbeddedDocument(
+                        "movies.reviews",
+                        Builders<Director>.Search.HasAncestor(
+                            b => b.Movies,
+                            Builders<Director>.Search.Text("movies.title", "Ant-Man"))),
+                    new() { IndexName = "returnScopeIndex3" });
 
-            var results = query.ToList();
-            results.Count.Should().Be(0);
+                var results = query.ToList();
+                results.Count.Should().Be(0);
 
-            ValidateSearchStage(
-                "{ $search: { embeddedDocument: { operator: { hasAncestor: { ancestorPath: 'movies', operator: { text: { query: 'Ant-Man', path: 'movies.title' } } } }, path: 'movies.reviews' }, index: 'returnScopeIndex3' } }");
+                ValidateSearchStage(
+                    "{ $search: { embeddedDocument: { operator: { hasAncestor: { ancestorPath: 'movies', operator: { text: { query: 'Ant-Man', path: 'movies.title' } } } }, path: 'movies.reviews' }, index: 'returnScopeIndex3' } }");
+            }
+            finally
+            {
+                // Temporary shared resource cleanup 1.
+                __returnScopeTestCount--;
+            }
         }
 
         [Fact]
         public void EmbeddedDocument_with_HasRoot()
         {
-            var query = GetReturnScopeCollection<Director>().Aggregate().Search(Builders<Director>.Search.EmbeddedDocument(
-                "movies.reviews",
-                Builders<Director>.Search.HasRoot(
-                    Builders<Director>.Search.Text("movies.title", "Ant-Man"))),
-                new() { IndexName = "returnScopeIndex3" });
+            try
+            {
+                var query = GetReturnScopeCollection<Director>().Aggregate().Search(Builders<Director>.Search.EmbeddedDocument(
+                        "movies.reviews",
+                        Builders<Director>.Search.HasRoot(
+                            Builders<Director>.Search.Text("movies.title", "Ant-Man"))),
+                    new() { IndexName = "returnScopeIndex3" });
 
-            var results = query.ToList();
-            results.Count.Should().Be(0);
+                var results = query.ToList();
+                results.Count.Should().Be(0);
 
-            ValidateSearchStage(
-                "{ $search: { embeddedDocument: { operator: { hasRoot: { operator: { text: { query: 'Ant-Man', path: 'movies.title' } } } }, path: 'movies.reviews' }, index: 'returnScopeIndex3' } }");
+                ValidateSearchStage(
+                    "{ $search: { embeddedDocument: { operator: { hasRoot: { operator: { text: { query: 'Ant-Man', path: 'movies.title' } } } }, path: 'movies.reviews' }, index: 'returnScopeIndex3' } }");
+            }
+            finally
+            {
+                // Temporary shared resource cleanup 2.
+                __returnScopeTestCount--;
+            }
         }
 
         [Fact]
@@ -950,37 +977,53 @@ namespace MongoDB.Driver.Tests.Search
         [InlineData(true)]
         public void ReturnScope(bool useExpression)
         {
-            var searchDefinition = Builders<Director>.Search.Range("movies.releaseYear", SearchRangeBuilder.Gt(2000));
-            var aggregate = GetReturnScopeCollection<Director>().Aggregate();
-            var searchOptions = new SearchOptions<Director> { IndexName = "returnScopeIndex2" };
+            try
+            {
+                var searchDefinition = Builders<Director>.Search.Range("movies.releaseYear", SearchRangeBuilder.Gt(2000));
+                var aggregate = GetReturnScopeCollection<Director>().Aggregate();
+                var searchOptions = new SearchOptions<Director> { IndexName = "returnScopeIndex2", ReturnStoredSource = true };
 
-            var query = useExpression
-                ? aggregate.Search(searchDefinition, e => e.Movies, searchOptions)
-                : aggregate.Search<Director, DirectedMovie>(searchDefinition, "movies", searchOptions);
+                var query = useExpression
+                    ? aggregate.Search(searchDefinition, e => e.Movies, searchOptions)
+                    : aggregate.Search<Director, DirectedMovie>(searchDefinition, "movies", searchOptions);
 
-            var results = query.ToList();
-            results.Count.Should().Be(1);
-            results[0].ReleaseYear.Should().Be(2016);
+                var results = query.ToList();
+                results.Count.Should().Be(1);
+                results[0].ReleaseYear.Should().Be(2016);
 
-            ValidateSearchStage(
-                "{ $search: { range: { gt: 2000, path: 'movies.releaseYear' }, returnScope: { path: 'movies' }, index: 'returnScopeIndex2', returnStoredSource: true } }");
+                ValidateSearchStage(
+                    "{ $search: { range: { gt: 2000, path: 'movies.releaseYear' }, returnScope: { path: 'movies' }, index: 'returnScopeIndex2', returnStoredSource: true } }");
+            }
+            finally
+            {
+                // Temporary shared resource cleanup 3 & 4.
+                __returnScopeTestCount--;
+            }
         }
 
         [Fact]
         public void ReturnScope_nested_path()
         {
-            var searchDefinition = Builders<Director>.Search.Range("movies.reviews.rating", SearchRangeBuilder.Gte(8.0));
-            var aggregate = GetReturnScopeCollection<Director>().Aggregate();
+            try
+            {
+                var searchDefinition = Builders<Director>.Search.Range("movies.reviews.rating", SearchRangeBuilder.Gte(8.0));
+                var aggregate = GetReturnScopeCollection<Director>().Aggregate();
 
-            var results = aggregate.Search<Director, DirectedMovieReview>(
-                searchDefinition,
-                "movies.reviews",
-                new() { IndexName = "returnScopeIndex2" }).ToList();
+                var results = aggregate.Search<Director, DirectedMovieReview>(
+                    searchDefinition,
+                    "movies.reviews",
+                    new() { IndexName = "returnScopeIndex2", ReturnStoredSource = true }).ToList();
 
-            results.Count.Should().Be(0);
+                results.Count.Should().Be(0);
 
-            ValidateSearchStage(
-                "{ $search: { range: { gte: 8.0, path: 'movies.reviews.rating' }, returnScope: { path: 'movies.reviews' }, index: 'returnScopeIndex2', returnStoredSource: true } }");
+                ValidateSearchStage(
+                    "{ $search: { range: { gte: 8.0, path: 'movies.reviews.rating' }, returnScope: { path: 'movies.reviews' }, index: 'returnScopeIndex2', returnStoredSource: true } }");
+            }
+            finally
+            {
+                // Temporary shared resource cleanup 5.
+                __returnScopeTestCount--;
+            }
         }
 
         [Theory]
@@ -988,25 +1031,33 @@ namespace MongoDB.Driver.Tests.Search
         [InlineData(true)]
         public void ReturnScope_HasRoot(bool useExpression)
         {
-            var searchDefinition = Builders<Director>.Search.Compound()
-                .Must(Builders<Director>.Search.HasRoot(
-                        Builders<Director>.Search.Text(e => e.Name, "M. Night Shyamalan")),
-                    Builders<Director>.Search.Text("movies.reviews.text", "Amazing"));
+            try
+            {
+                var searchDefinition = Builders<Director>.Search.Compound()
+                    .Must(Builders<Director>.Search.HasRoot(
+                            Builders<Director>.Search.Text(e => e.Name, "M. Night Shyamalan")),
+                        Builders<Director>.Search.Text("movies.reviews.text", "Amazing"));
 
-            var aggregate = GetReturnScopeCollection<Director>().Aggregate();
+                var aggregate = GetReturnScopeCollection<Director>().Aggregate();
 
-            var searchOptions = new SearchOptions<Director>() { IndexName = "returnScopeIndex1" };
-            var query = useExpression
-                ? aggregate.Search(searchDefinition, e => e.Movies, searchOptions)
-                : aggregate.Search<Director, DirectedMovie>(searchDefinition, "movies", searchOptions);
+                var searchOptions = new SearchOptions<Director>() { IndexName = "returnScopeIndex1", ReturnStoredSource = true };
+                var query = useExpression
+                    ? aggregate.Search(searchDefinition, e => e.Movies, searchOptions)
+                    : aggregate.Search<Director, DirectedMovie>(searchDefinition, "movies", searchOptions);
 
-            var results = query.ToList();
-            results.Count.Should().Be(2);
-            results[0].ReleaseYear.Should().Be(2016);
-            results[1].ReleaseYear.Should().Be(1999);
+                var results = query.ToList();
+                results.Count.Should().Be(2);
+                results[0].ReleaseYear.Should().Be(2016);
+                results[1].ReleaseYear.Should().Be(1999);
 
-            ValidateSearchStage(
-                "{ $search: { compound: { must: [ { hasRoot: { operator: { text: { query: 'M. Night Shyamalan', path: 'director' } } } }, { text: { query: 'Amazing', path: 'movies.reviews.text' } } ] }, returnScope: { path: 'movies' }, index: 'returnScopeIndex1', returnStoredSource: true } }");
+                ValidateSearchStage(
+                    "{ $search: { compound: { must: [ { hasRoot: { operator: { text: { query: 'M. Night Shyamalan', path: 'director' } } } }, { text: { query: 'Amazing', path: 'movies.reviews.text' } } ] }, returnScope: { path: 'movies' }, index: 'returnScopeIndex1', returnStoredSource: true } }");
+            }
+            finally
+            {
+                // Temporary shared resource cleanup 6 & 7.
+                __returnScopeTestCount--;
+            }
         }
 
         [Theory]
@@ -1014,28 +1065,36 @@ namespace MongoDB.Driver.Tests.Search
         [InlineData(true)]
         public void ReturnScope_HasAncestor(bool useExpression)
         {
-            var hasAncestor = useExpression
-                ? Builders<Director>.Search.HasAncestor(
-                    b => b.Movies,
-                    Builders<Director>.Search.Text("movies.title", "Split"))
-                : Builders<Director>.Search.HasAncestor<DirectedMovie>(
-                    "movies",
-                    Builders<Director>.Search.Text("movies.title", "Split"));
+            try
+            {
+                var hasAncestor = useExpression
+                    ? Builders<Director>.Search.HasAncestor(
+                        b => b.Movies,
+                        Builders<Director>.Search.Text("movies.title", "Split"))
+                    : Builders<Director>.Search.HasAncestor<DirectedMovie>(
+                        "movies",
+                        Builders<Director>.Search.Text("movies.title", "Split"));
 
-            var searchDefinition = Builders<Director>.Search.Compound()
-                .Must(hasAncestor, Builders<Director>.Search.Text("movies.reviews.text", "Amazing"));
+                var searchDefinition = Builders<Director>.Search.Compound()
+                    .Must(hasAncestor, Builders<Director>.Search.Text("movies.reviews.text", "Amazing"));
 
-            var aggregate = GetReturnScopeCollection<Director>().Aggregate();
+                var aggregate = GetReturnScopeCollection<Director>().Aggregate();
 
-            var results = aggregate.Search<Director, DirectedMovieReview>(
-                searchDefinition,
-                "movies.reviews",
-                new() { IndexName = "returnScopeIndex2" }).ToList();
+                var results = aggregate.Search<Director, DirectedMovieReview>(
+                    searchDefinition,
+                    "movies.reviews",
+                    new() { IndexName = "returnScopeIndex2", ReturnStoredSource = true }).ToList();
 
-            results.Count.Should().Be(0);
+                results.Count.Should().Be(0);
 
-            ValidateSearchStage(
-                "{ $search: { compound: { must: [ { hasAncestor: { ancestorPath: 'movies', operator: { text: { query: 'Split', path: 'movies.title' } } } }, { text: { query: 'Amazing', path: 'movies.reviews.text' } } ] }, returnScope: { path: 'movies.reviews' }, index: 'returnScopeIndex2', returnStoredSource: true } }");
+                ValidateSearchStage(
+                    "{ $search: { compound: { must: [ { hasAncestor: { ancestorPath: 'movies', operator: { text: { query: 'Split', path: 'movies.title' } } } }, { text: { query: 'Amazing', path: 'movies.reviews.text' } } ] }, returnScope: { path: 'movies.reviews' }, index: 'returnScopeIndex2', returnStoredSource: true } }");
+            }
+            finally
+            {
+                // Temporary shared resource cleanup 8 & 9.
+                __returnScopeTestCount--;
+            }
         }
 
         [Fact]
@@ -1173,32 +1232,48 @@ namespace MongoDB.Driver.Tests.Search
         [InlineData(true)]
         public void SearchMeta_with_ReturnScope(bool useExpression)
         {
-            var searchDefinition = Builders<Director>.Search.Range("movies.releaseYear", SearchRangeBuilder.Gt(2000));
-            var aggregate = GetReturnScopeCollection<Director>().Aggregate();
+            try
+            {
+                var searchDefinition = Builders<Director>.Search.Range("movies.releaseYear", SearchRangeBuilder.Gt(2000));
+                var aggregate = GetReturnScopeCollection<Director>().Aggregate();
 
-            var query = useExpression
-                ? aggregate.SearchMeta(searchDefinition, e => e.Movies, "returnScopeIndex1")
-                : aggregate.SearchMeta(searchDefinition, "movies", "returnScopeIndex1");
+                var query = useExpression
+                    ? aggregate.SearchMeta(searchDefinition, e => e.Movies, "returnScopeIndex1")
+                    : aggregate.SearchMeta(searchDefinition, "movies", "returnScopeIndex1");
 
-            var results = query.ToList();
-            results.Count.Should().Be(1);
+                var results = query.ToList();
+                results.Count.Should().Be(1);
 
-            ValidateSearchStage(
-                "{ $searchMeta: { range: { gt: 2000, path: 'movies.releaseYear' }, index: 'returnScopeIndex1', returnScope: { path: 'movies' } } }");
+                ValidateSearchStage(
+                    "{ $searchMeta: { range: { gt: 2000, path: 'movies.releaseYear' }, index: 'returnScopeIndex1', returnScope: { path: 'movies' } } }");
+            }
+            finally
+            {
+                // Temporary shared resource cleanup 10 & 11.
+                __returnScopeTestCount--;
+            }
         }
 
         [Fact]
         public void SearchMeta_with_ReturnScope_nested_path()
         {
-            var searchDefinition = Builders<Director>.Search.Range("movies.reviews.rating", SearchRangeBuilder.Gte(8.0));
-            var aggregate = GetReturnScopeCollection<Director>().Aggregate();
+            try
+            {
+                var searchDefinition = Builders<Director>.Search.Range("movies.reviews.rating", SearchRangeBuilder.Gte(8.0));
+                var aggregate = GetReturnScopeCollection<Director>().Aggregate();
 
-            var results = aggregate.SearchMeta(searchDefinition, "movies.reviews", "returnScopeIndex2").ToList();
+                var results = aggregate.SearchMeta(searchDefinition, "movies.reviews", "returnScopeIndex2").ToList();
 
-            results.Count.Should().Be(1);
+                results.Count.Should().Be(1);
 
-            ValidateSearchStage(
-                "{ $searchMeta: { range: { gte: 8.0, path: 'movies.reviews.rating' }, index: 'returnScopeIndex2', returnScope: { path: 'movies.reviews' } } }");
+                ValidateSearchStage(
+                    "{ $searchMeta: { range: { gte: 8.0, path: 'movies.reviews.rating' }, index: 'returnScopeIndex2', returnScope: { path: 'movies.reviews' } } }");
+            }
+            finally
+            {
+                // Temporary shared resource cleanup 12.
+                __returnScopeTestCount--;
+            }
         }
 
         [Fact]
