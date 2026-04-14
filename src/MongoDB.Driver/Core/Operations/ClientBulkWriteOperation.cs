@@ -53,9 +53,8 @@ namespace MongoDB.Driver.Core.Operations
             Comment = options?.Comment;
             IsOrdered = (options?.IsOrdered).GetValueOrDefault(true);
             WriteConcern = options?.WriteConcern;
+            IsOperationRetryable = true;
         }
-
-        public new bool IsOperationRetryable => true;
 
         public override string OperationName => "bulkWrite";
 

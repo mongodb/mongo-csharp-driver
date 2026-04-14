@@ -61,9 +61,9 @@ namespace MongoDB.Driver.Core.Operations
                         throw originalException;
                     }
 
-                    // Unlike the async path where Task.Delay handles cancellation via token, Thread.Sleep is not cancellable,
-                    // so we bail early if the backoff would exceed the CSOT deadline.
-                    if (operationContext.IsRootContextTimeoutConfigured() && operationContext.RemainingTimeout < backoff)
+                    // We bail early if the backoff would exceed the CSOT deadline.
+                    var remaining = operationContext.RemainingTimeout;
+                    if (remaining != Timeout.InfiniteTimeSpan && operationContext.IsRootContextTimeoutConfigured() && remaining < backoff)
                     {
                         throw originalException;
                     }
