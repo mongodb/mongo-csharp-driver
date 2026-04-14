@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Core.Operations
     {
         // fields
         private bool? _bypassDocumentValidation;
-        private bool _canBeRetried;
+        private bool _retryRequested;
         private bool? _nonAtomicOutput;
         private readonly CollectionNamespace _outputCollectionNamespace;
         private MapReduceOutputMode _outputMode;
@@ -79,15 +79,20 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the operation can be retried.
+        /// Gets a value indicating whether the operation is retryable.
+        /// </summary>
+        public bool IsOperationRetryable => false;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether a retry was requested.
         /// </summary>
         /// <value>
-        /// A value indicating whether the operation can be retried.
+        /// A value indicating whether a retry was requested.
         /// </value>
-        public bool CanBeRetried
+        public bool RetryRequested
         {
-            get { return _canBeRetried; }
-            set { _canBeRetried = value; }
+            get { return _retryRequested; }
+            set { _retryRequested = value; }
         }
 
         /// <summary>
@@ -192,7 +197,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             using (BeginOperation())
             {
-                return RetryableWriteOperationExecutor.Execute(operationContext, this, binding, retryRequested: false, canBeRetried: CanBeRetried);
+                return RetryableWriteOperationExecutor.Execute(operationContext, this, binding, retryRequested: RetryRequested);
             }
         }
 
@@ -201,7 +206,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             using (BeginOperation())
             {
-                return RetryableWriteOperationExecutor.ExecuteAsync(operationContext, this, binding, retryRequested: false, canBeRetried: CanBeRetried);
+                return RetryableWriteOperationExecutor.ExecuteAsync(operationContext, this, binding, retryRequested: RetryRequested);
             }
         }
 

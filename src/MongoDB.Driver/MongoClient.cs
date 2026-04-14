@@ -501,8 +501,7 @@ namespace MongoDB.Driver
             var renderArgs = GetRenderArgs();
             var operation = new ClientBulkWriteOperation(models, options, messageEncoderSettings, renderArgs)
             {
-                RetryRequested = _settings.RetryWrites,
-                CanBeRetried = _settings.RetryWrites
+                RetryRequested = _settings.RetryWrites
             };
             if (options?.WriteConcern == null)
             {
@@ -521,7 +520,7 @@ namespace MongoDB.Driver
             => new(new DatabaseNamespace(name), GetMessageEncoderSettings())
             {
                 WriteConcern = _settings.WriteConcern,
-                CanBeRetried = _settings.RetryWrites
+                RetryRequested = _settings.RetryWrites
             };
 
         private ListDatabasesOperation CreateListDatabasesOperation(ListDatabasesOptions options)
@@ -536,8 +535,7 @@ namespace MongoDB.Driver
                 Comment = options.Comment,
                 Filter = options.Filter?.Render(new(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry, translationOptions: translationOptions)),
                 NameOnly = options.NameOnly,
-                RetryRequested = _settings.RetryReads,
-                CanBeRetried = _settings.RetryReads
+                RetryRequested = _settings.RetryReads
             };
         }
 

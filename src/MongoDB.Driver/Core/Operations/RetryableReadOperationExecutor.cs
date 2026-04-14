@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Core.Operations
                 {
                     originalException ??= ex;
 
-                    if (!ShouldRetry(operationContext, context, ex, totalAttempts, context.Random, out var backoff))
+                    if (!ShouldRetry(operationContext, context, operation.IsOperationRetryable, ex, totalAttempts, context.Random, out var backoff))
                     {
                         throw originalException;
                     }
@@ -105,7 +105,7 @@ namespace MongoDB.Driver.Core.Operations
                 {
                     originalException ??= ex;
 
-                    if (!ShouldRetry(operationContext, context, ex, totalAttempts, context.Random, out var backoff))
+                    if (!ShouldRetry(operationContext, context, operation.IsOperationRetryable, ex, totalAttempts, context.Random, out var backoff))
                     {
                         throw originalException;
                     }
@@ -119,6 +119,7 @@ namespace MongoDB.Driver.Core.Operations
         // private static methods
         private static bool ShouldRetry(OperationContext operationContext,
             RetryableReadContext context,
+            bool isOperationRetryable,
             Exception exception,
             int attempt,
             IRandom random,
@@ -126,7 +127,8 @@ namespace MongoDB.Driver.Core.Operations
         {
             backoff = TimeSpan.Zero;
 
-            if (!context.CanBeRetried)
+            // Top-level gate: if the user disabled retries, nothing retries (including backpressure).
+            if (!context.RetryRequested)
             {
                 return false;
             }
@@ -138,7 +140,7 @@ namespace MongoDB.Driver.Core.Operations
             var isRetryableException = RetryabilityHelper.IsRetryableException(exception);
             var isSystemOverloadedException = RetryabilityHelper.IsSystemOverloadedException(exception);
 
-            var isRetryableRead = context.RetryRequested && !context.Binding.Session.IsInTransaction && isRetryableReadException;
+            var isRetryableRead = isOperationRetryable && !context.Binding.Session.IsInTransaction && isRetryableReadException;
 
             var isBackpressureRetry = isSystemOverloadedException
                                       && isRetryableException;

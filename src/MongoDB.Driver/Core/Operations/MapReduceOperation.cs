@@ -35,7 +35,6 @@ namespace MongoDB.Driver.Core.Operations
         // fields
         private ReadConcern _readConcern = ReadConcern.Default;
         private readonly IBsonSerializer<TResult> _resultSerializer;
-        private bool _canBeRetried;
 
         // constructors
         /// <summary>
@@ -84,15 +83,6 @@ namespace MongoDB.Driver.Core.Operations
         /// Gets the name of the operation.
         /// </summary>
         public string OperationName => "mapReduce";
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the operation can be retried.
-        /// </summary>
-        public bool CanBeRetried
-        {
-            get { return _canBeRetried; }
-            set { _canBeRetried = value; }
-        }
 
         // methods
         /// <inheritdoc/>
@@ -153,7 +143,6 @@ namespace MongoDB.Driver.Core.Operations
             return new ReadCommandOperation<TResult[]>(CollectionNamespace.DatabaseNamespace, command, resultSerializer, MessageEncoderSettings, OperationName)
             {
                 RetryRequested = false,
-                CanBeRetried = _canBeRetried
             };
         }
     }

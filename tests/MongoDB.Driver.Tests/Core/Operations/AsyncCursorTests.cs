@@ -202,7 +202,7 @@ namespace MongoDB.Driver.Core.Operations
                 serializer,
                 messageEncoderSettings,
                 maxTime,
-                canBeRetried: false);
+                retryRequested: false);
 
             result._batchSize().Should().Be(batchSize);
             result._channelSource().Should().Be(channelSource);
@@ -503,7 +503,7 @@ namespace MongoDB.Driver.Core.Operations
             Optional<int?> limit = default(Optional<int?>),
             Optional<TimeSpan?> maxTime = default(Optional<TimeSpan?>),
             Optional<string> comment = default(Optional<string>),
-            Optional<bool> canBeRetried = default(Optional<bool>))
+            Optional<bool> retryRequested = default(Optional<bool>))
         {
             return new AsyncCursor<BsonDocument>(
                 channelSource.WithDefault(new Mock<IChannelSource>().Object),
@@ -516,7 +516,7 @@ namespace MongoDB.Driver.Core.Operations
                 serializer.WithDefault(BsonDocumentSerializer.Instance),
                 new MessageEncoderSettings(),
                 maxTime.WithDefault(null),
-                canBeRetried.WithDefault(false));
+                retryRequested.WithDefault(false));
         }
 
         private void SetupChannelMocks(Mock<IChannelSource> mockChannelSource, Mock<IChannelHandle> mockChannelHandle, bool async, string commandResult, int maxWireVersion = WireVersion.Server36, bool isChannelExpired = false)
@@ -660,7 +660,7 @@ namespace MongoDB.Driver.Core.Operations
                 long cursorId;
                 var firstBatch = GetFirstBatch(channel, query, batchSize, CancellationToken.None, out cursorId);
 
-                using (var cursor = new AsyncCursor<BsonDocument>(channelSource, _collectionNamespace, comment: null, firstBatch, cursorId, batchSize, null, BsonDocumentSerializer.Instance, new MessageEncoderSettings(), maxTime: null, canBeRetried: false))
+                using (var cursor = new AsyncCursor<BsonDocument>(channelSource, _collectionNamespace, comment: null, firstBatch, cursorId, batchSize, null, BsonDocumentSerializer.Instance, new MessageEncoderSettings(), maxTime: null, retryRequested: false))
                 {
                     AssertExpectedSessionReferenceCount(_session, cursor);
                     while (cursor.MoveNext(CancellationToken.None))

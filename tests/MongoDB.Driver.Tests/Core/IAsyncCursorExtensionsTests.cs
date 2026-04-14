@@ -343,7 +343,7 @@ namespace MongoDB.Driver
                 serializer: BsonDocumentSerializer.Instance,
                 messageEncoderSettings: new MessageEncoderSettings(),
                 maxTime: null,
-                canBeRetried: false);
+                retryRequested: false);
         }
     }
 }

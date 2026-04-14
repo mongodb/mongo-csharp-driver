@@ -535,7 +535,7 @@ namespace MongoDB.Driver.Core.Bindings
 
             using (var sessionHandle = new NonDisposingCoreSessionHandle(this))
             using (var binding = ChannelPinningHelper.CreateReadWriteBinding(_cluster, sessionHandle))
-            using (var context = new RetryableWriteContext(binding, retryRequested: true, canBeRetried: true))
+            using (var context = new RetryableWriteContext(binding, retryRequested: true))
             {
                 RetryableWriteOperationExecutor.Execute(operationContext, operation, context);
             }
@@ -548,7 +548,7 @@ namespace MongoDB.Driver.Core.Bindings
 
             using (var sessionHandle = new NonDisposingCoreSessionHandle(this))
             using (var binding = ChannelPinningHelper.CreateReadWriteBinding(_cluster, sessionHandle))
-            using (var context = new RetryableWriteContext(binding, retryRequested: true, canBeRetried: true))
+            using (var context = new RetryableWriteContext(binding, retryRequested: true))
             {
                 await RetryableWriteOperationExecutor.ExecuteAsync(operationContext, operation, context).ConfigureAwait(false);
             }

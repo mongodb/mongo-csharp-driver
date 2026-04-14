@@ -31,7 +31,6 @@ namespace MongoDB.Driver.Core.Operations
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private ReadConcern _readConcern = ReadConcern.Default;
         private bool _retryRequested;
-        private bool _canBeRetried;
 
         public EstimatedDocumentCountOperation(CollectionNamespace collectionNamespace, MessageEncoderSettings messageEncoderSettings)
         {
@@ -69,18 +68,14 @@ namespace MongoDB.Driver.Core.Operations
             set => _retryRequested = value;
         }
 
-        public bool CanBeRetried
-        {
-            get => _canBeRetried;
-            set => _canBeRetried = value;
-        }
+        public bool IsOperationRetryable => true;
 
         public long Execute(OperationContext operationContext, IReadBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = new RetryableReadContext(binding, _retryRequested, _canBeRetried))
+            using (var context = new RetryableReadContext(binding, _retryRequested))
             {
                 var operation = CreateCountOperation();
 
@@ -93,7 +88,7 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = new RetryableReadContext(binding, _retryRequested, _canBeRetried))
+            using (var context = new RetryableReadContext(binding, _retryRequested))
             {
                 var operation = CreateCountOperation();
 

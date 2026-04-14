@@ -164,8 +164,7 @@ namespace MongoDB.Driver.GridFS
             {
                 Filter = filter,
                 Limit = -1,
-                RetryRequested = _retryReads,
-                CanBeRetried = _retryReads,
+                RetryRequested = _retryReads
             };
 
         }

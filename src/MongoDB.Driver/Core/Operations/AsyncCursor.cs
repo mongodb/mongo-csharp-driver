@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Core.Operations
         private BsonDocument _postBatchResumeToken;
         private readonly IBsonSerializer<TDocument> _serializer;
         private readonly bool _wasFirstBatchEmpty;
-        private readonly bool _canBeRetried;
+        private readonly bool _retryRequested;
 
         public AsyncCursor(
             IChannelSource channelSource,
@@ -70,7 +70,7 @@ namespace MongoDB.Driver.Core.Operations
             IBsonSerializer<TDocument> serializer,
             MessageEncoderSettings messageEncoderSettings,
             TimeSpan? maxTime,
-            bool canBeRetried)
+            bool retryRequested)
             : this(
                 channelSource,
                 collectionNamespace,
@@ -83,7 +83,7 @@ namespace MongoDB.Driver.Core.Operations
                 serializer,
                 messageEncoderSettings,
                 maxTime,
-                canBeRetried)
+                retryRequested)
         {
         }
 
@@ -99,7 +99,7 @@ namespace MongoDB.Driver.Core.Operations
             IBsonSerializer<TDocument> serializer,
             MessageEncoderSettings messageEncoderSettings,
             TimeSpan? maxTime,
-            bool canBeRetried)
+            bool retryRequested)
         {
             _operationId = EventContext.OperationId;
             _channelSource = channelSource;
@@ -113,7 +113,7 @@ namespace MongoDB.Driver.Core.Operations
             _serializer = Ensure.IsNotNull(serializer, nameof(serializer));
             _messageEncoderSettings = messageEncoderSettings;
             _maxTime = maxTime;
-            _canBeRetried = canBeRetried;
+            _retryRequested = retryRequested;
 
             if (_limit > 0 && _firstBatch.Count > _limit)
             {
@@ -233,7 +233,8 @@ namespace MongoDB.Driver.Core.Operations
                     __getMoreCommandResultSerializer,
                     _messageEncoderSettings)
                 {
-                    CanBeRetried = _canBeRetried
+                    RetryRequested = _retryRequested,
+                    IsOperationRetryable = false // getMore is not a retryable read operation
                 };
 
                 using var channelBinding = new ChannelReadWriteBinding(
@@ -265,7 +266,8 @@ namespace MongoDB.Driver.Core.Operations
                     __getMoreCommandResultSerializer,
                     _messageEncoderSettings)
                 {
-                    CanBeRetried = _canBeRetried
+                    RetryRequested = _retryRequested,
+                    IsOperationRetryable = false // getMore is not a retryable read operation
                 };
 
                 using var channelBinding = new ChannelReadWriteBinding(

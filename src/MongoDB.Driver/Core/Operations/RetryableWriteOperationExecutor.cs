@@ -26,9 +26,9 @@ namespace MongoDB.Driver.Core.Operations
     internal static class RetryableWriteOperationExecutor
     {
         // public static methods
-        public static TResult Execute<TResult>(OperationContext operationContext, IRetryableWriteOperation<TResult> operation, IWriteBinding binding, bool retryRequested, bool canBeRetried, IMayUseSecondaryCriteria mayUseSecondary = null)
+        public static TResult Execute<TResult>(OperationContext operationContext, IRetryableWriteOperation<TResult> operation, IWriteBinding binding, bool retryRequested, IMayUseSecondaryCriteria mayUseSecondary = null)
         {
-            using var context = new RetryableWriteContext(binding, retryRequested, canBeRetried, mayUseSecondaryCriteria: mayUseSecondary);
+            using var context = new RetryableWriteContext(binding, retryRequested, mayUseSecondaryCriteria: mayUseSecondary);
             return Execute(operationContext, operation, context);
         }
 
@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Core.Operations
                     server = context.SelectServer(operationContext, deprioritizedServers);
                     context.AcquireChannel(operationContext);
 
-                    transactionNumber ??= AreRetriesAllowed(operation.WriteConcern, context, context.ChannelSource.ServerDescription) ? context.Binding.Session.AdvanceTransactionNumber() : null;
+                    transactionNumber ??= AreRetriesAllowed(operation.WriteConcern, operation.IsOperationRetryable, context, context.ChannelSource.ServerDescription) ? context.Binding.Session.AdvanceTransactionNumber() : null;
 
                     operationExecutionAttempts++;
 
@@ -74,7 +74,7 @@ namespace MongoDB.Driver.Core.Operations
                         originalException = ex;
                     }
 
-                    if (!ShouldRetry(operationContext, context.Channel is null, server, operation.WriteConcern, context, ex, totalAttempts, context.Random, isEndTransactionOperation, out var backoff))
+                    if (!ShouldRetry(operationContext, context.Channel is null, server, operation.WriteConcern, context, ex, totalAttempts, context.Random, isEndTransactionOperation, operation.IsOperationRetryable, out var backoff))
                     {
                         throw originalException;
                     }
@@ -97,9 +97,9 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public static async Task<TResult> ExecuteAsync<TResult>(OperationContext operationContext, IRetryableWriteOperation<TResult> operation, IWriteBinding binding, bool retryRequested, bool canBeRetried, IMayUseSecondaryCriteria mayUseSecondary = null)
+        public static async Task<TResult> ExecuteAsync<TResult>(OperationContext operationContext, IRetryableWriteOperation<TResult> operation, IWriteBinding binding, bool retryRequested, IMayUseSecondaryCriteria mayUseSecondary = null)
         {
-            using var context = new RetryableWriteContext(binding, retryRequested, canBeRetried, mayUseSecondaryCriteria: mayUseSecondary);
+            using var context = new RetryableWriteContext(binding, retryRequested, mayUseSecondaryCriteria: mayUseSecondary);
             return await ExecuteAsync(operationContext, operation, context).ConfigureAwait(false);
         }
 
@@ -124,7 +124,7 @@ namespace MongoDB.Driver.Core.Operations
                     await context.AcquireChannelAsync(operationContext).ConfigureAwait(false);
 
                     operationExecutionAttempts++;
-                    transactionNumber ??= AreRetriesAllowed(operation.WriteConcern, context, context.ChannelSource.ServerDescription) ? context.Binding.Session.AdvanceTransactionNumber() : null;
+                    transactionNumber ??= AreRetriesAllowed(operation.WriteConcern, operation.IsOperationRetryable, context, context.ChannelSource.ServerDescription) ? context.Binding.Session.AdvanceTransactionNumber() : null;
 
                     var operationResult = await operation.ExecuteAttemptAsync(operationContext, context, operationExecutionAttempts, transactionNumber).ConfigureAwait(false);
 
@@ -143,7 +143,7 @@ namespace MongoDB.Driver.Core.Operations
                         originalException = ex;
                     }
 
-                    if (!ShouldRetry(operationContext, context.Channel is null, server, operation.WriteConcern, context, ex, totalAttempts, context.Random, isEndTransactionOperation, out var backoff))
+                    if (!ShouldRetry(operationContext, context.Channel is null, server, operation.WriteConcern, context, ex, totalAttempts, context.Random, isEndTransactionOperation, operation.IsOperationRetryable, out var backoff))
                     {
                         throw originalException;
                     }
@@ -169,11 +169,13 @@ namespace MongoDB.Driver.Core.Operations
             int attempt,
             IRandom random,
             bool isEndTransactionOperation,
+            bool isOperationRetryable,
             out TimeSpan backoff)
         {
             backoff = TimeSpan.Zero;
 
-            if (!context.CanBeRetried)
+            // Top-level gate: if the user disabled retries, nothing retries (including backpressure).
+            if (!context.RetryRequested)
             {
                 return false;
             }
@@ -185,7 +187,7 @@ namespace MongoDB.Driver.Core.Operations
                 var exceptionToAnalyze = exception is MongoAuthenticationException mongoAuthenticationException ? mongoAuthenticationException.InnerException : exception;
 
                 var isRetryableReadException = RetryabilityHelper.IsRetryableReadException(exceptionToAnalyze);
-                isRetryableRead = context.RetryRequested && !context.Binding.Session.IsInTransaction && isRetryableReadException;
+                isRetryableRead = isOperationRetryable && !context.Binding.Session.IsInTransaction && isRetryableReadException;
             }
             else
             {
@@ -198,7 +200,7 @@ namespace MongoDB.Driver.Core.Operations
             var isRetryableWrites = isRetryableWriteException &&
                 (isEndTransactionOperation
                     ? IsOperationAcknowledged(writeConcern)
-                    : AreRetriesAllowed(writeConcern, context, server));
+                    : AreRetriesAllowed(writeConcern, isOperationRetryable, context, server));
 
             var isRetryableReadOrWrite = isRetryableRead || isRetryableWrites;
 
@@ -231,8 +233,8 @@ namespace MongoDB.Driver.Core.Operations
             return operationContext.IsRootContextTimeoutConfigured() || attempt < 2;
         }
 
-        private static bool AreRetriesAllowed(WriteConcern writeConcern, RetryableWriteContext context, ServerDescription server)
-            => IsOperationAcknowledged(writeConcern) && DoesContextAllowRetries(context, server);
+        private static bool AreRetriesAllowed(WriteConcern writeConcern, bool isOperationRetryable, RetryableWriteContext context, ServerDescription server)
+            => IsOperationAcknowledged(writeConcern) && isOperationRetryable && DoesContextAllowRetries(context, server);
 
         private static bool AreRetryableWritesSupported(ServerDescription serverDescription)
         {

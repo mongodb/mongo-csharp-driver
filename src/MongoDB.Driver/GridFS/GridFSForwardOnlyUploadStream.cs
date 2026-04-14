@@ -299,8 +299,7 @@ namespace MongoDB.Driver.GridFS
             return new BulkMixedWriteOperation(chunksCollectionNamespace, requests, messageEncoderSettings)
             {
                 WriteConcern = _bucket.Options.WriteConcern,
-                RetryRequested = _bucket.Database.Client.Settings.RetryWrites,
-                CanBeRetried = _bucket.Database.Client.Settings.RetryWrites
+                RetryRequested = _bucket.Database.Client.Settings.RetryWrites
             };
         }
 

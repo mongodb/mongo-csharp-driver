@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Core.Operations
 
     internal interface IRetryableReadOperation<TResult> : IExecutableInRetryableReadContext<TResult>
     {
-        bool CanBeRetried { get; }
+        bool IsOperationRetryable { get; }
 
         TResult ExecuteAttempt(OperationContext operationContext, RetryableReadContext context, int attempt, long? transactionNumber);
         Task<TResult> ExecuteAttemptAsync(OperationContext operationContext, RetryableReadContext context, int attempt, long? transactionNumber);
@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Core.Operations
 
     internal interface IRetryableWriteOperation<TResult> : IExecutableInRetryableWriteContext<TResult>
     {
-        bool CanBeRetried { get; }
+        bool IsOperationRetryable { get; }
         WriteConcern WriteConcern { get; }
 
         TResult ExecuteAttempt(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber);

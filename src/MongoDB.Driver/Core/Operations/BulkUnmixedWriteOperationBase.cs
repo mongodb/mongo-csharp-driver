@@ -38,7 +38,6 @@ namespace MongoDB.Driver.Core.Operations
         private MessageEncoderSettings _messageEncoderSettings;
         private List<TWriteRequest> _requests;
         private bool _retryRequested;
-        private bool _canBeRetried;
         private WriteConcern _writeConcern = WriteConcern.Acknowledged;
 
         // constructors
@@ -115,11 +114,7 @@ namespace MongoDB.Driver.Core.Operations
             set { _retryRequested = value; }
         }
 
-        public bool CanBeRetried
-        {
-            get { return _canBeRetried; }
-            set { _canBeRetried = value; }
-        }
+        public bool IsOperationRetryable => _requests.All(r => r.IsRetryable());
 
         public WriteConcern WriteConcern
         {
@@ -138,7 +133,7 @@ namespace MongoDB.Driver.Core.Operations
         public BulkWriteOperationResult Execute(OperationContext operationContext, IWriteBinding binding)
         {
             using (BeginOperation())
-            using (var context = new RetryableWriteContext(binding, IsOperationRetryable(), CanBeRetried))
+            using (var context = new RetryableWriteContext(binding, _retryRequested))
             {
                 return Execute(operationContext, context);
             }
@@ -154,7 +149,7 @@ namespace MongoDB.Driver.Core.Operations
         public async Task<BulkWriteOperationResult> ExecuteAsync(OperationContext operationContext, IWriteBinding binding)
         {
             using (BeginOperation())
-            using (var context = new RetryableWriteContext(binding, IsOperationRetryable(), CanBeRetried))
+            using (var context = new RetryableWriteContext(binding, _retryRequested))
             {
                 return await ExecuteAsync(operationContext, context).ConfigureAwait(false);
             }
@@ -166,9 +161,6 @@ namespace MongoDB.Driver.Core.Operations
         protected abstract bool RequestHasHint(TWriteRequest request);
 
         // private methods
-        private bool IsOperationRetryable()
-            => _retryRequested && _requests.All(r => r.IsRetryable());
-
         private EventContext.OperationIdDisposer BeginOperation() =>
             EventContext.BeginOperation(null, _requests.FirstOrDefault()?.RequestType.ToString().ToLower());
 

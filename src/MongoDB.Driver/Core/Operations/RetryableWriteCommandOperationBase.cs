@@ -36,7 +36,7 @@ namespace MongoDB.Driver.Core.Operations
         private int? _maxBatchCount;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private bool _retryRequested;
-        private bool _canBeRetried;
+        private bool _isOperationRetryable;
         private WriteConcern _writeConcern = WriteConcern.Acknowledged;
 
         public RetryableWriteCommandOperationBase(
@@ -83,10 +83,10 @@ namespace MongoDB.Driver.Core.Operations
             set { _retryRequested = value; }
         }
 
-        public bool CanBeRetried
+        public bool IsOperationRetryable
         {
-            get { return _canBeRetried; }
-            set { _canBeRetried = value; }
+            get { return _isOperationRetryable; }
+            set { _isOperationRetryable = value; }
         }
 
         public WriteConcern WriteConcern
@@ -97,7 +97,7 @@ namespace MongoDB.Driver.Core.Operations
 
         public virtual BsonDocument Execute(OperationContext operationContext, IWriteBinding binding)
         {
-            using (var context = new RetryableWriteContext(binding, _retryRequested, _canBeRetried))
+            using (var context = new RetryableWriteContext(binding, _retryRequested))
             {
                 return Execute(operationContext, context);
             }
@@ -110,7 +110,7 @@ namespace MongoDB.Driver.Core.Operations
 
         public virtual async Task<BsonDocument> ExecuteAsync(OperationContext operationContext, IWriteBinding binding)
         {
-            using (var context = new RetryableWriteContext(binding, _retryRequested, _canBeRetried))
+            using (var context = new RetryableWriteContext(binding, _retryRequested))
             {
                 return await ExecuteAsync(operationContext, context).ConfigureAwait(false);
             }

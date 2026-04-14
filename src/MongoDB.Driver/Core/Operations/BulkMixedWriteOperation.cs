@@ -41,7 +41,6 @@ namespace MongoDB.Driver.Core.Operations
         private readonly string _operationName;
         private readonly List<WriteRequest> _requests;
         private bool _retryRequested;
-        private bool _canBeRetried;
         private WriteConcern _writeConcern;
 
         public BulkMixedWriteOperation(
@@ -137,11 +136,7 @@ namespace MongoDB.Driver.Core.Operations
             set { _retryRequested = value; }
         }
 
-        public bool CanBeRetried
-        {
-            get { return _canBeRetried; }
-            set { _canBeRetried = value; }
-        }
+        public bool IsOperationRetryable => _requests.All(r => r.IsRetryable());
 
         public WriteConcern WriteConcern
         {
@@ -152,7 +147,7 @@ namespace MongoDB.Driver.Core.Operations
         public BulkWriteOperationResult Execute(OperationContext operationContext, IWriteBinding binding)
         {
             using (BeginOperation())
-            using (var context = new RetryableWriteContext(binding, IsOperationRetryable(), CanBeRetried))
+            using (var context = new RetryableWriteContext(binding, _retryRequested))
             {
                 EnsureHintIsSupportedIfAnyRequestHasHint();
                 var helper = new BatchHelper(_requests, _isOrdered, _writeConcern);
@@ -167,7 +162,7 @@ namespace MongoDB.Driver.Core.Operations
         public async Task<BulkWriteOperationResult> ExecuteAsync(OperationContext operationContext, IWriteBinding binding)
         {
             using (BeginOperation())
-            using (var context = new RetryableWriteContext(binding, IsOperationRetryable(), CanBeRetried))
+            using (var context = new RetryableWriteContext(binding, _retryRequested))
             {
                 EnsureHintIsSupportedIfAnyRequestHasHint();
                 var helper = new BatchHelper(_requests, _isOrdered, _writeConcern);
@@ -178,9 +173,6 @@ namespace MongoDB.Driver.Core.Operations
                 return helper.GetFinalResultOrThrow(context.Channel.ConnectionDescription.ConnectionId);
             }
         }
-
-        private bool IsOperationRetryable()
-            => _retryRequested && _requests.All(r => r.IsRetryable());
 
         private EventContext.OperationIdDisposer BeginOperation() =>
             // Execution starts with the first request

@@ -31,15 +31,13 @@ namespace MongoDB.Driver.Core.Operations
         private IChannelSourceHandle _channelSource;
         private bool _disposed;
         private bool _retryRequested;
-        private bool _canBeRetried;
         private IRandom _random;
         private IMayUseSecondaryCriteria _mayUseSecondaryCriteria;
 
-        public RetryableWriteContext(IWriteBinding binding, bool retryRequested, bool canBeRetried, IRandom random = null, IMayUseSecondaryCriteria mayUseSecondaryCriteria = null)
+        public RetryableWriteContext(IWriteBinding binding, bool retryRequested, IRandom random = null, IMayUseSecondaryCriteria mayUseSecondaryCriteria = null)
         {
             _binding = Ensure.IsNotNull(binding, nameof(binding));
             _retryRequested = retryRequested;
-            _canBeRetried = canBeRetried;
             _random = random ?? DefaultRandom.Instance;
             _mayUseSecondaryCriteria = mayUseSecondaryCriteria;
         }
@@ -50,14 +48,10 @@ namespace MongoDB.Driver.Core.Operations
         public IMayUseSecondaryCriteria MayUseSecondaryCriteria => _mayUseSecondaryCriteria;
         public IRandom Random => _random;
         /// <summary>
-        /// This property only influences the retryability for retryable reads/writes and has no effect
-        /// on client backpressure errors.
+        /// Indicates whether the user has enabled retries via retryReads/retryWrites client settings.
+        /// If false, all retries are disabled (including backpressure).
         /// </summary>
         public bool RetryRequested => _retryRequested;
-        /// <summary>
-        /// Indicates whether the operation can be retried. If false, retries are disabled entirely.
-        /// </summary>
-        public bool CanBeRetried => _canBeRetried;
 
         public void Dispose()
         {

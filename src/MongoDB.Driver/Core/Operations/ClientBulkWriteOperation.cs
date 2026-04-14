@@ -55,6 +55,8 @@ namespace MongoDB.Driver.Core.Operations
             WriteConcern = options?.WriteConcern;
         }
 
+        public new bool IsOperationRetryable => true;
+
         public override string OperationName => "bulkWrite";
 
         protected override BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, long? transactionNumber)
@@ -96,7 +98,7 @@ namespace MongoDB.Driver.Core.Operations
             var bulkWriteResults = new BulkWriteRawResult();
             while (true)
             {
-                using var context = new RetryableWriteContext(binding, GetEffectiveRetryRequested(), CanBeRetried);
+                using var context = new RetryableWriteContext(binding, GetEffectiveRetryRequested());
                 BsonDocument serverResponse = null;
                 try
                 {
@@ -154,7 +156,7 @@ namespace MongoDB.Driver.Core.Operations
             var bulkWriteResults = new BulkWriteRawResult();
             while (true)
             {
-                using var context = new RetryableWriteContext(binding, GetEffectiveRetryRequested(), CanBeRetried);
+                using var context = new RetryableWriteContext(binding, GetEffectiveRetryRequested());
                 BsonDocument serverResponse = null;
                 try
                 {
@@ -288,7 +290,7 @@ namespace MongoDB.Driver.Core.Operations
                 BsonDocumentSerializer.Instance,
                 MessageEncoderSettings,
                 maxTime: null,
-                canBeRetried: RetryRequested); //TODO This is a little strange, but AsyncCursor do read operation, but this a write operation. Do we keep it like this...? It should be CanBeRetried anyways, once we add it to write operations.
+                retryRequested: RetryRequested);
         }
 
         private void PopulateBulkWriteResponse(BsonDocument bulkWriteResponse, BulkWriteRawResult bulkWriteResult)

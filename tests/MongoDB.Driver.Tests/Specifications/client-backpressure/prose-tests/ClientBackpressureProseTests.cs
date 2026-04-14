@@ -140,7 +140,7 @@ public class ClientBackpressureProseTests
         bindingMock.Setup(b => b.GetReadChannelSourceAsync(It.IsAny<OperationContext>(), It.IsAny<IReadOnlyCollection<ServerDescription>>()))
             .ReturnsAsync(channelSourceMock.Object);
 
-        var context = new RetryableReadContext(bindingMock.Object, retryRequested: true, canBeRetried: true, random: random);
+        var context = new RetryableReadContext(bindingMock.Object, retryRequested: true, random: random);
         SetContextChannelFields(context, channelSourceMock.Object, channelMock.Object, typeof(RetryableReadContext));
 
         return context;
@@ -162,7 +162,7 @@ public class ClientBackpressureProseTests
         bindingMock.Setup(b => b.GetWriteChannelSourceAsync(It.IsAny<OperationContext>(), It.IsAny<IReadOnlyCollection<ServerDescription>>()))
             .ReturnsAsync(channelSourceMock.Object);
 
-        var context = new RetryableWriteContext(bindingMock.Object, retryRequested: true, canBeRetried: true, random);
+        var context = new RetryableWriteContext(bindingMock.Object, retryRequested: true, random);
         SetContextChannelFields(context, channelSourceMock.Object, channelMock.Object, typeof(RetryableWriteContext));
 
         return context;

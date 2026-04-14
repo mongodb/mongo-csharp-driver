@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Core.Operations
         public string OperationName => CommandName;
 
         // abort/commitTransaction can be retried regardless of the value of retryWrites
-        public bool CanBeRetried => true;
+        public bool IsOperationRetryable => true;
 
         protected abstract string CommandName { get; }
 

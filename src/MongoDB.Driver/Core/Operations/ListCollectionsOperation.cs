@@ -35,7 +35,6 @@ namespace MongoDB.Driver.Core.Operations
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private bool? _nameOnly;
         private bool _retryRequested;
-        private bool _canBeRetried;
 
         public ListCollectionsOperation(
             DatabaseNamespace databaseNamespace,
@@ -93,11 +92,7 @@ namespace MongoDB.Driver.Core.Operations
             set => _retryRequested = value;
         }
 
-        public bool CanBeRetried
-        {
-            get => _canBeRetried;
-            set => _canBeRetried = value;
-        }
+        public bool IsOperationRetryable => true;
 
         public IAsyncCursor<BsonDocument> Execute(OperationContext operationContext, IReadBinding binding)
         {
@@ -105,7 +100,7 @@ namespace MongoDB.Driver.Core.Operations
 
             using (BeginOperation())
             {
-                using (var context = new RetryableReadContext(binding, _retryRequested, _canBeRetried))
+                using (var context = new RetryableReadContext(binding, _retryRequested))
                 {
                     return Execute(operationContext, context);
                 }
@@ -130,7 +125,7 @@ namespace MongoDB.Driver.Core.Operations
 
             using (BeginOperation())
             {
-                using (var context = new RetryableReadContext(binding, _retryRequested, _canBeRetried))
+                using (var context = new RetryableReadContext(binding, _retryRequested))
                 {
                     return await ExecuteAsync(operationContext, context).ConfigureAwait(false);
                 }
@@ -165,7 +160,6 @@ namespace MongoDB.Driver.Core.Operations
             return new ReadCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings, OperationName)
             {
                 RetryRequested = _retryRequested, // might be overridden by retryable read context
-                CanBeRetried = _canBeRetried
             };
         }
 
@@ -185,7 +179,7 @@ namespace MongoDB.Driver.Core.Operations
                 BsonDocumentSerializer.Instance,
                 _messageEncoderSettings,
                 maxTime: null,
-                canBeRetried: _canBeRetried);
+                retryRequested: _retryRequested);
 
             return cursor;
         }

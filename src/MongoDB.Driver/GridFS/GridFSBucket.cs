@@ -602,7 +602,7 @@ namespace MongoDB.Driver.GridFS
             return new CreateIndexesOperation(collectionNamespace, requests, messageEncoderSettings)
             {
                 WriteConcern = _options.WriteConcern ?? _database.Settings.WriteConcern,
-                CanBeRetried = _database.Client.Settings.RetryWrites
+                RetryRequested = _database.Client.Settings.RetryWrites
             };
         }
 
@@ -614,7 +614,7 @@ namespace MongoDB.Driver.GridFS
             return new CreateIndexesOperation(collectionNamespace, requests, messageEncoderSettings)
             {
                 WriteConcern = _options.WriteConcern ?? _database.Settings.WriteConcern,
-                CanBeRetried = _database.Client.Settings.RetryWrites
+                RetryRequested = _database.Client.Settings.RetryWrites
             };
         }
 
@@ -626,8 +626,7 @@ namespace MongoDB.Driver.GridFS
                 new[] { new DeleteRequest(filter) { Limit = 0 } },
                 this.GetMessageEncoderSettings())
             {
-                RetryRequested = _database.Client.Settings.RetryWrites,
-                CanBeRetried = _database.Client.Settings.RetryWrites
+                RetryRequested = _database.Client.Settings.RetryWrites
             };
         }
 
@@ -651,7 +650,7 @@ namespace MongoDB.Driver.GridFS
             return new DropCollectionOperation(collectionNamespace, messageEncoderSettings)
             {
                 WriteConcern = _options.WriteConcern ?? _database.Settings.WriteConcern,
-                CanBeRetried = _database.Client.Settings.RetryWrites
+                RetryRequested = _database.Client.Settings.RetryWrites
             };
         }
 
@@ -663,8 +662,7 @@ namespace MongoDB.Driver.GridFS
                 new[] { new DeleteRequest(filter) },
                 this.GetMessageEncoderSettings())
             {
-                RetryRequested = _database.Client.Settings.RetryWrites,
-                CanBeRetried = _database.Client.Settings.RetryWrites
+                RetryRequested = _database.Client.Settings.RetryWrites
             };
         }
 
@@ -704,7 +702,6 @@ namespace MongoDB.Driver.GridFS
                 NoCursorTimeout = options.NoCursorTimeout,
                 ReadConcern = GetReadConcern(),
                 RetryRequested = _database.Client.Settings.RetryReads,
-                CanBeRetried = _database.Client.Settings.RetryReads,
                 Skip = options.Skip,
                 Sort = renderedSort
             };
@@ -728,7 +725,6 @@ namespace MongoDB.Driver.GridFS
                 Limit = limit,
                 ReadConcern = GetReadConcern(),
                 RetryRequested = _database.Client.Settings.RetryReads,
-                CanBeRetried = _database.Client.Settings.RetryReads,
                 Skip = skip,
                 Sort = sort
             };
@@ -749,7 +745,6 @@ namespace MongoDB.Driver.GridFS
                 Limit = 1,
                 ReadConcern = GetReadConcern(),
                 RetryRequested = _database.Client.Settings.RetryReads,
-                CanBeRetried = _database.Client.Settings.RetryReads,
                 SingleBatch = true
             };
         }
@@ -764,8 +759,7 @@ namespace MongoDB.Driver.GridFS
                 ReadConcern = GetReadConcern(),
                 SingleBatch = true,
                 Projection = new BsonDocument("_id", 1),
-                RetryRequested = _database.Client.Settings.RetryReads,
-                CanBeRetried = _database.Client.Settings.RetryReads
+                RetryRequested = _database.Client.Settings.RetryReads
             };
         }
 
@@ -774,8 +768,7 @@ namespace MongoDB.Driver.GridFS
             var messageEncoderSettings = this.GetMessageEncoderSettings();
             return new ListIndexesOperation(collectionNamespace, messageEncoderSettings)
             {
-                RetryRequested = _database.Client.Settings.RetryReads,
-                CanBeRetried = _database.Client.Settings.RetryReads
+                RetryRequested = _database.Client.Settings.RetryReads
             };
         }
 
@@ -788,8 +781,7 @@ namespace MongoDB.Driver.GridFS
             var messageEncoderSettings = this.GetMessageEncoderSettings();
             return new BulkMixedWriteOperation(filesCollectionNamespace, requests, messageEncoderSettings)
             {
-                RetryRequested = _database.Client.Settings.RetryWrites,
-                CanBeRetried = _database.Client.Settings.RetryWrites
+                RetryRequested = _database.Client.Settings.RetryWrites
             };
         }
 

@@ -33,7 +33,6 @@ namespace MongoDB.Driver.Core.Operations
         private MessageEncoderSettings _messageEncoderSettings;
         private bool? _nameOnly;
         private bool _retryRequested;
-        private bool _canBeRetried;
 
         public ListDatabasesOperation(MessageEncoderSettings messageEncoderSettings)
         {
@@ -77,11 +76,7 @@ namespace MongoDB.Driver.Core.Operations
             set { _retryRequested = value; }
         }
 
-        public bool CanBeRetried
-        {
-            get { return _canBeRetried; }
-            set { _canBeRetried = value; }
-        }
+        public bool IsOperationRetryable => true;
 
         public BsonDocument CreateCommand()
         {
@@ -133,7 +128,6 @@ namespace MongoDB.Driver.Core.Operations
             return new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, _messageEncoderSettings, OperationName)
             {
                 RetryRequested = _retryRequested,
-                CanBeRetried = _canBeRetried
             };
         }
     }

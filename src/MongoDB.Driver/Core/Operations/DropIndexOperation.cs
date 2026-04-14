@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Core.Operations
         private readonly string _indexName;
         private TimeSpan? _maxTime;
         private readonly MessageEncoderSettings _messageEncoderSettings;
-        private bool _canBeRetried;
+        private bool _retryRequested;
         private WriteConcern _writeConcern;
 
         public DropIndexOperation(
@@ -82,10 +82,12 @@ namespace MongoDB.Driver.Core.Operations
             set { _writeConcern = value; }
         }
 
-        public bool CanBeRetried
+        public bool IsOperationRetryable => false;
+
+        public bool RetryRequested
         {
-            get { return _canBeRetried; }
-            set { _canBeRetried = value; }
+            get { return _retryRequested; }
+            set { _retryRequested = value; }
         }
 
         public TimeSpan? MaxTime
@@ -111,7 +113,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             using (BeginOperation())
             {
-                return RetryableWriteOperationExecutor.Execute(operationContext, this, binding, retryRequested: false, canBeRetried: CanBeRetried);
+                return RetryableWriteOperationExecutor.Execute(operationContext, this, binding, retryRequested: RetryRequested);
             }
         }
 
@@ -127,7 +129,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             using (BeginOperation())
             {
-                return RetryableWriteOperationExecutor.ExecuteAsync(operationContext, this, binding, retryRequested: false, canBeRetried: CanBeRetried);
+                return RetryableWriteOperationExecutor.ExecuteAsync(operationContext, this, binding, retryRequested: RetryRequested);
             }
         }
 
