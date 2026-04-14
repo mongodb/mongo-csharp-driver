@@ -21,6 +21,7 @@ using FluentAssertions;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Linq3Implementation.SerializerFinders;
+using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.SerializerFinders;
@@ -176,6 +177,12 @@ public class EnumerableTests
         [TestHelpers.MakeLambda((MyModel model) => model.FloatItems.Percentile(new double[] { 0.5 })), typeof(ArraySerializer<float>)],
         [TestHelpers.MakeLambda((MyModel model) => model.FloatItems.Percentile(x => x * 2, new double[] { 0.5 })), typeof(ArraySerializer<float>)],
 
+        [TestHelpers.MakeLambda((MyModel model) => model.Items.Select(x => x + 1)), typeof(IEnumerableSerializer<int>)],
+        [TestHelpers.MakeLambda((MyModel model) => model.Items.Select((x, i) => x + i)), typeof(IEnumerableSerializer<int>)],
+
+        [TestHelpers.MakeLambda((MyModel model) => model.NestedItems.SelectMany(x => x)), typeof(IEnumerableDeserializingAsCollectionSerializer<IEnumerable<int>, int, List<int>>)],
+        [TestHelpers.MakeLambda((MyModel model) => model.NestedItems.SelectMany((x, i) => x)), typeof(IEnumerableDeserializingAsCollectionSerializer<IEnumerable<int>, int, List<int>>)],
+
         [TestHelpers.MakeLambda((MyModel model) => model.Items.SequenceEqual(model.OtherItems)), typeof(BooleanSerializer)],
         [TestHelpers.MakeLambda((MyQueryableModel model) => model.Items.SequenceEqual(model.OtherItems)), typeof(BooleanSerializer)],
 
@@ -212,6 +219,9 @@ public class EnumerableTests
 
         [TestHelpers.MakeLambda((MyModel model) => model.Items.ToArray()), typeof(ArraySerializer<int>)],
         [TestHelpers.MakeLambda((MyQueryableModel model) => model.Items.ToArray()), typeof(ArraySerializer<int>)],
+
+        [TestHelpers.MakeLambda((MyModel model) => model.Items.Where(x => x > 1)), typeof(IEnumerableDeserializingAsCollectionSerializer<IEnumerable<int>, int, List<int>>)],
+        [TestHelpers.MakeLambda((MyModel model) => model.Items.Where((x, i) => i < 2)), typeof(IEnumerableDeserializingAsCollectionSerializer<IEnumerable<int>, int, List<int>>)],
     ];
 
     private class MyModel
@@ -222,6 +232,7 @@ public class EnumerableTests
         public IEnumerable<decimal> DecimalItems { get; set; }
         public IEnumerable<long> LongItems { get; set; }
         public IEnumerable<float> FloatItems { get; set; }
+        public IEnumerable<IEnumerable<int>> NestedItems { get; set; }
     }
 
     private class MyQueryableModel
