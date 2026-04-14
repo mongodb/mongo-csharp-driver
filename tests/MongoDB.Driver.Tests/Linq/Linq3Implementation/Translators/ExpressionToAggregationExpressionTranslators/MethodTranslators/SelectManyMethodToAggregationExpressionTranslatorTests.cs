@@ -16,6 +16,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
 
@@ -45,6 +47,8 @@ public class SelectManyMethodToAggregationExpressionTranslatorTests : LinqIntegr
     [Fact]
     public void Enumerable_SelectMany_with_index_should_work()
     {
+        RequireServer.Check().Supports(Feature.ArrayIndexAs);
+
         var collection = Fixture.Collection;
 
         var queryable = collection.AsQueryable().Select(x => x.B.SelectMany((a, i) => a.Select(y => y + i)));
@@ -73,6 +77,8 @@ public class SelectManyMethodToAggregationExpressionTranslatorTests : LinqIntegr
     [Fact]
     public void Queryable_SelectMany_with_index_should_work()
     {
+        RequireServer.Check().Supports(Feature.ArrayIndexAs);
+
         var collection = Fixture.Collection;
 
         var queryable = collection.AsQueryable().Select(x => x.B.AsQueryable().SelectMany((a, i) => a.Select(y => y + i)));

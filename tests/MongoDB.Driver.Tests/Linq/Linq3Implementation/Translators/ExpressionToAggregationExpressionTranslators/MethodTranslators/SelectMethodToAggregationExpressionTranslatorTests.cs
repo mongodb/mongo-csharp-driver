@@ -16,6 +16,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
 
@@ -45,6 +47,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Enumerable_Select_with_index_should_work()
         {
+            RequireServer.Check().Supports(Feature.ArrayIndexAs);
+
             var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable().Select(x => x.A.Select((x, i) => x + i));
@@ -73,6 +77,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Queryable_Select_with_index_should_work()
         {
+            RequireServer.Check().Supports(Feature.ArrayIndexAs);
+
             var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable().Select(x => x.A.AsQueryable().Select((x, i) => x + i));
