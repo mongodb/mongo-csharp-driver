@@ -39,6 +39,7 @@ public class MqlTests
 
     public static readonly object[][] TestCases =
     [
+        [TestHelpers.MakeLambda((MyModel model) => Mql.CreateObjectId()), typeof(ObjectIdSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => Mql.DateFromString(model.DateString)), typeof(DateTimeSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => Mql.DateFromString(model.DateString, "yyyy-MM-dd")), typeof(DateTimeSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => Mql.DateFromString(model.DateString, "yyyy-MM-dd", "UTC")), typeof(DateTimeSerializer)],

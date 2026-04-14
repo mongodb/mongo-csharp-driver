@@ -22,16 +22,12 @@ internal sealed class AstCreateObjectIdExpression : AstExpression
 {
     public override AstNodeType NodeType => AstNodeType.CreateObjectIdExpression;
 
-    public override AstNode Accept(AstNodeVisitor visitor)
-    {
-        return visitor.VisitCreateObjectIdExpression(this);
-    }
+    public override AstNode Accept(AstNodeVisitor visitor) =>
+        visitor.VisitCreateObjectIdExpression(this);
 
-    public override BsonValue Render()
-    {
-        return new BsonDocument
+    public override BsonValue Render() =>
+        new BsonDocument
         {
             { "$createObjectId", new BsonDocument() }
         };
-    }
 }

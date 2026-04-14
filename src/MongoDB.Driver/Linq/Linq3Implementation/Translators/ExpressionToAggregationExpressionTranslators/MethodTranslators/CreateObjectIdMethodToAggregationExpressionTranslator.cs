@@ -18,22 +18,21 @@ using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
 
-namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
+namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators;
+
+internal static class CreateObjectIdMethodToAggregationExpressionTranslator
 {
-    internal static class CreateObjectIdMethodToAggregationExpressionTranslator
+    public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
     {
-        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
+        var method = expression.Method;
+
+        if (method.Is(MqlMethod.CreateObjectId))
         {
-            var method = expression.Method;
-
-            if (method.Is(MqlMethod.CreateObjectId))
-            {
-                var ast = AstExpression.CreateObjectId();
-                var serializer = context.GetSerializer(expression);
-                return new TranslatedExpression(expression, ast, serializer);
-            }
-
-            throw new ExpressionNotSupportedException(expression);
+            var ast = AstExpression.CreateObjectId();
+            var serializer = context.GetSerializer(expression);
+            return new TranslatedExpression(expression, ast, serializer);
         }
+
+        throw new ExpressionNotSupportedException(expression);
     }
 }
