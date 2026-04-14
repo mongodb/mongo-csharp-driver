@@ -296,5 +296,14 @@ namespace MongoDB.Driver
         /// <returns>The binary subtype.</returns>
         public static BsonBinarySubType? Subtype<TValue>(TValue value) =>
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+
+        /// <summary>
+        /// Computes the hash value of the input expression using the same hash function used to create a hashed index.
+        /// </summary>
+        /// <typeparam name="TValue">The type of the value to be hashed.</typeparam>
+        /// <param name="value">The value to be hashed.</param>
+        /// <returns>The hashed numeric value.</returns>
+        public static long ToHashedIndexKey<TValue>(TValue value) =>
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
     }
 }
