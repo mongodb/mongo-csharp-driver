@@ -19,12 +19,17 @@ The C# driver for MongoDB.
 - `tests/*` - Specialized tests; less common
 - `tests/MongoDB.Driver.Tests/Specifications/` are JSON-driven tests using a common runner.
 
+## Editing
+- Be careful to preserve file BOMs.
+
 ## Commands
 - Build: `dotnet build CSharpDriver.sln`
 - Run all tests: `dotnet test tests/MongoDB.Driver.Tests/MongoDB.Driver.Tests.csproj -f net10.0`
 - Run a single test class: `dotnet test tests/MongoDB.Driver.Tests/MongoDB.Driver.Tests.csproj -f net10.0 --filter "FullyQualifiedName~ClassName"`
 
-A MongoDB connection is always available locally, so "integration" tests can be run as well as unit tests. Some test suites also require additional environment variables — if you need to run those tests and the variables are not set, stop and tell the user which variables are needed rather than working around it.
+## Testing
+- Tests cannot be run in parallel.
+- A MongoDB connection is always available locally, so "integration" tests can be run as well as unit tests. Some test suites also require additional environment variables — if you need to run those tests and the variables are not set, stop and tell the user which variables are needed rather than working around it.
 
 | Feature area | Required environment variables |
 |---|---|
@@ -44,4 +49,5 @@ A MongoDB connection is always available locally, so "integration" tests can be 
 
 ## Commit and PR Conventions
 
-- Commit and PR messages start with a JIRA number: `CSHARP-1234: Description`
+- The first commit message and the PR message start with a JIRA number: `CSHARP-1234: Description`
+- The branch name will usually match the JIRA number: `CSHARP-1234`
