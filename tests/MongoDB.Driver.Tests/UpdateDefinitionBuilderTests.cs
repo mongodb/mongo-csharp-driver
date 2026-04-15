@@ -134,10 +134,6 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void AddToSet_with_string_path_through_array_rep_dictionary()
         {
-            // When dictionary uses ArrayOfDocuments representation, string path resolution
-            // cannot navigate into dictionary keys via TryGetMemberSerializationInfo,
-            // so the field serializer falls back to null and the item serializer is
-            // resolved from the registry instead.
             var subject = CreateSubject<DocumentWithArrayRepDictionary>();
 
             Assert(subject.AddToSet("Buckets.myKey", "newValue"), "{$addToSet: {'buckets.myKey': 'newValue'}}");
@@ -146,7 +142,6 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void AddToSet_with_string_path_through_dictionary_where_value_is_IEnumerable_interface()
         {
-            // Test with IEnumerable<string> as dictionary value type
             var subject = CreateSubject<DocumentWithDictionaryOfIEnumerable>();
 
             Assert(subject.AddToSet("Buckets.myKey", "newValue"), "{$addToSet: {'buckets.myKey': 'newValue'}}");
