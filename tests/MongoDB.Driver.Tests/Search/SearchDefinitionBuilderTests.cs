@@ -481,7 +481,8 @@ namespace MongoDB.Driver.Tests.Search
             var facetBuilder = new SearchFacetBuilder<BsonDocument>();
 
             AssertRendered(
-                subject.Facet(facetBuilder.String("string", "y", 100)),
+                subject.Facet(
+                    facetBuilder.String("string", "y", 100)),
                 "{ facet: { facets: { string: { type: 'string', path: 'y', numBuckets: 100 } } } }");
         }
 
@@ -493,10 +494,12 @@ namespace MongoDB.Driver.Tests.Search
             var expected = "{ facet: { facets: { string: { type: 'string', path: 'fn', numBuckets: 100 } } } }";
 
             AssertRendered(
-                subject.Facet( facetBuilder.String("string", x => x.FirstName, 100)),
+                subject.Facet(
+                    facetBuilder.String("string", x => x.FirstName, 100)),
                 expected);
             AssertRendered(
-                subject.Facet( facetBuilder.String("string", "FirstName", 100)),
+                subject.Facet(
+                    facetBuilder.String("string", "FirstName", 100)),
                 expected);
         }
 
