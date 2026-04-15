@@ -49,7 +49,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 {
                     var indexParameter = predicateLambda.Parameters[1];
                     var indexSerializer = context.GetSerializer(indexParameter);
-                    var indexSymbol = context.CreateSymbol(indexParameter, indexSerializer);
+                    var indexVarName = $"__{context.NameGenerator.GetParameterName(indexParameter)}";
+                    var indexSymbol = context.CreateSymbolWithVarName(indexParameter, indexVarName, indexSerializer);
                     arrayIndexAsVar = indexSymbol.Var;
                     predicateTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, predicateLambda, thisSymbol, indexSymbol);
                 }

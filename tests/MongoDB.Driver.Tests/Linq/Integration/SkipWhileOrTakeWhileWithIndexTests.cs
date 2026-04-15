@@ -67,12 +67,12 @@ public class SkipWhileOrTakeWhileWithIndexTests : LinqIntegrationTest<SkipWhileO
                                                 branches :
                                                 [
                                                     { case : { $not : "$$value.predicate" }, then : "$$value" },
-                                                    { case : { $lt : ["$$i", 3] }, then : { predicate : true, count : { $add : ["$$value.count", 1] } } },
+                                                    { case : { $lt : ["$$__i", 3] }, then : { predicate : true, count : { $add : ["$$value.count", 1] } } },
                                                 ],
                                                 default : { predicate : false, count : "$$value.count" }
                                              }
                                          },
-                                         arrayIndexAs : "i"
+                                         arrayIndexAs : "__i"
                                      }
                                 }
                             },
@@ -125,12 +125,12 @@ public class SkipWhileOrTakeWhileWithIndexTests : LinqIntegrationTest<SkipWhileO
                                                 branches :
                                                 [
                                                     { case : { $not : "$$value.predicate" }, then : "$$value" },
-                                                    { case : { $lt : ["$$i", 3] }, then : { predicate : true, count : { $add : ["$$value.count", 1] } } },
+                                                    { case : { $lt : ["$$__i", 3] }, then : { predicate : true, count : { $add : ["$$value.count", 1] } } },
                                                 ],
                                                 default : { predicate : false, count : "$$value.count" }
                                              }
                                          },
-                                         arrayIndexAs : "i"
+                                         arrayIndexAs : "__i"
                                      }
                                 }
                             },

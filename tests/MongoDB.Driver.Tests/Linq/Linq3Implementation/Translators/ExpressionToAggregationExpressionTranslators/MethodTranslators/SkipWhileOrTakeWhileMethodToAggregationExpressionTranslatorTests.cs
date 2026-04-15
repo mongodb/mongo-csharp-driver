@@ -131,12 +131,12 @@ public class SkipWhileOrTakeWhileMethodToAggregationExpressionTranslatorTests
                                         branches :
                                         [
                                             { case : { $not : { $getField : { field : 'predicate', input : '$$value' } } }, then : '$$value' },
-                                            { case : { $lt : ['$$i', 3] }, then : { predicate : true, count : { $add : [{ $getField : { field : 'count', input : '$$value' } }, 1] } } },
+                                            { case : { $lt : ['$$__i', 3] }, then : { predicate : true, count : { $add : [{ $getField : { field : 'count', input : '$$value' } }, 1] } } },
                                         ],
                                         default : { predicate : false, count : { $getField : { field : 'count', input : '$$value' } } }
                                     }
                                 },
-                                arrayIndexAs : 'i'
+                                arrayIndexAs : '__i'
                             }
                         }
                     },
@@ -167,12 +167,12 @@ public class SkipWhileOrTakeWhileMethodToAggregationExpressionTranslatorTests
                                         branches :
                                         [
                                             { case : { $not : { $getField : { field : 'predicate', input : '$$value' } } }, then : '$$value' },
-                                            { case : { $lt : ['$$i', 3] }, then : { predicate : true, count : { $add : [{ $getField : { field : 'count', input : '$$value' } }, 1] } } },
+                                            { case : { $lt : ['$$__i', 3] }, then : { predicate : true, count : { $add : [{ $getField : { field : 'count', input : '$$value' } }, 1] } } },
                                         ],
                                         default : { predicate : false, count : { $getField : { field : 'count', input : '$$value' } } }
                                     }
                                 },
-                                arrayIndexAs : 'i'
+                                arrayIndexAs : '__i'
                             }
                         }
                     },
