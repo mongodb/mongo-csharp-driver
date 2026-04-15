@@ -16,10 +16,12 @@
 using System;
 using System.Globalization;
 using System.Linq.Expressions;
+using System.Text.RegularExpressions;
 using FluentAssertions;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Linq3Implementation.SerializerFinders;
+using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.SerializerFinders;
@@ -86,12 +88,23 @@ public class StringTests
         [TestHelpers.MakeLambda((MyModel model) => model.Name.IndexOfBytes("x", 0, 1)), typeof(Int32Serializer)],
         [TestHelpers.MakeLambda((MyModel model) => string.IsNullOrEmpty(model.Name)), typeof(BooleanSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => string.IsNullOrWhiteSpace(model.Name)), typeof(BooleanSerializer)],
+        [TestHelpers.MakeLambda((MyModel model) => model.Name.Replace('a', 'b')), typeof(StringSerializer)],
+        [TestHelpers.MakeLambda((MyModel model) => model.Name.Replace("old", "new")), typeof(StringSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => model.Name.Split(new char[] { ',' })), typeof(ArraySerializer<string>)],
         [TestHelpers.MakeLambda((MyModel model) => model.Name.Split(new char[] { ',' }, 2)), typeof(ArraySerializer<string>)],
         [TestHelpers.MakeLambda((MyModel model) => model.Name.Split(new char[] { ',' }, StringSplitOptions.None)), typeof(ArraySerializer<string>)],
+        [TestHelpers.MakeLambda((MyModel model) => model.Name.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)), typeof(ArraySerializer<string>)],
         [TestHelpers.MakeLambda((MyModel model) => model.Name.Split(new char[] { ',' }, 2, StringSplitOptions.None)), typeof(ArraySerializer<string>)],
+        [TestHelpers.MakeLambda((MyModel model) => model.Name.Split(new char[] { ',' }, 2, StringSplitOptions.RemoveEmptyEntries)), typeof(ArraySerializer<string>)],
+        [TestHelpers.MakeLambda((MyModel model) => model.Name.Split(new char[] { ',', ';' })), typeof(ArraySerializer<string>)],
         [TestHelpers.MakeLambda((MyModel model) => model.Name.Split(new string[] { "," }, StringSplitOptions.None)), typeof(ArraySerializer<string>)],
+        [TestHelpers.MakeLambda((MyModel model) => model.Name.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries)), typeof(ArraySerializer<string>)],
         [TestHelpers.MakeLambda((MyModel model) => model.Name.Split(new string[] { "," }, 2, StringSplitOptions.None)), typeof(ArraySerializer<string>)],
+        [TestHelpers.MakeLambda((MyModel model) => model.Name.Split(new string[] { "," }, 2, StringSplitOptions.RemoveEmptyEntries)), typeof(ArraySerializer<string>)],
+        [TestHelpers.MakeLambda((MyModel model) => model.Name.Split(new string[] { ",", ";" }, StringSplitOptions.None)), typeof(ArraySerializer<string>)],
+        [TestHelpers.MakeLambda((MyModel model) => new Regex("pattern").Split(model.Name)), typeof(ArraySerializer<string>)],
+        [TestHelpers.MakeLambda((MyModel model) => Regex.Split(model.Name, "pattern")), typeof(ArraySerializer<string>)],
+        [TestHelpers.MakeLambda((MyModel model) => Regex.Split(model.Name, "pattern", RegexOptions.IgnoreCase)), typeof(ArraySerializer<string>)],
         [TestHelpers.MakeLambda((MyModel model) => model.Name.StartsWith("prefix")), typeof(BooleanSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => model.Name.StartsWith("prefix", StringComparison.Ordinal)), typeof(BooleanSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => model.Name.StartsWith("prefix", true, CultureInfo.InvariantCulture)), typeof(BooleanSerializer)],
@@ -114,6 +127,33 @@ public class StringTests
         [TestHelpers.MakeLambda((MyModel model) => model.Name.ToUpperInvariant()), typeof(StringSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => model.Name.Trim()), typeof(StringSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => model.Name.Trim(new char[] { ' ' })), typeof(StringSerializer)],
+    ];
+
+    [Theory]
+    [MemberData(nameof(NonSupportedTestCases))]
+    public void SerializerFinder_should_set_unknowable_serializer_for_unsupported_string_methods(LambdaExpression expression)
+    {
+        var serializerMap = TestHelpers.CreateSerializerMap(expression);
+
+        SerializerFinder.FindSerializers(expression.Body, null, serializerMap);
+
+        serializerMap.IsKnown(expression.Body, out var serializer).Should().BeTrue();
+        serializer.Should().BeOfType(typeof(UnknowableSerializer<>).MakeGenericType(expression.Body.Type));
+        var exception = Record.Exception(() => serializerMap.GetSerializer(expression.Body));
+        exception.Should().BeOfType<ExpressionNotSupportedException>();
+    }
+
+    public static readonly object[][] NonSupportedTestCases =
+    [
+        // MatchEvaluator overloads are not translatable to aggregation expressions
+        [TestHelpers.MakeLambda((MyModel model) => new Regex("pattern").Replace(model.Name, m => m.Value))],
+        [TestHelpers.MakeLambda((MyModel model) => Regex.Replace(model.Name, "pattern", m => m.Value))],
+        [TestHelpers.MakeLambda((MyModel model) => Regex.Replace(model.Name, "pattern", m => m.Value, RegexOptions.IgnoreCase))],
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+        // StringComparison and CultureInfo overloads are not in ReplaceOverloads
+        [TestHelpers.MakeLambda((MyModel model) => model.Name.Replace("old", "new", StringComparison.Ordinal))],
+        [TestHelpers.MakeLambda((MyModel model) => model.Name.Replace("old", "new", false, CultureInfo.InvariantCulture))],
+#endif
     ];
 
     private class MyModel

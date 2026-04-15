@@ -65,10 +65,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         private static readonly MethodInfo __indexOfWithStringAndStartIndexAndCountAndComparisonType;
         private static readonly MethodInfo __isNullOrEmpty;
         private static readonly MethodInfo __isNullOrWhiteSpace;
+        private static readonly MethodInfo __replaceWithChars;
+        private static readonly MethodInfo __replaceWithString;
+        private static readonly MethodInfo __splitWithCharAndOptions;
+        private static readonly MethodInfo __splitWithCharAndCountAndOptions;
         private static readonly MethodInfo __splitWithChars;
         private static readonly MethodInfo __splitWithCharsAndCount;
         private static readonly MethodInfo __splitWithCharsAndCountAndOptions;
         private static readonly MethodInfo __splitWithCharsAndOptions;
+        private static readonly MethodInfo __splitWithStringAndOptions;
+        private static readonly MethodInfo __splitWithStringAndCountAndOptions;
         private static readonly MethodInfo __splitWithStringsAndCountAndOptions;
         private static readonly MethodInfo __splitWithStringsAndOptions;
         private static readonly MethodInfo __startsWithWithChar;
@@ -111,10 +117,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         private static readonly IReadOnlyMethodInfoSet __indexOfWithStartIndexOverloads;
         private static readonly IReadOnlyMethodInfoSet __indexOfWithStringOverloads;
         private static readonly IReadOnlyMethodInfoSet __indexOfWithStringComparisonOverloads;
+        private static readonly IReadOnlyMethodInfoSet __replaceOverloads;
         private static readonly IReadOnlyMethodInfoSet __splitOverloads;
+        private static readonly IReadOnlyMethodInfoSet __splitWithCharOverloads;
         private static readonly IReadOnlyMethodInfoSet __splitWithCharsOverloads;
         private static readonly IReadOnlyMethodInfoSet __splitWithCountOverloads;
         private static readonly IReadOnlyMethodInfoSet __splitWithOptionsOverloads;
+        private static readonly IReadOnlyMethodInfoSet __splitWithStringOverloads;
         private static readonly IReadOnlyMethodInfoSet __splitWithStringsOverloads;
         private static readonly IReadOnlyMethodInfoSet __startsWithOverloads;
         private static readonly IReadOnlyMethodInfoSet __stringInOverloads;
@@ -184,10 +193,26 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             __indexOfWithStringAndStartIndexAndCountAndComparisonType = ReflectionInfo.Method((string s, string value, int startIndex, int count, StringComparison comparisonType) => s.IndexOf(value, startIndex, count, comparisonType));
             __isNullOrEmpty = ReflectionInfo.Method((string value) => string.IsNullOrEmpty(value));
             __isNullOrWhiteSpace = ReflectionInfo.Method((string value) => string.IsNullOrWhiteSpace(value));
+            __replaceWithChars = ReflectionInfo.Method((string s, char oldChar, char newChar) => s.Replace(oldChar, newChar));
+            __replaceWithString = ReflectionInfo.Method((string s, string oldValue, string newValue) => s.Replace(oldValue, newValue));
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+            __splitWithCharAndOptions = ReflectionInfo.Method((string s, char separator, StringSplitOptions options) => s.Split(separator, options));
+            __splitWithCharAndCountAndOptions = ReflectionInfo.Method((string s, char separator, int count, StringSplitOptions options) => s.Split(separator, count, options));
+#else
+            __splitWithCharAndOptions = null;
+            __splitWithCharAndCountAndOptions = null;
+#endif
             __splitWithChars = ReflectionInfo.Method((string s, char[] separator) => s.Split(separator));
             __splitWithCharsAndCount = ReflectionInfo.Method((string s, char[] separator, int count) => s.Split(separator, count));
             __splitWithCharsAndCountAndOptions = ReflectionInfo.Method((string s, char[] separator, int count, StringSplitOptions options) => s.Split(separator, count, options));
             __splitWithCharsAndOptions = ReflectionInfo.Method((string s, char[] separator, StringSplitOptions options) => s.Split(separator, options));
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+            __splitWithStringAndOptions = ReflectionInfo.Method((string s, string separator, StringSplitOptions options) => s.Split(separator, options));
+            __splitWithStringAndCountAndOptions = ReflectionInfo.Method((string s, string separator, int count, StringSplitOptions options) => s.Split(separator, count, options));
+#else
+            __splitWithStringAndOptions = null;
+            __splitWithStringAndCountAndOptions = null;
+#endif
             __splitWithStringsAndCountAndOptions = ReflectionInfo.Method((string s, string[] separator, int count, StringSplitOptions options) => s.Split(separator, count, options));
             __splitWithStringsAndOptions = ReflectionInfo.Method((string s, string[] separator, StringSplitOptions options) => s.Split(separator, options));
             __startsWithWithString = ReflectionInfo.Method((string s, string value) => s.StartsWith(value));
@@ -347,14 +372,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                 __indexOfWithStringAndStartIndexAndCountAndComparisonType
             ]);
 
-            __splitOverloads = MethodInfoSet.Create(
+            __replaceOverloads = MethodInfoSet.Create(
             [
-                __splitWithChars,
-                __splitWithCharsAndCount,
-                __splitWithCharsAndCountAndOptions,
-                __splitWithCharsAndOptions,
-                __splitWithStringsAndCountAndOptions,
-                __splitWithStringsAndOptions
+                __replaceWithChars,
+                __replaceWithString
+            ]);
+
+            __splitWithCharOverloads = MethodInfoSet.Create([
+                __splitWithCharAndOptions,
+                __splitWithCharAndCountAndOptions
             ]);
 
             __splitWithCharsOverloads = MethodInfoSet.Create(
@@ -367,23 +393,43 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 
             __splitWithCountOverloads = MethodInfoSet.Create(
             [
+                __splitWithCharAndCountAndOptions,
                 __splitWithCharsAndCount,
                 __splitWithCharsAndCountAndOptions,
+                __splitWithStringAndCountAndOptions,
                 __splitWithStringsAndCountAndOptions
             ]);
 
             __splitWithOptionsOverloads = MethodInfoSet.Create(
             [
+                __splitWithCharAndCountAndOptions,
+                __splitWithCharAndOptions,
                 __splitWithCharsAndCountAndOptions,
                 __splitWithCharsAndOptions,
+                __splitWithStringAndCountAndOptions,
+                __splitWithStringAndOptions,
                 __splitWithStringsAndCountAndOptions,
                 __splitWithStringsAndOptions
+            ]);
+
+            __splitWithStringOverloads = MethodInfoSet.Create(
+            [
+                __splitWithStringAndCountAndOptions,
+                __splitWithStringAndOptions
             ]);
 
             __splitWithStringsOverloads = MethodInfoSet.Create(
             [
                 __splitWithStringsAndCountAndOptions,
                 __splitWithStringsAndOptions
+            ]);
+
+            __splitOverloads = MethodInfoSet.Create(
+            [
+                __splitWithCharOverloads,
+                __splitWithCharsOverloads,
+                __splitWithStringOverloads,
+                __splitWithStringsOverloads
             ]);
 
             __startsWithOverloads = MethodInfoSet.Create(
@@ -496,6 +542,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         public static MethodInfo IndexOfWithStringAndStartIndexAndCountAndComparisonType => __indexOfWithStringAndStartIndexAndCountAndComparisonType;
         public static MethodInfo IsNullOrEmpty => __isNullOrEmpty;
         public static MethodInfo IsNullOrWhiteSpace => __isNullOrWhiteSpace;
+        public static MethodInfo ReplaceWithChars => __replaceWithChars;
+        public static MethodInfo ReplaceWithString => __replaceWithString;
         public static MethodInfo SplitWithChars => __splitWithChars;
         public static MethodInfo SplitWithCharsAndCount => __splitWithCharsAndCount;
         public static MethodInfo SplitWithCharsAndCountAndOptions => __splitWithCharsAndCountAndOptions;
@@ -542,10 +590,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         public static IReadOnlyMethodInfoSet IndexOfWithStartIndexOverloads => __indexOfWithStartIndexOverloads;
         public static IReadOnlyMethodInfoSet IndexOfWithStringOverloads => __indexOfWithStringOverloads;
         public static IReadOnlyMethodInfoSet IndexOfWithStringComparisonOverloads => __indexOfWithStringComparisonOverloads;
+        public static IReadOnlyMethodInfoSet ReplaceOverloads => __replaceOverloads;
         public static IReadOnlyMethodInfoSet SplitOverloads => __splitOverloads;
+        public static IReadOnlyMethodInfoSet SplitWithCharOverloads => __splitWithCharOverloads;
         public static IReadOnlyMethodInfoSet SplitWithCharsOverloads => __splitWithCharsOverloads;
         public static IReadOnlyMethodInfoSet SplitWithCountOverloads => __splitWithCountOverloads;
         public static IReadOnlyMethodInfoSet SplitWithOptionsOverloads => __splitWithOptionsOverloads;
+        public static IReadOnlyMethodInfoSet SplitWithStringOverloads => __splitWithStringOverloads;
         public static IReadOnlyMethodInfoSet SplitWithStringsOverloads => __splitWithStringsOverloads;
         public static IReadOnlyMethodInfoSet StartsWithOverloads => __startsWithOverloads;
         public static IReadOnlyMethodInfoSet StringInOverloads => __stringInOverloads;

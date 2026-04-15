@@ -46,10 +46,9 @@ internal static class TestHelpers
 
     public static LambdaExpression MakeLambda<T1, TResult>(Expression<Func<T1, TResult>> expression)
     {
-        // The ClrCompatExpressionRewriter must be applied because SerializerFinder does not support methods added in
-        // .NET 10, such as MemoryExtensions.Contains. The rewriter rewrites the expression so that the next stages
-        // of LINQ translation can work correctly.
-        return (LambdaExpression)ClrCompatExpressionRewriter.Rewrite(expression);
+        // We must run LinqExpressionPreprocessor on the expression before passing them into SerializerFinder or Translators,
+        // both of them are expecting to work with subset of Expressions functionality based on PartialEvaluator and ClrCompatExpressionRewriter output.
+        return (LambdaExpression)LinqExpressionPreprocessor.Preprocess(expression);
     }
 }
 

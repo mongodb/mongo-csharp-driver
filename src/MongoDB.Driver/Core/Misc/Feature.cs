@@ -84,14 +84,16 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __legacyWireProtocol = new Feature("LegacyWireProtocol", WireVersion.Zero, WireVersion.Server51);
         private static readonly Feature __listDatabasesAuthorizedDatabases = new Feature("ListDatabasesAuthorizedDatabases", WireVersion.Server40);
         private static readonly Feature __loadBalancedMode = new Feature("LoadBalancedMode", WireVersion.Server50);
-        private static readonly Feature __loookupConciseSyntax = new Feature("LoookupConciseSyntax", WireVersion.Server50);
-        private static readonly Feature __loookupDocuments= new Feature("LoookupDocuments", WireVersion.Server60);
+        private static readonly Feature __lookupConciseSyntax = new Feature("LookupConciseSyntax", WireVersion.Server50);
+        private static readonly Feature __lookupDocuments = new Feature("LookupDocuments", WireVersion.Server60);
         private static readonly Feature __mmapV1StorageEngine = new Feature("MmapV1StorageEngine", WireVersion.Zero, WireVersion.Server42);
         private static readonly Feature __medianOperator = new Feature("MedianOperator", WireVersion.Server70);
         private static readonly Feature __percentileOperator = new Feature("PercentileOperator", WireVersion.Server70);
         private static readonly Feature __pickAccumulatorsNewIn52 = new Feature("PickAccumulatorsNewIn52", WireVersion.Server52);
         private static readonly Feature __rankFusionStage = new Feature("RankFusionStage", WireVersion.Server81);
         private static readonly Feature __regexMatch = new Feature("RegexMatch", WireVersion.Server42);
+        private static readonly Feature __replaceAll = new Feature("ReplaceAll", WireVersion.Server44);
+        private static readonly Feature __replaceAllWithRegex = new Feature("ReplaceAllWithRegex", WireVersion.Server82);
         private static readonly Feature __round = new Feature("Round", WireVersion.Server42);
         private static readonly Feature __scramSha256Authentication = new Feature("ScramSha256Authentication", WireVersion.Server40);
         private static readonly Feature __serverReturnsResumableChangeStreamErrorLabel = new Feature("ServerReturnsResumableChangeStreamErrorLabel", WireVersion.Server44);
@@ -104,6 +106,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __similarityFunctions = new Feature("SimilarityFunctions", WireVersion.Server82);
         private static readonly Feature __snapshotReads = new Feature("SnapshotReads", WireVersion.Server50, notSupportedMessage: "Snapshot reads require MongoDB 5.0 or later");
         private static readonly Feature __sortArrayOperator = new Feature("SortArrayOperator", WireVersion.Server52);
+        private static readonly Feature __splitWithRegex = new Feature("SplitWithRegex", WireVersion.Server82);
         private static readonly Feature __speculativeAuthentication = new Feature("SpeculativeAuthentication", WireVersion.Server44);
         private static readonly Feature __stableApi = new Feature("StableAPI", WireVersion.Server50);
         private static readonly Feature __streamingHello = new Feature("StreamingHello", WireVersion.Server44);
@@ -416,12 +419,12 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the lookup concise syntax feature.
         /// </summary>
-        public static Feature LookupConciseSyntax => __loookupConciseSyntax;
+        public static Feature LookupConciseSyntax => __lookupConciseSyntax;
 
         /// <summary>
         /// Gets the lookup documents feature.
         /// </summary>
-        public static Feature LookupDocuments => __loookupDocuments;
+        public static Feature LookupDocuments => __lookupDocuments;
 
         /// <summary>
         /// Gets the mmapv1 storage engine feature.
@@ -453,6 +456,16 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the regex match feature.
         /// </summary>
         public static Feature RegexMatch => __regexMatch;
+
+        /// <summary>
+        /// Gets the $replaceAll feature.
+        /// </summary>
+        public static Feature ReplaceAll => __replaceAll;
+
+        /// <summary>
+        /// Gets the feature to support $replaceAll with regex as a find parameter.
+        /// </summary>
+        public static Feature ReplaceAllWithRegex => __replaceAllWithRegex;
 
         /// <summary>
         /// Gets the $round feature.
@@ -519,6 +532,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the speculative authentication feature.
         /// </summary>
         public static Feature SpeculativeAuthentication => __speculativeAuthentication;
+
+        /// <summary>
+        /// Gets the feature to support $split with regex as a delimiter parameter.
+        /// </summary>
+        public static Feature SplitWithRegex => __splitWithRegex;
 
         /// <summary>
         /// Gets the speculative authentication feature.

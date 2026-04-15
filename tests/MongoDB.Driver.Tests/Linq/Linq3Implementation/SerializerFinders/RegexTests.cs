@@ -18,7 +18,9 @@ using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using FluentAssertions;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Linq3Implementation.SerializerFinders;
+using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.SerializerFinders;
@@ -27,7 +29,7 @@ public class RegexTests
 {
     [Theory]
     [MemberData(nameof(TestCases))]
-    public void SerializerFinder_should_resolve_regex_is_match(LambdaExpression expression, Type expectedSerializerType)
+    public void SerializerFinder_should_resolve_regex_methods(LambdaExpression expression, Type expectedSerializerType)
     {
         var serializerMap = TestHelpers.CreateSerializerMap(expression);
 
@@ -37,11 +39,42 @@ public class RegexTests
         serializerMap.GetSerializer(expression.Body).Should().BeOfType(expectedSerializerType);
     }
 
+    [Theory]
+    [MemberData(nameof(NonSupportedTestCases))]
+    public void SerializerFinder_should_unknowable_serializer__for_unsupported_regex_methods(LambdaExpression expression)
+    {
+        var serializerMap = TestHelpers.CreateSerializerMap(expression);
+
+        SerializerFinder.FindSerializers(expression.Body, null, serializerMap);
+
+        serializerMap.IsKnown(expression.Body, out var serializer).Should().BeTrue();
+        serializer.Should().BeOfType(typeof(UnknowableSerializer<>).MakeGenericType(expression.Body.Type));
+        var exception = Record.Exception(() => serializerMap.GetSerializer(expression.Body));
+        exception.Should().BeOfType<ExpressionNotSupportedException>();
+    }
+
     public static readonly object[][] TestCases =
     [
         [TestHelpers.MakeLambda((MyModel model) => new Regex("pattern").IsMatch(model.Name)), typeof(BooleanSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => Regex.IsMatch(model.Name, "pattern")), typeof(BooleanSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => Regex.IsMatch(model.Name, "pattern", RegexOptions.IgnoreCase)), typeof(BooleanSerializer)],
+
+        [TestHelpers.MakeLambda((MyModel model) => new Regex("pattern").Replace(model.Name, "replacement")), typeof(StringSerializer)],
+        [TestHelpers.MakeLambda((MyModel model) => Regex.Replace(model.Name, "pattern", "replacement")), typeof(StringSerializer)],
+        [TestHelpers.MakeLambda((MyModel model) => Regex.Replace(model.Name, "pattern", "replacement", RegexOptions.IgnoreCase)), typeof(StringSerializer)],
+
+        [TestHelpers.MakeLambda((MyModel model) => new Regex("pattern").Split(model.Name)), typeof(ArraySerializer<string>)],
+        [TestHelpers.MakeLambda((MyModel model) => Regex.Split(model.Name, "pattern")), typeof(ArraySerializer<string>)],
+        [TestHelpers.MakeLambda((MyModel model) => Regex.Split(model.Name, "pattern", RegexOptions.IgnoreCase)), typeof(ArraySerializer<string>)],
+    ];
+
+    public static readonly object[][] NonSupportedTestCases =
+    [
+        [TestHelpers.MakeLambda((MyModel model) => new Regex("pattern").Replace(model.Name, m => m.Value))],
+        [TestHelpers.MakeLambda((MyModel model) => Regex.Replace(model.Name, "pattern", m => m.Value))],
+        [TestHelpers.MakeLambda((MyModel model) => Regex.Replace(model.Name, "pattern", m => m.Value, RegexOptions.IgnoreCase))],
+
+        [TestHelpers.MakeLambda((MyModel model) => Regex.Split(model.Name, "pattern", RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(42)))]
     ];
 
     private class MyModel

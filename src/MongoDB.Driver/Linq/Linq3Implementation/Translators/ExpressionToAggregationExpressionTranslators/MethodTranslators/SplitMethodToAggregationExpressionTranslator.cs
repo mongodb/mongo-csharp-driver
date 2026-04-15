@@ -16,11 +16,12 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
-using MongoDB.Bson.Serialization.Serializers;
+using System.Text.RegularExpressions;
+using MongoDB.Bson;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
+using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
@@ -31,13 +32,20 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var method = expression.Method;
             var arguments = expression.Arguments;
 
+            AstExpression ast = null;
             if (method.IsOneOf(StringMethod.SplitOverloads))
             {
                 var stringExpression = expression.Object;
                 var stringTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, stringExpression);
 
-                string delimiter;
-                if (method.IsOneOf(StringMethod.SplitWithCharsOverloads))
+                AstExpression delimiter;
+                if (method.IsOneOf(StringMethod.SplitWithCharOverloads))
+                {
+                    var separatorsExpression = arguments[0];
+                    var separatorChar = separatorsExpression.GetConstantValue<char>(containingExpression: expression);
+                    delimiter = new string(separatorChar, 1);
+                }
+                else if (method.IsOneOf(StringMethod.SplitWithCharsOverloads))
                 {
                     var separatorsExpression = arguments[0];
                     var separatorChars = separatorsExpression.GetConstantValue<char[]>(containingExpression: expression);
@@ -46,6 +54,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                         goto notSupported;
                     }
                     delimiter = new string(separatorChars[0], 1);
+                }
+                else if (method.IsOneOf(StringMethod.SplitWithStringOverloads))
+                {
+                    var separatorsExpression = arguments[0];
+                    var separatorString = separatorsExpression.GetConstantValue<string>(containingExpression: expression);
+                    delimiter = separatorString;
                 }
                 else if (method.IsOneOf(StringMethod.SplitWithStringsOverloads))
                 {
@@ -62,7 +76,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     goto notSupported;
                 }
 
-                var ast = AstExpression.Split(stringTranslation.Ast, delimiter);
+                ast = AstExpression.Split(stringTranslation.Ast, delimiter);
 
                 var options = StringSplitOptions.None;
                 if (method.IsOneOf(StringMethod.SplitWithOptionsOverloads))
@@ -84,8 +98,38 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     var countTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, countExpression);
                     ast = AstExpression.Slice(ast, countTranslation.Ast);
                 }
+            }
+            else if (method.IsOneOf(RegexMethod.SplitOverloads))
+            {
+                AstExpression delimiter = null;
+                Expression stringExpression = null;
 
-                var serializer = new ArraySerializer<string>(new StringSerializer());
+                if (method == RegexMethod.Split)
+                {
+                    var delimiterTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, expression.Object);
+                    if (SerializationHelper.GetRepresentation(delimiterTranslation.Serializer) != BsonType.RegularExpression)
+                    {
+                        goto notSupported;
+                    }
+
+                    delimiter = delimiterTranslation.Ast;
+                    stringExpression = arguments[0];
+                }
+                else if (method == RegexMethod.StaticSplit || method == RegexMethod.StaticSplitWithOptions)
+                {
+                    var options = arguments.Count == 3 ? arguments[2].GetConstantValue<RegexOptions>(expression) : RegexOptions.None;
+                    var pattern = arguments[1].GetConstantValue<string>(expression);
+                    delimiter = new BsonRegularExpression(new Regex(pattern, options));
+                    stringExpression = arguments[0];
+                }
+
+                var stringTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, stringExpression);
+                ast = AstExpression.Split(stringTranslation.Ast, delimiter);
+            }
+
+            if (ast != null)
+            {
+                var serializer = context.GetSerializer(expression);
                 return new TranslatedExpression(expression, ast, serializer);
             }
 

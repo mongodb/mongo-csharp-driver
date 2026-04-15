@@ -729,6 +729,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
         public static AstExpression RegexMatch(AstExpression input, string pattern, string options)
             => new AstRegexExpression(AstRegexOperator.Match, input, pattern, options);
 
+        public static AstExpression ReplaceAll(AstExpression input, AstExpression find, AstExpression replace)
+            => new AstReplaceAllExpression(input, find, replace);
+
         public static AstExpression ReverseArray(AstExpression array)
         {
             return new AstUnaryExpression(AstUnaryOperator.ReverseArray, array);
