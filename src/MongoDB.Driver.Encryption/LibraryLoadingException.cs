@@ -18,7 +18,7 @@ using System;
 namespace MongoDB.Driver.Encryption
 {
     /// <summary>
-    /// An exception that indicates that an error occured while loading a library.
+    /// An exception that indicates that an error occurred while loading a library.
     /// </summary>
 #pragma warning disable CA1032
     public class LibraryLoadingException : Exception
