@@ -544,8 +544,10 @@ namespace MongoDB.Driver
                 BatchSize = options.BatchSize,
                 Collation = options.Collation,
                 Comment = options.Comment,
+                EnableOverloadRetargeting = _client.Settings.EnableOverloadRetargeting,
                 Hint = options.Hint,
                 Let = options.Let,
+                MaxAdaptiveRetries = _client.Settings.MaxAdaptiveRetries,
                 MaxAwaitTime = options.MaxAwaitTime,
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern,
@@ -569,6 +571,8 @@ namespace MongoDB.Driver
             {
                 BatchSize = options.BatchSize,
                 Collation = options.Collation,
+                EnableOverloadRetargeting = _client.Settings.EnableOverloadRetargeting,
+                MaxAdaptiveRetries = _client.Settings.MaxAdaptiveRetries,
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern,
                 RetryRequested = _client.Settings.RetryReads
@@ -596,13 +600,15 @@ namespace MongoDB.Driver
                 BypassDocumentValidation = options.BypassDocumentValidation,
                 Collation = options.Collation,
                 Comment = options.Comment,
+                EnableOverloadRetargeting = _client.Settings.EnableOverloadRetargeting,
                 Hint = options.Hint,
                 Let = options.Let,
+                MaxAdaptiveRetries = _client.Settings.MaxAdaptiveRetries,
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern,
                 ReadPreference = _settings.ReadPreference,
-                WriteConcern = _settings.WriteConcern,
-                RetryRequested = _client.Settings.RetryWrites
+                RetryRequested = _client.Settings.RetryWrites,
+                WriteConcern = _settings.WriteConcern
             };
         }
 
@@ -671,8 +677,10 @@ namespace MongoDB.Driver
             return new CreateViewOperation(_databaseNamespace, viewName, viewOn, pipelineDocuments, GetMessageEncoderSettings())
             {
                 Collation = options.Collation,
-                WriteConcern = _settings.WriteConcern,
-                RetryRequested = _client.Settings.RetryWrites
+                EnableOverloadRetargeting = _client.Settings.EnableOverloadRetargeting,
+                MaxAdaptiveRetries = _client.Settings.MaxAdaptiveRetries,
+                RetryRequested = _client.Settings.RetryWrites,
+                WriteConcern = _settings.WriteConcern
             };
         }
 
@@ -697,7 +705,9 @@ namespace MongoDB.Driver
             {
                 AuthorizedCollections = options?.AuthorizedCollections,
                 Comment = options?.Comment,
+                EnableOverloadRetargeting = _client.Settings.EnableOverloadRetargeting,
                 Filter = options?.Filter?.Render(renderArgs),
+                MaxAdaptiveRetries = _client.Settings.MaxAdaptiveRetries,
                 NameOnly = true,
                 RetryRequested = _client.Settings.RetryReads
             };
@@ -711,7 +721,9 @@ namespace MongoDB.Driver
             {
                 BatchSize = options?.BatchSize,
                 Comment = options?.Comment,
+                EnableOverloadRetargeting = _client.Settings.EnableOverloadRetargeting,
                 Filter = options?.Filter?.Render(renderArgs),
+                MaxAdaptiveRetries = _client.Settings.MaxAdaptiveRetries,
                 RetryRequested = _client.Settings.RetryReads
             };
         }
@@ -727,8 +739,10 @@ namespace MongoDB.Driver
                 messageEncoderSettings)
             {
                 DropTarget = options.DropTarget,
-                WriteConcern = _settings.WriteConcern,
-                RetryRequested = _client.Settings.RetryWrites
+                EnableOverloadRetargeting = _client.Settings.EnableOverloadRetargeting,
+                MaxAdaptiveRetries = _client.Settings.MaxAdaptiveRetries,
+                RetryRequested = _client.Settings.RetryWrites,
+                WriteConcern = _settings.WriteConcern
             };
         }
 
@@ -738,9 +752,11 @@ namespace MongoDB.Driver
             var messageEncoderSettings = GetMessageEncoderSettings();
             return new ReadCommandOperation<TResult>(_databaseNamespace, renderedCommand.Document, renderedCommand.ResultSerializer, messageEncoderSettings, operationName: "runCommand")
             {
+                EnableOverloadRetargeting = Client.Settings.EnableOverloadRetargeting,
                 // RunCommand is only retryable in the context of client backpressure, and only if both "retryWrites" and "retryReads" are enabled.
-                RetryRequested = Client.Settings.RetryWrites && Client.Settings.RetryReads,
-                IsOperationRetryable = false
+                IsOperationRetryable = false,
+                MaxAdaptiveRetries = Client.Settings.MaxAdaptiveRetries,
+                RetryRequested = Client.Settings.RetryWrites && Client.Settings.RetryReads
             };
         }
 
@@ -757,6 +773,8 @@ namespace MongoDB.Driver
                 _settings.ReadConcern,
                 GetMessageEncoderSettings(),
                 _client.Settings.RetryReads,
+                _client.Settings.MaxAdaptiveRetries,
+                _client.Settings.EnableOverloadRetargeting,
                 translationOptions);
         }
 

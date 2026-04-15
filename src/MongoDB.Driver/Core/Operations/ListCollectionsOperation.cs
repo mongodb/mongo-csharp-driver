@@ -30,8 +30,10 @@ namespace MongoDB.Driver.Core.Operations
         private bool? _authorizedCollections;
         private int? _batchSize;
         private BsonValue _comment;
+        private bool _enableOverloadRetargeting;
         private BsonDocument _filter;
         private readonly DatabaseNamespace _databaseNamespace;
+        private int _maxAdaptiveRetries;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private bool? _nameOnly;
         private bool _retryRequested;
@@ -86,6 +88,18 @@ namespace MongoDB.Driver.Core.Operations
             set { _nameOnly = value; }
         }
 
+        public bool EnableOverloadRetargeting
+        {
+            get => _enableOverloadRetargeting;
+            set => _enableOverloadRetargeting = value;
+        }
+
+        public int MaxAdaptiveRetries
+        {
+            get => _maxAdaptiveRetries;
+            set => _maxAdaptiveRetries = value;
+        }
+
         public bool RetryRequested
         {
             get => _retryRequested;
@@ -100,7 +114,7 @@ namespace MongoDB.Driver.Core.Operations
 
             using (BeginOperation())
             {
-                using (var context = new RetryableReadContext(binding, _retryRequested))
+                using (var context = new RetryableReadContext(binding, _retryRequested, _maxAdaptiveRetries, _enableOverloadRetargeting))
                 {
                     return Execute(operationContext, context);
                 }
@@ -125,7 +139,7 @@ namespace MongoDB.Driver.Core.Operations
 
             using (BeginOperation())
             {
-                using (var context = new RetryableReadContext(binding, _retryRequested))
+                using (var context = new RetryableReadContext(binding, _retryRequested, _maxAdaptiveRetries, _enableOverloadRetargeting))
                 {
                     return await ExecuteAsync(operationContext, context).ConfigureAwait(false);
                 }
@@ -159,6 +173,8 @@ namespace MongoDB.Driver.Core.Operations
             };
             return new ReadCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings, OperationName)
             {
+                EnableOverloadRetargeting = _enableOverloadRetargeting,
+                MaxAdaptiveRetries = _maxAdaptiveRetries,
                 RetryRequested = _retryRequested, // might be overridden by retryable read context
             };
         }
@@ -179,7 +195,9 @@ namespace MongoDB.Driver.Core.Operations
                 BsonDocumentSerializer.Instance,
                 _messageEncoderSettings,
                 maxTime: null,
-                retryRequested: _retryRequested);
+                retryRequested: _retryRequested,
+                maxAdaptiveRetries: _maxAdaptiveRetries,
+                enableOverloadRetargeting: _enableOverloadRetargeting);
 
             return cursor;
         }

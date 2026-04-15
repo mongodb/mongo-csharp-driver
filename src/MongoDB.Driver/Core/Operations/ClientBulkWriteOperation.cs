@@ -97,7 +97,7 @@ namespace MongoDB.Driver.Core.Operations
             var bulkWriteResults = new BulkWriteRawResult();
             while (true)
             {
-                using var context = new RetryableWriteContext(binding, GetEffectiveRetryRequested());
+                using var context = new RetryableWriteContext(binding, GetEffectiveRetryRequested(), MaxAdaptiveRetries, EnableOverloadRetargeting);
                 BsonDocument serverResponse = null;
                 try
                 {
@@ -155,7 +155,7 @@ namespace MongoDB.Driver.Core.Operations
             var bulkWriteResults = new BulkWriteRawResult();
             while (true)
             {
-                using var context = new RetryableWriteContext(binding, GetEffectiveRetryRequested());
+                using var context = new RetryableWriteContext(binding, GetEffectiveRetryRequested(), MaxAdaptiveRetries, EnableOverloadRetargeting);
                 BsonDocument serverResponse = null;
                 try
                 {
@@ -289,7 +289,9 @@ namespace MongoDB.Driver.Core.Operations
                 BsonDocumentSerializer.Instance,
                 MessageEncoderSettings,
                 maxTime: null,
-                retryRequested: RetryRequested);
+                retryRequested: RetryRequested,
+                maxAdaptiveRetries: MaxAdaptiveRetries,
+                enableOverloadRetargeting: EnableOverloadRetargeting);
         }
 
         private void PopulateBulkWriteResponse(BsonDocument bulkWriteResponse, BulkWriteRawResult bulkWriteResult)

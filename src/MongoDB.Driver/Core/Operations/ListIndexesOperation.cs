@@ -28,6 +28,8 @@ namespace MongoDB.Driver.Core.Operations
         private int? _batchSize;
         private readonly CollectionNamespace _collectionNamespace;
         private BsonValue _comment;
+        private bool _enableOverloadRetargeting;
+        private int _maxAdaptiveRetries;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private bool _retryRequested;
 
@@ -63,6 +65,18 @@ namespace MongoDB.Driver.Core.Operations
 
         public string OperationName => "listIndexes";
 
+        public bool EnableOverloadRetargeting
+        {
+            get => _enableOverloadRetargeting;
+            set => _enableOverloadRetargeting = value;
+        }
+
+        public int MaxAdaptiveRetries
+        {
+            get => _maxAdaptiveRetries;
+            set => _maxAdaptiveRetries = value;
+        }
+
         public bool RetryRequested
         {
             get => _retryRequested;
@@ -76,7 +90,7 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = new RetryableReadContext(binding, _retryRequested))
+            using (var context = new RetryableReadContext(binding, _retryRequested, _maxAdaptiveRetries, _enableOverloadRetargeting))
             {
                 var operation = CreateOperation();
                 return operation.Execute(operationContext, context);
@@ -88,7 +102,7 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = new RetryableReadContext(binding, _retryRequested))
+            using (var context = new RetryableReadContext(binding, _retryRequested, _maxAdaptiveRetries, _enableOverloadRetargeting))
             {
                 var operation = CreateOperation();
                 return await operation.ExecuteAsync(operationContext, context).ConfigureAwait(false);
@@ -103,6 +117,8 @@ namespace MongoDB.Driver.Core.Operations
             {
                 BatchSize = _batchSize,
                 Comment = _comment,
+                EnableOverloadRetargeting = _enableOverloadRetargeting,
+                MaxAdaptiveRetries = _maxAdaptiveRetries,
                 RetryRequested = _retryRequested, // might be overridden by retryable read context
             };
         }

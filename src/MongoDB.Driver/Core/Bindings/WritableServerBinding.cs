@@ -47,10 +47,6 @@ namespace MongoDB.Driver.Core.Bindings
             get { return _session; }
         }
 
-        public bool EnableOverloadRetargeting => _cluster.EnableOverloadRetargeting;
-
-        public int MaxAdaptiveRetries => _cluster.MaxAdaptiveRetries;
-
         public IChannelSourceHandle GetReadChannelSource(OperationContext operationContext)
         {
             return GetReadChannelSource(operationContext, null);

@@ -31,6 +31,8 @@ namespace MongoDB.Driver.Core.Operations
     {
         private Collation _collation;
         private readonly DatabaseNamespace _databaseNamespace;
+        private bool _enableOverloadRetargeting;
+        private int _maxAdaptiveRetries;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly IReadOnlyList<BsonDocument> _pipeline;
         private readonly string _viewName;
@@ -91,7 +93,19 @@ namespace MongoDB.Driver.Core.Operations
             set { _writeConcern = value; }
         }
 
+        public bool EnableOverloadRetargeting
+        {
+            get { return _enableOverloadRetargeting; }
+            set { _enableOverloadRetargeting = value; }
+        }
+
         public bool IsOperationRetryable => false;
+
+        public int MaxAdaptiveRetries
+        {
+            get { return _maxAdaptiveRetries; }
+            set { _maxAdaptiveRetries = value; }
+        }
 
         public bool RetryRequested
         {
@@ -103,7 +117,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             using (BeginOperation())
             {
-                return RetryableWriteOperationExecutor.Execute(operationContext, this, binding, retryRequested: RetryRequested);
+                return RetryableWriteOperationExecutor.Execute(operationContext, this, binding, retryRequested: RetryRequested, _maxAdaptiveRetries, _enableOverloadRetargeting);
             }
         }
 
@@ -119,7 +133,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             using (BeginOperation())
             {
-                return RetryableWriteOperationExecutor.ExecuteAsync(operationContext, this, binding, retryRequested: RetryRequested);
+                return RetryableWriteOperationExecutor.ExecuteAsync(operationContext, this, binding, retryRequested: RetryRequested, _maxAdaptiveRetries, _enableOverloadRetargeting);
             }
         }
 

@@ -601,8 +601,10 @@ namespace MongoDB.Driver.GridFS
             var messageEncoderSettings = this.GetMessageEncoderSettings();
             return new CreateIndexesOperation(collectionNamespace, requests, messageEncoderSettings)
             {
-                WriteConcern = _options.WriteConcern ?? _database.Settings.WriteConcern,
-                RetryRequested = _database.Client.Settings.RetryWrites
+                EnableOverloadRetargeting = _database.Client.Settings.EnableOverloadRetargeting,
+                MaxAdaptiveRetries = _database.Client.Settings.MaxAdaptiveRetries,
+                RetryRequested = _database.Client.Settings.RetryWrites,
+                WriteConcern = _options.WriteConcern ?? _database.Settings.WriteConcern
             };
         }
 
@@ -613,8 +615,10 @@ namespace MongoDB.Driver.GridFS
             var messageEncoderSettings = this.GetMessageEncoderSettings();
             return new CreateIndexesOperation(collectionNamespace, requests, messageEncoderSettings)
             {
-                WriteConcern = _options.WriteConcern ?? _database.Settings.WriteConcern,
-                RetryRequested = _database.Client.Settings.RetryWrites
+                EnableOverloadRetargeting = _database.Client.Settings.EnableOverloadRetargeting,
+                MaxAdaptiveRetries = _database.Client.Settings.MaxAdaptiveRetries,
+                RetryRequested = _database.Client.Settings.RetryWrites,
+                WriteConcern = _options.WriteConcern ?? _database.Settings.WriteConcern
             };
         }
 
@@ -626,6 +630,8 @@ namespace MongoDB.Driver.GridFS
                 new[] { new DeleteRequest(filter) { Limit = 0 } },
                 this.GetMessageEncoderSettings())
             {
+                EnableOverloadRetargeting = _database.Client.Settings.EnableOverloadRetargeting,
+                MaxAdaptiveRetries = _database.Client.Settings.MaxAdaptiveRetries,
                 RetryRequested = _database.Client.Settings.RetryWrites
             };
         }
@@ -634,14 +640,17 @@ namespace MongoDB.Driver.GridFS
         {
             var seekable = options.Seekable ?? false;
 
-            var retryReads = _database.Client.Settings.RetryReads;
+            var clientSettings = _database.Client.Settings;
+            var retryReads = clientSettings.RetryReads;
+            var maxAdaptiveRetries = clientSettings.MaxAdaptiveRetries;
+            var enableOverloadRetargeting = clientSettings.EnableOverloadRetargeting;
             if (seekable)
             {
-                return new GridFSSeekableDownloadStream<TFileId>(this, binding, fileInfo) { RetryReads = retryReads };
+                return new GridFSSeekableDownloadStream<TFileId>(this, binding, fileInfo) { EnableOverloadRetargeting = enableOverloadRetargeting, MaxAdaptiveRetries = maxAdaptiveRetries, RetryReads = retryReads };
             }
             else
             {
-                return new GridFSForwardOnlyDownloadStream<TFileId>(this, binding, fileInfo) { RetryReads = retryReads };
+                return new GridFSForwardOnlyDownloadStream<TFileId>(this, binding, fileInfo) { EnableOverloadRetargeting = enableOverloadRetargeting, MaxAdaptiveRetries = maxAdaptiveRetries, RetryReads = retryReads };
             }
         }
 
@@ -649,8 +658,10 @@ namespace MongoDB.Driver.GridFS
         {
             return new DropCollectionOperation(collectionNamespace, messageEncoderSettings)
             {
-                WriteConcern = _options.WriteConcern ?? _database.Settings.WriteConcern,
-                RetryRequested = _database.Client.Settings.RetryWrites
+                EnableOverloadRetargeting = _database.Client.Settings.EnableOverloadRetargeting,
+                MaxAdaptiveRetries = _database.Client.Settings.MaxAdaptiveRetries,
+                RetryRequested = _database.Client.Settings.RetryWrites,
+                WriteConcern = _options.WriteConcern ?? _database.Settings.WriteConcern
             };
         }
 
@@ -662,6 +673,8 @@ namespace MongoDB.Driver.GridFS
                 new[] { new DeleteRequest(filter) },
                 this.GetMessageEncoderSettings())
             {
+                EnableOverloadRetargeting = _database.Client.Settings.EnableOverloadRetargeting,
+                MaxAdaptiveRetries = _database.Client.Settings.MaxAdaptiveRetries,
                 RetryRequested = _database.Client.Settings.RetryWrites
             };
         }
@@ -696,8 +709,10 @@ namespace MongoDB.Driver.GridFS
             {
                 AllowDiskUse = options.AllowDiskUse,
                 BatchSize = options.BatchSize,
+                EnableOverloadRetargeting = _database.Client.Settings.EnableOverloadRetargeting,
                 Filter = renderedFilter,
                 Limit = options.Limit,
+                MaxAdaptiveRetries = _database.Client.Settings.MaxAdaptiveRetries,
                 MaxTime = options.MaxTime,
                 NoCursorTimeout = options.NoCursorTimeout,
                 ReadConcern = GetReadConcern(),
@@ -721,8 +736,10 @@ namespace MongoDB.Driver.GridFS
                 _fileInfoSerializer,
                 messageEncoderSettings)
             {
+                EnableOverloadRetargeting = _database.Client.Settings.EnableOverloadRetargeting,
                 Filter = filter,
                 Limit = limit,
+                MaxAdaptiveRetries = _database.Client.Settings.MaxAdaptiveRetries,
                 ReadConcern = GetReadConcern(),
                 RetryRequested = _database.Client.Settings.RetryReads,
                 Skip = skip,
@@ -741,8 +758,10 @@ namespace MongoDB.Driver.GridFS
                 _fileInfoSerializer,
                 messageEncoderSettings)
             {
+                EnableOverloadRetargeting = _database.Client.Settings.EnableOverloadRetargeting,
                 Filter = filter,
                 Limit = 1,
+                MaxAdaptiveRetries = _database.Client.Settings.MaxAdaptiveRetries,
                 ReadConcern = GetReadConcern(),
                 RetryRequested = _database.Client.Settings.RetryReads,
                 SingleBatch = true
@@ -755,11 +774,13 @@ namespace MongoDB.Driver.GridFS
             var messageEncoderSettings = this.GetMessageEncoderSettings();
             return new FindOperation<BsonDocument>(filesCollectionNamespace, BsonDocumentSerializer.Instance, messageEncoderSettings)
             {
+                EnableOverloadRetargeting = _database.Client.Settings.EnableOverloadRetargeting,
                 Limit = 1,
-                ReadConcern = GetReadConcern(),
-                SingleBatch = true,
+                MaxAdaptiveRetries = _database.Client.Settings.MaxAdaptiveRetries,
                 Projection = new BsonDocument("_id", 1),
-                RetryRequested = _database.Client.Settings.RetryReads
+                ReadConcern = GetReadConcern(),
+                RetryRequested = _database.Client.Settings.RetryReads,
+                SingleBatch = true
             };
         }
 
@@ -768,6 +789,8 @@ namespace MongoDB.Driver.GridFS
             var messageEncoderSettings = this.GetMessageEncoderSettings();
             return new ListIndexesOperation(collectionNamespace, messageEncoderSettings)
             {
+                EnableOverloadRetargeting = _database.Client.Settings.EnableOverloadRetargeting,
+                MaxAdaptiveRetries = _database.Client.Settings.MaxAdaptiveRetries,
                 RetryRequested = _database.Client.Settings.RetryReads
             };
         }
@@ -781,6 +804,8 @@ namespace MongoDB.Driver.GridFS
             var messageEncoderSettings = this.GetMessageEncoderSettings();
             return new BulkMixedWriteOperation(filesCollectionNamespace, requests, messageEncoderSettings)
             {
+                EnableOverloadRetargeting = _database.Client.Settings.EnableOverloadRetargeting,
+                MaxAdaptiveRetries = _database.Client.Settings.MaxAdaptiveRetries,
                 RetryRequested = _database.Client.Settings.RetryWrites
             };
         }

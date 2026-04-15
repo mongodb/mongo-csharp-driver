@@ -24,24 +24,14 @@ namespace MongoDB.Driver.Core.Bindings
     internal sealed class SingleServerReadWriteBinding : IReadWriteBinding
     {
         private bool _disposed;
-        private readonly bool _enableOverloadRetargeting;
-        private readonly int _maxAdaptiveRetries;
         private readonly IServer _server;
         private readonly ICoreSessionHandle _session;
 
-        public SingleServerReadWriteBinding(IServer server, ICoreSessionHandle session,
-            int maxAdaptiveRetries = Operations.RetryabilityHelper.OperationRetryBackpressureConstants.DefaultMaxRetries,
-            bool enableOverloadRetargeting = false)
+        public SingleServerReadWriteBinding(IServer server, ICoreSessionHandle session)
         {
             _server = Ensure.IsNotNull(server, nameof(server));
             _session = Ensure.IsNotNull(session, nameof(session));
-            _maxAdaptiveRetries = maxAdaptiveRetries;
-            _enableOverloadRetargeting = enableOverloadRetargeting;
         }
-
-        public bool EnableOverloadRetargeting => _enableOverloadRetargeting;
-
-        public int MaxAdaptiveRetries => _maxAdaptiveRetries;
 
         public ReadPreference ReadPreference
         {

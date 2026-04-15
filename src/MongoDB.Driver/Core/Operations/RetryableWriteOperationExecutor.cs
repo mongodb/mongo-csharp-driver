@@ -26,9 +26,9 @@ namespace MongoDB.Driver.Core.Operations
     internal static class RetryableWriteOperationExecutor
     {
         // public static methods
-        public static TResult Execute<TResult>(OperationContext operationContext, IRetryableWriteOperation<TResult> operation, IWriteBinding binding, bool retryRequested, IMayUseSecondaryCriteria mayUseSecondary = null)
+        public static TResult Execute<TResult>(OperationContext operationContext, IRetryableWriteOperation<TResult> operation, IWriteBinding binding, bool retryRequested, int maxAdaptiveRetries, bool enableOverloadRetargeting, IMayUseSecondaryCriteria mayUseSecondary = null)
         {
-            using var context = new RetryableWriteContext(binding, retryRequested, mayUseSecondaryCriteria: mayUseSecondary);
+            using var context = new RetryableWriteContext(binding, retryRequested, maxAdaptiveRetries, enableOverloadRetargeting, mayUseSecondaryCriteria: mayUseSecondary);
             return Execute(operationContext, operation, context);
         }
 
@@ -92,14 +92,14 @@ namespace MongoDB.Driver.Core.Operations
                     }
 
                     Thread.Sleep(backoff);
-                    deprioritizedServers = UpdateServerList(server, deprioritizedServers, ex, context.Binding.EnableOverloadRetargeting);
+                    deprioritizedServers = UpdateServerList(server, deprioritizedServers, ex, context.EnableOverloadRetargeting);
                 }
             }
         }
 
-        public static async Task<TResult> ExecuteAsync<TResult>(OperationContext operationContext, IRetryableWriteOperation<TResult> operation, IWriteBinding binding, bool retryRequested, IMayUseSecondaryCriteria mayUseSecondary = null)
+        public static async Task<TResult> ExecuteAsync<TResult>(OperationContext operationContext, IRetryableWriteOperation<TResult> operation, IWriteBinding binding, bool retryRequested, int maxAdaptiveRetries, bool enableOverloadRetargeting, IMayUseSecondaryCriteria mayUseSecondary = null)
         {
-            using var context = new RetryableWriteContext(binding, retryRequested, mayUseSecondaryCriteria: mayUseSecondary);
+            using var context = new RetryableWriteContext(binding, retryRequested, maxAdaptiveRetries, enableOverloadRetargeting, mayUseSecondaryCriteria: mayUseSecondary);
             return await ExecuteAsync(operationContext, operation, context).ConfigureAwait(false);
         }
 
@@ -154,7 +154,7 @@ namespace MongoDB.Driver.Core.Operations
                     }
 
                     await Task.Delay(backoff, operationContext.CancellationToken).ConfigureAwait(false);
-                    deprioritizedServers = UpdateServerList(server, deprioritizedServers, ex, context.Binding.EnableOverloadRetargeting);
+                    deprioritizedServers = UpdateServerList(server, deprioritizedServers, ex, context.EnableOverloadRetargeting);
                 }
             }
         }
@@ -227,7 +227,7 @@ namespace MongoDB.Driver.Core.Operations
 
                 backoff = RetryabilityHelper.GetOperationRetryBackoffDelay(attempt, random);
 
-                return attempt <= context.Binding.MaxAdaptiveRetries;
+                return attempt <= context.MaxAdaptiveRetries;
             }
 
             //If a retryable write (not backpressure related), we retry "infinite" times (until timeout) with CSOT enabled, otherwise just once.

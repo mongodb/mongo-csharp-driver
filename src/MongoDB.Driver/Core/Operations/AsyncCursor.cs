@@ -58,6 +58,8 @@ namespace MongoDB.Driver.Core.Operations
         private readonly IBsonSerializer<TDocument> _serializer;
         private readonly bool _wasFirstBatchEmpty;
         private readonly bool _retryRequested;
+        private readonly int _maxAdaptiveRetries;
+        private readonly bool _enableOverloadRetargeting;
 
         public AsyncCursor(
             IChannelSource channelSource,
@@ -70,7 +72,9 @@ namespace MongoDB.Driver.Core.Operations
             IBsonSerializer<TDocument> serializer,
             MessageEncoderSettings messageEncoderSettings,
             TimeSpan? maxTime,
-            bool retryRequested)
+            bool retryRequested,
+            int maxAdaptiveRetries,
+            bool enableOverloadRetargeting)
             : this(
                 channelSource,
                 collectionNamespace,
@@ -83,7 +87,9 @@ namespace MongoDB.Driver.Core.Operations
                 serializer,
                 messageEncoderSettings,
                 maxTime,
-                retryRequested)
+                retryRequested,
+                maxAdaptiveRetries,
+                enableOverloadRetargeting)
         {
         }
 
@@ -99,7 +105,9 @@ namespace MongoDB.Driver.Core.Operations
             IBsonSerializer<TDocument> serializer,
             MessageEncoderSettings messageEncoderSettings,
             TimeSpan? maxTime,
-            bool retryRequested)
+            bool retryRequested,
+            int maxAdaptiveRetries,
+            bool enableOverloadRetargeting)
         {
             _operationId = EventContext.OperationId;
             _channelSource = channelSource;
@@ -114,6 +122,8 @@ namespace MongoDB.Driver.Core.Operations
             _messageEncoderSettings = messageEncoderSettings;
             _maxTime = maxTime;
             _retryRequested = retryRequested;
+            _maxAdaptiveRetries = maxAdaptiveRetries;
+            _enableOverloadRetargeting = enableOverloadRetargeting;
 
             if (_limit > 0 && _firstBatch.Count > _limit)
             {
@@ -233,6 +243,8 @@ namespace MongoDB.Driver.Core.Operations
                     __getMoreCommandResultSerializer,
                     _messageEncoderSettings)
                 {
+                    EnableOverloadRetargeting = _enableOverloadRetargeting,
+                    MaxAdaptiveRetries = _maxAdaptiveRetries,
                     RetryRequested = _retryRequested,
                     IsOperationRetryable = false // getMore is not a retryable read operation
                 };
@@ -266,6 +278,8 @@ namespace MongoDB.Driver.Core.Operations
                     __getMoreCommandResultSerializer,
                     _messageEncoderSettings)
                 {
+                    EnableOverloadRetargeting = _enableOverloadRetargeting,
+                    MaxAdaptiveRetries = _maxAdaptiveRetries,
                     RetryRequested = _retryRequested,
                     IsOperationRetryable = false // getMore is not a retryable read operation
                 };

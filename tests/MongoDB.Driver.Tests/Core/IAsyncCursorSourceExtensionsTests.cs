@@ -318,7 +318,9 @@ namespace MongoDB.Driver
                 serializer: BsonDocumentSerializer.Instance,
                 messageEncoderSettings: new MessageEncoderSettings(),
                 maxTime: null,
-                retryRequested: false);
+                retryRequested: false,
+                maxAdaptiveRetries: 2,
+                enableOverloadRetargeting: false);
         }
 
         private IAsyncCursorSource<BsonDocument> CreateCursorSource(int count)

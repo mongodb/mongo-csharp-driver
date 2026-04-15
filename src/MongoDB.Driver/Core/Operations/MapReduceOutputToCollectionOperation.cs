@@ -33,6 +33,8 @@ namespace MongoDB.Driver.Core.Operations
     {
         // fields
         private bool? _bypassDocumentValidation;
+        private bool _enableOverloadRetargeting;
+        private int _maxAdaptiveRetries;
         private bool _retryRequested;
         private bool? _nonAtomicOutput;
         private readonly CollectionNamespace _outputCollectionNamespace;
@@ -79,9 +81,27 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <summary>
+        /// Gets or sets a value indicating whether overload retargeting is enabled.
+        /// </summary>
+        public bool EnableOverloadRetargeting
+        {
+            get { return _enableOverloadRetargeting; }
+            set { _enableOverloadRetargeting = value; }
+        }
+
+        /// <summary>
         /// Gets a value indicating whether the operation is retryable.
         /// </summary>
         public bool IsOperationRetryable => false;
+
+        /// <summary>
+        /// Gets or sets the maximum number of adaptive retries.
+        /// </summary>
+        public int MaxAdaptiveRetries
+        {
+            get { return _maxAdaptiveRetries; }
+            set { _maxAdaptiveRetries = value; }
+        }
 
         /// <summary>
         /// Gets or sets a value indicating whether a retry was requested.
@@ -197,7 +217,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             using (BeginOperation())
             {
-                return RetryableWriteOperationExecutor.Execute(operationContext, this, binding, retryRequested: RetryRequested);
+                return RetryableWriteOperationExecutor.Execute(operationContext, this, binding, retryRequested: RetryRequested, _maxAdaptiveRetries, _enableOverloadRetargeting);
             }
         }
 
@@ -206,7 +226,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             using (BeginOperation())
             {
-                return RetryableWriteOperationExecutor.ExecuteAsync(operationContext, this, binding, retryRequested: RetryRequested);
+                return RetryableWriteOperationExecutor.ExecuteAsync(operationContext, this, binding, retryRequested: RetryRequested, _maxAdaptiveRetries, _enableOverloadRetargeting);
             }
         }
 

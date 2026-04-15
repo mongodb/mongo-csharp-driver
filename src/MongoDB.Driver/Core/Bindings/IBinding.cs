@@ -22,8 +22,6 @@ namespace MongoDB.Driver.Core.Bindings
 {
     internal interface IBinding : IDisposable
     {
-        bool EnableOverloadRetargeting { get; }
-        int MaxAdaptiveRetries { get; }
         ICoreSessionHandle Session { get; }
     }
 

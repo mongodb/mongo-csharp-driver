@@ -28,6 +28,8 @@ namespace MongoDB.Driver.Core.Operations
         private readonly string _operationName;
         private readonly ICommandCreator _commandCreator;
         private readonly BsonDocument _command;
+        private bool _enableOverloadRetargeting;
+        private int _maxAdaptiveRetries;
         private bool _retryRequested;
 
         public ReadCommandOperation(
@@ -58,6 +60,18 @@ namespace MongoDB.Driver.Core.Operations
             _operationName = operationName;
         }
 
+        public bool EnableOverloadRetargeting
+        {
+            get => _enableOverloadRetargeting;
+            set => _enableOverloadRetargeting = value;
+        }
+
+        public int MaxAdaptiveRetries
+        {
+            get => _maxAdaptiveRetries;
+            set => _maxAdaptiveRetries = value;
+        }
+
         public bool RetryRequested
         {
             get => _retryRequested;
@@ -70,7 +84,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (var context = new RetryableReadContext(binding, _retryRequested))
+            using (var context = new RetryableReadContext(binding, _retryRequested, _maxAdaptiveRetries, _enableOverloadRetargeting))
             {
                 return Execute(operationContext, context);
             }
@@ -90,7 +104,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (var context = new RetryableReadContext(binding, _retryRequested))
+            using (var context = new RetryableReadContext(binding, _retryRequested, _maxAdaptiveRetries, _enableOverloadRetargeting))
             {
                 return await ExecuteAsync(operationContext, context).ConfigureAwait(false);
             }

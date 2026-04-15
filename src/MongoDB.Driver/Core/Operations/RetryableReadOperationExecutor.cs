@@ -69,7 +69,7 @@ namespace MongoDB.Driver.Core.Operations
                     }
 
                     Thread.Sleep(backoff);
-                    deprioritizedServers = UpdateServerList(server, deprioritizedServers, ex, context.Binding.EnableOverloadRetargeting);
+                    deprioritizedServers = UpdateServerList(server, deprioritizedServers, ex, context.EnableOverloadRetargeting);
                 }
             }
         }
@@ -111,7 +111,7 @@ namespace MongoDB.Driver.Core.Operations
                     }
 
                     await Task.Delay(backoff, operationContext.CancellationToken).ConfigureAwait(false);
-                    deprioritizedServers = UpdateServerList(server, deprioritizedServers, ex, context.Binding.EnableOverloadRetargeting);
+                    deprioritizedServers = UpdateServerList(server, deprioritizedServers, ex, context.EnableOverloadRetargeting);
                 }
             }
         }
@@ -162,7 +162,7 @@ namespace MongoDB.Driver.Core.Operations
 
                 backoff = RetryabilityHelper.GetOperationRetryBackoffDelay(attempt, random);
 
-                return attempt <= context.Binding.MaxAdaptiveRetries;
+                return attempt <= context.MaxAdaptiveRetries;
             }
 
             //If a retryable read (not backpressure related), we retry "infinite" times (until timeout) with CSOT enabled, otherwise just once.

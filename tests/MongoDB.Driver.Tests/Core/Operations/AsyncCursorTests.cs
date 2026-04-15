@@ -202,7 +202,9 @@ namespace MongoDB.Driver.Core.Operations
                 serializer,
                 messageEncoderSettings,
                 maxTime,
-                retryRequested: false);
+                retryRequested: false,
+                maxAdaptiveRetries: RetryabilityHelper.OperationRetryBackpressureConstants.DefaultMaxRetries,
+                enableOverloadRetargeting: false);
 
             result._batchSize().Should().Be(batchSize);
             result._channelSource().Should().Be(channelSource);
@@ -516,7 +518,9 @@ namespace MongoDB.Driver.Core.Operations
                 serializer.WithDefault(BsonDocumentSerializer.Instance),
                 new MessageEncoderSettings(),
                 maxTime.WithDefault(null),
-                retryRequested.WithDefault(false));
+                retryRequested.WithDefault(false),
+                maxAdaptiveRetries: RetryabilityHelper.OperationRetryBackpressureConstants.DefaultMaxRetries,
+                enableOverloadRetargeting: false);
         }
 
         private void SetupChannelMocks(Mock<IChannelSource> mockChannelSource, Mock<IChannelHandle> mockChannelHandle, bool async, string commandResult, int maxWireVersion = WireVersion.Server36, bool isChannelExpired = false)
@@ -660,7 +664,7 @@ namespace MongoDB.Driver.Core.Operations
                 long cursorId;
                 var firstBatch = GetFirstBatch(channel, query, batchSize, CancellationToken.None, out cursorId);
 
-                using (var cursor = new AsyncCursor<BsonDocument>(channelSource, _collectionNamespace, comment: null, firstBatch, cursorId, batchSize, null, BsonDocumentSerializer.Instance, new MessageEncoderSettings(), maxTime: null, retryRequested: false))
+                using (var cursor = new AsyncCursor<BsonDocument>(channelSource, _collectionNamespace, comment: null, firstBatch, cursorId, batchSize, null, BsonDocumentSerializer.Instance, new MessageEncoderSettings(), maxTime: null, retryRequested: false, maxAdaptiveRetries: RetryabilityHelper.OperationRetryBackpressureConstants.DefaultMaxRetries, enableOverloadRetargeting: false))
                 {
                     AssertExpectedSessionReferenceCount(_session, cursor);
                     while (cursor.MoveNext(CancellationToken.None))

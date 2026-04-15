@@ -32,7 +32,9 @@ namespace MongoDB.Driver.Core.Operations
     {
         private BsonValue _comment;
         private readonly DatabaseNamespace _databaseNamespace;
+        private bool _enableOverloadRetargeting;
         private bool _isOrdered = true;
+        private int _maxAdaptiveRetries;
         private int? _maxBatchCount;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private bool _retryRequested;
@@ -58,10 +60,22 @@ namespace MongoDB.Driver.Core.Operations
             get { return _databaseNamespace; }
         }
 
+        public bool EnableOverloadRetargeting
+        {
+            get { return _enableOverloadRetargeting; }
+            set { _enableOverloadRetargeting = value; }
+        }
+
         public bool IsOrdered
         {
             get { return _isOrdered; }
             set { _isOrdered = value; }
+        }
+
+        public int MaxAdaptiveRetries
+        {
+            get { return _maxAdaptiveRetries; }
+            set { _maxAdaptiveRetries = value; }
         }
 
         public int? MaxBatchCount
@@ -97,7 +111,7 @@ namespace MongoDB.Driver.Core.Operations
 
         public virtual BsonDocument Execute(OperationContext operationContext, IWriteBinding binding)
         {
-            using (var context = new RetryableWriteContext(binding, _retryRequested))
+            using (var context = new RetryableWriteContext(binding, _retryRequested, _maxAdaptiveRetries, _enableOverloadRetargeting))
             {
                 return Execute(operationContext, context);
             }
@@ -110,7 +124,7 @@ namespace MongoDB.Driver.Core.Operations
 
         public virtual async Task<BsonDocument> ExecuteAsync(OperationContext operationContext, IWriteBinding binding)
         {
-            using (var context = new RetryableWriteContext(binding, _retryRequested))
+            using (var context = new RetryableWriteContext(binding, _retryRequested, _maxAdaptiveRetries, _enableOverloadRetargeting))
             {
                 return await ExecuteAsync(operationContext, context).ConfigureAwait(false);
             }

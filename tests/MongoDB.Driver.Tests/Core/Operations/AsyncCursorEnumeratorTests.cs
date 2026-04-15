@@ -250,7 +250,9 @@ namespace MongoDB.Driver.Core.Operations
                 serializer: BsonDocumentSerializer.Instance,
                 messageEncoderSettings: new MessageEncoderSettings(),
                 maxTime: null,
-                retryRequested: false);
+                retryRequested: false,
+                maxAdaptiveRetries: RetryabilityHelper.OperationRetryBackpressureConstants.DefaultMaxRetries,
+                enableOverloadRetargeting: false);
 
             return new AsyncCursorEnumerator<BsonDocument>(cursor, CancellationToken.None);
         }

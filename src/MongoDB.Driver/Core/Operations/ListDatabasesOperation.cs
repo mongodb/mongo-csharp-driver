@@ -29,7 +29,9 @@ namespace MongoDB.Driver.Core.Operations
     {
         private bool? _authorizedDatabases;
         private BsonValue _comment;
+        private bool _enableOverloadRetargeting;
         private BsonDocument _filter;
+        private int _maxAdaptiveRetries;
         private MessageEncoderSettings _messageEncoderSettings;
         private bool? _nameOnly;
         private bool _retryRequested;
@@ -68,6 +70,18 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _nameOnly; }
             set { _nameOnly = value; }
+        }
+
+        public bool EnableOverloadRetargeting
+        {
+            get { return _enableOverloadRetargeting; }
+            set { _enableOverloadRetargeting = value; }
+        }
+
+        public int MaxAdaptiveRetries
+        {
+            get { return _maxAdaptiveRetries; }
+            set { _maxAdaptiveRetries = value; }
         }
 
         public bool RetryRequested
@@ -127,6 +141,8 @@ namespace MongoDB.Driver.Core.Operations
             var command = CreateCommand();
             return new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, _messageEncoderSettings, OperationName)
             {
+                EnableOverloadRetargeting = _enableOverloadRetargeting,
+                MaxAdaptiveRetries = _maxAdaptiveRetries,
                 RetryRequested = _retryRequested,
             };
         }

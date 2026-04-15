@@ -30,14 +30,18 @@ namespace MongoDB.Driver.Core.Operations
         private IChannelHandle _channel;
         private IChannelSourceHandle _channelSource;
         private bool _disposed;
+        private readonly bool _enableOverloadRetargeting;
+        private readonly int _maxAdaptiveRetries;
         private bool _retryRequested;
         private IRandom _random;
         private IMayUseSecondaryCriteria _mayUseSecondaryCriteria;
 
-        public RetryableWriteContext(IWriteBinding binding, bool retryRequested, IRandom random = null, IMayUseSecondaryCriteria mayUseSecondaryCriteria = null)
+        public RetryableWriteContext(IWriteBinding binding, bool retryRequested, int maxAdaptiveRetries, bool enableOverloadRetargeting, IRandom random = null, IMayUseSecondaryCriteria mayUseSecondaryCriteria = null)
         {
             _binding = Ensure.IsNotNull(binding, nameof(binding));
             _retryRequested = retryRequested;
+            _maxAdaptiveRetries = maxAdaptiveRetries;
+            _enableOverloadRetargeting = enableOverloadRetargeting;
             _random = random ?? DefaultRandom.Instance;
             _mayUseSecondaryCriteria = mayUseSecondaryCriteria;
         }
@@ -45,6 +49,8 @@ namespace MongoDB.Driver.Core.Operations
         public IWriteBinding Binding => _binding;
         public IChannelHandle Channel => _channel;
         public IChannelSourceHandle ChannelSource => _channelSource;
+        public bool EnableOverloadRetargeting => _enableOverloadRetargeting;
+        public int MaxAdaptiveRetries => _maxAdaptiveRetries;
         public IMayUseSecondaryCriteria MayUseSecondaryCriteria => _mayUseSecondaryCriteria;
         public IRandom Random => _random;
         /// <summary>

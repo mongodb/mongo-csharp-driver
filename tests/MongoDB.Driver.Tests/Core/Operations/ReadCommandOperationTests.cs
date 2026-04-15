@@ -320,8 +320,6 @@ namespace MongoDB.Driver.Core.Operations
             var mockSession = new Mock<ICoreSessionHandle>();
             mockBinding.SetupGet(b => b.ReadPreference).Returns(readPreference);
             mockBinding.SetupGet(b => b.Session).Returns(mockSession.Object);
-            mockBinding.SetupGet(b => b.MaxAdaptiveRetries).Returns(2);
-            mockBinding.SetupGet(b => b.EnableOverloadRetargeting).Returns(false);
             mockBinding.Setup(b => b.GetReadChannelSource(It.IsAny<OperationContext>(), It.IsAny<IReadOnlyCollection<ServerDescription>>())).Returns(channelSource);
             mockBinding.Setup(b => b.GetReadChannelSourceAsync(It.IsAny<OperationContext>(), It.IsAny<IReadOnlyCollection<ServerDescription>>())).Returns(Task.FromResult(channelSource));
             return mockBinding;

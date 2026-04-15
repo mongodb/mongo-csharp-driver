@@ -44,8 +44,10 @@ namespace MongoDB.Driver.Core.Operations
         private BsonValue _comment;
         private readonly CollectionNamespace _collectionNamespace;
         private readonly DatabaseNamespace _databaseNamespace;
+        private bool _enableOverloadRetargeting;
         private ChangeStreamFullDocumentOption _fullDocument = ChangeStreamFullDocumentOption.Default;
         private ChangeStreamFullDocumentBeforeChangeOption _fullDocumentBeforeChangeOption = ChangeStreamFullDocumentBeforeChangeOption.Default;
+        private int _maxAdaptiveRetries;
         private TimeSpan? _maxAwaitTime;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly IReadOnlyList<BsonDocument> _pipeline;
@@ -224,6 +226,18 @@ namespace MongoDB.Driver.Core.Operations
             set { _resumeAfter = value; }
         }
 
+        public bool EnableOverloadRetargeting
+        {
+            get => _enableOverloadRetargeting;
+            set => _enableOverloadRetargeting = value;
+        }
+
+        public int MaxAdaptiveRetries
+        {
+            get => _maxAdaptiveRetries;
+            set => _maxAdaptiveRetries = value;
+        }
+
         /// <summary>
         /// Gets or sets a value indicating whether to retry.
         /// </summary>
@@ -269,7 +283,7 @@ namespace MongoDB.Driver.Core.Operations
             IAsyncCursor<RawBsonDocument> cursor;
             ICursorBatchInfo cursorBatchInfo;
             BsonTimestamp initialOperationTime;
-            using (var context = new RetryableReadContext(binding, _retryRequested))
+            using (var context = new RetryableReadContext(binding, _retryRequested, _maxAdaptiveRetries, _enableOverloadRetargeting))
             {
                 cursor = ExecuteAggregateOperation(operationContext, context);
                 cursorBatchInfo = (ICursorBatchInfo)cursor;
@@ -304,7 +318,7 @@ namespace MongoDB.Driver.Core.Operations
             IAsyncCursor<RawBsonDocument> cursor;
             ICursorBatchInfo cursorBatchInfo;
             BsonTimestamp initialOperationTime;
-            using (var context = new RetryableReadContext(binding, _retryRequested))
+            using (var context = new RetryableReadContext(binding, _retryRequested, _maxAdaptiveRetries, _enableOverloadRetargeting))
             {
                 cursor = await ExecuteAggregateOperationAsync(operationContext, context).ConfigureAwait(false);
                 cursorBatchInfo = (ICursorBatchInfo)cursor;
@@ -329,7 +343,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <inheritdoc />
         public IAsyncCursor<RawBsonDocument> Resume(OperationContext operationContext, IReadBinding binding)
         {
-            using (var context = new RetryableReadContext(binding, retryRequested: false))
+            using (var context = new RetryableReadContext(binding, retryRequested: false, _maxAdaptiveRetries, _enableOverloadRetargeting))
             {
                 return ExecuteAggregateOperation(operationContext, context);
             }
@@ -338,7 +352,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <inheritdoc />
         public async Task<IAsyncCursor<RawBsonDocument>> ResumeAsync(OperationContext operationContext, IReadBinding binding)
         {
-            using (var context = new RetryableReadContext(binding, retryRequested: false))
+            using (var context = new RetryableReadContext(binding, retryRequested: false, _maxAdaptiveRetries, _enableOverloadRetargeting))
             {
                 return await ExecuteAggregateOperationAsync(operationContext, context).ConfigureAwait(false);
             }
@@ -355,6 +369,8 @@ namespace MongoDB.Driver.Core.Operations
             {
                 operation = new AggregateOperation<RawBsonDocument>(_collectionNamespace, combinedPipeline, RawBsonDocumentSerializer.Instance, _messageEncoderSettings)
                 {
+                    EnableOverloadRetargeting = _enableOverloadRetargeting,
+                    MaxAdaptiveRetries = _maxAdaptiveRetries,
                     RetryRequested = _retryRequested // might be overridden by retryable read context
                 };
             }
@@ -363,6 +379,8 @@ namespace MongoDB.Driver.Core.Operations
                 var databaseNamespace = _databaseNamespace ?? DatabaseNamespace.Admin;
                 operation = new AggregateOperation<RawBsonDocument>(databaseNamespace, combinedPipeline, RawBsonDocumentSerializer.Instance, _messageEncoderSettings)
                 {
+                    EnableOverloadRetargeting = _enableOverloadRetargeting,
+                    MaxAdaptiveRetries = _maxAdaptiveRetries,
                     RetryRequested = _retryRequested // might be overridden by retryable read context
                 };
             }

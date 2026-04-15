@@ -30,19 +30,25 @@ namespace MongoDB.Driver.Core.Operations
         private IChannelHandle _channel;
         private IChannelSourceHandle _channelSource;
         private bool _disposed;
+        private readonly bool _enableOverloadRetargeting;
+        private readonly int _maxAdaptiveRetries;
         private bool _retryRequested;
         private IRandom _random;
 
-        public RetryableReadContext(IReadBinding binding, bool retryRequested, IRandom random = null)
+        public RetryableReadContext(IReadBinding binding, bool retryRequested, int maxAdaptiveRetries, bool enableOverloadRetargeting, IRandom random = null)
         {
             _binding = Ensure.IsNotNull(binding, nameof(binding));
             _retryRequested = retryRequested;
+            _maxAdaptiveRetries = maxAdaptiveRetries;
+            _enableOverloadRetargeting = enableOverloadRetargeting;
             _random = random ?? DefaultRandom.Instance;
         }
 
         public IReadBinding Binding => _binding;
         public IChannelHandle Channel => _channel;
         public IChannelSourceHandle ChannelSource => _channelSource;
+        public bool EnableOverloadRetargeting => _enableOverloadRetargeting;
+        public int MaxAdaptiveRetries => _maxAdaptiveRetries;
         /// <summary>
         /// Indicates whether the user has enabled retries via retryReads/retryWrites client settings.
         /// If false, all retries are disabled (including backpressure).

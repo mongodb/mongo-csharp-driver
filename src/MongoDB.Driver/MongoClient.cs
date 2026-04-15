@@ -501,6 +501,8 @@ namespace MongoDB.Driver
             var renderArgs = GetRenderArgs();
             var operation = new ClientBulkWriteOperation(models, options, messageEncoderSettings, renderArgs)
             {
+                EnableOverloadRetargeting = _settings.EnableOverloadRetargeting,
+                MaxAdaptiveRetries = _settings.MaxAdaptiveRetries,
                 RetryRequested = _settings.RetryWrites
             };
             if (options?.WriteConcern == null)
@@ -519,8 +521,10 @@ namespace MongoDB.Driver
         private DropDatabaseOperation CreateDropDatabaseOperation(string name)
             => new(new DatabaseNamespace(name), GetMessageEncoderSettings())
             {
-                WriteConcern = _settings.WriteConcern,
-                RetryRequested = _settings.RetryWrites
+                EnableOverloadRetargeting = _settings.EnableOverloadRetargeting,
+                MaxAdaptiveRetries = _settings.MaxAdaptiveRetries,
+                RetryRequested = _settings.RetryWrites,
+                WriteConcern = _settings.WriteConcern
             };
 
         private ListDatabasesOperation CreateListDatabasesOperation(ListDatabasesOptions options)
@@ -533,7 +537,9 @@ namespace MongoDB.Driver
             {
                 AuthorizedDatabases = options.AuthorizedDatabases,
                 Comment = options.Comment,
+                EnableOverloadRetargeting = _settings.EnableOverloadRetargeting,
                 Filter = options.Filter?.Render(new(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry, translationOptions: translationOptions)),
+                MaxAdaptiveRetries = _settings.MaxAdaptiveRetries,
                 NameOnly = options.NameOnly,
                 RetryRequested = _settings.RetryReads
             };
@@ -562,6 +568,8 @@ namespace MongoDB.Driver
                 _settings.ReadConcern,
                 GetMessageEncoderSettings(),
                 _settings.RetryReads,
+                _settings.MaxAdaptiveRetries,
+                _settings.EnableOverloadRetargeting,
                 _settings.TranslationOptions);
 
         private OperationContext CreateOperationContext(IClientSessionHandle session, TimeSpan? timeout, string operationName, CancellationToken cancellationToken)

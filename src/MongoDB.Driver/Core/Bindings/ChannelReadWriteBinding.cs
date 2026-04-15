@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Bindings
@@ -26,25 +25,15 @@ namespace MongoDB.Driver.Core.Bindings
     {
         private readonly IChannelHandle _channel;
         private bool _disposed;
-        private readonly bool _enableOverloadRetargeting;
-        private readonly int _maxAdaptiveRetries;
         private readonly IServer _server;
         private readonly ICoreSessionHandle _session;
 
-        public ChannelReadWriteBinding(IServer server, IChannelHandle channel, ICoreSessionHandle session,
-            int maxAdaptiveRetries = RetryabilityHelper.OperationRetryBackpressureConstants.DefaultMaxRetries,
-            bool enableOverloadRetargeting = false)
+        public ChannelReadWriteBinding(IServer server, IChannelHandle channel, ICoreSessionHandle session)
         {
             _server = Ensure.IsNotNull(server, nameof(server));
             _channel = Ensure.IsNotNull(channel, nameof(channel));
             _session = Ensure.IsNotNull(session, nameof(session));
-            _maxAdaptiveRetries = maxAdaptiveRetries;
-            _enableOverloadRetargeting = enableOverloadRetargeting;
         }
-
-        public bool EnableOverloadRetargeting => _enableOverloadRetargeting;
-
-        public int MaxAdaptiveRetries => _maxAdaptiveRetries;
 
         public ReadPreference ReadPreference
         {

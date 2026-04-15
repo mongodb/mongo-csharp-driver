@@ -32,6 +32,8 @@ namespace MongoDB.Driver.Core.Operations
     {
         private bool? _allowDiskUse;
         private bool? _bypassDocumentValidation;
+        private bool _enableOverloadRetargeting;
+        private int _maxAdaptiveRetries;
         private bool _retryRequested;
         private Collation _collation;
         private readonly CollectionNamespace _collectionNamespace;
@@ -74,7 +76,19 @@ namespace MongoDB.Driver.Core.Operations
             set { _bypassDocumentValidation = value; }
         }
 
+        public bool EnableOverloadRetargeting
+        {
+            get { return _enableOverloadRetargeting; }
+            set { _enableOverloadRetargeting = value; }
+        }
+
         public bool IsOperationRetryable => false;
+
+        public int MaxAdaptiveRetries
+        {
+            get { return _maxAdaptiveRetries; }
+            set { _maxAdaptiveRetries = value; }
+        }
 
         public bool RetryRequested
         {
@@ -162,7 +176,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             using (BeginOperation())
             {
-                return RetryableWriteOperationExecutor.Execute(operationContext, this, binding, retryRequested: RetryRequested, mayUseSecondary: new MayUseSecondary(_readPreference));
+                return RetryableWriteOperationExecutor.Execute(operationContext, this, binding, retryRequested: RetryRequested, _maxAdaptiveRetries, _enableOverloadRetargeting, mayUseSecondary: new MayUseSecondary(_readPreference));
             }
         }
 
@@ -178,7 +192,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             using (BeginOperation())
             {
-                return RetryableWriteOperationExecutor.ExecuteAsync(operationContext, this, binding, retryRequested: RetryRequested, mayUseSecondary: new MayUseSecondary(_readPreference));
+                return RetryableWriteOperationExecutor.ExecuteAsync(operationContext, this, binding, retryRequested: RetryRequested, _maxAdaptiveRetries, _enableOverloadRetargeting, mayUseSecondary: new MayUseSecondary(_readPreference));
             }
         }
 

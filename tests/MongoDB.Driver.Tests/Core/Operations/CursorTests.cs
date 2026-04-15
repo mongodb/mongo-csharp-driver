@@ -40,7 +40,9 @@ namespace MongoDB.Driver.Core.Operations
                 BsonDocumentSerializer.Instance,
                 null, // messageEncoderSettings
                 maxTime: null,
-                retryRequested: false);
+                retryRequested: false,
+                maxAdaptiveRetries: RetryabilityHelper.OperationRetryBackpressureConstants.DefaultMaxRetries,
+                enableOverloadRetargeting: false);
 
             mockChannelSource.Verify(s => s.Dispose(), Times.Exactly(shouldCallDispose ? 1 : 0));
         }

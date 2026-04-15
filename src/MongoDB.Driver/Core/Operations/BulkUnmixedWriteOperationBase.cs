@@ -32,7 +32,9 @@ namespace MongoDB.Driver.Core.Operations
         private bool? _bypassDocumentValidation;
         private CollectionNamespace _collectionNamespace;
         private BsonValue _comment;
+        private bool _enableOverloadRetargeting;
         private bool _isOrdered = true;
+        private int _maxAdaptiveRetries;
         private int? _maxBatchCount;
         private int? _maxBatchLength;
         private MessageEncoderSettings _messageEncoderSettings;
@@ -77,10 +79,22 @@ namespace MongoDB.Driver.Core.Operations
             set { _comment = value; }
         }
 
+        public bool EnableOverloadRetargeting
+        {
+            get { return _enableOverloadRetargeting; }
+            set { _enableOverloadRetargeting = value; }
+        }
+
         public bool IsOrdered
         {
             get { return _isOrdered; }
             set { _isOrdered = value; }
+        }
+
+        public int MaxAdaptiveRetries
+        {
+            get { return _maxAdaptiveRetries; }
+            set { _maxAdaptiveRetries = value; }
         }
 
         public int? MaxBatchCount
@@ -133,7 +147,7 @@ namespace MongoDB.Driver.Core.Operations
         public BulkWriteOperationResult Execute(OperationContext operationContext, IWriteBinding binding)
         {
             using (BeginOperation())
-            using (var context = new RetryableWriteContext(binding, _retryRequested))
+            using (var context = new RetryableWriteContext(binding, _retryRequested, _maxAdaptiveRetries, _enableOverloadRetargeting))
             {
                 return Execute(operationContext, context);
             }
@@ -149,7 +163,7 @@ namespace MongoDB.Driver.Core.Operations
         public async Task<BulkWriteOperationResult> ExecuteAsync(OperationContext operationContext, IWriteBinding binding)
         {
             using (BeginOperation())
-            using (var context = new RetryableWriteContext(binding, _retryRequested))
+            using (var context = new RetryableWriteContext(binding, _retryRequested, _maxAdaptiveRetries, _enableOverloadRetargeting))
             {
                 return await ExecuteAsync(operationContext, context).ConfigureAwait(false);
             }

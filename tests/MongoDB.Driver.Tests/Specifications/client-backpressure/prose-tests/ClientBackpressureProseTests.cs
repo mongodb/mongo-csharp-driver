@@ -196,14 +196,12 @@ public class ClientBackpressureProseTests
 
         var bindingMock = new Mock<IReadBinding>();
         bindingMock.SetupGet(b => b.Session).Returns(sessionMock.Object);
-        bindingMock.SetupGet(b => b.MaxAdaptiveRetries).Returns(maxAdaptiveRetries);
-        bindingMock.SetupGet(b => b.EnableOverloadRetargeting).Returns(false);
         bindingMock.Setup(b => b.GetReadChannelSource(It.IsAny<OperationContext>(), It.IsAny<IReadOnlyCollection<ServerDescription>>()))
             .Returns(channelSourceMock.Object);
         bindingMock.Setup(b => b.GetReadChannelSourceAsync(It.IsAny<OperationContext>(), It.IsAny<IReadOnlyCollection<ServerDescription>>()))
             .ReturnsAsync(channelSourceMock.Object);
 
-        var context = new RetryableReadContext(bindingMock.Object, retryRequested: true, random: random);
+        var context = new RetryableReadContext(bindingMock.Object, retryRequested: true, maxAdaptiveRetries, false, random);
         SetContextChannelFields(context, channelSourceMock.Object, channelMock.Object, typeof(RetryableReadContext));
 
         return context;
@@ -218,14 +216,12 @@ public class ClientBackpressureProseTests
 
         var bindingMock = new Mock<IWriteBinding>();
         bindingMock.SetupGet(b => b.Session).Returns(sessionMock.Object);
-        bindingMock.SetupGet(b => b.MaxAdaptiveRetries).Returns(2);
-        bindingMock.SetupGet(b => b.EnableOverloadRetargeting).Returns(false);
         bindingMock.Setup(b => b.GetWriteChannelSource(It.IsAny<OperationContext>(), It.IsAny<IReadOnlyCollection<ServerDescription>>()))
             .Returns(channelSourceMock.Object);
         bindingMock.Setup(b => b.GetWriteChannelSourceAsync(It.IsAny<OperationContext>(), It.IsAny<IReadOnlyCollection<ServerDescription>>()))
             .ReturnsAsync(channelSourceMock.Object);
 
-        var context = new RetryableWriteContext(bindingMock.Object, retryRequested: true, random);
+        var context = new RetryableWriteContext(bindingMock.Object, retryRequested: true, RetryabilityHelper.OperationRetryBackpressureConstants.DefaultMaxRetries, false, random);
         SetContextChannelFields(context, channelSourceMock.Object, channelMock.Object, typeof(RetryableWriteContext));
 
         return context;
