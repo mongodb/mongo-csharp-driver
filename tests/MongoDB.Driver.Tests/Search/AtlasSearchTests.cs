@@ -865,6 +865,31 @@ namespace MongoDB.Driver.Tests.Search
         }
 
         [Fact]
+        public void SearchMeta_facet_without_operator()
+        {
+            var result = GetTestCollection().Aggregate()
+                .SearchMeta(Builders.Search.Facet(
+                    Builders.SearchFacet.String("string", x => x.Author, 100),
+                    Builders.SearchFacet.Number("number", x => x.Index, 0, 100),
+                    Builders.SearchFacet.Date("date", x => x.Date, DateTime.MinValue, DateTime.MaxValue)))
+                .Single();
+
+            result.Should().NotBeNull();
+
+            var bucket = result.Facet["string"].Buckets.Should().NotBeNull().And.ContainSingle().Subject;
+            bucket.Id.Should().Be((BsonString)"machine");
+            bucket.Count.Should().Be(500);
+
+            bucket = result.Facet["number"].Buckets.Should().NotBeNull().And.ContainSingle().Subject;
+            bucket.Id.Should().Be((BsonInt32)0);
+            bucket.Count.Should().Be(0);
+
+            bucket = result.Facet["date"].Buckets.Should().NotBeNull().And.ContainSingle().Subject;
+            bucket.Id.Should().Be((BsonDateTime)DateTime.MinValue);
+            bucket.Count.Should().Be(500);
+        }
+
+        [Fact]
         public void Should()
         {
             var result = SearchSingle(

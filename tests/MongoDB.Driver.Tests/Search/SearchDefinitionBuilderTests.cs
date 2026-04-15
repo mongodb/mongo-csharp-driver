@@ -475,7 +475,7 @@ namespace MongoDB.Driver.Tests.Search
         }
 
         [Fact]
-        public void Facet_wihout_operator()
+        public void Facet_without_operator()
         {
             var subject = CreateSubject<BsonDocument>();
             var facetBuilder = new SearchFacetBuilder<BsonDocument>();
