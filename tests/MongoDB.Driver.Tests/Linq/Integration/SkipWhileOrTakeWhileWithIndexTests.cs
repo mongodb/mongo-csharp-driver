@@ -38,8 +38,8 @@ public class SkipWhileOrTakeWhileWithIndexTests : LinqIntegrationTest<SkipWhileO
         var collection = Fixture.Collection;
 
         var queryable = withNestedAsQueryable ?
-            collection.AsQueryable().Select(x => x.A.AsQueryable().SkipWhile((item, i) => i < 3).ToArray()) :
-            collection.AsQueryable().Select(x => x.A.SkipWhile((item, i) => i < 3).ToArray());
+            collection.AsQueryable().Select(x => x.A.AsQueryable().SkipWhile((item, i) => item + i < 6).ToArray()) :
+            collection.AsQueryable().Select(x => x.A.SkipWhile((item, i) => item + i < 6).ToArray());
 
         var stages = Translate(collection, queryable);
         AssertStages(
@@ -67,7 +67,7 @@ public class SkipWhileOrTakeWhileWithIndexTests : LinqIntegrationTest<SkipWhileO
                                                 branches :
                                                 [
                                                     { case : { $not : "$$value.predicate" }, then : "$$value" },
-                                                    { case : { $lt : ["$$__i", 3] }, then : { predicate : true, count : { $add : ["$$value.count", 1] } } },
+                                                    { case : { $lt : [{ $add : ["$$this", "$$__i"] }, 6] }, then : { predicate : true, count : { $add : ["$$value.count", 1] } } },
                                                 ],
                                                 default : { predicate : false, count : "$$value.count" }
                                              }
@@ -96,8 +96,8 @@ public class SkipWhileOrTakeWhileWithIndexTests : LinqIntegrationTest<SkipWhileO
         var collection = Fixture.Collection;
 
         var queryable = withNestedAsQueryable ?
-            collection.AsQueryable().Select(x => x.A.AsQueryable().TakeWhile((item, i) => i < 3).ToArray()) :
-            collection.AsQueryable().Select(x => x.A.TakeWhile((item, i) => i < 3).ToArray());
+            collection.AsQueryable().Select(x => x.A.AsQueryable().TakeWhile((item, i) => item + i < 6).ToArray()) :
+            collection.AsQueryable().Select(x => x.A.TakeWhile((item, i) => item + i < 6).ToArray());
 
         var stages = Translate(collection, queryable);
         AssertStages(
@@ -125,7 +125,7 @@ public class SkipWhileOrTakeWhileWithIndexTests : LinqIntegrationTest<SkipWhileO
                                                 branches :
                                                 [
                                                     { case : { $not : "$$value.predicate" }, then : "$$value" },
-                                                    { case : { $lt : ["$$__i", 3] }, then : { predicate : true, count : { $add : ["$$value.count", 1] } } },
+                                                    { case : { $lt : [{ $add : ["$$this", "$$__i"] }, 6] }, then : { predicate : true, count : { $add : ["$$value.count", 1] } } },
                                                 ],
                                                 default : { predicate : false, count : "$$value.count" }
                                              }

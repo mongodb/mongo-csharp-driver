@@ -111,7 +111,7 @@ public class SkipWhileOrTakeWhileMethodToAggregationExpressionTranslatorTests
             typeof(IEnumerableSerializer<int>)
         ],
         [
-            TestHelpers.MakeLambda<MyModel, IEnumerable<int>>(model => model.Items.SkipWhile((x, i) => i < 3)),
+            TestHelpers.MakeLambda<MyModel, IEnumerable<int>>(model => model.Items.SkipWhile((x, i) => x + i < 6)),
             """
             {
                 $let :
@@ -131,7 +131,7 @@ public class SkipWhileOrTakeWhileMethodToAggregationExpressionTranslatorTests
                                         branches :
                                         [
                                             { case : { $not : { $getField : { field : 'predicate', input : '$$value' } } }, then : '$$value' },
-                                            { case : { $lt : ['$$__i', 3] }, then : { predicate : true, count : { $add : [{ $getField : { field : 'count', input : '$$value' } }, 1] } } },
+                                            { case : { $lt : [{ $add : ['$$this', '$$__i'] }, 6] }, then : { predicate : true, count : { $add : [{ $getField : { field : 'count', input : '$$value' } }, 1] } } },
                                         ],
                                         default : { predicate : false, count : { $getField : { field : 'count', input : '$$value' } } }
                                     }
@@ -147,7 +147,7 @@ public class SkipWhileOrTakeWhileMethodToAggregationExpressionTranslatorTests
             typeof(IEnumerableSerializer<int>)
         ],
         [
-            TestHelpers.MakeLambda<MyModel, IEnumerable<int>>(model => model.Items.TakeWhile((x, i) => i < 3)),
+            TestHelpers.MakeLambda<MyModel, IEnumerable<int>>(model => model.Items.TakeWhile((x, i) => x + i < 6)),
             """
             {
                 $let :
@@ -167,7 +167,7 @@ public class SkipWhileOrTakeWhileMethodToAggregationExpressionTranslatorTests
                                         branches :
                                         [
                                             { case : { $not : { $getField : { field : 'predicate', input : '$$value' } } }, then : '$$value' },
-                                            { case : { $lt : ['$$__i', 3] }, then : { predicate : true, count : { $add : [{ $getField : { field : 'count', input : '$$value' } }, 1] } } },
+                                            { case : { $lt : [{ $add : ['$$this', '$$__i'] }, 6] }, then : { predicate : true, count : { $add : [{ $getField : { field : 'count', input : '$$value' } }, 1] } } },
                                         ],
                                         default : { predicate : false, count : { $getField : { field : 'count', input : '$$value' } } }
                                     }
