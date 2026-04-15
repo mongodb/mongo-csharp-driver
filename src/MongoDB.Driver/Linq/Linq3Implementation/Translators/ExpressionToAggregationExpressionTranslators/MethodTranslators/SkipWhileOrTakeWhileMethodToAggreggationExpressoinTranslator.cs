@@ -53,8 +53,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     var indexSerializer = context.GetSerializer(indexParameter);
                     var indexSymbol = context.CreateSymbol(indexParameter, indexSerializer);
                     arrayIndexAsVar = indexSymbol.Var;
-                    var predicateContext = context.WithSymbols(thisSymbol, indexSymbol);
-                    predicateTranslation = ExpressionToAggregationExpressionTranslator.Translate(predicateContext, predicateLambda.Body);
+                    predicateTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, predicateLambda, thisSymbol, indexSymbol);
                 }
                 else
                 {
@@ -85,8 +84,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                 var sliceAst = method switch
                 {
-                    _ when method.IsOneOf(EnumerableOrQueryableMethod.SkipWhile) || method.IsOneOf(EnumerableOrQueryableMethod.SkipWhileWithPredicateTakingIndex) => AstExpression.Slice(sourceAst, whileCountField, int.MaxValue),
-                    _ when method.IsOneOf(EnumerableOrQueryableMethod.TakeWhile) || method.IsOneOf(EnumerableOrQueryableMethod.TakeWhileWithPredicateTakingIndex) => AstExpression.Slice(sourceAst, whileCountField),
+                    _ when method.IsOneOf(EnumerableOrQueryableMethod.SkipWhile, EnumerableOrQueryableMethod.SkipWhileWithPredicateTakingIndex) => AstExpression.Slice(sourceAst, whileCountField, int.MaxValue),
+                    _ when method.IsOneOf(EnumerableOrQueryableMethod.TakeWhile, EnumerableOrQueryableMethod.TakeWhileWithPredicateTakingIndex) => AstExpression.Slice(sourceAst, whileCountField),
                     _ => throw new ExpressionNotSupportedException(expression)
                 };
 
