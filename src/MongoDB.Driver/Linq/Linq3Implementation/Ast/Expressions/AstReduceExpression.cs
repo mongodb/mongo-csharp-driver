@@ -21,24 +21,36 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
 {
     internal sealed class AstReduceExpression : AstExpression
     {
+        private readonly AstVarExpression _arrayIndexAs;
+        private readonly AstVarExpression _as;
         private readonly AstExpression _in;
         private readonly AstExpression _initialValue;
         private readonly AstExpression _input;
+        private readonly AstVarExpression _valueAs;
 
         public AstReduceExpression(
             AstExpression input,
             AstExpression initialValue,
-            AstExpression @in)
+            AstExpression @in,
+            AstVarExpression @as = null,
+            AstVarExpression arrayIndexAs = null,
+            AstVarExpression valueAs = null)
         {
             _input = Ensure.IsNotNull(input, nameof(input));
             _initialValue = Ensure.IsNotNull(initialValue, nameof(initialValue));
             _in = Ensure.IsNotNull(@in, nameof(@in));
+            _as = @as;
+            _arrayIndexAs = arrayIndexAs;
+            _valueAs = valueAs;
         }
 
+        public AstVarExpression ArrayIndexAs => _arrayIndexAs;
+        public AstVarExpression As => _as;
         public new AstExpression In => _in;
         public AstExpression InitialValue => _initialValue;
         public AstExpression Input => _input;
         public override AstNodeType NodeType => AstNodeType.ReduceExpression;
+        public AstVarExpression ValueAs => _valueAs;
 
         public override AstNode Accept(AstNodeVisitor visitor)
         {
@@ -53,7 +65,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
                     {
                         { "input", _input.Render() },
                         { "initialValue", _initialValue.Render() },
-                        { "in", _in.Render() }
+                        { "in", _in.Render() },
+                        { "as", _as?.Name, _as != null },
+                        { "arrayIndexAs", _arrayIndexAs?.Name, _arrayIndexAs != null },
+                        { "valueAs", _valueAs?.Name, _valueAs != null }
                     }
                 }
             };
@@ -62,14 +77,17 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
         public AstReduceExpression Update(
             AstExpression input,
             AstExpression initialValue,
-            AstExpression @in)
+            AstExpression @in,
+            AstVarExpression @as = null,
+            AstVarExpression arrayIndexAs = null,
+            AstVarExpression valueAs = null)
         {
-            if (input == _input && initialValue == _initialValue && @in == _in)
+            if (input == _input && initialValue == _initialValue && @in == _in && @as == _as && arrayIndexAs == _arrayIndexAs && valueAs == _valueAs)
             {
                 return this;
             }
 
-            return new AstReduceExpression(input, initialValue, @in);
+            return new AstReduceExpression(input, initialValue, @in, @as, arrayIndexAs, valueAs);
         }
     }
 }

@@ -196,6 +196,9 @@ public class EnumerableTests
         [TestHelpers.MakeLambda((MyQueryableModel model) => model.Items.SingleOrDefault()), typeof(Int32Serializer)],
         [TestHelpers.MakeLambda((MyQueryableModel model) => model.Items.SingleOrDefault(x => x > 0)), typeof(Int32Serializer)],
 
+        [TestHelpers.MakeLambda((MyModel model) => model.Items.SkipWhile(x => x > 0)), typeof(IEnumerableDeserializingAsCollectionSerializer<IEnumerable<int>, int, List<int>>)],
+        [TestHelpers.MakeLambda((MyModel model) => model.Items.SkipWhile((x, i) => i < 3)), typeof(IEnumerableDeserializingAsCollectionSerializer<IEnumerable<int>, int, List<int>>)],
+
         [TestHelpers.MakeLambda((MyModel model) => model.Items.Sum()), typeof(Int32Serializer)],
         [TestHelpers.MakeLambda((MyModel model) => model.Items.Sum(x => x * 2)), typeof(Int32Serializer)],
         [TestHelpers.MakeLambda((MyModel model) => model.LongItems.Sum()), typeof(Int64Serializer)],
@@ -216,6 +219,9 @@ public class EnumerableTests
         [TestHelpers.MakeLambda((MyQueryableModel model) => model.DecimalItems.Sum(x => x * 2)), typeof(DecimalSerializer)],
         [TestHelpers.MakeLambda((MyQueryableModel model) => model.FloatItems.Sum()), typeof(SingleSerializer)],
         [TestHelpers.MakeLambda((MyQueryableModel model) => model.FloatItems.Sum(x => x * 2)), typeof(SingleSerializer)],
+
+        [TestHelpers.MakeLambda((MyModel model) => model.Items.TakeWhile(x => x > 0)), typeof(IEnumerableDeserializingAsCollectionSerializer<IEnumerable<int>, int, List<int>>)],
+        [TestHelpers.MakeLambda((MyModel model) => model.Items.TakeWhile((x, i) => i < 3)), typeof(IEnumerableDeserializingAsCollectionSerializer<IEnumerable<int>, int, List<int>>)],
 
         [TestHelpers.MakeLambda((MyModel model) => model.Items.ToArray()), typeof(ArraySerializer<int>)],
         [TestHelpers.MakeLambda((MyQueryableModel model) => model.Items.ToArray()), typeof(ArraySerializer<int>)],

@@ -41,9 +41,25 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                 var predicateExpression = arguments[1];
                 var predicateLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, predicateExpression);
-                var predicateParameter = predicateLambda.Parameters.Single();
-                var thisSymbol = context.CreateSymbol(predicateParameter, "this", itemSerializer);
-                var predicateTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, predicateLambda, thisSymbol);
+
+                var itemParameter = predicateLambda.Parameters[0];
+                var thisSymbol = context.CreateSymbol(itemParameter, "this", itemSerializer);
+
+                AstVarExpression arrayIndexAsVar = null;
+                TranslatedExpression predicateTranslation;
+                if (method.IsOneOf(EnumerableOrQueryableMethod.SkipWhileWithPredicateTakingIndexOrTakeWhileWithPredicateTakingIndex))
+                {
+                    var indexParameter = predicateLambda.Parameters[1];
+                    var indexSerializer = context.GetSerializer(indexParameter);
+                    var indexSymbol = context.CreateSymbol(indexParameter, indexSerializer);
+                    arrayIndexAsVar = indexSymbol.Var;
+                    var predicateContext = context.WithSymbols(thisSymbol, indexSymbol);
+                    predicateTranslation = ExpressionToAggregationExpressionTranslator.Translate(predicateContext, predicateLambda.Body);
+                }
+                else
+                {
+                    predicateTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, predicateLambda, thisSymbol);
+                }
 
                 var (sourceBinding, sourceAst) = AstExpression.UseVarIfNotSimple("source", sourceTranslation.Ast);
 
@@ -60,7 +76,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                             (AstExpression.Not(valuePredicateField), valueVar),
                             (predicateTranslation.Ast, AstExpression.ComputedDocument([new AstComputedField("predicate", true), new AstComputedField("count", AstExpression.Add(valueCountField, 1))]))
                         ],
-                        @default: AstExpression.ComputedDocument([new AstComputedField("predicate", false), new AstComputedField("count", valueCountField)])));
+                        @default: AstExpression.ComputedDocument([new AstComputedField("predicate", false), new AstComputedField("count", valueCountField)])),
+                    arrayIndexAs: arrayIndexAsVar);
 
                 var whileVar = AstExpression.Var("while");
                 var whileBinding = AstExpression.VarBinding(whileVar, reduceAst);
@@ -68,8 +85,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                 var sliceAst = method switch
                 {
-                    _ when method.IsOneOf(EnumerableOrQueryableMethod.SkipWhile) => AstExpression.Slice(sourceAst, whileCountField, int.MaxValue),
-                    _ when method.IsOneOf(EnumerableOrQueryableMethod.TakeWhile) => AstExpression.Slice(sourceAst, whileCountField),
+                    _ when method.IsOneOf(EnumerableOrQueryableMethod.SkipWhile) || method.IsOneOf(EnumerableOrQueryableMethod.SkipWhileWithPredicateTakingIndex) => AstExpression.Slice(sourceAst, whileCountField, int.MaxValue),
+                    _ when method.IsOneOf(EnumerableOrQueryableMethod.TakeWhile) || method.IsOneOf(EnumerableOrQueryableMethod.TakeWhileWithPredicateTakingIndex) => AstExpression.Slice(sourceAst, whileCountField),
                     _ => throw new ExpressionNotSupportedException(expression)
                 };
 
