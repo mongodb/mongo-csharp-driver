@@ -17,53 +17,50 @@ using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors;
 
-namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
+namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
+
+internal sealed class AstDeserializeEJsonExpression : AstExpression
 {
-    internal sealed class AstDeserializeEJsonExpression : AstExpression
+    private readonly AstExpression _input;
+    private readonly AstExpression _onError;
+
+    public AstDeserializeEJsonExpression(
+        AstExpression input,
+        AstExpression onError = null)
     {
-        private readonly AstExpression _input;
-        private readonly AstExpression _onError;
+        _input = Ensure.IsNotNull(input, nameof(input));
+        _onError = onError;
+    }
 
-        public AstDeserializeEJsonExpression(
-            AstExpression input,
-            AstExpression onError = null)
+    public AstExpression Input => _input;
+    public override AstNodeType NodeType => AstNodeType.DeserializeEJsonExpression;
+    public AstExpression OnError => _onError;
+
+    public override AstNode Accept(AstNodeVisitor visitor) =>
+        visitor.VisitDeserializeEJsonExpression(this);
+
+    public override BsonValue Render()
+    {
+        return new BsonDocument
         {
-            _input = Ensure.IsNotNull(input, nameof(input));
-            _onError = onError;
-        }
-
-        public AstExpression Input => _input;
-        public override AstNodeType NodeType => AstNodeType.DeserializeEJsonExpression;
-        public AstExpression OnError => _onError;
-
-        public override AstNode Accept(AstNodeVisitor visitor)
-        {
-            return visitor.VisitDeserializeEJsonExpression(this);
-        }
-
-        public override BsonValue Render()
-        {
-            return new BsonDocument
-            {
-                { "$deserializeEJSON", new BsonDocument
-                    {
-                        { "input", _input.Render() },
-                        { "onError", () => _onError.Render(), _onError != null }
-                    }
+            { "$deserializeEJSON", new BsonDocument
+                {
+                    { "input", _input.Render() },
+                    { "onError", () => _onError.Render(), _onError != null }
                 }
-            };
-        }
-
-        public AstDeserializeEJsonExpression Update(
-            AstExpression input,
-            AstExpression onError)
-        {
-            if (input == _input && onError == _onError)
-            {
-                return this;
             }
+        };
+    }
 
-            return new AstDeserializeEJsonExpression(input, onError);
+    public AstDeserializeEJsonExpression Update(
+        AstExpression input,
+        AstExpression onError)
+    {
+        if (input == _input && onError == _onError)
+        {
+            return this;
         }
+
+        return new AstDeserializeEJsonExpression(input, onError);
     }
 }
