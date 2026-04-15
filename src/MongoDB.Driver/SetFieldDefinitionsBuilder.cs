@@ -26,6 +26,32 @@ namespace MongoDB.Driver
     public class SetFieldDefinitionsBuilder<TDocument>
     {
         /// <summary>
+        /// Set a field to a value using an aggregation expression.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The aggregation expression that produces the value.</param>
+        /// <returns>An instance of ListSetFieldDefinitions to which further set field definitions can be added.</returns>
+        public ListSetFieldDefinitions<TDocument> Set<TField>(FieldDefinition<TDocument, TField> field, AggregateExpressionDefinition<TDocument, TField> value)
+        {
+            var setFieldsDefinitions = new ListSetFieldDefinitions<TDocument>(Enumerable.Empty<SetFieldDefinition<TDocument>>());
+            return setFieldsDefinitions.Set(field, value);
+        }
+
+        /// <summary>
+        /// Set a field to a value using an expression to specify the field and an aggregation expression for the value.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The aggregation expression that produces the value.</param>
+        /// <returns>An instance of ListSetFieldDefinitions to which further set field definitions can be added.</returns>
+        public ListSetFieldDefinitions<TDocument> Set<TField>(Expression<Func<TDocument, TField>> field, AggregateExpressionDefinition<TDocument, TField> value)
+        {
+            var setFieldsDefinitions = new ListSetFieldDefinitions<TDocument>(Enumerable.Empty<SetFieldDefinition<TDocument>>());
+            return setFieldsDefinitions.Set(new ExpressionFieldDefinition<TDocument, TField>(field), value);
+        }
+
+        /// <summary>
         /// Set a field to a value using a constant.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
@@ -57,6 +83,35 @@ namespace MongoDB.Driver
     /// </summary>
     public static class ListSetFieldDefinitionsExtensions
     {
+        /// <summary>
+        /// Set an additional field to a value using an aggregation expression.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="fields">The existing ListSetFieldDefinitions.</param>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The aggregation expression that produces the value.</param>
+        /// <returns>The ListSetFieldDefinitions instance with a SetFieldDefinition added.</returns>
+        public static ListSetFieldDefinitions<TDocument> Set<TDocument, TField>(this ListSetFieldDefinitions<TDocument> fields, FieldDefinition<TDocument, TField> field, AggregateExpressionDefinition<TDocument, TField> value)
+        {
+            var setFieldDefinition = new AggregateExpressionSetFieldDefinition<TDocument, TField>(field, value);
+            return fields.Set(setFieldDefinition);
+        }
+
+        /// <summary>
+        /// Set an additional field to a value using an Expression to specify the field and an aggregation expression for the value.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="fields">The existing ListSetFieldDefinitions.</param>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The aggregation expression that produces the value.</param>
+        /// <returns>The ListSetFieldDefinitions instance with a SetFieldDefinition added.</returns>
+        public static ListSetFieldDefinitions<TDocument> Set<TDocument, TField>(this ListSetFieldDefinitions<TDocument> fields, Expression<Func<TDocument, TField>> field, AggregateExpressionDefinition<TDocument, TField> value)
+        {
+            return fields.Set(new ExpressionFieldDefinition<TDocument, TField>(field), value);
+        }
+
         /// <summary>
         /// Set an additional field to value using a constant.
         /// </summary>

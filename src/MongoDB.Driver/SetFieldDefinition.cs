@@ -34,6 +34,38 @@ namespace MongoDB.Driver
     }
 
     /// <summary>
+    /// A SetFieldDefinition that uses a field and an aggregation expression to define the field to be set.
+    /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
+    /// <typeparam name="TField">The type of the field.</typeparam>
+    public sealed class AggregateExpressionSetFieldDefinition<TDocument, TField> : SetFieldDefinition<TDocument>
+    {
+        private readonly FieldDefinition<TDocument, TField> _field;
+        private readonly AggregateExpressionDefinition<TDocument, TField> _value;
+
+        /// <summary>
+        /// Initializes an instance of AggregateExpressionSetFieldDefinition.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The aggregation expression that produces the value.</param>
+        public AggregateExpressionSetFieldDefinition(
+            FieldDefinition<TDocument, TField> field,
+            AggregateExpressionDefinition<TDocument, TField> value)
+        {
+            _field = Ensure.IsNotNull(field, nameof(field));
+            _value = Ensure.IsNotNull(value, nameof(value));
+        }
+
+        /// <inheritdoc/>
+        public override BsonElement Render(RenderArgs<TDocument> args)
+        {
+            var renderedField = _field.Render(args);
+            var renderedValue = _value.Render(args);
+            return new BsonElement(renderedField.FieldName, renderedValue);
+        }
+    }
+
+    /// <summary>
     /// A SetFieldDefinition that uses a field and a a constant to define the field to be set.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>

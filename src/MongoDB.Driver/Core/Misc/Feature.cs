@@ -90,6 +90,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __mmapV1StorageEngine = new Feature("MmapV1StorageEngine", WireVersion.Zero, WireVersion.Server42);
         private static readonly Feature __medianOperator = new Feature("MedianOperator", WireVersion.Server70);
         private static readonly Feature __percentileOperator = new Feature("PercentileOperator", WireVersion.Server70);
+        private static readonly Feature __pickAccumulatorsAsExpressionsNewIn83 = new Feature("PickAccumulatorsAsExpressionsNewIn83", WireVersion.Server83);
         private static readonly Feature __pickAccumulatorsNewIn52 = new Feature("PickAccumulatorsNewIn52", WireVersion.Server52);
         private static readonly Feature __rankFusionStage = new Feature("RankFusionStage", WireVersion.Server81);
         private static readonly Feature __regexMatch = new Feature("RegexMatch", WireVersion.Server42);
@@ -444,6 +445,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the $percentile operator added in 7.0
         /// </summary>
         public static Feature PercentileOperator => __percentileOperator;
+
+        /// <summary>
+        /// Gets the pick accumulators as expressions new in 8.3 feature.
+        /// </summary>
+        public static Feature PickAccumulatorsAsExpressionsNewIn83 => __pickAccumulatorsAsExpressionsNewIn83;
 
         /// <summary>
         /// Gets the pick accumulators new in 5.2 feature.
