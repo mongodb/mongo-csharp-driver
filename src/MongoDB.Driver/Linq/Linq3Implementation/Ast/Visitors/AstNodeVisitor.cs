@@ -656,7 +656,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors
 
         public virtual AstNode VisitReduceExpression(AstReduceExpression node)
         {
-            return node.Update(VisitAndConvert(node.Input), VisitAndConvert(node.InitialValue), VisitAndConvert(node.In), VisitAndConvert(node.As), VisitAndConvert(node.ArrayIndexAs), VisitAndConvert(node.ValueAs));
+            return node.Update(VisitAndConvert(node.Input), VisitAndConvert(node.InitialValue), VisitAndConvert(node.In), VisitAndConvert(node.ArrayIndexAs));
         }
 
         public virtual AstNode VisitRegexExpression(AstRegexExpression node)

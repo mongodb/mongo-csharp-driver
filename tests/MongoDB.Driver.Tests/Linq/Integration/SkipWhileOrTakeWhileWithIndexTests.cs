@@ -16,6 +16,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
@@ -25,7 +26,7 @@ namespace MongoDB.Driver.Tests.Linq.Integration;
 public class SkipWhileOrTakeWhileWithIndexTests : LinqIntegrationTest<SkipWhileOrTakeWhileWithIndexTests.ClassFixture>
 {
     public SkipWhileOrTakeWhileWithIndexTests(ClassFixture fixture)
-        : base(fixture)
+        : base(fixture, server => server.Supports(Feature.ReduceArrayIndexAs))
     {
     }
 
@@ -155,7 +156,7 @@ public class SkipWhileOrTakeWhileWithIndexTests : LinqIntegrationTest<SkipWhileO
     {
         protected override IEnumerable<C> InitialData { get; } =
         [
-            new C { Id = 1, A = [1, 2, 3, 4, 5] }
+            new() { Id = 1, A = [1, 2, 3, 4, 5] }
         ];
     }
 }

@@ -723,9 +723,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return new AstRangeExpression(start, end, step);
         }
 
-        public static AstExpression Reduce(AstExpression input, AstExpression initialValue, AstExpression @in, AstVarExpression @as = null, AstVarExpression arrayIndexAs = null, AstVarExpression valueAs = null)
+        public static AstExpression Reduce(AstExpression input, AstExpression initialValue, AstExpression @in, AstVarExpression arrayIndexAs = null)
         {
-            return new AstReduceExpression(input, initialValue, @in, @as, arrayIndexAs, valueAs);
+            return new AstReduceExpression(input, initialValue, @in, arrayIndexAs);
         }
 
         public static AstExpression RegexMatch(AstExpression input, string pattern, string options)

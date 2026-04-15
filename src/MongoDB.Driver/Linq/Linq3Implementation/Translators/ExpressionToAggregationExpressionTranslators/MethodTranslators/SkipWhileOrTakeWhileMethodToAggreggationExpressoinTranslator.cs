@@ -13,9 +13,7 @@
 * limitations under the License.
 */
 
-using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using MongoDB.Bson;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;

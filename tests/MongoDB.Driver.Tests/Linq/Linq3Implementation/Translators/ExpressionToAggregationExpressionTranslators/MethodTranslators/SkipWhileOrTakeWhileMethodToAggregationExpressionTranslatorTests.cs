@@ -19,7 +19,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators;
 using Xunit;
