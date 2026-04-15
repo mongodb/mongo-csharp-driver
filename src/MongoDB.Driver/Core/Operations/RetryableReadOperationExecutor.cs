@@ -29,6 +29,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             HashSet<ServerDescription> deprioritizedServers = null;
             var totalAttempts = 0;
+            var overloadErrorSeen = false;
             Exception originalException = null;
 
             while (true) // Circle breaking logic based on ShouldRetryOperation method, see the catch block below.
@@ -55,8 +56,9 @@ namespace MongoDB.Driver.Core.Operations
                 catch (Exception ex)
                 {
                     originalException ??= ex;
+                    overloadErrorSeen |= RetryabilityHelper.IsSystemOverloadedException(ex);
 
-                    if (!ShouldRetry(operationContext, context, operation.IsOperationRetryable, ex, totalAttempts, context.Random, out var backoff))
+                    if (!ShouldRetry(operationContext, context, operation.IsOperationRetryable, ex, totalAttempts, context.Random, overloadErrorSeen, out var backoff))
                     {
                         throw originalException;
                     }
@@ -78,6 +80,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             HashSet<ServerDescription> deprioritizedServers = null;
             var totalAttempts = 0;
+            var overloadErrorSeen = false;
             Exception originalException = null;
 
             while (true) // Circle breaking logic based on ShouldRetryOperation method, see the catch block below.
@@ -104,8 +107,9 @@ namespace MongoDB.Driver.Core.Operations
                 catch (Exception ex)
                 {
                     originalException ??= ex;
+                    overloadErrorSeen |= RetryabilityHelper.IsSystemOverloadedException(ex);
 
-                    if (!ShouldRetry(operationContext, context, operation.IsOperationRetryable, ex, totalAttempts, context.Random, out var backoff))
+                    if (!ShouldRetry(operationContext, context, operation.IsOperationRetryable, ex, totalAttempts, context.Random, overloadErrorSeen, out var backoff))
                     {
                         throw originalException;
                     }
@@ -123,6 +127,7 @@ namespace MongoDB.Driver.Core.Operations
             Exception exception,
             int attempt,
             IRandom random,
+            bool overloadErrorSeen,
             out TimeSpan backoff)
         {
             backoff = TimeSpan.Zero;
@@ -162,6 +167,12 @@ namespace MongoDB.Driver.Core.Operations
 
                 backoff = RetryabilityHelper.GetOperationRetryBackoffDelay(attempt, random);
 
+                return attempt <= context.MaxAdaptiveRetries;
+            }
+
+            // If an overload error was seen earlier in this retry loop, cap total retries at MaxAdaptiveRetries but don't apply backoff.
+            if (overloadErrorSeen)
+            {
                 return attempt <= context.MaxAdaptiveRetries;
             }
 

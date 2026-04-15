@@ -1,4 +1,4 @@
-﻿﻿/* Copyright 2010-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,20 +25,24 @@ using MongoDB.Bson;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Specifications.client_backpressure.prose_tests;
 
-public class ClientBackpressureProseTests
+// Test 1 requires controlling the RNG for precise timing assertions, so it uses unit tests with mocks.
+public class ClientBackpressureProseTestsUnit
 {
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
+    // https://github.com/mongodb/specifications/blob/master/source/client-backpressure/tests/README.md#test-1-operation-retry-uses-exponential-backoff
     public async Task ReadExecute_should_apply_backoff_when_backpressure_errors_occurs(bool async)
     {
         var operationMock = new Mock<IRetryableReadOperation<int>>();
@@ -59,6 +64,7 @@ public class ClientBackpressureProseTests
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
+    // https://github.com/mongodb/specifications/blob/master/source/client-backpressure/tests/README.md#test-1-operation-retry-uses-exponential-backoff
     public async Task WriteExecute_should_apply_backoff_when_backpressure_errors_occurs(bool async)
     {
         var operationMock = new Mock<IRetryableWriteOperation<int>>();
@@ -76,73 +82,6 @@ public class ClientBackpressureProseTests
             random => CreateRetryableWriteContext(random),
             (operationContext, context) => RetryableWriteOperationExecutor.Execute(operationContext, operationMock.Object, context),
             async (operationContext, context) => await RetryableWriteOperationExecutor.ExecuteAsync(operationContext, operationMock.Object, context));
-    }
-
-    // Test 3: Overload Errors are Retried a Maximum of MAX_RETRIES times
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public async Task Overload_errors_are_retried_a_maximum_of_MAX_RETRIES_times(bool async)
-    {
-        // MAX_RETRIES = 2, so total started commands = MAX_RETRIES + 1 = 3
-        await AssertMaxRetries(async, maxAdaptiveRetries: 2, expectedAttempts: 3);
-    }
-
-    // Test 4: Overload Errors are Retried a Maximum of maxAdaptiveRetries times when configured
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public async Task Overload_errors_are_retried_a_maximum_of_maxAdaptiveRetries_times_when_configured(bool async)
-    {
-        // maxAdaptiveRetries = 1, so total started commands = maxAdaptiveRetries + 1 = 2
-        await AssertMaxRetries(async, maxAdaptiveRetries: 1, expectedAttempts: 2);
-    }
-
-    private async Task AssertMaxRetries(bool async, int maxAdaptiveRetries, int expectedAttempts)
-    {
-        var operationMock = new Mock<IRetryableReadOperation<int>>();
-        var exception = CoreExceptionHelper.CreateMongoCommandExceptionWithLabels(462, "SystemOverloadedError", "RetryableError");
-        operationMock
-            .Setup(o => o.ExecuteAttempt(It.IsAny<OperationContext>(), It.IsAny<RetryableReadContext>(), It.IsAny<int>(), It.IsAny<long?>()))
-            .Throws(exception);
-        operationMock
-            .Setup(o => o.ExecuteAttemptAsync(It.IsAny<OperationContext>(), It.IsAny<RetryableReadContext>(), It.IsAny<int>(), It.IsAny<long?>()))
-            .ThrowsAsync(exception);
-
-        var noBackoffRandom = new Mock<IRandom>();
-        noBackoffRandom.Setup(r => r.NextDouble()).Returns(0.0);
-        var context = CreateRetryableReadContext(noBackoffRandom.Object, maxAdaptiveRetries);
-
-        var operationContext = new OperationContext(TimeSpan.FromSeconds(30), CancellationToken.None);
-
-        Exception caughtException;
-        if (async)
-        {
-            caughtException = await Record.ExceptionAsync(() =>
-                RetryableReadOperationExecutor.ExecuteAsync(operationContext, operationMock.Object, context));
-        }
-        else
-        {
-            caughtException = Record.Exception(() =>
-                RetryableReadOperationExecutor.Execute(operationContext, operationMock.Object, context));
-        }
-
-        var mongoException = caughtException.Should().BeAssignableTo<MongoException>().Subject;
-        mongoException.HasErrorLabel("RetryableError").Should().BeTrue();
-        mongoException.HasErrorLabel("SystemOverloadedError").Should().BeTrue();
-
-        if (async)
-        {
-            operationMock.Verify(
-                o => o.ExecuteAttemptAsync(It.IsAny<OperationContext>(), It.IsAny<RetryableReadContext>(), It.IsAny<int>(), It.IsAny<long?>()),
-                Times.Exactly(expectedAttempts));
-        }
-        else
-        {
-            operationMock.Verify(
-                o => o.ExecuteAttempt(It.IsAny<OperationContext>(), It.IsAny<RetryableReadContext>(), It.IsAny<int>(), It.IsAny<long?>()),
-                Times.Exactly(expectedAttempts));
-        }
     }
 
     private async Task AssertBackoffBehavior<TContext>(
@@ -251,5 +190,95 @@ public class ClientBackpressureProseTests
 
         channelSourceField.SetValue(context, channelSource);
         channelField.SetValue(context, channel);
+    }
+}
+
+[Trait("Category", "Integration")]
+public class ClientBackpressureProseTestsIntegration
+{
+    [Fact]
+    // https://github.com/mongodb/specifications/blob/master/source/client-backpressure/tests/README.md#test-3-overload-errors-are-retried-a-maximum-of-max_retries-times
+    public void Overload_errors_are_retried_a_maximum_of_MAX_RETRIES_times()
+    {
+        RequireServer.Check()
+            .ClusterTypes(ClusterType.ReplicaSet)
+            .VersionGreaterThanOrEqualTo("4.4.0");
+
+        var failPointCommand = BsonDocument.Parse(
+            @"{
+                configureFailPoint: ""failCommand"",
+                mode: ""alwaysOn"",
+                data:
+                {
+                    failCommands: [""find""],
+                    errorCode: 462,
+                    errorLabels: [""SystemOverloadedError"", ""RetryableError""]
+                }
+            }");
+
+        var eventCapturer = new EventCapturer().CaptureCommandEvents("find");
+
+        using var failPoint = FailPoint.Configure(DriverTestConfiguration.Client.GetClusterInternal(), NoCoreSession.NewHandle(), failPointCommand);
+        using var client = DriverTestConfiguration.CreateMongoClient(s =>
+        {
+            s.RetryReads = true;
+            s.ClusterConfigurator = b => b.Subscribe(eventCapturer);
+        });
+
+        var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
+        var collection = database.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
+
+        var exception = Record.Exception(() => collection.FindSync(Builders<BsonDocument>.Filter.Empty));
+
+        var mongoException = exception.Should().BeAssignableTo<MongoException>().Subject;
+        mongoException.HasErrorLabel("RetryableError").Should().BeTrue();
+        mongoException.HasErrorLabel("SystemOverloadedError").Should().BeTrue();
+
+        // MAX_RETRIES = 2, so total started commands = MAX_RETRIES + 1 = 3
+        var expectedAttempts = RetryabilityHelper.OperationRetryBackpressureConstants.DefaultMaxRetries + 1;
+        eventCapturer.Events.OfType<CommandStartedEvent>().Count().Should().Be(expectedAttempts);
+    }
+
+    [Fact]
+    // https://github.com/mongodb/specifications/blob/master/source/client-backpressure/tests/README.md#test-4-overload-errors-are-retried-a-maximum-of-maxadaptiveretries-times-when-configured
+    public void Overload_errors_are_retried_a_maximum_of_maxAdaptiveRetries_times_when_configured()
+    {
+        RequireServer.Check()
+            .ClusterTypes(ClusterType.ReplicaSet)
+            .VersionGreaterThanOrEqualTo("4.4.0");
+
+        var failPointCommand = BsonDocument.Parse(
+            @"{
+                configureFailPoint: ""failCommand"",
+                mode: ""alwaysOn"",
+                data:
+                {
+                    failCommands: [""find""],
+                    errorCode: 462,
+                    errorLabels: [""SystemOverloadedError"", ""RetryableError""]
+                }
+            }");
+
+        var eventCapturer = new EventCapturer().CaptureCommandEvents("find");
+
+        using var failPoint = FailPoint.Configure(DriverTestConfiguration.Client.GetClusterInternal(), NoCoreSession.NewHandle(), failPointCommand);
+        using var client = DriverTestConfiguration.CreateMongoClient(s =>
+        {
+            s.RetryReads = true;
+            s.MaxAdaptiveRetries = 1;
+            s.ClusterConfigurator = b => b.Subscribe(eventCapturer);
+        });
+
+        var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
+        var collection = database.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
+
+        var exception = Record.Exception(() => collection.FindSync(Builders<BsonDocument>.Filter.Empty));
+
+        var mongoException = exception.Should().BeAssignableTo<MongoException>().Subject;
+        mongoException.HasErrorLabel("RetryableError").Should().BeTrue();
+        mongoException.HasErrorLabel("SystemOverloadedError").Should().BeTrue();
+
+        // maxAdaptiveRetries = 1, so total started commands = maxAdaptiveRetries + 1 = 2
+        eventCapturer.Events.OfType<CommandStartedEvent>().Count().Should().Be(2);
     }
 }

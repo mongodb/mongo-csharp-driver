@@ -37,6 +37,7 @@ namespace MongoDB.Driver.Core.Operations
             HashSet<ServerDescription> deprioritizedServers = null;
             var totalAttempts = 0;
             var operationExecutionAttempts = 0;
+            var overloadErrorSeen = false;
             Exception originalException = null;
             var isEndTransactionOperation = operation is EndTransactionOperation;
 
@@ -74,7 +75,9 @@ namespace MongoDB.Driver.Core.Operations
                         originalException = ex;
                     }
 
-                    if (!ShouldRetry(operationContext, context.Channel is null, server, operation.WriteConcern, context, ex, totalAttempts, context.Random, isEndTransactionOperation, operation.IsOperationRetryable, out var backoff))
+                    overloadErrorSeen |= RetryabilityHelper.IsSystemOverloadedException(ex);
+
+                    if (!ShouldRetry(operationContext, context.Channel is null, server, operation.WriteConcern, context, ex, totalAttempts, context.Random, isEndTransactionOperation, operation.IsOperationRetryable, overloadErrorSeen, out var backoff))
                     {
                         throw originalException;
                     }
@@ -108,6 +111,7 @@ namespace MongoDB.Driver.Core.Operations
             HashSet<ServerDescription> deprioritizedServers = null;
             var totalAttempts = 0;
             var operationExecutionAttempts = 0;
+            var overloadErrorSeen = false;
             Exception originalException = null;
             var isEndTransactionOperation = operation is EndTransactionOperation;
 
@@ -143,7 +147,9 @@ namespace MongoDB.Driver.Core.Operations
                         originalException = ex;
                     }
 
-                    if (!ShouldRetry(operationContext, context.Channel is null, server, operation.WriteConcern, context, ex, totalAttempts, context.Random, isEndTransactionOperation, operation.IsOperationRetryable, out var backoff))
+                    overloadErrorSeen |= RetryabilityHelper.IsSystemOverloadedException(ex);
+
+                    if (!ShouldRetry(operationContext, context.Channel is null, server, operation.WriteConcern, context, ex, totalAttempts, context.Random, isEndTransactionOperation, operation.IsOperationRetryable, overloadErrorSeen, out var backoff))
                     {
                         throw originalException;
                     }
@@ -170,6 +176,7 @@ namespace MongoDB.Driver.Core.Operations
             IRandom random,
             bool isEndTransactionOperation,
             bool isOperationRetryable,
+            bool overloadErrorSeen,
             out TimeSpan backoff)
         {
             backoff = TimeSpan.Zero;
@@ -227,6 +234,12 @@ namespace MongoDB.Driver.Core.Operations
 
                 backoff = RetryabilityHelper.GetOperationRetryBackoffDelay(attempt, random);
 
+                return attempt <= context.MaxAdaptiveRetries;
+            }
+
+            // If an overload error was seen earlier in this retry loop, cap total retries at MaxAdaptiveRetries but don't apply backoff.
+            if (overloadErrorSeen)
+            {
                 return attempt <= context.MaxAdaptiveRetries;
             }
 
