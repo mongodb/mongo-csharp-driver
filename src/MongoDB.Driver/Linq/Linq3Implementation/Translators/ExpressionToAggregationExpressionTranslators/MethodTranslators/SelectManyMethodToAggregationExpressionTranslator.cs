@@ -55,8 +55,38 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     initialValue: new BsonArray(),
                     @in: AstExpression.ConcatArrays(valueVar, thisVar));
 
-                var ienumerableSerializer = IEnumerableSerializer.Create(itemSerializer);
-                return new TranslatedExpression(expression, ast, ienumerableSerializer);
+                var serializer = NestedAsQueryableSerializer.CreateIEnumerableOrNestedAsQueryableSerializer(expression.Type, itemSerializer);
+                return new TranslatedExpression(expression, ast, serializer);
+            }
+
+            if (method.IsOneOf(EnumerableOrQueryableMethod.SelectManyWithSelectorTakingIndex))
+            {
+                var sourceExpression = arguments[0];
+                var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
+                NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsQueryableSource(expression, sourceTranslation);
+
+                var selectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
+                var itemParameter = selectorLambda.Parameters[0];
+                var indexParameter = selectorLambda.Parameters[1];
+                var itemSymbol = context.CreateSymbol(itemParameter, context.GetSerializer(itemParameter));
+                var indexSymbol = context.CreateSymbol(indexParameter, context.GetSerializer(indexParameter));
+                var selectorContext = context.WithSymbols(itemSymbol, indexSymbol);
+                var selectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(selectorContext, selectorLambda.Body);
+                var resultItemSerializer = ArraySerializerHelper.GetItemSerializer(selectorTranslation.Serializer);
+
+                var valueVar = AstExpression.Var("value");
+                var thisVar = AstExpression.Var("this");
+                var ast = AstExpression.Reduce(
+                    input: AstExpression.Map(
+                        input: sourceTranslation.Ast,
+                        @as: itemSymbol.Var,
+                        @in: selectorTranslation.Ast,
+                        arrayIndexAs: indexSymbol.Var),
+                    initialValue: new BsonArray(),
+                    @in: AstExpression.ConcatArrays(valueVar, thisVar));
+
+                var serializer = NestedAsQueryableSerializer.CreateIEnumerableOrNestedAsQueryableSerializer(expression.Type, resultItemSerializer);
+                return new TranslatedExpression(expression, ast, serializer);
             }
 
             throw new ExpressionNotSupportedException(expression);

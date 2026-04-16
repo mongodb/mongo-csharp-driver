@@ -428,9 +428,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return new AstFieldPathExpression(path);
         }
 
-        public static AstExpression Filter(AstExpression input, AstExpression cond, string @as, AstExpression limit = null)
+        public static AstExpression Filter(AstExpression input, AstExpression cond, string @as, AstExpression limit = null, string arrayIndexAs = null)
         {
-            return new AstFilterExpression(input, cond, @as, limit);
+            return new AstFilterExpression(input, cond, @as, limit, arrayIndexAs);
         }
 
         public static AstExpression First(AstExpression array)
@@ -592,9 +592,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return new AstLTrimExpression(input, chars);
         }
 
-        public static AstExpression Map(AstExpression input, AstVarExpression @as, AstExpression @in)
+        public static AstExpression Map(AstExpression input, AstVarExpression @as, AstExpression @in, AstVarExpression arrayIndexAs = null)
         {
-            return new AstMapExpression(input, @as, @in);
+            return new AstMapExpression(input, @as, @in, arrayIndexAs);
         }
 
         public static AstExpression Max(AstExpression array)

@@ -2354,6 +2354,19 @@ internal partial class SerializerFinderVisitor
                 DeduceItemAndCollectionSerializers(selectorParameter, sourceExpression);
                 DeduceCollectionAndItemSerializers(node, selectorLambda.Body);
             }
+            else if (method.IsOneOf(EnumerableOrQueryableMethod.SelectWithSelectorTakingIndex))
+            {
+                var sourceExpression = arguments[0];
+                var selectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
+                var itemParameter = selectorLambda.Parameters[0];
+                var indexParameter = selectorLambda.Parameters[1];
+                DeduceItemAndCollectionSerializers(itemParameter, sourceExpression);
+                if (IsNotKnown(indexParameter))
+                {
+                    AddNodeSerializer(indexParameter, Int32Serializer.Instance);
+                }
+                DeduceCollectionAndItemSerializers(node, selectorLambda.Body);
+            }
             else
             {
                 DeduceUnknownMethodSerializer();
@@ -2389,6 +2402,19 @@ internal partial class SerializerFinderVisitor
                     DeduceItemAndCollectionSerializers(resultSelectorCollectionItemParameter, collectionSelectorLambda.Body);
                     DeduceCollectionAndItemSerializers(node, resultSelectorLambda.Body);
                 }
+            }
+            else if (method.IsOneOf(EnumerableOrQueryableMethod.SelectManyWithSelectorTakingIndex))
+            {
+                var sourceExpression = arguments[0];
+                var selectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
+                var itemParameter = selectorLambda.Parameters[0];
+                var indexParameter = selectorLambda.Parameters[1];
+                DeduceItemAndCollectionSerializers(itemParameter, sourceExpression);
+                if (IsNotKnown(indexParameter))
+                {
+                    AddNodeSerializer(indexParameter, Int32Serializer.Instance);
+                }
+                DeduceCollectionAndCollectionSerializers(node, selectorLambda.Body);
             }
             else
             {
@@ -2818,6 +2844,19 @@ internal partial class SerializerFinderVisitor
                 var predicateLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
                 var predicateParameter =  predicateLambda.Parameters.Single();
                 DeduceItemAndCollectionSerializers(predicateParameter, sourceExpression);
+                DeduceCollectionAndCollectionSerializers(node, sourceExpression);
+            }
+            else if (method.IsOneOf(EnumerableOrQueryableMethod.WhereWithPredicateTakingIndex))
+            {
+                var sourceExpression = arguments[0];
+                var predicateLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
+                var itemParameter = predicateLambda.Parameters[0];
+                var indexParameter = predicateLambda.Parameters[1];
+                DeduceItemAndCollectionSerializers(itemParameter, sourceExpression);
+                if (IsNotKnown(indexParameter))
+                {
+                    AddNodeSerializer(indexParameter, Int32Serializer.Instance);
+                }
                 DeduceCollectionAndCollectionSerializers(node, sourceExpression);
             }
             else

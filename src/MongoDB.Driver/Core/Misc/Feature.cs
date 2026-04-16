@@ -35,6 +35,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __aggregateOutToDifferentDatabase = new Feature("AggregateOutToDifferentDatabase", WireVersion.Server44);
         private static readonly Feature __aggregateToString = new Feature("AggregateToString", WireVersion.Server40);
         private static readonly Feature __aggregateUnionWith = new Feature("AggregateUnionWith", WireVersion.Server44);
+        private static readonly Feature __arrayIndexAs = new Feature("ArrayIndexAs", WireVersion.Server83);
         private static readonly Feature __bitwiseOperators = new Feature("BitwiseOperators", WireVersion.Server63);
         private static readonly Feature __changeStreamAllChangesForCluster = new Feature("ChangeStreamAllChangesForCluster", WireVersion.Server40);
         private static readonly Feature __changeStreamForDatabase = new Feature("ChangeStreamForDatabase", WireVersion.Server40);
@@ -160,6 +161,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the aggregate unionWith feature.
         /// </summary>
         public static Feature AggregateUnionWith => __aggregateUnionWith;
+
+        /// <summary>
+        /// Gets the arrayIndexAs feature for $map, $filter and $reduce.
+        /// </summary>
+        public static Feature ArrayIndexAs => __arrayIndexAs;
 
         /// <summary>
         /// Gets the bitwise operators feature.
