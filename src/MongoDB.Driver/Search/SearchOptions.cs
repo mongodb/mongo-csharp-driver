@@ -69,24 +69,5 @@ namespace MongoDB.Driver.Search
         /// When set, the search retrieves documents starting immediately before the specified reference point.
         /// </summary>
         public string SearchBefore { get; set; }
-
-        /// <summary>
-        /// Creates a clone of the options.
-        /// </summary>
-        /// <returns>A clone of the options.</returns>
-        public SearchOptions<TDocument> Clone()
-            => new()
-            {
-                CountOptions = CountOptions?.Clone(),
-                Highlight = Highlight?.Clone(),
-                IndexName = IndexName,
-                ReturnStoredSource = ReturnStoredSource,
-                ScoreDetails = ScoreDetails,
-                Sort = Sort,
-                Tracking = Tracking?.Clone(),
-                SearchAfter = SearchAfter,
-                SearchBefore = SearchBefore,
-            };
-
     }
 }
