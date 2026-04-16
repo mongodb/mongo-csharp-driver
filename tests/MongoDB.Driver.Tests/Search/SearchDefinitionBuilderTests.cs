@@ -573,6 +573,78 @@ namespace MongoDB.Driver.Tests.Search
                 "{ geoWithin: { circle: { center: { type: 'Point', coordinates: [-161.323242, 22.512557] }, radius: 7.5 }, path: 'location' } }");
         }
 
+        [Fact]
+        public void HasAncestor()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            AssertRendered(
+                subject.HasAncestor<BsonDocument>("x", subject.Text("x.y", "foo")),
+                "{ hasAncestor: { ancestorPath: 'x', operator: { text: { query: 'foo', path: 'x.y' } } } }");
+
+            var scoreBuilder = new SearchScoreDefinitionBuilder<BsonDocument>();
+            AssertRendered(
+                subject.HasAncestor<BsonDocument>("x", subject.Text("x.y", "foo"), scoreBuilder.Constant(1)),
+                "{ hasAncestor: { ancestorPath: 'x', operator: { text: { query: 'foo', path: 'x.y' } }, score: { constant: { value: 1 } } } }");
+        }
+
+        [Fact]
+        public void HasAncestor_typed()
+        {
+            var subjectFamily = CreateSubject<Family>();
+
+            AssertRendered(
+                subjectFamily.HasAncestor(f => f.Children, subjectFamily.Text("fn", "John")),
+                "{ hasAncestor: { ancestorPath: 'Children', operator: { text: { query: 'John', path: 'fn' } } } }");
+
+            AssertRendered(
+                subjectFamily.HasAncestor<SimplePerson>("Children", subjectFamily.Text("fn", "John")),
+                "{ hasAncestor: { ancestorPath: 'Children', operator: { text: { query: 'John', path: 'fn' } } } }");
+
+            // Inside EmbeddedDocument: ancestorPath uses the raw field name and the inner operator's
+            // path is not prefixed (PathPrefix is reset to null by HasAncestor).
+            AssertRendered(
+                subjectFamily.EmbeddedDocument<Family>(
+                    "Children",
+                    subjectFamily.HasAncestor(
+                        f => f.Children,
+                        subjectFamily.Text("fn", "John"))),
+                "{ embeddedDocument: { path: 'Children', operator: { hasAncestor: { ancestorPath: 'Children', operator: { text: { query: 'John', path: 'fn' } } } } } }");
+        }
+
+        [Fact]
+        public void HasRoot()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            AssertRendered(
+                subject.HasRoot(subject.Text("x.y", "foo")),
+                "{ hasRoot: { operator: { text: { query: 'foo', path: 'x.y' } } } }");
+
+            var scoreBuilder = new SearchScoreDefinitionBuilder<BsonDocument>();
+            AssertRendered(
+                subject.HasRoot(subject.Text("x.y", "foo"), scoreBuilder.Constant(1)),
+                "{ hasRoot: { operator: { text: { query: 'foo', path: 'x.y' } }, score: { constant: { value: 1 } } } }");
+        }
+
+        [Fact]
+        public void HasRoot_typed()
+        {
+            var subjectFamily = CreateSubject<Family>();
+
+            AssertRendered(
+                subjectFamily.HasRoot(subjectFamily.Text("fn", "John")),
+                "{ hasRoot: { operator: { text: { query: 'John', path: 'fn' } } } }");
+
+            // Inside EmbeddedDocument: the inner operator's path is not prefixed
+            // (PathPrefix is reset to null by HasRoot).
+            AssertRendered(
+                subjectFamily.EmbeddedDocument<Family>(
+                    "Children",
+                    subjectFamily.HasRoot(subjectFamily.Text("fn", "John"))),
+                "{ embeddedDocument: { path: 'Children', operator: { hasRoot: { operator: { text: { query: 'John', path: 'fn' } } } } } }");
+        }
+
         [Theory]
         [MemberData(nameof(InTestData))]
         public void In<T>(T[] fieldValues, string[] fieldsRendered)

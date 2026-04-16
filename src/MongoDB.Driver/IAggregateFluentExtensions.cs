@@ -23,6 +23,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.GeoJsonObjectModel;
+using MongoDB.Driver.Search;
 
 namespace MongoDB.Driver
 {
@@ -693,6 +694,99 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(aggregate, nameof(aggregate));
             return aggregate.AppendStage(PipelineStageDefinitionBuilder.ReplaceWith(newRoot));
         }
+
+        /// <summary>
+        /// Appends a $search stage to the pipeline, returning documents from a nested scope.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="searchDefinition">The search definition.</param>
+        /// <param name="returnScope">The level of nested documents to return.</param>
+        /// <param name="searchOptions">The search options.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<TNewResult> Search<TResult, TNewResult>(
+            this IAggregateFluent<TResult> aggregate,
+            SearchDefinition<TResult> searchDefinition,
+            FieldDefinition<TResult, IEnumerable<TNewResult>> returnScope,
+            SearchOptions<TResult> searchOptions = null)
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            Ensure.IsNotNull(searchDefinition, nameof(searchDefinition));
+            Ensure.IsNotNull(returnScope, nameof(returnScope));
+
+            return aggregate.AppendStage(
+                PipelineStageDefinitionBuilder.Search(searchDefinition, returnScope, searchOptions));
+        }
+
+        /// <summary>
+        /// Appends a $search stage to the pipeline, returning documents from a nested scope.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="searchDefinition">The search definition.</param>
+        /// <param name="returnScope">The level of nested documents to return.</param>
+        /// <param name="searchOptions">The search options.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<TNewResult> Search<TResult, TNewResult>(
+            this IAggregateFluent<TResult> aggregate,
+            SearchDefinition<TResult> searchDefinition,
+            Expression<Func<TResult, IEnumerable<TNewResult>>> returnScope,
+            SearchOptions<TResult> searchOptions = null)
+            => Search(
+                aggregate,
+                searchDefinition,
+                new ExpressionFieldDefinition<TResult, IEnumerable<TNewResult>>(returnScope),
+                searchOptions);
+
+        /// <summary>
+        /// Appends a $searchMeta stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="searchDefinition">The search definition.</param>
+        /// <param name="returnScope">The level of nested documents to return.</param>
+        /// <param name="indexName">The index name.</param>
+        /// <param name="count">The count options.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<SearchMetaResult> SearchMeta<TResult>(
+            this IAggregateFluent<TResult> aggregate,
+            SearchDefinition<TResult> searchDefinition,
+            FieldDefinition<TResult> returnScope,
+            string indexName = null,
+            SearchCountOptions count = null)
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            Ensure.IsNotNull(searchDefinition, nameof(searchDefinition));
+            Ensure.IsNotNull(returnScope, nameof(returnScope));
+
+            return aggregate.AppendStage(
+                PipelineStageDefinitionBuilder.SearchMeta(searchDefinition, returnScope, indexName, count));
+        }
+
+        /// <summary>
+        /// Appends a $searchMeta stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="searchDefinition">The search definition.</param>
+        /// <param name="returnScope">The level of nested documents to return.</param>
+        /// <param name="indexName">The index name.</param>
+        /// <param name="count">The count options.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<SearchMetaResult> SearchMeta<TResult>(
+            this IAggregateFluent<TResult> aggregate,
+            SearchDefinition<TResult> searchDefinition,
+            Expression<Func<TResult, object>> returnScope,
+            string indexName = null,
+            SearchCountOptions count = null)
+            => SearchMeta(
+                aggregate,
+                searchDefinition,
+                new ExpressionFieldDefinition<TResult>(returnScope),
+                indexName,
+                count);
 
         /// <summary>
         /// Appends a $set stage to the pipeline.
