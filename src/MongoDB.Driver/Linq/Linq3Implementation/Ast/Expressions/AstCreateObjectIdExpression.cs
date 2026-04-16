@@ -26,8 +26,5 @@ internal sealed class AstCreateObjectIdExpression : AstExpression
         visitor.VisitCreateObjectIdExpression(this);
 
     public override BsonValue Render() =>
-        new BsonDocument
-        {
-            { "$createObjectId", new BsonDocument() }
-        };
+        new BsonDocument("$createObjectId", new BsonDocument());
 }

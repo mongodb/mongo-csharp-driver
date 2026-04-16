@@ -65,7 +65,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Represents the creation of a new ObjectId, translates to $createObjectId in MQL.
+        /// Creates a new unique ObjectId using the $createObjectId aggregation operator.
         /// </summary>
         /// <returns>A ObjectId.</returns>
         public static ObjectId CreateObjectId() =>
