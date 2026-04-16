@@ -105,7 +105,7 @@ namespace MongoDB.Driver.Core.Operations
             }
             var maxBatchCount = Math.Min(MaxBatchCount ?? int.MaxValue, channel.ConnectionDescription.MaxBatchCount);
             var maxDocumentSize = channel.ConnectionDescription.MaxWireDocumentSize;
-            var payload = new Type1CommandMessageSection<UpdateRequest>("updates", updates, UpdateRequestSerializer.Instance, NoOpElementNameValidator.Instance, maxBatchCount, maxDocumentSize);
+            var payload = new Type1CommandMessageSection<UpdateRequest>("updates", _updates, UpdateRequestSerializer.Instance, NoOpElementNameValidator.Instance, maxBatchCount, maxDocumentSize);
             return new Type1CommandMessageSection[] { payload };
         }
 
