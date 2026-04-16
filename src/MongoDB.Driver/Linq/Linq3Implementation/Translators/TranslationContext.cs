@@ -186,6 +186,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
             return new Symbol(parameter, name, ast, serializer, isCurrent);
         }
 
+        public Symbol CreateSymbolWithGeneratedVarName(ParameterExpression parameter, IBsonSerializer serializer, bool isCurrent = false)
+        {
+            var parameterName = _nameGenerator.GetParameterName(parameter);
+            var varName = _nameGenerator.GenerateVarName();
+            return CreateSymbol(parameter, name: parameterName, varName, serializer, isCurrent);
+        }
+
         public Symbol CreateSymbolWithVarName(ParameterExpression parameter, string varName, IBsonSerializer serializer, bool isCurrent = false)
         {
             var parameterName = _nameGenerator.GetParameterName(parameter);

@@ -131,12 +131,12 @@ public class SkipWhileOrTakeWhileMethodToAggregationExpressionTranslatorTests
                                         branches :
                                         [
                                             { case : { $not : { $getField : { field : 'predicate', input : '$$value' } } }, then : '$$value' },
-                                            { case : { $lt : [{ $add : ['$$this', '$$__i'] }, 6] }, then : { predicate : true, count : { $add : [{ $getField : { field : 'count', input : '$$value' } }, 1] } } },
+                                            { case : { $lt : [{ $add : ['$$this', '$$v__0'] }, 6] }, then : { predicate : true, count : { $add : [{ $getField : { field : 'count', input : '$$value' } }, 1] } } },
                                         ],
                                         default : { predicate : false, count : { $getField : { field : 'count', input : '$$value' } } }
                                     }
                                 },
-                                arrayIndexAs : '__i'
+                                arrayIndexAs : 'v__0'
                             }
                         }
                     },
@@ -167,12 +167,12 @@ public class SkipWhileOrTakeWhileMethodToAggregationExpressionTranslatorTests
                                         branches :
                                         [
                                             { case : { $not : { $getField : { field : 'predicate', input : '$$value' } } }, then : '$$value' },
-                                            { case : { $lt : [{ $add : ['$$this', '$$__i'] }, 6] }, then : { predicate : true, count : { $add : [{ $getField : { field : 'count', input : '$$value' } }, 1] } } },
+                                            { case : { $lt : [{ $add : ['$$this', '$$v__0'] }, 6] }, then : { predicate : true, count : { $add : [{ $getField : { field : 'count', input : '$$value' } }, 1] } } },
                                         ],
                                         default : { predicate : false, count : { $getField : { field : 'count', input : '$$value' } } }
                                     }
                                 },
-                                arrayIndexAs : '__i'
+                                arrayIndexAs : 'v__0'
                             }
                         }
                     },
