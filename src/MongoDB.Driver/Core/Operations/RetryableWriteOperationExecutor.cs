@@ -189,7 +189,7 @@ namespace MongoDB.Driver.Core.Operations
             bool isRetryableRead;
             if (errorDuringChannelAcquisition)
             {
-                //Exceptions from channel acquisition could be wrapped in a MongoAuthenticationException, in which case we need to look at the inner exception to decide if it's retryable or not
+                // Exceptions from channel acquisition could be wrapped in a MongoAuthenticationException, in which case we need to look at the inner exception to decide if it's retryable or not
                 var exceptionToAnalyze = exception is MongoAuthenticationException mongoAuthenticationException ? mongoAuthenticationException.InnerException : exception;
 
                 var isRetryableReadException = RetryabilityHelper.IsRetryableReadException(exceptionToAnalyze);
@@ -242,7 +242,7 @@ namespace MongoDB.Driver.Core.Operations
                 return attempt <= context.MaxAdaptiveRetries;
             }
 
-            //If a retryable write (not backpressure related), we retry "infinite" times (until timeout) with CSOT enabled, otherwise just once.
+            // If a retryable write (not backpressure related), we retry "infinite" times (until timeout) with CSOT enabled, otherwise just once.
             return operationContext.IsRootContextTimeoutConfigured() || attempt < 2;
         }
 

@@ -137,7 +137,7 @@ namespace MongoDB.Driver.Core.Operations
                 return false;
             }
 
-            //Authentication exceptions are wrapped inside MongoAuthenticationException, we need to unwrap them to be able to detect their retryability
+            // Authentication exceptions are wrapped inside MongoAuthenticationException, we need to unwrap them to be able to detect their retryability
             exception = exception is MongoAuthenticationException mongoAuthenticationException ? mongoAuthenticationException.InnerException : exception;
 
             var isRetryableReadException = RetryabilityHelper.IsRetryableReadException(exception);
@@ -175,7 +175,7 @@ namespace MongoDB.Driver.Core.Operations
                 return attempt <= context.MaxAdaptiveRetries;
             }
 
-            //If a retryable read (not backpressure related), we retry "infinite" times (until timeout) with CSOT enabled, otherwise just once.
+            // If a retryable read (not backpressure related), we retry "infinite" times (until timeout) with CSOT enabled, otherwise just once.
             return operationContext.IsRootContextTimeoutConfigured() || attempt < 2;
         }
 
