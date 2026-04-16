@@ -387,27 +387,6 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
-        public void Rerank_with_params_expression_paths_should_render_expected_stage()
-        {
-            var pipeline = new EmptyPipelineDefinition<MovieWithPlot>();
-
-            var result = pipeline.Rerank(RerankQuery.Text("machine learning"), 25, "rerank-2.5", x => x.Title, x => x.Synopsis);
-
-            var stages = RenderStages(result, BsonSerializer.SerializerRegistry.GetSerializer<MovieWithPlot>());
-            stages.Count.Should().Be(1);
-            stages[0].Should().Be("""
-                                  {
-                                      $rerank: {
-                                          "query": { "text": "machine learning" },
-                                          "path": ["Title", "Synopsis"],
-                                          "numDocsToRerank": 25,
-                                          "model": "rerank-2.5"
-                                      }
-                                  }
-                                  """);
-        }
-
-        [Fact]
         public void Rerank_should_throw_when_pipeline_is_null()
         {
             PipelineDefinition<BsonDocument, BsonDocument> pipeline = null;

@@ -708,15 +708,6 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
-        public void Rerank_should_throw_when_query_is_null_for_params_overload()
-        {
-            Assert.Throws<ArgumentNullException>(() =>
-            {
-                PipelineStageDefinitionBuilder.Rerank<BsonDocument, string>(null, 10, "rerank-2.5");
-            }).ParamName.Should().Be("query");
-        }
-
-        [Fact]
         public void Search_without_returnScope_should_throw_when_output_type_differs_from_input_type()
         {
             var stage = PipelineStageDefinitionBuilder.Search<BsonDocument, ManyToOne>(

@@ -1752,33 +1752,9 @@ namespace MongoDB.Driver
             Expression<Func<TInput, TField>> path,
             int numDocsToRerank,
             string model)
-        {
-            Ensure.IsNotNull(path, nameof(path));
-            return Rerank(
-                query,
-                new ExpressionFieldDefinition<TInput>(path),
-                numDocsToRerank,
-                model);
-        }
-
-        /// <summary>
-        /// Creates a $rerank stage.
-        /// </summary>
-        /// <typeparam name="TInput">The type of the input documents.</typeparam>
-        /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="query">The rerank query.</param>
-        /// <param name="numDocsToRerank">The maximum number of documents to rerank.</param>
-        /// <param name="model">The reranking model name.</param>
-        /// <param name="paths">The fields to send to the reranker.</param>
-        /// <returns>The stage.</returns>
-        public static PipelineStageDefinition<TInput, TInput> Rerank<TInput, TField>(
-            RerankQuery query,
-            int numDocsToRerank,
-            string model,
-            params Expression<Func<TInput, TField>>[] paths)
             => Rerank(
                 query,
-                paths.Select(FieldDefinition<TInput> (p) => new ExpressionFieldDefinition<TInput>(p)),
+                new ExpressionFieldDefinition<TInput>(Ensure.IsNotNull(path, nameof(path))),
                 numDocsToRerank,
                 model);
 
@@ -1796,14 +1772,11 @@ namespace MongoDB.Driver
             FieldDefinition<TInput> path,
             int numDocsToRerank,
             string model)
-        {
-            Ensure.IsNotNull(path, nameof(path));
-            return Rerank(
+            => Rerank(
                 query,
-                [path],
+                [Ensure.IsNotNull(path, nameof(path))],
                 numDocsToRerank,
                 model);
-        }
 
         /// <summary>
         /// Creates a $rerank stage.

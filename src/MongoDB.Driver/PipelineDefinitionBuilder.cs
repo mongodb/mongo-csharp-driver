@@ -1110,31 +1110,6 @@ namespace MongoDB.Driver
         /// Appends a $rerank stage to the pipeline.
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents.</typeparam>
-        /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
-        /// <param name="pipeline">The pipeline.</param>
-        /// <param name="query">The rerank query.</param>
-        /// <param name="numDocsToRerank">The maximum number of documents to rerank.</param>
-        /// <param name="model">The reranking model name.</param>
-        /// <param name="paths">The fields to send to the reranker.</param>
-        /// <returns>A new pipeline with an additional stage.</returns>
-        public static PipelineDefinition<TInput, TOutput> Rerank<TInput, TField, TOutput>(
-            this PipelineDefinition<TInput, TOutput> pipeline,
-            RerankQuery query,
-            int numDocsToRerank,
-            string model,
-            params Expression<Func<TOutput, TField>>[] paths)
-        {
-            Ensure.IsNotNull(pipeline, nameof(pipeline));
-            return pipeline.AppendStage(
-                PipelineStageDefinitionBuilder.Rerank(query, numDocsToRerank, model, paths),
-                pipeline.OutputSerializer);
-        }
-
-        /// <summary>
-        /// Appends a $rerank stage to the pipeline.
-        /// </summary>
-        /// <typeparam name="TInput">The type of the input documents.</typeparam>
         /// <typeparam name="TOutput">The type of the output documents.</typeparam>
         /// <param name="pipeline">The pipeline.</param>
         /// <param name="query">The rerank query.</param>
