@@ -667,7 +667,9 @@ namespace MongoDB.Driver
                     options.DefaultTransactionOptions?.MaxCommitTime);
             }
 
-            var coreSession = _cluster.StartSession(options.ToCore());
+            var coreSession = _cluster.StartSession(options.ToCore(
+                maxAdaptiveRetries: _settings.MaxAdaptiveRetries,
+                enableOverloadRetargeting: _settings.EnableOverloadRetargeting));
 
             return new ClientSessionHandle(this, options, coreSession);
         }

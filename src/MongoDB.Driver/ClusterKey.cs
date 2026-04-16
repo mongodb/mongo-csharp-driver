@@ -34,7 +34,6 @@ namespace MongoDB.Driver
         private readonly MongoCredential _credential;
         private readonly CryptClientSettings _cryptClientSettings;
         private readonly bool _directConnection;
-        private readonly bool _enableOverloadRetargeting;
         private readonly int _hashCode;
         private readonly TimeSpan _heartbeatInterval;
         private readonly TimeSpan _heartbeatTimeout;
@@ -43,7 +42,6 @@ namespace MongoDB.Driver
         private readonly bool _loadBalanced;
         private readonly TimeSpan _localThreshold;
         private readonly LoggingSettings _loggingSettings;
-        private readonly int _maxAdaptiveRetries;
         private readonly int _maxConnecting;
         private readonly TimeSpan _maxConnectionIdleTime;
         private readonly TimeSpan _maxConnectionLifeTime;
@@ -77,7 +75,6 @@ namespace MongoDB.Driver
             MongoCredential credential,
             CryptClientSettings cryptClientSettings,
             bool directConnection,
-            bool enableOverloadRetargeting,
             TimeSpan heartbeatInterval,
             TimeSpan heartbeatTimeout,
             bool ipv6,
@@ -85,7 +82,6 @@ namespace MongoDB.Driver
             bool loadBalanced,
             TimeSpan localThreshold,
             LoggingSettings loggingSettings,
-            int maxAdaptiveRetries,
             int maxConnecting,
             TimeSpan maxConnectionIdleTime,
             TimeSpan maxConnectionLifeTime,
@@ -117,7 +113,6 @@ namespace MongoDB.Driver
             _credential = credential;
             _cryptClientSettings = cryptClientSettings;
             _directConnection = directConnection;
-            _enableOverloadRetargeting = enableOverloadRetargeting;
             _heartbeatInterval = heartbeatInterval;
             _heartbeatTimeout = heartbeatTimeout;
             _ipv6 = ipv6;
@@ -125,7 +120,6 @@ namespace MongoDB.Driver
             _loadBalanced = loadBalanced;
             _localThreshold = localThreshold;
             _loggingSettings = loggingSettings;
-            _maxAdaptiveRetries = maxAdaptiveRetries;
             _maxConnecting = maxConnecting;
             _maxConnectionIdleTime = maxConnectionIdleTime;
             _maxConnectionLifeTime = maxConnectionLifeTime;
@@ -161,7 +155,6 @@ namespace MongoDB.Driver
         public MongoCredential Credential { get { return _credential; } }
         public CryptClientSettings CryptClientSettings { get { return _cryptClientSettings; } }
         public bool DirectConnection { get { return _directConnection; } }
-        public bool EnableOverloadRetargeting => _enableOverloadRetargeting;
         public TimeSpan HeartbeatInterval { get { return _heartbeatInterval; } }
         public TimeSpan HeartbeatTimeout { get { return _heartbeatTimeout; } }
         public bool IPv6 { get { return _ipv6; } }
@@ -169,7 +162,6 @@ namespace MongoDB.Driver
         public bool LoadBalanced => _loadBalanced;
         public TimeSpan LocalThreshold { get { return _localThreshold; } }
         public LoggingSettings LoggingSettings { get { return _loggingSettings; } }
-        public int MaxAdaptiveRetries => _maxAdaptiveRetries;
         public int MaxConnecting{ get { return _maxConnecting; } }
         public TimeSpan MaxConnectionIdleTime { get { return _maxConnectionIdleTime; } }
         public TimeSpan MaxConnectionLifeTime { get { return _maxConnectionLifeTime; } }
@@ -199,8 +191,6 @@ namespace MongoDB.Driver
             // keep calculation simple (leave out fields that are rarely used)
             return new Hasher()
                 .Hash(_credential)
-                .Hash(_enableOverloadRetargeting)
-                .Hash(_maxAdaptiveRetries)
                 .HashElements(_servers)
                 .GetHashCode();
         }
@@ -222,7 +212,6 @@ namespace MongoDB.Driver
                 _credential == rhs._credential &&
                 object.Equals(_cryptClientSettings, rhs._cryptClientSettings) &&
                 _directConnection.Equals(rhs._directConnection) &&
-                _enableOverloadRetargeting == rhs._enableOverloadRetargeting &&
                 _heartbeatInterval == rhs._heartbeatInterval &&
                 _heartbeatTimeout == rhs._heartbeatTimeout &&
                 _ipv6 == rhs._ipv6 &&
@@ -230,7 +219,6 @@ namespace MongoDB.Driver
                 _loadBalanced == rhs._loadBalanced &&
                 _localThreshold == rhs._localThreshold &&
                 _loggingSettings == rhs._loggingSettings &&
-                _maxAdaptiveRetries == rhs._maxAdaptiveRetries &&
                 _maxConnecting == rhs._maxConnecting &&
                 _maxConnectionIdleTime == rhs._maxConnectionIdleTime &&
                 _maxConnectionLifeTime == rhs._maxConnectionLifeTime &&

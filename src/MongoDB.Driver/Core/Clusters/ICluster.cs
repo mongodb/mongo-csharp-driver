@@ -56,8 +56,6 @@ namespace MongoDB.Driver.Core.Clusters
 
     internal interface IClusterInternal : ICluster
     {
-        bool EnableOverloadRetargeting { get; }
-        int MaxAdaptiveRetries { get; }
         IEnumerable<IClusterableServer> Servers { get; }
 
         event EventHandler<ClusterDescriptionChangedEventArgs> DescriptionChanged;

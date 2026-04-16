@@ -54,17 +54,13 @@ namespace MongoDB.Driver.Core.Clusters
             ClusterSettings settings,
             IClusterableServerFactory serverFactory,
             IEventSubscriber eventSubscriber,
-            ILoggerFactory loggerFactory,
-            int maxAdaptiveRetries = RetryabilityHelper.OperationRetryBackpressureConstants.DefaultMaxRetries,
-            bool enableOverloadRetargeting = false)
+            ILoggerFactory loggerFactory)
             : this(
                   settings,
                   serverFactory,
                   eventSubscriber,
                   loggerFactory,
-                  dnsMonitorFactory: new DnsMonitorFactory(new EventAggregator(), loggerFactory),  // should not trigger any events
-                  maxAdaptiveRetries,
-                  enableOverloadRetargeting)
+                  dnsMonitorFactory: new DnsMonitorFactory(new EventAggregator(), loggerFactory))  // should not trigger any events
         {
         }
 
@@ -73,9 +69,7 @@ namespace MongoDB.Driver.Core.Clusters
             IClusterableServerFactory serverFactory,
             IEventSubscriber eventSubscriber,
             ILoggerFactory loggerFactory,
-            IDnsMonitorFactory dnsMonitorFactory,
-            int maxAdaptiveRetries = RetryabilityHelper.OperationRetryBackpressureConstants.DefaultMaxRetries,
-            bool enableOverloadRetargeting = false)
+            IDnsMonitorFactory dnsMonitorFactory)
         {
             Ensure.That(!settings.DirectConnection, $"DirectConnection mode is not supported for {nameof(LoadBalancedCluster)}.");
             Ensure.That(settings.LoadBalanced, $"Only Load balanced mode is supported for a {nameof(LoadBalancedCluster)}.");
@@ -101,17 +95,11 @@ namespace MongoDB.Driver.Core.Clusters
 
             _eventLogger = loggerFactory.CreateEventLogger<LogCategories.SDAM>(eventSubscriber);
             _serverSelectionEventLogger = loggerFactory.CreateEventLogger<LogCategories.ServerSelection>(eventSubscriber);
-            MaxAdaptiveRetries = maxAdaptiveRetries;
-            EnableOverloadRetargeting = enableOverloadRetargeting;
         }
 
         public ClusterId ClusterId => _clusterId;
 
         public ClusterDescription Description => _description;
-
-        public bool EnableOverloadRetargeting { get; }
-
-        public int MaxAdaptiveRetries { get; }
 
         public ClusterSettings Settings => _settings;
 

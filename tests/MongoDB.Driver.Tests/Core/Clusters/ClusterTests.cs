@@ -103,22 +103,6 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         [Fact]
-        public void MaxAdaptiveRetries_should_return_expected_value()
-        {
-            var subject = CreateSubject(maxAdaptiveRetries: 5);
-
-            subject.MaxAdaptiveRetries.Should().Be(5);
-        }
-
-        [Fact]
-        public void EnableOverloadRetargeting_should_return_expected_value()
-        {
-            var subject = CreateSubject(enableOverloadRetargeting: true);
-
-            subject.EnableOverloadRetargeting.Should().BeTrue();
-        }
-
-        [Fact]
         public void AcquireServerSession_should_call_serverSessionPool_AcquireSession()
         {
             var subject = CreateSubject();
@@ -499,14 +483,14 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         // private methods
-        private StubCluster CreateSubject(TimeSpan? serverSelectionTimeout = null, ClusterType? clusterType = null, int maxAdaptiveRetries = 2, bool enableOverloadRetargeting = false)
+        private StubCluster CreateSubject(TimeSpan? serverSelectionTimeout = null, ClusterType? clusterType = null)
         {
             if (serverSelectionTimeout != null)
             {
                 _settings = _settings.With(serverSelectionTimeout: serverSelectionTimeout.Value);
             }
 
-            return new StubCluster(_settings, _mockServerFactory.Object, _capturedEvents, LoggerFactory, clusterType, maxAdaptiveRetries, enableOverloadRetargeting);
+            return new StubCluster(_settings, _mockServerFactory.Object, _capturedEvents, LoggerFactory, clusterType);
         }
 
         // nested types
@@ -519,10 +503,8 @@ namespace MongoDB.Driver.Core.Clusters
                 IClusterableServerFactory serverFactory,
                 IEventSubscriber eventSubscriber,
                 ILoggerFactory loggerFactory,
-                ClusterType? clusterType = null,
-                int maxAdaptiveRetries = 2,
-                bool enableOverloadRetargeting = false)
-                : base(settings, serverFactory, eventSubscriber, loggerFactory, maxAdaptiveRetries, enableOverloadRetargeting)
+                ClusterType? clusterType = null)
+                : base(settings, serverFactory, eventSubscriber, loggerFactory)
             {
                 _clusterType = clusterType;
             }

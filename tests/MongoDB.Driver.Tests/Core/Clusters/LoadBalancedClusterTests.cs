@@ -443,22 +443,6 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
             }
         }
 
-        [Fact]
-        public void MaxAdaptiveRetries_should_return_expected_value()
-        {
-            var subject = CreateSubject(maxAdaptiveRetries: 5);
-
-            subject.MaxAdaptiveRetries.Should().Be(5);
-        }
-
-        [Fact]
-        public void EnableOverloadRetargeting_should_return_expected_value()
-        {
-            var subject = CreateSubject(enableOverloadRetargeting: true);
-
-            subject.EnableOverloadRetargeting.Should().BeTrue();
-        }
-
         // private methods
         private Mock<IDnsMonitorFactory> CreateMockDnsMonitorFactory()
         {
@@ -469,11 +453,11 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
             return mockDnsMonitorFactory;
         }
 
-        private LoadBalancedCluster CreateSubject(ClusterSettings settings = null, IDnsMonitorFactory dnsMonitorFactory = null, int maxAdaptiveRetries = 2, bool enableOverloadRetargeting = false)
+        private LoadBalancedCluster CreateSubject(ClusterSettings settings = null, IDnsMonitorFactory dnsMonitorFactory = null)
         {
             return dnsMonitorFactory != null
-                ? new LoadBalancedCluster(settings ?? _settings, _mockServerFactory, _capturedEvents, LoggerFactory, dnsMonitorFactory, maxAdaptiveRetries, enableOverloadRetargeting)
-                : new LoadBalancedCluster(settings ?? _settings, _mockServerFactory, _capturedEvents, LoggerFactory, maxAdaptiveRetries, enableOverloadRetargeting);
+                ? new LoadBalancedCluster(settings ?? _settings, _mockServerFactory, _capturedEvents, LoggerFactory, dnsMonitorFactory)
+                : new LoadBalancedCluster(settings ?? _settings, _mockServerFactory, _capturedEvents, LoggerFactory);
         }
 
         private void PublishDnsException(IDnsMonitoringCluster cluster, Exception exception)

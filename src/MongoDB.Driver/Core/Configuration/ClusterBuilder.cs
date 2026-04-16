@@ -32,8 +32,6 @@ namespace MongoDB.Driver.Core.Configuration
     public class ClusterBuilder
     {
         // fields
-        private bool _enableOverloadRetargeting;
-        private int _maxAdaptiveRetries = RetryabilityHelper.OperationRetryBackpressureConstants.DefaultMaxRetries;
         private EventAggregator _eventAggregator;
         private ClusterSettings _clusterSettings;
         private ConnectionPoolSettings _connectionPoolSettings;
@@ -223,18 +221,6 @@ namespace MongoDB.Driver.Core.Configuration
             return this;
         }
 
-        internal ClusterBuilder ConfigureMaxAdaptiveRetries(int maxAdaptiveRetries)
-        {
-            _maxAdaptiveRetries = maxAdaptiveRetries;
-            return this;
-        }
-
-        internal ClusterBuilder ConfigureEnableOverloadRetargeting(bool enableOverloadRetargeting)
-        {
-            _enableOverloadRetargeting = enableOverloadRetargeting;
-            return this;
-        }
-
         // private methods
         private IClusterFactory CreateClusterFactory()
         {
@@ -244,9 +230,7 @@ namespace MongoDB.Driver.Core.Configuration
                 _clusterSettings,
                 serverFactory,
                 _eventAggregator,
-                _loggingSettings?.ToInternalLoggerFactory(),
-                _maxAdaptiveRetries,
-                _enableOverloadRetargeting);
+                _loggingSettings?.ToInternalLoggerFactory());
         }
 
         private IConnectionPoolFactory CreateConnectionPoolFactory()
