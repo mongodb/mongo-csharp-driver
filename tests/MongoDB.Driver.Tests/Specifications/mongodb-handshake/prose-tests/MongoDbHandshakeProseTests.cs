@@ -19,7 +19,6 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core;
@@ -106,10 +105,9 @@ namespace MongoDB.Driver.Tests.Specifications.mongodb_handshake.prose_tests
         }
 
         [Fact]
-        // https://github.com/baileympearson/specifications/blob/530e727dd5cc0d0eb2606ea6db1cf144968597e7/source/mongodb-handshake/tests/README.md#test-9-handshake-documents-include-backpressure-true
+        // https://github.com/mongodb/specifications/blob/7039e69945d463a14b1b727d16db063e21f48f53/source/mongodb-handshake/tests/README.md#test-9-handshake-documents-include-backpressure-true
         public async Task HandshakeDocumentsIncludeBackpressureTrue()
         {
-            //TODO A test
             RequireServer.Check().Authentication(authentication: false); // speculative authentication makes events asserting hard
 
             var eventCapturer = new EventCapturer()
@@ -124,8 +122,6 @@ namespace MongoDB.Driver.Tests.Specifications.mongodb_handshake.prose_tests
             commandStartedEvents.Should().NotBeEmpty();
             foreach (var doc in commandStartedEvents.Select(ev => ev.Command))
             {
-                //TODO The messages have been added for tesing purposes only. Remove them later.
-                Logger.LogError($"DOC: {doc}");
                 doc.Contains("backpressure").Should().BeTrue();
                 doc["backpressure"].AsBoolean.Should().BeTrue();
             }

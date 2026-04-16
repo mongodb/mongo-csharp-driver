@@ -33,6 +33,7 @@ namespace MongoDB.Driver.Core.Operations
         private CollectionNamespace _collectionNamespace;
         private BsonValue _comment;
         private bool _enableOverloadRetargeting;
+        private readonly bool _isOperationRetryable;
         private bool _isOrdered = true;
         private int _maxAdaptiveRetries;
         private int? _maxBatchCount;
@@ -58,6 +59,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
             _requests = Ensure.IsNotNull(requests, nameof(requests));
+            _isOperationRetryable = _requests.All(r => r.IsRetryable());
             _messageEncoderSettings = messageEncoderSettings;
         }
 
@@ -128,7 +130,7 @@ namespace MongoDB.Driver.Core.Operations
             set { _retryRequested = value; }
         }
 
-        public bool IsOperationRetryable => _requests.All(r => r.IsRetryable());
+        public bool IsOperationRetryable => _isOperationRetryable;
 
         public WriteConcern WriteConcern
         {

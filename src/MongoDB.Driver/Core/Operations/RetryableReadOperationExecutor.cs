@@ -65,7 +65,7 @@ namespace MongoDB.Driver.Core.Operations
 
                     // We bail early if the backoff would exceed the CSOT deadline.
                     var remaining = operationContext.RemainingTimeout;
-                    if (remaining != Timeout.InfiniteTimeSpan && operationContext.IsRootContextTimeoutConfigured() && remaining < backoff)
+                    if (remaining != Timeout.InfiniteTimeSpan && remaining < backoff)
                     {
                         throw originalException;
                     }

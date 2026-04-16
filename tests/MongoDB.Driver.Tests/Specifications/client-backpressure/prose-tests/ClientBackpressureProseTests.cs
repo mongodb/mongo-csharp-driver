@@ -42,7 +42,7 @@ public class ClientBackpressureProseTestsUnit
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    // https://github.com/mongodb/specifications/blob/master/source/client-backpressure/tests/README.md#test-1-operation-retry-uses-exponential-backoff
+    // https://github.com/mongodb/specifications/blob/7039e69945d463a14b1b727d16db063e21f48f53/source/client-backpressure/tests/README.md#test-1-operation-retry-uses-exponential-backoff
     public async Task ReadExecute_should_apply_backoff_when_backpressure_errors_occurs(bool async)
     {
         var operationMock = new Mock<IRetryableReadOperation<int>>();
@@ -64,7 +64,7 @@ public class ClientBackpressureProseTestsUnit
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    // https://github.com/mongodb/specifications/blob/master/source/client-backpressure/tests/README.md#test-1-operation-retry-uses-exponential-backoff
+    // https://github.com/mongodb/specifications/blob/7039e69945d463a14b1b727d16db063e21f48f53/source/client-backpressure/tests/README.md#test-1-operation-retry-uses-exponential-backoff
     public async Task WriteExecute_should_apply_backoff_when_backpressure_errors_occurs(bool async)
     {
         var operationMock = new Mock<IRetryableWriteOperation<int>>();
@@ -197,7 +197,7 @@ public class ClientBackpressureProseTestsUnit
 public class ClientBackpressureProseTestsIntegration
 {
     [Fact]
-    // https://github.com/mongodb/specifications/blob/master/source/client-backpressure/tests/README.md#test-3-overload-errors-are-retried-a-maximum-of-max_retries-times
+    // https://github.com/mongodb/specifications/blob/7039e69945d463a14b1b727d16db063e21f48f53/source/client-backpressure/tests/README.md#test-3-overload-errors-are-retried-a-maximum-of-max_retries-times
     public void Overload_errors_are_retried_a_maximum_of_MAX_RETRIES_times()
     {
         RequireServer.Check()
@@ -240,7 +240,7 @@ public class ClientBackpressureProseTestsIntegration
     }
 
     [Fact]
-    // https://github.com/mongodb/specifications/blob/master/source/client-backpressure/tests/README.md#test-4-overload-errors-are-retried-a-maximum-of-maxadaptiveretries-times-when-configured
+    // https://github.com/mongodb/specifications/blob/7039e69945d463a14b1b727d16db063e21f48f53/source/client-backpressure/tests/README.md#test-4-overload-errors-are-retried-a-maximum-of-maxadaptiveretries-times-when-configured
     public void Overload_errors_are_retried_a_maximum_of_maxAdaptiveRetries_times_when_configured()
     {
         RequireServer.Check()
