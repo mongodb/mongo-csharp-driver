@@ -41,7 +41,7 @@ public class RegexTests
 
     [Theory]
     [MemberData(nameof(NonSupportedTestCases))]
-    public void SerializerFinder_should_unknowable_serializer__for_unsupported_regex_methods(LambdaExpression expression)
+    public void SerializerFinder_should_set_unknowable_serializer_for_unsupported_regex_methods(LambdaExpression expression)
     {
         var serializerMap = TestHelpers.CreateSerializerMap(expression);
 

@@ -46,8 +46,8 @@ internal static class TestHelpers
 
     public static LambdaExpression MakeLambda<T1, TResult>(Expression<Func<T1, TResult>> expression)
     {
-        // We must run LinqExpressionPreprocessor on the expression before passing them into SerializerFinder or Translators,
-        // both of them are expecting to work with subset of Expressions functionality based on PartialEvaluator and ClrCompatExpressionRewriter output.
+        // We must run LinqExpressionPreprocessor on the expression before passing it to SerializerFinder or the translators.
+        // They expect to work with only the subset of expression functionality produced by PartialEvaluator and ClrCompatExpressionRewriter.
         return (LambdaExpression)LinqExpressionPreprocessor.Preprocess(expression);
     }
 }
