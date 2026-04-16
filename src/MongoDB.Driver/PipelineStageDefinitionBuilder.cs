@@ -1752,11 +1752,14 @@ namespace MongoDB.Driver
             Expression<Func<TInput, TField>> path,
             int numDocsToRerank,
             string model)
-            => Rerank(
+        {
+            Ensure.IsNotNull(path, nameof(path));
+            return Rerank(
                 query,
                 new ExpressionFieldDefinition<TInput>(path),
                 numDocsToRerank,
                 model);
+        }
 
         /// <summary>
         /// Creates a $rerank stage.
@@ -1775,7 +1778,7 @@ namespace MongoDB.Driver
             params Expression<Func<TInput, TField>>[] paths)
             => Rerank(
                 query,
-                paths.Select(p => (FieldDefinition<TInput>)new ExpressionFieldDefinition<TInput>(p)),
+                paths.Select(FieldDefinition<TInput> (p) => new ExpressionFieldDefinition<TInput>(p)),
                 numDocsToRerank,
                 model);
 

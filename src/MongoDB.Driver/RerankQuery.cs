@@ -16,28 +16,28 @@
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 
-namespace MongoDB.Driver
+namespace MongoDB.Driver;
+
+/// <summary>
+/// Represents a query for the $rerank aggregation stage.
+/// </summary>
+/// <seealso cref="PipelineStageDefinitionBuilder.Rerank{TInput}(RerankQuery, FieldDefinition{TInput}, int, string)"/>
+public sealed class RerankQuery
 {
-    /// <summary>
-    /// Represents a query for the $rerank aggregation stage.
-    /// </summary>
-    public sealed class RerankQuery
+    private readonly string _text;
+
+    private RerankQuery(string text)
     {
-        private readonly string _text;
-
-        private RerankQuery(string text)
-        {
-            _text = text;
-        }
-
-        /// <summary>
-        /// Creates a text-based rerank query.
-        /// </summary>
-        /// <param name="text">The text to rerank against.</param>
-        /// <returns>A text rerank query.</returns>
-        public static RerankQuery Text(string text) =>
-            new RerankQuery(Ensure.IsNotNullOrEmpty(text, nameof(text)));
-
-        internal BsonDocument Render() => new BsonDocument("text", _text);
+        _text = text;
     }
+
+    /// <summary>
+    /// Creates a text-based rerank query.
+    /// </summary>
+    /// <param name="text">The text to rerank against.</param>
+    /// <returns>A text rerank query.</returns>
+    public static RerankQuery Text(string text) =>
+        new RerankQuery(Ensure.IsNotNullOrEmpty(text, nameof(text)));
+
+    internal BsonDocument Render() => new BsonDocument("text", _text);
 }
