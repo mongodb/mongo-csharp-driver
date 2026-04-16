@@ -397,9 +397,8 @@ namespace MongoDB.Driver.Core.Operations
             VerifyHowManyTimesKillCursorsCommandWasCalled(mockChannelHandle, Times.Never(), false);
         }
 
-        //TODO Failing due to mocks, need to fix later
-        // [Theory]
-        // [ParameterAttributeData]
+        [Theory]
+        [ParameterAttributeData]
         public void GetMore_should_use_same_session(
             [Values(false, true)] bool async)
         {
@@ -414,6 +413,13 @@ namespace MongoDB.Driver.Core.Operations
             var cursorId = 1;
             var subject = CreateSubject(collectionNamespace: collectionNamespace, cursorId: cursorId, channelSource: Optional.Create(channelSource));
             var connectionDescription = CreateConnectionDescriptionSupportingSession();
+
+            mockSession.Setup(m => m.Fork()).Returns(mockSession.Object);
+            mockChannel.Setup(m => m.Fork()).Returns(mockChannel.Object);
+            var mockServer = new Mock<IServer>();
+            var serverId = new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27017));
+            mockServer.SetupGet(m => m.Description).Returns(new ServerDescription(serverId, serverId.EndPoint));
+            mockChannelSource.SetupGet(m => m.Server).Returns(mockServer.Object);
 
             mockChannelSource.SetupGet(m => m.Session).Returns(session);
             mockChannel.SetupGet(m => m.ConnectionDescription).Returns(connectionDescription);
@@ -433,12 +439,12 @@ namespace MongoDB.Driver.Core.Operations
             var sameSessionWasUsed = false;
             if (async)
             {
-                mockChannelSource.Setup(m => m.GetChannelAsync(It.IsAny<OperationContext>())).Returns(Task.FromResult(channel));
+                mockChannelSource.Setup(m => m.GetChannelAsync(It.IsAny<OperationContext>())).ReturnsAsync(channel);
                 mockChannel
                     .Setup(m => m.CommandAsync(
                         It.IsAny<OperationContext>(),
                         session,
-                        null,
+                        ReadPreference.Primary,
                         databaseNamespace,
                         It.IsAny<BsonDocument>(),
                         null,
@@ -460,7 +466,7 @@ namespace MongoDB.Driver.Core.Operations
                     .Setup(m => m.Command(
                         It.IsAny<OperationContext>(),
                         session,
-                        null,
+                        ReadPreference.Primary,
                         databaseNamespace,
                         It.IsAny<BsonDocument>(),
                         null,
@@ -642,7 +648,7 @@ namespace MongoDB.Driver.Core.Operations
     public class AsyncCursorIntegrationTests : OperationTestBase
     {
         [Theory]
-        //[InlineData(0, 1000)] //TODO Investigate
+        [InlineData(0, 1000)]
         [InlineData(2, 2)]
         [InlineData(2, 1000)]
         [InlineData(4, 2)]

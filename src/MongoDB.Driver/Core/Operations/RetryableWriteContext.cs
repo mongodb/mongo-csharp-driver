@@ -73,7 +73,6 @@ namespace MongoDB.Driver.Core.Operations
             try
             {
                 operationContext.ThrowIfTimedOutOrCanceled();
-                //TODO The implementation of the two overloads is different, need to understand if it's an issue and we can just call the second overload from the first one.
                 var writeChannelSource = _mayUseSecondaryCriteria == null ?
                     Binding.GetWriteChannelSource(operationContext, deprioritizedServers)
                     : Binding.GetWriteChannelSource(operationContext, deprioritizedServers, _mayUseSecondaryCriteria);
