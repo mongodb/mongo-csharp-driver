@@ -17,59 +17,56 @@ using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors;
 
-namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
+namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
+
+internal sealed class AstSerializeEJsonExpression : AstExpression
 {
-    internal sealed class AstSerializeEJsonExpression : AstExpression
+    private readonly AstExpression _input;
+    private readonly AstExpression _onError;
+    private readonly AstExpression _relaxed;
+
+    public AstSerializeEJsonExpression(
+        AstExpression input,
+        AstExpression relaxed = null,
+        AstExpression onError = null)
     {
-        private readonly AstExpression _input;
-        private readonly AstExpression _onError;
-        private readonly AstExpression _relaxed;
+        _input = Ensure.IsNotNull(input, nameof(input));
+        _relaxed = relaxed;
+        _onError = onError;
+    }
 
-        public AstSerializeEJsonExpression(
-            AstExpression input,
-            AstExpression relaxed = null,
-            AstExpression onError = null)
+    public AstExpression Input => _input;
+    public override AstNodeType NodeType => AstNodeType.SerializeEJsonExpression;
+    public AstExpression OnError => _onError;
+    public AstExpression Relaxed => _relaxed;
+
+    public override AstNode Accept(AstNodeVisitor visitor) =>
+        visitor.VisitSerializeEJsonExpression(this);
+
+    public override BsonValue Render()
+    {
+        return new BsonDocument
         {
-            _input = Ensure.IsNotNull(input, nameof(input));
-            _relaxed = relaxed;
-            _onError = onError;
-        }
-
-        public AstExpression Input => _input;
-        public override AstNodeType NodeType => AstNodeType.SerializeEJsonExpression;
-        public AstExpression OnError => _onError;
-        public AstExpression Relaxed => _relaxed;
-
-        public override AstNode Accept(AstNodeVisitor visitor)
-        {
-            return visitor.VisitSerializeEJsonExpression(this);
-        }
-
-        public override BsonValue Render()
-        {
-            return new BsonDocument
-            {
-                { "$serializeEJSON", new BsonDocument
-                    {
-                        { "input", _input.Render() },
-                        { "relaxed", () => _relaxed.Render(), _relaxed != null },
-                        { "onError", () => _onError.Render(), _onError != null }
-                    }
+            { "$serializeEJSON", new BsonDocument
+                {
+                    { "input", _input.Render() },
+                    { "relaxed", () => _relaxed.Render(), _relaxed != null },
+                    { "onError", () => _onError.Render(), _onError != null }
                 }
-            };
-        }
-
-        public AstSerializeEJsonExpression Update(
-            AstExpression input,
-            AstExpression relaxed,
-            AstExpression onError)
-        {
-            if (input == _input && relaxed == _relaxed && onError == _onError)
-            {
-                return this;
             }
+        };
+    }
 
-            return new AstSerializeEJsonExpression(input, relaxed, onError);
+    public AstSerializeEJsonExpression Update(
+        AstExpression input,
+        AstExpression relaxed,
+        AstExpression onError)
+    {
+        if (input == _input && relaxed == _relaxed && onError == _onError)
+        {
+            return this;
         }
+
+        return new AstSerializeEJsonExpression(input, relaxed, onError);
     }
 }
