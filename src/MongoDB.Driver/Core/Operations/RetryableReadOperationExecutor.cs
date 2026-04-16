@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Core.Operations
                 catch (Exception ex)
                 {
                     originalException ??= ex;
-                    overloadErrorSeen |= RetryabilityHelper.IsSystemOverloadedException(ex);
+                    overloadErrorSeen = overloadErrorSeen || RetryabilityHelper.IsSystemOverloadedException(ex);
 
                     if (!ShouldRetry(operationContext, context, operation.IsOperationRetryable, ex, totalAttempts, context.Random, overloadErrorSeen, out var backoff))
                     {
@@ -107,7 +107,7 @@ namespace MongoDB.Driver.Core.Operations
                 catch (Exception ex)
                 {
                     originalException ??= ex;
-                    overloadErrorSeen |= RetryabilityHelper.IsSystemOverloadedException(ex);
+                    overloadErrorSeen = overloadErrorSeen || RetryabilityHelper.IsSystemOverloadedException(ex);
 
                     if (!ShouldRetry(operationContext, context, operation.IsOperationRetryable, ex, totalAttempts, context.Random, overloadErrorSeen, out var backoff))
                     {
@@ -132,7 +132,6 @@ namespace MongoDB.Driver.Core.Operations
         {
             backoff = TimeSpan.Zero;
 
-            // Top-level gate: if the user disabled retries, nothing retries (including backpressure).
             if (!context.RetryRequested)
             {
                 return false;
