@@ -155,6 +155,12 @@ public class StringTests
         // StringComparison and CultureInfo overloads are not in ReplaceOverloads
         [TestHelpers.MakeLambda((MyModel model) => model.Name.Replace("old", "new", StringComparison.Ordinal))],
         [TestHelpers.MakeLambda((MyModel model) => model.Name.Replace("old", "new", false, CultureInfo.InvariantCulture))],
+        // Not supported yet, see https://jira.mongodb.org/browse/CSHARP-5979
+        [TestHelpers.MakeLambda((MyModel model) => model.Name.Trim(' '))],
+        [TestHelpers.MakeLambda((MyModel model) => model.Name.TrimStart(' '))],
+        [TestHelpers.MakeLambda((MyModel model) => model.Name.TrimEnd())],
+        [TestHelpers.MakeLambda((MyModel model) => model.Name.TrimStart())],
+        [TestHelpers.MakeLambda((MyModel model) => model.Name.TrimEnd())],
 #endif
     ];
 
