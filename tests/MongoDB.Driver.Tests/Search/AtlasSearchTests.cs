@@ -1098,6 +1098,23 @@ namespace MongoDB.Driver.Tests.Search
         }
 
         [Fact]
+        public void Rerank()
+        {
+            const int numDocsToRerank = 10;
+
+            var result = GetMoviesCollection<Movie>()
+                .Aggregate()
+                .Search(Builders<Movie>.Search.Text("plot", "apes"))
+                .Rerank(RerankQuery.Text("a movie about intelligent apes who take over civilization"), "plot", numDocsToRerank, "rerank-2.5-lite")
+                .Project<Movie>(Builders<Movie>.Projection
+                    .MetaScore(m => m.Score))
+                .ToList();
+
+            result.Count.Should().BeGreaterThan(0).And.BeLessOrEqualTo(numDocsToRerank);
+            result.Should().BeInDescendingOrder(m => m.Score);
+        }
+
+        [Fact]
         public void SearchSequenceToken()
         {
             const int limitVal = 10;
