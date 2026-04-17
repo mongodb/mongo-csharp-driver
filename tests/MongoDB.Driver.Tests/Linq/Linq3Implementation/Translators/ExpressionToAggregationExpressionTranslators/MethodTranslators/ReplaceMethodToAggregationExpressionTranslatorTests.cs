@@ -105,6 +105,68 @@ public class ReplaceMethodToAggregationExpressionTranslatorTests
             TestHelpers.MakeLambda<MyModel, string>(model => model.RegexField.Replace(model.StringField, "replacement")),
             "{ $replaceAll: { input: { $getField: { field: 'StringField', input: '$$ROOT' } }, find: { $getField: { field: 'RegexField', input: '$$ROOT' } }, replacement: 'replacement' } }"
         ],
+
+        // validate special cases to ensure there is no wrong detection of capturing groups
+        [
+            TestHelpers.MakeLambda<MyModel, string>(model => Regex.Replace(model.StringField, "pattern", "with {1")),
+            "{ $replaceAll: { input: { $getField: { field: 'StringField', input: '$$ROOT' } }, find: /pattern/, replacement: 'with {1' } }"
+        ],
+        [
+            TestHelpers.MakeLambda<MyModel, string>(model => Regex.Replace(model.StringField, "pattern", "with {1}")),
+            "{ $replaceAll: { input: { $getField: { field: 'StringField', input: '$$ROOT' } }, find: /pattern/, replacement: 'with {1}' } }"
+        ],
+        [
+            TestHelpers.MakeLambda<MyModel, string>(model => Regex.Replace(model.StringField, "pattern", "with $$1")),
+            "{ $replaceAll: { input: { $getField: { field: 'StringField', input: '$$ROOT' } }, find: /pattern/, replacement: 'with $1' } }"
+        ],
+        [
+            TestHelpers.MakeLambda<MyModel, string>(model => Regex.Replace(model.StringField, "pattern", "with $${1}")),
+            "{ $replaceAll: { input: { $getField: { field: 'StringField', input: '$$ROOT' } }, find: /pattern/, replacement: 'with ${1}' } }"
+        ],
+        [
+            TestHelpers.MakeLambda<MyModel, string>(model => Regex.Replace(model.StringField, "pattern", "with $${my group}")),
+            "{ $replaceAll: { input: { $getField: { field: 'StringField', input: '$$ROOT' } }, find: /pattern/, replacement: 'with ${my group}' } }"
+        ],
+
+        [
+            TestHelpers.MakeLambda<MyModel, string>(model => Regex.Replace(model.StringField, "pattern", "with {1", RegexOptions.IgnoreCase)),
+            "{ $replaceAll: { input: { $getField: { field: 'StringField', input: '$$ROOT' } }, find: /pattern/i, replacement: 'with {1' } }"
+        ],
+        [
+            TestHelpers.MakeLambda<MyModel, string>(model => Regex.Replace(model.StringField, "pattern", "with {1}", RegexOptions.IgnoreCase)),
+            "{ $replaceAll: { input: { $getField: { field: 'StringField', input: '$$ROOT' } }, find: /pattern/i, replacement: 'with {1}' } }"],
+        [
+            TestHelpers.MakeLambda<MyModel, string>(model => Regex.Replace(model.StringField, "pattern", "with $$1", RegexOptions.IgnoreCase)),
+            "{ $replaceAll: { input: { $getField: { field: 'StringField', input: '$$ROOT' } }, find: /pattern/i, replacement: 'with $1' } }"
+        ],
+        [
+            TestHelpers.MakeLambda<MyModel, string>(model => Regex.Replace(model.StringField, "pattern", "with $${1}", RegexOptions.IgnoreCase)),
+            "{ $replaceAll: { input: { $getField: { field: 'StringField', input: '$$ROOT' } }, find: /pattern/i, replacement: 'with ${1}' } }"
+        ],
+        [
+            TestHelpers.MakeLambda<MyModel, string>(model => Regex.Replace(model.StringField, "pattern", "with $${my group}", RegexOptions.IgnoreCase)),
+            "{ $replaceAll: { input: { $getField: { field: 'StringField', input: '$$ROOT' } }, find: /pattern/i, replacement: 'with ${my group}' } }"
+        ],
+
+        [
+            TestHelpers.MakeLambda<MyModel, string>(model => model.RegexField.Replace(model.StringField, "with {1")),
+            "{ $replaceAll: { input: { $getField: { field: 'StringField', input: '$$ROOT' } }, find: { $getField: { field: 'RegexField', input: '$$ROOT' } }, replacement: 'with {1' } }"
+        ],
+        [
+            TestHelpers.MakeLambda<MyModel, string>(model => model.RegexField.Replace(model.StringField, "with {1}")),
+            "{ $replaceAll: { input: { $getField: { field: 'StringField', input: '$$ROOT' } }, find: { $getField: { field: 'RegexField', input: '$$ROOT' } }, replacement: 'with {1}' } }"
+        ],
+        [
+            TestHelpers.MakeLambda<MyModel, string>(model => model.RegexField.Replace(model.StringField, "with $$1")),
+            "{ $replaceAll: { input: { $getField: { field: 'StringField', input: '$$ROOT' } }, find: { $getField: { field: 'RegexField', input: '$$ROOT' } }, replacement: 'with $1' } }"],
+        [
+            TestHelpers.MakeLambda<MyModel, string>(model => model.RegexField.Replace(model.StringField, "with $${1}")),
+            "{ $replaceAll: { input: { $getField: { field: 'StringField', input: '$$ROOT' } }, find: { $getField: { field: 'RegexField', input: '$$ROOT' } }, replacement: 'with ${1}' } }"
+        ],
+        [
+            TestHelpers.MakeLambda<MyModel, string>(model => model.RegexField.Replace(model.StringField, "with $${my group}")),
+            "{ $replaceAll: { input: { $getField: { field: 'StringField', input: '$$ROOT' } }, find: { $getField: { field: 'RegexField', input: '$$ROOT' } }, replacement: 'with ${my group}' } }"
+        ],
     ];
 
     public static IEnumerable<object[]> NonSupportedTestCases =
@@ -119,6 +181,16 @@ public class ReplaceMethodToAggregationExpressionTranslatorTests
         [TestHelpers.MakeLambda<MyModel, string>(model => model.StringField.Replace("old", "new", StringComparison.Ordinal))],
         [TestHelpers.MakeLambda<MyModel, string>(model => model.StringField.Replace("old", "new", false, CultureInfo.InvariantCulture))],
 #endif
+        // Regex replacement with capturing groups isn't supported to avoid wrong expectations
+        [TestHelpers.MakeLambda<MyModel, string>(model => Regex.Replace(model.StringField, "pattern", "with $1"))],
+        [TestHelpers.MakeLambda<MyModel, string>(model => Regex.Replace(model.StringField, "pattern", "with ${1}"))],
+        [TestHelpers.MakeLambda<MyModel, string>(model => Regex.Replace(model.StringField, "pattern", "with ${mygroup}"))],
+        [TestHelpers.MakeLambda<MyModel, string>(model => Regex.Replace(model.StringField, "pattern", "with $1", RegexOptions.IgnoreCase))],
+        [TestHelpers.MakeLambda<MyModel, string>(model => Regex.Replace(model.StringField, "pattern", "with ${1}", RegexOptions.IgnoreCase))],
+        [TestHelpers.MakeLambda<MyModel, string>(model => Regex.Replace(model.StringField, "pattern", "with ${mygroup}", RegexOptions.IgnoreCase))],
+        [TestHelpers.MakeLambda<MyModel, string>(model => model.RegexField.Replace(model.StringField, "with $1"))],
+        [TestHelpers.MakeLambda<MyModel, string>(model => model.RegexField.Replace(model.StringField, "with ${1}"))],
+        [TestHelpers.MakeLambda<MyModel, string>(model => model.RegexField.Replace(model.StringField, "with ${mygroup}"))],
     ];
 
     public class MyModel

@@ -78,7 +78,21 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 }
 
                 inputAst = ExpressionToAggregationExpressionTranslator.TranslateAndEnsureRepresentation(context, inputExpression, BsonType.String);
-                replacementAst = ExpressionToAggregationExpressionTranslator.TranslateAndEnsureRepresentation(context, replacementExpression, BsonType.String);
+                if (replacementExpression.TryGetConstantValue<string>(expression, out var replacement))
+                {
+                    // validate if replacement string uses capturing groups: ${1} or ${name}
+                    if (Regex.IsMatch(replacement, @"(?<!\$)\$(?:\d+|\{[^}]+\})"))
+                    {
+                        throw new ExpressionNotSupportedException(expression, "capturing groups are not supported in replacement string.");
+                    }
+
+                    replacement = replacement.Replace("$$", "$"); // server does not support capturing groups, need to unescape the $ symbol.
+                    replacementAst = AstExpression.Constant(replacement);
+                }
+                else
+                {
+                    replacementAst = ExpressionToAggregationExpressionTranslator.TranslateAndEnsureRepresentation(context, replacementExpression, BsonType.String);
+                }
             }
 
             if (inputAst != null && findAst != null && replacementAst != null)
