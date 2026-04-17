@@ -2710,8 +2710,17 @@ internal partial class SerializerFinderVisitor
                 if (method.IsOneOf(EnumerableOrQueryableMethod.SkipWhileOrTakeWhile))
                 {
                     var predicateLambda =  ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
-                    var predicateParameter = predicateLambda.Parameters.Single();
-                    DeduceItemAndCollectionSerializers(predicateParameter, sourceExpression);
+                    var itemParameter = predicateLambda.Parameters[0];
+                    DeduceItemAndCollectionSerializers(itemParameter, sourceExpression);
+
+                    if (method.IsOneOf(EnumerableOrQueryableMethod.SkipWhileWithPredicateTakingIndexOrTakeWhileWithPredicateTakingIndex))
+                    {
+                        var indexParameter = predicateLambda.Parameters[1];
+                        if (IsNotKnown(indexParameter))
+                        {
+                            AddNodeSerializer(indexParameter, Int32Serializer.Instance);
+                        }
+                    }
                 }
 
                 DeduceCollectionAndCollectionSerializers(node, sourceExpression);

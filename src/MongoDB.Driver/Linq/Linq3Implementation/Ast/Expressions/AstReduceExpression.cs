@@ -21,6 +21,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
 {
     internal sealed class AstReduceExpression : AstExpression
     {
+        private readonly AstVarExpression _arrayIndexAs;
         private readonly AstExpression _in;
         private readonly AstExpression _initialValue;
         private readonly AstExpression _input;
@@ -28,13 +29,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
         public AstReduceExpression(
             AstExpression input,
             AstExpression initialValue,
-            AstExpression @in)
+            AstExpression @in,
+            AstVarExpression arrayIndexAs = null)
         {
             _input = Ensure.IsNotNull(input, nameof(input));
             _initialValue = Ensure.IsNotNull(initialValue, nameof(initialValue));
             _in = Ensure.IsNotNull(@in, nameof(@in));
+            _arrayIndexAs = arrayIndexAs;
         }
 
+        public AstVarExpression ArrayIndexAs => _arrayIndexAs;
         public new AstExpression In => _in;
         public AstExpression InitialValue => _initialValue;
         public AstExpression Input => _input;
@@ -53,7 +57,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
                     {
                         { "input", _input.Render() },
                         { "initialValue", _initialValue.Render() },
-                        { "in", _in.Render() }
+                        { "in", _in.Render() },
+                        { "arrayIndexAs", _arrayIndexAs?.Name, _arrayIndexAs != null }
                     }
                 }
             };
@@ -62,14 +67,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
         public AstReduceExpression Update(
             AstExpression input,
             AstExpression initialValue,
-            AstExpression @in)
+            AstExpression @in,
+            AstVarExpression arrayIndexAs = null)
         {
-            if (input == _input && initialValue == _initialValue && @in == _in)
+            if (input == _input && initialValue == _initialValue && @in == _in && arrayIndexAs == _arrayIndexAs)
             {
                 return this;
             }
 
-            return new AstReduceExpression(input, initialValue, @in);
+            return new AstReduceExpression(input, initialValue, @in, arrayIndexAs);
         }
     }
 }

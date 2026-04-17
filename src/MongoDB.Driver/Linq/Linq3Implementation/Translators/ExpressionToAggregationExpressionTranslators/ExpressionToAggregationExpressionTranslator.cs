@@ -152,9 +152,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         public static TranslatedExpression TranslateLambdaBody(
             TranslationContext context,
             LambdaExpression lambdaExpression,
-            Symbol parameterSymbol)
+            params Symbol[] parameterSymbols)
         {
-            var lambdaContext = context.WithSymbol(parameterSymbol);
+            var lambdaContext = context.WithSymbols(parameterSymbols);
             var translatedBody = Translate(lambdaContext, lambdaExpression.Body);
 
             var lambdaReturnType = lambdaExpression.ReturnType;
