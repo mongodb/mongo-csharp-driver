@@ -95,15 +95,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             }
         }
 
-        public static void EnsureRepresentationIsString(Expression expression, IBsonSerializer serializer)
-        {
-            var representation = GetRepresentation(serializer);
-            if (representation != BsonType.String)
-            {
-                throw new ExpressionNotSupportedException(expression, because: "the expression is not represented as a string in the database");
-            }
-        }
-
         public static void EnsureSerializerIsCompatible(Expression expression, Expression containingExpression, IBsonSerializer actualSerializer, IBsonSerializer expectedSerializer)
         {
             if (!actualSerializer.Equals(expectedSerializer))
