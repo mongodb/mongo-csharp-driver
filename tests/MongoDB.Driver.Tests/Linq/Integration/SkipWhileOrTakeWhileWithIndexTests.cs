@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Tests.Linq.Integration;
 public class SkipWhileOrTakeWhileWithIndexTests : LinqIntegrationTest<SkipWhileOrTakeWhileWithIndexTests.ClassFixture>
 {
     public SkipWhileOrTakeWhileWithIndexTests(ClassFixture fixture)
-        : base(fixture, server => server.Supports(Feature.ReduceArrayIndexAs))
+        : base(fixture, server => server.Supports(Feature.ArrayIndexAs))
     {
     }
 

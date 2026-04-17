@@ -75,7 +75,6 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __getField = new Feature("GetField", WireVersion.Server50);
         private static readonly Feature __getMoreComment = new Feature("GetMoreComment", WireVersion.Server44);
         private static readonly Feature __hashOperator = new Feature("HashOperator", WireVersion.Server83);
-        private static readonly Feature __reduceArrayIndexAs = new Feature("ReduceArrayIndexAs", WireVersion.Server83);
         private static readonly Feature __groupCommand = new Feature("GroupCommand", WireVersion.Zero, WireVersion.Server42);
         private static readonly Feature __hedgedReads = new Feature("HedgedReads", WireVersion.Server44);
         private static readonly Feature __hiddenIndex = new Feature("HiddenIndex", WireVersion.Server44);
@@ -461,11 +460,6 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the $rankFusion feature.
         /// </summary>
         public static Feature RankFusionStage => __rankFusionStage;
-
-        /// <summary>
-        /// Gets the $reduce arrayIndexAs feature.
-        /// </summary>
-        public static Feature ReduceArrayIndexAs => __reduceArrayIndexAs;
 
         /// <summary>
         /// Gets the regex match feature.
