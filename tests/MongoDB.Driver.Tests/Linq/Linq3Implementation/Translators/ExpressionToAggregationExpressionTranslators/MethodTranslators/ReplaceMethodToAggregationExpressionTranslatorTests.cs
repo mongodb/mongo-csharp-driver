@@ -74,6 +74,14 @@ public class ReplaceMethodToAggregationExpressionTranslatorTests
             TestHelpers.MakeLambda<MyModel, string>(model => "input".Replace("old", model.StringField)),
             "{ $replaceAll: { input: 'input', find: 'old', replacement: { $getField: { field: 'StringField', input: '$$ROOT' } } } }"
         ],
+        [
+            TestHelpers.MakeLambda<MyModel, string>(model => model.StringField.Replace("old", "")),
+            "{ $replaceAll: { input: { $getField: { field: 'StringField', input: '$$ROOT' } }, find: 'old', replacement: '' } }"
+        ],
+        [
+            TestHelpers.MakeLambda<MyModel, string>(model => model.StringField.Replace("old", null)),
+            "{ $replaceAll: { input: { $getField: { field: 'StringField', input: '$$ROOT' } }, find: 'old', replacement: '' } }"
+        ],
         // Regex.Replace(input, pattern, replacement) — static, no options
         [
             TestHelpers.MakeLambda<MyModel, string>(model => Regex.Replace(model.StringField, "pattern", "replacement")),

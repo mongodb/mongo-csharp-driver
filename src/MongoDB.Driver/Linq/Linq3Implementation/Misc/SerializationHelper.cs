@@ -40,6 +40,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             }
         }
 
+        public static void EnsureSerializerRepresentation(Expression expression, IBsonSerializer serializer, BsonType representation)
+        {
+            var actualRepresentation = GetRepresentation(serializer);
+            if (actualRepresentation != representation)
+            {
+                throw new ExpressionNotSupportedException(expression, because: $"the expression is not represented as an {representation} in the database");
+            }
+        }
+
         public static void EnsureRepresentationIsArray(Expression expression, IBsonSerializer serializer)
         {
             var representation = GetRepresentation(serializer);
@@ -83,6 +92,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             if (!IsNumericRepresentation(argumentRepresentation))
             {
                 throw new ExpressionNotSupportedException(expression, because: $"{argumentExpression} uses a non-numeric representation: {argumentRepresentation}");
+            }
+        }
+
+        public static void EnsureRepresentationIsString(Expression expression, IBsonSerializer serializer)
+        {
+            var representation = GetRepresentation(serializer);
+            if (representation != BsonType.String)
+            {
+                throw new ExpressionNotSupportedException(expression, because: "the expression is not represented as a string in the database");
             }
         }
 

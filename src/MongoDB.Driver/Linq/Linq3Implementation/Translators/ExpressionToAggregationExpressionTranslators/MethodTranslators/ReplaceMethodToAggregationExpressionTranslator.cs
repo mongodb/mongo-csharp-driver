@@ -35,13 +35,22 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             AstExpression replacementAst = null;
             if (method.Is(StringMethod.ReplaceWithString))
             {
-                inputAst = ExpressionToAggregationExpressionTranslator.Translate(context, expression.Object).Ast;
-                findAst = ExpressionToAggregationExpressionTranslator.Translate(context, arguments[0]).Ast;
-                replacementAst = ExpressionToAggregationExpressionTranslator.Translate(context, arguments[1]).Ast;
+                inputAst = ExpressionToAggregationExpressionTranslator.TranslateAndEnsureRepresentation(context, expression.Object, BsonType.String);
+                findAst = ExpressionToAggregationExpressionTranslator.TranslateAndEnsureRepresentation(context, arguments[0], BsonType.String);
+                // Special case: replacement value is allowed to be null; null is treated as an empty string.
+                if (arguments[1].TryGetConstantValue<string>(expression, out var replacement))
+                {
+                    replacement ??= "";
+                    replacementAst = AstExpression.Constant(replacement);
+                }
+                else
+                {
+                    replacementAst = ExpressionToAggregationExpressionTranslator.TranslateAndEnsureRepresentation(context, arguments[1], BsonType.String);
+                }
             }
             else if (method.Is(StringMethod.ReplaceWithChars))
             {
-                inputAst = ExpressionToAggregationExpressionTranslator.Translate(context, expression.Object).Ast;
+                inputAst = ExpressionToAggregationExpressionTranslator.TranslateAndEnsureRepresentation(context, expression.Object, BsonType.String);
                 var findChar = arguments[0].GetConstantValue<char>(expression);
                 findAst = AstExpression.Constant(new string(findChar, 1));
 
@@ -55,13 +64,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                 if (method == RegexMethod.Replace)
                 {
-                    var findTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, expression.Object);
-                    if (SerializationHelper.GetRepresentation(findTranslation.Serializer) != BsonType.RegularExpression)
-                    {
-                        throw new ExpressionNotSupportedException(expression);
-                    }
-
-                    findAst = findTranslation.Ast;
+                    findAst = ExpressionToAggregationExpressionTranslator.TranslateAndEnsureRepresentation(context, expression.Object, BsonType.RegularExpression);
                     inputExpression = arguments[0];
                     replacementExpression = arguments[1];
                 }
@@ -74,8 +77,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     replacementExpression = arguments[2];
                 }
 
-                inputAst = ExpressionToAggregationExpressionTranslator.Translate(context, inputExpression).Ast;
-                replacementAst = ExpressionToAggregationExpressionTranslator.Translate(context, replacementExpression).Ast;
+                inputAst = ExpressionToAggregationExpressionTranslator.TranslateAndEnsureRepresentation(context, inputExpression, BsonType.String);
+                replacementAst = ExpressionToAggregationExpressionTranslator.TranslateAndEnsureRepresentation(context, replacementExpression, BsonType.String);
             }
 
             if (inputAst != null && findAst != null && replacementAst != null)
