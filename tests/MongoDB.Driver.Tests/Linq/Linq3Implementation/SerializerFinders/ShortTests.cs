@@ -42,8 +42,7 @@ public class ShortTests
         [TestHelpers.MakeLambda((MyModel model) => model.Value.CompareTo(model.Other)), typeof(Int32Serializer)],
         [TestHelpers.MakeLambda((MyModel model) => model.Value.Equals((short)1)), typeof(BooleanSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => model.Value.Equals(model.Other)), typeof(BooleanSerializer)],
-        // short.Parse — maps to Int64Serializer instead of Int16Serializer; kept for investigation
-        // [TestHelpers.MakeLambda((MyModel model) => short.Parse("42")), typeof(Int16Serializer)],
+        [TestHelpers.MakeLambda((MyModel model) => short.Parse("42")), typeof(Int16Serializer)],
         [TestHelpers.MakeLambda((MyModel model) => model.Value.ToString()), typeof(StringSerializer)],
     ];
 
