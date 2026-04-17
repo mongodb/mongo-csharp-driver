@@ -534,7 +534,7 @@ namespace MongoDB.Driver.Core.Bindings
             using var operationActivity = MongoTelemetry.StartOperationActivity(operationContext);
 
             using (var sessionHandle = new NonDisposingCoreSessionHandle(this))
-            using (var binding = ChannelPinningHelper.CreateReadWriteBinding(_cluster, sessionHandle))
+            using (var binding = CreateEndTransactionBinding(sessionHandle))
             using (var context = new RetryableWriteContext(binding, retryRequested: true, _options.MaxAdaptiveRetries, _options.EnableOverloadRetargeting))
             {
                 RetryableWriteOperationExecutor.Execute(operationContext, operation, context);
@@ -547,11 +547,23 @@ namespace MongoDB.Driver.Core.Bindings
             using var operationActivity = MongoTelemetry.StartOperationActivity(operationContext);
 
             using (var sessionHandle = new NonDisposingCoreSessionHandle(this))
-            using (var binding = ChannelPinningHelper.CreateReadWriteBinding(_cluster, sessionHandle))
+            using (var binding = CreateEndTransactionBinding(sessionHandle))
             using (var context = new RetryableWriteContext(binding, retryRequested: true, _options.MaxAdaptiveRetries, _options.EnableOverloadRetargeting))
             {
                 await RetryableWriteOperationExecutor.ExecuteAsync(operationContext, operation, context).ConfigureAwait(false);
             }
+        }
+
+        private IReadWriteBinding CreateEndTransactionBinding(ICoreSessionHandle session)
+        {
+            // Load balanced topology needs a wrapper that OnRetry can rebuild between attempts,
+            // otherwise the captured pinned-channel fork goes stale after UnpinAll.
+            if (_cluster.Description.Type == ClusterType.LoadBalanced)
+            {
+                return new EndTransactionReadWriteBinding(_cluster, session);
+            }
+
+            return ChannelPinningHelper.CreateReadWriteBinding(_cluster, session);
         }
 
         private TimeSpan? GetTimeout(TimeSpan? timeout)

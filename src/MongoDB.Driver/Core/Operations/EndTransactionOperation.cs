@@ -91,6 +91,10 @@ namespace MongoDB.Driver.Core.Operations
 
         internal virtual void OnRetry(RetryableWriteContext context, Exception exception)
         {
+            if (context.Binding is EndTransactionReadWriteBinding endTransactionBinding)
+            {
+                endTransactionBinding.RebuildInnerBinding();
+            }
         }
 
         protected virtual WriteConcern GetEffectiveWriteConcern(OperationContext operationContext, int attempt)
@@ -138,6 +142,7 @@ namespace MongoDB.Driver.Core.Operations
         internal override void OnRetry(RetryableWriteContext context, Exception exception)
         {
             context.Binding.Session.CurrentTransaction?.UnpinAll();
+            base.OnRetry(context, exception);
         }
     }
 
@@ -178,6 +183,8 @@ namespace MongoDB.Driver.Core.Operations
             {
                 RequiresMajorityWriteConcern = true;
             }
+
+            base.OnRetry(context, exception);
         }
 
         public override BsonDocument ExecuteAttempt(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
