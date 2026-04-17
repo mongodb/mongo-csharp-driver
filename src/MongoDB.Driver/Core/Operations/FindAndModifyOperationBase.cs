@@ -33,10 +33,12 @@ namespace MongoDB.Driver.Core.Operations
         private Collation _collation;
         private BsonValue _comment;
         private readonly CollectionNamespace _collectionNamespace;
+        private bool _enableOverloadRetargeting;
+        private int _maxAdaptiveRetries;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly IBsonSerializer<TResult> _resultSerializer;
-        private WriteConcern _writeConcern;
         private bool _retryRequested;
+        private WriteConcern _writeConcern;
 
         public FindAndModifyOperationBase(CollectionNamespace collectionNamespace, IBsonSerializer<TResult> resultSerializer, MessageEncoderSettings messageEncoderSettings)
         {
@@ -57,9 +59,21 @@ namespace MongoDB.Driver.Core.Operations
             set { _comment = value; }
         }
 
+        public bool EnableOverloadRetargeting
+        {
+            get { return _enableOverloadRetargeting; }
+            set { _enableOverloadRetargeting = value; }
+        }
+
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
+        }
+
+        public int MaxAdaptiveRetries
+        {
+            get { return _maxAdaptiveRetries; }
+            set { _maxAdaptiveRetries = value; }
         }
 
         public MessageEncoderSettings MessageEncoderSettings
@@ -86,11 +100,13 @@ namespace MongoDB.Driver.Core.Operations
             set { _retryRequested = value; }
         }
 
+        public bool IsOperationRetryable => true;
+
         public TResult Execute(OperationContext operationContext, IWriteBinding binding)
         {
             using (BeginOperation())
             {
-                return RetryableWriteOperationExecutor.Execute(operationContext, this, binding, _retryRequested);
+                return RetryableWriteOperationExecutor.Execute(operationContext, this, binding, _retryRequested, _maxAdaptiveRetries, _enableOverloadRetargeting);
             }
         }
 
@@ -106,7 +122,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             using (BeginOperation())
             {
-                return RetryableWriteOperationExecutor.ExecuteAsync(operationContext, this, binding, _retryRequested);
+                return RetryableWriteOperationExecutor.ExecuteAsync(operationContext, this, binding, _retryRequested, _maxAdaptiveRetries, _enableOverloadRetargeting);
             }
         }
 

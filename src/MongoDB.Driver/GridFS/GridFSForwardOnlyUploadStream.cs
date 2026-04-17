@@ -298,7 +298,8 @@ namespace MongoDB.Driver.GridFS
             var messageEncoderSettings = _bucket.GetMessageEncoderSettings();
             return new BulkMixedWriteOperation(chunksCollectionNamespace, requests, messageEncoderSettings)
             {
-                WriteConcern = _bucket.Options.WriteConcern
+                WriteConcern = _bucket.Options.WriteConcern,
+                RetryRequested = _bucket.Database.Client.Settings.RetryWrites
             };
         }
 

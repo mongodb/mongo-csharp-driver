@@ -15,7 +15,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Operations
@@ -27,6 +29,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             HashSet<ServerDescription> deprioritizedServers = null;
             var totalAttempts = 0;
+            var overloadErrorSeen = false;
             Exception originalException = null;
 
             while (true) // Circle breaking logic based on ShouldRetryOperation method, see the catch block below.
@@ -40,17 +43,35 @@ namespace MongoDB.Driver.Core.Operations
                     server = context.SelectServer(operationContext, deprioritizedServers);
                     context.AcquireChannel(operationContext);
 
-                    return operation.ExecuteAttempt(operationContext, context, totalAttempts, transactionNumber: null);
+                    var operationResult = operation.ExecuteAttempt(operationContext, context, totalAttempts, transactionNumber: null);
+
+                    if (context.Binding.Session.Id != null &&
+                        context.Binding.Session.IsInTransaction)
+                    {
+                        context.Binding.Session.CurrentTransaction.HasCompletedCommand = true;
+                    }
+
+                    return operationResult;
                 }
                 catch (Exception ex)
                 {
-                    if (!ShouldRetryOperation(operationContext, context, ex, totalAttempts))
+                    originalException ??= ex;
+                    overloadErrorSeen = overloadErrorSeen || RetryabilityHelper.IsSystemOverloadedException(ex);
+
+                    if (!ShouldRetry(operationContext, context, operation.IsOperationRetryable, ex, totalAttempts, context.Random, overloadErrorSeen, out var backoff))
                     {
-                        throw originalException ?? ex;
+                        throw originalException;
                     }
 
-                    originalException ??= ex;
-                    deprioritizedServers = UpdateServerList(server, deprioritizedServers, ex);
+                    // We bail early if the backoff would exceed the CSOT deadline.
+                    var remaining = operationContext.RemainingTimeout;
+                    if (remaining != Timeout.InfiniteTimeSpan && remaining < backoff)
+                    {
+                        throw originalException;
+                    }
+
+                    Thread.Sleep(backoff);
+                    deprioritizedServers = UpdateServerList(server, deprioritizedServers, ex, context.EnableOverloadRetargeting);
                 }
             }
         }
@@ -59,6 +80,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             HashSet<ServerDescription> deprioritizedServers = null;
             var totalAttempts = 0;
+            var overloadErrorSeen = false;
             Exception originalException = null;
 
             while (true) // Circle breaking logic based on ShouldRetryOperation method, see the catch block below.
@@ -72,43 +94,95 @@ namespace MongoDB.Driver.Core.Operations
                     server = await context.SelectServerAsync(operationContext, deprioritizedServers).ConfigureAwait(false);
                     await context.AcquireChannelAsync(operationContext).ConfigureAwait(false);
 
-                    return await operation.ExecuteAttemptAsync(operationContext, context, totalAttempts, transactionNumber: null).ConfigureAwait(false);
+                    var operationResult = await operation.ExecuteAttemptAsync(operationContext, context, totalAttempts, transactionNumber: null).ConfigureAwait(false);
+
+                    if (context.Binding.Session.Id != null &&
+                        context.Binding.Session.IsInTransaction)
+                    {
+                        context.Binding.Session.CurrentTransaction.HasCompletedCommand = true;
+                    }
+
+                    return operationResult;
                 }
                 catch (Exception ex)
                 {
-                    if (!ShouldRetryOperation(operationContext, context, ex, totalAttempts))
+                    originalException ??= ex;
+                    overloadErrorSeen = overloadErrorSeen || RetryabilityHelper.IsSystemOverloadedException(ex);
+
+                    if (!ShouldRetry(operationContext, context, operation.IsOperationRetryable, ex, totalAttempts, context.Random, overloadErrorSeen, out var backoff))
                     {
-                        throw originalException ?? ex;
+                        throw originalException;
                     }
 
-                    originalException ??= ex;
-                    deprioritizedServers = UpdateServerList(server, deprioritizedServers, ex);
+                    await Task.Delay(backoff, operationContext.CancellationToken).ConfigureAwait(false);
+                    deprioritizedServers = UpdateServerList(server, deprioritizedServers, ex, context.EnableOverloadRetargeting);
                 }
             }
         }
 
         // private static methods
-        private static bool ShouldRetryOperation(OperationContext operationContext, RetryableReadContext context, Exception exception, int totalAttempts)
+        private static bool ShouldRetry(OperationContext operationContext,
+            RetryableReadContext context,
+            bool isOperationRetryable,
+            Exception exception,
+            int attempt,
+            IRandom random,
+            bool overloadErrorSeen,
+            out TimeSpan backoff)
         {
+            backoff = TimeSpan.Zero;
+
+            if (!context.RetryRequested)
+            {
+                return false;
+            }
+
+            // Authentication exceptions are wrapped inside MongoAuthenticationException, we need to unwrap them to be able to detect their retryability
             exception = exception is MongoAuthenticationException mongoAuthenticationException ? mongoAuthenticationException.InnerException : exception;
 
-            if (!context.RetryRequested || context.Binding.Session.IsInTransaction)
+            var isRetryableReadException = RetryabilityHelper.IsRetryableReadException(exception);
+            var isRetryableException = RetryabilityHelper.IsRetryableException(exception);
+            var isSystemOverloadedException = RetryabilityHelper.IsSystemOverloadedException(exception);
+
+            var isRetryableRead = isOperationRetryable && !context.Binding.Session.IsInTransaction && isRetryableReadException;
+
+            var isBackpressureRetry = isSystemOverloadedException
+                                      && isRetryableException;
+
+            if (!isRetryableRead && !isBackpressureRetry)
             {
                 return false;
             }
 
-            if (!RetryabilityHelper.IsRetryableReadException(exception))
+            if (isSystemOverloadedException)
             {
-                return false;
+                // If the first command in a transaction was rejected due to overload, reset to Starting so the retry re-sends startTransaction:true.
+                if (context.Binding.Session.Id != null
+                    && context.Binding.Session.IsInTransaction
+                    && context.Binding.Session.CurrentTransaction is { HasCompletedCommand: false } currentTransaction)
+                {
+                    currentTransaction.ResetState();
+                }
+
+                backoff = RetryabilityHelper.GetOperationRetryBackoffDelay(attempt, random);
+
+                return attempt <= context.MaxAdaptiveRetries;
             }
 
-            return operationContext.IsRootContextTimeoutConfigured() || totalAttempts < 2;
+            // If an overload error was seen earlier in this retry loop, cap total retries at MaxAdaptiveRetries but don't apply backoff.
+            if (overloadErrorSeen)
+            {
+                return attempt <= context.MaxAdaptiveRetries;
+            }
+
+            // If a retryable read (not backpressure related), we retry "infinite" times (until timeout) with CSOT enabled, otherwise just once.
+            return operationContext.IsRootContextTimeoutConfigured() || attempt < 2;
         }
 
-        private static HashSet<ServerDescription> UpdateServerList(ServerDescription server, HashSet<ServerDescription> deprioritizedServers, Exception ex)
+        private static HashSet<ServerDescription> UpdateServerList(ServerDescription server, HashSet<ServerDescription> deprioritizedServers, Exception ex, bool enableOverloadRetargeting)
         {
             if (server != null && (server.Type == ServerType.ShardRouter ||
-                                   (ex is MongoException mongoException && mongoException.HasErrorLabel("SystemOverloadedError"))))
+                                   (enableOverloadRetargeting && ex is MongoException mongoException && mongoException.HasErrorLabel("SystemOverloadedError"))))
             {
                 deprioritizedServers ??= [];
                 deprioritizedServers.Add(server);

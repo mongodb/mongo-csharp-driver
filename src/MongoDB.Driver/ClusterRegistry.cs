@@ -55,7 +55,6 @@ namespace MongoDB.Driver
         // methods
         private IClusterInternal CreateCluster(ClusterKey clusterKey)
         {
-#pragma warning disable CS0618 // Type or member is obsolete
             var builder = new ClusterBuilder()
                 .ConfigureCluster(settings => ConfigureCluster(settings, clusterKey))
                 .ConfigureServer(settings => ConfigureServer(settings, clusterKey))
@@ -64,7 +63,6 @@ namespace MongoDB.Driver
                 .ConfigureTcp(settings => ConfigureTcp(settings, clusterKey))
                 .ConfigureLoggingSettings(_ => clusterKey.LoggingSettings)
                 .ConfigureTracingOptions(_ => clusterKey.TracingOptions);
-#pragma warning restore CS0618 // Type or member is obsolete
 
             if (clusterKey.UseTls)
             {

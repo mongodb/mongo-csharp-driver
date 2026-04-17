@@ -76,25 +76,13 @@ namespace MongoDB.Driver.Core.Clusters
         public event EventHandler<ClusterDescriptionChangedEventArgs> DescriptionChanged;
 
         // properties
-        public ClusterId ClusterId
-        {
-            get { return _clusterId; }
-        }
+        public ClusterId ClusterId => _clusterId;
 
-        public ClusterDescription Description
-        {
-            get
-            {
-                return _expirableClusterDescription.ClusterDescription;
-            }
-        }
+        public ClusterDescription Description => _expirableClusterDescription.ClusterDescription;
 
         public abstract IEnumerable<IClusterableServer> Servers { get; }
 
-        public ClusterSettings Settings
-        {
-            get { return _settings; }
-        }
+        public ClusterSettings Settings => _settings;
 
         // methods
         public ICoreServerSession AcquireServerSession()

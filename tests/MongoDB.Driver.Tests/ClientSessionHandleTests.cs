@@ -715,7 +715,7 @@ namespace MongoDB.Driver.Tests
             IClock clock = null,
             IRandom random = null)
         {
-            client ??= Mock.Of<IMongoClient>();
+            client ??= Mock.Of<IMongoClient>(c => c.Settings == new MongoClientSettings());
             options ??= new ClientSessionOptions();
             coreSession ??= CreateCoreSession(options: options.ToCore());
             clock ??= SystemClock.Instance;

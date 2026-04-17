@@ -30,9 +30,11 @@ namespace MongoDB.Driver.Core.Operations
         private Collation _collation;
         private readonly CollectionNamespace _collectionNamespace;
         private BsonValue _comment;
+        private bool _enableOverloadRetargeting;
         private BsonDocument _filter;
         private BsonValue _hint;
         private long? _limit;
+        private int _maxAdaptiveRetries;
         private TimeSpan? _maxTime;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private ReadConcern _readConcern = ReadConcern.Default;
@@ -99,11 +101,25 @@ namespace MongoDB.Driver.Core.Operations
             set { _readConcern = Ensure.IsNotNull(value, nameof(value)); }
         }
 
+        public bool EnableOverloadRetargeting
+        {
+            get => _enableOverloadRetargeting;
+            set => _enableOverloadRetargeting = value;
+        }
+
+        public int MaxAdaptiveRetries
+        {
+            get => _maxAdaptiveRetries;
+            set => _maxAdaptiveRetries = value;
+        }
+
         public bool RetryRequested
         {
             get => _retryRequested;
             set => _retryRequested = value;
         }
+
+        public bool IsOperationRetryable => true;
 
         public long? Skip
         {
@@ -133,7 +149,7 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = new RetryableReadContext(binding, _retryRequested))
+            using (var context = new RetryableReadContext(binding, _retryRequested, _maxAdaptiveRetries, _enableOverloadRetargeting))
             {
                 return Execute(operationContext, context);
             }
@@ -141,7 +157,7 @@ namespace MongoDB.Driver.Core.Operations
 
         public long Execute(OperationContext operationContext, RetryableReadContext context)
         {
-            var operation = CreateOperation(operationContext, context);
+            var operation = CreateOperation(operationContext);
             var document = operation.Execute(operationContext, context);
             return document["n"].ToInt64();
         }
@@ -151,7 +167,7 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = new RetryableReadContext(binding, _retryRequested))
+            using (var context = new RetryableReadContext(binding, _retryRequested, _maxAdaptiveRetries, _enableOverloadRetargeting))
             {
                 return await ExecuteAsync(operationContext, context).ConfigureAwait(false);
             }
@@ -159,14 +175,14 @@ namespace MongoDB.Driver.Core.Operations
 
         public async Task<long> ExecuteAsync(OperationContext operationContext, RetryableReadContext context)
         {
-            var operation = CreateOperation(operationContext, context);
+            var operation = CreateOperation(operationContext);
             var document = await operation.ExecuteAsync(operationContext, context).ConfigureAwait(false);
             return document["n"].ToInt64();
         }
 
         private EventContext.OperationNameDisposer BeginOperation() => EventContext.BeginOperation(OperationName);
 
-        private ReadCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, RetryableReadContext context)
+        private ReadCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext)
         {
             return new ReadCommandOperation<BsonDocument>(
                 _collectionNamespace.DatabaseNamespace,
@@ -175,6 +191,8 @@ namespace MongoDB.Driver.Core.Operations
                 _messageEncoderSettings,
                 OperationName)
             {
+                EnableOverloadRetargeting = _enableOverloadRetargeting,
+                MaxAdaptiveRetries = _maxAdaptiveRetries,
                 RetryRequested = _retryRequested // might be overridden by retryable read context
             };
         }

@@ -1,4 +1,4 @@
-/* Copyright 2010-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -53,11 +53,12 @@ namespace MongoDB.Driver.Core.Operations
             Comment = options?.Comment;
             IsOrdered = (options?.IsOrdered).GetValueOrDefault(true);
             WriteConcern = options?.WriteConcern;
+            IsOperationRetryable = true;
         }
 
         public override string OperationName => "bulkWrite";
 
-        protected override BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, int attempt, long? transactionNumber)
+        protected override BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, long? transactionNumber)
         {
             var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, session, WriteConcern);
             return new BsonDocument
@@ -96,7 +97,7 @@ namespace MongoDB.Driver.Core.Operations
             var bulkWriteResults = new BulkWriteRawResult();
             while (true)
             {
-                using var context = new RetryableWriteContext(binding, GetEffectiveRetryRequested());
+                using var context = new RetryableWriteContext(binding, GetEffectiveRetryRequested(), MaxAdaptiveRetries, EnableOverloadRetargeting);
                 BsonDocument serverResponse = null;
                 try
                 {
@@ -154,7 +155,7 @@ namespace MongoDB.Driver.Core.Operations
             var bulkWriteResults = new BulkWriteRawResult();
             while (true)
             {
-                using var context = new RetryableWriteContext(binding, GetEffectiveRetryRequested());
+                using var context = new RetryableWriteContext(binding, GetEffectiveRetryRequested(), MaxAdaptiveRetries, EnableOverloadRetargeting);
                 BsonDocument serverResponse = null;
                 try
                 {
@@ -286,7 +287,11 @@ namespace MongoDB.Driver.Core.Operations
                 0,
                 0,
                 BsonDocumentSerializer.Instance,
-                MessageEncoderSettings);
+                MessageEncoderSettings,
+                maxTime: null,
+                retryRequested: RetryRequested,
+                maxAdaptiveRetries: MaxAdaptiveRetries,
+                enableOverloadRetargeting: EnableOverloadRetargeting);
         }
 
         private void PopulateBulkWriteResponse(BsonDocument bulkWriteResponse, BulkWriteRawResult bulkWriteResult)

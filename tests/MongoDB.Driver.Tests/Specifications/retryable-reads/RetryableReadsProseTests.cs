@@ -26,6 +26,7 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.TestHelpers.XunitExtensions;
@@ -248,6 +249,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
                 s =>
                 {
                     s.RetryReads = true;
+                    s.EnableOverloadRetargeting = true;
                     s.ClusterConfigurator = b => b.Subscribe(eventCapturer);
                     s.ReadPreference = ReadPreference.PrimaryPreferred;
                 },
@@ -315,6 +317,153 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
             eventCapturer.Next().Should().BeOfType<CommandFailedEvent>();
             eventCapturer.Next().Should().BeOfType<CommandStartedEvent>().Subject.ConnectionId.ServerId.Should().Be(failPointServer.ServerId);
             eventCapturer.Next().Should().BeOfType<CommandSucceededEvent>();
+        }
+
+        [Fact]
+        // https://github.com/mongodb/specifications/blob/master/source/retryable-reads/tests/README.md#4-test-that-drivers-set-the-maximum-number-of-retries-for-all-retryable-read-errors-when-an-overload-error-is-encountered
+        public void Max_retries_for_all_retryable_read_errors_when_overload_error_encountered()
+        {
+            RequireServer.Check()
+                .ClusterTypes(ClusterType.ReplicaSet)
+                .VersionGreaterThanOrEqualTo("4.4.0");
+
+            var firstFailPointCommand = BsonDocument.Parse(
+                @"{
+                    configureFailPoint: ""failCommand"",
+                    mode: { times: 1 },
+                    data:
+                    {
+                        failCommands: [""find""],
+                        errorCode: 91,
+                        errorLabels: [""RetryableError"", ""SystemOverloadedError""]
+                    }
+                }");
+
+            var secondFailPointCommand = BsonDocument.Parse(
+                @"{
+                    configureFailPoint: ""failCommand"",
+                    mode: ""alwaysOn"",
+                    data:
+                    {
+                        failCommands: [""find""],
+                        errorCode: 91,
+                        errorLabels: [""RetryableError""]
+                    }
+                }");
+
+            var secondFailPointConfigured = false;
+            FailPoint secondFailPoint = null;
+
+            using var firstFailPoint = FailPoint.Configure(DriverTestConfiguration.Client.GetClusterInternal(), NoCoreSession.NewHandle(), firstFailPointCommand);
+
+            var eventCapturer = new EventCapturer().CaptureCommandEvents("find");
+            using var client = DriverTestConfiguration.CreateMongoClient(s =>
+            {
+                s.RetryReads = true;
+                s.ClusterConfigurator = b =>
+                {
+                    b.Subscribe(eventCapturer);
+                    b.Subscribe<CommandFailedEvent>(e =>
+                    {
+                        if (e is { CommandName: "find", Failure: MongoCommandException { Code: 91 } } && !secondFailPointConfigured)
+                        {
+                            secondFailPoint = FailPoint.Configure(DriverTestConfiguration.Client.GetClusterInternal(), NoCoreSession.NewHandle(), secondFailPointCommand);
+                            secondFailPointConfigured = true;
+                        }
+                    });
+                };
+            });
+
+            try
+            {
+                var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
+                var collection = database.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
+
+                var exception = Record.Exception(() => collection.FindSync(Builders<BsonDocument>.Filter.Empty));
+                exception.Should().BeAssignableTo<MongoException>();
+
+                var expectedAttempts = RetryabilityHelper.OperationRetryBackpressureConstants.DefaultMaxRetries + 1;
+                eventCapturer.Events.OfType<CommandStartedEvent>().Count().Should().Be(expectedAttempts);
+            }
+            finally
+            {
+                secondFailPoint?.Dispose();
+            }
+        }
+
+        [Fact]
+        // https://github.com/mongodb/specifications/blob/master/source/retryable-reads/tests/README.md#5-test-that-drivers-do-not-apply-backoff-to-non-overload-errors
+        public void Backoff_is_not_applied_to_non_overload_errors()
+        {
+            RequireServer.Check()
+                .ClusterTypes(ClusterType.ReplicaSet)
+                .VersionGreaterThanOrEqualTo("4.4.0");
+
+            var firstFailPointCommand = BsonDocument.Parse(
+                @"{
+                    configureFailPoint: ""failCommand"",
+                    mode: { times: 1 },
+                    data:
+                    {
+                        failCommands: [""find""],
+                        errorCode: 91,
+                        errorLabels: [""RetryableError"", ""SystemOverloadedError""]
+                    }
+                }");
+
+            var secondFailPointCommand = BsonDocument.Parse(
+                @"{
+                    configureFailPoint: ""failCommand"",
+                    mode: ""alwaysOn"",
+                    data:
+                    {
+                        failCommands: [""find""],
+                        errorCode: 91,
+                        errorLabels: [""RetryableError""]
+                    }
+                }");
+
+            var secondFailPointConfigured = false;
+            FailPoint secondFailPoint = null;
+
+            using var firstFailPoint = FailPoint.Configure(DriverTestConfiguration.Client.GetClusterInternal(), NoCoreSession.NewHandle(), firstFailPointCommand);
+
+            var eventCapturer = new EventCapturer().CaptureCommandEvents("find");
+            using var client = DriverTestConfiguration.CreateMongoClient(s =>
+            {
+                s.RetryReads = true;
+                s.ClusterConfigurator = b =>
+                {
+                    b.Subscribe(eventCapturer);
+                    b.Subscribe<CommandFailedEvent>(e =>
+                    {
+                        if (e is { CommandName: "find", Failure: MongoCommandException { Code: 91 } } && !secondFailPointConfigured)
+                        {
+                            secondFailPoint = FailPoint.Configure(DriverTestConfiguration.Client.GetClusterInternal(), NoCoreSession.NewHandle(), secondFailPointCommand);
+                            secondFailPointConfigured = true;
+                        }
+                    });
+                };
+            });
+
+            try
+            {
+                var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
+                var collection = database.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
+
+                var exception = Record.Exception(() => collection.FindSync(Builders<BsonDocument>.Filter.Empty));
+                exception.Should().BeAssignableTo<MongoException>();
+
+                // Backoff is only applied for overload errors (attempt 1). Non-overload retries (attempts 2+) have no backoff.
+                // The attempt count verifies that the overload-triggered MAX_RETRIES cap applies to all retries.
+                // Precise backoff timing is verified by the ClientBackpressureProseTests unit tests which control the RNG.
+                var expectedAttempts = RetryabilityHelper.OperationRetryBackpressureConstants.DefaultMaxRetries + 1;
+                eventCapturer.Events.OfType<CommandStartedEvent>().Count().Should().Be(expectedAttempts);
+            }
+            finally
+            {
+                secondFailPoint?.Dispose();
+            }
         }
 
         // private methods

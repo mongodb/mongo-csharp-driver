@@ -158,7 +158,10 @@ namespace MongoDB.Driver
         {
             ThrowIfDisposed();
             var options = new ClientSessionOptions { CausalConsistency = false, Snapshot = false };
-            var coreSession = _client.GetClusterInternal().StartSession(options.ToCore(isImplicit: true));
+            var coreSession = _client.GetClusterInternal().StartSession(options.ToCore(
+                isImplicit: true,
+                maxAdaptiveRetries: _client.Settings.MaxAdaptiveRetries,
+                enableOverloadRetargeting: _client.Settings.EnableOverloadRetargeting));
             return new ClientSessionHandle(_client, options, coreSession);
         }
 

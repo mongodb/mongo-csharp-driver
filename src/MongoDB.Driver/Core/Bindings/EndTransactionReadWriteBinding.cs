@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,113 +16,87 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Bindings
 {
-    internal sealed class ChannelSourceReadWriteBinding : IReadWriteBinding
+    // LB-only end-transaction binding; rebuilt by EndTransactionOperation.OnRetry between attempts
+    // so the next SelectServer reflects the session's current pin state.
+    internal sealed class EndTransactionReadWriteBinding : IReadWriteBinding
     {
-        private readonly IChannelSourceHandle _channelSource;
+#pragma warning disable CA2213 // Disposable fields should be disposed
+        private readonly IClusterInternal _cluster;
+#pragma warning restore CA2213 // Disposable fields should be disposed
         private bool _disposed;
-        private readonly ReadPreference _readPreference;
+        private IReadWriteBindingHandle _innerBinding;
         private readonly ICoreSessionHandle _session;
 
-        public ChannelSourceReadWriteBinding(IChannelSourceHandle channelSource, ReadPreference readPreference, ICoreSessionHandle session)
+        public EndTransactionReadWriteBinding(IClusterInternal cluster, ICoreSessionHandle session)
         {
-            _channelSource = Ensure.IsNotNull(channelSource, nameof(channelSource));
-            _readPreference = Ensure.IsNotNull(readPreference, nameof(readPreference));
+            _cluster = Ensure.IsNotNull(cluster, nameof(cluster));
             _session = Ensure.IsNotNull(session, nameof(session));
+            _innerBinding = ChannelPinningHelper.CreateReadWriteBinding(_cluster, _session.Fork());
         }
 
-        public ReadPreference ReadPreference
-        {
-            get { return _readPreference; }
-        }
+        public ReadPreference ReadPreference => ReadPreference.Primary;
 
-        public ICoreSessionHandle Session
-        {
-            get { return _session; }
-        }
+        public ICoreSessionHandle Session => _session;
 
-        public IChannelSourceHandle GetReadChannelSource(OperationContext operationContext)
+        // Called by EndTransactionOperation.OnRetry between attempts.
+        public void RebuildInnerBinding()
         {
             ThrowIfDisposed();
-            return GetChannelSourceHelper();
-        }
-
-        public Task<IChannelSourceHandle> GetReadChannelSourceAsync(OperationContext operationContext)
-        {
-            ThrowIfDisposed();
-            return Task.FromResult(GetChannelSourceHelper());
-        }
-
-        public IChannelSourceHandle GetReadChannelSource(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
-        {
-            return GetReadChannelSource(operationContext);
-        }
-
-        public Task<IChannelSourceHandle> GetReadChannelSourceAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
-        {
-            return GetReadChannelSourceAsync(operationContext);
-        }
-
-        public IChannelSourceHandle GetWriteChannelSource(OperationContext operationContext)
-        {
-            ThrowIfDisposed();
-            return GetChannelSourceHelper();
-        }
-
-        public IChannelSourceHandle GetWriteChannelSource(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
-        {
-            return GetWriteChannelSource(operationContext);
-        }
-
-        public IChannelSourceHandle GetWriteChannelSource(OperationContext operationContext, IMayUseSecondaryCriteria mayUseSecondary)
-        {
-            return GetWriteChannelSource(operationContext); // ignore mayUseSecondary
-        }
-
-        public IChannelSourceHandle GetWriteChannelSource(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondary)
-        {
-            return GetWriteChannelSource(operationContext, mayUseSecondary);
-        }
-
-        public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(OperationContext operationContext)
-        {
-            ThrowIfDisposed();
-            return Task.FromResult(GetChannelSourceHelper());
-        }
-
-        public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
-        {
-            return GetWriteChannelSourceAsync(operationContext);
-        }
-
-        public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(OperationContext operationContext, IMayUseSecondaryCriteria mayUseSecondary)
-        {
-            return GetWriteChannelSourceAsync(operationContext); // ignore mayUseSecondary
-        }
-
-        public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondary)
-        {
-            return GetWriteChannelSourceAsync(operationContext, mayUseSecondary);
+            _innerBinding.Dispose();
+            _innerBinding = ChannelPinningHelper.CreateReadWriteBinding(_cluster, _session.Fork());
         }
 
         public void Dispose()
         {
             if (!_disposed)
             {
-                _channelSource.Dispose();
+                _innerBinding.Dispose();
                 _session.Dispose();
                 _disposed = true;
             }
         }
 
-        private IChannelSourceHandle GetChannelSourceHelper()
-        {
-            return _channelSource.Fork();
-        }
+        public IChannelSourceHandle GetReadChannelSource(OperationContext operationContext)
+            => _innerBinding.GetReadChannelSource(operationContext);
+
+        public Task<IChannelSourceHandle> GetReadChannelSourceAsync(OperationContext operationContext)
+            => _innerBinding.GetReadChannelSourceAsync(operationContext);
+
+        public IChannelSourceHandle GetReadChannelSource(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
+            => _innerBinding.GetReadChannelSource(operationContext, deprioritizedServers);
+
+        public Task<IChannelSourceHandle> GetReadChannelSourceAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
+            => _innerBinding.GetReadChannelSourceAsync(operationContext, deprioritizedServers);
+
+        public IChannelSourceHandle GetWriteChannelSource(OperationContext operationContext)
+            => _innerBinding.GetWriteChannelSource(operationContext);
+
+        public IChannelSourceHandle GetWriteChannelSource(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
+            => _innerBinding.GetWriteChannelSource(operationContext, deprioritizedServers);
+
+        public IChannelSourceHandle GetWriteChannelSource(OperationContext operationContext, IMayUseSecondaryCriteria mayUseSecondary)
+            => _innerBinding.GetWriteChannelSource(operationContext, mayUseSecondary);
+
+        public IChannelSourceHandle GetWriteChannelSource(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondary)
+            => _innerBinding.GetWriteChannelSource(operationContext, deprioritizedServers, mayUseSecondary);
+
+        public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(OperationContext operationContext)
+            => _innerBinding.GetWriteChannelSourceAsync(operationContext);
+
+        public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
+            => _innerBinding.GetWriteChannelSourceAsync(operationContext, deprioritizedServers);
+
+        public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(OperationContext operationContext, IMayUseSecondaryCriteria mayUseSecondary)
+            => _innerBinding.GetWriteChannelSourceAsync(operationContext, mayUseSecondary);
+
+        public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondary)
+            => _innerBinding.GetWriteChannelSourceAsync(operationContext, deprioritizedServers, mayUseSecondary);
 
         private void ThrowIfDisposed()
         {

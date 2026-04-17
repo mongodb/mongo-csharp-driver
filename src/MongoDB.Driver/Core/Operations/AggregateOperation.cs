@@ -38,8 +38,10 @@ namespace MongoDB.Driver.Core.Operations
         private readonly CollectionNamespace _collectionNamespace;
         private BsonValue _comment;
         private readonly DatabaseNamespace _databaseNamespace;
+        private bool _enableOverloadRetargeting;
         private BsonValue _hint;
         private BsonDocument _let;
+        private int _maxAdaptiveRetries;
         private TimeSpan? _maxAwaitTime;
         private TimeSpan? _maxTime;
         private readonly MessageEncoderSettings _messageEncoderSettings;
@@ -249,6 +251,18 @@ namespace MongoDB.Driver.Core.Operations
             get { return _resultSerializer; }
         }
 
+        public bool EnableOverloadRetargeting
+        {
+            get => _enableOverloadRetargeting;
+            set => _enableOverloadRetargeting = value;
+        }
+
+        public int MaxAdaptiveRetries
+        {
+            get => _maxAdaptiveRetries;
+            set => _maxAdaptiveRetries = value;
+        }
+
         /// <summary>
         /// Gets or sets a value indicating whether to retry.
         /// </summary>
@@ -258,6 +272,8 @@ namespace MongoDB.Driver.Core.Operations
             get => _retryRequested;
             set => _retryRequested = value;
         }
+
+        public bool IsOperationRetryable => true;
 
         /// <summary>
         /// Gets or sets a value indicating whether the server should use a cursor to return the results.
@@ -279,7 +295,7 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = new RetryableReadContext(binding, _retryRequested))
+            using (var context = new RetryableReadContext(binding, _retryRequested, _maxAdaptiveRetries, _enableOverloadRetargeting))
             {
                 return Execute(operationContext, context);
             }
@@ -308,7 +324,7 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = new RetryableReadContext(binding, _retryRequested))
+            using (var context = new RetryableReadContext(binding, _retryRequested, _maxAdaptiveRetries, _enableOverloadRetargeting))
             {
                 return await ExecuteAsync(operationContext, context).ConfigureAwait(false);
             }
@@ -370,6 +386,8 @@ namespace MongoDB.Driver.Core.Operations
                 MessageEncoderSettings,
                 OperationName)
             {
+                EnableOverloadRetargeting = _enableOverloadRetargeting,
+                MaxAdaptiveRetries = _maxAdaptiveRetries,
                 RetryRequested = _retryRequested // might be overridden by retryable read context
             };
         }
@@ -402,7 +420,10 @@ namespace MongoDB.Driver.Core.Operations
                 null, // limit
                 _resultSerializer,
                 MessageEncoderSettings,
-                _maxAwaitTime);
+                _maxAwaitTime,
+                _retryRequested,
+                maxAdaptiveRetries: _maxAdaptiveRetries,
+                enableOverloadRetargeting: _enableOverloadRetargeting);
         }
 
         private AsyncCursor<TResult> CreateCursorFromInlineResult(AggregateResult result)
@@ -418,7 +439,10 @@ namespace MongoDB.Driver.Core.Operations
                 null, // limit
                 _resultSerializer,
                 MessageEncoderSettings,
-                _maxAwaitTime);
+                _maxAwaitTime,
+                _retryRequested,
+                maxAdaptiveRetries: _maxAdaptiveRetries,
+                enableOverloadRetargeting: _enableOverloadRetargeting);
         }
 
         private void EnsureIsReadOnlyPipeline()
