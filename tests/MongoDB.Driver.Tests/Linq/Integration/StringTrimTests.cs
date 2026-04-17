@@ -133,7 +133,7 @@ public class StringTrimTests : LinqIntegrationTest<StringTrimTests.ClassFixture>
         results.Should().Equal(" abcd", "abcd", " abcd", "abcd");
     }
 
-    // TODO CSHARP-5979: Add coverage for parameterless and single char overloads of Trim, TrimStart, and TrimEnd.
+    // Add coverage for parameterless and single char overloads of Trim, TrimStart, and TrimEnd, see https://jira.mongodb.org/browse/CSHARP-5979
     // e.g. Trim(' '), TrimStart(), TrimStart(' '), TrimEnd(), TrimEnd(' ')
 
     public class C
