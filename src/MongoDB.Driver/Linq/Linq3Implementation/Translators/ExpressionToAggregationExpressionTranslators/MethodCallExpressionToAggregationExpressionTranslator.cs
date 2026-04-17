@@ -42,6 +42,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case "CovariancePopulation": return CovariancePopulationMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "CovarianceSample": return CovarianceSampleMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Create": return CreateMethodToAggregationExpressionTranslator.Translate(context, expression);
+                case "CreateObjectId": return CreateObjectIdMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "DateFromString": return DateFromStringMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "DefaultIfEmpty": return DefaultIfEmptyMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "DenseRank": return DenseRankMethodToAggregationExpressionTranslator.Translate(context, expression);

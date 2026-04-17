@@ -244,6 +244,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors
             return node.Update(VisitAndConvert(node.InitArgs), VisitAndConvert(node.AccumulateArgs));
         }
 
+        public virtual AstNode VisitCreateObjectIdExpression(AstCreateObjectIdExpression node)
+            => node;
+
         public virtual AstNode VisitDateAddExpression(AstDateAddExpression node)
         {
             return node.Update(VisitAndConvert(node.StartDate), VisitAndConvert(node.Unit), VisitAndConvert(node.Amount), VisitAndConvert(node.Timezone));

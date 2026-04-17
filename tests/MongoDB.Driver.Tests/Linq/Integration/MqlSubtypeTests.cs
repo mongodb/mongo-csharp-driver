@@ -38,7 +38,7 @@ public class MqlSubtypeTests : LinqIntegrationTest<MqlSubtypeTests.ClassFixture>
     [InlineData(BsonBinarySubType.Vector, 2)]
     [InlineData(BsonBinarySubType.UuidStandard, 3)]
     [InlineData(null, 4)]
-    public void MqlSubtype_in_where(BsonBinarySubType? subtype, int expectedId)
+    public void MqlSubtype_in_where_should_work(BsonBinarySubType? subtype, int expectedId)
     {
         var collection = Fixture.Collection;
         var queryable = collection.AsQueryable()
@@ -52,7 +52,7 @@ public class MqlSubtypeTests : LinqIntegrationTest<MqlSubtypeTests.ClassFixture>
     }
 
     [Fact]
-    public void MqlSubtype_in_select()
+    public void MqlSubtype_in_select_should_work()
     {
         var collection = Fixture.Collection;
         var queryable = collection.AsQueryable()
@@ -66,7 +66,7 @@ public class MqlSubtypeTests : LinqIntegrationTest<MqlSubtypeTests.ClassFixture>
     }
 
     [Fact]
-    public async Task MqlSubtype_in_filter_builder()
+    public async Task MqlSubtype_in_filter_builder_should_work()
     {
         var collection = Fixture.Collection;
 
@@ -79,7 +79,7 @@ public class MqlSubtypeTests : LinqIntegrationTest<MqlSubtypeTests.ClassFixture>
     }
 
     [Fact]
-    public async Task MqlSubtype_in_projection_builder()
+    public async Task MqlSubtype_in_projection_builder_should_work()
     {
         var collection = Fixture.Collection;
 
@@ -93,7 +93,7 @@ public class MqlSubtypeTests : LinqIntegrationTest<MqlSubtypeTests.ClassFixture>
     }
 
     [Fact]
-    public async Task MqlSubtype_in_aggregate()
+    public async Task MqlSubtype_in_aggregate_should_work()
     {
         var collection = Fixture.Collection;
 

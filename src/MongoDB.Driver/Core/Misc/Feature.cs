@@ -52,6 +52,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __convertOperatorStringToObjectOrArray = new Feature("ConvertOperatorStringToObjectOrArray", WireVersion.Server83);
         private static readonly Feature __createIndexCommitQuorum = new Feature("CreateIndexCommitQuorum", WireVersion.Server44);
         private static readonly Feature __createIndexesUsingInsertOperations = new Feature("CreateIndexesUsingInsertOperations", WireVersion.Zero, WireVersion.Server42);
+        private static readonly Feature __createObjectIdExpression = new Feature("CreateObjectIdExpression", WireVersion.Server83);
         private static readonly Feature __csfleRangeAlgorithm = new Feature("CsfleRangeAlgorithm", WireVersion.Server62);
         private static readonly Feature __csfle2Qev2Lookup = new Feature("csfle2Qev2Lookup", WireVersion.Server81);
         private static readonly Feature __csfle2Qev2RangeAlgorithm = new Feature("csfle2Qev2RangeAlgorithm", WireVersion.Server80);
@@ -247,6 +248,11 @@ namespace MongoDB.Driver.Core.Misc
         /// </summary>
         [Obsolete("This feature was removed in server version 4.2. As such, this property will be removed in a later release.")]
         public static Feature CreateIndexesUsingInsertOperations => __createIndexesUsingInsertOperations;
+
+        /// <summary>
+        /// Represents support for the $createObjectId operator feature.
+        /// </summary>
+        public static Feature CreateObjectIdExpression => __createObjectIdExpression;
 
         /// <summary>
         /// Gets the csfle range algorithm feature.

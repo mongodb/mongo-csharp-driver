@@ -38,6 +38,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast
         ConstantExpression,
         ConvertExpression,
         CountStage,
+        CreateObjectIdExpression,
         CurrentOpStage,
         CustomAccumulatorExpression,
         DateAddExpression,
