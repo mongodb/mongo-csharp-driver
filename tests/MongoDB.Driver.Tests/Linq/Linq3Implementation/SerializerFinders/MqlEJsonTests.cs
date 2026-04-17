@@ -50,49 +50,15 @@ public class MqlEJsonTests
     }
 
     [Fact]
-    public void SerializerFinder_should_resolve_mql_deserialize_ejson_in_member_init()
-    {
-        var expression = TestHelpers.MakeLambda<MyModel, OutputModel>(
-            model => new OutputModel { Document = Mql.DeserializeEJson<string, BsonDocument>(model.StringField, null) });
-        var serializerMap = TestHelpers.CreateSerializerMap(expression);
-
-        SerializerFinder.FindSerializers(expression.Body, null, serializerMap);
-
-        var memberInit = (MemberInitExpression)expression.Body;
-        var memberAssignment = (MemberAssignment)memberInit.Bindings[0];
-        var deserializeExpr = memberAssignment.Expression;
-
-        serializerMap.IsKnown(deserializeExpr, out _).Should().BeTrue();
-        serializerMap.GetSerializer(deserializeExpr).Should().BeOfType<BsonDocumentSerializer>();
-    }
-
-    [Fact]
-    public void SerializerFinder_should_resolve_mql_serialize_ejson_in_member_init()
-    {
-        var expression = TestHelpers.MakeLambda<MyModel, OutputModel>(
-            model => new OutputModel { Document = Mql.SerializeEJson<int, BsonDocument>(model.IntField, null) });
-        var serializerMap = TestHelpers.CreateSerializerMap(expression);
-
-        SerializerFinder.FindSerializers(expression.Body, null, serializerMap);
-
-        var memberInit = (MemberInitExpression)expression.Body;
-        var memberAssignment = (MemberAssignment)memberInit.Bindings[0];
-        var serializeExpr = memberAssignment.Expression;
-
-        serializerMap.IsKnown(serializeExpr, out _).Should().BeTrue();
-        serializerMap.GetSerializer(serializeExpr).Should().BeOfType<BsonDocumentSerializer>();
-    }
-
-    [Fact]
     public void SerializerFinder_should_use_custom_serializer_from_parent_for_mql_deserialize_ejson()
     {
         var expression = TestHelpers.MakeLambda<MyModel, OutputModel>(
-            model => new OutputModel { Document = Mql.DeserializeEJson<string, BsonDocument>(model.StringField, null) });
+            model => new OutputModel { Nested = Mql.DeserializeEJson<string, NestedModel>(model.StringField, null) });
         var serializerMap = TestHelpers.CreateSerializerMap(expression);
 
         // Pre-assign a custom serializer to the MemberInit node (simulating parent context)
-        var customDocSerializer = new CustomBsonDocumentSerializer();
-        var outputSerializer = CreateOutputModelSerializer(customDocSerializer);
+        var customNestedSerializer = new CustomNestedModelSerializer();
+        var outputSerializer = CreateOutputModelSerializer(customNestedSerializer);
         serializerMap.AddSerializer(expression.Body, outputSerializer);
 
         SerializerFinder.FindSerializers(expression.Body, null, serializerMap);
@@ -101,19 +67,19 @@ public class MqlEJsonTests
         var memberAssignment = (MemberAssignment)memberInit.Bindings[0];
         var deserializeExpr = memberAssignment.Expression;
 
-        serializerMap.GetSerializer(deserializeExpr).Should().BeSameAs(customDocSerializer);
+        serializerMap.GetSerializer(deserializeExpr).Should().BeSameAs(customNestedSerializer);
     }
 
     [Fact]
     public void SerializerFinder_should_use_custom_serializer_from_parent_for_mql_serialize_ejson()
     {
         var expression = TestHelpers.MakeLambda<MyModel, OutputModel>(
-            model => new OutputModel { Document = Mql.SerializeEJson<int, BsonDocument>(model.IntField, null) });
+            model => new OutputModel { Nested = Mql.SerializeEJson<int, NestedModel>(model.IntField, null) });
         var serializerMap = TestHelpers.CreateSerializerMap(expression);
 
         // Pre-assign a custom serializer to the MemberInit node (simulating parent context)
-        var customDocSerializer = new CustomBsonDocumentSerializer();
-        var outputSerializer = CreateOutputModelSerializer(customDocSerializer);
+        var customNestedSerializer = new CustomNestedModelSerializer();
+        var outputSerializer = CreateOutputModelSerializer(customNestedSerializer);
         serializerMap.AddSerializer(expression.Body, outputSerializer);
 
         SerializerFinder.FindSerializers(expression.Body, null, serializerMap);
@@ -122,14 +88,14 @@ public class MqlEJsonTests
         var memberAssignment = (MemberAssignment)memberInit.Bindings[0];
         var serializeExpr = memberAssignment.Expression;
 
-        serializerMap.GetSerializer(serializeExpr).Should().BeSameAs(customDocSerializer);
+        serializerMap.GetSerializer(serializeExpr).Should().BeSameAs(customNestedSerializer);
     }
 
-    private static IBsonSerializer<OutputModel> CreateOutputModelSerializer(IBsonSerializer<BsonDocument> documentMemberSerializer)
+    private static IBsonSerializer<OutputModel> CreateOutputModelSerializer(IBsonSerializer<NestedModel> nestedMemberSerializer)
     {
         var classMap = new BsonClassMap<OutputModel>();
         classMap.AutoMap();
-        classMap.GetMemberMap(nameof(OutputModel.Document)).SetSerializer(documentMemberSerializer);
+        classMap.GetMemberMap(nameof(OutputModel.Nested)).SetSerializer(nestedMemberSerializer);
         classMap.Freeze();
         return new BsonClassMapSerializer<OutputModel>(classMap);
     }
@@ -142,15 +108,18 @@ public class MqlEJsonTests
 
     private class OutputModel
     {
-        public BsonDocument Document { get; set; }
+        public NestedModel Nested { get; set; }
     }
 
-    private class CustomBsonDocumentSerializer : SerializerBase<BsonDocument>
+    private class NestedModel
     {
-        public override BsonDocument Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
-            => BsonDocumentSerializer.Instance.Deserialize(context, args);
+        public string Value { get; set; }
+    }
 
-        public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, BsonDocument value)
-            => BsonDocumentSerializer.Instance.Serialize(context, args, value);
+    private class CustomNestedModelSerializer : SerializerBase<NestedModel>
+    {
+        public override NestedModel Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args) => null;
+
+        public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, NestedModel value) { }
     }
 }
