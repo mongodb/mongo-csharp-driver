@@ -32,8 +32,10 @@ namespace MongoDB.Driver.Core.Operations
         private Collation _collation;
         private CollectionNamespace _collectionNamespace;
         private BsonValue _comment;
+        private bool _enableOverloadRetargeting;
         private BsonDocument _filter;
         private string _fieldName;
+        private int _maxAdaptiveRetries;
         private TimeSpan? _maxTime;
         private MessageEncoderSettings _messageEncoderSettings;
         private ReadConcern _readConcern = ReadConcern.Default;
@@ -95,11 +97,25 @@ namespace MongoDB.Driver.Core.Operations
             set { _readConcern = Ensure.IsNotNull(value, nameof(value)); }
         }
 
+        public bool EnableOverloadRetargeting
+        {
+            get => _enableOverloadRetargeting;
+            set => _enableOverloadRetargeting = value;
+        }
+
+        public int MaxAdaptiveRetries
+        {
+            get => _maxAdaptiveRetries;
+            set => _maxAdaptiveRetries = value;
+        }
+
         public bool RetryRequested
         {
             get => _retryRequested;
             set => _retryRequested = value;
         }
+
+        public bool IsOperationRetryable => true;
 
         public IBsonSerializer<TValue> ValueSerializer
         {
@@ -111,9 +127,9 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = new RetryableReadContext(binding, _retryRequested))
+            using (var context = new RetryableReadContext(binding, _retryRequested, _maxAdaptiveRetries, _enableOverloadRetargeting))
             {
-                var operation = CreateOperation(operationContext, context);
+                var operation = CreateOperation(operationContext);
                 var result = operation.Execute(operationContext, context);
 
                 binding.Session.SetSnapshotTimeIfNeeded(result.AtClusterTime);
@@ -127,9 +143,9 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = new RetryableReadContext(binding, _retryRequested))
+            using (var context = new RetryableReadContext(binding, _retryRequested, _maxAdaptiveRetries, _enableOverloadRetargeting))
             {
-                var operation = CreateOperation(operationContext, context);
+                var operation = CreateOperation(operationContext);
                 var result = await operation.ExecuteAsync(operationContext, context).ConfigureAwait(false);
 
                 binding.Session.SetSnapshotTimeIfNeeded(result.AtClusterTime);
@@ -155,7 +171,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private EventContext.OperationIdDisposer BeginOperation() => EventContext.BeginOperation(null, OperationName);
 
-        private ReadCommandOperation<DistinctResult> CreateOperation(OperationContext operationContext, RetryableReadContext context)
+        private ReadCommandOperation<DistinctResult> CreateOperation(OperationContext operationContext)
         {
             var serializer = new DistinctResultDeserializer(_valueSerializer);
 
@@ -166,6 +182,8 @@ namespace MongoDB.Driver.Core.Operations
                 _messageEncoderSettings,
                 OperationName)
             {
+                EnableOverloadRetargeting = _enableOverloadRetargeting,
+                MaxAdaptiveRetries = _maxAdaptiveRetries,
                 RetryRequested = _retryRequested // might be overridden by retryable read context
             };
         }

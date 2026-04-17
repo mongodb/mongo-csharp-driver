@@ -35,6 +35,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __aggregateOutToDifferentDatabase = new Feature("AggregateOutToDifferentDatabase", WireVersion.Server44);
         private static readonly Feature __aggregateToString = new Feature("AggregateToString", WireVersion.Server40);
         private static readonly Feature __aggregateUnionWith = new Feature("AggregateUnionWith", WireVersion.Server44);
+        private static readonly Feature __arrayIndexAs = new Feature("ArrayIndexAs", WireVersion.Server83);
         private static readonly Feature __bitwiseOperators = new Feature("BitwiseOperators", WireVersion.Server63);
         private static readonly Feature __changeStreamAllChangesForCluster = new Feature("ChangeStreamAllChangesForCluster", WireVersion.Server40);
         private static readonly Feature __changeStreamForDatabase = new Feature("ChangeStreamForDatabase", WireVersion.Server40);
@@ -51,6 +52,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __convertOperatorStringToObjectOrArray = new Feature("ConvertOperatorStringToObjectOrArray", WireVersion.Server83);
         private static readonly Feature __createIndexCommitQuorum = new Feature("CreateIndexCommitQuorum", WireVersion.Server44);
         private static readonly Feature __createIndexesUsingInsertOperations = new Feature("CreateIndexesUsingInsertOperations", WireVersion.Zero, WireVersion.Server42);
+        private static readonly Feature __createObjectIdExpression = new Feature("CreateObjectIdExpression", WireVersion.Server83);
         private static readonly Feature __csfleRangeAlgorithm = new Feature("CsfleRangeAlgorithm", WireVersion.Server62);
         private static readonly Feature __csfle2Qev2Lookup = new Feature("csfle2Qev2Lookup", WireVersion.Server81);
         private static readonly Feature __csfle2Qev2RangeAlgorithm = new Feature("csfle2Qev2RangeAlgorithm", WireVersion.Server80);
@@ -162,6 +164,11 @@ namespace MongoDB.Driver.Core.Misc
         public static Feature AggregateUnionWith => __aggregateUnionWith;
 
         /// <summary>
+        /// Gets the arrayIndexAs feature for $map, $filter and $reduce.
+        /// </summary>
+        public static Feature ArrayIndexAs => __arrayIndexAs;
+
+        /// <summary>
         /// Gets the bitwise operators feature.
         /// </summary>
         public static Feature BitwiseOperators => __bitwiseOperators;
@@ -241,6 +248,11 @@ namespace MongoDB.Driver.Core.Misc
         /// </summary>
         [Obsolete("This feature was removed in server version 4.2. As such, this property will be removed in a later release.")]
         public static Feature CreateIndexesUsingInsertOperations => __createIndexesUsingInsertOperations;
+
+        /// <summary>
+        /// Represents support for the $createObjectId operator feature.
+        /// </summary>
+        public static Feature CreateObjectIdExpression => __createObjectIdExpression;
 
         /// <summary>
         /// Gets the csfle range algorithm feature.

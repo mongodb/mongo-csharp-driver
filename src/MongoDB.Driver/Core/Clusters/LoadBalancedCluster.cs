@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Core.Clusters
                   serverFactory,
                   eventSubscriber,
                   loggerFactory,
-                  dnsMonitorFactory: new DnsMonitorFactory(new EventAggregator(), loggerFactory)) // should not trigger any events
+                  dnsMonitorFactory: new DnsMonitorFactory(new EventAggregator(), loggerFactory))  // should not trigger any events
         {
         }
 

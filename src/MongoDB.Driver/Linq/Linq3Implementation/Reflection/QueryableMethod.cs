@@ -511,7 +511,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo Select => __select;
         public static MethodInfo SelectManyWithSelector => __selectManyWithSelector;
         public static MethodInfo SelectManyWithCollectionSelectorAndResultSelector => __selectManyWithCollectionSelectorAndResultSelector;
-        public static MethodInfo SelectManyWithCollectionSelectorTakingIndexAndResultSelector => __selectManyWithCollectionSelectorTakingIndexAndResultSelector;
+        public static MethodInfo SelectManyWithCollectionSelectorTakingIndexAndResultSelector => __selectManyWithCollectionSelectorTakingIndexAndResultSelector; // TODO CSHARP-5978: not yet supported in nested expressions
         public static MethodInfo SelectManyWithSelectorTakingIndex => __selectManyWithSelectorTakingIndex;
         public static MethodInfo SelectWithSelectorTakingIndex => __selectWithSelectorTakingIndex;
         public static MethodInfo SequenceEqual => __sequenceEqual;

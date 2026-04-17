@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-present MongoDB Inc.
+﻿﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -251,7 +251,7 @@ namespace MongoDB.Driver.Core.Operations
             var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
-            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription);
+            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription, transactionNumber: null);
 
             var expectedResult = new BsonDocument
             {
@@ -276,7 +276,7 @@ namespace MongoDB.Driver.Core.Operations
             var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
-            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription);
+            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription, transactionNumber: null);
 
             var expectedResult = new BsonDocument
             {
@@ -309,7 +309,7 @@ namespace MongoDB.Driver.Core.Operations
             var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
-            var result = subject.CreateCommand(operationContext, session, connectionDescription);
+            var result = subject.CreateCommand(operationContext, session, connectionDescription, transactionNumber: null);
 
             var expectedConcern = writeConcern?.ToBsonDocument();
             if (hasOperationTimeout)

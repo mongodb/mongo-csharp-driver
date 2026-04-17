@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Tests.Search
 
         public VectorSearchTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
-            _mongoClient = AtlasSearchTestsUtils.CreateAtlasSearchMongoClient();
+            (_mongoClient, _) = AtlasSearchTestsUtils.CreateAtlasSearchMongoClient();
         }
 
         protected override void DisposeInternal() => _mongoClient.Dispose();

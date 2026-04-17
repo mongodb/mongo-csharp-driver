@@ -1277,7 +1277,7 @@ namespace MongoDB.Driver
 
         [Theory]
         [ParameterAttributeData]
-        public void RunCommand_should_set_RetryRequested_to_false(
+        public void RunCommand_should_set_retry_properties(
             [Values(false, true)] bool usingSession,
             [Values(false, true)] bool async)
         {
@@ -1314,7 +1314,8 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetReadCall<BsonDocument>();
 
             var op = call.Operation.Should().BeOfType<ReadCommandOperation<BsonDocument>>().Subject;
-            op.RetryRequested.Should().BeFalse();
+            op.RetryRequested.Should().Be(_client.Settings.RetryWrites && _client.Settings.RetryReads);
+            op.IsOperationRetryable.Should().BeFalse();
         }
 
         [Theory]

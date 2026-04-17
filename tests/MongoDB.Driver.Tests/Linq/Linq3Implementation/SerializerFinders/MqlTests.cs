@@ -39,11 +39,14 @@ public class MqlTests
 
     public static readonly object[][] TestCases =
     [
+        [TestHelpers.MakeLambda((MyModel model) => Mql.CreateObjectId()), typeof(ObjectIdSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => Mql.DateFromString(model.DateString)), typeof(DateTimeSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => Mql.DateFromString(model.DateString, "yyyy-MM-dd")), typeof(DateTimeSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => Mql.DateFromString(model.DateString, "yyyy-MM-dd", "UTC")), typeof(DateTimeSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => Mql.DateFromString(model.DateString, "yyyy-MM-dd", "UTC", null, null)), typeof(NullableSerializer<DateTime>)],
         [TestHelpers.MakeLambda((MyModel model) => Mql.Exists(model.Field)), typeof(BooleanSerializer)],
+        [TestHelpers.MakeLambda((MyModel model) => Mql.Hash(model.Data, MqlHashAlgorithm.SHA256)), typeof(BsonBinaryDataSerializer)],
+        [TestHelpers.MakeLambda((MyModel model) => Mql.HexHash(model.Data, MqlHashAlgorithm.SHA256)), typeof(StringSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => Mql.IsMissing(model.Field)), typeof(BooleanSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => Mql.IsNullOrMissing(model.Field)), typeof(BooleanSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => Mql.Sigmoid(model.Value)), typeof(DoubleSerializer)],

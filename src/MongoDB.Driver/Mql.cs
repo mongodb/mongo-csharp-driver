@@ -65,6 +65,13 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Creates a new unique ObjectId using the $createObjectId aggregation operator.
+        /// </summary>
+        /// <returns>A ObjectId.</returns>
+        public static ObjectId CreateObjectId() =>
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+
+        /// <summary>
         /// Converts a string to a DateTime using the $dateFromString aggregation operator.
         /// </summary>
         /// <param name="dateString">The string.</param>

@@ -244,6 +244,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors
             return node.Update(VisitAndConvert(node.InitArgs), VisitAndConvert(node.AccumulateArgs));
         }
 
+        public virtual AstNode VisitCreateObjectIdExpression(AstCreateObjectIdExpression node)
+            => node;
+
         public virtual AstNode VisitDateAddExpression(AstDateAddExpression node)
         {
             return node.Update(VisitAndConvert(node.StartDate), VisitAndConvert(node.Unit), VisitAndConvert(node.Amount), VisitAndConvert(node.Timezone));
@@ -496,7 +499,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors
 
         public virtual AstNode VisitMapExpression(AstMapExpression node)
         {
-            return node.Update(VisitAndConvert(node.Input), VisitAndConvert(node.As), VisitAndConvert(node.In));
+            return node.Update(VisitAndConvert(node.Input), VisitAndConvert(node.As), VisitAndConvert(node.ArrayIndexAs), VisitAndConvert(node.In));
         }
 
         public virtual AstNode VisitMatchesEverythingFilter(AstMatchesEverythingFilter node)

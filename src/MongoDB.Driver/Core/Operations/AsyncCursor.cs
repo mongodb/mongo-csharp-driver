@@ -57,6 +57,9 @@ namespace MongoDB.Driver.Core.Operations
         private BsonDocument _postBatchResumeToken;
         private readonly IBsonSerializer<TDocument> _serializer;
         private readonly bool _wasFirstBatchEmpty;
+        private readonly bool _retryRequested;
+        private readonly int _maxAdaptiveRetries;
+        private readonly bool _enableOverloadRetargeting;
 
         public AsyncCursor(
             IChannelSource channelSource,
@@ -68,7 +71,10 @@ namespace MongoDB.Driver.Core.Operations
             int? limit,
             IBsonSerializer<TDocument> serializer,
             MessageEncoderSettings messageEncoderSettings,
-            TimeSpan? maxTime = null)
+            TimeSpan? maxTime,
+            bool retryRequested,
+            int maxAdaptiveRetries,
+            bool enableOverloadRetargeting)
             : this(
                 channelSource,
                 collectionNamespace,
@@ -80,7 +86,10 @@ namespace MongoDB.Driver.Core.Operations
                 limit,
                 serializer,
                 messageEncoderSettings,
-                maxTime)
+                maxTime,
+                retryRequested,
+                maxAdaptiveRetries,
+                enableOverloadRetargeting)
         {
         }
 
@@ -95,7 +104,10 @@ namespace MongoDB.Driver.Core.Operations
             int? limit,
             IBsonSerializer<TDocument> serializer,
             MessageEncoderSettings messageEncoderSettings,
-            TimeSpan? maxTime)
+            TimeSpan? maxTime,
+            bool retryRequested,
+            int maxAdaptiveRetries,
+            bool enableOverloadRetargeting)
         {
             _operationId = EventContext.OperationId;
             _channelSource = channelSource;
@@ -109,6 +121,9 @@ namespace MongoDB.Driver.Core.Operations
             _serializer = Ensure.IsNotNull(serializer, nameof(serializer));
             _messageEncoderSettings = messageEncoderSettings;
             _maxTime = maxTime;
+            _retryRequested = retryRequested;
+            _maxAdaptiveRetries = maxAdaptiveRetries;
+            _enableOverloadRetargeting = enableOverloadRetargeting;
 
             if (_limit > 0 && _firstBatch.Count > _limit)
             {
@@ -221,19 +236,24 @@ namespace MongoDB.Driver.Core.Operations
             {
                 // TODO: CSOT: Implement operation context support for Cursors
                 var operationContext = new OperationContext(null, cancellationToken);
-                result = channel.Command<BsonDocument>(
-                    operationContext,
-                    _channelSource.Session,
-                    null, // readPreference
+
+                var operation = new ReadCommandOperation<BsonDocument>(
                     _collectionNamespace.DatabaseNamespace,
                     command,
-                    null, // commandPayloads
-                    NoOpElementNameValidator.Instance,
-                    null, // additionalOptions
-                    null, // postWriteAction
-                    CommandResponseHandling.Return,
                     __getMoreCommandResultSerializer,
-                    _messageEncoderSettings);
+                    _messageEncoderSettings)
+                {
+                    EnableOverloadRetargeting = _enableOverloadRetargeting,
+                    MaxAdaptiveRetries = _maxAdaptiveRetries,
+                    RetryRequested = _retryRequested,
+                    IsOperationRetryable = false // getMore is not a retryable read operation
+                };
+
+                using var channelBinding = new ChannelReadWriteBinding(
+                    _channelSource.Server,
+                    channel,
+                    _channelSource.Session.Fork());
+                result = operation.Execute(operationContext, channelBinding);
             }
             catch (MongoCommandException ex) when (IsMongoCursorNotFoundException(ex))
             {
@@ -251,19 +271,24 @@ namespace MongoDB.Driver.Core.Operations
             {
                 // TODO: CSOT: Implement operation context support for Cursors
                 var operationContext = new OperationContext(null, cancellationToken);
-                result = await channel.CommandAsync<BsonDocument>(
-                    operationContext,
-                    _channelSource.Session,
-                    null, // readPreference
+
+                var operation = new ReadCommandOperation<BsonDocument>(
                     _collectionNamespace.DatabaseNamespace,
                     command,
-                    null, // commandPayloads
-                    NoOpElementNameValidator.Instance,
-                    null, // additionalOptions
-                    null, // postWriteAction
-                    CommandResponseHandling.Return,
                     __getMoreCommandResultSerializer,
-                    _messageEncoderSettings).ConfigureAwait(false);
+                    _messageEncoderSettings)
+                {
+                    EnableOverloadRetargeting = _enableOverloadRetargeting,
+                    MaxAdaptiveRetries = _maxAdaptiveRetries,
+                    RetryRequested = _retryRequested,
+                    IsOperationRetryable = false // getMore is not a retryable read operation
+                };
+
+                using var channelBinding = new ChannelReadWriteBinding(
+                    _channelSource.Server,
+                    channel,
+                    _channelSource.Session.Fork());
+                result = await operation.ExecuteAsync(operationContext, channelBinding).ConfigureAwait(false);
             }
             catch (MongoCommandException ex) when (IsMongoCursorNotFoundException(ex))
             {

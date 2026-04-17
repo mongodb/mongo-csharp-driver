@@ -248,26 +248,20 @@ namespace MongoDB.Driver
             SearchCountOptions count = null,
             bool returnStoredSource = false,
             bool scoreDetails = false)
-        {
-            throw new NotImplementedException();
-        }
+            => throw new NotImplementedException();
 
         /// <inheritdoc />
         public virtual IAggregateFluent<TResult> Search(
             SearchDefinition<TResult> searchDefinition,
             SearchOptions<TResult> searchOptions)
-        {
-            throw new NotImplementedException();
-        }
+            => throw new NotImplementedException();
 
         /// <inheritdoc />
         public virtual IAggregateFluent<SearchMetaResult> SearchMeta(
             SearchDefinition<TResult> searchDefinition,
             string indexName = null,
             SearchCountOptions count = null)
-        {
-            throw new NotImplementedException();
-        }
+            => throw new NotImplementedException();
 
         /// <inheritdoc />
         public virtual IAggregateFluent<TResult> Set(SetFieldDefinitions<TResult> fields) => throw new NotImplementedException();

@@ -122,7 +122,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <inheritdoc/>
-        protected internal override BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription)
+        protected internal override BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber = null)
         {
             var command = base.CreateCommand(operationContext, session, connectionDescription);
 
@@ -142,7 +142,7 @@ namespace MongoDB.Driver.Core.Operations
             var resultSerializer = new ElementDeserializer<TResult[]>("results", resultArraySerializer);
             return new ReadCommandOperation<TResult[]>(CollectionNamespace.DatabaseNamespace, command, resultSerializer, MessageEncoderSettings, OperationName)
             {
-                RetryRequested = false
+                RetryRequested = false,
             };
         }
     }
