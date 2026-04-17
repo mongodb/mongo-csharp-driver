@@ -21,9 +21,9 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Integration;
 
-public class TrimTests : LinqIntegrationTest<TrimTests.ClassFixture>
+public class StringTrimTests : LinqIntegrationTest<StringTrimTests.ClassFixture>
 {
-    public TrimTests(ClassFixture fixture)
+    public StringTrimTests(ClassFixture fixture)
         : base(fixture)
     {
     }
