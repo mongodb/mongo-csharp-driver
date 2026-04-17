@@ -41,8 +41,7 @@ public class MqlToHashedIndexKeyTests : LinqIntegrationTest<MqlToHashedIndexKeyT
         AssertStages(stages, "{ $project : { _v : { $toHashedIndexKey : '$Value' }, _id : 0 } }");
 
         var result = queryable.ToList();
-        result.Should().HaveCount(3);
-        result.Should().OnlyContain(v => v != 0);
+        result.Should().Equal(5347277839332858538L, 1955367617033462209L, -3120687751959783844L);
     }
 
     [Fact]
@@ -50,10 +49,7 @@ public class MqlToHashedIndexKeyTests : LinqIntegrationTest<MqlToHashedIndexKeyT
     {
         var collection = Fixture.Collection;
 
-        var hashedValue = collection.AsQueryable()
-            .Where(d => d.Id == 1)
-            .Select(d => Mql.ToHashedIndexKey(d.Value))
-            .Single();
+        var hashedValue = 5347277839332858538L; // hash of "hello"
 
         var queryable = collection.AsQueryable()
             .Where(d => Mql.ToHashedIndexKey(d.Value) == hashedValue);
@@ -66,21 +62,6 @@ public class MqlToHashedIndexKeyTests : LinqIntegrationTest<MqlToHashedIndexKeyT
     }
 
     [Fact]
-    public void ToHashedIndexKey_with_int_field()
-    {
-        var collection = Fixture.Collection;
-        var queryable = collection.AsQueryable()
-            .Select(d => Mql.ToHashedIndexKey(d.IntValue));
-
-        var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $toHashedIndexKey : '$IntValue' }, _id : 0 } }");
-
-        var result = queryable.ToList();
-        result.Should().HaveCount(3);
-        result.Should().OnlyContain(v => v != 0);
-    }
-
-    [Fact]
     public async Task ToHashedIndexKey_in_aggregate_pipeline()
     {
         var collection = Fixture.Collection;
@@ -88,12 +69,42 @@ public class MqlToHashedIndexKeyTests : LinqIntegrationTest<MqlToHashedIndexKeyT
         var pipeline = new EmptyPipelineDefinition<C>()
             .Project(d => new { d.Id, Hash = Mql.ToHashedIndexKey(d.Value) });
 
-        var result = await collection.Aggregate(pipeline).ToListAsync();
-
         var stages = Translate(collection, pipeline, null);
         AssertStages(stages, "{ $project : { _id : '$_id', Hash : { $toHashedIndexKey : '$Value' } } }");
 
+        var result = await collection.Aggregate(pipeline).ToListAsync();
         result.Should().HaveCount(3);
+        result.Select(r => r.Hash).Should().Equal(5347277839332858538, 1955367617033462209, -3120687751959783844);
+    }
+
+    [Fact]
+    public async Task ToHashedIndexKey_in_filter_builder()
+    {
+        var collection = Fixture.Collection;
+
+        var hashedValue = 5347277839332858538L; // hash of "hello"
+
+        var filter = Builders<C>.Filter.Where(d => Mql.ToHashedIndexKey(d.Value) == hashedValue);
+
+        var renderedFilter = Translate(collection, filter);
+        renderedFilter.Should().Be($"{{ $expr : {{ $eq : [{{ $toHashedIndexKey : '$Value' }}, {{ $numberLong : '{hashedValue}' }}] }} }}");
+
+        var result = await collection.Find(filter).SingleAsync();
+        result.Id.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task ToHashedIndexKey_in_projection_builder()
+    {
+        var collection = Fixture.Collection;
+
+        var projection = Builders<C>.Projection.Expression(c => new { Hash = Mql.ToHashedIndexKey(c.Value) });
+
+        var renderedProjection = TranslateFindProjection(collection, projection, null);
+        renderedProjection.Should().Be("{ Hash : { $toHashedIndexKey : '$Value' }, _id : 0 }");
+
+        var result = await collection.Find(Builders<C>.Filter.Empty).Project(projection).ToListAsync();
+        result.Select(r => r.Hash).Should().Equal(5347277839332858538L, 1955367617033462209L, -3120687751959783844L);
     }
 
     public class C

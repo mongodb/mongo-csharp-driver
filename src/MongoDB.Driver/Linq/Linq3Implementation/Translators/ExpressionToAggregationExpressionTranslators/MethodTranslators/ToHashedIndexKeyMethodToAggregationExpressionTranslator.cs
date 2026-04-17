@@ -31,13 +31,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
             if (method.Is(MqlMethod.ToHashedIndexKey))
             {
-                var valueExpression = arguments.Single();
-                var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
 
-                return new TranslatedExpression(
-                    expression,
-                    AstExpression.Unary(AstUnaryOperator.ToHashedIndexKey, valueTranslation.Ast),
-                        Int64Serializer.Instance);
+                var valueExpression = arguments[0];
+                var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
+                var ast = AstExpression.Unary(AstUnaryOperator.ToHashedIndexKey, valueTranslation.Ast);
+
+                return new TranslatedExpression(expression, ast, context.GetSerializer(expression));
             }
 
             throw new ExpressionNotSupportedException(expression);
