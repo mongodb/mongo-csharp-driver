@@ -654,6 +654,60 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void Rerank_should_throw_when_model_is_null()
+        {
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                PipelineStageDefinitionBuilder.Rerank<BsonDocument>(RerankQuery.Text("query"), "field", 10, null);
+            }).ParamName.Should().Be("model");
+        }
+
+        [Fact]
+        public void Rerank_should_throw_when_numDocsToRerank_is_not_greater_than_zero()
+        {
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
+            {
+                PipelineStageDefinitionBuilder.Rerank<BsonDocument>(RerankQuery.Text("query"), "field", 0, "rerank-2.5");
+            }).ParamName.Should().Be("numDocsToRerank");
+        }
+
+        [Fact]
+        public void Rerank_should_throw_when_path_is_null()
+        {
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                PipelineStageDefinitionBuilder.Rerank(RerankQuery.Text("query"), (FieldDefinition<BsonDocument>)null, 10, "rerank-2.5");
+            }).ParamName.Should().Be("path");
+        }
+
+        [Fact]
+        public void Rerank_should_throw_when_paths_is_empty()
+        {
+            Assert.Throws<ArgumentException>(() =>
+            {
+                PipelineStageDefinitionBuilder.Rerank(RerankQuery.Text("query"), Array.Empty<FieldDefinition<BsonDocument>>(), 10, "rerank-2.5");
+            }).ParamName.Should().Be("paths");
+        }
+
+        [Fact]
+        public void Rerank_should_throw_when_paths_is_null()
+        {
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                PipelineStageDefinitionBuilder.Rerank(RerankQuery.Text("query"), (IEnumerable<FieldDefinition<BsonDocument>>)null, 10, "rerank-2.5");
+            }).ParamName.Should().Be("paths");
+        }
+
+        [Fact]
+        public void Rerank_should_throw_when_query_is_null()
+        {
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                PipelineStageDefinitionBuilder.Rerank<BsonDocument>(null, "field", 10, "rerank-2.5");
+            }).ParamName.Should().Be("query");
+        }
+
+        [Fact]
         public void Search_without_returnScope_should_throw_when_output_type_differs_from_input_type()
         {
             var stage = PipelineStageDefinitionBuilder.Search<BsonDocument, ManyToOne>(

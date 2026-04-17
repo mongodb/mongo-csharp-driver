@@ -1738,6 +1738,94 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Creates a $rerank stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="query">The rerank query.</param>
+        /// <param name="path">The field to send to the reranker.</param>
+        /// <param name="numDocsToRerank">The maximum number of documents to rerank.</param>
+        /// <param name="model">The reranking model name.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, TInput> Rerank<TInput, TField>(
+            RerankQuery query,
+            Expression<Func<TInput, TField>> path,
+            int numDocsToRerank,
+            string model)
+            => Rerank(
+                query,
+                new ExpressionFieldDefinition<TInput>(Ensure.IsNotNull(path, nameof(path))),
+                numDocsToRerank,
+                model);
+
+        /// <summary>
+        /// Creates a $rerank stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <param name="query">The rerank query.</param>
+        /// <param name="path">The field to send to the reranker.</param>
+        /// <param name="numDocsToRerank">The maximum number of documents to rerank.</param>
+        /// <param name="model">The reranking model name.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, TInput> Rerank<TInput>(
+            RerankQuery query,
+            FieldDefinition<TInput> path,
+            int numDocsToRerank,
+            string model)
+            => Rerank(
+                query,
+                [Ensure.IsNotNull(path, nameof(path))],
+                numDocsToRerank,
+                model);
+
+        /// <summary>
+        /// Creates a $rerank stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <param name="query">The rerank query.</param>
+        /// <param name="paths">The fields to send to the reranker.</param>
+        /// <param name="numDocsToRerank">The maximum number of documents to rerank.</param>
+        /// <param name="model">The reranking model name.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, TInput> Rerank<TInput>(
+            RerankQuery query,
+            IEnumerable<FieldDefinition<TInput>> paths,
+            int numDocsToRerank,
+            string model)
+        {
+            Ensure.IsNotNull(query, nameof(query));
+            Ensure.IsNotNullOrEmpty(paths, nameof(paths));
+            Ensure.IsGreaterThanZero(numDocsToRerank, nameof(numDocsToRerank));
+            Ensure.IsNotNull(model, nameof(model));
+
+            const string operatorName = "$rerank";
+            var stage = new DelegatedPipelineStageDefinition<TInput, TInput>(
+                operatorName,
+                args =>
+                {
+                    ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
+
+                    var renderedPaths = paths.Select(p => p.Render(args).FieldName).ToList();
+                    BsonValue pathValue = renderedPaths.Count == 1
+                        ? renderedPaths[0]
+                        : new BsonArray(renderedPaths);
+
+                    var rerankDocument = new BsonDocument
+                    {
+                        { "query", query.Render() },
+                        { "path", pathValue },
+                        { "numDocsToRerank", numDocsToRerank },
+                        { "model", model }
+                    };
+
+                    var document = new BsonDocument(operatorName, rerankDocument);
+                    return new RenderedPipelineStageDefinition<TInput>(operatorName, document, args.DocumentSerializer);
+                });
+
+            return stage;
+        }
+
+        /// <summary>
         /// Creates a $set stage.
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents.</typeparam>
