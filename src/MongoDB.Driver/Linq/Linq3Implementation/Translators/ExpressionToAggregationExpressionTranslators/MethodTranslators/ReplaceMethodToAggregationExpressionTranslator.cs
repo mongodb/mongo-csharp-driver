@@ -83,7 +83,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 {
                     // validate if replacement string uses substitutions: $1, ${1}, ${name}, etc
                     // more details on https://learn.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-language-quick-reference#substitutions
-                    var matches = Regex.Matches(replacement, @"(?<escaped>\$\$)|\$(?<substitutions>\d+|\{[^}]+\}|&|`|'|\+|_)");
+                    var matches = Regex.Matches(replacement, @"(?<escaped>\$\$)|\$(?<substitutions>\d+|\{[^}]+\}|[&`'\+_])");
                     for (var i = 0; i < matches.Count; i++)
                     {
                         if (matches[i].Groups["substitutions"].Success)
