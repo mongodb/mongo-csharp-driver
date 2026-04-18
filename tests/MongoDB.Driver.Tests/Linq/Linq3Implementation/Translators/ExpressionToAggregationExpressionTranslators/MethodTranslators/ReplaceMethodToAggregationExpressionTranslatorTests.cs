@@ -183,14 +183,37 @@ public class ReplaceMethodToAggregationExpressionTranslatorTests
 #endif
         // Regex replacement with capturing groups isn't supported to avoid wrong expectations
         [TestHelpers.MakeLambda<MyModel, string>(model => Regex.Replace(model.StringField, "pattern", "with $1"))],
+        [TestHelpers.MakeLambda<MyModel, string>(model => Regex.Replace(model.StringField, "pattern", "with $$ $1"))],
+        [TestHelpers.MakeLambda<MyModel, string>(model => Regex.Replace(model.StringField, "pattern", "with $$$1"))],
         [TestHelpers.MakeLambda<MyModel, string>(model => Regex.Replace(model.StringField, "pattern", "with ${1}"))],
         [TestHelpers.MakeLambda<MyModel, string>(model => Regex.Replace(model.StringField, "pattern", "with ${mygroup}"))],
+        [TestHelpers.MakeLambda<MyModel, string>(model => Regex.Replace(model.StringField, "pattern", "with $&"))],
+        [TestHelpers.MakeLambda<MyModel, string>(model => Regex.Replace(model.StringField, "pattern", "with $`"))],
+        [TestHelpers.MakeLambda<MyModel, string>(model => Regex.Replace(model.StringField, "pattern", "with $'"))],
+        [TestHelpers.MakeLambda<MyModel, string>(model => Regex.Replace(model.StringField, "pattern", "with $+"))],
+        [TestHelpers.MakeLambda<MyModel, string>(model => Regex.Replace(model.StringField, "pattern", "with $_"))],
+
         [TestHelpers.MakeLambda<MyModel, string>(model => Regex.Replace(model.StringField, "pattern", "with $1", RegexOptions.IgnoreCase))],
+        [TestHelpers.MakeLambda<MyModel, string>(model => Regex.Replace(model.StringField, "pattern", "with $$ $1"))],
+        [TestHelpers.MakeLambda<MyModel, string>(model => Regex.Replace(model.StringField, "pattern", "with $$$1"))],
         [TestHelpers.MakeLambda<MyModel, string>(model => Regex.Replace(model.StringField, "pattern", "with ${1}", RegexOptions.IgnoreCase))],
         [TestHelpers.MakeLambda<MyModel, string>(model => Regex.Replace(model.StringField, "pattern", "with ${mygroup}", RegexOptions.IgnoreCase))],
+        [TestHelpers.MakeLambda<MyModel, string>(model => Regex.Replace(model.StringField, "pattern", "with $&", RegexOptions.IgnoreCase))],
+        [TestHelpers.MakeLambda<MyModel, string>(model => Regex.Replace(model.StringField, "pattern", "with $`"))],
+        [TestHelpers.MakeLambda<MyModel, string>(model => Regex.Replace(model.StringField, "pattern", "with $'", RegexOptions.IgnoreCase))],
+        [TestHelpers.MakeLambda<MyModel, string>(model => Regex.Replace(model.StringField, "pattern", "with $+", RegexOptions.IgnoreCase))],
+        [TestHelpers.MakeLambda<MyModel, string>(model => Regex.Replace(model.StringField, "pattern", "with $_", RegexOptions.IgnoreCase))],
+
         [TestHelpers.MakeLambda<MyModel, string>(model => model.RegexField.Replace(model.StringField, "with $1"))],
+        [TestHelpers.MakeLambda<MyModel, string>(model => model.RegexField.Replace(model.StringField, "with $$ $1"))],
+        [TestHelpers.MakeLambda<MyModel, string>(model => model.RegexField.Replace(model.StringField, "with $$$1"))],
         [TestHelpers.MakeLambda<MyModel, string>(model => model.RegexField.Replace(model.StringField, "with ${1}"))],
         [TestHelpers.MakeLambda<MyModel, string>(model => model.RegexField.Replace(model.StringField, "with ${mygroup}"))],
+        [TestHelpers.MakeLambda<MyModel, string>(model => model.RegexField.Replace(model.StringField, "with $&"))],
+        [TestHelpers.MakeLambda<MyModel, string>(model => model.RegexField.Replace(model.StringField, "with $`"))],
+        [TestHelpers.MakeLambda<MyModel, string>(model => model.RegexField.Replace(model.StringField, "with $'"))],
+        [TestHelpers.MakeLambda<MyModel, string>(model => model.RegexField.Replace(model.StringField, "with $+"))],
+        [TestHelpers.MakeLambda<MyModel, string>(model => model.RegexField.Replace(model.StringField, "with $_"))],
     ];
 
     public class MyModel

@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using MongoDB.Bson;
@@ -80,10 +81,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 inputAst = ExpressionToAggregationExpressionTranslator.TranslateAndEnsureRepresentation(context, inputExpression, BsonType.String);
                 if (replacementExpression.TryGetConstantValue<string>(expression, out var replacement))
                 {
-                    // validate if replacement string uses capturing groups: ${1} or ${name}
-                    if (Regex.IsMatch(replacement, @"(?<!\$)\$(?:\d+|\{[^}]+\})"))
+                    // validate if replacement string uses substitutions: $1, ${1}, ${name}, etc
+                    // more details on https://learn.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-language-quick-reference#substitutions
+                    var matches = Regex.Matches(replacement, @"(?<escaped>\$\$)|\$(?<substitutions>\d+|\{[^}]+\}|&|`|'|\+|_)");
+                    for (var i = 0; i < matches.Count; i++)
                     {
-                        throw new ExpressionNotSupportedException(expression, "capturing groups are not supported in replacement string.");
+                        if (matches[i].Groups["substitutions"].Success)
+                        {
+                            throw new ExpressionNotSupportedException(expression, "capturing groups are not supported in replacement string.");
+                        }
                     }
 
                     replacement = replacement.Replace("$$", "$"); // server does not support capturing groups, need to unescape the $ symbol.
