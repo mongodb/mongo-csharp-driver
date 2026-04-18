@@ -1,4 +1,4 @@
-﻿/* Copyright 2016-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -1041,7 +1041,7 @@ namespace MongoDB.Driver.GridFS
             var readPreference = _options.ReadPreference ?? _database.Settings.ReadPreference;
             var selector = new ReadPreferenceServerSelector(readPreference);
             var server = _cluster.SelectServer(operationContext, selector);
-            var binding = new SingleServerReadBinding(server, readPreference, NoCoreSession.NewHandle(), _cluster.Settings.ServerSelectionTimeout);
+            var binding = new SingleServerReadBinding(_cluster, server, readPreference, NoCoreSession.NewHandle());
             return new ReadBindingHandle(binding);
         }
 
@@ -1050,7 +1050,7 @@ namespace MongoDB.Driver.GridFS
             var readPreference = _options.ReadPreference ?? _database.Settings.ReadPreference;
             var selector = new ReadPreferenceServerSelector(readPreference);
             var server = await _cluster.SelectServerAsync(operationContext, selector).ConfigureAwait(false);
-            var binding = new SingleServerReadBinding(server, readPreference, NoCoreSession.NewHandle(), _cluster.Settings.ServerSelectionTimeout);
+            var binding = new SingleServerReadBinding(_cluster, server, readPreference, NoCoreSession.NewHandle());
             return new ReadBindingHandle(binding);
         }
 
