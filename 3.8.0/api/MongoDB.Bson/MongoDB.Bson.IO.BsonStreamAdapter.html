@@ -1,0 +1,524 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>Class BsonStreamAdapter
+ | MongoDB CSharp Driver API Reference </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Class BsonStreamAdapter
+ | MongoDB CSharp Driver API Reference ">
+      
+      <link rel="icon" href="../../images/favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/mongodb/mongo-csharp-driver/new/main/apiSpec/new?filename=MongoDB_Bson_IO_BsonStreamAdapter.md&amp;value=---%0Auid%3A%20MongoDB.Bson.IO.BsonStreamAdapter%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+  </head>
+
+  <script type="module" src="./../../public/docfx.min.js"></script>
+
+  <script>
+    const theme = localStorage.getItem('theme') || 'auto'
+    document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+  </script>
+
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../images/mongodb-logo.svg" alt="">
+            
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+      <div class="toc-offcanvas">
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tocOffcanvasLabel">Table of Contents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#tocOffcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <nav class="toc" id="toc"></nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actionbar">
+          <button class="btn btn-lg border-0 d-md-none" style="margin-top: -.65em; margin-left: -.8em" type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas" aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="MongoDB.Bson.IO.BsonStreamAdapter">
+
+
+
+  <h1 id="MongoDB_Bson_IO_BsonStreamAdapter" data-uid="MongoDB.Bson.IO.BsonStreamAdapter" class="text-break">
+    Class BsonStreamAdapter
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/main/src/MongoDB.Bson/IO/BsonStreamAdapter.cs/#L28"><i class="bi bi-code-slash"></i></a>
+  </h1>
+
+  <div class="facts text-secondary">
+    <dl><dt>Namespace</dt><dd><a class="xref" href="MongoDB.html">MongoDB</a>.<a class="xref" href="MongoDB.Bson.html">Bson</a>.<a class="xref" href="MongoDB.Bson.IO.html">IO</a></dd></dl>
+  <dl><dt>Assembly</dt><dd>MongoDB.Bson.dll</dd></dl>
+  </div>
+
+  <div class="markdown summary"><p>A Stream that wraps another Stream while implementing the BsonStream abstract methods.</p>
+</div>
+  <div class="markdown conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public sealed class BsonStreamAdapter : BsonStream, IAsyncDisposable, IDisposable</code></pre>
+  </div>
+
+
+
+
+  <dl class="typelist inheritance">
+    <dt>Inheritance</dt>
+    <dd>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></div>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.marshalbyrefobject">MarshalByRefObject</a></div>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.io.stream">Stream</a></div>
+      <div><a class="xref" href="MongoDB.Bson.IO.BsonStream.html">BsonStream</a></div>
+      <div><span class="xref">BsonStreamAdapter</span></div>
+    </dd>
+  </dl>
+
+  <dl class="typelist implements">
+    <dt>Implements</dt>
+    <dd>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.iasyncdisposable">IAsyncDisposable</a></div>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.idisposable">IDisposable</a></div>
+    </dd>
+  </dl>
+
+
+  <dl class="typelist derived">
+    <dt>Inherited Members</dt>
+    <dd>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.io.stream.null">Stream.Null</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.io.stream.copyto#system-io-stream-copyto(system-io-stream)">Stream.CopyTo(Stream)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.io.stream.copyto#system-io-stream-copyto(system-io-stream-system-int32)">Stream.CopyTo(Stream, int)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.io.stream.copytoasync#system-io-stream-copytoasync(system-io-stream)">Stream.CopyToAsync(Stream)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.io.stream.copytoasync#system-io-stream-copytoasync(system-io-stream-system-int32)">Stream.CopyToAsync(Stream, int)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.io.stream.copytoasync#system-io-stream-copytoasync(system-io-stream-system-threading-cancellationtoken)">Stream.CopyToAsync(Stream, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.io.stream.dispose#system-io-stream-dispose">Stream.Dispose()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.io.stream.disposeasync">Stream.DisposeAsync()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.io.stream.flushasync#system-io-stream-flushasync">Stream.FlushAsync()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.io.stream.read#system-io-stream-read(system-span((system-byte)))">Stream.Read(Span&lt;byte&gt;)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.io.stream.readasync#system-io-stream-readasync(system-byte()-system-int32-system-int32)">Stream.ReadAsync(byte[], int, int)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.io.stream.readasync#system-io-stream-readasync(system-memory((system-byte))-system-threading-cancellationtoken)">Stream.ReadAsync(Memory&lt;byte&gt;, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.io.stream.synchronized">Stream.Synchronized(Stream)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.io.stream.write#system-io-stream-write(system-readonlyspan((system-byte)))">Stream.Write(ReadOnlySpan&lt;byte&gt;)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.io.stream.writeasync#system-io-stream-writeasync(system-byte()-system-int32-system-int32)">Stream.WriteAsync(byte[], int, int)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.io.stream.writeasync#system-io-stream-writeasync(system-readonlymemory((system-byte))-system-threading-cancellationtoken)">Stream.WriteAsync(ReadOnlyMemory&lt;byte&gt;, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.marshalbyrefobject.getlifetimeservice">MarshalByRefObject.GetLifetimeService()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.marshalbyrefobject.initializelifetimeservice">MarshalByRefObject.InitializeLifetimeService()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)">object.Equals(object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)">object.Equals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gethashcode">object.GetHashCode()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gettype">object.GetType()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.referenceequals">object.ReferenceEquals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.tostring">object.ToString()</a>
+    </div>
+  </dd></dl>
+
+  <dl class="typelist extensionMethods">
+    <dt>Extension Methods</dt>
+    <dd>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.BsonStreamExtensions.BackpatchSize.html#MongoDB_Bson_IO_BsonStreamExtensions_BackpatchSize_MongoDB_Bson_IO_BsonStream_System_Int64_">BsonStreamExtensions.BackpatchSize(BsonStream, long)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.BsonStreamExtensions.ReadBinarySubType.html#MongoDB_Bson_IO_BsonStreamExtensions_ReadBinarySubType_MongoDB_Bson_IO_BsonStream_">BsonStreamExtensions.ReadBinarySubType(BsonStream)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.BsonStreamExtensions.ReadBoolean.html#MongoDB_Bson_IO_BsonStreamExtensions_ReadBoolean_MongoDB_Bson_IO_BsonStream_">BsonStreamExtensions.ReadBoolean(BsonStream)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.BsonStreamExtensions.ReadBsonType.html#MongoDB_Bson_IO_BsonStreamExtensions_ReadBsonType_MongoDB_Bson_IO_BsonStream_">BsonStreamExtensions.ReadBsonType(BsonStream)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.BsonStreamExtensions.ReadBytes.html#MongoDB_Bson_IO_BsonStreamExtensions_ReadBytes_MongoDB_Bson_IO_BsonStream_System_Byte___System_Int32_System_Int32_">BsonStreamExtensions.ReadBytes(BsonStream, byte[], int, int)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.BsonStreamExtensions.ReadBytes.html#MongoDB_Bson_IO_BsonStreamExtensions_ReadBytes_MongoDB_Bson_IO_BsonStream_System_Int32_">BsonStreamExtensions.ReadBytes(BsonStream, int)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.BsonStreamExtensions.WriteBinarySubType.html#MongoDB_Bson_IO_BsonStreamExtensions_WriteBinarySubType_MongoDB_Bson_IO_BsonStream_MongoDB_Bson_BsonBinarySubType_">BsonStreamExtensions.WriteBinarySubType(BsonStream, BsonBinarySubType)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.BsonStreamExtensions.WriteBoolean.html#MongoDB_Bson_IO_BsonStreamExtensions_WriteBoolean_MongoDB_Bson_IO_BsonStream_System_Boolean_">BsonStreamExtensions.WriteBoolean(BsonStream, bool)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.BsonStreamExtensions.WriteBsonType.html#MongoDB_Bson_IO_BsonStreamExtensions_WriteBsonType_MongoDB_Bson_IO_BsonStream_MongoDB_Bson_BsonType_">BsonStreamExtensions.WriteBsonType(BsonStream, BsonType)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.BsonStreamExtensions.WriteBytes.html#MongoDB_Bson_IO_BsonStreamExtensions_WriteBytes_MongoDB_Bson_IO_BsonStream_System_Byte___System_Int32_System_Int32_">BsonStreamExtensions.WriteBytes(BsonStream, byte[], int, int)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.IO.BsonStreamExtensions.WriteSlice.html#MongoDB_Bson_IO_BsonStreamExtensions_WriteSlice_MongoDB_Bson_IO_BsonStream_MongoDB_Bson_IO_IByteBuffer_">BsonStreamExtensions.WriteSlice(BsonStream, IByteBuffer)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.ToBsonDocument.html#MongoDB_Bson_BsonExtensionMethods_ToBsonDocument__1___0_MongoDB_Bson_Serialization_IBsonSerializer___0__System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_">BsonExtensionMethods.ToBsonDocument&lt;TNominalType&gt;(TNominalType, IBsonSerializer&lt;TNominalType&gt;, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.ToBson.html#MongoDB_Bson_BsonExtensionMethods_ToBson__1___0_MongoDB_Bson_Serialization_IBsonSerializer___0__MongoDB_Bson_IO_BsonBinaryWriterSettings_System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_System_Int32_">BsonExtensionMethods.ToBson&lt;TNominalType&gt;(TNominalType, IBsonSerializer&lt;TNominalType&gt;, BsonBinaryWriterSettings, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs, int)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.ToJson.html#MongoDB_Bson_BsonExtensionMethods_ToJson__1___0_MongoDB_Bson_IO_JsonWriterSettings_MongoDB_Bson_Serialization_IBsonSerializer___0__System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_">BsonExtensionMethods.ToJson&lt;TNominalType&gt;(TNominalType, JsonWriterSettings, IBsonSerializer&lt;TNominalType&gt;, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.ToBson.html#MongoDB_Bson_BsonExtensionMethods_ToBson_System_Object_System_Type_MongoDB_Bson_IO_BsonBinaryWriterSettings_MongoDB_Bson_Serialization_IBsonSerializer_System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_System_Int32_">BsonExtensionMethods.ToBson(object, Type, BsonBinaryWriterSettings, IBsonSerializer, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs, int)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.ToBsonDocument.html#MongoDB_Bson_BsonExtensionMethods_ToBsonDocument_System_Object_System_Type_MongoDB_Bson_Serialization_IBsonSerializer_System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_">BsonExtensionMethods.ToBsonDocument(object, Type, IBsonSerializer, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.ToJson.html#MongoDB_Bson_BsonExtensionMethods_ToJson_System_Object_System_Type_MongoDB_Bson_IO_JsonWriterSettings_MongoDB_Bson_Serialization_IBsonSerializer_System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_">BsonExtensionMethods.ToJson(object, Type, JsonWriterSettings, IBsonSerializer, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs)</a>
+  </div>
+  </dd></dl>
+
+
+
+
+  <h2 class="section" id="constructors">Constructors
+</h2>
+
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.BsonStreamAdapter.-ctor.html#MongoDB_Bson_IO_BsonStreamAdapter__ctor_System_IO_Stream_System_Boolean_">BsonStreamAdapter(Stream, bool)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Bson.IO.BsonStreamAdapter.html">BsonStreamAdapter</a> class.</p>
+</dd>
+  </dl>
+
+  <h2 class="section" id="properties">Properties
+</h2>
+
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.BsonStreamAdapter.BaseStream.html#MongoDB_Bson_IO_BsonStreamAdapter_BaseStream">BaseStream</a></dt>
+    <dd><p>Gets the base stream.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.BsonStreamAdapter.CanRead.html#MongoDB_Bson_IO_BsonStreamAdapter_CanRead">CanRead</a></dt>
+    <dd><p>When overridden in a derived class, gets a value indicating whether the current stream supports reading.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.BsonStreamAdapter.CanSeek.html#MongoDB_Bson_IO_BsonStreamAdapter_CanSeek">CanSeek</a></dt>
+    <dd><p>When overridden in a derived class, gets a value indicating whether the current stream supports seeking.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.BsonStreamAdapter.CanTimeout.html#MongoDB_Bson_IO_BsonStreamAdapter_CanTimeout">CanTimeout</a></dt>
+    <dd><p>Gets a value that determines whether the current stream can time out.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.BsonStreamAdapter.CanWrite.html#MongoDB_Bson_IO_BsonStreamAdapter_CanWrite">CanWrite</a></dt>
+    <dd><p>When overridden in a derived class, gets a value indicating whether the current stream supports writing.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.BsonStreamAdapter.Length.html#MongoDB_Bson_IO_BsonStreamAdapter_Length">Length</a></dt>
+    <dd><p>When overridden in a derived class, gets the length in bytes of the stream.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.BsonStreamAdapter.Position.html#MongoDB_Bson_IO_BsonStreamAdapter_Position">Position</a></dt>
+    <dd><p>When overridden in a derived class, gets or sets the position within the current stream.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.BsonStreamAdapter.ReadTimeout.html#MongoDB_Bson_IO_BsonStreamAdapter_ReadTimeout">ReadTimeout</a></dt>
+    <dd><p>Gets or sets a value, in milliseconds, that determines how long the stream will attempt to read before timing out.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.BsonStreamAdapter.WriteTimeout.html#MongoDB_Bson_IO_BsonStreamAdapter_WriteTimeout">WriteTimeout</a></dt>
+    <dd><p>Gets or sets a value, in milliseconds, that determines how long the stream will attempt to write before timing out.</p>
+</dd>
+  </dl>
+
+  <h2 class="section" id="methods">Methods
+</h2>
+
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.BsonStreamAdapter.BeginRead.html#MongoDB_Bson_IO_BsonStreamAdapter_BeginRead_System_Byte___System_Int32_System_Int32_System_AsyncCallback_System_Object_">BeginRead(byte[], int, int, AsyncCallback, object)</a></dt>
+    <dd><p>Begins an asynchronous read operation. (Consider using <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.io.stream.readasync#system-io-stream-readasync(system-byte()-system-int32-system-int32)">ReadAsync(byte[], int, int)</a> instead.)</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.BsonStreamAdapter.BeginWrite.html#MongoDB_Bson_IO_BsonStreamAdapter_BeginWrite_System_Byte___System_Int32_System_Int32_System_AsyncCallback_System_Object_">BeginWrite(byte[], int, int, AsyncCallback, object)</a></dt>
+    <dd><p>Begins an asynchronous write operation. (Consider using <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.io.stream.writeasync#system-io-stream-writeasync(system-byte()-system-int32-system-int32)">WriteAsync(byte[], int, int)</a> instead.)</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.BsonStreamAdapter.Close.html#MongoDB_Bson_IO_BsonStreamAdapter_Close">Close()</a></dt>
+    <dd><p>Closes the current stream and releases any resources (such as sockets and file handles) associated with the current stream. Instead of calling this method, ensure that the stream is properly disposed.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.BsonStreamAdapter.CopyToAsync.html#MongoDB_Bson_IO_BsonStreamAdapter_CopyToAsync_System_IO_Stream_System_Int32_System_Threading_CancellationToken_">CopyToAsync(Stream, int, CancellationToken)</a></dt>
+    <dd><p>Asynchronously reads the bytes from the current stream and writes them to another stream, using a specified buffer size and cancellation token.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.BsonStreamAdapter.Dispose.html#MongoDB_Bson_IO_BsonStreamAdapter_Dispose_System_Boolean_">Dispose(bool)</a></dt>
+    <dd><p>Releases the unmanaged resources used by the <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.io.stream">Stream</a> and optionally releases the managed resources.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.BsonStreamAdapter.EndRead.html#MongoDB_Bson_IO_BsonStreamAdapter_EndRead_System_IAsyncResult_">EndRead(IAsyncResult)</a></dt>
+    <dd><p>Waits for the pending asynchronous read to complete. (Consider using <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.io.stream.readasync#system-io-stream-readasync(system-byte()-system-int32-system-int32)">ReadAsync(byte[], int, int)</a> instead.)</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.BsonStreamAdapter.EndWrite.html#MongoDB_Bson_IO_BsonStreamAdapter_EndWrite_System_IAsyncResult_">EndWrite(IAsyncResult)</a></dt>
+    <dd><p>Ends an asynchronous write operation. (Consider using <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.io.stream.writeasync#system-io-stream-writeasync(system-byte()-system-int32-system-int32)">WriteAsync(byte[], int, int)</a> instead.)</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.BsonStreamAdapter.Flush.html#MongoDB_Bson_IO_BsonStreamAdapter_Flush">Flush()</a></dt>
+    <dd><p>When overridden in a derived class, clears all buffers for this stream and causes any buffered data to be written to the underlying device.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.BsonStreamAdapter.FlushAsync.html#MongoDB_Bson_IO_BsonStreamAdapter_FlushAsync_System_Threading_CancellationToken_">FlushAsync(CancellationToken)</a></dt>
+    <dd><p>Asynchronously clears all buffers for this stream, causes any buffered data to be written to the underlying device, and monitors cancellation requests.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.BsonStreamAdapter.Read.html#MongoDB_Bson_IO_BsonStreamAdapter_Read_System_Byte___System_Int32_System_Int32_">Read(byte[], int, int)</a></dt>
+    <dd><p>When overridden in a derived class, reads a sequence of bytes from the current stream and advances the position within the stream by the number of bytes read.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.BsonStreamAdapter.ReadAsync.html#MongoDB_Bson_IO_BsonStreamAdapter_ReadAsync_System_Byte___System_Int32_System_Int32_System_Threading_CancellationToken_">ReadAsync(byte[], int, int, CancellationToken)</a></dt>
+    <dd><p>Asynchronously reads a sequence of bytes from the current stream, advances the position within the stream by the number of bytes read, and monitors cancellation requests.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.BsonStreamAdapter.ReadByte.html#MongoDB_Bson_IO_BsonStreamAdapter_ReadByte">ReadByte()</a></dt>
+    <dd><p>Reads a byte from the stream and advances the position within the stream by one byte, or returns -1 if at the end of the stream.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.BsonStreamAdapter.ReadCString.html#MongoDB_Bson_IO_BsonStreamAdapter_ReadCString_System_Text_UTF8Encoding_">ReadCString(UTF8Encoding)</a></dt>
+    <dd><p>Reads a BSON CString from the stream.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.BsonStreamAdapter.ReadCStringBytes.html#MongoDB_Bson_IO_BsonStreamAdapter_ReadCStringBytes">ReadCStringBytes()</a></dt>
+    <dd><p>Reads a BSON CString from the stream.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.BsonStreamAdapter.ReadDecimal128.html#MongoDB_Bson_IO_BsonStreamAdapter_ReadDecimal128">ReadDecimal128()</a></dt>
+    <dd><p>Reads a BSON Decimal128 from the stream.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.BsonStreamAdapter.ReadDouble.html#MongoDB_Bson_IO_BsonStreamAdapter_ReadDouble">ReadDouble()</a></dt>
+    <dd><p>Reads a BSON double from the stream.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.BsonStreamAdapter.ReadInt32.html#MongoDB_Bson_IO_BsonStreamAdapter_ReadInt32">ReadInt32()</a></dt>
+    <dd><p>Reads a 32-bit BSON integer from the stream.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.BsonStreamAdapter.ReadInt64.html#MongoDB_Bson_IO_BsonStreamAdapter_ReadInt64">ReadInt64()</a></dt>
+    <dd><p>Reads a 64-bit BSON integer from the stream.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.BsonStreamAdapter.ReadObjectId.html#MongoDB_Bson_IO_BsonStreamAdapter_ReadObjectId">ReadObjectId()</a></dt>
+    <dd><p>Reads a BSON ObjectId from the stream.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.BsonStreamAdapter.ReadSlice.html#MongoDB_Bson_IO_BsonStreamAdapter_ReadSlice">ReadSlice()</a></dt>
+    <dd><p>Reads a raw length prefixed slice from the stream.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.BsonStreamAdapter.ReadString.html#MongoDB_Bson_IO_BsonStreamAdapter_ReadString_System_Text_UTF8Encoding_">ReadString(UTF8Encoding)</a></dt>
+    <dd><p>Reads a BSON string from the stream.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.BsonStreamAdapter.Seek.html#MongoDB_Bson_IO_BsonStreamAdapter_Seek_System_Int64_System_IO_SeekOrigin_">Seek(long, SeekOrigin)</a></dt>
+    <dd><p>When overridden in a derived class, sets the position within the current stream.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.BsonStreamAdapter.SetLength.html#MongoDB_Bson_IO_BsonStreamAdapter_SetLength_System_Int64_">SetLength(long)</a></dt>
+    <dd><p>When overridden in a derived class, sets the length of the current stream.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.BsonStreamAdapter.SkipCString.html#MongoDB_Bson_IO_BsonStreamAdapter_SkipCString">SkipCString()</a></dt>
+    <dd><p>Skips over a BSON CString leaving the stream positioned just after the terminating null byte.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.BsonStreamAdapter.Write.html#MongoDB_Bson_IO_BsonStreamAdapter_Write_System_Byte___System_Int32_System_Int32_">Write(byte[], int, int)</a></dt>
+    <dd><p>When overridden in a derived class, writes a sequence of bytes to the current stream and advances the current position within this stream by the number of bytes written.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.BsonStreamAdapter.WriteAsync.html#MongoDB_Bson_IO_BsonStreamAdapter_WriteAsync_System_Byte___System_Int32_System_Int32_System_Threading_CancellationToken_">WriteAsync(byte[], int, int, CancellationToken)</a></dt>
+    <dd><p>Asynchronously writes a sequence of bytes to the current stream, advances the current position within this stream by the number of bytes written, and monitors cancellation requests.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.BsonStreamAdapter.WriteByte.html#MongoDB_Bson_IO_BsonStreamAdapter_WriteByte_System_Byte_">WriteByte(byte)</a></dt>
+    <dd><p>Writes a byte to the current position in the stream and advances the position within the stream by one byte.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.BsonStreamAdapter.WriteCString.html#MongoDB_Bson_IO_BsonStreamAdapter_WriteCString_System_String_">WriteCString(string)</a></dt>
+    <dd><p>Writes a BSON CString to the stream.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.BsonStreamAdapter.WriteCStringBytes.html#MongoDB_Bson_IO_BsonStreamAdapter_WriteCStringBytes_System_Byte___">WriteCStringBytes(byte[])</a></dt>
+    <dd><p>Writes the CString bytes to the stream.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.BsonStreamAdapter.WriteDecimal128.html#MongoDB_Bson_IO_BsonStreamAdapter_WriteDecimal128_MongoDB_Bson_Decimal128_">WriteDecimal128(Decimal128)</a></dt>
+    <dd><p>Writes a BSON Decimal128 to the stream.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.BsonStreamAdapter.WriteDouble.html#MongoDB_Bson_IO_BsonStreamAdapter_WriteDouble_System_Double_">WriteDouble(double)</a></dt>
+    <dd><p>Writes a BSON double to the stream.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.BsonStreamAdapter.WriteInt32.html#MongoDB_Bson_IO_BsonStreamAdapter_WriteInt32_System_Int32_">WriteInt32(int)</a></dt>
+    <dd><p>Writes a 32-bit BSON integer to the stream.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.BsonStreamAdapter.WriteInt64.html#MongoDB_Bson_IO_BsonStreamAdapter_WriteInt64_System_Int64_">WriteInt64(long)</a></dt>
+    <dd><p>Writes a 64-bit BSON integer to the stream.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.BsonStreamAdapter.WriteObjectId.html#MongoDB_Bson_IO_BsonStreamAdapter_WriteObjectId_MongoDB_Bson_ObjectId_">WriteObjectId(ObjectId)</a></dt>
+    <dd><p>Writes a BSON ObjectId to the stream.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.IO.BsonStreamAdapter.WriteString.html#MongoDB_Bson_IO_BsonStreamAdapter_WriteString_System_String_System_Text_UTF8Encoding_">WriteString(string, UTF8Encoding)</a></dt>
+    <dd><p>Writes a BSON string to the stream.</p>
+</dd>
+  </dl>
+
+
+
+</article>
+
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          &copy; 2023 MongoDB, Inc.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
