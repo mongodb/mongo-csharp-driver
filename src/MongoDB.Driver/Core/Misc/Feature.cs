@@ -62,6 +62,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __dateFromStringFormatArgument = new Feature("DateFromStringFormatArgument", WireVersion.Server40);
         private static readonly Feature __dateOperatorsNewIn50 = new Feature("DateOperatorsNewIn50", WireVersion.Server50);
         private static readonly Feature __densifyStage = new Feature("DensifyStage", WireVersion.Server51);
+        private static readonly Feature __deserializeEJsonOperator = new Feature("DeserializeEJsonOperator", WireVersion.Server83);
         private static readonly Feature __documentsStage = new Feature("DocumentsStage", WireVersion.Server51);
         private static readonly Feature __directConnectionSetting = new Feature("DirectConnectionSetting", WireVersion.Server44);
         private static readonly Feature __electionIdPriorityInSDAM = new Feature("ElectionIdPriorityInSDAM ", WireVersion.Server60);
@@ -99,6 +100,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __scramSha256Authentication = new Feature("ScramSha256Authentication", WireVersion.Server40);
         private static readonly Feature __serverReturnsResumableChangeStreamErrorLabel = new Feature("ServerReturnsResumableChangeStreamErrorLabel", WireVersion.Server44);
         private static readonly Feature __serverReturnsRetryableWriteErrorLabel = new Feature("ServerReturnsRetryableWriteErrorLabel", WireVersion.Server44);
+        private static readonly Feature __serializeEJsonOperator = new Feature("SerializeEJsonOperator", WireVersion.Server83);
         private static readonly Feature __setStage = new Feature("SetStage", WireVersion.Server42);
         private static readonly Feature __setWindowFields = new Feature("SetWindowFields", WireVersion.Server50);
         private static readonly Feature __setWindowFieldsLocf = new Feature("SetWindowFieldsLocf", WireVersion.Server52);
@@ -300,6 +302,11 @@ namespace MongoDB.Driver.Core.Misc
         public static Feature DensifyStage => __densifyStage;
 
         /// <summary>
+        /// Gets the $deserializeEJSON operator feature.
+        /// </summary>
+        public static Feature DeserializeEJsonOperator => __deserializeEJsonOperator;
+
+        /// <summary>
         /// Gets the documents stage feature.
         /// </summary>
         public static Feature DocumentsStage => __documentsStage;
@@ -491,6 +498,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the server returns retryable writeError label feature.
         /// </summary>
         public static Feature ServerReturnsRetryableWriteErrorLabel => __serverReturnsRetryableWriteErrorLabel;
+
+        /// <summary>
+        /// Gets the $serializeEJSON operator feature.
+        /// </summary>
+        public static Feature SerializeEJsonOperator => __serializeEJsonOperator;
 
         /// <summary>
         /// Gets the $set stage feature.

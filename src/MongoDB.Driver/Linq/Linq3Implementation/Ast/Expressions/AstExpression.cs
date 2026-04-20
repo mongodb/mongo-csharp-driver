@@ -381,6 +381,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return new AstDerivativeOrIntegralWindowExpression(@operator, arg, unit, window);
         }
 
+        public static AstExpression DeserializeEJson(
+            AstExpression input,
+            AstExpression onError = null)
+        {
+            return new AstDeserializeEJsonExpression(input, onError);
+        }
+
         public static AstExpression Divide(AstExpression arg1, AstExpression arg2)
         {
             if (arg1.IsConstant(out var constant1) && arg2.IsConstant(out var constant2))
@@ -752,6 +759,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
         public static AstExpression RTrim(AstExpression input, AstExpression chars = null)
         {
             return new AstRTrimExpression(input, chars);
+        }
+
+        public static AstExpression SerializeEJson(
+            AstExpression input,
+            AstExpression relaxed = null,
+            AstExpression onError = null)
+        {
+            return new AstSerializeEJsonExpression(input, relaxed, onError);
         }
 
         public static AstExpression SetDifference(AstExpression arg1, AstExpression arg2)

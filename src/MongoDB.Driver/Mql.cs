@@ -129,6 +129,19 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Deserializes Extended JSON values back to native BSON types using the $deserializeEJSON aggregation operator.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input value.</typeparam>
+        /// <typeparam name="TOutput">The type of the output value.</typeparam>
+        /// <param name="value">The value to deserialize.</param>
+        /// <param name="options">The deserialization options.</param>
+        /// <returns>The deserialized value.</returns>
+        public static TOutput DeserializeEJson<TInput, TOutput>(TInput value, DeserializeEJsonOptions<TOutput> options = null)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
         /// Tests whether a field exists.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
@@ -191,6 +204,19 @@ namespace MongoDB.Driver
         /// <param name="field">The field.</param>
         /// <returns><c>true</c> if the field is null or missing.</returns>
         public static bool IsNullOrMissing<TField>(TField field)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        /// Serializes BSON values to their Extended JSON v2 representation using the $serializeEJSON aggregation operator.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input value.</typeparam>
+        /// <typeparam name="TOutput">The type of the output value.</typeparam>
+        /// <param name="value">The value to serialize.</param>
+        /// <param name="options">The serialization options.</param>
+        /// <returns>The serialized value.</returns>
+        public static TOutput SerializeEJson<TInput, TOutput>(TInput value, SerializeEJsonOptions<TOutput> options = null)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }

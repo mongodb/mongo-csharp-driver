@@ -307,6 +307,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors
             return node.Update(node.Operator, VisitAndConvert(node.Arg), node.Unit, node.Window);
         }
 
+        public virtual AstNode VisitDeserializeEJsonExpression(AstDeserializeEJsonExpression node)
+        {
+            return node.Update(VisitAndConvert(node.Input), VisitAndConvert(node.OnError));
+        }
+
         public virtual AstNode VisitDocumentsStage(AstDocumentsStage node)
         {
             return node.Update(VisitAndConvert(node.Documents));
@@ -700,6 +705,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors
         public virtual AstNode VisitSampleStage(AstSampleStage node)
         {
             return node;
+        }
+
+        public virtual AstNode VisitSerializeEJsonExpression(AstSerializeEJsonExpression node)
+        {
+            return node.Update(VisitAndConvert(node.Input), VisitAndConvert(node.Relaxed), VisitAndConvert(node.OnError));
         }
 
         public virtual AstNode VisitSetStage(AstSetStage node)
