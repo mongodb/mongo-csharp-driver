@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using MongoDB.Bson;
@@ -26,6 +25,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class ReplaceMethodToAggregationExpressionTranslator
     {
+        private static readonly Regex __substitutionTokenPattern = new Regex(@"(?<escaped>\$\$)|\$(?<substitutions>\d+|\{[^}]+\}|[&`'+_])", RegexOptions.Compiled);
+
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
@@ -83,7 +84,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 {
                     // validate if replacement string uses substitutions: $1, ${1}, ${name}, etc
                     // more details on https://learn.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-language-quick-reference#substitutions
-                    var matches = Regex.Matches(replacement, @"(?<escaped>\$\$)|\$(?<substitutions>\d+|\{[^}]+\}|[&`'+_])");
+                    var matches = __substitutionTokenPattern.Matches(replacement);
                     for (var i = 0; i < matches.Count; i++)
                     {
                         if (matches[i].Groups["substitutions"].Success)
