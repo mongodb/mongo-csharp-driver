@@ -95,7 +95,8 @@ public sealed class CreateVectorSearchIndexModel<TDocument> : CreateVectorSearch
             ExcludedStoredFields = null,
             Quantization = Quantization,
             HnswMaxEdges = HnswMaxEdges,
-            HnswNumEdgeCandidates = HnswNumEdgeCandidates
+            HnswNumEdgeCandidates = HnswNumEdgeCandidates,
+            IndexingMethod = IndexingMethod
         };
 
     /// <summary>
@@ -125,7 +126,8 @@ public sealed class CreateVectorSearchIndexModel<TDocument> : CreateVectorSearch
             IncludedStoredFields = null,
             Quantization = Quantization,
             HnswMaxEdges = HnswMaxEdges,
-            HnswNumEdgeCandidates = HnswNumEdgeCandidates
+            HnswNumEdgeCandidates = HnswNumEdgeCandidates,
+            IndexingMethod = IndexingMethod
         };
 
     /// <summary>

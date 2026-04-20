@@ -74,6 +74,13 @@ public abstract class CreateVectorSearchIndexModelBase<TDocument> : CreateSearch
     public int? HnswNumEdgeCandidates { get; init; }
 
     /// <summary>
+    /// Indexing algorithm used for the vector field. Defaults to <see cref="VectorIndexingMethod.Hnsw"/> if omitted.
+    /// <see cref="VectorIndexingMethod.Flat"/> is incompatible with <see cref="HnswMaxEdges"/> and
+    /// <see cref="HnswNumEdgeCandidates"/>.
+    /// </summary>
+    public VectorIndexingMethod? IndexingMethod { get; init; }
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="CreateVectorSearchIndexModelBase{TDocument}"/> class for a vector
     /// index where the vector embeddings are created manually. The required options for <see cref="VectorSimilarity"/>
     /// and the number of vector dimensions are passed to the constructor.
@@ -169,6 +176,11 @@ public abstract class CreateVectorSearchIndexModelBase<TDocument> : CreateSearch
                 {
                     { "maxEdges", HnswMaxEdges ?? 16 }, { "numEdgeCandidates", HnswNumEdgeCandidates ?? 100 }
                 });
+        }
+
+        if (IndexingMethod != null)
+        {
+            fieldDocument.Add("indexingMethod", IndexingMethod.ToString().ToLowerInvariant());
         }
     }
 }
