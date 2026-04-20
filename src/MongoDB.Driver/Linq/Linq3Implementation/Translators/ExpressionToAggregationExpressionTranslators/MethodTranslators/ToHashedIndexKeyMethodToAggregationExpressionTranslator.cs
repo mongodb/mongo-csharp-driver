@@ -13,9 +13,7 @@
  * limitations under the License.
  */
 
-using System.Linq;
 using System.Linq.Expressions;
-using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
@@ -31,7 +29,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
             if (method.Is(MqlMethod.ToHashedIndexKey))
             {
-
                 var valueExpression = arguments[0];
                 var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
                 var ast = AstExpression.Unary(AstUnaryOperator.ToHashedIndexKey, valueTranslation.Ast);
