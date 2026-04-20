@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.GeoJsonObjectModel;
 
 namespace MongoDB.Driver.Search
@@ -185,8 +186,11 @@ namespace MongoDB.Driver.Search
         /// <returns>A facet search definition.</returns>
         public SearchDefinition<TDocument> Facet(
             SearchDefinition<TDocument> @operator,
-            IEnumerable<SearchFacet<TDocument>> facets) =>
-                new FacetSearchDefinition<TDocument>(@operator, facets);
+            IEnumerable<SearchFacet<TDocument>> facets)
+        {
+            Ensure.IsNotNull(@operator, nameof(@operator));
+            return new FacetSearchDefinition<TDocument>(@operator, facets);
+        }
 
         /// <summary>
         /// Creates a search definition that groups results by values or ranges in the specified

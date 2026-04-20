@@ -504,6 +504,24 @@ namespace MongoDB.Driver.Tests.Search
         }
 
         [Fact]
+        public void Facet_should_not_misuse_overload_with_null_operator()
+        {
+            var subject = CreateSubject<BsonDocument>();
+            var facetBuilder = new SearchFacetBuilder<BsonDocument>();
+
+            Record.Exception(() => subject.Facet((SearchDefinition<BsonDocument>)null, facetBuilder.String("string", "y", 100))).Should().BeOfType<ArgumentNullException>();
+        }
+
+        [Fact]
+        public void Facet_typed_should_not_misuse_overload_with_null_operator()
+        {
+            var subject = CreateSubject<Person>();
+            var facetBuilder = new SearchFacetBuilder<Person>();
+
+            Record.Exception(() => subject.Facet((SearchDefinition<Person>)null, facetBuilder.String("string", x => x.FirstName, 100))).Should().BeOfType<ArgumentNullException>();
+        }
+
+        [Fact]
         public void Filter()
         {
             var subject = CreateSubject<BsonDocument>();
