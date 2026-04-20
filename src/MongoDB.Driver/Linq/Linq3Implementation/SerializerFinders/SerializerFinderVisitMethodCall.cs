@@ -136,6 +136,7 @@ internal partial class SerializerFinderVisitor
                 case "RadiansToDegrees": DeduceRadiansToDegreesMethodSerializers(); break;
                 case "Range": DeduceRangeMethodSerializers(); break;
                 case "Repeat": DeduceRepeatMethodSerializers(); break;
+                case "Replace": DeduceReplaceMethodSerializers(); break;
                 case "Reverse": DeduceReverseMethodSerializers(); break;
                 case "Round": DeduceRoundMethodSerializers(); break;
                 case "Select": DeduceSelectMethodSerializers(); break;
@@ -2350,6 +2351,18 @@ internal partial class SerializerFinderVisitor
             }
         }
 
+        void DeduceReplaceMethodSerializers()
+        {
+            if (method.IsOneOf(StringMethod.ReplaceOverloads, RegexMethod.ReplaceOverloads))
+            {
+                DeduceSerializer(node, StringSerializer.Instance);
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
+        }
+
         void DeduceReverseMethodSerializers()
         {
             if (method.IsOneOf(EnumerableOrQueryableMethod.ReverseOverloads))
@@ -2563,7 +2576,7 @@ internal partial class SerializerFinderVisitor
 
         void DeduceSplitMethodSerializers()
         {
-            if (method.IsOneOf(StringMethod.SplitOverloads))
+            if (method.IsOneOf(StringMethod.SplitOverloads, RegexMethod.SplitOverloads))
             {
                 if (IsNotKnown(node))
                 {

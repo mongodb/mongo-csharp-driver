@@ -26,9 +26,17 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __isMatch;
         private static readonly MethodInfo __staticIsMatch;
         private static readonly MethodInfo __staticIsMatchWithOptions;
+        private static readonly MethodInfo __replace;
+        private static readonly MethodInfo __staticReplace;
+        private static readonly MethodInfo __staticReplaceWithOptions;
+        private static readonly MethodInfo __split;
+        private static readonly MethodInfo __staticSplit;
+        private static readonly MethodInfo __staticSplitWithOptions;
 
         // sets of methods
         private static readonly IReadOnlyMethodInfoSet __isMatchOverloads;
+        private static readonly IReadOnlyMethodInfoSet __replaceOverloads;
+        private static readonly IReadOnlyMethodInfoSet __splitOverloads;
 
         // static constructor
         static RegexMethod()
@@ -36,6 +44,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __isMatch = ReflectionInfo.Method((Regex regex, string input) => regex.IsMatch(input));
             __staticIsMatch = ReflectionInfo.Method((string input, string pattern) => Regex.IsMatch(input, pattern));
             __staticIsMatchWithOptions = ReflectionInfo.Method((string input, string pattern, RegexOptions options) => Regex.IsMatch(input, pattern, options));
+            __replace = ReflectionInfo.Method((Regex regex, string input, string replacement) => regex.Replace(input, replacement));
+            __staticReplace = ReflectionInfo.Method((string input, string pattern, string replacement) => Regex.Replace(input, pattern, replacement));
+            __staticReplaceWithOptions = ReflectionInfo.Method((string input, string pattern, string replacement, RegexOptions options) => Regex.Replace(input, pattern, replacement, options));
+            __split = ReflectionInfo.Method((Regex regex, string input) => regex.Split(input));
+            __staticSplit = ReflectionInfo.Method((string input, string pattern) => Regex.Split(input, pattern));
+            __staticSplitWithOptions = ReflectionInfo.Method((string input, string pattern, RegexOptions options) => Regex.Split(input, pattern, options));
 
             // initialize sets of methods after methods
             __isMatchOverloads = MethodInfoSet.Create(
@@ -44,15 +58,35 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
                 __staticIsMatch,
                 __staticIsMatchWithOptions
             ]);
+            __replaceOverloads = MethodInfoSet.Create(
+            [
+                __replace,
+                __staticReplace,
+                __staticReplaceWithOptions
+            ]);
+            __splitOverloads = MethodInfoSet.Create(
+            [
+                __split,
+                __staticSplit,
+                __staticSplitWithOptions
+            ]);
         }
 
         // public properties
         public static MethodInfo IsMatch => __isMatch;
         public static MethodInfo StaticIsMatch => __staticIsMatch;
         public static MethodInfo StaticIsMatchWithOptions => __staticIsMatchWithOptions;
+        public static MethodInfo Replace => __replace;
+        public static MethodInfo StaticReplace => __staticReplace;
+        public static MethodInfo StaticReplaceWithOptions => __staticReplaceWithOptions;
+        public static MethodInfo Split => __split;
+        public static MethodInfo StaticSplit => __staticSplit;
+        public static MethodInfo StaticSplitWithOptions => __staticSplitWithOptions;
 
         // sets of methods
         public static IReadOnlyMethodInfoSet IsMatchOverloads => __isMatchOverloads;
+        public static IReadOnlyMethodInfoSet ReplaceOverloads => __replaceOverloads;
+        public static IReadOnlyMethodInfoSet SplitOverloads => __splitOverloads;
 
         // public methods
         public static bool IsIsMatchMethod(MethodCallExpression expression, out Expression inputExpression, out Regex regex)
