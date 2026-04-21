@@ -44,14 +44,14 @@ namespace MongoDB.Bson
         {
             if (bytes == null)
             {
-                throw new ArgumentNullException("bytes");
+                throw new ArgumentNullException(nameof(bytes));
             }
             if (bytes.Length != 12)
             {
-                throw new ArgumentException("Byte array must be 12 bytes long", "bytes");
+                throw new ArgumentException("Byte array must be 12 bytes long", nameof(bytes));
             }
 
-            FromByteArray(bytes, 0, out _a, out _b, out _c);
+            FromBytesSpan(bytes, out _a, out _b, out _c);
         }
 
         /// <summary>
@@ -61,7 +61,20 @@ namespace MongoDB.Bson
         /// <param name="index">The index into the byte array where the ObjectId starts.</param>
         internal ObjectId(byte[] bytes, int index)
         {
-            FromByteArray(bytes, index, out _a, out _b, out _c);
+            FromBytesSpan(bytes.AsSpan(index), out _a, out _b, out _c);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the ObjectId class.
+        /// </summary>
+        /// <param name="span">The span of bytes.</param>
+        internal ObjectId(ReadOnlySpan<byte> span)
+        {
+            if (span.Length != 12)
+            {
+                throw new ArgumentException("Span must be 12 bytes long", nameof(span));
+            }
+            FromBytesSpan(span, out _a, out _b, out _c);
         }
 
         /// <summary>
@@ -72,11 +85,11 @@ namespace MongoDB.Bson
         {
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
 
             var bytes = BsonUtils.ParseHexString(value);
-            FromByteArray(bytes, 0, out _a, out _b, out _c);
+            FromBytesSpan(bytes, out _a, out _b, out _c);
         }
 
         private ObjectId(int a, int b, int c)
@@ -219,7 +232,7 @@ namespace MongoDB.Bson
         {
             if (s == null)
             {
-                throw new ArgumentNullException("s");
+                throw new ArgumentNullException(nameof(s));
             }
 
             ObjectId objectId;
@@ -338,16 +351,16 @@ namespace MongoDB.Bson
             var secondsSinceEpoch = (long)Math.Floor((BsonUtils.ToUniversalTime(timestamp) - BsonConstants.UnixEpoch).TotalSeconds);
             if (secondsSinceEpoch < uint.MinValue || secondsSinceEpoch > uint.MaxValue)
             {
-                throw new ArgumentOutOfRangeException("timestamp");
+                throw new ArgumentOutOfRangeException(nameof(timestamp));
             }
             return (int)(uint)secondsSinceEpoch;
         }
 
-        private static void FromByteArray(byte[] bytes, int offset, out int a, out int b, out int c)
+        private static void FromBytesSpan(ReadOnlySpan<byte> bytes, out int a, out int b, out int c)
         {
-            a = (bytes[offset] << 24) | (bytes[offset + 1] << 16) | (bytes[offset + 2] << 8) | bytes[offset + 3];
-            b = (bytes[offset + 4] << 24) | (bytes[offset + 5] << 16) | (bytes[offset + 6] << 8) | bytes[offset + 7];
-            c = (bytes[offset + 8] << 24) | (bytes[offset + 9] << 16) | (bytes[offset + 10] << 8) | bytes[offset + 11];
+            a = (bytes[0] << 24) | (bytes[1] << 16) | (bytes[2] << 8) | bytes[3];
+            b = (bytes[4] << 24) | (bytes[5] << 16) | (bytes[6] << 8) | bytes[7];
+            c = (bytes[8] << 24) | (bytes[9] << 16) | (bytes[10] << 8) | bytes[11];
         }
 
         // public methods
@@ -428,11 +441,11 @@ namespace MongoDB.Bson
         {
             if (destination == null)
             {
-                throw new ArgumentNullException("destination");
+                throw new ArgumentNullException(nameof(destination));
             }
             if (offset + 12 > destination.Length)
             {
-                throw new ArgumentException("Not enough room in destination buffer.", "offset");
+                throw new ArgumentException("Not enough room in destination buffer.", nameof(offset));
             }
 
             destination[offset + 0] = (byte)(_a >> 24);
@@ -449,7 +462,6 @@ namespace MongoDB.Bson
             destination[offset + 11] = (byte)(_c);
         }
 
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
         /// <summary>
         /// Converts the ObjectId to a byte buffer provided by the input span.
         /// </summary>
@@ -459,7 +471,7 @@ namespace MongoDB.Bson
         {
             if (destination.Length < 12)
             {
-                throw new ArgumentException("Not enough room in destination span.", "destination");
+                throw new ArgumentException("Not enough room in destination span.", nameof(destination));
             }
 
             destination[0] = (byte)(_a >> 24);
@@ -485,37 +497,34 @@ namespace MongoDB.Bson
         {
             if (destination.Length < 24)
             {
-                throw new ArgumentException("Not enough room in destination span.", "destination");
+                throw new ArgumentException("Not enough room in destination span.", nameof(destination));
             }
 
-            Span<byte> span = stackalloc byte[12];
-            ToByteSpan(span);
-            destination[0] = BsonUtils.ToHexChar(span[0] >> 4);
-            destination[1] = BsonUtils.ToHexChar(span[0] & 0xF);
-            destination[2] = BsonUtils.ToHexChar(span[1] >> 4);
-            destination[3] = BsonUtils.ToHexChar(span[1] & 0xF);
-            destination[4] = BsonUtils.ToHexChar(span[2] >> 4);
-            destination[5] = BsonUtils.ToHexChar(span[2] & 0xF);
-            destination[6] = BsonUtils.ToHexChar(span[3] >> 4);
-            destination[7] = BsonUtils.ToHexChar(span[3] & 0xF);
-            destination[8] = BsonUtils.ToHexChar(span[4] >> 4);
-            destination[9] = BsonUtils.ToHexChar(span[4] & 0xF);
-            destination[10] = BsonUtils.ToHexChar(span[5] >> 4);
-            destination[11] = BsonUtils.ToHexChar(span[5] & 0xF);
-            destination[12] = BsonUtils.ToHexChar(span[6] >> 4);
-            destination[13] = BsonUtils.ToHexChar(span[6] & 0xF);
-            destination[14] = BsonUtils.ToHexChar(span[7] >> 4);
-            destination[15] = BsonUtils.ToHexChar(span[7] & 0xF);
-            destination[16] = BsonUtils.ToHexChar(span[8] >> 4);
-            destination[17] = BsonUtils.ToHexChar(span[8] & 0xF);
-            destination[18] = BsonUtils.ToHexChar(span[9] >> 4);
-            destination[19] = BsonUtils.ToHexChar(span[9] & 0xF);
-            destination[20] = BsonUtils.ToHexChar(span[10] >> 4);
-            destination[21] = BsonUtils.ToHexChar(span[10] & 0xF);
-            destination[22] = BsonUtils.ToHexChar(span[11] >> 4);
-            destination[23] = BsonUtils.ToHexChar(span[11] & 0xF);
+            destination[0] = BsonUtils.ToHexChar((_a >> 28) & 0x0f);
+            destination[1] = BsonUtils.ToHexChar((_a >> 24) & 0x0f);
+            destination[2] = BsonUtils.ToHexChar((_a >> 20) & 0x0f);
+            destination[3] = BsonUtils.ToHexChar((_a >> 16) & 0x0f);
+            destination[4] = BsonUtils.ToHexChar((_a >> 12) & 0x0f);
+            destination[5] = BsonUtils.ToHexChar((_a >> 8) & 0x0f);
+            destination[6] = BsonUtils.ToHexChar((_a >> 4) & 0x0f);
+            destination[7] = BsonUtils.ToHexChar(_a & 0x0f);
+            destination[8] = BsonUtils.ToHexChar((_b >> 28) & 0x0f);
+            destination[9] = BsonUtils.ToHexChar((_b >> 24) & 0x0f);
+            destination[10] = BsonUtils.ToHexChar((_b >> 20) & 0x0f);
+            destination[11] = BsonUtils.ToHexChar((_b >> 16) & 0x0f);
+            destination[12] = BsonUtils.ToHexChar((_b >> 12) & 0x0f);
+            destination[13] = BsonUtils.ToHexChar((_b >> 8) & 0x0f);
+            destination[14] = BsonUtils.ToHexChar((_b >> 4) & 0x0f);
+            destination[15] = BsonUtils.ToHexChar(_b & 0x0f);
+            destination[16] = BsonUtils.ToHexChar((_c >> 28) & 0x0f);
+            destination[17] = BsonUtils.ToHexChar((_c >> 24) & 0x0f);
+            destination[18] = BsonUtils.ToHexChar((_c >> 20) & 0x0f);
+            destination[19] = BsonUtils.ToHexChar((_c >> 16) & 0x0f);
+            destination[20] = BsonUtils.ToHexChar((_c >> 12) & 0x0f);
+            destination[21] = BsonUtils.ToHexChar((_c >> 8) & 0x0f);
+            destination[22] = BsonUtils.ToHexChar((_c >> 4) & 0x0f);
+            destination[23] = BsonUtils.ToHexChar(_c & 0x0f);
         }
-#endif
 
         /// <summary>
         /// Returns a string representation of the value.
@@ -524,36 +533,10 @@ namespace MongoDB.Bson
         public override string ToString()
         {
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-            return string.Create(24, this, static (span, input) =>
-            {
-                input.ToCharSpan(span);
-            });
+            return string.Create(24, this, static (span, input) => input.ToCharSpan(span));
 #else
             var c = new char[24];
-            c[0] = BsonUtils.ToHexChar((_a >> 28) & 0x0f);
-            c[1] = BsonUtils.ToHexChar((_a >> 24) & 0x0f);
-            c[2] = BsonUtils.ToHexChar((_a >> 20) & 0x0f);
-            c[3] = BsonUtils.ToHexChar((_a >> 16) & 0x0f);
-            c[4] = BsonUtils.ToHexChar((_a >> 12) & 0x0f);
-            c[5] = BsonUtils.ToHexChar((_a >> 8) & 0x0f);
-            c[6] = BsonUtils.ToHexChar((_a >> 4) & 0x0f);
-            c[7] = BsonUtils.ToHexChar(_a & 0x0f);
-            c[8] = BsonUtils.ToHexChar((_b >> 28) & 0x0f);
-            c[9] = BsonUtils.ToHexChar((_b >> 24) & 0x0f);
-            c[10] = BsonUtils.ToHexChar((_b >> 20) & 0x0f);
-            c[11] = BsonUtils.ToHexChar((_b >> 16) & 0x0f);
-            c[12] = BsonUtils.ToHexChar((_b >> 12) & 0x0f);
-            c[13] = BsonUtils.ToHexChar((_b >> 8) & 0x0f);
-            c[14] = BsonUtils.ToHexChar((_b >> 4) & 0x0f);
-            c[15] = BsonUtils.ToHexChar(_b & 0x0f);
-            c[16] = BsonUtils.ToHexChar((_c >> 28) & 0x0f);
-            c[17] = BsonUtils.ToHexChar((_c >> 24) & 0x0f);
-            c[18] = BsonUtils.ToHexChar((_c >> 20) & 0x0f);
-            c[19] = BsonUtils.ToHexChar((_c >> 16) & 0x0f);
-            c[20] = BsonUtils.ToHexChar((_c >> 12) & 0x0f);
-            c[21] = BsonUtils.ToHexChar((_c >> 8) & 0x0f);
-            c[22] = BsonUtils.ToHexChar((_c >> 4) & 0x0f);
-            c[23] = BsonUtils.ToHexChar(_c & 0x0f);
+            ToCharSpan(c);
             return new string(c);
 #endif
         }

@@ -21,6 +21,7 @@ using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.TestHelpers;
+using MongoDB.Bson.Tests.ObjectModel;
 using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
