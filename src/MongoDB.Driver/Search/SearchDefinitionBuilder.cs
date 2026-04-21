@@ -189,6 +189,7 @@ namespace MongoDB.Driver.Search
             IEnumerable<SearchFacet<TDocument>> facets)
         {
             Ensure.IsNotNull(@operator, nameof(@operator));
+            Ensure.IsNotNullOrEmpty(facets, nameof(facets));
             return new FacetSearchDefinition<TDocument>(@operator, facets);
         }
 
@@ -210,8 +211,11 @@ namespace MongoDB.Driver.Search
         /// </summary>
         /// <param name="facets">Information for bucketing the data for each facet.</param>
         /// <returns>A facet search definition.</returns>
-        public SearchDefinition<TDocument> Facet(IEnumerable<SearchFacet<TDocument>> facets) =>
-            new FacetSearchDefinition<TDocument>(null, facets);
+        public SearchDefinition<TDocument> Facet(IEnumerable<SearchFacet<TDocument>> facets)
+        {
+            Ensure.IsNotNullOrEmpty(facets, nameof(facets));
+            return new FacetSearchDefinition<TDocument>(null, facets);
+        }
 
         /// <summary>
         /// Creates a search definition that groups results by values or ranges in the specified
@@ -219,8 +223,7 @@ namespace MongoDB.Driver.Search
         /// </summary>
         /// <param name="facets">Information for bucketing the data for each facet.</param>
         /// <returns>A facet search definition.</returns>
-        public SearchDefinition<TDocument> Facet(params SearchFacet<TDocument>[] facets) =>
-            Facet((IEnumerable<SearchFacet<TDocument>>)facets);
+        public SearchDefinition<TDocument> Facet(params SearchFacet<TDocument>[] facets) => Facet((IEnumerable<SearchFacet<TDocument>>)facets);
 
         /// <summary>
         /// Creates a search definition that queries for shapes with a given geometry.

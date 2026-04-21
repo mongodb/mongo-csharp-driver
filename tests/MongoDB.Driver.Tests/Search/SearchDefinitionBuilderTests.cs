@@ -522,6 +522,26 @@ namespace MongoDB.Driver.Tests.Search
         }
 
         [Fact]
+        public void Facet_should_disallow_null_facet_array()
+        {
+            var person = CreateSubject<Person>();
+            var bsonDoc = CreateSubject<BsonDocument>();
+            var op = person.Phrase(x => x.LastName, "foo");
+
+            // Without operator
+            Record.Exception(() => bsonDoc.Facet()).Should().BeOfType<ArgumentException>();
+            Record.Exception(() => bsonDoc.Facet(Array.Empty<SearchFacet<BsonDocument>>())).Should().BeOfType<ArgumentException>();
+            Record.Exception(() => bsonDoc.Facet((IEnumerable<SearchFacet<BsonDocument>>)new List<SearchFacet<BsonDocument>>())).Should().BeOfType<ArgumentException>();
+
+            // With operator
+            Record.Exception(() => person.Facet(op)).Should().BeOfType<ArgumentException>();
+            Record.Exception(() => person.Facet(op,
+                Array.Empty<SearchFacet<Person>>())).Should().BeOfType<ArgumentException>();
+            Record.Exception(() => person.Facet(op, (IEnumerable<SearchFacet<Person>>)new
+                List<SearchFacet<Person>>())).Should().BeOfType<ArgumentException>();
+        }
+
+        [Fact]
         public void Filter()
         {
             var subject = CreateSubject<BsonDocument>();
