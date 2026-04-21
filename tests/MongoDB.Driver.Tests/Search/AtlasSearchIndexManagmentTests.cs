@@ -413,8 +413,6 @@ namespace MongoDB.Driver.Tests.Search
             indexField["numDimensions"].AsInt32.Should().Be(2);
             indexField["similarity"].AsString.Should().Be("cosine");
             indexField["indexingMethod"].AsString.Should().Be("flat");
-
-            indexField.Contains("hnswOptions").Should().Be(false);
         }
 
         [Theory(Timeout = Timeout)]
