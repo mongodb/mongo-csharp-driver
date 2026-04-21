@@ -157,7 +157,11 @@ internal partial class SerializerFinderVisitor
                 case "ToHashedIndexKey": DeduceToHashedIndexKeySerializers(); break;
                 case "ToList": DeduceToListSerializers(); break;
                 case "ToString": DeduceToStringSerializers(); break;
-                case "Trim": DeduceTrimSerializers(); break;
+                case "Trim":
+                case "TrimStart":
+                case "TrimEnd":
+                    DeduceTrimSerializers();
+                    break;
                 case "Truncate": DeduceTruncateSerializers(); break;
                 case "Union": DeduceUnionSerializers(); break;
                 case "Week": DeduceWeekSerializers(); break;
