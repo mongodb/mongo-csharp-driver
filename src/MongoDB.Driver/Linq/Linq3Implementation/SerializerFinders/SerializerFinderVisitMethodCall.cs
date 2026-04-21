@@ -154,6 +154,7 @@ internal partial class SerializerFinderVisitor
                 case "Subtype": DeduceSubtypeMethodSerializers(); break;
                 case "Sum": DeduceSumMethodSerializers(); break;
                 case "ToArray": DeduceToArrayMethodSerializers(); break;
+                case "ToHashedIndexKey": DeduceToHashedIndexKeySerializers(); break;
                 case "ToList": DeduceToListSerializers(); break;
                 case "ToString": DeduceToStringSerializers(); break;
                 case "Trim": DeduceTrimSerializers(); break;
@@ -2803,6 +2804,18 @@ internal partial class SerializerFinderVisitor
 
                 sourceExpression = null;
                 return false;
+            }
+        }
+
+        void DeduceToHashedIndexKeySerializers()
+        {
+            if (method.Is(MqlMethod.ToHashedIndexKey))
+            {
+                DeduceReturnsInt64Serializer();
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
             }
         }
 

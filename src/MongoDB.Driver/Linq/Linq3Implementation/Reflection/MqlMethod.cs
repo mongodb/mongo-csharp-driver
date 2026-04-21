@@ -42,6 +42,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __serializeEJson;
         private static readonly MethodInfo __sigmoid;
         private static readonly MethodInfo __subtype;
+        private static readonly MethodInfo __toHashedIndexKey;
 
         // sets of methods
         private static readonly IReadOnlyMethodInfoSet __dateFromStringOverloads;
@@ -71,6 +72,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __serializeEJson = ReflectionInfo.Method((object value, SerializeEJsonOptions<object> options) => Mql.SerializeEJson(value, options));
             __sigmoid = ReflectionInfo.Method((double value) => Mql.Sigmoid(value));
             __subtype = ReflectionInfo.Method((object value) => Mql.Subtype(value));
+            __toHashedIndexKey = ReflectionInfo.Method((object value) => Mql.ToHashedIndexKey(value));
 
             var dotProductEnumerable = ReflectionInfo.Method((IEnumerable<object> vectors1, IEnumerable<object> vectors2, bool normalizeScore) => Mql.SimilarityDotProduct(vectors1, vectors2, normalizeScore));
             var dotProductMemory = ReflectionInfo.Method((ReadOnlyMemory<object> vectors1, ReadOnlyMemory<object> vectors2, bool normalizeScore) => Mql.SimilarityDotProduct(vectors1, vectors2, normalizeScore));
@@ -131,6 +133,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo SerializeEJson => __serializeEJson;
         public static MethodInfo Sigmoid => __sigmoid;
         public static MethodInfo Subtype => __subtype;
+        public static MethodInfo ToHashedIndexKey => __toHashedIndexKey;
 
         // sets of methods
         public static IReadOnlyMethodInfoSet DateFromStringOverloads => __dateFromStringOverloads;

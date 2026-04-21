@@ -91,6 +91,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case "Sum": return SumMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Subtype": return SubtypeMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "ToArray": return ToArrayMethodToAggregationExpressionTranslator.Translate(context, expression);
+                case "ToHashedIndexKey": return ToHashedIndexKeyMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "ToList": return ToListMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "ToString": return ToStringMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Truncate": return TruncateMethodToAggregationExpressionTranslator.Translate(context, expression);
