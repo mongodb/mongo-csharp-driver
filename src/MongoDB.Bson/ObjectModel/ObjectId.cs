@@ -61,7 +61,7 @@ namespace MongoDB.Bson
         /// <param name="index">The index into the byte array where the ObjectId starts.</param>
         internal ObjectId(byte[] bytes, int index)
         {
-            FromBytesSpan(bytes.AsSpan(index), out _a, out _b, out _c);
+            FromBytesSpan(bytes.AsSpan(index, 12), out _a, out _b, out _c);
         }
 
         /// <summary>
@@ -443,23 +443,13 @@ namespace MongoDB.Bson
             {
                 throw new ArgumentNullException(nameof(destination));
             }
+
             if (offset + 12 > destination.Length)
             {
                 throw new ArgumentException("Not enough room in destination buffer.", nameof(offset));
             }
 
-            destination[offset + 0] = (byte)(_a >> 24);
-            destination[offset + 1] = (byte)(_a >> 16);
-            destination[offset + 2] = (byte)(_a >> 8);
-            destination[offset + 3] = (byte)(_a);
-            destination[offset + 4] = (byte)(_b >> 24);
-            destination[offset + 5] = (byte)(_b >> 16);
-            destination[offset + 6] = (byte)(_b >> 8);
-            destination[offset + 7] = (byte)(_b);
-            destination[offset + 8] = (byte)(_c >> 24);
-            destination[offset + 9] = (byte)(_c >> 16);
-            destination[offset + 10] = (byte)(_c >> 8);
-            destination[offset + 11] = (byte)(_c);
+            ToByteSpan(destination.AsSpan(offset, 12));
         }
 
         /// <summary>
