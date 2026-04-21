@@ -145,6 +145,17 @@ public class ObjectIdTests
     }
 
     [Theory]
+    [InlineData(0)]
+    [InlineData(11)]
+    public void ToByteSpan_should_throw_when_destination_is_too_short(int length)
+    {
+        var objectId = ObjectId.Empty;
+        var exception = Record.Exception(() => objectId.ToByteSpan(new byte[length]));
+        var e = exception.Should().BeOfType<ArgumentException>().Subject;
+        e.ParamName.Should().Be("destination");
+    }
+
+    [Theory]
     [MemberData(nameof(ToCharSpan_TestCases))]
     public void ToCharSpan_should_return_expected_results(byte[] data, string expectedChars)
     {
@@ -159,8 +170,18 @@ public class ObjectIdTests
     {
         yield return [new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, "000000000000000000000000"];
         yield return [new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, "0102030405060708090a0b0c"];
-        yield return [new byte[] { 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255 }, "ffffffffffffffffffffffff"
-        ];
+        yield return [new byte[] { 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255 }, "ffffffffffffffffffffffff"];
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(23)]
+    public void ToCharSpan_should_throw_when_destination_is_too_short(int length)
+    {
+        var objectId = ObjectId.Empty;
+        var exception = Record.Exception(() => objectId.ToCharSpan(new char[length]));
+        var e = exception.Should().BeOfType<ArgumentException>().Subject;
+        e.ParamName.Should().Be("destination");
     }
 
     [Fact]
