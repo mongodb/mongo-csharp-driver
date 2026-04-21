@@ -208,6 +208,7 @@ namespace MongoDB.Driver.Search
         /// <summary>
         /// Creates a search definition that groups results by values or ranges in the specified
         /// faceted fields and returns the count for each of those groups.
+        /// Facets are computed over all documents in the index.
         /// </summary>
         /// <param name="facets">Information for bucketing the data for each facet.</param>
         /// <returns>A facet search definition.</returns>
@@ -220,6 +221,7 @@ namespace MongoDB.Driver.Search
         /// <summary>
         /// Creates a search definition that groups results by values or ranges in the specified
         /// faceted fields and returns the count for each of those groups.
+        /// Facets are computed over all documents in the index.
         /// </summary>
         /// <param name="facets">Information for bucketing the data for each facet.</param>
         /// <returns>A facet search definition.</returns>
