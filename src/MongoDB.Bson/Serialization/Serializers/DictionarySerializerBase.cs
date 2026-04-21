@@ -499,6 +499,12 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <inheritdoc/>
         public bool TryGetItemSerializationInfo(out BsonSerializationInfo serializationInfo)
         {
+            if (_dictionaryRepresentation == DictionaryRepresentation.Document && !IsNumericType(typeof(TKey)))
+            {
+                serializationInfo = null;
+                return false;
+            }
+
             var representation = _dictionaryRepresentation == DictionaryRepresentation.ArrayOfArrays
                 ? BsonType.Array
                 : BsonType.Document;
@@ -508,6 +514,14 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             serializationInfo = new BsonSerializationInfo(null, keyValuePairSerializer, keyValuePairSerializer.ValueType);
             return true;
+        }
+
+        private static bool IsNumericType(Type type)
+        {
+            return type == typeof(int) || type == typeof(long) ||
+                   type == typeof(short) || type == typeof(byte) ||
+                   type == typeof(uint) || type == typeof(ulong) ||
+                   type == typeof(ushort) || type == typeof(sbyte);
         }
 
         /// <inheritdoc/>
