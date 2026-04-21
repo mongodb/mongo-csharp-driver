@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
@@ -162,6 +163,12 @@ public abstract class CreateVectorSearchIndexModelBase<TDocument> : CreateSearch
     /// <param name="fieldDocument">The field document into which the elements will go.</param>
     private protected void RenderCommonFieldElements(RenderArgs<TDocument> renderArgs, BsonDocument fieldDocument)
     {
+        if (IndexingMethod == VectorIndexingMethod.Flat && (HnswMaxEdges != null || HnswNumEdgeCandidates != null))
+        {
+            throw new InvalidOperationException(
+                $"{nameof(HnswMaxEdges)} and {nameof(HnswNumEdgeCandidates)} cannot be set when {nameof(IndexingMethod)} is {nameof(VectorIndexingMethod.Flat)}.");
+        }
+
         if (Quantization != null && Quantization != VectorQuantization.None)
         {
             fieldDocument.Add("quantization", Quantization == VectorQuantization.BinaryNoRescore
