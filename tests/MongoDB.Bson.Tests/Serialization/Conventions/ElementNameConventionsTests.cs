@@ -159,7 +159,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         private class BookWithExplicitBsonElementId
         {
             [BsonElement("_id")]
-            public string Id { get; set; } // should not be set to _id
+            public string Id { get; set; } // should be set to _id
         }
 
         private class BookWithExplicitBsonElementIdButNoIdProperty
