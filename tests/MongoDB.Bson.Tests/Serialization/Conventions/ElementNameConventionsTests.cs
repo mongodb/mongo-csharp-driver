@@ -22,7 +22,6 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 {
     public class ElementNameConventionsTests
     {
-
         [Fact]
         public void TestBsonElementAttributeOverridesNamedIdMemberConvention()
         {
@@ -32,6 +31,17 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             classMap.Freeze();
             Assert.Null(classMap.IdMemberMap);
             Assert.Equal("notId", classMap.GetMemberMap(x => x.Id).ElementName);
+        }
+
+        [Fact]
+        public void TestBsonElementWithoutNameOnIdPropertyStillBecomesIdMember()
+        {
+            var classMap = new BsonClassMap<BookWithBsonElementAttributeNoName>();
+            classMap.AutoMap();
+
+            classMap.Freeze();
+            Assert.Equal("Id", classMap.IdMemberMap.MemberName);
+            Assert.Equal("_id", classMap.GetMemberMap(x => x.Id).ElementName);
         }
 
         [Fact]
@@ -163,6 +173,12 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             [BsonElement("notId")]
             public ObjectId Id { get; set; }
             public ObjectId id { get; set; } // should be set to _id
+        }
+
+        private class BookWithBsonElementAttributeNoName
+        {
+            [BsonElement]
+            public ObjectId Id { get; set; } // should be set to _id
         }
 
         private class TestClass

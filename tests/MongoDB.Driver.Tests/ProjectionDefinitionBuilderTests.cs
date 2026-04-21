@@ -134,6 +134,14 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void Exclude_Typed_with_BsonElement_on_Id()
+        {
+            var subject = CreateSubject<Movie>();
+
+            Assert(subject.Exclude(m => m.Id), "{notId: 0}");
+        }
+
+        [Fact]
         public void Include()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -278,6 +286,12 @@ namespace MongoDB.Driver.Tests
         {
             [BsonElement("name")]
             public string Name { get; set; }
+        }
+
+        private class Movie
+        {
+            [BsonElement("notId")]
+            public ObjectId Id { get; set; }
         }
     }
 }
