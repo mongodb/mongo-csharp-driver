@@ -170,6 +170,7 @@ internal partial class SerializerFinderVisitor
         }
     }
 
+    // TODO: merge this and next methods.
     private void DeduceCollectionAndItemSerializers(Expression collectionExpression, Expression itemExpression)
     {
         DeduceItemAndCollectionSerializers(itemExpression, collectionExpression);
