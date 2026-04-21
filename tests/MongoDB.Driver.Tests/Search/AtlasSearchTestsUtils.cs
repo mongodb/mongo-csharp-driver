@@ -14,6 +14,8 @@
  */
 
 using System;
+using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.TestHelpers.XunitExtensions;
 
@@ -21,7 +23,7 @@ namespace MongoDB.Driver.Tests.Search;
 
 public static class AtlasSearchTestsUtils
 {
-    public static IMongoClient CreateAtlasSearchMongoClient()
+    public static (IMongoClient Client, EventCapturer EventCapturer) CreateAtlasSearchMongoClient()
     {
         RequireEnvironment.Check().EnvironmentVariable("ATLAS_SEARCH_TESTS_ENABLED");
 
@@ -31,6 +33,9 @@ public static class AtlasSearchTestsUtils
         var mongoClientSettings = MongoClientSettings.FromConnectionString(atlasSearchUri);
         mongoClientSettings.ClusterSource = DisposingClusterSource.Instance;
 
-        return new MongoClient(mongoClientSettings);
+        var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName == "aggregate");
+        mongoClientSettings.ClusterConfigurator = b => b.Subscribe(eventCapturer);
+
+        return (new MongoClient(mongoClientSettings), eventCapturer);
     }
 }

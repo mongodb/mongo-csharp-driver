@@ -500,6 +500,162 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             AssertOutcome(collection, queryable, expectedStages, expectedValue);
         }
 
+        [Theory]
+        [InlineData(22, ConvertBase.Binary, "100001")]
+        [InlineData(22, ConvertBase.Octal, "41")]
+        [InlineData(22, ConvertBase.Hexadecimal, "21")]
+        public void Convert_to_string_with_base_should_work(int id, ConvertBase @base, string expectedResult)
+        {
+            RequireServer.Check().Supports(Feature.ConvertOperatorBaseConversion);
+
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == id)
+                .Select(x => Mql.Convert(x.IntProperty, new ConvertOptions<string> { Base = @base }));
+
+            var expectedStages =
+                new[]
+                {
+                    $"{{ $match : {{ _id : {id} }} }}",
+                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$IntProperty', to : 'string', base : {(int)@base} }} }}, _id : 0 }} }}",
+                };
+
+            AssertOutcome(collection, queryable, expectedStages, expectedResult);
+        }
+
+        [Theory]
+        [InlineData(25, ConvertBase.Binary, 10)]
+        [InlineData(26, ConvertBase.Octal, 42)]
+        [InlineData(27, ConvertBase.Hexadecimal, 255)]
+        public void Convert_to_int_with_base_should_work(int id, ConvertBase @base, int expectedResult)
+        {
+            RequireServer.Check().Supports(Feature.ConvertOperatorBaseConversion);
+
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == id)
+                .Select(x => Mql.Convert(x.StringProperty, new ConvertOptions<int> { Base = @base }));
+
+            var expectedStages =
+                new[]
+                {
+                    $"{{ $match : {{ _id : {id} }} }}",
+                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$StringProperty', to : 'int', base : {(int)@base} }} }}, _id : 0 }} }}",
+                };
+
+            AssertOutcome(collection, queryable, expectedStages, expectedResult);
+        }
+
+        [Theory]
+        [InlineData(30, """{"a":1,"b":"hello"}""")]
+        [InlineData(31, """[1,"two",3]""")]
+        public void Convert_to_string_from_any_type_should_work(int id, string expectedResult)
+        {
+            RequireServer.Check().Supports(Feature.ConvertOperatorAnyToString);
+
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == id)
+                .Select(x => Mql.Convert<BsonValue, string>(x.BsonValueProperty, null));
+
+            var expectedStages =
+                new[]
+                {
+                    $"{{ $match : {{ _id : {id} }} }}",
+                    "{ $project: { _v : { $toString : '$BsonValueProperty' }, _id : 0 } }",
+                };
+
+            AssertOutcome(collection, queryable, expectedStages, expectedResult);
+        }
+
+        [Fact]
+        public void Convert_to_BsonDocument_should_work()
+        {
+            RequireServer.Check().Supports(Feature.ConvertOperatorStringToObjectOrArray);
+
+            const int id = 40;
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == id)
+                .Select(x => Mql.Convert<string, BsonDocument>(x.StringProperty, null));
+
+            var expectedStages =
+                new[]
+                {
+                    $"{{ $match : {{ _id : {id} }} }}",
+                    "{ $project: { _v : { $toObject : '$StringProperty' }, _id : 0 } }",
+                };
+
+            var expectedResult = new BsonDocument { { "a", 1 }, { "b", "hello" } };
+            AssertOutcome(collection, queryable, expectedStages, expectedResult);
+        }
+
+        [Fact]
+        public void Convert_to_BsonDocument_with_options_should_work()
+        {
+            RequireServer.Check().Supports(Feature.ConvertOperatorStringToObjectOrArray);
+
+            const int id = 40;
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == id)
+                .Select(x => Mql.Convert(x.StringProperty, new ConvertOptions<BsonDocument>()));
+
+            var expectedStages =
+                new[]
+                {
+                    $"{{ $match : {{ _id : {id} }} }}",
+                    "{ $project: { _v : { $toObject : '$StringProperty' }, _id : 0 } }",
+                };
+
+            var expectedResult = new BsonDocument { { "a", 1 }, { "b", "hello" } };
+            AssertOutcome(collection, queryable, expectedStages, expectedResult);
+        }
+
+        [Fact]
+        public void Convert_to_BsonArray_should_work()
+        {
+            RequireServer.Check().Supports(Feature.ConvertOperatorStringToObjectOrArray);
+
+            const int id = 41;
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == id)
+                .Select(x => Mql.Convert<string, BsonArray>(x.StringProperty, null));
+
+            var expectedStages =
+                new[]
+                {
+                    $"{{ $match : {{ _id : {id} }} }}",
+                    "{ $project: { _v : { $toArray : '$StringProperty' }, _id : 0 } }",
+                };
+
+            var expectedResult = new BsonArray { 1, 2, 3 };
+            AssertOutcome(collection, queryable, expectedStages, expectedResult);
+        }
+
+        [Fact]
+        public void Convert_to_BsonArray_with_options_should_work()
+        {
+            RequireServer.Check().Supports(Feature.ConvertOperatorStringToObjectOrArray);
+
+            const int id = 41;
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == id)
+                .Select(x => Mql.Convert(x.StringProperty, new ConvertOptions<BsonArray>()));
+
+            var expectedStages =
+                new[]
+                {
+                    $"{{ $match : {{ _id : {id} }} }}",
+                    "{ $project: { _v : { $toArray : '$StringProperty' }, _id : 0 } }",
+                };
+
+            var expectedResult = new BsonArray { 1, 2, 3 };
+            AssertOutcome(collection, queryable, expectedStages, expectedResult);
+        }
+
         [Fact]
         public void Convert_should_throw_when_using_unrecognized_to_type()
         {
@@ -568,6 +724,13 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                 BsonDocument.Parse("{ _id : 22, IntProperty: 33 }"),
                 BsonDocument.Parse("{ _id : 23, StringProperty: '2018-03-03' }"),
                 BsonDocument.Parse("{ _id : 24, StringProperty: '5ab9cbfa31c2ab715d42129e' }"),
+                BsonDocument.Parse("{ _id : 25, StringProperty: '1010' }"),
+                BsonDocument.Parse("{ _id : 26, StringProperty: '52' }"),
+                BsonDocument.Parse("{ _id : 27, StringProperty: 'ff' }"),
+                BsonDocument.Parse("{ _id : 30, BsonValueProperty: { a: 1, b: 'hello' } }"),
+                BsonDocument.Parse("{ _id : 31, BsonValueProperty: [1, 'two', 3] }"),
+                BsonDocument.Parse("{ _id : 40, StringProperty: '{\"a\": 1, \"b\": \"hello\"}' }"),
+                BsonDocument.Parse("{ _id : 41, StringProperty: '[1, 2, 3]' }")
             ];
         }
 
@@ -575,6 +738,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         {
             public int Id { get; set; }
             public BsonBinaryData BinaryProperty { get; set; }
+            public BsonValue BsonValueProperty { get; set; }
             public double DoubleProperty { get; set; }
             public int IntProperty { get; set; }
             public long LongProperty { get; set; }

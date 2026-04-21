@@ -42,10 +42,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case "CovariancePopulation": return CovariancePopulationMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "CovarianceSample": return CovarianceSampleMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Create": return CreateMethodToAggregationExpressionTranslator.Translate(context, expression);
+                case "CreateObjectId": return CreateObjectIdMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "DateFromString": return DateFromStringMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "DefaultIfEmpty": return DefaultIfEmptyMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "DenseRank": return DenseRankMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Derivative": return DerivativeMethodToAggregationExpressionTranslator.Translate(context, expression);
+                case "DeserializeEJson": return DeserializeEJsonMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Distinct": return DistinctMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "DocumentNumber": return DocumentNumberMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Equals": return EqualsMethodToAggregationExpressionTranslator.Translate(context, expression);
@@ -72,11 +74,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case "Range": return RangeMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Rank": return RankMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Repeat": return RepeatMethodToAggregationExpressionTranslator.Translate(context, expression);
+                case "Replace": return ReplaceMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Reverse": return ReverseMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Round": return RoundMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Select": return SelectMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "SelectMany": return SelectManyMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "SequenceEqual": return SequenceEqualMethodToAggregationExpressionTranslator.Translate(context, expression);
+                case "SerializeEJson": return SerializeEJsonMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "SetEquals": return SetEqualsMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Shift": return ShiftMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Sigmoid": return SigmoidMethodToAggregationExpressionTranslator.Translate(context, expression);
@@ -85,7 +89,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case "StrLenBytes": return StrLenBytesMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Subtract": return SubtractMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Sum": return SumMethodToAggregationExpressionTranslator.Translate(context, expression);
+                case "Subtype": return SubtypeMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "ToArray": return ToArrayMethodToAggregationExpressionTranslator.Translate(context, expression);
+                case "ToHashedIndexKey": return ToHashedIndexKeyMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "ToList": return ToListMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "ToString": return ToStringMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Truncate": return TruncateMethodToAggregationExpressionTranslator.Translate(context, expression);
@@ -155,6 +161,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case "LastOrDefault":
                     return FirstOrLastMethodToAggregationExpressionTranslator.Translate(context, expression);
 
+                case "Hash":
+                case "HexHash":
+                    return HashMethodToAggregationExpressionTranslator.Translate(context, expression);
+
                 case "IndexOf":
                 case "IndexOfBytes":
                     return IndexOfMethodToAggregationExpressionTranslator.Translate(context, expression);
@@ -210,6 +220,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case "TrimEnd":
                 case "TrimStart":
                     return TrimMethodToAggregationExpressionTranslator.Translate(context, expression);
+
+                case nameof(Mql.SimilarityDotProduct):
+                case nameof(Mql.SimilarityEuclidean):
+                case nameof(Mql.SimilarityCosine):
+                    return SimilarityFunctionsMethodToAggregationExpressionTranslator.Translate(context, expression);
             }
 
             throw new ExpressionNotSupportedException(expression);

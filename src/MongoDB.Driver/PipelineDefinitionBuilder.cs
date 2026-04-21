@@ -1082,6 +1082,79 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Appends a $rerank stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="query">The rerank query.</param>
+        /// <param name="path">The field to send to the reranker.</param>
+        /// <param name="numDocsToRerank">The maximum number of documents to rerank.</param>
+        /// <param name="model">The reranking model name.</param>
+        /// <returns>A new pipeline with an additional stage.</returns>
+        public static PipelineDefinition<TInput, TOutput> Rerank<TInput, TField, TOutput>(
+            this PipelineDefinition<TInput, TOutput> pipeline,
+            RerankQuery query,
+            Expression<Func<TOutput, TField>> path,
+            int numDocsToRerank,
+            string model)
+        {
+            Ensure.IsNotNull(pipeline, nameof(pipeline));
+            return pipeline.AppendStage(
+                PipelineStageDefinitionBuilder.Rerank(query, path, numDocsToRerank, model),
+                pipeline.OutputSerializer);
+        }
+
+        /// <summary>
+        /// Appends a $rerank stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="query">The rerank query.</param>
+        /// <param name="path">The field to send to the reranker.</param>
+        /// <param name="numDocsToRerank">The maximum number of documents to rerank.</param>
+        /// <param name="model">The reranking model name.</param>
+        /// <returns>A new pipeline with an additional stage.</returns>
+        public static PipelineDefinition<TInput, TOutput> Rerank<TInput, TOutput>(
+            this PipelineDefinition<TInput, TOutput> pipeline,
+            RerankQuery query,
+            FieldDefinition<TOutput> path,
+            int numDocsToRerank,
+            string model)
+        {
+            Ensure.IsNotNull(pipeline, nameof(pipeline));
+            return pipeline.AppendStage(
+                PipelineStageDefinitionBuilder.Rerank(query, path, numDocsToRerank, model),
+                pipeline.OutputSerializer);
+        }
+
+        /// <summary>
+        /// Appends a $rerank stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="query">The rerank query.</param>
+        /// <param name="paths">The fields to send to the reranker.</param>
+        /// <param name="numDocsToRerank">The maximum number of documents to rerank.</param>
+        /// <param name="model">The reranking model name.</param>
+        /// <returns>A new pipeline with an additional stage.</returns>
+        public static PipelineDefinition<TInput, TOutput> Rerank<TInput, TOutput>(
+            this PipelineDefinition<TInput, TOutput> pipeline,
+            RerankQuery query,
+            IEnumerable<FieldDefinition<TOutput>> paths,
+            int numDocsToRerank,
+            string model)
+        {
+            Ensure.IsNotNull(pipeline, nameof(pipeline));
+            return pipeline.AppendStage(
+                PipelineStageDefinitionBuilder.Rerank(query, paths, numDocsToRerank, model),
+                pipeline.OutputSerializer);
+        }
+
+        /// <summary>
         /// Appends a $replaceRoot stage to the pipeline.
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents.</typeparam>
@@ -1218,6 +1291,27 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Appends a $search stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TIntermediate">The type of the intermediate documents.</typeparam>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="searchDefinition">The search definition.</param>
+        /// <param name="returnScope">The level of nested documents to return.</param>
+        /// <param name="searchOptions">The search options.</param>
+        /// <returns>A new pipeline with an additional stage.</returns>
+        public static PipelineDefinition<TInput, TOutput> Search<TInput, TIntermediate, TOutput>(
+            this PipelineDefinition<TInput, TIntermediate> pipeline,
+            SearchDefinition<TIntermediate> searchDefinition,
+            FieldDefinition<TIntermediate, IEnumerable<TOutput>> returnScope,
+            SearchOptions<TIntermediate> searchOptions)
+        {
+            Ensure.IsNotNull(pipeline, nameof(pipeline));
+            return pipeline.AppendStage(PipelineStageDefinitionBuilder.Search(searchDefinition, returnScope, searchOptions));
+        }
+
+        /// <summary>
         /// Appends a $searchMeta stage to the pipeline.
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents.</typeparam>
@@ -1235,6 +1329,28 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(pipeline, nameof(pipeline));
             return pipeline.AppendStage(PipelineStageDefinitionBuilder.SearchMeta(query, indexName, count));
+        }
+
+        /// <summary>
+        /// Appends a $searchMeta stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="query">The search definition.</param>
+        /// <param name="returnScope">The level of nested documents to return.</param>
+        /// <param name="indexName">The index name.</param>
+        /// <param name="count">The count options.</param>
+        /// <returns>A new pipeline with an additional stage.</returns>
+        public static PipelineDefinition<TInput, SearchMetaResult> SearchMeta<TInput, TOutput>(
+            this PipelineDefinition<TInput, TOutput> pipeline,
+            SearchDefinition<TOutput> query,
+            FieldDefinition<TOutput> returnScope,
+            string indexName = null,
+            SearchCountOptions count = null)
+        {
+            Ensure.IsNotNull(pipeline, nameof(pipeline));
+            return pipeline.AppendStage(PipelineStageDefinitionBuilder.SearchMeta(query, returnScope, indexName, count));
         }
 
         /// <summary>

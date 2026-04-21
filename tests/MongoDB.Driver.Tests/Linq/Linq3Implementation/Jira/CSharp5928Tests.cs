@@ -13,8 +13,10 @@
  * limitations under the License.
  */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using FluentAssertions;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.TestHelpers;
@@ -35,12 +37,12 @@ public class CSharp5928Tests : LinqIntegrationTest<CSharp5928Tests.ClassFixture>
         var collection = Fixture.Collection;
 
         var queryable = collection.AsQueryable()
-            .Where(c => c.CustomerId.CompareTo("AROUT".Replace("OUT".ToUpper(), c.CustomerId)) > 0);
+            .Where(c => c.CustomerId.CompareTo(Regex.Replace("AROUT", "OUT".ToUpper(), c.CustomerId, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(5))) > 0);
 
         var exception = Record.Exception(() => queryable.ToList());
 
         exception.Should().BeOfType<ExpressionNotSupportedException>().Subject
-            .Message.Should().Contain("\"AROUT\".Replace(\"OUT\", c.CustomerId).");
+            .Message.Should().Contain("Replace(\"AROUT\", \"OUT\", c.CustomerId, IgnoreCase, 00:00:05)");
     }
 
     public class C

@@ -50,11 +50,23 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods
             throw new ExpressionNotSupportedException(queryableExpression, containerExpression, because: message);
         }
 
-        public static TValue GetConstantValue<TValue>(this Expression expression, Expression containingExpression)
+        public static bool TryGetConstantValue<TValue>(this Expression expression, Expression containingExpression, out TValue value)
         {
             if (expression is ConstantExpression constantExpression)
             {
-                return (TValue)constantExpression.Value;
+                value = (TValue)constantExpression.Value;
+                return true;
+            }
+
+            value = default;
+            return false;
+        }
+
+        public static TValue GetConstantValue<TValue>(this Expression expression, Expression containingExpression)
+        {
+            if (expression.TryGetConstantValue<TValue>(containingExpression, out var value))
+            {
+                return value;
             }
 
             var message = $"Expression must be a constant: {expression} in {containingExpression}.";

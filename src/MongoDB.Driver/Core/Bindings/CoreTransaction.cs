@@ -163,6 +163,12 @@ namespace MongoDB.Driver.Core.Bindings
             }
         }
 
+        internal void ResetState()
+        {
+            _state = CoreTransactionState.Starting;
+            _isEmpty = true;
+        }
+
         internal void UnpinAll()
         {
             lock (_lock)
@@ -172,5 +178,11 @@ namespace MongoDB.Driver.Core.Bindings
                 _pinnedServer = null;
             }
         }
+
+        /// <summary>
+        /// Tracks whether any command has been successfully processed by the server in this transaction.
+        /// Used to prevent ResetState() after a backpressure retry when the server has already seen a command.
+        /// </summary>
+        internal bool HasCompletedCommand { get; set; }
     }
 }

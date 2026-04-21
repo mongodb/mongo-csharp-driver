@@ -26,7 +26,6 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.GeoJsonObjectModel;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers;
-using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators;
 
 namespace MongoDB.Driver
@@ -1935,60 +1934,6 @@ namespace MongoDB.Driver
             return fieldName == null ?
                 renderedElemMatchOperation :
                 new BsonDocument(fieldName, renderedElemMatchOperation);
-        }
-    }
-
-    internal sealed class ScalarElementMatchFilterDefinition<TDocument> : FilterDefinition<TDocument>
-    {
-        private readonly FilterDefinition<TDocument> _elementMatchFilter;
-
-        public ScalarElementMatchFilterDefinition(FilterDefinition<TDocument> elementMatchFilter)
-        {
-            _elementMatchFilter = Ensure.IsNotNull(elementMatchFilter, nameof(elementMatchFilter));
-        }
-
-        public override BsonDocument Render(RenderArgs<TDocument> args)
-        {
-            var document = _elementMatchFilter.Render(args);
-
-            var elemMatch = (BsonDocument)document[0]["$elemMatch"];
-            Compress(elemMatch);
-
-            return document;
-        }
-
-        private static void Compress(BsonDocument elemMatch)
-        {
-            BsonValue condition;
-            if (elemMatch.TryGetValue("$and", out condition))
-            {
-                var array = (BsonArray)condition;
-                foreach (BsonDocument singleCondition in array)
-                {
-                    Compress(singleCondition);
-                }
-            }
-            else if (elemMatch.TryGetValue("", out condition))
-            {
-                elemMatch.Remove("");
-
-                if (condition is BsonDocument)
-                {
-                    var nestedDocument = (BsonDocument)condition;
-                    foreach (var element in nestedDocument)
-                    {
-                        elemMatch.Add(element);
-                    }
-                }
-                else if (condition is BsonRegularExpression)
-                {
-                    elemMatch.Add("$regex", condition);
-                }
-                else
-                {
-                    elemMatch.Add("$eq", condition);
-                }
-            }
         }
     }
 

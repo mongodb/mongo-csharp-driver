@@ -244,6 +244,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors
             return node.Update(VisitAndConvert(node.InitArgs), VisitAndConvert(node.AccumulateArgs));
         }
 
+        public virtual AstNode VisitCreateObjectIdExpression(AstCreateObjectIdExpression node)
+            => node;
+
         public virtual AstNode VisitDateAddExpression(AstDateAddExpression node)
         {
             return node.Update(VisitAndConvert(node.StartDate), VisitAndConvert(node.Unit), VisitAndConvert(node.Amount), VisitAndConvert(node.Timezone));
@@ -302,6 +305,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors
         public virtual AstNode VisitDerivativeOrIntegralWindowExpression(AstDerivativeOrIntegralWindowExpression node)
         {
             return node.Update(node.Operator, VisitAndConvert(node.Arg), node.Unit, node.Window);
+        }
+
+        public virtual AstNode VisitDeserializeEJsonExpression(AstDeserializeEJsonExpression node)
+        {
+            return node.Update(VisitAndConvert(node.Input), VisitAndConvert(node.OnError));
         }
 
         public virtual AstNode VisitDocumentsStage(AstDocumentsStage node)
@@ -409,6 +417,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors
             return node.Update(VisitAndConvert(node.Id), VisitAndConvert(node.Fields));
         }
 
+        public virtual AstNode VisitHashExpression(AstHashExpression node)
+        {
+            return node.Update(VisitAndConvert(node.Value));
+        }
+
+        public virtual AstNode VisitHexHashExpression(AstHexHashExpression node)
+        {
+            return node.Update(VisitAndConvert(node.Value));
+        }
+
         public virtual AstNode VisitImpliedOperationFilterOperation(AstImpliedOperationFilterOperation node)
         {
             return node;
@@ -486,7 +504,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors
 
         public virtual AstNode VisitMapExpression(AstMapExpression node)
         {
-            return node.Update(VisitAndConvert(node.Input), VisitAndConvert(node.As), VisitAndConvert(node.In));
+            return node.Update(VisitAndConvert(node.Input), VisitAndConvert(node.As), VisitAndConvert(node.ArrayIndexAs), VisitAndConvert(node.In));
         }
 
         public virtual AstNode VisitMatchesEverythingFilter(AstMatchesEverythingFilter node)
@@ -646,7 +664,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors
 
         public virtual AstNode VisitReduceExpression(AstReduceExpression node)
         {
-            return node.Update(VisitAndConvert(node.Input), VisitAndConvert(node.InitialValue), VisitAndConvert(node.In));
+            return node.Update(VisitAndConvert(node.Input), VisitAndConvert(node.InitialValue), VisitAndConvert(node.In), VisitAndConvert(node.ArrayIndexAs));
         }
 
         public virtual AstNode VisitRegexExpression(AstRegexExpression node)
@@ -689,6 +707,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors
             return node;
         }
 
+        public virtual AstNode VisitSerializeEJsonExpression(AstSerializeEJsonExpression node)
+        {
+            return node.Update(VisitAndConvert(node.Input), VisitAndConvert(node.Relaxed), VisitAndConvert(node.OnError));
+        }
+
         public virtual AstNode VisitSetStage(AstSetStage node)
         {
             return node.Update(VisitAndConvert(node.Fields));
@@ -707,6 +730,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors
         public virtual AstNode VisitSizeFilterOperation(AstSizeFilterOperation node)
         {
             return node;
+        }
+
+        public virtual AstNode VisitSimilarityFunctionExpression(AstSimilarityFunctionExpression node)
+        {
+            return node.Update(
+                VisitAndConvert(node.Vectors1),
+                VisitAndConvert(node.Vectors2),
+                VisitAndConvert(node.Normalize));
         }
 
         public virtual AstNode VisitSkipStage(AstSkipStage node)

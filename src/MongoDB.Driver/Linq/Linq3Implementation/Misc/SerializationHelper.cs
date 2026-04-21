@@ -40,12 +40,30 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             }
         }
 
+        public static void EnsureSerializerRepresentation(Expression expression, IBsonSerializer serializer, BsonType representation)
+        {
+            var actualRepresentation = GetRepresentation(serializer);
+            if (actualRepresentation != representation)
+            {
+                throw new ExpressionNotSupportedException(expression, because: $"the expression is not represented as an {representation} in the database");
+            }
+        }
+
         public static void EnsureRepresentationIsArray(Expression expression, IBsonSerializer serializer)
         {
             var representation = GetRepresentation(serializer);
             if (representation != BsonType.Array)
             {
                 throw new ExpressionNotSupportedException(expression, because: "the expression is not represented as an array in the database");
+            }
+        }
+
+        public static void EnsureRepresentationIsBinary(Expression expression, Expression argumentExpression, IBsonSerializer argumentSerializer)
+        {
+            var argumentRepresentation = GetRepresentation(argumentSerializer);
+            if (argumentRepresentation != BsonType.Binary)
+            {
+                throw new ExpressionNotSupportedException(expression, because: $"{argumentExpression} uses a non-binary representation: {argumentRepresentation}");
             }
         }
 

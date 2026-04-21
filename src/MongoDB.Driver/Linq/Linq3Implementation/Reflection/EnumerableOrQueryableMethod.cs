@@ -57,18 +57,23 @@ internal static class EnumerableOrQueryableMethod
     private static readonly IReadOnlyMethodInfoSet __select;
     private static readonly IReadOnlyMethodInfoSet __selectManyWithCollectionSelectorAndResultSelector;
     private static readonly IReadOnlyMethodInfoSet __selectManyWithSelector;
+    private static readonly IReadOnlyMethodInfoSet __selectManyWithSelectorTakingIndex;
+    private static readonly IReadOnlyMethodInfoSet __selectWithSelectorTakingIndex;
     private static readonly IReadOnlyMethodInfoSet __single;
     private static readonly IReadOnlyMethodInfoSet __singleOrDefault;
     private static readonly IReadOnlyMethodInfoSet __singleWithPredicate;
     private static readonly IReadOnlyMethodInfoSet __singleOrDefaultWithPredicate;
     private static readonly IReadOnlyMethodInfoSet __skip;
     private static readonly IReadOnlyMethodInfoSet __skipWhile;
+    private static readonly IReadOnlyMethodInfoSet __skipWhileWithPredicateTakingIndex;
     private static readonly IReadOnlyMethodInfoSet __take;
     private static readonly IReadOnlyMethodInfoSet __takeWhile;
+    private static readonly IReadOnlyMethodInfoSet __takeWhileWithPredicateTakingIndex;
     private static readonly IReadOnlyMethodInfoSet __thenBy;
     private static readonly IReadOnlyMethodInfoSet __thenByDescending;
     private static readonly IReadOnlyMethodInfoSet __union;
     private static readonly IReadOnlyMethodInfoSet __where;
+    private static readonly IReadOnlyMethodInfoSet __whereWithPredicateTakingIndex;
     private static readonly IReadOnlyMethodInfoSet __zip;
 
     // sets of methods
@@ -108,6 +113,7 @@ internal static class EnumerableOrQueryableMethod
     private static readonly IReadOnlyMethodInfoSet __skipOrTakeOverloads;
     private static readonly IReadOnlyMethodInfoSet __skipOverloads;
     private static readonly IReadOnlyMethodInfoSet __skipWhileOrTakeWhile;
+    private static readonly IReadOnlyMethodInfoSet __skipWhileWithPredicateTakingIndexOrTakeWhileWithPredicateTakingIndex;
     private static readonly IReadOnlyMethodInfoSet __sumOverloads;
     private static readonly IReadOnlyMethodInfoSet __sumWithSelectorOverloads;
     private static readonly IReadOnlyMethodInfoSet __takeOverloads;
@@ -350,6 +356,18 @@ internal static class EnumerableOrQueryableMethod
             QueryableMethod.SelectManyWithSelector
         ]);
 
+        __selectManyWithSelectorTakingIndex = MethodInfoSet.Create(
+        [
+            EnumerableMethod.SelectManyWithSelectorTakingIndex,
+            QueryableMethod.SelectManyWithSelectorTakingIndex
+        ]);
+
+        __selectWithSelectorTakingIndex = MethodInfoSet.Create(
+        [
+            EnumerableMethod.SelectWithSelectorTakingIndex,
+            QueryableMethod.SelectWithSelectorTakingIndex
+        ]);
+
         __single = MethodInfoSet.Create(
         [
             EnumerableMethod.Single,
@@ -386,6 +404,12 @@ internal static class EnumerableOrQueryableMethod
             QueryableMethod.SkipWhile
         ]);
 
+        __skipWhileWithPredicateTakingIndex = MethodInfoSet.Create(
+        [
+            EnumerableMethod.SkipWhileWithPredicateTakingIndex,
+            QueryableMethod.SkipWhileWithPredicateTakingIndex
+        ]);
+
         __take = MethodInfoSet.Create(
         [
             EnumerableMethod.Take,
@@ -396,6 +420,12 @@ internal static class EnumerableOrQueryableMethod
         [
             EnumerableMethod.TakeWhile,
             QueryableMethod.TakeWhile
+        ]);
+
+        __takeWhileWithPredicateTakingIndex = MethodInfoSet.Create(
+        [
+            EnumerableMethod.TakeWhileWithPredicateTakingIndex,
+            QueryableMethod.TakeWhileWithPredicateTakingIndex
         ]);
 
         __thenBy = MethodInfoSet.Create(
@@ -420,6 +450,12 @@ internal static class EnumerableOrQueryableMethod
         [
             EnumerableMethod.Where,
             QueryableMethod.Where,
+        ]);
+
+        __whereWithPredicateTakingIndex = MethodInfoSet.Create(
+        [
+            EnumerableMethod.WhereWithPredicateTakingIndex,
+            QueryableMethod.WhereWithPredicateTakingIndex
         ]);
 
         __zip = MethodInfoSet.Create(
@@ -720,13 +756,22 @@ internal static class EnumerableOrQueryableMethod
         [
             __skip,
             __skipWhile, // it's convenient to treat SkipWhile as if it was an overload
+            __skipWhileWithPredicateTakingIndex,
             [MongoQueryableMethod.SkipWithLong] // it's convenient to group our custom Skip method with the EnumerableOrQueryable Skip methods
         ]);
 
         __skipWhileOrTakeWhile = MethodInfoSet.Create(
         [
             __skipWhile,
-            __takeWhile
+            __skipWhileWithPredicateTakingIndex,
+            __takeWhile,
+            __takeWhileWithPredicateTakingIndex
+        ]);
+
+        __skipWhileWithPredicateTakingIndexOrTakeWhileWithPredicateTakingIndex = MethodInfoSet.Create(
+        [
+            __skipWhileWithPredicateTakingIndex,
+            __takeWhileWithPredicateTakingIndex
         ]);
 
         __sumOverloads = MethodInfoSet.Create(
@@ -801,6 +846,7 @@ internal static class EnumerableOrQueryableMethod
         [
             __take,
             __takeWhile, // it's convenient to treat TakeWhile as if it was an overload of Take
+            __takeWhileWithPredicateTakingIndex,
             [MongoQueryableMethod.TakeWithLong] // it's convenient to group our custom Take method with the EnumerableOrQueryable Take methods
         ]);
 
@@ -899,16 +945,21 @@ internal static class EnumerableOrQueryableMethod
     public static IReadOnlyMethodInfoSet Select => __select;
     public static IReadOnlyMethodInfoSet SelectManyWithCollectionSelectorAndResultSelector => __selectManyWithCollectionSelectorAndResultSelector;
     public static IReadOnlyMethodInfoSet SelectManyWithSelector => __selectManyWithSelector;
+    public static IReadOnlyMethodInfoSet SelectManyWithSelectorTakingIndex => __selectManyWithSelectorTakingIndex;
+    public static IReadOnlyMethodInfoSet SelectWithSelectorTakingIndex => __selectWithSelectorTakingIndex;
     public static IReadOnlyMethodInfoSet Single => __single;
     public static IReadOnlyMethodInfoSet SingleOrDefault => __singleOrDefault;
     public static IReadOnlyMethodInfoSet SingleOrDefaultWithPredicate => __singleOrDefaultWithPredicate;
     public static IReadOnlyMethodInfoSet SingleWithPredicate => __singleWithPredicate;
     public static IReadOnlyMethodInfoSet Skip => __skip;
     public static IReadOnlyMethodInfoSet SkipWhile => __skipWhile;
+    public static IReadOnlyMethodInfoSet SkipWhileWithPredicateTakingIndex => __skipWhileWithPredicateTakingIndex;
     public static IReadOnlyMethodInfoSet Take => __take;
     public static IReadOnlyMethodInfoSet TakeWhile => __takeWhile;
+    public static IReadOnlyMethodInfoSet TakeWhileWithPredicateTakingIndex => __takeWhileWithPredicateTakingIndex;
     public static IReadOnlyMethodInfoSet Union => __union;
     public static IReadOnlyMethodInfoSet Where => __where;
+    public static IReadOnlyMethodInfoSet WhereWithPredicateTakingIndex => __whereWithPredicateTakingIndex;
     public static IReadOnlyMethodInfoSet Zip => __zip;
 
     // sets of methods
@@ -948,6 +999,7 @@ internal static class EnumerableOrQueryableMethod
     public static IReadOnlyMethodInfoSet SkipOrTakeOverloads => __skipOrTakeOverloads;
     public static IReadOnlyMethodInfoSet SkipOverloads => __skipOverloads;
     public static IReadOnlyMethodInfoSet SkipWhileOrTakeWhile => __skipWhileOrTakeWhile;
+    public static IReadOnlyMethodInfoSet SkipWhileWithPredicateTakingIndexOrTakeWhileWithPredicateTakingIndex => __skipWhileWithPredicateTakingIndexOrTakeWhileWithPredicateTakingIndex;
     public static IReadOnlyMethodInfoSet SumOverloads => __sumOverloads;
     public static IReadOnlyMethodInfoSet SumWithSelectorOverloads => __sumWithSelectorOverloads;
     public static IReadOnlyMethodInfoSet TakeOverloads => __takeOverloads;

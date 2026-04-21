@@ -601,6 +601,9 @@ namespace MongoDB.Driver.GridFS
             var messageEncoderSettings = this.GetMessageEncoderSettings();
             return new CreateIndexesOperation(collectionNamespace, requests, messageEncoderSettings)
             {
+                EnableOverloadRetargeting = _database.Client.Settings.EnableOverloadRetargeting,
+                MaxAdaptiveRetries = _database.Client.Settings.MaxAdaptiveRetries,
+                RetryRequested = _database.Client.Settings.RetryWrites,
                 WriteConcern = _options.WriteConcern ?? _database.Settings.WriteConcern
             };
         }
@@ -612,6 +615,9 @@ namespace MongoDB.Driver.GridFS
             var messageEncoderSettings = this.GetMessageEncoderSettings();
             return new CreateIndexesOperation(collectionNamespace, requests, messageEncoderSettings)
             {
+                EnableOverloadRetargeting = _database.Client.Settings.EnableOverloadRetargeting,
+                MaxAdaptiveRetries = _database.Client.Settings.MaxAdaptiveRetries,
+                RetryRequested = _database.Client.Settings.RetryWrites,
                 WriteConcern = _options.WriteConcern ?? _database.Settings.WriteConcern
             };
         }
@@ -622,20 +628,29 @@ namespace MongoDB.Driver.GridFS
             return new BulkMixedWriteOperation(
                 this.GetChunksCollectionNamespace(),
                 new[] { new DeleteRequest(filter) { Limit = 0 } },
-                this.GetMessageEncoderSettings());
+                this.GetMessageEncoderSettings())
+            {
+                EnableOverloadRetargeting = _database.Client.Settings.EnableOverloadRetargeting,
+                MaxAdaptiveRetries = _database.Client.Settings.MaxAdaptiveRetries,
+                RetryRequested = _database.Client.Settings.RetryWrites
+            };
         }
 
         private GridFSDownloadStream<TFileId> CreateDownloadStream(IReadBindingHandle binding, GridFSFileInfo<TFileId> fileInfo, GridFSDownloadOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             var seekable = options.Seekable ?? false;
 
+            var clientSettings = _database.Client.Settings;
+            var retryReads = clientSettings.RetryReads;
+            var maxAdaptiveRetries = clientSettings.MaxAdaptiveRetries;
+            var enableOverloadRetargeting = clientSettings.EnableOverloadRetargeting;
             if (seekable)
             {
-                return new GridFSSeekableDownloadStream<TFileId>(this, binding, fileInfo);
+                return new GridFSSeekableDownloadStream<TFileId>(this, binding, fileInfo) { EnableOverloadRetargeting = enableOverloadRetargeting, MaxAdaptiveRetries = maxAdaptiveRetries, RetryReads = retryReads };
             }
             else
             {
-                return new GridFSForwardOnlyDownloadStream<TFileId>(this, binding, fileInfo);
+                return new GridFSForwardOnlyDownloadStream<TFileId>(this, binding, fileInfo) { EnableOverloadRetargeting = enableOverloadRetargeting, MaxAdaptiveRetries = maxAdaptiveRetries, RetryReads = retryReads };
             }
         }
 
@@ -643,6 +658,9 @@ namespace MongoDB.Driver.GridFS
         {
             return new DropCollectionOperation(collectionNamespace, messageEncoderSettings)
             {
+                EnableOverloadRetargeting = _database.Client.Settings.EnableOverloadRetargeting,
+                MaxAdaptiveRetries = _database.Client.Settings.MaxAdaptiveRetries,
+                RetryRequested = _database.Client.Settings.RetryWrites,
                 WriteConcern = _options.WriteConcern ?? _database.Settings.WriteConcern
             };
         }
@@ -653,7 +671,12 @@ namespace MongoDB.Driver.GridFS
             return new BulkMixedWriteOperation(
                 this.GetFilesCollectionNamespace(),
                 new[] { new DeleteRequest(filter) },
-                this.GetMessageEncoderSettings());
+                this.GetMessageEncoderSettings())
+            {
+                EnableOverloadRetargeting = _database.Client.Settings.EnableOverloadRetargeting,
+                MaxAdaptiveRetries = _database.Client.Settings.MaxAdaptiveRetries,
+                RetryRequested = _database.Client.Settings.RetryWrites
+            };
         }
 
         private void CreateFilesCollectionIndexes(OperationContext operationContext, IReadWriteBindingHandle binding)
@@ -686,8 +709,10 @@ namespace MongoDB.Driver.GridFS
             {
                 AllowDiskUse = options.AllowDiskUse,
                 BatchSize = options.BatchSize,
+                EnableOverloadRetargeting = _database.Client.Settings.EnableOverloadRetargeting,
                 Filter = renderedFilter,
                 Limit = options.Limit,
+                MaxAdaptiveRetries = _database.Client.Settings.MaxAdaptiveRetries,
                 MaxTime = options.MaxTime,
                 NoCursorTimeout = options.NoCursorTimeout,
                 ReadConcern = GetReadConcern(),
@@ -711,8 +736,10 @@ namespace MongoDB.Driver.GridFS
                 _fileInfoSerializer,
                 messageEncoderSettings)
             {
+                EnableOverloadRetargeting = _database.Client.Settings.EnableOverloadRetargeting,
                 Filter = filter,
                 Limit = limit,
+                MaxAdaptiveRetries = _database.Client.Settings.MaxAdaptiveRetries,
                 ReadConcern = GetReadConcern(),
                 RetryRequested = _database.Client.Settings.RetryReads,
                 Skip = skip,
@@ -731,8 +758,10 @@ namespace MongoDB.Driver.GridFS
                 _fileInfoSerializer,
                 messageEncoderSettings)
             {
+                EnableOverloadRetargeting = _database.Client.Settings.EnableOverloadRetargeting,
                 Filter = filter,
                 Limit = 1,
+                MaxAdaptiveRetries = _database.Client.Settings.MaxAdaptiveRetries,
                 ReadConcern = GetReadConcern(),
                 RetryRequested = _database.Client.Settings.RetryReads,
                 SingleBatch = true
@@ -745,11 +774,13 @@ namespace MongoDB.Driver.GridFS
             var messageEncoderSettings = this.GetMessageEncoderSettings();
             return new FindOperation<BsonDocument>(filesCollectionNamespace, BsonDocumentSerializer.Instance, messageEncoderSettings)
             {
+                EnableOverloadRetargeting = _database.Client.Settings.EnableOverloadRetargeting,
                 Limit = 1,
-                ReadConcern = GetReadConcern(),
-                SingleBatch = true,
+                MaxAdaptiveRetries = _database.Client.Settings.MaxAdaptiveRetries,
                 Projection = new BsonDocument("_id", 1),
-                RetryRequested = _database.Client.Settings.RetryReads
+                ReadConcern = GetReadConcern(),
+                RetryRequested = _database.Client.Settings.RetryReads,
+                SingleBatch = true
             };
         }
 
@@ -758,6 +789,8 @@ namespace MongoDB.Driver.GridFS
             var messageEncoderSettings = this.GetMessageEncoderSettings();
             return new ListIndexesOperation(collectionNamespace, messageEncoderSettings)
             {
+                EnableOverloadRetargeting = _database.Client.Settings.EnableOverloadRetargeting,
+                MaxAdaptiveRetries = _database.Client.Settings.MaxAdaptiveRetries,
                 RetryRequested = _database.Client.Settings.RetryReads
             };
         }
@@ -769,7 +802,12 @@ namespace MongoDB.Driver.GridFS
             var update = new BsonDocument("$set", new BsonDocument("filename", newFilename));
             var requests = new[] { new UpdateRequest(UpdateType.Update, filter, update) };
             var messageEncoderSettings = this.GetMessageEncoderSettings();
-            return new BulkMixedWriteOperation(filesCollectionNamespace, requests, messageEncoderSettings);
+            return new BulkMixedWriteOperation(filesCollectionNamespace, requests, messageEncoderSettings)
+            {
+                EnableOverloadRetargeting = _database.Client.Settings.EnableOverloadRetargeting,
+                MaxAdaptiveRetries = _database.Client.Settings.MaxAdaptiveRetries,
+                RetryRequested = _database.Client.Settings.RetryWrites
+            };
         }
 
         private GridFSUploadStream<TFileId> CreateUploadStream(IReadWriteBindingHandle binding, TFileId id, string filename, GridFSUploadOptions options)
@@ -822,7 +860,7 @@ namespace MongoDB.Driver.GridFS
         private void DownloadToStreamHelper(IReadBindingHandle binding, GridFSFileInfo<TFileId> fileInfo, Stream destination, GridFSDownloadOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             var retryReads = _database.Client.Settings.RetryReads;
-            using (var source = new GridFSForwardOnlyDownloadStream<TFileId>(this, binding.Fork(), fileInfo) { RetryReads = retryReads })
+            using (var source = new GridFSForwardOnlyDownloadStream<TFileId>(this, binding.Fork(), fileInfo) { RetryReads = retryReads})
             {
                 var count = source.Length;
                 var buffer = new byte[fileInfo.ChunkSizeBytes];
@@ -840,7 +878,7 @@ namespace MongoDB.Driver.GridFS
         private async Task DownloadToStreamHelperAsync(IReadBindingHandle binding, GridFSFileInfo<TFileId> fileInfo, Stream destination, GridFSDownloadOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             var retryReads = _database.Client.Settings.RetryReads;
-            using (var source = new GridFSForwardOnlyDownloadStream<TFileId>(this, binding.Fork(), fileInfo) { RetryReads = retryReads })
+            using (var source = new GridFSForwardOnlyDownloadStream<TFileId>(this, binding.Fork(), fileInfo) { RetryReads = retryReads})
             {
                 var count = source.Length;
                 var buffer = new byte[fileInfo.ChunkSizeBytes];
@@ -1003,7 +1041,7 @@ namespace MongoDB.Driver.GridFS
             var readPreference = _options.ReadPreference ?? _database.Settings.ReadPreference;
             var selector = new ReadPreferenceServerSelector(readPreference);
             var server = _cluster.SelectServer(operationContext, selector);
-            var binding = new SingleServerReadBinding(server, readPreference, NoCoreSession.NewHandle());
+            var binding = new SingleServerReadBinding(server, readPreference, NoCoreSession.NewHandle(), _cluster.Settings.ServerSelectionTimeout);
             return new ReadBindingHandle(binding);
         }
 
@@ -1012,7 +1050,7 @@ namespace MongoDB.Driver.GridFS
             var readPreference = _options.ReadPreference ?? _database.Settings.ReadPreference;
             var selector = new ReadPreferenceServerSelector(readPreference);
             var server = await _cluster.SelectServerAsync(operationContext, selector).ConfigureAwait(false);
-            var binding = new SingleServerReadBinding(server, readPreference, NoCoreSession.NewHandle());
+            var binding = new SingleServerReadBinding(server, readPreference, NoCoreSession.NewHandle(), _cluster.Settings.ServerSelectionTimeout);
             return new ReadBindingHandle(binding);
         }
 

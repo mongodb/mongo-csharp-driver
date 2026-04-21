@@ -2203,7 +2203,7 @@ task_groups:
             - "AWS_SECRET_ACCESS_KEY"
             - "AWS_SESSION_TOKEN"
           env:
-            CLUSTER_PREFIX: dbx-csharp-search-index
+            CLUSTER_PREFIX: dbx-csharp-index
             MONGODB_VERSION: "8.0"
           args:
             - ${DRIVERS_TOOLS}/.evergreen/atlas/setup-atlas-cluster.sh

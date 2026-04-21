@@ -263,6 +263,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
         public static AstExpression Convert(
             AstExpression input,
             AstExpression to,
+            ConvertBase? @base = null,
             BsonBinarySubType? subType = null,
             ByteOrder? byteOrder = null,
             string format = null,
@@ -273,6 +274,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             Ensure.IsNotNull(to, nameof(to));
 
             if (to.IsStringConstant(out var toValue) &&
+                @base == null &&
                 subType == null &&
                 byteOrder == null &&
                 format == null &&
@@ -281,12 +283,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             {
                 var unaryOperator = toValue switch
                 {
+                    "array" => AstUnaryOperator.ToArray,
                     "bool" => AstUnaryOperator.ToBool,
                     "date" => AstUnaryOperator.ToDate,
                     "decimal" => AstUnaryOperator.ToDecimal,
                     "double" => AstUnaryOperator.ToDouble,
                     "int" => AstUnaryOperator.ToInt,
                     "long" => AstUnaryOperator.ToLong,
+                    "object" => AstUnaryOperator.ToObject,
                     "objectId" => AstUnaryOperator.ToObjectId,
                     "string" => AstUnaryOperator.ToString,
                     _ => (AstUnaryOperator?)null
@@ -298,7 +302,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
                 }
             }
 
-            return new AstConvertExpression(input, to, subType, byteOrder, format, onError, onNull);
+            return new AstConvertExpression(input, to, @base, subType, byteOrder, format, onError, onNull);
         }
 
         public static AstExpression DateAdd(
@@ -377,6 +381,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return new AstDerivativeOrIntegralWindowExpression(@operator, arg, unit, window);
         }
 
+        public static AstExpression DeserializeEJson(
+            AstExpression input,
+            AstExpression onError = null)
+        {
+            return new AstDeserializeEJsonExpression(input, onError);
+        }
+
         public static AstExpression Divide(AstExpression arg1, AstExpression arg2)
         {
             if (arg1.IsConstant(out var constant1) && arg2.IsConstant(out var constant2))
@@ -424,9 +435,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return new AstFieldPathExpression(path);
         }
 
-        public static AstExpression Filter(AstExpression input, AstExpression cond, string @as, AstExpression limit = null)
+        public static AstExpression Filter(AstExpression input, AstExpression cond, string @as, AstExpression limit = null, string arrayIndexAs = null)
         {
-            return new AstFilterExpression(input, cond, @as, limit);
+            return new AstFilterExpression(input, cond, @as, limit, arrayIndexAs);
         }
 
         public static AstExpression First(AstExpression array)
@@ -438,6 +449,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
         {
             return new AstUnaryExpression(AstUnaryOperator.Floor, arg);
         }
+
+        public static AstCreateObjectIdExpression CreateObjectId()
+            => new();
 
         public static AstGetFieldExpression GetField(AstExpression input, AstExpression fieldName)
         {
@@ -453,6 +467,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
         {
             return new AstBinaryExpression(AstBinaryOperator.Gte, arg1, arg2);
         }
+
+        public static AstHashExpression HashExpression(AstExpression input, MqlHashAlgorithm mqlHashAlgorithm)
+            => new AstHashExpression(input, mqlHashAlgorithm);
+
+        public static AstHexHashExpression HexHashExpression(AstExpression input, MqlHashAlgorithm mqlHashAlgorithm)
+            => new AstHexHashExpression(input, mqlHashAlgorithm);
 
         public static AstExpression IfNull(AstExpression arg, AstExpression replacement)
         {
@@ -582,9 +602,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return new AstLTrimExpression(input, chars);
         }
 
-        public static AstExpression Map(AstExpression input, AstVarExpression @as, AstExpression @in)
+        public static AstExpression Map(AstExpression input, AstVarExpression @as, AstExpression @in, AstVarExpression arrayIndexAs = null)
         {
-            return new AstMapExpression(input, @as, @in);
+            return new AstMapExpression(input, @as, @in, arrayIndexAs);
         }
 
         public static AstExpression Max(AstExpression array)
@@ -713,13 +733,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return new AstRangeExpression(start, end, step);
         }
 
-        public static AstExpression Reduce(AstExpression input, AstExpression initialValue, AstExpression @in)
+        public static AstExpression Reduce(AstExpression input, AstExpression initialValue, AstExpression @in, AstVarExpression arrayIndexAs = null)
         {
-            return new AstReduceExpression(input, initialValue, @in);
+            return new AstReduceExpression(input, initialValue, @in, arrayIndexAs);
         }
 
         public static AstExpression RegexMatch(AstExpression input, string pattern, string options)
             => new AstRegexExpression(AstRegexOperator.Match, input, pattern, options);
+
+        public static AstExpression ReplaceAll(AstExpression input, AstExpression find, AstExpression replace)
+            => new AstReplaceAllExpression(input, find, replace);
 
         public static AstExpression ReverseArray(AstExpression array)
         {
@@ -739,6 +762,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
         public static AstExpression RTrim(AstExpression input, AstExpression chars = null)
         {
             return new AstRTrimExpression(input, chars);
+        }
+
+        public static AstExpression SerializeEJson(
+            AstExpression input,
+            AstExpression relaxed = null,
+            AstExpression onError = null)
+        {
+            return new AstSerializeEJsonExpression(input, relaxed, onError);
         }
 
         public static AstExpression SetDifference(AstExpression arg1, AstExpression arg2)
@@ -784,6 +815,24 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
         public static AstExpression Size(AstExpression arg)
         {
             return new AstUnaryExpression(AstUnaryOperator.Size, arg);
+        }
+
+        public static AstExpression Cosine(
+            AstExpression vectors1, AstExpression vectors2, AstExpression normalize)
+        {
+            return new AstSimilarityFunctionExpression("$similarityCosine", vectors1, vectors2, normalize);
+        }
+
+        public static AstExpression DotProduct(
+            AstExpression vectors1, AstExpression vectors2, AstExpression normalize)
+        {
+            return new AstSimilarityFunctionExpression("$similarityDotProduct", vectors1, vectors2, normalize);
+        }
+
+        public static AstExpression Euclidean(
+            AstExpression vectors1, AstExpression vectors2, AstExpression normalize)
+        {
+            return new AstSimilarityFunctionExpression("$similarityEuclidean", vectors1, vectors2, normalize);
         }
 
         public static AstExpression Slice(AstExpression array, AstExpression n)

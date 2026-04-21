@@ -270,6 +270,12 @@ namespace MongoDB.Driver
             if (IsTimedOut(operationContext, delay))
             {
                 delay = TimeSpan.Zero;
+                if (operationContext.IsRootContextTimeoutConfigured())
+                {
+                    throw new TimeoutException("The operation has timed out", ex);
+                }
+
+                delay = TimeSpan.Zero;
                 return false;
             }
 

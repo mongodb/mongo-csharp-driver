@@ -235,6 +235,52 @@ namespace MongoDB.Driver.Search
             new(_area.Render());
     }
 
+    internal sealed class HasAncestorSearchDefinition<TDocument> : OperatorSearchDefinition<TDocument>
+    {
+        private readonly FieldDefinition<TDocument> _ancestorPath;
+        private readonly SearchDefinition<TDocument> _operator;
+
+        public HasAncestorSearchDefinition(
+            FieldDefinition<TDocument> ancestorPath,
+            SearchDefinition<TDocument> @operator,
+            SearchScoreDefinition<TDocument> score)
+            : base(OperatorType.HasAncestor, score)
+        {
+            _ancestorPath = Ensure.IsNotNull(ancestorPath, nameof(ancestorPath));
+            _operator = Ensure.IsNotNull(@operator, nameof(@operator));
+        }
+
+        private protected override BsonDocument RenderArguments(
+            RenderArgs<TDocument> args,
+            IBsonSerializer fieldSerializer)
+            => new()
+            {
+                { "ancestorPath", _ancestorPath.Render(args).FieldName },
+                { "operator", _operator.Render(args with { PathRenderArgs = args.PathRenderArgs with { PathPrefix = null } }) }
+            };
+    }
+
+    internal sealed class HasRootSearchDefinition<TDocument> : OperatorSearchDefinition<TDocument>
+    {
+        private readonly SearchDefinition<TDocument> _operator;
+
+        public HasRootSearchDefinition(
+            SearchDefinition<TDocument> @operator,
+            SearchScoreDefinition<TDocument> score)
+            : base(OperatorType.HasRoot, score)
+        {
+            _operator = Ensure.IsNotNull(@operator, nameof(@operator));
+        }
+
+        private protected override BsonDocument RenderArguments(
+            RenderArgs<TDocument> args,
+            IBsonSerializer fieldSerializer)
+            => new()
+            {
+                { "operator", _operator.Render(args with { PathRenderArgs = args.PathRenderArgs with { PathPrefix = null } }) }
+            };
+    }
+
     internal sealed class InSearchDefinition<TDocument, TField> : OperatorSearchDefinition<TDocument>
     {
         private readonly TField[] _values;

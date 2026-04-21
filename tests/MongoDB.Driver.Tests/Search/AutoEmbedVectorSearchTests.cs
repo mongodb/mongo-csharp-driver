@@ -42,7 +42,7 @@ public class AutoEmbedVectorSearchTests : LoggableTestClass
     {
         SkipTests();
 
-        _mongoClient = AtlasSearchTestsUtils.CreateAtlasSearchMongoClient();
+        (_mongoClient, _) = AtlasSearchTestsUtils.CreateAtlasSearchMongoClient();
 
         _collection = _mongoClient.GetDatabase("dotnet-test").GetCollection<Movie>(GetRandomName());
         _autoEmbedIndexName = GetRandomName();

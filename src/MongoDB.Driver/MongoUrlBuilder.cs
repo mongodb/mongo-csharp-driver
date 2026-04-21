@@ -41,6 +41,7 @@ namespace MongoDB.Driver
         private TimeSpan _connectTimeout;
         private string _databaseName;
         private bool _directConnection;
+        private bool? _enableOverloadRetargeting;
         private bool? _fsync;
         private TimeSpan _heartbeatInterval;
         private TimeSpan _heartbeatTimeout;
@@ -48,6 +49,7 @@ namespace MongoDB.Driver
         private bool? _journal;
         private bool _loadBalanced;
         private TimeSpan _localThreshold;
+        private int? _maxAdaptiveRetries;
         private TimeSpan _maxConnectionIdleTime;
         private TimeSpan _maxConnectionLifeTime;
         private int _maxConnecting;
@@ -95,6 +97,7 @@ namespace MongoDB.Driver
             _connectTimeout = MongoDefaults.ConnectTimeout;
             _databaseName = null;
             _directConnection = false;
+            _enableOverloadRetargeting = null;
             _fsync = null;
             _heartbeatInterval = ServerSettings.DefaultHeartbeatInterval;
             _heartbeatTimeout = ServerSettings.DefaultHeartbeatTimeout;
@@ -102,6 +105,7 @@ namespace MongoDB.Driver
             _journal = null;
             _loadBalanced = false;
             _localThreshold = MongoDefaults.LocalThreshold;
+            _maxAdaptiveRetries = null;
             _maxConnecting = MongoInternalDefaults.ConnectionPool.MaxConnecting;
             _maxConnectionIdleTime = MongoDefaults.MaxConnectionIdleTime;
             _maxConnectionLifeTime = MongoDefaults.MaxConnectionLifeTime;
@@ -270,6 +274,15 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets or sets whether overload retargeting is enabled.
+        /// </summary>
+        public bool? EnableOverloadRetargeting
+        {
+            get { return _enableOverloadRetargeting; }
+            set { _enableOverloadRetargeting = value; }
+        }
+
+        /// <summary>
         /// Gets or sets the FSync component of the write concern.
         /// </summary>
         public bool? FSync
@@ -360,6 +373,15 @@ namespace MongoDB.Driver
                 }
                 _localThreshold = value;
             }
+        }
+
+        /// <summary>
+        /// Gets or sets the maximum number of adaptive retries.
+        /// </summary>
+        public int? MaxAdaptiveRetries
+        {
+            get { return _maxAdaptiveRetries; }
+            set { _maxAdaptiveRetries = value; }
         }
 
         /// <summary>
@@ -936,6 +958,10 @@ namespace MongoDB.Driver
             {
                 query.AppendFormat("directConnection=true&");
             }
+            if (_enableOverloadRetargeting.GetValueOrDefault(false))
+            {
+                query.AppendFormat("enableOverloadRetargeting=true&");
+            }
             if (!string.IsNullOrEmpty(_replicaSetName))
             {
                 query.AppendFormat("replicaSet={0}&", _replicaSetName);
@@ -994,6 +1020,10 @@ namespace MongoDB.Driver
             if (_localThreshold != MongoDefaults.LocalThreshold)
             {
                 query.AppendFormat("localThreshold={0}&", FormatTimeSpan(_localThreshold));
+            }
+            if (_maxAdaptiveRetries.HasValue)
+            {
+                query.AppendFormat("maxAdaptiveRetries={0}&", _maxAdaptiveRetries.Value);
             }
             if (_maxConnecting != MongoInternalDefaults.ConnectionPool.MaxConnecting)
             {
@@ -1104,6 +1134,7 @@ namespace MongoDB.Driver
             _connectTimeout = connectionString.ConnectTimeout.GetValueOrDefault(MongoDefaults.ConnectTimeout);
             _databaseName = connectionString.DatabaseName;
             _directConnection = connectionString.DirectConnection;
+            _enableOverloadRetargeting = connectionString.EnableOverloadRetargeting;
             _fsync = connectionString.FSync;
             _heartbeatInterval = connectionString.HeartbeatInterval ?? ServerSettings.DefaultHeartbeatInterval;
             _heartbeatTimeout = connectionString.HeartbeatTimeout ?? ServerSettings.DefaultHeartbeatTimeout;
@@ -1111,6 +1142,7 @@ namespace MongoDB.Driver
             _journal = connectionString.Journal;
             _loadBalanced = connectionString.LoadBalanced;
             _localThreshold = connectionString.LocalThreshold.GetValueOrDefault(MongoDefaults.LocalThreshold);
+            _maxAdaptiveRetries = connectionString.MaxAdaptiveRetries;
             _maxConnecting = connectionString.MaxConnecting.GetValueOrDefault(MongoInternalDefaults.ConnectionPool.MaxConnecting);
             _maxConnectionIdleTime = connectionString.MaxIdleTime.GetValueOrDefault(MongoDefaults.MaxConnectionIdleTime);
             _maxConnectionLifeTime = connectionString.MaxLifeTime.GetValueOrDefault(MongoDefaults.MaxConnectionLifeTime);

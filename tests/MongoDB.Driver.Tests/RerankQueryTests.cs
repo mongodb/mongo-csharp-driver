@@ -1,0 +1,51 @@
+/* Copyright 2010-present MongoDB Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
+using System;
+using FluentAssertions;
+using Xunit;
+
+namespace MongoDB.Driver.Tests;
+
+public class RerankQueryTests
+{
+    [Fact]
+    public void Text_should_create_query_with_expected_rendering()
+    {
+        var query = RerankQuery.Text("machine learning");
+
+        var rendered = query.Render();
+
+        rendered.Should().Be("{ text: 'machine learning' }");
+    }
+
+    [Fact]
+    public void Text_should_throw_when_text_is_null()
+    {
+        var exception = Record.Exception(() => RerankQuery.Text(null));
+
+        exception.Should().BeOfType<ArgumentNullException>()
+            .Which.ParamName.Should().Be("text");
+    }
+
+    [Fact]
+    public void Text_should_throw_when_text_is_empty()
+    {
+        var exception = Record.Exception(() => RerankQuery.Text(""));
+
+        exception.Should().BeOfType<ArgumentException>()
+            .Which.ParamName.Should().Be("text");
+    }
+}

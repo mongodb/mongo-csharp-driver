@@ -45,13 +45,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var toBsonType = GetResultRepresentation(expression, toType);
             var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
             var toSerializer = context.GetSerializer(expression);
-            var (subType, byteOrder, format, onErrorAst, onNullAst) = TranslateOptions(context, expression, optionsExpression, toSerializer);
+            var (@base, subType, byteOrder, format, onErrorAst, onNullAst) = TranslateOptions(context, expression, optionsExpression, toSerializer);
 
-            var ast = AstExpression.Convert(valueTranslation.Ast, toBsonType.Render(), subType, byteOrder, format, onErrorAst, onNullAst);
+            var ast = AstExpression.Convert(valueTranslation.Ast, toBsonType.Render(), @base, subType, byteOrder, format, onErrorAst, onNullAst);
             return new TranslatedExpression(expression, ast, toSerializer);
         }
 
-        private static (BsonBinarySubType? subType, ByteOrder? byteOrder, string format, AstExpression onErrorAst, AstExpression onNullAst)
+        private static (ConvertBase? @base, BsonBinarySubType? subType, ByteOrder? byteOrder, string format, AstExpression onErrorAst, AstExpression onNullAst)
             TranslateOptions(
                 TranslationContext context,
                 Expression expression,
@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             };
         }
 
-        private static (BsonBinarySubType? subType, ByteOrder? byteOrder, string format, AstExpression onErrorAst, AstExpression onNullAst)
+        private static (ConvertBase? @base, BsonBinarySubType? subType, ByteOrder? byteOrder, string format, AstExpression onErrorAst, AstExpression onNullAst)
             TranslateOptions(
                 ConstantExpression optionsExpression,
                 IBsonSerializer toSerializer)
@@ -90,10 +90,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 }
             }
 
-            return (options?.SubType, options?.ByteOrder, options?.Format, onErrorAst, onNullAst);
+            return (options?.Base, options?.SubType, options?.ByteOrder, options?.Format, onErrorAst, onNullAst);
         }
 
-        private static (BsonBinarySubType? subType, ByteOrder? byteOrder, string format, AstExpression onErrorAst, AstExpression onNullAst)
+        private static (ConvertBase? @base, BsonBinarySubType? subType, ByteOrder? byteOrder, string format, AstExpression onErrorAst, AstExpression onNullAst)
             TranslateOptions(
                 TranslationContext context,
                 Expression expression,
@@ -101,6 +101,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 IBsonSerializer toSerializer
             )
         {
+            ConvertBase? @base = null;
             BsonBinarySubType? subType = null;
             ByteOrder? byteOrder = null;
             string format = null;
@@ -119,6 +120,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                 switch (memberName)
                 {
+                    case nameof(ConvertOptions.Base):
+                        @base = memberExpression.GetConstantValue<ConvertBase?>(expression);
+                        break;
                     case nameof(ConvertOptions.ByteOrder):
                         byteOrder = memberExpression.GetConstantValue<ByteOrder?>(expression);
                         break;
@@ -141,7 +145,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 }
             }
 
-            return (subType, byteOrder, format, onErrorTranslation?.Ast, onNullTranslation?.Ast);
+            return (@base, subType, byteOrder, format, onErrorTranslation?.Ast, onNullTranslation?.Ast);
         }
 
         private static BsonType GetResultRepresentation(Expression expression, Type toType)
@@ -167,6 +171,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 TypeCode.UInt32 => BsonType.Int64,
                 TypeCode.UInt64 => BsonType.Decimal128,
 
+                _ when valueType == typeof(BsonArray) => BsonType.Array,
+                _ when valueType == typeof(BsonDocument) => BsonType.Document,
                 _ when valueType == typeof(byte[]) => BsonType.Binary,
                 _ when valueType == typeof(BsonBinaryData) => BsonType.Binary,
                 _ when valueType == typeof(Decimal128) => BsonType.Decimal128,

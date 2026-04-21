@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -62,6 +63,13 @@ namespace MongoDB.Driver
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
+
+        /// <summary>
+        /// Creates a new unique ObjectId using the $createObjectId aggregation operator.
+        /// </summary>
+        /// <returns>A ObjectId.</returns>
+        public static ObjectId CreateObjectId() =>
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
 
         /// <summary>
         /// Converts a string to a DateTime using the $dateFromString aggregation operator.
@@ -121,6 +129,19 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Deserializes Extended JSON values back to native BSON types using the $deserializeEJSON aggregation operator.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input value.</typeparam>
+        /// <typeparam name="TOutput">The type of the output value.</typeparam>
+        /// <param name="value">The value to deserialize.</param>
+        /// <param name="options">The deserialization options.</param>
+        /// <returns>The deserialized value.</returns>
+        public static TOutput DeserializeEJson<TInput, TOutput>(TInput value, DeserializeEJsonOptions<TOutput> options = null)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
         /// Tests whether a field exists.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
@@ -146,6 +167,26 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Generates a binary hash for an input expression.
+        /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="value">The value.</param>
+        /// <param name="algorithm">The hashing algorithm.</param>
+        /// <returns>Generated hash as binary data.</returns>
+        public static BsonBinaryData Hash<TValue>(TValue value, MqlHashAlgorithm algorithm) =>
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+
+        /// <summary>
+        /// Generates a hexadecimal hash string for an input expression.
+        /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="value">The value.</param>
+        /// <param name="algorithm">The hashing algorithm.</param>
+        /// <returns>Generated hash as an uppercase string of hexadecimal digits.</returns>
+        public static string HexHash<TValue>(TValue value, MqlHashAlgorithm algorithm) =>
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+
+        /// <summary>
         /// Tests whether a field is missing.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
@@ -168,6 +209,19 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Serializes BSON values to their Extended JSON v2 representation using the $serializeEJSON aggregation operator.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input value.</typeparam>
+        /// <typeparam name="TOutput">The type of the output value.</typeparam>
+        /// <param name="value">The value to serialize.</param>
+        /// <param name="options">The serialization options.</param>
+        /// <returns>The serialized value.</returns>
+        public static TOutput SerializeEJson<TInput, TOutput>(TInput value, SerializeEJsonOptions<TOutput> options = null)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
         /// Transforms a real-valued input into a value between 0 and 1 using the $sigmoid operator.
         /// </summary>
         /// <param name="value">The input value.</param>
@@ -176,5 +230,113 @@ namespace MongoDB.Driver
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
+
+        /// <summary>
+        /// Translated to the "$similarityDotProduct" operator in MQL to measure the similarity between two vectors.
+        /// </summary>
+        /// <param name="vector1">The first vector to compare. Must have the same length as the second vector.</param>
+        /// <param name="vector2">The second vector to compare. Must have the same length as the first vector.</param>
+        /// <param name="normalizeScore">Whether to normalize the result for use as a vector search score.</param>
+        /// <typeparam name="TElement">The vector element type</typeparam>
+        /// <returns>The dot-product measure between the two vectors.</returns>
+        /// <exception cref="NotSupportedException">if used for anything other than translating to MQL.</exception>
+        public static double SimilarityDotProduct<TElement>(
+            IEnumerable<TElement> vector1,
+            IEnumerable<TElement> vector2,
+            bool normalizeScore)
+            => throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+
+        /// <summary>
+        /// Translated to the "$similarityDotProduct" operator in MQL to measure the similarity between two vectors.
+        /// </summary>
+        /// <param name="vector1">The first vector to compare. Must have the same length as the second vector.</param>
+        /// <param name="vector2">The second vector to compare. Must have the same length as the first vector.</param>
+        /// <param name="normalizeScore">Whether to normalize the result for use as a vector search score.</param>
+        /// <typeparam name="TElement">The vector element type</typeparam>
+        /// <returns>The dot-product measure between the two vectors.</returns>
+        /// <exception cref="NotSupportedException">if used for anything other than translating to MQL.</exception>
+        public static double SimilarityDotProduct<TElement>(
+            ReadOnlyMemory<TElement> vector1,
+            ReadOnlyMemory<TElement> vector2,
+            bool normalizeScore)
+            => throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+
+        /// <summary>
+        /// Translated to the "$similarityCosine" operator in MQL to measure the similarity between two vectors.
+        /// </summary>
+        /// <param name="vector1">The first vector to compare. Must have the same length as the second vector.</param>
+        /// <param name="vector2">The second vector to compare. Must have the same length as the first vector.</param>
+        /// <param name="normalizeScore">Whether to normalize the result for use as a vector search score.</param>
+        /// <typeparam name="TElement">The vector element type</typeparam>
+        /// <returns>The cosine measure between the two vectors.</returns>
+        /// <exception cref="NotSupportedException">if used for anything other than translating to MQL.</exception>
+        public static double SimilarityCosine<TElement>(
+            IEnumerable<TElement> vector1,
+            IEnumerable<TElement> vector2,
+            bool normalizeScore)
+            => throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+
+        /// <summary>
+        /// Translated to the "$similarityCosine" operator in MQL to measure the similarity between two vectors.
+        /// </summary>
+        /// <param name="vector1">The first vector to compare. Must have the same length as the second vector.</param>
+        /// <param name="vector2">The second vector to compare. Must have the same length as the first vector.</param>
+        /// <param name="normalizeScore">Whether to normalize the result for use as a vector search score.</param>
+        /// <typeparam name="TElement">The vector element type</typeparam>
+        /// <returns>The cosine measure between the two vectors.</returns>
+        /// <exception cref="NotSupportedException">if used for anything other than translating to MQL.</exception>
+        public static double SimilarityCosine<TElement>(
+            ReadOnlyMemory<TElement> vector1,
+            ReadOnlyMemory<TElement> vector2,
+            bool normalizeScore)
+            => throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+
+        /// <summary>
+        /// Translated to the "$similarityEuclidean" operator in MQL to measure the similarity between two vectors.
+        /// </summary>
+        /// <param name="vector1">The first vector to compare. Must have the same length as the second vector.</param>
+        /// <param name="vector2">The second vector to compare. Must have the same length as the first vector.</param>
+        /// <param name="normalizeScore">Whether to normalize the result for use as a vector search score.</param>
+        /// <typeparam name="TElement">The vector element type</typeparam>
+        /// <returns>The Euclidean measure between the two vectors.</returns>
+        /// <exception cref="NotSupportedException">if used for anything other than translating to MQL.</exception>
+        public static double SimilarityEuclidean<TElement>(
+            IEnumerable<TElement> vector1,
+            IEnumerable<TElement> vector2,
+            bool normalizeScore)
+            => throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+
+        /// <summary>
+        /// Translated to the "$similarityEuclidean" operator in MQL to measure the similarity between two vectors.
+        /// </summary>
+        /// <param name="vector1">The first vector to compare. Must have the same length as the second vector.</param>
+        /// <param name="vector2">The second vector to compare. Must have the same length as the first vector.</param>
+        /// <param name="normalizeScore">Whether to normalize the result for use as a vector search score.</param>
+        /// <typeparam name="TElement">The vector element type</typeparam>
+        /// <returns>The Euclidean measure between the two vectors.</returns>
+        /// <exception cref="NotSupportedException">if used for anything other than translating to MQL.</exception>
+        public static double SimilarityEuclidean<TElement>(
+            ReadOnlyMemory<TElement> vector1,
+            ReadOnlyMemory<TElement> vector2,
+            bool normalizeScore)
+            => throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+
+        /// <summary>
+        /// Returns the subtype of a given binary value.
+        /// </summary>
+        /// <typeparam name="TValue">The type of the binary value.</typeparam>
+        /// <param name="value">The binary value.</param>
+        /// <returns>The binary subtype.</returns>
+        public static BsonBinarySubType? Subtype<TValue>(TValue value) =>
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+
+        /// <summary>
+        /// Computes the hash value of the input expression using the same hash function used to create a hashed index.
+        /// </summary>
+        /// <typeparam name="TValue">The type of the value to be hashed.</typeparam>
+        /// <param name="value">The value to be hashed.</param>
+        /// <returns>The hashed numeric value.</returns>
+        public static long ToHashedIndexKey<TValue>(TValue value) =>
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
     }
 }

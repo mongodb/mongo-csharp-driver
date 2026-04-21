@@ -30,17 +30,33 @@ namespace MongoDB.Driver.Core.Operations
         private IChannelHandle _channel;
         private IChannelSourceHandle _channelSource;
         private bool _disposed;
+        private readonly bool _enableOverloadRetargeting;
+        private readonly int _maxAdaptiveRetries;
         private bool _retryRequested;
+        private IRandom _random;
+        private IMayUseSecondaryCriteria _mayUseSecondaryCriteria;
 
-        public RetryableWriteContext(IWriteBinding binding, bool retryRequested)
+        public RetryableWriteContext(IWriteBinding binding, bool retryRequested, int maxAdaptiveRetries, bool enableOverloadRetargeting, IRandom random = null, IMayUseSecondaryCriteria mayUseSecondaryCriteria = null)
         {
             _binding = Ensure.IsNotNull(binding, nameof(binding));
             _retryRequested = retryRequested;
+            _maxAdaptiveRetries = maxAdaptiveRetries;
+            _enableOverloadRetargeting = enableOverloadRetargeting;
+            _random = random ?? DefaultRandom.Instance;
+            _mayUseSecondaryCriteria = mayUseSecondaryCriteria;
         }
 
         public IWriteBinding Binding => _binding;
         public IChannelHandle Channel => _channel;
         public IChannelSourceHandle ChannelSource => _channelSource;
+        public bool EnableOverloadRetargeting => _enableOverloadRetargeting;
+        public int MaxAdaptiveRetries => _maxAdaptiveRetries;
+        public IMayUseSecondaryCriteria MayUseSecondaryCriteria => _mayUseSecondaryCriteria;
+        public IRandom Random => _random;
+        /// <summary>
+        /// Indicates whether the user has enabled retries via retryReads/retryWrites client settings.
+        /// If false, all retries are disabled (including backpressure).
+        /// </summary>
         public bool RetryRequested => _retryRequested;
 
         public void Dispose()
@@ -57,7 +73,9 @@ namespace MongoDB.Driver.Core.Operations
             try
             {
                 operationContext.ThrowIfTimedOutOrCanceled();
-                var writeChannelSource = Binding.GetWriteChannelSource(operationContext, deprioritizedServers);
+                var writeChannelSource = _mayUseSecondaryCriteria == null ?
+                    Binding.GetWriteChannelSource(operationContext, deprioritizedServers)
+                    : Binding.GetWriteChannelSource(operationContext, deprioritizedServers, _mayUseSecondaryCriteria);
                 ReplaceChannelSource(writeChannelSource);
                 return ChannelSource.ServerDescription;
             }
@@ -73,8 +91,9 @@ namespace MongoDB.Driver.Core.Operations
             try
             {
                 operationContext.ThrowIfTimedOutOrCanceled();
-                var writeChannelSource = await Binding
-                    .GetWriteChannelSourceAsync(operationContext, deprioritizedServers).ConfigureAwait(false);
+                var writeChannelSource = _mayUseSecondaryCriteria == null ?
+                    await Binding.GetWriteChannelSourceAsync(operationContext, deprioritizedServers).ConfigureAwait(false)
+                    : await Binding.GetWriteChannelSourceAsync(operationContext, deprioritizedServers, _mayUseSecondaryCriteria).ConfigureAwait(false);
                 ReplaceChannelSource(writeChannelSource);
                 return ChannelSource.ServerDescription;
             }

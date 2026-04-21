@@ -23,6 +23,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.GeoJsonObjectModel;
+using MongoDB.Driver.Search;
 
 namespace MongoDB.Driver
 {
@@ -695,6 +696,99 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Appends a $search stage to the pipeline, returning documents from a nested scope.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="searchDefinition">The search definition.</param>
+        /// <param name="returnScope">The level of nested documents to return.</param>
+        /// <param name="searchOptions">The search options.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<TNewResult> Search<TResult, TNewResult>(
+            this IAggregateFluent<TResult> aggregate,
+            SearchDefinition<TResult> searchDefinition,
+            FieldDefinition<TResult, IEnumerable<TNewResult>> returnScope,
+            SearchOptions<TResult> searchOptions = null)
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            Ensure.IsNotNull(searchDefinition, nameof(searchDefinition));
+            Ensure.IsNotNull(returnScope, nameof(returnScope));
+
+            return aggregate.AppendStage(
+                PipelineStageDefinitionBuilder.Search(searchDefinition, returnScope, searchOptions));
+        }
+
+        /// <summary>
+        /// Appends a $search stage to the pipeline, returning documents from a nested scope.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="searchDefinition">The search definition.</param>
+        /// <param name="returnScope">The level of nested documents to return.</param>
+        /// <param name="searchOptions">The search options.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<TNewResult> Search<TResult, TNewResult>(
+            this IAggregateFluent<TResult> aggregate,
+            SearchDefinition<TResult> searchDefinition,
+            Expression<Func<TResult, IEnumerable<TNewResult>>> returnScope,
+            SearchOptions<TResult> searchOptions = null)
+            => Search(
+                aggregate,
+                searchDefinition,
+                new ExpressionFieldDefinition<TResult, IEnumerable<TNewResult>>(returnScope),
+                searchOptions);
+
+        /// <summary>
+        /// Appends a $searchMeta stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="searchDefinition">The search definition.</param>
+        /// <param name="returnScope">The level of nested documents to return.</param>
+        /// <param name="indexName">The index name.</param>
+        /// <param name="count">The count options.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<SearchMetaResult> SearchMeta<TResult>(
+            this IAggregateFluent<TResult> aggregate,
+            SearchDefinition<TResult> searchDefinition,
+            FieldDefinition<TResult> returnScope,
+            string indexName = null,
+            SearchCountOptions count = null)
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            Ensure.IsNotNull(searchDefinition, nameof(searchDefinition));
+            Ensure.IsNotNull(returnScope, nameof(returnScope));
+
+            return aggregate.AppendStage(
+                PipelineStageDefinitionBuilder.SearchMeta(searchDefinition, returnScope, indexName, count));
+        }
+
+        /// <summary>
+        /// Appends a $searchMeta stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="searchDefinition">The search definition.</param>
+        /// <param name="returnScope">The level of nested documents to return.</param>
+        /// <param name="indexName">The index name.</param>
+        /// <param name="count">The count options.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<SearchMetaResult> SearchMeta<TResult>(
+            this IAggregateFluent<TResult> aggregate,
+            SearchDefinition<TResult> searchDefinition,
+            Expression<Func<TResult, object>> returnScope,
+            string indexName = null,
+            SearchCountOptions count = null)
+            => SearchMeta(
+                aggregate,
+                searchDefinition,
+                new ExpressionFieldDefinition<TResult>(returnScope),
+                indexName,
+                count);
+
+        /// <summary>
         /// Appends a $set stage to the pipeline.
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>
@@ -1039,6 +1133,70 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(aggregate, nameof(aggregate));
 
             return IAsyncCursorSourceExtensions.SingleOrDefaultAsync(aggregate.Limit(2), cancellationToken);
+        }
+
+        /// <summary>
+        /// Appends a $rerank stage.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="query">The rerank query.</param>
+        /// <param name="path">The field to send to the reranker.</param>
+        /// <param name="numDocsToRerank">The maximum number of documents to rerank.</param>
+        /// <param name="model">The reranking model name.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<TResult> Rerank<TResult>(
+            this IAggregateFluent<TResult> aggregate,
+            RerankQuery query,
+            FieldDefinition<TResult> path,
+            int numDocsToRerank,
+            string model)
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.Rerank(query, path, numDocsToRerank, model));
+        }
+
+        /// <summary>
+        /// Appends a $rerank stage.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="query">The rerank query.</param>
+        /// <param name="path">The field to send to the reranker.</param>
+        /// <param name="numDocsToRerank">The maximum number of documents to rerank.</param>
+        /// <param name="model">The reranking model name.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<TResult> Rerank<TResult, TField>(
+            this IAggregateFluent<TResult> aggregate,
+            RerankQuery query,
+            Expression<Func<TResult, TField>> path,
+            int numDocsToRerank,
+            string model)
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.Rerank(query, path, numDocsToRerank, model));
+        }
+
+        /// <summary>
+        /// Appends a $rerank stage.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="query">The rerank query.</param>
+        /// <param name="paths">The fields to send to the reranker.</param>
+        /// <param name="numDocsToRerank">The maximum number of documents to rerank.</param>
+        /// <param name="model">The reranking model name.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<TResult> Rerank<TResult>(
+            this IAggregateFluent<TResult> aggregate,
+            RerankQuery query,
+            IEnumerable<FieldDefinition<TResult>> paths,
+            int numDocsToRerank,
+            string model)
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.Rerank(query, paths, numDocsToRerank, model));
         }
 
         /// <summary>

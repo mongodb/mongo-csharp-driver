@@ -35,6 +35,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __aggregateOutToDifferentDatabase = new Feature("AggregateOutToDifferentDatabase", WireVersion.Server44);
         private static readonly Feature __aggregateToString = new Feature("AggregateToString", WireVersion.Server40);
         private static readonly Feature __aggregateUnionWith = new Feature("AggregateUnionWith", WireVersion.Server44);
+        private static readonly Feature __arrayIndexAs = new Feature("ArrayIndexAs", WireVersion.Server83);
         private static readonly Feature __bitwiseOperators = new Feature("BitwiseOperators", WireVersion.Server63);
         private static readonly Feature __changeStreamAllChangesForCluster = new Feature("ChangeStreamAllChangesForCluster", WireVersion.Server40);
         private static readonly Feature __changeStreamForDatabase = new Feature("ChangeStreamForDatabase", WireVersion.Server40);
@@ -44,10 +45,14 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __clientBulkWrite = new Feature("ClientBulkWrite", WireVersion.Server80);
         private static readonly Feature __clientSideEncryption = new Feature("ClientSideEncryption", WireVersion.Server42);
         private static readonly Feature __clusteredIndexes = new Feature("ClusteredIndexes", WireVersion.Server53);
+        private static readonly Feature __convertOperatorAnyToString = new Feature("ConvertOperatorAnyToString", WireVersion.Server83);
+        private static readonly Feature __convertOperatorBaseConversion = new Feature("ConvertOperatorBaseConversion", WireVersion.Server83);
         private static readonly Feature __convertOperatorBinDataToFromNumeric = new Feature("ConvertOperatorBinDataToFromNumeric", WireVersion.Server81);
         private static readonly Feature __convertOperatorBinDataToFromString= new Feature("ConvertOperatorBinDataToFromString", WireVersion.Server80);
+        private static readonly Feature __convertOperatorStringToObjectOrArray = new Feature("ConvertOperatorStringToObjectOrArray", WireVersion.Server83);
         private static readonly Feature __createIndexCommitQuorum = new Feature("CreateIndexCommitQuorum", WireVersion.Server44);
         private static readonly Feature __createIndexesUsingInsertOperations = new Feature("CreateIndexesUsingInsertOperations", WireVersion.Zero, WireVersion.Server42);
+        private static readonly Feature __createObjectIdExpression = new Feature("CreateObjectIdExpression", WireVersion.Server83);
         private static readonly Feature __csfleRangeAlgorithm = new Feature("CsfleRangeAlgorithm", WireVersion.Server62);
         private static readonly Feature __csfle2Qev2Lookup = new Feature("csfle2Qev2Lookup", WireVersion.Server81);
         private static readonly Feature __csfle2Qev2RangeAlgorithm = new Feature("csfle2Qev2RangeAlgorithm", WireVersion.Server80);
@@ -57,6 +62,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __dateFromStringFormatArgument = new Feature("DateFromStringFormatArgument", WireVersion.Server40);
         private static readonly Feature __dateOperatorsNewIn50 = new Feature("DateOperatorsNewIn50", WireVersion.Server50);
         private static readonly Feature __densifyStage = new Feature("DensifyStage", WireVersion.Server51);
+        private static readonly Feature __deserializeEJsonOperator = new Feature("DeserializeEJsonOperator", WireVersion.Server83);
         private static readonly Feature __documentsStage = new Feature("DocumentsStage", WireVersion.Server51);
         private static readonly Feature __directConnectionSetting = new Feature("DirectConnectionSetting", WireVersion.Server44);
         private static readonly Feature __electionIdPriorityInSDAM = new Feature("ElectionIdPriorityInSDAM ", WireVersion.Server60);
@@ -70,6 +76,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __geoNearCommand = new Feature("GeoNearCommand", WireVersion.Zero, WireVersion.Server42);
         private static readonly Feature __getField = new Feature("GetField", WireVersion.Server50);
         private static readonly Feature __getMoreComment = new Feature("GetMoreComment", WireVersion.Server44);
+        private static readonly Feature __hashOperator = new Feature("HashOperator", WireVersion.Server83);
         private static readonly Feature __groupCommand = new Feature("GroupCommand", WireVersion.Zero, WireVersion.Server42);
         private static readonly Feature __hedgedReads = new Feature("HedgedReads", WireVersion.Server44);
         private static readonly Feature __hiddenIndex = new Feature("HiddenIndex", WireVersion.Server44);
@@ -81,28 +88,34 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __legacyWireProtocol = new Feature("LegacyWireProtocol", WireVersion.Zero, WireVersion.Server51);
         private static readonly Feature __listDatabasesAuthorizedDatabases = new Feature("ListDatabasesAuthorizedDatabases", WireVersion.Server40);
         private static readonly Feature __loadBalancedMode = new Feature("LoadBalancedMode", WireVersion.Server50);
-        private static readonly Feature __loookupConciseSyntax = new Feature("LoookupConciseSyntax", WireVersion.Server50);
-        private static readonly Feature __loookupDocuments= new Feature("LoookupDocuments", WireVersion.Server60);
+        private static readonly Feature __lookupConciseSyntax = new Feature("LookupConciseSyntax", WireVersion.Server50);
+        private static readonly Feature __lookupDocuments = new Feature("LookupDocuments", WireVersion.Server60);
         private static readonly Feature __mmapV1StorageEngine = new Feature("MmapV1StorageEngine", WireVersion.Zero, WireVersion.Server42);
         private static readonly Feature __medianOperator = new Feature("MedianOperator", WireVersion.Server70);
         private static readonly Feature __percentileOperator = new Feature("PercentileOperator", WireVersion.Server70);
         private static readonly Feature __pickAccumulatorsNewIn52 = new Feature("PickAccumulatorsNewIn52", WireVersion.Server52);
         private static readonly Feature __rankFusionStage = new Feature("RankFusionStage", WireVersion.Server81);
         private static readonly Feature __regexMatch = new Feature("RegexMatch", WireVersion.Server42);
+        private static readonly Feature __replaceAll = new Feature("ReplaceAll", WireVersion.Server44);
+        private static readonly Feature __replaceAllWithRegex = new Feature("ReplaceAllWithRegex", WireVersion.Server82);
         private static readonly Feature __round = new Feature("Round", WireVersion.Server42);
         private static readonly Feature __scramSha256Authentication = new Feature("ScramSha256Authentication", WireVersion.Server40);
         private static readonly Feature __serverReturnsResumableChangeStreamErrorLabel = new Feature("ServerReturnsResumableChangeStreamErrorLabel", WireVersion.Server44);
         private static readonly Feature __serverReturnsRetryableWriteErrorLabel = new Feature("ServerReturnsRetryableWriteErrorLabel", WireVersion.Server44);
+        private static readonly Feature __serializeEJsonOperator = new Feature("SerializeEJsonOperator", WireVersion.Server83);
         private static readonly Feature __setStage = new Feature("SetStage", WireVersion.Server42);
         private static readonly Feature __setWindowFields = new Feature("SetWindowFields", WireVersion.Server50);
         private static readonly Feature __setWindowFieldsLocf = new Feature("SetWindowFieldsLocf", WireVersion.Server52);
         private static readonly Feature __shardedTransactions = new Feature("ShardedTransactions", WireVersion.Server42);
         private static readonly Feature __sigmoidOperator = new Feature("SigmoidOperator", WireVersion.Server81);
+        private static readonly Feature __similarityFunctions = new Feature("SimilarityFunctions", WireVersion.Server82);
         private static readonly Feature __snapshotReads = new Feature("SnapshotReads", WireVersion.Server50, notSupportedMessage: "Snapshot reads require MongoDB 5.0 or later");
         private static readonly Feature __sortArrayOperator = new Feature("SortArrayOperator", WireVersion.Server52);
+        private static readonly Feature __splitWithRegex = new Feature("SplitWithRegex", WireVersion.Server82);
         private static readonly Feature __speculativeAuthentication = new Feature("SpeculativeAuthentication", WireVersion.Server44);
         private static readonly Feature __stableApi = new Feature("StableAPI", WireVersion.Server50);
         private static readonly Feature __streamingHello = new Feature("StreamingHello", WireVersion.Server44);
+        private static readonly Feature __subtypeOperator = new Feature("SubtypeOperator", WireVersion.Server83);
         private static readonly Feature __toConversionOperators = new Feature("ToConversionOperators", WireVersion.Server40);
         private static readonly Feature __trigOperators = new Feature("TrigOperators", WireVersion.Server42);
         private static readonly Feature __trimOperator = new Feature("TrimOperator", WireVersion.Server40);
@@ -156,6 +169,11 @@ namespace MongoDB.Driver.Core.Misc
         public static Feature AggregateUnionWith => __aggregateUnionWith;
 
         /// <summary>
+        /// Gets the arrayIndexAs feature for $map, $filter and $reduce.
+        /// </summary>
+        public static Feature ArrayIndexAs => __arrayIndexAs;
+
+        /// <summary>
         /// Gets the bitwise operators feature.
         /// </summary>
         public static Feature BitwiseOperators => __bitwiseOperators;
@@ -201,6 +219,16 @@ namespace MongoDB.Driver.Core.Misc
         public static Feature ClusteredIndexes => __clusteredIndexes;
 
         /// <summary>
+        /// Gets the conversion of any type to string feature.
+        /// </summary>
+        public static Feature ConvertOperatorAnyToString => __convertOperatorAnyToString;
+
+        /// <summary>
+        /// Gets the base conversion in $convert feature.
+        /// </summary>
+        public static Feature ConvertOperatorBaseConversion => __convertOperatorBaseConversion;
+
+        /// <summary>
         /// Gets the conversion of binary data to/from numeric types feature.
         /// </summary>
         public static Feature ConvertOperatorBinDataToFromNumeric => __convertOperatorBinDataToFromNumeric;
@@ -209,6 +237,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the conversion of binary data to/from string feature.
         /// </summary>
         public static Feature ConvertOperatorBinDataToFromString => __convertOperatorBinDataToFromString;
+
+        /// <summary>
+        /// Gets the conversion of string to object or array feature.
+        /// </summary>
+        public static Feature ConvertOperatorStringToObjectOrArray => __convertOperatorStringToObjectOrArray;
 
         /// <summary>
         /// Gets the create index commit quorum feature.
@@ -220,6 +253,11 @@ namespace MongoDB.Driver.Core.Misc
         /// </summary>
         [Obsolete("This feature was removed in server version 4.2. As such, this property will be removed in a later release.")]
         public static Feature CreateIndexesUsingInsertOperations => __createIndexesUsingInsertOperations;
+
+        /// <summary>
+        /// Represents support for the $createObjectId operator feature.
+        /// </summary>
+        public static Feature CreateObjectIdExpression => __createObjectIdExpression;
 
         /// <summary>
         /// Gets the csfle range algorithm feature.
@@ -265,6 +303,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the aggregate $densify stage feature.
         /// </summary>
         public static Feature DensifyStage => __densifyStage;
+
+        /// <summary>
+        /// Gets the $deserializeEJSON operator feature.
+        /// </summary>
+        public static Feature DeserializeEJsonOperator => __deserializeEJsonOperator;
 
         /// <summary>
         /// Gets the documents stage feature.
@@ -342,6 +385,11 @@ namespace MongoDB.Driver.Core.Misc
         public static Feature GroupCommand => __groupCommand;
 
         /// <summary>
+        /// Gets the $hash operator feature.
+        /// </summary>
+        public static Feature HashOperator => __hashOperator;
+
+        /// <summary>
         /// Gets the hedged reads feature.
         /// </summary>
         public static Feature HedgedReads => __hedgedReads;
@@ -396,12 +444,12 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the lookup concise syntax feature.
         /// </summary>
-        public static Feature LookupConciseSyntax => __loookupConciseSyntax;
+        public static Feature LookupConciseSyntax => __lookupConciseSyntax;
 
         /// <summary>
         /// Gets the lookup documents feature.
         /// </summary>
-        public static Feature LookupDocuments => __loookupDocuments;
+        public static Feature LookupDocuments => __lookupDocuments;
 
         /// <summary>
         /// Gets the mmapv1 storage engine feature.
@@ -435,6 +483,16 @@ namespace MongoDB.Driver.Core.Misc
         public static Feature RegexMatch => __regexMatch;
 
         /// <summary>
+        /// Gets the $replaceAll feature.
+        /// </summary>
+        public static Feature ReplaceAll => __replaceAll;
+
+        /// <summary>
+        /// Gets the feature to support $replaceAll with regex as a find parameter.
+        /// </summary>
+        public static Feature ReplaceAllWithRegex => __replaceAllWithRegex;
+
+        /// <summary>
         /// Gets the $round feature.
         /// </summary>
         public static Feature Round => __round;
@@ -453,6 +511,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the server returns retryable writeError label feature.
         /// </summary>
         public static Feature ServerReturnsRetryableWriteErrorLabel => __serverReturnsRetryableWriteErrorLabel;
+
+        /// <summary>
+        /// Gets the $serializeEJSON operator feature.
+        /// </summary>
+        public static Feature SerializeEJsonOperator => __serializeEJsonOperator;
 
         /// <summary>
         /// Gets the $set stage feature.
@@ -480,6 +543,12 @@ namespace MongoDB.Driver.Core.Misc
         public static Feature SigmoidOperator => __sigmoidOperator;
 
         /// <summary>
+        /// Gets the similarity functions feature for $similarityDotProduct, $similarityEuclidean,
+        /// and $similarityCosine.
+        /// </summary>
+        public static Feature SimilarityFunctions => __similarityFunctions;
+
+        /// <summary>
         /// Gets the snapshot reads feature.
         /// </summary>
         public static Feature SnapshotReads => __snapshotReads;
@@ -495,6 +564,11 @@ namespace MongoDB.Driver.Core.Misc
         public static Feature SpeculativeAuthentication => __speculativeAuthentication;
 
         /// <summary>
+        /// Gets the feature to support $split with regex as a delimiter parameter.
+        /// </summary>
+        public static Feature SplitWithRegex => __splitWithRegex;
+
+        /// <summary>
         /// Gets the speculative authentication feature.
         /// </summary>
         public static Feature StableApi => __stableApi;
@@ -503,6 +577,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the streaming hello feature.
         /// </summary>
         public static Feature StreamingHello => __streamingHello;
+
+        /// <summary>
+        /// Gets the $subtype operator feature.
+        /// </summary>
+        public static Feature SubtypeOperator => __subtypeOperator;
 
         /// <summary>
         /// Gets the $toXyz conversion operators feature ($toDouble etc.).

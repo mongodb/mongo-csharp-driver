@@ -124,6 +124,7 @@ namespace MongoDB.Driver.Tests
             clusterMock = new Mock<IClusterInternal>();
             var clientMock = new Mock<IMongoClient>();
             clientMock.SetupGet(c => c.Cluster).Returns(clusterMock.Object);
+            clientMock.SetupGet(c => c.Settings).Returns(new MongoClientSettings());
             return new OperationExecutor(clientMock.Object);
         }
     }

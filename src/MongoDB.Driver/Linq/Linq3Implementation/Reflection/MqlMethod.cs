@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -26,20 +27,28 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __constantWithRepresentation;
         private static readonly MethodInfo __constantWithSerializer;
         private static readonly MethodInfo __convert;
+        private static readonly MethodInfo __createObjectId;
         private static readonly MethodInfo __dateFromString;
         private static readonly MethodInfo __dateFromStringWithFormat;
         private static readonly MethodInfo __dateFromStringWithFormatAndTimezone;
         private static readonly MethodInfo __dateFromStringWithFormatAndTimezoneAndOnErrorAndOnNull;
+        private static readonly MethodInfo __deserializeEJson;
         private static readonly MethodInfo __exists;
         private static readonly MethodInfo __field;
+        private static readonly MethodInfo __hash;
+        private static readonly MethodInfo __hexHash;
         private static readonly MethodInfo __isMissing;
         private static readonly MethodInfo __isNullOrMissing;
+        private static readonly MethodInfo __serializeEJson;
         private static readonly MethodInfo __sigmoid;
+        private static readonly MethodInfo __subtype;
+        private static readonly MethodInfo __toHashedIndexKey;
 
         // sets of methods
         private static readonly IReadOnlyMethodInfoSet __dateFromStringOverloads;
         private static readonly IReadOnlyMethodInfoSet __dateFromStringWithFormatOverloads;
         private static readonly IReadOnlyMethodInfoSet __dateFromStringWithTimezoneOverloads;
+        private static readonly IReadOnlyMethodInfoSet __similarityFunctionOverloads;
 
         // static constructor
         static MqlMethod()
@@ -48,15 +57,29 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __constantWithRepresentation = ReflectionInfo.Method((object value, BsonType representation) => Mql.Constant(value, representation));
             __constantWithSerializer = ReflectionInfo.Method((object value, IBsonSerializer<object> serializer) => Mql.Constant(value, serializer));
             __convert = ReflectionInfo.Method((object value, ConvertOptions<object> options) => Mql.Convert(value, options));
+            __createObjectId = ReflectionInfo.Method(() => Mql.CreateObjectId());
             __dateFromString = ReflectionInfo.Method((string dateStringl) => Mql.DateFromString(dateStringl));
             __dateFromStringWithFormat = ReflectionInfo.Method((string dateString, string format) => Mql.DateFromString(dateString, format));
             __dateFromStringWithFormatAndTimezone = ReflectionInfo.Method((string dateString, string format, string timezone) => Mql.DateFromString(dateString, format, timezone));
             __dateFromStringWithFormatAndTimezoneAndOnErrorAndOnNull = ReflectionInfo.Method((string dateString, string format, string timezone, DateTime? onError, DateTime? onNull) => Mql.DateFromString(dateString, format, timezone, onError, onNull));
+            __deserializeEJson = ReflectionInfo.Method((object value, DeserializeEJsonOptions<object> options) => Mql.DeserializeEJson(value, options));
             __exists = ReflectionInfo.Method((object field) => Mql.Exists(field));
             __field = ReflectionInfo.Method((object container, string fieldName, IBsonSerializer<object> serializer) => Mql.Field<object, object>(container, fieldName, serializer));
+            __hash = ReflectionInfo.Method((object value, MqlHashAlgorithm algorithm) => Mql.Hash(value, algorithm));
+            __hexHash = ReflectionInfo.Method((object value, MqlHashAlgorithm algorithm) => Mql.HexHash(value, algorithm));
             __isMissing = ReflectionInfo.Method((object field) => Mql.IsMissing(field));
             __isNullOrMissing = ReflectionInfo.Method((object field) => Mql.IsNullOrMissing(field));
+            __serializeEJson = ReflectionInfo.Method((object value, SerializeEJsonOptions<object> options) => Mql.SerializeEJson(value, options));
             __sigmoid = ReflectionInfo.Method((double value) => Mql.Sigmoid(value));
+            __subtype = ReflectionInfo.Method((object value) => Mql.Subtype(value));
+            __toHashedIndexKey = ReflectionInfo.Method((object value) => Mql.ToHashedIndexKey(value));
+
+            var dotProductEnumerable = ReflectionInfo.Method((IEnumerable<object> vectors1, IEnumerable<object> vectors2, bool normalizeScore) => Mql.SimilarityDotProduct(vectors1, vectors2, normalizeScore));
+            var dotProductMemory = ReflectionInfo.Method((ReadOnlyMemory<object> vectors1, ReadOnlyMemory<object> vectors2, bool normalizeScore) => Mql.SimilarityDotProduct(vectors1, vectors2, normalizeScore));
+            var euclideanEnumerable = ReflectionInfo.Method((IEnumerable<object> vectors1, IEnumerable<object> vectors2, bool normalizeScore) => Mql.SimilarityEuclidean(vectors1, vectors2, normalizeScore));
+            var euclideanMemory = ReflectionInfo.Method((ReadOnlyMemory<object> vectors1, ReadOnlyMemory<object> vectors2, bool normalizeScore) => Mql.SimilarityEuclidean(vectors1, vectors2, normalizeScore));
+            var cosineEnumerable = ReflectionInfo.Method((IEnumerable<object> vectors1, IEnumerable<object> vectors2, bool normalizeScore) => Mql.SimilarityCosine(vectors1, vectors2, normalizeScore));
+            var cosineMemory = ReflectionInfo.Method((ReadOnlyMemory<object> vectors1, ReadOnlyMemory<object> vectors2, bool normalizeScore) => Mql.SimilarityCosine(vectors1, vectors2, normalizeScore));
 
             // initialize sets of methods after methods
             __dateFromStringOverloads = MethodInfoSet.Create(
@@ -79,25 +102,43 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
                 __dateFromStringWithFormatAndTimezone,
                 __dateFromStringWithFormatAndTimezoneAndOnErrorAndOnNull
             ]);
+
+            __similarityFunctionOverloads = MethodInfoSet.Create(
+            [
+                dotProductEnumerable,
+                dotProductMemory,
+                euclideanEnumerable,
+                euclideanMemory,
+                cosineEnumerable,
+                cosineMemory,
+            ]);
         }
 
         // public properties
         public static MethodInfo ConstantWithRepresentation => __constantWithRepresentation;
         public static MethodInfo ConstantWithSerializer => __constantWithSerializer;
         public static MethodInfo Convert => __convert;
+        public static MethodInfo CreateObjectId => __createObjectId;
         public static MethodInfo DateFromString => __dateFromString;
         public static MethodInfo DateFromStringWithFormat => __dateFromStringWithFormat;
         public static MethodInfo DateFromStringWithFormatAndTimezone => __dateFromStringWithFormatAndTimezone;
         public static MethodInfo DateFromStringWithFormatAndTimezoneAndOnErrorAndOnNull => __dateFromStringWithFormatAndTimezoneAndOnErrorAndOnNull;
+        public static MethodInfo DeserializeEJson => __deserializeEJson;
         public static MethodInfo Exists => __exists;
         public static MethodInfo Field => __field;
+        public static MethodInfo Hash => __hash;
+        public static MethodInfo HexHash => __hexHash;
         public static MethodInfo IsMissing => __isMissing;
         public static MethodInfo IsNullOrMissing => __isNullOrMissing;
+        public static MethodInfo SerializeEJson => __serializeEJson;
         public static MethodInfo Sigmoid => __sigmoid;
+        public static MethodInfo Subtype => __subtype;
+        public static MethodInfo ToHashedIndexKey => __toHashedIndexKey;
 
         // sets of methods
         public static IReadOnlyMethodInfoSet DateFromStringOverloads => __dateFromStringOverloads;
         public static IReadOnlyMethodInfoSet DateFromStringWithFormatOverloads => __dateFromStringWithFormatOverloads;
         public static IReadOnlyMethodInfoSet DateFromStringWithTimezoneOverloads => __dateFromStringWithTimezoneOverloads;
+        public static IReadOnlyMethodInfoSet SimilarityFunctionOverloads => __similarityFunctionOverloads;
     }
 }

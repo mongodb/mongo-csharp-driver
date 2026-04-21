@@ -103,6 +103,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __singleWithPredicate;
         private static readonly MethodInfo __skip;
         private static readonly MethodInfo __skipWhile;
+        private static readonly MethodInfo __skipWhileWithPredicateTakingIndex;
         private static readonly MethodInfo __sumDecimal;
         private static readonly MethodInfo __sumDecimalWithSelector;
         private static readonly MethodInfo __sumDouble;
@@ -125,6 +126,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __sumSingleWithSelector;
         private static readonly MethodInfo __take;
         private static readonly MethodInfo __takeWhile;
+        private static readonly MethodInfo __takeWhileWithPredicateTakingIndex;
         private static readonly MethodInfo __thenBy;
         private static readonly MethodInfo __thenByDescending;
         private static readonly MethodInfo __union;
@@ -236,6 +238,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __singleWithPredicate = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, bool>> predicate) => source.Single(predicate));
             __skip = ReflectionInfo.Method((IQueryable<object> source, int count) => Queryable.Skip(source, count));
             __skipWhile = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, bool>> predicate) => Queryable.SkipWhile(source, predicate));
+            __skipWhileWithPredicateTakingIndex = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, int, bool>> predicate) => Queryable.SkipWhile(source, predicate));
             __sumDecimal = ReflectionInfo.Method((IQueryable<decimal> source) => source.Sum());
             __sumDecimalWithSelector = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, decimal>> selector) => source.Sum(selector));
             __sumDouble = ReflectionInfo.Method((IQueryable<double> source) => source.Sum());
@@ -258,6 +261,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __sumSingleWithSelector = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, float>> selector) => source.Sum(selector));
             __take = ReflectionInfo.Method((IQueryable<object> source, int count) => Queryable.Take(source, count));
             __takeWhile = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, bool>> predicate) => Queryable.TakeWhile(source, predicate));
+            __takeWhileWithPredicateTakingIndex = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, int, bool>> predicate) => Queryable.TakeWhile(source, predicate));
             __thenBy = ReflectionInfo.Method((IOrderedQueryable<object> source, Expression<Func<object, object>> keySelector) => source.ThenBy(keySelector));
             __thenByDescending = ReflectionInfo.Method((IOrderedQueryable<object> source, Expression<Func<object, object>> keySelector) => source.ThenByDescending(keySelector));
             __union = ReflectionInfo.Method((IQueryable<object> source1, IEnumerable<object> source2) => source1.Union(source2));
@@ -511,7 +515,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo Select => __select;
         public static MethodInfo SelectManyWithSelector => __selectManyWithSelector;
         public static MethodInfo SelectManyWithCollectionSelectorAndResultSelector => __selectManyWithCollectionSelectorAndResultSelector;
-        public static MethodInfo SelectManyWithCollectionSelectorTakingIndexAndResultSelector => __selectManyWithCollectionSelectorTakingIndexAndResultSelector;
+        public static MethodInfo SelectManyWithCollectionSelectorTakingIndexAndResultSelector => __selectManyWithCollectionSelectorTakingIndexAndResultSelector; // TODO CSHARP-5978: not yet supported in nested expressions
         public static MethodInfo SelectManyWithSelectorTakingIndex => __selectManyWithSelectorTakingIndex;
         public static MethodInfo SelectWithSelectorTakingIndex => __selectWithSelectorTakingIndex;
         public static MethodInfo SequenceEqual => __sequenceEqual;
@@ -521,6 +525,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo SingleWithPredicate => __singleWithPredicate;
         public static MethodInfo Skip => __skip;
         public static MethodInfo SkipWhile => __skipWhile;
+        public static MethodInfo SkipWhileWithPredicateTakingIndex => __skipWhileWithPredicateTakingIndex;
         public static MethodInfo SumDecimal => __sumDecimal;
         public static MethodInfo SumDecimalWithSelector => __sumDecimalWithSelector;
         public static MethodInfo SumDouble => __sumDouble;
@@ -543,6 +548,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo SumSingleWithSelector => __sumSingleWithSelector;
         public static MethodInfo Take => __take;
         public static MethodInfo TakeWhile => __takeWhile;
+        public static MethodInfo TakeWhileWithPredicateTakingIndex => __takeWhileWithPredicateTakingIndex;
         public static MethodInfo ThenBy => __thenBy;
         public static MethodInfo ThenByDescending => __thenByDescending;
         public static MethodInfo Union => __union;
