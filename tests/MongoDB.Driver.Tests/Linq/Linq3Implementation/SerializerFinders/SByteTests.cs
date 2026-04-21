@@ -22,11 +22,11 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.SerializerFinders;
 
-public class ByteTests
+public class SByteTests
 {
     [Theory]
     [MemberData(nameof(TestCases))]
-    public void SerializerFinder_should_resolve_byte_operations(LambdaExpression expression, Type expectedSerializerType)
+    public void SerializerFinder_should_resolve_sbyte_operations(LambdaExpression expression, Type expectedSerializerType)
     {
         var serializerMap = TestHelpers.CreateSerializerMap(expression);
 
@@ -38,17 +38,17 @@ public class ByteTests
 
     public static readonly object[][] TestCases =
     [
-        [TestHelpers.MakeLambda((MyModel model) => model.Value.CompareTo((byte)1)), typeof(Int32Serializer)],
+        [TestHelpers.MakeLambda((MyModel model) => model.Value.CompareTo((sbyte)1)), typeof(Int32Serializer)],
         [TestHelpers.MakeLambda((MyModel model) => model.Value.CompareTo(model.Other)), typeof(Int32Serializer)],
-        [TestHelpers.MakeLambda((MyModel model) => model.Value.Equals((byte)1)), typeof(BooleanSerializer)],
+        [TestHelpers.MakeLambda((MyModel model) => model.Value.Equals((sbyte)1)), typeof(BooleanSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => model.Value.Equals(model.Other)), typeof(BooleanSerializer)],
-        [TestHelpers.MakeLambda((MyModel model) => byte.Parse("42")), typeof(ByteSerializer)],
+        [TestHelpers.MakeLambda((MyModel model) => sbyte.Parse("42")), typeof(SByteSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => model.Value.ToString()), typeof(StringSerializer)],
     ];
 
     private class MyModel
     {
-        public byte Value { get; set; }
-        public byte Other { get; set; }
+        public sbyte Value { get; set; }
+        public sbyte Other { get; set; }
     }
 }
