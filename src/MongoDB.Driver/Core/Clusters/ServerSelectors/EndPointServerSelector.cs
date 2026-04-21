@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -38,6 +38,11 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         {
             _endPoint = Ensure.IsNotNull(endPoint, nameof(endPoint));
         }
+
+        /// <summary>
+        /// Gets the endpoint associated with the server selector.
+        /// </summary>
+        public EndPoint EndPoint => _endPoint;
 
         // methods
         /// <inheritdoc/>

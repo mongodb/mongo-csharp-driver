@@ -13,6 +13,8 @@
 * limitations under the License.
 */
 
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using FluentAssertions;
@@ -20,56 +22,37 @@ using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Servers;
 using Xunit;
 
-namespace MongoDB.Driver.Core.Clusters.ServerSelectors
+namespace MongoDB.Driver.Core.Clusters.ServerSelectors;
+
+public class EndPointServerSelectorTests
 {
-    public class EndPointServerSelectorTests
+    private static readonly ClusterId __clusterId = new ClusterId();
+    private static readonly ServerDescription __primary = ServerDescriptionHelper.Connected(__clusterId, new DnsEndPoint("localhost", 27017), ServerType.ReplicaSetPrimary, new TagSet(new[] { new Tag("a", "1") }));
+    private static readonly ServerDescription __secondary1 = ServerDescriptionHelper.Connected(__clusterId, new DnsEndPoint("localhost", 27018), ServerType.ReplicaSetSecondary, new TagSet(new[] { new Tag("a", "1") }));
+    private static readonly ServerDescription __secondary2 = ServerDescriptionHelper.Connected(__clusterId, new DnsEndPoint("localhost", 27019), ServerType.ReplicaSetSecondary, new TagSet(new[] { new Tag("a", "2") }));
+    private static readonly ClusterDescription __description = new ClusterDescription(
+        __clusterId,
+        false,
+        null,
+        ClusterType.ReplicaSet,
+        [__primary, __secondary1, __secondary2]);
+
+    [Theory]
+    [MemberData(nameof(TestCases))]
+    public void SelectServers_should_return_expected_results(ServerDescription server, IEnumerable<ServerDescription> servers, ServerDescription[] expected)
     {
-        private readonly ClusterDescription _description;
+        var subject = new EndPointServerSelector(server.EndPoint);
 
-        public EndPointServerSelectorTests()
-        {
-            var clusterId = new ClusterId();
-            _description = new ClusterDescription(
-                clusterId,
-                false,
-                null,
-                ClusterType.Unknown,
-                [
-                    ServerDescriptionHelper.Connected(clusterId, new DnsEndPoint("localhost", 27017)),
-                    ServerDescriptionHelper.Connected(clusterId, new DnsEndPoint("localhost", 27018)),
-                    ServerDescriptionHelper.Connected(clusterId, new DnsEndPoint("localhost", 27019)),
-                ]);
-        }
+        var result = subject.SelectServers(__description, servers).ToList();
 
-        [Fact]
-        public void Should_select_the_server_if_it_exists()
-        {
-            var subject = new EndPointServerSelector(new DnsEndPoint("localhost", 27017));
-
-            var result = subject.SelectServers(_description, _description.Servers).ToList();
-
-            result.Count.Should().Be(1);
-            result.Should().BeEquivalentTo(_description.Servers[0]);
-        }
-
-        [Fact]
-        public void Should_return_empty_if_the_server_does_not_exist()
-        {
-            var subject = new EndPointServerSelector(new DnsEndPoint("blargh", 27017));
-
-            var result = subject.SelectServers(_description, _description.Servers).ToList();
-
-            result.Should().BeEmpty();
-        }
-
-        [Fact]
-        public void Should_select_no_servers_when_none_exist()
-        {
-            var subject = new EndPointServerSelector(new DnsEndPoint("blargh", 27017));
-
-            var result = subject.SelectServers(_description, Enumerable.Empty<ServerDescription>()).ToList();
-
-            result.Should().BeEmpty();
-        }
+        result.ToArray().ShouldBeEquivalentTo(expected);
     }
+
+    public static readonly object[][] TestCases =
+    [
+        [__primary, new[] { __primary, __secondary1, __secondary2 }, new[] { __primary } ],
+        [__secondary2, new[] { __primary, __secondary1, __secondary2 }, new[] { __secondary2 } ],
+        [__secondary2, new[] { __primary, __secondary1 }, Array.Empty<ServerDescription>() ],
+        [__secondary2, Array.Empty<ServerDescription>(), Array.Empty<ServerDescription>() ],
+    ];
 }
