@@ -733,7 +733,7 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         [Fact]
-        public void IsExpired_should_return_true_when_maxIdleTime_is_exceeded()
+        public void IsExpired_should_return_true_when_maxIdleTime_is_positive_and_connection_was_unused()
         {
             var subject = new BinaryConnection(
                 serverId: _serverId,
