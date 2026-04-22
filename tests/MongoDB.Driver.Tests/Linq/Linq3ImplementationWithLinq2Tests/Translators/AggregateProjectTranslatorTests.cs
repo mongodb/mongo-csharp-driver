@@ -1758,12 +1758,12 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
 
             var provider = (MongoQueryProvider<Root>)query.Provider;
             var inputSerializer = (IBsonSerializer<Root>)provider.PipelineInputSerializer;
-            var serializerRegistry = provider.Collection.Settings.SerializerRegistry;
+            var serializationDomain = provider.SerializationDomain;
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = false };
             var renderedProjection = LinqProviderAdapter.TranslateExpressionToProjection(
                 projector,
                 inputSerializer,
-                serializerRegistry,
+                serializationDomain,
                 translationOptions);
 
             var projection = renderedProjection.Document;
