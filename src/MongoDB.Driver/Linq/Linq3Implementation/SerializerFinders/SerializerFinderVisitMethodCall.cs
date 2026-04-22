@@ -1731,9 +1731,14 @@ internal partial class SerializerFinderVisitor
                         _ when declaringType == typeof(decimal) => DecimalSerializer.Instance,
                         _ when declaringType == typeof(double) => DoubleSerializer.Instance,
                         _ when declaringType == typeof(int) => Int32Serializer.Instance,
-                        _ when declaringType == typeof(short) => Int64Serializer.Instance,
+                        _ when declaringType == typeof(short) => Int16Serializer.Instance,
+                        _ when declaringType == typeof(long) => Int64Serializer.Instance,
+                        _ when declaringType == typeof(float) => SingleSerializer.Instance,
+                        _ when declaringType == typeof(byte) => ByteSerializer.Instance,
+                        _ when declaringType == typeof(sbyte) => SByteSerializer.Instance,
                         _ => UnknowableSerializer.Create(declaringType)
                     };
+
                     visitor.AddNodeSerializer(expression, nodeSerializer);
                 }
             }
