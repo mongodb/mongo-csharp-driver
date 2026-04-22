@@ -31,7 +31,12 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// </summary>
         /// <param name="elementName">The element name.</param>
         public ScalarDiscriminatorConvention(string elementName)
-            : base(elementName)
+            : this(BsonSerializationDomain.Default, elementName)
+        {
+        }
+
+        internal ScalarDiscriminatorConvention(IBsonSerializationDomain serializationDomain, string elementName)
+            : base(serializationDomain, elementName)
         {
         }
 
@@ -45,7 +50,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         public override BsonValue GetDiscriminator(Type nominalType, Type actualType)
         {
             // TODO: this isn't quite right, not all classes are serialized using a class map serializer
-            var classMap = BsonClassMap.LookupClassMap(actualType);
+            var classMap = _serializationDomain.ClassMapRegistry.LookupClassMap(actualType);
             if (actualType != nominalType || classMap.DiscriminatorIsRequired)
             {
                 return classMap.Discriminator;
@@ -59,7 +64,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <inheritdoc/>
         public BsonValue[] GetDiscriminatorsForTypeAndSubTypes(Type type)
         {
-            return _cachedTypeAndSubTypeDiscriminators.GetOrAdd(type, BsonSerializer.GetDiscriminatorsForTypeAndSubTypes);
+            return _cachedTypeAndSubTypeDiscriminators.GetOrAdd(type, _serializationDomain.GetDiscriminatorsForTypeAndSubTypes);
         }
     }
 }

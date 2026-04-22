@@ -13,11 +13,12 @@
     <IsPackable>true</IsPackable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Include="..\MongoDB.Shared\DictionaryComparer.cs" Link="Shared\DictionaryComparer.cs" />
-    <Compile Include="..\MongoDB.Shared\SequenceComparer.cs" Link="Shared\SequenceComparer.cs" />
-    <Compile Include="..\MongoDB.Shared\Hasher.cs" Link="Shared\Hasher.cs" />
-  </ItemGroup>
+<!--  The followings have been removed because they are accessed indirectly through MongoDB.Bson, otherwise there will be a double definition   -->
+<!--  <ItemGroup>-->
+<!--    <Compile Include="..\MongoDB.Shared\DictionaryComparer.cs" Link="Shared\DictionaryComparer.cs" />-->
+<!--    <Compile Include="..\MongoDB.Shared\SequenceComparer.cs" Link="Shared\SequenceComparer.cs" />-->
+<!--    <Compile Include="..\MongoDB.Shared\Hasher.cs" Link="Shared\Hasher.cs" />-->
+<!--  </ItemGroup>-->
 
   <ItemGroup>
     <PackageReference Include="DnsClient" Version="1.6.1" />
