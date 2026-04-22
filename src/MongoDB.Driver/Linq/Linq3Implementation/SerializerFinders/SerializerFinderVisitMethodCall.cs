@@ -59,8 +59,8 @@ internal partial class SerializerFinderVisitor
 
     private static class MethodCallSerializerDeducers
     {
-        private static readonly Dictionary<MethodInfo, Action<SerializerFinderVisitor, MethodCallExpression>> __serializerDeducers = new();
-        private static readonly ReaderWriterLockSlim __serializerDeducersLock = new();
+        private static readonly Dictionary<MethodInfo, Action<SerializerFinderVisitor, MethodCallExpression>> __serializerResolvers = new();
+        private static readonly ReaderWriterLockSlim __serializerResolversLock = new();
         private static readonly IBsonSerializer __binarySubTypeSerializer = NullableSerializer.Create(new EnumSerializer<BsonBinarySubType>());
 
         private static readonly IReadOnlyMethodInfoSet __averageOrMedianOrPercentileOverloads = MethodInfoSet.Create(
@@ -253,7 +253,7 @@ internal partial class SerializerFinderVisitor
                 Ensure.IsNotNull(method, nameof(method));
                 Ensure.IsNotNull(resolver, nameof(resolver));
 
-                __serializerDeducers.Add(method, resolver);
+                __serializerResolvers.Add(method, resolver);
             }
 
             void RegisterSerializerDeducers(IEnumerable<MethodInfo> methods, Action<SerializerFinderVisitor, MethodCallExpression> resolver)
@@ -1509,34 +1509,34 @@ internal partial class SerializerFinderVisitor
 
         public static Action<SerializerFinderVisitor,MethodCallExpression> GetSerializerDeducer(MethodInfo methodInfo)
         {
-            __serializerDeducersLock.EnterReadLock();
+            __serializerResolversLock.EnterReadLock();
             try
             {
-                if (__serializerDeducers.TryGetValue(methodInfo, out var deducer))
+                if (__serializerResolvers.TryGetValue(methodInfo, out var deducer))
                 {
                     return deducer;
                 }
             }
             finally
             {
-                __serializerDeducersLock.ExitReadLock();
+                __serializerResolversLock.ExitReadLock();
             }
 
-            __serializerDeducersLock.EnterWriteLock();
+            __serializerResolversLock.EnterWriteLock();
             try
             {
-                if (__serializerDeducers.TryGetValue(methodInfo, out var deducer))
+                if (__serializerResolvers.TryGetValue(methodInfo, out var deducer))
                 {
                     return deducer;
                 }
 
                 deducer = CreateDynamicSerializerDeducer(methodInfo);
-                __serializerDeducers.Add(methodInfo, deducer);
+                __serializerResolvers.Add(methodInfo, deducer);
                 return deducer;
             }
             finally
             {
-                __serializerDeducersLock.ExitWriteLock();
+                __serializerResolversLock.ExitWriteLock();
             }
         }
 
@@ -1738,7 +1738,6 @@ internal partial class SerializerFinderVisitor
                         _ when declaringType == typeof(sbyte) => SByteSerializer.Instance,
                         _ => UnknowableSerializer.Create(declaringType)
                     };
-
                     visitor.AddNodeSerializer(expression, nodeSerializer);
                 }
             }

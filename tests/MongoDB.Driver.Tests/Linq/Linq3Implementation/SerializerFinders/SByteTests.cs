@@ -42,7 +42,7 @@ public class SByteTests
         [TestHelpers.MakeLambda((MyModel model) => model.Value.CompareTo(model.Other)), typeof(Int32Serializer)],
         [TestHelpers.MakeLambda((MyModel model) => model.Value.Equals((sbyte)1)), typeof(BooleanSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => model.Value.Equals(model.Other)), typeof(BooleanSerializer)],
-        [TestHelpers.MakeLambda((MyModel model) => sbyte.Parse("42")), typeof(SByteSerializer)],
+        [TestHelpers.MakeLambda((MyModel model) => sbyte.Parse(model.StringValue)), typeof(SByteSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => model.Value.ToString()), typeof(StringSerializer)],
     ];
 
@@ -50,5 +50,6 @@ public class SByteTests
     {
         public sbyte Value { get; set; }
         public sbyte Other { get; set; }
+        public string StringValue { get; set; }
     }
 }
