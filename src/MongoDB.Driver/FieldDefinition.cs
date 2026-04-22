@@ -259,7 +259,7 @@ namespace MongoDB.Driver
         public override RenderedFieldDefinition Render(RenderArgs<TDocument> args)
         {
             return LinqProviderAdapter.TranslateExpressionToField(_expression, args.DocumentSerializer,
-                args.SerializerRegistry, args.TranslationOptions, args.SubPathRoot);
+                args.SerializationDomain, args.TranslationOptions, args.SubPathRoot);
         }
     }
 
@@ -293,7 +293,7 @@ namespace MongoDB.Driver
         public override RenderedFieldDefinition<TField> Render(RenderArgs<TDocument> args)
         {
             return LinqProviderAdapter.TranslateExpressionToField(_expression, args.DocumentSerializer,
-                args.SerializerRegistry, args.TranslationOptions, args.PathRenderArgs.AllowScalarValueForArray,
+                args.SerializationDomain, args.TranslationOptions, args.PathRenderArgs.AllowScalarValueForArray,
                 args.SubPathRoot);
         }
     }
