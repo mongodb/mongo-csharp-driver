@@ -42,7 +42,7 @@ public class LongTests
         [TestHelpers.MakeLambda((MyModel model) => model.Value.CompareTo(model.Other)), typeof(Int32Serializer)],
         [TestHelpers.MakeLambda((MyModel model) => model.Value.Equals(1L)), typeof(BooleanSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => model.Value.Equals(model.Other)), typeof(BooleanSerializer)],
-        [TestHelpers.MakeLambda((MyModel model) => long.Parse("42")), typeof(Int64Serializer)],
+        [TestHelpers.MakeLambda((MyModel model) => long.Parse(model.StringValue)), typeof(Int64Serializer)],
         [TestHelpers.MakeLambda((MyModel model) => model.Value.ToString()), typeof(StringSerializer)],
     ];
 
@@ -50,5 +50,6 @@ public class LongTests
     {
         public long Value { get; set; }
         public long Other { get; set; }
+        public string StringValue { get; set; }
     }
 }

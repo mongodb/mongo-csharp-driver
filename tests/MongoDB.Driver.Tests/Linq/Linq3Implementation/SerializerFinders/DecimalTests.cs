@@ -42,7 +42,7 @@ public class DecimalTests
         [TestHelpers.MakeLambda((MyModel model) => model.Value.CompareTo(model.Other)), typeof(Int32Serializer)],
         [TestHelpers.MakeLambda((MyModel model) => model.Value.Equals(1m)), typeof(BooleanSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => model.Value.Equals(model.Other)), typeof(BooleanSerializer)],
-        [TestHelpers.MakeLambda((MyModel model) => decimal.Parse("42")), typeof(DecimalSerializer)],
+        [TestHelpers.MakeLambda((MyModel model) => decimal.Parse(model.StringValue)), typeof(DecimalSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => model.Value.ToString()), typeof(StringSerializer)],
     ];
 
@@ -50,5 +50,6 @@ public class DecimalTests
     {
         public decimal Value { get; set; }
         public decimal Other { get; set; }
+        public string StringValue { get; set; }
     }
 }
