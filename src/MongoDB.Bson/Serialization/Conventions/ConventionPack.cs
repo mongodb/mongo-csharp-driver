@@ -22,17 +22,24 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// A mutable pack of conventions.
     /// </summary>
-    public class ConventionPack : IConventionPack, IEnumerable<IConvention>
+    public class ConventionPack : IConventionPack, IEnumerable<IConvention>, IHasSerializationDomain
     {
         // private fields
         private readonly List<IConvention> _conventions;
+        private readonly IBsonSerializationDomain _serializationDomain;
 
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="ConventionPack" /> class.
         /// </summary>
         public ConventionPack()
+            : this(BsonSerializationDomain.Default)
         {
+        }
+
+        internal ConventionPack(IBsonSerializationDomain serializationDomain)
+        {
+            _serializationDomain = serializationDomain;
             _conventions = new List<IConvention>();
         }
 
@@ -44,6 +51,8 @@ namespace MongoDB.Bson.Serialization.Conventions
         {
             get { return _conventions; }
         }
+
+        IBsonSerializationDomain IHasSerializationDomain.SerializationDomain => _serializationDomain;
 
         // public methods
         /// <summary>
