@@ -896,7 +896,8 @@ namespace MongoDB.Driver
                 _database.Client.Settings.RetryReads,
                 _database.Client.Settings.MaxAdaptiveRetries,
                 _database.Client.Settings.EnableOverloadRetargeting,
-                translationOptions);
+                translationOptions,
+                _settings.SerializationDomain);
         }
 
         private CountDocumentsOperation CreateCountDocumentsOperation(
