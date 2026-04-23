@@ -121,7 +121,7 @@ namespace MongoDB.Driver
         public IBsonSerializerRegistry SerializerRegistry => SerializationDomain.SerializerRegistry;
 
         /// <summary>
-        /// //TODO
+        /// Gets or sets the serialization domain.
         /// </summary>
         internal IBsonSerializationDomain SerializationDomain
         {

@@ -75,12 +75,12 @@ namespace MongoDB.Driver
         /// Initializes a new instance of the <see cref="RenderArgs{TDocument}"/> record.
         /// </summary>
         /// <param name="documentSerializer">The document serializer.</param>
+        /// <param name="serializationDomain">The serialization domain.</param>
         /// <param name="pathRenderArgs">The path render arguments.</param>
         /// <param name="renderDollarForm">Value that specifies whether full dollar for should be rendered.</param>
         /// <param name="renderForFind">Value that specifies whether rendering a find operation.</param>
         /// <param name="renderForElemMatch">Value that specifies whether rendering an $elemMatch.</param>
         /// <param name="translationOptions">The translation options.</param>
-        /// <param name="serializationDomain">//TODO</param>
         internal RenderArgs(
             IBsonSerializer<TDocument> documentSerializer,
             IBsonSerializationDomain serializationDomain,
