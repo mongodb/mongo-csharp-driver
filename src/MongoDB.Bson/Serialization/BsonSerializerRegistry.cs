@@ -108,7 +108,7 @@ namespace MongoDB.Bson.Serialization
             EnsureSerializerIsCompatibleWithType(serializer, type);
             if (serializer is IHasSerializationDomain hasSerializationDomain && hasSerializationDomain.SerializationDomain != _serializationDomain)
             {
-                throw new ArgumentException($"Expected serializer to be for serialization domain {_serializationDomain.Name} but was for  serialization domain {hasSerializationDomain.SerializationDomain.Name}.");
+                throw new ArgumentException($"Expected serializer to be for serialization domain {_serializationDomain.Name} but was for serialization domain {hasSerializationDomain.SerializationDomain.Name}.");
             }
 
             if (!_cache.TryAdd(type, serializer))
@@ -153,7 +153,7 @@ namespace MongoDB.Bson.Serialization
             EnsureSerializerIsCompatibleWithType(serializer, type);
             if (serializer is IHasSerializationDomain hasSerializationDomain && hasSerializationDomain.SerializationDomain != _serializationDomain)
             {
-                throw new ArgumentException($"Expected serializer to be for serialization domain {_serializationDomain.Name} but was for  serialization domain {hasSerializationDomain.SerializationDomain.Name}.");
+                throw new ArgumentException($"Expected serializer to be for serialization domain {_serializationDomain.Name} but was for serialization domain {hasSerializationDomain.SerializationDomain.Name}.");
             }
 
             if (_cache.TryAdd(type, serializer))

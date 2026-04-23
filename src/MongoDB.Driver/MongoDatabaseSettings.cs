@@ -113,7 +113,7 @@ namespace MongoDB.Driver
             get => _serializationDomain.Value ?? BsonSerializer.DefaultSerializationDomain;
             set
             {
-                if (_isFrozen) { throw new InvalidOperationException("MongoCollectionSettings is frozen."); }
+                if (_isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen."); }
                 if (value == null)
                 {
                     throw new ArgumentNullException("value");
