@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
@@ -52,7 +51,6 @@ namespace MongoDB.Driver
         private readonly string _replicaSetName;
         private readonly ConnectionStringScheme _scheme;
         private readonly int _sendBufferSize;
-        private readonly IBsonSerializationDomain _serializationDomain;
         private readonly ServerApi _serverApi;
         private readonly IReadOnlyList<MongoServerAddress> _servers;
         private readonly ServerMonitoringMode _serverMonitoringMode;
@@ -93,7 +91,6 @@ namespace MongoDB.Driver
             string replicaSetName,
             ConnectionStringScheme scheme,
             int sendBufferSize,
-            IBsonSerializationDomain serializationDomain,
             ServerApi serverApi,
             IReadOnlyList<MongoServerAddress> servers,
             ServerMonitoringMode serverMonitoringMode,
@@ -132,7 +129,6 @@ namespace MongoDB.Driver
             _replicaSetName = replicaSetName;
             _scheme = scheme;
             _sendBufferSize = sendBufferSize;
-            _serializationDomain = serializationDomain;
             _serverApi = serverApi;
             _servers = servers;
             _serverMonitoringMode = serverMonitoringMode;
@@ -175,7 +171,6 @@ namespace MongoDB.Driver
         public string ReplicaSetName { get { return _replicaSetName; } }
         public ConnectionStringScheme Scheme { get { return _scheme; } }
         public int SendBufferSize { get { return _sendBufferSize; } }
-        public IBsonSerializationDomain SerializationDomain { get { return _serializationDomain; } }
         public ServerApi ServerApi { get { return _serverApi; } }
         public IReadOnlyList<MongoServerAddress> Servers { get { return _servers; } }
         public ServerMonitoringMode ServerMonitoringMode { get { return _serverMonitoringMode; } }
@@ -233,7 +228,6 @@ namespace MongoDB.Driver
                 _replicaSetName == rhs._replicaSetName &&
                 _scheme == rhs._scheme &&
                 _sendBufferSize == rhs._sendBufferSize &&
-                object.ReferenceEquals(_serializationDomain, rhs._serializationDomain) &&
                 _serverApi == rhs._serverApi &&
                 _servers.SequenceEqual(rhs._servers) &&
                 _serverMonitoringMode == rhs._serverMonitoringMode &&

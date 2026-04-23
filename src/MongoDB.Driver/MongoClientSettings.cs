@@ -1340,7 +1340,6 @@ namespace MongoDB.Driver
                 _replicaSetName,
                 _scheme,
                 MongoDefaults.TcpSendBufferSize, // TODO: add SendBufferSize to MongoClientSettings?
-                _serializationDomain,
                 _serverApi,
                 _servers.ToList(),
                 _serverMonitoringMode,

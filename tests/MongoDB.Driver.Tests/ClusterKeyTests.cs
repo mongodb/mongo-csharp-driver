@@ -19,7 +19,6 @@ using System.Linq;
 using System.Security.Authentication;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
@@ -71,7 +70,6 @@ namespace MongoDB.Driver.Tests
         [InlineData("SchemaMap", true)]
         [InlineData("Scheme", true)]
         [InlineData("SendBufferSize", true)]
-        [InlineData("SerializationDomain", true)]
         [InlineData("ServerApi", true)]
         [InlineData("Servers", false)]
         [InlineData("ServerMonitoringMode", true)]
@@ -180,7 +178,6 @@ namespace MongoDB.Driver.Tests
             var schemaMap = new Dictionary<string, BsonDocument>();
             var scheme = ConnectionStringScheme.MongoDB;
             var sendBufferSize = 1;
-            var serializationDomain = BsonSerializer.DefaultSerializationDomain;
             var serverApi = new ServerApi(ServerApiVersion.V1, true, true);
             var servers = new[] { new MongoServerAddress("localhost") };
             var serverMonitoringMode = ServerMonitoringMode.Stream;
@@ -231,7 +228,6 @@ namespace MongoDB.Driver.Tests
                     case "SchemaMap": schemaMap.Add("db.coll", new BsonDocument()); break;
                     case "Scheme": scheme = ConnectionStringScheme.MongoDBPlusSrv; break;
                     case "SendBufferSize": sendBufferSize = 2; break;
-                    case "SerializationDomain": serializationDomain = new BsonSerializationDomain("test"); break;
                     case "ServerApi": serverApi = new ServerApi(ServerApiVersion.V1); break;
                     case "Servers": servers = new[] { new MongoServerAddress("different") }; break;
                     case "ServerMonitoringMode": serverMonitoringMode = ServerMonitoringMode.Poll; break;
@@ -274,7 +270,6 @@ namespace MongoDB.Driver.Tests
                 replicaSetName,
                 scheme,
                 sendBufferSize,
-                serializationDomain,
                 serverApi,
                 servers,
                 serverMonitoringMode,
@@ -321,7 +316,6 @@ namespace MongoDB.Driver.Tests
             var schemaMap = schemaMapValue ?? new Dictionary<string, BsonDocument>();
             var scheme = ConnectionStringScheme.MongoDB;
             var sendBufferSize = 1;
-            var serializationDomain = BsonSerializer.DefaultSerializationDomain;
             var serverApi = new ServerApi(ServerApiVersion.V1, true, true);
             var servers = new[] { new MongoServerAddress("localhost") };
             var serverMonitoringMode = ServerMonitoringMode.Stream;
@@ -365,7 +359,6 @@ namespace MongoDB.Driver.Tests
                 replicaSetName,
                 scheme,
                 sendBufferSize,
-                serializationDomain,
                 serverApi,
                 servers,
                 serverMonitoringMode,
