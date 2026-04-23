@@ -16,7 +16,6 @@
 using System;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
@@ -41,7 +40,7 @@ namespace MongoDB.Driver.Examples
             {
                 Thread.Sleep(TimeSpan.FromMilliseconds(100));
                 inventory.InsertOne(document);
-            });
+            }) { IsBackground = true };
 
             thread.Start();
 
@@ -54,8 +53,7 @@ namespace MongoDB.Driver.Examples
 
             next.FullDocument.Should().Be(document);
 
-            // Make sure worker thread is finished before we let the next test run.
-            thread.Join();
+            OverkillThreadJoin(thread);
         }
 
         [Fact]
@@ -74,7 +72,7 @@ namespace MongoDB.Driver.Examples
                 var filter = new BsonDocument("_id", document["_id"]);
                 var update = "{ $set : { x : 2 } }";
                 inventory.UpdateOne(filter, update);
-            });
+            }) { IsBackground = true };
 
             thread.Start();
 
@@ -89,8 +87,7 @@ namespace MongoDB.Driver.Examples
             var expectedFullDocument = document.Set("x", 2);
             next.FullDocument.Should().Be(expectedFullDocument);
 
-            // Make sure worker thread is finished before we let the next test run.
-            thread.Join();
+            OverkillThreadJoin(thread);
         }
 
         [Fact]
@@ -113,15 +110,14 @@ namespace MongoDB.Driver.Examples
                 {
                     Thread.Sleep(TimeSpan.FromMilliseconds(100));
                     inventory.InsertMany(documents);
-                });
+                }) { IsBackground = true };
 
                 thread.Start();
 
                 previousCursor = inventory.Watch(new ChangeStreamOptions { BatchSize = 1 });
                 while (previousCursor.MoveNext() && previousCursor.Current.Count() == 0) { } // keep calling MoveNext until we've read the first batch
 
-                // Make sure worker thread is finished before we let the next test run.
-                thread.Join();
+                OverkillThreadJoin(thread);
             }
 
             {
@@ -160,7 +156,7 @@ namespace MongoDB.Driver.Examples
                     document["_id"] = ObjectId.GenerateNewId();
                     inventoryCollection.InsertOne(document);
                 }
-            });
+            }) { IsBackground = true };
 
             try
             {
@@ -185,11 +181,19 @@ namespace MongoDB.Driver.Examples
             finally
             {
                 stopEvent.Set();
+                OverkillThreadJoin(thread);
+                stopEvent.Dispose();
+            }
+        }
 
-                // Make sure the worker thread is finished before we let the next test run.
-                // Especially important for this test case since the thread continually inserts documents.
-                thread.Join();
-                stopEvent.Dispose();            }
+        private static void OverkillThreadJoin(Thread thread)
+        {
+            // Make sure the worker thread is finished before we let the next test run.
+            // The timeout is overkill, but my agent said, "it's better to be safe than sorry."
+            if (!thread.Join(TimeSpan.FromMinutes(2)))
+            {
+                throw new TimeoutException("Worker thread did not finish.");
+            }
         }
     }
 }
