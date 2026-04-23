@@ -50,11 +50,6 @@ namespace MongoDB.Bson.Serialization
             return serializer.Deserialize(context, args);
         }
 
-        internal static IBsonSerializer GetSerializerForBaseType(this IBsonSerializer serializer, Type baseType)
-        {
-            throw new NotImplementedException();
-        }
-
         internal static IBsonSerializer GetSerializerForDerivedType(this IBsonSerializer serializer, Type derivedType)
         {
             if (serializer is IHasSerializationDomain domainSpecificSerializer)
