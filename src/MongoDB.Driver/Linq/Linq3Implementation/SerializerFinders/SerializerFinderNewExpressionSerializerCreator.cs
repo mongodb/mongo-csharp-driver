@@ -18,7 +18,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators;
@@ -135,7 +137,44 @@ internal partial class SerializerFinderVisitor
             return memberChildSerializerConfigurable.WithChildSerializer(sourceItemSerializer);
         }
 
+        // if (typeof(BsonValue).IsAssignableFrom(memberType) && !IsAlreadyCSharpNullWrapped(sourceSerializer))
+        // {
+        //     return WrapWithBsonValueCSharpNullSerializer(memberType, sourceSerializer);
+        // }
+
         return sourceSerializer;
+    }
+
+    private static bool IsAlreadyCSharpNullWrapped(IBsonSerializer serializer)
+    {
+        var type = serializer.GetType();
+        while (type != null && type != typeof(object))
+        {
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(BsonValueCSharpNullSerializer<>))
+            {
+                return true;
+            }
+            type = type.BaseType;
+        }
+        return false;
+    }
+
+    private static IBsonSerializer WrapWithBsonValueCSharpNullSerializer(Type memberType,
+        IBsonSerializer wrappedSerializer)
+    {
+        var isBsonArraySerializer = wrappedSerializer is IBsonArraySerializer;
+        var isBsonDocumentSerializer = wrappedSerializer is IBsonDocumentSerializer;
+
+        var csharpNullSerializerDefinition =
+            (isBsonArraySerializer, isBsonDocumentSerializer) switch
+            {
+                (true, true) => typeof(BsonValueCSharpNullArrayAndDocumentSerializer<>),
+                (true, false) => typeof(BsonValueCSharpNullArraySerializer<>),
+                (false, true) => typeof(BsonValueCSharpNullDocumentSerializer<>),
+                (false, false) => typeof(BsonValueCSharpNullSerializer<>),
+            };
+        var csharpNullSerializerType = csharpNullSerializerDefinition.MakeGenericType(memberType);
+        return (IBsonSerializer)Activator.CreateInstance(csharpNullSerializerType, wrappedSerializer);
     }
 
     private static BsonMemberMap EnsureMemberMap(Expression expression, BsonClassMap classMap, MemberInfo creatorMapParameter)
