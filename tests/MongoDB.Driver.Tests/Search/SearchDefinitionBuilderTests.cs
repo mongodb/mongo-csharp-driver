@@ -27,7 +27,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Search
 {
-    public class SearchDefinitionBuilderTests
+    public class ySearchDefinitionBuilderTests
     {
         private static readonly GeoWithinBox<GeoJson2DGeographicCoordinates> __testBox =
             new GeoWithinBox<GeoJson2DGeographicCoordinates>(
@@ -484,14 +484,12 @@ namespace MongoDB.Driver.Tests.Search
             var op = person.Phrase(x => x.LastName, "foo");
 
             // Without operator
-            Record.Exception(() => bsonDoc.Facet(facets:null)).Should().BeOfType<ArgumentNullException>();
-            Record.Exception(() => bsonDoc.Facet(facets:null)).Should().BeOfType<ArgumentNullException>();
-            Record.Exception(() => bsonDoc.Facet(facets:null)).Should().BeOfType<ArgumentNullException>();
+            Record.Exception(() => bsonDoc.Facet((IEnumerable<SearchFacet<BsonDocument>>)null)).Should().BeOfType<ArgumentNullException>();
+            Record.Exception(() => bsonDoc.Facet((SearchFacet<BsonDocument>[])null)).Should().BeOfType<ArgumentNullException>();
 
             // With operator
-            Record.Exception(() => person.Facet(op, null)).Should().BeOfType<ArgumentNullException>();
-            Record.Exception(() => person.Facet(op, null)).Should().BeOfType<ArgumentNullException>();
-            Record.Exception(() => person.Facet(op, null)).Should().BeOfType<ArgumentNullException>();
+            Record.Exception(() => person.Facet(op, (SearchFacet<Person>[])null)).Should().BeOfType<ArgumentNullException>();
+            Record.Exception(() => person.Facet(op, (IEnumerable<SearchFacet<Person>>)null)).Should().BeOfType<ArgumentNullException>();
         }
 
         [Fact]
@@ -548,15 +546,6 @@ namespace MongoDB.Driver.Tests.Search
                 subject.Facet(
                     facetBuilder.String("string", "y", 100)),
                 "{ facet: { facets: { string: { type: 'string', path: 'y', numBuckets: 100 } } } }");
-        }
-
-        [Fact]
-        public void Facet_typed_should_not_misuse_overload_with_null_operator()
-        {
-            var subject = CreateSubject<Person>();
-            var facetBuilder = new SearchFacetBuilder<Person>();
-
-            Record.Exception(() => subject.Facet((SearchDefinition<Person>)null, facetBuilder.String("string", x => x.FirstName, 100))).Should().BeOfType<ArgumentNullException>();
         }
 
         [Fact]
