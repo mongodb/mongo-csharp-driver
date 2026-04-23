@@ -54,7 +54,8 @@ namespace MongoDB.Driver.Examples
             kmsProviders.Add("local", localKey);
 
             var keyVaultNamespace = CollectionNamespace.FromFullName("encryption.__keyVault");
-            var keyVaultClient = new MongoClient("mongodb://localhost");
+            var keyVaultClientSettings = MongoClientSettings.FromConnectionString(CoreTestConfiguration.ConnectionString.ToString());
+            var keyVaultClient = new MongoClient(keyVaultClientSettings);
             var keyVaultDatabase = keyVaultClient.GetDatabase(keyVaultNamespace.DatabaseNamespace.DatabaseName);
             keyVaultDatabase.DropCollection(keyVaultNamespace.CollectionName);
 
@@ -109,14 +110,15 @@ namespace MongoDB.Driver.Examples
                 keyVaultNamespace,
                 kmsProviders,
                 bypassAutoEncryption: true);
-            var clientSettings = MongoClientSettings.FromConnectionString("mongodb://localhost");
+            var clientSettings = MongoClientSettings.FromConnectionString(CoreTestConfiguration.ConnectionString.ToString());
             clientSettings.AutoEncryptionOptions = autoEncryptionOptions;
             var mongoClient = new MongoClient(clientSettings);
             var database = mongoClient.GetDatabase(collectionNamespace.DatabaseNamespace.DatabaseName);
             database.DropCollection(collectionNamespace.CollectionName);
             var collection = database.GetCollection<BsonDocument>(collectionNamespace.CollectionName);
 
-            var keyVaultClient = new MongoClient("mongodb://localhost");
+            var keyVaultClientSettings = MongoClientSettings.FromConnectionString(CoreTestConfiguration.ConnectionString.ToString());
+            var keyVaultClient = new MongoClient(keyVaultClientSettings);
             var keyVaultDatabase = keyVaultClient.GetDatabase(keyVaultNamespace.DatabaseNamespace.DatabaseName);
             keyVaultDatabase.DropCollection(keyVaultNamespace.CollectionName);
 

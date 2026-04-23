@@ -1622,7 +1622,7 @@ namespace MongoDB.Driver.Examples
         {
             var registry = BsonSerializer.SerializerRegistry;
             var serializer = registry.GetSerializer<BsonDocument>();
-            return projection.Render(new(serializer, registry)).Document;
+            return projection.Render(new(serializer, registry) { RenderForFind = true }).Document;
         }
 
         private BsonDocument Render(UpdateDefinition<BsonDocument> update)
