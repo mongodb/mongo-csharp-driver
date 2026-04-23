@@ -775,7 +775,8 @@ namespace MongoDB.Driver
                 _client.Settings.RetryReads,
                 _client.Settings.MaxAdaptiveRetries,
                 _client.Settings.EnableOverloadRetargeting,
-                translationOptions);
+                translationOptions,
+                _settings.SerializationDomain);
         }
 
         private OperationContext CreateOperationContext(IClientSessionHandle session, TimeSpan? timeout, string operationName, string collectionName, CancellationToken cancellationToken)
