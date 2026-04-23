@@ -67,6 +67,16 @@ namespace MongoDB.Bson.Serialization
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the BsonClassMap class.
+        /// </summary>
+        /// <param name="classType">The class type.</param>
+        /// <param name="baseClassMap">The base class map.</param>
+        public BsonClassMap(Type classType, BsonClassMap baseClassMap)
+            : this(BsonSerializationDomain.Default, classType, baseClassMap)
+        {
+        }
+
         internal BsonClassMap(IBsonSerializationDomain serializationDomain, Type classType)
         {
             _serializationDomain = serializationDomain;
