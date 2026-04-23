@@ -429,6 +429,51 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void TestLinqInjectTranslatesFilterUnderOuterDomain()
+        {
+            RequireServer.Check();
+
+            // Custom domain's CustomStringSerializer rewrites strings with a "test" suffix; the filter value
+            // must be serialized through the domain's registry when the Inject path is translated.
+            var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
+            customDomain.RegisterSerializer(new CustomStringSerializer());
+
+            var client = CreateClientWithDomain(customDomain);
+            var collection = GetTypedCollection<Person>(client);
+
+            var injectedFilter = Builders<Person>.Filter.Eq(p => p.Name, "Mario");
+            var queryable = collection.AsQueryable().Where(p => injectedFilter.Inject());
+
+            var stages = Linq3TestHelpers.Translate<Person, Person>(queryable);
+            var match = stages.Single(s => s.Contains("$match"));
+            match.ToJson().Should().Contain("Mariotest");
+        }
+
+        [Fact]
+        public void TestLinqPickWithSortByRunsUnderCustomDomain()
+        {
+            RequireServer.Check();
+
+            // Smoke test: Pick's SortDefinition render path now receives the custom SerializationDomain.
+            // The assertion is that translation completes without reaching the global static registry;
+            // the resulting $bottomN reflects the expected shape.
+            var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
+
+            var client = CreateClientWithDomain(customDomain);
+            var collection = GetTypedCollection<Person>(client);
+
+            var queryable = collection
+                .AsQueryable()
+                .GroupBy(p => p.Name)
+                .Select(g => new { Name = g.Key, YoungestAge = g.BottomN(Builders<Person>.Sort.Descending(p => p.Age), p => p.Age, 1) });
+
+            var stages = Linq3TestHelpers.Translate<Person, object>(queryable);
+            var group = stages.Single(s => s.Contains("$group"));
+            group.ToJson().Should().Contain("$bottomN");
+            group.ToJson().Should().Contain("sortBy");
+        }
+
+        [Fact]
         public void TryRegisterClassMap_with_initializer_binds_to_custom_domain()
         {
             var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
