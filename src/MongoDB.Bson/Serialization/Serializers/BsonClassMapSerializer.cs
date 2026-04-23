@@ -64,6 +64,10 @@ namespace MongoDB.Bson.Serialization
             {
                 throw new ArgumentException("Class map is not frozen.", nameof(classMap));
             }
+            if (classMap.SerializationDomain != serializationDomain)
+            {
+                throw new ArgumentException($"Expected class map to be for serialization domain {serializationDomain.Name}, but was for serialization domain {classMap.SerializationDomain.Name}.", nameof(classMap));
+            }
 
             _serializationDomain = serializationDomain;
             _classMap = classMap;
