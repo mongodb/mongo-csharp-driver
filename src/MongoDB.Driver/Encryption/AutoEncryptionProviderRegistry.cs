@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Encryption
             // each time. This removes a significant synchronization burden from the caller when multiple services
             // may all need to initialize the registry.
             // It is the responsibility of the caller to ensure that the same reference is used for multiple calls.
-            if(ReferenceEquals(factory, _autoCryptClientControllerFactory))
+            if (ReferenceEquals(factory, _autoCryptClientControllerFactory))
             {
                 return;
             }
