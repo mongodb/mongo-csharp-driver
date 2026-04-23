@@ -21,6 +21,7 @@ namespace MongoDB.Bson
 {
     internal class BsonDefaultsRegistry : IBsonDefaults
     {
+        // TODO: lazy init of _dynamicArraySerializer / _dynamicDocumentSerializer is not thread-safe (it's not even safe now)
         private IBsonSerializationDomain _serializationDomain;
         private bool _dynamicArraySerializerWasSet;
         private IBsonSerializer _dynamicArraySerializer;
