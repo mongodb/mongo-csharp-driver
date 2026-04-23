@@ -233,7 +233,7 @@ internal class BsonClassMapRegistry : IBsonClassMapRegistry, IHasSerializationDo
 
         BsonClassMap<TClass> ClassMapFactory()
         {
-            return new BsonClassMap<TClass>(classMapInitializer);
+            return new BsonClassMap<TClass>(_serializationDomain, classMapInitializer);
         }
     }
 

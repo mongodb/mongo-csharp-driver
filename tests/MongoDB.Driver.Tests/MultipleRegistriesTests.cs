@@ -428,6 +428,18 @@ namespace MongoDB.Driver.Tests
             }
         }
 
+        [Fact]
+        public void TryRegisterClassMap_with_initializer_binds_to_custom_domain()
+        {
+            var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
+
+            var registered = customDomain.ClassMapRegistry.TryRegisterClassMap<Person>(cm => cm.AutoMap());
+
+            registered.Should().BeTrue();
+            var classMap = customDomain.ClassMapRegistry.LookupClassMap(typeof(Person));
+            classMap.SerializationDomain.Should().BeSameAs(customDomain);
+        }
+
         private static IMongoCollection<T> GetTypedCollection<T>(IMongoClient client) =>
             client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName)
                 .GetCollection<T>(DriverTestConfiguration.CollectionNamespace.CollectionName);

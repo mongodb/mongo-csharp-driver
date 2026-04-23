@@ -111,18 +111,17 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The discriminator convention.</returns>
         public static IDiscriminatorConvention GetDiscriminatorConvention(this IBsonSerializer serializer)
         {
-            if (serializer is IHasDiscriminatorConvention hasDiscriminatorConvention)
+            switch (serializer)
             {
-                return hasDiscriminatorConvention.DiscriminatorConvention;
-            }
-            else if (serializer is IHasSerializationDomain hasSerializationDomain)
-            {
-                var serializationDomain = hasSerializationDomain.SerializationDomain;
-                return serializationDomain.LookupDiscriminatorConvention(serializer.ValueType);
-            }
-            else
-            {
-                return NonPolymorphicDiscriminatorConvention.Instance;
+                case IHasDiscriminatorConvention hasDiscriminatorConvention:
+                    return hasDiscriminatorConvention.DiscriminatorConvention;
+                case IHasSerializationDomain hasSerializationDomain:
+                {
+                    var serializationDomain = hasSerializationDomain.SerializationDomain;
+                    return serializationDomain.LookupDiscriminatorConvention(serializer.ValueType);
+                }
+                default:
+                    return BsonSerializationDomain.Default.LookupDiscriminatorConvention(serializer.ValueType);
             }
         }
 
