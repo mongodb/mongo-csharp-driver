@@ -72,7 +72,7 @@ namespace MongoDB.Bson.Serialization
             _serializationDomain = serializationDomain;
             _classType = classType;
             _creatorMaps = new List<BsonCreatorMap>();
-            _conventionPack = ConventionRegistry.Lookup(classType);
+            _conventionPack = serializationDomain.ConventionRegistry.Lookup(classType);
             _isAnonymous = classType.IsAnonymousType();
             _allMemberMaps = new List<BsonMemberMap>();
             _allMemberMapsReadonly = _allMemberMaps.AsReadOnly();
