@@ -82,17 +82,6 @@ namespace MongoDB.Bson.Serialization
             Reset();
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BsonClassMap"/> class.
-        /// </summary>
-        /// <param name="classType">Type of the class.</param>
-        /// <param name="baseClassMap">The base class map.</param>
-        public BsonClassMap(Type classType, BsonClassMap baseClassMap)
-            : this(BsonSerializationDomain.Default, classType, baseClassMap)
-        {
-            throw new InvalidOperationException();
-        }
-
         internal BsonClassMap(IBsonSerializationDomain serializationDomain, Type classType, BsonClassMap baseClassMap)
             : this(serializationDomain, classType)
         {
