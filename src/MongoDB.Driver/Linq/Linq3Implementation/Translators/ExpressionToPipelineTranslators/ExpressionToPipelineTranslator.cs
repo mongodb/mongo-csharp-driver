@@ -28,7 +28,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             {
                 var query = (IQueryable)((ConstantExpression)expression).Value;
                 var provider = (IMongoQueryProviderInternal)query.Provider;
-                return TranslatedPipeline.Empty(provider.PipelineInputSerializer);
+                var pipelineInputSerializer = provider.PipelineInputSerializer;
+                // When a nested queryable (e.g. the second input to Concat/Union) is translated
+                // against a different outer domain, re-resolve its document serializer from the
+                // outer domain so element-name conventions match the outer pipeline's view.
+                if (pipelineInputSerializer != NoPipelineInputSerializer.Instance &&
+                    provider.SerializationDomain != context.SerializationDomain)
+                {
+                    pipelineInputSerializer = context.SerializationDomain.LookupSerializer(pipelineInputSerializer.ValueType);
+                }
+                return TranslatedPipeline.Empty(pipelineInputSerializer);
             }
 
             var methodCallExpression = (MethodCallExpression)expression;

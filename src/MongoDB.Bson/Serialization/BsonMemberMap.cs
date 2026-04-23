@@ -63,7 +63,7 @@ namespace MongoDB.Bson.Serialization
             _serializationDomain = serializationDomain;
             _classMap = classMap;
             _memberInfo = memberInfo;
-            _memberType = GetMemberInfoType(memberInfo);
+            _memberType = BsonClassMap.GetMemberInfoType(memberInfo);
             _memberTypeIsBsonValue = typeof(BsonValue).GetTypeInfo().IsAssignableFrom(_memberType);
 
             Reset();
@@ -660,26 +660,6 @@ namespace MongoDB.Bson.Serialization
 
             return lambdaExpression.Compile();
         }
-
-        private Type GetMemberInfoType(MemberInfo memberInfo)
-        {
-            if (memberInfo == null)
-            {
-                throw new ArgumentNullException("memberInfo");
-            }
-
-            if (memberInfo is FieldInfo)
-            {
-                return ((FieldInfo)memberInfo).FieldType;
-            }
-            else if (memberInfo is PropertyInfo)
-            {
-                return ((PropertyInfo)memberInfo).PropertyType;
-            }
-
-            throw new NotSupportedException("Only field and properties are supported at this time.");
-        }
-
 
         private Action<object, object> GetPropertySetter()
         {

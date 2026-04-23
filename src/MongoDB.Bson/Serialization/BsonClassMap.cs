@@ -267,6 +267,30 @@ namespace MongoDB.Bson.Serialization
 
         // public static methods
         /// <summary>
+        /// Gets the type of a member.
+        /// </summary>
+        /// <param name="memberInfo">The member info.</param>
+        /// <returns>The type of the member.</returns>
+        public static Type GetMemberInfoType(MemberInfo memberInfo)
+        {
+            if (memberInfo == null)
+            {
+                throw new ArgumentNullException("memberInfo");
+            }
+
+            if (memberInfo is FieldInfo)
+            {
+                return ((FieldInfo)memberInfo).FieldType;
+            }
+            else if (memberInfo is PropertyInfo)
+            {
+                return ((PropertyInfo)memberInfo).PropertyType;
+            }
+
+            throw new NotSupportedException("Only field and properties are supported at this time.");
+        }
+
+        /// <summary>
         /// Gets all registered class maps.
         /// </summary>
         /// <returns>All registered class maps.</returns>

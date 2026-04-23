@@ -1103,6 +1103,7 @@ namespace MongoDB.Driver
                 _retryReads == rhs._retryReads &&
                 _retryWrites == rhs._retryWrites &&
                 _scheme == rhs._scheme &&
+                object.ReferenceEquals(_serializationDomain, rhs._serializationDomain) &&
                 _serverApi == rhs._serverApi &&
                 _servers.SequenceEqual(rhs._servers) &&
                 _serverMonitoringMode == rhs._serverMonitoringMode &&
@@ -1194,6 +1195,7 @@ namespace MongoDB.Driver
                 .Hash(_retryReads)
                 .Hash(_retryWrites)
                 .Hash(_scheme)
+                .Hash(_serializationDomain)
                 .Hash(_serverApi)
                 .HashElements(_servers)
                 .Hash(_serverMonitoringMode)
@@ -1338,6 +1340,7 @@ namespace MongoDB.Driver
                 _replicaSetName,
                 _scheme,
                 MongoDefaults.TcpSendBufferSize, // TODO: add SendBufferSize to MongoClientSettings?
+                _serializationDomain,
                 _serverApi,
                 _servers.ToList(),
                 _serverMonitoringMode,
