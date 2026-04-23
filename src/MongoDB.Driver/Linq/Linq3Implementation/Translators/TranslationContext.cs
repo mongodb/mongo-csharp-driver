@@ -50,6 +50,25 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
             return Create(provider.SerializationDomain, expression, ultimateSourceExpression, ultimateSourceSerializer, translationOptions, data);
         }
 
+        // Used by Concat/Union to translate a secondary queryable against the outer pipeline's domain
+        // rather than the secondary provider's own domain, so the stitched $unionWith pipeline is
+        // translated consistently under a single domain. The document serializer is re-resolved from
+        // the outer domain so element-name conventions match the outer pipeline's view of the type.
+        public static TranslationContext Create(
+            IBsonSerializationDomain serializationDomain,
+            IQueryable queryable,
+            ExpressionTranslationOptions translationOptions,
+            TranslationContextData data = null)
+        {
+            var expression = queryable.Expression;
+            var provider = (IMongoQueryProviderInternal)queryable.Provider;
+            var ultimateSourceExpression = GetUltimateSource(expression);
+            var documentType = provider.PipelineInputSerializer.ValueType;
+            var documentSerializer = serializationDomain.LookupSerializer(documentType);
+            var ultimateSourceSerializer = IQueryableSerializer.Create(documentSerializer);
+            return Create(serializationDomain, expression, ultimateSourceExpression, ultimateSourceSerializer, translationOptions, data);
+        }
+
         public static TranslationContext Create(
             IBsonSerializationDomain serializationDomain,
             Expression expression,
