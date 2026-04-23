@@ -136,6 +136,7 @@ namespace MongoDB.Driver.Tests
                 replicaSetName: "rs",
                 scheme: ConnectionStringScheme.MongoDB,
                 sendBufferSize: 10,
+                serializationDomain: null,
                 serverApi: serverApi,
                 servers: servers,
                 serverMonitoringMode: ServerMonitoringMode.Stream,
