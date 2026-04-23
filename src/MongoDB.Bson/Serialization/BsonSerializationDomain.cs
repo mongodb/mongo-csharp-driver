@@ -731,6 +731,11 @@ namespace MongoDB.Bson.Serialization
         /// <param name="idGenerator">The IdGenerator for the Id Type.</param>
         public void RegisterIdGenerator(Type type, IIdGenerator idGenerator)
         {
+            if (idGenerator is IHasSerializationDomain hasSerializationDomain && hasSerializationDomain.SerializationDomain != this)
+            {
+                throw new ArgumentException($"Expected id generator to be for serialization domain {Name} but was for serialization domain {hasSerializationDomain.SerializationDomain.Name}.");
+            }
+
             _configLock.EnterWriteLock();
             try
             {
@@ -748,6 +753,11 @@ namespace MongoDB.Bson.Serialization
         /// <param name="provider">The serialization provider.</param>
         public void RegisterSerializationProvider(IBsonSerializationProvider provider)
         {
+            if (provider is IHasSerializationDomain hasSerializationDomain && hasSerializationDomain.SerializationDomain != this)
+            {
+                throw new ArgumentException($"Expected serialization provider to be for serialization domain {Name} but was for serialization domain {hasSerializationDomain.SerializationDomain.Name}.");
+            }
+
             _serializerRegistry.RegisterSerializationProvider(provider);
         }
 
