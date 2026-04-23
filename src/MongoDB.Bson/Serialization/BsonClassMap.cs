@@ -433,7 +433,7 @@ namespace MongoDB.Bson.Serialization
         /// Freezes the class map.
         /// </summary>
         /// <returns>The frozen class map.</returns>
-        public BsonClassMap Freeze() => Freeze(BsonSerializationDomain.Default);
+        public BsonClassMap Freeze() => Freeze(_serializationDomain);
 
         internal BsonClassMap Freeze(IBsonSerializationDomain serializationDomain)
         {
