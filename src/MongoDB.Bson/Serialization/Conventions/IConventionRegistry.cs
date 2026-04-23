@@ -20,24 +20,24 @@ namespace MongoDB.Bson.Serialization.Conventions
     internal interface IConventionRegistry
     {
         /// <summary>
-        /// //TODO
+        /// Looks up the effective set of conventions that apply to a type.
         /// </summary>
-        /// <param name="type"></param>
-        /// <returns></returns>
+        /// <param name="type">The type.</param>
+        /// <returns>The conventions for that type.</returns>
         IConventionPack Lookup(Type type);
 
         /// <summary>
-        /// //TODO
+        /// Registers the conventions.
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="conventions"></param>
-        /// <param name="filter"></param>
+        /// <param name="name">The name.</param>
+        /// <param name="conventions">The conventions.</param>
+        /// <param name="filter">The filter.</param>
         void Register(string name, IConventionPack conventions, Func<Type, bool> filter);
 
         /// <summary>
-        /// //TODO
+        /// Removes the conventions specified by the given name.
         /// </summary>
-        /// <param name="name"></param>
+        /// <param name="name">The name.</param>
         void Remove(string name);
     }
 }
