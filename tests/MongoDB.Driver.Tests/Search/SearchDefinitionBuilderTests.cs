@@ -457,6 +457,53 @@ namespace MongoDB.Driver.Tests.Search
         }
 
         [Fact]
+        public void Facet_should_throw_when_facet_array_is_empty()
+        {
+            var person = CreateSubject<Person>();
+            var bsonDoc = CreateSubject<BsonDocument>();
+            var op = person.Phrase(x => x.LastName, "foo");
+
+            // Without operator
+            Record.Exception(() => bsonDoc.Facet()).Should().BeOfType<ArgumentException>();
+            Record.Exception(() => bsonDoc.Facet(Array.Empty<SearchFacet<BsonDocument>>())).Should().BeOfType<ArgumentException>();
+            Record.Exception(() => bsonDoc.Facet((IEnumerable<SearchFacet<BsonDocument>>)new List<SearchFacet<BsonDocument>>())).Should().BeOfType<ArgumentException>();
+
+            // With operator
+            Record.Exception(() => person.Facet(op)).Should().BeOfType<ArgumentException>();
+            Record.Exception(() => person.Facet(op,
+                Array.Empty<SearchFacet<Person>>())).Should().BeOfType<ArgumentException>();
+            Record.Exception(() => person.Facet(op, (IEnumerable<SearchFacet<Person>>)new
+                List<SearchFacet<Person>>())).Should().BeOfType<ArgumentException>();
+        }
+
+        [Fact]
+        public void Facet_should_throw_when_facet_array_is_null()
+        {
+            var person = CreateSubject<Person>();
+            var bsonDoc = CreateSubject<BsonDocument>();
+            var op = person.Phrase(x => x.LastName, "foo");
+
+            // Without operator
+            Record.Exception(() => bsonDoc.Facet(facets:null)).Should().BeOfType<ArgumentNullException>();
+            Record.Exception(() => bsonDoc.Facet(facets:null)).Should().BeOfType<ArgumentNullException>();
+            Record.Exception(() => bsonDoc.Facet(facets:null)).Should().BeOfType<ArgumentNullException>();
+
+            // With operator
+            Record.Exception(() => person.Facet(op, null)).Should().BeOfType<ArgumentNullException>();
+            Record.Exception(() => person.Facet(op, null)).Should().BeOfType<ArgumentNullException>();
+            Record.Exception(() => person.Facet(op, null)).Should().BeOfType<ArgumentNullException>();
+        }
+
+        [Fact]
+        public void Facet_should_throw_when_operator_is_null()
+        {
+            var subject = CreateSubject<BsonDocument>();
+            var facetBuilder = new SearchFacetBuilder<BsonDocument>();
+
+            Record.Exception(() => subject.Facet((SearchDefinition<BsonDocument>)null, facetBuilder.String("string", "y", 100))).Should().BeOfType<ArgumentNullException>();
+        }
+
+        [Fact]
         public void Facet_typed()
         {
             var subject = CreateSubject<Person>();
@@ -472,18 +519,6 @@ namespace MongoDB.Driver.Tests.Search
                 subject.Facet(
                     subject.Phrase("LastName", "foo"),
                     facetBuilder.String("string", "FirstName", 100)), expected);
-        }
-
-        [Fact]
-        public void Facet_without_operator()
-        {
-            var subject = CreateSubject<BsonDocument>();
-            var facetBuilder = new SearchFacetBuilder<BsonDocument>();
-
-            AssertRendered(
-                subject.Facet(
-                    facetBuilder.String("string", "y", 100)),
-                "{ facet: { facets: { string: { type: 'string', path: 'y', numBuckets: 100 } } } }");
         }
 
         [Fact]
@@ -504,12 +539,15 @@ namespace MongoDB.Driver.Tests.Search
         }
 
         [Fact]
-        public void Facet_should_not_misuse_overload_with_null_operator()
+        public void Facet_without_operator()
         {
             var subject = CreateSubject<BsonDocument>();
             var facetBuilder = new SearchFacetBuilder<BsonDocument>();
 
-            Record.Exception(() => subject.Facet((SearchDefinition<BsonDocument>)null, facetBuilder.String("string", "y", 100))).Should().BeOfType<ArgumentNullException>();
+            AssertRendered(
+                subject.Facet(
+                    facetBuilder.String("string", "y", 100)),
+                "{ facet: { facets: { string: { type: 'string', path: 'y', numBuckets: 100 } } } }");
         }
 
         [Fact]
@@ -519,26 +557,6 @@ namespace MongoDB.Driver.Tests.Search
             var facetBuilder = new SearchFacetBuilder<Person>();
 
             Record.Exception(() => subject.Facet((SearchDefinition<Person>)null, facetBuilder.String("string", x => x.FirstName, 100))).Should().BeOfType<ArgumentNullException>();
-        }
-
-        [Fact]
-        public void Facet_should_disallow_null_facet_array()
-        {
-            var person = CreateSubject<Person>();
-            var bsonDoc = CreateSubject<BsonDocument>();
-            var op = person.Phrase(x => x.LastName, "foo");
-
-            // Without operator
-            Record.Exception(() => bsonDoc.Facet()).Should().BeOfType<ArgumentException>();
-            Record.Exception(() => bsonDoc.Facet(Array.Empty<SearchFacet<BsonDocument>>())).Should().BeOfType<ArgumentException>();
-            Record.Exception(() => bsonDoc.Facet((IEnumerable<SearchFacet<BsonDocument>>)new List<SearchFacet<BsonDocument>>())).Should().BeOfType<ArgumentException>();
-
-            // With operator
-            Record.Exception(() => person.Facet(op)).Should().BeOfType<ArgumentException>();
-            Record.Exception(() => person.Facet(op,
-                Array.Empty<SearchFacet<Person>>())).Should().BeOfType<ArgumentException>();
-            Record.Exception(() => person.Facet(op, (IEnumerable<SearchFacet<Person>>)new
-                List<SearchFacet<Person>>())).Should().BeOfType<ArgumentException>();
         }
 
         [Fact]

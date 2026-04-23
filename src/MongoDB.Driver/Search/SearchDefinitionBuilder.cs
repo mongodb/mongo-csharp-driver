@@ -189,7 +189,6 @@ namespace MongoDB.Driver.Search
             IEnumerable<SearchFacet<TDocument>> facets)
         {
             Ensure.IsNotNull(@operator, nameof(@operator));
-            Ensure.IsNotNullOrEmpty(facets, nameof(facets));
             return new FacetSearchDefinition<TDocument>(@operator, facets);
         }
 
@@ -214,7 +213,6 @@ namespace MongoDB.Driver.Search
         /// <returns>A facet search definition.</returns>
         public SearchDefinition<TDocument> Facet(IEnumerable<SearchFacet<TDocument>> facets)
         {
-            Ensure.IsNotNullOrEmpty(facets, nameof(facets));
             return new FacetSearchDefinition<TDocument>(null, facets);
         }
 

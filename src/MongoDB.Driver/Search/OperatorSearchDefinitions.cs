@@ -175,7 +175,7 @@ namespace MongoDB.Driver.Search
             : base(OperatorType.Facet)
         {
             _operator = @operator;
-            _facets = Ensure.IsNotNull(facets, nameof(facets)).ToArray();
+            _facets = Ensure.IsNotNullOrEmpty(facets, nameof(facets)).ToArray();
         }
 
         private protected override BsonDocument RenderArguments(
