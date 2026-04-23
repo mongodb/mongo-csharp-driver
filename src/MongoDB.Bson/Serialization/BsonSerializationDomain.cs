@@ -82,7 +82,7 @@ namespace MongoDB.Bson.Serialization
         private bool _useZeroIdChecker;
 
         // constructor
-        public BsonSerializationDomain(string name = null)
+        private BsonSerializationDomain(string name = null)
         {
             Name = name ?? "CUSTOM";
         }
