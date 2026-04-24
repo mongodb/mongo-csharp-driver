@@ -137,10 +137,10 @@ internal partial class SerializerFinderVisitor
             return memberChildSerializerConfigurable.WithChildSerializer(sourceItemSerializer);
         }
 
-        // if (typeof(BsonValue).IsAssignableFrom(memberType) && !IsAlreadyCSharpNullWrapped(sourceSerializer))
-        // {
-        //     return WrapWithBsonValueCSharpNullSerializer(memberType, sourceSerializer);
-        // }
+        if (typeof(BsonValue).IsAssignableFrom(memberType) && !IsAlreadyCSharpNullWrapped(sourceSerializer))
+        {
+            return WrapWithBsonValueCSharpNullSerializer(memberType, sourceSerializer);
+        }
 
         return sourceSerializer;
     }
