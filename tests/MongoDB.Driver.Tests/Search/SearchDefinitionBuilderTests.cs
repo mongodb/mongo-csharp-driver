@@ -27,7 +27,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Search
 {
-    public class ySearchDefinitionBuilderTests
+    public class SearchDefinitionBuilderTests
     {
         private static readonly GeoWithinBox<GeoJson2DGeographicCoordinates> __testBox =
             new GeoWithinBox<GeoJson2DGeographicCoordinates>(
