@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Threading;
 using DnsClient;
@@ -173,6 +174,22 @@ namespace MongoDB.Driver.Core.Clusters
             }
 
             exception.Should().Match<Exception>(e => e is OperationCanceledException || e.InnerException is OperationCanceledException);
+        }
+
+        [Theory]
+        [InlineData(new[] { "127.0.2.3" }, new[] { "127.0.2.3" })]
+        [InlineData(new[] { "::ffff:127.0.2.3" }, new[] { "::ffff:127.0.2.3" })]
+        [InlineData(new[] { "127.0.2.3", "::ffff:127.0.2.3" }, new[] { "127.0.2.3" })]
+        [InlineData(new[] { "127.0.2.2", "127.0.2.3", "::ffff:127.0.2.2", "::ffff:127.0.2.3" }, new[] { "127.0.2.2", "127.0.2.3" })]
+        [InlineData(new[] { "::1", "127.0.2.3" }, new[] { "::1", "127.0.2.3" })]
+        [InlineData(new string[0], new string[0])]
+        public void FilterNameServers_should_remove_IPv4_mapped_IPv6_duplicates(string[] inputAddresses, string[] expectedAddresses)
+        {
+            var input = inputAddresses.Select(a => (NameServer)IPAddress.Parse(a)).ToArray();
+
+            var result = DnsClientWrapper.FilterNameServers(input);
+
+            result.Select(ns => ns.Address).Should().Equal(expectedAddresses);
         }
 
         // private methods
