@@ -391,7 +391,7 @@ namespace MongoDB.Driver.Tests.Encryption
             var clientEncryptionOptions = new ClientEncryptionOptions(
                 client ?? DriverTestConfiguration.Client,
                 __keyVaultCollectionNamespace,
-                kmsProviders: EncryptionTestHelper.GetKmsProviders(filter: "local"));
+                kmsProviders: EncryptionTestHelper.GetKmsProviders("local"));
 
             return new ClientEncryption(clientEncryptionOptions);
         }

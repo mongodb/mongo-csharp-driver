@@ -260,12 +260,19 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
             return null;
         }
 
-        public static IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> GetKmsProviders(string filter)
-            => filter.Split([KmsProviderFilterDelimiter], StringSplitOptions.None).Distinct().ToDictionary(
+        public static IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> GetKmsProviders(string providerNames)
+        {
+            if (providerNames == null)
+            {
+                throw new ArgumentException("Provider name(s) must be supplied.", nameof(providerNames));
+            }
+
+            return providerNames.Split([KmsProviderFilterDelimiter], StringSplitOptions.None).Distinct().ToDictionary(
                 n => n,
                 n => (IReadOnlyDictionary<string, object>)__kmsProviders
                     .GetOrAdd(n, CreateKmsProvider)
                     .ToDictionary(k => k.Key, v => v.Value)); // ensure that inner dictionary is a new instance
+        }
 
         public static IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> ParseKmsProviders(BsonDocument kmsProviders, bool legacy = false)
         {
@@ -302,7 +309,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                             if (legacy)
                             {
                                 kmsProviderDocument.ElementCount.Should().Be(0);
-                                kmsOptions = (Dictionary<string, object>)GetKmsProviders(kmsProvider.Name);
+                                kmsOptions = (Dictionary<string, object>)GetKmsProviders(kmsProvider.Name)[kmsProvider.Name];
                             }
                             else
                             {
@@ -333,7 +340,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
             return providers;
 
             bool IsPlaceholder(BsonValue value) => value.IsBsonDocument && value.AsBsonDocument.Contains("$$placeholder");
-            string GetFromEnvVariables(string kmsProvider, string key) => GetKmsProviders(kmsProvider)[key].ToString();
+            string GetFromEnvVariables(string kmsProvider, string key) => GetKmsProviders(kmsProvider)[kmsProvider][key].ToString();
         }
 
         // private methods
@@ -348,7 +355,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                 var dummyNamespace = CollectionNamespace.FromFullName("db.dummy");
                 var autoEncryptionOptions = new AutoEncryptionOptions(
                     dummyNamespace,
-                    kmsProviders: GetKmsProviders(filter: "local"),
+                    kmsProviders: GetKmsProviders("local"),
                     extraOptions: new Dictionary<string, object>() { { "cryptSharedLibPath", cryptSharedLibPath } });
 
                 var mongoClientSettings = new MongoClientSettings
