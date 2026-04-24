@@ -31,6 +31,35 @@ namespace MongoDB.TestHelpers.XunitExtensions
         }
         #endregion
 
+        public RequireEnvironment KmsProvider(string kmsProviderName)
+        {
+            if (kmsProviderName?.Contains("kmip", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true);
+            }
+
+            if (kmsProviderName?.Contains("awsTemporary", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                Check().EnvironmentVariable("CSFLE_AWS_TEMPORARY_CREDS_ENABLED", isDefined: true);
+            }
+            else if (kmsProviderName?.Contains("aws", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                Check().EnvironmentVariable("FLE_AWS_KEY", isDefined: true);
+            }
+
+            if (kmsProviderName?.Contains("azure", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                Check().EnvironmentVariable("FLE_AZURE_TENANTID", isDefined: true);
+            }
+
+            if (kmsProviderName?.Contains("gcp", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                Check().EnvironmentVariable("FLE_GCP_EMAIL", isDefined: true);
+            }
+
+            return this;
+        }
+
         public RequireEnvironment EnvironmentVariable(string name, bool isDefined = true, bool allowEmpty = true)
         {
             var actualValue = Environment.GetEnvironmentVariable(name);

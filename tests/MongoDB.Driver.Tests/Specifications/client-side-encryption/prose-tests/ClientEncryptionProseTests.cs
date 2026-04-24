@@ -697,11 +697,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             [Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
-
-            if (kmsProvider == "kmip")
-            {
-                RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true);
-            }
+            RequireEnvironment.Check().KmsProvider(kmsProvider);
 
             using (var client = ConfigureClient())
             using (var clientEncrypted = ConfigureClientEncrypted(BsonDocument.Parse(SchemaMap), kmsProviderFilter: kmsProvider))
@@ -789,6 +785,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             string expectedExceptionInfoForInvalidEncryption)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
+            RequireEnvironment.Check().KmsProvider(kmsType);
 
             if (kmsType == "kmip")
             {
@@ -2462,10 +2459,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             // The test description requires configuring all kmsProviders in setup, but leaving only related to the provided income arguments
             // to avoid restrictions on kmip mocking setup for unrelated to kmip tests
             var kmsProviderFilter = EncryptionTestHelper.CreateKmsProviderFilter(srcProvider, dstProvider);
-            if (kmsProviderFilter.Contains("kmip"))
-            {
-                RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true);
-            }
+            RequireEnvironment.Check().KmsProvider(kmsProviderFilter);
 
             const string value = "test";
 
