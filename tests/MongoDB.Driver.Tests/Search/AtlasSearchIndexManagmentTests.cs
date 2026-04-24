@@ -394,6 +394,8 @@ namespace MongoDB.Driver.Tests.Search
                 IndexingMethod = VectorIndexingMethod.Flat
             };
 
+            indexModel = indexModel.WithIncludedStoredFields(e => e.SomeText);
+
             var collection = _database.GetCollection<EntityWithVector>(_collection.CollectionNamespace.CollectionName);
             var createdName = async
                 ? await collection.SearchIndexes.CreateOneAsync(indexModel)
@@ -404,7 +406,8 @@ namespace MongoDB.Driver.Tests.Search
             var index = (await GetIndexes(async, expectTimeout: false, indexName))[0];
             index["type"].AsString.Should().Be("vectorSearch");
 
-            var fields = index["latestDefinition"].AsBsonDocument["fields"].AsBsonArray;
+            var indexDefinition = index["latestDefinition"].AsBsonDocument;
+            var fields = indexDefinition["fields"].AsBsonArray;
             fields.Count.Should().Be(1);
 
             var indexField = fields[0].AsBsonDocument;
@@ -413,6 +416,9 @@ namespace MongoDB.Driver.Tests.Search
             indexField["numDimensions"].AsInt32.Should().Be(2);
             indexField["similarity"].AsString.Should().Be("cosine");
             indexField["indexingMethod"].AsString.Should().Be("flat");
+
+            var included = indexDefinition["storedSource"].AsBsonDocument["include"].AsBsonArray;
+            included.Select(b => b.AsString).Should().Contain("SomeText");
         }
 
         [Theory(Timeout = Timeout)]
