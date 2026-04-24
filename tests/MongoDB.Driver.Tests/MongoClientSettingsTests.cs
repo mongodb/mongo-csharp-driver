@@ -796,7 +796,7 @@ namespace MongoDB.Driver.Tests
             const string awsSessionToken = "AQoEXAMPLEH4aoAH0gNCAPyJxz4BlCFFxWNE1OPTgk5TthT+FvwqnKwRcOIfrRh3c/LTo6UDdyJwOOvEVPvLXCrrrUtdnniCEXAMPLE/IvU1dYUg2RVAJBanLiHb4IgRmpRV3zrkuWJOgQs8IZZaIv2BXIa2R4OlgkBN9bkUDNCJiBeb/AXlzBBko7b15fjrBs2+cTQtpZ3CYWFXG8C5zqx37wnOE49mRl/+OtkIKGO7fAE";
 
             var preparedToken = escapeToken ? Uri.EscapeDataString(awsSessionToken) : awsSessionToken;
-            var uri = $"mongodb+srv://{username}:{Uri.EscapeDataString(password)}@awssessiontokentest.example.net/test?authSource=$external&authMechanism={authMechanism}&authMechanismProperties=AWS_SESSION_TOKEN:{preparedToken}";
+            var uri = $"mongodb://{username}:{Uri.EscapeDataString(password)}@awssessiontokentest.example.net/test?authSource=$external&authMechanism={authMechanism}&authMechanismProperties=AWS_SESSION_TOKEN:{preparedToken}";
             var url = new MongoUrl(uri);
 
             var result = MongoClientSettings.FromUrl(url).Credential;
