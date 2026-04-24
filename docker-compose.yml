@@ -1,0 +1,40 @@
+services:
+  mongodb:
+    image: mongo:8.3.0-rc5
+    container_name: mongodb-test
+    command: >
+      mongod
+      --replSet rs0
+      --bind_ip_all
+      --setParameter enableTestCommands=1
+    ports:
+      - "56665:27017"
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: |
+        mongosh --quiet --eval "
+          try {
+            rs.status();
+            var fcv = db.adminCommand({ getParameter: 1, featureCompatibilityVersion: 1 });
+            if (fcv.featureCompatibilityVersion.version !== '8.3') {
+              db.adminCommand({ setFeatureCompatibilityVersion: '8.3', confirm: true });
+              print('FCV set to 8.3');
+            }
+            print('Replica set initialized');
+          } catch(e) {
+            print('Initializing replica set...');
+            rs.initiate({
+              _id: 'rs0',
+              members: [{ _id: 0, host: 'localhost:27017' }]
+            });
+          }
+        "
+      interval: 5s
+      timeout: 10s
+      retries: 10
+      start_period: 10s
+
+volumes:
+  mongodb_data:
+    driver: local
