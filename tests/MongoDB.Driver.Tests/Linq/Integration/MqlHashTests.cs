@@ -89,6 +89,25 @@ public class MqlHashTests : LinqIntegrationTest<MqlHashTests.ClassFixture>
     }
 
     [Fact]
+    public async Task MqlHash_in_projection_builder_named_type()
+    {
+        var collection = Fixture.Collection;
+
+        var projection = Builders<C>.Projection.Expression(c => new ContainerHash { Hash = Mql.Hash(c.Data, MqlHashAlgorithm.SHA256) });
+        var result = await collection.Find(Builders<C>.Filter.Empty).Project(projection).ToListAsync();
+
+        var renderedProjection = TranslateFindProjection(collection, projection, null);
+        renderedProjection.Should().Be("{ Hash : { $hash : { input : '$Data', algorithm : 'sha256' } }, _id : 0 }");
+
+        result.Select(d => d.Hash?.ToString()).Should().BeEquivalentTo("Binary:0xa12871fee210fb8619291eaea194581cbd2531e4b23759d225f6806923f63222", "Binary:0xc0eed9296a02fb06cdac7fbb88c3579b8c4c803d32cf1b29a2d3794a3877bc3c", null);
+    }
+
+    public class ContainerHash
+    {
+        public BsonBinaryData Hash { get; set; }
+    }
+
+    [Fact]
     public async Task MqlHash_in_aggregate()
     {
         var collection = Fixture.Collection;
@@ -114,13 +133,16 @@ public class MqlHashTests : LinqIntegrationTest<MqlHashTests.ClassFixture>
 
         [BsonIgnoreIfNull]
         public BsonBinaryData Data { get; set; }
+
+        [BsonIgnoreIfNull]
+        public BsonBoolean Truth { get; set; }
     }
 
     public sealed class ClassFixture : MongoCollectionFixture<C>
     {
         protected override IEnumerable<C> InitialData =>
         [
-            new() { Id = 1, Data = new BsonBinaryData([0x01, 0x02]) },
+            new() { Id = 1, Data = new BsonBinaryData([0x01, 0x02])},
             new() { Id = 2, Data = new BsonBinaryData(Guid.Parse("E4A10FB8-7A83-494C-9710-29BBFFB1C262"), GuidRepresentation.Standard) },
             new() { Id = 4 },
         ];
