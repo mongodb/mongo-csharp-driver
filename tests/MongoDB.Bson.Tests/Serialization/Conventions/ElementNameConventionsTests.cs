@@ -133,6 +133,43 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             Assert.Equal("lowerCase", classMap.GetMemberMap(x => x.lowerCase).ElementName);
         }
 
+        [Fact]
+        public void TestManualMapPropertyOverridesLaterNamedIdMemberConvention()
+        {
+            var classMap = new BsonClassMap<BookPlain>();
+            classMap.MapProperty(x => x.Id).SetElementName("notId");
+            classMap.AutoMap();
+
+            classMap.Freeze();
+            Assert.Null(classMap.IdMemberMap);
+            Assert.Equal("notId", classMap.GetMemberMap(x => x.Id).ElementName);
+        }
+
+        [Fact]
+        public void TestManualMapPropertyWithUnderscoreIdElementNameStillBecomesIdMember()
+        {
+            var classMap = new BsonClassMap<BookPlain>();
+            classMap.MapProperty(x => x.Id).SetElementName("_id");
+            classMap.AutoMap();
+            classMap.Freeze();
+
+            Assert.NotNull(classMap.IdMemberMap);
+            Assert.Equal("Id", classMap.IdMemberMap.MemberName);
+            Assert.Equal("_id", classMap.GetMemberMap(x => x.Id).ElementName);
+        }
+
+        [Fact]
+        public void TestManualClassMapDoesNotOverridesLaterNamedIdMemberConvention()
+        {
+            var classMap = new BsonClassMap<BookPlain>();
+            classMap.MapProperty(x => x.Id);
+            classMap.AutoMap();
+
+            classMap.Freeze();
+            Assert.Equal("Id", classMap.IdMemberMap.MemberName);
+            Assert.Equal("_id", classMap.GetMemberMap(x => x.Id).ElementName);
+        }
+
         private class BookWithBsonElementAttribute
         {
             [BsonElement("notId")]
@@ -178,6 +215,11 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         private class BookWithBsonElementAttributeNoName
         {
             [BsonElement]
+            public ObjectId Id { get; set; } // should be set to _id
+        }
+
+        private class BookPlain
+        {
             public ObjectId Id { get; set; } // should be set to _id
         }
 

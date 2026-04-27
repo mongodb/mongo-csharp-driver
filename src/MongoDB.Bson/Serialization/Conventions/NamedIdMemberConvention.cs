@@ -126,6 +126,12 @@ namespace MongoDB.Bson.Serialization.Conventions
             {
                 return false;
             }
+
+            var existingMemberMap = classMap.DeclaredMemberMaps.FirstOrDefault(m => m.MemberInfo == member);
+            if (existingMemberMap != null && existingMemberMap.ElementName != member.Name && existingMemberMap.ElementName != "_id")
+            {
+                return false;
+            }
             return true;
         }
     }
