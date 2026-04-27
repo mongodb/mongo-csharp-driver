@@ -54,37 +54,37 @@ public class HashMethodToAggregationExpressionTranslatorTests
         [
             TestHelpers.MakeLambda<MyModel, BsonBinaryData>(model => Mql.Hash(model.ByteArray, MqlHashAlgorithm.SHA256)),
             "{ $hash : { input : { $getField : { field : 'ByteArray', input : '$$ROOT' } }, algorithm : 'sha256' } }",
-            typeof(BsonBinaryDataSerializer)
+            typeof(BsonValueCSharpNullSerializer<BsonBinaryData>)
         ],
         [
             TestHelpers.MakeLambda<MyModel, BsonBinaryData>(model => Mql.Hash(model.BsonBinary, MqlHashAlgorithm.SHA256)),
             "{ $hash : { input : { $getField : { field : 'BsonBinary', input : '$$ROOT' } }, algorithm : 'sha256' } }",
-            typeof(BsonBinaryDataSerializer)
+            typeof(BsonValueCSharpNullSerializer<BsonBinaryData>)
         ],
         [
             TestHelpers.MakeLambda<MyModel, BsonBinaryData>(model => Mql.Hash(model.Guid, MqlHashAlgorithm.SHA256)),
             "{ $hash : { input : { $getField : { field : 'Guid', input : '$$ROOT' } }, algorithm : 'sha256' } }",
-            typeof(BsonBinaryDataSerializer)
+            typeof(BsonValueCSharpNullSerializer<BsonBinaryData>)
         ],
         [
             TestHelpers.MakeLambda<MyModel, BsonBinaryData>(model => Mql.Hash(model.GuidWithStandardRepresentation, MqlHashAlgorithm.SHA256)),
             "{ $hash : { input : { $getField : { field : 'GuidWithStandardRepresentation', input : '$$ROOT' } }, algorithm : 'sha256' } }",
-            typeof(BsonBinaryDataSerializer)
+            typeof(BsonValueCSharpNullSerializer<BsonBinaryData>)
         ],
         [
             TestHelpers.MakeLambda<MyModel, BsonBinaryData>(model => Mql.Hash(model.GuidWithCSharpLegacyRepresentation, MqlHashAlgorithm.SHA256)),
             "{ $hash : { input : { $getField : { field : 'GuidWithCSharpLegacyRepresentation', input : '$$ROOT' } }, algorithm : 'sha256' } }",
-            typeof(BsonBinaryDataSerializer)
+            typeof(BsonValueCSharpNullSerializer<BsonBinaryData>)
         ],
         [
             TestHelpers.MakeLambda<MyModel, BsonBinaryData>(model => Mql.Hash(model.GuidWithStringRepresentation, MqlHashAlgorithm.SHA256)),
             "{ $hash : { input : { $getField : { field : 'GuidWithStringRepresentation', input : '$$ROOT' } }, algorithm : 'sha256' } }",
-            typeof(BsonBinaryDataSerializer)
+            typeof(BsonValueCSharpNullSerializer<BsonBinaryData>)
         ],
         [
             TestHelpers.MakeLambda<MyModel, BsonBinaryData>(model => Mql.Hash(model.StringData, MqlHashAlgorithm.SHA256)),
             "{ $hash : { input : { $getField : { field : 'StringData', input : '$$ROOT' } }, algorithm : 'sha256' } }",
-            typeof(BsonBinaryDataSerializer)
+            typeof(BsonValueCSharpNullSerializer<BsonBinaryData>)
         ],
 
         [
