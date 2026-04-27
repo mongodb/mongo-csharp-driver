@@ -1628,7 +1628,9 @@ internal partial class SerializerFinderVisitor
         {
             if (method.Is(MqlMethod.Hash))
             {
-                DeduceSerializer(node, BsonBinaryDataSerializer.Instance);
+                var wrappedSerializer =
+                    new BsonValueCSharpNullSerializer<BsonBinaryData>(BsonBinaryDataSerializer.Instance);
+                DeduceSerializer(node, wrappedSerializer);
             }
             else
             {
