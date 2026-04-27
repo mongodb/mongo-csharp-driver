@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.GeoJsonObjectModel;
 
 namespace MongoDB.Driver.Search
@@ -185,8 +186,11 @@ namespace MongoDB.Driver.Search
         /// <returns>A facet search definition.</returns>
         public SearchDefinition<TDocument> Facet(
             SearchDefinition<TDocument> @operator,
-            IEnumerable<SearchFacet<TDocument>> facets) =>
-                new FacetSearchDefinition<TDocument>(@operator, facets);
+            IEnumerable<SearchFacet<TDocument>> facets)
+        {
+            Ensure.IsNotNull(@operator, nameof(@operator));
+            return new FacetSearchDefinition<TDocument>(@operator, facets);
+        }
 
         /// <summary>
         /// Creates a search definition that groups results by values or ranges in the specified
@@ -199,6 +203,27 @@ namespace MongoDB.Driver.Search
             SearchDefinition<TDocument> @operator,
             params SearchFacet<TDocument>[] facets) =>
                 Facet(@operator, (IEnumerable<SearchFacet<TDocument>>)facets);
+
+        /// <summary>
+        /// Creates a search definition that groups results by values or ranges in the specified
+        /// faceted fields and returns the count for each of those groups.
+        /// Facets are computed over all documents in the index.
+        /// </summary>
+        /// <param name="facets">Information for bucketing the data for each facet.</param>
+        /// <returns>A facet search definition.</returns>
+        public SearchDefinition<TDocument> Facet(IEnumerable<SearchFacet<TDocument>> facets)
+        {
+            return new FacetSearchDefinition<TDocument>(null, facets);
+        }
+
+        /// <summary>
+        /// Creates a search definition that groups results by values or ranges in the specified
+        /// faceted fields and returns the count for each of those groups.
+        /// Facets are computed over all documents in the index.
+        /// </summary>
+        /// <param name="facets">Information for bucketing the data for each facet.</param>
+        /// <returns>A facet search definition.</returns>
+        public SearchDefinition<TDocument> Facet(params SearchFacet<TDocument>[] facets) => Facet((IEnumerable<SearchFacet<TDocument>>)facets);
 
         /// <summary>
         /// Creates a search definition that queries for shapes with a given geometry.
