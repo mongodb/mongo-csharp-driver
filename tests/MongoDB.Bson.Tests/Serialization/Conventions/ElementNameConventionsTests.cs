@@ -159,7 +159,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         }
 
         [Fact]
-        public void TestManualClassMapDoesNotOverridesLaterNamedIdMemberConvention()
+        public void TestManualMapPropertyWithoutElementNameStillBecomesIdMember()
         {
             var classMap = new BsonClassMap<BookPlain>();
             classMap.MapProperty(x => x.Id);

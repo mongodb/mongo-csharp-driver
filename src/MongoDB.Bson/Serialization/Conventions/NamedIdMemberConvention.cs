@@ -128,7 +128,7 @@ namespace MongoDB.Bson.Serialization.Conventions
             }
 
             var existingMemberMap = classMap.DeclaredMemberMaps.FirstOrDefault(m => m.MemberInfo == member);
-            if (existingMemberMap != null && existingMemberMap.ElementName != member.Name && existingMemberMap.ElementName != "_id")
+            if (existingMemberMap != null && !string.IsNullOrEmpty(existingMemberMap.ElementName) && existingMemberMap.ElementName != member.Name && existingMemberMap.ElementName != "_id")
             {
                 return false;
             }
