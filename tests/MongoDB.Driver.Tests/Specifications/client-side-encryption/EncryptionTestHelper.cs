@@ -25,6 +25,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.TestHelpers;
+using MongoDB.TestHelpers.XunitExtensions;
 
 namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
 {
@@ -41,17 +42,17 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
             {
                 "aws" => new Dictionary<string, object>
                 {
-                    { "accessKeyId", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_KEY") },
+                    { "accessKeyId", GetEnvironmentVariableOrDefaultOrSkip("FLE_AWS_KEY") },
                     { "secretAccessKey", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_SECRET") }
                 },
                 "aws:name1" => new Dictionary<string, object>
                 {
-                    { "accessKeyId", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_KEY") },
+                    { "accessKeyId", GetEnvironmentVariableOrDefaultOrSkip("FLE_AWS_KEY") },
                     { "secretAccessKey", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_SECRET") }
                 },
                 "aws:name2" => new Dictionary<string, object>
                 {
-                    { "accessKeyId", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_KEY2") },
+                    { "accessKeyId", GetEnvironmentVariableOrDefaultOrSkip("FLE_AWS_KEY2") },
                     { "secretAccessKey", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_SECRET2") }
                 },
                 "local" => new Dictionary<string, object>
@@ -68,24 +69,24 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                 },
                 "azure" => new Dictionary<string, object>
                 {
-                    { "tenantId", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AZURE_TENANTID") },
+                    { "tenantId", GetEnvironmentVariableOrDefaultOrSkip("FLE_AZURE_TENANTID") },
                     { "clientId", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AZURE_CLIENTID") },
                     { "clientSecret", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AZURE_CLIENTSECRET") }
                 },
                 "azure:name1" => new Dictionary<string, object>
                 {
-                    { "tenantId", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AZURE_TENANTID") },
+                    { "tenantId", GetEnvironmentVariableOrDefaultOrSkip("FLE_AZURE_TENANTID") },
                     { "clientId", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AZURE_CLIENTID") },
                     { "clientSecret", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AZURE_CLIENTSECRET") }
                 },
                 "gcp" => new Dictionary<string, object>
                 {
-                    { "email", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_GCP_EMAIL") },
+                    { "email", GetEnvironmentVariableOrDefaultOrSkip("FLE_GCP_EMAIL") },
                     { "privateKey", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_GCP_PRIVATEKEY") }
                 },
                 "gcp:name1" => new Dictionary<string, object>
                 {
-                    { "email", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_GCP_EMAIL") },
+                    { "email", GetEnvironmentVariableOrDefaultOrSkip("FLE_GCP_EMAIL") },
                     { "privateKey", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_GCP_PRIVATEKEY") }
                 },
                 "kmip" => new Dictionary<string, object> { { "endpoint", "localhost:5698" } },
@@ -113,6 +114,14 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                 },
                 _ => throw new ArgumentException($"Unsupported KMS provider: {name}.", nameof(name))
             };
+
+            string GetEnvironmentVariableOrDefaultOrSkip(string variableName)
+            {
+                RequireEnvironment.Check().EnvironmentVariable(variableName);
+
+                return Environment.GetEnvironmentVariable(variableName);
+
+            }
 
             string GetEnvironmentVariableOrDefaultOrThrowIfNothing(string variableName, string defaultValue = null) =>
                 Environment.GetEnvironmentVariable(variableName) ??
