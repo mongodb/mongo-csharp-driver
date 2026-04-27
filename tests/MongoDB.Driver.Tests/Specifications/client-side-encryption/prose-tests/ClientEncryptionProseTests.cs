@@ -787,11 +787,6 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
             RequireEnvironment.Check().KmsProvider(kmsType);
 
-            if (kmsType == "kmip")
-            {
-                RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true);
-            }
-
             using (var client = ConfigureClient())
             using (var clientEncryption = ConfigureClientEncryption(client, ValidKmsEndpointConfigurator, kmsProviderNames: kmsType))
             using (var clientEncryptionInvalid = ConfigureClientEncryption(client, InvalidKmsEndpointConfigurator, kmsProviderNames: kmsType))
