@@ -434,6 +434,33 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void ScoreFusion_should_throw_when_pipeline_is_null()
+        {
+            PipelineDefinition<BsonDocument, BsonDocument> pipeline = null;
+
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                pipeline.ScoreFusion(
+                    (Dictionary<string, PipelineDefinition<BsonDocument, BsonDocument>>)null,
+                    ScoreFusionNormalization.None);
+            }).ParamName.Should().Be("pipeline");
+
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                pipeline.ScoreFusion(
+                    (PipelineDefinition<BsonDocument, BsonDocument>[])null,
+                    ScoreFusionNormalization.None);
+            }).ParamName.Should().Be("pipeline");
+
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                pipeline.ScoreFusion(
+                    ((PipelineDefinition<BsonDocument, BsonDocument>, double?)[])null,
+                    ScoreFusionNormalization.None);
+            }).ParamName.Should().Be("pipeline");
+        }
+
+        [Fact]
         public void Search_should_add_expected_stage()
         {
             var pipeline = new EmptyPipelineDefinition<BsonDocument>();
