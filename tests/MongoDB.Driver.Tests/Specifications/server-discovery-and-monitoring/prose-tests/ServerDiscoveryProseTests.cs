@@ -30,6 +30,7 @@ using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
+using Xunit.Sdk;
 using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring.prose_tests
@@ -64,7 +65,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring.pr
             var secondary = clusterDescription.Servers.FirstOrDefault(s => s.State == ServerState.Connected && s.Type == ServerType.ReplicaSetSecondary);
             if (secondary == null)
             {
-                throw new Exception("No secondary was found.");
+                throw new SkipException("Test skipped because no secondary was found.");
             }
 
             var dnsEndpoint = (DnsEndPoint)secondary.EndPoint;

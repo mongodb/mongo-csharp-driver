@@ -78,7 +78,7 @@ namespace MongoDB.Driver.Tests
         [ParameterAttributeData]
         public void Connection_pool_should_not_be_cleared_when_replSetStepDown_and_GetMore([Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.KeepConnectionPoolWhenReplSetStepDown).ClusterType(ClusterType.ReplicaSet);
+            RequireServer.Check().Supports(Feature.KeepConnectionPoolWhenReplSetStepDown).ClusterType(ClusterType.ReplicaSet).ReplicaSetDataBearingMembers(2);
 
             var eventCapturer = new EventCapturer().Capture<ConnectionPoolClearedEvent>();
             using (var client = CreateMongoClient(eventCapturer))

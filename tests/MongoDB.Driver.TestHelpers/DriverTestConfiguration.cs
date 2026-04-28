@@ -221,12 +221,14 @@ namespace MongoDB.Driver.Tests
 
         internal static bool IsReplicaSet(IClusterInternal cluster)
         {
-            var clusterTypeIsKnown = SpinWait.SpinUntil(() => cluster.Description.Type != ClusterType.Unknown, TimeSpan.FromSeconds(10));
-            if (!clusterTypeIsKnown)
+            var serverIsKnown = SpinWait.SpinUntil(
+                () => cluster.Description.Servers.Any(s => s.Type != ServerType.Unknown),
+                TimeSpan.FromSeconds(10));
+            if (!serverIsKnown)
             {
                 throw new InvalidOperationException($"Unable to determine cluster type: {cluster.Description}.");
             }
-            return cluster.Description.Type == ClusterType.ReplicaSet;
+            return cluster.Description.Servers.Any(s => s.Type.IsReplicaSetMember());
         }
 
         internal static int GetReplicaSetNumberOfDataBearingMembers(IClusterInternal cluster)

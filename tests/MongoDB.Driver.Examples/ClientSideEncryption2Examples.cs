@@ -38,6 +38,10 @@ namespace MongoDB.Driver.Examples
         public void FLE2AutomaticEncryption()
         {
             RequireServer.Check().Supports(Feature.Csfle2).ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced);
+            if (CoreTestConfiguration.GetCryptSharedLibPath() == null)
+            {
+                throw new Xunit.Sdk.SkipException("Test skipped because CRYPT_SHARED_LIB_PATH is not set.");
+            }
 
             var unencryptedClient = DriverTestConfiguration.Client;
 
@@ -52,7 +56,7 @@ namespace MongoDB.Driver.Examples
             };
             kmsProviders.Add("local", localKey);
 
-            var keyVaultClient = new MongoClient();
+            var keyVaultClient = new MongoClient(CoreTestConfiguration.ConnectionString.ToString());
 
             // Create two data keys.
             var clientEncryptionOptions = new ClientEncryptionOptions(keyVaultClient, KeyVaultNamespace, kmsProviders);
@@ -92,7 +96,9 @@ namespace MongoDB.Driver.Examples
             };
 
             var autoEncryptionOptions = new AutoEncryptionOptions(KeyVaultNamespace, kmsProviders, encryptedFieldsMap: encryptedFieldsMap);
-            var encryptedClient = new MongoClient(new MongoClientSettings { AutoEncryptionOptions = autoEncryptionOptions });
+            var encryptedClientSettings = MongoClientSettings.FromConnectionString(CoreTestConfiguration.ConnectionString.ToString());
+            encryptedClientSettings.AutoEncryptionOptions = autoEncryptionOptions;
+            var encryptedClient = new MongoClient(encryptedClientSettings);
 
             // Create an FLE 2 collection.
             var database = encryptedClient.GetDatabase(CollectionNamespace.DatabaseNamespace.DatabaseName);
