@@ -383,6 +383,46 @@ namespace MongoDB.Driver.Tests.Search
 
         [Theory(Timeout = Timeout)]
         [ParameterAttributeData]
+        public async Task Can_create_Atlas_vector_index_with_flat_indexing_method(
+            [Values(false, true)] bool async)
+        {
+            var indexName = "vector-flat" + (async ? "-async" : "");
+
+            var indexModel = new CreateVectorSearchIndexModel<EntityWithVector>(
+                e => e.Floats, indexName, VectorSimilarity.Cosine, dimensions: 2)
+            {
+                IndexingMethod = VectorIndexingMethod.Flat
+            };
+
+            indexModel = indexModel.WithIncludedStoredFields(e => e.SomeText);
+
+            var collection = _database.GetCollection<EntityWithVector>(_collection.CollectionNamespace.CollectionName);
+            var createdName = async
+                ? await collection.SearchIndexes.CreateOneAsync(indexModel)
+                : collection.SearchIndexes.CreateOne(indexModel);
+
+            createdName.Should().Be(indexName);
+
+            var index = (await GetIndexes(async, expectTimeout: false, indexName))[0];
+            index["type"].AsString.Should().Be("vectorSearch");
+
+            var indexDefinition = index["latestDefinition"].AsBsonDocument;
+            var fields = indexDefinition["fields"].AsBsonArray;
+            fields.Count.Should().Be(1);
+
+            var indexField = fields[0].AsBsonDocument;
+            indexField["type"].AsString.Should().Be("vector");
+            indexField["path"].AsString.Should().Be("Floats");
+            indexField["numDimensions"].AsInt32.Should().Be(2);
+            indexField["similarity"].AsString.Should().Be("cosine");
+            indexField["indexingMethod"].AsString.Should().Be("flat");
+
+            var included = indexDefinition["storedSource"].AsBsonDocument["include"].AsBsonArray;
+            included.Select(b => b.AsString).Should().Contain("SomeText");
+        }
+
+        [Theory(Timeout = Timeout)]
+        [ParameterAttributeData]
         public async Task Can_create_Atlas_vector_index_for_all_options_with_filters(
             [Values(false, true)] bool async)
         {

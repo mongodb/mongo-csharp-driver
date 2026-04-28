@@ -109,6 +109,7 @@ public sealed class CreateAutoEmbeddingVectorSearchIndexModel<TDocument> : Creat
             Quantization = Quantization,
             HnswMaxEdges = HnswMaxEdges,
             HnswNumEdgeCandidates = HnswNumEdgeCandidates,
+            IndexingMethod = IndexingMethod,
         };
 
     /// <summary>
@@ -142,6 +143,7 @@ public sealed class CreateAutoEmbeddingVectorSearchIndexModel<TDocument> : Creat
             Quantization = Quantization,
             HnswMaxEdges = HnswMaxEdges,
             HnswNumEdgeCandidates = HnswNumEdgeCandidates,
+            IndexingMethod = IndexingMethod,
         };
 
     /// <summary>

@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
@@ -72,6 +73,13 @@ public abstract class CreateVectorSearchIndexModelBase<TDocument> : CreateSearch
     /// find the closest neighbors to connect to a new node.
     /// </summary>
     public int? HnswNumEdgeCandidates { get; init; }
+
+    /// <summary>
+    /// Indexing algorithm used for the vector field. Defaults to <see cref="VectorIndexingMethod.Hnsw"/> if omitted.
+    /// <see cref="VectorIndexingMethod.Flat"/> is incompatible with <see cref="HnswMaxEdges"/> and
+    /// <see cref="HnswNumEdgeCandidates"/>.
+    /// </summary>
+    public VectorIndexingMethod? IndexingMethod { get; init; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CreateVectorSearchIndexModelBase{TDocument}"/> class for a vector
@@ -155,6 +163,12 @@ public abstract class CreateVectorSearchIndexModelBase<TDocument> : CreateSearch
     /// <param name="fieldDocument">The field document into which the elements will go.</param>
     private protected void RenderCommonFieldElements(RenderArgs<TDocument> renderArgs, BsonDocument fieldDocument)
     {
+        if (IndexingMethod == VectorIndexingMethod.Flat && (HnswMaxEdges != null || HnswNumEdgeCandidates != null))
+        {
+            throw new InvalidOperationException(
+                $"{nameof(HnswMaxEdges)} and {nameof(HnswNumEdgeCandidates)} cannot be set when {nameof(IndexingMethod)} is {nameof(VectorIndexingMethod.Flat)}.");
+        }
+
         if (Quantization != null && Quantization != VectorQuantization.None)
         {
             fieldDocument.Add("quantization", Quantization == VectorQuantization.BinaryNoRescore
@@ -169,6 +183,11 @@ public abstract class CreateVectorSearchIndexModelBase<TDocument> : CreateSearch
                 {
                     { "maxEdges", HnswMaxEdges ?? 16 }, { "numEdgeCandidates", HnswNumEdgeCandidates ?? 100 }
                 });
+        }
+
+        if (IndexingMethod != null)
+        {
+            fieldDocument.Add("indexingMethod", IndexingMethod.ToString().ToLowerInvariant());
         }
     }
 }
