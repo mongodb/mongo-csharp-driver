@@ -28,21 +28,18 @@ namespace MongoDB.Bson.Serialization
         private readonly IBsonSerializer _dynamicArraySerializer;
         private readonly IBsonSerializer _dynamicDocumentSerializer;
         private readonly IBsonReader _reader;
-        private readonly IBsonSerializationDomain _serializationDomain;
 
         // constructors
         private BsonDeserializationContext(
             IBsonReader reader,
             bool allowDuplicateElementNames,
             IBsonSerializer dynamicArraySerializer,
-            IBsonSerializer dynamicDocumentSerializer,
-            IBsonSerializationDomain serializationDomain)
+            IBsonSerializer dynamicDocumentSerializer)
         {
             _reader = reader;
             _allowDuplicateElementNames = allowDuplicateElementNames;
             _dynamicArraySerializer = dynamicArraySerializer;
             _dynamicDocumentSerializer = dynamicDocumentSerializer;
-            _serializationDomain = serializationDomain;
         }
 
         // public properties
@@ -90,8 +87,6 @@ namespace MongoDB.Bson.Serialization
             get { return _reader; }
         }
 
-        internal IBsonSerializationDomain SerializationDomain => _serializationDomain;
-
         // public static methods
         /// <summary>
         /// Creates a root context.
@@ -105,7 +100,7 @@ namespace MongoDB.Bson.Serialization
             IBsonReader reader,
             Action<Builder> configurator = null)
         {
-            var builder = new Builder(null, reader, BsonSerializationDomain.Default);
+            var builder = new Builder(reader, BsonSerializationDomain.Default);
             if (configurator != null)
             {
                 configurator(builder);
@@ -118,7 +113,7 @@ namespace MongoDB.Bson.Serialization
             IBsonSerializationDomain serializationDomain,
             Action<Builder> configurator = null)
         {
-            var builder = new Builder(null, reader, serializationDomain);
+            var builder = new Builder(reader, serializationDomain);
             if (configurator != null)
             {
                 configurator(builder);
@@ -137,7 +132,7 @@ namespace MongoDB.Bson.Serialization
         public BsonDeserializationContext With(
             Action<Builder> configurator = null)
         {
-            var builder = new Builder(this, _reader, _serializationDomain);
+            var builder = new Builder(this, _reader);
             if (configurator != null)
             {
                 configurator(builder);
@@ -156,14 +151,13 @@ namespace MongoDB.Bson.Serialization
             private IBsonSerializer _dynamicArraySerializer;
             private IBsonSerializer _dynamicDocumentSerializer;
             private IBsonReader _reader;
-            private IBsonSerializationDomain _serializationDomain;
 
             // constructors
-            internal Builder(BsonDeserializationContext other, IBsonReader reader, IBsonSerializationDomain serializationDomain)
+            internal Builder(IBsonReader reader, IBsonSerializationDomain serializationDomain)
             {
                 if (reader == null)
                 {
-                    throw new ArgumentNullException("reader");
+                    throw new ArgumentNullException(nameof(reader));
                 }
                 if (serializationDomain == null)
                 {
@@ -171,17 +165,23 @@ namespace MongoDB.Bson.Serialization
                 }
 
                 _reader = reader;
-                _serializationDomain = serializationDomain;
+                _dynamicArraySerializer = serializationDomain.BsonDefaults.DynamicArraySerializer;
+                _dynamicDocumentSerializer = serializationDomain.BsonDefaults.DynamicDocumentSerializer;
+            }
+
+            internal Builder(BsonDeserializationContext other, IBsonReader reader)
+            {
+                if (reader == null)
+                {
+                    throw new ArgumentNullException(nameof(reader));
+                }
+
+                _reader = reader;
                 if (other != null)
                 {
                     _allowDuplicateElementNames = other.AllowDuplicateElementNames;
                     _dynamicArraySerializer = other.DynamicArraySerializer;
                     _dynamicDocumentSerializer = other.DynamicDocumentSerializer;
-                }
-                else
-                {
-                    _dynamicArraySerializer = serializationDomain.BsonDefaults.DynamicArraySerializer;
-                    _dynamicDocumentSerializer = serializationDomain.BsonDefaults.DynamicDocumentSerializer;
                 }
             }
 
@@ -233,8 +233,6 @@ namespace MongoDB.Bson.Serialization
                 get { return _reader; }
             }
 
-            internal IBsonSerializationDomain SerializationDomain => _serializationDomain;
-
             // public methods
             /// <summary>
             /// Builds the BsonDeserializationContext instance.
@@ -242,7 +240,7 @@ namespace MongoDB.Bson.Serialization
             /// <returns>A BsonDeserializationContext.</returns>
             internal BsonDeserializationContext Build()
             {
-                return new BsonDeserializationContext(_reader, _allowDuplicateElementNames, _dynamicArraySerializer, _dynamicDocumentSerializer, _serializationDomain);
+                return new BsonDeserializationContext(_reader, _allowDuplicateElementNames, _dynamicArraySerializer, _dynamicDocumentSerializer);
             }
         }
     }

@@ -26,17 +26,14 @@ namespace MongoDB.Bson.Serialization
         // private fields
         private readonly Func<Type, bool> _isDynamicType;
         private readonly IBsonWriter _writer;
-        private readonly IBsonSerializationDomain _serializationDomain;
 
         // constructors
         private BsonSerializationContext(
             IBsonWriter writer,
-            Func<Type, bool> isDynamicType,
-            IBsonSerializationDomain serializationDomain)
+            Func<Type, bool> isDynamicType)
         {
             _writer = writer;
             _isDynamicType = isDynamicType;
-            _serializationDomain = serializationDomain;
         }
 
         // public properties
@@ -60,8 +57,6 @@ namespace MongoDB.Bson.Serialization
             get { return _writer; }
         }
 
-        internal IBsonSerializationDomain SerializationDomain => _serializationDomain;
-
         // public static methods
         /// <summary>
         /// Creates a root context.
@@ -75,7 +70,7 @@ namespace MongoDB.Bson.Serialization
             IBsonWriter writer,
             Action<Builder> configurator = null)
         {
-            var builder = new Builder(null, writer, BsonSerializationDomain.Default);
+            var builder = new Builder(writer, BsonSerializationDomain.Default);
             if (configurator != null)
             {
                 configurator(builder);
@@ -88,7 +83,7 @@ namespace MongoDB.Bson.Serialization
             IBsonSerializationDomain serializationDomain,
             Action<Builder> configurator = null)
         {
-            var builder = new Builder(null, writer, serializationDomain);
+            var builder = new Builder(writer, serializationDomain);
             if (configurator != null)
             {
                 configurator(builder);
@@ -106,7 +101,7 @@ namespace MongoDB.Bson.Serialization
         public BsonSerializationContext With(
             Action<Builder> configurator = null)
         {
-            var builder = new Builder(this, _writer, _serializationDomain);
+            var builder = new Builder(this, _writer);
             if (configurator != null)
             {
                 configurator(builder);
@@ -123,14 +118,13 @@ namespace MongoDB.Bson.Serialization
             // private fields
             private Func<Type, bool> _isDynamicType;
             private IBsonWriter _writer;
-            private IBsonSerializationDomain _serializationDomain;
 
             // constructors
-            internal Builder(BsonSerializationContext other, IBsonWriter writer, IBsonSerializationDomain serializationDomain)
+            internal Builder(IBsonWriter writer, IBsonSerializationDomain serializationDomain)
             {
                 if (writer == null)
                 {
-                    throw new ArgumentNullException("writer");
+                    throw new ArgumentNullException(nameof(writer));
                 }
                 if (serializationDomain == null)
                 {
@@ -138,15 +132,18 @@ namespace MongoDB.Bson.Serialization
                 }
 
                 _writer = writer;
-                _serializationDomain = serializationDomain;
-                if (other != null)
+                _isDynamicType = BuildDefaultIsDynamicType(serializationDomain);
+            }
+
+            internal Builder(BsonSerializationContext other, IBsonWriter writer)
+            {
+                if (writer == null)
                 {
-                    _isDynamicType = other._isDynamicType;
+                    throw new ArgumentNullException(nameof(writer));
                 }
-                else
-                {
-                    _isDynamicType = BuildDefaultIsDynamicType(serializationDomain);
-                }
+
+                _writer = writer;
+                _isDynamicType = other?._isDynamicType;
             }
 
             // properties
@@ -170,8 +167,6 @@ namespace MongoDB.Bson.Serialization
                 get { return _writer; }
             }
 
-            internal IBsonSerializationDomain SerializationDomain => _serializationDomain;
-
             // public methods
             /// <summary>
             /// Builds the BsonSerializationContext instance.
@@ -179,7 +174,7 @@ namespace MongoDB.Bson.Serialization
             /// <returns>A BsonSerializationContext.</returns>
             internal BsonSerializationContext Build()
             {
-                return new BsonSerializationContext(_writer, _isDynamicType, _serializationDomain);
+                return new BsonSerializationContext(_writer, _isDynamicType);
             }
 
             private static Func<Type, bool> BuildDefaultIsDynamicType(IBsonSerializationDomain serializationDomain)
