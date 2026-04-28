@@ -15,7 +15,6 @@
 
 using System;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
 
@@ -43,9 +42,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         public void Execute()
         {
             var cluster = _client.GetClusterInternal();
-            var session = NoCoreSession.NewHandle();
-
-            var failPoint = FailPoint.Configure(cluster, session, _failPointCommand, _async);
+            var failPoint = FailPoint.Configure(_failPointCommand, _async, cluster);
             _entityMap.RegisterForDispose(failPoint);
         }
     }

@@ -15,7 +15,6 @@
 
 using System;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.TestHelpers;
 
@@ -51,12 +50,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             var client = DriverTestConfiguration.CreateMongoClient(useMultipleShardRouters: true);
             _entityMap.RegisterForDispose(client);
 
-            var cluster = client.GetClusterInternal();
-            var server = cluster.SelectServer(OperationContext.NoTimeout, new EndPointServerSelector(pinnedServer));
-
-            var session = NoCoreSession.NewHandle();
-
-            var failPoint = FailPoint.Configure(server, session, _failPointCommand, withAsync: _async);
+            var failPoint = FailPoint.Configure(new EndPointServerSelector(pinnedServer), _failPointCommand, withAsync: _async, client.GetClusterInternal());
             _entityMap.RegisterForDispose(failPoint);
         }
     }

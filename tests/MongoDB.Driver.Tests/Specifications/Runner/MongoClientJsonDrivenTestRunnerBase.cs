@@ -23,7 +23,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core;
-using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
@@ -446,27 +445,22 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
             {
                 Logger.LogDebug("Configuring failpoint");
 
-                var cluster = client.GetClusterInternal();
-
                 var settings = client.Settings.Clone();
                 ConfigureClientSettings(settings, test);
 
-                if (settings.DirectConnection == true)
+                IServerSelector failPointServerSelector;
+                if (settings.DirectConnection)
                 {
                     var serverAddress = EndPointHelper.Parse(settings.Server.ToString());
-
-                    var selector = new EndPointServerSelector(serverAddress);
-                    _failPointServer = cluster.SelectServer(OperationContext.NoTimeout, selector);
+                    failPointServerSelector = new EndPointServerSelector(serverAddress);
                 }
                 else
                 {
-                    _failPointServer = cluster.SelectServer(OperationContext.NoTimeout, WritableServerSelector.Instance);
+                    failPointServerSelector = WritableServerSelector.Instance;
                 }
 
-                var session = NoCoreSession.NewHandle();
                 var command = failPoint.AsBsonDocument;
-
-                return FailPoint.Configure(_failPointServer, session, command, _async);
+                return FailPoint.Configure(failPointServerSelector, command, _async);
             }
 
             return null;
