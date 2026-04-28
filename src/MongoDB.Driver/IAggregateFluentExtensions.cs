@@ -696,6 +696,68 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Appends a $scoreFusion stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="pipelines">The map of named pipelines whose results will be combined. The pipelines must operate on the same collection.</param>
+        /// <param name="normalization">The normalization applied to per-pipeline scores before combination.</param>
+        /// <param name="weights">The map of pipeline names to non-negative numerical weights determining result importance during combination. Default weight is 1 when unspecified.</param>
+        /// <param name="options">The scoreFusion options.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<TNewResult> ScoreFusion<TResult, TNewResult>(
+            this IAggregateFluent<TResult> aggregate,
+            Dictionary<string, PipelineDefinition<TResult, TNewResult>> pipelines,
+            ScoreFusionNormalization normalization,
+            Dictionary<string, double> weights = null,
+            ScoreFusionOptions<TNewResult> options = null)
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.ScoreFusion(pipelines, normalization, weights, options));
+        }
+
+        /// <summary>
+        /// Appends a $scoreFusion stage to the pipeline. Pipelines will be automatically named as "pipeline1", "pipeline2", etc.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="pipelines">The collection of pipelines whose results will be combined. The pipelines must operate on the same collection.</param>
+        /// <param name="normalization">The normalization applied to per-pipeline scores before combination.</param>
+        /// <param name="options">The scoreFusion options.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<TNewResult> ScoreFusion<TResult, TNewResult>(
+            this IAggregateFluent<TResult> aggregate,
+            PipelineDefinition<TResult, TNewResult>[] pipelines,
+            ScoreFusionNormalization normalization,
+            ScoreFusionOptions<TNewResult> options = null)
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.ScoreFusion(pipelines, normalization, options));
+        }
+
+        /// <summary>
+        /// Appends a $scoreFusion stage to the pipeline. Pipelines will be automatically named as "pipeline1", "pipeline2", etc.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="pipelinesWithWeights">The collection of tuples containing (pipeline, weight) pairs. The pipelines must operate on the same collection.</param>
+        /// <param name="normalization">The normalization applied to per-pipeline scores before combination.</param>
+        /// <param name="options">The scoreFusion options.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<TNewResult> ScoreFusion<TResult, TNewResult>(
+            this IAggregateFluent<TResult> aggregate,
+            (PipelineDefinition<TResult, TNewResult>, double?)[] pipelinesWithWeights,
+            ScoreFusionNormalization normalization,
+            ScoreFusionOptions<TNewResult> options = null)
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.ScoreFusion(pipelinesWithWeights, normalization, options));
+        }
+
+        /// <summary>
         /// Appends a $search stage to the pipeline, returning documents from a nested scope.
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>

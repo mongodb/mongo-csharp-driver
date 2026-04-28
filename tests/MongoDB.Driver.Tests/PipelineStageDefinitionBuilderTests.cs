@@ -708,6 +708,304 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void ScoreFusion_minimal_should_render_only_input_block()
+        {
+            var stage = PipelineStageDefinitionBuilder.ScoreFusion(
+                new Dictionary<string, PipelineDefinition<BsonDocument, BsonDocument>>
+                {
+                    { "p1", new EmptyPipelineDefinition<BsonDocument>().Match("{ x : 1 }") }
+                },
+                ScoreFusionNormalization.None);
+
+            var rendered = RenderStage(stage);
+            rendered.Document.Should().Be("""
+                {
+                    $scoreFusion: {
+                        "input" : {
+                            "pipelines" : { "p1" : [{ "$match" : { "x" : 1 } }] },
+                            "normalization" : "none"
+                        }
+                    }
+                }
+                """);
+        }
+
+        [Theory]
+        [InlineData(ScoreFusionNormalization.None, "none")]
+        [InlineData(ScoreFusionNormalization.Sigmoid, "sigmoid")]
+        [InlineData(ScoreFusionNormalization.MinMaxScaler, "minMaxScaler")]
+        public void ScoreFusion_should_render_normalization_as_camelCase(ScoreFusionNormalization normalization, string expected)
+        {
+            var stage = PipelineStageDefinitionBuilder.ScoreFusion(
+                new Dictionary<string, PipelineDefinition<BsonDocument, BsonDocument>>
+                {
+                    { "p1", new EmptyPipelineDefinition<BsonDocument>().Match("{ x : 1 }") }
+                },
+                normalization);
+
+            var rendered = RenderStage(stage);
+            rendered.Document["$scoreFusion"]["input"]["normalization"].AsString.Should().Be(expected);
+        }
+
+        [Fact]
+        public void ScoreFusion_should_throw_when_method_is_expression_without_expression()
+        {
+            Assert.Throws<ArgumentException>(() =>
+            {
+                PipelineStageDefinitionBuilder.ScoreFusion(
+                    new Dictionary<string, PipelineDefinition<BsonDocument, BsonDocument>>
+                    {
+                        { "p1", new EmptyPipelineDefinition<BsonDocument>() }
+                    },
+                    ScoreFusionNormalization.None,
+                    options: new ScoreFusionOptions<BsonDocument>
+                    {
+                        CombinationMethod = ScoreFusionCombinationMethod.Expression
+                    });
+            }).ParamName.Should().Be("options");
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData(ScoreFusionCombinationMethod.Avg)]
+        public void ScoreFusion_should_throw_when_expression_is_set_without_method_expression(ScoreFusionCombinationMethod? method)
+        {
+            Assert.Throws<ArgumentException>(() =>
+            {
+                PipelineStageDefinitionBuilder.ScoreFusion(
+                    new Dictionary<string, PipelineDefinition<BsonDocument, BsonDocument>>
+                    {
+                        { "p1", new EmptyPipelineDefinition<BsonDocument>() }
+                    },
+                    ScoreFusionNormalization.None,
+                    options: new ScoreFusionOptions<BsonDocument>
+                    {
+                        CombinationMethod = method,
+                        CombinationExpression = BsonDocument.Parse("{ $sum : ['$$p1'] }")
+                    });
+            }).ParamName.Should().Be("options");
+        }
+
+        [Fact]
+        public void ScoreFusion_should_throw_when_pipelines_array_contains_null_pipeline()
+        {
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                PipelineStageDefinitionBuilder.ScoreFusion(
+                    new PipelineDefinition<BsonDocument, BsonDocument>[] { null },
+                    ScoreFusionNormalization.None);
+            }).ParamName.Should().Be("pipelines");
+        }
+
+        [Fact]
+        public void ScoreFusion_should_throw_when_pipelines_array_is_empty()
+        {
+            Assert.Throws<ArgumentException>(() =>
+            {
+                PipelineStageDefinitionBuilder.ScoreFusion(
+                    new PipelineDefinition<BsonDocument, BsonDocument>[0],
+                    ScoreFusionNormalization.None);
+            }).ParamName.Should().Be("pipelines");
+        }
+
+        [Fact]
+        public void ScoreFusion_should_throw_when_pipelines_array_is_null()
+        {
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                PipelineStageDefinitionBuilder.ScoreFusion(
+                    (PipelineDefinition<BsonDocument, BsonDocument>[])null,
+                    ScoreFusionNormalization.None);
+            }).ParamName.Should().Be("pipelines");
+        }
+
+        [Fact]
+        public void ScoreFusion_should_throw_when_pipelines_dictionary_contains_null_pipeline()
+        {
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                PipelineStageDefinitionBuilder.ScoreFusion(
+                    new Dictionary<string, PipelineDefinition<BsonDocument, BsonDocument>>
+                    {
+                        { "p1", null }
+                    },
+                    ScoreFusionNormalization.None);
+            }).ParamName.Should().Be("pipelines");
+        }
+
+        [Fact]
+        public void ScoreFusion_should_throw_when_pipelines_dictionary_is_empty()
+        {
+            Assert.Throws<ArgumentException>(() =>
+            {
+                PipelineStageDefinitionBuilder.ScoreFusion(
+                    new Dictionary<string, PipelineDefinition<BsonDocument, BsonDocument>>(),
+                    ScoreFusionNormalization.None);
+            }).ParamName.Should().Be("pipelines");
+        }
+
+        [Fact]
+        public void ScoreFusion_should_throw_when_pipelines_dictionary_is_null()
+        {
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                PipelineStageDefinitionBuilder.ScoreFusion(
+                    (Dictionary<string, PipelineDefinition<BsonDocument, BsonDocument>>)null,
+                    ScoreFusionNormalization.None);
+            }).ParamName.Should().Be("pipelines");
+        }
+
+        [Fact]
+        public void ScoreFusion_should_throw_when_pipelines_tuple_contains_null_pipeline()
+        {
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                PipelineStageDefinitionBuilder.ScoreFusion(
+                    new (PipelineDefinition<BsonDocument, BsonDocument>, double?)[] { (null, 1.0) },
+                    ScoreFusionNormalization.None);
+            }).ParamName.Should().Be("pipelinesWithWeights");
+        }
+
+        [Fact]
+        public void ScoreFusion_should_throw_when_pipelines_tuple_is_empty()
+        {
+            Assert.Throws<ArgumentException>(() =>
+            {
+                PipelineStageDefinitionBuilder.ScoreFusion(
+                    new (PipelineDefinition<BsonDocument, BsonDocument>, double?)[0],
+                    ScoreFusionNormalization.None);
+            }).ParamName.Should().Be("pipelinesWithWeights");
+        }
+
+        [Fact]
+        public void ScoreFusion_should_throw_when_pipelines_tuple_is_null()
+        {
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                PipelineStageDefinitionBuilder.ScoreFusion(
+                    ((PipelineDefinition<BsonDocument, BsonDocument>, double?)[])null,
+                    ScoreFusionNormalization.None);
+            }).ParamName.Should().Be("pipelinesWithWeights");
+        }
+
+        [Fact]
+        public void ScoreFusion_with_array_overload_should_auto_name_pipelines()
+        {
+            var stage = PipelineStageDefinitionBuilder.ScoreFusion(
+                new[]
+                {
+                    new EmptyPipelineDefinition<BsonDocument>().Match("{ x : 1 }"),
+                    new EmptyPipelineDefinition<BsonDocument>().Match("{ x : 2 }")
+                },
+                ScoreFusionNormalization.None);
+
+            var rendered = RenderStage(stage);
+            var pipelines = rendered.Document["$scoreFusion"]["input"]["pipelines"].AsBsonDocument;
+            pipelines.Names.Should().Equal("pipeline1", "pipeline2");
+        }
+
+        [Fact]
+        public void ScoreFusion_with_method_avg_should_render_combination_method()
+        {
+            var stage = PipelineStageDefinitionBuilder.ScoreFusion(
+                new Dictionary<string, PipelineDefinition<BsonDocument, BsonDocument>>
+                {
+                    { "p1", new EmptyPipelineDefinition<BsonDocument>().Match("{ x : 1 }") }
+                },
+                ScoreFusionNormalization.None,
+                options: new ScoreFusionOptions<BsonDocument> { CombinationMethod = ScoreFusionCombinationMethod.Avg });
+
+            var rendered = RenderStage(stage);
+            rendered.Document["$scoreFusion"]["combination"].AsBsonDocument.Should().Be("{ method : 'avg' }");
+        }
+
+        [Fact]
+        public void ScoreFusion_with_method_expression_should_render_method_and_expression()
+        {
+            var expression = BsonDocument.Parse("{ $sum : ['$$p1', '$$p2'] }");
+            var stage = PipelineStageDefinitionBuilder.ScoreFusion(
+                new Dictionary<string, PipelineDefinition<BsonDocument, BsonDocument>>
+                {
+                    { "p1", new EmptyPipelineDefinition<BsonDocument>().Match("{ x : 1 }") },
+                    { "p2", new EmptyPipelineDefinition<BsonDocument>().Match("{ x : 2 }") }
+                },
+                ScoreFusionNormalization.None,
+                options: new ScoreFusionOptions<BsonDocument>
+                {
+                    CombinationMethod = ScoreFusionCombinationMethod.Expression,
+                    CombinationExpression = expression
+                });
+
+            var rendered = RenderStage(stage);
+            var combination = rendered.Document["$scoreFusion"]["combination"].AsBsonDocument;
+            combination["method"].AsString.Should().Be("expression");
+            combination["expression"].AsBsonDocument.Should().Be(expression);
+        }
+
+        [Fact]
+        public void ScoreFusion_with_score_details_should_render_scoreDetails_true()
+        {
+            var stage = PipelineStageDefinitionBuilder.ScoreFusion(
+                new Dictionary<string, PipelineDefinition<BsonDocument, BsonDocument>>
+                {
+                    { "p1", new EmptyPipelineDefinition<BsonDocument>().Match("{ x : 1 }") }
+                },
+                ScoreFusionNormalization.None,
+                options: new ScoreFusionOptions<BsonDocument> { ScoreDetails = true });
+
+            var rendered = RenderStage(stage);
+            rendered.Document["$scoreFusion"]["scoreDetails"].AsBoolean.Should().BeTrue();
+        }
+
+        [Fact]
+        public void ScoreFusion_with_tuple_overload_should_auto_name_and_apply_weights()
+        {
+            var stage = PipelineStageDefinitionBuilder.ScoreFusion(
+                new (PipelineDefinition<BsonDocument, BsonDocument>, double?)[]
+                {
+                    (new EmptyPipelineDefinition<BsonDocument>().Match("{ x : 1 }"), 0.3),
+                    (new EmptyPipelineDefinition<BsonDocument>().Match("{ x : 2 }"), 0.7),
+                    (new EmptyPipelineDefinition<BsonDocument>().Match("{ x : 3 }"), null)
+                },
+                ScoreFusionNormalization.None);
+
+            var rendered = RenderStage(stage);
+            var weights = rendered.Document["$scoreFusion"]["combination"]["weights"].AsBsonDocument;
+            weights["pipeline1"].AsDouble.Should().Be(0.3);
+            weights["pipeline2"].AsDouble.Should().Be(0.7);
+            weights.Contains("pipeline3").Should().BeFalse();
+        }
+
+        [Fact]
+        public void ScoreFusion_with_weights_should_render_combination_weights()
+        {
+            var stage = PipelineStageDefinitionBuilder.ScoreFusion(
+                new Dictionary<string, PipelineDefinition<BsonDocument, BsonDocument>>
+                {
+                    { "p1", new EmptyPipelineDefinition<BsonDocument>().Match("{ x : 1 }") },
+                    { "p2", new EmptyPipelineDefinition<BsonDocument>().Match("{ x : 2 }") }
+                },
+                ScoreFusionNormalization.Sigmoid,
+                new Dictionary<string, double> { { "p1", 0.3 }, { "p2", 0.7 } });
+
+            var rendered = RenderStage(stage);
+            rendered.Document.Should().Be("""
+                {
+                    $scoreFusion: {
+                        "input" : {
+                            "pipelines" : {
+                                "p1" : [{ "$match" : { "x" : 1 } }],
+                                "p2" : [{ "$match" : { "x" : 2 } }]
+                            },
+                            "normalization" : "sigmoid"
+                        },
+                        "combination" : { "weights" : { "p1" : 0.3, "p2" : 0.7 } }
+                    }
+                }
+                """);
+        }
+
+        [Fact]
         public void Search_without_returnScope_should_throw_when_output_type_differs_from_input_type()
         {
             var stage = PipelineStageDefinitionBuilder.Search<BsonDocument, ManyToOne>(
