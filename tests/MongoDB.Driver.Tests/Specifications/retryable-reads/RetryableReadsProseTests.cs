@@ -251,7 +251,8 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
                     s.ClusterConfigurator = b => b.Subscribe(eventCapturer);
                     s.ReadPreference = ReadPreference.PrimaryPreferred;
                 },
-                useMultipleShardRouters: false);
+                useMultipleShardRouters: false,
+                waitForAllServersToBeConnected: true);
 
             var failPointServerSelector = new ReadPreferenceServerSelector(ReadPreference.Primary);
             using var failPoint = FailPoint.Configure(failPointServerSelector, failPointCommand);

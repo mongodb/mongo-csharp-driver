@@ -723,7 +723,7 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
                     }
 
                     var failPointServerSelector = new EndPointServerSelector(server.EndPoint);
-                    failPoint = FailPoint.Configure(failPointServerSelector, failPointDocument.AsBsonDocument, withAsync: async, cluster: cluster);
+                    failPoint = FailPoint.Configure(failPointServerSelector, failPointDocument.AsBsonDocument, withAsync: async);
 
                     if (resetPool)
                     {
