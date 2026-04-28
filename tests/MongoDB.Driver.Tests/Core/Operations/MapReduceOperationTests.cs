@@ -469,7 +469,7 @@ namespace MongoDB.Driver.Core.Operations
 #pragma warning restore CS0618 // Type or member is obsolete
             subject.MaxTime = TimeSpan.FromSeconds(9001);
 
-            using (var failPoint = FailPoint.ConfigureAlwaysOn(_cluster, _session, FailPointName.MaxTimeAlwaysTimeout))
+            using (var failPoint = FailPoint.ConfigureAlwaysOn(FailPointName.MaxTimeAlwaysTimeout))
             {
                 var exception = Record.Exception(() => ExecuteOperation(subject, failPoint.Binding, async));
 

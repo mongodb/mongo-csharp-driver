@@ -24,6 +24,7 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
+using MongoDB.Driver.Tests;
 
 namespace MongoDB.Driver.Core.TestHelpers
 {
@@ -32,7 +33,6 @@ namespace MongoDB.Driver.Core.TestHelpers
         // public constants
         public const string FailCommand = "failCommand";
         public const string MaxTimeAlwaysTimeout = "maxTimeAlwaysTimeOut";
-        public const string OnPrimaryTransactionalWrite = "onPrimaryTransactionalWrite";
     }
 
     internal sealed class FailPoint : IDisposable
@@ -41,15 +41,17 @@ namespace MongoDB.Driver.Core.TestHelpers
 
         #region static
 
-        public static FailPoint Configure(IClusterInternal cluster, ICoreSessionHandle session, BsonDocument command, bool? withAsync = null)
+        public static FailPoint Configure(BsonDocument command, bool? withAsync = null, IClusterInternal cluster = null)
         {
-            var server = GetWriteableServer(cluster);
-            return FailPoint.Configure(server, session, command, withAsync);
+            return Configure(WritableServerSelector.Instance, command, withAsync, cluster);
         }
 
-        public static FailPoint Configure(IServer server, ICoreSessionHandle session, BsonDocument command, bool? withAsync = null)
+        public static FailPoint Configure(IServerSelector serverSelector, BsonDocument command, bool? withAsync = null, IClusterInternal cluster = null)
         {
-            var binding = new SingleServerReadWriteBinding(server, session.Fork());
+            cluster ??= DriverTestConfiguration.Client.GetClusterInternal();
+            DriverTestConfiguration.WaitForAllServersToBeConnected(cluster);
+            var server = cluster.SelectServer(OperationContext.NoTimeout, serverSelector);
+            var binding = new SingleServerReadWriteBinding(server, NoCoreSession.NewHandle());
             if (withAsync.HasValue)
             {
                 MakeFailPointApplicationNameTestableIfConfigured(command, withAsync.Value);
@@ -68,29 +70,23 @@ namespace MongoDB.Driver.Core.TestHelpers
             }
         }
 
-        public static FailPoint Configure(IClusterInternal cluster, ICoreSessionHandle session, string name, BsonDocument args, bool? withAsync = null)
+        public static FailPoint Configure(string name, BsonDocument args, bool? withAsync = null)
         {
             Ensure.IsNotNull(name, nameof(name));
             Ensure.IsNotNull(args, nameof(args));
             var command = new BsonDocument("configureFailPoint", name).Merge(args, overwriteExistingElements: false);
-            return Configure(cluster, session, command, withAsync);
+            return Configure(command, withAsync);
         }
 
-        public static FailPoint ConfigureAlwaysOn(IClusterInternal cluster, ICoreSessionHandle session, string name, bool? withAsync = null)
+        public static FailPoint ConfigureAlwaysOn(string name, bool? withAsync = null)
         {
             var args = new BsonDocument("mode", "alwaysOn");
-            return Configure(cluster, session, name, args, withAsync);
+            return Configure(name, args, withAsync);
         }
 
         public static string DecorateApplicationName(string applicationName, bool async) => $"{applicationName}{ApplicationNameTestableSuffix}{async}";
 
         // private static methods
-        private static IServer GetWriteableServer(IClusterInternal cluster)
-        {
-            var selector = WritableServerSelector.Instance;
-            return cluster.SelectServer(OperationContext.NoTimeout, selector);
-        }
-
         private static void MakeFailPointApplicationNameTestableIfConfigured(BsonDocument command, bool async)
         {
             if (command.TryGetValue("data", out var dataBsonValue))
@@ -132,14 +128,7 @@ namespace MongoDB.Driver.Core.TestHelpers
         /// <value>The binding is a single server binding.</value>
         internal IReadWriteBinding Binding => _binding;
 
-        // public methods
-        /// <summary>
-        /// Configures the failpoint on the server.
-        /// </summary>
-        public void Configure()
-        {
-            Configure(_command);
-        }
+        public IServer Server => _server;
 
         public void Dispose()
         {
@@ -152,10 +141,8 @@ namespace MongoDB.Driver.Core.TestHelpers
         }
 
         // private methods
-        private void Configure(BsonDocument command, bool waitForConnected = false)
-        {
-            ExecuteCommand(command, waitForConnected);
-        }
+        private void Configure()
+            => ExecuteCommand(_command, false);
 
         private void ConfigureOff()
         {
@@ -165,7 +152,7 @@ namespace MongoDB.Driver.Core.TestHelpers
                 { "configureFailPoint", name },
                 { "mode", "off" }
             };
-            Configure(command, true);
+            ExecuteCommand(command, true);
         }
 
         private void ExecuteCommand(BsonDocument command, bool waitForConnected)

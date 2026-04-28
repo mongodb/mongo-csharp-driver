@@ -17,7 +17,6 @@ using System;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core;
-using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
@@ -250,12 +249,8 @@ namespace MongoDB.Driver.Tests
             return GetClient(cb => cb.Subscribe(capturer));
         }
 
-        private FailPoint ConfigureFailPoint(string failpointCommand)
-        {
-            var cluster = DriverTestConfiguration.Client.GetClusterInternal();
-            var session = NoCoreSession.NewHandle();
-            return FailPoint.Configure(cluster, session, BsonDocument.Parse(failpointCommand));
-        }
+        private FailPoint ConfigureFailPoint(string failpointCommand) =>
+            FailPoint.Configure(BsonDocument.Parse(failpointCommand));
 
         private void RequireSupportForRetryableWrites()
         {

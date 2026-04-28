@@ -26,7 +26,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core;
-using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Configuration;
@@ -723,8 +722,8 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
                         eventCapturer.WaitForOrThrowIfTimeout(events => events.Any(e => e is ConnectionPoolClearedEvent), TimeSpan.FromMilliseconds(500));
                     }
 
-                    var failPointServer = CoreTestConfiguration.Cluster.SelectServer(OperationContext.NoTimeout, new EndPointServerSelector(server.EndPoint));
-                    failPoint = FailPoint.Configure(failPointServer, NoCoreSession.NewHandle(), failPointDocument.AsBsonDocument, withAsync: async);
+                    var failPointServerSelector = new EndPointServerSelector(server.EndPoint);
+                    failPoint = FailPoint.Configure(failPointServerSelector, failPointDocument.AsBsonDocument, withAsync: async);
 
                     if (resetPool)
                     {

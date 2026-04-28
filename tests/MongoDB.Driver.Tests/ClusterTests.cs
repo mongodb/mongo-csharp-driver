@@ -87,10 +87,10 @@ namespace MongoDB.Driver.Tests
             var eventCapturer = CreateEventCapturer();
             using (var client = CreateMongoClient(eventCapturer, applicationName))
             {
-                var slowServer = client.GetClusterInternal().SelectServer(OperationContext.NoTimeout, WritableServerSelector.Instance);
+                using var failPoint = FailPoint.Configure(WritableServerSelector.Instance, failCommand, async, client.GetClusterInternal());
+                var slowServer = failPoint.Server;
                 var fastServer = client.GetClusterInternal().SelectServer(OperationContext.NoTimeout, new DelegateServerSelector((_, servers) => servers.Where(s => s.ServerId != slowServer.ServerId)));
 
-                using var failPoint = FailPoint.Configure(slowServer, NoCoreSession.NewHandle(), failCommand, async);
                 var database = client.GetDatabase(_databaseName);
                 CreateCollection();
                 var collection = database.GetCollection<BsonDocument>(_collectionName);

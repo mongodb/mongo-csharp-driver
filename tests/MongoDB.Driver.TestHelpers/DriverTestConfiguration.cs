@@ -127,7 +127,8 @@ namespace MongoDB.Driver.Tests
 
         public static IMongoClient CreateMongoClient(
             Action<MongoClientSettings> clientSettingsConfigurator = null,
-            bool useMultipleShardRouters = false)
+            bool useMultipleShardRouters = false,
+            bool waitForAllServersToBeConnected = false)
         {
             var clusterType = CoreTestConfiguration.Cluster.Description.Type;
             if (clusterType != ClusterType.Sharded && clusterType != ClusterType.LoadBalanced)
@@ -152,7 +153,13 @@ namespace MongoDB.Driver.Tests
                 OidcCallbackAdapterCachingFactory.Instance.Reset();
             }
 
-            return new MongoClient(clientSettings);
+            var client = new MongoClient(clientSettings);
+            if (waitForAllServersToBeConnected)
+            {
+                WaitForAllServersToBeConnected(client.GetClusterInternal());
+            }
+
+            return client;
         }
 
         public static IMongoClient CreateMongoClient(EventCapturer capturer, LoggingSettings loggingSettings = null) =>
