@@ -80,7 +80,15 @@ namespace MongoDB.Bson.Serialization
                 throw new ArgumentException($"{baseType} is not assignable from {derivedTypeSerializer.ValueType}.");
             }
 
-            return BsonSerializer.LookupSerializer(baseType); // TODO: should be able to ask a serializer for the base type serializer
+            // TODO: should be able to ask a serializer for the base type serializer
+            if (derivedTypeSerializer is IHasSerializationDomain domainSpecificSerializer)
+            {
+                return domainSpecificSerializer.SerializationDomain.LookupSerializer(baseType);
+            }
+            else
+            {
+                return BsonSerializationDomain.Default.LookupSerializer(baseType);
+            }
         }
 
         /// <summary>
@@ -101,7 +109,15 @@ namespace MongoDB.Bson.Serialization
                 throw new ArgumentException($"{baseTypeSerializer.ValueType} is not assignable from {derivedType}.");
             }
 
-            return BsonSerializer.LookupSerializer(derivedType); // TODO: should be able to ask a serializer for the derived type serializer
+            // TODO: should be able to ask a serializer for the derived type serializer
+            if (baseTypeSerializer is IHasSerializationDomain domainSpecificSerializer)
+            {
+                return domainSpecificSerializer.SerializationDomain.LookupSerializer(derivedType);
+            }
+            else
+            {
+                return BsonSerializationDomain.Default.LookupSerializer(derivedType);
+            }
         }
 
         /// <summary>
