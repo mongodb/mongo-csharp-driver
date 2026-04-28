@@ -460,7 +460,7 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
                 }
 
                 var command = failPoint.AsBsonDocument;
-                return FailPoint.Configure(failPointServerSelector, command, _async);
+                return FailPoint.Configure(failPointServerSelector, command, _async, client.GetClusterInternal());
             }
 
             return null;

@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             var client = DriverTestConfiguration.CreateMongoClient(useMultipleShardRouters: true);
             _entityMap.RegisterForDispose(client);
 
-            var failPoint = FailPoint.Configure(new EndPointServerSelector(pinnedServer), _failPointCommand, withAsync: _async, client.GetClusterInternal());
+            var failPoint = FailPoint.Configure(new EndPointServerSelector(pinnedServer), _failPointCommand, _async, client.GetClusterInternal());
             _entityMap.RegisterForDispose(failPoint);
         }
     }
