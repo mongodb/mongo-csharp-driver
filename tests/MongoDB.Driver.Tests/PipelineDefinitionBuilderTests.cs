@@ -777,6 +777,22 @@ namespace MongoDB.Driver.Tests
             stages[0].Should().BeEquivalentTo("{ $vectorSearch: { queryVector: [1.0, 2.0, 3.0], path: 'Plot.PlotEmbedding', limit: 1, numCandidates: 10, index: 'index_name', filter: { '$and' : [{ Rating: { '$lt' : 6 } }, { Synced: { '$eq' : true } }] }, parentFilter: { 'Year' : { '$gt' : 1900 } } } }");
         }
 
+        [Fact]
+        public void VectorSearch_should_add_expected_stage_with_filter_but_no_nested_filters()
+        {
+            var result = new EmptyPipelineDefinition<MovieWithPlot>().VectorSearch(m => m.Plot.PlotEmbedding,
+                new[] { 1.0, 2.0, 3.0 }, 1, new VectorSearchOptions<MovieWithPlot>()
+                {
+                    IndexName = "index_name",
+                    Filter = Builders<MovieWithPlot>.Filter.Lt("Plot.Rating", 6)
+                             & Builders<MovieWithPlot>.Filter.Eq("Plot.Synced", true)
+                });
+
+            var stages = RenderStages(result, BsonSerializer.SerializerRegistry.GetSerializer<MovieWithPlot>());
+            stages[0].Should().BeEquivalentTo(
+                "{ $vectorSearch: { queryVector: [1.0, 2.0, 3.0], path: 'Plot.PlotEmbedding', limit: 1, numCandidates: 10, index: 'index_name', filter: { '$and' : [{ 'Plot.Rating': { '$lt' : 6 } }, { 'Plot.Synced': { '$eq' : true } }] } } }");
+        }
+
         private class MovieWithPlot
         {
             public string Title { get; set; }
