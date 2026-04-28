@@ -28,6 +28,15 @@ namespace MongoDB.Driver.Encryption
 
         public void Register(Func<IMongoClient, AutoEncryptionOptions, IAutoEncryptionLibMongoCryptController> factory)
         {
+            // This allows Register to be called more than once as long as the exact same reference is passed
+            // each time. This removes a significant synchronization burden from the caller when multiple services
+            // may all need to initialize the registry.
+            // It is the responsibility of the caller to ensure that the same reference is used for multiple calls.
+            if (ReferenceEquals(factory, _autoCryptClientControllerFactory))
+            {
+                return;
+            }
+
             if (_autoCryptClientControllerFactory != null)
             {
                 throw new MongoConfigurationException("AutoEncryption Provider already registered.");
