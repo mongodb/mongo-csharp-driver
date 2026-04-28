@@ -96,21 +96,67 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
+        [Theory]
+        [InlineData(false, null, "{ level : 'majority' }", null)]
+        [InlineData(false, 1234, "{ level : 'majority' }", null)]
+        [InlineData(true, null, "{ level : 'majority' }", null)]
+        [InlineData(true, 1234, "{ level : 'majority' }", null)]
+        public void GetReadConcernForCommand_should_return_null_when_session_is_snapshot(
+            bool isCausallyConsistent,
+            int? operationTime,
+            string readConcernJson,
+            string expectedResult)
+        {
+            var session = CreateSession(
+                isSnapshot: true,
+                isCausallyConsistent: isCausallyConsistent,
+                operationTime: operationTime.HasValue ? new BsonTimestamp(operationTime.Value) : null);
+            var connectionDescription = CreateConnectionDescription(logicalSessionTimeoutMinutes: true);
+            var readConcern = ReadConcern.FromBsonDocument(BsonDocument.Parse(readConcernJson));
+
+            var result = ReadConcernHelper.GetReadConcernForCommand(session, connectionDescription, readConcern);
+
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [InlineData(false, null, null)]
+        [InlineData(true, null, "{ level : 'snapshot' }")]
+        [InlineData(true, 1234, "{ level : 'snapshot', atClusterTime : Timestamp(0, 1234) }")]
+        public void GetReadConcernForSnapshotSession_should_return_expected_result(
+            bool isSnapshot,
+            int? snapshotTime,
+            string expectedResult)
+        {
+            var session = CreateSession(
+                isSnapshot: isSnapshot,
+                snapshotTime: snapshotTime.HasValue ? new BsonTimestamp(snapshotTime.Value) : null);
+            var connectionDescription = CreateConnectionDescription(
+                logicalSessionTimeoutMinutes: true,
+                maxWireVersion: WireVersion.Server50);
+
+            var result = ReadConcernHelper.GetReadConcernForSnapshotSession(session, connectionDescription);
+
+            result.Should().Be(expectedResult);
+        }
+
         // private methods
         private ConnectionDescription CreateConnectionDescription(
             bool logicalSessionTimeoutMinutes = false,
-            bool? serviceId  = null)
+            bool? serviceId = null,
+            int? maxWireVersion = null)
         {
             var clusterId = new ClusterId(1);
             var endPoint = new DnsEndPoint("localhost", 27017);
             var serverId = new ServerId(clusterId, endPoint);
             var connectionId = new ConnectionId(serverId, 1);
+            var wireVersion = maxWireVersion ?? (logicalSessionTimeoutMinutes ? WireVersion.Server40 : WireVersion.Server36);
             var helloResult = new BsonDocument
             {
                 { "ok", 1 },
                 { "logicalSessionTimeoutMinutes", 30, logicalSessionTimeoutMinutes },
                 { "serviceId", ObjectId.GenerateNewId(), serviceId.HasValue },
-                { "maxWireVersion", logicalSessionTimeoutMinutes ? WireVersion.Server40 : WireVersion.Server36 }
+                { "maxWireVersion", wireVersion }
             };
             return new ConnectionDescription(connectionId, new HelloResult(helloResult));
         }
@@ -119,13 +165,17 @@ namespace MongoDB.Driver.Core.Operations
             CoreTransaction currentTransaction = null,
             bool isCausallyConsistent = false,
             bool isInTransaction = false,
-            BsonTimestamp operationTime = null)
+            bool isSnapshot = false,
+            BsonTimestamp operationTime = null,
+            BsonTimestamp snapshotTime = null)
         {
             var mockSession = new Mock<ICoreSession>();
             mockSession.SetupGet(m => m.CurrentTransaction).Returns(currentTransaction);
             mockSession.SetupGet(m => m.IsCausallyConsistent).Returns(isCausallyConsistent);
             mockSession.SetupGet(m => m.IsInTransaction).Returns(isInTransaction);
+            mockSession.SetupGet(m => m.IsSnapshot).Returns(isSnapshot);
             mockSession.SetupGet(m => m.OperationTime).Returns(operationTime);
+            mockSession.SetupGet(m => m.SnapshotTime).Returns(snapshotTime);
             return mockSession.Object;
         }
     }

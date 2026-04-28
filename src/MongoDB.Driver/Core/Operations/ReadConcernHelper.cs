@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Core.Operations
     {
         public static BsonDocument GetReadConcernForCommand(ICoreSession session, ConnectionDescription connectionDescription, ReadConcern readConcern)
         {
-            return session.IsInTransaction ? null : ToBsonDocument(session, connectionDescription, readConcern);
+            return (session.IsInTransaction || session.IsSnapshot) ? null : ToBsonDocument(session, connectionDescription, readConcern);
         }
 
         public static BsonDocument GetReadConcernForFirstCommandInTransaction(ICoreSession session, ConnectionDescription connectionDescription)
