@@ -2319,7 +2319,7 @@ namespace MongoDB.Driver
                         { "limit", limit },
                         { "numCandidates", options?.NumberOfCandidates ?? limit * 10, options?.Exact != true },
                         { "index", options?.IndexName ?? "default" },
-                        { nestedRoot != null ? "parentFilter" : "filter", () => options?.Filter.Render(args with { RenderDollarForm = true }), options?.Filter != null },
+                        { options?.NestedFilter != null ? "parentFilter" : "filter", () => options?.Filter.Render(args with { RenderDollarForm = true }), options?.Filter != null },
                         { "exact", true, options?.Exact == true },
                         { "returnStoredSource", true, options?.ReturnStoredSource == true },
                     };
