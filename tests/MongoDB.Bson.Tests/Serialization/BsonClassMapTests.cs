@@ -96,6 +96,16 @@ namespace MongoDB.Bson.Tests.Serialization
             var instance = (B)classMap.CreateInstance();
             Assert.Equal(10, instance.A);
         }
+
+        [Fact]
+        public void TestPublicConstructorWithBaseClassMap()
+        {
+            var baseClassMap = new BsonClassMap(typeof(A));
+            var classMap = new BsonClassMap(typeof(B), baseClassMap);
+
+            classMap.ClassType.Should().Be(typeof(B));
+            classMap.BaseClassMap.Should().BeSameAs(baseClassMap);
+        }
     }
 
     public class BsonClassMapMapByNameTests

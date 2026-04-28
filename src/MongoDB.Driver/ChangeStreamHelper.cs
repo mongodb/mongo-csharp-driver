@@ -32,9 +32,10 @@ namespace MongoDB.Driver
             bool retryRequested,
             int maxAdaptiveRetries,
             bool enableOverloadRetargeting,
-            ExpressionTranslationOptions translationOptions)
+            ExpressionTranslationOptions translationOptions,
+            IBsonSerializationDomain serializationDomain)
         {
-            var renderedPipeline = RenderPipeline(pipeline, BsonDocumentSerializer.Instance, translationOptions);
+            var renderedPipeline = RenderPipeline(pipeline, BsonDocumentSerializer.Instance, translationOptions, serializationDomain);
 
             var operation = new ChangeStreamOperation<TResult>(
                 renderedPipeline.Documents,
@@ -59,9 +60,10 @@ namespace MongoDB.Driver
             bool retryRequested,
             int maxAdaptiveRetries,
             bool enableOverloadRetargeting,
-            ExpressionTranslationOptions translationOptions)
+            ExpressionTranslationOptions translationOptions,
+            IBsonSerializationDomain serializationDomain)
         {
-            var renderedPipeline = RenderPipeline(pipeline, BsonDocumentSerializer.Instance, translationOptions);
+            var renderedPipeline = RenderPipeline(pipeline, BsonDocumentSerializer.Instance, translationOptions, serializationDomain);
 
             var operation = new ChangeStreamOperation<TResult>(
                 database.DatabaseNamespace,
@@ -88,9 +90,10 @@ namespace MongoDB.Driver
             bool retryRequested,
             int maxAdaptiveRetries,
             bool enableOverloadRetargeting,
-            ExpressionTranslationOptions translationOptions)
+            ExpressionTranslationOptions translationOptions,
+            IBsonSerializationDomain serializationDomain)
         {
-            var renderedPipeline = RenderPipeline(pipeline, documentSerializer, translationOptions);
+            var renderedPipeline = RenderPipeline(pipeline, documentSerializer, translationOptions, serializationDomain);
 
             var operation = new ChangeStreamOperation<TResult>(
                 collection.CollectionNamespace,
@@ -111,11 +114,11 @@ namespace MongoDB.Driver
         private static RenderedPipelineDefinition<TResult> RenderPipeline<TResult, TDocument>(
             PipelineDefinition<ChangeStreamDocument<TDocument>, TResult> pipeline,
             IBsonSerializer<TDocument> documentSerializer,
-            ExpressionTranslationOptions translationOptions)
+            ExpressionTranslationOptions translationOptions,
+            IBsonSerializationDomain serializationDomain)
         {
             var changeStreamDocumentSerializer = new ChangeStreamDocumentSerializer<TDocument>(documentSerializer);
-            var serializerRegistry = BsonSerializer.SerializerRegistry;
-            return pipeline.Render(new(changeStreamDocumentSerializer, serializerRegistry, translationOptions: translationOptions));
+            return pipeline.Render(new(changeStreamDocumentSerializer, serializationDomain, translationOptions: translationOptions));
         }
 
         private static void SetOperationOptions<TResult>(

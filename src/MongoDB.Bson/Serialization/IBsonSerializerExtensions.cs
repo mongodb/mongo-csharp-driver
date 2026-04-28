@@ -50,6 +50,18 @@ namespace MongoDB.Bson.Serialization
             return serializer.Deserialize(context, args);
         }
 
+        internal static IBsonSerializer GetSerializerForDerivedType(this IBsonSerializer serializer, Type derivedType)
+        {
+            if (serializer is IHasSerializationDomain domainSpecificSerializer)
+            {
+                return domainSpecificSerializer.SerializationDomain.LookupSerializer(derivedType);
+            }
+            else
+            {
+                return BsonSerializationDomain.Default.LookupSerializer(derivedType);
+            }
+        }
+
         /// <summary>
         /// Gets the serializer for a base type starting from a serializer for a derived type.
         /// </summary>
@@ -68,7 +80,15 @@ namespace MongoDB.Bson.Serialization
                 throw new ArgumentException($"{baseType} is not assignable from {derivedTypeSerializer.ValueType}.");
             }
 
-            return BsonSerializer.LookupSerializer(baseType); // TODO: should be able to ask a serializer for the base type serializer
+            // TODO: should be able to ask a serializer for the base type serializer
+            if (derivedTypeSerializer is IHasSerializationDomain domainSpecificSerializer)
+            {
+                return domainSpecificSerializer.SerializationDomain.LookupSerializer(baseType);
+            }
+            else
+            {
+                return BsonSerializationDomain.Default.LookupSerializer(baseType);
+            }
         }
 
         /// <summary>
@@ -89,7 +109,15 @@ namespace MongoDB.Bson.Serialization
                 throw new ArgumentException($"{baseTypeSerializer.ValueType} is not assignable from {derivedType}.");
             }
 
-            return BsonSerializer.LookupSerializer(derivedType); // TODO: should be able to ask a serializer for the derived type serializer
+            // TODO: should be able to ask a serializer for the derived type serializer
+            if (baseTypeSerializer is IHasSerializationDomain domainSpecificSerializer)
+            {
+                return domainSpecificSerializer.SerializationDomain.LookupSerializer(derivedType);
+            }
+            else
+            {
+                return BsonSerializationDomain.Default.LookupSerializer(derivedType);
+            }
         }
 
         /// <summary>
@@ -97,10 +125,21 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <param name="serializer">The serializer.</param>
         /// <returns>The discriminator convention.</returns>
-        public static IDiscriminatorConvention GetDiscriminatorConvention(this IBsonSerializer serializer) =>
-            serializer is IHasDiscriminatorConvention hasDiscriminatorConvention
-                ? hasDiscriminatorConvention.DiscriminatorConvention
-                : BsonSerializer.LookupDiscriminatorConvention(serializer.ValueType);
+        public static IDiscriminatorConvention GetDiscriminatorConvention(this IBsonSerializer serializer)
+        {
+            switch (serializer)
+            {
+                case IHasDiscriminatorConvention hasDiscriminatorConvention:
+                    return hasDiscriminatorConvention.DiscriminatorConvention;
+                case IHasSerializationDomain hasSerializationDomain:
+                {
+                    var serializationDomain = hasSerializationDomain.SerializationDomain;
+                    return serializationDomain.LookupDiscriminatorConvention(serializer.ValueType);
+                }
+                default:
+                    return BsonSerializationDomain.Default.LookupDiscriminatorConvention(serializer.ValueType);
+            }
+        }
 
         /// <summary>
         /// Serializes a value.

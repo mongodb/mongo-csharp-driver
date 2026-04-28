@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 {
                     var sortByExpression = arguments[1];
                     var sortByDefinition = GetSortByDefinition(sortByExpression, expression);
-                    sortBy = TranslateSortByDefinition(expression, sortByExpression, sortByDefinition, itemSerializer, context.TranslationOptions);
+                    sortBy = TranslateSortByDefinition(expression, sortByExpression, sortByDefinition, itemSerializer, context.SerializationDomain, context.TranslationOptions);
                 }
 
                 var selectorLambda = (LambdaExpression)GetSelectorArgument(method, arguments);
@@ -216,12 +216,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             Expression sortByExpression,
             object sortByDefinition,
             IBsonSerializer documentSerializer,
+            IBsonSerializationDomain serializationDomain,
             ExpressionTranslationOptions translationOptions)
         {
             var methodInfoDefinition = typeof(PickMethodToAggregationExpressionTranslator).GetMethod(nameof(TranslateSortByDefinitionGeneric), BindingFlags.Static | BindingFlags.NonPublic);
             var documentType = documentSerializer.ValueType;
             var methodInfo = methodInfoDefinition.MakeGenericMethod(documentType);
-            return (AstSortFields)methodInfo.Invoke(null, new object[] { expression, sortByExpression, sortByDefinition, documentSerializer, translationOptions });
+            return (AstSortFields)methodInfo.Invoke(null, new object[] { expression, sortByExpression, sortByDefinition, documentSerializer, serializationDomain, translationOptions });
         }
 
         private static AstSortFields TranslateSortByDefinitionGeneric<TDocument>(
@@ -229,9 +230,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             Expression sortByExpression,
             SortDefinition<TDocument> sortByDefinition,
             IBsonSerializer<TDocument> documentSerializer,
+            IBsonSerializationDomain serializationDomain,
             ExpressionTranslationOptions translationOptions)
         {
-            var serializerRegistry = BsonSerializer.SerializerRegistry;
+            var serializerRegistry = serializationDomain.SerializerRegistry;
             var sortDocument = sortByDefinition.Render(new(documentSerializer, serializerRegistry, translationOptions: translationOptions));
             var fields = new List<AstSortField>();
             foreach (var element in sortDocument)

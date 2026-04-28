@@ -462,7 +462,7 @@ namespace MongoDB.Bson.Tests.Serialization
             var discriminatorConvention = Mock.Of<IDiscriminatorConvention>();
             var guidRepresentation = GuidRepresentation.Standard;
 
-            var exception = Record.Exception(() => new ObjectSerializer(discriminatorConvention: null, guidRepresentation, allowedTypes: null));
+            var exception = Record.Exception(() => new ObjectSerializer(discriminatorConvention: discriminatorConvention, guidRepresentation, allowedTypes: null));
 
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("allowedTypes");

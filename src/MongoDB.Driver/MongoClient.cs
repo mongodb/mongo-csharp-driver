@@ -538,7 +538,7 @@ namespace MongoDB.Driver
                 AuthorizedDatabases = options.AuthorizedDatabases,
                 Comment = options.Comment,
                 EnableOverloadRetargeting = _settings.EnableOverloadRetargeting,
-                Filter = options.Filter?.Render(new(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry, translationOptions: translationOptions)),
+                Filter = options.Filter?.Render(new(BsonDocumentSerializer.Instance, _settings.SerializationDomain, translationOptions: translationOptions)),
                 MaxAdaptiveRetries = _settings.MaxAdaptiveRetries,
                 NameOnly = options.NameOnly,
                 RetryRequested = _settings.RetryReads
@@ -570,7 +570,8 @@ namespace MongoDB.Driver
                 _settings.RetryReads,
                 _settings.MaxAdaptiveRetries,
                 _settings.EnableOverloadRetargeting,
-                _settings.TranslationOptions);
+                _settings.TranslationOptions,
+                _settings.SerializationDomain);
 
         private OperationContext CreateOperationContext(IClientSessionHandle session, TimeSpan? timeout, string operationName, CancellationToken cancellationToken)
         {
@@ -637,8 +638,7 @@ namespace MongoDB.Driver
         private RenderArgs<BsonDocument> GetRenderArgs()
         {
             var translationOptions = Settings.TranslationOptions;
-            var serializerRegistry = BsonSerializer.SerializerRegistry;
-            return new RenderArgs<BsonDocument>(BsonDocumentSerializer.Instance, serializerRegistry, translationOptions: translationOptions);
+            return new RenderArgs<BsonDocument>(BsonDocumentSerializer.Instance, _settings.SerializationDomain, translationOptions: translationOptions);
         }
 
         private IClientSessionHandle StartSession(ClientSessionOptions options)

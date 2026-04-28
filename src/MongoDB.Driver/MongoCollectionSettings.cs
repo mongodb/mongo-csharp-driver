@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
@@ -34,6 +35,7 @@ namespace MongoDB.Driver
         private TimeSpan? _timeout;
         private Setting<WriteConcern> _writeConcern;
         private Setting<UTF8Encoding> _writeEncoding;
+        private Setting<IBsonSerializationDomain> _serializationDomain;
 
         // the following fields are set when Freeze is called
         private bool _isFrozen;
@@ -116,9 +118,23 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the serializer registry.
         /// </summary>
-        public IBsonSerializerRegistry SerializerRegistry
+        public IBsonSerializerRegistry SerializerRegistry => SerializationDomain.SerializerRegistry;
+
+        /// <summary>
+        /// Gets or sets the serialization domain.
+        /// </summary>
+        internal IBsonSerializationDomain SerializationDomain
         {
-            get { return BsonSerializer.SerializerRegistry; }
+            get => _serializationDomain.Value ?? BsonSerializer.DefaultSerializationDomain;
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoCollectionSettings is frozen."); }
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
+                _serializationDomain.Value = value;
+            }
         }
 
         /// <summary>
@@ -177,6 +193,7 @@ namespace MongoDB.Driver
             clone._readConcern = _readConcern.Clone();
             clone._readEncoding = _readEncoding.Clone();
             clone._readPreference = _readPreference.Clone();
+            clone._serializationDomain = _serializationDomain.Clone();
             clone._timeout = _timeout;
             clone._writeConcern = _writeConcern.Clone();
             clone._writeEncoding = _writeEncoding.Clone();
@@ -208,6 +225,7 @@ namespace MongoDB.Driver
                         object.Equals(_readConcern.Value, rhs._readConcern.Value) &&
                         object.Equals(_readEncoding, rhs._readEncoding) &&
                         _readPreference.Value == rhs._readPreference.Value &&
+                        object.ReferenceEquals(_serializationDomain.Value, rhs._serializationDomain.Value) &&
                         _timeout == rhs._timeout &&
                         _writeConcern.Value == rhs._writeConcern.Value &&
                         object.Equals(_writeEncoding, rhs._writeEncoding);
@@ -263,6 +281,7 @@ namespace MongoDB.Driver
             hash = 37 * hash + ((_readConcern.Value == null) ? 0 : _readConcern.Value.GetHashCode());
             hash = 37 * hash + ((_readEncoding.Value == null) ? 0 : _readEncoding.Value.GetHashCode());
             hash = 37 * hash + ((_readPreference.Value == null) ? 0 : _readPreference.Value.GetHashCode());
+            hash = 37 * hash + ((_serializationDomain.Value == null) ? 0 : RuntimeHelpers.GetHashCode(_serializationDomain.Value));
             hash = 37 * hash + _timeout?.GetHashCode() ?? 0;
             hash = 37 * hash + ((_writeConcern.Value == null) ? 0 : _writeConcern.Value.GetHashCode());
             hash = 37 * hash + ((_writeEncoding.Value == null) ? 0 : _writeEncoding.Value.GetHashCode());
@@ -318,6 +337,10 @@ namespace MongoDB.Driver
             if (!_readPreference.HasBeenSet)
             {
                 ReadPreference = databaseSettings.ReadPreference;
+            }
+            if (!_serializationDomain.HasBeenSet)
+            {
+                SerializationDomain = databaseSettings.SerializationDomain;
             }
             if (!_timeout.HasValue)
             {

@@ -22,10 +22,11 @@ namespace MongoDB.Bson.Serialization
     /// <summary>
     /// Default, global implementation of an <see cref="IBsonSerializerRegistry"/>.
     /// </summary>
-    public sealed class BsonSerializerRegistry : IBsonSerializerRegistry
+    public sealed class BsonSerializerRegistry : IBsonSerializerRegistry, IHasSerializationDomain
     {
         // private fields
         private readonly ConcurrentDictionary<Type, IBsonSerializer> _cache;
+        private readonly IBsonSerializationDomain _serializationDomain;
         private readonly ConcurrentStack<IBsonSerializationProvider> _serializationProviders;
         private readonly Func<Type, IBsonSerializer> _createSerializer;
 
@@ -34,11 +35,21 @@ namespace MongoDB.Bson.Serialization
         /// Initializes a new instance of the <see cref="BsonSerializerRegistry"/> class.
         /// </summary>
         public BsonSerializerRegistry()
+            : this(BsonSerializationDomain.Default)
         {
+        }
+
+        internal BsonSerializerRegistry(IBsonSerializationDomain domain)
+        {
+            _serializationDomain = domain;
             _cache = new ConcurrentDictionary<Type, IBsonSerializer>();
             _serializationProviders = new ConcurrentStack<IBsonSerializationProvider>();
             _createSerializer = CreateSerializer;
         }
+
+        internal IBsonSerializationDomain SerializationDomain => _serializationDomain;
+
+        IBsonSerializationDomain IHasSerializationDomain.SerializationDomain => _serializationDomain;
 
         // public methods
         /// <summary>
@@ -95,6 +106,10 @@ namespace MongoDB.Bson.Serialization
             }
             EnsureRegisteringASerializerForThisTypeIsAllowed(type);
             EnsureSerializerIsCompatibleWithType(serializer, type);
+            if (serializer is IHasSerializationDomain hasSerializationDomain && hasSerializationDomain.SerializationDomain != _serializationDomain)
+            {
+                throw new ArgumentException($"Expected serializer to be for serialization domain {_serializationDomain.Name} but was for serialization domain {hasSerializationDomain.SerializationDomain.Name}.");
+            }
 
             if (!_cache.TryAdd(type, serializer))
             {
@@ -113,6 +128,10 @@ namespace MongoDB.Bson.Serialization
             if (serializationProvider == null)
             {
                 throw new ArgumentNullException("serializationProvider");
+            }
+            if (serializationProvider is IHasSerializationDomain hasSerializationDomain && hasSerializationDomain.SerializationDomain != _serializationDomain)
+            {
+                throw new ArgumentException($"Expected serialization provider to be for serialization domain {_serializationDomain.Name} but was for serialization domain {hasSerializationDomain.SerializationDomain.Name}.");
             }
 
             _serializationProviders.Push(serializationProvider);
@@ -136,6 +155,10 @@ namespace MongoDB.Bson.Serialization
             }
             EnsureRegisteringASerializerForThisTypeIsAllowed(type);
             EnsureSerializerIsCompatibleWithType(serializer, type);
+            if (serializer is IHasSerializationDomain hasSerializationDomain && hasSerializationDomain.SerializationDomain != _serializationDomain)
+            {
+                throw new ArgumentException($"Expected serializer to be for serialization domain {_serializationDomain.Name} but was for serialization domain {hasSerializationDomain.SerializationDomain.Name}.");
+            }
 
             if (_cache.TryAdd(type, serializer))
             {
@@ -172,6 +195,11 @@ namespace MongoDB.Bson.Serialization
 
                 if (serializer != null)
                 {
+                    if (serializer is IHasSerializationDomain hasSerializationDomain && hasSerializationDomain.SerializationDomain != _serializationDomain)
+                    {
+                        throw new ArgumentException($"Expected serializer to be for serialization domain {_serializationDomain.Name} but was for serialization domain {hasSerializationDomain.SerializationDomain.Name}.", "serializer");
+                    }
+
                     return serializer;
                 }
             }

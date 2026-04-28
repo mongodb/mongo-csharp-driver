@@ -17,6 +17,7 @@ using System;
 using System.IO;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
@@ -61,7 +62,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             {
                 writerSettings.Indent = _encoderSettings.GetOrDefault(MessageEncoderSettingsName.Indent, false);
                 writerSettings.IndentChars = _encoderSettings.GetOrDefault(MessageEncoderSettingsName.IndentChars, "");
-                writerSettings.MaxSerializationDepth = _encoderSettings.GetOrDefault(MessageEncoderSettingsName.MaxSerializationDepth, BsonDefaults.MaxSerializationDepth);
+                writerSettings.MaxSerializationDepth = _encoderSettings.GetOrDefault(MessageEncoderSettingsName.MaxSerializationDepth, BsonSerializationDomain.Default.BsonDefaults.MaxSerializationDepth);
                 writerSettings.NewLineChars = _encoderSettings.GetOrDefault(MessageEncoderSettingsName.NewLineChars, "");
                 writerSettings.OutputMode = _encoderSettings.GetOrDefault(MessageEncoderSettingsName.OutputMode, JsonOutputMode.Shell);
                 writerSettings.ShellVersion = _encoderSettings.GetOrDefault(MessageEncoderSettingsName.ShellVersion, new Version(2, 6, 0));

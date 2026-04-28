@@ -26,7 +26,7 @@ using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
 {
-    internal class TranslationContext
+    internal class TranslationContext : IHasSerializationDomain
     {
         #region static
         public static TranslationContext Create(
@@ -47,10 +47,30 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
         {
             var ultimateSourceExpression = GetUltimateSource(expression);
             var ultimateSourceSerializer = IQueryableSerializer.Create(provider.PipelineInputSerializer);
-            return Create(expression, ultimateSourceExpression, ultimateSourceSerializer, translationOptions, data);
+            return Create(provider.SerializationDomain, expression, ultimateSourceExpression, ultimateSourceSerializer, translationOptions, data);
+        }
+
+        // Used by Concat/Union to translate a secondary queryable against the outer pipeline's domain
+        // rather than the secondary provider's own domain, so the stitched $unionWith pipeline is
+        // translated consistently under a single domain. The document serializer is re-resolved from
+        // the outer domain so element-name conventions match the outer pipeline's view of the type.
+        public static TranslationContext Create(
+            IBsonSerializationDomain serializationDomain,
+            IQueryable queryable,
+            ExpressionTranslationOptions translationOptions,
+            TranslationContextData data = null)
+        {
+            var expression = queryable.Expression;
+            var provider = (IMongoQueryProviderInternal)queryable.Provider;
+            var ultimateSourceExpression = GetUltimateSource(expression);
+            var documentType = provider.PipelineInputSerializer.ValueType;
+            var documentSerializer = serializationDomain.LookupSerializer(documentType);
+            var ultimateSourceSerializer = IQueryableSerializer.Create(documentSerializer);
+            return Create(serializationDomain, expression, ultimateSourceExpression, ultimateSourceSerializer, translationOptions, data);
         }
 
         public static TranslationContext Create(
+            IBsonSerializationDomain serializationDomain,
             Expression expression,
             Expression initialNode,
             IBsonSerializer initialSerializer,
@@ -60,10 +80,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
             var nodeSerializers = new SerializerMap();
             nodeSerializers.AddSerializer(initialNode, initialSerializer);
             SerializerFinder.FindSerializers(expression, translationOptions, nodeSerializers);
-            return Create(translationOptions, nodeSerializers, data);
+            return Create(serializationDomain, translationOptions, nodeSerializers, data);
         }
 
         public static TranslationContext Create(
+            IBsonSerializationDomain serializationDomain,
             Expression expression,
             IEnumerable<(Expression Node, IBsonSerializer Serializer)> initialNodeSerializers,
             ExpressionTranslationOptions translationOptions,
@@ -75,17 +96,18 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
                 nodeSerializers.AddSerializer(node, serializer);
             }
             SerializerFinder.FindSerializers(expression, translationOptions, nodeSerializers);
-            return Create(translationOptions, nodeSerializers, data);
+            return Create(serializationDomain, translationOptions, nodeSerializers, data);
         }
 
         private static TranslationContext Create(
+            IBsonSerializationDomain serializationDomain,
             ExpressionTranslationOptions translationOptions,
             IReadOnlySerializerMap nodeSerializers,
             TranslationContextData data = null)
         {
             var symbolTable = new SymbolTable();
             var nameGenerator = new NameGenerator();
-            return new TranslationContext(translationOptions, nodeSerializers, data, symbolTable, nameGenerator);
+            return new TranslationContext(serializationDomain, translationOptions, nodeSerializers, data, symbolTable, nameGenerator);
         }
 
         private static Expression GetUltimateSource(Expression expression)
@@ -128,16 +150,19 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
         private readonly TranslationContextData _data;
         private readonly IReadOnlySerializerMap _nodeSerializers;
         private readonly NameGenerator _nameGenerator;
+        private readonly IBsonSerializationDomain _serializationDomain;
         private readonly SymbolTable _symbolTable;
         private readonly ExpressionTranslationOptions _translationOptions;
 
         private TranslationContext(
+            IBsonSerializationDomain serializationDomain,
             ExpressionTranslationOptions translationOptions,
             IReadOnlySerializerMap nodeSerializers,
             TranslationContextData data,
             SymbolTable symbolTable,
             NameGenerator nameGenerator)
         {
+            _serializationDomain = serializationDomain;
             _translationOptions = translationOptions ?? new ExpressionTranslationOptions();
             _nodeSerializers = Ensure.IsNotNull(nodeSerializers, nameof(nodeSerializers));
             _data = data; // can be null
@@ -148,6 +173,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
         // public properties
         public TranslationContextData Data => _data;
         public NameGenerator NameGenerator => _nameGenerator;
+        public IBsonSerializationDomain SerializationDomain => _serializationDomain;
         public SymbolTable SymbolTable => _symbolTable;
         public ExpressionTranslationOptions TranslationOptions => _translationOptions;
 
@@ -234,7 +260,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
 
         public TranslationContext WithSymbolTable(SymbolTable symbolTable)
         {
-            return new TranslationContext(_translationOptions, _nodeSerializers, _data, symbolTable, _nameGenerator);
+            return new TranslationContext(_serializationDomain, _translationOptions, _nodeSerializers, _data, symbolTable, _nameGenerator);
         }
     }
 }

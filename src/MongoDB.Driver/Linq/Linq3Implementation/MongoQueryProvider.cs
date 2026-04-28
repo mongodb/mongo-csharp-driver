@@ -46,6 +46,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         public abstract BsonDocument[] LoggedStages { get; }
         public AggregateOptions Options => _options;
         public abstract IBsonSerializer PipelineInputSerializer { get; }
+        public abstract IBsonSerializationDomain SerializationDomain { get; }
         public IClientSessionHandle Session => _session;
 
         // public methods
@@ -57,13 +58,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         public abstract ExpressionTranslationOptions GetTranslationOptions();
     }
 
-    internal sealed class MongoQueryProvider<TDocument> : MongoQueryProvider
+    internal sealed class MongoQueryProvider<TDocument> : MongoQueryProvider, IHasSerializationDomain
     {
         // private fields
         private readonly IMongoCollection<TDocument> _collection;
         private readonly IMongoDatabase _database;
         private ExecutableQuery<TDocument> _executedQuery;
         private readonly IBsonSerializer _pipelineInputSerializer;
+        private readonly IBsonSerializationDomain _serializationDomain;
 
         // constructors
         public MongoQueryProvider(
@@ -74,6 +76,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         {
             _collection = Ensure.IsNotNull(collection, nameof(collection));
             _pipelineInputSerializer = collection.DocumentSerializer;
+            _serializationDomain = collection.Settings.SerializationDomain;
         }
 
         public MongoQueryProvider(
@@ -84,14 +87,17 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         {
             _database = Ensure.IsNotNull(database, nameof(database));
             _pipelineInputSerializer = NoPipelineInputSerializer.Instance;
+            _serializationDomain = _database.Settings.SerializationDomain;
         }
 
         internal MongoQueryProvider(
+            IBsonSerializationDomain serializationDomain,
             IBsonSerializer pipelineInputSerializer,
             IClientSessionHandle session,
             AggregateOptions options)
             : base(session, options)
         {
+            _serializationDomain = Ensure.IsNotNull(serializationDomain, nameof(serializationDomain));
             _pipelineInputSerializer = Ensure.IsNotNull(pipelineInputSerializer, nameof(pipelineInputSerializer));
         }
 
@@ -101,6 +107,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         public IMongoDatabase Database => _database;
         public override BsonDocument[] LoggedStages => _executedQuery?.LoggedStages;
         public override IBsonSerializer PipelineInputSerializer => _pipelineInputSerializer;
+        public override IBsonSerializationDomain SerializationDomain => _serializationDomain;
 
         // public methods
         public override IQueryable CreateQuery(Expression expression)
