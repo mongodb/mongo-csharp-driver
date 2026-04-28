@@ -765,6 +765,49 @@ namespace MongoDB.Driver.Tests
             }).ParamName.Should().Be("options");
         }
 
+        [Theory]
+        [InlineData(null)]
+        [InlineData(ScoreFusionCombinationMethod.Avg)]
+        public void ScoreFusion_should_throw_when_expression_is_set_without_method_expression(ScoreFusionCombinationMethod? method)
+        {
+            Assert.Throws<ArgumentException>(() =>
+            {
+                PipelineStageDefinitionBuilder.ScoreFusion(
+                    new Dictionary<string, PipelineDefinition<BsonDocument, BsonDocument>>
+                    {
+                        { "p1", new EmptyPipelineDefinition<BsonDocument>() }
+                    },
+                    ScoreFusionNormalization.None,
+                    options: new ScoreFusionOptions<BsonDocument>
+                    {
+                        CombinationMethod = method,
+                        CombinationExpression = BsonDocument.Parse("{ $sum : ['$$p1'] }")
+                    });
+            }).ParamName.Should().Be("options");
+        }
+
+        [Fact]
+        public void ScoreFusion_should_throw_when_pipelines_array_contains_null_pipeline()
+        {
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                PipelineStageDefinitionBuilder.ScoreFusion(
+                    new PipelineDefinition<BsonDocument, BsonDocument>[] { null },
+                    ScoreFusionNormalization.None);
+            }).ParamName.Should().Be("pipelines");
+        }
+
+        [Fact]
+        public void ScoreFusion_should_throw_when_pipelines_array_is_empty()
+        {
+            Assert.Throws<ArgumentException>(() =>
+            {
+                PipelineStageDefinitionBuilder.ScoreFusion(
+                    new PipelineDefinition<BsonDocument, BsonDocument>[0],
+                    ScoreFusionNormalization.None);
+            }).ParamName.Should().Be("pipelines");
+        }
+
         [Fact]
         public void ScoreFusion_should_throw_when_pipelines_array_is_null()
         {
@@ -810,6 +853,28 @@ namespace MongoDB.Driver.Tests
                     (Dictionary<string, PipelineDefinition<BsonDocument, BsonDocument>>)null,
                     ScoreFusionNormalization.None);
             }).ParamName.Should().Be("pipelines");
+        }
+
+        [Fact]
+        public void ScoreFusion_should_throw_when_pipelines_tuple_contains_null_pipeline()
+        {
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                PipelineStageDefinitionBuilder.ScoreFusion(
+                    new (PipelineDefinition<BsonDocument, BsonDocument>, double?)[] { (null, 1.0) },
+                    ScoreFusionNormalization.None);
+            }).ParamName.Should().Be("pipelinesWithWeights");
+        }
+
+        [Fact]
+        public void ScoreFusion_should_throw_when_pipelines_tuple_is_empty()
+        {
+            Assert.Throws<ArgumentException>(() =>
+            {
+                PipelineStageDefinitionBuilder.ScoreFusion(
+                    new (PipelineDefinition<BsonDocument, BsonDocument>, double?)[0],
+                    ScoreFusionNormalization.None);
+            }).ParamName.Should().Be("pipelinesWithWeights");
         }
 
         [Fact]
