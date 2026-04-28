@@ -1578,15 +1578,9 @@ namespace MongoDB.Driver
                 args =>
                 {
                     ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
-                    var renderedPipelines = new BsonDocument();
-                    foreach (var pipeline in pipelines)
-                    {
-                        renderedPipelines.Add(pipeline.Key, new BsonArray(pipeline.Value.Render(args).Documents));
-                    }
-
                     var document = new BsonDocument
                     {
-                        { "input", new BsonDocument("pipelines", renderedPipelines) },
+                        { "input", new BsonDocument("pipelines", RenderNamedPipelines(args, pipelines)) },
                         {
                             "combination", () => new BsonDocument
                             {
@@ -1619,13 +1613,7 @@ namespace MongoDB.Driver
             RankFusionOptions<TOutput> options = null)
         {
             Ensure.IsNotNull(pipelines, nameof(pipelines));
-
-            var pipelinesMap = new Dictionary<string, PipelineDefinition<TInput, TOutput>>();
-            for (var i = 0; i < pipelines.Length; i++)
-            {
-                pipelinesMap[$"pipeline{i + 1}"] = pipelines[i];
-            }
-            return RankFusion(pipelinesMap, null, options);
+            return RankFusion(BuildAutoNamedPipelineMap(pipelines), null, options);
         }
 
         /// <summary>
@@ -1641,19 +1629,7 @@ namespace MongoDB.Driver
             RankFusionOptions<TOutput> options = null)
         {
             Ensure.IsNotNull(pipelinesWithWeights, nameof(pipelinesWithWeights));
-
-            var pipelinesMap = new Dictionary<string, PipelineDefinition<TInput, TOutput>>();
-            var weightsMap = new Dictionary<string, double>();
-            for (var i = 0; i < pipelinesWithWeights.Length; i++)
-            {
-                var pipelineName = $"pipeline{i + 1}";
-                pipelinesMap[pipelineName] = pipelinesWithWeights[i].Pipeline;
-
-                if (pipelinesWithWeights[i].Weight.HasValue)
-                {
-                    weightsMap[pipelineName] = pipelinesWithWeights[i].Weight.Value;
-                }
-            }
+            var (pipelinesMap, weightsMap) = BuildAutoNamedPipelineMapWithWeights(pipelinesWithWeights);
             return RankFusion(pipelinesMap, weightsMap, options);
         }
 
@@ -1823,6 +1799,106 @@ namespace MongoDB.Driver
                 });
 
             return stage;
+        }
+
+        /// <summary>
+        /// Creates a $scoreFusion stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <param name="pipelines">The map of named pipelines whose results will be combined. The pipelines must operate on the same collection.</param>
+        /// <param name="normalization">The normalization applied to per-pipeline scores before combination.</param>
+        /// <param name="weights">The map of pipeline names to non-negative numerical weights determining result importance during combination. Default weight is 1 when unspecified.</param>
+        /// <param name="options">The scoreFusion options.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, TOutput> ScoreFusion<TInput, TOutput>(
+            Dictionary<string, PipelineDefinition<TInput, TOutput>> pipelines,
+            ScoreFusionNormalization normalization,
+            Dictionary<string, double> weights = null,
+            ScoreFusionOptions<TOutput> options = null)
+        {
+            Ensure.IsNotNull(pipelines, nameof(pipelines));
+            if (pipelines.Count == 0)
+            {
+                throw new ArgumentException("At least one pipeline is required.", nameof(pipelines));
+            }
+
+            if (pipelines.Any(pipeline => pipeline.Value == null))
+            {
+                throw new ArgumentNullException(nameof(pipelines), "Pipelines cannot contain a null pipeline.");
+            }
+
+            if (options?.CombinationMethod == ScoreFusionCombinationMethod.Expression && options.CombinationExpression == null)
+            {
+                throw new ArgumentException(
+                    $"{nameof(ScoreFusionOptions<TOutput>.CombinationExpression)} must be supplied when {nameof(ScoreFusionOptions<TOutput>.CombinationMethod)} is {nameof(ScoreFusionCombinationMethod.Expression)}.",
+                    nameof(options));
+            }
+
+            const string operatorName = "$scoreFusion";
+            var stage = new DelegatedPipelineStageDefinition<TInput, TOutput>(
+                operatorName,
+                args =>
+                {
+                    ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
+                    var combination = BuildScoreFusionCombination(weights, options);
+                    var document = new BsonDocument
+                    {
+                        {
+                            "input", new BsonDocument
+                            {
+                                { "pipelines", RenderNamedPipelines(args, pipelines) },
+                                { "normalization", normalization.ToCamelCase() }
+                            }
+                        },
+                        { "combination", combination, combination != null },
+                        { "scoreDetails", true, options?.ScoreDetails == true }
+                    };
+
+                    return new RenderedPipelineStageDefinition<TOutput>(
+                        operatorName,
+                        new BsonDocument(operatorName, document),
+                        options?.OutputSerializer ?? args.SerializerRegistry.GetSerializer<TOutput>());
+                });
+
+            return stage;
+        }
+
+        /// <summary>
+        /// Creates a $scoreFusion stage. Pipelines will be automatically named as "pipeline1", "pipeline2", etc.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <param name="pipelines">The collection of pipelines whose results will be combined. The pipelines must operate on the same collection.</param>
+        /// <param name="normalization">The normalization applied to per-pipeline scores before combination.</param>
+        /// <param name="options">The scoreFusion options.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, TOutput> ScoreFusion<TInput, TOutput>(
+            PipelineDefinition<TInput, TOutput>[] pipelines,
+            ScoreFusionNormalization normalization,
+            ScoreFusionOptions<TOutput> options = null)
+        {
+            Ensure.IsNotNull(pipelines, nameof(pipelines));
+            return ScoreFusion(BuildAutoNamedPipelineMap(pipelines), normalization, null, options);
+        }
+
+        /// <summary>
+        /// Creates a $scoreFusion stage. Pipelines will be automatically named as "pipeline1", "pipeline2", etc.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <param name="pipelinesWithWeights">The collection of tuples containing (pipeline, weight) pairs. The pipelines must operate on the same collection.</param>
+        /// <param name="normalization">The normalization applied to per-pipeline scores before combination.</param>
+        /// <param name="options">The scoreFusion options.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, TOutput> ScoreFusion<TInput, TOutput>(
+            (PipelineDefinition<TInput, TOutput> Pipeline, double? Weight)[] pipelinesWithWeights,
+            ScoreFusionNormalization normalization,
+            ScoreFusionOptions<TOutput> options = null)
+        {
+            Ensure.IsNotNull(pipelinesWithWeights, nameof(pipelinesWithWeights));
+            var (pipelinesMap, weightsMap) = BuildAutoNamedPipelineMapWithWeights(pipelinesWithWeights);
+            return ScoreFusion(pipelinesMap, normalization, weightsMap.Count == 0 ? null : weightsMap, options);
         }
 
         /// <summary>
@@ -2388,6 +2464,80 @@ namespace MongoDB.Driver
             }
 
             return false;
+        }
+
+        private static Dictionary<string, PipelineDefinition<TInput, TOutput>> BuildAutoNamedPipelineMap<TInput, TOutput>(
+            PipelineDefinition<TInput, TOutput>[] pipelines)
+        {
+            var pipelinesMap = new Dictionary<string, PipelineDefinition<TInput, TOutput>>();
+            for (var i = 0; i < pipelines.Length; i++)
+            {
+                pipelinesMap[$"pipeline{i + 1}"] = pipelines[i];
+            }
+            return pipelinesMap;
+        }
+
+        private static (Dictionary<string, PipelineDefinition<TInput, TOutput>> Pipelines, Dictionary<string, double> Weights) BuildAutoNamedPipelineMapWithWeights<TInput, TOutput>(
+            (PipelineDefinition<TInput, TOutput> Pipeline, double? Weight)[] pipelinesWithWeights)
+        {
+            var pipelinesMap = new Dictionary<string, PipelineDefinition<TInput, TOutput>>();
+            var weightsMap = new Dictionary<string, double>();
+            for (var i = 0; i < pipelinesWithWeights.Length; i++)
+            {
+                var pipelineName = $"pipeline{i + 1}";
+                pipelinesMap[pipelineName] = pipelinesWithWeights[i].Pipeline;
+
+                if (pipelinesWithWeights[i].Weight.HasValue)
+                {
+                    weightsMap[pipelineName] = pipelinesWithWeights[i].Weight.Value;
+                }
+            }
+            return (pipelinesMap, weightsMap);
+        }
+
+        private static BsonDocument BuildScoreFusionCombination<TOutput>(
+            Dictionary<string, double> weights,
+            ScoreFusionOptions<TOutput> options)
+        {
+            var hasCombination = weights != null
+                || options?.CombinationMethod != null
+                || options?.CombinationExpression != null;
+
+            if (!hasCombination)
+            {
+                return null;
+            }
+
+            var combination = new BsonDocument();
+            if (weights != null)
+            {
+                combination.Add("weights", new BsonDocument(weights.Select(w => new BsonElement(w.Key, w.Value))));
+            }
+
+            if (options != null)
+            {
+                if (options.CombinationMethod.HasValue)
+                {
+                    combination.Add("method", options.CombinationMethod.Value.ToCamelCase());
+                }
+                if (options.CombinationExpression != null)
+                {
+                    combination.Add("expression", options.CombinationExpression);
+                }
+            }
+            return combination;
+        }
+
+        private static BsonDocument RenderNamedPipelines<TInput, TOutput>(
+            RenderArgs<TInput> args,
+            Dictionary<string, PipelineDefinition<TInput, TOutput>> pipelines)
+        {
+            var renderedPipelines = new BsonDocument();
+            foreach (var pipeline in pipelines)
+            {
+                renderedPipelines.Add(pipeline.Key, new BsonArray(pipeline.Value.Render(args).Documents));
+            }
+            return renderedPipelines;
         }
     }
 
