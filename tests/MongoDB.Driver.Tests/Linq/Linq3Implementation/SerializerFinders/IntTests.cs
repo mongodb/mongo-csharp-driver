@@ -42,7 +42,7 @@ public class IntTests
         [TestHelpers.MakeLambda((MyModel model) => model.Value.CompareTo(model.Other)), typeof(Int32Serializer)],
         [TestHelpers.MakeLambda((MyModel model) => model.Value.Equals(1)), typeof(BooleanSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => model.Value.Equals(model.Other)), typeof(BooleanSerializer)],
-        [TestHelpers.MakeLambda((MyModel model) => int.Parse("42")), typeof(Int32Serializer)],
+        [TestHelpers.MakeLambda((MyModel model) => int.Parse(model.StringValue)), typeof(Int32Serializer)],
         [TestHelpers.MakeLambda((MyModel model) => model.Value.ToString()), typeof(StringSerializer)],
     ];
 
@@ -50,5 +50,6 @@ public class IntTests
     {
         public int Value { get; set; }
         public int Other { get; set; }
+        public string StringValue { get; set; }
     }
 }

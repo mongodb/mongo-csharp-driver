@@ -14,6 +14,8 @@
  */
 
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -21,6 +23,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
@@ -30,39 +33,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.SerializerFinders;
 
 internal partial class SerializerFinderVisitor
 {
-    private static readonly IBsonSerializer __binarySubTypeSerializer = NullableSerializer.Create(new EnumSerializer<BsonBinarySubType>());
-
-    private static readonly IReadOnlyMethodInfoSet __averageOrMedianOrPercentileOverloads = MethodInfoSet.Create(
-    [
-        EnumerableOrQueryableMethod.AverageOverloads,
-        MongoEnumerableMethod.MedianOverloads,
-        MongoEnumerableMethod.PercentileOverloads
-    ]);
-
-    private static readonly IReadOnlyMethodInfoSet __averageOrMedianOrPercentileWindowMethodOverloads = MethodInfoSet.Create(
-    [
-        WindowMethod.AverageOverloads,
-        WindowMethod.MedianOverloads,
-        WindowMethod.PercentileOverloads
-    ]);
-
-    private static readonly IReadOnlyMethodInfoSet __averageOrMedianOrPercentileWithSelectorOverloads = MethodInfoSet.Create(
-    [
-        EnumerableOrQueryableMethod.AverageWithSelectorOverloads,
-        MongoEnumerableMethod.MedianWithSelectorOverloads,
-        MongoEnumerableMethod.PercentileWithSelectorOverloads
-    ]);
-
-    private static readonly IReadOnlyMethodInfoSet __whereOverloads = MethodInfoSet.Create(
-    [
-        EnumerableOrQueryableMethod.Where,
-        [MongoEnumerableMethod.WhereWithLimit]
-    ]);
-
     protected override Expression VisitMethodCall(MethodCallExpression node)
     {
-        var method = node.Method;
-        var arguments = node.Arguments;
+        var methodInfo = node.Method.IsGenericMethod && !node.Method.ContainsGenericParameters ? node.Method.GetGenericMethodDefinition() : node.Method;
+        var deducer = MethodCallSerializerDeducers.GetSerializerDeducer(methodInfo);
 
         DeduceMethodCallSerializers();
         base.VisitMethodCall(node);
@@ -72,859 +46,430 @@ internal partial class SerializerFinderVisitor
 
         void DeduceMethodCallSerializers()
         {
-            switch (node.Method.Name)
+            if (deducer == null)
             {
-                case "Abs": DeduceAbsMethodSerializers(); break;
-                case "Add": DeduceAddMethodSerializers(); break;
-                case "AddDays": DeduceAddDaysMethodSerializers(); break;
-                case "AddHours": DeduceAddHoursMethodSerializers(); break;
-                case "AddMilliseconds": DeduceAddMillisecondsMethodSerializers(); break;
-                case "AddMinutes": DeduceAddMinutesMethodSerializers(); break;
-                case "AddMonths": DeduceAddMonthsMethodSerializers(); break;
-                case "AddQuarters": DeduceAddQuartersMethodSerializers(); break;
-                case "AddSeconds": DeduceAddSecondsMethodSerializers(); break;
-                case "AddTicks": DeduceAddTicksMethodSerializers(); break;
-                case "AddToSet": DeduceAddToSetMethodSerializers(); break;
-                case "AddWeeks": DeduceAddWeeksMethodSerializers(); break;
-                case "AddYears": DeduceAddYearsMethodSerializers(); break;
-                case "Aggregate": DeduceAggregateMethodSerializers(); break;
-                case "All": DeduceAllMethodSerializers(); break;
-                case "Any": DeduceAnyMethodSerializers(); break;
-                case "AppendStage": DeduceAppendStageMethodSerializers(); break;
-                case "As": DeduceAsMethodSerializers(); break;
-                case "AsQueryable": DeduceAsQueryableMethodSerializers(); break;
-                case "Concat": DeduceConcatMethodSerializers(); break;
-                case "Constant": DeduceConstantMethodSerializers(); break;
-                case "Contains": DeduceContainsMethodSerializers(); break;
-                case "ContainsKey": DeduceContainsKeyMethodSerializers(); break;
-                case "ContainsValue": DeduceContainsValueMethodSerializers(); break;
-                case "Convert": DeduceConvertMethodSerializers(); break;
-                case "Create": DeduceCreateMethodSerializers(); break;
-                case "CreateObjectId": DeduceCreateObjectIdMethodSerializers(); break;
-                case "DateFromString": DeduceDateFromStringMethodSerializers(); break;
-                case "DefaultIfEmpty": DeduceDefaultIfEmptyMethodSerializers(); break;
-                case "DegreesToRadians": DeduceDegreesToRadiansMethodSerializers(); break;
-                case "Densify": DeduceDensifyMethodSerializers(); break;
-                case "DeserializeEJson": DeduceDeserializeEJsonMethodSerializers(); break;
-                case "Distinct": DeduceDistinctMethodSerializers(); break;
-                case "DocumentNumber": DeduceDocumentNumberMethodSerializers(); break;
-                case "Documents": DeduceDocumentsMethodSerializers(); break;
-                case "Equals": DeduceEqualsMethodSerializers(); break;
-                case "Except": DeduceExceptMethodSerializers(); break;
-                case "Exists": DeduceExistsMethodSerializers(); break;
-                case "Exp": DeduceExpMethodSerializers(); break;
-                case "ExponentialMovingAverage": DeduceExponentialMovingAverageMethodSerializers(); break;
-                case "Field": DeduceFieldMethodSerializers(); break;
-                case "get_Item": DeduceGetItemMethodSerializers(); break;
-                case "get_Chars": DeduceGetCharsMethodSerializers(); break;
-                case "GroupBy": DeduceGroupByMethodSerializers(); break;
-                case "GroupJoin": DeduceGroupJoinMethodSerializers(); break;
-                case "HasFlag": DeduceHasFlagMethodSerializers(); break;
-                case "Hash": DeduceHashMethodSerializers(); break;
-                case "HexHash": DeduceHexHashMethodSerializers(); break;
-                case "Inject": DeduceInjectMethodSerializers(); break;
-                case "Intersect": DeduceIntersectMethodSerializers(); break;
-                case "IsMatch": DeduceIsMatchMethodSerializers(); break;
-                case "IsSubsetOf": DeduceIsSubsetOfMethodSerializers(); break;
-                case "Join": DeduceJoinMethodSerializers(); break;
-                case "Locf": DeduceLocfMethodSerializers(); break;
-                case "Lookup": DeduceLookupMethodSerializers(); break;
-                case "OfType": DeduceOfTypeMethodSerializers(); break;
-                case "Parse": DeduceParseMethodSerializers(); break;
-                case "Pow": DeducePowMethodSerializers(); break;
-                case "Push": DeducePushMethodSerializers(); break;
-                case "RadiansToDegrees": DeduceRadiansToDegreesMethodSerializers(); break;
-                case "Range": DeduceRangeMethodSerializers(); break;
-                case "Repeat": DeduceRepeatMethodSerializers(); break;
-                case "Replace": DeduceReplaceMethodSerializers(); break;
-                case "Reverse": DeduceReverseMethodSerializers(); break;
-                case "Round": DeduceRoundMethodSerializers(); break;
-                case "Select": DeduceSelectMethodSerializers(); break;
-                case "SelectMany": DeduceSelectManySerializers(); break;
-                case "SequenceEqual": DeduceSequenceEqualMethodSerializers(); break;
-                case "SerializeEJson": DeduceSerializeEJsonMethodSerializers(); break;
-                case "SetEquals": DeduceSetEqualsMethodSerializers(); break;
-                case "SetWindowFields": DeduceSetWindowFieldsMethodSerializers(); break;
-                case "Shift": DeduceShiftMethodSerializers(); break;
-                case "Sigmoid": DeduceSigmoidMethodSerializers(); break;
-                case "Split": DeduceSplitMethodSerializers(); break;
-                case "Sqrt": DeduceSqrtMethodSerializers(); break;
-                case "StrLenBytes": DeduceStrLenBytesMethodSerializers(); break;
-                case "Subtract": DeduceSubtractMethodSerializers(); break;
-                case "Subtype": DeduceSubtypeMethodSerializers(); break;
-                case "Sum": DeduceSumMethodSerializers(); break;
-                case "ToArray": DeduceToArrayMethodSerializers(); break;
-                case "ToHashedIndexKey": DeduceToHashedIndexKeySerializers(); break;
-                case "ToList": DeduceToListSerializers(); break;
-                case "ToString": DeduceToStringSerializers(); break;
-                case "Trim":
-                case "TrimStart":
-                case "TrimEnd":
-                    DeduceTrimSerializers();
-                    break;
-                case "Truncate": DeduceTruncateSerializers(); break;
-                case "Union": DeduceUnionSerializers(); break;
-                case "Week": DeduceWeekSerializers(); break;
-                case "Where": DeduceWhereSerializers(); break;
-                case "Zip": DeduceZipSerializers(); break;
-
-                case "Acos":
-                case "Acosh":
-                case "Asin":
-                case "Asinh":
-                case "Atan":
-                case "Atanh":
-                case "Atan2":
-                case "Cos":
-                case "Cosh":
-                case "Sin":
-                case "Sinh":
-                case "Tan":
-                case "Tanh":
-                    DeduceTrigonometricMethodSerializers();
-                    break;
-
-                case "AllElements":
-                case "AllMatchingElements":
-                case "FirstMatchingElement":
-                    DeduceMatchingElementsMethodSerializers();
-                    break;
-
-                case "AnyStringIn":
-                case "AnyStringNin":
-                    DeduceAnyStringInOrNinMethodSerializers();
-                    break;
-
-                case "Append":
-                case "Prepend":
-                    DeduceAppendOrPrependMethodSerializers();
-                    break;
-
-                case "Average":
-                case "Median":
-                case "Percentile":
-                    DeduceAverageOrMedianOrPercentileMethodSerializers();
-                    break;
-
-                case "Bottom":
-                case "BottomN":
-                case "FirstN":
-                case "LastN":
-                case "MaxN":
-                case "MinN":
-                case "Top":
-                case "TopN":
-                    DeducePickMethodSerializers();
-                    break;
-
-                case "Ceiling":
-                case "Floor":
-                    DeduceCeilingOrFloorMethodSerializers();
-                    break;
-
-                case "Compare":
-                case "CompareTo":
-                    DeduceCompareOrCompareToMethodSerializers();
-                    break;
-
-                case "Count":
-                case "LongCount":
-                    DeduceCountMethodSerializers();
-                    break;
-
-                case "CovariancePopulation":
-                case "CovarianceSample":
-                    DeduceCovarianceMethodSerializers();
-                    break;
-
-                case "DenseRank":
-                case "Rank":
-                    DeduceDenseRankOrRankMethodSerializers();
-                    break;
-
-                case "Derivative":
-                case "Integral":
-                    DeduceDerivativeOrIntegralMethodSerializers();
-                    break;
-
-                case "ElementAt":
-                case "ElementAtOrDefault":
-                    DeduceElementAtMethodSerializers();
-                    break;
-
-                case "EndsWith":
-                case "StartsWith":
-                    DeduceEndsWithOrStartsWithMethodSerializers();
-                    break;
-
-                case "First":
-                case "FirstOrDefault":
-                case "Last":
-                case "LastOrDefault":
-                case "Single":
-                case "SingleOrDefault":
-                    DeduceFirstOrLastOrSingleMethodsSerializers();
-                    break;
-
-                case "IndexOf":
-                case "IndexOfBytes":
-                    DeduceIndexOfMethodSerializers();
-                    break;
-
-                case "IsMissing":
-                case "IsNullOrMissing":
-                    DeduceIsMissingOrIsNullOrMissingMethodSerializers();
-                    break;
-
-                case "IsNullOrEmpty":
-                case "IsNullOrWhiteSpace":
-                    DeduceIsNullOrEmptyOrIsNullOrWhiteSpaceMethodSerializers();
-                    break;
-
-                case "Ln":
-                case "Log":
-                case "Log10":
-                    DeduceLogMethodSerializers();
-                    break;
-
-                case "Max":
-                case "Min":
-                    DeduceMaxOrMinMethodSerializers();
-                    break;
-
-                case "OrderBy":
-                case "OrderByDescending":
-                case "ThenBy":
-                case "ThenByDescending":
-                    DeduceOrderByMethodSerializers();
-                    break;
-
-                case "Skip":
-                case "SkipWhile":
-                case "Take":
-                case "TakeWhile":
-                    DeduceSkipOrTakeMethodSerializers();
-                    break;
-
-                case "StandardDeviationPopulation":
-                case "StandardDeviationPopulationAsync":
-                case "StandardDeviationSample":
-                case "StandardDeviationSampleAsync":
-                    DeduceStandardDeviationMethodSerializers();
-                    break;
-
-                case "StringIn":
-                case "StringNin":
-                    DeduceStringInOrNinMethodSerializers();
-                    break;
-
-                case "Substring":
-                case "SubstrBytes":
-                    DeduceSubstringMethodSerializers();
-                    break;
-
-                case "ToLower":
-                case "ToLowerInvariant":
-                case "ToUpper":
-                case "ToUpperInvariant":
-                    DeduceToLowerOrToUpperSerializers();
-                    break;
-
-                case nameof(Mql.SimilarityDotProduct):
-                case nameof(Mql.SimilarityEuclidean):
-                case nameof(Mql.SimilarityCosine):
-                    DeduceSimilarityFunctionsSerializers();
-                    break;
-
-                default:
-                    DeduceUnknownMethodSerializer();
-                    break;
-            }
-        }
-
-        void DeduceAbsMethodSerializers()
-        {
-            if (method.IsOneOf(MathMethod.AbsOverloads))
-            {
-                var valueExpression = arguments[0];
-                DeduceSerializers(node, valueExpression);
+                DeduceUnknowableSerializer(node);
             }
             else
             {
-                DeduceUnknownMethodSerializer();
+                deducer(this, node);
             }
         }
+    }
 
-        void DeduceAddMethodSerializers()
+    private static class MethodCallSerializerDeducers
+    {
+        private static readonly ConcurrentDictionary<MethodInfo, Action<SerializerFinderVisitor, MethodCallExpression>> __serializerDeducers = new();
+        private static readonly IBsonSerializer __binarySubTypeSerializer = NullableSerializer.Create(new EnumSerializer<BsonBinarySubType>());
+
+        private static readonly IReadOnlyMethodInfoSet __averageOrMedianOrPercentileOverloads = MethodInfoSet.Create(
+        [
+            EnumerableOrQueryableMethod.AverageOverloads,
+            MongoEnumerableMethod.MedianOverloads,
+            MongoEnumerableMethod.PercentileOverloads
+        ]);
+
+        private static readonly IReadOnlyMethodInfoSet __averageOrMedianOrPercentileWindowMethodOverloads = MethodInfoSet.Create(
+        [
+            WindowMethod.AverageOverloads,
+            WindowMethod.MedianOverloads,
+            WindowMethod.PercentileOverloads
+        ]);
+
+        private static readonly IReadOnlyMethodInfoSet __averageOrMedianOrPercentileWithSelectorOverloads = MethodInfoSet.Create(
+        [
+            EnumerableOrQueryableMethod.AverageWithSelectorOverloads,
+            MongoEnumerableMethod.MedianWithSelectorOverloads,
+            MongoEnumerableMethod.PercentileWithSelectorOverloads
+        ]);
+
+        private static readonly IReadOnlyMethodInfoSet __whereOverloads = MethodInfoSet.Create(
+        [
+            EnumerableOrQueryableMethod.Where,
+            [MongoEnumerableMethod.WhereWithLimit]
+        ]);
+
+        static MethodCallSerializerDeducers()
         {
-            if (method.IsOneOf(DateTimeMethod.Add, DateTimeMethod.AddWithTimezone, DateTimeMethod.AddWithUnit, DateTimeMethod.AddWithUnitAndTimezone))
-            {
-                DeduceReturnsDateTimeSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
+            // DateTimeMethod
+            RegisterSerializerDeducers(
+                [
+                    DateTimeMethod.Add, DateTimeMethod.AddWithTimezone, DateTimeMethod.AddWithUnit, DateTimeMethod.AddWithUnitAndTimezone,
+                    DateTimeMethod.AddDays, DateTimeMethod.AddDaysWithTimezone, DateTimeMethod.AddHours, DateTimeMethod.AddHoursWithTimezone,
+                    DateTimeMethod.AddMilliseconds, DateTimeMethod.AddMillisecondsWithTimezone, DateTimeMethod.AddMinutes, DateTimeMethod.AddMinutesWithTimezone,
+                    DateTimeMethod.AddMonths, DateTimeMethod.AddMonthsWithTimezone, DateTimeMethod.AddQuarters, DateTimeMethod.AddQuartersWithTimezone,
+                    DateTimeMethod.AddSeconds, DateTimeMethod.AddSecondsWithTimezone, DateTimeMethod.AddTicks, DateTimeMethod.AddWeeks,
+                    DateTimeMethod.AddWeeksWithTimezone, DateTimeMethod.AddYears, DateTimeMethod.AddYearsWithTimezone
+                ],
+                (visitor, expression) => visitor.DeduceSerializer(expression, DateTimeSerializer.UtcInstance));
+            RegisterSerializerDeducers(DateTimeMethod.SubtractReturningDateTimeOverloads, (visitor, expression) => visitor.DeduceSerializer(expression, DateTimeSerializer.UtcInstance));
+            RegisterSerializerDeducers(DateTimeMethod.SubtractReturningInt64Overloads, (visitor, expression) => visitor.DeduceSerializer(expression, Int64Serializer.Instance));
+            RegisterSerializerDeducers(DateTimeMethod.SubtractReturningTimeSpanWithMillisecondsUnitsOverloads, (visitor, expression) => DeduceReturnsTimeSpanSerializer(visitor, expression, TimeSpanUnits.Milliseconds));
+            RegisterSerializerDeducers([DateTimeMethod.Truncate, DateTimeMethod.TruncateWithBinSize, DateTimeMethod.TruncateWithBinSizeAndTimezone], (visitor, expression) => visitor.DeduceSerializer(expression, DateTimeSerializer.UtcInstance));
+            RegisterSerializerDeducers([DateTimeMethod.Week, DateTimeMethod.WeekWithTimezone], (visitor, expression) => visitor.DeduceSerializer(expression, Int32Serializer.Instance));
 
-        void DeduceAddDaysMethodSerializers()
-        {
-            if (method.IsOneOf(DateTimeMethod.AddDays,  DateTimeMethod.AddDaysWithTimezone))
-            {
-                DeduceReturnsDateTimeSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
+            // EnumMethod
+            RegisterSerializerDeducer(EnumMethod.HasFlag, DeduceHasFlagMethodSerializers);
 
-        void DeduceAddHoursMethodSerializers()
-        {
-            if (method.IsOneOf(DateTimeMethod.AddHours,  DateTimeMethod.AddHoursWithTimezone))
-            {
-                DeduceReturnsDateTimeSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
+            // EnumerableOrQueryableMethod
+            RegisterSerializerDeducers(EnumerableOrQueryableMethod.AggregateWithFunc, DeduceAggregateWithFuncMethodSerializers);
+            RegisterSerializerDeducers(EnumerableOrQueryableMethod.AggregateWithSeedAndFunc, DeduceAggregateWithSeedAndFuncMethodSerializers);
+            RegisterSerializerDeducers(EnumerableOrQueryableMethod.AggregateWithSeedFuncAndResultSelector, DeduceAggregateWithSeedFuncAndResultSelectorMethodSerializers);
+            RegisterSerializerDeducers([MongoEnumerableMethod.AllElements, MongoEnumerableMethod.AllMatchingElements, MongoEnumerableMethod.FirstMatchingElement], DeduceReturnsOneSourceItemSerializer);
+            RegisterSerializerDeducers([EnumerableMethod.AllWithPredicate, QueryableMethod.AllWithPredicate], DeduceAllMethodSerializers);
+            RegisterSerializerDeducers(EnumerableOrQueryableMethod.Any, (visitor, expression) => visitor.DeduceSerializer(expression, BooleanSerializer.Instance));
+            RegisterSerializerDeducers(EnumerableOrQueryableMethod.AnyWithPredicate, DeduceAnyWithPredicateMethodSerializers);
+            RegisterSerializerDeducers(EnumerableOrQueryableMethod.AppendOrPrepend, DeduceAppendOrPrependMethodSerializers);
+            RegisterSerializerDeducer(MongoQueryableMethod.AppendStage, DeduceAppendStageMethodSerializers);
+            RegisterSerializerDeducer(MongoQueryableMethod.As, DeduceAsMethodSerializers);
+            RegisterSerializerDeducer(QueryableMethod.AsQueryable, DeduceAsQueryableMethodSerializers);
+            RegisterSerializerDeducers(__averageOrMedianOrPercentileOverloads, DeduceAverageOrMedianOrPercentileMethodSerializers);
+            RegisterSerializerDeducers(EnumerableOrQueryableMethod.Concat, DeduceEnumerableConcatMethodSerializers);
+            RegisterSerializerDeducers(EnumerableOrQueryableMethod.CountOverloads, DeduceEnumerableCountMethodSerializers);
+            RegisterSerializerDeducers(EnumerableOrQueryableMethod.DefaultIfEmptyOverloads, DeduceDefaultIfEmptyMethodSerializers);
+            RegisterSerializerDeducer(MongoQueryableMethod.DensifyWithArrayPartitionByFields, DeduceDensifyMethodSerializers);
+            RegisterSerializerDeducers(EnumerableOrQueryableMethod.Distinct, (visitor, expression) => visitor.DeduceCollectionAndCollectionSerializers(expression, expression.Arguments[0]));
+            RegisterSerializerDeducers([MongoQueryableMethod.Documents, MongoQueryableMethod.DocumentsWithSerializer], DeduceDocumentsMethodSerializers);
+            RegisterSerializerDeducers(EnumerableOrQueryableMethod.ElementAtOverloads, (visitor, expression) => visitor.DeduceItemAndCollectionSerializers(expression, expression.Arguments[0]));
+            RegisterSerializerDeducers(EnumerableOrQueryableMethod.Except, DeduceExceptMethodSerializers);
+            // TODO: Definitely wrong registration copy-pasted from prev code, investigate before merge to main
+            // RegisterSerializerDeducer(EnumerableMethod.First, DeduceSetWindowFieldsMethodSerializers);
+            RegisterSerializerDeducers(EnumerableOrQueryableMethod.FirstOrLastOrSingleOverloads, DeduceFirstOrLastOrSingleMethodsSerializers);
+            RegisterSerializerDeducers(EnumerableOrQueryableMethod.GroupByOverloads, DeduceGroupByMethodSerializers);
+            RegisterSerializerDeducers([EnumerableMethod.GroupJoin, QueryableMethod.GroupJoin], DeduceGroupJoinMethodSerializers);
+            RegisterSerializerDeducers(EnumerableOrQueryableMethod.Intersect, (visitor, expression) => visitor.DeduceCollectionAndCollectionSerializers(expression, expression.Arguments[0]));
+            RegisterSerializerDeducers([EnumerableMethod.Join, QueryableMethod.Join], DeduceJoinMethodSerializers);
+            RegisterSerializerDeducer(MongoQueryableMethod.LookupWithDocumentsAndLocalFieldAndForeignField, DeduceLookupWithDocumentsAndLocalFieldAndForeignFieldMethodSerializers);
+            RegisterSerializerDeducer(MongoQueryableMethod.LookupWithDocumentsAndLocalFieldAndForeignFieldAndPipeline, DeduceLookupWithDocumentsAndLocalFieldAndForeignFieldAndPipelineMethodSerializers);
+            RegisterSerializerDeducer(MongoQueryableMethod.LookupWithDocumentsAndPipeline, DeduceLookupWithDocumentsAndPipelineMethodSerializers);
+            RegisterSerializerDeducer(MongoQueryableMethod.LookupWithFromAndLocalFieldAndForeignField, DeduceLookupWithFromAndLocalFieldAndForeignFieldMethodSerializers);
+            RegisterSerializerDeducer(MongoQueryableMethod.LookupWithFromAndLocalFieldAndForeignFieldAndPipeline, DeduceLookupWithFromAndLocalFieldAndForeignFieldAndPipelineMethodSerializers);
+            RegisterSerializerDeducer(MongoQueryableMethod.LookupWithFromAndPipeline, DeduceLookupWithFromAndPipelineMethodSerializers);
+            RegisterSerializerDeducers(EnumerableOrQueryableMethod.MaxOrMinOverloads, DeduceMaxOrMinMethodSerializers);
+            RegisterSerializerDeducers(EnumerableOrQueryableMethod.OfType, DeduceOfTypeMethodSerializers);
+            RegisterSerializerDeducers(EnumerableOrQueryableMethod.OrderByOrThenByOverloads, DeduceOrderByMethodSerializers);
+            RegisterSerializerDeducers(EnumerableMethod.PickOverloads, DeducePickMethodSerializers);
+            RegisterSerializerDeducer(EnumerableMethod.Range, (visitor, expression) => visitor.DeduceCollectionAndItemSerializers(expression, expression.Arguments[0]));
+            RegisterSerializerDeducer(EnumerableMethod.Repeat, (visitor, expression) => visitor.DeduceCollectionAndItemSerializers(expression, expression.Arguments[0]));
+            RegisterSerializerDeducers(EnumerableOrQueryableMethod.ReverseOverloads, (visitor, expression) => visitor.DeduceCollectionAndCollectionSerializers(expression, expression.Arguments[0]));
+            RegisterSerializerDeducers(EnumerableOrQueryableMethod.Select, DeduceSelectMethodSerializers);
+            RegisterSerializerDeducers(EnumerableOrQueryableMethod.SelectManyWithCollectionSelectorAndResultSelector, DeduceSelectManyWithCollectionSelectorAndResultSelectorMethodSerializers);
+            RegisterSerializerDeducers(EnumerableOrQueryableMethod.SelectManyWithSelector, DeduceSelectManyWithSelectorMethodSerializers);
+            RegisterSerializerDeducers(EnumerableOrQueryableMethod.SelectManyWithSelectorTakingIndex, DeduceSelectManyWithSelectorTakingIndexMethodSerializers);
+            RegisterSerializerDeducers(EnumerableOrQueryableMethod.SelectWithSelectorTakingIndex, DeduceSelectWithSelectorTakingIndexMethodSerializers);
+            RegisterSerializerDeducers([EnumerableMethod.SequenceEqual, QueryableMethod.SequenceEqual], DeduceSequenceEqualMethodSerializers);
+            RegisterSerializerDeducers(EnumerableOrQueryableMethod.SkipOrTakeOverloads, DeduceSkipOrTakeMethodSerializers);
+            RegisterSerializerDeducers(MongoEnumerableMethod.StandardDeviationOverloads, DeduceStandardDeviationMethodSerializers);
+            RegisterSerializerDeducers(EnumerableOrQueryableMethod.SumOverloads, DeduceEnumerableSumMethodSerializers);
+            RegisterSerializerDeducers(EnumerableOrQueryableMethod.Union, (visitor, expression) => visitor.DeduceCollectionAndCollectionSerializers(expression, expression.Arguments[0]));
+            RegisterSerializerDeducers(__whereOverloads, DeduceWhereSerializers);
+            RegisterSerializerDeducers(EnumerableOrQueryableMethod.WhereWithPredicateTakingIndex, DeduceWhereWithPredicateTakingIndexSerializers);
+            RegisterSerializerDeducers(EnumerableOrQueryableMethod.Zip, DeduceZipSerializers);
 
-        void DeduceAddMillisecondsMethodSerializers()
-        {
-            if (method.IsOneOf(DateTimeMethod.AddMilliseconds,  DateTimeMethod.AddMillisecondsWithTimezone))
-            {
-                DeduceReturnsDateTimeSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
+            // KeyValuePairMethod
+#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            RegisterSerializerDeducer(KeyValuePairMethod.Create, DeduceKeyValuePairCreateMethodSerializers);
+#endif
 
-        void DeduceAddMinutesMethodSerializers()
-        {
-            if (method.IsOneOf(DateTimeMethod.AddMinutes,  DateTimeMethod.AddMinutesWithTimezone))
-            {
-                DeduceReturnsDateTimeSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
+            // LinqExtensionsMethod
+            RegisterSerializerDeducer(LinqExtensionsMethod.Inject, (visitor, expression) => visitor.DeduceSerializer(expression, BooleanSerializer.Instance));
 
-        void DeduceAddMonthsMethodSerializers()
-        {
-            if (method.IsOneOf(DateTimeMethod.AddMonths,  DateTimeMethod.AddMonthsWithTimezone))
-            {
-                DeduceReturnsDateTimeSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
+            // MathMethod
+            RegisterSerializerDeducers(MathMethod.AbsOverloads, (visitor, expression) => visitor.DeduceSerializers(expression, expression.Arguments[0]));
+            RegisterSerializerDeducers([MathMethod.CeilingWithDecimal, MathMethod.CeilingWithDouble, MathMethod.FloorWithDecimal, MathMethod.FloorWithDouble], DeduceReturnsNumericSerializer);
+            RegisterSerializerDeducer(MathMethod.Exp, (visitor, expression) => visitor.DeduceSerializer(expression, DoubleSerializer.Instance));
+            RegisterSerializerDeducers(MathMethod.LogOverloads, (visitor, expression) => visitor.DeduceSerializer(expression, DoubleSerializer.Instance));
+            RegisterSerializerDeducer(MathMethod.Pow, (visitor, expression) => visitor.DeduceSerializer(expression, DoubleSerializer.Instance));
+            RegisterSerializerDeducers([MathMethod.RoundWithDecimal, MathMethod.RoundWithDecimalAndDecimals, MathMethod.RoundWithDouble, MathMethod.RoundWithDoubleAndDigits], DeduceRoundMethodSerializers);
+            RegisterSerializerDeducer(MathMethod.Sqrt, (visitor, expression) => visitor.DeduceSerializer(expression, DoubleSerializer.Instance));
+            RegisterSerializerDeducers(MathMethod.TrigonometricMethods, (visitor, expression) => visitor.DeduceSerializer(expression, DoubleSerializer.Instance));
+            RegisterSerializerDeducers([MathMethod.TruncateDecimal, MathMethod.TruncateDouble], DeduceReturnsNumericSerializer);
 
-        void DeduceAddQuartersMethodSerializers()
-        {
-            if (method.IsOneOf(DateTimeMethod.AddQuarters, DateTimeMethod.AddQuartersWithTimezone))
-            {
-                DeduceReturnsDateTimeSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
+            // MongoDBMathMethod
+            RegisterSerializerDeducer(MongoDBMathMethod.DegreesToRadians, (visitor, method) => visitor.DeduceSerializer(method, DoubleSerializer.Instance));
+            RegisterSerializerDeducer(MongoDBMathMethod.RadiansToDegrees, (visitor, expression) => visitor.DeduceSerializer(expression, DoubleSerializer.Instance));
 
-        void DeduceAddSecondsMethodSerializers()
-        {
-            if (method.IsOneOf(DateTimeMethod.AddSeconds, DateTimeMethod.AddSecondsWithTimezone))
-            {
-                DeduceReturnsDateTimeSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
+            // MqlMethod
+            RegisterSerializerDeducers([MqlMethod.ConstantWithRepresentation, MqlMethod.ConstantWithSerializer], DeduceConstantMethodSerializers);
+            RegisterSerializerDeducer(MqlMethod.Convert, DeduceConvertMethodSerializers);
+            RegisterSerializerDeducer(MqlMethod.CreateObjectId, (visitor, expression) => visitor.DeduceSerializer(expression, ObjectIdSerializer.Instance));
+            RegisterSerializerDeducers(MqlMethod.DateFromStringOverloads, DeduceDateFromStringMethodSerializers);
+            RegisterSerializerDeducer(MqlMethod.DeserializeEJson, DeduceDeserializeEJsonMethodSerializers);
+            RegisterSerializerDeducers([MqlMethod.Exists, MqlMethod.IsMissing, MqlMethod.IsNullOrMissing], (visitor, expression) => visitor.DeduceSerializer(expression, BooleanSerializer.Instance));
+            RegisterSerializerDeducer(MqlMethod.Field, DeduceFieldMethodSerializers);
+            RegisterSerializerDeducer(MqlMethod.Hash, (visitor, expression) => visitor.DeduceSerializer(expression, BsonBinaryDataSerializer.Instance));
+            RegisterSerializerDeducer(MqlMethod.HexHash, (visitor, expression) => visitor.DeduceSerializer(expression, StringSerializer.Instance));
+            RegisterSerializerDeducer(MqlMethod.SerializeEJson, DeduceSerializeEJsonMethodSerializers);
+            RegisterSerializerDeducer(MqlMethod.Sigmoid, (visitor, expression) => visitor.DeduceSerializer(expression, DoubleSerializer.Instance));
+            RegisterSerializerDeducers(MqlMethod.SimilarityFunctionOverloads, DeduceReturnsNumericSerializer);
+            RegisterSerializerDeducer(MqlMethod.Subtype, (visitor, expression) => visitor.DeduceSerializer(expression, __binarySubTypeSerializer));
+            RegisterSerializerDeducer(MqlMethod.ToHashedIndexKey, (visitor, expression) => visitor.DeduceSerializer(expression, Int64Serializer.Instance));
 
-        void DeduceAddTicksMethodSerializers()
-        {
-            if (method.Is(DateTimeMethod.AddTicks))
-            {
-                DeduceReturnsDateTimeSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
+            // RegexMethod
+            RegisterSerializerDeducers(RegexMethod.IsMatchOverloads, (visitor, expression) => visitor.DeduceSerializer(expression, BooleanSerializer.Instance));
+            RegisterSerializerDeducers(RegexMethod.ReplaceOverloads, (visitor, expression) => visitor.DeduceSerializer(expression, StringSerializer.Instance));
+            RegisterSerializerDeducers(RegexMethod.SplitOverloads, DeduceSplitMethodSerializers);
 
-        void DeduceAddToSetMethodSerializers()
-        {
-            if (method.Is(WindowMethod.AddToSet))
-            {
-                var partitionExpression = arguments[0];
-                var selectorLambda = (LambdaExpression)arguments[1];
-                DeduceWindowMethodSelectorParameterSerializer(partitionExpression, selectorLambda);
-                DeduceCollectionAndItemSerializers(node, selectorLambda.Body);
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
+            // StringMethod
+            RegisterSerializerDeducers(StringMethod.AnyStringInOrNinOverloads, (visitor, expression) => visitor.DeduceSerializer(expression, BooleanSerializer.Instance));
+            RegisterSerializerDeducers(StringMethod.ConcatOverloads, (visitor, expression) => visitor.DeduceSerializer(expression, StringSerializer.Instance));
+            RegisterSerializerDeducers(StringMethod.ContainsOverloads, (visitor, expression) => visitor.DeduceSerializer(expression, BooleanSerializer.Instance));
+            RegisterSerializerDeducers(StringMethod.EndsWithOrStartsWithOverloads, (visitor, expression) => visitor.DeduceSerializer(expression, BooleanSerializer.Instance));
+            RegisterSerializerDeducers([StringMethod.EqualsInstanceMethod, StringMethod.EqualsWithComparisonType, StringMethod.StaticEqualsWithComparisonType, StringMethod.StaticEquals], DeduceEqualsMethodSerializers);
+            RegisterSerializerDeducer(StringMethod.GetChars, (visitor, expression) => visitor.DeduceSerializer(expression, CharSerializer.Instance));
+            RegisterSerializerDeducers(StringMethod.IndexOfOverloads, (visitor, expression) => visitor.DeduceSerializer(expression, Int32Serializer.Instance));
+            RegisterSerializerDeducers([StringMethod.IsNullOrEmpty, StringMethod.IsNullOrWhiteSpace], (visitor, expression) => visitor.DeduceSerializer(expression, BooleanSerializer.Instance));
+            RegisterSerializerDeducers(StringMethod.ReplaceOverloads, (visitor, expression) => visitor.DeduceSerializer(expression, StringSerializer.Instance));
+            RegisterSerializerDeducers(StringMethod.SplitOverloads, DeduceSplitMethodSerializers);
+            RegisterSerializerDeducer(StringMethod.StrLenBytes, (visitor, expression) => visitor.DeduceSerializer(expression, Int32Serializer.Instance));
+            RegisterSerializerDeducers(StringMethod.StringInOrNinOverloads, (visitor, expression) => visitor.DeduceSerializer(expression, BooleanSerializer.Instance));
+            RegisterSerializerDeducers([StringMethod.Substring, StringMethod.SubstringWithLength, StringMethod.SubstrBytes], (visitor, expression) => visitor.DeduceSerializer(expression, StringSerializer.Instance));
+            RegisterSerializerDeducers(StringMethod.ToLowerOrToUpperOverloads, (visitor, expression) => visitor.DeduceSerializer(expression, StringSerializer.Instance));
+            RegisterSerializerDeducers(StringMethod.TrimOverloads, (visitor, expression) => visitor.DeduceSerializer(expression, StringSerializer.Instance));
 
-        void DeduceAddWeeksMethodSerializers()
-        {
-            if (method.IsOneOf(DateTimeMethod.AddWeeks, DateTimeMethod.AddWeeksWithTimezone))
-            {
-                DeduceReturnsDateTimeSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
+            // TupleOrValueTupleMethod
+            RegisterSerializerDeducers(TupleOrValueTupleMethod.CreateOverloads, DeduceTupleOrValueTupleCreateMethodSerializers);
 
-        void DeduceAddYearsMethodSerializers()
-        {
-            if (method.IsOneOf(DateTimeMethod.AddYears, DateTimeMethod.AddYearsWithTimezone))
-            {
-                DeduceReturnsDateTimeSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
+            // WindowMethod
+            RegisterSerializerDeducer(WindowMethod.AddToSet, DeduceAddToSetMethodSerializers);
+            RegisterSerializerDeducers(__averageOrMedianOrPercentileWindowMethodOverloads, DeduceAverageOrMedianOrPercentileWindowMethodSerializers);
+            RegisterSerializerDeducer(WindowMethod.Count, (visitor, expression) => visitor.DeduceSerializer(expression, Int64Serializer.Instance));
+            RegisterSerializerDeducers(WindowMethod.CovarianceOverloads, DeduceCovarianceMethodSerializers);
+            RegisterSerializerDeducers([WindowMethod.DenseRank, WindowMethod.Rank], (visitor, expression) => visitor.DeduceStandardSerializer(expression)); // currently decimal, but might be long in the future
+            RegisterSerializerDeducers(WindowMethod.DerivativeOrIntegralOverloads, DeduceDerivativeOrIntegralMethodSerializers);
+            RegisterSerializerDeducer(WindowMethod.DocumentNumber, (visitor, expression) => visitor.DeduceStandardSerializer(expression)); // currently decimal, but might be long in the future
+            RegisterSerializerDeducers(WindowMethod.ExponentialMovingAverageOverloads, DeduceExponentialMovingAverageMethodSerializers);
+            RegisterSerializerDeducers([WindowMethod.First, WindowMethod.Last], DeduceFirstOrLastWindowMethodsSerializers);
+            RegisterSerializerDeducer(WindowMethod.Locf, DeduceLocfMethodSerializers);
+            RegisterSerializerDeducers([WindowMethod.Max, WindowMethod.Min], DeduceWindowMaxOrMinMethodSerializers);
+            RegisterSerializerDeducer(WindowMethod.Push, DeducePushMethodSerializers);
+            RegisterSerializerDeducers([WindowMethod.Shift, WindowMethod.ShiftWithDefaultValue], DeduceShiftMethodSerializers);
+            RegisterSerializerDeducers(WindowMethod.StandardDeviationOverloads, DeduceWindowStandardDeviationMethodSerializers);
+            RegisterSerializerDeducers(WindowMethod.SumOverloads, DeduceWindowSumMethodSerializers);
 
-        void DeduceAggregateMethodSerializers()
-        {
-            if (method.IsOneOf(EnumerableOrQueryableMethod.AggregateOverloads))
+            void RegisterSerializerDeducer(MethodInfo method, Action<SerializerFinderVisitor, MethodCallExpression> deducer)
             {
-                var sourceExpression = arguments[0];
+                Ensure.IsNotNull(method, nameof(method));
+                Ensure.IsNotNull(deducer, nameof(deducer));
 
-                if (method.IsOneOf(EnumerableOrQueryableMethod.AggregateWithFunc))
+                if (!__serializerDeducers.TryAdd(method, deducer))
                 {
-                    var funcLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
-                    var funcAccumulatorParameter = funcLambda.Parameters[0];
-                    var funcSourceItemParameter = funcLambda.Parameters[1];
-
-                    DeduceItemAndCollectionSerializers(funcAccumulatorParameter, sourceExpression);
-                    DeduceItemAndCollectionSerializers(funcSourceItemParameter, sourceExpression);
-                    DeduceItemAndCollectionSerializers(funcLambda.Body, sourceExpression);
-                    DeduceSerializers(node, funcLambda.Body);
-                }
-
-                if (method.IsOneOf(EnumerableOrQueryableMethod.AggregateWithSeedAndFunc))
-                {
-                    var seedExpression =  arguments[1];
-                    var funcLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[2]);
-                    var funcAccumulatorParameter = funcLambda.Parameters[0];
-                    var funcSourceItemParameter = funcLambda.Parameters[1];
-
-                    DeduceSerializers(seedExpression, funcLambda.Body);
-                    DeduceSerializers(funcAccumulatorParameter, funcLambda.Body);
-                    DeduceItemAndCollectionSerializers(funcSourceItemParameter, sourceExpression);
-                    DeduceSerializers(node, funcLambda.Body);
-                }
-
-                if (method.IsOneOf(EnumerableOrQueryableMethod.AggregateWithSeedFuncAndResultSelector))
-                {
-                    var seedExpression = arguments[1];
-                    var funcLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[2]);
-                    var funcAccumulatorParameter = funcLambda.Parameters[0];
-                    var funcSourceItemParameter = funcLambda.Parameters[1];
-                    var resultSelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[3]);
-                    var resultSelectorAccumulatorParameter = resultSelectorLambda.Parameters[0];
-
-                    DeduceSerializers(seedExpression, funcLambda.Body);
-                    DeduceSerializers(funcAccumulatorParameter, funcLambda.Body);
-                    DeduceItemAndCollectionSerializers(funcSourceItemParameter, sourceExpression);
-                    DeduceSerializers(resultSelectorAccumulatorParameter, funcLambda.Body);
-                    DeduceSerializers(node, resultSelectorLambda.Body);
+                    throw new InvalidOperationException($"Serializer deducer for method {method} is already registered");
                 }
             }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
 
-        void DeduceAllMethodSerializers()
-        {
-            if (method.IsOneOf(EnumerableMethod.AllWithPredicate, QueryableMethod.AllWithPredicate))
+            void RegisterSerializerDeducers(IEnumerable<MethodInfo> methods, Action<SerializerFinderVisitor, MethodCallExpression> deducer)
             {
-                var sourceExpression = arguments[0];
-                var predicateLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
-                var predicateParameter = predicateLambda.Parameters.Single();
-
-                DeduceItemAndCollectionSerializers(predicateParameter, sourceExpression);
-                DeduceReturnsBooleanSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceAnyMethodSerializers()
-        {
-            if (method.IsOneOf(EnumerableOrQueryableMethod.AnyOverloads))
-            {
-                if (method.IsOneOf(EnumerableOrQueryableMethod.AnyWithPredicate))
+                foreach (var method in methods)
                 {
-                    var sourceExpression = arguments[0];
-                    var predicateLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
-                    var predicateParameter = predicateLambda.Parameters[0];
-
-                    DeduceItemAndCollectionSerializers(predicateParameter, sourceExpression);
-                }
-
-                DeduceReturnsBooleanSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceAnyStringInOrNinMethodSerializers()
-        {
-            if (method.IsOneOf(StringMethod.AnyStringInOrNinOverloads))
-            {
-                DeduceReturnsBooleanSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceAppendOrPrependMethodSerializers()
-        {
-            if (method.IsOneOf(EnumerableOrQueryableMethod.AppendOrPrepend))
-            {
-                var sourceExpression = arguments[0];
-                var elementExpression = arguments[1];
-
-                DeduceItemAndCollectionSerializers(elementExpression, sourceExpression);
-                DeduceCollectionAndCollectionSerializers(node, sourceExpression);
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceAsMethodSerializers()
-        {
-            if (method.Is(MongoQueryableMethod.As))
-            {
-                if (IsNotKnown(node))
-                {
-                    var resultSerializerExpression = arguments[1];
-                    if (resultSerializerExpression is not ConstantExpression resultSerializerConstantExpression)
-                    {
-                        throw new ExpressionNotSupportedException(node, because: "resultSerializer argument must be a constant");
-                    }
-
-                    var resultItemSerializer = (IBsonSerializer)resultSerializerConstantExpression.Value;
-                    if (resultItemSerializer == null)
-                    {
-                        var resultItemType = method.GetGenericArguments()[1];
-                        resultItemSerializer = BsonSerializer.LookupSerializer(resultItemType);
-                    }
-
-                    var resultSerializer = IEnumerableOrIQueryableSerializer.Create(node.Type, resultItemSerializer);
-                    AddNodeSerializer(node, resultSerializer);
+                    RegisterSerializerDeducer(method, deducer);
                 }
             }
-            else
+        }
+
+        // DeduceAddToSetMethodSerializers
+        private static void DeduceAddToSetMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var partitionExpression = expression.Arguments[0];
+            var selectorLambda = (LambdaExpression)expression.Arguments[1];
+            DeduceWindowMethodSelectorParameterSerializer(visitor, partitionExpression, selectorLambda);
+            visitor.DeduceCollectionAndItemSerializers(expression, selectorLambda.Body);
+        }
+
+        // DeduceAggregateMethodSerializers + EnumerableOrQueryableMethod.AggregateWithFunc branch
+        private static void DeduceAggregateWithFuncMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var sourceExpression = expression.Arguments[0];
+            var funcLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[1]);
+            var funcAccumulatorParameter = funcLambda.Parameters[0];
+            var funcSourceItemParameter = funcLambda.Parameters[1];
+
+            visitor.DeduceItemAndCollectionSerializers(funcAccumulatorParameter, sourceExpression);
+            visitor.DeduceItemAndCollectionSerializers(funcSourceItemParameter, sourceExpression);
+            visitor.DeduceItemAndCollectionSerializers(funcLambda.Body, sourceExpression);
+            visitor.DeduceSerializers(expression, funcLambda.Body);
+        }
+
+        // DeduceAggregateMethodSerializers + EnumerableOrQueryableMethod.AggregateWithSeedAndFunc branch
+        private static void DeduceAggregateWithSeedAndFuncMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var sourceExpression = expression.Arguments[0];
+            var seedExpression =  expression.Arguments[1];
+            var funcLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[2]);
+            var funcAccumulatorParameter = funcLambda.Parameters[0];
+            var funcSourceItemParameter = funcLambda.Parameters[1];
+
+            visitor.DeduceSerializers(seedExpression, funcLambda.Body);
+            visitor.DeduceSerializers(funcAccumulatorParameter, funcLambda.Body);
+            visitor.DeduceItemAndCollectionSerializers(funcSourceItemParameter, sourceExpression);
+            visitor.DeduceSerializers(expression, funcLambda.Body);
+        }
+
+        // DeduceAggregateMethodSerializers + EnumerableOrQueryableMethod.AggregateWithSeedFuncAndResultSelector branch
+        private static void DeduceAggregateWithSeedFuncAndResultSelectorMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var sourceExpression = expression.Arguments[0];
+            var seedExpression = expression.Arguments[1];
+            var funcLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[2]);
+            var funcAccumulatorParameter = funcLambda.Parameters[0];
+            var funcSourceItemParameter = funcLambda.Parameters[1];
+            var resultSelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[3]);
+            var resultSelectorAccumulatorParameter = resultSelectorLambda.Parameters[0];
+
+            visitor.DeduceSerializers(seedExpression, funcLambda.Body);
+            visitor.DeduceSerializers(funcAccumulatorParameter, funcLambda.Body);
+            visitor.DeduceItemAndCollectionSerializers(funcSourceItemParameter, sourceExpression);
+            visitor.DeduceSerializers(resultSelectorAccumulatorParameter, funcLambda.Body);
+            visitor.DeduceSerializers(expression, resultSelectorLambda.Body);
+        }
+
+        // DeduceAllMethodSerializers
+        private static void DeduceAllMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var sourceExpression = expression.Arguments[0];
+            var predicateLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[1]);
+            var predicateParameter = predicateLambda.Parameters.Single();
+
+            visitor.DeduceItemAndCollectionSerializers(predicateParameter, sourceExpression);
+            visitor.DeduceSerializer(expression, BooleanSerializer.Instance);
+        }
+
+        // DeduceAnyMethodSerializers + EnumerableOrQueryableMethod.AnyWithPredicate branch
+        private static void DeduceAnyWithPredicateMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var sourceExpression = expression.Arguments[0];
+            var predicateLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[1]);
+            var predicateParameter = predicateLambda.Parameters[0];
+
+            visitor.DeduceItemAndCollectionSerializers(predicateParameter, sourceExpression);
+            visitor.DeduceSerializer(expression, BooleanSerializer.Instance);
+        }
+
+        // DeduceAppendStageMethodSerializers
+        private static void DeduceAppendStageMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            if (visitor.IsNotKnown(expression))
             {
-                DeduceUnknownMethodSerializer();
+                var sourceExpression = expression.Arguments[0];
+                var stageExpression = expression.Arguments[1];
+                var resultSerializerExpression = expression.Arguments[2];
+
+                if (stageExpression is not ConstantExpression stageConstantExpression)
+                {
+                    throw new ExpressionNotSupportedException(expression, because: "stage argument must be a constant");
+                }
+                var stageDefinition = (IPipelineStageDefinition)stageConstantExpression.Value;
+
+                if (resultSerializerExpression is not ConstantExpression resultSerializerConstantExpression)
+                {
+                    throw new ExpressionNotSupportedException(expression, because: "resultSerializer argument must be a constant");
+                }
+                var resultItemSerializer = (IBsonSerializer)resultSerializerConstantExpression.Value;
+
+                if (resultItemSerializer == null && visitor.IsItemSerializerKnown(sourceExpression, out var sourceItemSerializer))
+                {
+                    var serializerRegistry = BsonSerializer.SerializerRegistry; // TODO: get correct registry
+                    var translationOptions = new ExpressionTranslationOptions(); // TODO: get correct translation options
+                    var renderedStage = stageDefinition.Render(sourceItemSerializer, serializerRegistry, translationOptions);
+                    resultItemSerializer = renderedStage.OutputSerializer;
+                }
+
+                if (resultItemSerializer != null)
+                {
+                    var resultSerializer = IEnumerableOrIQueryableSerializer.Create(expression.Type, resultItemSerializer);
+                    visitor.AddNodeSerializer(expression, resultSerializer);
+                }
             }
         }
 
-        void DeduceAppendStageMethodSerializers()
+        // DeduceAsMethodSerializers
+        private static void DeduceAsMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
-            if (method.Is(MongoQueryableMethod.AppendStage))
+            if (visitor.IsNotKnown(expression))
             {
-                if (IsNotKnown(node))
+                var resultSerializerExpression = expression.Arguments[1];
+                if (resultSerializerExpression is not ConstantExpression resultSerializerConstantExpression)
                 {
-                    var sourceExpression = arguments[0];
-                    var stageExpression = arguments[1];
-                    var resultSerializerExpression = arguments[2];
+                    throw new ExpressionNotSupportedException(expression, because: "resultSerializer argument must be a constant");
+                }
 
-                    if (stageExpression is not ConstantExpression stageConstantExpression)
-                    {
-                        throw new ExpressionNotSupportedException(node, because: "stage argument must be a constant");
-                    }
-                    var stageDefinition = (IPipelineStageDefinition)stageConstantExpression.Value;
+                var resultItemSerializer = (IBsonSerializer)resultSerializerConstantExpression.Value;
+                if (resultItemSerializer == null)
+                {
+                    var resultItemType = expression.Method.GetGenericArguments()[1];
+                    resultItemSerializer = BsonSerializer.LookupSerializer(resultItemType);
+                }
 
-                    if (resultSerializerExpression is not ConstantExpression resultSerializerConstantExpression)
-                    {
-                        throw new ExpressionNotSupportedException(node, because: "resultSerializer argument must be a constant");
-                    }
-                    var resultItemSerializer = (IBsonSerializer)resultSerializerConstantExpression.Value;
+                var resultSerializer = IEnumerableOrIQueryableSerializer.Create(expression.Type, resultItemSerializer);
+                visitor.AddNodeSerializer(expression, resultSerializer);
+            }
+        }
 
-                    if (resultItemSerializer == null && IsItemSerializerKnown(sourceExpression, out var sourceItemSerializer))
-                    {
-                        var serializerRegistry = BsonSerializer.SerializerRegistry; // TODO: get correct registry
-                        var translationOptions = new ExpressionTranslationOptions(); // TODO: get correct translation options
-                        var renderedStage = stageDefinition.Render(sourceItemSerializer, serializerRegistry, translationOptions);
-                        resultItemSerializer = renderedStage.OutputSerializer;
-                    }
+        // DeduceAsQueryableMethodSerializers
+        private static void DeduceAsQueryableMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var sourceExpression = expression.Arguments[0];
 
-                    if (resultItemSerializer != null)
+            if (visitor.IsNotKnown(expression) && visitor.IsItemSerializerKnown(sourceExpression, out var sourceItemSerializer))
+            {
+                var resultSerializer = NestedAsQueryableSerializer.Create(sourceItemSerializer);
+                visitor.AddNodeSerializer(expression, resultSerializer);
+            }
+        }
+
+        // DeduceConcatMethodSerializers + EnumerableMethod.Concat, QueryableMethod.Concat branch
+        private static void DeduceEnumerableConcatMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var firstExpression = expression.Arguments[0];
+            var secondExpression = expression.Arguments[1];
+
+            visitor.DeduceCollectionAndCollectionSerializers(firstExpression, secondExpression);
+            visitor.DeduceCollectionAndCollectionSerializers(expression, firstExpression);
+        }
+
+        // DeduceConstantMethodSerializers
+        private static void DeduceConstantMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var valueExpression = expression.Arguments[0];
+            IBsonSerializer serializer = null;
+
+            if (visitor.IsNotKnown(expression) || visitor.IsNotKnown(valueExpression))
+            {
+                if (expression.Method.Is(MqlMethod.ConstantWithRepresentation))
+                {
+                    var representationExpression = expression.Arguments[1];
+
+                    var representation = representationExpression.GetConstantValue<BsonType>(expression);
+                    var defaultSerializer = BsonSerializer.LookupSerializer(valueExpression.Type); // TODO: don't use BsonSerializer
+                    if (defaultSerializer is IRepresentationConfigurable representationConfigurableSerializer)
                     {
-                        var resultSerializer = IEnumerableOrIQueryableSerializer.Create(node.Type, resultItemSerializer);
-                        AddNodeSerializer(node, resultSerializer);
+                        serializer = representationConfigurableSerializer.WithRepresentation(representation);
                     }
                 }
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceAsQueryableMethodSerializers()
-        {
-            if (method.Is(QueryableMethod.AsQueryable))
-            {
-                var sourceExpression = arguments[0];
-
-                if (IsNotKnown(node) && IsItemSerializerKnown(sourceExpression, out var sourceItemSerializer))
+                else if (expression.Method.Is(MqlMethod.ConstantWithSerializer))
                 {
-                    var resultSerializer = NestedAsQueryableSerializer.Create(sourceItemSerializer);
-                    AddNodeSerializer(node, resultSerializer);
+                    var serializerExpression = expression.Arguments[1];
+                    serializer = serializerExpression.GetConstantValue<IBsonSerializer>(expression);
                 }
             }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
+
+            visitor.DeduceSerializer(valueExpression, serializer);
+            visitor.DeduceSerializer(expression, serializer);
         }
 
-        void DeduceAverageOrMedianOrPercentileMethodSerializers()
+        // DeduceConvertMethodSerializers
+        private static void DeduceConvertMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
-            if (method.IsOneOf(__averageOrMedianOrPercentileOverloads))
+            if (visitor.IsNotKnown(expression))
             {
-                if (method.IsOneOf(__averageOrMedianOrPercentileWithSelectorOverloads))
-                {
-                    var sourceExpression = arguments[0];
-                    var selectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
-                    var selectorSourceItemParameter = selectorLambda.Parameters[0];
-
-                    DeduceItemAndCollectionSerializers(selectorSourceItemParameter, sourceExpression);
-                }
-
-                if (IsNotKnown(node))
-                {
-                    var nodeSerializer = StandardSerializers.GetSerializer(node.Type);
-                    AddNodeSerializer(node, nodeSerializer);
-                }
-            }
-            else if (method.IsOneOf(__averageOrMedianOrPercentileWindowMethodOverloads))
-            {
-                var partitionExpression = arguments[0];
-                var selectorLambda = (LambdaExpression)arguments[1];
-                DeduceWindowMethodSelectorParameterSerializer(partitionExpression, selectorLambda);
-                DeduceStandardSerializer(node);
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceCeilingOrFloorMethodSerializers()
-        {
-            if (method.IsOneOf(MathMethod.CeilingWithDecimal, MathMethod.CeilingWithDouble, MathMethod.FloorWithDecimal,  MathMethod.FloorWithDouble))
-            {
-                DeduceReturnsNumericSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceCompareOrCompareToMethodSerializers()
-        {
-            if (method.IsStaticCompareMethod() ||
-                method.IsInstanceCompareToMethod() ||
-                method.IsOneOf(StringMethod.CompareOverloads))
-            {
-                var valueExpression = method.IsStatic ? arguments[0] : node.Object;
-                var comparandExpression = method.IsStatic ? arguments[1] : arguments[0];
-                DeduceSerializers(valueExpression, comparandExpression);
-                DeduceReturnsInt32Serializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceConcatMethodSerializers()
-        {
-            if (method.IsOneOf(EnumerableMethod.Concat, QueryableMethod.Concat))
-            {
-                var firstExpression = arguments[0];
-                var secondExpression = arguments[1];
-
-                DeduceCollectionAndCollectionSerializers(firstExpression, secondExpression);
-                DeduceCollectionAndCollectionSerializers(node, firstExpression);
-            }
-            else if (method.IsOneOf(StringMethod.ConcatOverloads))
-            {
-                DeduceReturnsStringSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceConstantMethodSerializers()
-        {
-            if (method.IsOneOf(MqlMethod.ConstantWithRepresentation, MqlMethod.ConstantWithSerializer))
-            {
-                var valueExpression = arguments[0];
-                IBsonSerializer serializer = null;
-
-                if (IsNotKnown(node) || IsNotKnown(valueExpression))
-                {
-                    if (method.Is(MqlMethod.ConstantWithRepresentation))
-                    {
-                        var representationExpression = arguments[1];
-
-                        var representation = representationExpression.GetConstantValue<BsonType>(node);
-                        var defaultSerializer = BsonSerializer.LookupSerializer(valueExpression.Type); // TODO: don't use BsonSerializer
-                        if (defaultSerializer is IRepresentationConfigurable representationConfigurableSerializer)
-                        {
-                            serializer = representationConfigurableSerializer.WithRepresentation(representation);
-                        }
-                    }
-                    else if (method.Is(MqlMethod.ConstantWithSerializer))
-                    {
-                        var serializerExpression = arguments[1];
-                        serializer = serializerExpression.GetConstantValue<IBsonSerializer>(node);
-                    }
-                }
-
-                DeduceSerializer(valueExpression, serializer);
-                DeduceSerializer(node, serializer);
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceContainsKeyMethodSerializers()
-        {
-            if (IsDictionaryContainsKeyExpression(out var keyExpression))
-            {
-                var dictionaryExpression = node.Object;
-                if (IsNotKnown(keyExpression) && IsKnown(dictionaryExpression, out var dictionarySerializer))
-                {
-                    var keySerializer = (dictionarySerializer as IBsonDictionarySerializer)?.KeySerializer;
-                    AddNodeSerializer(keyExpression, keySerializer);
-                }
-
-                DeduceReturnsBooleanSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceContainsMethodSerializers()
-        {
-            if (method.IsOneOf(StringMethod.ContainsOverloads))
-            {
-                DeduceReturnsBooleanSerializer();
-            }
-            else if (EnumerableMethod.IsContainsMethod(node, out var collectionExpression, out var itemExpression))
-            {
-                DeduceCollectionAndItemSerializers(collectionExpression, itemExpression);
-                DeduceReturnsBooleanSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceContainsValueMethodSerializers()
-        {
-            if (IsContainsValueInstanceMethod(out var collectionExpression, out var valueExpression))
-            {
-                if (IsNotKnown(valueExpression) &&
-                    IsKnown(collectionExpression, out var collectionSerializer))
-                {
-                    if (collectionSerializer is IBsonDictionarySerializer dictionarySerializer)
-                    {
-                        var valueSerializer = dictionarySerializer.ValueSerializer;
-                        AddNodeSerializer(valueExpression, valueSerializer);
-                    }
-                }
-
-                DeduceReturnsBooleanSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-
-            bool IsContainsValueInstanceMethod(out Expression collectionExpression, out Expression valueExpression)
-            {
-                if (method.IsPublic &&
-                    method.IsStatic == false &&
-                    method.ReturnType == typeof(bool) &&
-                    method.Name == "ContainsValue" &&
-                    method.GetParameters() is var parameters &&
-                    parameters.Length == 1)
-                {
-                    collectionExpression = node.Object;
-                    valueExpression = arguments[0];
-                    return true;
-                }
-
-                collectionExpression = null;
-                valueExpression = null;
-                return false;
-            }
-        }
-
-        void DeduceConvertMethodSerializers()
-        {
-            if (method.Is(MqlMethod.Convert))
-            {
-                if (IsNotKnown(node))
-                {
-                    var toType = method.GetGenericArguments()[1];
-                    var resultSerializer = GetResultSerializer(node, toType);
-                    AddNodeSerializer(node, resultSerializer);
-                }
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
+                var toType = expression.Method.GetGenericArguments()[1];
+                var resultSerializer = GetResultSerializer(expression, toType);
+                visitor.AddNodeSerializer(expression, resultSerializer);
             }
 
             static IBsonSerializer GetResultSerializer(Expression expression, Type toType)
             {
                 // TODO: should we use StandardSerializers at least for the subset of types where it would return the correct serializer?
-
                 var isNullable = toType.IsNullable();
                 var valueType = isNullable ? Nullable.GetUnderlyingType(toType) : toType;
 
@@ -961,760 +506,1159 @@ internal partial class SerializerFinderVisitor
             }
         }
 
-        void DeduceCreateMethodSerializers()
-        {
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-            if (method.Is(KeyValuePairMethod.Create))
+        // DeduceCreateMethodSerializers + KeyValuePairMethod.Create branch
+        private static void DeduceKeyValuePairCreateMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            if (visitor.IsAnyNotKnown(expression.Arguments) && visitor.IsKnown(expression, out var nodeSerializer))
             {
-                if (IsAnyNotKnown(arguments) && IsKnown(node, out var nodeSerializer))
-                {
-                    var keyExpression = arguments[0];
-                    var valueExpression = arguments[1];
+                var keyExpression = expression.Arguments[0];
+                var valueExpression = expression.Arguments[1];
 
-                    if (nodeSerializer.IsKeyValuePairSerializer(out _, out _, out var keySerializer, out var valueSerializer))
-                    {
-                        DeduceSerializer(keyExpression, keySerializer);
-                        DeduceSerializer(valueExpression, valueSerializer);
-                    }
-                }
-
-                if (IsNotKnown(node) && AreAllKnown(arguments, out var argumentSerializers))
+                if (nodeSerializer.IsKeyValuePairSerializer(out _, out _, out var keySerializer, out var valueSerializer))
                 {
-                    var keySerializer = argumentSerializers[0];
-                    var valueSerializer = argumentSerializers[1];
-                    var keyValuePairSerializer = KeyValuePairSerializer.Create(BsonType.Document, keySerializer, valueSerializer);
-                    AddNodeSerializer(node, keyValuePairSerializer);
+                    visitor.DeduceSerializer(keyExpression, keySerializer);
+                    visitor.DeduceSerializer(valueExpression, valueSerializer);
                 }
             }
-            else
- #endif
-            if (method.IsOneOf(TupleOrValueTupleMethod.CreateOverloads))
+
+            if (visitor.IsNotKnown(expression) && visitor.AreAllKnown(expression.Arguments, out var argumentSerializers))
             {
-                if (IsAnyNotKnown(arguments) && IsKnown(node, out var nodeSerializer))
+                var keySerializer = argumentSerializers[0];
+                var valueSerializer = argumentSerializers[1];
+                var keyValuePairSerializer = KeyValuePairSerializer.Create(BsonType.Document, keySerializer, valueSerializer);
+                visitor.AddNodeSerializer(expression, keyValuePairSerializer);
+            }
+        }
+#endif
+
+        // DeduceCreateMethodSerializers + TupleOrValueTupleMethod.CreateOverloads
+        private static void DeduceTupleOrValueTupleCreateMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            if (visitor.IsAnyNotKnown(expression.Arguments) && visitor.IsKnown(expression, out var nodeSerializer))
+            {
+                if (nodeSerializer is IBsonTupleSerializer tupleSerializer)
                 {
-                    if (nodeSerializer is IBsonTupleSerializer tupleSerializer)
+                    for (var i = 1; i <= expression.Arguments.Count; i++)
                     {
-                        for (var i = 1; i <= arguments.Count; i++)
+                        var argumentExpression = expression.Arguments[i];
+                        if (visitor.IsNotKnown(argumentExpression))
                         {
-                            var argumentExpression = arguments[i];
-                            if (IsNotKnown(argumentExpression))
+                            var itemSerializer = tupleSerializer.GetItemSerializer(i);
+                            if (i == 8)
                             {
-                                var itemSerializer = tupleSerializer.GetItemSerializer(i);
-                                if (i == 8)
-                                {
-                                    itemSerializer = (itemSerializer as IBsonTupleSerializer)?.GetItemSerializer(1);
-                                }
-                                AddNodeSerializer(argumentExpression, itemSerializer);
+                                itemSerializer = (itemSerializer as IBsonTupleSerializer)?.GetItemSerializer(1);
                             }
+                            visitor.AddNodeSerializer(argumentExpression, itemSerializer);
                         }
                     }
                 }
-
-                if (IsNotKnown(node) && AreAllKnown(arguments, out var argumentSerializers))
-                {
-                    var tupleType = method.ReturnType;
-
-                    if (arguments.Count == 8)
-                    {
-                        var item8Expression = arguments[7];
-                        var item8Type = item8Expression.Type;
-                        var item8Serializer = argumentSerializers[7];
-                        var restTupleType = (tupleType.IsTuple() ? typeof(Tuple<>) : typeof(ValueTuple<>)).MakeGenericType(item8Type);
-                        var restSerializer = TupleOrValueTupleSerializer.Create(restTupleType, [item8Serializer]);
-                        argumentSerializers = argumentSerializers.Take(7).Append(restSerializer).ToArray();
-                    }
-
-                    var tupleSerializer = TupleOrValueTupleSerializer.Create(tupleType, argumentSerializers);
-                    AddNodeSerializer(node, tupleSerializer);
-                }
             }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
 
-        void DeduceCountMethodSerializers()
-        {
-            if (method.IsOneOf(EnumerableOrQueryableMethod.CountOverloads))
+            if (visitor.IsNotKnown(expression) && visitor.AreAllKnown(expression.Arguments, out var argumentSerializers))
             {
-                if (method.IsOneOf(EnumerableOrQueryableMethod.CountWithPredicateOverloads))
+                var tupleType = expression.Method.ReturnType;
+
+                if (expression.Arguments.Count == 8)
                 {
-                    var sourceExpression = arguments[0];
-                    var predicateLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
-                    var predicateParameter = predicateLambda.Parameters.Single();
-                    DeduceItemAndCollectionSerializers(predicateParameter, sourceExpression);
+                    var item8Expression = expression.Arguments[7];
+                    var item8Type = item8Expression.Type;
+                    var item8Serializer = argumentSerializers[7];
+                    var restTupleType = (tupleType.IsTuple() ? typeof(Tuple<>) : typeof(ValueTuple<>)).MakeGenericType(item8Type);
+                    var restSerializer = TupleOrValueTupleSerializer.Create(restTupleType, [item8Serializer]);
+                    argumentSerializers = argumentSerializers.Take(7).Append(restSerializer).ToArray();
                 }
 
-                DeduceReturnsNumericSerializer();
-            }
-            else if (method.Is(WindowMethod.Count))
-            {
-                DeduceReturnsInt64Serializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
+                var tupleSerializer = TupleOrValueTupleSerializer.Create(tupleType, argumentSerializers);
+                visitor.AddNodeSerializer(expression, tupleSerializer);
             }
         }
 
-        void DeduceCovarianceMethodSerializers()
+        // DeduceDateFromStringMethodSerializers
+        private static void DeduceDateFromStringMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
-            if (method.IsOneOf(WindowMethod.CovarianceOverloads))
-            {
-                var partitionExpression = arguments[0];
-                var selector1Lambda = (LambdaExpression)arguments[1];
-                var selector2Lambda = (LambdaExpression)arguments[2];
-                DeduceWindowMethodSelectorParameterSerializer(partitionExpression, selector1Lambda);
-                DeduceWindowMethodSelectorParameterSerializer(partitionExpression, selector2Lambda);
-                DeduceStandardSerializer(node);
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
+            var resultSerializer = expression.Method.Is(MqlMethod.DateFromStringWithFormatAndTimezoneAndOnErrorAndOnNull) ? NullableSerializer.NullableUtcDateTimeInstance : DateTimeSerializer.UtcInstance;
+            visitor.DeduceSerializer(expression, resultSerializer);
         }
 
-        void DeduceDateFromStringMethodSerializers()
+        // DeduceDefaultIfEmptyMethodSerializers
+        private static void DeduceDefaultIfEmptyMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
-            if (method.IsOneOf(MqlMethod.DateFromStringOverloads))
+            var sourceExpression = expression.Arguments[0];
+
+            if (expression.Method.IsOneOf(EnumerableMethod.DefaultIfEmptyWithDefaultValue, QueryableMethod.DefaultIfEmptyWithDefaultValue))
             {
-                var resultSerializer = method.Is(MqlMethod.DateFromStringWithFormatAndTimezoneAndOnErrorAndOnNull) ? NullableSerializer.NullableUtcDateTimeInstance : DateTimeSerializer.UtcInstance;
-                DeduceSerializer(node, resultSerializer);
+                var defaultValueExpression = expression.Arguments[1];
+                visitor.DeduceItemAndCollectionSerializers(defaultValueExpression, sourceExpression);
             }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
+
+            visitor.DeduceCollectionAndCollectionSerializers(expression, sourceExpression);
         }
 
-        void DeduceDefaultIfEmptyMethodSerializers()
+        // DeduceDensifyMethodSerializers
+        private static void DeduceDensifyMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
-            if (method.IsOneOf(EnumerableMethod.DefaultIfEmpty, EnumerableMethod.DefaultIfEmptyWithDefaultValue, QueryableMethod.DefaultIfEmpty, QueryableMethod.DefaultIfEmptyWithDefaultValue))
-            {
-                var sourceExpression = arguments[0];
+            var sourceExpression = expression.Arguments[0];
+            var fieldLambda = ExpressionHelper.UnquoteLambda(expression.Arguments[1]);
+            var fieldLambdaSourceParameter = fieldLambda.Parameters.Single();
+            var rangeExpression = expression.Arguments[2];
+            var partitionByFieldsExpression = expression.Arguments[3];
 
-                if (method.IsOneOf(EnumerableMethod.DefaultIfEmptyWithDefaultValue, QueryableMethod.DefaultIfEmptyWithDefaultValue))
+            visitor.DeduceItemAndCollectionSerializers(fieldLambdaSourceParameter, sourceExpression);
+            visitor.DeduceIgnoreSubtreeSerializer(rangeExpression);
+            if (partitionByFieldsExpression is NewArrayExpression newArrayExpression)
+            {
+                foreach (var arrayItemExpression in newArrayExpression.Expressions)
                 {
-                    var defaultValueExpression = arguments[1];
-                    DeduceItemAndCollectionSerializers(defaultValueExpression, sourceExpression);
-                }
-
-                DeduceCollectionAndCollectionSerializers(node, sourceExpression);
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceDegreesToRadiansMethodSerializers()
-        {
-            if (method.Is(MongoDBMathMethod.DegreesToRadians))
-            {
-                DeduceReturnsDoubleSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceDenseRankOrRankMethodSerializers()
-        {
-            if (method.IsOneOf(WindowMethod.DenseRank, WindowMethod.Rank))
-            {
-                DeduceStandardSerializer(node); // currently decimal, but might be long in the future
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceDerivativeOrIntegralMethodSerializers()
-        {
-            if (method.IsOneOf(WindowMethod.DerivativeOrIntegralOverloads))
-            {
-                var partitionExpression = arguments[0];
-                var selectorLambda = (LambdaExpression)arguments[1];
-                DeduceWindowMethodSelectorParameterSerializer(partitionExpression, selectorLambda);
-                DeduceStandardSerializer(node);
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceDensifyMethodSerializers()
-        {
-            if (method.Is(MongoQueryableMethod.DensifyWithArrayPartitionByFields))
-            {
-                var sourceExpression = arguments[0];
-                var fieldLambda = ExpressionHelper.UnquoteLambda(arguments[1]);
-                var fieldLambdaSourceParameter = fieldLambda.Parameters.Single();
-                var rangeExpression = arguments[2];
-                var partitionByFieldsExpression = arguments[3];
-
-                DeduceItemAndCollectionSerializers(fieldLambdaSourceParameter, sourceExpression);
-                DeduceIgnoreSubtreeSerializer(rangeExpression);
-                if (partitionByFieldsExpression is NewArrayExpression newArrayExpression)
-                {
-                    foreach (var arrayItemExpression in newArrayExpression.Expressions)
-                    {
-                        var partitionByFieldLambda = ExpressionHelper.UnquoteLambda(arrayItemExpression);
-                        var partitionByFieldLambdaSourceParameter = partitionByFieldLambda.Parameters.Single();
-                        DeduceItemAndCollectionSerializers(partitionByFieldLambdaSourceParameter, sourceExpression);
-                    }
-                }
-                DeduceCollectionAndCollectionSerializers(node, sourceExpression);
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceDeserializeEJsonMethodSerializers()
-        {
-            if (method.Is(MqlMethod.DeserializeEJson))
-            {
-                if (IsNotKnown(node))
-                {
-                    var outputType = method.GetGenericArguments()[1];
-                    var outputSerializer = BsonSerializer.LookupSerializer(outputType);
-                    AddNodeSerializer(node, outputSerializer);
+                    var partitionByFieldLambda = ExpressionHelper.UnquoteLambda(arrayItemExpression);
+                    var partitionByFieldLambdaSourceParameter = partitionByFieldLambda.Parameters.Single();
+                    visitor.DeduceItemAndCollectionSerializers(partitionByFieldLambdaSourceParameter, sourceExpression);
                 }
             }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
+            visitor.DeduceCollectionAndCollectionSerializers(expression, sourceExpression);
         }
 
-        void DeduceDistinctMethodSerializers()
+        // DeduceDocumentsMethodSerializers
+        private static void DeduceDocumentsMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
-            if (method.IsOneOf(EnumerableMethod.Distinct, QueryableMethod.Distinct))
+            if (visitor.IsNotKnown(expression))
             {
-                var sourceExpression = arguments[0];
-                DeduceCollectionAndCollectionSerializers(node, sourceExpression);
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceDocumentNumberMethodSerializers()
-        {
-            if (method.Is(WindowMethod.DocumentNumber))
-            {
-                DeduceStandardSerializer(node); // currently decimal, but might be long in the future
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceDocumentsMethodSerializers()
-        {
-            if (method.IsOneOf(MongoQueryableMethod.Documents, MongoQueryableMethod.DocumentsWithSerializer))
-            {
-                if (IsNotKnown(node))
+                IBsonSerializer documentSerializer;
+                if (expression.Method.Is(MongoQueryableMethod.DocumentsWithSerializer))
                 {
-                    IBsonSerializer documentSerializer;
-                    if (method.Is(MongoQueryableMethod.DocumentsWithSerializer))
-                    {
-                        var documentSerializerExpression = arguments[2];
-                        documentSerializer = documentSerializerExpression.GetConstantValue<IBsonSerializer>(node);
-                    }
-                    else
-                    {
-                        var documentsParameter = method.GetParameters()[1];
-                        var documentType = documentsParameter.ParameterType.GetElementType();
-                        documentSerializer = BsonSerializer.LookupSerializer(documentType); // TODO: don't use static registry
-                    }
-
-                    var nodeSerializer = IQueryableSerializer.Create(documentSerializer);
-                    AddNodeSerializer(node, nodeSerializer);
+                    var documentSerializerExpression = expression.Arguments[2];
+                    documentSerializer = documentSerializerExpression.GetConstantValue<IBsonSerializer>(expression);
                 }
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceElementAtMethodSerializers()
-        {
-            if (method.IsOneOf(EnumerableOrQueryableMethod.ElementAtOverloads))
-            {
-                var sourceExpression = arguments[0];
-                DeduceItemAndCollectionSerializers(node, sourceExpression);
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceEqualsMethodSerializers()
-        {
-            if (IsEqualsReturningBooleanMethod(out var expression1, out var expression2))
-            {
-                DeduceSerializers(expression1, expression2);
-                DeduceReturnsBooleanSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-
-            bool IsEqualsReturningBooleanMethod(out Expression expression1, out Expression expression2)
-            {
-                if (method.Name == "Equals" &&
-                    method.ReturnType == typeof(bool) &&
-                    method.IsPublic)
+                else
                 {
-                    if (method.IsStatic &&
-                        arguments.Count == 2)
-                    {
-                        expression1 = arguments[0];
-                        expression2 = arguments[1];
-                        return true;
-                    }
-
-                    if (!method.IsStatic &&
-                        arguments.Count == 1)
-                    {
-                        expression1 = node.Object;
-                        expression2 = arguments[0];
-                        return true;
-                    }
-
-                    if (method.Is(StringMethod.EqualsWithComparisonType))
-                    {
-                        expression1 = node.Object;
-                        expression2 = arguments[0];
-                        return true;
-                    }
-
-                    if (method.Is(StringMethod.StaticEqualsWithComparisonType))
-                    {
-                        expression1 = arguments[0];
-                        expression2 = arguments[1];
-                        return true;
-                    }
+                    var documentsParameter = expression.Method.GetParameters()[1];
+                    var documentType = documentsParameter.ParameterType.GetElementType();
+                    documentSerializer = BsonSerializer.LookupSerializer(documentType); // TODO: don't use static registry
                 }
 
-                expression1 = null;
-                expression2 = null;
-                return false;
+                var nodeSerializer = IQueryableSerializer.Create(documentSerializer);
+                visitor.AddNodeSerializer(expression, nodeSerializer);
             }
         }
 
-        void DeduceExceptMethodSerializers()
+        // DeduceExceptMethodSerializers
+        private static void DeduceExceptMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
-            if (method.IsOneOf(EnumerableMethod.Except, QueryableMethod.Except))
+            var firstExpression = expression.Arguments[0];
+            var secondExpression = expression.Arguments[1];
+            visitor.DeduceCollectionAndCollectionSerializers(secondExpression, firstExpression);
+            visitor.DeduceCollectionAndCollectionSerializers(expression, firstExpression);
+        }
+
+        // DeduceExponentialMovingAverageMethodSerializers
+        private static void DeduceExponentialMovingAverageMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var partitionExpression = expression.Arguments[0];
+            var selectorLambda = (LambdaExpression)expression.Arguments[1];
+            DeduceWindowMethodSelectorParameterSerializer(visitor, partitionExpression, selectorLambda);
+            visitor.DeduceStandardSerializer(expression);
+        }
+
+        // DeduceFieldMethodSerializers
+        private static void DeduceFieldMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            if (visitor.IsNotKnown(expression))
             {
-                var firstExpression =  arguments[0];
-                var secondExpression = arguments[1];
-                DeduceCollectionAndCollectionSerializers(secondExpression, firstExpression);
-                DeduceCollectionAndCollectionSerializers(node, firstExpression);
+                var fieldSerializerExpression = expression.Arguments[2];
+                var fieldSerializer = fieldSerializerExpression.GetConstantValue<IBsonSerializer>(expression);
+                if (fieldSerializer == null)
+                {
+                    fieldSerializer = BsonSerializer.LookupSerializer(expression.Method.GetGenericArguments()[1]);
+                }
+
+                visitor.AddNodeSerializer(expression, fieldSerializer);
+            }
+        }
+
+        // DeduceGroupByMethodSerializers
+        private static void DeduceGroupByMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var sourceExpression = expression.Arguments[0];
+            var keySelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[1]);
+            var keySelectorParameter = keySelectorLambda.Parameters.Single();
+
+            visitor.DeduceItemAndCollectionSerializers(keySelectorParameter, sourceExpression);
+
+            if (expression.Method.IsOneOf(EnumerableOrQueryableMethod.GroupByWithKeySelector))
+            {
+                if (visitor.IsNotKnown(expression) && visitor.IsKnown(keySelectorLambda.Body, out var keySerializer) && visitor.IsItemSerializerKnown(sourceExpression, out var elementSerializer))
+                {
+                    var groupingSerializer = IGroupingSerializer.Create(keySerializer, elementSerializer);
+                    var nodeSerializer = IEnumerableOrIQueryableSerializer.Create(expression.Type, groupingSerializer);
+                    visitor.AddNodeSerializer(expression, nodeSerializer);
+                }
+            }
+            else if (expression.Method.IsOneOf(EnumerableOrQueryableMethod.GroupByWithKeySelectorAndElementSelector))
+            {
+                var elementSelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[2]);
+                var elementSelectorParameter = elementSelectorLambda.Parameters.Single();
+                visitor.DeduceItemAndCollectionSerializers(elementSelectorParameter, sourceExpression);
+                if (visitor.IsNotKnown(expression) && visitor.IsKnown(keySelectorLambda.Body, out var keySerializer) && visitor.IsKnown(elementSelectorLambda.Body, out var elementSerializer))
+                {
+                    var groupingSerializer = IGroupingSerializer.Create(keySerializer, elementSerializer);
+                    var nodeSerializer = IEnumerableOrIQueryableSerializer.Create(expression.Type, groupingSerializer);
+                    visitor.AddNodeSerializer(expression, nodeSerializer);
+                }
+            }
+            else if (expression.Method.IsOneOf(EnumerableOrQueryableMethod.GroupByWithKeySelectorAndResultSelector))
+            {
+                var resultSelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[2]);
+                var resultSelectorKeyParameter = resultSelectorLambda.Parameters[0];
+                var resultSelectorElementsParameter = resultSelectorLambda.Parameters[1];
+                visitor.DeduceItemAndCollectionSerializers(keySelectorParameter, sourceExpression);
+                visitor.DeduceSerializers(resultSelectorKeyParameter, keySelectorLambda.Body);
+                visitor.DeduceCollectionAndCollectionSerializers(resultSelectorElementsParameter, sourceExpression);
+                DeduceResultSerializer(resultSelectorLambda.Body);
+            }
+            else if (expression.Method.IsOneOf(EnumerableOrQueryableMethod.GroupByWithKeySelectorElementSelectorAndResultSelector))
+            {
+                var elementSelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[2]);
+                var elementSelectorParameter = elementSelectorLambda.Parameters.Single();
+                var resultSelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[3]);
+                var resultSelectorKeyParameter = resultSelectorLambda.Parameters[0];
+                var resultSelectorElementsParameter = resultSelectorLambda.Parameters[1];
+                visitor.DeduceItemAndCollectionSerializers(keySelectorParameter, sourceExpression);
+                visitor.DeduceItemAndCollectionSerializers(elementSelectorParameter, sourceExpression);
+                visitor.DeduceSerializers(resultSelectorKeyParameter, keySelectorLambda.Body);
+                visitor.DeduceCollectionAndItemSerializers(resultSelectorElementsParameter, elementSelectorLambda.Body);
+                DeduceResultSerializer(resultSelectorLambda.Body);
+            }
+
+            void DeduceResultSerializer(Expression resultExpression)
+            {
+                if (visitor.IsNotKnown(expression) && visitor.IsKnown(resultExpression, out var resultSerializer))
+                {
+                    var nodeSerializer = IEnumerableOrIQueryableSerializer.Create(expression.Type, resultSerializer);
+                    visitor.AddNodeSerializer(expression, nodeSerializer);
+                }
+            }
+        }
+
+        // DeduceGroupJoinMethodSerializers
+        private static void DeduceGroupJoinMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var outerExpression = expression.Arguments[0];
+            var innerExpression = expression.Arguments[1];
+            var outerKeySelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[2]);
+            var outerKeySelectorItemParameter = outerKeySelectorLambda.Parameters.Single();
+            var innerKeySelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[3]);
+            var innerKeySelectorItemParameter = innerKeySelectorLambda.Parameters.Single();
+            var resultSelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[4]);
+            var resultSelectorOuterItemParameter = resultSelectorLambda.Parameters[0];
+            var resultSelectorInnerItemsParameter = resultSelectorLambda.Parameters[1];
+
+            visitor.DeduceItemAndCollectionSerializers(outerKeySelectorItemParameter, outerExpression);
+            visitor.DeduceItemAndCollectionSerializers(innerKeySelectorItemParameter, innerExpression);
+            visitor.DeduceItemAndCollectionSerializers(resultSelectorOuterItemParameter, outerExpression);
+            visitor.DeduceCollectionAndCollectionSerializers(resultSelectorInnerItemsParameter, innerExpression);
+            visitor.DeduceCollectionAndItemSerializers(expression, resultSelectorLambda.Body);
+        }
+
+        // DeduceHasFlagMethodSerializers
+        private static void DeduceHasFlagMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var objectExpression = expression.Object;
+            var flagExpression = expression.Arguments[0];
+            if (visitor.IsNotKnown(flagExpression) && visitor.IsKnown(objectExpression, out var enumSerializer))
+            {
+                visitor.AddNodeSerializer(flagExpression, enumSerializer);
+            }
+            visitor.DeduceSerializer(expression, BooleanSerializer.Instance);
+        }
+
+        // DeduceJoinMethodSerializers
+        private static void DeduceJoinMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var outerExpression = expression.Arguments[0];
+            var innerExpression = expression.Arguments[1];
+            var outerKeySelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[2]);
+            var outerKeySelectorItemParameter = outerKeySelectorLambda.Parameters.Single();
+            var innerKeySelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[3]);
+            var innerKeySelectorItemParameter = innerKeySelectorLambda.Parameters.Single();
+            var resultSelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[4]);
+            var resultSelectorOuterItemParameter = resultSelectorLambda.Parameters[0];
+            var resultSelectorInnerItemsParameter = resultSelectorLambda.Parameters[1];
+
+            visitor.DeduceItemAndCollectionSerializers(outerKeySelectorItemParameter, outerExpression);
+            visitor.DeduceItemAndCollectionSerializers(innerKeySelectorItemParameter, innerExpression);
+            visitor.DeduceItemAndCollectionSerializers(resultSelectorOuterItemParameter, outerExpression);
+            visitor.DeduceItemAndCollectionSerializers(resultSelectorInnerItemsParameter, innerExpression);
+            visitor.DeduceCollectionAndItemSerializers(expression, resultSelectorLambda.Body);
+        }
+
+        // DeduceLocfMethodSerializers
+        private static void DeduceLocfMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var partitionExpression = expression.Arguments[0];
+            var selectorLambda = (LambdaExpression)expression.Arguments[1];
+            DeduceWindowMethodSelectorParameterSerializer(visitor, partitionExpression, selectorLambda);
+            visitor.DeduceSerializers(expression, selectorLambda.Body);
+        }
+
+        // DeduceLookupMethodSerializers + MongoQueryableMethod.LookupWithDocumentsAndLocalFieldAndForeignField branch
+        private static void DeduceLookupWithDocumentsAndLocalFieldAndForeignFieldMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var sourceExpression = expression.Arguments[0];
+            var documentsLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[1]);
+            var documentsLambdaParameter = documentsLambda.Parameters.Single();
+            var localFieldLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[2]);
+            var localFieldLambdaParameter = localFieldLambda.Parameters.Single();
+            var foreignFieldLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[3]);
+            var foreignFieldLambdaParameter = foreignFieldLambda.Parameters.Single();
+
+            visitor.DeduceItemAndCollectionSerializers(documentsLambdaParameter, sourceExpression);
+            visitor.DeduceItemAndCollectionSerializers(localFieldLambdaParameter, sourceExpression);
+            visitor.DeduceItemAndCollectionSerializers(foreignFieldLambdaParameter, documentsLambda.Body);
+
+            if (visitor.IsNotKnown(expression) &&
+                visitor.IsItemSerializerKnown(sourceExpression, out var sourceItemSerializer) &&
+                visitor.IsItemSerializerKnown(documentsLambda.Body, out var documentSerializer))
+            {
+                var lookupResultSerializer = LookupResultSerializer.Create(sourceItemSerializer, documentSerializer);
+                visitor.AddNodeSerializer(expression, IQueryableSerializer.Create(lookupResultSerializer));
+            }
+        }
+        // DeduceLookupMethodSerializers + LookupWithDocumentsAndLocalFieldAndForeignFieldAndPipeline branch
+        private static void DeduceLookupWithDocumentsAndLocalFieldAndForeignFieldAndPipelineMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var sourceExpression = expression.Arguments[0];
+            var documentsLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[1]);
+            var documentsLambdaParameter = documentsLambda.Parameters.Single();
+            var localFieldLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[2]);
+            var localFieldLambdaParameter = localFieldLambda.Parameters.Single();
+            var foreignFieldLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[3]);
+            var foreignFieldLambdaParameter = foreignFieldLambda.Parameters.Single();
+            var pipelineLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[4]);
+            var pipelineLambdaLocalParameter = pipelineLambda.Parameters[0];
+            var pipelineLambdaForeignQueryableParameter = pipelineLambda.Parameters[1];
+
+            visitor.DeduceItemAndCollectionSerializers(documentsLambdaParameter, sourceExpression);
+            visitor.DeduceItemAndCollectionSerializers(localFieldLambdaParameter, sourceExpression);
+            visitor.DeduceItemAndCollectionSerializers(foreignFieldLambdaParameter, documentsLambda.Body);
+            visitor.DeduceItemAndCollectionSerializers(pipelineLambdaLocalParameter, sourceExpression);
+            visitor.DeduceCollectionAndCollectionSerializers(pipelineLambdaForeignQueryableParameter, documentsLambda.Body);
+
+            if (visitor.IsNotKnown(expression) &&
+                visitor.IsItemSerializerKnown(sourceExpression, out var sourceItemSerializer) &&
+                visitor.IsItemSerializerKnown(pipelineLambda.Body, out var pipelineDocumentSerializer))
+            {
+                var lookupResultSerializer = LookupResultSerializer.Create(sourceItemSerializer, pipelineDocumentSerializer);
+                visitor.AddNodeSerializer(expression, IQueryableSerializer.Create(lookupResultSerializer));
+            }
+        }
+
+        // DeduceLookupMethodSerializers + LookupWithDocumentsAndPipeline branch
+        private static void DeduceLookupWithDocumentsAndPipelineMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var sourceExpression = expression.Arguments[0];
+            var documentsLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[1]);
+            var documentsLambdaParameter = documentsLambda.Parameters.Single();
+            var pipelineLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[2]);
+            var pipelineLambdaSourceParameter = pipelineLambda.Parameters[0];
+            var pipelineLambdaQueryableDocumentParameter = pipelineLambda.Parameters[1];
+
+            visitor.DeduceItemAndCollectionSerializers(documentsLambdaParameter, sourceExpression);
+            visitor.DeduceItemAndCollectionSerializers(pipelineLambdaSourceParameter, sourceExpression);
+            visitor.DeduceCollectionAndCollectionSerializers(pipelineLambdaQueryableDocumentParameter, documentsLambda.Body);
+
+            if (visitor.IsNotKnown(expression) &&
+                visitor.IsItemSerializerKnown(sourceExpression, out var sourceItemSerializer) &&
+                visitor.IsItemSerializerKnown(pipelineLambda.Body, out var pipelineItemSerializer))
+            {
+                var lookupResultSerializer = LookupResultSerializer.Create(sourceItemSerializer, pipelineItemSerializer);
+                visitor.AddNodeSerializer(expression, IQueryableSerializer.Create(lookupResultSerializer));
+            }
+        }
+
+        // DeduceLookupMethodSerializers + LookupWithFromAndLocalFieldAndForeignField branch
+        private static void DeduceLookupWithFromAndLocalFieldAndForeignFieldMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var sourceExpression = expression.Arguments[0];
+            var fromExpression = expression.Arguments[1];
+            var fromCollection = fromExpression.GetConstantValue<IMongoCollection>(expression);
+            var foreignDocumentSerializer = fromCollection.DocumentSerializer;
+            var localFieldLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[2]);
+            var localFieldLambdaParameter = localFieldLambda.Parameters.Single();
+            var foreignFieldLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[3]);
+            var foreignFieldLambdaParameter = foreignFieldLambda.Parameters.Single();
+
+            visitor.DeduceItemAndCollectionSerializers(localFieldLambdaParameter, sourceExpression);
+            visitor.DeduceSerializer(foreignFieldLambdaParameter, foreignDocumentSerializer);
+
+            if (visitor.IsNotKnown(expression) &&
+                visitor.IsItemSerializerKnown(sourceExpression, out var sourceItemSerializer))
+            {
+                var lookupResultSerializer = LookupResultSerializer.Create(sourceItemSerializer, foreignDocumentSerializer);
+                visitor.AddNodeSerializer(expression, IQueryableSerializer.Create(lookupResultSerializer));
+            }
+        }
+
+        // DeduceLookupMethodSerializers + LookupWithFromAndLocalFieldAndForeignFieldAndPipeline branch
+        private static void DeduceLookupWithFromAndLocalFieldAndForeignFieldAndPipelineMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var sourceExpression = expression.Arguments[0];
+            var fromExpression = expression.Arguments[1];
+            var fromCollection = fromExpression.GetConstantValue<IMongoCollection>(expression);
+            var foreignDocumentSerializer = fromCollection.DocumentSerializer;
+            var localFieldLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[2]);
+            var localFieldLambdaParameter = localFieldLambda.Parameters.Single();
+            var foreignFieldLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[3]);
+            var foreignFieldLambdaParameter = foreignFieldLambda.Parameters.Single();
+            var pipelineLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[4]);
+            var pipelineLambdaLocalParameter = pipelineLambda.Parameters[0];
+            var pipelineLambdaForeignQueryableParameter = pipelineLambda.Parameters[1];
+
+            visitor.DeduceItemAndCollectionSerializers(localFieldLambdaParameter, sourceExpression);
+            visitor.DeduceSerializer(foreignFieldLambdaParameter, foreignDocumentSerializer);
+            visitor.DeduceItemAndCollectionSerializers(pipelineLambdaLocalParameter, sourceExpression);
+
+            if (visitor.IsNotKnown(pipelineLambdaForeignQueryableParameter))
+            {
+                var foreignQueryableSerializer = IQueryableSerializer.Create(foreignDocumentSerializer);
+                visitor.AddNodeSerializer(pipelineLambdaForeignQueryableParameter, foreignQueryableSerializer);
+            }
+
+            if (visitor.IsNotKnown(expression) &&
+                visitor.IsItemSerializerKnown(sourceExpression, out var sourceItemSerializer) &&
+                visitor.IsItemSerializerKnown(pipelineLambda.Body, out var pipelineItemSerializer))
+            {
+                var lookupResultsSerializer = LookupResultSerializer.Create(sourceItemSerializer, pipelineItemSerializer);
+                visitor.AddNodeSerializer(expression, IQueryableSerializer.Create(lookupResultsSerializer));
+            }
+        }
+
+        // DeduceLookupMethodSerializers + LookupWithFromAndPipeline branch
+        private static void DeduceLookupWithFromAndPipelineMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var sourceExpression = expression.Arguments[0];
+            var fromCollection = expression.Arguments[1].GetConstantValue<IMongoCollection>(expression);
+            var foreignDocumentSerializer = fromCollection.DocumentSerializer;
+            var pipelineLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[2]);
+            var pipelineLambdaLocalParameter = pipelineLambda.Parameters[0];
+            var pipelineLamdbaForeignQueryableParameter = pipelineLambda.Parameters[1];
+
+            visitor.DeduceItemAndCollectionSerializers(pipelineLambdaLocalParameter, sourceExpression);
+
+            if (visitor.IsNotKnown(pipelineLamdbaForeignQueryableParameter))
+            {
+                var foreignQueryableSerializer = IQueryableSerializer.Create(foreignDocumentSerializer);
+                visitor.AddNodeSerializer(pipelineLamdbaForeignQueryableParameter, foreignQueryableSerializer);
+            }
+
+            if (visitor.IsNotKnown(expression) &&
+                visitor.IsItemSerializerKnown(sourceExpression, out var sourceItemSerializer) &&
+                visitor.IsItemSerializerKnown(pipelineLambda.Body, out var pipelineItemSerializer))
+            {
+                var lookupResultSerializer = LookupResultSerializer.Create(sourceItemSerializer, pipelineItemSerializer);
+                visitor.AddNodeSerializer(expression, IQueryableSerializer.Create(lookupResultSerializer));
+            }
+        }
+
+        // DeduceOfTypeMethodSerializers
+        private static void DeduceOfTypeMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var sourceExpression = expression.Arguments[0];
+            var resultType = expression.Method.GetGenericArguments()[0];
+
+            if (visitor.IsNotKnown(expression) && visitor.IsItemSerializerKnown(sourceExpression, out var sourceItemSerializer))
+            {
+                var resultItemSerializer = sourceItemSerializer.GetDerivedTypeSerializer(resultType);
+                var resultSerializer = IEnumerableOrIQueryableSerializer.Create(expression.Type, resultItemSerializer);
+                visitor.AddNodeSerializer(expression, resultSerializer);
+            }
+        }
+
+        // DeducePushMethodSerializers
+        private static void DeducePushMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var partitionExpression = expression.Arguments[0];
+            var selectorLambda = (LambdaExpression)expression.Arguments[1];
+            DeduceWindowMethodSelectorParameterSerializer(visitor, partitionExpression, selectorLambda);
+            visitor.DeduceCollectionAndItemSerializers(expression, selectorLambda.Body);
+        }
+
+        // DeduceRoundMethodSerializers
+        private static void DeduceRoundMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            if (visitor.IsNotKnown(expression))
+            {
+                var resultSerializer = StandardSerializers.GetSerializer(expression.Type);
+                visitor.AddNodeSerializer(expression, resultSerializer);
+            }
+        }
+
+        // DeduceSelectMethodSerializers
+        private static void DeduceSelectMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var sourceExpression = expression.Arguments[0];
+            var selectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[1]);
+            var selectorParameter = selectorLambda.Parameters.Single();
+            visitor.DeduceItemAndCollectionSerializers(selectorParameter, sourceExpression);
+            visitor.DeduceCollectionAndItemSerializers(expression, selectorLambda.Body);
+        }
+
+        private static void DeduceSelectWithSelectorTakingIndexMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var sourceExpression = expression.Arguments[0];
+            var selectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[1]);
+            var itemParameter = selectorLambda.Parameters[0];
+            var indexParameter = selectorLambda.Parameters[1];
+            visitor.DeduceItemAndCollectionSerializers(itemParameter, sourceExpression);
+            if (visitor.IsNotKnown(indexParameter))
+            {
+                visitor.AddNodeSerializer(indexParameter, Int32Serializer.Instance);
+            }
+            visitor.DeduceCollectionAndItemSerializers(expression, selectorLambda.Body);
+        }
+
+        // DeduceSelectManySerializers + EnumerableOrQueryableMethod.SelectManyWithSelector branch
+        private static void DeduceSelectManyWithSelectorMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var sourceExpression = expression.Arguments[0];
+            var selectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[1]);
+            var selectorSourceParameter = selectorLambda.Parameters.Single();
+
+            visitor.DeduceItemAndCollectionSerializers(selectorSourceParameter, sourceExpression);
+            visitor.DeduceCollectionAndCollectionSerializers(expression, selectorLambda.Body);
+        }
+
+        // DeduceSelectManySerializers + EnumerableOrQueryableMethod.SelectManyWithCollectionSelectorAndResultSelector branch
+        private static void DeduceSelectManyWithCollectionSelectorAndResultSelectorMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var sourceExpression = expression.Arguments[0];
+            var collectionSelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[1]);
+            var resultSelectorLambda =  ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[2]);
+
+            var collectionSelectorSourceItemParameter = collectionSelectorLambda.Parameters.Single();
+            var resultSelectorSourceItemParameter = resultSelectorLambda.Parameters[0];
+            var resultSelectorCollectionItemParameter = resultSelectorLambda.Parameters[1];
+
+            visitor.DeduceItemAndCollectionSerializers(collectionSelectorSourceItemParameter, sourceExpression);
+            visitor.DeduceItemAndCollectionSerializers(resultSelectorSourceItemParameter, sourceExpression);
+            visitor.DeduceItemAndCollectionSerializers(resultSelectorCollectionItemParameter, collectionSelectorLambda.Body);
+            visitor.DeduceCollectionAndItemSerializers(expression, resultSelectorLambda.Body);
+        }
+
+        // DeduceSelectManySerializers + EnumerableOrQueryableMethod.SelectManyWithSelectorTakingIndex branch
+        private static void DeduceSelectManyWithSelectorTakingIndexMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var sourceExpression = expression.Arguments[0];
+            var selectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[1]);
+            var itemParameter = selectorLambda.Parameters[0];
+            var indexParameter = selectorLambda.Parameters[1];
+            visitor.DeduceItemAndCollectionSerializers(itemParameter, sourceExpression);
+            if (visitor.IsNotKnown(indexParameter))
+            {
+                visitor.AddNodeSerializer(indexParameter, Int32Serializer.Instance);
+            }
+            visitor.DeduceCollectionAndCollectionSerializers(expression, selectorLambda.Body);
+        }
+
+        // DeduceSequenceEqualMethodSerializers
+        private static void DeduceSequenceEqualMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            visitor.DeduceCollectionAndCollectionSerializers(expression.Arguments[0], expression.Arguments[1]);
+            visitor.DeduceSerializer(expression, BooleanSerializer.Instance);
+        }
+
+        // DeduceSetWindowFieldsMethodSerializers
+        // static void DeduceSetWindowFieldsMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        // {
+        //     visitor.DeduceCollectionAndCollectionSerializers(expression.Object, expression.Arguments[0]);
+        //     visitor.DeduceSerializer(expression, BooleanSerializer.Instance);
+        // }
+
+        // DeduceShiftMethodSerializers
+        private static void DeduceShiftMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var partitionExpression = expression.Arguments[0];
+            var selectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[1]);
+            DeduceWindowMethodSelectorParameterSerializer(visitor, partitionExpression, selectorLambda);
+            visitor.DeduceSerializers(expression, selectorLambda.Body);
+        }
+
+        // DeduceSplitMethodSerializers
+        private static void DeduceSplitMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            if (visitor.IsNotKnown(expression))
+            {
+                var nodeSerializer = ArraySerializer.Create(StringSerializer.Instance);
+                visitor.AddNodeSerializer(expression, nodeSerializer);
+            }
+        }
+
+        // DeduceSumMethodSerializers + EnumerableOrQueryableMethod.SumOverloads branch
+        private static void DeduceEnumerableSumMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            if (expression.Method.IsOneOf(EnumerableOrQueryableMethod.SumWithSelectorOverloads))
+            {
+                var sourceExpression = expression.Arguments[0];
+                var selectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[1]);
+                var selectorParameter = selectorLambda.Parameters.Single();
+                visitor.DeduceItemAndCollectionSerializers(selectorParameter, sourceExpression);
+            }
+
+            var returnType = expression.Type;
+            // TODO: check if can replace with StandardSerializers.
+            var serializer = returnType switch
+            {
+                not null when returnType == typeof(decimal) => DecimalSerializer.Instance,
+                not null when returnType == typeof(double) => DoubleSerializer.Instance,
+                not null when returnType == typeof(int) => Int32Serializer.Instance,
+                not null when returnType == typeof(long) => Int64Serializer.Instance,
+                not null when returnType == typeof(float) => SingleSerializer.Instance,
+                not null when returnType == typeof(decimal?) => NullableSerializer.NullableDecimalInstance,
+                not null when returnType == typeof(double?) => NullableSerializer.NullableDoubleInstance,
+                not null when returnType == typeof(int?) => NullableSerializer.NullableInt32Instance,
+                not null when returnType == typeof(long?) => NullableSerializer.NullableInt64Instance,
+                not null when returnType == typeof(float?) => NullableSerializer.NullableSingleInstance,
+                _ => throw new NotImplementedException($"Cannot resolve serializer for {returnType}")
+            };
+
+            visitor.DeduceSerializer(expression, serializer);
+        }
+
+        // DeduceSumMethodSerializers + WindowMethod.SumOverloads branch
+        private static void DeduceWindowSumMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var partitionExpression = expression.Arguments[0];
+            var selectorLambda = (LambdaExpression)expression.Arguments[1];
+            DeduceWindowMethodSelectorParameterSerializer(visitor, partitionExpression, selectorLambda);
+            visitor.DeduceStandardSerializer(expression);
+        }
+
+        // DeduceWhereSerializers
+        private static void DeduceWhereSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var sourceExpression = expression.Arguments[0];
+            var predicateLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[1]);
+            var predicateParameter =  predicateLambda.Parameters.Single();
+            visitor.DeduceItemAndCollectionSerializers(predicateParameter, sourceExpression);
+            visitor.DeduceCollectionAndCollectionSerializers(expression, sourceExpression);
+        }
+
+        private static void DeduceWhereWithPredicateTakingIndexSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var sourceExpression = expression.Arguments[0];
+            var predicateLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[1]);
+            var itemParameter = predicateLambda.Parameters[0];
+            var indexParameter = predicateLambda.Parameters[1];
+            visitor.DeduceItemAndCollectionSerializers(itemParameter, sourceExpression);
+            if (visitor.IsNotKnown(indexParameter))
+            {
+                visitor.AddNodeSerializer(indexParameter, Int32Serializer.Instance);
+            }
+            visitor.DeduceCollectionAndCollectionSerializers(expression, sourceExpression);
+        }
+
+        // DeduceZipSerializers
+        private static void DeduceZipSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var firstExpression = expression.Arguments[0];
+            var secondExpression = expression.Arguments[1];
+            var resultSelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[2]);
+            var resultSelectorFirstParameter = resultSelectorLambda.Parameters[0];
+            var resultSelectorSecondParameter =  resultSelectorLambda.Parameters[1];
+
+            if (visitor.IsNotKnown(resultSelectorFirstParameter) && visitor.IsKnown(firstExpression, out var firstSerializer))
+            {
+                var firstItemSerializer =  ArraySerializerHelper.GetItemSerializer(firstSerializer);
+                visitor.AddNodeSerializer(resultSelectorFirstParameter, firstItemSerializer);
+            }
+
+            if (visitor.IsNotKnown(resultSelectorSecondParameter) && visitor.IsKnown(secondExpression, out var secondSerializer))
+            {
+                var secondItemSerializer =  ArraySerializerHelper.GetItemSerializer(secondSerializer);
+                visitor.AddNodeSerializer(resultSelectorSecondParameter, secondItemSerializer);
+            }
+
+            if (visitor.IsNotKnown(expression) && visitor.IsKnown(resultSelectorLambda.Body, out var resultItemSerializer))
+            {
+                var resultSerializer = IEnumerableOrIQueryableSerializer.Create(expression.Type, resultItemSerializer);
+                visitor.AddNodeSerializer(expression, resultSerializer);
+            }
+        }
+
+        // DeduceAppendOrPrependMethodSerializers
+        private static void DeduceAppendOrPrependMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var sourceExpression = expression.Arguments[0];
+            var elementExpression = expression.Arguments[1];
+
+            visitor.DeduceItemAndCollectionSerializers(elementExpression, sourceExpression);
+            visitor.DeduceCollectionAndCollectionSerializers(expression, sourceExpression);
+        }
+
+        // DeduceAverageOrMedianOrPercentileMethodSerializers + __averageOrMedianOrPercentileOverloads branch
+        private static void DeduceAverageOrMedianOrPercentileMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            if (expression.Method.IsOneOf(__averageOrMedianOrPercentileWithSelectorOverloads))
+            {
+                var sourceExpression = expression.Arguments[0];
+                var selectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[1]);
+                var selectorSourceItemParameter = selectorLambda.Parameters[0];
+
+                visitor.DeduceItemAndCollectionSerializers(selectorSourceItemParameter, sourceExpression);
+            }
+
+            if (visitor.IsNotKnown(expression))
+            {
+                var nodeSerializer = StandardSerializers.GetSerializer(expression.Type);
+                visitor.AddNodeSerializer(expression, nodeSerializer);
+            }
+        }
+
+        // DeduceAverageOrMedianOrPercentileMethodSerializers + __averageOrMedianOrPercentileWindowMethodOverloads branch
+        private static void DeduceAverageOrMedianOrPercentileWindowMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var partitionExpression = expression.Arguments[0];
+            var selectorLambda = (LambdaExpression)expression.Arguments[1];
+            DeduceWindowMethodSelectorParameterSerializer(visitor, partitionExpression, selectorLambda);
+            visitor.DeduceStandardSerializer(expression);
+        }
+
+        private static void DeduceDeserializeEJsonMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            if (visitor.IsNotKnown(expression))
+            {
+                var outputType = expression.Method.GetGenericArguments()[1];
+                var outputSerializer = BsonSerializer.LookupSerializer(outputType);
+                visitor.AddNodeSerializer(expression, outputSerializer);
+            }
+        }
+
+        private static void DeduceSerializeEJsonMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            if (visitor.IsNotKnown(expression))
+            {
+                var outputType = expression.Method.GetGenericArguments()[1];
+                var outputSerializer = BsonSerializer.LookupSerializer(outputType);
+                visitor.AddNodeSerializer(expression, outputSerializer);
+            }
+        }
+
+        // DeducePickMethodSerializers
+        private static void DeducePickMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var method = expression.Method;
+            if (method.IsOneOf(EnumerableMethod.PickWithSortByOverloads))
+            {
+                var sortByExpression = expression.Arguments[1];
+                if (visitor.IsNotKnown(sortByExpression))
+                {
+                    var ignoreSubTreeSerializer = IgnoreSubtreeSerializer.Create(sortByExpression.Type);
+                    visitor.AddNodeSerializer(sortByExpression, ignoreSubTreeSerializer);
+                }
+            }
+
+            var sourceExpression = expression.Arguments[0];
+            if (visitor.IsKnown(sourceExpression, out var sourceSerializer))
+            {
+                var sourceItemSerializer = ArraySerializerHelper.GetItemSerializer(sourceSerializer);
+
+                var selectorExpression = expression.Arguments[method.IsOneOf(EnumerableMethod.PickWithSortByOverloads) ? 2 : 1];
+                var selectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, selectorExpression);
+                var selectorSourceItemParameter = selectorLambda.Parameters.Single();
+                if (visitor.IsNotKnown(selectorSourceItemParameter))
+                {
+                    visitor.AddNodeSerializer(selectorSourceItemParameter, sourceItemSerializer);
+                }
+            }
+
+            if (method.IsOneOf(EnumerableMethod.PickWithComputedNOverloads))
+            {
+                var keyExpression = expression.Arguments[method.IsOneOf(EnumerableMethod.PickWithSortByOverloads) ? 3 : 2];
+                if (visitor.IsKnown(keyExpression, out var keySerializer))
+                {
+                    var nExpression = expression.Arguments[method.IsOneOf(EnumerableMethod.PickWithSortByOverloads) ? 4 : 3];
+                    var nLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, nExpression);
+                    var nLambdaKeyParameter = nLambda.Parameters.Single();
+
+                    if (visitor.IsNotKnown(nLambdaKeyParameter))
+                    {
+                        visitor.AddNodeSerializer(nLambdaKeyParameter, keySerializer);
+                    }
+                }
+            }
+
+            if (visitor.IsNotKnown(expression))
+            {
+                var selectorExpressionIndex = method switch
+                {
+                    _ when method.Is(EnumerableMethod.Bottom) => 2,
+                    _ when method.Is(EnumerableMethod.BottomN) => 2,
+                    _ when method.Is(EnumerableMethod.BottomNWithComputedN) => 2,
+                    _ when method.Is(EnumerableMethod.FirstN) => 1,
+                    _ when method.Is(EnumerableMethod.FirstNWithComputedN) => 1,
+                    _ when method.Is(EnumerableMethod.LastN) => 1,
+                    _ when method.Is(EnumerableMethod.LastNWithComputedN) => 1,
+                    _ when method.Is(EnumerableMethod.MaxN) => 1,
+                    _ when method.Is(EnumerableMethod.MaxNWithComputedN) => 1,
+                    _ when method.Is(EnumerableMethod.MinN) => 1,
+                    _ when method.Is(EnumerableMethod.MinNWithComputedN) => 1,
+                    _ when method.Is(EnumerableMethod.Top) => 2,
+                    _ when method.Is(EnumerableMethod.TopN) => 2,
+                    _ when method.Is(EnumerableMethod.TopNWithComputedN) => 2,
+                    _ => throw new ArgumentException($"Unrecognized method: {method.Name}.")
+                };
+                var selectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, expression.Arguments[selectorExpressionIndex]);
+
+                if (visitor.IsKnown(selectorLambda.Body, out var selectorItemSerializer))
+                {
+                    var nodeSerializer = method.IsOneOf(EnumerableMethod.Bottom, EnumerableMethod.Top) ?
+                        selectorItemSerializer :
+                        IEnumerableSerializer.Create(selectorItemSerializer);
+                    visitor.AddNodeSerializer(expression, nodeSerializer);
+                }
+            }
+        }
+
+        // DeduceCountMethodSerializers + EnumerableOrQueryableMethod.CountOverloads branch
+        private static void DeduceEnumerableCountMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            if (expression.Method.IsOneOf(EnumerableOrQueryableMethod.CountWithPredicateOverloads))
+            {
+                var sourceExpression = expression.Arguments[0];
+                var predicateLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[1]);
+                var predicateParameter = predicateLambda.Parameters.Single();
+                visitor.DeduceItemAndCollectionSerializers(predicateParameter, sourceExpression);
+            }
+
+            DeduceReturnsNumericSerializer(visitor, expression);
+        }
+
+        // DeduceCovarianceMethodSerializers
+        private static void DeduceCovarianceMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var partitionExpression = expression.Arguments[0];
+            var selector1Lambda = (LambdaExpression)expression.Arguments[1];
+            var selector2Lambda = (LambdaExpression)expression.Arguments[2];
+            DeduceWindowMethodSelectorParameterSerializer(visitor, partitionExpression, selector1Lambda);
+            DeduceWindowMethodSelectorParameterSerializer(visitor, partitionExpression, selector2Lambda);
+            visitor.DeduceStandardSerializer(expression);
+        }
+
+        // DeduceDerivativeOrIntegralMethodSerializers
+        private static void DeduceDerivativeOrIntegralMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var partitionExpression = expression.Arguments[0];
+            var selectorLambda = (LambdaExpression)expression.Arguments[1];
+            DeduceWindowMethodSelectorParameterSerializer(visitor, partitionExpression, selectorLambda);
+            visitor.DeduceStandardSerializer(expression);
+        }
+
+        // DeduceFirstOrLastOrSingleMethodsSerializers + EnumerableOrQueryableMethod.FirstOrLastOrSingleOverloads
+        private static void DeduceFirstOrLastOrSingleMethodsSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            if (expression.Method.IsOneOf(EnumerableOrQueryableMethod.FirstOrLastOrSingleWithPredicateOverloads))
+            {
+                var sourceExpression = expression.Arguments[0];
+                var predicateLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[1]);
+                var predicateParameter = predicateLambda.Parameters.Single();
+                visitor.DeduceItemAndCollectionSerializers(predicateParameter, sourceExpression);
+            }
+
+            DeduceReturnsOneSourceItemSerializer(visitor, expression);
+        }
+
+        // DeduceFirstOrLastOrSingleMethodsSerializers + WindowMethod.First, WindowMethod.Last branch
+        private static void DeduceFirstOrLastWindowMethodsSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var partitionExpression = expression.Arguments[0];
+            var selectorLambda = (LambdaExpression)expression.Arguments[1];
+            DeduceWindowMethodSelectorParameterSerializer(visitor,partitionExpression, selectorLambda);
+            visitor.DeduceSerializers(expression, selectorLambda.Body);
+        }
+
+        // DeduceMaxOrMinMethodSerializers + EnumerableOrQueryableMethod.MaxOrMinOverloads branch
+        private static void DeduceMaxOrMinMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            if (expression.Method.IsOneOf(EnumerableOrQueryableMethod.MaxOrMinWithSelectorOverloads))
+            {
+                var sourceExpression = expression.Arguments[0];
+                var selectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[1]);
+                var selectorItemParameter = selectorLambda.Parameters.Single();
+
+                visitor.DeduceItemAndCollectionSerializers(selectorItemParameter, sourceExpression);
+                visitor.DeduceSerializers(expression, selectorLambda.Body);
             }
             else
             {
-                DeduceUnknownMethodSerializer();
+                DeduceReturnsOneSourceItemSerializer(visitor, expression);
             }
         }
 
-        void DeduceExistsMethodSerializers()
+        // DeduceMaxOrMinMethodSerializers + WindowMethod.Max, WindowMethod.Min branch
+        private static void DeduceWindowMaxOrMinMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
-            if (method.Is(ArrayMethod.Exists) || ListMethod.IsExistsMethod(method))
+            var partitionExpression = expression.Arguments[0];
+            var selectorLambda = (LambdaExpression)expression.Arguments[1];
+            DeduceWindowMethodSelectorParameterSerializer(visitor, partitionExpression, selectorLambda);
+            visitor.DeduceSerializers(expression, selectorLambda.Body);
+        }
+
+        // DeduceOrderByMethodSerializers
+        private static void DeduceOrderByMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var sourceExpression = expression.Arguments[0];
+            var keySelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[1]);
+            var keySelectorParameter = keySelectorLambda.Parameters.Single();
+
+            visitor.DeduceItemAndCollectionSerializers(keySelectorParameter, sourceExpression);
+            visitor.DeduceCollectionAndCollectionSerializers(expression, sourceExpression);
+        }
+
+        // DeduceSkipOrTakeMethodSerializers
+        private static void DeduceSkipOrTakeMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var sourceExpression = expression.Arguments[0];
+
+            if (expression.Method.IsOneOf(EnumerableOrQueryableMethod.SkipWhileOrTakeWhile))
             {
-                var collectionExpression = method.IsStatic ? arguments[0] : node.Object;
-                var predicateExpression = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, method.IsStatic ? arguments[1] : arguments[0]);
+                var predicateLambda =  ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[1]);
+                var predicateParameter = predicateLambda.Parameters[0];
+                visitor.DeduceItemAndCollectionSerializers(predicateParameter, sourceExpression);
+
+                if (expression.Method.IsOneOf(EnumerableOrQueryableMethod.SkipWhileWithPredicateTakingIndexOrTakeWhileWithPredicateTakingIndex))
+                {
+                    var indexParameter = predicateLambda.Parameters[1];
+                    if (visitor.IsNotKnown(indexParameter))
+                    {
+                        visitor.AddNodeSerializer(indexParameter, Int32Serializer.Instance);
+                    }
+                }
+            }
+
+            visitor.DeduceCollectionAndCollectionSerializers(expression, sourceExpression);
+        }
+
+        // DeduceStandardDeviationMethodSerializers + MongoEnumerableMethod.StandardDeviationOverloads branch
+        private static void DeduceStandardDeviationMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            if (expression.Method.IsOneOf(MongoEnumerableMethod.StandardDeviationWithSelectorOverloads, MongoQueryableMethod.StandardDeviationWithSelectorOverloads))
+            {
+                var sourceExpression = expression.Arguments[0];
+                var selectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[1]);
+                var selectorItemParameter = selectorLambda.Parameters.Single();
+                visitor.DeduceCollectionAndItemSerializers(sourceExpression, selectorItemParameter);
+            }
+
+            visitor.DeduceStandardSerializer(expression);
+        }
+
+        private static void DeduceEqualsMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var expression1 = expression.Method.IsStatic ? expression.Arguments[0] : expression.Object;
+            var expression2 = expression.Method.IsStatic ? expression.Arguments[1] : expression.Arguments[0];
+
+            visitor.DeduceSerializers(expression1, expression2);
+            visitor.DeduceSerializer(expression, BooleanSerializer.Instance);
+        }
+
+        // DeduceStandardDeviationMethodSerializers + WindowMethod.StandardDeviationOverloads branch
+        private static void DeduceWindowStandardDeviationMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var partitionExpression = expression.Arguments[0];
+            var selectorLambda = (LambdaExpression)expression.Arguments[1];
+            DeduceWindowMethodSelectorParameterSerializer(visitor, partitionExpression, selectorLambda);
+            visitor.DeduceStandardSerializer(expression);
+        }
+
+        private static void DeduceReturnsNumericSerializer(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            if (visitor.IsNotKnown(expression) && expression.Type.IsNumeric())
+            {
+                var numericSerializer = StandardSerializers.GetSerializer(expression.Type);
+                visitor.AddNodeSerializer(expression, numericSerializer);
+            }
+        }
+
+        private static void DeduceReturnsTimeSpanSerializer(SerializerFinderVisitor visitor, MethodCallExpression expression, TimeSpanUnits units)
+        {
+            if (visitor.IsNotKnown(expression))
+            {
+                var resultSerializer = new TimeSpanSerializer(BsonType.Int64, units);
+                visitor.AddNodeSerializer(expression, resultSerializer);
+            }
+        }
+
+        private static void DeduceReturnsOneSourceItemSerializer(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var sourceExpression = expression.Arguments[0];
+
+            if (visitor.IsNotKnown(expression) && visitor.IsKnown(sourceExpression, out var sourceSerializer))
+            {
+                var nodeSerializer = sourceSerializer is IUnknowableSerializer ?
+                    UnknowableSerializer.Create(expression.Type) :
+                    ArraySerializerHelper.GetItemSerializer(sourceSerializer);
+                visitor.AddNodeSerializer(expression, nodeSerializer);
+            }
+        }
+
+        private static void DeduceWindowMethodSelectorParameterSerializer(SerializerFinderVisitor visitor, Expression partitionExpression, LambdaExpression selectorLambda)
+        {
+            var inputParameter = selectorLambda.Parameters.Single();
+            if (visitor.IsNotKnown(inputParameter) && visitor.IsKnown(partitionExpression, out var partitionSerializer))
+            {
+                var inputSerializer = ((ISetWindowFieldsPartitionSerializer)partitionSerializer).InputSerializer;
+                visitor.AddNodeSerializer(inputParameter, inputSerializer);
+            }
+        }
+
+        public static Action<SerializerFinderVisitor, MethodCallExpression> GetSerializerDeducer(MethodInfo methodInfo)
+        {
+            if (__serializerDeducers.TryGetValue(methodInfo, out var deducer))
+            {
+                return deducer;
+            }
+
+            deducer = CreateDynamicSerializerDeducer(methodInfo);
+            if (deducer == null)
+            {
+                return null;
+            }
+
+            return __serializerDeducers.GetOrAdd(methodInfo, deducer);
+        }
+
+        // Processes special cases where we do not have fixed list of methodInfos that we support,
+        // but trying to deduce serializers based on method name and arguments
+        static Action<SerializerFinderVisitor, MethodCallExpression> CreateDynamicSerializerDeducer(MethodInfo method)
+        {
+            return method.Name switch
+            {
+                "Contains" when EnumerableMethod.IsContainsMethod(method) => DeduceContainsMethodSerializers,
+                "ContainsKey" when DictionaryMethod.IsContainsKeyMethod(method) => DeduceDictionaryContainsKeyMethodSerializers,
+                "ContainsValue" when IsContainsValueMethod(method) => DeduceContainsValueMethodSerializers,
+                "Equals" when IsEqualsReturningBooleanMethod(method) => DeduceEqualsMethodSerializers,
+                "Exists" when method.Is(ArrayMethod.Exists) || ListMethod.IsExistsMethod(method) => DeduceExistsMethodSerializers,
+                "get_Item" when BsonValueMethod.IsGetItemWithIntMethod(method) || BsonValueMethod.IsGetItemWithStringMethod(method) =>
+                    (visitor, expression) => visitor.DeduceSerializer(expression, BsonValueSerializer.Instance),
+                "get_Item" when !method.IsStatic => DeduceGetItemInstanceMethodSerializers,
+                "IsSubsetOf" when IsSubsetOfMethod(method) => DeduceIsSubsetOfMethodSerializers,
+                "Parse" when IsParseMethod(method) => DeduceParseMethodSerializers,
+                "SetEquals" when ISetMethod.IsSetEqualsMethod(method) => DeduceSetEqualsMethodSerializers,
+                "ToArray" when IsToArrayMethod(method) => DeduceToArrayMethodSerializers,
+                "ToList" => DeduceToListSerializers,
+                "ToString" => (visitor, expression) => visitor.DeduceSerializer(expression, StringSerializer.Instance),
+                "Compare" or "CompareTo" when IsCompareMethod(method) => DeduceCompareOrCompareToMethodSerializers,
+                _ => null
+            };
+
+            static bool IsCompareMethod(MethodInfo method) =>
+                method.IsStaticCompareMethod() ||
+                method.IsInstanceCompareToMethod() ||
+                method.IsOneOf(StringMethod.CompareOverloads);
+
+            static void DeduceCompareOrCompareToMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+            {
+                var valueExpression = expression.Method.IsStatic ? expression.Arguments[0] : expression.Object;
+                var comparandExpression = expression.Method.IsStatic ? expression.Arguments[1] : expression.Arguments[0];
+                visitor.DeduceSerializers(valueExpression, comparandExpression);
+                visitor.DeduceSerializer(expression, Int32Serializer.Instance);
+            }
+
+            static void DeduceContainsMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+            {
+                if (EnumerableMethod.IsContainsMethod(expression, out var collectionExpression, out var itemExpression))
+                {
+                    visitor.DeduceCollectionAndItemSerializers(collectionExpression, itemExpression);
+                    visitor.DeduceSerializer(expression, BooleanSerializer.Instance);
+                }
+            }
+
+            static bool IsContainsValueMethod(MethodInfo method) =>
+                method.IsPublic &&
+                method.IsStatic == false &&
+                method.ReturnType == typeof(bool) &&
+                method.Name == "ContainsValue" &&
+                method.GetParameters() is var parameters &&
+                parameters.Length == 1;
+
+            static void DeduceContainsValueMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+            {
+                var collectionExpression = expression.Object;
+                var valueExpression = expression.Arguments[0];
+
+                if (visitor.IsNotKnown(valueExpression) &&
+                    visitor.IsKnown(collectionExpression, out var collectionSerializer))
+                {
+                    if (collectionSerializer is IBsonDictionarySerializer dictionarySerializer)
+                    {
+                        var valueSerializer = dictionarySerializer.ValueSerializer;
+                        visitor.AddNodeSerializer(valueExpression, valueSerializer);
+                    }
+                }
+
+                visitor.DeduceSerializer(expression, BooleanSerializer.Instance);
+            }
+
+            static void DeduceDictionaryContainsKeyMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+            {
+                var dictionaryExpression = expression.Object;
+                var keyExpression = expression.Arguments[0];
+                if (visitor.IsNotKnown(keyExpression) && visitor.IsKnown(dictionaryExpression, out var dictionarySerializer))
+                {
+                    var keySerializer = (dictionarySerializer as IBsonDictionarySerializer)?.KeySerializer;
+                    visitor.AddNodeSerializer(keyExpression, keySerializer);
+                }
+
+                visitor.DeduceSerializer(expression, BooleanSerializer.Instance);
+            }
+
+            static bool IsEqualsReturningBooleanMethod(MethodInfo method)
+            {
+                var arguments = method.GetParameters();
+                return method.Name == "Equals" &&
+                       method.ReturnType == typeof(bool) &&
+                       method.IsPublic &&
+                       (
+                           (method.IsStatic && arguments.Length == 2) ||
+                           (!method.IsStatic && arguments.Length == 1)
+                       );
+            }
+
+            static void DeduceExistsMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+            {
+                var collectionExpression = expression.Method.IsStatic ? expression.Arguments[0] : expression.Object;
+                var predicateExpression = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Method.IsStatic ? expression.Arguments[1] : expression.Arguments[0]);
                 var predicateParameter = predicateExpression.Parameters.Single();
-                DeduceItemAndCollectionSerializers(predicateParameter, collectionExpression);
-                DeduceReturnsBooleanSerializer();
+                visitor.DeduceItemAndCollectionSerializers(predicateParameter, collectionExpression);
+                visitor.DeduceSerializer(expression, BooleanSerializer.Instance);
             }
-            else if (method.Is(MqlMethod.Exists))
-            {
-                DeduceReturnsBooleanSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
 
-        void DeduceExpMethodSerializers()
-        {
-            if (method.Is(MathMethod.Exp))
+            static void DeduceGetItemInstanceMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
             {
-                DeduceReturnsDoubleSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceExponentialMovingAverageMethodSerializers()
-        {
-            if (method.IsOneOf(WindowMethod.ExponentialMovingAverageOverloads))
-            {
-                var partitionExpression = arguments[0];
-                var selectorLambda = (LambdaExpression)arguments[1];
-                DeduceWindowMethodSelectorParameterSerializer(partitionExpression, selectorLambda);
-                DeduceStandardSerializer(node);
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceFieldMethodSerializers()
-        {
-            if (method.Is(MqlMethod.Field))
-            {
-                if (IsNotKnown(node))
+                if (visitor.IsNotKnown(expression))
                 {
-                    var fieldSerializerExpression = arguments[2];
-                    var fieldSerializer = fieldSerializerExpression.GetConstantValue<IBsonSerializer>(node);
-                    if (fieldSerializer == null)
-                    {
-                        fieldSerializer = BsonSerializer.LookupSerializer(method.GetGenericArguments()[1]);
-                    }
+                    var collectionExpression = expression.Object;
+                    var indexExpression = expression.Arguments[0];
 
-                    AddNodeSerializer(node, fieldSerializer);
-                }
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceCreateObjectIdMethodSerializers()
-        {
-            if (method.Is(MqlMethod.CreateObjectId))
-            {
-                if (IsNotKnown(node))
-                {
-                    DeduceSerializer(node, ObjectIdSerializer.Instance);
-                }
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceFirstOrLastOrSingleMethodsSerializers()
-        {
-            if (method.IsOneOf(EnumerableOrQueryableMethod.FirstOrLastOrSingleOverloads))
-            {
-                if (method.IsOneOf(EnumerableOrQueryableMethod.FirstOrLastOrSingleWithPredicateOverloads))
-                {
-                    var sourceExpression = arguments[0];
-                    var predicateLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
-                    var predicateParameter = predicateLambda.Parameters.Single();
-                    DeduceItemAndCollectionSerializers(predicateParameter, sourceExpression);
-                }
-
-                DeduceReturnsOneSourceItemSerializer();
-            }
-            else if (method.IsOneOf(WindowMethod.First, WindowMethod.Last))
-            {
-                var partitionExpression = arguments[0];
-                var selectorLambda = (LambdaExpression)arguments[1];
-                DeduceWindowMethodSelectorParameterSerializer(partitionExpression, selectorLambda);
-                DeduceSerializers(node, selectorLambda.Body);
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceGetItemMethodSerializers()
-        {
-            if (IsNotKnown(node))
-            {
-                if (BsonValueMethod.IsGetItemWithIntMethod(method) || BsonValueMethod.IsGetItemWithStringMethod(method))
-                {
-                    AddNodeSerializer(node, BsonValueSerializer.Instance);
-                }
-                else if (IsInstanceGetItemMethod(out var collectionExpression, out var indexExpression))
-                {
-                    if (IsKnown(collectionExpression, out var collectionSerializer))
+                    if (visitor.IsKnown(collectionExpression, out var collectionSerializer))
                     {
                         if (collectionSerializer is IBsonArraySerializer arraySerializer &&
                             indexExpression.Type == typeof(int) &&
                             arraySerializer.GetItemSerializer() is var itemSerializer &&
-                            itemSerializer.ValueType == method.ReturnType)
+                            itemSerializer.ValueType == expression.Method.ReturnType)
                         {
-                            AddNodeSerializer(node, itemSerializer);
+                            visitor.AddNodeSerializer(expression, itemSerializer);
                         }
                         else if (
                             collectionSerializer is IBsonDictionarySerializer dictionarySerializer &&
                             dictionarySerializer.KeySerializer is var keySerializer &&
                             dictionarySerializer.ValueSerializer is var valueSerializer &&
                             keySerializer.ValueType == indexExpression.Type &&
-                            valueSerializer.ValueType == method.ReturnType)
+                            valueSerializer.ValueType == expression.Method.ReturnType)
                         {
-                            AddNodeSerializer(node, valueSerializer);
+                            visitor.AddNodeSerializer(expression, valueSerializer);
                         }
                     }
                 }
-                else
-                {
-                    DeduceUnknownMethodSerializer();
-                }
-            }
-
-            bool IsInstanceGetItemMethod(out Expression collectionExpression, out Expression indexExpression)
-            {
-                if (method.IsStatic == false &&
-                    method.Name == "get_Item")
-                {
-                    collectionExpression = node.Object;
-                    indexExpression = arguments[0];
-                    return true;
-                }
-
-                collectionExpression = null;
-                indexExpression = null;
-                return false;
-            }
-        }
-
-        void DeduceGetCharsMethodSerializers()
-        {
-            if (method.Is(StringMethod.GetChars))
-            {
-                DeduceCharSerializer(node);
-            }
-
-            DeduceUnknowableSerializer(node);
-        }
-
-        void DeduceGroupByMethodSerializers()
-        {
-            if (method.IsOneOf(EnumerableOrQueryableMethod.GroupByOverloads))
-            {
-                var sourceExpression = arguments[0];
-                var keySelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
-                var keySelectorParameter = keySelectorLambda.Parameters.Single();
-
-                DeduceItemAndCollectionSerializers(keySelectorParameter, sourceExpression);
-
-                if (method.IsOneOf(EnumerableOrQueryableMethod.GroupByWithKeySelector))
-                {
-                    if (IsNotKnown(node) && IsKnown(keySelectorLambda.Body, out var keySerializer) && IsItemSerializerKnown(sourceExpression, out var elementSerializer))
-                    {
-                        var groupingSerializer = IGroupingSerializer.Create(keySerializer, elementSerializer);
-                        var nodeSerializer = IEnumerableOrIQueryableSerializer.Create(node.Type, groupingSerializer);
-                        AddNodeSerializer(node, nodeSerializer);
-                    }
-                }
-                else if (method.IsOneOf(EnumerableOrQueryableMethod.GroupByWithKeySelectorAndElementSelector))
-                {
-                    var elementSelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[2]);
-                    var elementSelectorParameter = elementSelectorLambda.Parameters.Single();
-                    DeduceItemAndCollectionSerializers(elementSelectorParameter, sourceExpression);
-                    if (IsNotKnown(node) && IsKnown(keySelectorLambda.Body, out var keySerializer) && IsKnown(elementSelectorLambda.Body, out var elementSerializer))
-                    {
-                        var groupingSerializer = IGroupingSerializer.Create(keySerializer, elementSerializer);
-                        var nodeSerializer = IEnumerableOrIQueryableSerializer.Create(node.Type, groupingSerializer);
-                        AddNodeSerializer(node, nodeSerializer);
-                    }
-                }
-                else if (method.IsOneOf(EnumerableOrQueryableMethod.GroupByWithKeySelectorAndResultSelector))
-                {
-                    var resultSelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[2]);
-                    var resultSelectorKeyParameter = resultSelectorLambda.Parameters[0];
-                    var resultSelectorElementsParameter = resultSelectorLambda.Parameters[1];
-                    DeduceItemAndCollectionSerializers(keySelectorParameter, sourceExpression);
-                    DeduceSerializers(resultSelectorKeyParameter, keySelectorLambda.Body);
-                    DeduceCollectionAndCollectionSerializers(resultSelectorElementsParameter, sourceExpression);
-                    DeduceResultSerializer(resultSelectorLambda.Body);
-                }
-                else if (method.IsOneOf(EnumerableOrQueryableMethod.GroupByWithKeySelectorElementSelectorAndResultSelector))
-                {
-                    var elementSelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[2]);
-                    var elementSelectorParameter = elementSelectorLambda.Parameters.Single();
-                    var resultSelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[3]);
-                    var resultSelectorKeyParameter = resultSelectorLambda.Parameters[0];
-                    var resultSelectorElementsParameter = resultSelectorLambda.Parameters[1];
-                    DeduceItemAndCollectionSerializers(keySelectorParameter, sourceExpression);
-                    DeduceItemAndCollectionSerializers(elementSelectorParameter, sourceExpression);
-                    DeduceSerializers(resultSelectorKeyParameter, keySelectorLambda.Body);
-                    DeduceCollectionAndItemSerializers(resultSelectorElementsParameter, elementSelectorLambda.Body);
-                    DeduceResultSerializer(resultSelectorLambda.Body);
-                }
-
-                void DeduceResultSerializer(Expression resultExpression)
-                {
-                    if (IsNotKnown(node) && IsKnown(resultExpression, out var resultSerializer))
-                    {
-                        var nodeSerializer = IEnumerableOrIQueryableSerializer.Create(node.Type, resultSerializer);
-                        AddNodeSerializer(node, nodeSerializer);
-                    }
-                }
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceGroupJoinMethodSerializers()
-        {
-            if (method.IsOneOf(EnumerableMethod.GroupJoin, QueryableMethod.GroupJoin))
-            {
-                var outerExpression = arguments[0];
-                var innerExpression = arguments[1];
-                var outerKeySelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[2]);
-                var outerKeySelectorItemParameter = outerKeySelectorLambda.Parameters.Single();
-                var innerKeySelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[3]);
-                var innerKeySelectorItemParameter = innerKeySelectorLambda.Parameters.Single();
-                var resultSelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[4]);
-                var resultSelectorOuterItemParameter = resultSelectorLambda.Parameters[0];
-                var resultSelectorInnerItemsParameter = resultSelectorLambda.Parameters[1];
-
-                DeduceItemAndCollectionSerializers(outerKeySelectorItemParameter, outerExpression);
-                DeduceItemAndCollectionSerializers(innerKeySelectorItemParameter, innerExpression);
-                DeduceItemAndCollectionSerializers(resultSelectorOuterItemParameter, outerExpression);
-                DeduceCollectionAndCollectionSerializers(resultSelectorInnerItemsParameter, innerExpression);
-                DeduceCollectionAndItemSerializers(node, resultSelectorLambda.Body);
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceIndexOfMethodSerializers()
-        {
-            if (method.IsOneOf(StringMethod.IndexOfOverloads))
-            {
-                DeduceReturnsInt32Serializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceHasFlagMethodSerializers()
-        {
-            if (method.Is(EnumMethod.HasFlag))
-            {
-                var objectExpression = node.Object;
-                var flagExpression = arguments[0];
-                if (IsNotKnown(flagExpression) && IsKnown(objectExpression, out var enumSerializer))
-                {
-                    AddNodeSerializer(flagExpression, enumSerializer);
-                }
-                DeduceReturnsBooleanSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceHashMethodSerializers()
-        {
-            if (method.Is(MqlMethod.Hash))
-            {
-                DeduceSerializer(node, BsonBinaryDataSerializer.Instance);
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceHexHashMethodSerializers()
-        {
-            if (method.Is(MqlMethod.HexHash))
-            {
-                DeduceSerializer(node, StringSerializer.Instance);
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceInjectMethodSerializers()
-        {
-            if (method.Is(LinqExtensionsMethod.Inject))
-            {
-                DeduceReturnsBooleanSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceIntersectMethodSerializers()
-        {
-            if (method.IsOneOf(EnumerableMethod.Intersect, QueryableMethod.Intersect))
-            {
-                var sourceExpression = arguments[0];
-                DeduceCollectionAndCollectionSerializers(node, sourceExpression);
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceIsMatchMethodSerializers()
-        {
-            if (method.IsOneOf(RegexMethod.IsMatchOverloads))
-            {
-                DeduceReturnsBooleanSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceIsMissingOrIsNullOrMissingMethodSerializers()
-        {
-            if (method.IsOneOf(MqlMethod.IsMissing, MqlMethod.IsNullOrMissing))
-            {
-                DeduceReturnsBooleanSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceIsSubsetOfMethodSerializers()
-        {
-            if (IsSubsetOfMethod(method))
-            {
-                var objectExpression =  node.Object;
-                var otherExpression = arguments[0];
-
-                DeduceCollectionAndCollectionSerializers(objectExpression, otherExpression);
-                DeduceReturnsBooleanSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
             }
 
             static bool IsSubsetOfMethod(MethodInfo method)
@@ -1732,403 +1676,14 @@ internal partial class SerializerFinderVisitor
                     otherParameter.ParameterType.ImplementsIEnumerable(out var otherTypeItemType) &&
                     otherTypeItemType == declaringTypeItemType;
             }
-        }
 
-        void DeduceJoinMethodSerializers()
-        {
-            if (method.IsOneOf(EnumerableMethod.Join, QueryableMethod.Join))
+            static void DeduceIsSubsetOfMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
             {
-                var outerExpression = arguments[0];
-                var innerExpression = arguments[1];
-                var outerKeySelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[2]);
-                var outerKeySelectorItemParameter = outerKeySelectorLambda.Parameters.Single();
-                var innerKeySelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[3]);
-                var innerKeySelectorItemParameter = innerKeySelectorLambda.Parameters.Single();
-                var resultSelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[4]);
-                var resultSelectorOuterItemParameter = resultSelectorLambda.Parameters[0];
-                var resultSelectorInnerItemsParameter = resultSelectorLambda.Parameters[1];
+                var objectExpression = expression.Object;
+                var otherExpression = expression.Arguments[0];
 
-                DeduceItemAndCollectionSerializers(outerKeySelectorItemParameter, outerExpression);
-                DeduceItemAndCollectionSerializers(innerKeySelectorItemParameter, innerExpression);
-                DeduceItemAndCollectionSerializers(resultSelectorOuterItemParameter, outerExpression);
-                DeduceItemAndCollectionSerializers(resultSelectorInnerItemsParameter, innerExpression);
-                DeduceCollectionAndItemSerializers(node, resultSelectorLambda.Body);
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceIsNullOrEmptyOrIsNullOrWhiteSpaceMethodSerializers()
-        {
-            if (method.IsOneOf(StringMethod.IsNullOrEmpty, StringMethod.IsNullOrWhiteSpace))
-            {
-                DeduceReturnsBooleanSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceLocfMethodSerializers()
-        {
-            if (method.Is(WindowMethod.Locf))
-            {
-                var partitionExpression = arguments[0];
-                var selectorLambda = (LambdaExpression)arguments[1];
-                DeduceWindowMethodSelectorParameterSerializer(partitionExpression, selectorLambda);
-                DeduceSerializers(node, selectorLambda.Body);
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceLogMethodSerializers()
-        {
-            if (method.IsOneOf(MathMethod.LogOverloads))
-            {
-                DeduceReturnsDoubleSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceLookupMethodSerializers()
-        {
-            if (method.IsOneOf(MongoQueryableMethod.LookupOverloads))
-            {
-                var sourceExpression = arguments[0];
-
-                if (method.Is(MongoQueryableMethod.LookupWithDocumentsAndLocalFieldAndForeignField))
-                {
-                    var documentsLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
-                    var documentsLambdaParameter = documentsLambda.Parameters.Single();
-                    var localFieldLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[2]);
-                    var localFieldLambdaParameter = localFieldLambda.Parameters.Single();
-                    var foreignFieldLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[3]);
-                    var foreignFieldLambdaParameter = foreignFieldLambda.Parameters.Single();
-
-                    DeduceItemAndCollectionSerializers(documentsLambdaParameter, sourceExpression);
-                    DeduceItemAndCollectionSerializers(localFieldLambdaParameter, sourceExpression);
-                    DeduceItemAndCollectionSerializers(foreignFieldLambdaParameter, documentsLambda.Body);
-
-                    if (IsNotKnown(node) &&
-                        IsItemSerializerKnown(sourceExpression, out var sourceItemSerializer) &&
-                        IsItemSerializerKnown(documentsLambda.Body, out var documentSerializer))
-                    {
-                        var lookupResultSerializer = LookupResultSerializer.Create(sourceItemSerializer, documentSerializer);
-                        AddNodeSerializer(node, IQueryableSerializer.Create(lookupResultSerializer));
-                    }
-                }
-                else if (method.Is(MongoQueryableMethod.LookupWithDocumentsAndLocalFieldAndForeignFieldAndPipeline))
-                {
-                    var documentsLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
-                    var documentsLambdaParameter = documentsLambda.Parameters.Single();
-                    var localFieldLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[2]);
-                    var localFieldLambdaParameter = localFieldLambda.Parameters.Single();
-                    var foreignFieldLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[3]);
-                    var foreignFieldLambdaParameter = foreignFieldLambda.Parameters.Single();
-                    var pipelineLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[4]);
-                    var pipelineLambdaLocalParameter = pipelineLambda.Parameters[0];
-                    var pipelineLambdaForeignQueryableParameter = pipelineLambda.Parameters[1];
-
-                    DeduceItemAndCollectionSerializers(documentsLambdaParameter, sourceExpression);
-                    DeduceItemAndCollectionSerializers(localFieldLambdaParameter, sourceExpression);
-                    DeduceItemAndCollectionSerializers(foreignFieldLambdaParameter, documentsLambda.Body);
-                    DeduceItemAndCollectionSerializers(pipelineLambdaLocalParameter, sourceExpression);
-                    DeduceCollectionAndCollectionSerializers(pipelineLambdaForeignQueryableParameter, documentsLambda.Body);
-
-                    if (IsNotKnown(node) &&
-                        IsItemSerializerKnown(sourceExpression, out var sourceItemSerializer) &&
-                        IsItemSerializerKnown(pipelineLambda.Body, out var pipelineDocumentSerializer))
-                    {
-                        var lookupResultSerializer = LookupResultSerializer.Create(sourceItemSerializer, pipelineDocumentSerializer);
-                        AddNodeSerializer(node, IQueryableSerializer.Create(lookupResultSerializer));
-                    }
-                }
-                else if (method.Is(MongoQueryableMethod.LookupWithDocumentsAndPipeline))
-                {
-                    var documentsLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
-                    var documentsLambdaParameter = documentsLambda.Parameters.Single();
-                    var pipelineLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[2]);
-                    var pipelineLambdaSourceParameter = pipelineLambda.Parameters[0];
-                    var pipelineLambdaQueryableDocumentParameter = pipelineLambda.Parameters[1];
-
-                    DeduceItemAndCollectionSerializers(documentsLambdaParameter, sourceExpression);
-                    DeduceItemAndCollectionSerializers(pipelineLambdaSourceParameter, sourceExpression);
-                    DeduceCollectionAndCollectionSerializers(pipelineLambdaQueryableDocumentParameter, documentsLambda.Body);
-
-                    if (IsNotKnown(node) &&
-                        IsItemSerializerKnown(sourceExpression, out var sourceItemSerializer) &&
-                        IsItemSerializerKnown(pipelineLambda.Body, out var pipelineItemSerializer))
-                    {
-                        var lookupResultSerializer = LookupResultSerializer.Create(sourceItemSerializer, pipelineItemSerializer);
-                        AddNodeSerializer(node, IQueryableSerializer.Create(lookupResultSerializer));
-                    }
-                }
-
-                if (method.Is(MongoQueryableMethod.LookupWithFromAndLocalFieldAndForeignField))
-                {
-                    var fromExpression = arguments[1];
-                    var fromCollection = fromExpression.GetConstantValue<IMongoCollection>(node);
-                    var foreignDocumentSerializer = fromCollection.DocumentSerializer;
-                    var localFieldLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[2]);
-                    var localFieldLambdaParameter = localFieldLambda.Parameters.Single();
-                    var foreignFieldLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[3]);
-                    var foreignFieldLambdaParameter = foreignFieldLambda.Parameters.Single();
-
-                    DeduceItemAndCollectionSerializers(localFieldLambdaParameter, sourceExpression);
-                    DeduceSerializer(foreignFieldLambdaParameter, foreignDocumentSerializer);
-
-                    if (IsNotKnown(node) &&
-                        IsItemSerializerKnown(sourceExpression, out var sourceItemSerializer))
-                    {
-                        var lookupResultSerializer = LookupResultSerializer.Create(sourceItemSerializer, foreignDocumentSerializer);
-                        AddNodeSerializer(node, IQueryableSerializer.Create(lookupResultSerializer));
-                    }
-                }
-                else if (method.Is(MongoQueryableMethod.LookupWithFromAndLocalFieldAndForeignFieldAndPipeline))
-                {
-                    var fromExpression = arguments[1];
-                    var fromCollection = fromExpression.GetConstantValue<IMongoCollection>(node);
-                    var foreignDocumentSerializer = fromCollection.DocumentSerializer;
-                    var localFieldLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[2]);
-                    var localFieldLambdaParameter = localFieldLambda.Parameters.Single();
-                    var foreignFieldLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[3]);
-                    var foreignFieldLambdaParameter = foreignFieldLambda.Parameters.Single();
-                    var pipelineLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[4]);
-                    var pipelineLambdaLocalParameter = pipelineLambda.Parameters[0];
-                    var pipelineLamdbaForeignQueryableParameter = pipelineLambda.Parameters[1];
-
-                    DeduceItemAndCollectionSerializers(localFieldLambdaParameter, sourceExpression);
-                    DeduceSerializer(foreignFieldLambdaParameter, foreignDocumentSerializer);
-                    DeduceItemAndCollectionSerializers(pipelineLambdaLocalParameter, sourceExpression);
-
-                    if (IsNotKnown(pipelineLamdbaForeignQueryableParameter))
-                    {
-                        var foreignQueryableSerializer = IQueryableSerializer.Create(foreignDocumentSerializer);
-                        AddNodeSerializer(pipelineLamdbaForeignQueryableParameter, foreignQueryableSerializer);
-                    }
-
-                    if (IsNotKnown(node) &&
-                        IsItemSerializerKnown(sourceExpression, out var sourceItemSerializer) &&
-                        IsItemSerializerKnown(pipelineLambda.Body, out var pipelineItemSerializer))
-                    {
-                        var lookupResultsSerializer = LookupResultSerializer.Create(sourceItemSerializer, pipelineItemSerializer);
-                        AddNodeSerializer(node, IQueryableSerializer.Create(lookupResultsSerializer));
-                    }
-                }
-                else if (method.Is(MongoQueryableMethod.LookupWithFromAndPipeline))
-                {
-                    var fromCollection = arguments[1].GetConstantValue<IMongoCollection>(node);
-                    var foreignDocumentSerializer = fromCollection.DocumentSerializer;
-                    var pipelineLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[2]);
-                    var pipelineLambdaLocalParameter = pipelineLambda.Parameters[0];
-                    var pipelineLamdbaForeignQueryableParameter = pipelineLambda.Parameters[1];
-
-                    DeduceItemAndCollectionSerializers(pipelineLambdaLocalParameter, sourceExpression);
-
-                    if (IsNotKnown(pipelineLamdbaForeignQueryableParameter))
-                    {
-                        var foreignQueryableSerializer = IQueryableSerializer.Create(foreignDocumentSerializer);
-                        AddNodeSerializer(pipelineLamdbaForeignQueryableParameter, foreignQueryableSerializer);
-                    }
-
-                    if (IsNotKnown(node) &&
-                        IsItemSerializerKnown(sourceExpression, out var sourceItemSerializer) &&
-                        IsItemSerializerKnown(pipelineLambda.Body, out var pipelineItemSerializer))
-                    {
-                        var lookupResultSerializer = LookupResultSerializer.Create(sourceItemSerializer, pipelineItemSerializer);
-                        AddNodeSerializer(node, IQueryableSerializer.Create(lookupResultSerializer));
-                    }
-                }
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceMatchingElementsMethodSerializers()
-        {
-            if (method.IsOneOf(MongoEnumerableMethod.AllElements, MongoEnumerableMethod.AllMatchingElements, MongoEnumerableMethod.FirstMatchingElement))
-            {
-                DeduceReturnsOneSourceItemSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceMaxOrMinMethodSerializers()
-        {
-            if (method.IsOneOf(EnumerableOrQueryableMethod.MaxOrMinOverloads))
-            {
-                if (method.IsOneOf(EnumerableOrQueryableMethod.MaxOrMinWithSelectorOverloads))
-                {
-                    var sourceExpression = arguments[0];
-                    var selectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
-                    var selectorItemParameter = selectorLambda.Parameters.Single();
-
-                    DeduceItemAndCollectionSerializers(selectorItemParameter, sourceExpression);
-                    DeduceSerializers(node, selectorLambda.Body);
-                }
-                else
-                {
-                    DeduceReturnsOneSourceItemSerializer();
-                }
-            }
-            else if (method.IsOneOf(WindowMethod.Max, WindowMethod.Min))
-            {
-                var partitionExpression = arguments[0];
-                var selectorLambda = (LambdaExpression)arguments[1];
-                DeduceWindowMethodSelectorParameterSerializer(partitionExpression, selectorLambda);
-                DeduceSerializers(node, selectorLambda.Body);
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceOfTypeMethodSerializers()
-        {
-            if (method.IsOneOf(EnumerableMethod.OfType, QueryableMethod.OfType))
-            {
-                var sourceExpression = arguments[0];
-                var resultType = method.GetGenericArguments()[0];
-
-                if (IsNotKnown(node) && IsItemSerializerKnown(sourceExpression, out var sourceItemSerializer))
-                {
-                    var resultItemSerializer = sourceItemSerializer.GetDerivedTypeSerializer(resultType);
-                    var resultSerializer = IEnumerableOrIQueryableSerializer.Create(node.Type, resultItemSerializer);
-                    AddNodeSerializer(node, resultSerializer);
-                }
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceOrderByMethodSerializers()
-        {
-            if (method.IsOneOf(EnumerableOrQueryableMethod.OrderByOrThenByOverloads))
-            {
-                var sourceExpression = arguments[0];
-                var keySelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
-                var keySelectorParameter = keySelectorLambda.Parameters.Single();
-
-                DeduceItemAndCollectionSerializers(keySelectorParameter, sourceExpression);
-                DeduceCollectionAndCollectionSerializers(node, sourceExpression);
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeducePickMethodSerializers()
-        {
-            if (method.IsOneOf(EnumerableMethod.PickOverloads))
-            {
-                if (method.IsOneOf(EnumerableMethod.PickWithSortByOverloads))
-                {
-                    var sortByExpression = arguments[1];
-                    if (IsNotKnown(sortByExpression))
-                    {
-                        var ignoreSubTreeSerializer = IgnoreSubtreeSerializer.Create(sortByExpression.Type);
-                        AddNodeSerializer(sortByExpression, ignoreSubTreeSerializer);
-                    }
-                }
-
-                var sourceExpression = arguments[0];
-                if (IsKnown(sourceExpression, out var sourceSerializer))
-                {
-                    var sourceItemSerializer =  ArraySerializerHelper.GetItemSerializer(sourceSerializer);
-
-                    var selectorExpression = arguments[method.IsOneOf(EnumerableMethod.PickWithSortByOverloads) ? 2 : 1];
-                    var selectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, selectorExpression);
-                    var selectorSourceItemParameter = selectorLambda.Parameters.Single();
-                    if (IsNotKnown(selectorSourceItemParameter))
-                    {
-                        AddNodeSerializer(selectorSourceItemParameter, sourceItemSerializer);
-                    }
-                }
-
-                if (method.IsOneOf(EnumerableMethod.PickWithComputedNOverloads))
-                {
-                    var keyExpression = arguments[method.IsOneOf(EnumerableMethod.PickWithSortByOverloads) ? 3 : 2];
-                    if (IsKnown(keyExpression, out var keySerializer))
-                    {
-                        var nExpression = arguments[method.IsOneOf(EnumerableMethod.PickWithSortByOverloads) ? 4 : 3];
-                        var nLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, nExpression);
-                        var nLambdaKeyParameter = nLambda.Parameters.Single();
-
-                        if (IsNotKnown(nLambdaKeyParameter))
-                        {
-                            AddNodeSerializer(nLambdaKeyParameter, keySerializer);
-                        }
-                    }
-                }
-
-                if (IsNotKnown(node))
-                {
-                    var selectorExpressionIndex = method switch
-                    {
-                        _ when method.Is(EnumerableMethod.Bottom) => 2,
-                        _ when method.Is(EnumerableMethod.BottomN) => 2,
-                        _ when method.Is(EnumerableMethod.BottomNWithComputedN) => 2,
-                        _ when method.Is(EnumerableMethod.FirstN) => 1,
-                        _ when method.Is(EnumerableMethod.FirstNWithComputedN) => 1,
-                        _ when method.Is(EnumerableMethod.LastN) => 1,
-                        _ when method.Is(EnumerableMethod.LastNWithComputedN) => 1,
-                        _ when method.Is(EnumerableMethod.MaxN) => 1,
-                        _ when method.Is(EnumerableMethod.MaxNWithComputedN) => 1,
-                        _ when method.Is(EnumerableMethod.MinN) => 1,
-                        _ when method.Is(EnumerableMethod.MinNWithComputedN) => 1,
-                        _ when method.Is(EnumerableMethod.Top) => 2,
-                        _ when method.Is(EnumerableMethod.TopN) => 2,
-                        _ when method.Is(EnumerableMethod.TopNWithComputedN) => 2,
-                        _ => throw new ArgumentException($"Unrecognized method: {method.Name}.")
-                    };
-                    var selectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[selectorExpressionIndex]);
-
-                    if (IsKnown(selectorLambda.Body, out var selectorItemSerializer))
-                    {
-                        var nodeSerializer = method.IsOneOf(EnumerableMethod.Bottom, EnumerableMethod.Top) ?
-                            selectorItemSerializer :
-                            IEnumerableSerializer.Create(selectorItemSerializer);
-                        AddNodeSerializer(node, nodeSerializer);
-                    }
-                }
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceParseMethodSerializers()
-        {
-            if (IsNotKnown(node))
-            {
-                if (IsParseMethod(method))
-                {
-                    var nodeSerializer = GetParseResultSerializer(method.DeclaringType);
-                    AddNodeSerializer(node, nodeSerializer);
-                }
-                else
-                {
-                    DeduceUnknownMethodSerializer();
-                }
+                visitor.DeduceCollectionAndCollectionSerializers(objectExpression, otherExpression);
+                visitor.DeduceSerializer(expression, BooleanSerializer.Instance);
             }
 
             static bool IsParseMethod(MethodInfo method)
@@ -2142,878 +1697,61 @@ internal partial class SerializerFinderVisitor
                     parameters[0].ParameterType == typeof(string);
             }
 
-            static IBsonSerializer GetParseResultSerializer(Type declaringType)
+            static void DeduceParseMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
             {
-                return declaringType switch
+                if (visitor.IsNotKnown(expression))
                 {
-                    _ when declaringType == typeof(DateTime) => DateTimeSerializer.Instance,
-                    _ when declaringType == typeof(decimal) => DecimalSerializer.Instance,
-                    _ when declaringType == typeof(double) => DoubleSerializer.Instance,
-                    _ when declaringType == typeof(int) => Int32Serializer.Instance,
-                    _ when declaringType == typeof(short) => Int16Serializer.Instance,
-                    _ when declaringType == typeof(long) => Int64Serializer.Instance,
-                    _ when declaringType == typeof(float) => SingleSerializer.Instance,
-                    _ when declaringType == typeof(byte) => ByteSerializer.Instance,
-                    _ when declaringType == typeof(sbyte) => SByteSerializer.Instance,
-                    _ => UnknowableSerializer.Create(declaringType)
-                };
-            }
-        }
-
-        void DeducePowMethodSerializers()
-        {
-            if (method.Is(MathMethod.Pow))
-            {
-                DeduceReturnsDoubleSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeducePushMethodSerializers()
-        {
-            if (method.Is(WindowMethod.Push))
-            {
-                var partitionExpression = arguments[0];
-                var selectorLambda = (LambdaExpression)arguments[1];
-                DeduceWindowMethodSelectorParameterSerializer(partitionExpression, selectorLambda);
-                DeduceCollectionAndItemSerializers(node, selectorLambda.Body);
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceRadiansToDegreesMethodSerializers()
-        {
-            if (method.Is(MongoDBMathMethod.RadiansToDegrees))
-            {
-                DeduceReturnsDoubleSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceReturnsBooleanSerializer()
-        {
-            if (IsNotKnown(node))
-            {
-                AddNodeSerializer(node, BooleanSerializer.Instance);
-            }
-        }
-
-        void DeduceReturnsDateTimeSerializer()
-        {
-            if (IsNotKnown(node))
-            {
-                AddNodeSerializer(node, DateTimeSerializer.UtcInstance);
-            }
-        }
-
-        void DeduceReturnsDecimalSerializer()
-        {
-            if (IsNotKnown(node))
-            {
-                AddNodeSerializer(node, DecimalSerializer.Instance);
-            }
-        }
-
-        void DeduceReturnsDoubleSerializer()
-        {
-            if (IsNotKnown(node))
-            {
-                AddNodeSerializer(node, DoubleSerializer.Instance);
-            }
-        }
-
-        void DeduceReturnsInt32Serializer()
-        {
-            if (IsNotKnown(node))
-            {
-                AddNodeSerializer(node, Int32Serializer.Instance);
-            }
-        }
-
-        void DeduceReturnsInt64Serializer()
-        {
-            if (IsNotKnown(node))
-            {
-                AddNodeSerializer(node, Int64Serializer.Instance);
-            }
-        }
-
-        void DeduceReturnsNullableDecimalSerializer()
-        {
-            if (IsNotKnown(node))
-            {
-                AddNodeSerializer(node, NullableSerializer.NullableDecimalInstance);
-            }
-        }
-
-        void DeduceReturnsNullableDoubleSerializer()
-        {
-            if (IsNotKnown(node))
-            {
-                AddNodeSerializer(node, NullableSerializer.NullableDoubleInstance);
-            }
-        }
-
-        void DeduceReturnsNullableInt32Serializer()
-        {
-            if (IsNotKnown(node))
-            {
-                AddNodeSerializer(node, NullableSerializer.NullableInt32Instance);
-            }
-        }
-
-        void DeduceReturnsNullableInt64Serializer()
-        {
-            if (IsNotKnown(node))
-            {
-                AddNodeSerializer(node, NullableSerializer.NullableInt64Instance);
-            }
-        }
-
-        void DeduceReturnsNullableSingleSerializer()
-        {
-            if (IsNotKnown(node))
-            {
-                AddNodeSerializer(node, NullableSerializer.NullableSingleInstance);
-            }
-        }
-
-        void DeduceReturnsNumericSerializer()
-        {
-            if (IsNotKnown(node) && node.Type.IsNumeric())
-            {
-                var numericSerializer = StandardSerializers.GetSerializer(node.Type);
-                AddNodeSerializer(node, numericSerializer);
-            }
-        }
-
-        void DeduceReturnsOneSourceItemSerializer()
-        {
-            var sourceExpression = arguments[0];
-
-            if (IsNotKnown(node) && IsKnown(sourceExpression, out var sourceSerializer))
-            {
-                var nodeSerializer = sourceSerializer is IUnknowableSerializer ?
-                    UnknowableSerializer.Create(node.Type) :
-                    ArraySerializerHelper.GetItemSerializer(sourceSerializer);
-                AddNodeSerializer(node, nodeSerializer);
-            }
-        }
-
-        void DeduceReturnsSingleSerializer()
-        {
-            if (IsNotKnown(node))
-            {
-                AddNodeSerializer(node, SingleSerializer.Instance);
-            }
-        }
-
-        void DeduceReturnsStringSerializer()
-        {
-            if (IsNotKnown(node))
-            {
-                AddNodeSerializer(node, StringSerializer.Instance);
-            }
-        }
-
-        void DeduceReturnsTimeSpanSerializer(TimeSpanUnits units)
-        {
-            if (IsNotKnown(node))
-            {
-                var resultSerializer = new TimeSpanSerializer(BsonType.Int64, units);
-                AddNodeSerializer(node, resultSerializer);
-            }
-        }
-
-        void DeduceRangeMethodSerializers()
-        {
-            if (method.Is(EnumerableMethod.Range))
-            {
-                var elementExpression = arguments[0];
-                DeduceCollectionAndItemSerializers(node, elementExpression);
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceRepeatMethodSerializers()
-        {
-            if (method.Is(EnumerableMethod.Repeat))
-            {
-                var elementExpression = arguments[0];
-                DeduceCollectionAndItemSerializers(node, elementExpression);
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceReplaceMethodSerializers()
-        {
-            if (method.IsOneOf(StringMethod.ReplaceOverloads, RegexMethod.ReplaceOverloads))
-            {
-                DeduceSerializer(node, StringSerializer.Instance);
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceReverseMethodSerializers()
-        {
-            if (method.IsOneOf(EnumerableOrQueryableMethod.ReverseOverloads))
-            {
-                var sourceExpression = arguments[0];
-                DeduceCollectionAndCollectionSerializers(node, sourceExpression);
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceRoundMethodSerializers()
-        {
-            if (method.IsOneOf(MathMethod.RoundWithDecimal, MathMethod.RoundWithDecimalAndDecimals, MathMethod.RoundWithDouble, MathMethod.RoundWithDoubleAndDigits))
-            {
-                if (IsNotKnown(node))
-                {
-                    var resultSerializer = StandardSerializers.GetSerializer(node.Type);
-                    AddNodeSerializer(node, resultSerializer);
-                }
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceSelectMethodSerializers()
-        {
-            if (method.IsOneOf(EnumerableMethod.Select, QueryableMethod.Select))
-            {
-                var sourceExpression = arguments[0];
-                var selectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
-                var selectorParameter = selectorLambda.Parameters.Single();
-                DeduceItemAndCollectionSerializers(selectorParameter, sourceExpression);
-                DeduceCollectionAndItemSerializers(node, selectorLambda.Body);
-            }
-            else if (method.IsOneOf(EnumerableOrQueryableMethod.SelectWithSelectorTakingIndex))
-            {
-                var sourceExpression = arguments[0];
-                var selectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
-                var itemParameter = selectorLambda.Parameters[0];
-                var indexParameter = selectorLambda.Parameters[1];
-                DeduceItemAndCollectionSerializers(itemParameter, sourceExpression);
-                if (IsNotKnown(indexParameter))
-                {
-                    AddNodeSerializer(indexParameter, Int32Serializer.Instance);
-                }
-                DeduceCollectionAndItemSerializers(node, selectorLambda.Body);
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceSelectManySerializers()
-        {
-            if (method.IsOneOf(EnumerableOrQueryableMethod.SelectManyOverloads))
-            {
-                var sourceExpression = arguments[0];
-
-                if (method.IsOneOf(EnumerableOrQueryableMethod.SelectManyWithSelector))
-                {
-                    var selectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
-                    var selectorSourceParameter = selectorLambda.Parameters.Single();
-
-                    DeduceItemAndCollectionSerializers(selectorSourceParameter, sourceExpression);
-                    DeduceCollectionAndCollectionSerializers(node, selectorLambda.Body);
-                }
-
-                if (method.IsOneOf(EnumerableOrQueryableMethod.SelectManyWithCollectionSelectorAndResultSelector))
-                {
-                    var collectionSelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
-                    var resultSelectorLambda =  ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[2]);
-
-                    var collectionSelectorSourceItemParameter = collectionSelectorLambda.Parameters.Single();
-                    var resultSelectorSourceItemParameter = resultSelectorLambda.Parameters[0];
-                    var resultSelectorCollectionItemParameter = resultSelectorLambda.Parameters[1];
-
-                    DeduceItemAndCollectionSerializers(collectionSelectorSourceItemParameter, sourceExpression);
-                    DeduceItemAndCollectionSerializers(resultSelectorSourceItemParameter, sourceExpression);
-                    DeduceItemAndCollectionSerializers(resultSelectorCollectionItemParameter, collectionSelectorLambda.Body);
-                    DeduceCollectionAndItemSerializers(node, resultSelectorLambda.Body);
-                }
-            }
-            else if (method.IsOneOf(EnumerableOrQueryableMethod.SelectManyWithSelectorTakingIndex))
-            {
-                var sourceExpression = arguments[0];
-                var selectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
-                var itemParameter = selectorLambda.Parameters[0];
-                var indexParameter = selectorLambda.Parameters[1];
-                DeduceItemAndCollectionSerializers(itemParameter, sourceExpression);
-                if (IsNotKnown(indexParameter))
-                {
-                    AddNodeSerializer(indexParameter, Int32Serializer.Instance);
-                }
-                DeduceCollectionAndCollectionSerializers(node, selectorLambda.Body);
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceSequenceEqualMethodSerializers()
-        {
-            if (method.IsOneOf(EnumerableMethod.SequenceEqual, QueryableMethod.SequenceEqual))
-            {
-                var source1Expression =  arguments[0];
-                var source2Expression = arguments[1];
-
-                DeduceCollectionAndCollectionSerializers(source1Expression, source2Expression);
-                DeduceReturnsBooleanSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceSerializeEJsonMethodSerializers()
-        {
-            if (method.Is(MqlMethod.SerializeEJson))
-            {
-                if (IsNotKnown(node))
-                {
-                    var outputType = method.GetGenericArguments()[1];
-                    var outputSerializer = BsonSerializer.LookupSerializer(outputType);
-                    AddNodeSerializer(node, outputSerializer);
-                }
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceSetEqualsMethodSerializers()
-        {
-            if (ISetMethod.IsSetEqualsMethod(method))
-            {
-                var objectExpression =  node.Object;
-                var otherExpression = arguments[0];
-
-                DeduceCollectionAndCollectionSerializers(objectExpression, otherExpression);
-                DeduceReturnsBooleanSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceSetWindowFieldsMethodSerializers()
-        {
-            if (method.Is(EnumerableMethod.First))
-            {
-                var objectExpression =  node.Object;
-                var otherExpression = arguments[0];
-
-                DeduceCollectionAndCollectionSerializers(objectExpression, otherExpression);
-                DeduceReturnsBooleanSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceShiftMethodSerializers()
-        {
-            if (method.IsOneOf(WindowMethod.Shift, WindowMethod.ShiftWithDefaultValue))
-            {
-                var partitionExpression = arguments[0];
-                var selectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
-                DeduceWindowMethodSelectorParameterSerializer(partitionExpression, selectorLambda);
-                DeduceSerializers(node, selectorLambda.Body);
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceSigmoidMethodSerializers()
-        {
-            if (method.Is(MqlMethod.Sigmoid))
-            {
-                DeduceReturnsDoubleSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceSimilarityFunctionsSerializers()
-        {
-            if (method.IsOneOf(MqlMethod.SimilarityFunctionOverloads))
-            {
-                DeduceReturnsNumericSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceSplitMethodSerializers()
-        {
-            if (method.IsOneOf(StringMethod.SplitOverloads, RegexMethod.SplitOverloads))
-            {
-                if (IsNotKnown(node))
-                {
-                    var nodeSerializer = ArraySerializer.Create(StringSerializer.Instance);
-                    AddNodeSerializer(node, nodeSerializer);
-                }
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceSqrtMethodSerializers()
-        {
-            if (method.Is(MathMethod.Sqrt))
-            {
-                DeduceReturnsDoubleSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceStandardDeviationMethodSerializers()
-        {
-            if (method.IsOneOf(MongoEnumerableMethod.StandardDeviationOverloads, MongoQueryableMethod.StandardDeviationOverloads))
-            {
-                if (method.IsOneOf(MongoEnumerableMethod.StandardDeviationWithSelectorOverloads, MongoQueryableMethod.StandardDeviationWithSelectorOverloads))
-                {
-                    var sourceExpression = arguments[0];
-                    var selectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
-                    var selectorItemParameter = selectorLambda.Parameters.Single();
-                    DeduceCollectionAndItemSerializers(sourceExpression, selectorItemParameter);
-                }
-
-                DeduceStandardSerializer(node);
-            }
-            else if (method.IsOneOf(WindowMethod.StandardDeviationOverloads))
-            {
-                var partitionExpression = arguments[0];
-                var selectorLambda = (LambdaExpression)arguments[1];
-                DeduceWindowMethodSelectorParameterSerializer(partitionExpression, selectorLambda);
-                DeduceStandardSerializer(node);
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceEndsWithOrStartsWithMethodSerializers()
-        {
-            if (method.IsOneOf(StringMethod.EndsWithOrStartsWithOverloads))
-            {
-                DeduceReturnsBooleanSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceStringInOrNinMethodSerializers()
-        {
-            if (method.IsOneOf(StringMethod.StringInOrNinOverloads))
-            {
-                DeduceReturnsBooleanSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceStrLenBytesMethodSerializers()
-        {
-            if (method.Is(StringMethod.StrLenBytes))
-            {
-                DeduceReturnsInt32Serializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceSubstringMethodSerializers()
-        {
-            if (method.IsOneOf(StringMethod.Substring, StringMethod.SubstringWithLength, StringMethod.SubstrBytes))
-            {
-                DeduceReturnsStringSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceSubtractMethodSerializers()
-        {
-            if (method.IsOneOf(DateTimeMethod.SubtractReturningDateTimeOverloads))
-            {
-                DeduceReturnsDateTimeSerializer();
-            }
-            else if (method.IsOneOf(DateTimeMethod.SubtractReturningInt64Overloads))
-            {
-                DeduceReturnsInt64Serializer();
-            }
-            else if (method.IsOneOf(DateTimeMethod.SubtractReturningTimeSpanWithMillisecondsUnitsOverloads))
-            {
-                var units = TimeSpanUnits.Milliseconds;
-                DeduceReturnsTimeSpanSerializer(units);
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceSumMethodSerializers()
-        {
-            if (method.IsOneOf(EnumerableOrQueryableMethod.SumOverloads))
-            {
-                if (method.IsOneOf(EnumerableOrQueryableMethod.SumWithSelectorOverloads))
-                {
-                    var sourceExpression = arguments[0];
-                    var selectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
-                    var selectorParameter = selectorLambda.Parameters.Single();
-                    DeduceItemAndCollectionSerializers(selectorParameter, sourceExpression);
-                }
-
-                var returnType = node.Type;
-                switch (returnType)
-                {
-                    case not null when returnType == typeof(decimal): DeduceReturnsDecimalSerializer(); break;
-                    case not null when returnType == typeof(double): DeduceReturnsDoubleSerializer(); break;
-                    case not null when returnType == typeof(int): DeduceReturnsInt32Serializer(); break;
-                    case not null when returnType == typeof(long): DeduceReturnsInt64Serializer(); break;
-                    case not null when returnType == typeof(float): DeduceReturnsSingleSerializer(); break;
-                    case not null when returnType == typeof(decimal?): DeduceReturnsNullableDecimalSerializer(); break;
-                    case not null when returnType == typeof(double?): DeduceReturnsNullableDoubleSerializer(); break;
-                    case not null when returnType == typeof(int?): DeduceReturnsNullableInt32Serializer(); break;
-                    case not null when returnType == typeof(long?): DeduceReturnsNullableInt64Serializer(); break;
-                    case not null when returnType == typeof(float?): DeduceReturnsNullableSingleSerializer(); break;
-                }
-            }
-            else if (method.IsOneOf(WindowMethod.SumOverloads))
-            {
-                var partitionExpression = arguments[0];
-                var selectorLambda = (LambdaExpression)arguments[1];
-                DeduceWindowMethodSelectorParameterSerializer(partitionExpression, selectorLambda);
-                DeduceStandardSerializer(node);
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceSubtypeMethodSerializers()
-        {
-            if (method.Is(MqlMethod.Subtype))
-            {
-                DeduceSerializer(node, __binarySubTypeSerializer);
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceSkipOrTakeMethodSerializers()
-        {
-            if (method.IsOneOf(EnumerableOrQueryableMethod.SkipOrTakeOverloads))
-            {
-                var sourceExpression = arguments[0];
-
-                if (method.IsOneOf(EnumerableOrQueryableMethod.SkipWhileOrTakeWhile))
-                {
-                    var predicateLambda =  ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
-                    var itemParameter = predicateLambda.Parameters[0];
-                    DeduceItemAndCollectionSerializers(itemParameter, sourceExpression);
-
-                    if (method.IsOneOf(EnumerableOrQueryableMethod.SkipWhileWithPredicateTakingIndexOrTakeWhileWithPredicateTakingIndex))
+                    var declaringType = expression.Method.DeclaringType;
+                    var nodeSerializer = declaringType switch
                     {
-                        var indexParameter = predicateLambda.Parameters[1];
-                        if (IsNotKnown(indexParameter))
-                        {
-                            AddNodeSerializer(indexParameter, Int32Serializer.Instance);
-                        }
+                        _ when declaringType == typeof(DateTime) => DateTimeSerializer.Instance,
+                        _ when declaringType == typeof(decimal) => DecimalSerializer.Instance,
+                        _ when declaringType == typeof(double) => DoubleSerializer.Instance,
+                        _ when declaringType == typeof(int) => Int32Serializer.Instance,
+                        _ when declaringType == typeof(short) => Int16Serializer.Instance,
+                        _ when declaringType == typeof(long) => Int64Serializer.Instance,
+                        _ when declaringType == typeof(float) => SingleSerializer.Instance,
+                        _ when declaringType == typeof(byte) => ByteSerializer.Instance,
+                        _ when declaringType == typeof(sbyte) => SByteSerializer.Instance,
+                        _ => UnknowableSerializer.Create(declaringType)
+                    };
+                    visitor.AddNodeSerializer(expression, nodeSerializer);
+                }
+            }
+
+            static void DeduceSetEqualsMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+            {
+                var objectExpression = expression.Object;
+                var otherExpression = expression.Arguments[0];
+
+                visitor.DeduceCollectionAndCollectionSerializers(objectExpression, otherExpression);
+                visitor.DeduceSerializer(expression, BooleanSerializer.Instance);
+            }
+
+            static bool IsToArrayMethod(MethodInfo method) =>
+                method.IsPublic &&
+                method.Name == "ToArray" &&
+                method.GetParameters().Length == (method.IsStatic ? 1 : 0);
+
+            static void DeduceToArrayMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+            {
+                var sourceExpression = expression.Method.IsStatic ? expression.Arguments[0] : expression.Object;
+                visitor.DeduceCollectionAndCollectionSerializers(expression, sourceExpression);
+            }
+
+            static void DeduceToListSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+            {
+                if (visitor.IsNotKnown(expression))
+                {
+                    var source = expression.Method.IsStatic ? expression.Arguments[0] : expression.Object;
+                    if (visitor.IsKnown(source, out var sourceSerializer))
+                    {
+                        var sourceItemSerializer = ArraySerializerHelper.GetItemSerializer(sourceSerializer);
+                        var resultSerializer = ListSerializer.Create(sourceItemSerializer);
+                        visitor.AddNodeSerializer(expression, resultSerializer);
                     }
                 }
-
-                DeduceCollectionAndCollectionSerializers(node, sourceExpression);
             }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceToArrayMethodSerializers()
-        {
-            if (IsToArrayMethod(out var sourceExpression))
-            {
-                DeduceCollectionAndCollectionSerializers(node, sourceExpression);
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-
-            bool IsToArrayMethod(out Expression sourceExpression)
-            {
-                if (method.IsPublic &&
-                    method.Name == "ToArray" &&
-                    method.GetParameters().Length == (method.IsStatic ? 1 : 0))
-                {
-                    sourceExpression = method.IsStatic ? arguments[0] : node.Object;
-                    return true;
-                }
-
-                sourceExpression = null;
-                return false;
-            }
-        }
-
-        void DeduceToHashedIndexKeySerializers()
-        {
-            if (method.Is(MqlMethod.ToHashedIndexKey))
-            {
-                DeduceReturnsInt64Serializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceToListSerializers()
-        {
-            if (IsNotKnown(node))
-            {
-                var source = method.IsStatic ? arguments[0] : node.Object;
-                if (IsKnown(source, out var sourceSerializer))
-                {
-                    var sourceItemSerializer = ArraySerializerHelper.GetItemSerializer(sourceSerializer);
-                    var resultSerializer = ListSerializer.Create(sourceItemSerializer);
-                    AddNodeSerializer(node, resultSerializer);
-                }
-            }
-        }
-
-        void DeduceToLowerOrToUpperSerializers()
-        {
-            if (method.IsOneOf(StringMethod.ToLowerOrToUpperOverloads))
-            {
-                DeduceReturnsStringSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceToStringSerializers()
-        {
-            DeduceReturnsStringSerializer();
-        }
-
-        void DeduceTrigonometricMethodSerializers()
-        {
-            if (method.IsOneOf(MathMethod.TrigonometricMethods))
-            {
-                DeduceReturnsDoubleSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceTrimSerializers()
-        {
-            if (method.IsOneOf(StringMethod.TrimOverloads))
-            {
-                DeduceReturnsStringSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceTruncateSerializers()
-        {
-            if (method.IsOneOf(DateTimeMethod.Truncate, DateTimeMethod.TruncateWithBinSize, DateTimeMethod.TruncateWithBinSizeAndTimezone))
-            {
-                DeduceReturnsDateTimeSerializer();
-            }
-            else if (method.IsOneOf(MathMethod.TruncateDecimal, MathMethod.TruncateDouble))
-            {
-                DeduceReturnsNumericSerializer();
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceUnionSerializers()
-        {
-            if (method.IsOneOf(EnumerableMethod.Union, QueryableMethod.Union))
-            {
-                var sourceExpression = arguments[0];
-                DeduceCollectionAndCollectionSerializers(node, sourceExpression);
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceUnknownMethodSerializer()
-        {
-            DeduceUnknowableSerializer(node);
-        }
-
-        void DeduceWeekSerializers()
-        {
-            if (method.IsOneOf(DateTimeMethod.Week, DateTimeMethod.WeekWithTimezone))
-            {
-                if (IsNotKnown(node))
-                {
-                    AddNodeSerializer(node, Int32Serializer.Instance);
-                }
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceWhereSerializers()
-        {
-            if (method.IsOneOf(__whereOverloads))
-            {
-                var sourceExpression = arguments[0];
-                var predicateLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
-                var predicateParameter =  predicateLambda.Parameters.Single();
-                DeduceItemAndCollectionSerializers(predicateParameter, sourceExpression);
-                DeduceCollectionAndCollectionSerializers(node, sourceExpression);
-            }
-            else if (method.IsOneOf(EnumerableOrQueryableMethod.WhereWithPredicateTakingIndex))
-            {
-                var sourceExpression = arguments[0];
-                var predicateLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
-                var itemParameter = predicateLambda.Parameters[0];
-                var indexParameter = predicateLambda.Parameters[1];
-                DeduceItemAndCollectionSerializers(itemParameter, sourceExpression);
-                if (IsNotKnown(indexParameter))
-                {
-                    AddNodeSerializer(indexParameter, Int32Serializer.Instance);
-                }
-                DeduceCollectionAndCollectionSerializers(node, sourceExpression);
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        void DeduceWindowMethodSelectorParameterSerializer(Expression partitionExpression, LambdaExpression selectorLambda)
-        {
-            var inputParameter = selectorLambda.Parameters.Single();
-            if (IsNotKnown(inputParameter) && IsKnown(partitionExpression, out var partitionSerializer))
-            {
-                var inputSerializer = ((ISetWindowFieldsPartitionSerializer)partitionSerializer).InputSerializer;
-                AddNodeSerializer(inputParameter, inputSerializer);
-            }
-        }
-
-        void DeduceZipSerializers()
-        {
-            if (method.IsOneOf(EnumerableMethod.Zip, QueryableMethod.Zip))
-            {
-                var firstExpression = arguments[0];
-                var secondExpression = arguments[1];
-                var resultSelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[2]);
-                var resultSelectorFirstParameter = resultSelectorLambda.Parameters[0];
-                var resultSelectorSecondParameter =  resultSelectorLambda.Parameters[1];
-
-                if (IsNotKnown(resultSelectorFirstParameter) && IsKnown(firstExpression, out var firstSerializer))
-                {
-                    var firstItemSerializer =  ArraySerializerHelper.GetItemSerializer(firstSerializer);
-                    AddNodeSerializer(resultSelectorFirstParameter, firstItemSerializer);
-                }
-
-                if (IsNotKnown(resultSelectorSecondParameter) && IsKnown(secondExpression, out var secondSerializer))
-                {
-                    var secondItemSerializer =  ArraySerializerHelper.GetItemSerializer(secondSerializer);
-                    AddNodeSerializer(resultSelectorSecondParameter, secondItemSerializer);
-                }
-
-                if (IsNotKnown(node) && IsKnown(resultSelectorLambda.Body, out var resultItemSerializer))
-                {
-                    var resultSerializer = IEnumerableOrIQueryableSerializer.Create(node.Type, resultItemSerializer);
-                    AddNodeSerializer(node, resultSerializer);
-                }
-            }
-            else
-            {
-                DeduceUnknownMethodSerializer();
-            }
-        }
-
-        bool IsDictionaryContainsKeyExpression(out Expression keyExpression)
-        {
-            if (DictionaryMethod.IsContainsKeyMethod(method))
-            {
-                keyExpression = arguments[0];
-                return true;
-            }
-
-            keyExpression = null;
-            return false;
         }
     }
 }
