@@ -129,6 +129,10 @@ namespace MongoDB.Bson.Serialization
             {
                 throw new ArgumentNullException("serializationProvider");
             }
+            if (serializationProvider is IHasSerializationDomain hasSerializationDomain && hasSerializationDomain.SerializationDomain != _serializationDomain)
+            {
+                throw new ArgumentException($"Expected serialization provider to be for serialization domain {_serializationDomain.Name} but was for serialization domain {hasSerializationDomain.SerializationDomain.Name}.");
+            }
 
             _serializationProviders.Push(serializationProvider);
         }
