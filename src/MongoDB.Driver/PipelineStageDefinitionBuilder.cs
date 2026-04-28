@@ -1820,48 +1820,15 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(pipelines, nameof(pipelines));
             if (pipelines.Count == 0)
             {
-                throw new ArgumentException("At least one pipeline is required.", nameof(pipelines));
+                throw new ArgumentException("Value cannot be an empty collection.", nameof(pipelines));
             }
 
             if (pipelines.Any(pipeline => pipeline.Value == null))
             {
-                throw new ArgumentNullException(nameof(pipelines), "Pipelines cannot contain a null pipeline.");
+                throw new ArgumentNullException(nameof(pipelines), "Value cannot contain a null pipeline.");
             }
 
-            if (options?.CombinationMethod == ScoreFusionCombinationMethod.Expression && options.CombinationExpression == null)
-            {
-                throw new ArgumentException(
-                    $"{nameof(ScoreFusionOptions<TOutput>.CombinationExpression)} must be supplied when {nameof(ScoreFusionOptions<TOutput>.CombinationMethod)} is {nameof(ScoreFusionCombinationMethod.Expression)}.",
-                    nameof(options));
-            }
-
-            const string operatorName = "$scoreFusion";
-            var stage = new DelegatedPipelineStageDefinition<TInput, TOutput>(
-                operatorName,
-                args =>
-                {
-                    ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
-                    var combination = BuildScoreFusionCombination(weights, options);
-                    var document = new BsonDocument
-                    {
-                        {
-                            "input", new BsonDocument
-                            {
-                                { "pipelines", RenderNamedPipelines(args, pipelines) },
-                                { "normalization", normalization.ToCamelCase() }
-                            }
-                        },
-                        { "combination", combination, combination != null },
-                        { "scoreDetails", true, options?.ScoreDetails == true }
-                    };
-
-                    return new RenderedPipelineStageDefinition<TOutput>(
-                        operatorName,
-                        new BsonDocument(operatorName, document),
-                        options?.OutputSerializer ?? args.SerializerRegistry.GetSerializer<TOutput>());
-                });
-
-            return stage;
+            return ScoreFusionCore(pipelines, normalization, weights, options);
         }
 
         /// <summary>
@@ -1879,7 +1846,17 @@ namespace MongoDB.Driver
             ScoreFusionOptions<TOutput> options = null)
         {
             Ensure.IsNotNull(pipelines, nameof(pipelines));
-            return ScoreFusion(BuildAutoNamedPipelineMap(pipelines), normalization, null, options);
+            if (pipelines.Length == 0)
+            {
+                throw new ArgumentException("Value cannot be an empty collection.", nameof(pipelines));
+            }
+
+            if (pipelines.Any(pipeline => pipeline == null))
+            {
+                throw new ArgumentNullException(nameof(pipelines), "Value cannot contain a null pipeline.");
+            }
+
+            return ScoreFusionCore(BuildAutoNamedPipelineMap(pipelines), normalization, null, options);
         }
 
         /// <summary>
@@ -1897,8 +1874,18 @@ namespace MongoDB.Driver
             ScoreFusionOptions<TOutput> options = null)
         {
             Ensure.IsNotNull(pipelinesWithWeights, nameof(pipelinesWithWeights));
+            if (pipelinesWithWeights.Length == 0)
+            {
+                throw new ArgumentException("Value cannot be an empty collection.", nameof(pipelinesWithWeights));
+            }
+
+            if (pipelinesWithWeights.Any(p => p.Pipeline == null))
+            {
+                throw new ArgumentNullException(nameof(pipelinesWithWeights), "Value cannot contain a tuple with a null pipeline.");
+            }
+
             var (pipelinesMap, weightsMap) = BuildAutoNamedPipelineMapWithWeights(pipelinesWithWeights);
-            return ScoreFusion(pipelinesMap, normalization, weightsMap.Count == 0 ? null : weightsMap, options);
+            return ScoreFusionCore(pipelinesMap, normalization, weightsMap.Count == 0 ? null : weightsMap, options);
         }
 
         /// <summary>
@@ -2538,6 +2525,53 @@ namespace MongoDB.Driver
                 renderedPipelines.Add(pipeline.Key, new BsonArray(pipeline.Value.Render(args).Documents));
             }
             return renderedPipelines;
+        }
+
+        private static PipelineStageDefinition<TInput, TOutput> ScoreFusionCore<TInput, TOutput>(
+            Dictionary<string, PipelineDefinition<TInput, TOutput>> pipelines,
+            ScoreFusionNormalization normalization,
+            Dictionary<string, double> weights,
+            ScoreFusionOptions<TOutput> options)
+        {
+            if (options?.CombinationMethod == ScoreFusionCombinationMethod.Expression && options.CombinationExpression == null)
+            {
+                throw new ArgumentException(
+                    $"{nameof(ScoreFusionOptions<TOutput>.CombinationExpression)} must be supplied when {nameof(ScoreFusionOptions<TOutput>.CombinationMethod)} is {nameof(ScoreFusionCombinationMethod.Expression)}.",
+                    nameof(options));
+            }
+
+            if (options?.CombinationExpression != null && options.CombinationMethod != ScoreFusionCombinationMethod.Expression)
+            {
+                throw new ArgumentException(
+                    $"{nameof(ScoreFusionOptions<TOutput>.CombinationMethod)} must be {nameof(ScoreFusionCombinationMethod.Expression)} when {nameof(ScoreFusionOptions<TOutput>.CombinationExpression)} is supplied.",
+                    nameof(options));
+            }
+
+            const string operatorName = "$scoreFusion";
+            return new DelegatedPipelineStageDefinition<TInput, TOutput>(
+                operatorName,
+                args =>
+                {
+                    ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
+                    var combination = BuildScoreFusionCombination(weights, options);
+                    var document = new BsonDocument
+                    {
+                        {
+                            "input", new BsonDocument
+                            {
+                                { "pipelines", RenderNamedPipelines(args, pipelines) },
+                                { "normalization", normalization.ToCamelCase() }
+                            }
+                        },
+                        { "combination", combination, combination != null },
+                        { "scoreDetails", true, options?.ScoreDetails == true }
+                    };
+
+                    return new RenderedPipelineStageDefinition<TOutput>(
+                        operatorName,
+                        new BsonDocument(operatorName, document),
+                        options?.OutputSerializer ?? args.SerializerRegistry.GetSerializer<TOutput>());
+                });
         }
     }
 
