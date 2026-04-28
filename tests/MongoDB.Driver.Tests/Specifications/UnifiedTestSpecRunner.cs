@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core.Clusters;
@@ -210,11 +211,34 @@ namespace MongoDB.Driver.Tests.Specifications
         [Category("SDAM", "SupportLoadBalancing")]
         [UnifiedTestsTheory("server_discovery_and_monitoring.tests.unified")]
         public void ServerDiscoveryAndMonitoring(JsonDrivenTestCase testCase)
-            => Run(testCase, IsSdamLogValid, new SdamRunnerEventsProcessor(testCase.Name));
+        {
+            // These tests require full RS topology discovery (multiple topology change events).
+            // A single-node RS (whether via directConnect or replicaSet= with one member) only fires 2 topology
+            // events, never the full RS discovery sequence with secondary discovery. CSHARP-6008.
+            if (IsSingleNodeReplicaSet())
+            {
+                const string singleNodeRsReason = "Test skipped because single-node replica set does not produce full RS topology discovery events (CSHARP-6008).";
+                SkipFile(testCase, "logging-replicaset.json", singleNodeRsReason);
+                SkipFile(testCase, "replicaset-emit-topology-changed-before-close.json", singleNodeRsReason);
+                SkipFile(testCase, "rediscover-quickly-after-step-down.json", singleNodeRsReason);
+            }
+
+            Run(testCase, IsSdamLogValid, new SdamRunnerEventsProcessor(testCase.Name));
+        }
 
         [Category("SupportLoadBalancing")]
         [UnifiedTestsTheory("server_selection.tests.logging")]
-        public void ServerSelection(JsonDrivenTestCase testCase) => Run(testCase);
+        public void ServerSelection(JsonDrivenTestCase testCase)
+        {
+            // replica-set.json expects full RS topology discovery events and a secondary, not available on a
+            // single-node RS (whether via directConnect or replicaSet= with one member). CSHARP-6008.
+            if (IsSingleNodeReplicaSet())
+            {
+                SkipFile(testCase, "replica-set.json", "Test skipped because single-node replica set does not have a secondary (CSHARP-6008).");
+            }
+
+            Run(testCase);
+        }
 
         [UnifiedTestsTheory("sessions.tests")]
         public void Sessions(JsonDrivenTestCase testCase) => Run(testCase);
@@ -277,6 +301,25 @@ namespace MongoDB.Driver.Tests.Specifications
         private static void RequireKmsMock() =>
             RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED");
 
+        private static bool IsSingleNodeReplicaSet() => DriverTestConfiguration.IsSingleNodeReplicaSet(CoreTestConfiguration.Cluster);
+
+
+        /// <summary>
+        /// Skip all tests sourced from a specific JSON spec file. The source file is identified via
+        /// the "_fileName" value the discoverer stamps onto every test case (see
+        /// UnifiedTestsDiscoverer), rather than by parsing the composite test-case name.
+        /// </summary>
+        private static void SkipFile(JsonDrivenTestCase testCase, string fileName, string reason)
+        {
+            if (testCase.Shared.GetValue("_fileName", null)?.AsString == fileName)
+            {
+                throw new SkipException(reason);
+            }
+        }
+
+        /// <summary>
+        /// Skip tests whose name contains the given operation substring.
+        /// </summary>
         private static void SkipNotSupportedTestCases(JsonDrivenTestCase testCase, string operationName)
         {
             if (testCase.Name.Contains(operationName))
@@ -285,7 +328,9 @@ namespace MongoDB.Driver.Tests.Specifications
             }
         }
 
-        // used by SkippedTestsProvider property in UnifiedTests attribute.
+        /// <summary>
+        /// Used by SkippedTestsProvider property in UnifiedTests attribute.
+        /// </summary>
         private static readonly HashSet<string> __ignoredTests = new(
         [
             // CMAP

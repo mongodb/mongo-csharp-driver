@@ -52,19 +52,30 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring.pr
                 .Check()
                 .Supports(Feature.DirectConnectionSetting)
                 .ClusterTypes(ClusterType.ReplicaSet)
+                .ReplicaSetDataBearingMembers(2)
                 .Authentication(false); // we don't use auth connection string in this test
 
             var setupClient = DriverTestConfiguration.Client;
             setupClient.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName).RunCommand<BsonDocument>("{ ping : 1 }");
 
             var setupCluster = setupClient.Cluster;
-            SpinWait.SpinUntil(() => setupCluster.Description.State == ClusterState.Connected, TimeSpan.FromSeconds(3));
+            // ReplicaSetDataBearingMembers(2) confirms a secondary exists in the topology but not that it
+            // has finished its individual connection handshake. ClusterState.Connected only requires *any*
+            // server to be connected (typically the primary), so waiting on that predicate doesn't help
+            // here. Spin directly on the predicate we actually need: a Connected ReplicaSetSecondary.
+            SpinWait.SpinUntil(
+                () => setupCluster.Description.Servers.Any(s => s.State == ServerState.Connected && s.Type == ServerType.ReplicaSetSecondary),
+                TimeSpan.FromSeconds(10));
 
             var clusterDescription = setupCluster.Description;
             var secondary = clusterDescription.Servers.FirstOrDefault(s => s.State == ServerState.Connected && s.Type == ServerType.ReplicaSetSecondary);
             if (secondary == null)
             {
-                throw new Exception("No secondary was found.");
+                // Intentionally a hard failure (not SkipException): ReplicaSetDataBearingMembers(2) already
+                // gated on >=2 data-bearing members, and the spin above gave the secondary a generous
+                // window to connect. Hitting this branch indicates the data-bearing spin is undercounting
+                // or a real topology bug — surface it as a failure with the cluster description.
+                throw new Exception($"No connected secondary found despite RequireServer.ReplicaSetDataBearingMembers(2) guard. Cluster: {clusterDescription}.");
             }
 
             var dnsEndpoint = (DnsEndPoint)secondary.EndPoint;
