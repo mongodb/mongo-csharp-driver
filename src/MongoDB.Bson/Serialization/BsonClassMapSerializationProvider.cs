@@ -30,7 +30,7 @@ namespace MongoDB.Bson.Serialization
             _serializationDomain = serializationDomain;
         }
 
-        public IBsonSerializationDomain SerializationDomain { get; }
+        public IBsonSerializationDomain SerializationDomain => _serializationDomain;
 
         /// <inheritdoc/>
         public override IBsonSerializer GetSerializer(Type type, IBsonSerializerRegistry serializerRegistry)

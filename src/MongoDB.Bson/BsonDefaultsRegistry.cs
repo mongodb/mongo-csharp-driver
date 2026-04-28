@@ -15,13 +15,13 @@
 
 using System.Collections.Generic;
 using System.Dynamic;
+using System.Threading;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson
 {
     internal class BsonDefaultsRegistry : IBsonDefaults
     {
-        // TODO: lazy init of _dynamicArraySerializer / _dynamicDocumentSerializer is not thread-safe (it's not even safe now)
         private IBsonSerializationDomain _serializationDomain;
         private bool _dynamicArraySerializerWasSet;
         private IBsonSerializer _dynamicArraySerializer;
@@ -37,9 +37,10 @@ namespace MongoDB.Bson
         {
             get
             {
-                if (!_dynamicArraySerializerWasSet)
+                if (!_dynamicArraySerializerWasSet && _dynamicArraySerializer == null)
                 {
-                    _dynamicArraySerializer = _serializationDomain.LookupSerializer<List<object>>();
+                    var computed = _serializationDomain.LookupSerializer<List<object>>();
+                    Interlocked.CompareExchange(ref _dynamicArraySerializer, computed, null);
                 }
                 return _dynamicArraySerializer;
             }
@@ -54,9 +55,10 @@ namespace MongoDB.Bson
         {
             get
             {
-                if (!_dynamicDocumentSerializerWasSet)
+                if (!_dynamicDocumentSerializerWasSet && _dynamicDocumentSerializer == null)
                 {
-                    _dynamicDocumentSerializer = _serializationDomain.LookupSerializer<ExpandoObject>();
+                    var computed = _serializationDomain.LookupSerializer<ExpandoObject>();
+                    Interlocked.CompareExchange(ref _dynamicDocumentSerializer, computed, null);
                 }
                 return _dynamicDocumentSerializer;
             }

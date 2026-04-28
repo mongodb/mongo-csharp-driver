@@ -19,6 +19,7 @@ using System.Linq;
 using System.Security.Authentication;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
@@ -41,6 +42,26 @@ namespace MongoDB.Driver.Tests
             subject1.Should().NotBeSameAs(subject2);
             subject1.Equals(subject2).Should().BeTrue();
             subject1.GetHashCode().Should().Be(subject2.GetHashCode());
+        }
+
+        [Fact]
+        public void Equals_should_return_true_if_only_SerializationDomain_differs()
+        {
+            var settings1 = new MongoClientSettings
+            {
+                SerializationDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("A")
+            };
+            var settings2 = new MongoClientSettings
+            {
+                SerializationDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("B")
+            };
+
+            var key1 = settings1.ToClusterKey();
+            var key2 = settings2.ToClusterKey();
+
+            key1.Should().NotBeSameAs(key2);
+            key1.Equals(key2).Should().BeTrue();
+            key1.GetHashCode().Should().Be(key2.GetHashCode());
         }
 
         [Theory]
