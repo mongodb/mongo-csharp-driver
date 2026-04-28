@@ -15,10 +15,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.Logging;
@@ -210,11 +212,31 @@ namespace MongoDB.Driver.Tests.Specifications
         [Category("SDAM", "SupportLoadBalancing")]
         [UnifiedTestsTheory("server_discovery_and_monitoring.tests.unified")]
         public void ServerDiscoveryAndMonitoring(JsonDrivenTestCase testCase)
-            => Run(testCase, IsSdamLogValid, new SdamRunnerEventsProcessor(testCase.Name));
+        {
+            // These tests require full RS topology discovery (multiple topology change events).
+            // A directConnect single-node RS only fires 2 topology events, never the RS discovery sequence.
+            if (IsDirectConnectionToReplicaSet())
+            {
+                SkipNotSupportedTestCases(testCase, "logging-replicaset.json");
+                SkipNotSupportedTestCases(testCase, "replicaset-emit-topology-changed-before-close.json");
+                SkipNotSupportedTestCases(testCase, "rediscover-quickly-after-step-down.json");
+            }
+
+            Run(testCase, IsSdamLogValid, new SdamRunnerEventsProcessor(testCase.Name));
+        }
 
         [Category("SupportLoadBalancing")]
         [UnifiedTestsTheory("server_selection.tests.logging")]
-        public void ServerSelection(JsonDrivenTestCase testCase) => Run(testCase);
+        public void ServerSelection(JsonDrivenTestCase testCase)
+        {
+            // replica-set.json expects full RS topology discovery events not available on directConnect RS.
+            if (IsDirectConnectionToReplicaSet())
+            {
+                SkipNotSupportedTestCases(testCase, "replica-set.json");
+            }
+
+            Run(testCase);
+        }
 
         [UnifiedTestsTheory("sessions.tests")]
         public void Sessions(JsonDrivenTestCase testCase) => Run(testCase);
@@ -276,6 +298,17 @@ namespace MongoDB.Driver.Tests.Specifications
 
         private static void RequireKmsMock() =>
             RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED");
+
+        private static bool IsDirectConnectionToReplicaSet()
+        {
+            var description = CoreTestConfiguration.Cluster.Description;
+            if (!description.DirectConnection)
+            {
+                return false;
+            }
+            var serverType = description.Servers.FirstOrDefault()?.Type ?? ServerType.Unknown;
+            return serverType.IsReplicaSetMember();
+        }
 
         private static void SkipNotSupportedTestCases(JsonDrivenTestCase testCase, string operationName)
         {

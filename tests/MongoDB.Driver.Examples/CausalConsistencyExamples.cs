@@ -120,9 +120,10 @@ namespace MongoDB.Driver.Examples
             DropCollection(CreateClient(), "myDatabase", "myCollection");
 
             // Start Tunable Consistency Controls Example
-            var connectionString = "mongodb://localhost/?readPreference=secondaryPreferred";
+            var settings = MongoClientSettings.FromConnectionString(CoreTestConfiguration.ConnectionString.ToString());
+            settings.ReadPreference = ReadPreference.SecondaryPreferred;
 
-            var client = new MongoClient(connectionString);
+            var client = new MongoClient(settings);
             var database = client.GetDatabase("myDatabase");
             var collection = database.GetCollection<BsonDocument>("myCollection");
 

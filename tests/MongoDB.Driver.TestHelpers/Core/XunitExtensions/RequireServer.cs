@@ -18,7 +18,9 @@ using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Encryption;
+using MongoDB.Driver.Tests;
 using Xunit.Sdk;
 
 namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
@@ -67,7 +69,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
 
         public RequireServer ClusterType(ClusterType clusterType)
         {
-            var actualClusterType = CoreTestConfiguration.Cluster.Description.Type;
+            var actualClusterType = GetActualClusterType();
             if (actualClusterType == clusterType)
             {
                 return this;
@@ -77,7 +79,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
 
         public RequireServer ClusterTypes(params ClusterType[] clusterTypes)
         {
-            var actualClusterType = CoreTestConfiguration.Cluster.Description.Type;
+            var actualClusterType = GetActualClusterType();
             if (clusterTypes.Contains(actualClusterType))
             {
                 return this;
@@ -239,6 +241,16 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
             throw new SkipException($"Test skipped because the cluster does not have multiple mongoses.");
         }
 
+        public RequireServer ReplicaSetDataBearingMembers(int minimum)
+        {
+            var actualCount = DriverTestConfiguration.GetReplicaSetNumberOfDataBearingMembers(CoreTestConfiguration.Cluster);
+            if (actualCount >= minimum)
+            {
+                return this;
+            }
+            throw new SkipException($"Test skipped because replica set has {actualCount} data-bearing member(s) and at least {minimum} are required.");
+        }
+
         public RequireServer VersionGreaterThanOrEqualTo(SemanticVersion version)
         {
             var actualVersion = CoreTestConfiguration.ServerVersion;
@@ -285,6 +297,19 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
         }
 
         // private methods
+        private ClusterType GetActualClusterType()
+        {
+            var description = CoreTestConfiguration.Cluster.Description;
+            // For direct connections, Description.Type is always Standalone regardless of the actual
+            // server type. Use the server's reported type to get the true effective cluster type.
+            if (description.DirectConnection)
+            {
+                var serverType = description.Servers.FirstOrDefault()?.Type ?? ServerType.Unknown;
+                return serverType.ToClusterType();
+            }
+            return description.Type;
+        }
+
         private bool CanRunOn(BsonDocument requirements)
         {
             return requirements.All(IsRequirementSatisfied);
@@ -335,9 +360,8 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
                     return true;
                 case "topologies":
                 case "topology":
-                    var actualClusterType = CoreTestConfiguration.Cluster.Description.Type;
-                    var runOnClusterTypes = requirement.Value.AsBsonArray.Select(topology => MapTopologyToClusterType(topology.AsString)).ToList();
-                    return runOnClusterTypes.Contains(actualClusterType);
+                    var actualServerType = CoreTestConfiguration.Cluster.Description.Servers.FirstOrDefault()?.Type ?? ServerType.Unknown;
+                    return requirement.Value.AsBsonArray.Any(topology => IsTopologyMatch(topology.AsString, actualServerType));
                 case "csfle":
                     return IsCsfleRequirementSatisfied(requirement);
                 default:
@@ -365,15 +389,15 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
             return SemanticVersionCompareToAsReleased(actualLibmongocryptVersion, minLibmongocryptVersion) >= 0;
         }
 
-        private ClusterType MapTopologyToClusterType(string topology)
+        private bool IsTopologyMatch(string topology, ServerType serverType)
         {
             switch (topology)
             {
-                case "single": return Clusters.ClusterType.Standalone;
-                case "replicaset": return Clusters.ClusterType.ReplicaSet;
+                case "single": return serverType == ServerType.Standalone;
+                case "replicaset": return serverType.IsReplicaSetMember();
                 case "sharded-replicaset":
-                case "sharded": return Clusters.ClusterType.Sharded;
-                case "load-balanced": return Clusters.ClusterType.LoadBalanced;
+                case "sharded": return serverType == ServerType.ShardRouter;
+                case "load-balanced": return serverType == ServerType.LoadBalanced;
                 default: throw new ArgumentException($"Invalid topology: \"{topology}\".", nameof(topology));
             }
         }
