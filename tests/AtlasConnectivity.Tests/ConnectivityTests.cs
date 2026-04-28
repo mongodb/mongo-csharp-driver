@@ -31,7 +31,7 @@ namespace AtlasConnectivity.Tests
         public ConnectivityTests(ITestOutputHelper testOutputHelper)
             : base(testOutputHelper)
         {
-            RequireEnvironment.Check().EnvironmentVariable("ATLAS_SEARCH_CONNECTIVITY_TESTS_ENABLED");
+            RequireEnvironment.Check().EnvironmentVariable("ATLAS_CONNECTIVITY_TESTS_ENABLED");
         }
 
         // public methods
