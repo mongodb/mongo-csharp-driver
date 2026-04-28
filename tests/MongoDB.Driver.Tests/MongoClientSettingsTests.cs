@@ -22,6 +22,7 @@ using System.Text;
 using System.Threading;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
@@ -198,6 +199,22 @@ namespace MongoDB.Driver.Tests
             var clone = settings.Clone();
 
             clone.Should().Be(settings);
+        }
+
+        [Fact]
+        public void TestCloneSerializationDomain()
+        {
+            var domain = BsonSerializationDomain.CreateWithDefaultConfiguration("Clone");
+            var settings = new MongoClientSettings
+            {
+                SerializationDomain = domain
+            };
+
+            var clone = settings.Clone();
+
+            Assert.Same(domain, clone.SerializationDomain);
+            Assert.Equal(settings, clone);
+            Assert.Equal(settings.GetHashCode(), clone.GetHashCode());
         }
 
         [Fact]
@@ -476,6 +493,10 @@ namespace MongoDB.Driver.Tests
 
             clone = settings.Clone();
             clone.Scheme = ConnectionStringScheme.MongoDBPlusSrv;
+            Assert.False(clone.Equals(settings));
+
+            clone = settings.Clone();
+            clone.SerializationDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Other");
             Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
@@ -1106,6 +1127,21 @@ namespace MongoDB.Driver.Tests
             settings.Freeze();
             Assert.Equal(scheme, settings.Scheme);
             Assert.Throws<InvalidOperationException>(() => { settings.Scheme = scheme; });
+        }
+
+        [Fact]
+        public void TestSerializationDomain()
+        {
+            var settings = new MongoClientSettings();
+            Assert.Same(BsonSerializer.DefaultSerializationDomain, settings.SerializationDomain);
+
+            var serializationDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
+            settings.SerializationDomain = serializationDomain;
+            Assert.Same(serializationDomain, settings.SerializationDomain);
+
+            settings.Freeze();
+            Assert.Same(serializationDomain, settings.SerializationDomain);
+            Assert.Throws<InvalidOperationException>(() => { settings.SerializationDomain = serializationDomain; });
         }
 
         [Fact]
