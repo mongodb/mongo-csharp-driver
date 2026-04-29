@@ -2741,7 +2741,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         {
             RequireServer.Check()
                 .Supports(Feature.Csfle2QEv2TextPreviewAlgorithm)
-                .ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced);
+                .ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced)
+                .VersionLessThanOrEqualTo("8.99.99");
 
             var prefixSuffixCollectionNamespace = new CollectionNamespace("db", "prefix-suffix");
             var substringCollectionNamespace = new CollectionNamespace("db", "substring");
