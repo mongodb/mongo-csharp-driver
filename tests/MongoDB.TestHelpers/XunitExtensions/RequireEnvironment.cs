@@ -47,7 +47,7 @@ namespace MongoDB.TestHelpers.XunitExtensions
 
             bool CheckProvider(string match, string environmentVariable)
             {
-                if (kmsProviderName?.Contains(match, StringComparison.OrdinalIgnoreCase) != true)
+                if (kmsProviderName == null || kmsProviderName.IndexOf(match, StringComparison.OrdinalIgnoreCase) < 0)
                 {
                     return false;
                 }
