@@ -33,32 +33,30 @@ namespace MongoDB.TestHelpers.XunitExtensions
 
         public RequireEnvironment KmsProvider(string kmsProviderName)
         {
-            if (kmsProviderName?.Contains("kmip", StringComparison.OrdinalIgnoreCase) == true)
+            CheckProvider("kmip", "KMS_MOCK_SERVERS_ENABLED");
+
+            if (!CheckProvider("awsTemporary", "CSFLE_AWS_TEMPORARY_CREDS_ENABLED"))
             {
-                Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true);
+                CheckProvider("aws", "FLE_AWS_KEY");
             }
 
-            if (kmsProviderName?.Contains("awsTemporary", StringComparison.OrdinalIgnoreCase) == true)
-            {
-                Check().EnvironmentVariable("CSFLE_AWS_TEMPORARY_CREDS_ENABLED", isDefined: true);
-            }
-            else if (kmsProviderName?.Contains("aws", StringComparison.OrdinalIgnoreCase) == true)
-            {
-                Check().EnvironmentVariable("FLE_AWS_KEY", isDefined: true);
-            }
-
-            if (kmsProviderName?.Contains("azure", StringComparison.OrdinalIgnoreCase) == true)
-            {
-                Check().EnvironmentVariable("FLE_AZURE_TENANTID", isDefined: true);
-            }
-
-            if (kmsProviderName?.Contains("gcp", StringComparison.OrdinalIgnoreCase) == true)
-            {
-                Check().EnvironmentVariable("FLE_GCP_EMAIL", isDefined: true);
-            }
+            CheckProvider("azure", "FLE_AZURE_TENANTID");
+            CheckProvider("gcp", "FLE_GCP_EMAIL");
 
             return this;
+
+            bool CheckProvider(string match, string environmentVariable)
+            {
+                if (kmsProviderName?.Contains(match, StringComparison.OrdinalIgnoreCase) != true)
+                {
+                    return false;
+                }
+
+                Check().EnvironmentVariable(environmentVariable, isDefined: true);
+                return true;
+            }
         }
+
 
         public RequireEnvironment EnvironmentVariable(string name, bool isDefined = true, bool allowEmpty = true)
         {
