@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Tests
                 .GetCollection<BsonDocument>("snapshot_readconcern_test")
                 .WithReadConcern(ReadConcern.Local);
 
-            var defaultCollection = collection.WithReadConcern(ReadConcern.Default);
+            var defaultCollection = collection.WithReadConcern(ReadConcern.Default).WithWriteConcern(WriteConcern.WMajority);
             defaultCollection.DeleteMany(FilterDefinition<BsonDocument>.Empty);
             defaultCollection.InsertOne(new BsonDocument("x", 1));
 
