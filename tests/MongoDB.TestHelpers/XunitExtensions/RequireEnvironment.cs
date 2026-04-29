@@ -70,12 +70,13 @@ namespace MongoDB.TestHelpers.XunitExtensions
 
         // Cloudflare WARP (and similar VPN software) can write both plain IPv4 and IPv4-mapped IPv6
         // forms of the same loopback address into /etc/resolv.conf (e.g. 127.0.2.3 and ::ffff:127.0.2.3).
-        // DnsClient reads /etc/resolv.conf directly and may select the ::ffff: form for UDP queries,
-        // which macOS does not route correctly, causing a socket timeout. Skip DNS-dependent tests
+        // DnsClient reads /etc/resolv.conf directly and may select the ::ffff: form for UDP queries.
+        // On macOS, the kernel does not route IPv4-mapped IPv6 loopback addresses via UDP correctly,
+        // causing a socket timeout. Linux handles this correctly. Skip DNS-dependent tests on macOS
         // when this configuration is detected.
         public RequireEnvironment NoDuplicateIpv4MappedNameServers()
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
                 return this;
             }
@@ -89,23 +90,30 @@ namespace MongoDB.TestHelpers.XunitExtensions
             var ipv4Addresses = new HashSet<IPAddress>();
             var allAddresses = new List<IPAddress>();
 
-            foreach (var line in File.ReadAllLines(resolveConfPath))
+            try
             {
-                var trimmed = line.Trim();
-                if (!trimmed.StartsWith("nameserver", StringComparison.OrdinalIgnoreCase))
+                foreach (var line in File.ReadAllLines(resolveConfPath))
                 {
-                    continue;
-                }
-
-                var parts = trimmed.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
-                if (parts.Length >= 2 && IPAddress.TryParse(parts[1], out var ip))
-                {
-                    allAddresses.Add(ip);
-                    if (ip.AddressFamily == AddressFamily.InterNetwork)
+                    var trimmed = line.Trim();
+                    if (!trimmed.StartsWith("nameserver", StringComparison.OrdinalIgnoreCase))
                     {
-                        ipv4Addresses.Add(ip);
+                        continue;
+                    }
+
+                    var parts = trimmed.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+                    if (parts.Length >= 2 && IPAddress.TryParse(parts[1], out var ip))
+                    {
+                        allAddresses.Add(ip);
+                        if (ip.AddressFamily == AddressFamily.InterNetwork && IPAddress.IsLoopback(ip))
+                        {
+                            ipv4Addresses.Add(ip);
+                        }
                     }
                 }
+            }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+            {
+                return this;
             }
 
             if (allAddresses.Any(ip => ip.IsIPv4MappedToIPv6 && ipv4Addresses.Contains(ip.MapToIPv4())))

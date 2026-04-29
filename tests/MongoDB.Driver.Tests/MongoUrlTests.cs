@@ -66,7 +66,10 @@ namespace MongoDB.Driver.Tests
         [InlineData("mongodb+srv://test2.test.build.10gen.cc")]
         public void constructor_with_resolved_connection_string_should_initialize_resolved_instance(string url)
         {
-            RequireEnvironment.Check().NoDuplicateIpv4MappedNameServers();
+            if (url.StartsWith("mongodb+srv://", StringComparison.OrdinalIgnoreCase))
+            {
+                RequireEnvironment.Check().NoDuplicateIpv4MappedNameServers();
+            }
 
             var connectionString = new ConnectionString(url);
             var resolvedConnectionString = connectionString.Resolve();
