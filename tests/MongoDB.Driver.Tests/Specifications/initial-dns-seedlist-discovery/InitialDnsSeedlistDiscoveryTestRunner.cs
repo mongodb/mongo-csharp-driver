@@ -39,6 +39,8 @@ namespace MongoDB.Driver.Tests.Specifications.initial_dns_seedlist_discovery
         [ClassData(typeof(TestCaseFactory))]
         public void RunTestDefinition(TestCase testCase)
         {
+            RequireEnvironment.Check().NoDuplicateIpv4MappedNameServers();
+
             ConnectionString connectionString = null;
             Exception resolveException = Record.Exception(() => connectionString = new ConnectionString((string)testCase.Definition["uri"]).Resolve());
             Assert(connectionString, resolveException, testCase.Definition);
@@ -48,6 +50,8 @@ namespace MongoDB.Driver.Tests.Specifications.initial_dns_seedlist_discovery
         [ClassData(typeof(TestCaseFactory))]
         public async Task RunTestDefinitionAsync(TestCase testCase)
         {
+            RequireEnvironment.Check().NoDuplicateIpv4MappedNameServers();
+
             ConnectionString connectionString = null;
             Exception resolveException = await Record.ExceptionAsync(async () => connectionString = await new ConnectionString((string)testCase.Definition["uri"]).ResolveAsync());
             Assert(connectionString, resolveException, testCase.Definition);
