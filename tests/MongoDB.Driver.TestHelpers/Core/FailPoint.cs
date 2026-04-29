@@ -41,10 +41,8 @@ namespace MongoDB.Driver.Core.TestHelpers
 
         #region static
 
-        public static FailPoint Configure(BsonDocument command, bool? withAsync = null, IClusterInternal cluster = null)
-        {
-            return Configure(WritableServerSelector.Instance, command, withAsync, cluster);
-        }
+        public static FailPoint Configure(BsonDocument command, bool? withAsync = null, IClusterInternal cluster = null) =>
+            Configure(WritableServerSelector.Instance, command, withAsync, cluster);
 
         public static FailPoint Configure(IServerSelector serverSelector, BsonDocument command, bool? withAsync = null, IClusterInternal cluster = null)
         {
