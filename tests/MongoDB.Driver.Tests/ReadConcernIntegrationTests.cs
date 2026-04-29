@@ -57,8 +57,9 @@ namespace MongoDB.Driver.Tests
                 .GetCollection<BsonDocument>("snapshot_readconcern_test")
                 .WithReadConcern(ReadConcern.Local);
 
-            database.DropCollection("snapshot_readconcern_test");
-            collection.WithReadConcern(ReadConcern.Default).InsertOne(new BsonDocument("x", 1));
+            var defaultCollection = collection.WithReadConcern(ReadConcern.Default);
+            defaultCollection.DeleteMany(FilterDefinition<BsonDocument>.Empty);
+            defaultCollection.InsertOne(new BsonDocument("x", 1));
 
             var sessionOptions = new ClientSessionOptions { Snapshot = true };
             using var session = client.StartSession(sessionOptions);
