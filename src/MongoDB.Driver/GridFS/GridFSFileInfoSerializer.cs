@@ -27,6 +27,8 @@ namespace MongoDB.Driver.GridFS
     public class GridFSFileInfoSerializer<TFileId> : BsonDocumentBackedClassSerializer<GridFSFileInfo<TFileId>>, IGridFSFileInfoSerializer<TFileId>
     {
         // constructors
+        //DOMAIN-API Remove in 4.0: this parameterless ctor resolves the TFileId serializer through
+        //the global registry.
         /// <summary>
         /// Initializes a new instance of the <see cref="GridFSFileInfoSerializer" /> class.
         /// </summary>

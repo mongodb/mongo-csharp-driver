@@ -45,7 +45,7 @@ namespace MongoDB.Driver.GridFS
             GridFSFileInfo<TFileId> fileInfo)
             : base(bucket, binding, fileInfo)
         {
-            var idSerializer = bucket.Options.SerializerRegistry.GetSerializer<TFileId>();
+            var idSerializer = bucket.Database.Client.Settings.SerializationDomain.SerializerRegistry.GetSerializer<TFileId>();
             var idSerializationInfo = new BsonSerializationInfo("_id", idSerializer, typeof(TFileId));
             _idAsBsonValue = idSerializationInfo.SerializeValue(fileInfo.Id);
         }
