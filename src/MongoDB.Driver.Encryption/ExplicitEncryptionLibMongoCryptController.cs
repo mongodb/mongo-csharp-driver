@@ -553,6 +553,7 @@ namespace MongoDB.Driver.Encryption
             return ToBsonIfNotNull(new BsonDocument("v", value), estimatedSize);
         }
 
+        // Default domain is correct: filter is always FilterDefinition<BsonDocument> for key vault queries
         private static BsonValue RenderFilter(FilterDefinition<BsonDocument> filter)
         {
             var registry = BsonSerializer.SerializerRegistry;
