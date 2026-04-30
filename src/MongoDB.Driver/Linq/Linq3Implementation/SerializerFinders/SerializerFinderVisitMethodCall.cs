@@ -661,7 +661,7 @@ internal partial class SerializerFinderVisitor
                     if (resultItemSerializer == null)
                     {
                         var resultItemType = method.GetGenericArguments()[1];
-                        resultItemSerializer = BsonSerializer.LookupSerializer(resultItemType);
+                        resultItemSerializer = _serializationDomain.LookupSerializer(resultItemType);
                     }
 
                     var resultSerializer = IEnumerableOrIQueryableSerializer.Create(node.Type, resultItemSerializer);
@@ -698,7 +698,7 @@ internal partial class SerializerFinderVisitor
 
                     if (resultItemSerializer == null && IsItemSerializerKnown(sourceExpression, out var sourceItemSerializer))
                     {
-                        var serializerRegistry = BsonSerializer.SerializerRegistry; // TODO: get correct registry
+                        var serializerRegistry = _serializationDomain.SerializerRegistry;
                         var translationOptions = new ExpressionTranslationOptions(); // TODO: get correct translation options
                         var renderedStage = stageDefinition.Render(sourceItemSerializer, serializerRegistry, translationOptions);
                         resultItemSerializer = renderedStage.OutputSerializer;
@@ -845,7 +845,7 @@ internal partial class SerializerFinderVisitor
                         var representationExpression = arguments[1];
 
                         var representation = representationExpression.GetConstantValue<BsonType>(node);
-                        var defaultSerializer = BsonSerializer.LookupSerializer(valueExpression.Type); // TODO: don't use BsonSerializer
+                        var defaultSerializer = _serializationDomain.LookupSerializer(valueExpression.Type);
                         if (defaultSerializer is IRepresentationConfigurable representationConfigurableSerializer)
                         {
                             serializer = representationConfigurableSerializer.WithRepresentation(representation);
@@ -1222,7 +1222,7 @@ internal partial class SerializerFinderVisitor
                 if (IsNotKnown(node))
                 {
                     var outputType = method.GetGenericArguments()[1];
-                    var outputSerializer = BsonSerializer.LookupSerializer(outputType);
+                    var outputSerializer = _serializationDomain.LookupSerializer(outputType);
                     AddNodeSerializer(node, outputSerializer);
                 }
             }
@@ -1273,7 +1273,7 @@ internal partial class SerializerFinderVisitor
                     {
                         var documentsParameter = method.GetParameters()[1];
                         var documentType = documentsParameter.ParameterType.GetElementType();
-                        documentSerializer = BsonSerializer.LookupSerializer(documentType); // TODO: don't use static registry
+                        documentSerializer = _serializationDomain.LookupSerializer(documentType);
                     }
 
                     var nodeSerializer = IQueryableSerializer.Create(documentSerializer);
@@ -1448,7 +1448,7 @@ internal partial class SerializerFinderVisitor
                     var fieldSerializer = fieldSerializerExpression.GetConstantValue<IBsonSerializer>(node);
                     if (fieldSerializer == null)
                     {
-                        fieldSerializer = BsonSerializer.LookupSerializer(method.GetGenericArguments()[1]);
+                        fieldSerializer = _serializationDomain.LookupSerializer(method.GetGenericArguments()[1]);
                     }
 
                     AddNodeSerializer(node, fieldSerializer);
@@ -2630,7 +2630,7 @@ internal partial class SerializerFinderVisitor
                 if (IsNotKnown(node))
                 {
                     var outputType = method.GetGenericArguments()[1];
-                    var outputSerializer = BsonSerializer.LookupSerializer(outputType);
+                    var outputSerializer = _serializationDomain.LookupSerializer(outputType);
                     AddNodeSerializer(node, outputSerializer);
                 }
             }
