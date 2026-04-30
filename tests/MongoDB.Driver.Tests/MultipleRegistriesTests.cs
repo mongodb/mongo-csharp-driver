@@ -556,6 +556,75 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void TryRegisterSerializer_positive_path_under_custom_domain()
+        {
+            var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
+            var serializer = new CustomStringSerializer("suffix");
+
+            var result = customDomain.TryRegisterSerializer(typeof(string), serializer);
+
+            result.Should().BeTrue();
+            customDomain.SerializerRegistry.GetSerializer<string>().Should().BeSameAs(serializer);
+        }
+
+        [Fact]
+        public void RegisterDiscriminatorConvention_positive_path_under_custom_domain()
+        {
+            var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
+            var convention = new ScalarDiscriminatorConvention("_type");
+
+            customDomain.RegisterDiscriminatorConvention(typeof(BasePerson), convention);
+
+            var retrieved = customDomain.LookupDiscriminatorConvention(typeof(BasePerson));
+            retrieved.Should().BeSameAs(convention);
+        }
+
+        [Fact]
+        public void UseNullIdChecker_and_UseZeroIdChecker_are_per_domain()
+        {
+            var domain1 = BsonSerializationDomain.CreateWithDefaultConfiguration("Domain1");
+            var domain2 = BsonSerializationDomain.CreateWithDefaultConfiguration("Domain2");
+
+            domain1.UseNullIdChecker = false;
+            domain2.UseNullIdChecker = true;
+            domain1.UseZeroIdChecker = true;
+            domain2.UseZeroIdChecker = false;
+
+            domain1.UseNullIdChecker.Should().BeFalse();
+            domain2.UseNullIdChecker.Should().BeTrue();
+            domain1.UseZeroIdChecker.Should().BeTrue();
+            domain2.UseZeroIdChecker.Should().BeFalse();
+        }
+
+        [Fact]
+        public void TestMqlConstantUnderCustomDomain()
+        {
+            RequireServer.Check();
+
+            var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
+
+            var client = CreateClientWithDomain(customDomain);
+            var collection = GetTypedCollection<EnumModel>(client);
+
+            var queryable = collection
+                .AsQueryable()
+                .Select(d => new { d.Id, V = d.ApprovalState == ApprovalState.Active ? Mql.Constant(ApprovalState.Active, BsonType.String) : ApprovalState.Inactive });
+
+            var stages = Linq3TestHelpers.Translate<EnumModel, object>(queryable);
+            var project = stages.Single(s => s.Contains("$project"));
+            project.ToJson().Should().Contain("Active");
+        }
+
+        public enum ApprovalState { Active = 1, Inactive = 2 }
+
+        public class EnumModel
+        {
+            [BsonId] public ObjectId Id { get; set; }
+            [BsonRepresentation(BsonType.String)]
+            public ApprovalState ApprovalState { get; set; }
+        }
+
+        [Fact]
         public void TryRegisterClassMap_with_initializer_binds_to_custom_domain()
         {
             var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");

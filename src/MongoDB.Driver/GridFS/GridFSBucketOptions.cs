@@ -244,6 +244,7 @@ namespace MongoDB.Driver.GridFS
         /// <value>
         /// The serializer registry.
         /// </value>
+        //DOMAIN-API hard-codes default registry; bucket-internal callers no longer consult this
         public IBsonSerializerRegistry SerializerRegistry
         {
             get { return BsonSerializer.SerializerRegistry; }
