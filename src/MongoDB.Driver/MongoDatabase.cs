@@ -628,7 +628,7 @@ namespace MongoDB.Driver
         {
             options ??= new CreateCollectionOptions<TDocument>();
             var translationOptions = _client.Settings.TranslationOptions;
-            var serializerRegistry = options.SerializerRegistry ?? BsonSerializer.SerializerRegistry;
+            var serializerRegistry = options.SerializerRegistry ?? _settings.SerializationDomain.SerializerRegistry;
             var documentSerializer = options.DocumentSerializer ?? serializerRegistry.GetSerializer<TDocument>();
 
             var clusteredIndex = options.ClusteredIndex?.Render(documentSerializer, serializerRegistry, translationOptions);
@@ -671,7 +671,7 @@ namespace MongoDB.Driver
             options ??= new CreateViewOptions<TDocument>();
 
             var translationOptions = _client.Settings.TranslationOptions;
-            var serializerRegistry = options.SerializerRegistry ?? BsonSerializer.SerializerRegistry;
+            var serializerRegistry = options.SerializerRegistry ?? _settings.SerializationDomain.SerializerRegistry;
             var documentSerializer = options.DocumentSerializer ?? serializerRegistry.GetSerializer<TDocument>();
             var pipelineDocuments = pipeline.Render(new (documentSerializer, serializerRegistry, translationOptions: translationOptions)).Documents;
             return new CreateViewOperation(_databaseNamespace, viewName, viewOn, pipelineDocuments, GetMessageEncoderSettings())
