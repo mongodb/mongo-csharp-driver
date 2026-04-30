@@ -48,12 +48,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                             input: sourceTranslation.Ast,
                             @as: selectorParameterSymbol.Var,
                             @in: selectorTranslation.Ast);
-                        var selectorResultSerializer = BsonSerializer.LookupSerializer(selectorLambda.ReturnType);
+                        var selectorResultSerializer = context.SerializationDomain.LookupSerializer(selectorLambda.ReturnType);
                         sourceTranslation = new TranslatedExpression(selectorLambda, selectorAst, selectorResultSerializer);
                     }
 
                     var ast = AstExpression.StdDev(stddevOperator, sourceTranslation.Ast);
-                    var serializer = BsonSerializer.LookupSerializer(expression.Type);
+                    var serializer = context.SerializationDomain.LookupSerializer(expression.Type);
                     return new TranslatedExpression(expression, ast, serializer);
                 }
             }

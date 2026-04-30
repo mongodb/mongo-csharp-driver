@@ -79,7 +79,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
         {
             var nodeSerializers = new SerializerMap();
             nodeSerializers.AddSerializer(initialNode, initialSerializer);
-            SerializerFinder.FindSerializers(expression, translationOptions, nodeSerializers);
+            SerializerFinder.FindSerializers(serializationDomain, expression, translationOptions, nodeSerializers);
             return Create(serializationDomain, translationOptions, nodeSerializers, data);
         }
 
@@ -95,7 +95,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
             {
                 nodeSerializers.AddSerializer(node, serializer);
             }
-            SerializerFinder.FindSerializers(expression, translationOptions, nodeSerializers);
+            SerializerFinder.FindSerializers(serializationDomain, expression, translationOptions, nodeSerializers);
             return Create(serializationDomain, translationOptions, nodeSerializers, data);
         }
 
