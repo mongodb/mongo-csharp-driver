@@ -39,16 +39,16 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         /// Initializes a new instance of the <see cref="GeoJsonPointSerializer{TCoordinates}"/> class.
         /// </summary>
         public GeoJsonPointSerializer()
-            : this(BsonSerializer.SerializerRegistry)
+            : this(BsonSerializer.DefaultSerializationDomain)
         {
         }
 
-        internal GeoJsonPointSerializer(IBsonSerializerRegistry serializerRegistry)
+        internal GeoJsonPointSerializer(IBsonSerializationDomain serializationDomain)
         {
-            _coordinatesSerializer = serializerRegistry.GetSerializer<TCoordinates>();
+            _coordinatesSerializer = serializationDomain.SerializerRegistry.GetSerializer<TCoordinates>();
             _helper = new GeoJsonObjectSerializerHelper<TCoordinates>
             (
-                serializerRegistry,
+                serializationDomain,
                 "Point",
                 new SerializerHelper.Member("coordinates", Flags.Coordinates)
             );

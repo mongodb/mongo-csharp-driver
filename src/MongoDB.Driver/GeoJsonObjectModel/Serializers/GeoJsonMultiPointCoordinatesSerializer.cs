@@ -34,13 +34,13 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         /// Initializes a new instance of the <see cref="GeoJsonMultiPointCoordinatesSerializer{TCoordinates}"/> class.
         /// </summary>
         public GeoJsonMultiPointCoordinatesSerializer()
-            : this(BsonSerializer.SerializerRegistry)
+            : this(BsonSerializer.DefaultSerializationDomain)
         {
         }
 
-        internal GeoJsonMultiPointCoordinatesSerializer(IBsonSerializerRegistry serializerRegistry)
+        internal GeoJsonMultiPointCoordinatesSerializer(IBsonSerializationDomain serializationDomain)
         {
-            _coordinatesSerializer = serializerRegistry.GetSerializer<TCoordinates>();
+            _coordinatesSerializer = serializationDomain.SerializerRegistry.GetSerializer<TCoordinates>();
         }
 
         // public methods

@@ -50,13 +50,14 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         /// <param name="type">The type.</param>
         /// <param name="derivedMembers">The derived members.</param>
         public GeoJsonObjectSerializerHelper(string type, params SerializerHelper.Member[] derivedMembers)
-            : this(BsonSerializer.SerializerRegistry, type, derivedMembers)
+            : this(BsonSerializer.DefaultSerializationDomain, type, derivedMembers)
         {
         }
 
-        internal GeoJsonObjectSerializerHelper(IBsonSerializerRegistry serializerRegistry, string type, params SerializerHelper.Member[] derivedMembers)
+        internal GeoJsonObjectSerializerHelper(IBsonSerializationDomain serializationDomain, string type, params SerializerHelper.Member[] derivedMembers)
             : base(CreateCombinedMembers(derivedMembers))
         {
+            var serializerRegistry = serializationDomain.SerializerRegistry;
             _boundingBoxSerializer = serializerRegistry.GetSerializer<GeoJsonBoundingBox<TCoordinates>>();
             _coordinateReferenceSystemSerializer = serializerRegistry.GetSerializer<GeoJsonCoordinateReferenceSystem>();
             _type = type;

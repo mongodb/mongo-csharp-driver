@@ -43,7 +43,8 @@ namespace MongoDB.Bson.Serialization
             if (serializerAttributes.Length == 1)
             {
                 var serializerAttribute = (BsonSerializerAttribute)serializerAttributes[0];
-                return serializerAttribute.CreateSerializer(type, serializerRegistry);
+                var domain = (serializerRegistry as IHasSerializationDomain)?.SerializationDomain ?? BsonSerializationDomain.Default;
+                return serializerAttribute.CreateSerializer(type, domain);
             }
 
             return null;
