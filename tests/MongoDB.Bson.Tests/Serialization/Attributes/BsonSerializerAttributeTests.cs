@@ -38,45 +38,14 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
             serializer.Should().BeOfType<ParameterlessOnlySerializer>();
         }
 
-        [BsonSerializer(typeof(RegistryCtorSerializer))]
-        internal class RegistryCtorType { }
-
-        internal class RegistryCtorSerializer : SerializerBase<RegistryCtorType>
-        {
-            public IBsonSerializerRegistry CapturedRegistry { get; }
-
-            public RegistryCtorSerializer() { }
-
-            internal RegistryCtorSerializer(IBsonSerializerRegistry registry)
-            {
-                CapturedRegistry = registry;
-            }
-        }
-
-        [Fact]
-        public void Registry_ctor_is_preferred_over_parameterless_and_captures_lookup_registry()
-        {
-            var domain = BsonSerializationDomain.CreateWithDefaultConfiguration("BsonSerializerAttributeTests-registry");
-
-            var serializer = (RegistryCtorSerializer)domain.LookupSerializer<RegistryCtorType>();
-
-            serializer.CapturedRegistry.Should().BeSameAs(domain.SerializerRegistry);
-        }
-
         [BsonSerializer(typeof(DomainCtorSerializer))]
         internal class DomainCtorType { }
 
         internal class DomainCtorSerializer : SerializerBase<DomainCtorType>, IHasSerializationDomain
         {
             public IBsonSerializationDomain SerializationDomain { get; }
-            public IBsonSerializerRegistry CapturedRegistry { get; }
 
             public DomainCtorSerializer() { }
-
-            internal DomainCtorSerializer(IBsonSerializerRegistry registry)
-            {
-                CapturedRegistry = registry;
-            }
 
             internal DomainCtorSerializer(IBsonSerializationDomain domain)
             {
@@ -85,88 +54,87 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
         }
 
         [Fact]
-        public void Domain_ctor_is_preferred_over_registry_ctor_and_captures_lookup_domain()
+        public void Domain_ctor_is_preferred_over_parameterless_and_captures_lookup_domain()
         {
             var domain = BsonSerializationDomain.CreateWithDefaultConfiguration("BsonSerializerAttributeTests-domain");
 
             var serializer = (DomainCtorSerializer)domain.LookupSerializer<DomainCtorType>();
 
             serializer.SerializationDomain.Should().BeSameAs(domain);
-            serializer.CapturedRegistry.Should().BeNull();
         }
 
-        [BsonSerializer(typeof(InternalOnlyRegistryCtorSerializer))]
-        internal class InternalOnlyRegistryCtorType { }
+        [BsonSerializer(typeof(InternalOnlyDomainCtorSerializer))]
+        internal class InternalOnlyDomainCtorType { }
 
-        internal class InternalOnlyRegistryCtorSerializer : SerializerBase<InternalOnlyRegistryCtorType>
+        internal class InternalOnlyDomainCtorSerializer : SerializerBase<InternalOnlyDomainCtorType>, IHasSerializationDomain
         {
-            public IBsonSerializerRegistry CapturedRegistry { get; }
-            public InternalOnlyRegistryCtorSerializer() { }
-            internal InternalOnlyRegistryCtorSerializer(IBsonSerializerRegistry registry)
+            public IBsonSerializationDomain SerializationDomain { get; }
+            public InternalOnlyDomainCtorSerializer() { }
+            internal InternalOnlyDomainCtorSerializer(IBsonSerializationDomain domain)
             {
-                CapturedRegistry = registry;
+                SerializationDomain = domain;
             }
         }
 
         [Fact]
-        public void Internal_registry_ctor_is_discoverable()
+        public void Internal_domain_ctor_is_discoverable()
         {
             var domain = BsonSerializationDomain.CreateWithDefaultConfiguration("BsonSerializerAttributeTests-internal-ctor");
 
-            var serializer = (InternalOnlyRegistryCtorSerializer)domain.LookupSerializer<InternalOnlyRegistryCtorType>();
+            var serializer = (InternalOnlyDomainCtorSerializer)domain.LookupSerializer<InternalOnlyDomainCtorType>();
 
-            serializer.CapturedRegistry.Should().BeSameAs(domain.SerializerRegistry);
+            serializer.SerializationDomain.Should().BeSameAs(domain);
         }
 
-        [BsonSerializer(typeof(GenericRegistryCtorSerializer<>))]
+        [BsonSerializer(typeof(GenericDomainCtorSerializer<>))]
         internal class GenericType<T> { }
 
-        internal class GenericRegistryCtorSerializer<T> : SerializerBase<GenericType<T>>
+        internal class GenericDomainCtorSerializer<T> : SerializerBase<GenericType<T>>, IHasSerializationDomain
         {
-            public IBsonSerializerRegistry CapturedRegistry { get; }
-            public GenericRegistryCtorSerializer() { }
-            internal GenericRegistryCtorSerializer(IBsonSerializerRegistry registry)
+            public IBsonSerializationDomain SerializationDomain { get; }
+            public GenericDomainCtorSerializer() { }
+            internal GenericDomainCtorSerializer(IBsonSerializationDomain domain)
             {
-                CapturedRegistry = registry;
+                SerializationDomain = domain;
             }
         }
 
         [Fact]
-        public void Generic_serializer_closed_type_is_constructed_via_registry_ctor()
+        public void Generic_serializer_closed_type_is_constructed_via_domain_ctor()
         {
             var domain = BsonSerializationDomain.CreateWithDefaultConfiguration("BsonSerializerAttributeTests-generic");
 
-            var serializer = (GenericRegistryCtorSerializer<int>)domain.LookupSerializer<GenericType<int>>();
+            var serializer = (GenericDomainCtorSerializer<int>)domain.LookupSerializer<GenericType<int>>();
 
-            serializer.CapturedRegistry.Should().BeSameAs(domain.SerializerRegistry);
+            serializer.SerializationDomain.Should().BeSameAs(domain);
         }
 
         [Fact]
-        public void Default_domain_lookup_supplies_default_domains_registry_to_registry_ctor()
+        public void Default_domain_lookup_supplies_default_domain_to_domain_ctor()
         {
-            var serializer = (RegistryCtorSerializer)BsonSerializationDomain.Default.LookupSerializer<RegistryCtorType>();
+            var serializer = (DomainCtorSerializer)BsonSerializationDomain.Default.LookupSerializer<DomainCtorType>();
 
-            serializer.CapturedRegistry.Should().BeSameAs(BsonSerializationDomain.Default.SerializerRegistry);
+            serializer.SerializationDomain.Should().BeSameAs(BsonSerializationDomain.Default);
         }
 
         internal class HolderType
         {
-            [BsonSerializer(typeof(MemberRegistryCtorSerializer))]
+            [BsonSerializer(typeof(MemberDomainCtorSerializer))]
             public string Foo { get; set; }
         }
 
-        internal class MemberRegistryCtorSerializer : SerializerBase<string>
+        internal class MemberDomainCtorSerializer : SerializerBase<string>, IHasSerializationDomain
         {
-            public IBsonSerializerRegistry CapturedRegistry { get; }
-            public MemberRegistryCtorSerializer() { }
-            internal MemberRegistryCtorSerializer(IBsonSerializerRegistry registry)
+            public IBsonSerializationDomain SerializationDomain { get; }
+            public MemberDomainCtorSerializer() { }
+            internal MemberDomainCtorSerializer(IBsonSerializationDomain domain)
             {
-                CapturedRegistry = registry;
+                SerializationDomain = domain;
             }
         }
 
         [Fact]
-        public void Apply_to_member_map_threads_member_maps_domain_through_to_registry_ctor()
+        public void Apply_to_member_map_threads_member_maps_domain_through_to_domain_ctor()
         {
             var domain = BsonSerializationDomain.CreateWithDefaultConfiguration("BsonSerializerAttributeTests-member-map");
 
@@ -174,9 +142,9 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
 
             var classMap = domain.ClassMapRegistry.LookupClassMap(typeof(HolderType));
             var memberMap = classMap.GetMemberMap(nameof(HolderType.Foo));
-            var serializer = (MemberRegistryCtorSerializer)memberMap.GetSerializer();
+            var serializer = (MemberDomainCtorSerializer)memberMap.GetSerializer();
 
-            serializer.CapturedRegistry.Should().BeSameAs(domain.SerializerRegistry);
+            serializer.SerializationDomain.Should().BeSameAs(domain);
         }
     }
 }
