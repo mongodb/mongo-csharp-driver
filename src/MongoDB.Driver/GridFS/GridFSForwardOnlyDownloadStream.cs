@@ -61,7 +61,7 @@ namespace MongoDB.Driver.GridFS
                 _lastChunkSize = fileInfo.ChunkSizeBytes;
             }
 
-            var idSerializer = bucket.Options.SerializerRegistry.GetSerializer<TFileId>();
+            var idSerializer = bucket.Database.Client.Settings.SerializationDomain.SerializerRegistry.GetSerializer<TFileId>();
             var idSerializationInfo = new BsonSerializationInfo("_id", idSerializer, typeof(TFileId));
             _idAsBsonValue = idSerializationInfo.SerializeValue(fileInfo.Id);
         }

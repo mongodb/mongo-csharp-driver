@@ -242,7 +242,7 @@ namespace MongoDB.Driver.GridFS
 
         private FilterDefinition<GridFSFileInfo<ObjectId>> WrapFilter(FilterDefinition<GridFSFileInfo> filter, ExpressionTranslationOptions translationOptions)
         {
-            var renderedFilter = filter.Render(new(GridFSFileInfoSerializer.Instance, BsonSerializer.SerializerRegistry, translationOptions: translationOptions));
+            var renderedFilter = filter.Render(new(GridFSFileInfoSerializer.Instance, Database.Client.Settings.SerializationDomain, translationOptions: translationOptions));
             return new BsonDocumentFilterDefinition<GridFSFileInfo<ObjectId>>(renderedFilter);
         }
 
@@ -250,7 +250,7 @@ namespace MongoDB.Driver.GridFS
         {
             if (options != null)
             {
-                var renderedSort = options.Sort == null ? null : options.Sort.Render(new(GridFSFileInfoSerializer.Instance, BsonSerializer.SerializerRegistry, translationOptions: translationOptions));
+                var renderedSort = options.Sort == null ? null : options.Sort.Render(new(GridFSFileInfoSerializer.Instance, Database.Client.Settings.SerializationDomain, translationOptions: translationOptions));
                 var wrappedSort = renderedSort == null ? null : new BsonDocumentSortDefinition<GridFSFileInfo<ObjectId>>(renderedSort);
                 return new GridFSFindOptions<ObjectId>
                 {
