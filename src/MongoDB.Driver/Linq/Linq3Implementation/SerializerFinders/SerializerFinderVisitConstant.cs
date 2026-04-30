@@ -29,12 +29,12 @@ internal partial class SerializerFinderVisitor
             {
                 AddNodeSerializer(node, standardSerializer);
             }
-            else
+            // The constant's value can itself be a serializer (e.g. one captured by
+            // PipelineStageDefinitionBuilder.OfType<,>). Such a constant doesn't need to be
+            // serialized, so we skip the registry lookup.
+            else if (!typeof(IBsonSerializer).IsAssignableFrom(node.Type))
             {
-                // TODO: route through _serializationDomain once attributed-serializer auto-creation
-                // (M-spike, ticket H/M in CSHARP-3985) is landed; today, custom domains cannot safely
-                // auto-resolve arbitrary constant types without tripping the cross-domain validator.
-                var registeredSerializer = BsonSerializer.LookupSerializer(node.Type);
+                var registeredSerializer = _serializationDomain.LookupSerializer(node.Type);
                 AddNodeSerializer(node, registeredSerializer);
             }
         }
