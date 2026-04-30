@@ -29,7 +29,21 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
     public class GeoJsonBoundingBoxSerializer<TCoordinates> : ClassSerializerBase<GeoJsonBoundingBox<TCoordinates>> where TCoordinates : GeoJsonCoordinates
     {
         // private fields
-        private readonly IBsonSerializer<TCoordinates> _coordinatesSerializer = BsonSerializer.LookupSerializer<TCoordinates>();
+        private readonly IBsonSerializer<TCoordinates> _coordinatesSerializer;
+
+        // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GeoJsonBoundingBoxSerializer{TCoordinates}"/> class.
+        /// </summary>
+        public GeoJsonBoundingBoxSerializer()
+            : this(BsonSerializer.SerializerRegistry)
+        {
+        }
+
+        internal GeoJsonBoundingBoxSerializer(IBsonSerializerRegistry serializerRegistry)
+        {
+            _coordinatesSerializer = serializerRegistry.GetSerializer<TCoordinates>();
+        }
 
         // public methods
         /// <inheritdoc/>
