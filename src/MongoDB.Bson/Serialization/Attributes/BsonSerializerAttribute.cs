@@ -61,7 +61,8 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// <param name="memberMap">The member map.</param>
         public void Apply(BsonMemberMap memberMap)
         {
-            var serializer = CreateSerializer(memberMap.MemberType);
+            var registry = ((IHasSerializationDomain)memberMap).SerializationDomain.SerializerRegistry;
+            var serializer = CreateSerializer(memberMap.MemberType, registry);
             memberMap.SetSerializer(serializer);
         }
 
@@ -71,6 +72,18 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// <param name="type">The type that a serializer should be created for.</param>
         /// <returns>A serializer for the type.</returns>
         internal IBsonSerializer CreateSerializer(Type type)
+        {
+            return CreateSerializer(type, BsonSerializationDomain.Default.SerializerRegistry);
+        }
+
+        /// <summary>
+        /// Creates a serializer for a type based on the serializer type specified by the attribute,
+        /// preferring (in order) a (IBsonSerializationDomain), (IBsonSerializerRegistry), or parameterless ctor.
+        /// </summary>
+        /// <param name="type">The type that a serializer should be created for.</param>
+        /// <param name="serializerRegistry">The serializer registry whose domain context the new serializer should bind to.</param>
+        /// <returns>A serializer for the type.</returns>
+        internal IBsonSerializer CreateSerializer(Type type, IBsonSerializerRegistry serializerRegistry)
         {
             var typeInfo = type.GetTypeInfo();
             if (typeInfo.ContainsGenericParameters)
@@ -86,16 +99,42 @@ namespace MongoDB.Bson.Serialization.Attributes
                 throw new InvalidOperationException(message);
             }
 
+            Type closedSerializerType;
             if (serializerTypeInfo.ContainsGenericParameters)
             {
                 var genericArguments = typeInfo.GetGenericArguments();
-                var closedSerializerType = _serializerType.MakeGenericType(genericArguments);
-                return (IBsonSerializer)Activator.CreateInstance(closedSerializerType);
+                closedSerializerType = _serializerType.MakeGenericType(genericArguments);
             }
             else
             {
-                return (IBsonSerializer)Activator.CreateInstance(_serializerType);
+                closedSerializerType = _serializerType;
             }
+
+            var domain = (serializerRegistry as IHasSerializationDomain)?.SerializationDomain;
+            if (domain != null)
+            {
+                var domainCtor = closedSerializerType.GetConstructor(
+                    BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
+                    binder: null,
+                    types: new[] { typeof(IBsonSerializationDomain) },
+                    modifiers: null);
+                if (domainCtor != null)
+                {
+                    return (IBsonSerializer)domainCtor.Invoke(new object[] { domain });
+                }
+            }
+
+            var registryCtor = closedSerializerType.GetConstructor(
+                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
+                binder: null,
+                types: new[] { typeof(IBsonSerializerRegistry) },
+                modifiers: null);
+            if (registryCtor != null)
+            {
+                return (IBsonSerializer)registryCtor.Invoke(new object[] { serializerRegistry });
+            }
+
+            return (IBsonSerializer)Activator.CreateInstance(closedSerializerType);
         }
     }
 }
