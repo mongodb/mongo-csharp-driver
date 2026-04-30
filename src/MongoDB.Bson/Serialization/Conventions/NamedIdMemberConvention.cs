@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace MongoDB.Bson.Serialization.Conventions
 {
@@ -118,6 +119,18 @@ namespace MongoDB.Bson.Serialization.Conventions
                 {
                     return false;
                 }
+            }
+
+            var bsonElement = member.GetCustomAttribute<BsonElementAttribute>();
+            if (bsonElement != null && !string.IsNullOrEmpty(bsonElement.ElementName) && bsonElement.ElementName != "_id")
+            {
+                return false;
+            }
+
+            var existingMemberMap = classMap.DeclaredMemberMaps.FirstOrDefault(m => m.MemberInfo == member);
+            if (existingMemberMap != null && !string.IsNullOrEmpty(existingMemberMap.ElementName) && existingMemberMap.ElementName != member.Name && existingMemberMap.ElementName != "_id")
+            {
+                return false;
             }
             return true;
         }
