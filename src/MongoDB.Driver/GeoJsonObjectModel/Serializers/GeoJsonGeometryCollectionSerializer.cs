@@ -33,7 +33,7 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         }
 
         // private fields
-        private readonly IBsonSerializer<GeoJsonGeometry<TCoordinates>> _geometrySerializer = BsonSerializer.LookupSerializer<GeoJsonGeometry<TCoordinates>>();
+        private readonly IBsonSerializer<GeoJsonGeometry<TCoordinates>> _geometrySerializer;
         private readonly GeoJsonObjectSerializerHelper<TCoordinates> _helper;
 
         // constructors
@@ -41,9 +41,16 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         /// Initializes a new instance of the <see cref="GeoJsonGeometryCollectionSerializer{TCoordinates}"/> class.
         /// </summary>
         public GeoJsonGeometryCollectionSerializer()
+            : this(BsonSerializer.SerializerRegistry)
         {
+        }
+
+        internal GeoJsonGeometryCollectionSerializer(IBsonSerializerRegistry serializerRegistry)
+        {
+            _geometrySerializer = serializerRegistry.GetSerializer<GeoJsonGeometry<TCoordinates>>();
             _helper = new GeoJsonObjectSerializerHelper<TCoordinates>
             (
+                serializerRegistry,
                 "GeometryCollection",
                 new SerializerHelper.Member("geometries", Flags.Geometries)
             );

@@ -27,7 +27,21 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
     public class GeoJsonMultiLineStringCoordinatesSerializer<TCoordinates> : ClassSerializerBase<GeoJsonMultiLineStringCoordinates<TCoordinates>> where TCoordinates : GeoJsonCoordinates
     {
         // private fields
-        private readonly IBsonSerializer<GeoJsonLineStringCoordinates<TCoordinates>> _lineStringCoordinatesSerializer = BsonSerializer.LookupSerializer<GeoJsonLineStringCoordinates<TCoordinates>>();
+        private readonly IBsonSerializer<GeoJsonLineStringCoordinates<TCoordinates>> _lineStringCoordinatesSerializer;
+
+        // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GeoJsonMultiLineStringCoordinatesSerializer{TCoordinates}"/> class.
+        /// </summary>
+        public GeoJsonMultiLineStringCoordinatesSerializer()
+            : this(BsonSerializer.SerializerRegistry)
+        {
+        }
+
+        internal GeoJsonMultiLineStringCoordinatesSerializer(IBsonSerializerRegistry serializerRegistry)
+        {
+            _lineStringCoordinatesSerializer = serializerRegistry.GetSerializer<GeoJsonLineStringCoordinates<TCoordinates>>();
+        }
 
         // public methods
         /// <inheritdoc/>
