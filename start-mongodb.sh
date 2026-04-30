@@ -61,7 +61,7 @@ print_info "Waiting for MongoDB to be ready..."
 max_attempts=30
 attempt=0
 while [ $attempt -lt $max_attempts ]; do
-    if docker compose ps | grep -q "healthy"; then
+    if docker compose ps | grep -q "(healthy)"; then
         print_success "MongoDB is ready!"
         break
     fi
@@ -88,10 +88,10 @@ echo "  • Test commands: ENABLED"
 echo "  • Port: 56665"
 echo ""
 echo "Connection String:"
-echo "  mongodb://localhost:56665/?replicaSet=rs0&directConnection=true"
+echo "  mongodb://localhost:56665/?replicaSet=rs0"
 echo ""
 echo "C# Driver Connection String:"
-echo '  var connectionString = "mongodb://localhost:56665/?replicaSet=rs0&directConnection=true";'
+echo '  var connectionString = "mongodb://localhost:56665/?replicaSet=rs0";'
 echo '  var client = new MongoClient(connectionString);'
 echo ""
 print_info "To stop MongoDB, run:"
