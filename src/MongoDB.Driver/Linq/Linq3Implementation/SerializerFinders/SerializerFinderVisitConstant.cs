@@ -31,7 +31,10 @@ internal partial class SerializerFinderVisitor
             }
             else
             {
-                var registeredSerializer = BsonSerializer.LookupSerializer(node.Type); // TODO: don't use static registry
+                // TODO: route through _serializationDomain once attributed-serializer auto-creation
+                // (M-spike, ticket H/M in CSHARP-3985) is landed; today, custom domains cannot safely
+                // auto-resolve arbitrary constant types without tripping the cross-domain validator.
+                var registeredSerializer = BsonSerializer.LookupSerializer(node.Type);
                 AddNodeSerializer(node, registeredSerializer);
             }
         }

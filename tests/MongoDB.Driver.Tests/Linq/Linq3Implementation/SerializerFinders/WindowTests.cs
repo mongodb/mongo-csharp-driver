@@ -35,7 +35,7 @@ public class WindowTests
     {
         var serializerMap = CreatePartitionSerializerMap(expression);
 
-        SerializerFinder.FindSerializers(expression.Body, null, serializerMap);
+        SerializerFinder.FindSerializers(BsonSerializer.DefaultSerializationDomain, expression.Body, null, serializerMap);
 
         serializerMap.IsKnown(expression.Body, out _).Should().BeTrue();
         serializerMap.GetSerializer(expression.Body).Should().BeOfType(expectedSerializerType);

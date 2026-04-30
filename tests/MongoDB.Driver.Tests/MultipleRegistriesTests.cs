@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+using System;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -471,6 +472,87 @@ namespace MongoDB.Driver.Tests
             var group = stages.Single(s => s.Contains("$group"));
             group.ToJson().Should().Contain("$bottomN");
             group.ToJson().Should().Contain("sortBy");
+        }
+
+        [Fact]
+        public void TestLinqMathMethodsUnderCustomDomain()
+        {
+            RequireServer.Check();
+
+            // Smoke test: aggregation-expression translators that previously called BsonSerializer.LookupSerializer
+            // (Ceiling, Floor, Window aggregators, StandardDeviation, Zip) now route through context.SerializationDomain.
+            var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
+
+            var client = CreateClientWithDomain(customDomain);
+            var collection = GetTypedCollection<NumericModel>(client);
+
+            var queryable = collection
+                .AsQueryable()
+                .Select(m => new { Ceil = Math.Ceiling(m.D), Flr = Math.Floor(m.D) });
+
+            var stages = Linq3TestHelpers.Translate<NumericModel, object>(queryable);
+            var project = stages.Single(s => s.Contains("$project"));
+            project.ToJson().Should().Contain("$ceil");
+            project.ToJson().Should().Contain("$floor");
+        }
+
+        [Fact]
+        public void TestLinqStdDevExecutableUnderCustomDomain()
+        {
+            RequireServer.Check();
+
+            // Smoke test: executable-query StandardDeviation translator now routes outputValueSerializer through the domain.
+            var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
+
+            var client = CreateClientWithDomain(customDomain);
+            var collection = GetTypedCollection<NumericModel>(client);
+            collection.InsertMany(new[]
+            {
+                new NumericModel { Id = ObjectId.GenerateNewId(), D = 1.0 },
+                new NumericModel { Id = ObjectId.GenerateNewId(), D = 2.0 },
+                new NumericModel { Id = ObjectId.GenerateNewId(), D = 3.0 }
+            });
+
+            var stdDev = collection.AsQueryable().StandardDeviationPopulation(m => m.D);
+            stdDev.Should().BeApproximately(0.816, 0.01);
+        }
+
+        [Fact]
+        public void TestLinqOfTypeUnderCustomDomain()
+        {
+            RequireServer.Check();
+
+            // OfType in both Aggregate and AsQueryable paths uses translators that previously
+            // called BsonSerializer.LookupSerializer for the actualType. With ClassMaps registered
+            // on a custom domain, those translators must route the lookup through that domain.
+            var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
+
+            customDomain.ClassMapRegistry.RegisterClassMap<BasePerson>(cm =>
+            {
+                cm.AutoMap();
+                cm.SetDiscriminator("bp");
+                cm.SetIsRootClass(true);
+            });
+            customDomain.ClassMapRegistry.RegisterClassMap<DerivedPerson1>(cm =>
+            {
+                cm.AutoMap();
+                cm.SetDiscriminator("dp1");
+            });
+
+            var client = CreateClientWithDomain(customDomain);
+            var collection = GetTypedCollection<BasePerson>(client);
+
+            var bp1 = new DerivedPerson1 { Name = "Alice", Age = 30, ExtraField1 = "F1" };
+            collection.InsertOne(bp1);
+
+            var ofTypeResult = collection.AsQueryable().OfType<DerivedPerson1>().Single();
+            ofTypeResult.ExtraField1.Should().Be("F1");
+        }
+
+        public class NumericModel
+        {
+            [BsonId] public ObjectId Id { get; set; }
+            public double D { get; set; }
         }
 
         [Fact]
