@@ -21,7 +21,6 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core;
-using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Events;
@@ -81,8 +80,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
                .Capture<ConnectionPoolCheckingOutConnectionFailedEvent>()
                .CaptureCommandEvents("find");
 
-            var failpointServer = DriverTestConfiguration.Client.GetClusterInternal().SelectServer(OperationContext.NoTimeout, failPointSelector);
-            using var failPoint = FailPoint.Configure(failpointServer, NoCoreSession.NewHandle(), failPointCommand);
+            using var failPoint = FailPoint.Configure(failPointSelector, failPointCommand);
 
             using var client = CreateClient(settings, eventCapturer, heartbeatInterval);
             var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
@@ -149,11 +147,11 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
                 },
                 useMultipleShardRouters: true);
 
-            var failPointServer1 = client.GetClusterInternal().SelectServer(OperationContext.NoTimeout, new EndPointServerSelector(client.Cluster.Description.Servers[0].EndPoint));
-            var failPointServer2 = client.GetClusterInternal().SelectServer(OperationContext.NoTimeout, new EndPointServerSelector(client.Cluster.Description.Servers[1].EndPoint));
+            var failPointServerSelector1 = new EndPointServerSelector(client.Cluster.Description.Servers[0].EndPoint);
+            var failPointServerSelector2 = new EndPointServerSelector(client.Cluster.Description.Servers[1].EndPoint);
 
-            using var failPoint1 = FailPoint.Configure(failPointServer1, NoCoreSession.NewHandle(), failPointCommand);
-            using var failPoint2 = FailPoint.Configure(failPointServer2, NoCoreSession.NewHandle(), failPointCommand);
+            using var failPoint1 = FailPoint.Configure(failPointServerSelector1, failPointCommand, cluster: client.GetClusterInternal());
+            using var failPoint2 = FailPoint.Configure(failPointServerSelector2, failPointCommand, cluster: client.GetClusterInternal());
 
             var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             var collection = database.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
@@ -201,9 +199,9 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
                 useMultipleShardRouters: false);
             DriverTestConfiguration.WaitForAllServersToBeConnected(client.GetClusterInternal());
 
-            var failPointServer = client.GetClusterInternal().SelectServer(OperationContext.NoTimeout, new EndPointServerSelector(client.Cluster.Description.Servers[0].EndPoint));
+            var failPointServerSelector = new EndPointServerSelector(client.Cluster.Description.Servers[0].EndPoint);
 
-            using var failPoint = FailPoint.Configure(failPointServer, NoCoreSession.NewHandle(), failPointCommand);
+            using var failPoint = FailPoint.Configure(failPointServerSelector, failPointCommand);
 
             var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             var collection = database.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
@@ -253,11 +251,11 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
                     s.ClusterConfigurator = b => b.Subscribe(eventCapturer);
                     s.ReadPreference = ReadPreference.PrimaryPreferred;
                 },
-                useMultipleShardRouters: false);
-            DriverTestConfiguration.WaitForAllServersToBeConnected(client.GetClusterInternal());
+                useMultipleShardRouters: false,
+                waitForAllServersToBeConnected: true);
 
-            var failPointServer = client.GetClusterInternal().SelectServer(OperationContext.NoTimeout, new ReadPreferenceServerSelector(ReadPreference.Primary));
-            using var failPoint = FailPoint.Configure(failPointServer, NoCoreSession.NewHandle(), failPointCommand);
+            var failPointServerSelector = new ReadPreferenceServerSelector(ReadPreference.Primary);
+            using var failPoint = FailPoint.Configure(failPointServerSelector, failPointCommand);
 
             var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             var collection = database.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
@@ -266,9 +264,9 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
                 await collection.FindAsync(Builders<BsonDocument>.Filter.Empty) :
                 collection.FindSync(Builders<BsonDocument>.Filter.Empty);
 
-            eventCapturer.Next().Should().BeOfType<CommandStartedEvent>().Subject.ConnectionId.ServerId.Should().Be(failPointServer.ServerId);
+            eventCapturer.Next().Should().BeOfType<CommandStartedEvent>().Subject.ConnectionId.ServerId.EndPoint.Should().Be(failPoint.Server.ServerId.EndPoint);
             eventCapturer.Next().Should().BeOfType<CommandFailedEvent>();
-            eventCapturer.Next().Should().BeOfType<CommandStartedEvent>().Subject.ConnectionId.ServerId.Should().NotBe(failPointServer.ServerId);
+            eventCapturer.Next().Should().BeOfType<CommandStartedEvent>().Subject.ConnectionId.ServerId.EndPoint.Should().NotBe(failPoint.Server.ServerId.EndPoint);
             eventCapturer.Next().Should().BeOfType<CommandSucceededEvent>();
         }
 
@@ -301,10 +299,11 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
                     s.ClusterConfigurator = b => b.Subscribe(eventCapturer);
                     s.ReadPreference = ReadPreference.PrimaryPreferred;
                 },
-                useMultipleShardRouters: false);
+                useMultipleShardRouters: false,
+                waitForAllServersToBeConnected: true);
 
-            var failPointServer = client.GetClusterInternal().SelectServer(OperationContext.NoTimeout, new ReadPreferenceServerSelector(ReadPreference.Primary));
-            using var failPoint = FailPoint.Configure(failPointServer, NoCoreSession.NewHandle(), failPointCommand);
+            var failPointServerSelector = new ReadPreferenceServerSelector(ReadPreference.Primary);
+            using var failPoint = FailPoint.Configure(failPointServerSelector, failPointCommand);
 
             var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             var collection = database.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
@@ -313,9 +312,9 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
                 await collection.FindAsync(Builders<BsonDocument>.Filter.Empty) :
                 collection.FindSync(Builders<BsonDocument>.Filter.Empty);
 
-            eventCapturer.Next().Should().BeOfType<CommandStartedEvent>().Subject.ConnectionId.ServerId.Should().Be(failPointServer.ServerId);
+            eventCapturer.Next().Should().BeOfType<CommandStartedEvent>().Subject.ConnectionId.ServerId.EndPoint.Should().Be(failPoint.Server.ServerId.EndPoint);
             eventCapturer.Next().Should().BeOfType<CommandFailedEvent>();
-            eventCapturer.Next().Should().BeOfType<CommandStartedEvent>().Subject.ConnectionId.ServerId.Should().Be(failPointServer.ServerId);
+            eventCapturer.Next().Should().BeOfType<CommandStartedEvent>().Subject.ConnectionId.ServerId.EndPoint.Should().Be(failPoint.Server.ServerId.EndPoint);
             eventCapturer.Next().Should().BeOfType<CommandSucceededEvent>();
         }
 
@@ -354,7 +353,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
             var secondFailPointConfigured = false;
             FailPoint secondFailPoint = null;
 
-            using var firstFailPoint = FailPoint.Configure(DriverTestConfiguration.Client.GetClusterInternal(), NoCoreSession.NewHandle(), firstFailPointCommand);
+            using var firstFailPoint = FailPoint.Configure(firstFailPointCommand);
 
             var eventCapturer = new EventCapturer().CaptureCommandEvents("find");
             using var client = DriverTestConfiguration.CreateMongoClient(s =>
@@ -367,7 +366,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
                     {
                         if (e is { CommandName: "find", Failure: MongoCommandException { Code: 91 } } && !secondFailPointConfigured)
                         {
-                            secondFailPoint = FailPoint.Configure(DriverTestConfiguration.Client.GetClusterInternal(), NoCoreSession.NewHandle(), secondFailPointCommand);
+                            secondFailPoint = FailPoint.Configure(secondFailPointCommand);
                             secondFailPointConfigured = true;
                         }
                     });
@@ -426,7 +425,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
             var secondFailPointConfigured = false;
             FailPoint secondFailPoint = null;
 
-            using var firstFailPoint = FailPoint.Configure(DriverTestConfiguration.Client.GetClusterInternal(), NoCoreSession.NewHandle(), firstFailPointCommand);
+            using var firstFailPoint = FailPoint.Configure(firstFailPointCommand);
 
             var eventCapturer = new EventCapturer().CaptureCommandEvents("find");
             using var client = DriverTestConfiguration.CreateMongoClient(s =>
@@ -439,7 +438,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
                     {
                         if (e is { CommandName: "find", Failure: MongoCommandException { Code: 91 } } && !secondFailPointConfigured)
                         {
-                            secondFailPoint = FailPoint.Configure(DriverTestConfiguration.Client.GetClusterInternal(), NoCoreSession.NewHandle(), secondFailPointCommand);
+                            secondFailPoint = FailPoint.Configure(secondFailPointCommand);
                             secondFailPointConfigured = true;
                         }
                     });

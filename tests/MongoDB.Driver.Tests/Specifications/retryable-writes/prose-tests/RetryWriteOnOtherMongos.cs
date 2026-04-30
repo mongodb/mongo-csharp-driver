@@ -17,7 +17,6 @@ using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core;
-using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Events;
@@ -61,11 +60,11 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
                 },
                 useMultipleShardRouters: true);
 
-            var failPointServer1 = client.GetClusterInternal().SelectServer(OperationContext.NoTimeout, new EndPointServerSelector(client.Cluster.Description.Servers[0].EndPoint));
-            var failPointServer2 = client.GetClusterInternal().SelectServer(OperationContext.NoTimeout, new EndPointServerSelector(client.Cluster.Description.Servers[1].EndPoint));
+            var failPointServerSelector1 = new EndPointServerSelector(client.Cluster.Description.Servers[0].EndPoint);
+            var failPointServerSelector2 = new EndPointServerSelector(client.Cluster.Description.Servers[1].EndPoint);
 
-            using var failPoint1 = FailPoint.Configure(failPointServer1, NoCoreSession.NewHandle(), failPointCommand);
-            using var failPoint2 = FailPoint.Configure(failPointServer2, NoCoreSession.NewHandle(), failPointCommand);
+            using var failPoint1 = FailPoint.Configure(failPointServerSelector1, failPointCommand, cluster: client.GetClusterInternal());
+            using var failPoint2 = FailPoint.Configure(failPointServerSelector2, failPointCommand, cluster: client.GetClusterInternal());
 
             var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             var collection = database.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
@@ -112,9 +111,8 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
                 },
                 useMultipleShardRouters: false);
 
-            var failPointServer = client.GetClusterInternal().SelectServer(OperationContext.NoTimeout, new EndPointServerSelector(client.Cluster.Description.Servers[0].EndPoint));
-
-            using var failPoint = FailPoint.Configure(failPointServer, NoCoreSession.NewHandle(), failPointCommand);
+            var failPointServerSelector = new EndPointServerSelector(client.Cluster.Description.Servers[0].EndPoint);
+            using var failPoint = FailPoint.Configure(failPointServerSelector, failPointCommand);
 
             var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             var collection = database.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);

@@ -462,7 +462,7 @@ namespace MongoDB.Driver.Core.Operations
             RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
             var subject = new DistinctOperation<int>(_collectionNamespace, _valueSerializer, _fieldName, _messageEncoderSettings) { MaxTime = TimeSpan.FromSeconds(9001) };
 
-            using (var failPoint = FailPoint.ConfigureAlwaysOn(_cluster, _session, FailPointName.MaxTimeAlwaysTimeout))
+            using (var failPoint = FailPoint.ConfigureAlwaysOn(FailPointName.MaxTimeAlwaysTimeout))
             {
                 var exception = Record.Exception(() => ExecuteOperation(subject, failPoint.Binding, async));
 

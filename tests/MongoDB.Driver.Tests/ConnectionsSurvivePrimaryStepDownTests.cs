@@ -19,7 +19,6 @@ using System.Net;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core;
-using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
@@ -57,7 +56,7 @@ namespace MongoDB.Driver.Tests
                 var collection = database.GetCollection<BsonDocument>(_collectionName, new MongoCollectionSettings { WriteConcern = WriteConcern.WMajority });
                 eventCapturer.Clear();
 
-                using (ConfigureFailPoint(client, errorCode))
+                using (ConfigureFailPoint(errorCode))
                 {
                     var exception = Record.Exception(() => { collection.InsertOne(new BsonDocument("test", 1)); });
 
@@ -158,7 +157,7 @@ namespace MongoDB.Driver.Tests
                 var collection = database.GetCollection<BsonDocument>(_collectionName, new MongoCollectionSettings { WriteConcern = WriteConcern.WMajority });
                 eventCapturer.Clear();
 
-                using (ConfigureFailPoint(client, 10107))
+                using (ConfigureFailPoint(10107))
                 {
                     var exception = Record.Exception(() => { collection.InsertOne(new BsonDocument("test", 1)); });
 
@@ -186,12 +185,10 @@ namespace MongoDB.Driver.Tests
         }
 
         // private methods
-        private FailPoint ConfigureFailPoint(IMongoClient client, int errorCode)
+        private FailPoint ConfigureFailPoint(int errorCode)
         {
-            var session = NoCoreSession.NewHandle();
-
             var args = BsonDocument.Parse($"{{ mode : {{ times : 1 }}, data : {{ failCommands : [\"insert\"], errorCode : {errorCode} }} }}");
-            return FailPoint.Configure(client.GetClusterInternal(), session, "failCommand", args);
+            return FailPoint.Configure("failCommand", args);
         }
 
         private IMongoClient CreateMongoClient(EventCapturer capturedEvents) =>

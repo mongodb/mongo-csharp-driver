@@ -218,7 +218,7 @@ public class ClientBackpressureProseTestsIntegration
 
         var eventCapturer = new EventCapturer().CaptureCommandEvents("find");
 
-        using var failPoint = FailPoint.Configure(DriverTestConfiguration.Client.GetClusterInternal(), NoCoreSession.NewHandle(), failPointCommand);
+        using var failPoint = FailPoint.Configure(failPointCommand);
         using var client = DriverTestConfiguration.CreateMongoClient(s =>
         {
             s.RetryReads = true;
@@ -261,7 +261,7 @@ public class ClientBackpressureProseTestsIntegration
 
         var eventCapturer = new EventCapturer().CaptureCommandEvents("find");
 
-        using var failPoint = FailPoint.Configure(DriverTestConfiguration.Client.GetClusterInternal(), NoCoreSession.NewHandle(), failPointCommand);
+        using var failPoint = FailPoint.Configure(failPointCommand);
         using var client = DriverTestConfiguration.CreateMongoClient(s =>
         {
             s.RetryReads = true;

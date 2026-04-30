@@ -1177,7 +1177,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                     ""failCommands"": [ ""aggregate"" ]
                                 }
                             }");
-                            using (FailPoint.Configure(_cluster, NoCoreSession.NewHandle(), failPointCommand))
+                            using (FailPoint.Configure(failPointCommand))
                             {
                                 var exception = Record.Exception(() => Aggregate(decryptionEventsCollection, async));
                                 exception.Should().BeOfType<MongoCommandException>();
@@ -1200,7 +1200,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                     ""failCommands"" : [ ""aggregate"" ]
                                 }
                             }");
-                            using (FailPoint.Configure(_cluster, NoCoreSession.NewHandle(), failPointCommand))
+                            using (FailPoint.Configure(failPointCommand))
                             {
                                 var exception = Record.Exception(() => Aggregate(decryptionEventsCollection, async));
                                 exception.Should().BeOfType<MongoConnectionException>().Which.IsNetworkException.Should().BeTrue();

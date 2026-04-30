@@ -34,6 +34,7 @@ namespace MongoDB.Driver.Tests
     /// </summary>
     public static class DriverTestConfiguration
     {
+        private const string DefaultClientAppName = "DefaultClient";
         // private static fields
         private static Lazy<IMongoClient> __client;
         private static Lazy<IMongoClient> __clientWithMultipleShardRouters;
@@ -44,8 +45,8 @@ namespace MongoDB.Driver.Tests
         // static constructor
         static DriverTestConfiguration()
         {
-            __client = new Lazy<IMongoClient>(CreateMongoClient, isThreadSafe: true);
-            __clientWithMultipleShardRouters = new Lazy<IMongoClient>(() => CreateMongoClient(useMultipleShardRouters: true), true);
+            __client = new Lazy<IMongoClient>(() => CreateMongoClient(settings => settings.ApplicationName = DefaultClientAppName), isThreadSafe: true);
+            __clientWithMultipleShardRouters = new Lazy<IMongoClient>(() => CreateMongoClient(settings => settings.ApplicationName = DefaultClientAppName, useMultipleShardRouters: true), true);
             __databaseNamespace = CoreTestConfiguration.DatabaseNamespace;
             __directClientsToShardRouters = new Lazy<IReadOnlyList<IMongoClient>>(
                 () => CreateDirectClientsToHostsInConnectionString(CoreTestConfiguration.ConnectionStringWithMultipleShardRouters).ToList().AsReadOnly(),
@@ -127,7 +128,8 @@ namespace MongoDB.Driver.Tests
 
         public static IMongoClient CreateMongoClient(
             Action<MongoClientSettings> clientSettingsConfigurator = null,
-            bool useMultipleShardRouters = false)
+            bool useMultipleShardRouters = false,
+            bool waitForAllServersToBeConnected = false)
         {
             var clusterType = CoreTestConfiguration.Cluster.Description.Type;
             if (clusterType != ClusterType.Sharded && clusterType != ClusterType.LoadBalanced)
@@ -152,7 +154,13 @@ namespace MongoDB.Driver.Tests
                 OidcCallbackAdapterCachingFactory.Instance.Reset();
             }
 
-            return new MongoClient(clientSettings);
+            var client = new MongoClient(clientSettings);
+            if (waitForAllServersToBeConnected)
+            {
+                WaitForAllServersToBeConnected(client.GetClusterInternal());
+            }
+
+            return client;
         }
 
         public static IMongoClient CreateMongoClient(EventCapturer capturer, LoggingSettings loggingSettings = null) =>
@@ -169,9 +177,6 @@ namespace MongoDB.Driver.Tests
 
             return new MongoClient(settings);
         }
-
-        private static IMongoClient CreateMongoClient() =>
-            CreateMongoClient(GetClientSettings());
 
         public static MongoClientSettings GetClientSettings()
         {

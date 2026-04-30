@@ -25,7 +25,6 @@ using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Authentication;
 using MongoDB.Driver.Authentication.Oidc;
 using MongoDB.Driver.Core;
-using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
@@ -591,11 +590,8 @@ namespace MongoDB.Driver.Tests.Specifications.auth
                 }
             };
 
-            var cluster = DriverTestConfiguration.Client.GetClusterInternal();
-            var server = cluster.SelectServer(OperationContext.NoTimeout, new ReadPreferenceServerSelector(ReadPreference.Primary));
-            var session = NoCoreSession.NewHandle();
-
-            return FailPoint.Configure(server, session, failPointCommand);
+            var failPointServerSelector = new ReadPreferenceServerSelector(ReadPreference.Primary);
+            return FailPoint.Configure(failPointServerSelector, failPointCommand);
         }
 
         private (MongoClientSettings MongoClientSettings, EventCapturer EventCapturer, Mock<IOidcCallback> CustomCallback) GetMongoClientSettings(string userName = null)
