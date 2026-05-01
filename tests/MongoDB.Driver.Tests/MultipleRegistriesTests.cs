@@ -665,6 +665,7 @@ namespace MongoDB.Driver.Tests
             listSerializer.ItemSerializer.Should().BeSameAs(customSerializer);
         }
 
+#if NET6_0_OR_GREATER
         [Fact]
         public void Provider_created_immutable_array_serializer_uses_custom_domain()
         {
@@ -693,6 +694,7 @@ namespace MongoDB.Driver.Tests
             dictSerializer.ValueSerializer.Should().BeSameAs(customSerializer);
             dictSerializer.KeySerializer.Should().BeSameAs(customSerializer);
         }
+#endif
 
         [Fact]
         public void Provider_created_object_serializer_uses_custom_domain()
