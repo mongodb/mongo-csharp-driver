@@ -31,7 +31,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         public void Deserialize_should_have_expected_result()
         {
             const string json = """{ "x" : { "1" : { "$numberInt" : "1" }, "2" : { "$numberInt" : "2" }, "3" : { "$numberInt" : "3" }, "4" : { "$numberInt" : "4" } } }""";
-            var subject = new ImmutableDictionarySerializer<string, int>(BsonSerializationDomain.Default);
+            var subject = new ImmutableDictionarySerializer<string, int>();
 
             using var reader = new JsonReader(json);
             reader.ReadStartDocument();
@@ -53,7 +53,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [Fact]
         public void Equals_null_should_return_false()
         {
-            var x = new ImmutableDictionarySerializer<string, int>(BsonSerializationDomain.Default);
+            var x = new ImmutableDictionarySerializer<string, int>();
 
             var result = x.Equals(null);
 
@@ -63,7 +63,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [Fact]
         public void Equals_object_should_return_false()
         {
-            var x = new ImmutableDictionarySerializer<string, int>(BsonSerializationDomain.Default);
+            var x = new ImmutableDictionarySerializer<string, int>();
             var y = new object();
 
             var result = x.Equals(y);
@@ -74,7 +74,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [Fact]
         public void Equals_self_should_return_true()
         {
-            var x = new ImmutableDictionarySerializer<string, int>(BsonSerializationDomain.Default);
+            var x = new ImmutableDictionarySerializer<string, int>();
 
             var result = x.Equals(x);
 
@@ -84,7 +84,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [Fact]
         public void GetHashCode_should_return_zero()
         {
-            var x = new ImmutableDictionarySerializer<string, int>(BsonSerializationDomain.Default);
+            var x = new ImmutableDictionarySerializer<string, int>();
 
             var result = x.GetHashCode();
 
@@ -94,7 +94,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [Fact]
         public void Serialize_should_have_expected_result()
         {
-            var subject = new ImmutableDictionarySerializer<string, int>(BsonSerializationDomain.Default);
+            var subject = new ImmutableDictionarySerializer<string, int>();
             var value = ImmutableDictionary.CreateRange(
                 new [] {
                     KeyValuePair.Create("1", 1),
@@ -138,7 +138,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         {
             var serializer = BsonSerializer.LookupSerializer(typeof(ImmutableDictionary<string, int>));
 
-            serializer.Should().Be(new ImmutableDictionarySerializer<string, int>(BsonSerializationDomain.Default));
+            serializer.Should().Be(new ImmutableDictionarySerializer<string, int>());
         }
     }
 }
