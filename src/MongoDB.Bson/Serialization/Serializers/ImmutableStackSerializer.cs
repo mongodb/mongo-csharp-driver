@@ -26,6 +26,14 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <typeparam name="T">The type of element stored by the collection.</typeparam>
     public class ImmutableStackSerializer<T>: EnumerableInterfaceImplementerSerializerBase<ImmutableStack<T>, T>
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ImmutableStackSerializer{T}"/> class.
+        /// </summary>
+        public ImmutableStackSerializer()
+            : this(BsonSerializationDomain.Default)
+        {
+        }
+
         internal ImmutableStackSerializer(IBsonSerializationDomain serializationDomain)
             : base(serializationDomain)
         {

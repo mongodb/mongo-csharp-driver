@@ -26,6 +26,14 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <typeparam name="TValue">The type of the values in the dictionary.</typeparam>
     public class ImmutableDictionarySerializer<TKey, TValue>: DictionaryInterfaceImplementerSerializer<ImmutableDictionary<TKey, TValue>, TKey, TValue>
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ImmutableDictionarySerializer{TKey, TValue}"/> class.
+        /// </summary>
+        public ImmutableDictionarySerializer()
+            : this(BsonSerializationDomain.Default)
+        {
+        }
+
         internal ImmutableDictionarySerializer(IBsonSerializationDomain serializationDomain)
             : base(serializationDomain)
         {
