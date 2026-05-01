@@ -161,7 +161,7 @@ namespace MongoDB.Driver.Tests.Encryption
         }
 
         // private methods
-        private IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> GetKmsProviders() => EncryptionTestHelper.GetKmsProviders(filter: "local");
+        private IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> GetKmsProviders() => EncryptionTestHelper.GetKmsProviders("local");
     }
 
     internal static class LibMongoCryptControllerBaseReflector
