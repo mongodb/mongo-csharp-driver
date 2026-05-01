@@ -30,7 +30,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         public void Deserialize_should_have_expected_result()
         {
             const string json = """{ "x" : [{ "$numberInt" : "1" }, { "$numberInt" : "2" }, { "$numberInt" : "3" }, { "$numberInt" : "4" }] }""";
-            var subject = new ImmutableStackSerializer<int>(BsonSerializationDomain.Default);
+            var subject = new ImmutableStackSerializer<int>();
 
             using var reader = new JsonReader(json);
             reader.ReadStartDocument();
@@ -46,7 +46,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [Fact]
         public void Equals_null_should_return_false()
         {
-            var x = new ImmutableStackSerializer<int>(BsonSerializationDomain.Default);
+            var x = new ImmutableStackSerializer<int>();
 
             var result = x.Equals(null);
 
@@ -56,7 +56,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [Fact]
         public void Equals_object_should_return_false()
         {
-            var x = new ImmutableStackSerializer<int>(BsonSerializationDomain.Default);
+            var x = new ImmutableStackSerializer<int>();
             var y = new object();
 
             var result = x.Equals(y);
@@ -67,7 +67,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [Fact]
         public void Equals_self_should_return_true()
         {
-            var x = new ImmutableStackSerializer<int>(BsonSerializationDomain.Default);
+            var x = new ImmutableStackSerializer<int>();
 
             var result = x.Equals(x);
 
@@ -77,7 +77,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [Fact]
         public void GetHashCode_should_return_zero()
         {
-            var x = new ImmutableStackSerializer<int>(BsonSerializationDomain.Default);
+            var x = new ImmutableStackSerializer<int>();
 
             var result = x.GetHashCode();
 
@@ -87,7 +87,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [Fact]
         public void Serialize_should_have_expected_result()
         {
-            var subject = new ImmutableStackSerializer<int>(BsonSerializationDomain.Default);
+            var subject = new ImmutableStackSerializer<int>();
             var value = ImmutableStack.Create(1, 2, 3, 4);
 
             using var textWriter = new StringWriter();
@@ -111,7 +111,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         {
             var serializer = BsonSerializer.LookupSerializer(typeof(ImmutableStack<int>));
 
-            serializer.Should().Be(new ImmutableStackSerializer<int>(BsonSerializationDomain.Default));
+            serializer.Should().Be(new ImmutableStackSerializer<int>());
         }
     }
 }

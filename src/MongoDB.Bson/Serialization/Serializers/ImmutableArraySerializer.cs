@@ -24,6 +24,14 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <typeparam name="T">The type of element stored by the collection.</typeparam>
     public class ImmutableArraySerializer<T>: EnumerableInterfaceImplementerSerializerBase<ImmutableArray<T>, T>
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ImmutableArraySerializer{T}"/> class.
+        /// </summary>
+        public ImmutableArraySerializer()
+            : this(BsonSerializationDomain.Default)
+        {
+        }
+
         internal ImmutableArraySerializer(IBsonSerializationDomain serializationDomain)
             : base(serializationDomain)
         {

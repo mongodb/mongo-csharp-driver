@@ -24,6 +24,14 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <typeparam name="T">The type of element stored by the collection.</typeparam>
     public class ImmutableSortedSetSerializer<T>: EnumerableInterfaceImplementerSerializerBase<ImmutableSortedSet<T>, T>
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ImmutableSortedSetSerializer{T}"/> class.
+        /// </summary>
+        public ImmutableSortedSetSerializer()
+            : this(BsonSerializationDomain.Default)
+        {
+        }
+
         internal ImmutableSortedSetSerializer(IBsonSerializationDomain serializationDomain)
             : base(serializationDomain)
         {
