@@ -315,7 +315,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
             else
             {
-                return new ImpliedImplementationInterfaceSerializer<TInterface, TImplementation>(implementationSerializer);
+                return new ImpliedImplementationInterfaceSerializer<TInterface, TImplementation>(_serializationDomain, implementationSerializer);
             }
         }
 

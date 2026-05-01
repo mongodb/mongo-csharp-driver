@@ -24,6 +24,11 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <typeparam name="T">The type of element stored by the collection.</typeparam>
     public class ImmutableArraySerializer<T>: EnumerableInterfaceImplementerSerializerBase<ImmutableArray<T>, T>
     {
+        internal ImmutableArraySerializer(IBsonSerializationDomain serializationDomain)
+            : base(serializationDomain)
+        {
+        }
+
         /// <inheritdoc/>
         protected override object CreateAccumulator()
         {
