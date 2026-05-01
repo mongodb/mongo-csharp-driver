@@ -15,6 +15,7 @@
 
 using FluentAssertions;
 using MongoDB.Driver.Authentication.Oidc;
+using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
 
@@ -161,6 +162,8 @@ namespace MongoDB.Driver.Tests
         [InlineData("mongodb+srv://<cluster>/?retryWrites=true&authMechanism=MONGODB-OIDC&authSource=%24external&authMechanismProperties=ENVIRONMENT:azure,prop:ab%2Ccd%2Cef%2Cjh,TOKEN_RESOURCE:mongodb://test-cluster,ANOTHER:test")]
         public void TestMechanismPropertyFromUnresolvedConnectionString(string url)
         {
+            RequireEnvironment.Check().NoDuplicateIpv4MappedNameServers();
+
             var mongoConnection = MongoClientSettings.FromConnectionString(url);
             mongoConnection.Credential.GetMechanismProperty("ENVIRONMENT", "").Should().Be("azure");
             mongoConnection.Credential.GetMechanismProperty("prop", "").Should().Be("ab,cd,ef,jh");

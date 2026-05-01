@@ -66,6 +66,11 @@ namespace MongoDB.Driver.Tests
         [InlineData("mongodb+srv://test2.test.build.10gen.cc")]
         public void constructor_with_resolved_connection_string_should_initialize_resolved_instance(string url)
         {
+            if (url.StartsWith("mongodb+srv://", StringComparison.OrdinalIgnoreCase))
+            {
+                RequireEnvironment.Check().NoDuplicateIpv4MappedNameServers();
+            }
+
             var connectionString = new ConnectionString(url);
             var resolvedConnectionString = connectionString.Resolve();
             var builder = new MongoUrlBuilder(resolvedConnectionString);
@@ -126,6 +131,8 @@ namespace MongoDB.Driver.Tests
         [InlineData("mongodb+srv://test1.test.build.10gen.cc/?srvMaxHosts=2", true, 2, true)]
         public void Resolve_with_srvMaxHosts_should_return_expected_result(string url, bool resolveHosts, int expectedSrvMaxHosts, bool async)
         {
+            RequireEnvironment.Check().NoDuplicateIpv4MappedNameServers();
+
             var subject = new MongoUrl(url);
 
             MongoUrl result;

@@ -22,6 +22,7 @@ using DnsClient;
 using FluentAssertions;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Clusters
@@ -49,6 +50,8 @@ namespace MongoDB.Driver.Core.Clusters
         [InlineData("_mongodb._tcp.test5.test.build.10gen.cc", new[] { "localhost.test.build.10gen.cc.:27017" }, true)]
         public void ResolveSrvRecords_should_return_expected_result(string service, string[] expectedEndPoints, bool async)
         {
+            RequireEnvironment.Check().NoDuplicateIpv4MappedNameServers();
+
             var subject = CreateSubject();
 
             List<SrvRecord> result;
@@ -114,6 +117,8 @@ namespace MongoDB.Driver.Core.Clusters
         [InlineData("test5.test.build.10gen.cc", "replicaSet=repl0&authSource=thisDB", true)]
         public void ResolveTxtRecords_should_return_expected_result(string domainName, string expectedString, bool async)
         {
+            RequireEnvironment.Check().NoDuplicateIpv4MappedNameServers();
+
             var subject = CreateSubject();
 
             List<TxtRecord> result;
