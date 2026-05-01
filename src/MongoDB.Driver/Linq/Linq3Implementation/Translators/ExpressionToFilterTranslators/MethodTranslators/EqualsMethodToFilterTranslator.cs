@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Linq.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
 using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
@@ -72,6 +73,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 
             var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
             var value = valueExpression.GetConstantValue<object>(containingExpression: expression);
+
+            var serializerValueType = fieldTranslation.Serializer.ValueType;
+            if (value != null && !serializerValueType.IsInstanceOfType(value))
+            {
+                var targetType = Nullable.GetUnderlyingType(serializerValueType) ?? serializerValueType;
+                value = Convert.ChangeType(value, targetType);
+            }
+
             var serializedValue = SerializationHelper.SerializeValue(fieldTranslation.Serializer, value);
             return AstFilter.Eq(fieldTranslation.Ast, serializedValue);
         }
