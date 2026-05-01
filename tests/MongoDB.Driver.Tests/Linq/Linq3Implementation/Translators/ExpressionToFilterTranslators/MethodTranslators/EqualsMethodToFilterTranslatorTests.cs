@@ -13,40 +13,100 @@
  * limitations under the License.
  */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
-namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionToFilterTranslators.MethodTranslators;
-
-public class EqualsMethodToFilterTranslatorTests
+namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionToFilterTranslators.MethodTranslators
 {
-    [Fact]
-    public void Equal_should_not_throw_when_comparing_uint64_and_int32()
+    public class EqualsMethodToFilterTranslatorTests : LinqIntegrationTest<EqualsMethodToFilterTranslatorTests.ClassFixture>
     {
-        var client =
-            new MongoClient("mongodb://localhost:27017"); // todo kyra q: is there a reason for this specific number?
-        var database = client.GetDatabase("test");
-        database.DropCollection("employees");
+        public EqualsMethodToFilterTranslatorTests(ClassFixture fixture) : base(fixture)
+        {
+        }
 
-        var collection = database.GetCollection<Employee>("employees");
-        collection.InsertOne(new Employee { EmployeeID = 1, ReportsTo = 2 });
+        [Fact]
+        public void Equals_with_uint64_and_nullable_int32_should_translate()
+        {
+            var collection = Fixture.Collection;
+            ulong longPrm = 2;
 
-        ulong longPrm = 2;
+            var queryable = collection.AsQueryable()
+                .Where(e => e.ReportsTo.Equals(longPrm));
 
-        var results = collection.AsQueryable()
-            .Where(e => e.ReportsTo.Equals(longPrm))
-            .ToList();
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $match : { ReportsTo : 2 } }");
 
-        results.Should().HaveCount(1);
-    }
+            var results = queryable.ToList();
+            results.Should().HaveCount(1);
+            results[0].Id.Should().Be(1);
+        }
 
-    public class Employee
-    {
-        [BsonId]
-        public int EmployeeID { get; set; }
-        public int? ReportsTo { get; set; }
+        [Fact]
+        public void Equals_with_int32_and_nullable_int32_should_translate()
+        {
+            var collection = Fixture.Collection;
+            int intPrm = 2;
+
+            var queryable = collection.AsQueryable()
+                .Where(e => e.ReportsTo.Equals(intPrm));
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $match : { ReportsTo : 2 } }");
+
+            var results = queryable.ToList();
+            results.Should().HaveCount(1);
+            results[0].Id.Should().Be(1);
+        }
+
+        [Fact]
+        public void Equals_with_null_and_nullable_int32_should_translate()
+        {
+            var collection = Fixture.Collection;
+
+            var queryable = collection.AsQueryable()
+                .Where(e => e.ReportsTo.Equals(null));
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $match : { ReportsTo : null } }");
+
+            var results = queryable.ToList();
+            results.Should().HaveCount(1);
+            results[0].Id.Should().Be(3);
+        }
+
+        [Fact]
+        public void Equals_with_no_match_should_return_empty()
+        {
+            var collection = Fixture.Collection;
+            ulong longPrm = 999;
+
+            var queryable = collection.AsQueryable()
+                .Where(e => e.ReportsTo.Equals(longPrm));
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $match : { ReportsTo : 999 } }");
+
+            var results = queryable.ToList();
+            results.Should().BeEmpty();
+        }
+
+        public class C
+        {
+            public int Id { get; set; }
+            public int? ReportsTo { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, ReportsTo = 2 },
+                new C { Id = 2, ReportsTo = 5 },
+                new C { Id = 3, ReportsTo = null }
+            ];
+        }
     }
 }
