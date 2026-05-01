@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
@@ -31,10 +32,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Equals_with_uint64_and_nullable_int32_should_translate()
         {
             var collection = Fixture.Collection;
-            ulong longPrm = 2;
+            ulong value = 2;
 
             var queryable = collection.AsQueryable()
-                .Where(e => e.ReportsTo.Equals(longPrm));
+                .Where(e => e.ReportsTo.Equals(value));
 
             var stages = Translate(collection, queryable);
             AssertStages(stages, "{ $match : { ReportsTo : 2 } }");
@@ -48,10 +49,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Equals_with_int32_and_nullable_int32_should_translate()
         {
             var collection = Fixture.Collection;
-            int intPrm = 2;
+            int value = 2;
 
             var queryable = collection.AsQueryable()
-                .Where(e => e.ReportsTo.Equals(intPrm));
+                .Where(e => e.ReportsTo.Equals(value));
 
             var stages = Translate(collection, queryable);
             AssertStages(stages, "{ $match : { ReportsTo : 2 } }");
@@ -78,19 +79,49 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         }
 
         [Fact]
+        public void Equals_with_string_and_nullable_int32_should_throw()
+        {
+            var collection = Fixture.Collection;
+            var value = "2";
+
+            var queryable = collection.AsQueryable()
+                .Where(e => e.ReportsTo.Equals(value));
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $match : { ReportsTo : 2 } }");
+
+            var results = queryable.ToList();
+            results.Should().HaveCount(1);
+            results[0].Id.Should().Be(1);
+        }
+
+        [Fact]
         public void Equals_with_no_match_should_return_empty()
         {
             var collection = Fixture.Collection;
-            ulong longPrm = 999;
+            ulong value = 999;
 
             var queryable = collection.AsQueryable()
-                .Where(e => e.ReportsTo.Equals(longPrm));
+                .Where(e => e.ReportsTo.Equals(value));
 
             var stages = Translate(collection, queryable);
             AssertStages(stages, "{ $match : { ReportsTo : 999 } }");
 
             var results = queryable.ToList();
             results.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void Equals_with_overflowing_uint64_and_nullable_int32_should_throw()
+        {
+            var collection = Fixture.Collection;
+            ulong value = (ulong)int.MaxValue + 1;
+
+            var queryable = collection.AsQueryable()
+                .Where(e => e.ReportsTo.Equals(value));
+
+            var exception = Record.Exception(() => Translate(collection, queryable));
+            exception.Should().BeOfType<OverflowException>();
         }
 
         public class C
