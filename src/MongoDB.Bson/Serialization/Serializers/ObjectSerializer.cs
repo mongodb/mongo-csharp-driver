@@ -396,7 +396,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>An ObjectSerializer with the specified discriminator convention.</returns>
         public ObjectSerializer WithDiscriminatorConvention(IDiscriminatorConvention discriminatorConvention)
         {
-            return new ObjectSerializer(discriminatorConvention, _guidRepresentation, _allowedDeserializationTypes, _allowedSerializationTypes);
+            return new ObjectSerializer(_serializationDomain, discriminatorConvention, _guidRepresentation, _allowedDeserializationTypes, _allowedSerializationTypes);
         }
 
         /// <summary>
@@ -407,7 +407,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns></returns>
         public ObjectSerializer WithAllowedTypes(Func<Type, bool> allowedDeserializationTypes, Func<Type, bool> allowedSerializationTypes)
         {
-            return new ObjectSerializer(_discriminatorConvention, _guidRepresentation, allowedDeserializationTypes, allowedSerializationTypes);
+            return new ObjectSerializer(_serializationDomain, _discriminatorConvention, _guidRepresentation, allowedDeserializationTypes, allowedSerializationTypes);
         }
 
         // private methods

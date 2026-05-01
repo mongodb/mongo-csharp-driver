@@ -625,6 +625,87 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void Provider_created_dictionary_serializer_uses_custom_domain()
+        {
+            var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
+            var customSerializer = new CustomStringSerializer("_X");
+            customDomain.RegisterSerializer(customSerializer);
+
+            var dictSerializer = (DictionaryInterfaceImplementerSerializer<System.Collections.Generic.Dictionary<string, string>, string, string>)
+                customDomain.SerializerRegistry.GetSerializer<System.Collections.Generic.Dictionary<string, string>>();
+
+            dictSerializer.ValueSerializer.Should().BeSameAs(customSerializer);
+            dictSerializer.KeySerializer.Should().BeSameAs(customSerializer);
+        }
+
+        [Fact]
+        public void Provider_created_readonly_dictionary_serializer_uses_custom_domain()
+        {
+            var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
+            var customSerializer = new CustomStringSerializer("_X");
+            customDomain.RegisterSerializer(customSerializer);
+
+            var dictSerializer = (ReadOnlyDictionaryInterfaceImplementerSerializer<System.Collections.ObjectModel.ReadOnlyDictionary<string, string>, string, string>)
+                customDomain.SerializerRegistry.GetSerializer<System.Collections.ObjectModel.ReadOnlyDictionary<string, string>>();
+
+            dictSerializer.ValueSerializer.Should().BeSameAs(customSerializer);
+            dictSerializer.KeySerializer.Should().BeSameAs(customSerializer);
+        }
+
+        [Fact]
+        public void Provider_created_enumerable_serializer_uses_custom_domain()
+        {
+            var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
+            var customSerializer = new CustomStringSerializer("_X");
+            customDomain.RegisterSerializer(customSerializer);
+
+            var listSerializer = (EnumerableInterfaceImplementerSerializer<System.Collections.Generic.List<string>, string>)
+                customDomain.SerializerRegistry.GetSerializer<System.Collections.Generic.List<string>>();
+
+            listSerializer.ItemSerializer.Should().BeSameAs(customSerializer);
+        }
+
+        [Fact]
+        public void Provider_created_immutable_array_serializer_uses_custom_domain()
+        {
+            var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
+            var customSerializer = new CustomStringSerializer("_X");
+            customDomain.RegisterSerializer(customSerializer);
+
+            var serializer = customDomain.SerializerRegistry.GetSerializer<System.Collections.Immutable.ImmutableArray<string>>();
+
+            serializer.Should().BeOfType<ImmutableArraySerializer<string>>();
+            ((EnumerableSerializerBase<System.Collections.Immutable.ImmutableArray<string>, string>)serializer)
+                .ItemSerializer.Should().BeSameAs(customSerializer);
+        }
+
+        [Fact]
+        public void Provider_created_immutable_dictionary_serializer_uses_custom_domain()
+        {
+            var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
+            var customSerializer = new CustomStringSerializer("_X");
+            customDomain.RegisterSerializer(customSerializer);
+
+            var serializer = customDomain.SerializerRegistry.GetSerializer<System.Collections.Immutable.ImmutableDictionary<string, string>>();
+
+            serializer.Should().BeOfType<ImmutableDictionarySerializer<string, string>>();
+            var dictSerializer = (DictionarySerializerBase<System.Collections.Immutable.ImmutableDictionary<string, string>, string, string>)serializer;
+            dictSerializer.ValueSerializer.Should().BeSameAs(customSerializer);
+            dictSerializer.KeySerializer.Should().BeSameAs(customSerializer);
+        }
+
+        [Fact]
+        public void Provider_created_object_serializer_uses_custom_domain()
+        {
+            var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
+
+            var objSerializer = customDomain.SerializerRegistry.GetSerializer<object>();
+
+            objSerializer.Should().BeOfType<ObjectSerializer>();
+            ((IHasSerializationDomain)objSerializer).SerializationDomain.Should().BeSameAs(customDomain);
+        }
+
+        [Fact]
         public void TryRegisterClassMap_with_initializer_binds_to_custom_domain()
         {
             var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
@@ -712,6 +793,294 @@ namespace MongoDB.Driver.Tests
         public class DerivedPersonAttribute2 : BasePersonAttribute
         {
             public string ExtraField2 { get; set; }
+        }
+
+        // Instantiation path: BsonSerializationProviderBase.CreateSerializer (reflection) via PrimitiveSerializationProvider
+        [Fact]
+        public void Provider_path_ObjectSerializer_uses_custom_domain()
+        {
+            var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
+
+            var serializer = customDomain.SerializerRegistry.GetSerializer<object>();
+
+            serializer.Should().BeOfType<ObjectSerializer>();
+            ((IHasSerializationDomain)serializer).SerializationDomain.Should().BeSameAs(customDomain);
+        }
+
+        // Instantiation path: BsonSerializationProviderBase.CreateSerializer (reflection) via PrimitiveSerializationProvider
+        [Fact]
+        public void Provider_path_TupleSerializer_resolves_items_from_custom_domain()
+        {
+            var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
+            var customSerializer = new CustomStringSerializer("_X");
+            customDomain.RegisterSerializer(customSerializer);
+
+            var serializer = customDomain.SerializerRegistry.GetSerializer<Tuple<string>>();
+
+            serializer.Should().BeOfType<TupleSerializer<string>>();
+            ((TupleSerializer<string>)serializer).Item1Serializer.Should().BeSameAs(customSerializer);
+        }
+
+        // Instantiation path: BsonSerializationProviderBase.CreateSerializer (reflection) via PrimitiveSerializationProvider
+        [Fact]
+        public void Provider_path_ValueTupleSerializer_resolves_items_from_custom_domain()
+        {
+            var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
+            var customSerializer = new CustomStringSerializer("_X");
+            customDomain.RegisterSerializer(customSerializer);
+
+            var serializer = customDomain.SerializerRegistry.GetSerializer<ValueTuple<string>>();
+
+            serializer.Should().BeOfType<ValueTupleSerializer<string>>();
+            ((ValueTupleSerializer<string>)serializer).Item1Serializer.Should().BeSameAs(customSerializer);
+        }
+
+        // Instantiation path: BsonSerializationProviderBase.CreateSerializer (reflection) via CollectionsSerializationProvider
+        [Fact]
+        public void Provider_path_ExpandoObjectSerializer_uses_custom_domain()
+        {
+            var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
+
+            var serializer = customDomain.SerializerRegistry.GetSerializer<System.Dynamic.ExpandoObject>();
+
+            serializer.Should().BeOfType<ExpandoObjectSerializer>();
+            ((IHasSerializationDomain)serializer).SerializationDomain.Should().BeSameAs(customDomain);
+        }
+
+        // Instantiation path: DiscriminatedInterfaceSerializationProvider via BsonSerializationProviderBase.CreateSerializer (reflection)
+        [Fact]
+        public void Provider_path_DiscriminatedInterfaceSerializer_uses_custom_domain()
+        {
+            var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
+
+            var serializer = customDomain.SerializerRegistry.GetSerializer<IAnimal>();
+
+            serializer.Should().BeOfType<DiscriminatedInterfaceSerializer<IAnimal>>();
+            ((IHasSerializationDomain)serializer).SerializationDomain.Should().BeSameAs(customDomain);
+        }
+
+        // Instantiation path: DiscriminatedInterfaceSerializer internally chains
+        // ObjectSerializer.WithDiscriminatorConvention().WithAllowedTypes() — verifies the With* fix
+        [Fact]
+        public void Provider_path_DiscriminatedInterfaceSerializer_internal_ObjectSerializer_preserves_domain()
+        {
+            var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
+
+            var serializer = (DiscriminatedInterfaceSerializer<IAnimal>)
+                customDomain.SerializerRegistry.GetSerializer<IAnimal>();
+
+            var objectSerializerField = typeof(DiscriminatedInterfaceSerializer<IAnimal>)
+                .GetField("_objectSerializer", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var objectSerializer = (ObjectSerializer)objectSerializerField.GetValue(serializer);
+
+            ((IHasSerializationDomain)objectSerializer).SerializationDomain.Should().BeSameAs(customDomain);
+        }
+
+        // Instantiation path: CollectionsSerializationProvider via BsonSerializationProviderBase.CreateSerializer (reflection)
+        [Fact]
+        public void Provider_path_ImpliedImplementationInterfaceSerializer_uses_custom_domain()
+        {
+            var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
+
+            var serializer = customDomain.SerializerRegistry.GetSerializer<System.Collections.Generic.IDictionary<string, string>>();
+
+            serializer.Should().BeOfType<ImpliedImplementationInterfaceSerializer<System.Collections.Generic.IDictionary<string, string>, System.Collections.Generic.Dictionary<string, string>>>();
+            ((IHasSerializationDomain)serializer).SerializationDomain.Should().BeSameAs(customDomain);
+        }
+
+        // Instantiation path: BsonClassMapSerializationProvider (Activator.CreateInstance with domain)
+        [Fact]
+        public void ClassMap_provider_path_uses_custom_domain()
+        {
+            var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
+
+            var serializer = customDomain.SerializerRegistry.GetSerializer<Person>();
+
+            serializer.Should().BeOfType<BsonClassMapSerializer<Person>>();
+            ((IHasSerializationDomain)serializer).SerializationDomain.Should().BeSameAs(customDomain);
+        }
+
+        // Instantiation path: AttributedSerializationProvider → BsonSerializerAttribute.CreateSerializer
+        [Fact]
+        public void Attribute_path_parameterless_serializer_resolves_from_custom_domain()
+        {
+            var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
+
+            var serializer = customDomain.SerializerRegistry.GetSerializer<TypeWithAttributedSerializer>();
+
+            serializer.Should().BeOfType<CustomAttributeSerializer>();
+        }
+
+        // Instantiation path: AttributedSerializationProvider → BsonSerializerAttribute.CreateSerializer with domain ctor
+        [Fact]
+        public void Attribute_path_domain_ctor_serializer_uses_custom_domain()
+        {
+            var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
+
+            var serializer = customDomain.SerializerRegistry.GetSerializer<TypeWithDomainAwareAttributedSerializer>();
+
+            serializer.Should().BeOfType<DomainAwareAttributeSerializer>();
+            ((IHasSerializationDomain)serializer).SerializationDomain.Should().BeSameAs(customDomain);
+        }
+
+        // With* path: ObjectSerializer.WithDiscriminatorConvention preserves domain
+        [Fact]
+        public void WithDiscriminatorConvention_preserves_domain()
+        {
+            var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
+            var objectSerializer = (ObjectSerializer)customDomain.SerializerRegistry.GetSerializer<object>();
+
+            var reconfigured = objectSerializer.WithDiscriminatorConvention(new ScalarDiscriminatorConvention("_t"));
+
+            ((IHasSerializationDomain)reconfigured).SerializationDomain.Should().BeSameAs(customDomain);
+        }
+
+        // With* path: ObjectSerializer.WithAllowedTypes preserves domain
+        [Fact]
+        public void WithAllowedTypes_preserves_domain()
+        {
+            var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
+            var objectSerializer = (ObjectSerializer)customDomain.SerializerRegistry.GetSerializer<object>();
+
+            var reconfigured = objectSerializer.WithAllowedTypes(t => true, t => true);
+
+            ((IHasSerializationDomain)reconfigured).SerializationDomain.Should().BeSameAs(customDomain);
+        }
+
+        // With* path: EnumerableInterfaceImplementerSerializer.WithItemSerializer preserves domain
+        [Fact]
+        public void WithItemSerializer_on_enumerable_preserves_domain()
+        {
+            var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
+            var listSerializer = (EnumerableInterfaceImplementerSerializer<System.Collections.Generic.List<string>, string>)
+                customDomain.SerializerRegistry.GetSerializer<System.Collections.Generic.List<string>>();
+
+            var domainField = typeof(EnumerableSerializerBase<System.Collections.Generic.List<string>, string>)
+                .GetField("_serializationDomain", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+
+            domainField.GetValue(listSerializer).Should().BeSameAs(customDomain);
+
+            var reconfigured = listSerializer.WithItemSerializer(new CustomStringSerializer("_Y"));
+            domainField.GetValue(reconfigured).Should().BeSameAs(customDomain);
+        }
+
+        // With* path: ImpliedImplementationInterfaceSerializer.WithImplementationSerializer preserves domain
+        [Fact]
+        public void WithImplementationSerializer_preserves_domain()
+        {
+            var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
+            var serializer = (ImpliedImplementationInterfaceSerializer<System.Collections.Generic.IDictionary<string, string>, System.Collections.Generic.Dictionary<string, string>>)
+                customDomain.SerializerRegistry.GetSerializer<System.Collections.Generic.IDictionary<string, string>>();
+
+            ((IHasSerializationDomain)serializer).SerializationDomain.Should().BeSameAs(customDomain);
+
+            var newImplSerializer = (IBsonSerializer<System.Collections.Generic.Dictionary<string, string>>)
+                customDomain.SerializerRegistry.GetSerializer<System.Collections.Generic.Dictionary<string, string>>();
+            var reconfigured = serializer.WithImplementationSerializer(newImplSerializer);
+
+            ((IHasSerializationDomain)reconfigured).SerializationDomain.Should().BeSameAs(customDomain);
+        }
+
+        // Reconfiguration path: SerializerConfigurator.ReconfigureSerializerRecursively via ObjectSerializerAllowedTypesConvention
+        [Fact]
+        public void ObjectSerializerAllowedTypesConvention_preserves_domain_on_reconfigured_ObjectSerializer()
+        {
+            var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
+
+            var pack = new ConventionPack(customDomain);
+            pack.Add(ObjectSerializerAllowedTypesConvention.AllowAllTypes);
+            customDomain.ConventionRegistry.Register("allow-all", pack, t => t == typeof(ClassWithObjectMember));
+
+            // Force the class map to be created and frozen so the convention is applied
+            customDomain.SerializerRegistry.GetSerializer<ClassWithObjectMember>();
+
+            var classMap = customDomain.ClassMapRegistry.LookupClassMap(typeof(ClassWithObjectMember));
+            var dataMemberMap = classMap.GetMemberMap("Data");
+            var memberSerializer = dataMemberMap.GetSerializer();
+
+            memberSerializer.Should().BeOfType<ObjectSerializer>();
+            ((IHasSerializationDomain)memberSerializer).SerializationDomain.Should().BeSameAs(customDomain);
+        }
+
+        public interface IAnimal
+        {
+            string Name { get; set; }
+        }
+
+        public class Dog : IAnimal
+        {
+            public string Name { get; set; }
+            public string Breed { get; set; }
+        }
+
+        [BsonSerializer(typeof(CustomAttributeSerializer))]
+        public class TypeWithAttributedSerializer
+        {
+            public string Value { get; set; }
+        }
+
+        public class CustomAttributeSerializer : SerializerBase<TypeWithAttributedSerializer>
+        {
+            public override TypeWithAttributedSerializer Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
+            {
+                context.Reader.ReadStartDocument();
+                context.Reader.ReadString();
+                context.Reader.ReadEndDocument();
+                return new TypeWithAttributedSerializer { Value = "deserialized" };
+            }
+
+            public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TypeWithAttributedSerializer value)
+            {
+                context.Writer.WriteStartDocument();
+                context.Writer.WriteName("v");
+                context.Writer.WriteString(value.Value ?? "");
+                context.Writer.WriteEndDocument();
+            }
+        }
+
+        [BsonSerializer(typeof(DomainAwareAttributeSerializer))]
+        public class TypeWithDomainAwareAttributedSerializer
+        {
+            public string Value { get; set; }
+        }
+
+        public class DomainAwareAttributeSerializer : SerializerBase<TypeWithDomainAwareAttributedSerializer>, IHasSerializationDomain
+        {
+            private readonly IBsonSerializationDomain _serializationDomain;
+
+            public DomainAwareAttributeSerializer()
+                : this(BsonSerializationDomain.Default)
+            {
+            }
+
+            internal DomainAwareAttributeSerializer(IBsonSerializationDomain serializationDomain)
+            {
+                _serializationDomain = serializationDomain;
+            }
+
+            IBsonSerializationDomain IHasSerializationDomain.SerializationDomain => _serializationDomain;
+
+            public override TypeWithDomainAwareAttributedSerializer Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
+            {
+                context.Reader.ReadStartDocument();
+                context.Reader.ReadString();
+                context.Reader.ReadEndDocument();
+                return new TypeWithDomainAwareAttributedSerializer { Value = "deserialized" };
+            }
+
+            public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TypeWithDomainAwareAttributedSerializer value)
+            {
+                context.Writer.WriteStartDocument();
+                context.Writer.WriteName("v");
+                context.Writer.WriteString(value.Value ?? "");
+                context.Writer.WriteEndDocument();
+            }
+        }
+
+        public class ClassWithObjectMember
+        {
+            public ObjectId Id { get; set; }
+            public object Data { get; set; }
         }
 
         // This serializer adds the _appended variable to any serialised string
