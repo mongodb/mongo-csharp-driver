@@ -11,27 +11,37 @@ set +o xtrace  # Disable tracing.
 # querying nuget source to find search base url
 packages_search_url=$(curl -X GET -s "${PACKAGES_SOURCE}" | jq -r 'first(.resources[] | select(."@type"=="SearchQueryService") | ."@id")')
 
-wait_until_package_is_available ()
-{
+execute_with_retry() {
+  max_attempts=$1
+  shift  # Shift removes the first argument ($1), so $@ becomes the command
+  attempt=1
+
+  until "$@"; do
+    ((attempt++))
+
+    if [ $attempt -gt $max_attempts ]; then
+      echo "Command failed after $max_attempts attempts." >&2
+      exit 1
+    fi
+
+    delay=$((attempt * 10))
+    echo "Command failed. Sleeping for ${delay} seconds..."
+    sleep $delay
+  done
+}
+
+check_package_version_available() {
   package=$1
   version=$2
-  resp=""
-  count=0
-  echo "Checking package availability: ${package}:${version} at ${packages_search_url}"
-  while [ -z "$resp" ] && [ $count -le 40 ]; do
-    resp=$(curl -X GET -s "$packages_search_url?prerelease=true&take=1&q=PackageId:$package" | jq --arg jq_version "$version" '.data[0].versions[]? | select(.version==$jq_version) | .version')
-    if [ -z "$resp" ]; then
-      echo "sleeping for 15 seconds..."
-      sleep 15
-    fi
-  done
+  curl -X GET -s "$packages_search_url?prerelease=true&take=1&q=PackageId:$package" | jq -e --arg v "$version" 'any(.data[0].versions[]?; .version == $v)' > /dev/null
+}
 
-  if [ -z "$resp" ]; then
-    echo "Timeout while waiting for package availability: ${package}"
-    exit 1
-  else
-    echo "Package ${package} is available, version: ${resp}"
-  fi
+wait_until_package_is_available() {
+  package=$1
+  version=$2
+  echo "Checking package availability: ${package}:${version} at ${packages_search_url}"
+  execute_with_retry 10 check_package_version_available "$package" "$version"
+  echo "Package ${package} is available, version: ${version}
 }
 
 if [ -z "$PACKAGES_SOURCE" ]; then
@@ -62,7 +72,8 @@ for package in ${PACKAGES[*]}; do
 done
 
 for package in ${PACKAGES[*]}; do
-  dotnet nuget push --source "$PACKAGES_SOURCE" --api-key "$PACKAGES_SOURCE_KEY" ./artifacts/nuget/"$package"."$PACKAGE_VERSION".nupkg
+  echo "Pushing package: ${package}:${PACKAGE_VERSION}"
+  execute_with_retry 5 dotnet nuget push --source "$PACKAGES_SOURCE" --api-key "$PACKAGES_SOURCE_KEY" ./artifacts/nuget/"$package"."$PACKAGE_VERSION".nupkg
 done
 
 for package in ${PACKAGES[*]}; do
