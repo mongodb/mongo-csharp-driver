@@ -20,7 +20,7 @@ execute_with_retry() {
     ((attempt++))
 
     if [ $attempt -gt $max_attempts ]; then
-      echo "Command failed after $max_attempts attempts." >&2
+      echo "Command failed after $max_attempts attempts."
       exit 1
     fi
 
@@ -74,7 +74,7 @@ done
 
 for package in ${PACKAGES[*]}; do
   echo "Pushing package: ${package}:${PACKAGE_VERSION}"
-  execute_with_retry 5 dotnet nuget push --skip-duplicate --source "$PACKAGES_SOURCE" --api-key "$PACKAGES_SOURCE_KEY" ./artifacts/nuget/"$package"."$PACKAGE_VERSION".nupkg
+  execute_with_retry 5 dotnet nuget push --source "$PACKAGES_SOURCE" --api-key "$PACKAGES_SOURCE_KEY" ./artifacts/nuget/"$package"."$PACKAGE_VERSION".nupkg
 done
 
 for package in ${PACKAGES[*]}; do
