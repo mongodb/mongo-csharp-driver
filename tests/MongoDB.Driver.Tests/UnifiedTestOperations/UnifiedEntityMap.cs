@@ -712,16 +712,6 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         }
 
                         break;
-                    case "storeEventsAsEntities":
-                        var eventsBatches = element.Value.AsBsonArray;
-                        foreach (var batch in eventsBatches.Cast<BsonDocument>())
-                        {
-                            var id = batch["id"].AsString;
-                            var events = batch["events"].AsBsonArray.Select(e => e.AsString);
-                            eventTypesToCapture.Add((id, events, CommandNotToCapture: null));
-                        }
-
-                        break;
                     default:
                         throw new FormatException($"Invalid client argument name: '{element.Name}'.");
                 }
