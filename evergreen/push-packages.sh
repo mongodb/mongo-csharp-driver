@@ -25,7 +25,7 @@ execute_with_retry() {
     fi
 
     delay=$((attempt * 10))
-    echo "Command failed (attempt ${attempt} out of ${max_attempts}). Sleeping for ${delay} seconds..."
+    echo "Command failed (attempt ${attempt} out of ${max_attempts}). Sleeping for ${delay} seconds..." >&2
     sleep $delay
   done
 }
