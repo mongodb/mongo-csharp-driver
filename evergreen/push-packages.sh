@@ -33,7 +33,8 @@ execute_with_retry() {
 check_package_version_available() {
   package=$1
   version=$2
-  curl -X GET -s "$packages_search_url?prerelease=true&take=1&q=PackageId:$package" | jq -e --arg v "$version" 'any(.data[0].versions[]?; .version == $v)' > /dev/null
+  response=$(curl -X GET -s "$packages_search_url?prerelease=true&take=1&q=PackageId:$package")
+  echo "$response" | jq -e --arg v "$version" 'any(.data[0].versions[]?; .version == $v)' > /dev/null 2>&1
 }
 
 wait_until_package_is_available() {
@@ -41,7 +42,7 @@ wait_until_package_is_available() {
   version=$2
   echo "Checking package availability: ${package}:${version} at ${packages_search_url}"
   execute_with_retry 10 check_package_version_available "$package" "$version"
-  echo "Package ${package} is available, version: ${version}
+  echo "Package ${package} is available, version: ${version}"
 }
 
 if [ -z "$PACKAGES_SOURCE" ]; then
