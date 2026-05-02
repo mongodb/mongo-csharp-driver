@@ -74,7 +74,6 @@ Documentation
 
 Questions/Bug Reports
 ---------------------
-* 
 * [Jira](https://jira.mongodb.org/browse/CSHARP)
 
 If you’ve identified a security vulnerability in a driver or any other MongoDB project, please report it according to the [instructions here](https://www.mongodb.com/docs/manual/tutorial/create-a-vulnerability-report).
