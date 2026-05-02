@@ -14,7 +14,7 @@ packages_search_url=$(curl -X GET -s "${PACKAGES_SOURCE}" | jq -r 'first(.resour
 execute_with_retry() {
   max_attempts=$1
   shift  # Shift removes the first argument ($1), so $@ becomes the command
-  attempt=1
+  attempt=0
 
   until "$@"; do
     ((attempt++))
