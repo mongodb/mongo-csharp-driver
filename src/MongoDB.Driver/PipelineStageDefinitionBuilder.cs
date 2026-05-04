@@ -545,41 +545,16 @@ namespace MongoDB.Driver
             const string operatorName = "$facet";
             var materializedFacets = facets.ToArray();
 
-            var stage = new DelegatedPipelineStageDefinition<TInput, TOutput>(
+            return new DelegatedPipelineStageDefinition<TInput, TOutput>(
                 operatorName,
                 args =>
                 {
                     ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
-                    var facetsDocument = new BsonDocument();
-                    foreach (var facet in materializedFacets)
-                    {
-                        var renderedPipeline = facet.RenderPipeline(args);
-                        facetsDocument.Add(facet.Name, renderedPipeline);
-                    }
+                    var facetsDocument = RenderFacets(materializedFacets, args);
                     var document = new BsonDocument("$facet", facetsDocument);
-
-                    IBsonSerializer<TOutput> outputSerializer;
-
-                    if (options?.OutputSerializer is not null)
-                    {
-                        outputSerializer = options.OutputSerializer;
-                    }
-                    else if (typeof(TOutput) == typeof(AggregateFacetResults))
-                    {
-                        outputSerializer = (IBsonSerializer<TOutput>)new AggregateFacetResultsSerializer(
-                            materializedFacets.Select(f => f.Name),
-                            materializedFacets.Select(f => f.OutputSerializer ?? args.SerializerRegistry.GetSerializer(f.OutputType)));  //QUESTION What do we do? Do we delay the setting of the serializer..?
-                    }
-                    else
-                    {
-                        outputSerializer = args.SerializerRegistry.GetSerializer<TOutput>();
-                    }
-
-                    //var outputSerializer = options?.OutputSerializer ?? args.SerializerRegistry.GetSerializer<TOutput>();
+                    var outputSerializer = options?.OutputSerializer ?? args.SerializerRegistry.GetSerializer<TOutput>();
                     return new RenderedPipelineStageDefinition<TOutput>(operatorName, document, outputSerializer);
                 });
-
-            return stage;
         }
 
         /// <summary>
@@ -591,7 +566,23 @@ namespace MongoDB.Driver
         public static PipelineStageDefinition<TInput, AggregateFacetResults> Facet<TInput>(
             IEnumerable<AggregateFacet<TInput>> facets)
         {
-            return Facet<TInput, AggregateFacetResults>(facets, options: null);
+            Ensure.IsNotNull(facets, nameof(facets));
+
+            const string operatorName = "$facet";
+            var materializedFacets = facets.ToArray();
+
+            return new DelegatedPipelineStageDefinition<TInput, AggregateFacetResults>(
+                operatorName,
+                args =>
+                {
+                    ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
+                    var facetsDocument = RenderFacets(materializedFacets, args);
+                    var document = new BsonDocument("$facet", facetsDocument);
+                    var outputSerializer = new AggregateFacetResultsSerializer(
+                        materializedFacets.Select(f => f.Name),
+                        materializedFacets.Select(f => f.OutputSerializer ?? args.SerializerRegistry.GetSerializer(f.OutputType)));
+                    return new RenderedPipelineStageDefinition<AggregateFacetResults>(operatorName, document, outputSerializer);
+                });
         }
 
         /// <summary>
@@ -2423,6 +2414,16 @@ namespace MongoDB.Driver
         }
 
         // private methods
+        private static BsonDocument RenderFacets<TInput>(AggregateFacet<TInput>[] facets, RenderArgs<TInput> args)
+        {
+            var facetsDocument = new BsonDocument();
+            foreach (var facet in facets)
+            {
+                facetsDocument.Add(facet.Name, facet.RenderPipeline(args));
+            }
+            return facetsDocument;
+        }
+
         private static bool AreGraphLookupFromAndToTypesCompatible<TConnectFrom, TConnectTo>()
         {
             if (typeof(TConnectFrom) == typeof(TConnectTo))
