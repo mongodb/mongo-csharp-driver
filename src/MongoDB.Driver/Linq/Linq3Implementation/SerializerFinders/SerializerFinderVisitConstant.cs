@@ -29,10 +29,7 @@ internal partial class SerializerFinderVisitor
             {
                 AddNodeSerializer(node, standardSerializer);
             }
-            // The constant's value can itself be a serializer (e.g. one captured by
-            // PipelineStageDefinitionBuilder.OfType<,>). Such a constant doesn't need to be
-            // serialized, so we skip the registry lookup.
-            else if (!typeof(IBsonSerializer).IsAssignableFrom(node.Type))
+            else
             {
                 var registeredSerializer = _serializationDomain.LookupSerializer(node.Type);
                 AddNodeSerializer(node, registeredSerializer);
