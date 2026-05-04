@@ -319,11 +319,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             return false;
         }
 
-        // public static bool IsNullableEnum(this Type type)
-        // {
-        //     return type.IsNullable(out var valueType) && valueType.IsEnum;
-        // }
-
         public static bool IsNullableEnum(this Type type, out Type enumType)
         {
             if (type.IsNullable(out var valueType) && valueType.IsEnum)

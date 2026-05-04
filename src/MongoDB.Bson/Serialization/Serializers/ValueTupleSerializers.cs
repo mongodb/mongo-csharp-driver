@@ -74,6 +74,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Initializes a new instance of the <see cref="ValueTupleSerializer{T1}"/> class.
         /// </summary>
+        //DOMAIN-API parameterless ctor chains to Default; add (IBsonSerializationDomain) ctor in 4.0 for consistency with the paired-ctor pattern.
         public ValueTupleSerializer()
             : this(BsonSerializationDomain.Default.SerializerRegistry)
         {
@@ -192,6 +193,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Initializes a new instance of the <see cref="ValueTupleSerializer{T1, T2}"/> class.
         /// </summary>
+        //DOMAIN-API parameterless ctor chains to Default; add (IBsonSerializationDomain) ctor in 4.0 for consistency with the paired-ctor pattern.
         public ValueTupleSerializer()
             : this(BsonSerializationDomain.Default.SerializerRegistry)
         {
@@ -328,6 +330,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Initializes a new instance of the <see cref="ValueTupleSerializer{T1, T2, T3}"/> class.
         /// </summary>
+        //DOMAIN-API parameterless ctor chains to Default; add (IBsonSerializationDomain) ctor in 4.0 for consistency with the paired-ctor pattern.
         public ValueTupleSerializer()
             : this(BsonSerializationDomain.Default.SerializerRegistry)
         {
@@ -482,6 +485,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Initializes a new instance of the <see cref="ValueTupleSerializer{T1, T2, T3, T4}"/> class.
         /// </summary>
+        //DOMAIN-API parameterless ctor chains to Default; add (IBsonSerializationDomain) ctor in 4.0 for consistency with the paired-ctor pattern.
         public ValueTupleSerializer()
             : this(BsonSerializationDomain.Default.SerializerRegistry)
         {
@@ -654,6 +658,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Initializes a new instance of the <see cref="ValueTupleSerializer{T1, T2, T3, T4, T5}"/> class.
         /// </summary>
+        //DOMAIN-API parameterless ctor chains to Default; add (IBsonSerializationDomain) ctor in 4.0 for consistency with the paired-ctor pattern.
         public ValueTupleSerializer()
             : this(BsonSerializationDomain.Default.SerializerRegistry)
         {
@@ -844,6 +849,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Initializes a new instance of the <see cref="ValueTupleSerializer{T1, T2, T3, T4, T5, T6}"/> class.
         /// </summary>
+        //DOMAIN-API parameterless ctor chains to Default; add (IBsonSerializationDomain) ctor in 4.0 for consistency with the paired-ctor pattern.
         public ValueTupleSerializer()
             : this(BsonSerializationDomain.Default.SerializerRegistry)
         {
@@ -1052,6 +1058,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Initializes a new instance of the <see cref="ValueTupleSerializer{T1, T2, T3, T4, T5, T6, T7}"/> class.
         /// </summary>
+        //DOMAIN-API parameterless ctor chains to Default; add (IBsonSerializationDomain) ctor in 4.0 for consistency with the paired-ctor pattern.
         public ValueTupleSerializer()
             : this(BsonSerializationDomain.Default.SerializerRegistry)
         {
@@ -1279,6 +1286,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Initializes a new instance of the <see cref="ValueTupleSerializer{T1, T2, T3, T4, T5, T6, T7, TRest}"/> class.
         /// </summary>
+        //DOMAIN-API parameterless ctor chains to Default; add (IBsonSerializationDomain) ctor in 4.0 for consistency with the paired-ctor pattern.
         public ValueTupleSerializer()
             : this(BsonSerializationDomain.Default.SerializerRegistry)
         {

@@ -19,21 +19,16 @@ namespace MongoDB.Bson
 {
     internal interface IBsonDefaults
     {
-        /// <summary>
-        ///
-        /// </summary>
+        /// <summary>Gets or sets the default serializer for dynamic BSON arrays.</summary>
         IBsonSerializer DynamicArraySerializer { get; set; }
-        /// <summary>
-        ///
-        /// </summary>
+
+        /// <summary>Gets or sets the default serializer for dynamic BSON documents.</summary>
         IBsonSerializer DynamicDocumentSerializer { get; set; }
-        /// <summary>
-        ///
-        /// </summary>
+
+        /// <summary>Gets or sets the maximum allowed BSON document size in bytes.</summary>
         int MaxDocumentSize { get; set; }
-        /// <summary>
-        ///
-        /// </summary>
+
+        /// <summary>Gets or sets the maximum allowed serialization depth.</summary>
         int MaxSerializationDepth { get; set; }
     }
 }
