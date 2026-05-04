@@ -1817,11 +1817,7 @@ namespace MongoDB.Driver
             Dictionary<string, double> weights = null,
             ScoreFusionOptions<TOutput> options = null)
         {
-            Ensure.IsNotNull(pipelines, nameof(pipelines));
-            if (pipelines.Count == 0)
-            {
-                throw new ArgumentException("Value cannot be an empty collection.", nameof(pipelines));
-            }
+            Ensure.IsNotNullOrEmpty(pipelines, nameof(pipelines));
 
             if (pipelines.Any(pipeline => pipeline.Value == null))
             {
@@ -1845,16 +1841,7 @@ namespace MongoDB.Driver
             ScoreFusionNormalization normalization,
             ScoreFusionOptions<TOutput> options = null)
         {
-            Ensure.IsNotNull(pipelines, nameof(pipelines));
-            if (pipelines.Length == 0)
-            {
-                throw new ArgumentException("Value cannot be an empty collection.", nameof(pipelines));
-            }
-
-            if (pipelines.Any(pipeline => pipeline == null))
-            {
-                throw new ArgumentNullException(nameof(pipelines), "Value cannot contain a null pipeline.");
-            }
+            Ensure.IsNotNullOrEmpty(pipelines, nameof(pipelines));
 
             return ScoreFusionCore(BuildAutoNamedPipelineMap(pipelines), normalization, null, options);
         }
@@ -1873,16 +1860,7 @@ namespace MongoDB.Driver
             ScoreFusionNormalization normalization,
             ScoreFusionOptions<TOutput> options = null)
         {
-            Ensure.IsNotNull(pipelinesWithWeights, nameof(pipelinesWithWeights));
-            if (pipelinesWithWeights.Length == 0)
-            {
-                throw new ArgumentException("Value cannot be an empty collection.", nameof(pipelinesWithWeights));
-            }
-
-            if (pipelinesWithWeights.Any(p => p.Pipeline == null))
-            {
-                throw new ArgumentNullException(nameof(pipelinesWithWeights), "Value cannot contain a tuple with a null pipeline.");
-            }
+            Ensure.IsNotNullOrEmpty(pipelinesWithWeights, nameof(pipelinesWithWeights));
 
             var (pipelinesMap, weightsMap) = BuildAutoNamedPipelineMapWithWeights(pipelinesWithWeights);
             return ScoreFusionCore(pipelinesMap, normalization, weightsMap.Count == 0 ? null : weightsMap, options);
@@ -2456,6 +2434,11 @@ namespace MongoDB.Driver
         private static Dictionary<string, PipelineDefinition<TInput, TOutput>> BuildAutoNamedPipelineMap<TInput, TOutput>(
             PipelineDefinition<TInput, TOutput>[] pipelines)
         {
+            if (pipelines.Any(p => p == null))
+            {
+                throw new ArgumentNullException(nameof(pipelines), "Value cannot contain a null pipeline.");
+            }
+
             var pipelinesMap = new Dictionary<string, PipelineDefinition<TInput, TOutput>>();
             for (var i = 0; i < pipelines.Length; i++)
             {
@@ -2467,6 +2450,11 @@ namespace MongoDB.Driver
         private static (Dictionary<string, PipelineDefinition<TInput, TOutput>> Pipelines, Dictionary<string, double> Weights) BuildAutoNamedPipelineMapWithWeights<TInput, TOutput>(
             (PipelineDefinition<TInput, TOutput> Pipeline, double? Weight)[] pipelinesWithWeights)
         {
+            if (pipelinesWithWeights.Any(p => p.Pipeline == null))
+            {
+                throw new ArgumentNullException(nameof(pipelinesWithWeights), "Value cannot contain a tuple with a null pipeline.");
+            }
+
             var pipelinesMap = new Dictionary<string, PipelineDefinition<TInput, TOutput>>();
             var weightsMap = new Dictionary<string, double>();
             for (var i = 0; i < pipelinesWithWeights.Length; i++)

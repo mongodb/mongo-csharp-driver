@@ -461,6 +461,93 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void ScoreFusion_using_pipeline_weight_tuples_should_add_expected_stage()
+        {
+            var result = new EmptyPipelineDefinition<BsonDocument>().ScoreFusion(
+            [
+                (new EmptyPipelineDefinition<BsonDocument>().Match("{ x : 1 }").Sort("{ y : 1 }"), (double?)0.3),
+                (new EmptyPipelineDefinition<BsonDocument>().Match("{ x : 2 }").Sort("{ y : -1 }"), (double?)0.7),
+                (new EmptyPipelineDefinition<BsonDocument>().Match("{ x : 3 }").Sort("{ y : 1 }"), null)
+            ],
+            ScoreFusionNormalization.None);
+
+            var stages = RenderStages(result, BsonDocumentSerializer.Instance);
+            stages.Count.Should().Be(1);
+            stages[0].Should().Be("""
+                                  {
+                                      $scoreFusion: {
+                                          "input" : {
+                                              "pipelines" : {
+                                                 "pipeline1" : [{ "$match" : { "x" : 1 } }, { "$sort" : { "y" : 1 } }],
+                                                 "pipeline2" : [{ "$match" : { "x" : 2 } }, { "$sort" : { "y" : -1 } }],
+                                                 "pipeline3" : [{ "$match" : { "x" : 3 } }, { "$sort" : { "y" : 1 } }]
+                                              },
+                                              "normalization" : "none"
+                                          },
+                                          "combination" : { "weights" : { "pipeline1" : 0.3, "pipeline2" : 0.7 } }
+                                      }
+                                  }
+                                  """);
+        }
+
+        [Fact]
+        public void ScoreFusion_with_named_pipelines_should_add_expected_stage()
+        {
+            var result = new EmptyPipelineDefinition<BsonDocument>().ScoreFusion(
+                new Dictionary<string, PipelineDefinition<BsonDocument, BsonDocument>>
+                {
+                    { "p1", new EmptyPipelineDefinition<BsonDocument>().Match("{ x : 1 }").Sort("{ y : 1 }") },
+                    { "p2", new EmptyPipelineDefinition<BsonDocument>().Match("{ x : 2 }").Sort("{ y : -1 }") }
+                },
+                ScoreFusionNormalization.None,
+                new Dictionary<string, double> { { "p1", 0.3 }, { "p2", 0.7 } });
+
+            var stages = RenderStages(result, BsonDocumentSerializer.Instance);
+            stages.Count.Should().Be(1);
+            stages[0].Should().Be("""
+                                  {
+                                      $scoreFusion: {
+                                          "input" : {
+                                              "pipelines" : {
+                                                 "p1" : [{ "$match" : { "x" : 1 } }, { "$sort" : { "y" : 1 } }],
+                                                 "p2" : [{ "$match" : { "x" : 2 } }, { "$sort" : { "y" : -1 } }]
+                                              },
+                                              "normalization" : "none"
+                                          },
+                                          "combination" : { "weights" : { "p1" : 0.3, "p2" : 0.7 } }
+                                      }
+                                  }
+                                  """);
+        }
+
+        [Fact]
+        public void ScoreFusion_without_named_pipelines_should_add_expected_stage()
+        {
+            var result = new EmptyPipelineDefinition<BsonDocument>().ScoreFusion(
+            [
+                new EmptyPipelineDefinition<BsonDocument>().Match("{ x : 1 }").Sort("{ y : 1 }"),
+                new EmptyPipelineDefinition<BsonDocument>().Match("{ x : 2 }").Sort("{ y : -1 }")
+            ],
+            ScoreFusionNormalization.None);
+
+            var stages = RenderStages(result, BsonDocumentSerializer.Instance);
+            stages.Count.Should().Be(1);
+            stages[0].Should().Be("""
+                                  {
+                                      $scoreFusion: {
+                                          "input" : {
+                                              "pipelines" : {
+                                                 "pipeline1" : [{ "$match" : { "x" : 1 } }, { "$sort" : { "y" : 1 } }],
+                                                 "pipeline2" : [{ "$match" : { "x" : 2 } }, { "$sort" : { "y" : -1 } }]
+                                              },
+                                              "normalization" : "none"
+                                          }
+                                      }
+                                  }
+                                  """);
+        }
+
+        [Fact]
         public void Search_should_add_expected_stage()
         {
             var pipeline = new EmptyPipelineDefinition<BsonDocument>();
