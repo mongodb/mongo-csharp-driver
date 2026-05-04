@@ -169,7 +169,7 @@ namespace MongoDB.Driver.Core.Operations
             var getMoreChannelSource = ChannelPinningHelper.CreateGetMoreChannelSource(channelSource, channel, cursorId);
             var cursor = new AsyncCursor<BsonDocument>(
                 getMoreChannelSource,
-                operationContext.Session,
+                operationContext.Session.Fork(),
                 CollectionNamespace.FromFullName(cursorDocument["ns"].AsString),
                 _comment,
                 cursorDocument["firstBatch"].AsBsonArray.OfType<BsonDocument>().ToList(),

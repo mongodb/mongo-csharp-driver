@@ -346,7 +346,7 @@ namespace MongoDB.Driver.Core.Operations
 
             return new AsyncCursor<TDocument>(
                 getMoreChannelSource,
-                operationContext.Session,
+                operationContext.Session.Fork(),
                 collectionNamespace,
                 _comment,
                 firstBatch.Documents,
