@@ -533,9 +533,6 @@ functions:
       params:
         include_expansions_in_env:
           - "FRAMEWORK"
-        env:
-          IAM_AUTH_ECS_ACCOUNT: ${iam_auth_ecs_account}
-          IAM_AUTH_ECS_SECRET_ACCESS_KEY: ${iam_auth_ecs_secret_access_key}
         working_dir: mongo-csharp-driver
         script: |
           ${PREPARE_SHELL}
@@ -631,9 +628,6 @@ functions:
       params:
         include_expansions_in_env:
           - "FRAMEWORK"
-        env:
-          IAM_AUTH_ECS_ACCOUNT: ${iam_auth_ecs_account}
-          IAM_AUTH_ECS_SECRET_ACCESS_KEY: ${iam_auth_ecs_secret_access_key}
         working_dir: mongo-csharp-driver
         script: |
           ${PREPARE_SHELL}
