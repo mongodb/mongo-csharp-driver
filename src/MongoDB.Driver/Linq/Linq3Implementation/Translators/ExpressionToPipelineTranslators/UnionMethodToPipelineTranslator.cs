@@ -45,8 +45,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                     secondProvider.CollectionNamespace is var secondCollectionNamespace &&
                     secondCollectionNamespace != null)
                 {
+                    if (secondProvider.SerializationDomain != context.SerializationDomain)
+                    {
+                        throw new ExpressionNotSupportedException(expression, because: "Union is not supported on queryables from different MongoClients");
+                    }
+
                     var secondCollectionName = secondCollectionNamespace.CollectionName;
-                    var secondContext = TranslationContext.Create(context.SerializationDomain, secondQueryable, context.TranslationOptions);
+                    var secondContext = TranslationContext.Create(secondQueryable, context.TranslationOptions);
                     var secondPipeline = ExpressionToPipelineTranslator.Translate(secondContext, secondQueryable.Expression);
                     if (secondPipeline.Ast.Stages.Count == 0)
                     {
