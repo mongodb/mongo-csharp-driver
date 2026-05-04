@@ -280,7 +280,7 @@ namespace MongoDB.Driver.Core.Operations
             var cursorDocument = cursorElement.Value.AsBsonDocument;
             return new AsyncCursor<BsonDocument>(
                 context.ChannelSource,
-                operationContext.Session,
+                operationContext.Session.Fork(),
                 CollectionNamespace.FromFullName(cursorDocument["ns"].AsString),
                 null,
                 cursorDocument["firstBatch"].AsBsonArray.Cast<BsonDocument>().ToList(),

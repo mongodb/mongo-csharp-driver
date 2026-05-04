@@ -115,11 +115,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             _operationId = EventContext.OperationId;
             _channelSource = channelSource;
-            Ensure.IsNotNull(session, nameof(session));
-            if (cursorId != 0)
-            {
-                _session = session.Fork(); // we need session only if there is expected more reads.
-            }
+            _session = Ensure.IsNotNull(session, nameof(session));
             _comment = comment;
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
             _firstBatch = Ensure.IsNotNull(firstBatch, nameof(firstBatch));
