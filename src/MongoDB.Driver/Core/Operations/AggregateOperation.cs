@@ -408,7 +408,7 @@ namespace MongoDB.Driver.Core.Operations
             var getMoreChannelSource = ChannelPinningHelper.CreateGetMoreChannelSource(channelSource, channel, cursorId);
             return new AsyncCursor<TResult>(
                 getMoreChannelSource,
-                operationContext.Session.Fork(),
+                operationContext.Session,
                 result.CollectionNamespace,
                 _comment,
                 result.Results,
