@@ -29,8 +29,10 @@ namespace MongoDB.Driver.Core.Operations
         public void Constructor_should_call_Dispose_on_channelSource_if_cursorId_is_zero(int cursorId, bool shouldCallDispose)
         {
             var mockChannelSource = new Mock<IChannelSource>();
+            var session = Mock.Of<ICoreSessionHandle>();
             new AsyncCursor<BsonDocument>(
                 mockChannelSource.Object,
+                session,
                 new CollectionNamespace("databaseName", "collectionName"),
                 comment: null,
                 new BsonDocument[0], // firstBatch

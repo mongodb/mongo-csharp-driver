@@ -16,45 +16,29 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
     internal sealed class OperationContext : IDisposable
     {
-        // TODO: this static field is temporary here and will be removed in a future PRs in scope of CSOT.
-        public static readonly OperationContext NoTimeout = new(null, CancellationToken.None);
-
         private CancellationTokenSource _remainingTimeoutCancellationTokenSource;
         private CancellationTokenSource _combinedCancellationTokenSource;
 
-        public OperationContext(TimeSpan? timeout, CancellationToken cancellationToken)
-            : this(SystemClock.Instance, SystemClock.Instance.GetTimestamp(), timeout, cancellationToken)
+        public OperationContext(ICoreSessionHandle session, TimeSpan? timeout = null, CancellationToken cancellationToken = default)
+            : this(session, SystemClock.Instance, SystemClock.Instance.GetTimestamp(), timeout, cancellationToken)
         {
         }
 
-        internal OperationContext(
-            TimeSpan? timeout,
-            string operationName,
-            string databaseName,
-            string collectionName,
-            bool isTracingEnabled,
-            CancellationToken cancellationToken)
-            : this(timeout, cancellationToken)
-        {
-            OperationName = operationName;
-            DatabaseName = databaseName;
-            CollectionName = collectionName;
-            IsTracingEnabled = isTracingEnabled;
-        }
-
-        internal OperationContext(IClock clock, TimeSpan? timeout, CancellationToken cancellationToken)
-            : this(clock, clock.GetTimestamp(), timeout, cancellationToken)
+        internal OperationContext(ICoreSessionHandle session, IClock clock, TimeSpan? timeout, CancellationToken cancellationToken)
+            : this(session, clock, clock.GetTimestamp(), timeout, cancellationToken)
         {
         }
 
-        internal OperationContext(IClock clock, long initialTimestamp, TimeSpan? timeout, CancellationToken cancellationToken)
+        internal OperationContext(ICoreSessionHandle session, IClock clock, long initialTimestamp, TimeSpan? timeout, CancellationToken cancellationToken)
         {
+            Session = Ensure.IsNotNull(session, nameof(session));
             Clock = Ensure.IsNotNull(clock, nameof(clock));
             InitialTimestamp = initialTimestamp;
             Timeout = Ensure.IsNullOrInfiniteOrGreaterThanOrEqualToZero(timeout, nameof(timeout));
@@ -90,6 +74,8 @@ namespace MongoDB.Driver
                 return result;
             }
         }
+
+        public ICoreSessionHandle Session { get; }
 
         [Obsolete("Do not use this property, unless it's needed to avoid breaking changes in public API")]
         public CancellationToken CombinedCancellationToken
@@ -133,13 +119,13 @@ namespace MongoDB.Driver
         }
 
         public OperationContext Fork() =>
-            new (Clock, InitialTimestamp, Timeout, CancellationToken)
+            new (Session, Clock, InitialTimestamp, Timeout, CancellationToken)
             {
                 RootContext = RootContext
             };
 
         internal OperationContext ForkWithOperationMetadata(string operationName, string databaseName, string collectionName, bool isTracingEnabled) =>
-            new (Clock, InitialTimestamp, Timeout, CancellationToken)
+            new (Session, Clock, InitialTimestamp, Timeout, CancellationToken)
             {
                 RootContext = RootContext,
                 OperationName = operationName,
@@ -211,13 +197,13 @@ namespace MongoDB.Driver
                 timeout = remainingTimeout;
             }
 
-            return new OperationContext(Clock, timeout, CancellationToken)
+            return new OperationContext(Session, Clock, timeout, CancellationToken)
             {
                 RootContext = RootContext,
                 OperationName = OperationName,
                 DatabaseName = DatabaseName,
                 CollectionName = CollectionName,
-                IsTracingEnabled = IsTracingEnabled
+                IsTracingEnabled = IsTracingEnabled,
             };
         }
 

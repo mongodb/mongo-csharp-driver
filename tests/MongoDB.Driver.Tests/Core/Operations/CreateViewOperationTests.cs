@@ -15,7 +15,6 @@
 
 using System;
 using System.Linq;
-using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.TestHelpers.XunitExtensions;
@@ -136,10 +135,12 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new CreateViewOperation(_databaseNamespace, viewName, _collectionNamespace.CollectionName, _pipeline, _messageEncoderSettings);
 
             BsonDocument info;
+            using (var session = CreateSession())
+            using (var operationContext = new OperationContext(session))
             using (var binding = CreateReadWriteBinding())
             {
-                ExecuteOperation(subject, binding, async);
-                info = GetViewInfo(binding, viewName);
+                ExecuteOperation(operationContext, subject, binding, async);
+                info = GetViewInfo(operationContext, binding, viewName);
             }
 
             var options = info["options"].AsBsonDocument;
@@ -164,10 +165,12 @@ namespace MongoDB.Driver.Core.Operations
             };
 
             BsonDocument info;
+            using (var session = CreateSession())
+            using (var operationContext = new OperationContext(session))
             using (var binding = CreateReadWriteBinding())
             {
-                ExecuteOperation(subject, binding, async);
-                info = GetViewInfo(binding, _viewName);
+                ExecuteOperation(operationContext, subject, binding, async);
+                info = GetViewInfo(operationContext, binding, _viewName);
             }
 
             var options = info["options"].AsBsonDocument;
@@ -199,10 +202,12 @@ namespace MongoDB.Driver.Core.Operations
             };
 
             BsonDocument info;
+            using (var session = CreateSession())
+            using (var operationContext = new OperationContext(session))
             using (var binding = CreateReadWriteBinding())
             {
-                ExecuteOperation(subject, binding, async);
-                info = GetViewInfo(binding, viewName);
+                ExecuteOperation(operationContext, subject, binding, async);
+                info = GetViewInfo(operationContext, binding, viewName);
             }
 
             var options = info["options"].AsBsonDocument;
@@ -248,10 +253,11 @@ namespace MongoDB.Driver.Core.Operations
             string viewName)
         {
             var subject = new CreateViewOperation(_databaseNamespace, viewName, _collectionNamespace.CollectionName, _pipeline, _messageEncoderSettings);
-            var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            using var session = OperationTestHelper.CreateSession();
+            using var operationContext = new OperationContext(session);
 
-            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription, transactionNumber: null);
+            var result = subject.CreateCommand(operationContext, connectionDescription, transactionNumber: null);
 
             var expectedResult = new BsonDocument
             {
@@ -273,10 +279,11 @@ namespace MongoDB.Driver.Core.Operations
             {
                 Collation = collation
             };
-            var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            using var session = OperationTestHelper.CreateSession();
+            using var operationContext = new OperationContext(session);
 
-            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription, transactionNumber: null);
+            var result = subject.CreateCommand(operationContext, connectionDescription, transactionNumber: null);
 
             var expectedResult = new BsonDocument
             {
@@ -305,11 +312,11 @@ namespace MongoDB.Driver.Core.Operations
             {
                 WriteConcern = writeConcern
             };
-            var operationContext = hasOperationTimeout ? new OperationContext(TimeSpan.FromSeconds(42), CancellationToken.None) : OperationContext.NoTimeout;
-            var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            using var session = OperationTestHelper.CreateSession();
+            using var operationContext = new OperationContext(session, timeout: hasOperationTimeout ? TimeSpan.FromSeconds(42) : null);
 
-            var result = subject.CreateCommand(operationContext, session, connectionDescription, transactionNumber: null);
+            var result = subject.CreateCommand(operationContext, connectionDescription, transactionNumber: null);
 
             var expectedConcern = writeConcern?.ToBsonDocument();
             if (hasOperationTimeout)
@@ -335,13 +342,13 @@ namespace MongoDB.Driver.Core.Operations
             ExecuteOperation(operation);
         }
 
-        private BsonDocument GetViewInfo(IReadBinding binding, string viewName)
+        private BsonDocument GetViewInfo(OperationContext operationContext, IReadBinding binding, string viewName)
         {
             var listCollectionsOperation = new ListCollectionsOperation(_collectionNamespace.DatabaseNamespace, _messageEncoderSettings)
             {
                 Filter = new BsonDocument("name", viewName)
             };
-            return listCollectionsOperation.Execute(OperationContext.NoTimeout, binding).Single();
+            return listCollectionsOperation.Execute(operationContext, binding).Single();
         }
     }
 }

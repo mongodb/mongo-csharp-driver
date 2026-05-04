@@ -213,9 +213,10 @@ namespace MongoDB.Driver.Core.Operations
                 BypassDocumentValidation = bypassDocumentValidation
             };
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
-            var session = OperationTestHelper.CreateSession();
+            using var session = OperationTestHelper.CreateSession();
+using var operationContext = new OperationContext(session);
 
-            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription);
+            var result = subject.CreateCommand(operationContext, connectionDescription);
 
             var expectedResult = new BsonDocument
             {
@@ -242,9 +243,10 @@ namespace MongoDB.Driver.Core.Operations
                 WriteConcern = writeConcern
             };
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
-            var session = OperationTestHelper.CreateSession();
+            using var session = OperationTestHelper.CreateSession();
+using var operationContext = new OperationContext(session);
 
-            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription);
+            var result = subject.CreateCommand(operationContext, connectionDescription);
 
             var expectedResult = new BsonDocument
             {
@@ -590,8 +592,10 @@ namespace MongoDB.Driver.Core.Operations
 #pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
 #pragma warning restore CS0618 // Type or member is obsolete
+            using var session = OperationTestHelper.CreateSession();
+            using var operationContext = new OperationContext(session);
 
-            var exception = Record.Exception(() => ExecuteOperation(subject, null, async));
+            var exception = Record.Exception(() => ExecuteOperation(operationContext, subject, null, async));
 
             var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
             argumentNullException.ParamName.Should().Be("binding");

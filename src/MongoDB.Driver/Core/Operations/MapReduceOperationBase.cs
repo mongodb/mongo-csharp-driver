@@ -15,7 +15,6 @@
 
 using System;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -221,7 +220,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        protected internal virtual BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber = null)
+        protected internal virtual BsonDocument CreateCommand(OperationContext operationContext, ConnectionDescription connectionDescription, long? transactionNumber = null)
         {
             return new BsonDocument
             {

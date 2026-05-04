@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Tests
         public async Task ExecuteReadOperation_throws_on_null_operation([Values(true, false)] bool async)
         {
             var subject = CreateSubject(out _);
-            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, CancellationToken.None);
+            var operationContext = new OperationContext(NoCoreSession.NewHandle(), Timeout.InfiniteTimeSpan, CancellationToken.None);
             var session = Mock.Of<IClientSessionHandle>();
 
             var exception = async ?
@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Tests
         public async Task ExecuteReadOperation_throws_on_null_readPreference([Values(true, false)] bool async)
         {
             var subject = CreateSubject(out _);
-            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, CancellationToken.None);
+            var operationContext = new OperationContext(NoCoreSession.NewHandle(), Timeout.InfiniteTimeSpan, CancellationToken.None);
             var operation = Mock.Of<IReadOperation<object>>();
             var session = Mock.Of<IClientSessionHandle>();
 
@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Tests
         public async Task ExecuteReadOperation_throws_on_null_session([Values(true, false)] bool async)
         {
             var subject = CreateSubject(out _);
-            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, CancellationToken.None);
+            var operationContext = new OperationContext(NoCoreSession.NewHandle(), Timeout.InfiniteTimeSpan, CancellationToken.None);
             var operation = Mock.Of<IReadOperation<object>>();
 
             var exception = async ?
@@ -92,7 +92,7 @@ namespace MongoDB.Driver.Tests
         public async Task ExecuteWriteOperation_throws_on_null_operation([Values(true, false)] bool async)
         {
             var subject = CreateSubject(out _);
-            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, CancellationToken.None);
+            var operationContext = new OperationContext(NoCoreSession.NewHandle(), Timeout.InfiniteTimeSpan, CancellationToken.None);
             var session = Mock.Of<IClientSessionHandle>();
 
             var exception = async ?
@@ -108,7 +108,7 @@ namespace MongoDB.Driver.Tests
         public async Task ExecuteWriteOperation_throws_on_null_session([Values(true, false)] bool async)
         {
             var subject = CreateSubject(out _);
-            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, CancellationToken.None);
+            var operationContext = new OperationContext(NoCoreSession.NewHandle(), Timeout.InfiniteTimeSpan, CancellationToken.None);
             var operation = Mock.Of<IWriteOperation<object>>();
 
             var exception = async ?

@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -39,16 +39,6 @@ namespace MongoDB.Driver.Core.Bindings
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Fact]
-        public void Session_should_delegate_to_reference()
-        {
-            var subject = new ReadBindingHandle(_mockReadBinding.Object);
-
-            var result = subject.Session;
-
-            _mockReadBinding.Verify(m => m.Session, Times.Once);
-        }
-
         [Theory]
         [ParameterAttributeData]
         public async Task GetReadChannelSource_should_throw_if_disposed(
@@ -58,9 +48,10 @@ namespace MongoDB.Driver.Core.Bindings
             var subject = new ReadBindingHandle(_mockReadBinding.Object);
             subject.Dispose();
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.GetReadChannelSourceAsync(OperationContext.NoTimeout)) :
-                Record.Exception(() => subject.GetReadChannelSource(OperationContext.NoTimeout));
+                await Record.ExceptionAsync(() => subject.GetReadChannelSourceAsync(operationContext)) :
+                Record.Exception(() => subject.GetReadChannelSource(operationContext));
 
             exception.Should().BeOfType<ObjectDisposedException>();
         }
@@ -73,17 +64,18 @@ namespace MongoDB.Driver.Core.Bindings
         {
             var subject = new ReadBindingHandle(_mockReadBinding.Object);
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             if (async)
             {
-                await subject.GetReadChannelSourceAsync(OperationContext.NoTimeout);
+                await subject.GetReadChannelSourceAsync(operationContext);
 
-                _mockReadBinding.Verify(b => b.GetReadChannelSourceAsync(OperationContext.NoTimeout), Times.Once);
+                _mockReadBinding.Verify(b => b.GetReadChannelSourceAsync(It.IsAny<OperationContext>()), Times.Once);
             }
             else
             {
-                subject.GetReadChannelSource(OperationContext.NoTimeout);
+                subject.GetReadChannelSource(operationContext);
 
-                _mockReadBinding.Verify(b => b.GetReadChannelSource(OperationContext.NoTimeout), Times.Once);
+                _mockReadBinding.Verify(b => b.GetReadChannelSource(It.IsAny<OperationContext>()), Times.Once);
             }
         }
 

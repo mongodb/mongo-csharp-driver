@@ -33,7 +33,6 @@ namespace MongoDB.Driver.Core.Bindings
 
         TResult Command<TResult>(
             OperationContext operationContext,
-            ICoreSession session,
             ReadPreference readPreference,
             DatabaseNamespace databaseNamespace,
             BsonDocument command,
@@ -47,7 +46,6 @@ namespace MongoDB.Driver.Core.Bindings
 
         Task<TResult> CommandAsync<TResult>(
             OperationContext operationContext,
-            ICoreSession session,
             ReadPreference readPreference,
             DatabaseNamespace databaseNamespace,
             BsonDocument command,

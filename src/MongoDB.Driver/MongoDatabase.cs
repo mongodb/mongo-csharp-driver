@@ -796,9 +796,13 @@ namespace MongoDB.Driver
                     : operationContext.Fork();
             }
 
-            return isTracingEnabled
-                ? new OperationContext(timeout ?? _settings.Timeout, operationName, _databaseNamespace.DatabaseName, collectionName, isTracingEnabled, cancellationToken)
-                : new OperationContext(timeout ?? _settings.Timeout, cancellationToken);
+            return new OperationContext(session.WrappedCoreSession, timeout ?? _settings.Timeout, cancellationToken)
+            {
+                IsTracingEnabled = isTracingEnabled,
+                OperationName = isTracingEnabled ? operationName : null,
+                DatabaseName = isTracingEnabled ? _databaseNamespace.DatabaseName : null,
+                CollectionName = isTracingEnabled ? collectionName : null,
+            };
         }
 
         private TResult ExecuteReadOperation<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, TimeSpan? timeout, CancellationToken cancellationToken)

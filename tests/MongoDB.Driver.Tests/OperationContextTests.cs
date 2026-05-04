@@ -18,8 +18,10 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.TestHelpers.XunitExtensions;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -29,13 +31,15 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void Constructor_should_initialize_properties()
         {
+            var session = Mock.Of<ICoreSessionHandle>();
             var timeout = TimeSpan.FromSeconds(42);
             var clock = new FrozenClock(DateTime.UtcNow);
             using var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
 
-            using var operationContext = new OperationContext(clock, timeout, cancellationToken);
+            using var operationContext = new OperationContext(session, clock, timeout, cancellationToken);
 
+            operationContext.Session.Should().Be(session);
             operationContext.Timeout.Should().Be(timeout);
             operationContext.RemainingTimeout.Should().Be(timeout);
             operationContext.CancellationToken.Should().Be(cancellationToken);
@@ -45,33 +49,21 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void Constructor_should_throw_on_negative_timeout()
         {
-            var exception = Record.Exception(() => new OperationContext(TimeSpan.FromSeconds(-5), CancellationToken.None));
+            var session = Mock.Of<ICoreSessionHandle>();
+
+            var exception = Record.Exception(() => new OperationContext(session, TimeSpan.FromSeconds(-5), CancellationToken.None));
 
             exception.Should().BeOfType<ArgumentOutOfRangeException>();
         }
 
         [Fact]
-        public void Constructor_with_metadata_should_initialize_all_properties()
+        public void Dispose_should_not_dispose_session()
         {
-            var timeout = TimeSpan.FromSeconds(30);
-            using var cancellationTokenSource = new CancellationTokenSource();
-            var cancellationToken = cancellationTokenSource.Token;
+            var session = new Mock<ICoreSessionHandle>();
+            var operationContext = new OperationContext(session.Object);
 
-            using var operationContext = new OperationContext(
-                timeout,
-                "find",
-                "testdb",
-                "testcol",
-                true,
-                cancellationToken);
-
-            operationContext.Timeout.Should().Be(timeout);
-            operationContext.CancellationToken.Should().Be(cancellationToken);
-            operationContext.OperationName.Should().Be("find");
-            operationContext.DatabaseName.Should().Be("testdb");
-            operationContext.CollectionName.Should().Be("testcol");
-            operationContext.IsTracingEnabled.Should().BeTrue();
-            operationContext.RootContext.Should().Be(operationContext);
+            operationContext.Dispose();
+            session.Verify(s => s.Dispose(), Times.Never);
         }
 
         [Theory]
@@ -393,7 +385,8 @@ namespace MongoDB.Driver.Tests
         private static OperationContext CreateSubject(TimeSpan? timeout, TimeSpan elapsed = default, CancellationToken cancellationToken = default)
         {
             var clock = new FrozenClock(DateTime.UtcNow);
-            var result = new OperationContext(clock, timeout, cancellationToken);
+            var session = Mock.Of<ICoreSessionHandle>();
+            var result = new OperationContext(session, clock, timeout, cancellationToken);
 
             if (elapsed != TimeSpan.Zero)
             {

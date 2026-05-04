@@ -20,6 +20,7 @@ using System.Net;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson.TestHelpers;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
@@ -168,7 +169,8 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
                 IConnection acquiredConnection = null;
                 if (checkOutConnection)
                 {
-                    acquiredConnection = pool.AcquireConnection(OperationContext.NoTimeout);
+                    using var operationContext = new OperationContext(NoCoreSession.NewHandle());
+                    acquiredConnection = pool.AcquireConnection(operationContext);
                     acquiredConnection.ConnectionId.LongLocalValue.Should().Be(1);
                 }
 

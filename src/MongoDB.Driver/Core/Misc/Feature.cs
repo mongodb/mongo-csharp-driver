@@ -606,8 +606,8 @@ public class Feature
     {
         var cluster = client.GetClusterInternal();
         // TODO: CSOT implement proper way to obtain the operationContext
-        var operationContext = new OperationContext(null, cancellationToken);
-        using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster, NoCoreSession.NewHandle())))
+        var operationContext = new OperationContext(NoCoreSession.NewHandle(), null, cancellationToken);
+        using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster)))
         using (var channelSource = binding.GetWriteChannelSource(operationContext))
         using (var channel = channelSource.GetChannel(operationContext))
         {
@@ -625,8 +625,8 @@ public class Feature
     {
         var cluster = client.GetClusterInternal();
         // TODO: CSOT implement proper way to obtain the operationContext
-        var operationContext = new OperationContext(null, cancellationToken);
-        using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster, NoCoreSession.NewHandle())))
+        var operationContext = new OperationContext(NoCoreSession.NewHandle(), null, cancellationToken);
+        using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster)))
         using (var channelSource = await binding.GetWriteChannelSourceAsync(operationContext).ConfigureAwait(false))
         using (var channel = await channelSource.GetChannelAsync(operationContext).ConfigureAwait(false))
         {

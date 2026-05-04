@@ -174,10 +174,10 @@ namespace MongoDB.Driver
 
             if (allowChannelPinning)
             {
-                return ChannelPinningHelper.CreateReadBinding(_client.GetClusterInternal(), session.WrappedCoreSession.Fork(), readPreference);
+                return ChannelPinningHelper.CreateReadBinding(_client.GetClusterInternal(), session.WrappedCoreSession, readPreference);
             }
 
-            var binding = new ReadPreferenceBinding(_client.GetClusterInternal(), readPreference, session.WrappedCoreSession.Fork());
+            var binding = new ReadPreferenceBinding(_client.GetClusterInternal(), readPreference);
             return new ReadBindingHandle(binding);
         }
 
@@ -185,10 +185,10 @@ namespace MongoDB.Driver
         {
             if (allowChannelPinning)
             {
-                return ChannelPinningHelper.CreateReadWriteBinding(_client.GetClusterInternal(), session.WrappedCoreSession.Fork());
+                return ChannelPinningHelper.CreateReadWriteBinding(_client.GetClusterInternal(), session.WrappedCoreSession);
             }
 
-            var binding = new WritableServerBinding(_client.GetClusterInternal(), session.WrappedCoreSession.Fork());
+            var binding = new WritableServerBinding(_client.GetClusterInternal());
             return new ReadWriteBindingHandle(binding);
         }
 

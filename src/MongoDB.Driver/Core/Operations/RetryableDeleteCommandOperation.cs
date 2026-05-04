@@ -63,16 +63,22 @@ namespace MongoDB.Driver.Core.Operations
             get { return _deletes; }
         }
 
-        protected override BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber)
+        protected override BsonDocument CreateCommand(OperationContext operationContext, long? transactionNumber)
         {
-            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, session, WriteConcern);
-            var readConcern = ReadConcernHelper.GetReadConcernForWriteCommand(session, connectionDescription);
+            if (WriteConcern != null && !WriteConcern.IsAcknowledged)
+            {
+                if (_deletes.Items.Skip(_deletes.Offset).Take(_deletes.Count).Any(u => u.Hint != null))
+                {
+                    throw new NotSupportedException("Hint is not supported for unacknowledged writes.");
+                }
+            }
+
+            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, WriteConcern);
             return new BsonDocument
             {
                 { "delete", _collectionNamespace.CollectionName },
                 { "ordered", IsOrdered },
                 { "comment", Comment, Comment != null },
-                { "readConcern", readConcern, readConcern != null },
                 { "writeConcern", writeConcern, writeConcern != null },
                 { "txnNumber", () => transactionNumber.Value, transactionNumber.HasValue },
                 { "let", _let, _let != null }

@@ -287,7 +287,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 cursor = ExecuteAggregateOperation(operationContext, context);
                 cursorBatchInfo = (ICursorBatchInfo)cursor;
-                initialOperationTime = GetInitialOperationTimeIfRequired(context, cursorBatchInfo);
+                initialOperationTime = GetInitialOperationTimeIfRequired(operationContext, context, cursorBatchInfo);
 
                 var postBatchResumeToken = GetInitialPostBatchResumeTokenIfRequired(cursorBatchInfo);
 
@@ -295,6 +295,7 @@ namespace MongoDB.Driver.Core.Operations
                     cursor,
                     _resultSerializer,
                     bindingHandle.Fork(),
+                    operationContext.Session.Fork(),
                     this,
                     postBatchResumeToken,
                     initialOperationTime,
@@ -322,7 +323,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 cursor = await ExecuteAggregateOperationAsync(operationContext, context).ConfigureAwait(false);
                 cursorBatchInfo = (ICursorBatchInfo)cursor;
-                initialOperationTime = GetInitialOperationTimeIfRequired(context, cursorBatchInfo);
+                initialOperationTime = GetInitialOperationTimeIfRequired(operationContext, context, cursorBatchInfo);
 
                 var postBatchResumeToken = GetInitialPostBatchResumeTokenIfRequired(cursorBatchInfo);
 
@@ -330,6 +331,7 @@ namespace MongoDB.Driver.Core.Operations
                     cursor,
                     _resultSerializer,
                     bindingHandle.Fork(),
+                    operationContext.Session.Fork(),
                     this,
                     postBatchResumeToken,
                     initialOperationTime,
@@ -435,7 +437,7 @@ namespace MongoDB.Driver.Core.Operations
             return cursorBatchInfo.WasFirstBatchEmpty ? cursorBatchInfo.PostBatchResumeToken : null;
         }
 
-        private BsonTimestamp GetInitialOperationTimeIfRequired(RetryableReadContext context, ICursorBatchInfo cursorBatchInfo)
+        private BsonTimestamp GetInitialOperationTimeIfRequired(OperationContext operationContext, RetryableReadContext context, ICursorBatchInfo cursorBatchInfo)
         {
             if (_startAtOperationTime == null && _resumeAfter == null && _startAfter == null)
             {
@@ -444,7 +446,7 @@ namespace MongoDB.Driver.Core.Operations
                 {
                     if (cursorBatchInfo.PostBatchResumeToken == null && cursorBatchInfo.WasFirstBatchEmpty)
                     {
-                        return context.Binding.Session.OperationTime;
+                        return operationContext.Session.OperationTime;
                     }
                 }
             }

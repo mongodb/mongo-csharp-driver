@@ -32,14 +32,12 @@ namespace MongoDB.Driver.Core.Bindings
         private bool _disposed;
         private readonly ReadPreference _readPreference;
         private readonly IServerSelector _serverSelector;
-        private readonly ICoreSessionHandle _session;
 
-        public SingleServerReadBinding(IClusterInternal cluster, EndPoint serverEndpoint, ReadPreference readPreference, ICoreSessionHandle session)
+        public SingleServerReadBinding(IClusterInternal cluster, EndPoint serverEndpoint, ReadPreference readPreference)
         {
             _cluster = Ensure.IsNotNull(cluster, nameof(cluster));
             _serverSelector = new EndPointServerSelector(Ensure.IsNotNull(serverEndpoint, nameof(serverEndpoint)));
             _readPreference = Ensure.IsNotNull(readPreference, nameof(readPreference));
-            _session = Ensure.IsNotNull(session, nameof(session));
         }
 
         public ReadPreference ReadPreference
@@ -47,23 +45,18 @@ namespace MongoDB.Driver.Core.Bindings
             get { return _readPreference; }
         }
 
-        public ICoreSessionHandle Session
-        {
-            get { return _session; }
-        }
-
         public IChannelSourceHandle GetReadChannelSource(OperationContext operationContext)
         {
             ThrowIfDisposed();
             var server = _cluster.SelectServer(operationContext, _serverSelector);
-            return new ChannelSourceHandle(new ServerChannelSource(server, _session.Fork()));
+            return new ChannelSourceHandle(new ServerChannelSource(server));
         }
 
         public async Task<IChannelSourceHandle> GetReadChannelSourceAsync(OperationContext operationContext)
         {
             ThrowIfDisposed();
             var server = await _cluster.SelectServerAsync(operationContext, _serverSelector).ConfigureAwait(false);
-            return new ChannelSourceHandle(new ServerChannelSource(server, _session.Fork()));
+            return new ChannelSourceHandle(new ServerChannelSource(server));
         }
 
         public IChannelSourceHandle GetReadChannelSource(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers) =>
@@ -76,7 +69,6 @@ namespace MongoDB.Driver.Core.Bindings
         {
             if (!_disposed)
             {
-                _session.Dispose();
                 _disposed = true;
             }
         }

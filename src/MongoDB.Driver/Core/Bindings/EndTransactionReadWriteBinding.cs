@@ -31,72 +31,110 @@ namespace MongoDB.Driver.Core.Bindings
 #pragma warning restore CA2213 // Disposable fields should be disposed
         private bool _disposed;
         private IReadWriteBindingHandle _innerBinding;
-        private readonly ICoreSessionHandle _session;
 
-        public EndTransactionReadWriteBinding(IClusterInternal cluster, ICoreSessionHandle session)
+        public EndTransactionReadWriteBinding(IClusterInternal cluster)
         {
             _cluster = Ensure.IsNotNull(cluster, nameof(cluster));
-            _session = Ensure.IsNotNull(session, nameof(session));
-            _innerBinding = ChannelPinningHelper.CreateReadWriteBinding(_cluster, _session.Fork());
         }
 
         public ReadPreference ReadPreference => ReadPreference.Primary;
-
-        public ICoreSessionHandle Session => _session;
 
         // Called by EndTransactionOperation.OnRetry between attempts.
         public void RebuildInnerBinding()
         {
             ThrowIfDisposed();
-            _innerBinding.Dispose();
-            _innerBinding = ChannelPinningHelper.CreateReadWriteBinding(_cluster, _session.Fork());
+            _innerBinding?.Dispose();
+            _innerBinding = null;
         }
 
         public void Dispose()
         {
             if (!_disposed)
             {
-                _innerBinding.Dispose();
-                _session.Dispose();
+                _innerBinding?.Dispose();
                 _disposed = true;
             }
         }
 
         public IChannelSourceHandle GetReadChannelSource(OperationContext operationContext)
-            => _innerBinding.GetReadChannelSource(operationContext);
+        {
+            EnsureInnerBinding(operationContext);
+            return _innerBinding.GetReadChannelSource(operationContext);
+        }
 
         public Task<IChannelSourceHandle> GetReadChannelSourceAsync(OperationContext operationContext)
-            => _innerBinding.GetReadChannelSourceAsync(operationContext);
+        {
+            EnsureInnerBinding(operationContext);
+            return _innerBinding.GetReadChannelSourceAsync(operationContext);
+        }
 
         public IChannelSourceHandle GetReadChannelSource(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
-            => _innerBinding.GetReadChannelSource(operationContext, deprioritizedServers);
+        {
+            EnsureInnerBinding(operationContext);
+            return _innerBinding.GetReadChannelSource(operationContext, deprioritizedServers);
+        }
 
         public Task<IChannelSourceHandle> GetReadChannelSourceAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
-            => _innerBinding.GetReadChannelSourceAsync(operationContext, deprioritizedServers);
+        {
+            EnsureInnerBinding(operationContext);
+            return _innerBinding.GetReadChannelSourceAsync(operationContext, deprioritizedServers);
+        }
 
         public IChannelSourceHandle GetWriteChannelSource(OperationContext operationContext)
-            => _innerBinding.GetWriteChannelSource(operationContext);
+        {
+            EnsureInnerBinding(operationContext);
+            return _innerBinding.GetWriteChannelSource(operationContext);
+        }
 
         public IChannelSourceHandle GetWriteChannelSource(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
-            => _innerBinding.GetWriteChannelSource(operationContext, deprioritizedServers);
+        {
+            EnsureInnerBinding(operationContext);
+            return _innerBinding.GetWriteChannelSource(operationContext, deprioritizedServers);
+        }
 
         public IChannelSourceHandle GetWriteChannelSource(OperationContext operationContext, IMayUseSecondaryCriteria mayUseSecondary)
-            => _innerBinding.GetWriteChannelSource(operationContext, mayUseSecondary);
+        {
+            EnsureInnerBinding(operationContext);
+            return _innerBinding.GetWriteChannelSource(operationContext, mayUseSecondary);
+        }
 
         public IChannelSourceHandle GetWriteChannelSource(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondary)
-            => _innerBinding.GetWriteChannelSource(operationContext, deprioritizedServers, mayUseSecondary);
+        {
+            EnsureInnerBinding(operationContext);
+            return _innerBinding.GetWriteChannelSource(operationContext, deprioritizedServers, mayUseSecondary);
+        }
 
         public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(OperationContext operationContext)
-            => _innerBinding.GetWriteChannelSourceAsync(operationContext);
+        {
+            EnsureInnerBinding(operationContext);
+            return _innerBinding.GetWriteChannelSourceAsync(operationContext);
+        }
 
         public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
-            => _innerBinding.GetWriteChannelSourceAsync(operationContext, deprioritizedServers);
+        {
+            EnsureInnerBinding(operationContext);
+            return _innerBinding.GetWriteChannelSourceAsync(operationContext, deprioritizedServers);
+        }
 
         public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(OperationContext operationContext, IMayUseSecondaryCriteria mayUseSecondary)
-            => _innerBinding.GetWriteChannelSourceAsync(operationContext, mayUseSecondary);
+        {
+            EnsureInnerBinding(operationContext);
+            return _innerBinding.GetWriteChannelSourceAsync(operationContext, mayUseSecondary);
+        }
 
         public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondary)
-            => _innerBinding.GetWriteChannelSourceAsync(operationContext, deprioritizedServers, mayUseSecondary);
+        {
+            EnsureInnerBinding(operationContext);
+            return _innerBinding.GetWriteChannelSourceAsync(operationContext, deprioritizedServers, mayUseSecondary);
+        }
+
+        private void EnsureInnerBinding(OperationContext operationContext)
+        {
+            if (_innerBinding == null)
+            {
+                _innerBinding = ChannelPinningHelper.CreateReadWriteBinding(_cluster, operationContext.Session);
+            }
+        }
 
         private void ThrowIfDisposed()
         {

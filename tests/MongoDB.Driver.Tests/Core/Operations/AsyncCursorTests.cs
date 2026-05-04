@@ -181,6 +181,7 @@ namespace MongoDB.Driver.Core.Operations
         public void constructor_should_initialize_instance()
         {
             var channelSource = new Mock<IChannelSource>().Object;
+            var session = new Mock<ICoreSessionHandle>().Object;
             var databaseNamespace = new DatabaseNamespace("test");
             var collectionNamespace = new CollectionNamespace(databaseNamespace, "test");
             var firstBatch = new BsonDocument[] { new BsonDocument("y", 2) };
@@ -193,6 +194,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var result = new AsyncCursor<BsonDocument>(
                 channelSource,
+                session,
                 collectionNamespace,
                 comment: null,
                 firstBatch,
@@ -401,7 +403,7 @@ namespace MongoDB.Driver.Core.Operations
             var databaseNamespace = new DatabaseNamespace("database");
             var collectionNamespace = new CollectionNamespace(databaseNamespace, "collection");
             var cursorId = 1;
-            var subject = CreateSubject(collectionNamespace: collectionNamespace, cursorId: cursorId, channelSource: Optional.Create(channelSource));
+            var subject = CreateSubject(session: Optional.Create(session), collectionNamespace: collectionNamespace, cursorId: cursorId, channelSource: Optional.Create(channelSource));
             var connectionDescription = CreateConnectionDescriptionSupportingSession();
 
             mockSession.Setup(m => m.Fork()).Returns(mockSession.Object);
@@ -411,7 +413,6 @@ namespace MongoDB.Driver.Core.Operations
             mockServer.SetupGet(m => m.Description).Returns(new ServerDescription(serverId, serverId.EndPoint));
             mockChannelSource.SetupGet(m => m.Server).Returns(mockServer.Object);
 
-            mockChannelSource.SetupGet(m => m.Session).Returns(session);
             mockChannel.SetupGet(m => m.ConnectionDescription).Returns(connectionDescription);
             var nextBatchBytes = new byte[] { 5, 0, 0, 0, 0 };
             var nextBatchSlice = new ByteArrayBuffer(nextBatchBytes, isReadOnly: true);
@@ -432,8 +433,7 @@ namespace MongoDB.Driver.Core.Operations
                 mockChannelSource.Setup(m => m.GetChannelAsync(It.IsAny<OperationContext>())).ReturnsAsync(channel);
                 mockChannel
                     .Setup(m => m.CommandAsync(
-                        It.IsAny<OperationContext>(),
-                        session,
+                        It.Is<OperationContext>(c => c.Session == session),
                         ReadPreference.Primary,
                         databaseNamespace,
                         It.IsAny<BsonDocument>(),
@@ -454,8 +454,7 @@ namespace MongoDB.Driver.Core.Operations
                 mockChannelSource.Setup(m => m.GetChannel(It.IsAny<OperationContext>())).Returns(channel);
                 mockChannel
                     .Setup(m => m.Command(
-                        It.IsAny<OperationContext>(),
-                        session,
+                        It.Is<OperationContext>(c => c.Session == session),
                         ReadPreference.Primary,
                         databaseNamespace,
                         It.IsAny<BsonDocument>(),
@@ -493,6 +492,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private AsyncCursor<BsonDocument> CreateSubject(
             Optional<IChannelSource> channelSource = default(Optional<IChannelSource>),
+            Optional<ICoreSessionHandle> session = default(Optional<ICoreSessionHandle>),
             Optional<CollectionNamespace> collectionNamespace = default(Optional<CollectionNamespace>),
             Optional<IBsonSerializer<BsonDocument>> serializer = default(Optional<IBsonSerializer<BsonDocument>>),
             Optional<IReadOnlyList<BsonDocument>> firstBatch = default(Optional<IReadOnlyList<BsonDocument>>),
@@ -505,6 +505,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             return new AsyncCursor<BsonDocument>(
                 channelSource.WithDefault(new Mock<IChannelSource>().Object),
+                session.WithDefault(new Mock<ICoreSessionHandle>().Object),
                 collectionNamespace.WithDefault(new CollectionNamespace("test", "test")),
                 comment: comment.WithDefault(null),
                 firstBatch.WithDefault(new List<BsonDocument>()),
@@ -548,7 +549,6 @@ namespace MongoDB.Driver.Core.Operations
                     .Setup(
                         c => c.CommandAsync(
                             It.IsAny<OperationContext>(),
-                            It.IsAny<ICoreSession>(),
                             It.IsAny<ReadPreference>(),
                             It.IsAny<DatabaseNamespace>(),
                             It.IsAny<BsonDocument>(),
@@ -575,7 +575,6 @@ namespace MongoDB.Driver.Core.Operations
                     .Setup(
                         c => c.Command(
                             It.IsAny<OperationContext>(),
-                            It.IsAny<ICoreSession>(),
                             It.IsAny<ReadPreference>(),
                             It.IsAny<DatabaseNamespace>(),
                             It.IsAny<BsonDocument>(),
@@ -601,7 +600,6 @@ namespace MongoDB.Driver.Core.Operations
                 mockChannelHandle.Verify(
                     s => s.CommandAsync(
                         It.IsAny<OperationContext>(),
-                        It.IsAny<ICoreSession>(),
                         It.IsAny<ReadPreference>(),
                         It.IsAny<DatabaseNamespace>(),
                         It.IsAny<BsonDocument>(),
@@ -619,7 +617,6 @@ namespace MongoDB.Driver.Core.Operations
                 mockChannelHandle.Verify(
                     s => s.Command(
                         It.IsAny<OperationContext>(),
-                        It.IsAny<ICoreSession>(),
                         It.IsAny<ReadPreference>(),
                         It.IsAny<DatabaseNamespace>(),
                         It.IsAny<BsonDocument>(),
@@ -652,15 +649,17 @@ namespace MongoDB.Driver.Core.Operations
             Insert(documents);
 
             _session.ReferenceCount().Should().Be(1);
-            using (var binding = new ReadPreferenceBinding(CoreTestConfiguration.Cluster, ReadPreference.Primary, _session.Fork()))
-            using (var channelSource = (ChannelSourceHandle)binding.GetReadChannelSource(OperationContext.NoTimeout))
-            using (var channel = channelSource.GetChannel(OperationContext.NoTimeout))
+            using (var session = _session.Fork())
+            using (var operationContext = new OperationContext(session))
+            using (var binding = new ReadPreferenceBinding(CoreTestConfiguration.Cluster, ReadPreference.Primary))
+            using (var channelSource = (ChannelSourceHandle)binding.GetReadChannelSource(operationContext))
+            using (var channel = channelSource.GetChannel(operationContext))
             {
                 var query = new BsonDocument();
                 long cursorId;
-                var firstBatch = GetFirstBatch(channel, query, batchSize, CancellationToken.None, out cursorId);
+                var firstBatch = GetFirstBatch(operationContext, channel, query, batchSize, CancellationToken.None, out cursorId);
 
-                using (var cursor = new AsyncCursor<BsonDocument>(channelSource, _collectionNamespace, comment: null, firstBatch, cursorId, batchSize, null, BsonDocumentSerializer.Instance, new MessageEncoderSettings(), maxTime: null, retryRequested: false, maxAdaptiveRetries: RetryabilityHelper.OperationRetryBackpressureConstants.DefaultMaxRetries, enableOverloadRetargeting: false))
+                using (var cursor = new AsyncCursor<BsonDocument>(channelSource, session, _collectionNamespace, comment: null, firstBatch, cursorId, batchSize, null, BsonDocumentSerializer.Instance, new MessageEncoderSettings(), maxTime: null, retryRequested: false, maxAdaptiveRetries: RetryabilityHelper.OperationRetryBackpressureConstants.DefaultMaxRetries, enableOverloadRetargeting: false))
                 {
                     AssertExpectedSessionReferenceCount(_session, cursor);
                     while (cursor.MoveNext(CancellationToken.None))
@@ -678,16 +677,11 @@ namespace MongoDB.Driver.Core.Operations
         {
             var cursorImplementation = (AsyncCursor<BsonDocument>)cursor;
             var cursorId = cursorImplementation._cursorId();
-            var expectedReferenceCount = cursorId == 0 ? 2 : 3; // one from the session, one from the binding, and maybe one from the cursor
+            var expectedReferenceCount = cursorId == 0 ? 2 : 3; // one from the session, and one from the cursor
             session.ReferenceCount().Should().Be(expectedReferenceCount);
         }
 
-        private IReadOnlyList<BsonDocument> GetFirstBatch(IChannelHandle channel, BsonDocument query, int batchSize, CancellationToken cancellationToken, out long cursorId)
-        {
-            return GetFirstBatchUsingFindCommand(channel, query, batchSize, cancellationToken, out cursorId);
-        }
-
-        private IReadOnlyList<BsonDocument> GetFirstBatchUsingFindCommand(IChannelHandle channel, BsonDocument query, int batchSize, CancellationToken cancellationToken, out long cursorId)
+        private IReadOnlyList<BsonDocument> GetFirstBatch(OperationContext operationContext, IChannelHandle channel, BsonDocument query, int batchSize, CancellationToken cancellationToken, out long cursorId)
         {
             var command = new BsonDocument
             {
@@ -696,8 +690,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "batchSize", batchSize }
             };
             var result = channel.Command<BsonDocument>(
-                new OperationContext(null, cancellationToken),
-                _session,
+                operationContext,
                 ReadPreference.Primary,
                 _databaseNamespace,
                 command,

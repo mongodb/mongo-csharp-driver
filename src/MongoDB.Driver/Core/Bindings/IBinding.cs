@@ -22,7 +22,6 @@ namespace MongoDB.Driver.Core.Bindings
 {
     internal interface IBinding : IDisposable
     {
-        ICoreSessionHandle Session { get; }
     }
 
     internal interface IReadBinding : IBinding

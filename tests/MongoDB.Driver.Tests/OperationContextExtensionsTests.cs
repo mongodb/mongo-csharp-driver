@@ -16,6 +16,7 @@
 using System;
 using System.Threading;
 using FluentAssertions;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
 using Xunit;
 
@@ -41,7 +42,7 @@ public class OperationContextExtensionsTests
     public void IsRootContextTimeoutConfigured_should_return_expected_result(bool expectedResult, int? timeoutMs)
     {
         TimeSpan? timeout = timeoutMs.HasValue ? TimeSpan.FromMilliseconds(timeoutMs.Value) : null;
-        var subject = new OperationContext(timeout, CancellationToken.None);
+        var subject = new OperationContext(NoCoreSession.NewHandle(), timeout, CancellationToken.None);
 
         var result = subject.IsRootContextTimeoutConfigured();
 
@@ -68,7 +69,7 @@ public class OperationContextExtensionsTests
         var clock = new FrozenClock(DateTime.UtcNow);
         TimeSpan? timeout = timeoutMs.HasValue ? TimeSpan.FromMilliseconds(timeoutMs.Value) : null;
         var defaultValue = TimeSpan.FromMilliseconds(defaultValueMs);
-        var subject = new OperationContext(clock, timeout, CancellationToken.None);
+        var subject = new OperationContext(NoCoreSession.NewHandle(), clock, timeout, CancellationToken.None);
 
         var result = subject.RemainingTimeoutOrDefault(defaultValue);
 

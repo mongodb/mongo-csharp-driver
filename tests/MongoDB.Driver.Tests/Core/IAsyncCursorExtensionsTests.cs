@@ -334,6 +334,7 @@ namespace MongoDB.Driver
 
             return new AsyncCursor<BsonDocument>(
                 channelSource: new Mock<IChannelSource>().Object,
+                session: new Mock<ICoreSessionHandle>().Object,
                 collectionNamespace: new CollectionNamespace("foo", "bar"),
                 comment: null,
                 firstBatch: firstBatch,
