@@ -21,6 +21,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Authentication;
 using MongoDB.Driver.Authentication.Plain;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
@@ -61,9 +62,10 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.EnqueueCommandResponseMessage(response);
             connection.Description = __descriptionCommandWireProtocol;
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol)) :
-                Record.Exception(() => subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol));
+                await Record.ExceptionAsync(() => subject.AuthenticateAsync(operationContext, connection, __descriptionCommandWireProtocol)) :
+                Record.Exception(() => subject.Authenticate(operationContext, connection, __descriptionCommandWireProtocol));
 
             exception.Should().BeOfType<MongoAuthenticationException>();
         }
@@ -82,13 +84,14 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.EnqueueCommandResponseMessage(saslStartResponse);
             connection.Description = __descriptionCommandWireProtocol;
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             if (async)
             {
-                await subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
+                await subject.AuthenticateAsync(operationContext, connection, __descriptionCommandWireProtocol);
             }
             else
             {
-                subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
+                subject.Authenticate(operationContext, connection, __descriptionCommandWireProtocol);
             }
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(5)).Should().BeTrue();
@@ -114,13 +117,14 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.EnqueueCommandResponseMessage(saslStartResponse);
             connection.Description = __descriptionCommandWireProtocol;
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             if (async)
             {
-                await subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
+                await subject.AuthenticateAsync(operationContext, connection, __descriptionCommandWireProtocol);
             }
             else
             {
-                subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
+                subject.Authenticate(operationContext, connection, __descriptionCommandWireProtocol);
             }
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(5)).Should().BeTrue();
@@ -144,13 +148,14 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.EnqueueCommandResponseMessage(saslStartResponse);
             connection.Description = null;
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             if (async)
             {
-                await subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
+                await subject.AuthenticateAsync(operationContext, connection, __descriptionCommandWireProtocol);
             }
             else
             {
-                subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
+                subject.Authenticate(operationContext, connection, __descriptionCommandWireProtocol);
             }
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(5)).Should().BeTrue();

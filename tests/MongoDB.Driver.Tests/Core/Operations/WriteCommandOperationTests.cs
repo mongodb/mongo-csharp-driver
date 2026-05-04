@@ -62,14 +62,15 @@ namespace MongoDB.Driver.Core.Operations
             var mockChannel = CreateMockChannel();
             var channelSource = CreateMockChannelSource(serverDescription, mockChannel.Object).Object;
             var binding = CreateMockWriteBinding(channelSource).Object;
+            using var session = NoCoreSession.NewHandle();
+            using var operationContext = new OperationContext(session);
 
-            ExecuteOperation(subject, binding, async);
+            ExecuteOperation(operationContext, subject, binding, async);
             if (async)
             {
                 mockChannel.Verify(
                     c => c.CommandAsync(
                         It.IsAny<OperationContext>(),
-                        binding.Session,
                         ReadPreference.Primary,
                         subject.DatabaseNamespace,
                         subject.Command,
@@ -85,7 +86,6 @@ namespace MongoDB.Driver.Core.Operations
                 mockChannel.Verify(
                     c => c.Command(
                         It.IsAny<OperationContext>(),
-                        binding.Session,
                         ReadPreference.Primary,
                         subject.DatabaseNamespace,
                         subject.Command,
@@ -102,8 +102,6 @@ namespace MongoDB.Driver.Core.Operations
         private Mock<IWriteBinding> CreateMockWriteBinding(IChannelSourceHandle channelSource)
         {
             var mockBinding = new Mock<IWriteBinding>();
-            var mockSession = new Mock<ICoreSessionHandle>();
-            mockBinding.SetupGet(b => b.Session).Returns(mockSession.Object);
             mockBinding.Setup(b => b.GetWriteChannelSource(It.IsAny<OperationContext>())).Returns(channelSource);
             mockBinding.Setup(b => b.GetWriteChannelSourceAsync(It.IsAny<OperationContext>())).Returns(Task.FromResult(channelSource));
             mockBinding.Setup(b => b.GetWriteChannelSource(It.IsAny<OperationContext>(), It.IsAny<IReadOnlyCollection<ServerDescription>>())).Returns(channelSource);

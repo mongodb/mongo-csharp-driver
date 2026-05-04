@@ -20,6 +20,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson.TestHelpers;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Configuration;
@@ -328,9 +329,10 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
 
                 PublishDescription(_endPoint);
 
+                using var operationContext = new OperationContext(NoCoreSession.NewHandle());
                 var result = async ?
-                    await subject.SelectServerAsync(OperationContext.NoTimeout, Mock.Of<IServerSelector>()) :
-                    subject.SelectServer(OperationContext.NoTimeout, Mock.Of<IServerSelector>());
+                    await subject.SelectServerAsync(operationContext, Mock.Of<IServerSelector>()) :
+                    subject.SelectServer(operationContext, Mock.Of<IServerSelector>());
 
                 result.EndPoint.Should().Be(_endPoint);
             }
@@ -356,9 +358,10 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
                     PublishDnsException(subject, dnsException);
                 }
 
+                using var operationContext = new OperationContext(NoCoreSession.NewHandle());
                 var exception = async ?
-                    await Record.ExceptionAsync(() => subject.SelectServerAsync(OperationContext.NoTimeout, Mock.Of<IServerSelector>())) :
-                    Record.Exception(() => subject.SelectServer(OperationContext.NoTimeout, Mock.Of<IServerSelector>()));
+                    await Record.ExceptionAsync(() => subject.SelectServerAsync(operationContext, Mock.Of<IServerSelector>())) :
+                    Record.Exception(() => subject.SelectServer(operationContext, Mock.Of<IServerSelector>()));
 
                 var ex = exception.Should().BeOfType<TimeoutException>().Subject;
                 ex.Message.Should().StartWith($"A timeout occurred after {serverSelectionTimeout.TotalMilliseconds}ms selecting a server. Client view of cluster state is ");
@@ -388,7 +391,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
                 Exception exception;
                 using (var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromMilliseconds(100)))
                 {
-                    var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationTokenSource.Token);
+                    var operationContext = new OperationContext(NoCoreSession.NewHandle(), Timeout.InfiniteTimeSpan, cancellationTokenSource.Token);
                     exception = async ?
                         await Record.ExceptionAsync(() => subject.SelectServerAsync(operationContext, Mock.Of<IServerSelector>())) :
                         Record.Exception(() => subject.SelectServer(operationContext, Mock.Of<IServerSelector>()));

@@ -26,6 +26,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Configuration;
@@ -402,9 +403,10 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
 
             void CheckOut(BsonDocument op, IConnectionPool cp, ConcurrentDictionary<string, IConnection> cm)
             {
+                using var operationContext = new OperationContext(NoCoreSession.NewHandle());
                 var conn = async ?
-                    cp.AcquireConnectionAsync(OperationContext.NoTimeout).GetAwaiter().GetResult() :
-                    cp.AcquireConnection(OperationContext.NoTimeout);
+                    cp.AcquireConnectionAsync(operationContext).GetAwaiter().GetResult() :
+                    cp.AcquireConnection(operationContext);
 
                 if (op.TryGetValue("label", out var label))
                 {
@@ -664,7 +666,8 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
                         connectionIdLocalValueProvider: connectionIdProvider))
                     .Subscribe(eventCapturer));
 
-                var server = cluster.SelectServer(OperationContext.NoTimeout, WritableServerSelector.Instance);
+                using var operationContext = new OperationContext(NoCoreSession.NewHandle());
+                var server = cluster.SelectServer(operationContext, WritableServerSelector.Instance);
                 connectionPool = server._connectionPool();
 
                 if (test.TryGetValue(Schema.Intergration.failPoint, out var failPointDocument))

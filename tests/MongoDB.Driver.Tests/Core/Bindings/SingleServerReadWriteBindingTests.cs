@@ -30,35 +30,20 @@ namespace MongoDB.Driver.Core.Bindings
         public void constructor_should_initialize_instance()
         {
             var server = new Mock<IServer>().Object;
-            var session = new Mock<ICoreSessionHandle>().Object;
 
-            var result = new SingleServerReadWriteBinding(server, session);
+            var result = new SingleServerReadWriteBinding(server);
 
             result._disposed().Should().BeFalse();
             result._server().Should().BeSameAs(server);
-            result.Session.Should().BeSameAs(session);
         }
 
         [Fact]
         public void constructor_should_throw_when_server_is_null()
         {
-            var session = new Mock<ICoreSessionHandle>().Object;
-
-            var exception = Record.Exception(() => new SingleServerReadWriteBinding(null, session));
+            var exception = Record.Exception(() => new SingleServerReadWriteBinding(null));
 
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("server");
-        }
-
-        [Fact]
-        public void constructor_should_throw_when_session_is_null()
-        {
-            var server = new Mock<IServer>().Object;
-
-            var exception = Record.Exception(() => new SingleServerReadWriteBinding(server, null));
-
-            var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            e.ParamName.Should().Be("session");
         }
 
         [Fact]
@@ -72,38 +57,22 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         [Fact]
-        public void Session_should_return_expected_result()
-        {
-            var session = new Mock<ICoreSessionHandle>().Object;
-            var subject = CreateSubject(session: session);
-
-            var result = subject.Session;
-
-            result.Should().Be(session);
-        }
-
-        [Fact]
         public void Dispose_should_have_expected_result()
         {
-            var mockSession = new Mock<ICoreSessionHandle>();
-            var subject = CreateSubject(session: mockSession.Object);
+            var subject = CreateSubject();
 
             subject.Dispose();
 
             subject._disposed().Should().BeTrue();
-            mockSession.Verify(m => m.Dispose(), Times.Once);
         }
 
         [Fact]
         public void Dispose_can_be_called_more_than_once()
         {
-            var mockSession = new Mock<ICoreSessionHandle>();
-            var subject = CreateSubject(session: mockSession.Object);
+            var subject = CreateSubject();
 
             subject.Dispose();
             subject.Dispose();
-
-            mockSession.Verify(m => m.Dispose(), Times.Once);
         }
 
         [Theory]
@@ -111,19 +80,16 @@ namespace MongoDB.Driver.Core.Bindings
         public async Task GetReadChannelSource_should_return_expected_result(
             [Values(false, true)] bool async)
         {
-            var mockSession = new Mock<ICoreSessionHandle>();
-            var subject = CreateSubject(session: mockSession.Object);
-            var forkedSession = new Mock<ICoreSessionHandle>().Object;
-            mockSession.Setup(m => m.Fork()).Returns(forkedSession);
+            var subject = CreateSubject();
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var result = async ?
-                await subject.GetReadChannelSourceAsync(OperationContext.NoTimeout) :
-                subject.GetReadChannelSource(OperationContext.NoTimeout);
+                await subject.GetReadChannelSourceAsync(operationContext) :
+                subject.GetReadChannelSource(operationContext);
 
             var newHandle = result.Should().BeOfType<ChannelSourceHandle>().Subject;
             var referenceCounted = newHandle._reference();
-            var source = referenceCounted.Instance.Should().BeOfType<ServerChannelSource>().Subject;
-            source.Session.Should().BeSameAs(forkedSession);
+            referenceCounted.Instance.Should().BeOfType<ServerChannelSource>();
         }
 
         [Theory]
@@ -132,9 +98,10 @@ namespace MongoDB.Driver.Core.Bindings
             [Values(false, true)] bool async)
         {
             var subject = CreateDisposedSubject();
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.GetReadChannelSourceAsync(OperationContext.NoTimeout)) :
-                Record.Exception(() => subject.GetReadChannelSource(OperationContext.NoTimeout));
+                await Record.ExceptionAsync(() => subject.GetReadChannelSourceAsync(operationContext)) :
+                Record.Exception(() => subject.GetReadChannelSource(operationContext));
 
             var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
             e.ObjectName.Should().Be(subject.GetType().FullName);
@@ -145,19 +112,16 @@ namespace MongoDB.Driver.Core.Bindings
         public async Task GetWriteChannelSource_should_return_expected_result(
             [Values(false, true)] bool async)
         {
-            var mockSession = new Mock<ICoreSessionHandle>();
-            var subject = CreateSubject(session: mockSession.Object);
-            var forkedSession = new Mock<ICoreSessionHandle>().Object;
-            mockSession.Setup(m => m.Fork()).Returns(forkedSession);
+            var subject = CreateSubject();
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var result = async ?
-                await subject.GetWriteChannelSourceAsync(OperationContext.NoTimeout) :
-                subject.GetWriteChannelSource(OperationContext.NoTimeout);
+                await subject.GetWriteChannelSourceAsync(operationContext) :
+                subject.GetWriteChannelSource(operationContext);
 
             var newHandle = result.Should().BeOfType<ChannelSourceHandle>().Subject;
             var referenceCounted = newHandle._reference();
-            var source = referenceCounted.Instance.Should().BeOfType<ServerChannelSource>().Subject;
-            source.Session.Should().BeSameAs(forkedSession);
+            referenceCounted.Instance.Should().BeOfType<ServerChannelSource>();
         }
 
         [Theory]
@@ -166,9 +130,10 @@ namespace MongoDB.Driver.Core.Bindings
             [Values(false, true)] bool async)
         {
             var subject = CreateDisposedSubject();
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.GetReadChannelSourceAsync(OperationContext.NoTimeout)) :
-                Record.Exception(() => subject.GetReadChannelSource(OperationContext.NoTimeout));
+                await Record.ExceptionAsync(() => subject.GetReadChannelSourceAsync(operationContext)) :
+                Record.Exception(() => subject.GetReadChannelSource(operationContext));
 
             var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
             e.ObjectName.Should().Be(subject.GetType().FullName);
@@ -182,12 +147,8 @@ namespace MongoDB.Driver.Core.Bindings
             return subject;
         }
 
-        private SingleServerReadWriteBinding CreateSubject(IServer server = null, ICoreSessionHandle session = null)
-        {
-            return new SingleServerReadWriteBinding(
-                server ?? new Mock<IServer>().Object,
-                session ?? new Mock<ICoreSessionHandle>().Object);
-        }
+        private SingleServerReadWriteBinding CreateSubject(IServer server = null) =>
+            new(server ?? new Mock<IServer>().Object);
     }
 
     internal static class SingleServerReadWriteBindingReflector

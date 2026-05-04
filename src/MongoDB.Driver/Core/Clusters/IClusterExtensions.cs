@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Core.Clusters
         public static IServer SelectServerAndPinIfNeeded(
             this IClusterInternal cluster,
             OperationContext operationContext,
-            ICoreSessionHandle session,
+            ICoreSession session,
             IServerSelector selector,
             IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Core.Clusters
         public static async Task<IServer> SelectServerAndPinIfNeededAsync(
             this IClusterInternal cluster,
             OperationContext operationContext,
-            ICoreSessionHandle session,
+            ICoreSession session,
             IServerSelector selector,
             IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
@@ -74,7 +74,7 @@ namespace MongoDB.Driver.Core.Clusters
             return server;
         }
 
-        private static void PinServerIfNeeded(ICluster cluster, ICoreSessionHandle session, IServer server)
+        private static void PinServerIfNeeded(ICluster cluster, ICoreSession session, IServer server)
         {
             if (cluster.Description.Type == ClusterType.Sharded && session.IsInTransaction)
             {
@@ -82,7 +82,7 @@ namespace MongoDB.Driver.Core.Clusters
             }
         }
 
-        private static IServer GetPinnedServerIfValid(ICluster cluster, ICoreSessionHandle session)
+        private static IServer GetPinnedServerIfValid(ICluster cluster, ICoreSession session)
         {
             if (cluster.Description.Type == ClusterType.Sharded
                 && session.IsInTransaction

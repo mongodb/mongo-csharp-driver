@@ -3679,10 +3679,11 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         {
             var operation = DropCollectionOperation.CreateEncryptedDropCollectionOperationIfConfigured(collectionNamespace, encryptedFields, CoreTestConfiguration.MessageEncoderSettings, configureDropCollectionConfigurator: null);
             using (var session = CoreTestConfiguration.StartSession(_cluster))
-            using (var binding = new WritableServerBinding(_cluster, session.Fork()))
+            using (var operationContext = new OperationContext(session))
+            using (var binding = new WritableServerBinding(_cluster))
             using (var bindingHandle = new ReadWriteBindingHandle(binding))
             {
-                operation.Execute(OperationContext.NoTimeout, bindingHandle);
+                operation.Execute(operationContext, bindingHandle);
             }
         }
 

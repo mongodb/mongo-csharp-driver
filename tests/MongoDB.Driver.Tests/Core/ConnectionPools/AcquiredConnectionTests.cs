@@ -20,6 +20,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
@@ -80,15 +81,16 @@ public class AcquiredConnectionTests : LoggableTestClass
         using var pool = CreatePool(new MemoryStream());
         pool.Initialize();
         pool.SetReady();
-        using var acquired = pool.AcquireConnection(OperationContext.NoTimeout);
+        using var operationContext = new OperationContext(NoCoreSession.NewHandle());
+        using var acquired = pool.AcquireConnection(operationContext);
         var message = MessageHelper.BuildCommand(new BsonDocument("ping", 1));
 
         pool.Clear(closeInUseConnections: true);
         _capturedEvents.WaitForEventOrThrowIfTimeout<ConnectionPoolRemovedConnectionEvent>(TimeSpan.FromSeconds(5));
 
         var exception = async ?
-            await Record.ExceptionAsync(() => acquired.SendMessageAsync(OperationContext.NoTimeout, message, _messageEncoderSettings)) :
-            Record.Exception(() => acquired.SendMessage(OperationContext.NoTimeout, message, _messageEncoderSettings));
+            await Record.ExceptionAsync(() => acquired.SendMessageAsync(operationContext, message, _messageEncoderSettings)) :
+            Record.Exception(() => acquired.SendMessage(operationContext, message, _messageEncoderSettings));
 
         exception.Should().BeOfType<MongoConnectionException>("an operation whose connection was interrupted by a pool clear should observe a connection error, not a raw ObjectDisposedException");
     }
@@ -105,11 +107,12 @@ public class AcquiredConnectionTests : LoggableTestClass
         using var pool = CreatePool(mockStream.Object);
         pool.Initialize();
         pool.SetReady();
-        using var acquired = pool.AcquireConnection(OperationContext.NoTimeout);
+        using var operationContext = new OperationContext(NoCoreSession.NewHandle());
+        using var acquired = pool.AcquireConnection(operationContext);
 
         var receiveTask = async ?
-            acquired.ReceiveMessageAsync(OperationContext.NoTimeout, 1, _messageEncoderSettings) :
-            Task.Run(() => acquired.ReceiveMessage(OperationContext.NoTimeout, 1, _messageEncoderSettings));
+            acquired.ReceiveMessageAsync(operationContext, 1, _messageEncoderSettings) :
+            Task.Run(() => acquired.ReceiveMessage(operationContext, 1, _messageEncoderSettings));
         readStarted.Wait(TimeSpan.FromSeconds(5)).Should().BeTrue();
 
         pool.Clear(closeInUseConnections: true);

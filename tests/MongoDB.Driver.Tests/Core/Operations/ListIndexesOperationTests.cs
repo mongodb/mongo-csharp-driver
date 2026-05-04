@@ -155,8 +155,10 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
             IReadBinding binding = null;
+            using var session = OperationTestHelper.CreateSession();
+            using var operationContext = new OperationContext(session);
 
-            Action action = () => ExecuteOperation(subject, binding, async);
+            Action action = () => ExecuteOperation(operationContext, subject, binding, async);
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("binding");
         }

@@ -1,4 +1,4 @@
-﻿/* Copyright 2017-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -32,15 +32,13 @@ namespace MongoDB.Driver.Core.Bindings
             var server = new Mock<IServer>().Object;
             var channel = new Mock<IChannelHandle>().Object;
             var readPreference = ReadPreference.Primary;
-            var session = new Mock<ICoreSessionHandle>().Object;
 
-            var result = new ChannelReadBinding(server, channel, readPreference, session);
+            var result = new ChannelReadBinding(server, channel, readPreference);
 
             result._channel().Should().BeSameAs(channel);
             result._disposed().Should().BeFalse();
             result.ReadPreference.Should().BeSameAs(readPreference);
             result._server().Should().BeSameAs(server);
-            result.Session.Should().BeSameAs(session);
         }
 
         [Fact]
@@ -48,9 +46,8 @@ namespace MongoDB.Driver.Core.Bindings
         {
             var channel = new Mock<IChannelHandle>().Object;
             var readPreference = ReadPreference.Primary;
-            var session = new Mock<ICoreSessionHandle>().Object;
 
-            var exception = Record.Exception(() => new ChannelReadBinding(null, channel, readPreference, session));
+            var exception = Record.Exception(() => new ChannelReadBinding(null, channel, readPreference));
 
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("server");
@@ -61,9 +58,8 @@ namespace MongoDB.Driver.Core.Bindings
         {
             var server = new Mock<IServer>().Object;
             var readPreference = ReadPreference.Primary;
-            var session = new Mock<ICoreSessionHandle>().Object;
 
-            var exception = Record.Exception(() => new ChannelReadBinding(server, null, readPreference, session));
+            var exception = Record.Exception(() => new ChannelReadBinding(server, null, readPreference));
 
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("channel");
@@ -74,25 +70,11 @@ namespace MongoDB.Driver.Core.Bindings
         {
             var server = new Mock<IServer>().Object;
             var channel = new Mock<IChannelHandle>().Object;
-            var session = new Mock<ICoreSessionHandle>().Object;
 
-            var exception = Record.Exception(() => new ChannelReadBinding(server, channel, null, session));
+            var exception = Record.Exception(() => new ChannelReadBinding(server, channel, null));
 
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("readPreference");
-        }
-
-        [Fact]
-        public void constructor_should_throw_when_session_is_null()
-        {
-            var server = new Mock<IServer>().Object;
-            var channel = new Mock<IChannelHandle>().Object;
-            var readPreference = ReadPreference.Primary;
-
-            var exception = Record.Exception(() => new ChannelReadBinding(server, channel, readPreference, null));
-
-            var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            e.ParamName.Should().Be("session");
         }
 
         [Fact]
@@ -107,42 +89,27 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         [Fact]
-        public void Session_should_return_expected_result()
-        {
-            var session = new Mock<ICoreSessionHandle>().Object;
-            var subject = CreateSubject(session: session);
-
-            var result = subject.Session;
-
-            result.Should().BeSameAs(session);
-        }
-
-        [Fact]
         public void Dispose_should_have_expected_result()
         {
             var mockChannel = new Mock<IChannelHandle>();
-            var mockSession = new Mock<ICoreSessionHandle>();
-            var subject = CreateSubject(channel: mockChannel.Object, session: mockSession.Object);
+            var subject = CreateSubject(channel: mockChannel.Object);
 
             subject.Dispose();
 
             subject._disposed().Should().BeTrue();
             mockChannel.Verify(m => m.Dispose(), Times.Once);
-            mockSession.Verify(m => m.Dispose(), Times.Once);
         }
 
         [Fact]
         public void Dispose_can_be_called_more_than_once()
         {
             var mockChannel = new Mock<IChannelHandle>();
-            var mockSession = new Mock<ICoreSessionHandle>();
-            var subject = CreateSubject(channel: mockChannel.Object, session: mockSession.Object);
+            var subject = CreateSubject(channel: mockChannel.Object);
 
             subject.Dispose();
             subject.Dispose();
 
             mockChannel.Verify(m => m.Dispose(), Times.Once);
-            mockSession.Verify(m => m.Dispose(), Times.Once);
         }
 
         [Theory]
@@ -151,23 +118,20 @@ namespace MongoDB.Driver.Core.Bindings
             [Values(false, true)] bool async)
         {
             var mockChannel = new Mock<IChannelHandle>();
-            var mockSession = new Mock<ICoreSessionHandle>();
-            var subject = CreateSubject(channel: mockChannel.Object, session: mockSession.Object);
+            var subject = CreateSubject(channel: mockChannel.Object);
 
             var forkedChannel = new Mock<IChannelHandle>().Object;
-            var forkedSession = new Mock<ICoreSessionHandle>().Object;
             mockChannel.Setup(m => m.Fork()).Returns(forkedChannel);
-            mockSession.Setup(m => m.Fork()).Returns(forkedSession);
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var result = async ?
-                await subject.GetReadChannelSourceAsync(OperationContext.NoTimeout) :
-                subject.GetReadChannelSource(OperationContext.NoTimeout);
+                await subject.GetReadChannelSourceAsync(operationContext) :
+                subject.GetReadChannelSource(operationContext);
 
             var newHandle = result.Should().BeOfType<ChannelSourceHandle>().Subject;
             var referenceCounted = newHandle._reference();
             var newSource = referenceCounted.Instance.Should().BeOfType<ChannelChannelSource>().Subject;
             newSource._channel().Should().Be(forkedChannel);
-            newSource.Session.Should().Be(forkedSession);
         }
 
         [Theory]
@@ -176,9 +140,10 @@ namespace MongoDB.Driver.Core.Bindings
             [Values(false, true)] bool async)
         {
             var subject = CreateDisposedSubject();
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.GetReadChannelSourceAsync(OperationContext.NoTimeout)) :
-                Record.Exception(() => subject.GetReadChannelSource(OperationContext.NoTimeout));
+                await Record.ExceptionAsync(() => subject.GetReadChannelSourceAsync(operationContext)) :
+                Record.Exception(() => subject.GetReadChannelSource(operationContext));
 
             var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
             e.ObjectName.Should().Be(subject.GetType().FullName);
@@ -192,13 +157,12 @@ namespace MongoDB.Driver.Core.Bindings
             return subject;
         }
 
-        private ChannelReadBinding CreateSubject(IServer server = null, IChannelHandle channel = null, ReadPreference readPreference = null, ICoreSessionHandle session = null)
+        private ChannelReadBinding CreateSubject(IServer server = null, IChannelHandle channel = null, ReadPreference readPreference = null)
         {
             return new ChannelReadBinding(
                 server ?? new Mock<IServer>().Object,
                 channel ?? new Mock<IChannelHandle>().Object,
-                readPreference ?? ReadPreference.Primary,
-                session ?? new Mock<ICoreSessionHandle>().Object);
+                readPreference ?? ReadPreference.Primary);
         }
     }
 

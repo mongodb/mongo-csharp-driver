@@ -14,10 +14,8 @@
  */
 
 using System;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using FluentAssertions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
@@ -59,11 +57,10 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
             int attempt,
             bool overloadErrorSeen)
         {
-            var context = CreateContext(isRetryRequested, isInTransaction);
+            var context = CreateContext(isRetryRequested);
             var exception = CoreExceptionHelper.CreateException(nameof(MongoNodeIsRecoveringException));
-            var operationContext = hasTimeout
-                ? new OperationContext(TimeSpan.FromSeconds(42), CancellationToken.None)
-                : new OperationContext(null, CancellationToken.None);
+            using var session = CreateSession(isInTransaction);
+            using var operationContext = new OperationContext(session, hasTimeout ? TimeSpan.FromSeconds(42) : null);
             var random = Mock.Of<IRandom>();
 
             var result = RetryableReadOperationExecutorReflector.ShouldRetry(
@@ -85,11 +82,10 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
             int attempt,
             bool overloadErrorSeen)
         {
-            var context = CreateContext(isRetryRequested, isInTransaction);
+            var context = CreateContext(isRetryRequested);
             var exception = new InvalidOperationException("Non-retryable exception");
-            var operationContext = hasTimeout
-                ? new OperationContext(TimeSpan.FromSeconds(42), CancellationToken.None)
-                : new OperationContext(null, CancellationToken.None);
+            using var session = CreateSession(isInTransaction);
+            using var operationContext = new OperationContext(session, hasTimeout ? TimeSpan.FromSeconds(42) : null);
             var random = Mock.Of<IRandom>();
 
             var result = RetryableReadOperationExecutorReflector.ShouldRetry(
@@ -107,9 +103,10 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
             bool expected,
             int attempt)
         {
-            var context = CreateContext(retryRequested: true, isInTransaction: false);
+            var context = CreateContext(retryRequested: true);
             var exception = CoreExceptionHelper.CreateMongoCommandExceptionWithLabels(2, "SystemOverloadedError", "RetryableError");
-            var operationContext = new OperationContext(null, CancellationToken.None);
+            using var session = CreateSession(false);
+            using var operationContext = new OperationContext(session);
             var randomMock = new Mock<IRandom>();
             randomMock.Setup(r => r.NextDouble()).Returns(0.5);
 
@@ -126,9 +123,10 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
         [Fact]
         public void ShouldRetry_with_system_overloaded_exception_should_not_retry_when_retryRequested_is_false()
         {
-            var context = CreateContext(retryRequested: false, isInTransaction: false);
+            var context = CreateContext(retryRequested: false);
             var exception = CoreExceptionHelper.CreateMongoCommandExceptionWithLabels(2, "SystemOverloadedError", "RetryableError");
-            var operationContext = new OperationContext(null, CancellationToken.None);
+            using var session = CreateSession(false);
+            using var operationContext = new OperationContext(session);
             var random = Mock.Of<IRandom>();
 
             var result = RetryableReadOperationExecutorReflector.ShouldRetry(
@@ -138,13 +136,17 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
         }
 
         // private methods
-        private static RetryableReadContext CreateContext(bool retryRequested, bool isInTransaction)
+        private static RetryableReadContext CreateContext(bool retryRequested)
+        {
+            var bindingMock = new Mock<IReadBinding>();
+            return new RetryableReadContext(bindingMock.Object, retryRequested, RetryabilityHelper.OperationRetryBackpressureConstants.DefaultMaxRetries, enableOverloadRetargeting: false);
+        }
+
+        private static ICoreSessionHandle CreateSession(bool isInTransaction)
         {
             var sessionMock = new Mock<ICoreSessionHandle>();
             sessionMock.SetupGet(m => m.IsInTransaction).Returns(isInTransaction);
-            var bindingMock = new Mock<IReadBinding>();
-            bindingMock.SetupGet(m => m.Session).Returns(sessionMock.Object);
-            return new RetryableReadContext(bindingMock.Object, retryRequested, RetryabilityHelper.OperationRetryBackpressureConstants.DefaultMaxRetries, enableOverloadRetargeting: false);
+            return sessionMock.Object;
         }
     }
 

@@ -68,17 +68,15 @@ namespace MongoDB.Driver.Core.Operations
             get { return _documentSerializer; }
         }
 
-        protected override BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber)
+        protected override BsonDocument CreateCommand(OperationContext operationContext, long? transactionNumber)
         {
-            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, session, WriteConcern);
-            var readConcern = ReadConcernHelper.GetReadConcernForWriteCommand(session, connectionDescription);
+            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, WriteConcern);
             return new BsonDocument
             {
                 { "insert", _collectionNamespace.CollectionName },
                 { "ordered", IsOrdered },
                 { "bypassDocumentValidation", () => _bypassDocumentValidation, _bypassDocumentValidation.HasValue },
                 { "comment", Comment, Comment != null },
-                { "readConcern", readConcern, readConcern != null },
                 { "writeConcern", writeConcern, writeConcern != null },
                 { "txnNumber", () => transactionNumber.Value, transactionNumber.HasValue }
             };

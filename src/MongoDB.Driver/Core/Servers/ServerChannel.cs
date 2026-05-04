@@ -52,7 +52,6 @@ namespace MongoDB.Driver.Core.Servers
         // methods
         public TResult Command<TResult>(
             OperationContext operationContext,
-            ICoreSession session,
             ReadPreference readPreference,
             DatabaseNamespace databaseNamespace,
             BsonDocument command,
@@ -69,7 +68,7 @@ namespace MongoDB.Driver.Core.Servers
             }
 
             var protocol = new CommandWireProtocol<TResult>(
-                CreateClusterClockAdvancingCoreSession(session),
+                CreateClusterClockAdvancingCoreSession(operationContext.Session),
                 readPreference,
                 databaseNamespace,
                 command,
@@ -81,12 +80,11 @@ namespace MongoDB.Driver.Core.Servers
                 _server.ServerApi,
                 roundTripTime);
 
-            return ExecuteProtocol(operationContext, protocol, session);
+            return ExecuteProtocol(operationContext, protocol, operationContext.Session);
         }
 
         public Task<TResult> CommandAsync<TResult>(
             OperationContext operationContext,
-            ICoreSession session,
             ReadPreference readPreference,
             DatabaseNamespace databaseNamespace,
             BsonDocument command,
@@ -103,7 +101,7 @@ namespace MongoDB.Driver.Core.Servers
             }
 
             var protocol = new CommandWireProtocol<TResult>(
-                CreateClusterClockAdvancingCoreSession(session),
+                CreateClusterClockAdvancingCoreSession(operationContext.Session),
                 readPreference,
                 databaseNamespace,
                 command,
@@ -115,7 +113,7 @@ namespace MongoDB.Driver.Core.Servers
                 _server.ServerApi,
                 roundTripTime);
 
-            return ExecuteProtocolAsync(operationContext, protocol, session);
+            return ExecuteProtocolAsync(operationContext, protocol, operationContext.Session);
         }
 
         public void Dispose()

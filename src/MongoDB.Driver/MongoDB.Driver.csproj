@@ -13,6 +13,7 @@
     <Compile Include="..\MongoDB.Shared\DictionaryComparer.cs" Link="Shared\DictionaryComparer.cs" />
     <Compile Include="..\MongoDB.Shared\SequenceComparer.cs" Link="Shared\SequenceComparer.cs" />
     <Compile Include="..\MongoDB.Shared\Hasher.cs" Link="Shared\Hasher.cs" />
+    <Compile Remove="Core\Operations\DelayedEvaluationWriteConcernSerializer.cs" />
   </ItemGroup>
 
   <ItemGroup>

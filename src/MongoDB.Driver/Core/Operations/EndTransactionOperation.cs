@@ -70,7 +70,7 @@ namespace MongoDB.Driver.Core.Operations
             var channelSource = context.ChannelSource;
             var channel = context.Channel;
 
-            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, context.Binding.Session.Fork()))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
             {
                 var operation = CreateWriteOperation(operationContext, GetEffectiveWriteConcern(operationContext, attempt));
                 return operation.Execute(operationContext, channelBinding);
@@ -82,14 +82,14 @@ namespace MongoDB.Driver.Core.Operations
             var channelSource = context.ChannelSource;
             var channel = context.Channel;
 
-            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, context.Binding.Session.Fork()))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
             {
                 var operation = CreateWriteOperation(operationContext, GetEffectiveWriteConcern(operationContext, attempt));
                 return await operation.ExecuteAsync(operationContext, channelBinding).ConfigureAwait(false);
             }
         }
 
-        internal virtual void OnRetry(RetryableWriteContext context, Exception exception)
+        internal virtual void OnRetry(OperationContext operationContext, RetryableWriteContext context, Exception exception)
         {
             if (context.Binding is EndTransactionReadWriteBinding endTransactionBinding)
             {
@@ -139,10 +139,10 @@ namespace MongoDB.Driver.Core.Operations
 
         protected override string CommandName => "abortTransaction";
 
-        internal override void OnRetry(RetryableWriteContext context, Exception exception)
+        internal override void OnRetry(OperationContext operationContext, RetryableWriteContext context, Exception exception)
         {
-            context.Binding.Session.CurrentTransaction?.UnpinAll();
-            base.OnRetry(context, exception);
+            operationContext.Session.CurrentTransaction?.UnpinAll();
+            base.OnRetry(operationContext, context, exception);
         }
     }
 
@@ -175,16 +175,16 @@ namespace MongoDB.Driver.Core.Operations
 
         protected override string CommandName => "commitTransaction";
 
-        internal override void OnRetry(RetryableWriteContext context, Exception exception)
+        internal override void OnRetry(OperationContext operationContext, RetryableWriteContext context, Exception exception)
         {
-            TransactionHelper.UnpinServerIfNeededOnRetryableCommitException(context.Binding.Session.CurrentTransaction, exception);
+            TransactionHelper.UnpinServerIfNeededOnRetryableCommitException(operationContext.Session.CurrentTransaction, exception);
 
             if (!RetryabilityHelper.IsSystemOverloadedException(exception))
             {
                 RequiresMajorityWriteConcern = true;
             }
 
-            base.OnRetry(context, exception);
+            base.OnRetry(operationContext, context, exception);
         }
 
         public override BsonDocument ExecuteAttempt(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)

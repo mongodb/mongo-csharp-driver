@@ -58,10 +58,9 @@ namespace MongoDB.Driver.Core.Operations
 
         public override string OperationName => "bulkWrite";
 
-        protected override BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber)
+        protected override BsonDocument CreateCommand(OperationContext operationContext, long? transactionNumber)
         {
-            var readConcern = ReadConcernHelper.GetReadConcernForWriteCommand(session, connectionDescription);
-            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, session, WriteConcern);
+            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, WriteConcern);
             return new BsonDocument
             {
                 { "bulkWrite", 1 },
@@ -70,7 +69,6 @@ namespace MongoDB.Driver.Core.Operations
                 { "bypassDocumentValidation", () => _bypassDocumentValidation, _bypassDocumentValidation.HasValue },
                 { "comment", Comment, Comment != null },
                 { "let", _let, _let != null },
-                { "readConcern", readConcern, readConcern != null },
                 { "writeConcern", writeConcern, writeConcern != null },
                 { "txnNumber", () => transactionNumber.Value, transactionNumber.HasValue }
             };
@@ -123,7 +121,7 @@ namespace MongoDB.Driver.Core.Operations
                 if (serverResponse != null)
                 {
                     PopulateBulkWriteResponse(serverResponse, bulkWriteResults);
-                    using var individualResults = GetIndividualResultsCursor(context, serverResponse);
+                    using var individualResults = GetIndividualResultsCursor(operationContext, context, serverResponse);
                     if (individualResults != null && bulkWriteResults.TopLevelException == null)
                     {
                         try
@@ -181,7 +179,7 @@ namespace MongoDB.Driver.Core.Operations
                 if (serverResponse != null)
                 {
                     PopulateBulkWriteResponse(serverResponse, bulkWriteResults);
-                    using var individualResults = GetIndividualResultsCursor(context, serverResponse);
+                    using var individualResults = GetIndividualResultsCursor(operationContext, context, serverResponse);
                     if (individualResults != null && bulkWriteResults.TopLevelException == null)
                     {
                         try
@@ -272,7 +270,7 @@ namespace MongoDB.Driver.Core.Operations
             return result;
         }
 
-        private IAsyncCursor<BsonDocument> GetIndividualResultsCursor(RetryableWriteContext context, BsonDocument bulkWriteResponse)
+        private IAsyncCursor<BsonDocument> GetIndividualResultsCursor(OperationContext operationContext, RetryableWriteContext context, BsonDocument bulkWriteResponse)
         {
             if (!bulkWriteResponse.TryGetElement("cursor", out var cursorElement))
             {
@@ -282,6 +280,7 @@ namespace MongoDB.Driver.Core.Operations
             var cursorDocument = cursorElement.Value.AsBsonDocument;
             return new AsyncCursor<BsonDocument>(
                 context.ChannelSource,
+                operationContext.Session,
                 CollectionNamespace.FromFullName(cursorDocument["ns"].AsString),
                 null,
                 cursorDocument["firstBatch"].AsBsonArray.Cast<BsonDocument>().ToList(),

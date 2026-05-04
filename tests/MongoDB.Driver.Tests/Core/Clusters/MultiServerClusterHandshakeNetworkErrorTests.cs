@@ -22,6 +22,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Configuration;
@@ -76,7 +77,8 @@ namespace MongoDB.Driver.Core.Clusters
                 // The next hello or legacy hello response will be delayed because the waiting in the mock.Callbacks
                 cluster.Initialize();
 
-                var selectedServer = cluster.SelectServer(OperationContext.NoTimeout, CreateWritableServerAndEndPointSelector(__endPoint1));
+                using var operationContext = new OperationContext(NoCoreSession.NewHandle());
+                var selectedServer = cluster.SelectServer(operationContext, CreateWritableServerAndEndPointSelector(__endPoint1));
                 initialSelectedEndpoint = selectedServer.EndPoint;
                 initialSelectedEndpoint.Should().Be(__endPoint1);
 
@@ -87,11 +89,11 @@ namespace MongoDB.Driver.Core.Clusters
                 Exception exception;
                 if (async)
                 {
-                    exception = Record.Exception(() => selectedServer.GetChannelAsync(OperationContext.NoTimeout).GetAwaiter().GetResult());
+                    exception = Record.Exception(() => selectedServer.GetChannelAsync(operationContext).GetAwaiter().GetResult());
                 }
                 else
                 {
-                    exception = Record.Exception(() => selectedServer.GetChannel(OperationContext.NoTimeout));
+                    exception = Record.Exception(() => selectedServer.GetChannel(operationContext));
                 }
 
                 var e = exception.Should().BeOfType<MongoConnectionException>().Subject;
@@ -108,7 +110,7 @@ namespace MongoDB.Driver.Core.Clusters
                 }
 
                 // ensure that a new server can be selected
-                selectedServer = cluster.SelectServer(OperationContext.NoTimeout, WritableServerSelector.Instance);
+                selectedServer = cluster.SelectServer(operationContext, WritableServerSelector.Instance);
 
                 // ensure that the selected server is not the same as the initial
                 selectedServer.EndPoint.Should().Be(__endPoint2);

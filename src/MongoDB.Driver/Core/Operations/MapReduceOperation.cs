@@ -98,9 +98,9 @@ namespace MongoDB.Driver.Core.Operations
 
             using (var channelSource = binding.GetReadChannelSource(operationContext))
             using (var channel = channelSource.GetChannel(operationContext))
-            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session.Fork()))
+            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference))
             {
-                var operation = CreateOperation(operationContext, channelBinding.Session, channel.ConnectionDescription);
+                var operation = CreateOperation(operationContext, channel.ConnectionDescription);
                 var result = operation.Execute(operationContext, channelBinding);
                 return new SingleBatchAsyncCursor<TResult>(result);
             }
@@ -113,20 +113,20 @@ namespace MongoDB.Driver.Core.Operations
 
             using (var channelSource = await binding.GetReadChannelSourceAsync(operationContext).ConfigureAwait(false))
             using (var channel = await channelSource.GetChannelAsync(operationContext).ConfigureAwait(false))
-            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session.Fork()))
+            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference))
             {
-                var operation = CreateOperation(operationContext, channelBinding.Session, channel.ConnectionDescription);
+                var operation = CreateOperation(operationContext, channel.ConnectionDescription);
                 var result = await operation.ExecuteAsync(operationContext, channelBinding).ConfigureAwait(false);
                 return new SingleBatchAsyncCursor<TResult>(result);
             }
         }
 
         /// <inheritdoc/>
-        protected internal override BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber = null)
+        protected internal override BsonDocument CreateCommand(OperationContext operationContext, ConnectionDescription connectionDescription, long? transactionNumber = null)
         {
-            var command = base.CreateCommand(operationContext, session, connectionDescription);
+            var command = base.CreateCommand(operationContext, connectionDescription);
 
-            var readConcern = ReadConcernHelper.GetReadConcernForCommand(session, connectionDescription, _readConcern);
+            var readConcern = ReadConcernHelper.GetReadConcernForCommand(operationContext.Session, connectionDescription, _readConcern);
             if (readConcern != null)
             {
                 command.Add("readConcern", readConcern);
@@ -135,9 +135,9 @@ namespace MongoDB.Driver.Core.Operations
             return command;
         }
 
-        private ReadCommandOperation<TResult[]> CreateOperation(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription)
+        private ReadCommandOperation<TResult[]> CreateOperation(OperationContext operationContext, ConnectionDescription connectionDescription)
         {
-            var command = CreateCommand(operationContext, session, connectionDescription);
+            var command = CreateCommand(operationContext, connectionDescription);
             var resultArraySerializer = new ArraySerializer<TResult>(_resultSerializer);
             var resultSerializer = new ElementDeserializer<TResult[]>("results", resultArraySerializer);
             return new ReadCommandOperation<TResult[]>(CollectionNamespace.DatabaseNamespace, command, resultSerializer, MessageEncoderSettings, OperationName)

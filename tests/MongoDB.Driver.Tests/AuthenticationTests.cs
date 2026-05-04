@@ -18,6 +18,7 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
@@ -338,8 +339,9 @@ namespace MongoDB.Driver.Tests
                     speculativeAuthenticatationShouldSucceedIfPossible)
                 {
                     var serverSelector = new ReadPreferenceServerSelector(settings.ReadPreference);
-                    var server = client.GetClusterInternal().SelectServer(OperationContext.NoTimeout, serverSelector);
-                    var channel = server.GetChannel(OperationContext.NoTimeout);
+                    using var operationContext = new OperationContext(NoCoreSession.NewHandle());
+                    var server = client.GetClusterInternal().SelectServer(operationContext, serverSelector);
+                    var channel = server.GetChannel(operationContext);
                     var helloResult = channel.ConnectionDescription.HelloResult;
                     helloResult.SpeculativeAuthenticate.Should().NotBeNull();
                 }

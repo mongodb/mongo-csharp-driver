@@ -19,6 +19,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Authentication;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
@@ -66,15 +67,16 @@ namespace MongoDB.Driver.Tests.Authentication
             mockConnection.SetupGet(c => c.Description).Returns(description);
             mockConnection.SetupGet(c => c.Settings).Returns(settings);
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             if (async)
             {
-                await AuthenticationHelper.AuthenticateAsync(OperationContext.NoTimeout, mockConnection.Object, description, authenticator);
+                await AuthenticationHelper.AuthenticateAsync(operationContext, mockConnection.Object, description, authenticator);
 
                 mockAuthenticator.Verify(a => a.AuthenticateAsync(It.IsAny<OperationContext>(), mockConnection.Object, description), Times.Once);
             }
             else
             {
-                AuthenticationHelper.Authenticate(OperationContext.NoTimeout, mockConnection.Object, description, authenticator);
+                AuthenticationHelper.Authenticate(operationContext, mockConnection.Object, description, authenticator);
 
                 mockAuthenticator.Verify(a => a.Authenticate(It.IsAny<OperationContext>(), mockConnection.Object, description), Times.Once);
             }
@@ -98,15 +100,16 @@ namespace MongoDB.Driver.Tests.Authentication
             mockConnection.SetupGet(c => c.Description).Returns(description);
             mockConnection.SetupGet(c => c.Settings).Returns(settings);
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             if (async)
             {
-                await AuthenticationHelper.AuthenticateAsync(OperationContext.NoTimeout, mockConnection.Object, description, authenticator);
+                await AuthenticationHelper.AuthenticateAsync(operationContext, mockConnection.Object, description, authenticator);
 
                 mockAuthenticator.Verify(a => a.AuthenticateAsync(It.IsAny<OperationContext>(), It.IsAny<IConnection>(), It.IsAny<ConnectionDescription>()), Times.Never);
             }
             else
             {
-                AuthenticationHelper.Authenticate(OperationContext.NoTimeout, mockConnection.Object, description, authenticator);
+                AuthenticationHelper.Authenticate(operationContext, mockConnection.Object, description, authenticator);
 
                 mockAuthenticator.Verify(a => a.Authenticate(It.IsAny<OperationContext>(), It.IsAny<IConnection>(), It.IsAny<ConnectionDescription>()), Times.Never);
             }

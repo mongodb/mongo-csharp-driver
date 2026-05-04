@@ -123,7 +123,7 @@ namespace MongoDB.Driver.GridFS
 
             var operation = CreateAbortOperation();
             // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(null, cancellationToken);
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle(), null, cancellationToken);
             operation.Execute(operationContext, _binding);
         }
 
@@ -138,7 +138,7 @@ namespace MongoDB.Driver.GridFS
 
             var operation = CreateAbortOperation();
             // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(null, cancellationToken);
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle(), null, cancellationToken);
             await operation.ExecuteAsync(operationContext, _binding).ConfigureAwait(false);
         }
 
