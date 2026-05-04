@@ -683,7 +683,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var cursorImplementation = (AsyncCursor<BsonDocument>)cursor;
             var cursorId = cursorImplementation._cursorId();
-            var expectedReferenceCount = cursorId == 0 ? 2 : 3; // one from the session, and one from the cursor
+            var expectedReferenceCount = cursorId == 0 ? 1 : 2; // one from the session, and one from the cursor
             session.ReferenceCount().Should().Be(expectedReferenceCount);
         }
 
