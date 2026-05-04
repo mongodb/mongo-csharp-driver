@@ -89,6 +89,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             if (bsonDocument.TryGetValue("_id", out idBsonValue))
             {
                 id = idBsonValue;
+                //DOMAIN-API BsonDocumentSerializer is domain-agnostic; id-generator lookup always uses Default. Phase 2: decide whether to make it domain-aware.
                 idGenerator = BsonSerializationDomain.Default.LookupIdGenerator(id.GetType());
 
                 if (idGenerator == null)

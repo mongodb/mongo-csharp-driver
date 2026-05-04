@@ -82,6 +82,7 @@ namespace MongoDB.Bson
             }
             args.SetOrValidateNominalType(nominalType, "nominalType");
 
+            //DOMAIN-API in 4.0 these extension methods should accept an IBsonSerializationDomain parameter so callers can use a custom domain.
             if (serializer == null)
             {
                 serializer = BsonSerializationDomain.Default.LookupSerializer(nominalType);
@@ -171,6 +172,7 @@ namespace MongoDB.Bson
                 return null;
             }
 
+            //DOMAIN-API in 4.0 these extension methods should accept an IBsonSerializationDomain parameter so callers can use a custom domain.
             if (serializer == null)
             {
                 var bsonDocument = obj as BsonDocument;
@@ -254,6 +256,7 @@ namespace MongoDB.Bson
             }
             args.SetOrValidateNominalType(nominalType, "nominalType");
 
+            //DOMAIN-API in 4.0 these extension methods should accept an IBsonSerializationDomain parameter so callers can use a custom domain.
             if (serializer == null)
             {
                 serializer = BsonSerializationDomain.Default.LookupSerializer(nominalType);
