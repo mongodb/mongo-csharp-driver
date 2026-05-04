@@ -399,14 +399,13 @@ namespace MongoDB.Driver.Core.Operations
             var mockChannel = new Mock<IChannelHandle>();
             var channel = mockChannel.Object;
             var mockSession = new Mock<ICoreSessionHandle>();
+            mockSession.Setup(m => m.Fork()).Returns(mockSession.Object);
             var session = mockSession.Object;
             var databaseNamespace = new DatabaseNamespace("database");
             var collectionNamespace = new CollectionNamespace(databaseNamespace, "collection");
             var cursorId = 1;
             var subject = CreateSubject(session: Optional.Create(session), collectionNamespace: collectionNamespace, cursorId: cursorId, channelSource: Optional.Create(channelSource));
             var connectionDescription = CreateConnectionDescriptionSupportingSession();
-
-            mockSession.Setup(m => m.Fork()).Returns(mockSession.Object);
             mockChannel.Setup(m => m.Fork()).Returns(mockChannel.Object);
             var mockServer = new Mock<IServer>();
             var serverId = new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27017));
@@ -499,9 +498,16 @@ namespace MongoDB.Driver.Core.Operations
             Optional<string> comment = default(Optional<string>),
             Optional<bool> retryRequested = default(Optional<bool>))
         {
+            if (!session.HasValue)
+            {
+                var sessionMock = new Mock<ICoreSessionHandle>();
+                sessionMock.Setup(s => s.Fork()).Returns(Mock.Of<ICoreSessionHandle>());
+                session = Optional.Create(sessionMock.Object);
+            }
+
             return new AsyncCursor<BsonDocument>(
                 channelSource.WithDefault(new Mock<IChannelSource>().Object),
-                session.WithDefault(new Mock<ICoreSessionHandle>().Object),
+                session.Value,
                 collectionNamespace.WithDefault(new CollectionNamespace("test", "test")),
                 comment: comment.WithDefault(null),
                 firstBatch.WithDefault(new List<BsonDocument>()),
