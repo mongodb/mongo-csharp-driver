@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+using System;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -29,18 +30,10 @@ namespace MongoDB.Driver.Tests
     public class MultipleRegistriesLinqTests
     {
         [Fact]
-        public void TestLinqConcatTranslatesSecondQueryableUnderOuterDomain()
+        public void TestLinqConcatAcrossDifferentMongoClientsThrows()
         {
-            RequireServer.Check();
-
-            // Outer domain uses default naming; inner domain uses lowercase field names for Person.
             var outerDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("outer");
             var innerDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("inner");
-            var lowercasePack = new ConventionPack(innerDomain);
-            lowercasePack.AddMemberMapConvention(
-                "LowerCaseElementName",
-                m => m.SetElementName(m.MemberName.ToLower()));
-            innerDomain.ConventionRegistry.Register("lower", lowercasePack, t => t == typeof(Person));
 
             var databaseName = DriverTestConfiguration.DatabaseNamespace.DatabaseName;
             var outerColl = DriverTestConfiguration.CreateMongoClient(c => c.SerializationDomain = outerDomain)
@@ -48,13 +41,10 @@ namespace MongoDB.Driver.Tests
             var innerColl = DriverTestConfiguration.CreateMongoClient(c => c.SerializationDomain = innerDomain)
                 .GetDatabase(databaseName).GetCollection<Person>("concat_inner");
 
-            var queryable = outerColl.AsQueryable().Concat(innerColl.AsQueryable().Where(p => p.Name == "Alice"));
+            var queryable = outerColl.AsQueryable().Concat(innerColl.AsQueryable());
 
-            var stages = Linq3TestHelpers.Translate<Person, Person>(queryable);
-            var unionWith = stages.Single(s => s.Contains("$unionWith"));
-            // Outer-domain translation means the inner $match references "Name", not the inner domain's lowercase "name".
-            unionWith.ToJson().Should().Contain("\"Name\" : \"Alice\"");
-            unionWith.ToJson().Should().NotContain("\"name\" : \"Alice\"");
+            var ex = Assert.Throws<ExpressionNotSupportedException>(() => Linq3TestHelpers.Translate<Person, Person>(queryable));
+            ex.Message.Should().Contain("different MongoClients");
         }
 
         [Fact]
