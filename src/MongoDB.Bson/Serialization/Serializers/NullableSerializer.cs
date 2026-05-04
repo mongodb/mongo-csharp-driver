@@ -130,6 +130,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Initializes a new instance of the <see cref="NullableSerializer{T}"/> class.
         /// </summary>
+        //DOMAIN-API parameterless ctor chains to Default; add (IBsonSerializationDomain) ctor in 4.0 for consistency with the paired-ctor pattern.
         public NullableSerializer()
             : this(BsonSerializationDomain.Default.SerializerRegistry)
         {
