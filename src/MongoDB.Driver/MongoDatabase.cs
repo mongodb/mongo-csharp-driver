@@ -812,7 +812,7 @@ namespace MongoDB.Driver
         {
             var readPreference = explicitReadPreference ?? session.GetEffectiveReadPreference(_settings.ReadPreference);
             using var operationContext = CreateOperationContext(session, timeout, operation.OperationName, null, cancellationToken);
-            return _operationExecutor.ExecuteReadOperation(operationContext, session, operation, readPreference, true);
+            return _operationExecutor.ExecuteReadOperation(operationContext, operation, readPreference, true);
         }
 
         private Task<TResult> ExecuteReadOperationAsync<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, TimeSpan? timeout, CancellationToken cancellationToken)
@@ -822,19 +822,19 @@ namespace MongoDB.Driver
         {
             var readPreference = explicitReadPreference ?? session.GetEffectiveReadPreference(_settings.ReadPreference);
             using var operationContext = CreateOperationContext(session, timeout, operation.OperationName, null, cancellationToken);
-            return await _operationExecutor.ExecuteReadOperationAsync(operationContext, session, operation, readPreference, true).ConfigureAwait(false);
+            return await _operationExecutor.ExecuteReadOperationAsync(operationContext, operation, readPreference, true).ConfigureAwait(false);
         }
 
         private TResult ExecuteWriteOperation<TResult>(IClientSessionHandle session, IWriteOperation<TResult> operation, TimeSpan? timeout, string collectionName, CancellationToken cancellationToken)
         {
             using var operationContext = CreateOperationContext(session, timeout, operation.OperationName, collectionName, cancellationToken);
-            return _operationExecutor.ExecuteWriteOperation(operationContext, session, operation, true);
+            return _operationExecutor.ExecuteWriteOperation(operationContext, operation, true);
         }
 
         private async Task<TResult> ExecuteWriteOperationAsync<TResult>(IClientSessionHandle session, IWriteOperation<TResult> operation, TimeSpan? timeout, string collectionName, CancellationToken cancellationToken)
         {
             using var operationContext = CreateOperationContext(session, timeout, operation.OperationName, collectionName, cancellationToken);
-            return await _operationExecutor.ExecuteWriteOperationAsync(operationContext, session, operation, true).ConfigureAwait(false);
+            return await _operationExecutor.ExecuteWriteOperationAsync(operationContext, operation, true).ConfigureAwait(false);
         }
 
         private IEnumerable<string> ExtractCollectionNames(IEnumerable<BsonDocument> collections)

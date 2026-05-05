@@ -14,7 +14,6 @@
  */
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Driver.Core.Bindings;
@@ -43,12 +42,12 @@ namespace MongoDB.Driver.Tests
         public async Task ExecuteReadOperation_throws_on_null_operation([Values(true, false)] bool async)
         {
             var subject = CreateSubject(out _);
-            var operationContext = new OperationContext(NoCoreSession.NewHandle(), Timeout.InfiniteTimeSpan, CancellationToken.None);
-            var session = Mock.Of<IClientSessionHandle>();
+            using var session = NoCoreSession.NewHandle();
+            using var operationContext = new OperationContext(session);
 
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.ExecuteReadOperationAsync<object>(operationContext, session, null, ReadPreference.Primary, true)) :
-                Record.Exception(() => subject.ExecuteReadOperation<object>(operationContext, session, null, ReadPreference.Primary, true));
+                await Record.ExceptionAsync(() => subject.ExecuteReadOperationAsync<object>(operationContext, null, ReadPreference.Primary, true)) :
+                Record.Exception(() => subject.ExecuteReadOperation<object>(operationContext, null, ReadPreference.Primary, true));
 
             exception.Should().BeOfType<ArgumentNullException>()
                 .Subject.ParamName.Should().Be("operation");
@@ -59,13 +58,13 @@ namespace MongoDB.Driver.Tests
         public async Task ExecuteReadOperation_throws_on_null_readPreference([Values(true, false)] bool async)
         {
             var subject = CreateSubject(out _);
-            var operationContext = new OperationContext(NoCoreSession.NewHandle(), Timeout.InfiniteTimeSpan, CancellationToken.None);
+            using var session = NoCoreSession.NewHandle();
+            using var operationContext = new OperationContext(session);
             var operation = Mock.Of<IReadOperation<object>>();
-            var session = Mock.Of<IClientSessionHandle>();
 
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.ExecuteReadOperationAsync(operationContext, session, operation, null, true)) :
-                Record.Exception(() => subject.ExecuteReadOperation(operationContext, session, operation, null, true));
+                await Record.ExceptionAsync(() => subject.ExecuteReadOperationAsync(operationContext, operation, null, true)) :
+                Record.Exception(() => subject.ExecuteReadOperation(operationContext, operation, null, true));
 
             exception.Should().BeOfType<ArgumentNullException>()
                 .Subject.ParamName.Should().Be("readPreference");
@@ -73,50 +72,18 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [ParameterAttributeData]
-        public async Task ExecuteReadOperation_throws_on_null_session([Values(true, false)] bool async)
-        {
-            var subject = CreateSubject(out _);
-            var operationContext = new OperationContext(NoCoreSession.NewHandle(), Timeout.InfiniteTimeSpan, CancellationToken.None);
-            var operation = Mock.Of<IReadOperation<object>>();
-
-            var exception = async ?
-                await Record.ExceptionAsync(() => subject.ExecuteReadOperationAsync(operationContext, null, operation, ReadPreference.Primary, true)) :
-                Record.Exception(() => subject.ExecuteReadOperation(operationContext, null, operation, ReadPreference.Primary, true));
-
-            exception.Should().BeOfType<ArgumentNullException>()
-                .Subject.ParamName.Should().Be("session");
-        }
-
-        [Theory]
-        [ParameterAttributeData]
         public async Task ExecuteWriteOperation_throws_on_null_operation([Values(true, false)] bool async)
         {
             var subject = CreateSubject(out _);
-            var operationContext = new OperationContext(NoCoreSession.NewHandle(), Timeout.InfiniteTimeSpan, CancellationToken.None);
-            var session = Mock.Of<IClientSessionHandle>();
+            using var session = NoCoreSession.NewHandle();
+            using var operationContext = new OperationContext(session);
 
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.ExecuteWriteOperationAsync<object>(operationContext, session, null, true)) :
-                Record.Exception(() => subject.ExecuteWriteOperation<object>(operationContext, session, null, true));
+                await Record.ExceptionAsync(() => subject.ExecuteWriteOperationAsync<object>(operationContext, null, true)) :
+                Record.Exception(() => subject.ExecuteWriteOperation<object>(operationContext, null, true));
 
             exception.Should().BeOfType<ArgumentNullException>()
                 .Subject.ParamName.Should().Be("operation");
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public async Task ExecuteWriteOperation_throws_on_null_session([Values(true, false)] bool async)
-        {
-            var subject = CreateSubject(out _);
-            var operationContext = new OperationContext(NoCoreSession.NewHandle(), Timeout.InfiniteTimeSpan, CancellationToken.None);
-            var operation = Mock.Of<IWriteOperation<object>>();
-
-            var exception = async ?
-                await Record.ExceptionAsync(() => subject.ExecuteWriteOperationAsync(operationContext, null, operation, true)) :
-                Record.Exception(() => subject.ExecuteWriteOperation(operationContext, null, operation, true));
-
-            exception.Should().BeOfType<ArgumentNullException>()
-                .Subject.ParamName.Should().Be("session");
         }
 
         private OperationExecutor CreateSubject(out Mock<IClusterInternal> clusterMock)
