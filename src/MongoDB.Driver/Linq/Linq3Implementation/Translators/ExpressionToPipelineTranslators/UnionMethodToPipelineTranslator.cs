@@ -47,7 +47,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                 {
                     if (secondProvider.SerializationDomain != context.SerializationDomain)
                     {
-                        throw new ExpressionNotSupportedException(expression, because: "Union is not supported on queryables from different MongoClients");
+                        throw new ExpressionNotSupportedException(
+                            expression,
+                            because: $"Union is not supported on queryables from different MongoClients (current domain '{context.SerializationDomain.Name}', other queryable's domain '{secondProvider.SerializationDomain.Name}')");
                     }
 
                     var secondCollectionName = secondCollectionNamespace.CollectionName;
