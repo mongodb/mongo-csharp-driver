@@ -293,7 +293,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 #if NET9_0_OR_GREATER
         public class ReadOnlySetHolder
         {
-            public System.Collections.ObjectModel.ReadOnlySet<int> X { get; set; }
+            public ReadOnlySet<int> X { get; set; }
         }
 
         [Fact]
@@ -301,7 +301,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         {
             var original = new ReadOnlySetHolder
             {
-                X = new System.Collections.ObjectModel.ReadOnlySet<int>(new HashSet<int> { 1, 2, 3, 4 })
+                X = new ReadOnlySet<int>(new HashSet<int> { 1, 2, 3, 4 })
             };
 
             var bson = original.ToBson();
