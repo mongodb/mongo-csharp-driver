@@ -12,14 +12,15 @@ set +o xtrace  # Disable tracing.
 packages_search_url=$(curl -X GET -s "${PACKAGES_SOURCE}" | jq -r 'first(.resources[] | select(."@type"=="SearchQueryService") | ."@id")')
 
 execute_with_retry() {
-  max_attempts=$1
+  local max_attempts=$1
   shift  # Shift removes the first argument ($1), so $@ becomes the command
-  attempt=0
+  local attempt=0
+  local delay
 
   until "$@"; do
     attempt=$((attempt + 1))
 
-    if [ $attempt -gt $max_attempts ]; then
+    if [ $attempt -ge $max_attempts ]; then
       echo "Command failed after $max_attempts attempts."
       exit 1
     fi
@@ -31,15 +32,16 @@ execute_with_retry() {
 }
 
 check_package_version_available() {
-  package=$1
-  version=$2
+  local package=$1
+  local version=$2
+  local response
   response=$(curl -X GET -s "$packages_search_url?prerelease=true&take=1&q=PackageId:$package")
   echo "$response" | jq -e --arg v "$version" 'any(.data[0].versions[]?; .version == $v)' > /dev/null 2>&1
 }
 
 wait_until_package_is_available() {
-  package=$1
-  version=$2
+  local package=$1
+  local version=$2
   echo "Checking package availability: ${package}:${version} at ${packages_search_url}"
   execute_with_retry 10 check_package_version_available "$package" "$version"
   echo "Package ${package} is available, version: ${version}"
