@@ -48,7 +48,7 @@ namespace MongoDB.Driver
         /// <param name="documentSerializer">The document serializer.</param>
         /// <param name="serializerRegistry">The serializer registry.</param>
         /// <param name="pathRenderArgs">The path render arguments.</param>
-        /// <param name="renderDollarForm">Value that specifies whether full dollar for should be rendered.</param>
+        /// <param name="renderDollarForm">Value that specifies whether full dollar form should be rendered.</param>
         /// <param name="renderForFind">Value that specifies whether rendering a find operation.</param>
         /// <param name="renderForElemMatch">Value that specifies whether rendering an $elemMatch.</param>
         /// <param name="translationOptions">The translation options.</param>
@@ -78,7 +78,7 @@ namespace MongoDB.Driver
         /// <param name="documentSerializer">The document serializer.</param>
         /// <param name="serializationDomain">The serialization domain.</param>
         /// <param name="pathRenderArgs">The path render arguments.</param>
-        /// <param name="renderDollarForm">Value that specifies whether full dollar for should be rendered.</param>
+        /// <param name="renderDollarForm">Value that specifies whether full dollar form should be rendered.</param>
         /// <param name="renderForFind">Value that specifies whether rendering a find operation.</param>
         /// <param name="renderForElemMatch">Value that specifies whether rendering an $elemMatch.</param>
         /// <param name="translationOptions">The translation options.</param>
