@@ -13,12 +13,10 @@
  * limitations under the License.
  */
 
-using System;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.Tests.Linq.Linq3Implementation;
@@ -30,7 +28,7 @@ namespace MongoDB.Driver.Tests
     public class MultipleRegistriesLinqTests
     {
         [Fact]
-        public void TestLinqConcatAcrossDifferentMongoClientsThrows()
+        public void Linq_Concat_across_different_MongoClients_throws()
         {
             var outerDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("outer");
             var innerDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("inner");
@@ -48,7 +46,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
-        public void TestLinqInjectTranslatesFilterUnderOuterDomain()
+        public void Linq_Inject_translates_filter_under_outer_domain()
         {
             RequireServer.Check();
 
@@ -71,7 +69,31 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
-        public void TestLinqPickWithSortByRunsUnderCustomDomain()
+        public void Linq_math_methods_translate_under_custom_domain()
+        {
+            RequireServer.Check();
+
+            // Smoke test: aggregation-expression translators that previously called BsonSerializer.LookupSerializer
+            // (Ceiling, Floor) now route through context.SerializationDomain.
+            var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
+
+            var client = DriverTestConfiguration.CreateMongoClient(c => c.SerializationDomain = customDomain);
+            var collection = client
+                .GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName)
+                .GetCollection<NumericModel>(DriverTestConfiguration.CollectionNamespace.CollectionName);
+
+            var queryable = collection
+                .AsQueryable()
+                .Select(m => new { Ceil = System.Math.Ceiling(m.D), Flr = System.Math.Floor(m.D) });
+
+            var stages = Linq3TestHelpers.Translate<NumericModel, object>(queryable);
+            var project = stages.Single(s => s.Contains("$project"));
+            project.ToJson().Should().Contain("$ceil");
+            project.ToJson().Should().Contain("$floor");
+        }
+
+        [Fact]
+        public void Linq_Pick_with_SortBy_runs_under_custom_domain()
         {
             RequireServer.Check();
 
@@ -96,31 +118,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
-        public void TestLinqMathMethodsUnderCustomDomain()
-        {
-            RequireServer.Check();
-
-            // Smoke test: aggregation-expression translators that previously called BsonSerializer.LookupSerializer
-            // (Ceiling, Floor) now route through context.SerializationDomain.
-            var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
-
-            var client = DriverTestConfiguration.CreateMongoClient(c => c.SerializationDomain = customDomain);
-            var collection = client
-                .GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName)
-                .GetCollection<NumericModel>(DriverTestConfiguration.CollectionNamespace.CollectionName);
-
-            var queryable = collection
-                .AsQueryable()
-                .Select(m => new { Ceil = System.Math.Ceiling(m.D), Flr = System.Math.Floor(m.D) });
-
-            var stages = Linq3TestHelpers.Translate<NumericModel, object>(queryable);
-            var project = stages.Single(s => s.Contains("$project"));
-            project.ToJson().Should().Contain("$ceil");
-            project.ToJson().Should().Contain("$floor");
-        }
-
-        [Fact]
-        public void TestMqlConstantUnderCustomDomain()
+        public void Mql_Constant_translates_under_custom_domain()
         {
             RequireServer.Check();
 
