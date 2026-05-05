@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System.Globalization;
 using System.IO;
 using FluentAssertions;
 using MongoDB.Bson.IO;
@@ -37,8 +38,8 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
                 var xRaw = reader.ReadString();
                 var yRaw = reader.ReadString();
                 reader.ReadEndArray();
-                var x = double.Parse(xRaw.Substring(2));
-                var y = double.Parse(yRaw.Substring(2));
+                var x = double.Parse(xRaw.Substring(2), CultureInfo.InvariantCulture);
+                var y = double.Parse(yRaw.Substring(2), CultureInfo.InvariantCulture);
                 return new GeoJson2DCoordinates(x, y);
             }
 
@@ -46,8 +47,8 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             {
                 var writer = context.Writer;
                 writer.WriteStartArray();
-                writer.WriteString("X:" + value.X);
-                writer.WriteString("Y:" + value.Y);
+                writer.WriteString("X:" + value.X.ToString(CultureInfo.InvariantCulture));
+                writer.WriteString("Y:" + value.Y.ToString(CultureInfo.InvariantCulture));
                 writer.WriteEndArray();
             }
         }
