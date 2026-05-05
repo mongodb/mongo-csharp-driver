@@ -16,6 +16,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+#if NET9_0_OR_GREATER
+using System.Collections.ObjectModel;
+#endif
 using System.IO;
 using FluentAssertions;
 using MongoDB.Bson.IO;
@@ -226,5 +229,86 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             serializerRegistry.RegisterSerializer(typeof(C), subject);
             return subject;
         }
+
+        // exercises the HashSet<TItem> ctor fallback in FinalizeResult: target type with
+        // only an ISet<TItem> constructor — same shape as ReadOnlySet<T>
+        public class SetOnlyCtorEnumerable<T> : IEnumerable<T>
+        {
+            private readonly HashSet<T> _items;
+            public SetOnlyCtorEnumerable(ISet<T> items) { _items = new HashSet<T>(items); }
+            public IEnumerator<T> GetEnumerator() => _items.GetEnumerator();
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        }
+
+        [Fact]
+        public void Deserialize_should_use_set_ctor_when_no_other_ctor_matches()
+        {
+            const string json = "[1, 2, 3, 4]";
+            var subject = new EnumerableInterfaceImplementerSerializer<SetOnlyCtorEnumerable<int>, int>(__itemSerializer1);
+
+            using var reader = new JsonReader(json);
+            var context = BsonDeserializationContext.CreateRoot(reader);
+            var result = subject.Deserialize(context);
+
+            result.Should().BeEquivalentTo(new[] { 1, 2, 3, 4 });
+        }
+
+        [Fact]
+        public void Deserialize_via_set_ctor_should_collapse_duplicates()
+        {
+            const string json = "[1, 2, 2, 3]";
+            var subject = new EnumerableInterfaceImplementerSerializer<SetOnlyCtorEnumerable<int>, int>(__itemSerializer1);
+
+            using var reader = new JsonReader(json);
+            var context = BsonDeserializationContext.CreateRoot(reader);
+            var result = subject.Deserialize(context);
+
+            result.Should().BeEquivalentTo(new[] { 1, 2, 3 });
+        }
+
+        // target type with both an IEnumerable<T> ctor and an ISet<T> ctor — verifies the
+        // existing IEnumerable<T> path still wins (otherwise duplicates would silently collapse)
+        public class BothCtorsEnumerable<T> : IEnumerable<T>
+        {
+            private readonly List<T> _items;
+            public BothCtorsEnumerable(IEnumerable<T> items) { _items = new List<T>(items); }
+            public BothCtorsEnumerable(ISet<T> items) { _items = new List<T>(items); }
+            public IEnumerator<T> GetEnumerator() => _items.GetEnumerator();
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        }
+
+        [Fact]
+        public void Deserialize_should_prefer_enumerable_ctor_over_set_ctor()
+        {
+            const string json = "[1, 2, 2, 3]";
+            var subject = new EnumerableInterfaceImplementerSerializer<BothCtorsEnumerable<int>, int>(__itemSerializer1);
+
+            using var reader = new JsonReader(json);
+            var context = BsonDeserializationContext.CreateRoot(reader);
+            var result = subject.Deserialize(context);
+
+            result.Should().Equal(1, 2, 2, 3);
+        }
+
+#if NET9_0_OR_GREATER
+        public class ReadOnlySetHolder
+        {
+            public System.Collections.ObjectModel.ReadOnlySet<int> X { get; set; }
+        }
+
+        [Fact]
+        public void ReadOnlySet_should_roundtrip_via_BsonSerializer()
+        {
+            var original = new ReadOnlySetHolder
+            {
+                X = new System.Collections.ObjectModel.ReadOnlySet<int>(new HashSet<int> { 1, 2, 3, 4 })
+            };
+
+            var bson = original.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<ReadOnlySetHolder>(bson);
+
+            rehydrated.X.Should().BeEquivalentTo(original.X);
+        }
+#endif
     }
 }
