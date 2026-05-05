@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -90,7 +89,8 @@ public class ClientBackpressureProseTestsUnit
         Action<OperationContext, TContext> executeSync,
         Func<OperationContext, TContext, Task> executeAsync)
     {
-        var operationContext = new OperationContext(NoCoreSession.NewHandle(), timeout: TimeSpan.FromSeconds(30));
+        using var session = NoCoreSession.NewHandle();
+        using var operationContext = new OperationContext(session, timeout: TimeSpan.FromSeconds(30));
 
         // Test with no backoff (jitter = 0)
         var noBackoffRandom = new Mock<IRandom>();

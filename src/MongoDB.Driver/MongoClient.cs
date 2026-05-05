@@ -616,26 +616,26 @@ namespace MongoDB.Driver
         {
             var readPreference = session.GetEffectiveReadPreference(_settings.ReadPreference);
             using var operationContext = CreateOperationContext(session, timeout, operation.OperationName, cancellationToken);
-            return _operationExecutor.ExecuteReadOperation(operationContext, session, operation, readPreference, false);
+            return _operationExecutor.ExecuteReadOperation(operationContext, operation, readPreference, false);
         }
 
         private async Task<TResult> ExecuteReadOperationAsync<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, TimeSpan? timeout, CancellationToken cancellationToken)
         {
             var readPreference = session.GetEffectiveReadPreference(_settings.ReadPreference);
             using var operationContext = CreateOperationContext(session, timeout, operation.OperationName, cancellationToken);
-            return await _operationExecutor.ExecuteReadOperationAsync(operationContext, session, operation, readPreference, false).ConfigureAwait(false);
+            return await _operationExecutor.ExecuteReadOperationAsync(operationContext, operation, readPreference, false).ConfigureAwait(false);
         }
 
         private TResult ExecuteWriteOperation<TResult>(IClientSessionHandle session, IWriteOperation<TResult> operation, TimeSpan? timeout, CancellationToken cancellationToken)
         {
             using var operationContext = CreateOperationContext(session, timeout, operation.OperationName, cancellationToken);
-            return _operationExecutor.ExecuteWriteOperation(operationContext, session, operation, false);
+            return _operationExecutor.ExecuteWriteOperation(operationContext, operation, false);
         }
 
         private async Task<TResult> ExecuteWriteOperationAsync<TResult>(IClientSessionHandle session, IWriteOperation<TResult> operation, TimeSpan? timeout, CancellationToken cancellationToken)
         {
             using var operationContext = CreateOperationContext(session, timeout, operation.OperationName, cancellationToken);
-            return await _operationExecutor.ExecuteWriteOperationAsync(operationContext, session, operation, false).ConfigureAwait(false);
+            return await _operationExecutor.ExecuteWriteOperationAsync(operationContext, operation, false).ConfigureAwait(false);
         }
 
         private MessageEncoderSettings GetMessageEncoderSettings()
