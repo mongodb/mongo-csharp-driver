@@ -742,7 +742,7 @@ namespace MongoDB.Bson.Tests.Serialization
         [Fact]
         public void GetDiscriminatorConvention_should_throw_consistently_when_member_conflicts_with_discriminator_element_name()
         {
-            BsonSerializer.RegisterDiscriminatorConvention(typeof(Foo), new FooDiscriminatorConvention5816());
+            BsonSerializer.RegisterDiscriminatorConvention(typeof(Foo), new FooDiscriminatorConvention());
 
             var classMap = new BsonClassMap<Foo>();
             classMap.AutoMap();
@@ -758,7 +758,7 @@ namespace MongoDB.Bson.Tests.Serialization
             public string Type { get; set; }
         }
 
-        private class FooDiscriminatorConvention5816 : IDiscriminatorConvention
+        private class FooDiscriminatorConvention : IDiscriminatorConvention
         {
             public string ElementName => "type";
             public Type GetActualType(IBsonReader bsonReader, Type nominalType) => nominalType;
