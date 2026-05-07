@@ -31,6 +31,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
 {
     public static class EncryptionTestHelper
     {
+        private static readonly string __allKmsProviderNames =
+            CreateKmsProviderFilter("aws", "aws:name1", "aws:name2", "local", "local:name1", "local:name2", "azure", "azure:name1", "gcp", "gcp:name1", "kmip", "kmip:name1");
+
         private static readonly ConcurrentDictionary<string,  IReadOnlyDictionary<string, object>> __kmsProviders = new();
         private const string KmsProviderFilterDelimiter = ";";
         private static readonly string __defaultMongocryptdPath = Environment.GetEnvironmentVariable("MONGODB_BINARIES") ?? "";
@@ -271,10 +274,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
 
         public static IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> GetKmsProviders(string providerNames)
         {
-            if (providerNames == null)
-            {
-                throw new ArgumentException("Provider name(s) must be supplied.", nameof(providerNames));
-            }
+
+            providerNames ??= __allKmsProviderNames;
 
             return providerNames.Split([KmsProviderFilterDelimiter], StringSplitOptions.None).Distinct().ToDictionary(
                 n => n,
