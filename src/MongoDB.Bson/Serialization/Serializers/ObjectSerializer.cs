@@ -145,7 +145,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             else
             {
                 var registeredSerializer = BsonSerializer.LookupSerializer<Guid>();
-                if (registeredSerializer is GuidSerializer guidSerializer)
+                if (registeredSerializer is GuidSerializer guidSerializer && guidSerializer.GuidRepresentation != GuidRepresentation.Unspecified)
                 {
                     _guidSerializer = guidSerializer;
                     _guidRepresentation = guidSerializer.GuidRepresentation;
@@ -153,7 +153,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 else
                 {
                     _guidRepresentation = GuidRepresentation.Unspecified;
-                    _guidSerializer = registeredSerializer;
+                    _guidSerializer = new GuidSerializer(GuidRepresentation.Unspecified);
                 }
             }
         }
