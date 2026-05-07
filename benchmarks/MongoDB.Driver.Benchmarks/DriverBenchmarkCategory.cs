@@ -26,9 +26,8 @@ public static class DriverBenchmarkCategory
     public const string ReadBench = "ReadBench";
     public const string SingleBench = "SingleBench";
     public const string WriteBench = "WriteBench";
-
-    // not included in AllCategories as it's not part of the benchmarking spec
     public const string BulkWriteBench = "BulkWriteBench";
+    public const string LinqBench = "LinqBench";
 
-    public static readonly IEnumerable<string> AllCategories = [BsonBench, ReadBench, WriteBench, MultiBench, SingleBench, ParallelBench, DriverBench];
+    public static readonly IEnumerable<string> AllCategories = [BsonBench, ReadBench, WriteBench, MultiBench, SingleBench, ParallelBench, DriverBench, BulkWriteBench, LinqBench];
 }
