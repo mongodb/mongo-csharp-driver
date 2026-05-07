@@ -60,7 +60,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         private readonly Func<Type, bool> _allowedSerializationTypes;
         private readonly IDiscriminatorConvention _discriminatorConvention;
         private readonly GuidRepresentation _guidRepresentation;
-        private readonly GuidSerializer _guidSerializer;
+        private readonly IBsonSerializer<Guid> _guidSerializer;
 
         // constructors
         /// <summary>
@@ -135,10 +135,27 @@ namespace MongoDB.Bson.Serialization.Serializers
             Func<Type, bool> allowedSerializationTypes)
         {
             _discriminatorConvention = discriminatorConvention ?? throw new ArgumentNullException(nameof(discriminatorConvention));
-            _guidRepresentation = guidRepresentation;
-            _guidSerializer = new GuidSerializer(_guidRepresentation);
             _allowedDeserializationTypes = allowedDeserializationTypes ?? throw new ArgumentNullException(nameof(allowedDeserializationTypes));
             _allowedSerializationTypes = allowedSerializationTypes ?? throw new ArgumentNullException(nameof(allowedSerializationTypes));
+            if (guidRepresentation != GuidRepresentation.Unspecified)
+            {
+                _guidRepresentation = guidRepresentation;
+                _guidSerializer = new GuidSerializer(guidRepresentation);
+            }
+            else
+            {
+                var registeredSerializer = BsonSerializer.LookupSerializer<Guid>();
+                if (registeredSerializer is GuidSerializer guidSerializer)
+                {
+                    _guidSerializer = guidSerializer;
+                    _guidRepresentation = guidSerializer.GuidRepresentation;
+                }
+                else
+                {
+                    _guidRepresentation = GuidRepresentation.Unspecified;
+                    _guidSerializer = registeredSerializer;
+                }
+            }
         }
 
         // public properties
