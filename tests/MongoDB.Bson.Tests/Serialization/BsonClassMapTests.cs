@@ -22,6 +22,7 @@ using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.TestHelpers;
 using Xunit;
 
@@ -733,6 +734,35 @@ namespace MongoDB.Bson.Tests.Serialization
 
         private class D : C
         {
+        }
+    }
+
+    public class BsonClassMapGetDiscriminatorConventionTests
+    {
+        [Fact]
+        public void GetDiscriminatorConvention_should_throw_consistently_when_member_conflicts_with_discriminator_element_name()
+        {
+            BsonSerializer.RegisterDiscriminatorConvention(typeof(Foo), new FooDiscriminatorConvention5816());
+
+            var classMap = new BsonClassMap<Foo>();
+            classMap.AutoMap();
+            classMap.Freeze();
+
+            Assert.Throws<BsonSerializationException>(() => classMap.GetDiscriminatorConvention());
+            Assert.Throws<BsonSerializationException>(() => classMap.GetDiscriminatorConvention());
+        }
+
+        private class Foo
+        {
+            [BsonElement("type")]
+            public string Type { get; set; }
+        }
+
+        private class FooDiscriminatorConvention5816 : IDiscriminatorConvention
+        {
+            public string ElementName => "type";
+            public Type GetActualType(IBsonReader bsonReader, Type nominalType) => nominalType;
+            public BsonValue GetDiscriminator(Type nominalType, Type actualType) => nominalType.Name;
         }
     }
 }

@@ -1325,12 +1325,14 @@ namespace MongoDB.Bson.Serialization
             {
                 // it's possible but harmless for multiple threads to do the discriminator convention lookup at the same time
                 discriminatorConvention = LookupDiscriminatorConvention();
-                _discriminatorConvention = discriminatorConvention;
 
                 if (discriminatorConvention != null)
                 {
                     EnsureNoMemberMapConflicts(discriminatorConvention.ElementName);
                 }
+
+                // only cache if validation succeeds
+                _discriminatorConvention = discriminatorConvention;
             }
 
             return discriminatorConvention;
