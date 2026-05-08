@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using BenchmarkDotNet.Attributes;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
@@ -111,9 +112,9 @@ public class LinqTranslationBenchmark
     }
 
     [Benchmark]
-    public void EqualityById()
+    public BsonDocument EqualityById()
     {
-        _ = LinqProviderAdapter.TranslateExpressionToFilter(
+        return LinqProviderAdapter.TranslateExpressionToFilter(
             _equalityByIdExpression,
             _orderSerializer,
             BsonSerializer.SerializerRegistry,
@@ -121,9 +122,9 @@ public class LinqTranslationBenchmark
     }
 
     [Benchmark]
-    public void CompoundFilter()
+    public BsonDocument CompoundFilter()
     {
-        _ = LinqProviderAdapter.TranslateExpressionToFilter(
+        return LinqProviderAdapter.TranslateExpressionToFilter(
             _compoundFilterExpression,
             _orderSerializer,
             BsonSerializer.SerializerRegistry,
@@ -131,9 +132,9 @@ public class LinqTranslationBenchmark
     }
 
     [Benchmark]
-    public void InListFilter()
+    public BsonDocument InListFilter()
     {
-        _ = LinqProviderAdapter.TranslateExpressionToFilter(
+        return LinqProviderAdapter.TranslateExpressionToFilter(
             _inListFilterExpression,
             _orderSerializer,
             BsonSerializer.SerializerRegistry,
@@ -141,9 +142,9 @@ public class LinqTranslationBenchmark
     }
 
     [Benchmark]
-    public void StringMethodFilter()
+    public BsonDocument StringMethodFilter()
     {
-        _ = LinqProviderAdapter.TranslateExpressionToFilter(
+        return LinqProviderAdapter.TranslateExpressionToFilter(
             _stringMethodFilterExpression,
             _orderSerializer,
             BsonSerializer.SerializerRegistry,
@@ -151,9 +152,9 @@ public class LinqTranslationBenchmark
     }
 
     [Benchmark]
-    public void ArrayAnyWithPredicate()
+    public BsonDocument ArrayAnyWithPredicate()
     {
-        _ = LinqProviderAdapter.TranslateExpressionToFilter(
+        return LinqProviderAdapter.TranslateExpressionToFilter(
             _arrayAnyExpression,
             _orderSerializer,
             BsonSerializer.SerializerRegistry,
@@ -161,9 +162,9 @@ public class LinqTranslationBenchmark
     }
 
     [Benchmark]
-    public void NestedMemberFilter()
+    public BsonDocument NestedMemberFilter()
     {
-        _ = LinqProviderAdapter.TranslateExpressionToFilter(
+        return LinqProviderAdapter.TranslateExpressionToFilter(
             _nestedMemberFilterExpression,
             _orderSerializer,
             BsonSerializer.SerializerRegistry,
@@ -171,9 +172,9 @@ public class LinqTranslationBenchmark
     }
 
     [Benchmark]
-    public void OrChainFilter()
+    public BsonDocument OrChainFilter()
     {
-        _ = LinqProviderAdapter.TranslateExpressionToFilter(
+        return LinqProviderAdapter.TranslateExpressionToFilter(
             _orChainFilterExpression,
             _orderSerializer,
             BsonSerializer.SerializerRegistry,
@@ -181,9 +182,9 @@ public class LinqTranslationBenchmark
     }
 
     [Benchmark]
-    public void DateTimeMethodFilter()
+    public BsonDocument DateTimeMethodFilter()
     {
-        _ = LinqProviderAdapter.TranslateExpressionToFilter(
+        return LinqProviderAdapter.TranslateExpressionToFilter(
             _dateTimeMethodFilterExpression,
             _orderSerializer,
             BsonSerializer.SerializerRegistry,
@@ -194,9 +195,9 @@ public class LinqTranslationBenchmark
     // contains a member access on captured `this`, exercising a different
     // partial-evaluation path than the other filter benchmarks above.
     [Benchmark]
-    public void InstanceFieldCaptureFilter()
+    public BsonDocument InstanceFieldCaptureFilter()
     {
-        _ = LinqProviderAdapter.TranslateExpressionToFilter(
+        return LinqProviderAdapter.TranslateExpressionToFilter(
             _instanceFieldCaptureExpression,
             _orderSerializer,
             BsonSerializer.SerializerRegistry,
@@ -207,9 +208,9 @@ public class LinqTranslationBenchmark
     // and bypasses the translation pipeline. Movement here means the fast-path
     // detection itself regressed, not the translator.
     [Benchmark]
-    public void WholeDocumentProjectionSentinel()
+    public RenderedProjectionDefinition<OrderDocument> WholeDocumentProjectionSentinel()
     {
-        _ = LinqProviderAdapter.TranslateExpressionToProjection(
+        return LinqProviderAdapter.TranslateExpressionToProjection(
             _wholeDocumentProjectionExpression,
             _orderSerializer,
             BsonSerializer.SerializerRegistry,
@@ -217,9 +218,9 @@ public class LinqTranslationBenchmark
     }
 
     [Benchmark]
-    public void PocoProjection()
+    public RenderedProjectionDefinition<OrderSummary> PocoProjection()
     {
-        _ = LinqProviderAdapter.TranslateExpressionToProjection(
+        return LinqProviderAdapter.TranslateExpressionToProjection(
             _pocoProjectionExpression,
             _orderSerializer,
             BsonSerializer.SerializerRegistry,
@@ -229,9 +230,9 @@ public class LinqTranslationBenchmark
     // Same expression as PocoProjection but goes through the find-projection
     // simplifier (AstFindProjectionSimplifier), exercising a separate code path.
     [Benchmark]
-    public void FindProjection()
+    public RenderedProjectionDefinition<OrderSummary> FindProjection()
     {
-        _ = LinqProviderAdapter.TranslateExpressionToFindProjection(
+        return LinqProviderAdapter.TranslateExpressionToFindProjection(
             _pocoProjectionExpression,
             _orderSerializer,
             BsonSerializer.SerializerRegistry,
@@ -239,9 +240,9 @@ public class LinqTranslationBenchmark
     }
 
     [Benchmark]
-    public void WidePocoProjection()
+    public RenderedProjectionDefinition<WideOrderProjection> WidePocoProjection()
     {
-        _ = LinqProviderAdapter.TranslateExpressionToProjection(
+        return LinqProviderAdapter.TranslateExpressionToProjection(
             _widePocoProjectionExpression,
             _orderSerializer,
             BsonSerializer.SerializerRegistry,
@@ -249,9 +250,9 @@ public class LinqTranslationBenchmark
     }
 
     [Benchmark]
-    public void ProjectionWithNestedTransform()
+    public RenderedProjectionDefinition<OrderItemIds> ProjectionWithNestedTransform()
     {
-        _ = LinqProviderAdapter.TranslateExpressionToProjection(
+        return LinqProviderAdapter.TranslateExpressionToProjection(
             _nestedTransformProjectionExpression,
             _orderSerializer,
             BsonSerializer.SerializerRegistry,
@@ -262,9 +263,9 @@ public class LinqTranslationBenchmark
     // a different code path from the adapter shortcuts above, used when callers
     // write collection.AsQueryable().Where(...).Select(...) chains.
     [Benchmark]
-    public void IQueryableComposition()
+    public object IQueryableComposition()
     {
-        _ = ExpressionToExecutableQueryTranslator.Translate<OrderDocument, OrderSummary>(
+        return ExpressionToExecutableQueryTranslator.Translate<OrderDocument, OrderSummary>(
             _queryProvider,
             _queryableChainExpression,
             _translationOptions);

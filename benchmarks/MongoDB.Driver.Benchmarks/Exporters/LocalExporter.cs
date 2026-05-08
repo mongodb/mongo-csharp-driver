@@ -53,7 +53,7 @@ public sealed class LocalExporter : IExporter
 
             foreach (var benchmark in benchmarkResults)
             {
-                WriteScore(writer, benchmark.Name, benchmark.Score);
+                WriteScore(writer, benchmark.Name, benchmark.Score, benchmark.Unit);
             }
 
             exportedFiles.Add(path);
@@ -62,10 +62,10 @@ public sealed class LocalExporter : IExporter
         return exportedFiles;
     }
 
-    private static void WriteScore(StreamWriter writer, string benchName, double score)
+    private static void WriteScore(StreamWriter writer, string benchName, double score, string unit = "MB/s")
     {
         writer.WriteLine(score != 0
-            ? $"Executed {benchName}, score: {score:F3} MB/s"
+            ? $"Executed {benchName}, score: {score:F3} {unit}"
             : $"Skipped {benchName}");
     }
 }

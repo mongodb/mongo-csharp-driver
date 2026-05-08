@@ -24,6 +24,8 @@ public sealed class BenchmarkResult
     public HashSet<string> Categories { get; }
     public string Name { get; }
     public double Score { get; }
+    public string Unit { get; }
+    public string MetricName { get; }
 
     public BenchmarkResult(BenchmarkReport benchmarkReport)
     {
@@ -31,13 +33,24 @@ public sealed class BenchmarkResult
         var methodName = benchmarkCaseDescriptor.WorkloadMethod.Name;
         Categories = new HashSet<string>(benchmarkCaseDescriptor.Categories);
 
-        int dataSetSize;
         if (Categories.Contains(DriverBenchmarkCategory.BsonBench))
         {
             var bsonBenchmarkData = (BsonBenchmarkData)benchmarkReport.BenchmarkCase.Parameters["BenchmarkData"];
             Name = bsonBenchmarkData.DataSetName + benchmarkCaseDescriptor.Type.Name;
 
-            dataSetSize = bsonBenchmarkData.DataSetSize;
+            var dataSetSize = bsonBenchmarkData.DataSetSize;
+            // dataSetSize is in bytes, median is in nanoseconds — score is MB/s
+            Score = (dataSetSize / (benchmarkReport.ResultStatistics.Median / 1_000_000_000D)) / 1_000_000D;
+            Unit = "MB/s";
+            MetricName = "megabytes_per_second";
+        }
+        else if (Categories.Contains(DriverBenchmarkCategory.LinqBench))
+        {
+            Name = methodName;
+            // median is in nanoseconds — score is translations/second
+            Score = 1_000_000_000D / benchmarkReport.ResultStatistics.Median;
+            Unit = "translations/s";
+            MetricName = "translations_per_second";
         }
         else
         {
@@ -45,16 +58,16 @@ public sealed class BenchmarkResult
                 ? methodName
                 : benchmarkCaseDescriptor.Type.Name;
 
-            dataSetSize = (int)benchmarkReport.BenchmarkCase.Parameters["BenchmarkDataSetSize"];
+            var dataSetSize = (int)benchmarkReport.BenchmarkCase.Parameters["BenchmarkDataSetSize"];
+            // dataSetSize is in bytes, median is in nanoseconds — score is MB/s
+            Score = (dataSetSize / (benchmarkReport.ResultStatistics.Median / 1_000_000_000D)) / 1_000_000D;
+            Unit = "MB/s";
+            MetricName = "megabytes_per_second";
         }
 
         if (methodName.EndsWith("Poco") || methodName.EndsWith("PocoBenchmark"))
         {
             Name = Name.Replace("Benchmark", "PocoBenchmark");
         }
-
-        // change the median from nanoseconds to seconds for calculating the score.
-        // since dataSetSize is in bytes, divide the score to convert to MB/s
-        Score = (dataSetSize / (benchmarkReport.ResultStatistics.Median / 1_000_000_000D)) / 1_000_000D;
     }
 }
