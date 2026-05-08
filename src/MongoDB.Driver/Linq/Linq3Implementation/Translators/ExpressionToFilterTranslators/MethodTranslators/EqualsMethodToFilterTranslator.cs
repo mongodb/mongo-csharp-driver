@@ -78,11 +78,26 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             if (value != null && !serializerValueType.IsInstanceOfType(value))
             {
                 var targetType = Nullable.GetUnderlyingType(serializerValueType) ?? serializerValueType;
-                value = Convert.ChangeType(value, targetType);
+                var valueType = value.GetType();
+                if (IsNumericType(valueType) && IsNumericType(targetType))
+                {
+                    value = Convert.ChangeType(value, targetType);
+                }
             }
 
             var serializedValue = SerializationHelper.SerializeValue(fieldTranslation.Serializer, value);
             return AstFilter.Eq(fieldTranslation.Ast, serializedValue);
         }
+
+        private static bool IsNumericType(Type type) =>
+            Type.GetTypeCode(type) switch
+            {
+                TypeCode.Byte or TypeCode.SByte or
+                TypeCode.Int16 or TypeCode.UInt16 or
+                TypeCode.Int32 or TypeCode.UInt32 or
+                TypeCode.Int64 or TypeCode.UInt64 or
+                TypeCode.Single or TypeCode.Double or TypeCode.Decimal => true,
+                _ => false
+            };
     }
 }

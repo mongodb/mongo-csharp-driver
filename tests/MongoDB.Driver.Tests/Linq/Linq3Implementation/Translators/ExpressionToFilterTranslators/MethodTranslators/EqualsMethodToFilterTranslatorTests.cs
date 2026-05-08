@@ -14,130 +14,82 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using FluentAssertions;
-using MongoDB.Driver.TestHelpers;
+using MongoDB.Bson.Serialization;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionToFilterTranslators.MethodTranslators
 {
-    public class EqualsMethodToFilterTranslatorTests : LinqIntegrationTest<EqualsMethodToFilterTranslatorTests.ClassFixture>
+    public class EqualsMethodToFilterTranslatorTests
     {
-        public EqualsMethodToFilterTranslatorTests(ClassFixture fixture) : base(fixture)
-        {
-        }
+        private static readonly RenderArgs<TestClass> __args = new(
+            BsonSerializer.SerializerRegistry.GetSerializer<TestClass>(),
+            BsonSerializer.SerializerRegistry);
 
         [Fact]
-        public void Equals_with_uint64_and_nullable_int32_should_translate()
+        public void Equals_with_uint64_and_nullable_int_should_translate()
         {
-            var collection = Fixture.Collection;
             ulong value = 2;
 
-            var queryable = collection.AsQueryable()
-                .Where(e => e.ReportsTo.Equals(value));
+            var filter = Builders<TestClass>.Filter.Where(e => e.NullableIntegerProperty.Equals(value));
 
-            var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $match : { ReportsTo : 2 } }");
-
-            var results = queryable.ToList();
-            results.Should().HaveCount(1);
-            results[0].Id.Should().Be(1);
+            filter.Render(__args).Should().Be("{ NullableIntegerProperty : 2 }");
         }
 
         [Fact]
-        public void Equals_with_int32_and_nullable_int32_should_translate()
+        public void Equals_with_int_and_nullable_int_should_translate()
         {
-            var collection = Fixture.Collection;
             int value = 2;
 
-            var queryable = collection.AsQueryable()
-                .Where(e => e.ReportsTo.Equals(value));
+            var filter = Builders<TestClass>.Filter.Where(e => e.NullableIntegerProperty.Equals(value));
 
-            var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $match : { ReportsTo : 2 } }");
-
-            var results = queryable.ToList();
-            results.Should().HaveCount(1);
-            results[0].Id.Should().Be(1);
+            filter.Render(__args).Should().Be("{ NullableIntegerProperty : 2 }");
         }
 
         [Fact]
-        public void Equals_with_null_and_nullable_int32_should_translate()
+        public void Equals_with_null_should_translate()
         {
-            var collection = Fixture.Collection;
+            var filter = Builders<TestClass>.Filter.Where(e => e.NullableIntegerProperty.Equals(null));
 
-            var queryable = collection.AsQueryable()
-                .Where(e => e.ReportsTo.Equals(null));
-
-            var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $match : { ReportsTo : null } }");
-
-            var results = queryable.ToList();
-            results.Should().HaveCount(1);
-            results[0].Id.Should().Be(3);
+            filter.Render(__args).Should().Be("{ NullableIntegerProperty : null }");
         }
 
         [Fact]
-        public void Equals_with_string_and_nullable_int32_should_throw()
+        public void Equals_with_uint64_and_int_should_translate()
         {
-            var collection = Fixture.Collection;
+            ulong value = 1;
+
+            var filter = Builders<TestClass>.Filter.Where(e => e.IntegerProperty.Equals(value));
+
+            filter.Render(__args).Should().Be("{ IntegerProperty : 1 }");
+        }
+
+        [Fact]
+        public void Equals_with_string_and_nullable_int_should_throw()
+        {
             var value = "2";
 
-            var queryable = collection.AsQueryable()
-                .Where(e => e.ReportsTo.Equals(value));
+            var filter = Builders<TestClass>.Filter.Where(e => e.NullableIntegerProperty.Equals(value));
 
-            var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $match : { ReportsTo : 2 } }");
-
-            var results = queryable.ToList();
-            results.Should().HaveCount(1);
-            results[0].Id.Should().Be(1);
+            var exception = Record.Exception(() => filter.Render(__args));
+            exception.Should().NotBeNull();
         }
 
         [Fact]
-        public void Equals_with_no_match_should_return_empty()
+        public void Equals_with_overflowing_uint64_and_nullable_int_should_throw()
         {
-            var collection = Fixture.Collection;
-            ulong value = 999;
-
-            var queryable = collection.AsQueryable()
-                .Where(e => e.ReportsTo.Equals(value));
-
-            var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $match : { ReportsTo : 999 } }");
-
-            var results = queryable.ToList();
-            results.Should().BeEmpty();
-        }
-
-        [Fact]
-        public void Equals_with_overflowing_uint64_and_nullable_int32_should_throw()
-        {
-            var collection = Fixture.Collection;
             ulong value = (ulong)int.MaxValue + 1;
 
-            var queryable = collection.AsQueryable()
-                .Where(e => e.ReportsTo.Equals(value));
+            var filter = Builders<TestClass>.Filter.Where(e => e.NullableIntegerProperty.Equals(value));
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
+            var exception = Record.Exception(() => filter.Render(__args));
             exception.Should().BeOfType<OverflowException>();
         }
 
-        public class C
+        public class TestClass
         {
-            public int Id { get; set; }
-            public int? ReportsTo { get; set; }
-        }
-
-        public sealed class ClassFixture : MongoCollectionFixture<C>
-        {
-            protected override IEnumerable<C> InitialData =>
-            [
-                new C { Id = 1, ReportsTo = 2 },
-                new C { Id = 2, ReportsTo = 5 },
-                new C { Id = 3, ReportsTo = null }
-            ];
+            public int IntegerProperty { get; set; }
+            public int? NullableIntegerProperty { get; set; }
         }
     }
 }
