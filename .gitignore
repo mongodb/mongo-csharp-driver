@@ -80,3 +80,4 @@ packages
 **/*.dylib
 **/*.dll
 .claude/settings.local.json
+CLAUDE.local.md
