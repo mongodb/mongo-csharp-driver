@@ -71,7 +71,7 @@ This selectivity has been validated via targeted injection tests (see `workdocs/
 
 **Allocation changes** are often more actionable than time changes. A new allocation in a hot path is a real regression even if the time delta is within noise. The `[MemoryDiagnoser]` columns (`Gen0`, `Allocated`) make allocation regressions visible.
 
-**`OrChainFilter`** is intentionally the only filter without captured locals. It's ~5x faster than other filters because closure capture dominates filter translation cost. Treat it as a "raw translation baseline" — if it regresses but others don't, the regression is in the expression translator itself, not in closure handling.
+**`OrChainFilter`** is the fastest filter at ~7µs (~5x faster than others) because it uses literal constants instead of captured variables, producing a simpler expression tree with less work at every stage. This makes it the most sensitive filter benchmark — small translator regressions that would be lost in the noise on slower benchmarks show up clearly here.
 
 **`WholeDocumentProjectionSentinel`** at ~17ns is not measuring translation. It validates that `LinqProviderAdapter` still short-circuits `x => x` projections. Movement here means the fast-path detection broke, not that translation got slower.
 
