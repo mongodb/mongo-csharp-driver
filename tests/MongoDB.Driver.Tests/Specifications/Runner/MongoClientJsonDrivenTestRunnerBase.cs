@@ -321,6 +321,8 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
                 Logger.LogDebug("Disposable client created with cluster:{0}", client.Cluster.ClusterId);
 
                 ExecuteOperations(client, objectMap: null, test, eventCapturer);
+
+                eventCapturer.Stop();
             }
         }
 

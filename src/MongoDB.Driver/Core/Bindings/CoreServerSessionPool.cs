@@ -15,8 +15,15 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using MongoDB.Bson;
+using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Servers;
+using MongoDB.Driver.Core.WireProtocol;
 
 namespace MongoDB.Driver
 {
@@ -86,6 +93,58 @@ namespace MongoDB.Driver
                 {
                     _pool.Add(session);
                 }
+            }
+        }
+
+        public void ReleaseAll(IServer server)
+        {
+            if (_pool.Count == 0)
+            {
+                return;
+            }
+
+            try
+            {
+                while (true)
+                {
+                    List<ICoreServerSession> sessionsBatch;
+                    lock (_lock)
+                    {
+                        if (_pool.Count == 0)
+                        {
+                            return;
+                        }
+
+                        sessionsBatch = _pool.GetRange(0, Math.Min(_pool.Count, 9999));
+                        _pool.RemoveRange(0, sessionsBatch.Count);
+                    }
+
+                    var endSessionCommand = new BsonDocument("endSessions", new BsonArray(sessionsBatch.Select(s => s.Id)));
+                    foreach (var session in sessionsBatch)
+                    {
+                        session.Dispose();
+                    }
+
+                    var operationContext = OperationContext.NoTimeout;
+                    using var channel = server.GetChannel(operationContext);
+                    channel.Command(
+                        operationContext,
+                        NoCoreSession.Instance,
+                        ReadPreference.PrimaryPreferred,
+                        DatabaseNamespace.Admin,
+                        endSessionCommand,
+                        null,
+                        NoOpElementNameValidator.Instance,
+                        null,
+                        null,
+                        CommandResponseHandling.Return,
+                        BsonDocumentSerializer.Instance,
+                        null);
+                }
+            }
+            catch
+            {
+                // Ignore any errors.
             }
         }
 

@@ -54,6 +54,8 @@ namespace MongoDB.Driver.Core.Clusters
 
                     if (_server != null)
                     {
+                        ReleaseServerSessionPool();
+
                         _clusterEventLogger.LogAndPublish(new ClusterRemovingServerEvent(_server.ServerId, "Removing server."));
 
                         _server.DescriptionChanged -= ServerDescriptionChanged;

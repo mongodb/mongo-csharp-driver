@@ -131,6 +131,21 @@ namespace MongoDB.Driver.Core.Clusters
             }
         }
 
+        protected void ReleaseServerSessionPool()
+        {
+            // Do the sessionPool cleanup only if we have a server available immediately, do not have to wait here.
+            var server = Servers.FirstOrDefault(x => x.Description.State == ServerState.Connected && x.Description.Type == ServerType.ReplicaSetPrimary);
+            if (server == null)
+            {
+                server = Servers.FirstOrDefault(x => x.Description.State == ServerState.Connected);
+            }
+
+            if (server != null)
+            {
+                _serverSessionPool.ReleaseAll(server);
+            }
+        }
+
         protected abstract void RequestHeartbeat();
 
         protected void OnDescriptionChanged(ClusterDescription oldDescription, ClusterDescription newDescription, bool shouldClusterDescriptionChangedEventBePublished)
