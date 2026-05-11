@@ -21,7 +21,6 @@ using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Compression;
-using SharpCompress.IO;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Tests.Core.Compression
@@ -103,7 +102,35 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
                     var result = string.Join(",", resultBytes);
                     result
                         .Should()
-                        .Be("120,156,74,76,74,78,73,77,75,207,200,204,202,206,201,205,203,47,40,44,42,46,41,45,43,175,168,172,50,48,52,50,54,49,53,51,183,176,84,72,164,150,34,0,0,0,0,255,255,3,0,228,159,39,197");
+                        .Be("120,156,75,76,74,78,73,77,75,207,200,204,202,206,201,205,203,47,40,44,42,46,41,45,43,175,168,172,50,48,52,50,54,49,53,51,183,176,84,72,164,150,34,0,228,159,39,197");
+                });
+        }
+
+        [Fact]
+        public void Zlib_compressed_bytes_should_have_valid_header_and_roundtrip()
+        {
+            var bytes = Encoding.ASCII.GetBytes(__testMessage);
+            Assert(
+                bytes,
+                (input, output) =>
+                {
+                    var compressor = GetCompressor(CompressorType.Zlib, 6);
+                    compressor.Compress(input, output);
+                    output.Length.Should().BeLessThan(input.Length);
+                },
+                (input, output) =>
+                {
+                    var resultBytes = output.ToArray();
+                    resultBytes[0].Should().Be(0x78); // CMF byte: deflate with 32K window (RFC 1950)
+                    ((resultBytes[0] * 256 + resultBytes[1]) % 31).Should().Be(0); // valid header checksum
+
+                    output.Position = 0;
+                    input.Position = 0;
+                    input.SetLength(0);
+                    var compressor = GetCompressor(CompressorType.Zlib, 6);
+                    compressor.Decompress(output, input);
+                    input.Position = 0;
+                    Encoding.ASCII.GetString(input.ReadBytes((int)input.Length)).Should().Be(__testMessage);
                 });
         }
 
@@ -122,7 +149,6 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
         public void Zlib_should_read_the_previously_written_message(CompressorType compressorType, int compressionOption)
         {
             var bytes = Encoding.ASCII.GetBytes(__testMessage);
-            int zlibHeaderSize = 21;
 
             Assert(
                 bytes,
@@ -136,7 +162,8 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
                     }
                     else
                     {
-                        output.Length.Should().Be(input.Length + zlibHeaderSize);
+                        // Level 0 (no compression) always adds framing overhead, so output > input
+                        output.Length.Should().BeGreaterThan(input.Length);
                     }
                     input.Position = 0;
                     input.SetLength(0);
@@ -159,6 +186,49 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
 
             var e = exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject;
             e.ParamName.Should().Be("compressionLevel");
+        }
+
+        [Fact]
+        public void Zlib_decompress_should_handle_sync_flush_markers()
+        {
+            // These are the exact bytes SharpCompress emitted for __testMessage at level 6 with FlushType.Sync.
+            // The 00 00 FF FF sequence is a Z_SYNC_FLUSH empty stored block — valid RFC 1951 deflate.
+            // Verifies that incoming data from implementations that emit sync flushes decompresses correctly.
+            var bytesWithSyncFlush = new byte[]
+            {
+                120, 156, 74, 76, 74, 78, 73, 77, 75, 207, 200, 204, 202, 206, 201, 205, 203, 47, 40, 44,
+                42, 46, 41, 45, 43, 175, 168, 172, 50, 48, 52, 50, 54, 49, 53, 51, 183, 176, 84, 72, 164,
+                150, 34, 0, 0, 0, 0, 255, 255, 3, 0, 228, 159, 39, 197
+            };
+            var compressor = GetCompressor(CompressorType.Zlib, 6);
+            using (var output = new MemoryStream())
+            {
+                compressor.Decompress(new MemoryStream(bytesWithSyncFlush), output);
+                Encoding.ASCII.GetString(output.ToArray()).Should().Be(__testMessage);
+            }
+        }
+
+        [Fact]
+        public void Zlib_decompress_should_throw_on_invalid_header()
+        {
+            var compressor = GetCompressor(CompressorType.Zlib, 6);
+            var badData = new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }; // invalid zlib header
+            var exception = Record.Exception(() => compressor.Decompress(new MemoryStream(badData), new MemoryStream()));
+            exception.Should().BeOfType<FormatException>();
+        }
+
+        [Fact]
+        public void Zlib_decompress_should_throw_on_checksum_mismatch()
+        {
+            var compressor = GetCompressor(CompressorType.Zlib, 6);
+            using (var compressed = new MemoryStream())
+            {
+                compressor.Compress(new MemoryStream(Encoding.ASCII.GetBytes(__testMessage)), compressed);
+                var bytes = compressed.ToArray();
+                bytes[bytes.Length - 1] ^= 0xFF; // corrupt the Adler-32
+                var exception = Record.Exception(() => compressor.Decompress(new MemoryStream(bytes), new MemoryStream()));
+                exception.Should().BeOfType<InvalidDataException>();
+            }
         }
 
         [Fact]
@@ -222,12 +292,8 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
             {
                 var memoryStream = new MemoryStream();
                 var byteBufferStream = new ByteBufferStream(buffer);
-                using (new NonDisposingStream(memoryStream))
-                using (new NonDisposingStream(byteBufferStream))
-                {
-                    test(byteBufferStream, memoryStream);
-                    assertResult?.Invoke(byteBufferStream, memoryStream);
-                }
+                test(byteBufferStream, memoryStream);
+                assertResult?.Invoke(byteBufferStream, memoryStream);
             }
         }
 
