@@ -75,6 +75,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __groupJoin;
         private static readonly MethodInfo __intersect;
         private static readonly MethodInfo __join;
+        private static readonly MethodInfo __leftJoin;
         private static readonly MethodInfo __last;
         private static readonly MethodInfo __lastOrDefault;
         private static readonly MethodInfo __lastOrDefaultWithPredicate;
@@ -210,6 +211,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __groupJoin = ReflectionInfo.Method((IQueryable<object> outer, IEnumerable<object> inner, Expression<Func<object, object>> outerKeySelector, Expression<Func<object, object>> innerKeySelector, Expression<Func<object, IEnumerable<object>, object>> resultSelector) => outer.GroupJoin(inner, outerKeySelector, innerKeySelector, resultSelector));
             __intersect = ReflectionInfo.Method((IQueryable<object> source1, IEnumerable<object> source2) => source1.Intersect(source2));
             __join = ReflectionInfo.Method((IQueryable<object> outer, IEnumerable<object> inner, Expression<Func<object, object>> outerKeySelector, Expression<Func<object, object>> innerKeySelector, Expression<Func<object, object, object>> resultSelector) => outer.Join(inner, outerKeySelector, innerKeySelector, resultSelector));
+            __leftJoin = typeof(Queryable).GetMethods()
+                .FirstOrDefault(m => m.Name == "LeftJoin" && m.GetParameters().Length == 5);
             __last = ReflectionInfo.Method((IQueryable<object> source) => source.Last());
             __lastOrDefault = ReflectionInfo.Method((IQueryable<object> source) => source.LastOrDefault());
             __lastOrDefaultWithPredicate = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, bool>> predicate) => source.LastOrDefault(predicate));
@@ -497,6 +500,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo GroupJoin => __groupJoin;
         public static MethodInfo Intersect => __intersect;
         public static MethodInfo Join => __join;
+        public static MethodInfo LeftJoin => __leftJoin;
         public static MethodInfo Last => __last;
         public static MethodInfo LastOrDefault => __lastOrDefault;
         public static MethodInfo LastOrDefaultWithPredicate => __lastOrDefaultWithPredicate;

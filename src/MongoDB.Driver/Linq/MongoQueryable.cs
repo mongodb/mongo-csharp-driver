@@ -822,6 +822,68 @@ namespace MongoDB.Driver.Linq
         }
 
         /// <summary>
+        /// Correlates the elements of two sequences based on matching keys, preserving all outer elements
+        /// even when no matching inner element exists (left outer join semantics).
+        /// </summary>
+        /// <typeparam name="TOuter">The type of the elements of the first sequence.</typeparam>
+        /// <typeparam name="TInner">The type of the elements of the second sequence.</typeparam>
+        /// <typeparam name="TKey">The type of the keys returned by the key selector functions.</typeparam>
+        /// <typeparam name="TResult">The type of the result elements.</typeparam>
+        /// <param name="outer">The first sequence to join.</param>
+        /// <param name="inner">The collection to join to the first sequence.</param>
+        /// <param name="outerKeySelector">A function to extract the join key from each element of the first sequence.</param>
+        /// <param name="innerKeySelector">A function to extract the join key from each element of the second sequence.</param>
+        /// <param name="resultSelector">A function to create a result element from an outer element and a matching inner element (or null).</param>
+        /// <returns>
+        /// An <see cref="IQueryable{TResult}" /> that contains elements of type <typeparamref name="TResult" /> obtained by performing a left outer join on two sequences.
+        /// </returns>
+        public static IQueryable<TResult> LeftJoin<TOuter, TInner, TKey, TResult>(this IQueryable<TOuter> outer, IMongoCollection<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, TInner, TResult>> resultSelector)
+        {
+            Ensure.IsNotNull(outer, nameof(outer));
+            Ensure.IsNotNull(inner, nameof(inner));
+            Ensure.IsNotNull(outerKeySelector, nameof(outerKeySelector));
+            Ensure.IsNotNull(innerKeySelector, nameof(innerKeySelector));
+            Ensure.IsNotNull(resultSelector, nameof(resultSelector));
+
+            return LeftJoin(outer, inner.AsQueryable(), outerKeySelector, innerKeySelector, resultSelector);
+        }
+
+        /// <summary>
+        /// Correlates the elements of two sequences based on matching keys, preserving all outer elements
+        /// even when no matching inner element exists (left outer join semantics).
+        /// </summary>
+        /// <typeparam name="TOuter">The type of the elements of the first sequence.</typeparam>
+        /// <typeparam name="TInner">The type of the elements of the second sequence.</typeparam>
+        /// <typeparam name="TKey">The type of the keys returned by the key selector functions.</typeparam>
+        /// <typeparam name="TResult">The type of the result elements.</typeparam>
+        /// <param name="outer">The first sequence to join.</param>
+        /// <param name="inner">The sequence to join to the first sequence.</param>
+        /// <param name="outerKeySelector">A function to extract the join key from each element of the first sequence.</param>
+        /// <param name="innerKeySelector">A function to extract the join key from each element of the second sequence.</param>
+        /// <param name="resultSelector">A function to create a result element from an outer element and a matching inner element (or null).</param>
+        /// <returns>
+        /// An <see cref="IQueryable{TResult}" /> that contains elements of type <typeparamref name="TResult" /> obtained by performing a left outer join on two sequences.
+        /// </returns>
+        public static IQueryable<TResult> LeftJoin<TOuter, TInner, TKey, TResult>(this IQueryable<TOuter> outer, IQueryable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, TInner, TResult>> resultSelector)
+        {
+            Ensure.IsNotNull(outer, nameof(outer));
+            Ensure.IsNotNull(inner, nameof(inner));
+            Ensure.IsNotNull(outerKeySelector, nameof(outerKeySelector));
+            Ensure.IsNotNull(innerKeySelector, nameof(innerKeySelector));
+            Ensure.IsNotNull(resultSelector, nameof(resultSelector));
+
+            return outer.Provider.CreateQuery<TResult>(
+                Expression.Call(
+                    null,
+                    GetMethodInfo(LeftJoin, outer, inner, outerKeySelector, innerKeySelector, resultSelector),
+                    outer.Expression,
+                    Expression.Constant(inner),
+                    Expression.Quote(outerKeySelector),
+                    Expression.Quote(innerKeySelector),
+                    Expression.Quote(resultSelector)));
+        }
+
+        /// <summary>
         /// Returns the number of elements in a sequence.
         /// </summary>
         /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>

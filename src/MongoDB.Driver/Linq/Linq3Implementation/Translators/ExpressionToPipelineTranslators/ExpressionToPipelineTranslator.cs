@@ -52,6 +52,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                     return GroupJoinMethodToPipelineTranslator.Translate(context, methodCallExpression);
                 case "Join":
                     return JoinMethodToPipelineTranslator.Translate(context, methodCallExpression);
+                case "LeftJoin":
+                    return LeftJoinMethodToPipelineTranslator.Translate(context, methodCallExpression);
                 case "Lookup":
                     return LookupMethodToPipelineTranslator.Translate(context, methodCallExpression);
                 case "OfType":

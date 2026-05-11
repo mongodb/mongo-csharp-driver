@@ -59,6 +59,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __firstOrDefaultAsync;
         private static readonly MethodInfo __firstOrDefaultWithPredicateAsync;
         private static readonly MethodInfo __firstWithPredicateAsync;
+        private static readonly MethodInfo __leftJoin;
         private static readonly MethodInfo __longCountAsync;
         private static readonly MethodInfo __longCountWithPredicateAsync;
         private static readonly MethodInfo __lookupWithDocumentsAndLocalFieldAndForeignField;
@@ -242,6 +243,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __firstOrDefaultAsync = ReflectionInfo.Method((IQueryable<object> source, CancellationToken cancellationToken) => source.FirstOrDefaultAsync(cancellationToken));
             __firstOrDefaultWithPredicateAsync = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, bool>> predicate, CancellationToken cancellationToken) => source.FirstOrDefaultAsync(predicate, cancellationToken));
             __firstWithPredicateAsync = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, bool>> predicate, CancellationToken cancellationToken) => source.FirstAsync(predicate, cancellationToken));
+            __leftJoin = ReflectionInfo.Method((IQueryable<object> outer, IQueryable<object> inner, Expression<Func<object, object>> outerKeySelector, Expression<Func<object, object>> innerKeySelector, Expression<Func<object, object, object>> resultSelector) => MongoQueryable.LeftJoin(outer, inner, outerKeySelector, innerKeySelector, resultSelector));
             __longCountAsync = ReflectionInfo.Method((IQueryable<object> source, CancellationToken cancellationToken) => source.LongCountAsync(cancellationToken));
             __longCountWithPredicateAsync = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, bool>> predicate, CancellationToken cancellationToken) => source.LongCountAsync(predicate, cancellationToken));
             __lookupWithDocumentsAndLocalFieldAndForeignField = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, IEnumerable<object>>> documents, Expression<Func<object, object>> localField, Expression<Func<object, object>> foreignField) => source.Lookup(documents, localField, foreignField));
@@ -798,6 +800,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo FirstOrDefaultAsync => __firstOrDefaultAsync;
         public static MethodInfo FirstOrDefaultWithPredicateAsync => __firstOrDefaultWithPredicateAsync;
         public static MethodInfo FirstWithPredicateAsync => __firstWithPredicateAsync;
+        public static MethodInfo LeftJoin => __leftJoin;
         public static MethodInfo LongCountAsync => __longCountAsync;
         public static MethodInfo LongCountWithPredicateAsync => __longCountWithPredicateAsync;
         public static MethodInfo LookupWithDocumentsAndLocalFieldAndForeignField => __lookupWithDocumentsAndLocalFieldAndForeignField;
