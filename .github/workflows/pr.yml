@@ -10,6 +10,9 @@ on:
       - unlabeled
       - synchronize
 
+permissions:
+  contents: read
+
 jobs:
   pull-request-validation:
     name: Pull Request validation.
