@@ -236,6 +236,19 @@ functions:
           - "AWS_SESSION_TOKEN"
         script: |
           ${PREPARE_SHELL}
+          ./evergreen/fetch-kondukto-token.sh
+    - command: ec2.assume_role
+      params:
+        role_arn: ${ecr-evergreen-role}
+    - command: shell.exec
+      params:
+        working_dir: "mongo-csharp-driver"
+        include_expansions_in_env:
+          - "AWS_ACCESS_KEY_ID"
+          - "AWS_SECRET_ACCESS_KEY"
+          - "AWS_SESSION_TOKEN"
+        script: |
+          ${PREPARE_SHELL}
           ./evergreen/download-augmented-sbom.sh
     - command: ec2.assume_role
       params:
@@ -848,17 +861,21 @@ functions:
           . ./evergreen/build-packages.sh
 
   sign-packages:
+    - command: ec2.assume_role
+      params:
+        role_arn: ${ecr-evergreen-role}
     - command: shell.exec
       params:
         shell: bash
         working_dir: mongo-csharp-driver
         env:
-          ARTIFACTORY_PASSWORD: ${ARTIFACTORY_PASSWORD}
-          ARTIFACTORY_USERNAME: ${ARTIFACTORY_USERNAME}
           PACKAGE_VERSION: "$PACKAGE_VERSION"
           GRS_USERNAME: ${GRS_USERNAME}
           GRS_PASSWORD: ${GRS_PASSWORD}
           AUTHENTICODE_KEY_NAME: ${AUTHENTICODE_KEY_NAME}
+          AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+          AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+          AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN}
         script: |
           ${PREPARE_SHELL}
           . ./evergreen/sign-packages.sh
