@@ -31,29 +31,25 @@ namespace MongoDB.Benchmarks.Linq;
 [BenchmarkCategory(DriverBenchmarkCategory.LinqBench)]
 public class LinqTranslationBenchmark
 {
-    private readonly string _activeStatus = "Active";
-
     private IBsonSerializer<OrderDocument> _orderSerializer;
     private ExpressionTranslationOptions _translationOptions;
 
-    private Expression<Func<OrderDocument, bool>> _equalityByIdExpression;
-    private Expression<Func<OrderDocument, bool>> _compoundFilterExpression;
-    private Expression<Func<OrderDocument, bool>> _inListFilterExpression;
-    private Expression<Func<OrderDocument, bool>> _stringMethodFilterExpression;
-    private Expression<Func<OrderDocument, bool>> _arrayAnyExpression;
-    private Expression<Func<OrderDocument, bool>> _nestedMemberFilterExpression;
-    private Expression<Func<OrderDocument, bool>> _orChainFilterExpression;
-    private Expression<Func<OrderDocument, bool>> _dateTimeMethodFilterExpression;
-    private Expression<Func<OrderDocument, bool>> _instanceFieldCaptureExpression;
+    private Expression<Func<OrderDocument, bool>> _multiFieldSearchExpression;
+    private Expression<Func<OrderDocument, bool>> _orStatusFilterExpression;
+    private Expression<Func<OrderDocument, bool>> _batchLookupExpression;
+    private Expression<Func<OrderDocument, bool>> _arrayElementQueryExpression;
 
-    private Expression<Func<OrderDocument, OrderDocument>> _wholeDocumentProjectionExpression;
-    private Expression<Func<OrderDocument, OrderSummary>> _pocoProjectionExpression;
-    private Expression<Func<OrderDocument, WideOrderProjection>> _widePocoProjectionExpression;
-    private Expression<Func<OrderDocument, OrderItemIds>> _nestedTransformProjectionExpression;
+    private Expression<Func<OrderDocument, string>> _fieldSelectionExpression;
+
+    private Expression<Func<OrderDocument, OrderProjection>> _aggregationProjectionExpression;
+    private Expression<Func<OrderDocument, OrderDocument>> _projectionSentinelExpression;
+
+    private Expression<Func<OrderDocument, SetFields>> _updatePipelineExpression;
 
     private MongoClient _queryClient;
-    private MongoQueryProvider<OrderDocument> _queryProvider;
-    private Expression _queryableChainExpression;
+    private MongoQueryProvider<OrderDocument> _queryableProvider;
+    private Expression _queryablePipelineExpression;
+    private Expression _groupByAggregationExpression;
 
     [GlobalSetup]
     public void Setup()
@@ -61,48 +57,47 @@ public class LinqTranslationBenchmark
         _orderSerializer = BsonSerializer.LookupSerializer<OrderDocument>();
         _translationOptions = new ExpressionTranslationOptions();
 
-        var targetId = 42;
         var statusFilter = "Active";
         var cutoff = new DateTime(2025, 1, 1);
-        var ids = new[] { 1, 2, 3, 4, 5 };
         var prefix = "Acme";
-        var priceThreshold = 100m;
         var city = "Seattle";
-        var year = 2025;
+        var ids = new[] { 1, 2, 3, 4, 5 };
+        var priceThreshold = 100m;
 
-        _equalityByIdExpression = x => x.Id == targetId;
-        _compoundFilterExpression = x => x.Status == statusFilter && x.CreatedAt > cutoff;
-        _inListFilterExpression = x => ids.Contains(x.Id);
-        _stringMethodFilterExpression = x => x.CustomerName.StartsWith(prefix);
-        _arrayAnyExpression = x => x.Items.Any(i => i.Price > priceThreshold);
-        _nestedMemberFilterExpression = x => x.ShippingAddress.City == city;
-        _orChainFilterExpression = x => x.Status == "Active" || x.Status == "Pending" || x.Status == "Processing" || x.Status == "Shipped";
-        _dateTimeMethodFilterExpression = x => x.CreatedAt.Year == year;
-        _instanceFieldCaptureExpression = x => x.Status == _activeStatus;
+        _multiFieldSearchExpression = x =>
+            x.Status == statusFilter &&
+            x.CustomerName.StartsWith(prefix) &&
+            x.ShippingAddress.City == city &&
+            x.CreatedAt > cutoff &&
+            !x.IsPaid;
 
-        _wholeDocumentProjectionExpression = x => x;
-        _pocoProjectionExpression = x => new OrderSummary { Id = x.Id, Customer = x.CustomerName, Total = x.Total };
-        _widePocoProjectionExpression = x => new WideOrderProjection
+        _orStatusFilterExpression = x =>
+            x.Status == "Active" || x.Status == "Pending" || x.Status == "Processing" || x.Status == "Shipped";
+
+        _batchLookupExpression = x => ids.Contains(x.Id);
+
+        _arrayElementQueryExpression = x => x.Items.Any(i => i.Price > priceThreshold);
+
+        _fieldSelectionExpression = x => x.Items[0].ProductId;
+
+        _aggregationProjectionExpression = x => new OrderProjection
         {
             Id = x.Id,
-            CustomerName = x.CustomerName,
-            Status = x.Status,
-            Total = x.Total,
-            CreatedAt = x.CreatedAt,
-            UpdatedAt = x.UpdatedAt,
-            Currency = x.Currency,
-            Subtotal = x.Subtotal,
-            Tax = x.Tax,
-            Discount = x.Discount,
-            Notes = x.Notes,
-            ItemCount = x.ItemCount,
-            IsPaid = x.IsPaid,
-            PaymentMethod = x.PaymentMethod,
-            ShippingMethod = x.ShippingMethod
+            Customer = x.CustomerName,
+            Total = x.Subtotal + x.Tax - x.Discount,
+            ProductIds = x.Items.Select(i => i.ProductId)
         };
-        _nestedTransformProjectionExpression = x => new OrderItemIds { Id = x.Id, ProductIds = x.Items.Select(i => i.ProductId) };
 
-        SetupQueryableChain(statusFilter);
+        _projectionSentinelExpression = x => x;
+
+        _updatePipelineExpression = x => new SetFields
+        {
+            Status = "Shipped",
+            UpdatedAt = DateTime.UtcNow,
+            Total = x.Subtotal + x.Tax - x.Discount
+        };
+
+        SetupQueryableExpressions(statusFilter);
     }
 
     [GlobalCleanup]
@@ -112,166 +107,108 @@ public class LinqTranslationBenchmark
     }
 
     [Benchmark]
-    public BsonDocument EqualityById()
+    public BsonDocument MultiFieldSearch()
     {
         return LinqProviderAdapter.TranslateExpressionToFilter(
-            _equalityByIdExpression,
+            _multiFieldSearchExpression,
             _orderSerializer,
             BsonSerializer.SerializerRegistry,
             _translationOptions);
     }
 
     [Benchmark]
-    public BsonDocument CompoundFilter()
+    public BsonDocument OrStatusFilter()
     {
         return LinqProviderAdapter.TranslateExpressionToFilter(
-            _compoundFilterExpression,
+            _orStatusFilterExpression,
             _orderSerializer,
             BsonSerializer.SerializerRegistry,
             _translationOptions);
     }
 
     [Benchmark]
-    public BsonDocument InListFilter()
+    public BsonDocument BatchLookup()
     {
         return LinqProviderAdapter.TranslateExpressionToFilter(
-            _inListFilterExpression,
+            _batchLookupExpression,
             _orderSerializer,
             BsonSerializer.SerializerRegistry,
             _translationOptions);
     }
 
     [Benchmark]
-    public BsonDocument StringMethodFilter()
+    public BsonDocument ArrayElementQuery()
     {
         return LinqProviderAdapter.TranslateExpressionToFilter(
-            _stringMethodFilterExpression,
+            _arrayElementQueryExpression,
             _orderSerializer,
             BsonSerializer.SerializerRegistry,
             _translationOptions);
     }
 
     [Benchmark]
-    public BsonDocument ArrayAnyWithPredicate()
+    public RenderedFieldDefinition FieldSelection()
     {
-        return LinqProviderAdapter.TranslateExpressionToFilter(
-            _arrayAnyExpression,
+        return LinqProviderAdapter.TranslateExpressionToField(
+            _fieldSelectionExpression,
             _orderSerializer,
             BsonSerializer.SerializerRegistry,
-            _translationOptions);
+            _translationOptions,
+            subPathRoot: null);
     }
 
     [Benchmark]
-    public BsonDocument NestedMemberFilter()
+    public RenderedProjectionDefinition<OrderProjection> AggregationProjection()
     {
-        return LinqProviderAdapter.TranslateExpressionToFilter(
-            _nestedMemberFilterExpression,
+        return LinqProviderAdapter.TranslateExpressionToProjection(
+            _aggregationProjectionExpression,
             _orderSerializer,
             BsonSerializer.SerializerRegistry,
             _translationOptions);
     }
 
-    [Benchmark]
-    public BsonDocument OrChainFilter()
-    {
-        return LinqProviderAdapter.TranslateExpressionToFilter(
-            _orChainFilterExpression,
-            _orderSerializer,
-            BsonSerializer.SerializerRegistry,
-            _translationOptions);
-    }
-
-    [Benchmark]
-    public BsonDocument DateTimeMethodFilter()
-    {
-        return LinqProviderAdapter.TranslateExpressionToFilter(
-            _dateTimeMethodFilterExpression,
-            _orderSerializer,
-            BsonSerializer.SerializerRegistry,
-            _translationOptions);
-    }
-
-    // Captures an instance field instead of a stack-local. The expression tree
-    // contains a member access on captured `this`, exercising a different
-    // partial-evaluation path than the other filter benchmarks above.
-    [Benchmark]
-    public BsonDocument InstanceFieldCaptureFilter()
-    {
-        return LinqProviderAdapter.TranslateExpressionToFilter(
-            _instanceFieldCaptureExpression,
-            _orderSerializer,
-            BsonSerializer.SerializerRegistry,
-            _translationOptions);
-    }
-
-    // Sentinel: x => x takes the early-return special case in LinqProviderAdapter
+    // x => x takes the early-return special case in LinqProviderAdapter
     // and bypasses the translation pipeline. Movement here means the fast-path
     // detection itself regressed, not the translator.
     [Benchmark]
-    public RenderedProjectionDefinition<OrderDocument> WholeDocumentProjectionSentinel()
+    public RenderedProjectionDefinition<OrderDocument> ProjectionSentinel()
     {
         return LinqProviderAdapter.TranslateExpressionToProjection(
-            _wholeDocumentProjectionExpression,
+            _projectionSentinelExpression,
             _orderSerializer,
             BsonSerializer.SerializerRegistry,
             _translationOptions);
     }
 
     [Benchmark]
-    public RenderedProjectionDefinition<OrderSummary> PocoProjection()
+    public BsonDocument UpdatePipeline()
     {
-        return LinqProviderAdapter.TranslateExpressionToProjection(
-            _pocoProjectionExpression,
-            _orderSerializer,
-            BsonSerializer.SerializerRegistry,
-            _translationOptions);
-    }
-
-    // Same expression as PocoProjection but goes through the find-projection
-    // simplifier (AstFindProjectionSimplifier), exercising a separate code path.
-    [Benchmark]
-    public RenderedProjectionDefinition<OrderSummary> FindProjection()
-    {
-        return LinqProviderAdapter.TranslateExpressionToFindProjection(
-            _pocoProjectionExpression,
+        return LinqProviderAdapter.TranslateExpressionToSetStage(
+            _updatePipelineExpression,
             _orderSerializer,
             BsonSerializer.SerializerRegistry,
             _translationOptions);
     }
 
     [Benchmark]
-    public RenderedProjectionDefinition<WideOrderProjection> WidePocoProjection()
+    public object QueryablePipeline()
     {
-        return LinqProviderAdapter.TranslateExpressionToProjection(
-            _widePocoProjectionExpression,
-            _orderSerializer,
-            BsonSerializer.SerializerRegistry,
+        return ExpressionToExecutableQueryTranslator.Translate<OrderDocument, OrderProjection>(
+            _queryableProvider,
+            _queryablePipelineExpression,
             _translationOptions);
     }
 
     [Benchmark]
-    public RenderedProjectionDefinition<OrderItemIds> ProjectionWithNestedTransform()
+    public object GroupByAggregation()
     {
-        return LinqProviderAdapter.TranslateExpressionToProjection(
-            _nestedTransformProjectionExpression,
-            _orderSerializer,
-            BsonSerializer.SerializerRegistry,
+        return ExpressionToExecutableQueryTranslator.Translate<OrderDocument, GroupResult>(
+            _queryableProvider,
+            _groupByAggregationExpression,
             _translationOptions);
     }
 
-    // Exercises the IQueryable composition path through MongoQueryProvider —
-    // a different code path from the adapter shortcuts above, used when callers
-    // write collection.AsQueryable().Where(...).Select(...) chains.
-    [Benchmark]
-    public object IQueryableComposition()
-    {
-        return ExpressionToExecutableQueryTranslator.Translate<OrderDocument, OrderSummary>(
-            _queryProvider,
-            _queryableChainExpression,
-            _translationOptions);
-    }
-
-    private void SetupQueryableChain(string statusFilter)
+    private void SetupQueryableExpressions(string statusFilter)
     {
         var mongoUri = Environment.GetEnvironmentVariable("MONGODB_URI");
         var settings = mongoUri != null ? MongoClientSettings.FromConnectionString(mongoUri) : new MongoClientSettings();
@@ -281,16 +218,22 @@ public class LinqTranslationBenchmark
         var collection = _queryClient.GetDatabase("linqbench").GetCollection<OrderDocument>("orders");
         var queryable = collection.AsQueryable();
 
-        _queryProvider = (MongoQueryProvider<OrderDocument>)queryable.Provider;
-        _queryableChainExpression = queryable
+        _queryableProvider = (MongoQueryProvider<OrderDocument>)queryable.Provider;
+
+        _queryablePipelineExpression = queryable
             .Where(x => x.Status == statusFilter)
-            .Select(x => new OrderSummary { Id = x.Id, Customer = x.CustomerName, Total = x.Total })
+            .Select(x => new OrderProjection { Id = x.Id, Customer = x.CustomerName, Total = x.Total, ProductIds = x.Items.Select(i => i.ProductId) })
             .OrderBy(s => s.Total)
             .Take(10)
             .Expression;
+
+        _groupByAggregationExpression = queryable
+            .GroupBy(x => x.Status)
+            .Select(g => new GroupResult { Status = g.Key, Count = g.Count(), TotalRevenue = g.Sum(x => x.Total) })
+            .Expression;
     }
 
-    #region Test Models
+    #region Models
 
     public class OrderDocument
     {
@@ -330,36 +273,26 @@ public class LinqTranslationBenchmark
         public decimal Price { get; set; }
     }
 
-    public class OrderSummary
+    public class OrderProjection
     {
         public int Id { get; set; }
         public string Customer { get; set; }
         public decimal Total { get; set; }
-    }
-
-    public class WideOrderProjection
-    {
-        public int Id { get; set; }
-        public string CustomerName { get; set; }
-        public string Status { get; set; }
-        public decimal Total { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime? UpdatedAt { get; set; }
-        public string Currency { get; set; }
-        public decimal Subtotal { get; set; }
-        public decimal Tax { get; set; }
-        public decimal Discount { get; set; }
-        public string Notes { get; set; }
-        public int ItemCount { get; set; }
-        public bool IsPaid { get; set; }
-        public string PaymentMethod { get; set; }
-        public string ShippingMethod { get; set; }
-    }
-
-    public class OrderItemIds
-    {
-        public int Id { get; set; }
         public IEnumerable<string> ProductIds { get; set; }
+    }
+
+    public class SetFields
+    {
+        public string Status { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+        public decimal Total { get; set; }
+    }
+
+    public class GroupResult
+    {
+        public string Status { get; set; }
+        public int Count { get; set; }
+        public decimal TotalRevenue { get; set; }
     }
 
     #endregion
