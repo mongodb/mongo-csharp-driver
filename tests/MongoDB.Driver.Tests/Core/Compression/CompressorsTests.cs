@@ -15,6 +15,7 @@
 
 using System;
 using System.IO;
+using System.IO.Compression;
 using System.Collections.Generic;
 using System.Text;
 using FluentAssertions;
@@ -244,6 +245,81 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
                 bytes[bytes.Length - 1] ^= 0xFF; // corrupt the Adler-32
                 var exception = Record.Exception(() => compressor.Decompress(new MemoryStream(bytes), new MemoryStream()));
                 exception.Should().BeOfType<InvalidDataException>();
+            }
+        }
+
+        [Fact]
+        public void Zlib_roundtrip_should_handle_empty_input()
+        {
+            // Compressing zero bytes must still produce a valid zlib stream: header + empty deflate
+            // block (03 00) + Adler-32 of empty input (0x00000001). Exercises the Dispose-without-Write
+            // path in ZlibStream that emits the empty stream when no Write call ever happened.
+            var compressor = GetCompressor(CompressorType.Zlib, 6);
+            using (var compressed = new MemoryStream())
+            using (var roundtripped = new MemoryStream())
+            {
+                compressor.Compress(new MemoryStream(Array.Empty<byte>()), compressed);
+                var bytes = compressed.ToArray();
+                bytes.Length.Should().Be(8); // 2 header + 2 deflate + 4 adler — the minimum valid zlib stream
+                bytes[bytes.Length - 4].Should().Be(0x00);
+                bytes[bytes.Length - 3].Should().Be(0x00);
+                bytes[bytes.Length - 2].Should().Be(0x00);
+                bytes[bytes.Length - 1].Should().Be(0x01); // Adler-32 of empty == 1
+
+                compressed.Position = 0;
+                compressor.Decompress(compressed, roundtripped);
+                roundtripped.Length.Should().Be(0);
+            }
+        }
+
+        [Fact]
+        public void Zlib_decompress_read_should_handle_nonzero_offset_and_partial_reads()
+        {
+            // Drives ZlibStream.Read directly with non-zero offsets and small counts to verify the
+            // offset is propagated correctly into UpdateAdler32 (not aliased to 0) and that calling
+            // Read after EOF returns 0 without re-validating the trailer (_trailerValidated short-circuit).
+            // The driver's Stream.CopyTo path only ever uses offset=0 with a large buffer, so this is
+            // the only place those branches get exercised.
+            var payload = Encoding.ASCII.GetBytes(__testMessage);
+            var compressor = GetCompressor(CompressorType.Zlib, 6);
+            byte[] compressedBytes;
+            using (var compressed = new MemoryStream())
+            {
+                compressor.Compress(new MemoryStream(payload), compressed);
+                compressedBytes = compressed.ToArray();
+            }
+
+            var assembled = new List<byte>();
+            using (var zlib = new ZlibStream(new MemoryStream(compressedBytes), CompressionMode.Decompress, leaveOpen: true))
+            {
+                // 32-byte working buffer with a 5-byte prefix offset, reading 13 bytes at a time.
+                var buffer = new byte[32];
+                int n;
+                while ((n = zlib.Read(buffer, 5, 13)) > 0)
+                {
+                    for (var i = 0; i < n; i++) assembled.Add(buffer[5 + i]);
+                }
+
+                // Read again past EOF — should return 0 and not throw (trailer already validated).
+                zlib.Read(buffer, 5, 13).Should().Be(0);
+            }
+
+            assembled.ToArray().Should().Equal(payload);
+        }
+
+        [Fact]
+        public void Zlib_compress_level_zero_should_emit_no_compression_header()
+        {
+            // Level 0 must emit the FLEVEL=0 header (0x78, 0x01), not the default FLEVEL=2 (0x78, 0x9C).
+            // Both decompress identically (FLEVEL is informational per RFC 1950 §2.2), so a swapped
+            // header constant would round-trip fine — pin the actual byte.
+            var compressor = GetCompressor(CompressorType.Zlib, 0);
+            using (var compressed = new MemoryStream())
+            {
+                compressor.Compress(new MemoryStream(Encoding.ASCII.GetBytes(__testMessage)), compressed);
+                var bytes = compressed.ToArray();
+                bytes[0].Should().Be(0x78);
+                bytes[1].Should().Be(0x01);
             }
         }
 

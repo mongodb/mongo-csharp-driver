@@ -104,18 +104,25 @@ namespace MongoDB.Driver.Core.Compression
                 _disposed = true;
                 if (_mode == CompressionMode.Compress)
                 {
-                    // Emit a valid empty zlib stream if Write was never called (matches SharpCompress).
-                    // If init failed mid-way (e.g. header write threw), skip the trailer to avoid an NRE
-                    // on top of the original exception — the partial output is already unusable.
-                    EnsureCompressInitialized();
+                    // Always emit a valid zlib stream, even if Write was never called.
+                    // System.IO.Compression.DeflateStream emits zero bytes for empty input, which
+                    // would yield a header+adler-only stream with no deflate payload — technically
+                    // malformed per RFC 1951. Write the empty-final-block marker (03 00) ourselves
+                    // in that case so the output is a well-formed RFC 1950 empty zlib stream.
+                    EnsureHeaderWritten();
                     if (_compressDeflate != null)
                     {
                         _compressDeflate.Dispose();
-                        _stream.WriteByte((byte)(_compressAdler32 >> 24));
-                        _stream.WriteByte((byte)(_compressAdler32 >> 16));
-                        _stream.WriteByte((byte)(_compressAdler32 >> 8));
-                        _stream.WriteByte((byte)_compressAdler32);
                     }
+                    else
+                    {
+                        _stream.WriteByte(0x03); // empty final deflate block (BFINAL=1, BTYPE=01, EOB code)
+                        _stream.WriteByte(0x00);
+                    }
+                    _stream.WriteByte((byte)(_compressAdler32 >> 24));
+                    _stream.WriteByte((byte)(_compressAdler32 >> 16));
+                    _stream.WriteByte((byte)(_compressAdler32 >> 8));
+                    _stream.WriteByte((byte)_compressAdler32);
                 }
                 else
                 {
@@ -127,7 +134,7 @@ namespace MongoDB.Driver.Core.Compression
             base.Dispose(disposing);
         }
 
-        private void EnsureCompressInitialized()
+        private void EnsureHeaderWritten()
         {
             if (_compressInitialized)
             {
@@ -137,7 +144,15 @@ namespace MongoDB.Driver.Core.Compression
 
             var header = _level == CompressionLevel.NoCompression ? s_noCompressionHeader : s_defaultHeader;
             _stream.Write(header, 0, 2);
-            _compressDeflate = new DeflateStream(_stream, _level, leaveOpen: true);
+        }
+
+        private void EnsureCompressInitialized()
+        {
+            EnsureHeaderWritten();
+            if (_compressDeflate == null)
+            {
+                _compressDeflate = new DeflateStream(_stream, _level, leaveOpen: true);
+            }
         }
 
         private void EnsureDecompressInitialized()
