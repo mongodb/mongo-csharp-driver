@@ -50,6 +50,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case "DeserializeEJson": return DeserializeEJsonMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Distinct": return DistinctMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "DocumentNumber": return DocumentNumberMethodToAggregationExpressionTranslator.Translate(context, expression);
+                case "EncStrContains":
+                case "EncStrEndsWith":
+                case "EncStrNormalizedEq":
+                case "EncStrStartsWith":
+                    return EncStrMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Equals": return EqualsMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Except": return ExceptMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Exists": return ExistsMethodToAggregationExpressionTranslator.Translate(context, expression);

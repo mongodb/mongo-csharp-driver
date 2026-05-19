@@ -109,6 +109,12 @@ internal partial class SerializerFinderVisitor
                 case "Distinct": DeduceDistinctMethodSerializers(); break;
                 case "DocumentNumber": DeduceDocumentNumberMethodSerializers(); break;
                 case "Documents": DeduceDocumentsMethodSerializers(); break;
+                case "EncStrContains":
+                case "EncStrEndsWith":
+                case "EncStrNormalizedEq":
+                case "EncStrStartsWith":
+                    DeduceEncStrMethodSerializers();
+                    break;
                 case "Equals": DeduceEqualsMethodSerializers(); break;
                 case "Except": DeduceExceptMethodSerializers(); break;
                 case "Exists": DeduceExistsMethodSerializers(); break;
@@ -1253,6 +1259,28 @@ internal partial class SerializerFinderVisitor
             {
                 var sourceExpression = arguments[0];
                 DeduceItemAndCollectionSerializers(node, sourceExpression);
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
+        }
+
+        void DeduceEncStrMethodSerializers()
+        {
+            if (method.IsOneOf(MqlMethod.EncStrMethodOverloads))
+            {
+                var inputExpression = arguments[0];
+                var valueExpression = arguments[1];
+                if (IsNotKnown(inputExpression))
+                {
+                    AddNodeSerializer(inputExpression, StringSerializer.Instance);
+                }
+                if (IsNotKnown(valueExpression))
+                {
+                    AddNodeSerializer(valueExpression, StringSerializer.Instance);
+                }
+                DeduceReturnsBooleanSerializer();
             }
             else
             {
