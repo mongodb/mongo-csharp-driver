@@ -218,6 +218,16 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
         }
 
         [Fact]
+        public void Zlib_decompress_should_throw_on_preset_dictionary()
+        {
+            // CMF=0x78, FLG=0xBB: low nibble CM=8, FDICT bit set, (0x78*256+0xBB) % 31 == 0.
+            var compressor = GetCompressor(CompressorType.Zlib, 6);
+            var fdictData = new byte[] { 0x78, 0xBB, 0, 0, 0, 0, 0x03, 0x00, 0, 0, 0, 1 };
+            var exception = Record.Exception(() => compressor.Decompress(new MemoryStream(fdictData), new MemoryStream()));
+            exception.Should().BeOfType<NotSupportedException>();
+        }
+
+        [Fact]
         public void Zlib_decompress_should_throw_on_checksum_mismatch()
         {
             var compressor = GetCompressor(CompressorType.Zlib, 6);
