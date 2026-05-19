@@ -732,18 +732,24 @@ namespace MongoDB.Bson.Tests.Serialization
         public void Serialize_guid_should_use_globally_registered_guid_serializer_when_guid_representation_is_unspecified()
         {
             var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(object));
-            var subject = CreateObjectSerializerWithRegisteredGuidSerializer(discriminatorConvention, GuidRepresentation.Unspecified, GuidRepresentation.CSharpLegacy);
             var guid = Guid.NewGuid();
+            BsonBinaryData binaryData = null;
 
-            using var memoryStream = new MemoryStream();
-            using var writer = new BsonBinaryWriter(memoryStream);
-            var context = BsonSerializationContext.CreateRoot(writer);
-            writer.WriteStartDocument();
-            writer.WriteName("x");
-            subject.Serialize(context, guid);
-            writer.WriteEndDocument();
+            WithRegisteredGuidSerializer(GuidRepresentation.CSharpLegacy, () =>
+            {
+                var subject = new ObjectSerializer(discriminatorConvention, GuidRepresentation.Unspecified);
 
-            var binaryData = BsonSerializer.Deserialize<BsonDocument>(memoryStream.ToArray())["x"].AsBsonBinaryData;
+                using var memoryStream = new MemoryStream();
+                using var writer = new BsonBinaryWriter(memoryStream);
+                var context = BsonSerializationContext.CreateRoot(writer);
+                writer.WriteStartDocument();
+                writer.WriteName("x");
+                subject.Serialize(context, guid);
+                writer.WriteEndDocument();
+
+                binaryData = BsonSerializer.Deserialize<BsonDocument>(memoryStream.ToArray())["x"].AsBsonBinaryData;
+            });
+
             binaryData.SubType.Should().Be(BsonBinarySubType.UuidLegacy);
             binaryData.ToGuid(GuidRepresentation.CSharpLegacy).Should().Be(guid);
         }
@@ -752,24 +758,26 @@ namespace MongoDB.Bson.Tests.Serialization
         public void Deserialize_binary_data_should_use_globally_registered_guid_serializer_when_guid_representation_is_unspecified()
         {
             var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(object));
-            var subject = CreateObjectSerializerWithRegisteredGuidSerializer(discriminatorConvention, GuidRepresentation.Unspecified, GuidRepresentation.CSharpLegacy);
             var guid = Guid.NewGuid();
             var bson = new BsonDocument("x", new BsonBinaryData(guid, GuidRepresentation.CSharpLegacy)).ToBson();
+            object result = null;
 
-            using var memoryStream = new MemoryStream(bson);
-            using var reader = new BsonBinaryReader(memoryStream);
-            var context = BsonDeserializationContext.CreateRoot(reader);
-            reader.ReadStartDocument();
-            reader.ReadName("x");
-            var result = subject.Deserialize<object>(context);
+            WithRegisteredGuidSerializer(GuidRepresentation.CSharpLegacy, () =>
+            {
+                var subject = new ObjectSerializer(discriminatorConvention, GuidRepresentation.Unspecified);
+
+                using var memoryStream = new MemoryStream(bson);
+                using var reader = new BsonBinaryReader(memoryStream);
+                var context = BsonDeserializationContext.CreateRoot(reader);
+                reader.ReadStartDocument();
+                reader.ReadName("x");
+                result = subject.Deserialize<object>(context);
+            });
 
             result.Should().Be(guid);
         }
 
-        private static ObjectSerializer CreateObjectSerializerWithRegisteredGuidSerializer(
-            IDiscriminatorConvention discriminatorConvention,
-            GuidRepresentation guidRepresentation,
-            GuidRepresentation registeredGuidRepresentation)
+        private static void WithRegisteredGuidSerializer(GuidRepresentation registeredGuidRepresentation, Action action)
         {
             var cacheField = typeof(BsonSerializerRegistry).GetField("_cache", BindingFlags.NonPublic | BindingFlags.Instance);
             var cache = (ConcurrentDictionary<Type, IBsonSerializer>)cacheField.GetValue(BsonSerializer.SerializerRegistry);
@@ -778,7 +786,7 @@ namespace MongoDB.Bson.Tests.Serialization
             cache.AddOrUpdate(typeof(Guid), new GuidSerializer(registeredGuidRepresentation), (_, __) => new GuidSerializer(registeredGuidRepresentation));
             try
             {
-                return new ObjectSerializer(discriminatorConvention, guidRepresentation);
+                action();
             }
             finally
             {

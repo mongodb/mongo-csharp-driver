@@ -60,7 +60,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         private readonly Func<Type, bool> _allowedSerializationTypes;
         private readonly IDiscriminatorConvention _discriminatorConvention;
         private readonly GuidRepresentation _guidRepresentation;
-        private readonly IBsonSerializer<Guid> _guidSerializer;
+        private readonly Lazy<IBsonSerializer<Guid>> _guidSerializer;
 
         // constructors
         /// <summary>
@@ -137,24 +137,22 @@ namespace MongoDB.Bson.Serialization.Serializers
             _discriminatorConvention = discriminatorConvention ?? throw new ArgumentNullException(nameof(discriminatorConvention));
             _allowedDeserializationTypes = allowedDeserializationTypes ?? throw new ArgumentNullException(nameof(allowedDeserializationTypes));
             _allowedSerializationTypes = allowedSerializationTypes ?? throw new ArgumentNullException(nameof(allowedSerializationTypes));
+            _guidRepresentation = guidRepresentation;
             if (guidRepresentation != GuidRepresentation.Unspecified)
             {
-                _guidRepresentation = guidRepresentation;
-                _guidSerializer = new GuidSerializer(guidRepresentation);
+                _guidSerializer = new Lazy<IBsonSerializer<Guid>>(() => new GuidSerializer(guidRepresentation));
             }
             else
             {
-                var registeredSerializer = BsonSerializer.LookupSerializer<Guid>();
-                if (registeredSerializer is GuidSerializer guidSerializer && guidSerializer.GuidRepresentation != GuidRepresentation.Unspecified)
+                _guidSerializer = new Lazy<IBsonSerializer<Guid>>(() =>
                 {
-                    _guidSerializer = guidSerializer;
-                    _guidRepresentation = guidSerializer.GuidRepresentation;
-                }
-                else
-                {
-                    _guidRepresentation = GuidRepresentation.Unspecified;
-                    _guidSerializer = new GuidSerializer(GuidRepresentation.Unspecified);
-                }
+                    var registered = BsonSerializer.LookupSerializer<Guid>();
+                    if (registered is GuidSerializer gs && gs.GuidRepresentation != GuidRepresentation.Unspecified)
+                    {
+                        return gs;
+                    }
+                    return new GuidSerializer(GuidRepresentation.Unspecified);
+                });
             }
         }
 
@@ -207,7 +205,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     if (subType == BsonBinarySubType.UuidStandard || subType == BsonBinarySubType.UuidLegacy)
                     {
                         bsonReader.ReturnToBookmark(binaryDataBookmark);
-                        return _guidSerializer.Deserialize(context);
+                        return _guidSerializer.Value.Deserialize(context);
                     }
                     goto default;
 
@@ -334,7 +332,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                                 if (actualType == typeof(Guid))
                                 {
                                     var guid = (Guid)value;
-                                    _guidSerializer.Serialize(context, args, guid);
+                                    _guidSerializer.Value.Serialize(context, args, guid);
                                     return;
                                 }
                                 if (actualType == typeof(ObjectId))
