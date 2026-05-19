@@ -105,12 +105,17 @@ namespace MongoDB.Driver.Core.Compression
                 if (_mode == CompressionMode.Compress)
                 {
                     // Emit a valid empty zlib stream if Write was never called (matches SharpCompress).
+                    // If init failed mid-way (e.g. header write threw), skip the trailer to avoid an NRE
+                    // on top of the original exception — the partial output is already unusable.
                     EnsureCompressInitialized();
-                    _compressDeflate.Dispose();
-                    _stream.WriteByte((byte)(_compressAdler32 >> 24));
-                    _stream.WriteByte((byte)(_compressAdler32 >> 16));
-                    _stream.WriteByte((byte)(_compressAdler32 >> 8));
-                    _stream.WriteByte((byte)_compressAdler32);
+                    if (_compressDeflate != null)
+                    {
+                        _compressDeflate.Dispose();
+                        _stream.WriteByte((byte)(_compressAdler32 >> 24));
+                        _stream.WriteByte((byte)(_compressAdler32 >> 16));
+                        _stream.WriteByte((byte)(_compressAdler32 >> 8));
+                        _stream.WriteByte((byte)_compressAdler32);
+                    }
                 }
                 else
                 {
@@ -150,8 +155,8 @@ namespace MongoDB.Driver.Core.Compression
                 compressed = ms.ToArray();
             }
 
-            // 2-byte header + at least 1 byte deflate payload (empty deflate is "03 00") + 4-byte Adler-32 trailer.
-            if (compressed.Length < 7)
+            // 2-byte header + at least 2 bytes deflate payload (empty deflate is "03 00") + 4-byte Adler-32 trailer.
+            if (compressed.Length < 8)
             {
                 throw new FormatException("Compressed data is too short to be a valid zlib stream.");
             }
@@ -181,13 +186,24 @@ namespace MongoDB.Driver.Core.Compression
 
         private static uint UpdateAdler32(uint adler, byte[] buf, int offset, int count)
         {
-            const uint ModAdler = 65521;
+            // RFC 1950 §9. NMAX is the largest n such that 255*n*(n+1)/2 + (n+1)*(BASE-1) fits in 32 bits,
+            // letting us defer the modulo until the end of each chunk instead of taking it per byte.
+            const uint Base = 65521;
+            const int Nmax = 5552;
             uint s1 = adler & 0xFFFF;
             uint s2 = (adler >> 16) & 0xFFFF;
-            for (int i = 0; i < count; i++)
+            while (count > 0)
             {
-                s1 = (s1 + buf[offset + i]) % ModAdler;
-                s2 = (s2 + s1) % ModAdler;
+                var k = count < Nmax ? count : Nmax;
+                count -= k;
+                for (var i = 0; i < k; i++)
+                {
+                    s1 += buf[offset + i];
+                    s2 += s1;
+                }
+                offset += k;
+                s1 %= Base;
+                s2 %= Base;
             }
             return (s2 << 16) | s1;
         }

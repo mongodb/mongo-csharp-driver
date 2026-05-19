@@ -57,12 +57,21 @@ namespace MongoDB.Driver.Core.Compression
             }
         }
 
+        // Maps zlibCompressionLevel (RFC-style 0-9, -1=default) onto System.IO.Compression.CompressionLevel.
+        // The .NET enum only exposes 3-4 levels, so the mapping is necessarily coarser than zlib's 0-9:
+        // on net6.0+ we use SmallestSize for 7-9 to preserve high-compression user intent (it maps to
+        // zlib level 9); on older TFMs Optimal (zlib level 6) is the best available.
         private static CompressionLevel GetCompressionLevel(int? compressionLevel) =>
             (compressionLevel ?? -1) switch
             {
                 0 => CompressionLevel.NoCompression,
                 1 or 2 or 3 => CompressionLevel.Fastest,
-                -1 or (>= 4 and <= 9) => CompressionLevel.Optimal,
+                -1 or (>= 4 and <= 6) => CompressionLevel.Optimal,
+#if NET6_0_OR_GREATER
+                >= 7 and <= 9 => CompressionLevel.SmallestSize,
+#else
+                >= 7 and <= 9 => CompressionLevel.Optimal,
+#endif
                 _ => throw new ArgumentOutOfRangeException(nameof(compressionLevel))
             };
     }

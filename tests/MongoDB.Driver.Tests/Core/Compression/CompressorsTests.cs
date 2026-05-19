@@ -100,6 +100,12 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
                 {
                     var resultBytes = output.ToArray();
                     var result = string.Join(",", resultBytes);
+                    // Expected bytes are what System.IO.Compression.DeflateStream produces at level 6.
+                    // These differ from the SharpCompress-produced bytes used before CSHARP-6037 because
+                    // SharpCompress emitted an intermediate Z_SYNC_FLUSH (00 00 FF FF) followed by a final
+                    // block (FlushType.Sync), while DeflateStream emits a single final block. Both decode
+                    // to the same plaintext — Zlib_decompress_should_handle_sync_flush_markers pins the
+                    // inbound-compatibility guarantee for peers that still emit sync-flush framing.
                     result
                         .Should()
                         .Be("120,156,75,76,74,78,73,77,75,207,200,204,202,206,201,205,203,47,40,44,42,46,41,45,43,175,168,172,50,48,52,50,54,49,53,51,183,176,84,72,164,150,34,0,228,159,39,197");
