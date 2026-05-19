@@ -183,31 +183,41 @@ namespace MongoDB.Driver.Core.Compression
                 var got = _stream.Read(header, headerRead, 2 - headerRead);
                 if (got == 0)
                 {
-                    throw new FormatException("Compressed data is too short to be a valid zlib stream.");
+                    throw new InvalidDataException("Compressed data is too short to be a valid zlib stream.");
                 }
                 headerRead += got;
             }
 
-            // RFC 1950 §2.2: CMF low nibble must be 8 (deflate); (CMF*256+FLG) must be divisible by 31.
-            var cmf = header[0];
-            var flg = header[1];
-            if ((cmf & 0x0F) != 8 || (cmf * 256 + flg) % 31 != 0)
-            {
-                throw new FormatException("Invalid zlib header.");
-            }
-
-            // RFC 1950 §2.2: FDICT (FLG bit 5). MongoDB never sends preset dictionaries; reject with a
-            // clear error rather than letting the DICTID bytes be misinterpreted as deflate data.
-            if ((flg & 0x20) != 0)
-            {
-                throw new NotSupportedException("Zlib preset dictionaries (FDICT) are not supported.");
-            }
+            ValidateZlibHeader(header[0], header[1]);
 
             // Wrap the remaining input (deflate payload + 4-byte Adler-32 trailer) in a
             // TrailerReservingStream. It feeds the deflate payload to DeflateStream and holds
             // back the final 4 bytes so we can validate the Adler-32 once DeflateStream signals EOF.
             _decompressSource = new TrailerReservingStream(_stream);
             _decompressDeflate = new DeflateStream(_decompressSource, CompressionMode.Decompress);
+        }
+
+        // Exception types track System.IO.Compression.ZLibStream's contract so the custom impl on
+        // older TFMs is a near-drop-in match for the BCL impl that will eventually replace it.
+        // - Bad header: InvalidDataException (matches BCL exactly).
+        // - FDICT: InvalidDataException (BCL throws ZLibException, but that type is internal on
+        //   net472 and not on the public netstandard2.1/net6.0 surface, so we can't construct it
+        //   here. Both InvalidDataException and ZLibException derive from IOException, so callers
+        //   that catch IOException — the realistic catch level on net6.0 where ZLibException is
+        //   internal — see consistent behavior across TFMs and across the eventual cleanup.)
+        private static void ValidateZlibHeader(byte cmf, byte flg)
+        {
+            // RFC 1950 §2.2: CMF low nibble must be 8 (deflate); (CMF*256+FLG) must be divisible by 31.
+            if ((cmf & 0x0F) != 8 || (cmf * 256 + flg) % 31 != 0)
+            {
+                throw new InvalidDataException("Invalid zlib header.");
+            }
+
+            // RFC 1950 §2.2: FDICT (FLG bit 5). MongoDB never sends preset dictionaries.
+            if ((flg & 0x20) != 0)
+            {
+                throw new InvalidDataException("Zlib preset dictionaries (FDICT) are not supported.");
+            }
         }
 
         private static uint UpdateAdler32(uint adler, byte[] buf, int offset, int count)
@@ -278,7 +288,7 @@ namespace MongoDB.Driver.Core.Compression
                     if (got == 0)
                     {
                         _sourceEof = true;
-                        throw new FormatException("Compressed data is too short to be a valid zlib stream.");
+                        throw new InvalidDataException("Compressed data is too short to be a valid zlib stream.");
                     }
                     _trailerLen += got;
                 }

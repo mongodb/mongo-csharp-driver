@@ -42,7 +42,14 @@ namespace MongoDB.Driver.Core.Compression
         /// <inheritdoc />
         public void Compress(Stream input, Stream output)
         {
+            // On net6.0+ delegate to the BCL System.IO.Compression.ZLibStream, which handles
+            // RFC 1950 framing (header + Adler-32) natively. On older TFMs use our manual
+            // implementation built on DeflateStream.
+#if NET6_0_OR_GREATER
+            using (var zlibStream = new System.IO.Compression.ZLibStream(output, _compressionLevel, leaveOpen: true))
+#else
             using (var zlibStream = new ZlibStream(output, CompressionMode.Compress, _compressionLevel, leaveOpen: true))
+#endif
             {
                 input.EfficientCopyTo(zlibStream);
             }
@@ -51,26 +58,37 @@ namespace MongoDB.Driver.Core.Compression
         /// <inheritdoc />
         public void Decompress(Stream input, Stream output)
         {
+#if NET6_0_OR_GREATER
+            using (var zlibStream = new System.IO.Compression.ZLibStream(input, CompressionMode.Decompress, leaveOpen: true))
+#else
             using (var zlibStream = new ZlibStream(input, CompressionMode.Decompress, leaveOpen: true))
+#endif
             {
                 zlibStream.CopyTo(output);
             }
         }
 
         // Maps zlibCompressionLevel (RFC-style 0-9, -1=default) onto System.IO.Compression.CompressionLevel.
-        // The .NET enum only exposes 3-4 levels, so the mapping is necessarily coarser than zlib's 0-9:
-        // on net6.0+ we use SmallestSize for 7-9 to preserve high-compression user intent (it maps to
-        // zlib level 9); on older TFMs Optimal (zlib level 6) is the best available.
+        // .NET only exposes 3-4 buckets so the mapping has to lose granularity. Strategy: honor the
+        // zlib semantic extremes (0 = no compression, 1 = fastest, 9 = best compression) and route
+        // everything else to Optimal. No asymmetric bucketing of middle values, and the only
+        // TFM-divergent case is level 9.
+        //
+        //   0     → NoCompression
+        //   1     → Fastest
+        //   2-8   → Optimal
+        //   9     → SmallestSize (net6.0+) / Optimal (older)
+        //   -1    → Optimal
         private static CompressionLevel GetCompressionLevel(int? compressionLevel) =>
             (compressionLevel ?? -1) switch
             {
                 0 => CompressionLevel.NoCompression,
-                1 or 2 or 3 => CompressionLevel.Fastest,
-                -1 or (>= 4 and <= 6) => CompressionLevel.Optimal,
+                1 => CompressionLevel.Fastest,
+                -1 or (>= 2 and <= 8) => CompressionLevel.Optimal,
 #if NET6_0_OR_GREATER
-                >= 7 and <= 9 => CompressionLevel.SmallestSize,
+                9 => CompressionLevel.SmallestSize,
 #else
-                >= 7 and <= 9 => CompressionLevel.Optimal,
+                9 => CompressionLevel.Optimal,
 #endif
                 _ => throw new ArgumentOutOfRangeException(nameof(compressionLevel))
             };
