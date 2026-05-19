@@ -783,7 +783,8 @@ namespace MongoDB.Bson.Tests.Serialization
             var cache = (ConcurrentDictionary<Type, IBsonSerializer>)cacheField.GetValue(BsonSerializer.SerializerRegistry);
 
             cache.TryGetValue(typeof(Guid), out var savedSerializer);
-            cache.AddOrUpdate(typeof(Guid), new GuidSerializer(registeredGuidRepresentation), (_, __) => new GuidSerializer(registeredGuidRepresentation));
+            var newSerializer = new GuidSerializer(registeredGuidRepresentation);
+            cache.AddOrUpdate(typeof(Guid), newSerializer, (_, __) => newSerializer);
             try
             {
                 action();
