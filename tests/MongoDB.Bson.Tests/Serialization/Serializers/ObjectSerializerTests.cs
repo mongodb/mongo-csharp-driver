@@ -791,9 +791,13 @@ namespace MongoDB.Bson.Tests.Serialization
             finally
             {
                 if (savedSerializer != null)
+                {
                     cache.AddOrUpdate(typeof(Guid), savedSerializer, (_, __) => savedSerializer);
+                }
                 else
+                {
                     cache.TryRemove(typeof(Guid), out _);
+                }
             }
         }
     }

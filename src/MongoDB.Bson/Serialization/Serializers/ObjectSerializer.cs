@@ -144,15 +144,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
             else
             {
-                _guidSerializer = new Lazy<IBsonSerializer<Guid>>(() =>
-                {
-                    var registered = BsonSerializer.LookupSerializer<Guid>();
-                    if (registered is GuidSerializer gs && gs.GuidRepresentation != GuidRepresentation.Unspecified)
-                    {
-                        return gs;
-                    }
-                    return new GuidSerializer(GuidRepresentation.Unspecified);
-                });
+                _guidSerializer = new Lazy<IBsonSerializer<Guid>>(() => BsonSerializer.LookupSerializer<Guid>());
             }
         }
 
