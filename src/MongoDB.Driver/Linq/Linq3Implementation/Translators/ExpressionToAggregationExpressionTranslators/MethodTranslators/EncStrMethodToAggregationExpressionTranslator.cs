@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
+using System;
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
-using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
 
@@ -31,27 +31,23 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
             if (method.IsOneOf(MqlMethod.EncStrMethodOverloads))
             {
-                var inputExpression = arguments[0];
-                var valueExpression = arguments[1];
+                var inputTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, arguments[0]);
+                var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, arguments[1]);
 
-                var inputTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, inputExpression);
-                var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
+                var @operator = method.Name switch
+                {
+                    "EncStrContains" => AstEncStrOperator.Contains,
+                    "EncStrEndsWith" => AstEncStrOperator.EndsWith,
+                    "EncStrNormalizedEq" => AstEncStrOperator.NormalizedEq,
+                    "EncStrStartsWith" => AstEncStrOperator.StartsWith,
+                    _ => throw new InvalidOperationException($"Unexpected method: {method.Name}")
+                };
 
-                var @operator = GetOperator(method);
                 var ast = AstExpression.EncStrExpression(@operator, inputTranslation.Ast, valueTranslation.Ast);
                 return new TranslatedExpression(expression, ast, BooleanSerializer.Instance);
             }
 
             throw new ExpressionNotSupportedException(expression);
-        }
-
-        private static AstEncStrOperator GetOperator(System.Reflection.MethodInfo method)
-        {
-            if (method.Is(MqlMethod.EncStrContains)) { return AstEncStrOperator.Contains; }
-            if (method.Is(MqlMethod.EncStrEndsWith)) { return AstEncStrOperator.EndsWith; }
-            if (method.Is(MqlMethod.EncStrNormalizedEq)) { return AstEncStrOperator.NormalizedEq; }
-            if (method.Is(MqlMethod.EncStrStartsWith)) { return AstEncStrOperator.StartsWith; }
-            throw new System.InvalidOperationException($"Unexpected method: {method.Name}");
         }
     }
 }
