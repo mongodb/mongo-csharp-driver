@@ -173,9 +173,9 @@ namespace MongoDB.Bson.Serialization.Serializers
                 return value;
             }
 
-            // last resort: try a constructor that takes a HashSet<TItem> (e.g. ReadOnlySet<T>(ISet<T>))
+            // last resort: try a constructor that takes an ISet<TItem> (e.g. ReadOnlySet<T>(ISet<T>))
             // Note: collapses duplicate elements, which is correct for set-shaped targets.
-            var setCtor = FindSingleArgumentConstructor(typeof(HashSet<TItem>));
+            var setCtor = FindSingleArgumentConstructor(typeof(ISet<TItem>));
             if (setCtor != null)
             {
                 var hashSet = new HashSet<TItem>((IEnumerable<TItem>)accumulator);
