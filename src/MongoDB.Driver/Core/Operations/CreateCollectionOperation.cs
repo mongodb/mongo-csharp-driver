@@ -241,6 +241,7 @@ namespace MongoDB.Driver.Core.Operations
         internal BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber)
         {
             var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, session, _writeConcern);
+            var readConcern = ReadConcernHelper.GetReadConcernForWriteCommand(session, connectionDescription);
             return new BsonDocument
             {
                 { "create", _collectionNamespace.CollectionName },
@@ -255,6 +256,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "validationLevel", () => _validationLevel.Value.ToString().ToLowerInvariant(), _validationLevel.HasValue },
                 { "collation", () => _collation.ToBsonDocument(), _collation != null },
                 { "comment",  _comment, _comment != null },
+                { "readConcern", readConcern, readConcern != null },
                 { "writeConcern", writeConcern, writeConcern != null },
                 { "expireAfterSeconds", () => _expireAfter.Value.TotalSeconds, _expireAfter.HasValue },
                 { "timeseries", () => _timeSeriesOptions.ToBsonDocument(), _timeSeriesOptions != null },

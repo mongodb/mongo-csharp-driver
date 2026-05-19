@@ -24,11 +24,14 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
     {
         private readonly string _collectionName;
         private readonly IMongoDatabase _database;
+        private readonly IClientSessionHandle _session;
 
         public UnifiedDropCollectionOperation(
+            IClientSessionHandle session,
             IMongoDatabase database,
             string collectionName)
         {
+            _session = session;
             _database = database;
             _collectionName = collectionName;
         }
@@ -37,7 +40,14 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             try
             {
-                _database.DropCollection(_collectionName);
+                if (_session == null)
+                {
+                    _database.DropCollection(_collectionName);
+                }
+                else
+                {
+                    _database.DropCollection(_session, _collectionName);
+                }
 
                 return OperationResult.FromResult(null);
             }
@@ -51,7 +61,14 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             try
             {
-                await _database.DropCollectionAsync(_collectionName);
+                if (_session == null)
+                {
+                    await _database.DropCollectionAsync(_collectionName, cancellationToken);
+                }
+                else
+                {
+                    await _database.DropCollectionAsync(_session, _collectionName, cancellationToken);
+                }
 
                 return OperationResult.FromResult(null);
             }
@@ -76,6 +93,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             var database = _entityMap.Databases[targetDatabaseId];
 
             string collectionName = null;
+            IClientSessionHandle session = null;
 
             foreach (var argument in arguments)
             {
@@ -84,12 +102,15 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     case "collection":
                         collectionName = argument.Value.AsString;
                         break;
+                    case "session":
+                        session = _entityMap.Sessions[argument.Value.AsString];
+                        break;
                     default:
                         throw new FormatException($"Invalid DropCollectionOperation argument name: '{argument.Name}'.");
                 }
             }
 
-            return new UnifiedDropCollectionOperation(database, collectionName);
+            return new UnifiedDropCollectionOperation(session, database, collectionName);
         }
     }
 }

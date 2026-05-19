@@ -21,6 +21,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol;
 using MongoDB.Driver.Core.WireProtocol.Messages;
@@ -171,7 +172,7 @@ namespace MongoDB.Driver.Core.Operations
                 args.MessageEncoderSettings);
         }
 
-        protected abstract BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, long? transactionNumber);
+        protected abstract BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber);
 
         protected abstract IEnumerable<BatchableCommandMessageSection> CreateCommandPayloads(IChannelHandle channel, int attempt);
 
@@ -187,7 +188,7 @@ namespace MongoDB.Driver.Core.Operations
         private CommandArgs GetCommandArgs(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
         {
             var args = new CommandArgs();
-            args.Command = CreateCommand(operationContext, context.Binding.Session, transactionNumber);
+            args.Command = CreateCommand(operationContext, context.Binding.Session, context.Channel.ConnectionDescription, transactionNumber);
             args.CommandPayloads = CreateCommandPayloads(context.Channel, attempt).ToList();
             args.PostWriteAction = GetPostWriteAction(args.CommandPayloads);
             args.ResponseHandling = GetResponseHandling();
