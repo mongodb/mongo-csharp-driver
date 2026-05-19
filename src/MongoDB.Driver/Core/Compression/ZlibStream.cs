@@ -19,7 +19,6 @@ using System.IO.Compression;
 
 namespace MongoDB.Driver.Core.Compression
 {
-    // Replacement for SharpCompress.Compressors.Deflate.ZlibStream.
     // Implements RFC 1950 (zlib framing) around System.IO.Compression.DeflateStream (RFC 1951),
     // with manual Adler-32 checksum handling.
     //
