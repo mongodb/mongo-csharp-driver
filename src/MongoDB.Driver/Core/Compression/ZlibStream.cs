@@ -23,29 +23,31 @@ namespace MongoDB.Driver.Core.Compression
     // with manual Adler-32 checksum handling.
     //
     // Both compress and decompress initialise lazily — no I/O happens in the constructor.
-    // Decompress path: the compressed input is buffered up-front (small — wire messages are
-    // length-bounded), but the decompressed output is produced lazily as the caller reads,
-    // with Adler-32 accumulated incrementally and validated when DeflateStream signals EOF.
+    // Decompress path is fully streaming: the 2-byte header is read up front, then a
+    // TrailerReservingStream wraps the remaining input and always holds back the last 4 bytes
+    // (the Adler-32 trailer) while streaming everything before that to DeflateStream. Adler-32
+    // is accumulated incrementally as the caller reads, then validated when DeflateStream
+    // signals EOF. Peak allocation is independent of message size.
     internal sealed class ZlibStream : Stream
     {
         // RFC 1950 headers: CMF=0x78 (deflate, 32K window) + FLG satisfying (CMF*256+FLG)%31==0.
         // FLEVEL bits in FLG are informational only (RFC 1950 §2.2) and do not affect decompression.
-        private static readonly byte[] s_defaultHeader = { 0x78, 0x9C };       // FLEVEL=2
-        private static readonly byte[] s_noCompressionHeader = { 0x78, 0x01 }; // FLEVEL=0
+        private static readonly byte[] __sDefaultHeader = { 0x78, 0x9C };       // FLEVEL=2
+        private static readonly byte[] __sNoCompressionHeader = { 0x78, 0x01 }; // FLEVEL=0
 
         private readonly Stream _stream;
         private readonly CompressionMode _mode;
         private readonly CompressionLevel _level;
         private readonly bool _leaveOpen;
 
-        // Compress-mode state (initialised lazily on first Write)
+        // Compress-mode state (initialized lazily on first Write)
         private DeflateStream _compressDeflate;
         private uint _compressAdler32 = 1u;
         private bool _compressInitialized;
 
-        // Decompress-mode state (initialised lazily on first Read)
+        // Decompress-mode state (initialized lazily on first Read)
         private DeflateStream _decompressDeflate;
-        private byte[] _trailer;
+        private TrailerReservingStream _decompressSource;
         private uint _decompressAdler32 = 1u;
         private bool _decompressInitialized;
         private bool _trailerValidated;
@@ -80,7 +82,20 @@ namespace MongoDB.Driver.Core.Compression
             else if (!_trailerValidated)
             {
                 _trailerValidated = true;
-                var expected = (uint)(_trailer[0] << 24 | _trailer[1] << 16 | _trailer[2] << 8 | _trailer[3]);
+                // DeflateStream can detect BFINAL=1 inside bytes it has already pulled, signaling EOF
+                // to us without ever asking our source for one more byte. Force one more pull on
+                // TrailerReservingStream so it observes source EOF and finalizes the held-back trailer.
+                // Any byte produced here means there was non-trailer data after the deflate payload.
+                var sink = new byte[1];
+                if (_decompressSource.Read(sink, 0, 1) != 0)
+                {
+                    throw new InvalidDataException("Unexpected trailing bytes after end of deflate stream.");
+                }
+                if (!_decompressSource.TryGetTrailer(out var trailer))
+                {
+                    throw new InvalidDataException("Truncated zlib stream — Adler-32 trailer missing.");
+                }
+                var expected = (uint)(trailer[0] << 24 | trailer[1] << 16 | trailer[2] << 8 | trailer[3]);
                 if (_decompressAdler32 != expected)
                 {
                     throw new InvalidDataException("Zlib Adler-32 checksum mismatch.");
@@ -126,6 +141,7 @@ namespace MongoDB.Driver.Core.Compression
                 else
                 {
                     _decompressDeflate?.Dispose();
+                    _decompressSource?.Dispose();
                 }
                 if (!_leaveOpen)
                     _stream.Dispose();
@@ -141,17 +157,14 @@ namespace MongoDB.Driver.Core.Compression
             }
             _compressInitialized = true;
 
-            var header = _level == CompressionLevel.NoCompression ? s_noCompressionHeader : s_defaultHeader;
+            var header = _level == CompressionLevel.NoCompression ? __sNoCompressionHeader : __sDefaultHeader;
             _stream.Write(header, 0, 2);
         }
 
         private void EnsureCompressInitialized()
         {
             EnsureHeaderWritten();
-            if (_compressDeflate == null)
-            {
-                _compressDeflate = new DeflateStream(_stream, _level, leaveOpen: true);
-            }
+            _compressDeflate ??= new DeflateStream(_stream, _level, leaveOpen: true);
         }
 
         private void EnsureDecompressInitialized()
@@ -162,22 +175,22 @@ namespace MongoDB.Driver.Core.Compression
             }
             _decompressInitialized = true;
 
-            byte[] compressed;
-            using (var ms = new MemoryStream())
+            // Read and validate the 2-byte zlib header up front.
+            var header = new byte[2];
+            var headerRead = 0;
+            while (headerRead < 2)
             {
-                _stream.CopyTo(ms);
-                compressed = ms.ToArray();
-            }
-
-            // 2-byte header + at least 2 bytes deflate payload (empty deflate is "03 00") + 4-byte Adler-32 trailer.
-            if (compressed.Length < 8)
-            {
-                throw new FormatException("Compressed data is too short to be a valid zlib stream.");
+                var got = _stream.Read(header, headerRead, 2 - headerRead);
+                if (got == 0)
+                {
+                    throw new FormatException("Compressed data is too short to be a valid zlib stream.");
+                }
+                headerRead += got;
             }
 
             // RFC 1950 §2.2: CMF low nibble must be 8 (deflate); (CMF*256+FLG) must be divisible by 31.
-            var cmf = compressed[0];
-            var flg = compressed[1];
+            var cmf = header[0];
+            var flg = header[1];
             if ((cmf & 0x0F) != 8 || (cmf * 256 + flg) % 31 != 0)
             {
                 throw new FormatException("Invalid zlib header.");
@@ -190,12 +203,11 @@ namespace MongoDB.Driver.Core.Compression
                 throw new NotSupportedException("Zlib preset dictionaries (FDICT) are not supported.");
             }
 
-            _trailer = new byte[4];
-            Buffer.BlockCopy(compressed, compressed.Length - 4, _trailer, 0, 4);
-
-            var deflateLength = compressed.Length - 2 - 4;
-            var deflateSource = new MemoryStream(compressed, 2, deflateLength, writable: false);
-            _decompressDeflate = new DeflateStream(deflateSource, CompressionMode.Decompress);
+            // Wrap the remaining input (deflate payload + 4-byte Adler-32 trailer) in a
+            // TrailerReservingStream. It feeds the deflate payload to DeflateStream and holds
+            // back the final 4 bytes so we can validate the Adler-32 once DeflateStream signals EOF.
+            _decompressSource = new TrailerReservingStream(_stream);
+            _decompressDeflate = new DeflateStream(_decompressSource, CompressionMode.Decompress);
         }
 
         private static uint UpdateAdler32(uint adler, byte[] buf, int offset, int count)
@@ -204,8 +216,8 @@ namespace MongoDB.Driver.Core.Compression
             // letting us defer the modulo until the end of each chunk instead of taking it per byte.
             const uint Base = 65521;
             const int Nmax = 5552;
-            uint s1 = adler & 0xFFFF;
-            uint s2 = (adler >> 16) & 0xFFFF;
+            var s1 = adler & 0xFFFF;
+            var s2 = (adler >> 16) & 0xFFFF;
             while (count > 0)
             {
                 var k = count < Nmax ? count : Nmax;
@@ -220,6 +232,95 @@ namespace MongoDB.Driver.Core.Compression
                 s2 %= Base;
             }
             return (s2 << 16) | s1;
+        }
+
+        // Reads from a source stream and always holds back the last 4 bytes — once the source
+        // EOFs, those 4 bytes are the RFC 1950 Adler-32 trailer. Everything before that is
+        // streamed through to the caller (DeflateStream). Lets decompression run with bounded
+        // memory instead of buffering the whole compressed payload to slice off the trailer.
+        private sealed class TrailerReservingStream : Stream
+        {
+#pragma warning disable CA2213 // Source stream is owned by the outer ZlibStream, not by us.
+            private readonly Stream _source;
+#pragma warning restore CA2213
+            private readonly byte[] _trailer = new byte[4];
+            private int _trailerLen; // 0..4 — bytes currently held in _trailer.
+            private bool _sourceEof;
+            private byte[] _workspace;
+
+            public TrailerReservingStream(Stream source)
+            {
+                _source = source;
+            }
+
+            public bool TryGetTrailer(out byte[] trailer)
+            {
+                if (_sourceEof && _trailerLen == 4)
+                {
+                    trailer = _trailer;
+                    return true;
+                }
+                trailer = null;
+                return false;
+            }
+
+            public override int Read(byte[] buffer, int offset, int count)
+            {
+                if (count <= 0 || _sourceEof)
+                {
+                    return 0;
+                }
+
+                // Prime _trailer to be full (4 bytes) before we can emit anything.
+                while (_trailerLen < 4)
+                {
+                    var got = _source.Read(_trailer, _trailerLen, 4 - _trailerLen);
+                    if (got == 0)
+                    {
+                        _sourceEof = true;
+                        throw new FormatException("Compressed data is too short to be a valid zlib stream.");
+                    }
+                    _trailerLen += got;
+                }
+
+                if (_workspace == null || _workspace.Length < count)
+                {
+                    _workspace = new byte[count];
+                }
+                var n = _source.Read(_workspace, 0, count);
+                if (n == 0)
+                {
+                    // Source EOF. _trailer holds exactly the 4 final bytes — the Adler-32 trailer.
+                    _sourceEof = true;
+                    return 0;
+                }
+
+                // Combined window (oldest first): _trailer[0..4] then _workspace[0..n].
+                // Emit the first n bytes to caller; rotate the newest 4 back into _trailer.
+                if (n <= 4)
+                {
+                    Buffer.BlockCopy(_trailer, 0, buffer, offset, n);
+                    Buffer.BlockCopy(_trailer, n, _trailer, 0, 4 - n);
+                    Buffer.BlockCopy(_workspace, 0, _trailer, 4 - n, n);
+                }
+                else
+                {
+                    Buffer.BlockCopy(_trailer, 0, buffer, offset, 4);
+                    Buffer.BlockCopy(_workspace, 0, buffer, offset + 4, n - 4);
+                    Buffer.BlockCopy(_workspace, n - 4, _trailer, 0, 4);
+                }
+                return n;
+            }
+
+            public override bool CanRead => !_sourceEof;
+            public override bool CanWrite => false;
+            public override bool CanSeek => false;
+            public override long Length => throw new NotSupportedException();
+            public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
+            public override void Flush() { }
+            public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+            public override void SetLength(long value) => throw new NotSupportedException();
+            public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
         }
     }
 }

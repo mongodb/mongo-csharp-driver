@@ -350,6 +350,73 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
         }
 
         [Fact]
+        public void Zlib_decompress_should_handle_one_byte_at_a_time_input()
+        {
+            // Pathological fragmentation: a source stream that only ever returns one byte per Read.
+            // Exercises the n<=4 branch of TrailerReservingStream's rotation algorithm repeatedly
+            // and proves the 4-byte trailer-holdback works even when bytes dribble in slowly.
+            var payload = Encoding.ASCII.GetBytes(__testMessage);
+            var compressor = GetCompressor(CompressorType.Zlib, 6);
+            byte[] compressedBytes;
+            using (var compressed = new MemoryStream())
+            {
+                compressor.Compress(new MemoryStream(payload), compressed);
+                compressedBytes = compressed.ToArray();
+            }
+
+            using (var slow = new OneByteAtATimeStream(compressedBytes))
+            using (var output = new MemoryStream())
+            {
+                compressor.Decompress(slow, output);
+                output.ToArray().Should().Equal(payload);
+            }
+        }
+
+        [Fact]
+        public void Zlib_decompress_should_stream_without_buffering_entire_input()
+        {
+            // Streaming sanity check at realistic wire-message scale. With Tier 2 (TrailerReservingStream),
+            // peak allocation should be ~constant (~8KB workspace + 4-byte trailer holdback + DeflateStream's
+            // own window), not ~N bytes. We verify correctness here; allocation is verified by code review
+            // of EnsureDecompressInitialized (no MemoryStream-the-whole-input step).
+            const int size = 1024 * 1024; // 1MB — well above DeflateStream's typical 8KB read chunk
+            var payload = new byte[size];
+            new Random(1234).NextBytes(payload);
+
+            var compressor = GetCompressor(CompressorType.Zlib, 6);
+            using (var compressed = new MemoryStream())
+            using (var roundtripped = new MemoryStream())
+            {
+                compressor.Compress(new MemoryStream(payload), compressed);
+                compressed.Position = 0;
+                compressor.Decompress(compressed, roundtripped);
+                roundtripped.ToArray().Should().Equal(payload);
+            }
+        }
+
+        private sealed class OneByteAtATimeStream : Stream
+        {
+            private readonly byte[] _data;
+            private int _pos;
+            public OneByteAtATimeStream(byte[] data) { _data = data; }
+            public override int Read(byte[] buffer, int offset, int count)
+            {
+                if (count <= 0 || _pos >= _data.Length) return 0;
+                buffer[offset] = _data[_pos++];
+                return 1;
+            }
+            public override bool CanRead => true;
+            public override bool CanWrite => false;
+            public override bool CanSeek => false;
+            public override long Length => _data.Length;
+            public override long Position { get => _pos; set => throw new NotSupportedException(); }
+            public override void Flush() { }
+            public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+            public override void SetLength(long value) => throw new NotSupportedException();
+            public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+        }
+
+        [Fact]
         public void Zstandard_compress_should_throw_when_output_stream_is_null()
         {
             using (var input = new MemoryStream())
