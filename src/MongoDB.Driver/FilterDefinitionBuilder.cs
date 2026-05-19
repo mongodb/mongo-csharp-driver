@@ -534,6 +534,94 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Creates an encrypted substring filter.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A filter.</returns>
+        public FilterDefinition<TDocument> EncStrContains(FieldDefinition<TDocument> field, string value)
+        {
+            return new EncStrFilterDefinition<TDocument>("$encStrContains", "substring", field, value);
+        }
+
+        /// <summary>
+        /// Creates an encrypted substring filter.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A filter.</returns>
+        public FilterDefinition<TDocument> EncStrContains(Expression<Func<TDocument, object>> field, string value)
+        {
+            return EncStrContains(new ExpressionFieldDefinition<TDocument>(field), value);
+        }
+
+        /// <summary>
+        /// Creates an encrypted suffix filter.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A filter.</returns>
+        public FilterDefinition<TDocument> EncStrEndsWith(FieldDefinition<TDocument> field, string value)
+        {
+            return new EncStrFilterDefinition<TDocument>("$encStrEndsWith", "suffix", field, value);
+        }
+
+        /// <summary>
+        /// Creates an encrypted suffix filter.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A filter.</returns>
+        public FilterDefinition<TDocument> EncStrEndsWith(Expression<Func<TDocument, object>> field, string value)
+        {
+            return EncStrEndsWith(new ExpressionFieldDefinition<TDocument>(field), value);
+        }
+
+        /// <summary>
+        /// Creates an encrypted normalized equality filter.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A filter.</returns>
+        public FilterDefinition<TDocument> EncStrNormalizedEq(FieldDefinition<TDocument> field, string value)
+        {
+            return new EncStrFilterDefinition<TDocument>("$encStrNormalizedEq", "string", field, value);
+        }
+
+        /// <summary>
+        /// Creates an encrypted normalized equality filter.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A filter.</returns>
+        public FilterDefinition<TDocument> EncStrNormalizedEq(Expression<Func<TDocument, object>> field, string value)
+        {
+            return EncStrNormalizedEq(new ExpressionFieldDefinition<TDocument>(field), value);
+        }
+
+        /// <summary>
+        /// Creates an encrypted prefix filter.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A filter.</returns>
+        public FilterDefinition<TDocument> EncStrStartsWith(FieldDefinition<TDocument> field, string value)
+        {
+            return new EncStrFilterDefinition<TDocument>("$encStrStartsWith", "prefix", field, value);
+        }
+
+        /// <summary>
+        /// Creates an encrypted prefix filter.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A filter.</returns>
+        public FilterDefinition<TDocument> EncStrStartsWith(Expression<Func<TDocument, object>> field, string value)
+        {
+            return EncStrStartsWith(new ExpressionFieldDefinition<TDocument>(field), value);
+        }
+
+        /// <summary>
         /// Creates an equality filter.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
@@ -2855,6 +2943,34 @@ namespace MongoDB.Driver
                     }
                 };
             }
+        }
+    }
+
+    internal sealed class EncStrFilterDefinition<TDocument> : FilterDefinition<TDocument>
+    {
+        private readonly string _operatorName;
+        private readonly string _argName;
+        private readonly FieldDefinition<TDocument> _field;
+        private readonly string _value;
+
+        public EncStrFilterDefinition(string operatorName, string argName, FieldDefinition<TDocument> field, string value)
+        {
+            _operatorName = Ensure.IsNotNull(operatorName, nameof(operatorName));
+            _argName = Ensure.IsNotNull(argName, nameof(argName));
+            _field = Ensure.IsNotNull(field, nameof(field));
+            _value = Ensure.IsNotNull(value, nameof(value));
+        }
+
+        public override BsonDocument Render(RenderArgs<TDocument> args)
+        {
+            var renderedField = _field.Render(args);
+            return new BsonDocument("$expr", new BsonDocument(
+                _operatorName,
+                new BsonDocument
+                {
+                    { "input", "$" + renderedField.FieldName },
+                    { _argName, _value }
+                }));
         }
     }
 }

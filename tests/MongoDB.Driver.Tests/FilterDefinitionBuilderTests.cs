@@ -218,6 +218,78 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void EncStrContains()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.EncStrContains("encryptedText", "bar"),
+                "{ $expr: { $encStrContains: { input: '$encryptedText', substring: 'bar' } } }");
+        }
+
+        [Fact]
+        public void EncStrContains_Typed()
+        {
+            var subject = CreateSubject<Person>();
+
+            Assert(subject.EncStrContains(x => x.FirstName, "bar"),
+                "{ $expr: { $encStrContains: { input: '$fn', substring: 'bar' } } }");
+        }
+
+        [Fact]
+        public void EncStrEndsWith()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.EncStrEndsWith("encryptedText", "baz"),
+                "{ $expr: { $encStrEndsWith: { input: '$encryptedText', suffix: 'baz' } } }");
+        }
+
+        [Fact]
+        public void EncStrEndsWith_Typed()
+        {
+            var subject = CreateSubject<Person>();
+
+            Assert(subject.EncStrEndsWith(x => x.FirstName, "baz"),
+                "{ $expr: { $encStrEndsWith: { input: '$fn', suffix: 'baz' } } }");
+        }
+
+        [Fact]
+        public void EncStrNormalizedEq()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.EncStrNormalizedEq("encryptedText", "foo"),
+                "{ $expr: { $encStrNormalizedEq: { input: '$encryptedText', string: 'foo' } } }");
+        }
+
+        [Fact]
+        public void EncStrNormalizedEq_Typed()
+        {
+            var subject = CreateSubject<Person>();
+
+            Assert(subject.EncStrNormalizedEq(x => x.FirstName, "foo"),
+                "{ $expr: { $encStrNormalizedEq: { input: '$fn', string: 'foo' } } }");
+        }
+
+        [Fact]
+        public void EncStrStartsWith()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.EncStrStartsWith("encryptedText", "foo"),
+                "{ $expr: { $encStrStartsWith: { input: '$encryptedText', prefix: 'foo' } } }");
+        }
+
+        [Fact]
+        public void EncStrStartsWith_Typed()
+        {
+            var subject = CreateSubject<Person>();
+
+            Assert(subject.EncStrStartsWith(x => x.FirstName, "foo"),
+                "{ $expr: { $encStrStartsWith: { input: '$fn', prefix: 'foo' } } }");
+        }
+
+        [Fact]
         public void Eq()
         {
             var subject = CreateSubject<BsonDocument>();
