@@ -248,6 +248,32 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
         }
 
         [Fact]
+        public void Zlib_roundtrip_should_validate_adler32_across_nmax_chunk_boundary()
+        {
+            // UpdateAdler32 batches its deferred modulo every NMAX (5552) bytes. Exercise that
+            // path with an input that spans multiple chunks and uses varied byte values to stress
+            // both the s1 (byte sum) and s2 (running-sum-of-sums) accumulators near the boundary.
+            // An off-by-one in chunk advancement (offset/count) or a missed modulo would corrupt
+            // the trailing Adler-32 and the decompress-side validation would throw.
+            const int size = 5552 * 3 + 137; // straddles three NMAX windows with a tail
+            var payload = new byte[size];
+            for (var i = 0; i < size; i++)
+            {
+                payload[i] = (byte)((i * 31 + 7) & 0xFF); // covers full 0-255 range, non-trivial pattern
+            }
+
+            var compressor = GetCompressor(CompressorType.Zlib, 6);
+            using (var compressed = new MemoryStream())
+            using (var roundtripped = new MemoryStream())
+            {
+                compressor.Compress(new MemoryStream(payload), compressed);
+                compressed.Position = 0;
+                compressor.Decompress(compressed, roundtripped);
+                roundtripped.ToArray().Should().Equal(payload);
+            }
+        }
+
+        [Fact]
         public void Zstandard_compress_should_throw_when_output_stream_is_null()
         {
             using (var input = new MemoryStream())
