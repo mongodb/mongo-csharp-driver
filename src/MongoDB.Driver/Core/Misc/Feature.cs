@@ -99,6 +99,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __replaceAll = new Feature("ReplaceAll", WireVersion.Server44);
         private static readonly Feature __replaceAllWithRegex = new Feature("ReplaceAllWithRegex", WireVersion.Server82);
         private static readonly Feature __round = new Feature("Round", WireVersion.Server42);
+        private static readonly Feature __scoreFusionStage = new Feature("ScoreFusionStage", WireVersion.Server82);
         private static readonly Feature __scramSha256Authentication = new Feature("ScramSha256Authentication", WireVersion.Server40);
         private static readonly Feature __serverReturnsResumableChangeStreamErrorLabel = new Feature("ServerReturnsResumableChangeStreamErrorLabel", WireVersion.Server44);
         private static readonly Feature __serverReturnsRetryableWriteErrorLabel = new Feature("ServerReturnsRetryableWriteErrorLabel", WireVersion.Server44);
@@ -496,6 +497,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the $round feature.
         /// </summary>
         public static Feature Round => __round;
+
+        /// <summary>
+        /// Gets the $scoreFusion feature.
+        /// </summary>
+        public static Feature ScoreFusionStage => __scoreFusionStage;
 
         /// <summary>
         /// Gets the scram sha256 authentication feature.
