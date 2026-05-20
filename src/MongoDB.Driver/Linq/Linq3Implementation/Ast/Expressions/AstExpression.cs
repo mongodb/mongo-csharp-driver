@@ -415,13 +415,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             }
         }
 
+        public static AstEncStrExpression EncStrExpression(AstEncStrOperator @operator, AstExpression input, AstExpression value)
+            => new AstEncStrExpression(@operator, input, value);
+
         public static AstExpression Eq(AstExpression arg1, AstExpression arg2)
         {
             return new AstBinaryExpression(AstBinaryOperator.Eq, arg1, arg2);
         }
-
-        public static AstEncStrExpression EncStrExpression(AstEncStrOperator @operator, AstExpression input, AstExpression value)
-            => new AstEncStrExpression(@operator, input, value);
 
         public static AstExpression Exp(AstExpression arg)
         {
