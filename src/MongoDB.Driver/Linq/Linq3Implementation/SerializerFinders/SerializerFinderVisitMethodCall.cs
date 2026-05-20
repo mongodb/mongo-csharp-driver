@@ -59,7 +59,19 @@ internal partial class SerializerFinderVisitor
 
     private static class MethodCallSerializerDeducers
     {
-        private static readonly ConcurrentDictionary<MethodInfo, Action<SerializerFinderVisitor, MethodCallExpression>> __serializerDeducers = new();
+        private readonly record struct MethodKey
+        {
+            public MethodKey(MethodInfo method)
+            {
+                Token = method.MetadataToken;
+                Module = method.Module;
+            }
+
+            public int Token { get; }
+            public Module Module { get; }
+        }
+
+        private static readonly ConcurrentDictionary<MethodKey, Action<SerializerFinderVisitor, MethodCallExpression>> __serializerDeducers = new();
         private static readonly IBsonSerializer __binarySubTypeSerializer = NullableSerializer.Create(new EnumSerializer<BsonBinarySubType>());
 
         private static readonly IReadOnlyMethodInfoSet __averageOrMedianOrPercentileOverloads = MethodInfoSet.Create(
@@ -252,7 +264,7 @@ internal partial class SerializerFinderVisitor
                 Ensure.IsNotNull(method, nameof(method));
                 Ensure.IsNotNull(deducer, nameof(deducer));
 
-                if (!__serializerDeducers.TryAdd(method, deducer))
+                if (!__serializerDeducers.TryAdd(new MethodKey(method), deducer))
                 {
                     throw new InvalidOperationException($"Serializer deducer for method {method} is already registered");
                 }
@@ -1512,7 +1524,8 @@ internal partial class SerializerFinderVisitor
 
         public static Action<SerializerFinderVisitor, MethodCallExpression> GetSerializerDeducer(MethodInfo methodInfo)
         {
-            if (__serializerDeducers.TryGetValue(methodInfo, out var deducer))
+            var methodKey = new MethodKey(methodInfo);
+            if (__serializerDeducers.TryGetValue(methodKey, out var deducer))
             {
                 return deducer;
             }
@@ -1523,7 +1536,7 @@ internal partial class SerializerFinderVisitor
                 return null;
             }
 
-            return __serializerDeducers.GetOrAdd(methodInfo, deducer);
+            return __serializerDeducers.GetOrAdd(methodKey, deducer);
         }
 
         // Processes special cases where we do not have fixed list of methodInfos that we support,
