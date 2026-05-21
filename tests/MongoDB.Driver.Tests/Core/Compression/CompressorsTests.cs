@@ -222,8 +222,8 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
             {
                 var memoryStream = new MemoryStream();
                 var byteBufferStream = new ByteBufferStream(buffer);
-                using (new NonDisposingStream(memoryStream))
-                using (new NonDisposingStream(byteBufferStream))
+                using (SharpCompressStream.CreateNonDisposing(memoryStream))
+                using (SharpCompressStream.CreateNonDisposing(byteBufferStream))
                 {
                     test(byteBufferStream, memoryStream);
                     assertResult?.Invoke(byteBufferStream, memoryStream);

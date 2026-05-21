@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Core.Compression
         /// <inheritdoc />
         public void Compress(Stream input, Stream output)
         {
-            using (var zlibStream = new ZlibStream(new NonDisposingStream(output), CompressionMode.Compress, _compressionLevel))
+            using (var zlibStream = new ZlibStream(SharpCompressStream.CreateNonDisposing(output), CompressionMode.Compress, _compressionLevel))
             {
                 zlibStream.FlushMode = FlushType.Sync;
                 input.EfficientCopyTo(zlibStream);
@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Core.Compression
         /// <inheritdoc />
         public void Decompress(Stream input, Stream output)
         {
-            using (var zlibStream = new ZlibStream(new NonDisposingStream(input), CompressionMode.Decompress))
+            using (var zlibStream = new ZlibStream(SharpCompressStream.CreateNonDisposing(input), CompressionMode.Decompress))
             {
                 zlibStream.CopyTo(output);
             }
