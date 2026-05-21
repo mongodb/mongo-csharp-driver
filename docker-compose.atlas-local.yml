@@ -1,0 +1,34 @@
+# Atlas Local with Voyage AI auto-embedding enabled.
+#
+# The VOYAGE_API_KEY value is pulled from your shell environment at compose time.
+# If it isn't set, `docker compose up` will fail fast with the message below.
+#
+#   export VOYAGE_API_KEY=...
+#   docker compose -f docker-compose.atlas-local.yml up -d
+#
+# To tear down (keeps the named volume so sample data + indexes survive):
+#   docker compose -f docker-compose.atlas-local.yml down
+#
+# To wipe everything including the data volume:
+#   docker compose -f docker-compose.atlas-local.yml down -v
+
+name: atlas-local-preview
+
+services:
+  mongodb:
+    image: mongodb/mongodb-atlas-local:preview
+    hostname: mongodb
+    container_name: local8g
+    environment:
+      - VOYAGE_API_KEY=${VOYAGE_API_KEY}
+    ports:
+      - 56661:27017
+    volumes:
+      - ./init:/docker-entrypoint-initdb.d
+      - db:/data/db
+      - configdb:/data/configdb
+      - mongot:/data/mongot
+volumes:
+  db:
+  configdb:
+  mongot:
