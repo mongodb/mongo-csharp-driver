@@ -67,7 +67,7 @@ namespace MongoDB.Driver.Core.Clusters
             _expirableClusterDescription = new (this, ClusterDescription.CreateInitial(_clusterId, _settings.DirectConnection));
             _latencyLimitingServerSelector = new LatencyLimitingServerSelector(settings.LocalThreshold);
             _serverSelectionWaitQueue = new ServerSelectionWaitQueue(this);
-            _serverSessionPool = new CoreServerSessionPool(this);
+            _serverSessionPool = new CoreServerSessionPool(this, loggerFactory?.CreateLogger<LogCategories.Client>());
             _clusterEventLogger = loggerFactory.CreateEventLogger<LogCategories.SDAM>(eventSubscriber);
             _serverSelectionEventLogger = loggerFactory.CreateEventLogger<LogCategories.ServerSelection>(eventSubscriber);
         }
@@ -142,7 +142,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             if (server != null)
             {
-                _serverSessionPool.ReleaseAll(server);
+                _serverSessionPool.CloseAndDispose(server);
             }
         }
 

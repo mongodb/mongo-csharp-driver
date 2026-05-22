@@ -14,13 +14,17 @@
 */
 
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading;
+using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol;
@@ -31,100 +35,80 @@ namespace MongoDB.Driver
     {
         // private fields
         private readonly ICluster _cluster;
-        private readonly object _lock = new object();
-        private readonly List<ICoreServerSession> _pool = new List<ICoreServerSession>();
+        private readonly ILogger<LogCategories.Client> _logger;
+        private readonly ConcurrentStack<ICoreServerSession> _pool = new();
+        private bool _isDisposed = false;
+        private long _sessionsCreated;
+        private long _sessionsReturned;
 
         // constructors
-        public CoreServerSessionPool(ICluster cluster)
+        public CoreServerSessionPool(ICluster cluster, ILogger<LogCategories.Client> logger)
         {
+            _logger = logger;
             _cluster = Ensure.IsNotNull(cluster, nameof(cluster));
         }
 
         public ICoreServerSession AcquireSession()
         {
-            lock (_lock)
+            ThrowIfDisposed();
+            while (_pool.TryPop(out var pooledSession))
             {
-                for (var i = _pool.Count - 1; i >= 0; i--)
+                if (IsAboutToExpireOrDirty(pooledSession))
                 {
-                    var pooledSession = _pool[i];
-                    if (IsAboutToExpireOrDirty(pooledSession))
-                    {
-                        pooledSession.Dispose();
-                    }
-                    else
-                    {
-                        var removeCount = _pool.Count - i; // the one we're about to return and any about to expire ones we skipped over
-                        _pool.RemoveRange(i, removeCount);
-                        return new ReleaseOnDisposeCoreServerSession(pooledSession, this);
-                    }
+                    pooledSession.Dispose();
                 }
-
-                _pool.Clear(); // they're all about to expire
+                else
+                {
+                    Interlocked.Increment(ref _sessionsCreated);
+                    return new ReleaseOnDisposeCoreServerSession(pooledSession, this);
+                }
             }
 
+            Interlocked.Increment(ref _sessionsCreated);
             return new ReleaseOnDisposeCoreServerSession(new CoreServerSession(), this);
         }
 
         public void ReleaseSession(ICoreServerSession session)
         {
-            lock (_lock)
-            {
-                var removeCount = 0;
-                for (var i = 0; i < _pool.Count; i++)
-                {
-                    var pooledSession = _pool[i];
-                    if (IsAboutToExpireOrDirty(pooledSession))
-                    {
-                        pooledSession.Dispose();
-                        removeCount++;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-                _pool.RemoveRange(0, removeCount);
+            ThrowIfDisposed();
+            Interlocked.Increment(ref _sessionsReturned);
 
-                if (IsAboutToExpireOrDirty(session))
-                {
-                    session.Dispose();
-                }
-                else
-                {
-                    _pool.Add(session);
-                }
+            if (IsAboutToExpireOrDirty(session))
+            {
+                session.Dispose();
+            }
+            else
+            {
+                _pool.Push(session);
             }
         }
 
-        public void ReleaseAll(IServer server)
+        public void CloseAndDispose(IServer server)
         {
-            if (_pool.Count == 0)
+            if (_isDisposed)
             {
                 return;
             }
 
+            _isDisposed = true;
+            var timestamp = Stopwatch.GetTimestamp();
+            _logger?.LogDebug(
+                "Closing server session pool for {clusterId}: total sessions created {sessionsCreated}, sessions returned {sessionsReturned}, pooled sessions {pooledSessions}.",
+                _cluster.ClusterId, _sessionsCreated, _sessionsReturned, _pool.Count);
             try
             {
                 while (true)
                 {
-                    List<ICoreServerSession> sessionsBatch;
-                    lock (_lock)
-                    {
-                        if (_pool.Count == 0)
-                        {
-                            return;
-                        }
+                    var batchSize = Math.Min(10000, _pool.Count);
+                    var batch = new ICoreServerSession[batchSize];
 
-                        sessionsBatch = _pool.GetRange(0, Math.Min(_pool.Count, 9999));
-                        _pool.RemoveRange(0, sessionsBatch.Count);
+                    batchSize = _pool.TryPopRange(batch);
+                    if(batchSize == 0)
+                    {
+                        return;
                     }
 
-                    var endSessionCommand = new BsonDocument("endSessions", new BsonArray(sessionsBatch.Select(s => s.Id)));
-                    foreach (var session in sessionsBatch)
-                    {
-                        session.Dispose();
-                    }
-
+                    var endSessionCommand = new BsonDocument("endSessions", new BsonArray(batch.Take(batchSize).Select(s => s.Id)));
                     var operationContext = OperationContext.NoTimeout;
                     using var channel = server.GetChannel(operationContext);
                     channel.Command(
@@ -142,9 +126,15 @@ namespace MongoDB.Driver
                         null);
                 }
             }
-            catch
+            catch(Exception ex)
             {
-                // Ignore any errors.
+                _logger?.LogError(ex, "Error closing server session pool for {clusterId}: {exception}", _cluster.ClusterId, ex);
+            }
+            finally
+            {
+                _logger?.LogDebug(
+                    "Closed server session pool for {clusterId} in {milliseconds}ms.",
+                    _cluster.ClusterId, (Stopwatch.GetTimestamp() - timestamp) / (double)Stopwatch.Frequency * 1000);
             }
         }
 
@@ -173,6 +163,14 @@ namespace MongoDB.Driver
         private bool IsAboutToExpireOrDirty(ICoreServerSession session)
         {
             return IsAboutToExpire(session) || session.IsDirty;
+        }
+
+        private void ThrowIfDisposed()
+        {
+            if (_isDisposed)
+            {
+                throw new ObjectDisposedException(nameof(CoreServerSessionPool));
+            }
         }
 
         // nested types

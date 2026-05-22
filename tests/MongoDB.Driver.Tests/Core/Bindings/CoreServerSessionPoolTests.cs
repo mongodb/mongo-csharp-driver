@@ -14,12 +14,15 @@
 */
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Reflection;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using Moq;
@@ -33,8 +36,9 @@ namespace MongoDB.Driver.Tests
         public void constructor_should_intialize_instance()
         {
             var cluster = new Mock<IClusterInternal>().Object;
+            var logger = Mock.Of<ILogger<LogCategories.Client>>();
 
-            var result = new CoreServerSessionPool(cluster);
+            var result = new CoreServerSessionPool(cluster, logger);
 
             result._cluster().Should().BeSameAs(cluster);
             result._pool().Count.Should().Be(0);
@@ -43,53 +47,36 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void constructor_should_throw_when_cluster_is_null()
         {
-            var exception = Record.Exception(() => new CoreServerSessionPool(null));
+            var logger = Mock.Of<ILogger<LogCategories.Client>>();
+            var exception = Record.Exception(() => new CoreServerSessionPool(null, logger));
 
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("cluster");
         }
 
         [Theory]
-        [InlineData(new int[0], -1)]
-        [InlineData(new[] { 0 }, -1)]
-        [InlineData(new[] { 1 }, 0)]
-        [InlineData(new[] { 0, 0 }, -1)]
-        [InlineData(new[] { 0, 1 }, 1)]
-        [InlineData(new[] { 1, 0 }, 0)]
-        [InlineData(new[] { 1, 1 }, 1)]
-        [InlineData(new[] { 0, 0, 0 }, -1)]
-        [InlineData(new[] { 0, 0, 1 }, 2)]
-        [InlineData(new[] { 0, 1, 0 }, 1)]
-        [InlineData(new[] { 0, 1, 1 }, 2)]
-        [InlineData(new[] { 1, 0, 0 }, 0)]
-        [InlineData(new[] { 1, 0, 1 }, 2)]
-        [InlineData(new[] { 1, 1, 0 }, 1)]
-        [InlineData(new[] { 1, 1, 1 }, 2)]
-        [InlineData(new[] { 0, 0, 0, 0 }, -1)]
-        [InlineData(new[] { 0, 0, 0, 1 }, 3)]
-        [InlineData(new[] { 0, 0, 1, 0 }, 2)]
-        [InlineData(new[] { 0, 0, 1, 1 }, 3)]
-        [InlineData(new[] { 0, 1, 0, 0 }, 1)]
-        [InlineData(new[] { 0, 1, 0, 1 }, 3)]
-        [InlineData(new[] { 0, 1, 1, 0 }, 2)]
-        [InlineData(new[] { 0, 1, 1, 1 }, 3)]
-        [InlineData(new[] { 1, 0, 0, 0 }, 0)]
-        [InlineData(new[] { 1, 0, 0, 1 }, 3)]
-        [InlineData(new[] { 1, 0, 1, 0 }, 2)]
-        [InlineData(new[] { 1, 0, 1, 1 }, 3)]
-        [InlineData(new[] { 1, 1, 0, 0 }, 1)]
-        [InlineData(new[] { 1, 1, 0, 1 }, 3)]
-        [InlineData(new[] { 1, 1, 1, 0 }, 2)]
-        [InlineData(new[] { 1, 1, 1, 1 }, 3)]
-        public void AcquireSession_should_return_expected_result(int[] pooledSessionWasRecentlyUsed, int acquiredIndex)
+        [InlineData(new int[0], -1, 0)]
+        [InlineData(new[] { 0 }, -1, 0)]
+        [InlineData(new[] { 1 }, 0, 0)]
+        [InlineData(new[] { 0, 0 }, -1, 0)]
+        [InlineData(new[] { 0, 1 }, 1, 1)]
+        [InlineData(new[] { 1, 0 }, 0, 0)]
+        [InlineData(new[] { 1, 1 }, 1, 1)]
+        [InlineData(new[] { 0, 0, 0 }, -1, 0)]
+        [InlineData(new[] { 0, 0, 1 }, 2, 2)]
+        [InlineData(new[] { 0, 1, 0 }, 1, 1)]
+        [InlineData(new[] { 0, 1, 1 }, 2, 2)]
+        [InlineData(new[] { 1, 0, 0 }, 0, 0)]
+        public void AcquireSession_should_have_expected_behavior(int[] pooledSessionsBeforeAcquire, int acquiredIndex, int pooledSessionsCountAfterAcquire)
         {
             var subject = CreateSubject();
             var mockPooledSessions = new List<Mock<ICoreServerSession>>();
-            foreach (var r in pooledSessionWasRecentlyUsed)
+            foreach (var r in pooledSessionsBeforeAcquire)
             {
-                mockPooledSessions.Add(CreateMockSession(r == 1));
+                var sessionMock = CreateMockSession(r == 1);
+                mockPooledSessions.Add(sessionMock);
+                subject._pool().Push(sessionMock.Object);
             }
-            subject._pool().AddRange(mockPooledSessions.Select(m => m.Object));
 
             var result = subject.AcquireSession();
 
@@ -97,28 +84,22 @@ namespace MongoDB.Driver.Tests
             wrapper._disposed().Should().BeFalse();
             wrapper._pool().Should().BeSameAs(subject);
 
+            subject._pool().Count.Should().Be(pooledSessionsCountAfterAcquire);
             if (acquiredIndex == -1)
             {
                 mockPooledSessions.Select(m => m.Object).Should().NotContain(wrapper.Wrapped);
-                subject._pool().Count.Should().Be(0);
             }
             else
             {
                 wrapper.Wrapped.Should().BeSameAs(mockPooledSessions[acquiredIndex].Object);
-                subject._pool().Count.Should().Be(acquiredIndex);
             }
 
             for (var i = 0; i < mockPooledSessions.Count; i++)
             {
                 var mockPooledSession = mockPooledSessions[i];
-                if (acquiredIndex == -1)
-                {
-                    mockPooledSession.Verify(m => m.Dispose(), Times.Once);
-                }
-                else if (i < acquiredIndex)
+                if (i < acquiredIndex)
                 {
                     mockPooledSession.Verify(m => m.Dispose(), Times.Never);
-                    subject._pool()[i].Should().BeSameAs(mockPooledSession.Object);
                 }
                 else if (i == acquiredIndex)
                 {
@@ -132,70 +113,31 @@ namespace MongoDB.Driver.Tests
         }
 
         [Theory]
-        [InlineData(new int[0], 0, 0)]
-        [InlineData(new int[0], 0, 1)]
-        [InlineData(new[] { 0 }, 1, 0)]
-        [InlineData(new[] { 0 }, 1, 1)]
-        [InlineData(new[] { 1 }, 0, 0)]
-        [InlineData(new[] { 1 }, 0, 1)]
-        [InlineData(new[] { 0, 0 }, 2, 0)]
-        [InlineData(new[] { 0, 0 }, 2, 1)]
-        [InlineData(new[] { 0, 1 }, 1, 0)]
-        [InlineData(new[] { 0, 1 }, 1, 1)]
-        [InlineData(new[] { 1, 0 }, 0, 0)]
-        [InlineData(new[] { 1, 0 }, 0, 1)]
-        [InlineData(new[] { 1, 1 }, 0, 0)]
-        [InlineData(new[] { 1, 1 }, 0, 1)]
-        [InlineData(new[] { 0, 0, 0 }, 3, 0)]
-        [InlineData(new[] { 0, 0, 0 }, 3, 1)]
-        [InlineData(new[] { 0, 0, 1 }, 2, 0)]
-        [InlineData(new[] { 0, 0, 1 }, 2, 1)]
-        [InlineData(new[] { 0, 1, 0 }, 1, 0)]
-        [InlineData(new[] { 0, 1, 0 }, 1, 1)]
-        [InlineData(new[] { 0, 1, 1 }, 1, 0)]
-        [InlineData(new[] { 0, 1, 1 }, 1, 1)]
-        [InlineData(new[] { 1, 0, 0 }, 0, 0)]
-        [InlineData(new[] { 1, 0, 0 }, 0, 1)]
-        [InlineData(new[] { 1, 0, 1 }, 0, 0)]
-        [InlineData(new[] { 1, 0, 1 }, 0, 1)]
-        [InlineData(new[] { 1, 1, 0 }, 0, 0)]
-        [InlineData(new[] { 1, 1, 0 }, 0, 1)]
-        [InlineData(new[] { 1, 1, 1 }, 0, 0)]
-        [InlineData(new[] { 1, 1, 1 }, 0, 1)]
-        public void ReleaseSession_should_have_expected_result(int[] pooledSessionWasRecentlyUsed, int removeCount, int releasedSessionWasRecentlyUsed)
+        [InlineData(false, false, true)]
+        [InlineData(false, true, false)]
+        [InlineData(true, false, false)]
+        [InlineData(true, true, false)]
+        public void ReleaseSession_should_have_expected_behavior(bool isExpired, bool isDirty, bool shouldReturnToPool)
         {
             var subject = CreateSubject();
-            var mockPooledSessions = new List<Mock<ICoreServerSession>>();
-            foreach (var r in pooledSessionWasRecentlyUsed)
+            var mockSession = new Mock<ICoreServerSession>();
+            mockSession.Setup(s => s.LastUsedAt).Returns(isExpired ? DateTime.UtcNow.AddHours(-1) : DateTime.UtcNow);
+            if (isDirty)
             {
-                mockPooledSessions.Add(CreateMockSession(r == 1));
-            }
-            subject._pool().AddRange(mockPooledSessions.Select(m => m.Object));
-            var mockReleasedSession = CreateMockSession(releasedSessionWasRecentlyUsed == 1);
-
-            subject.ReleaseSession(mockReleasedSession.Object);
-
-            var expectedNewPoolSize = mockPooledSessions.Count - removeCount + (releasedSessionWasRecentlyUsed == 1 ? 1 : 0);
-            subject._pool().Count().Should().Be(expectedNewPoolSize);
-
-            for (var i = 0; i < mockPooledSessions.Count; i++)
-            {
-                mockPooledSessions[i].Verify(m => m.Dispose(), Times.Exactly(i < removeCount ? 1 : 0));
+                mockSession.Setup(m => m.IsDirty).Returns(true);
             }
 
-            for (var i = 0; i < mockPooledSessions.Count - removeCount; i++)
-            {
-                subject._pool()[i].Should().BeSameAs(mockPooledSessions[i + removeCount].Object);
-            }
+            subject.ReleaseSession(mockSession.Object);
 
-            if (releasedSessionWasRecentlyUsed == 1)
+            if(shouldReturnToPool)
             {
-                mockReleasedSession.Verify(m => m.Dispose(), Times.Never);
-                subject._pool().Last().Should().BeSameAs(mockReleasedSession.Object);
+                subject._pool().Count().Should().Be(1);
+                mockSession.Verify(m => m.Dispose(), Times.Never);
             }
             else
             {
-                mockReleasedSession.Verify(m => m.Dispose(), Times.Once);
+                subject._pool().Count().Should().Be(0);
+                mockSession.Verify(m => m.Dispose(), Times.Once);
             }
         }
 
@@ -256,8 +198,9 @@ namespace MongoDB.Driver.Tests
 
             var mockCluster = new Mock<IClusterInternal>();
             mockCluster.SetupGet(m => m.Description).Returns(clusterDescription);
+            var logger = Mock.Of<ILogger<LogCategories.Client>>();
 
-            return new CoreServerSessionPool(mockCluster.Object);
+            return new CoreServerSessionPool(mockCluster.Object, logger);
         }
     }
 
@@ -269,10 +212,10 @@ namespace MongoDB.Driver.Tests
             return (IClusterInternal)fieldInfo.GetValue(obj);
         }
 
-        public static List<ICoreServerSession> _pool(this CoreServerSessionPool obj)
+        public static ConcurrentStack<ICoreServerSession> _pool(this CoreServerSessionPool obj)
         {
             var fieldInfo = typeof(CoreServerSessionPool).GetField("_pool", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (List<ICoreServerSession>)fieldInfo.GetValue(obj);
+            return (ConcurrentStack<ICoreServerSession>)fieldInfo.GetValue(obj);
         }
 
         public static bool IsAboutToExpire(this CoreServerSessionPool obj, ICoreServerSession session)

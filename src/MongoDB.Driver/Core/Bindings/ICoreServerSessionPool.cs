@@ -21,5 +21,5 @@ internal interface ICoreServerSessionPool
 {
     ICoreServerSession AcquireSession();
     void ReleaseSession(ICoreServerSession serverSession);
-    void ReleaseAll(IServer server);
+    void CloseAndDispose(IServer server);
 }
