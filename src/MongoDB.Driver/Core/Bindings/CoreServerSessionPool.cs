@@ -75,7 +75,12 @@ namespace MongoDB.Driver
 
         public void ReleaseSession(ICoreServerSession session)
         {
-            ThrowIfDisposed();
+            if (_isDisposed)
+            {
+                _logger?.LogError("Cannot release session because the server session pool for cluster {clusterId} has been disposed.", _cluster.ClusterId);
+                return;
+            }
+
             Interlocked.Increment(ref _sessionsReturned);
 
             if (IsAboutToExpireOrDirty(session))
