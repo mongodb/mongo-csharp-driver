@@ -203,9 +203,8 @@ namespace MongoDB.Driver
                 OperationName = OperationName,
                 DatabaseName = DatabaseName,
                 CollectionName = CollectionName,
-                IsTracingEnabled = IsTracingEnabled,
+                IsTracingEnabled = IsTracingEnabled
             };
         }
-
     }
 }
