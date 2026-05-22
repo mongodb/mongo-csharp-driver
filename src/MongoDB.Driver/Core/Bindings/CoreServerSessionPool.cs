@@ -38,6 +38,8 @@ namespace MongoDB.Driver
         private readonly ILogger<LogCategories.Client> _logger;
         private readonly ConcurrentStack<ICoreServerSession> _pool = new();
         private volatile bool _isDisposed = false;
+        private long _sessionsCreated;
+        private long _sessionsDisposed;
         private long _sessionsAcquired;
         private long _sessionsReturned;
 
@@ -51,21 +53,24 @@ namespace MongoDB.Driver
         public ICoreServerSession AcquireSession()
         {
             ThrowIfDisposed();
-            while (_pool.TryPop(out var pooledSession))
+            ICoreServerSession session = null;
+            while (session == null && _pool.TryPop(out session))
             {
-                if (IsAboutToExpireOrDirty(pooledSession))
+                if (IsAboutToExpireOrDirty(session))
                 {
-                    pooledSession.Dispose();
-                }
-                else
-                {
-                    Interlocked.Increment(ref _sessionsAcquired);
-                    return new ReleaseOnDisposeCoreServerSession(pooledSession, this);
+                    session.Dispose();
+                    session = null;
                 }
             }
 
+            if (session == null)
+            {
+                Interlocked.Increment(ref _sessionsCreated);
+                session = new CoreServerSession();
+            }
+
             Interlocked.Increment(ref _sessionsAcquired);
-            return new ReleaseOnDisposeCoreServerSession(new CoreServerSession(), this);
+            return new ReleaseOnDisposeCoreServerSession(session, this);
         }
 
         public void ReleaseSession(ICoreServerSession session)
@@ -75,6 +80,7 @@ namespace MongoDB.Driver
 
             if (IsAboutToExpireOrDirty(session))
             {
+                Interlocked.Increment(ref _sessionsDisposed);
                 session.Dispose();
             }
             else
@@ -93,8 +99,10 @@ namespace MongoDB.Driver
             _isDisposed = true;
             var timestamp = Stopwatch.GetTimestamp();
             _logger?.LogDebug(
-                "Closing server session pool for {clusterId}: total sessions acquired {sessionsAcquired}, sessions returned {sessionsReturned}, pooled sessions {pooledSessions}.",
-                _cluster.ClusterId, _sessionsAcquired, _sessionsReturned, _pool.Count);
+                "Closing server session pool for {clusterId}: total sessions created {sessionsCreated}, total sessions acquired {sessionsAcquired}, sessions returned {sessionsReturned}, sessions disposed {sessionsDisposed}, pooled sessions {pooledSessions}.",
+                _cluster.ClusterId, _sessionsCreated, _sessionsAcquired, _sessionsReturned, _sessionsDisposed, _pool.Count);
+
+            var sessionsEnded = 0;
             try
             {
                 while (true)
@@ -103,7 +111,7 @@ namespace MongoDB.Driver
                     var batch = new ICoreServerSession[batchSize];
 
                     batchSize = _pool.TryPopRange(batch);
-                    if(batchSize == 0)
+                    if (batchSize == 0)
                     {
                         return;
                     }
@@ -124,6 +132,13 @@ namespace MongoDB.Driver
                         CommandResponseHandling.Return,
                         BsonDocumentSerializer.Instance,
                         null);
+
+                    sessionsEnded += batchSize;
+
+                    for (var i = 0; i < batchSize; i++)
+                    {
+                        batch[i].Dispose();
+                    }
                 }
             }
             catch(Exception ex)
@@ -133,8 +148,8 @@ namespace MongoDB.Driver
             finally
             {
                 _logger?.LogDebug(
-                    "Closed server session pool for {clusterId} in {milliseconds}ms.",
-                    _cluster.ClusterId, (Stopwatch.GetTimestamp() - timestamp) / (double)Stopwatch.Frequency * 1000);
+                    "Closed server session pool for {clusterId} in {milliseconds}ms, total sessions ended {sessionsEnded}.",
+                    _cluster.ClusterId, (Stopwatch.GetTimestamp() - timestamp) / (double)Stopwatch.Frequency * 1000, sessionsEnded);
             }
         }
 

@@ -322,7 +322,7 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
 
                 ExecuteOperations(client, objectMap: null, test, eventCapturer);
 
-                eventCapturer.Stop();
+                eventCapturer?.Stop();
             }
         }
 
