@@ -37,8 +37,8 @@ namespace MongoDB.Driver
         private readonly ICluster _cluster;
         private readonly ILogger<LogCategories.Client> _logger;
         private readonly ConcurrentStack<ICoreServerSession> _pool = new();
-        private bool _isDisposed = false;
-        private long _sessionsCreated;
+        private volatile bool _isDisposed = false;
+        private long _sessionsAcquired;
         private long _sessionsReturned;
 
         // constructors
@@ -59,12 +59,12 @@ namespace MongoDB.Driver
                 }
                 else
                 {
-                    Interlocked.Increment(ref _sessionsCreated);
+                    Interlocked.Increment(ref _sessionsAcquired);
                     return new ReleaseOnDisposeCoreServerSession(pooledSession, this);
                 }
             }
 
-            Interlocked.Increment(ref _sessionsCreated);
+            Interlocked.Increment(ref _sessionsAcquired);
             return new ReleaseOnDisposeCoreServerSession(new CoreServerSession(), this);
         }
 
@@ -93,8 +93,8 @@ namespace MongoDB.Driver
             _isDisposed = true;
             var timestamp = Stopwatch.GetTimestamp();
             _logger?.LogDebug(
-                "Closing server session pool for {clusterId}: total sessions created {sessionsCreated}, sessions returned {sessionsReturned}, pooled sessions {pooledSessions}.",
-                _cluster.ClusterId, _sessionsCreated, _sessionsReturned, _pool.Count);
+                "Closing server session pool for {clusterId}: total sessions acquired {sessionsAcquired}, sessions returned {sessionsReturned}, pooled sessions {pooledSessions}.",
+                _cluster.ClusterId, _sessionsAcquired, _sessionsReturned, _pool.Count);
             try
             {
                 while (true)

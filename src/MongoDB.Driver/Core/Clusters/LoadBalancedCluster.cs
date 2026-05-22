@@ -131,6 +131,8 @@ namespace MongoDB.Driver.Core.Clusters
                     var stopwatch = Stopwatch.StartNew();
                     if (_server != null)
                     {
+                        _serverSessionPool.CloseAndDispose(_server);
+
                         _server.DescriptionChanged -= ServerDescriptionChangedHandler;
                         _server.Dispose();
                     }
