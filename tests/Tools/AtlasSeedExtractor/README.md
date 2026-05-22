@@ -18,7 +18,7 @@ Whenever new tests need additional source documents — extend the `MovieTitles`
 
 ```
 dotnet run --project tests/Tools/AtlasSeedExtractor -- \
-    --uri "mongodb://localhost:56669/?directConnection=true" \
+    --uri "mongodb://localhost:56661/?directConnection=true" \
     --out  tests/MongoDB.Driver.Tests/Search/AtlasSearchFixtureSeedData.cs
 ```
 

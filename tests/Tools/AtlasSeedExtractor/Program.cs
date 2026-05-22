@@ -144,7 +144,7 @@ internal static class Program
         }
 
         uri ??= Environment.GetEnvironmentVariable("ATLAS_SEARCH_URI")
-            ?? "mongodb://localhost:56669/?directConnection=true";
+            ?? "mongodb://localhost:56661/?directConnection=true";
 
         if (outPath == null)
         {
@@ -397,11 +397,18 @@ internal static class Program
         if (value is BsonBinaryData bin && bin.SubType == BsonBinarySubType.Vector)
         {
             var bytes = bin.Bytes;
-            if (bytes.Length < 2 || bytes[0] != 0x27)
+            if (bytes.Length < 2)
+            {
+                throw new InvalidOperationException(
+                    $"Expected float32 vector (dtype 0x27); got only {bytes.Length} byte(s).");
+            }
+
+            if (bytes[0] != 0x27)
             {
                 throw new InvalidOperationException(
                     $"Expected float32 vector (dtype 0x27); got dtype 0x{bytes[0]:X2}.");
             }
+
             var payload = (bytes.Length - 2) / 4;
             var result = new float[payload];
             Buffer.BlockCopy(bytes, 2, result, 0, payload * 4);

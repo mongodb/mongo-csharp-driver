@@ -225,7 +225,7 @@ namespace MongoDB.Driver.Tests.Search
                 indexName3 = "test-search-index-case7-vector";
             }
 
-            var indexCreated = await CreateIndexAndValidate(indexName1, _indexDefinition, async);
+            await CreateIndexAndValidate(indexName1, _indexDefinition, async);
 
             var indexNameCreated = async
                 ? await _collection.SearchIndexes.CreateOneAsync(new CreateSearchIndexModel(indexName2, SearchIndexType.Search, _indexDefinition))

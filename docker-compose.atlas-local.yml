@@ -1,7 +1,6 @@
 # Atlas Local with Voyage AI auto-embedding enabled.
 #
 # The VOYAGE_API_KEY value is pulled from your shell environment at compose time.
-# If it isn't set, `docker compose up` will fail fast with the message below.
 #
 #   export VOYAGE_API_KEY=...
 #   docker compose -f docker-compose.atlas-local.yml up -d
