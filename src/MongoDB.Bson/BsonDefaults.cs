@@ -74,7 +74,7 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
-        /// Gets or sets the default max document size. The default is 4MiB.
+        /// Gets or sets the default max document size. The default is <see cref="int.MaxValue"/>.
         /// </summary>
         public static int MaxDocumentSize
         {
