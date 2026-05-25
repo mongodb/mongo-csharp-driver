@@ -18,9 +18,9 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Reflection;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
@@ -207,22 +207,13 @@ namespace MongoDB.Driver.Tests
     internal static class CoreServerSessionPoolReflector
     {
         public static IClusterInternal _cluster(this CoreServerSessionPool obj)
-        {
-            var fieldInfo = typeof(CoreServerSessionPool).GetField("_cluster", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (IClusterInternal)fieldInfo.GetValue(obj);
-        }
+            => (IClusterInternal)Reflector.GetFieldValue(obj, "_cluster");
 
         public static ConcurrentStack<ICoreServerSession> _pool(this CoreServerSessionPool obj)
-        {
-            var fieldInfo = typeof(CoreServerSessionPool).GetField("_pool", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (ConcurrentStack<ICoreServerSession>)fieldInfo.GetValue(obj);
-        }
+            => (ConcurrentStack<ICoreServerSession>)Reflector.GetFieldValue(obj, "_pool");
 
         public static bool IsAboutToExpire(this CoreServerSessionPool obj, ICoreServerSession session)
-        {
-            var methodInfo = typeof(CoreServerSessionPool).GetMethod("IsAboutToExpire", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (bool)methodInfo.Invoke(obj, new object[] { session });
-        }
+            => (bool)Reflector.Invoke(obj, "IsAboutToExpire", session);
     }
 
     public class ReleaseOnDisposeCoreServerSessionTests
@@ -306,9 +297,6 @@ namespace MongoDB.Driver.Tests
     internal static class ReleaseOnDisposeCoreServerSessionReflector
     {
         public static ICoreServerSessionPool _pool(this CoreServerSessionPool.ReleaseOnDisposeCoreServerSession obj)
-        {
-            var fieldInfo = typeof(CoreServerSessionPool.ReleaseOnDisposeCoreServerSession).GetField("_pool", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (ICoreServerSessionPool)fieldInfo.GetValue(obj);
-        }
+            => (ICoreServerSessionPool)Reflector.GetFieldValue(obj, "_pool");
     }
 }
