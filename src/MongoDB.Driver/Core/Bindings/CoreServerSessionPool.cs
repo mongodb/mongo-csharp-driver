@@ -77,6 +77,7 @@ namespace MongoDB.Driver
         {
             if (_isDisposed)
             {
+                session.Dispose();
                 _logger?.LogError("Cannot release session because the server session pool for cluster {clusterId} has been disposed.", _cluster.ClusterId);
                 return;
             }
@@ -148,7 +149,7 @@ namespace MongoDB.Driver
             }
             catch(Exception ex)
             {
-                _logger?.LogError(ex, "Error closing server session pool for {clusterId}: {exception}", _cluster.ClusterId, ex.Message);
+                _logger?.LogError(ex, "Error closing server session pool for {clusterId}.", _cluster.ClusterId);
             }
             finally
             {
