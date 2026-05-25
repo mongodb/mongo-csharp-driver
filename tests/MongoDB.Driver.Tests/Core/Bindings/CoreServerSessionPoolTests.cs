@@ -129,7 +129,7 @@ namespace MongoDB.Driver.Tests
 
             subject.ReleaseSession(mockSession.Object);
 
-            if(shouldReturnToPool)
+            if (shouldReturnToPool)
             {
                 subject._pool().Count().Should().Be(1);
                 mockSession.Verify(m => m.Dispose(), Times.Never);
