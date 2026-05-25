@@ -48,13 +48,13 @@ namespace MongoDB.Driver.SmokeTests.Sdk
                 ClusterRegistry.Instance.UnregisterAndDisposeCluster(mongoClient.Cluster);
             }
 
-            capturedActivities.Should().HaveCount(6);
+            capturedActivities.Should().HaveCount(7);
 
             var operationActivities = capturedActivities.Where(a => a.GetTagItem("db.operation.name") != null).ToList();
             var commandActivities = capturedActivities.Where(a => a.GetTagItem("db.command.name") != null).ToList();
 
             operationActivities.Should().HaveCount(3);
-            commandActivities.Should().HaveCount(3);
+            commandActivities.Should().HaveCount(4);
         }
 
         [Fact]

@@ -114,6 +114,11 @@ namespace MongoDB.Driver
                 while (true)
                 {
                     var batchSize = Math.Min(10000, _pool.Count);
+                    if (batchSize == 0)
+                    {
+                        return;
+                    }
+
                     var batch = new ICoreServerSession[batchSize];
 
                     batchSize = _pool.TryPopRange(batch);
