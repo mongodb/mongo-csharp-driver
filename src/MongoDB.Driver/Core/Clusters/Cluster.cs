@@ -67,7 +67,7 @@ namespace MongoDB.Driver.Core.Clusters
             _expirableClusterDescription = new (this, ClusterDescription.CreateInitial(_clusterId, _settings.DirectConnection));
             _latencyLimitingServerSelector = new LatencyLimitingServerSelector(settings.LocalThreshold);
             _serverSelectionWaitQueue = new ServerSelectionWaitQueue(this);
-            _serverSessionPool = new CoreServerSessionPool(this);
+            _serverSessionPool = new CoreServerSessionPool(this, loggerFactory?.CreateLogger<LogCategories.Client>());
             _clusterEventLogger = loggerFactory.CreateEventLogger<LogCategories.SDAM>(eventSubscriber);
             _serverSelectionEventLogger = loggerFactory.CreateEventLogger<LogCategories.ServerSelection>(eventSubscriber);
         }
@@ -128,6 +128,21 @@ namespace MongoDB.Driver.Core.Clusters
             if (_state.TryChange(State.Initial, State.Open))
             {
                 _clusterEventLogger.Logger?.LogTrace(_clusterId, "Cluster initialized");
+            }
+        }
+
+        protected void ReleaseServerSessionPool()
+        {
+            // Do the sessionPool cleanup only if we have a server available immediately, do not have to wait here.
+            var server = Servers.FirstOrDefault(x => x.Description.State == ServerState.Connected && x.Description.Type == ServerType.ReplicaSetPrimary);
+            if (server == null)
+            {
+                server = Servers.FirstOrDefault(x => x.Description.State == ServerState.Connected);
+            }
+
+            if (server != null)
+            {
+                _serverSessionPool.CloseAndDispose(server);
             }
         }
 

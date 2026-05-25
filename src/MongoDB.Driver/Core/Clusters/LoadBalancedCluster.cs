@@ -86,7 +86,7 @@ namespace MongoDB.Driver.Core.Clusters
             _serverFactory = Ensure.IsNotNull(serverFactory, nameof(serverFactory));
             _serverReadyTaskCompletionSource = new TaskCompletionSource<bool>();
 
-            _serverSessionPool = new CoreServerSessionPool(this);
+            _serverSessionPool = new CoreServerSessionPool(this, loggerFactory?.CreateLogger<LogCategories.Client>());
 
             _state = new InterlockedInt32(State.Initial);
 
@@ -131,6 +131,8 @@ namespace MongoDB.Driver.Core.Clusters
                     var stopwatch = Stopwatch.StartNew();
                     if (_server != null)
                     {
+                        _serverSessionPool.CloseAndDispose(_server);
+
                         _server.DescriptionChanged -= ServerDescriptionChangedHandler;
                         _server.Dispose();
                     }

@@ -14,8 +14,8 @@
 */
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -28,7 +28,6 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Encryption;
-using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 using Xunit.Abstractions;
@@ -279,7 +278,7 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
             collection.InsertOne(new BsonDocument("x", 0));
 
             var serverSessionPool = (CoreServerSessionPool)Reflector.GetFieldValue(client.Cluster, "_serverSessionPool");
-            var serverSessionsList = (List<ICoreServerSession>)Reflector.GetFieldValue(serverSessionPool, "_pool");
+            var serverSessionsList = (ConcurrentStack<ICoreServerSession>)Reflector.GetFieldValue(serverSessionPool, "_pool");
 
             var serverSession = serverSessionsList.Single();
             eventCapturer.Clear();
@@ -389,7 +388,7 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
             var mongoClient = DriverTestConfiguration.Client;
 
             using var session = mongoClient.StartSession(sessionOptions);
-            
+
             var exception = Record.Exception(() => session.GetSnapshotTime());
             exception.Should().BeOfType<InvalidOperationException>();
             exception.Message.Should().Contain("non-snapshot session");

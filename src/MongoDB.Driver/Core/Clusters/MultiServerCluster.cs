@@ -71,6 +71,9 @@ namespace MongoDB.Driver.Core.Clusters
                     _monitorServersCancellationTokenSource.Cancel();
                     _monitorServersCancellationTokenSource.Dispose();
                     var clusterDescription = Description;
+
+                    ReleaseServerSessionPool();
+
                     lock (_serversLock)
                     {
                         foreach (var server in _servers.ToList())
