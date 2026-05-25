@@ -148,7 +148,7 @@ namespace MongoDB.Driver
             }
             catch(Exception ex)
             {
-                _logger?.LogError(ex, "Error closing server session pool for {clusterId}: {exception}", _cluster.ClusterId, ex);
+                _logger?.LogError(ex, "Error closing server session pool for {clusterId}: {exception}", _cluster.ClusterId, ex.Message);
             }
             finally
             {
