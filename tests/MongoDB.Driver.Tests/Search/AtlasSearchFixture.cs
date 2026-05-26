@@ -65,6 +65,11 @@ namespace MongoDB.Driver.Tests.Search
         private bool _returnScopeInitialized;
         private bool? _isRerankSupported;
 
+        // Routes events from the shared cluster to whichever subscribers test classes
+        // have currently attached. Replaces the previously-shared single EventCapturer
+        // so per-test-class capturers can coexist without stepping on each other.
+        private readonly CompositeEventSubscriber _eventRouter = new();
+
         public AtlasSearchFixture()
         {
             // The fixture must be tolerant of missing env vars so xUnit can skip individual
@@ -78,8 +83,7 @@ namespace MongoDB.Driver.Tests.Search
             var settings = MongoClientSettings.FromConnectionString(atlasSearchUri);
             settings.ClusterSource = DisposingClusterSource.Instance;
 
-            EventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName == "aggregate");
-            settings.ClusterConfigurator = b => b.Subscribe(EventCapturer);
+            settings.ClusterConfigurator = b => b.Subscribe(_eventRouter);
 
             Client = new MongoClient(settings);
             DatabaseName = "atlas_search_" + Guid.NewGuid().ToString("N");
@@ -87,9 +91,18 @@ namespace MongoDB.Driver.Tests.Search
 
         public IMongoClient Client { get; }
 
-        public EventCapturer EventCapturer { get; }
-
         public string DatabaseName { get; }
+
+        /// <summary>
+        /// Attaches a subscriber to the fixture-owned cluster. Each test class should
+        /// register its own <see cref="EventCapturer"/> here (rather than sharing one)
+        /// and detach it during teardown.
+        /// </summary>
+        public void AddEventSubscriber(IEventSubscriber subscriber) =>
+            _eventRouter.Add(subscriber);
+
+        public void RemoveEventSubscriber(IEventSubscriber subscriber) =>
+            _eventRouter.Remove(subscriber);
 
         /// <summary>
         /// Lazily probes for $rerank support on first access. Tests guard themselves on this so the
@@ -100,20 +113,22 @@ namespace MongoDB.Driver.Tests.Search
             get
             {
                 EnsureMoviesInitialized();
-                if (_isRerankSupported is bool cached)
+                if (_isRerankSupported is { } cached)
                 {
                     return cached;
                 }
                 lock (_initLock)
                 {
-                    if (_isRerankSupported is bool again)
+                    if (_isRerankSupported is { } again)
                     {
                         return again;
                     }
                     _isRerankSupported = ProbeRerankSupport();
                     // ProbeRerankSupport fires a real $search+$rerank aggregate; clear so
                     // tests asserting on captured aggregate events don't see the probe.
-                    EventCapturer?.Clear();
+                    // Run unconditionally — tests may have already attached capturers via
+                    // AddEventSubscriber before the first IsRerankSupported probe fires.
+                    ClearCapturedEvents();
                     return _isRerankSupported.Value;
                 }
             }
@@ -190,8 +205,6 @@ namespace MongoDB.Driver.Tests.Search
                 Console.Error.WriteLine(
                     $"AtlasSearchFixture: failed to drop database '{DatabaseName}': {ex}");
             }
-
-            Client.Dispose();
         }
 
         // ---- Seeders ----
@@ -249,7 +262,7 @@ namespace MongoDB.Driver.Tests.Search
                 });
 
                 _historicalInitialized = true;
-                EventCapturer?.Clear();
+                ClearCapturedEvents();
             }
         }
 
@@ -315,7 +328,7 @@ namespace MongoDB.Driver.Tests.Search
                 });
 
                 _moviesInitialized = true;
-                EventCapturer?.Clear();
+                ClearCapturedEvents();
             }
         }
 
@@ -371,7 +384,7 @@ namespace MongoDB.Driver.Tests.Search
                 });
 
                 _embeddedMoviesInitialized = true;
-                EventCapturer?.Clear();
+                ClearCapturedEvents();
             }
         }
 
@@ -415,7 +428,7 @@ namespace MongoDB.Driver.Tests.Search
                 });
 
                 _airbnbInitialized = true;
-                EventCapturer?.Clear();
+                ClearCapturedEvents();
             }
         }
 
@@ -445,7 +458,7 @@ namespace MongoDB.Driver.Tests.Search
                 });
 
                 _testClassesInitialized = true;
-                EventCapturer?.Clear();
+                ClearCapturedEvents();
             }
         }
 
@@ -476,7 +489,7 @@ namespace MongoDB.Driver.Tests.Search
                 });
 
                 _binaryVectorInitialized = true;
-                EventCapturer?.Clear();
+                ClearCapturedEvents();
             }
         }
 
@@ -526,7 +539,7 @@ namespace MongoDB.Driver.Tests.Search
                 WaitForAutoEmbedIndexReady(collection, AutoEmbedIndexName);
 
                 _autoEmbedInitialized = true;
-                EventCapturer?.Clear();
+                ClearCapturedEvents();
             }
         }
 
@@ -715,7 +728,7 @@ namespace MongoDB.Driver.Tests.Search
                 });
 
                 _returnScopeInitialized = true;
-                EventCapturer?.Clear();
+                ClearCapturedEvents();
             }
         }
 
@@ -859,6 +872,60 @@ namespace MongoDB.Driver.Tests.Search
             catch
             {
                 return false;
+            }
+        }
+
+        // Drops any events buffered by currently-attached EventCapturers. Called by seed
+        // paths whose driver-side commands would otherwise pollute a test's capture.
+        private void ClearCapturedEvents() => _eventRouter.ClearCapturers();
+
+        /// <summary>
+        /// Forwards events from the cluster to whichever <see cref="IEventSubscriber"/>s
+        /// test classes have currently attached. The cluster's <see cref="EventPublisher"/>
+        /// caches handlers on first publish, so this subscriber always reports a handler
+        /// for every event type — that cached delegate then consults the live subscriber
+        /// list at each publish, letting tests add/remove their own capturers at will.
+        /// </summary>
+        private sealed class CompositeEventSubscriber : IEventSubscriber
+        {
+            private readonly object _gate = new();
+            private readonly List<IEventSubscriber> _subscribers = new();
+
+            public void Add(IEventSubscriber subscriber)
+            {
+                lock (_gate) _subscribers.Add(subscriber);
+            }
+
+            public void Remove(IEventSubscriber subscriber)
+            {
+                lock (_gate) _subscribers.Remove(subscriber);
+            }
+
+            public void ClearCapturers()
+            {
+                IEventSubscriber[] snapshot;
+                lock (_gate) snapshot = _subscribers.ToArray();
+                foreach (var s in snapshot)
+                {
+                    (s as EventCapturer)?.Clear();
+                }
+            }
+
+            public bool TryGetEventHandler<TEvent>(out Action<TEvent> handler)
+            {
+                handler = e =>
+                {
+                    IEventSubscriber[] snapshot;
+                    lock (_gate) snapshot = _subscribers.ToArray();
+                    foreach (var s in snapshot)
+                    {
+                        if (s.TryGetEventHandler<TEvent>(out var inner))
+                        {
+                            inner(e);
+                        }
+                    }
+                };
+                return true;
             }
         }
     }

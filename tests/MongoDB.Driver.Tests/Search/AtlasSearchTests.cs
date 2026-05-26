@@ -292,11 +292,17 @@ namespace MongoDB.Driver.Tests.Search
 
             _fixture = fixture;
             _mongoClient = fixture.Client;
-            _eventCapturer = fixture.EventCapturer;
 
-            // Tests assert against the most recent aggregate (e.g., ValidateSearchStage uses .Single()),
-            // so reset the shared capturer per-test rather than relying on a per-test client.
-            _eventCapturer.Clear();
+            // Each test instance owns its capturer so concurrent test classes sharing the
+            // fixture's MongoClient can't observe (or clear) each other's events. xUnit
+            // serializes within the AtlasSearch collection, so the capturer is single-writer.
+            _eventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName == "aggregate");
+            _fixture.AddEventSubscriber(_eventCapturer);
+        }
+
+        protected override void DisposeInternal()
+        {
+            _fixture.RemoveEventSubscriber(_eventCapturer);
         }
 
         [Fact]
@@ -899,8 +905,6 @@ namespace MongoDB.Driver.Tests.Search
         [Fact]
         public void SearchSequenceToken()
         {
-            // Lean seed has 4 "flower"-titled movies; limit smaller than the matching set so the
-            // SearchAfter / SearchBefore pagination exercise is still meaningful.
             const int limitVal = 4;
             var titles = new[]
             {

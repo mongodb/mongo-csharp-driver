@@ -42,16 +42,6 @@ namespace MongoDB.Driver.Tests.Search
             RequireEnvironment.Check().EnvironmentVariable("ATLAS_SEARCH_URI");
             _fixture = fixture;
             _mongoClient = fixture.Client;
-
-            // The fixture's EventCapturer is shared across every test class in the
-            // collection. We don't assert on it here, but clear it so captured aggregate
-            // events from VectorSearchTests don't accumulate without bound.
-            _fixture.EventCapturer?.Clear();
-        }
-
-        protected override void DisposeInternal()
-        {
-            // Client lifetime is owned by AtlasSearchFixture.
         }
 
         [Fact]
@@ -85,8 +75,6 @@ namespace MongoDB.Driver.Tests.Search
         [Fact]
         public void VectorSearch()
         {
-            // Lean seed: Pinocchio's embedding loses to Oz on this query vector in our 19-doc set.
-            // See AtlasSearchTests.VectorSearch for the ranking-vs-corpus rationale.
             var expectedTitles = new[]
             {
                 "Willy Wonka & the Chocolate Factory",
@@ -151,8 +139,16 @@ namespace MongoDB.Driver.Tests.Search
         [Fact]
         public void VectorSearch_on_embedded_documents()
         {
-            SkipTests();
+            // CSHARP-5840: with a nestedRoot vector index, the $vectorSearch `filter` field
+            // returns 0 results against mongot 0.65.1 regardless of the filter content, so the
+            // NestedFilter / EmbeddedScoreMode codepath cannot complete end-to-end. parentFilter,
+            // nestedOptions, and the path itself all work in isolation, but they are mutually
+            // exclusive with a working filter on this Atlas Local build. Re-enable by removing
+            // the throw below once mongot supports filter together with nestedRoot/nestedOptions.
+            throw new SkipException(
+                "Test skipped because of CSHARP-5840; mongot does not yet honor the `filter` field on a nestedRoot vector index.");
 
+#pragma warning disable CS0162 // Unreachable code: body kept as the target shape for when the skip is removed.
             var nestedVectorCollection =
                 _mongoClient.GetDatabase("dotnet-test").GetCollection<MovieWithPlot>(GetRandomName());
             var nestedVectorIndexName = GetRandomName();
@@ -164,11 +160,11 @@ namespace MongoDB.Driver.Tests.Search
                     Title = @"Scarface",
                     Year = 1932,
                     Available = true,
-                    Plot = new NestedPlot
+                    Plots = [new NestedPlot
                     {
                         Plot =
                             @"An ambitious and near insanely violent gangster climbs the ladder of success in the mob, but his weaknesses prove to be his downfall.",
-                        Rating = 5,
+                        Rating = 4,
                         PlotEmbedding =
                         [
                             -0.0155797182f, -0.034283191f, 0.0152282966f, -0.0426131971f, -0.0208510514f,
@@ -480,18 +476,18 @@ namespace MongoDB.Driver.Tests.Search
                             -0.0353244394f, 0.014226092f, 0.0164777972f, -0.0294153411f, -0.00834953133f,
                             -7.23486446E-05f
                         ]
-                    }
+                    }]
                 },
                 new MovieWithPlot
                 {
                     Title = @"The Charge of the Light Brigade",
                     Year = 1936,
                     Available = true,
-                    Plot = new NestedPlot
+                    Plots = [new NestedPlot
                     {
                         Plot =
                             @"A major countermands orders and attacks to revenge a previous massacre of men, women and children.",
-                        Rating = 4,
+                        Rating = 5,
                         PlotEmbedding =
                         [
                             -0.0329607055f, -0.0246873293f, -0.018857453f, -0.00159607758f, -0.00163923728f,
@@ -803,18 +799,18 @@ namespace MongoDB.Driver.Tests.Search
                             -0.021619672f, -0.00411344785f, -0.0155640393f, 0.000650299946f, 0.00979392417f,
                             -0.0121311862f
                         ]
-                    }
+                    }]
                 },
             ];
 
             nestedVectorCollection.InsertMany(movies);
 
             var indexModel = new CreateVectorSearchIndexModel<MovieWithPlot>(
-                e => e.Plot.PlotEmbedding,
+                "Plots.PlotEmbedding",
                 nestedVectorIndexName,
                 VectorSimilarity.Euclidean,
                 dimensions: 1536,
-                e => e.Available, e => e.Title, e => e.Year, e => e.Plot.Rating, e => e.Plot.Plot);
+                "Available", "Title", "Year", "rating", "plot");
 
             indexModel = indexModel.WithIncludedStoredFields(e => e.Title, e => e.Year);
 
@@ -1140,8 +1136,8 @@ namespace MongoDB.Driver.Tests.Search
 
             var options = new VectorSearchOptions<MovieWithPlot>()
             {
-                Filter = Builders<MovieWithPlot>.Filter.Eq(m => m.Plot.Rating, 5)
-                         & Builders<MovieWithPlot>.Filter.Gt("year", 1900),
+                Filter = Builders<MovieWithPlot>.Filter.Gt("Year", 1900),
+                NestedFilter = Builders<MovieWithPlot>.Filter.Eq("Plots.Rating", 5),
                 IndexName = nestedVectorIndexName,
                 ReturnStoredSource = true,
                 EmbeddedScoreMode = SearchScoreFunction.Average
@@ -1149,7 +1145,8 @@ namespace MongoDB.Driver.Tests.Search
 
             var results = nestedVectorCollection
                 .Aggregate()
-                .VectorSearch(m => m.Plot.PlotEmbedding, vector, 1, options)
+                .AppendStage(PipelineStageDefinitionBuilder.VectorSearch<MovieWithPlot>(
+                    "Plots.PlotEmbedding", vector, 1, options))
                 .Project<MovieWithPlot>(Builders<MovieWithPlot>.Projection
                     .Include(m => m.Title)
                     .MetaVectorSearchScore(p => p.Score))
@@ -1158,6 +1155,7 @@ namespace MongoDB.Driver.Tests.Search
             results.Count.Should().Be(1);
             results[0].Title.Should().Be("The Charge of the Light Brigade");
             results.Should().OnlyContain(m => m.Score > 0.9);
+#pragma warning restore CS0162
         }
 
         private IMongoCollection<EmbeddedMovie> GetEmbeddedMoviesCollection() =>
@@ -1207,8 +1205,8 @@ namespace MongoDB.Driver.Tests.Search
             [BsonElement("score")]
             public double Score { get; set; }
 
-            [BsonElement("plot")]
-            public NestedPlot Plot { get; set; }
+            [BsonElement("plots")]
+            public NestedPlot[] Plots { get; set; }
         }
 
         public class NestedPlot
@@ -1233,7 +1231,5 @@ namespace MongoDB.Driver.Tests.Search
 
             return indexDefinition != null;
         }
-
-        private void SkipTests() => throw new SkipException("Test skipped because of CSHARP-5840; Atlas does not currently support these features.");
     }
 }

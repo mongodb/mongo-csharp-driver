@@ -28,7 +28,7 @@ using Xunit.Sdk;
 
 namespace MongoDB.Driver.Tests.Search
 {
-    [Category("AtlasSearchIndexHelpers")]
+    [Trait("Category", "AtlasSearch")]
     [Collection(AtlasSearchCollection.Name)]
     public class AtlasSearchIndexManagementTests : LoggableTestClass
     {
@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Tests.Search
 
         public AtlasSearchIndexManagementTests(AtlasSearchFixture fixture, ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
-            RequireEnvironment.Check().EnvironmentVariable("ATLAS_SEARCH_INDEX_HELPERS_TESTS_ENABLED");
+            RequireEnvironment.Check().EnvironmentVariable("ATLAS_SEARCH_TESTS_ENABLED");
             RequireEnvironment.Check().EnvironmentVariable("ATLAS_SEARCH_URI");
 
             _mongoClient = fixture.Client;

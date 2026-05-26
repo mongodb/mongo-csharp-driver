@@ -47,11 +47,6 @@ public class AutoEmbedVectorSearchTests : LoggableTestClass
 
         _collection = fixture.GetAutoEmbedMoviesCollection<Movie>();
         _autoEmbedIndexName = AtlasSearchFixture.AutoEmbedIndexName;
-
-        // The fixture's EventCapturer is shared across every test class in the
-        // collection. We don't assert on it here, but clear it so captured aggregate
-        // events from AutoEmbedVectorSearchTests don't accumulate without bound.
-        fixture.EventCapturer?.Clear();
     }
 
     [Fact(Timeout = Timeout)]
