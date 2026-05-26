@@ -58,7 +58,6 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             public TestClass TestClass { get; set; }
         }
 
-        // A self-referencing IEnumerable<T> like JToken: implements IEnumerable<Self>.
         private class SelfEnumerable : IEnumerable<SelfEnumerable>
         {
             public IEnumerator<SelfEnumerable> GetEnumerator() => throw new NotImplementedException();
@@ -516,7 +515,6 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             ConventionRegistry.Remove("objectRecursive");
         }
 
-        // CSHARP-6040: types like JToken implement IEnumerable<Self> and used to cause CouldApply to recurse infinitely.
         [Fact]
         public void Convention_should_not_stack_overflow_with_self_referencing_enumerable_type()
         {
