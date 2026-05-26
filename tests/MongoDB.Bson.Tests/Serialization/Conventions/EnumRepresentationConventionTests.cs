@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using FluentAssertions;
@@ -52,12 +53,20 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             public IEnumerable<E> IEnumerableEnum { get; set; }
             public IDictionary<string, E> IDictionaryEnumValue { get; set; }
             public IDictionary<E, string> IDictionaryEnumKey { get; set; }
+            public SelfEnumerable SelfEnumerableProp { get; set; }
             // public Dictionary<E, C> RecursiveDictionary { get; set; } - this is not supported.
         }
 
         public class IC
         {
             public C C { get; set; }
+        }
+
+        // A self-referencing IEnumerable<T> like JToken: implements IEnumerable<Self>.
+        public class SelfEnumerable : IEnumerable<SelfEnumerable>
+        {
+            public IEnumerator<SelfEnumerable> GetEnumerator() => throw new NotImplementedException();
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         }
 
         [Theory]
@@ -293,6 +302,20 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             _ = new BsonClassMap<C>(cm => cm.AutoMap()).Freeze();
 
             ConventionRegistry.Remove("enumRecursive");
+        }
+
+        // CSHARP-6040: types like JToken implement IEnumerable<Self> and used to cause CouldApply to recurse infinitely.
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void Convention_should_not_stack_overflow_with_self_referencing_enumerable_type(bool topLevelOnly)
+        {
+            var subject = new EnumRepresentationConvention(BsonType.String, topLevelOnly);
+            var memberMap = CreateMemberMap(c => c.SelfEnumerableProp);
+
+            var exception = Record.Exception(() => subject.Apply(memberMap));
+
+            exception.Should().BeNull();
         }
 
         [Theory]

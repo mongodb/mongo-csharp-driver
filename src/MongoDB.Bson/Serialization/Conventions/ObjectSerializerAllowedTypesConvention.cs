@@ -170,14 +170,27 @@ namespace MongoDB.Bson.Serialization.Conventions
             }
 
             bool CouldApply(Type type)
-                => type == typeof(object) ||
-                   (type.IsArray && CouldApply(type.GetElementType())) || // This is covered by IEnumerable<T>, but it's a good short-circuit
-                   IsNonGenericEnumerable(type) ||
-                   type.GetInterfaces().Prepend(type).Any(
-                       i =>
-                           i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>) && CouldApply(i.GetGenericArguments()[0]) || // IEnumerable<T>
-                           i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IDictionary<,>) && (CouldApply(i.GetGenericArguments()[0]) || CouldApply(i.GetGenericArguments()[1])) // IDictionary<TKey, TValue>
-                   );
+            {
+                var visited = new HashSet<Type>();
+                return CouldApplyCore(type);
+
+                bool CouldApplyCore(Type t)
+                {
+                    if (!visited.Add(t))
+                    {
+                        return false;
+                    }
+
+                    return t == typeof(object) ||
+                           (t.IsArray && CouldApplyCore(t.GetElementType())) || // This is covered by IEnumerable<T>, but it's a good short-circuit
+                           IsNonGenericEnumerable(t) ||
+                           t.GetInterfaces().Prepend(t).Any(
+                               i =>
+                                   i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>) && CouldApplyCore(i.GetGenericArguments()[0]) || // IEnumerable<T>
+                                   i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IDictionary<,>) && (CouldApplyCore(i.GetGenericArguments()[0]) || CouldApplyCore(i.GetGenericArguments()[1])) // IDictionary<TKey, TValue>
+                           );
+                }
+            }
 
             // A type that implements IEnumerable but not IEnumerable<T> (e.g. ArrayList, Hashtable).
             static bool IsNonGenericEnumerable(Type type)
