@@ -16,6 +16,7 @@
 using System.Collections.Generic;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
@@ -99,6 +100,37 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Serializers
             var result = x.GetHashCode();
 
             result.Should().Be(0);
+        }
+
+        [Fact]
+        public void Serialize_null_should_write_null()
+        {
+            var serializer = new ConcreteIEnumerableSerializerBase<IEnumerable<int>, int>(Int32Serializer.Instance);
+            var document = new BsonDocument();
+            using var writer = new BsonDocumentWriter(document);
+            var context = BsonSerializationContext.CreateRoot(writer);
+            writer.WriteStartDocument();
+            writer.WriteName("x");
+
+            serializer.Serialize(context, new BsonSerializationArgs(), null);
+
+            writer.WriteEndDocument();
+            document["x"].Should().Be(BsonNull.Value);
+        }
+
+        [Fact]
+        public void Deserialize_null_should_return_default()
+        {
+            var serializer = new ConcreteIEnumerableSerializerBase<IEnumerable<int>, int>(Int32Serializer.Instance);
+            var document = new BsonDocument("x", BsonNull.Value);
+            using var reader = new BsonDocumentReader(document);
+            reader.ReadStartDocument();
+            reader.ReadName("x");
+            var context = BsonDeserializationContext.CreateRoot(reader);
+
+            var result = serializer.Deserialize(context, new BsonDeserializationArgs { NominalType = typeof(IEnumerable<int>) });
+
+            result.Should().BeNull();
         }
 
         internal class ConcreteIEnumerableSerializerBase<TEnumerable, TItem> : IEnumerableSerializerBase<TEnumerable, TItem>
