@@ -1757,13 +1757,13 @@ tasks:
               echo "Copying files ... begin"
               export AZUREKMS_PRIVATEKEYPATH=/tmp/testazurekms_privatekey
               source $DRIVERS_TOOLS/.evergreen/csfle/azurekms/secrets-export.sh
-              tar czf /tmp/mongo-csharp-driver.tgz .
+              evergreen/compile-sources.sh
+              tar czf /tmp/mongo-csharp-driver.tgz tests/*.Tests/bin/Release/net6.0/ evergreen/install-dotnet.sh evergreen/run-csfle-azure-tests.sh
               AZUREKMS_SRC=/tmp/mongo-csharp-driver.tgz AZUREKMS_DST="~/" $DRIVERS_TOOLS/.evergreen/csfle/azurekms/copy-file.sh
               echo "Copying files ... end"
               echo "Untarring file ... begin"
               AZUREKMS_CMD="tar xf mongo-csharp-driver.tgz" $DRIVERS_TOOLS/.evergreen/csfle/azurekms/run-command.sh
               echo "Untarring file ... end"
-
         - command: shell.exec
           type: test
           params:
@@ -2099,6 +2099,7 @@ task_groups:
       - func: init-test-results
       - func: make-files-executable
       - func: assume-aws-test-secrets-role
+      - func: configure-framework
       - command: subprocess.exec
         params:
           binary: bash
