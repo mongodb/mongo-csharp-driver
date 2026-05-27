@@ -49,12 +49,19 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             public IDictionary<string, object> IDictionaryStringObjectProp { get; set; }
             public IDictionary<object, string> IDictionaryObjectStringProp { get; set; }
             public ArrayList ArrayListProp { get; set; }
+            public SelfEnumerable SelfEnumerableProp { get; set; }
             // public Dictionary<TestClass, object> RecursivePropDictionary { get; set; } - this is not supported.
         }
 
         private class IC
         {
             public TestClass TestClass { get; set; }
+        }
+
+        private class SelfEnumerable : IEnumerable<SelfEnumerable>
+        {
+            public IEnumerator<SelfEnumerable> GetEnumerator() => throw new NotImplementedException();
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         }
 
         [Fact]
@@ -506,6 +513,15 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             _ = new BsonClassMap<TestClass>(cm => cm.AutoMap()).Freeze();
 
             ConventionRegistry.Remove("objectRecursive");
+        }
+
+        [Fact]
+        public void Convention_should_not_stack_overflow_with_self_referencing_enumerable_type()
+        {
+            var subject = new ObjectSerializerAllowedTypesConvention();
+            var memberMap = CreateMemberMap(c => c.SelfEnumerableProp);
+
+            subject.Apply(memberMap);
         }
 
         // private methods

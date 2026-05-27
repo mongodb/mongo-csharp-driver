@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using FluentAssertions;
@@ -52,12 +53,19 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             public IEnumerable<E> IEnumerableEnum { get; set; }
             public IDictionary<string, E> IDictionaryEnumValue { get; set; }
             public IDictionary<E, string> IDictionaryEnumKey { get; set; }
+            public SelfEnumerable SelfEnumerableProp { get; set; }
             // public Dictionary<E, C> RecursiveDictionary { get; set; } - this is not supported.
         }
 
         public class IC
         {
             public C C { get; set; }
+        }
+
+        public class SelfEnumerable : IEnumerable<SelfEnumerable>
+        {
+            public IEnumerator<SelfEnumerable> GetEnumerator() => throw new NotImplementedException();
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         }
 
         [Theory]
@@ -293,6 +301,17 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             _ = new BsonClassMap<C>(cm => cm.AutoMap()).Freeze();
 
             ConventionRegistry.Remove("enumRecursive");
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void Convention_should_not_stack_overflow_with_self_referencing_enumerable_type(bool topLevelOnly)
+        {
+            var subject = new EnumRepresentationConvention(BsonType.String, topLevelOnly);
+            var memberMap = CreateMemberMap(c => c.SelfEnumerableProp);
+
+            subject.Apply(memberMap);
         }
 
         [Theory]
