@@ -521,9 +521,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             var subject = new ObjectSerializerAllowedTypesConvention();
             var memberMap = CreateMemberMap(c => c.SelfEnumerableProp);
 
-            var exception = Record.Exception(() => subject.Apply(memberMap));
-
-            exception.Should().BeNull();
+            subject.Apply(memberMap);
         }
 
         // private methods

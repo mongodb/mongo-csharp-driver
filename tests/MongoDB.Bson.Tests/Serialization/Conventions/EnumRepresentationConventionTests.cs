@@ -311,9 +311,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             var subject = new EnumRepresentationConvention(BsonType.String, topLevelOnly);
             var memberMap = CreateMemberMap(c => c.SelfEnumerableProp);
 
-            var exception = Record.Exception(() => subject.Apply(memberMap));
-
-            exception.Should().BeNull();
+            subject.Apply(memberMap);
         }
 
         [Theory]
