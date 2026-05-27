@@ -1,0 +1,430 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>Interface IMongoDatabase
+ | MongoDB CSharp Driver API Reference </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Interface IMongoDatabase
+ | MongoDB CSharp Driver API Reference ">
+      
+      <link rel="icon" href="../../images/favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/mongodb/mongo-csharp-driver/new/main/apiSpec/new?filename=MongoDB_Driver_IMongoDatabase.md&amp;value=---%0Auid%3A%20MongoDB.Driver.IMongoDatabase%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+  </head>
+
+  <script type="module" src="./../../public/docfx.min.js"></script>
+
+  <script>
+    const theme = localStorage.getItem('theme') || 'auto'
+    document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+  </script>
+
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../images/mongodb-logo.svg" alt="">
+            
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+      <div class="toc-offcanvas">
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tocOffcanvasLabel">Table of Contents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#tocOffcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <nav class="toc" id="toc"></nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actionbar">
+          <button class="btn btn-lg border-0 d-md-none" style="margin-top: -.65em; margin-left: -.8em" type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas" aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="MongoDB.Driver.IMongoDatabase">
+
+
+
+  <h1 id="MongoDB_Driver_IMongoDatabase" data-uid="MongoDB.Driver.IMongoDatabase" class="text-break">
+    Interface IMongoDatabase
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/main/src/MongoDB.Driver/IMongoDatabase.cs/#L25"><i class="bi bi-code-slash"></i></a>
+  </h1>
+
+  <div class="facts text-secondary">
+    <dl><dt>Namespace</dt><dd><a class="xref" href="MongoDB.html">MongoDB</a>.<a class="xref" href="MongoDB.Driver.html">Driver</a></dd></dl>
+  <dl><dt>Assembly</dt><dd>MongoDB.Driver.dll</dd></dl>
+  </div>
+
+  <div class="markdown summary"><p>Represents a database in MongoDB.</p>
+</div>
+  <div class="markdown conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public interface IMongoDatabase</code></pre>
+  </div>
+
+
+
+
+
+
+
+
+  <dl class="typelist extensionMethods">
+    <dt>Extension Methods</dt>
+    <dd>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoDatabaseExtensions.Aggregate.html#MongoDB_Driver_IMongoDatabaseExtensions_Aggregate_MongoDB_Driver_IMongoDatabase_MongoDB_Driver_AggregateOptions_">IMongoDatabaseExtensions.Aggregate(IMongoDatabase, AggregateOptions)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoDatabaseExtensions.Aggregate.html#MongoDB_Driver_IMongoDatabaseExtensions_Aggregate_MongoDB_Driver_IMongoDatabase_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_AggregateOptions_">IMongoDatabaseExtensions.Aggregate(IMongoDatabase, IClientSessionHandle, AggregateOptions)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoDatabaseExtensions.AsQueryable.html#MongoDB_Driver_IMongoDatabaseExtensions_AsQueryable_MongoDB_Driver_IMongoDatabase_MongoDB_Driver_AggregateOptions_">IMongoDatabaseExtensions.AsQueryable(IMongoDatabase, AggregateOptions)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoDatabaseExtensions.AsQueryable.html#MongoDB_Driver_IMongoDatabaseExtensions_AsQueryable_MongoDB_Driver_IMongoDatabase_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_AggregateOptions_">IMongoDatabaseExtensions.AsQueryable(IMongoDatabase, IClientSessionHandle, AggregateOptions)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoDatabaseExtensions.Watch.html#MongoDB_Driver_IMongoDatabaseExtensions_Watch_MongoDB_Driver_IMongoDatabase_MongoDB_Driver_ChangeStreamOptions_System_Threading_CancellationToken_">IMongoDatabaseExtensions.Watch(IMongoDatabase, ChangeStreamOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoDatabaseExtensions.Watch.html#MongoDB_Driver_IMongoDatabaseExtensions_Watch_MongoDB_Driver_IMongoDatabase_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_ChangeStreamOptions_System_Threading_CancellationToken_">IMongoDatabaseExtensions.Watch(IMongoDatabase, IClientSessionHandle, ChangeStreamOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoDatabaseExtensions.WatchAsync.html#MongoDB_Driver_IMongoDatabaseExtensions_WatchAsync_MongoDB_Driver_IMongoDatabase_MongoDB_Driver_ChangeStreamOptions_System_Threading_CancellationToken_">IMongoDatabaseExtensions.WatchAsync(IMongoDatabase, ChangeStreamOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoDatabaseExtensions.WatchAsync.html#MongoDB_Driver_IMongoDatabaseExtensions_WatchAsync_MongoDB_Driver_IMongoDatabase_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_ChangeStreamOptions_System_Threading_CancellationToken_">IMongoDatabaseExtensions.WatchAsync(IMongoDatabase, IClientSessionHandle, ChangeStreamOptions, CancellationToken)</a>
+  </div>
+  </dd></dl>
+
+
+
+
+  <h2 class="section" id="properties">Properties
+</h2>
+
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.Client.html#MongoDB_Driver_IMongoDatabase_Client">Client</a></dt>
+    <dd><p>Gets the client.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.DatabaseNamespace.html#MongoDB_Driver_IMongoDatabase_DatabaseNamespace">DatabaseNamespace</a></dt>
+    <dd><p>Gets the namespace of the database.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.Settings.html#MongoDB_Driver_IMongoDatabase_Settings">Settings</a></dt>
+    <dd><p>Gets the settings.</p>
+</dd>
+  </dl>
+
+  <h2 class="section" id="methods">Methods
+</h2>
+
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.AggregateAsync.html#MongoDB_Driver_IMongoDatabase_AggregateAsync__1_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_PipelineDefinition_MongoDB_Driver_NoPipelineInput___0__MongoDB_Driver_AggregateOptions_System_Threading_CancellationToken_">AggregateAsync&lt;TResult&gt;(IClientSessionHandle, PipelineDefinition&lt;NoPipelineInput, TResult&gt;, AggregateOptions, CancellationToken)</a></dt>
+    <dd><p>Runs an aggregation pipeline.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.AggregateAsync.html#MongoDB_Driver_IMongoDatabase_AggregateAsync__1_MongoDB_Driver_PipelineDefinition_MongoDB_Driver_NoPipelineInput___0__MongoDB_Driver_AggregateOptions_System_Threading_CancellationToken_">AggregateAsync&lt;TResult&gt;(PipelineDefinition&lt;NoPipelineInput, TResult&gt;, AggregateOptions, CancellationToken)</a></dt>
+    <dd><p>Runs an aggregation pipeline.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.AggregateToCollectionAsync.html#MongoDB_Driver_IMongoDatabase_AggregateToCollectionAsync__1_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_PipelineDefinition_MongoDB_Driver_NoPipelineInput___0__MongoDB_Driver_AggregateOptions_System_Threading_CancellationToken_">AggregateToCollectionAsync&lt;TResult&gt;(IClientSessionHandle, PipelineDefinition&lt;NoPipelineInput, TResult&gt;, AggregateOptions, CancellationToken)</a></dt>
+    <dd><p>Runs an aggregation pipeline.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.AggregateToCollectionAsync.html#MongoDB_Driver_IMongoDatabase_AggregateToCollectionAsync__1_MongoDB_Driver_PipelineDefinition_MongoDB_Driver_NoPipelineInput___0__MongoDB_Driver_AggregateOptions_System_Threading_CancellationToken_">AggregateToCollectionAsync&lt;TResult&gt;(PipelineDefinition&lt;NoPipelineInput, TResult&gt;, AggregateOptions, CancellationToken)</a></dt>
+    <dd><p>Runs an aggregation pipeline.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.AggregateToCollection.html#MongoDB_Driver_IMongoDatabase_AggregateToCollection__1_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_PipelineDefinition_MongoDB_Driver_NoPipelineInput___0__MongoDB_Driver_AggregateOptions_System_Threading_CancellationToken_">AggregateToCollection&lt;TResult&gt;(IClientSessionHandle, PipelineDefinition&lt;NoPipelineInput, TResult&gt;, AggregateOptions, CancellationToken)</a></dt>
+    <dd><p>Runs an aggregation pipeline.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.AggregateToCollection.html#MongoDB_Driver_IMongoDatabase_AggregateToCollection__1_MongoDB_Driver_PipelineDefinition_MongoDB_Driver_NoPipelineInput___0__MongoDB_Driver_AggregateOptions_System_Threading_CancellationToken_">AggregateToCollection&lt;TResult&gt;(PipelineDefinition&lt;NoPipelineInput, TResult&gt;, AggregateOptions, CancellationToken)</a></dt>
+    <dd><p>Runs an aggregation pipeline.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.Aggregate.html#MongoDB_Driver_IMongoDatabase_Aggregate__1_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_PipelineDefinition_MongoDB_Driver_NoPipelineInput___0__MongoDB_Driver_AggregateOptions_System_Threading_CancellationToken_">Aggregate&lt;TResult&gt;(IClientSessionHandle, PipelineDefinition&lt;NoPipelineInput, TResult&gt;, AggregateOptions, CancellationToken)</a></dt>
+    <dd><p>Runs an aggregation pipeline.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.Aggregate.html#MongoDB_Driver_IMongoDatabase_Aggregate__1_MongoDB_Driver_PipelineDefinition_MongoDB_Driver_NoPipelineInput___0__MongoDB_Driver_AggregateOptions_System_Threading_CancellationToken_">Aggregate&lt;TResult&gt;(PipelineDefinition&lt;NoPipelineInput, TResult&gt;, AggregateOptions, CancellationToken)</a></dt>
+    <dd><p>Runs an aggregation pipeline.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.CreateCollection.html#MongoDB_Driver_IMongoDatabase_CreateCollection_MongoDB_Driver_IClientSessionHandle_System_String_MongoDB_Driver_CreateCollectionOptions_System_Threading_CancellationToken_">CreateCollection(IClientSessionHandle, string, CreateCollectionOptions, CancellationToken)</a></dt>
+    <dd><p>Creates the collection with the specified name.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.CreateCollection.html#MongoDB_Driver_IMongoDatabase_CreateCollection_System_String_MongoDB_Driver_CreateCollectionOptions_System_Threading_CancellationToken_">CreateCollection(string, CreateCollectionOptions, CancellationToken)</a></dt>
+    <dd><p>Creates the collection with the specified name.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.CreateCollectionAsync.html#MongoDB_Driver_IMongoDatabase_CreateCollectionAsync_MongoDB_Driver_IClientSessionHandle_System_String_MongoDB_Driver_CreateCollectionOptions_System_Threading_CancellationToken_">CreateCollectionAsync(IClientSessionHandle, string, CreateCollectionOptions, CancellationToken)</a></dt>
+    <dd><p>Creates the collection with the specified name.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.CreateCollectionAsync.html#MongoDB_Driver_IMongoDatabase_CreateCollectionAsync_System_String_MongoDB_Driver_CreateCollectionOptions_System_Threading_CancellationToken_">CreateCollectionAsync(string, CreateCollectionOptions, CancellationToken)</a></dt>
+    <dd><p>Creates the collection with the specified name.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.CreateViewAsync.html#MongoDB_Driver_IMongoDatabase_CreateViewAsync__2_MongoDB_Driver_IClientSessionHandle_System_String_System_String_MongoDB_Driver_PipelineDefinition___0___1__MongoDB_Driver_CreateViewOptions___0__System_Threading_CancellationToken_">CreateViewAsync&lt;TDocument, TResult&gt;(IClientSessionHandle, string, string, PipelineDefinition&lt;TDocument, TResult&gt;, CreateViewOptions&lt;TDocument&gt;, CancellationToken)</a></dt>
+    <dd><p>Creates a view.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.CreateViewAsync.html#MongoDB_Driver_IMongoDatabase_CreateViewAsync__2_System_String_System_String_MongoDB_Driver_PipelineDefinition___0___1__MongoDB_Driver_CreateViewOptions___0__System_Threading_CancellationToken_">CreateViewAsync&lt;TDocument, TResult&gt;(string, string, PipelineDefinition&lt;TDocument, TResult&gt;, CreateViewOptions&lt;TDocument&gt;, CancellationToken)</a></dt>
+    <dd><p>Creates a view.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.CreateView.html#MongoDB_Driver_IMongoDatabase_CreateView__2_MongoDB_Driver_IClientSessionHandle_System_String_System_String_MongoDB_Driver_PipelineDefinition___0___1__MongoDB_Driver_CreateViewOptions___0__System_Threading_CancellationToken_">CreateView&lt;TDocument, TResult&gt;(IClientSessionHandle, string, string, PipelineDefinition&lt;TDocument, TResult&gt;, CreateViewOptions&lt;TDocument&gt;, CancellationToken)</a></dt>
+    <dd><p>Creates a view.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.CreateView.html#MongoDB_Driver_IMongoDatabase_CreateView__2_System_String_System_String_MongoDB_Driver_PipelineDefinition___0___1__MongoDB_Driver_CreateViewOptions___0__System_Threading_CancellationToken_">CreateView&lt;TDocument, TResult&gt;(string, string, PipelineDefinition&lt;TDocument, TResult&gt;, CreateViewOptions&lt;TDocument&gt;, CancellationToken)</a></dt>
+    <dd><p>Creates a view.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.DropCollection.html#MongoDB_Driver_IMongoDatabase_DropCollection_MongoDB_Driver_IClientSessionHandle_System_String_MongoDB_Driver_DropCollectionOptions_System_Threading_CancellationToken_">DropCollection(IClientSessionHandle, string, DropCollectionOptions, CancellationToken)</a></dt>
+    <dd><p>Drops the collection with the specified name.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.DropCollection.html#MongoDB_Driver_IMongoDatabase_DropCollection_MongoDB_Driver_IClientSessionHandle_System_String_System_Threading_CancellationToken_">DropCollection(IClientSessionHandle, string, CancellationToken)</a></dt>
+    <dd><p>Drops the collection with the specified name.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.DropCollection.html#MongoDB_Driver_IMongoDatabase_DropCollection_System_String_MongoDB_Driver_DropCollectionOptions_System_Threading_CancellationToken_">DropCollection(string, DropCollectionOptions, CancellationToken)</a></dt>
+    <dd><p>Drops the collection with the specified name.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.DropCollection.html#MongoDB_Driver_IMongoDatabase_DropCollection_System_String_System_Threading_CancellationToken_">DropCollection(string, CancellationToken)</a></dt>
+    <dd><p>Drops the collection with the specified name.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.DropCollectionAsync.html#MongoDB_Driver_IMongoDatabase_DropCollectionAsync_MongoDB_Driver_IClientSessionHandle_System_String_MongoDB_Driver_DropCollectionOptions_System_Threading_CancellationToken_">DropCollectionAsync(IClientSessionHandle, string, DropCollectionOptions, CancellationToken)</a></dt>
+    <dd><p>Drops the collection with the specified name.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.DropCollectionAsync.html#MongoDB_Driver_IMongoDatabase_DropCollectionAsync_MongoDB_Driver_IClientSessionHandle_System_String_System_Threading_CancellationToken_">DropCollectionAsync(IClientSessionHandle, string, CancellationToken)</a></dt>
+    <dd><p>Drops the collection with the specified name.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.DropCollectionAsync.html#MongoDB_Driver_IMongoDatabase_DropCollectionAsync_System_String_MongoDB_Driver_DropCollectionOptions_System_Threading_CancellationToken_">DropCollectionAsync(string, DropCollectionOptions, CancellationToken)</a></dt>
+    <dd><p>Drops the collection with the specified name.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.DropCollectionAsync.html#MongoDB_Driver_IMongoDatabase_DropCollectionAsync_System_String_System_Threading_CancellationToken_">DropCollectionAsync(string, CancellationToken)</a></dt>
+    <dd><p>Drops the collection with the specified name.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.GetCollection.html#MongoDB_Driver_IMongoDatabase_GetCollection__1_System_String_MongoDB_Driver_MongoCollectionSettings_">GetCollection&lt;TDocument&gt;(string, MongoCollectionSettings)</a></dt>
+    <dd><p>Gets a collection.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.ListCollectionNames.html#MongoDB_Driver_IMongoDatabase_ListCollectionNames_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_ListCollectionNamesOptions_System_Threading_CancellationToken_">ListCollectionNames(IClientSessionHandle, ListCollectionNamesOptions, CancellationToken)</a></dt>
+    <dd><p>Lists the names of all the collections in the database.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.ListCollectionNames.html#MongoDB_Driver_IMongoDatabase_ListCollectionNames_MongoDB_Driver_ListCollectionNamesOptions_System_Threading_CancellationToken_">ListCollectionNames(ListCollectionNamesOptions, CancellationToken)</a></dt>
+    <dd><p>Lists the names of all the collections in the database.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.ListCollectionNamesAsync.html#MongoDB_Driver_IMongoDatabase_ListCollectionNamesAsync_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_ListCollectionNamesOptions_System_Threading_CancellationToken_">ListCollectionNamesAsync(IClientSessionHandle, ListCollectionNamesOptions, CancellationToken)</a></dt>
+    <dd><p>Lists the names of all the collections in the database.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.ListCollectionNamesAsync.html#MongoDB_Driver_IMongoDatabase_ListCollectionNamesAsync_MongoDB_Driver_ListCollectionNamesOptions_System_Threading_CancellationToken_">ListCollectionNamesAsync(ListCollectionNamesOptions, CancellationToken)</a></dt>
+    <dd><p>Lists the names of all the collections in the database.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.ListCollections.html#MongoDB_Driver_IMongoDatabase_ListCollections_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_ListCollectionsOptions_System_Threading_CancellationToken_">ListCollections(IClientSessionHandle, ListCollectionsOptions, CancellationToken)</a></dt>
+    <dd><p>Lists all the collections in the database.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.ListCollections.html#MongoDB_Driver_IMongoDatabase_ListCollections_MongoDB_Driver_ListCollectionsOptions_System_Threading_CancellationToken_">ListCollections(ListCollectionsOptions, CancellationToken)</a></dt>
+    <dd><p>Lists all the collections in the database.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.ListCollectionsAsync.html#MongoDB_Driver_IMongoDatabase_ListCollectionsAsync_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_ListCollectionsOptions_System_Threading_CancellationToken_">ListCollectionsAsync(IClientSessionHandle, ListCollectionsOptions, CancellationToken)</a></dt>
+    <dd><p>Lists all the collections in the database.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.ListCollectionsAsync.html#MongoDB_Driver_IMongoDatabase_ListCollectionsAsync_MongoDB_Driver_ListCollectionsOptions_System_Threading_CancellationToken_">ListCollectionsAsync(ListCollectionsOptions, CancellationToken)</a></dt>
+    <dd><p>Lists all the collections in the database.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.RenameCollection.html#MongoDB_Driver_IMongoDatabase_RenameCollection_MongoDB_Driver_IClientSessionHandle_System_String_System_String_MongoDB_Driver_RenameCollectionOptions_System_Threading_CancellationToken_">RenameCollection(IClientSessionHandle, string, string, RenameCollectionOptions, CancellationToken)</a></dt>
+    <dd><p>Renames the collection.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.RenameCollection.html#MongoDB_Driver_IMongoDatabase_RenameCollection_System_String_System_String_MongoDB_Driver_RenameCollectionOptions_System_Threading_CancellationToken_">RenameCollection(string, string, RenameCollectionOptions, CancellationToken)</a></dt>
+    <dd><p>Renames the collection.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.RenameCollectionAsync.html#MongoDB_Driver_IMongoDatabase_RenameCollectionAsync_MongoDB_Driver_IClientSessionHandle_System_String_System_String_MongoDB_Driver_RenameCollectionOptions_System_Threading_CancellationToken_">RenameCollectionAsync(IClientSessionHandle, string, string, RenameCollectionOptions, CancellationToken)</a></dt>
+    <dd><p>Renames the collection.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.RenameCollectionAsync.html#MongoDB_Driver_IMongoDatabase_RenameCollectionAsync_System_String_System_String_MongoDB_Driver_RenameCollectionOptions_System_Threading_CancellationToken_">RenameCollectionAsync(string, string, RenameCollectionOptions, CancellationToken)</a></dt>
+    <dd><p>Renames the collection.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.RunCommandAsync.html#MongoDB_Driver_IMongoDatabase_RunCommandAsync__1_MongoDB_Driver_Command___0__MongoDB_Driver_ReadPreference_System_Threading_CancellationToken_">RunCommandAsync&lt;TResult&gt;(Command&lt;TResult&gt;, ReadPreference, CancellationToken)</a></dt>
+    <dd><p>Runs a command.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.RunCommandAsync.html#MongoDB_Driver_IMongoDatabase_RunCommandAsync__1_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_Command___0__MongoDB_Driver_ReadPreference_System_Threading_CancellationToken_">RunCommandAsync&lt;TResult&gt;(IClientSessionHandle, Command&lt;TResult&gt;, ReadPreference, CancellationToken)</a></dt>
+    <dd><p>Runs a command.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.RunCommand.html#MongoDB_Driver_IMongoDatabase_RunCommand__1_MongoDB_Driver_Command___0__MongoDB_Driver_ReadPreference_System_Threading_CancellationToken_">RunCommand&lt;TResult&gt;(Command&lt;TResult&gt;, ReadPreference, CancellationToken)</a></dt>
+    <dd><p>Runs a command.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.RunCommand.html#MongoDB_Driver_IMongoDatabase_RunCommand__1_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_Command___0__MongoDB_Driver_ReadPreference_System_Threading_CancellationToken_">RunCommand&lt;TResult&gt;(IClientSessionHandle, Command&lt;TResult&gt;, ReadPreference, CancellationToken)</a></dt>
+    <dd><p>Runs a command.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.WatchAsync.html#MongoDB_Driver_IMongoDatabase_WatchAsync__1_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_PipelineDefinition_MongoDB_Driver_ChangeStreamDocument_MongoDB_Bson_BsonDocument____0__MongoDB_Driver_ChangeStreamOptions_System_Threading_CancellationToken_">WatchAsync&lt;TResult&gt;(IClientSessionHandle, PipelineDefinition&lt;ChangeStreamDocument&lt;BsonDocument&gt;, TResult&gt;, ChangeStreamOptions, CancellationToken)</a></dt>
+    <dd><p>Watches changes on all collections in a database.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.WatchAsync.html#MongoDB_Driver_IMongoDatabase_WatchAsync__1_MongoDB_Driver_PipelineDefinition_MongoDB_Driver_ChangeStreamDocument_MongoDB_Bson_BsonDocument____0__MongoDB_Driver_ChangeStreamOptions_System_Threading_CancellationToken_">WatchAsync&lt;TResult&gt;(PipelineDefinition&lt;ChangeStreamDocument&lt;BsonDocument&gt;, TResult&gt;, ChangeStreamOptions, CancellationToken)</a></dt>
+    <dd><p>Watches changes on all collections in a database.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.Watch.html#MongoDB_Driver_IMongoDatabase_Watch__1_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_PipelineDefinition_MongoDB_Driver_ChangeStreamDocument_MongoDB_Bson_BsonDocument____0__MongoDB_Driver_ChangeStreamOptions_System_Threading_CancellationToken_">Watch&lt;TResult&gt;(IClientSessionHandle, PipelineDefinition&lt;ChangeStreamDocument&lt;BsonDocument&gt;, TResult&gt;, ChangeStreamOptions, CancellationToken)</a></dt>
+    <dd><p>Watches changes on all collections in a database.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.Watch.html#MongoDB_Driver_IMongoDatabase_Watch__1_MongoDB_Driver_PipelineDefinition_MongoDB_Driver_ChangeStreamDocument_MongoDB_Bson_BsonDocument____0__MongoDB_Driver_ChangeStreamOptions_System_Threading_CancellationToken_">Watch&lt;TResult&gt;(PipelineDefinition&lt;ChangeStreamDocument&lt;BsonDocument&gt;, TResult&gt;, ChangeStreamOptions, CancellationToken)</a></dt>
+    <dd><p>Watches changes on all collections in a database.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.WithReadConcern.html#MongoDB_Driver_IMongoDatabase_WithReadConcern_MongoDB_Driver_ReadConcern_">WithReadConcern(ReadConcern)</a></dt>
+    <dd><p>Returns a new IMongoDatabase instance with a different read concern setting.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.WithReadPreference.html#MongoDB_Driver_IMongoDatabase_WithReadPreference_MongoDB_Driver_ReadPreference_">WithReadPreference(ReadPreference)</a></dt>
+    <dd><p>Returns a new IMongoDatabase instance with a different read preference setting.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IMongoDatabase.WithWriteConcern.html#MongoDB_Driver_IMongoDatabase_WithWriteConcern_MongoDB_Driver_WriteConcern_">WithWriteConcern(WriteConcern)</a></dt>
+    <dd><p>Returns a new IMongoDatabase instance with a different write concern setting.</p>
+</dd>
+  </dl>
+
+
+
+</article>
+
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          &copy; 2023 MongoDB, Inc.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

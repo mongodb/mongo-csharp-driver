@@ -1,0 +1,813 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>Interface IFilteredMongoCollection&lt;TDocument&gt;
+ | MongoDB CSharp Driver API Reference </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Interface IFilteredMongoCollection&lt;TDocument&gt;
+ | MongoDB CSharp Driver API Reference ">
+      
+      <link rel="icon" href="../../images/favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/mongodb/mongo-csharp-driver/new/main/apiSpec/new?filename=MongoDB_Driver_IFilteredMongoCollection_1.md&amp;value=---%0Auid%3A%20MongoDB.Driver.IFilteredMongoCollection%601%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+  </head>
+
+  <script type="module" src="./../../public/docfx.min.js"></script>
+
+  <script>
+    const theme = localStorage.getItem('theme') || 'auto'
+    document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+  </script>
+
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../images/mongodb-logo.svg" alt="">
+            
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+      <div class="toc-offcanvas">
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tocOffcanvasLabel">Table of Contents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#tocOffcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <nav class="toc" id="toc"></nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actionbar">
+          <button class="btn btn-lg border-0 d-md-none" style="margin-top: -.65em; margin-left: -.8em" type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas" aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="MongoDB.Driver.IFilteredMongoCollection`1">
+
+
+
+  <h1 id="MongoDB_Driver_IFilteredMongoCollection_1" data-uid="MongoDB.Driver.IFilteredMongoCollection`1" class="text-break">
+    Interface IFilteredMongoCollection&lt;TDocument&gt;
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/main/src/MongoDB.Driver/IFilteredMongoCollection.cs/#L22"><i class="bi bi-code-slash"></i></a>
+  </h1>
+
+  <div class="facts text-secondary">
+    <dl><dt>Namespace</dt><dd><a class="xref" href="MongoDB.html">MongoDB</a>.<a class="xref" href="MongoDB.Driver.html">Driver</a></dd></dl>
+  <dl><dt>Assembly</dt><dd>MongoDB.Driver.dll</dd></dl>
+  </div>
+
+  <div class="markdown summary"><p>A filtered mongo collection. The filter will be and'ed with all filters.</p>
+</div>
+  <div class="markdown conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public interface IFilteredMongoCollection&lt;TDocument&gt; : IMongoCollection&lt;TDocument&gt;</code></pre>
+  </div>
+
+
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TDocument</code></dt>
+    <dd><p>The type of the document.</p>
+</dd>
+  </dl>
+
+
+
+
+  <dl class="typelist derived">
+    <dt>Inherited Members</dt>
+    <dd>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.CollectionNamespace.html#MongoDB_Driver_IMongoCollection_1_CollectionNamespace">IMongoCollection&lt;TDocument&gt;.CollectionNamespace</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.Database.html#MongoDB_Driver_IMongoCollection_1_Database">IMongoCollection&lt;TDocument&gt;.Database</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.DocumentSerializer.html#MongoDB_Driver_IMongoCollection_1_DocumentSerializer">IMongoCollection&lt;TDocument&gt;.DocumentSerializer</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.Indexes.html#MongoDB_Driver_IMongoCollection_1_Indexes">IMongoCollection&lt;TDocument&gt;.Indexes</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.SearchIndexes.html#MongoDB_Driver_IMongoCollection_1_SearchIndexes">IMongoCollection&lt;TDocument&gt;.SearchIndexes</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.Settings.html#MongoDB_Driver_IMongoCollection_1_Settings">IMongoCollection&lt;TDocument&gt;.Settings</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.Aggregate.html#MongoDB_Driver_IMongoCollection_1_Aggregate__1_MongoDB_Driver_PipelineDefinition__0___0__MongoDB_Driver_AggregateOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.Aggregate&lt;TResult&gt;(PipelineDefinition&lt;TDocument, TResult&gt;, AggregateOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.Aggregate.html#MongoDB_Driver_IMongoCollection_1_Aggregate__1_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_PipelineDefinition__0___0__MongoDB_Driver_AggregateOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.Aggregate&lt;TResult&gt;(IClientSessionHandle, PipelineDefinition&lt;TDocument, TResult&gt;, AggregateOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.AggregateAsync.html#MongoDB_Driver_IMongoCollection_1_AggregateAsync__1_MongoDB_Driver_PipelineDefinition__0___0__MongoDB_Driver_AggregateOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.AggregateAsync&lt;TResult&gt;(PipelineDefinition&lt;TDocument, TResult&gt;, AggregateOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.AggregateAsync.html#MongoDB_Driver_IMongoCollection_1_AggregateAsync__1_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_PipelineDefinition__0___0__MongoDB_Driver_AggregateOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.AggregateAsync&lt;TResult&gt;(IClientSessionHandle, PipelineDefinition&lt;TDocument, TResult&gt;, AggregateOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.AggregateToCollection.html#MongoDB_Driver_IMongoCollection_1_AggregateToCollection__1_MongoDB_Driver_PipelineDefinition__0___0__MongoDB_Driver_AggregateOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.AggregateToCollection&lt;TResult&gt;(PipelineDefinition&lt;TDocument, TResult&gt;, AggregateOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.AggregateToCollection.html#MongoDB_Driver_IMongoCollection_1_AggregateToCollection__1_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_PipelineDefinition__0___0__MongoDB_Driver_AggregateOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.AggregateToCollection&lt;TResult&gt;(IClientSessionHandle, PipelineDefinition&lt;TDocument, TResult&gt;, AggregateOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.AggregateToCollectionAsync.html#MongoDB_Driver_IMongoCollection_1_AggregateToCollectionAsync__1_MongoDB_Driver_PipelineDefinition__0___0__MongoDB_Driver_AggregateOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.AggregateToCollectionAsync&lt;TResult&gt;(PipelineDefinition&lt;TDocument, TResult&gt;, AggregateOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.AggregateToCollectionAsync.html#MongoDB_Driver_IMongoCollection_1_AggregateToCollectionAsync__1_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_PipelineDefinition__0___0__MongoDB_Driver_AggregateOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.AggregateToCollectionAsync&lt;TResult&gt;(IClientSessionHandle, PipelineDefinition&lt;TDocument, TResult&gt;, AggregateOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.BulkWrite.html#MongoDB_Driver_IMongoCollection_1_BulkWrite_System_Collections_Generic_IEnumerable_MongoDB_Driver_WriteModel__0___MongoDB_Driver_BulkWriteOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.BulkWrite(IEnumerable&lt;WriteModel&lt;TDocument&gt;&gt;, BulkWriteOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.BulkWrite.html#MongoDB_Driver_IMongoCollection_1_BulkWrite_MongoDB_Driver_IClientSessionHandle_System_Collections_Generic_IEnumerable_MongoDB_Driver_WriteModel__0___MongoDB_Driver_BulkWriteOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.BulkWrite(IClientSessionHandle, IEnumerable&lt;WriteModel&lt;TDocument&gt;&gt;, BulkWriteOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.BulkWriteAsync.html#MongoDB_Driver_IMongoCollection_1_BulkWriteAsync_System_Collections_Generic_IEnumerable_MongoDB_Driver_WriteModel__0___MongoDB_Driver_BulkWriteOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.BulkWriteAsync(IEnumerable&lt;WriteModel&lt;TDocument&gt;&gt;, BulkWriteOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.BulkWriteAsync.html#MongoDB_Driver_IMongoCollection_1_BulkWriteAsync_MongoDB_Driver_IClientSessionHandle_System_Collections_Generic_IEnumerable_MongoDB_Driver_WriteModel__0___MongoDB_Driver_BulkWriteOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.BulkWriteAsync(IClientSessionHandle, IEnumerable&lt;WriteModel&lt;TDocument&gt;&gt;, BulkWriteOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.Count.html#MongoDB_Driver_IMongoCollection_1_Count_MongoDB_Driver_FilterDefinition__0__MongoDB_Driver_CountOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.Count(FilterDefinition&lt;TDocument&gt;, CountOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.Count.html#MongoDB_Driver_IMongoCollection_1_Count_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FilterDefinition__0__MongoDB_Driver_CountOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.Count(IClientSessionHandle, FilterDefinition&lt;TDocument&gt;, CountOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.CountAsync.html#MongoDB_Driver_IMongoCollection_1_CountAsync_MongoDB_Driver_FilterDefinition__0__MongoDB_Driver_CountOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.CountAsync(FilterDefinition&lt;TDocument&gt;, CountOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.CountAsync.html#MongoDB_Driver_IMongoCollection_1_CountAsync_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FilterDefinition__0__MongoDB_Driver_CountOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.CountAsync(IClientSessionHandle, FilterDefinition&lt;TDocument&gt;, CountOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.CountDocuments.html#MongoDB_Driver_IMongoCollection_1_CountDocuments_MongoDB_Driver_FilterDefinition__0__MongoDB_Driver_CountOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.CountDocuments(FilterDefinition&lt;TDocument&gt;, CountOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.CountDocuments.html#MongoDB_Driver_IMongoCollection_1_CountDocuments_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FilterDefinition__0__MongoDB_Driver_CountOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.CountDocuments(IClientSessionHandle, FilterDefinition&lt;TDocument&gt;, CountOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.CountDocumentsAsync.html#MongoDB_Driver_IMongoCollection_1_CountDocumentsAsync_MongoDB_Driver_FilterDefinition__0__MongoDB_Driver_CountOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.CountDocumentsAsync(FilterDefinition&lt;TDocument&gt;, CountOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.CountDocumentsAsync.html#MongoDB_Driver_IMongoCollection_1_CountDocumentsAsync_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FilterDefinition__0__MongoDB_Driver_CountOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.CountDocumentsAsync(IClientSessionHandle, FilterDefinition&lt;TDocument&gt;, CountOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.DeleteMany.html#MongoDB_Driver_IMongoCollection_1_DeleteMany_MongoDB_Driver_FilterDefinition__0__System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.DeleteMany(FilterDefinition&lt;TDocument&gt;, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.DeleteMany.html#MongoDB_Driver_IMongoCollection_1_DeleteMany_MongoDB_Driver_FilterDefinition__0__MongoDB_Driver_DeleteOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.DeleteMany(FilterDefinition&lt;TDocument&gt;, DeleteOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.DeleteMany.html#MongoDB_Driver_IMongoCollection_1_DeleteMany_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FilterDefinition__0__MongoDB_Driver_DeleteOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.DeleteMany(IClientSessionHandle, FilterDefinition&lt;TDocument&gt;, DeleteOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.DeleteManyAsync.html#MongoDB_Driver_IMongoCollection_1_DeleteManyAsync_MongoDB_Driver_FilterDefinition__0__System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.DeleteManyAsync(FilterDefinition&lt;TDocument&gt;, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.DeleteManyAsync.html#MongoDB_Driver_IMongoCollection_1_DeleteManyAsync_MongoDB_Driver_FilterDefinition__0__MongoDB_Driver_DeleteOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.DeleteManyAsync(FilterDefinition&lt;TDocument&gt;, DeleteOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.DeleteManyAsync.html#MongoDB_Driver_IMongoCollection_1_DeleteManyAsync_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FilterDefinition__0__MongoDB_Driver_DeleteOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.DeleteManyAsync(IClientSessionHandle, FilterDefinition&lt;TDocument&gt;, DeleteOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.DeleteOne.html#MongoDB_Driver_IMongoCollection_1_DeleteOne_MongoDB_Driver_FilterDefinition__0__System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.DeleteOne(FilterDefinition&lt;TDocument&gt;, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.DeleteOne.html#MongoDB_Driver_IMongoCollection_1_DeleteOne_MongoDB_Driver_FilterDefinition__0__MongoDB_Driver_DeleteOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.DeleteOne(FilterDefinition&lt;TDocument&gt;, DeleteOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.DeleteOne.html#MongoDB_Driver_IMongoCollection_1_DeleteOne_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FilterDefinition__0__MongoDB_Driver_DeleteOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.DeleteOne(IClientSessionHandle, FilterDefinition&lt;TDocument&gt;, DeleteOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.DeleteOneAsync.html#MongoDB_Driver_IMongoCollection_1_DeleteOneAsync_MongoDB_Driver_FilterDefinition__0__System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.DeleteOneAsync(FilterDefinition&lt;TDocument&gt;, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.DeleteOneAsync.html#MongoDB_Driver_IMongoCollection_1_DeleteOneAsync_MongoDB_Driver_FilterDefinition__0__MongoDB_Driver_DeleteOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.DeleteOneAsync(FilterDefinition&lt;TDocument&gt;, DeleteOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.DeleteOneAsync.html#MongoDB_Driver_IMongoCollection_1_DeleteOneAsync_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FilterDefinition__0__MongoDB_Driver_DeleteOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.DeleteOneAsync(IClientSessionHandle, FilterDefinition&lt;TDocument&gt;, DeleteOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.Distinct.html#MongoDB_Driver_IMongoCollection_1_Distinct__1_MongoDB_Driver_FieldDefinition__0___0__MongoDB_Driver_FilterDefinition__0__MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.Distinct&lt;TField&gt;(FieldDefinition&lt;TDocument, TField&gt;, FilterDefinition&lt;TDocument&gt;, DistinctOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.Distinct.html#MongoDB_Driver_IMongoCollection_1_Distinct__1_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FieldDefinition__0___0__MongoDB_Driver_FilterDefinition__0__MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.Distinct&lt;TField&gt;(IClientSessionHandle, FieldDefinition&lt;TDocument, TField&gt;, FilterDefinition&lt;TDocument&gt;, DistinctOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.DistinctAsync.html#MongoDB_Driver_IMongoCollection_1_DistinctAsync__1_MongoDB_Driver_FieldDefinition__0___0__MongoDB_Driver_FilterDefinition__0__MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.DistinctAsync&lt;TField&gt;(FieldDefinition&lt;TDocument, TField&gt;, FilterDefinition&lt;TDocument&gt;, DistinctOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.DistinctAsync.html#MongoDB_Driver_IMongoCollection_1_DistinctAsync__1_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FieldDefinition__0___0__MongoDB_Driver_FilterDefinition__0__MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.DistinctAsync&lt;TField&gt;(IClientSessionHandle, FieldDefinition&lt;TDocument, TField&gt;, FilterDefinition&lt;TDocument&gt;, DistinctOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.DistinctMany.html#MongoDB_Driver_IMongoCollection_1_DistinctMany__1_MongoDB_Driver_FieldDefinition__0_System_Collections_Generic_IEnumerable___0___MongoDB_Driver_FilterDefinition__0__MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.DistinctMany&lt;TItem&gt;(FieldDefinition&lt;TDocument, IEnumerable&lt;TItem&gt;&gt;, FilterDefinition&lt;TDocument&gt;, DistinctOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.DistinctMany.html#MongoDB_Driver_IMongoCollection_1_DistinctMany__1_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FieldDefinition__0_System_Collections_Generic_IEnumerable___0___MongoDB_Driver_FilterDefinition__0__MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.DistinctMany&lt;TItem&gt;(IClientSessionHandle, FieldDefinition&lt;TDocument, IEnumerable&lt;TItem&gt;&gt;, FilterDefinition&lt;TDocument&gt;, DistinctOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.DistinctManyAsync.html#MongoDB_Driver_IMongoCollection_1_DistinctManyAsync__1_MongoDB_Driver_FieldDefinition__0_System_Collections_Generic_IEnumerable___0___MongoDB_Driver_FilterDefinition__0__MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.DistinctManyAsync&lt;TItem&gt;(FieldDefinition&lt;TDocument, IEnumerable&lt;TItem&gt;&gt;, FilterDefinition&lt;TDocument&gt;, DistinctOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.DistinctManyAsync.html#MongoDB_Driver_IMongoCollection_1_DistinctManyAsync__1_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FieldDefinition__0_System_Collections_Generic_IEnumerable___0___MongoDB_Driver_FilterDefinition__0__MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.DistinctManyAsync&lt;TItem&gt;(IClientSessionHandle, FieldDefinition&lt;TDocument, IEnumerable&lt;TItem&gt;&gt;, FilterDefinition&lt;TDocument&gt;, DistinctOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.EstimatedDocumentCount.html#MongoDB_Driver_IMongoCollection_1_EstimatedDocumentCount_MongoDB_Driver_EstimatedDocumentCountOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.EstimatedDocumentCount(EstimatedDocumentCountOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.EstimatedDocumentCountAsync.html#MongoDB_Driver_IMongoCollection_1_EstimatedDocumentCountAsync_MongoDB_Driver_EstimatedDocumentCountOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.EstimatedDocumentCountAsync(EstimatedDocumentCountOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.FindSync.html#MongoDB_Driver_IMongoCollection_1_FindSync__1_MongoDB_Driver_FilterDefinition__0__MongoDB_Driver_FindOptions__0___0__System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.FindSync&lt;TProjection&gt;(FilterDefinition&lt;TDocument&gt;, FindOptions&lt;TDocument, TProjection&gt;, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.FindSync.html#MongoDB_Driver_IMongoCollection_1_FindSync__1_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FilterDefinition__0__MongoDB_Driver_FindOptions__0___0__System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.FindSync&lt;TProjection&gt;(IClientSessionHandle, FilterDefinition&lt;TDocument&gt;, FindOptions&lt;TDocument, TProjection&gt;, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.FindAsync.html#MongoDB_Driver_IMongoCollection_1_FindAsync__1_MongoDB_Driver_FilterDefinition__0__MongoDB_Driver_FindOptions__0___0__System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.FindAsync&lt;TProjection&gt;(FilterDefinition&lt;TDocument&gt;, FindOptions&lt;TDocument, TProjection&gt;, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.FindAsync.html#MongoDB_Driver_IMongoCollection_1_FindAsync__1_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FilterDefinition__0__MongoDB_Driver_FindOptions__0___0__System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.FindAsync&lt;TProjection&gt;(IClientSessionHandle, FilterDefinition&lt;TDocument&gt;, FindOptions&lt;TDocument, TProjection&gt;, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.FindOneAndDelete.html#MongoDB_Driver_IMongoCollection_1_FindOneAndDelete__1_MongoDB_Driver_FilterDefinition__0__MongoDB_Driver_FindOneAndDeleteOptions__0___0__System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.FindOneAndDelete&lt;TProjection&gt;(FilterDefinition&lt;TDocument&gt;, FindOneAndDeleteOptions&lt;TDocument, TProjection&gt;, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.FindOneAndDelete.html#MongoDB_Driver_IMongoCollection_1_FindOneAndDelete__1_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FilterDefinition__0__MongoDB_Driver_FindOneAndDeleteOptions__0___0__System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.FindOneAndDelete&lt;TProjection&gt;(IClientSessionHandle, FilterDefinition&lt;TDocument&gt;, FindOneAndDeleteOptions&lt;TDocument, TProjection&gt;, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.FindOneAndDeleteAsync.html#MongoDB_Driver_IMongoCollection_1_FindOneAndDeleteAsync__1_MongoDB_Driver_FilterDefinition__0__MongoDB_Driver_FindOneAndDeleteOptions__0___0__System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.FindOneAndDeleteAsync&lt;TProjection&gt;(FilterDefinition&lt;TDocument&gt;, FindOneAndDeleteOptions&lt;TDocument, TProjection&gt;, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.FindOneAndDeleteAsync.html#MongoDB_Driver_IMongoCollection_1_FindOneAndDeleteAsync__1_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FilterDefinition__0__MongoDB_Driver_FindOneAndDeleteOptions__0___0__System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.FindOneAndDeleteAsync&lt;TProjection&gt;(IClientSessionHandle, FilterDefinition&lt;TDocument&gt;, FindOneAndDeleteOptions&lt;TDocument, TProjection&gt;, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.FindOneAndReplace.html#MongoDB_Driver_IMongoCollection_1_FindOneAndReplace__1_MongoDB_Driver_FilterDefinition__0___0_MongoDB_Driver_FindOneAndReplaceOptions__0___0__System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.FindOneAndReplace&lt;TProjection&gt;(FilterDefinition&lt;TDocument&gt;, TDocument, FindOneAndReplaceOptions&lt;TDocument, TProjection&gt;, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.FindOneAndReplace.html#MongoDB_Driver_IMongoCollection_1_FindOneAndReplace__1_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FilterDefinition__0___0_MongoDB_Driver_FindOneAndReplaceOptions__0___0__System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.FindOneAndReplace&lt;TProjection&gt;(IClientSessionHandle, FilterDefinition&lt;TDocument&gt;, TDocument, FindOneAndReplaceOptions&lt;TDocument, TProjection&gt;, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.FindOneAndReplaceAsync.html#MongoDB_Driver_IMongoCollection_1_FindOneAndReplaceAsync__1_MongoDB_Driver_FilterDefinition__0___0_MongoDB_Driver_FindOneAndReplaceOptions__0___0__System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.FindOneAndReplaceAsync&lt;TProjection&gt;(FilterDefinition&lt;TDocument&gt;, TDocument, FindOneAndReplaceOptions&lt;TDocument, TProjection&gt;, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.FindOneAndReplaceAsync.html#MongoDB_Driver_IMongoCollection_1_FindOneAndReplaceAsync__1_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FilterDefinition__0___0_MongoDB_Driver_FindOneAndReplaceOptions__0___0__System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.FindOneAndReplaceAsync&lt;TProjection&gt;(IClientSessionHandle, FilterDefinition&lt;TDocument&gt;, TDocument, FindOneAndReplaceOptions&lt;TDocument, TProjection&gt;, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.FindOneAndUpdate.html#MongoDB_Driver_IMongoCollection_1_FindOneAndUpdate__1_MongoDB_Driver_FilterDefinition__0__MongoDB_Driver_UpdateDefinition__0__MongoDB_Driver_FindOneAndUpdateOptions__0___0__System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.FindOneAndUpdate&lt;TProjection&gt;(FilterDefinition&lt;TDocument&gt;, UpdateDefinition&lt;TDocument&gt;, FindOneAndUpdateOptions&lt;TDocument, TProjection&gt;, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.FindOneAndUpdate.html#MongoDB_Driver_IMongoCollection_1_FindOneAndUpdate__1_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FilterDefinition__0__MongoDB_Driver_UpdateDefinition__0__MongoDB_Driver_FindOneAndUpdateOptions__0___0__System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.FindOneAndUpdate&lt;TProjection&gt;(IClientSessionHandle, FilterDefinition&lt;TDocument&gt;, UpdateDefinition&lt;TDocument&gt;, FindOneAndUpdateOptions&lt;TDocument, TProjection&gt;, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.FindOneAndUpdateAsync.html#MongoDB_Driver_IMongoCollection_1_FindOneAndUpdateAsync__1_MongoDB_Driver_FilterDefinition__0__MongoDB_Driver_UpdateDefinition__0__MongoDB_Driver_FindOneAndUpdateOptions__0___0__System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.FindOneAndUpdateAsync&lt;TProjection&gt;(FilterDefinition&lt;TDocument&gt;, UpdateDefinition&lt;TDocument&gt;, FindOneAndUpdateOptions&lt;TDocument, TProjection&gt;, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.FindOneAndUpdateAsync.html#MongoDB_Driver_IMongoCollection_1_FindOneAndUpdateAsync__1_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FilterDefinition__0__MongoDB_Driver_UpdateDefinition__0__MongoDB_Driver_FindOneAndUpdateOptions__0___0__System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.FindOneAndUpdateAsync&lt;TProjection&gt;(IClientSessionHandle, FilterDefinition&lt;TDocument&gt;, UpdateDefinition&lt;TDocument&gt;, FindOneAndUpdateOptions&lt;TDocument, TProjection&gt;, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.InsertOne.html#MongoDB_Driver_IMongoCollection_1_InsertOne__0_MongoDB_Driver_InsertOneOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.InsertOne(TDocument, InsertOneOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.InsertOne.html#MongoDB_Driver_IMongoCollection_1_InsertOne_MongoDB_Driver_IClientSessionHandle__0_MongoDB_Driver_InsertOneOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.InsertOne(IClientSessionHandle, TDocument, InsertOneOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.InsertOneAsync.html#MongoDB_Driver_IMongoCollection_1_InsertOneAsync__0_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.InsertOneAsync(TDocument, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.InsertOneAsync.html#MongoDB_Driver_IMongoCollection_1_InsertOneAsync__0_MongoDB_Driver_InsertOneOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.InsertOneAsync(TDocument, InsertOneOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.InsertOneAsync.html#MongoDB_Driver_IMongoCollection_1_InsertOneAsync_MongoDB_Driver_IClientSessionHandle__0_MongoDB_Driver_InsertOneOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.InsertOneAsync(IClientSessionHandle, TDocument, InsertOneOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.InsertMany.html#MongoDB_Driver_IMongoCollection_1_InsertMany_System_Collections_Generic_IEnumerable__0__MongoDB_Driver_InsertManyOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.InsertMany(IEnumerable&lt;TDocument&gt;, InsertManyOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.InsertMany.html#MongoDB_Driver_IMongoCollection_1_InsertMany_MongoDB_Driver_IClientSessionHandle_System_Collections_Generic_IEnumerable__0__MongoDB_Driver_InsertManyOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.InsertMany(IClientSessionHandle, IEnumerable&lt;TDocument&gt;, InsertManyOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.InsertManyAsync.html#MongoDB_Driver_IMongoCollection_1_InsertManyAsync_System_Collections_Generic_IEnumerable__0__MongoDB_Driver_InsertManyOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.InsertManyAsync(IEnumerable&lt;TDocument&gt;, InsertManyOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.InsertManyAsync.html#MongoDB_Driver_IMongoCollection_1_InsertManyAsync_MongoDB_Driver_IClientSessionHandle_System_Collections_Generic_IEnumerable__0__MongoDB_Driver_InsertManyOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.InsertManyAsync(IClientSessionHandle, IEnumerable&lt;TDocument&gt;, InsertManyOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.MapReduce.html#MongoDB_Driver_IMongoCollection_1_MapReduce__1_MongoDB_Bson_BsonJavaScript_MongoDB_Bson_BsonJavaScript_MongoDB_Driver_MapReduceOptions__0___0__System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.MapReduce&lt;TResult&gt;(BsonJavaScript, BsonJavaScript, MapReduceOptions&lt;TDocument, TResult&gt;, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.MapReduce.html#MongoDB_Driver_IMongoCollection_1_MapReduce__1_MongoDB_Driver_IClientSessionHandle_MongoDB_Bson_BsonJavaScript_MongoDB_Bson_BsonJavaScript_MongoDB_Driver_MapReduceOptions__0___0__System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.MapReduce&lt;TResult&gt;(IClientSessionHandle, BsonJavaScript, BsonJavaScript, MapReduceOptions&lt;TDocument, TResult&gt;, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.MapReduceAsync.html#MongoDB_Driver_IMongoCollection_1_MapReduceAsync__1_MongoDB_Bson_BsonJavaScript_MongoDB_Bson_BsonJavaScript_MongoDB_Driver_MapReduceOptions__0___0__System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.MapReduceAsync&lt;TResult&gt;(BsonJavaScript, BsonJavaScript, MapReduceOptions&lt;TDocument, TResult&gt;, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.MapReduceAsync.html#MongoDB_Driver_IMongoCollection_1_MapReduceAsync__1_MongoDB_Driver_IClientSessionHandle_MongoDB_Bson_BsonJavaScript_MongoDB_Bson_BsonJavaScript_MongoDB_Driver_MapReduceOptions__0___0__System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.MapReduceAsync&lt;TResult&gt;(IClientSessionHandle, BsonJavaScript, BsonJavaScript, MapReduceOptions&lt;TDocument, TResult&gt;, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.OfType.html#MongoDB_Driver_IMongoCollection_1_OfType__1">IMongoCollection&lt;TDocument&gt;.OfType&lt;TDerivedDocument&gt;()</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.ReplaceOne.html#MongoDB_Driver_IMongoCollection_1_ReplaceOne_MongoDB_Driver_FilterDefinition__0___0_MongoDB_Driver_ReplaceOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.ReplaceOne(FilterDefinition&lt;TDocument&gt;, TDocument, ReplaceOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.ReplaceOne.html#MongoDB_Driver_IMongoCollection_1_ReplaceOne_MongoDB_Driver_FilterDefinition__0___0_MongoDB_Driver_UpdateOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.ReplaceOne(FilterDefinition&lt;TDocument&gt;, TDocument, UpdateOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.ReplaceOne.html#MongoDB_Driver_IMongoCollection_1_ReplaceOne_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FilterDefinition__0___0_MongoDB_Driver_ReplaceOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.ReplaceOne(IClientSessionHandle, FilterDefinition&lt;TDocument&gt;, TDocument, ReplaceOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.ReplaceOne.html#MongoDB_Driver_IMongoCollection_1_ReplaceOne_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FilterDefinition__0___0_MongoDB_Driver_UpdateOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.ReplaceOne(IClientSessionHandle, FilterDefinition&lt;TDocument&gt;, TDocument, UpdateOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.ReplaceOneAsync.html#MongoDB_Driver_IMongoCollection_1_ReplaceOneAsync_MongoDB_Driver_FilterDefinition__0___0_MongoDB_Driver_ReplaceOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.ReplaceOneAsync(FilterDefinition&lt;TDocument&gt;, TDocument, ReplaceOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.ReplaceOneAsync.html#MongoDB_Driver_IMongoCollection_1_ReplaceOneAsync_MongoDB_Driver_FilterDefinition__0___0_MongoDB_Driver_UpdateOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.ReplaceOneAsync(FilterDefinition&lt;TDocument&gt;, TDocument, UpdateOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.ReplaceOneAsync.html#MongoDB_Driver_IMongoCollection_1_ReplaceOneAsync_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FilterDefinition__0___0_MongoDB_Driver_ReplaceOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.ReplaceOneAsync(IClientSessionHandle, FilterDefinition&lt;TDocument&gt;, TDocument, ReplaceOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.ReplaceOneAsync.html#MongoDB_Driver_IMongoCollection_1_ReplaceOneAsync_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FilterDefinition__0___0_MongoDB_Driver_UpdateOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.ReplaceOneAsync(IClientSessionHandle, FilterDefinition&lt;TDocument&gt;, TDocument, UpdateOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.UpdateMany.html#MongoDB_Driver_IMongoCollection_1_UpdateMany_MongoDB_Driver_FilterDefinition__0__MongoDB_Driver_UpdateDefinition__0__MongoDB_Driver_UpdateOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.UpdateMany(FilterDefinition&lt;TDocument&gt;, UpdateDefinition&lt;TDocument&gt;, UpdateOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.UpdateMany.html#MongoDB_Driver_IMongoCollection_1_UpdateMany_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FilterDefinition__0__MongoDB_Driver_UpdateDefinition__0__MongoDB_Driver_UpdateOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.UpdateMany(IClientSessionHandle, FilterDefinition&lt;TDocument&gt;, UpdateDefinition&lt;TDocument&gt;, UpdateOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.UpdateManyAsync.html#MongoDB_Driver_IMongoCollection_1_UpdateManyAsync_MongoDB_Driver_FilterDefinition__0__MongoDB_Driver_UpdateDefinition__0__MongoDB_Driver_UpdateOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.UpdateManyAsync(FilterDefinition&lt;TDocument&gt;, UpdateDefinition&lt;TDocument&gt;, UpdateOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.UpdateManyAsync.html#MongoDB_Driver_IMongoCollection_1_UpdateManyAsync_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FilterDefinition__0__MongoDB_Driver_UpdateDefinition__0__MongoDB_Driver_UpdateOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.UpdateManyAsync(IClientSessionHandle, FilterDefinition&lt;TDocument&gt;, UpdateDefinition&lt;TDocument&gt;, UpdateOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.UpdateOne.html#MongoDB_Driver_IMongoCollection_1_UpdateOne_MongoDB_Driver_FilterDefinition__0__MongoDB_Driver_UpdateDefinition__0__MongoDB_Driver_UpdateOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.UpdateOne(FilterDefinition&lt;TDocument&gt;, UpdateDefinition&lt;TDocument&gt;, UpdateOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.UpdateOne.html#MongoDB_Driver_IMongoCollection_1_UpdateOne_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FilterDefinition__0__MongoDB_Driver_UpdateDefinition__0__MongoDB_Driver_UpdateOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.UpdateOne(IClientSessionHandle, FilterDefinition&lt;TDocument&gt;, UpdateDefinition&lt;TDocument&gt;, UpdateOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.UpdateOneAsync.html#MongoDB_Driver_IMongoCollection_1_UpdateOneAsync_MongoDB_Driver_FilterDefinition__0__MongoDB_Driver_UpdateDefinition__0__MongoDB_Driver_UpdateOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.UpdateOneAsync(FilterDefinition&lt;TDocument&gt;, UpdateDefinition&lt;TDocument&gt;, UpdateOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.UpdateOneAsync.html#MongoDB_Driver_IMongoCollection_1_UpdateOneAsync_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FilterDefinition__0__MongoDB_Driver_UpdateDefinition__0__MongoDB_Driver_UpdateOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.UpdateOneAsync(IClientSessionHandle, FilterDefinition&lt;TDocument&gt;, UpdateDefinition&lt;TDocument&gt;, UpdateOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.Watch.html#MongoDB_Driver_IMongoCollection_1_Watch__1_MongoDB_Driver_PipelineDefinition_MongoDB_Driver_ChangeStreamDocument__0____0__MongoDB_Driver_ChangeStreamOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.Watch&lt;TResult&gt;(PipelineDefinition&lt;ChangeStreamDocument&lt;TDocument&gt;, TResult&gt;, ChangeStreamOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.Watch.html#MongoDB_Driver_IMongoCollection_1_Watch__1_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_PipelineDefinition_MongoDB_Driver_ChangeStreamDocument__0____0__MongoDB_Driver_ChangeStreamOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.Watch&lt;TResult&gt;(IClientSessionHandle, PipelineDefinition&lt;ChangeStreamDocument&lt;TDocument&gt;, TResult&gt;, ChangeStreamOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.WatchAsync.html#MongoDB_Driver_IMongoCollection_1_WatchAsync__1_MongoDB_Driver_PipelineDefinition_MongoDB_Driver_ChangeStreamDocument__0____0__MongoDB_Driver_ChangeStreamOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.WatchAsync&lt;TResult&gt;(PipelineDefinition&lt;ChangeStreamDocument&lt;TDocument&gt;, TResult&gt;, ChangeStreamOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.WatchAsync.html#MongoDB_Driver_IMongoCollection_1_WatchAsync__1_MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_PipelineDefinition_MongoDB_Driver_ChangeStreamDocument__0____0__MongoDB_Driver_ChangeStreamOptions_System_Threading_CancellationToken_">IMongoCollection&lt;TDocument&gt;.WatchAsync&lt;TResult&gt;(IClientSessionHandle, PipelineDefinition&lt;ChangeStreamDocument&lt;TDocument&gt;, TResult&gt;, ChangeStreamOptions, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.WithReadConcern.html#MongoDB_Driver_IMongoCollection_1_WithReadConcern_MongoDB_Driver_ReadConcern_">IMongoCollection&lt;TDocument&gt;.WithReadConcern(ReadConcern)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.WithReadPreference.html#MongoDB_Driver_IMongoCollection_1_WithReadPreference_MongoDB_Driver_ReadPreference_">IMongoCollection&lt;TDocument&gt;.WithReadPreference(ReadPreference)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollection-1.WithWriteConcern.html#MongoDB_Driver_IMongoCollection_1_WithWriteConcern_MongoDB_Driver_WriteConcern_">IMongoCollection&lt;TDocument&gt;.WithWriteConcern(WriteConcern)</a>
+    </div>
+  </dd></dl>
+
+  <dl class="typelist extensionMethods">
+    <dt>Extension Methods</dt>
+    <dd>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.Aggregate.html#MongoDB_Driver_IMongoCollectionExtensions_Aggregate__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_AggregateOptions_">IMongoCollectionExtensions.Aggregate&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, AggregateOptions)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.Aggregate.html#MongoDB_Driver_IMongoCollectionExtensions_Aggregate__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_AggregateOptions_">IMongoCollectionExtensions.Aggregate&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, AggregateOptions)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.AsQueryable.html#MongoDB_Driver_IMongoCollectionExtensions_AsQueryable__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_AggregateOptions_">IMongoCollectionExtensions.AsQueryable&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, AggregateOptions)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.AsQueryable.html#MongoDB_Driver_IMongoCollectionExtensions_AsQueryable__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_AggregateOptions_">IMongoCollectionExtensions.AsQueryable&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, AggregateOptions)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.CountAsync.html#MongoDB_Driver_IMongoCollectionExtensions_CountAsync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_CountOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.CountAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, CountOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.CountAsync.html#MongoDB_Driver_IMongoCollectionExtensions_CountAsync__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_CountOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.CountAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, CountOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.CountDocumentsAsync.html#MongoDB_Driver_IMongoCollectionExtensions_CountDocumentsAsync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_CountOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.CountDocumentsAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, CountOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.CountDocumentsAsync.html#MongoDB_Driver_IMongoCollectionExtensions_CountDocumentsAsync__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_CountOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.CountDocumentsAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, CountOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.CountDocuments.html#MongoDB_Driver_IMongoCollectionExtensions_CountDocuments__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_CountOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.CountDocuments&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, CountOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.CountDocuments.html#MongoDB_Driver_IMongoCollectionExtensions_CountDocuments__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_CountOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.CountDocuments&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, CountOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.Count.html#MongoDB_Driver_IMongoCollectionExtensions_Count__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_CountOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.Count&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, CountOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.Count.html#MongoDB_Driver_IMongoCollectionExtensions_Count__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_CountOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.Count&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, CountOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DeleteManyAsync.html#MongoDB_Driver_IMongoCollectionExtensions_DeleteManyAsync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DeleteOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.DeleteManyAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DeleteOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DeleteManyAsync.html#MongoDB_Driver_IMongoCollectionExtensions_DeleteManyAsync__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DeleteOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.DeleteManyAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DeleteOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DeleteManyAsync.html#MongoDB_Driver_IMongoCollectionExtensions_DeleteManyAsync__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___System_Threading_CancellationToken_">IMongoCollectionExtensions.DeleteManyAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DeleteMany.html#MongoDB_Driver_IMongoCollectionExtensions_DeleteMany__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DeleteOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.DeleteMany&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DeleteOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DeleteMany.html#MongoDB_Driver_IMongoCollectionExtensions_DeleteMany__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DeleteOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.DeleteMany&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DeleteOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DeleteMany.html#MongoDB_Driver_IMongoCollectionExtensions_DeleteMany__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___System_Threading_CancellationToken_">IMongoCollectionExtensions.DeleteMany&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DeleteOneAsync.html#MongoDB_Driver_IMongoCollectionExtensions_DeleteOneAsync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DeleteOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.DeleteOneAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DeleteOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DeleteOneAsync.html#MongoDB_Driver_IMongoCollectionExtensions_DeleteOneAsync__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DeleteOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.DeleteOneAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DeleteOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DeleteOneAsync.html#MongoDB_Driver_IMongoCollectionExtensions_DeleteOneAsync__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___System_Threading_CancellationToken_">IMongoCollectionExtensions.DeleteOneAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DeleteOne.html#MongoDB_Driver_IMongoCollectionExtensions_DeleteOne__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DeleteOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.DeleteOne&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DeleteOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DeleteOne.html#MongoDB_Driver_IMongoCollectionExtensions_DeleteOne__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DeleteOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.DeleteOne&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DeleteOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DeleteOne.html#MongoDB_Driver_IMongoCollectionExtensions_DeleteOne__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___System_Threading_CancellationToken_">IMongoCollectionExtensions.DeleteOne&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DistinctAsync.html#MongoDB_Driver_IMongoCollectionExtensions_DistinctAsync__2_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_FieldDefinition___0___1__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.DistinctAsync&lt;TDocument, TField&gt;(IMongoCollection&lt;TDocument&gt;, FieldDefinition&lt;TDocument, TField&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DistinctOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DistinctAsync.html#MongoDB_Driver_IMongoCollectionExtensions_DistinctAsync__2_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FieldDefinition___0___1__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.DistinctAsync&lt;TDocument, TField&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, FieldDefinition&lt;TDocument, TField&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DistinctOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DistinctAsync.html#MongoDB_Driver_IMongoCollectionExtensions_DistinctAsync__2_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0___1___MongoDB_Driver_FilterDefinition___0__MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.DistinctAsync&lt;TDocument, TField&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, TField&gt;&gt;, FilterDefinition&lt;TDocument&gt;, DistinctOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DistinctAsync.html#MongoDB_Driver_IMongoCollectionExtensions_DistinctAsync__2_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0___1___System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.DistinctAsync&lt;TDocument, TField&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, TField&gt;&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DistinctOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DistinctAsync.html#MongoDB_Driver_IMongoCollectionExtensions_DistinctAsync__2_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0___1___MongoDB_Driver_FilterDefinition___0__MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.DistinctAsync&lt;TDocument, TField&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, TField&gt;&gt;, FilterDefinition&lt;TDocument&gt;, DistinctOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DistinctAsync.html#MongoDB_Driver_IMongoCollectionExtensions_DistinctAsync__2_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0___1___System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.DistinctAsync&lt;TDocument, TField&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, TField&gt;&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DistinctOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DistinctManyAsync.html#MongoDB_Driver_IMongoCollectionExtensions_DistinctManyAsync__2_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_FieldDefinition___0_System_Collections_Generic_IEnumerable___1___System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.DistinctManyAsync&lt;TDocument, TItem&gt;(IMongoCollection&lt;TDocument&gt;, FieldDefinition&lt;TDocument, IEnumerable&lt;TItem&gt;&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DistinctOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DistinctManyAsync.html#MongoDB_Driver_IMongoCollectionExtensions_DistinctManyAsync__2_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FieldDefinition___0_System_Collections_Generic_IEnumerable___1___System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.DistinctManyAsync&lt;TDocument, TItem&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, FieldDefinition&lt;TDocument, IEnumerable&lt;TItem&gt;&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DistinctOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DistinctManyAsync.html#MongoDB_Driver_IMongoCollectionExtensions_DistinctManyAsync__2_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Collections_Generic_IEnumerable___1____MongoDB_Driver_FilterDefinition___0__MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.DistinctManyAsync&lt;TDocument, TItem&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, IEnumerable&lt;TItem&gt;&gt;&gt;, FilterDefinition&lt;TDocument&gt;, DistinctOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DistinctManyAsync.html#MongoDB_Driver_IMongoCollectionExtensions_DistinctManyAsync__2_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Collections_Generic_IEnumerable___1____System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.DistinctManyAsync&lt;TDocument, TItem&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, IEnumerable&lt;TItem&gt;&gt;&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DistinctOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DistinctManyAsync.html#MongoDB_Driver_IMongoCollectionExtensions_DistinctManyAsync__2_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Collections_Generic_IEnumerable___1____MongoDB_Driver_FilterDefinition___0__MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.DistinctManyAsync&lt;TDocument, TItem&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, IEnumerable&lt;TItem&gt;&gt;&gt;, FilterDefinition&lt;TDocument&gt;, DistinctOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DistinctManyAsync.html#MongoDB_Driver_IMongoCollectionExtensions_DistinctManyAsync__2_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Collections_Generic_IEnumerable___1____System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.DistinctManyAsync&lt;TDocument, TItem&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, IEnumerable&lt;TItem&gt;&gt;&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DistinctOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DistinctMany.html#MongoDB_Driver_IMongoCollectionExtensions_DistinctMany__2_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_FieldDefinition___0_System_Collections_Generic_IEnumerable___1___System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.DistinctMany&lt;TDocument, TItem&gt;(IMongoCollection&lt;TDocument&gt;, FieldDefinition&lt;TDocument, IEnumerable&lt;TItem&gt;&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DistinctOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DistinctMany.html#MongoDB_Driver_IMongoCollectionExtensions_DistinctMany__2_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FieldDefinition___0_System_Collections_Generic_IEnumerable___1___System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.DistinctMany&lt;TDocument, TItem&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, FieldDefinition&lt;TDocument, IEnumerable&lt;TItem&gt;&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DistinctOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DistinctMany.html#MongoDB_Driver_IMongoCollectionExtensions_DistinctMany__2_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Collections_Generic_IEnumerable___1____MongoDB_Driver_FilterDefinition___0__MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.DistinctMany&lt;TDocument, TItem&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, IEnumerable&lt;TItem&gt;&gt;&gt;, FilterDefinition&lt;TDocument&gt;, DistinctOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DistinctMany.html#MongoDB_Driver_IMongoCollectionExtensions_DistinctMany__2_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Collections_Generic_IEnumerable___1____System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.DistinctMany&lt;TDocument, TItem&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, IEnumerable&lt;TItem&gt;&gt;&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DistinctOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DistinctMany.html#MongoDB_Driver_IMongoCollectionExtensions_DistinctMany__2_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Collections_Generic_IEnumerable___1____MongoDB_Driver_FilterDefinition___0__MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.DistinctMany&lt;TDocument, TItem&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, IEnumerable&lt;TItem&gt;&gt;&gt;, FilterDefinition&lt;TDocument&gt;, DistinctOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.DistinctMany.html#MongoDB_Driver_IMongoCollectionExtensions_DistinctMany__2_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Collections_Generic_IEnumerable___1____System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.DistinctMany&lt;TDocument, TItem&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, IEnumerable&lt;TItem&gt;&gt;&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DistinctOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.Distinct.html#MongoDB_Driver_IMongoCollectionExtensions_Distinct__2_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_FieldDefinition___0___1__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.Distinct&lt;TDocument, TField&gt;(IMongoCollection&lt;TDocument&gt;, FieldDefinition&lt;TDocument, TField&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DistinctOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.Distinct.html#MongoDB_Driver_IMongoCollectionExtensions_Distinct__2_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FieldDefinition___0___1__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.Distinct&lt;TDocument, TField&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, FieldDefinition&lt;TDocument, TField&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DistinctOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.Distinct.html#MongoDB_Driver_IMongoCollectionExtensions_Distinct__2_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0___1___MongoDB_Driver_FilterDefinition___0__MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.Distinct&lt;TDocument, TField&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, TField&gt;&gt;, FilterDefinition&lt;TDocument&gt;, DistinctOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.Distinct.html#MongoDB_Driver_IMongoCollectionExtensions_Distinct__2_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0___1___System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.Distinct&lt;TDocument, TField&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, TField&gt;&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DistinctOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.Distinct.html#MongoDB_Driver_IMongoCollectionExtensions_Distinct__2_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0___1___MongoDB_Driver_FilterDefinition___0__MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.Distinct&lt;TDocument, TField&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, TField&gt;&gt;, FilterDefinition&lt;TDocument&gt;, DistinctOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.Distinct.html#MongoDB_Driver_IMongoCollectionExtensions_Distinct__2_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0___1___System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_DistinctOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.Distinct&lt;TDocument, TField&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, TField&gt;&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, DistinctOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindAsync.html#MongoDB_Driver_IMongoCollectionExtensions_FindAsync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_FilterDefinition___0__MongoDB_Driver_FindOptions___0___0__System_Threading_CancellationToken_">IMongoCollectionExtensions.FindAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, FilterDefinition&lt;TDocument&gt;, FindOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindAsync.html#MongoDB_Driver_IMongoCollectionExtensions_FindAsync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FilterDefinition___0__MongoDB_Driver_FindOptions___0___0__System_Threading_CancellationToken_">IMongoCollectionExtensions.FindAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, FilterDefinition&lt;TDocument&gt;, FindOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindAsync.html#MongoDB_Driver_IMongoCollectionExtensions_FindAsync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_FindOptions___0___0__System_Threading_CancellationToken_">IMongoCollectionExtensions.FindAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, FindOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindAsync.html#MongoDB_Driver_IMongoCollectionExtensions_FindAsync__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_FindOptions___0___0__System_Threading_CancellationToken_">IMongoCollectionExtensions.FindAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, FindOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndDeleteAsync.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndDeleteAsync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_FilterDefinition___0__MongoDB_Driver_FindOneAndDeleteOptions___0___0__System_Threading_CancellationToken_">IMongoCollectionExtensions.FindOneAndDeleteAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, FilterDefinition&lt;TDocument&gt;, FindOneAndDeleteOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndDeleteAsync.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndDeleteAsync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FilterDefinition___0__MongoDB_Driver_FindOneAndDeleteOptions___0___0__System_Threading_CancellationToken_">IMongoCollectionExtensions.FindOneAndDeleteAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, FilterDefinition&lt;TDocument&gt;, FindOneAndDeleteOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndDeleteAsync.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndDeleteAsync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_FindOneAndDeleteOptions___0___0__System_Threading_CancellationToken_">IMongoCollectionExtensions.FindOneAndDeleteAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, FindOneAndDeleteOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndDeleteAsync.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndDeleteAsync__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_FindOneAndDeleteOptions___0__System_Threading_CancellationToken_">IMongoCollectionExtensions.FindOneAndDeleteAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, FindOneAndDeleteOptions&lt;TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndDeleteAsync.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndDeleteAsync__2_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_FindOneAndDeleteOptions___0___1__System_Threading_CancellationToken_">IMongoCollectionExtensions.FindOneAndDeleteAsync&lt;TDocument, TProjection&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, FindOneAndDeleteOptions&lt;TDocument, TProjection&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndDeleteAsync.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndDeleteAsync__2_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_FindOneAndDeleteOptions___0___1__System_Threading_CancellationToken_">IMongoCollectionExtensions.FindOneAndDeleteAsync&lt;TDocument, TProjection&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, FindOneAndDeleteOptions&lt;TDocument, TProjection&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndDelete.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndDelete__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_FilterDefinition___0__MongoDB_Driver_FindOneAndDeleteOptions___0___0__System_Threading_CancellationToken_">IMongoCollectionExtensions.FindOneAndDelete&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, FilterDefinition&lt;TDocument&gt;, FindOneAndDeleteOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndDelete.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndDelete__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FilterDefinition___0__MongoDB_Driver_FindOneAndDeleteOptions___0___0__System_Threading_CancellationToken_">IMongoCollectionExtensions.FindOneAndDelete&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, FilterDefinition&lt;TDocument&gt;, FindOneAndDeleteOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndDelete.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndDelete__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_FindOneAndDeleteOptions___0___0__System_Threading_CancellationToken_">IMongoCollectionExtensions.FindOneAndDelete&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, FindOneAndDeleteOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndDelete.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndDelete__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_FindOneAndDeleteOptions___0__System_Threading_CancellationToken_">IMongoCollectionExtensions.FindOneAndDelete&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, FindOneAndDeleteOptions&lt;TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndDelete.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndDelete__2_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_FindOneAndDeleteOptions___0___1__System_Threading_CancellationToken_">IMongoCollectionExtensions.FindOneAndDelete&lt;TDocument, TProjection&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, FindOneAndDeleteOptions&lt;TDocument, TProjection&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndDelete.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndDelete__2_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_FindOneAndDeleteOptions___0___1__System_Threading_CancellationToken_">IMongoCollectionExtensions.FindOneAndDelete&lt;TDocument, TProjection&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, FindOneAndDeleteOptions&lt;TDocument, TProjection&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndReplaceAsync.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndReplaceAsync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_FilterDefinition___0____0_MongoDB_Driver_FindOneAndReplaceOptions___0___0__System_Threading_CancellationToken_">IMongoCollectionExtensions.FindOneAndReplaceAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, FilterDefinition&lt;TDocument&gt;, TDocument, FindOneAndReplaceOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndReplaceAsync.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndReplaceAsync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FilterDefinition___0____0_MongoDB_Driver_FindOneAndReplaceOptions___0___0__System_Threading_CancellationToken_">IMongoCollectionExtensions.FindOneAndReplaceAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, FilterDefinition&lt;TDocument&gt;, TDocument, FindOneAndReplaceOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndReplaceAsync.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndReplaceAsync__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_IClientSessionHandle___0_MongoDB_Driver_FindOneAndReplaceOptions___0___0__System_Threading_CancellationToken_">IMongoCollectionExtensions.FindOneAndReplaceAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, IClientSessionHandle, TDocument, FindOneAndReplaceOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndReplaceAsync.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndReplaceAsync__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean_____0_MongoDB_Driver_FindOneAndReplaceOptions___0__System_Threading_CancellationToken_">IMongoCollectionExtensions.FindOneAndReplaceAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, TDocument, FindOneAndReplaceOptions&lt;TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndReplaceAsync.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndReplaceAsync__2_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean_____0_MongoDB_Driver_FindOneAndReplaceOptions___0___1__System_Threading_CancellationToken_">IMongoCollectionExtensions.FindOneAndReplaceAsync&lt;TDocument, TProjection&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, TDocument, FindOneAndReplaceOptions&lt;TDocument, TProjection&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndReplaceAsync.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndReplaceAsync__2_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean_____0_MongoDB_Driver_FindOneAndReplaceOptions___0___1__System_Threading_CancellationToken_">IMongoCollectionExtensions.FindOneAndReplaceAsync&lt;TDocument, TProjection&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, TDocument, FindOneAndReplaceOptions&lt;TDocument, TProjection&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndReplace.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndReplace__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_FilterDefinition___0____0_MongoDB_Driver_FindOneAndReplaceOptions___0___0__System_Threading_CancellationToken_">IMongoCollectionExtensions.FindOneAndReplace&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, FilterDefinition&lt;TDocument&gt;, TDocument, FindOneAndReplaceOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndReplace.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndReplace__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FilterDefinition___0____0_MongoDB_Driver_FindOneAndReplaceOptions___0___0__System_Threading_CancellationToken_">IMongoCollectionExtensions.FindOneAndReplace&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, FilterDefinition&lt;TDocument&gt;, TDocument, FindOneAndReplaceOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndReplace.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndReplace__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean_____0_MongoDB_Driver_FindOneAndReplaceOptions___0___0__System_Threading_CancellationToken_">IMongoCollectionExtensions.FindOneAndReplace&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, TDocument, FindOneAndReplaceOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndReplace.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndReplace__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean_____0_MongoDB_Driver_FindOneAndReplaceOptions___0__System_Threading_CancellationToken_">IMongoCollectionExtensions.FindOneAndReplace&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, TDocument, FindOneAndReplaceOptions&lt;TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndReplace.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndReplace__2_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean_____0_MongoDB_Driver_FindOneAndReplaceOptions___0___1__System_Threading_CancellationToken_">IMongoCollectionExtensions.FindOneAndReplace&lt;TDocument, TProjection&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, TDocument, FindOneAndReplaceOptions&lt;TDocument, TProjection&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndReplace.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndReplace__2_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean_____0_MongoDB_Driver_FindOneAndReplaceOptions___0___1__System_Threading_CancellationToken_">IMongoCollectionExtensions.FindOneAndReplace&lt;TDocument, TProjection&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, TDocument, FindOneAndReplaceOptions&lt;TDocument, TProjection&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndUpdateAsync.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndUpdateAsync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_FilterDefinition___0__MongoDB_Driver_UpdateDefinition___0__MongoDB_Driver_FindOneAndUpdateOptions___0___0__System_Threading_CancellationToken_">IMongoCollectionExtensions.FindOneAndUpdateAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, FilterDefinition&lt;TDocument&gt;, UpdateDefinition&lt;TDocument&gt;, FindOneAndUpdateOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndUpdateAsync.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndUpdateAsync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FilterDefinition___0__MongoDB_Driver_UpdateDefinition___0__MongoDB_Driver_FindOneAndUpdateOptions___0___0__System_Threading_CancellationToken_">IMongoCollectionExtensions.FindOneAndUpdateAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, FilterDefinition&lt;TDocument&gt;, UpdateDefinition&lt;TDocument&gt;, FindOneAndUpdateOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndUpdateAsync.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndUpdateAsync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_UpdateDefinition___0__MongoDB_Driver_FindOneAndUpdateOptions___0___0__System_Threading_CancellationToken_">IMongoCollectionExtensions.FindOneAndUpdateAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, UpdateDefinition&lt;TDocument&gt;, FindOneAndUpdateOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndUpdateAsync.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndUpdateAsync__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_UpdateDefinition___0__MongoDB_Driver_FindOneAndUpdateOptions___0__System_Threading_CancellationToken_">IMongoCollectionExtensions.FindOneAndUpdateAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, UpdateDefinition&lt;TDocument&gt;, FindOneAndUpdateOptions&lt;TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndUpdateAsync.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndUpdateAsync__2_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_UpdateDefinition___0__MongoDB_Driver_FindOneAndUpdateOptions___0___1__System_Threading_CancellationToken_">IMongoCollectionExtensions.FindOneAndUpdateAsync&lt;TDocument, TProjection&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, UpdateDefinition&lt;TDocument&gt;, FindOneAndUpdateOptions&lt;TDocument, TProjection&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndUpdateAsync.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndUpdateAsync__2_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_UpdateDefinition___0__MongoDB_Driver_FindOneAndUpdateOptions___0___1__System_Threading_CancellationToken_">IMongoCollectionExtensions.FindOneAndUpdateAsync&lt;TDocument, TProjection&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, UpdateDefinition&lt;TDocument&gt;, FindOneAndUpdateOptions&lt;TDocument, TProjection&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndUpdate.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndUpdate__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_FilterDefinition___0__MongoDB_Driver_UpdateDefinition___0__MongoDB_Driver_FindOneAndUpdateOptions___0___0__System_Threading_CancellationToken_">IMongoCollectionExtensions.FindOneAndUpdate&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, FilterDefinition&lt;TDocument&gt;, UpdateDefinition&lt;TDocument&gt;, FindOneAndUpdateOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndUpdate.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndUpdate__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FilterDefinition___0__MongoDB_Driver_UpdateDefinition___0__MongoDB_Driver_FindOneAndUpdateOptions___0___0__System_Threading_CancellationToken_">IMongoCollectionExtensions.FindOneAndUpdate&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, FilterDefinition&lt;TDocument&gt;, UpdateDefinition&lt;TDocument&gt;, FindOneAndUpdateOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndUpdate.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndUpdate__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_UpdateDefinition___0__MongoDB_Driver_FindOneAndUpdateOptions___0___0__System_Threading_CancellationToken_">IMongoCollectionExtensions.FindOneAndUpdate&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, UpdateDefinition&lt;TDocument&gt;, FindOneAndUpdateOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndUpdate.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndUpdate__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_UpdateDefinition___0__MongoDB_Driver_FindOneAndUpdateOptions___0__System_Threading_CancellationToken_">IMongoCollectionExtensions.FindOneAndUpdate&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, UpdateDefinition&lt;TDocument&gt;, FindOneAndUpdateOptions&lt;TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndUpdate.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndUpdate__2_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_UpdateDefinition___0__MongoDB_Driver_FindOneAndUpdateOptions___0___1__System_Threading_CancellationToken_">IMongoCollectionExtensions.FindOneAndUpdate&lt;TDocument, TProjection&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, UpdateDefinition&lt;TDocument&gt;, FindOneAndUpdateOptions&lt;TDocument, TProjection&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindOneAndUpdate.html#MongoDB_Driver_IMongoCollectionExtensions_FindOneAndUpdate__2_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_UpdateDefinition___0__MongoDB_Driver_FindOneAndUpdateOptions___0___1__System_Threading_CancellationToken_">IMongoCollectionExtensions.FindOneAndUpdate&lt;TDocument, TProjection&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, UpdateDefinition&lt;TDocument&gt;, FindOneAndUpdateOptions&lt;TDocument, TProjection&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindSync.html#MongoDB_Driver_IMongoCollectionExtensions_FindSync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_FilterDefinition___0__MongoDB_Driver_FindOptions___0___0__System_Threading_CancellationToken_">IMongoCollectionExtensions.FindSync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, FilterDefinition&lt;TDocument&gt;, FindOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindSync.html#MongoDB_Driver_IMongoCollectionExtensions_FindSync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FilterDefinition___0__MongoDB_Driver_FindOptions___0___0__System_Threading_CancellationToken_">IMongoCollectionExtensions.FindSync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, FilterDefinition&lt;TDocument&gt;, FindOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindSync.html#MongoDB_Driver_IMongoCollectionExtensions_FindSync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_FindOptions___0___0__System_Threading_CancellationToken_">IMongoCollectionExtensions.FindSync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, FindOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.FindSync.html#MongoDB_Driver_IMongoCollectionExtensions_FindSync__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_FindOptions___0___0__System_Threading_CancellationToken_">IMongoCollectionExtensions.FindSync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, FindOptions&lt;TDocument, TDocument&gt;, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.Find.html#MongoDB_Driver_IMongoCollectionExtensions_Find__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_FilterDefinition___0__MongoDB_Driver_FindOptions_">IMongoCollectionExtensions.Find&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, FilterDefinition&lt;TDocument&gt;, FindOptions)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.Find.html#MongoDB_Driver_IMongoCollectionExtensions_Find__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_FilterDefinition___0__MongoDB_Driver_FindOptions_">IMongoCollectionExtensions.Find&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, FilterDefinition&lt;TDocument&gt;, FindOptions)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.Find.html#MongoDB_Driver_IMongoCollectionExtensions_Find__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_FindOptions_">IMongoCollectionExtensions.Find&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, FindOptions)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.Find.html#MongoDB_Driver_IMongoCollectionExtensions_Find__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_FindOptions_">IMongoCollectionExtensions.Find&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, FindOptions)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.ReplaceOneAsync.html#MongoDB_Driver_IMongoCollectionExtensions_ReplaceOneAsync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean_____0_MongoDB_Driver_ReplaceOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.ReplaceOneAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, TDocument, ReplaceOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.ReplaceOneAsync.html#MongoDB_Driver_IMongoCollectionExtensions_ReplaceOneAsync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean_____0_MongoDB_Driver_UpdateOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.ReplaceOneAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, TDocument, UpdateOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.ReplaceOneAsync.html#MongoDB_Driver_IMongoCollectionExtensions_ReplaceOneAsync__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean_____0_MongoDB_Driver_ReplaceOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.ReplaceOneAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, TDocument, ReplaceOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.ReplaceOneAsync.html#MongoDB_Driver_IMongoCollectionExtensions_ReplaceOneAsync__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean_____0_MongoDB_Driver_UpdateOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.ReplaceOneAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, TDocument, UpdateOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.ReplaceOne.html#MongoDB_Driver_IMongoCollectionExtensions_ReplaceOne__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean_____0_MongoDB_Driver_ReplaceOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.ReplaceOne&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, TDocument, ReplaceOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.ReplaceOne.html#MongoDB_Driver_IMongoCollectionExtensions_ReplaceOne__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean_____0_MongoDB_Driver_UpdateOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.ReplaceOne&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, TDocument, UpdateOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.ReplaceOne.html#MongoDB_Driver_IMongoCollectionExtensions_ReplaceOne__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean_____0_MongoDB_Driver_ReplaceOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.ReplaceOne&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, TDocument, ReplaceOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.ReplaceOne.html#MongoDB_Driver_IMongoCollectionExtensions_ReplaceOne__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean_____0_MongoDB_Driver_UpdateOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.ReplaceOne&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, TDocument, UpdateOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.UpdateManyAsync.html#MongoDB_Driver_IMongoCollectionExtensions_UpdateManyAsync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_UpdateDefinition___0__MongoDB_Driver_UpdateOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.UpdateManyAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, UpdateDefinition&lt;TDocument&gt;, UpdateOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.UpdateManyAsync.html#MongoDB_Driver_IMongoCollectionExtensions_UpdateManyAsync__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_UpdateDefinition___0__MongoDB_Driver_UpdateOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.UpdateManyAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, UpdateDefinition&lt;TDocument&gt;, UpdateOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.UpdateMany.html#MongoDB_Driver_IMongoCollectionExtensions_UpdateMany__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_UpdateDefinition___0__MongoDB_Driver_UpdateOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.UpdateMany&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, UpdateDefinition&lt;TDocument&gt;, UpdateOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.UpdateMany.html#MongoDB_Driver_IMongoCollectionExtensions_UpdateMany__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_UpdateDefinition___0__MongoDB_Driver_UpdateOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.UpdateMany&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, UpdateDefinition&lt;TDocument&gt;, UpdateOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.UpdateOneAsync.html#MongoDB_Driver_IMongoCollectionExtensions_UpdateOneAsync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_UpdateDefinition___0__MongoDB_Driver_UpdateOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.UpdateOneAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, UpdateDefinition&lt;TDocument&gt;, UpdateOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.UpdateOneAsync.html#MongoDB_Driver_IMongoCollectionExtensions_UpdateOneAsync__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_UpdateDefinition___0__MongoDB_Driver_UpdateOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.UpdateOneAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, UpdateDefinition&lt;TDocument&gt;, UpdateOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.UpdateOne.html#MongoDB_Driver_IMongoCollectionExtensions_UpdateOne__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_UpdateDefinition___0__MongoDB_Driver_UpdateOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.UpdateOne&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, UpdateDefinition&lt;TDocument&gt;, UpdateOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.UpdateOne.html#MongoDB_Driver_IMongoCollectionExtensions_UpdateOne__1_MongoDB_Driver_IMongoCollection___0__System_Linq_Expressions_Expression_System_Func___0_System_Boolean___MongoDB_Driver_UpdateDefinition___0__MongoDB_Driver_UpdateOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.UpdateOne&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, Expression&lt;Func&lt;TDocument, bool&gt;&gt;, UpdateDefinition&lt;TDocument&gt;, UpdateOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.WatchAsync.html#MongoDB_Driver_IMongoCollectionExtensions_WatchAsync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_ChangeStreamOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.WatchAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, ChangeStreamOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.WatchAsync.html#MongoDB_Driver_IMongoCollectionExtensions_WatchAsync__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_ChangeStreamOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.WatchAsync&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, ChangeStreamOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.Watch.html#MongoDB_Driver_IMongoCollectionExtensions_Watch__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_ChangeStreamOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.Watch&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, ChangeStreamOptions, CancellationToken)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.IMongoCollectionExtensions.Watch.html#MongoDB_Driver_IMongoCollectionExtensions_Watch__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_IClientSessionHandle_MongoDB_Driver_ChangeStreamOptions_System_Threading_CancellationToken_">IMongoCollectionExtensions.Watch&lt;TDocument&gt;(IMongoCollection&lt;TDocument&gt;, IClientSessionHandle, ChangeStreamOptions, CancellationToken)</a>
+  </div>
+  </dd></dl>
+
+
+
+
+  <h2 class="section" id="properties">Properties
+</h2>
+
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.IFilteredMongoCollection-1.Filter.html#MongoDB_Driver_IFilteredMongoCollection_1_Filter">Filter</a></dt>
+    <dd><p>Gets the filter.</p>
+</dd>
+  </dl>
+
+
+
+</article>
+
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          &copy; 2023 MongoDB, Inc.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
