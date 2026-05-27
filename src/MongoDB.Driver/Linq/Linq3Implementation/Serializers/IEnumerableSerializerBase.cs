@@ -14,6 +14,7 @@
 */
 
 using System.Collections.Generic;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Misc;
@@ -36,6 +37,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers
         public override TEnumerable Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var reader = context.Reader;
+            if (reader.GetCurrentBsonType() == BsonType.Null)
+            {
+                reader.ReadNull();
+                return default;
+            }
             reader.ReadStartArray();
             var items = new List<TItem>();
             while (reader.ReadBsonType() != 0)
@@ -64,6 +70,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers
         public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TEnumerable value)
         {
             var writer = context.Writer;
+            if (value == null)
+            {
+                writer.WriteNull();
+                return;
+            }
             writer.WriteStartArray();
             foreach (var item in value)
             {
