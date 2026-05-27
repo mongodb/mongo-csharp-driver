@@ -54,9 +54,19 @@ public class EncStrMethodToAggregationExpressionTranslatorTests
             TestHelpers.MakeLambda<MyModel, bool>(model => Mql.EncStrNormalizedEq(model.Text, "eq")),
             "{ $encStrNormalizedEq : { input : { $getField : { field : 'Text', input : '$$ROOT' } }, string : 'eq' } }"
         ],
+        [
+            TestHelpers.MakeLambda<MyModel, bool>(model => Mql.EncStrStartsWith(model.Sub.Text, "pre")),
+            "{ $encStrStartsWith : { input : { $getField : { field : 'Text', input : { $getField : { field : 'Sub', input : '$$ROOT' } } } }, prefix : 'pre' } }"
+        ],
     ];
 
     public class MyModel
+    {
+        public string Text { get; set; }
+        public SubModel Sub { get; set; }
+    }
+
+    public class SubModel
     {
         public string Text { get; set; }
     }
