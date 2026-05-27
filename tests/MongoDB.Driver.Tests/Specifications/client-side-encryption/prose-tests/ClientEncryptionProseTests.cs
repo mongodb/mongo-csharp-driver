@@ -2658,7 +2658,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
             var exception = Record.Exception(() => RunTestCase(csfleNamespace, pipeline8, null));
             exception.Should().NotBeNull();
-            exception.Message.Should().Contain("not supported");
+            (exception.Message.Contains("not supported") ||
+             exception.Message.Contains("Cannot specify both encryptionInformation and csfleEncryptionSchemas"))
+                .Should().BeTrue("expected error indicating that mixing CSFLE and QE in $lookup is not permitted");
 
             void RunTestCase(CollectionNamespace collectionNamespace, string pipeline, string expectedResult)
             {
