@@ -19,7 +19,7 @@ using MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 
-internal class AstEncStrExpression : AstExpression
+internal sealed class AstEncStrExpression : AstExpression
 {
     public AstEncStrExpression(AstEncStrOperator @operator, AstExpression input, AstExpression value)
     {

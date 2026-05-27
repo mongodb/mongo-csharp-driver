@@ -24,6 +24,7 @@ using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.GeoJsonObjectModel;
+using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators;
@@ -534,18 +535,18 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates an encrypted substring filter.
+        /// Creates a substring filter against a QE-encrypted string field.
         /// </summary>
         /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A filter.</returns>
         public FilterDefinition<TDocument> EncStrContains(FieldDefinition<TDocument> field, string value)
         {
-            return new EncStrFilterDefinition<TDocument>("$encStrContains", "substring", field, value);
+            return new EncStrFilterDefinition<TDocument>(AstEncStrOperator.Contains, field, value);
         }
 
         /// <summary>
-        /// Creates an encrypted substring filter.
+        /// Creates a substring filter against a QE-encrypted string field.
         /// </summary>
         /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
@@ -556,18 +557,18 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates an encrypted suffix filter.
+        /// Creates a suffix filter against a QE-encrypted string field.
         /// </summary>
         /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A filter.</returns>
         public FilterDefinition<TDocument> EncStrEndsWith(FieldDefinition<TDocument> field, string value)
         {
-            return new EncStrFilterDefinition<TDocument>("$encStrEndsWith", "suffix", field, value);
+            return new EncStrFilterDefinition<TDocument>(AstEncStrOperator.EndsWith, field, value);
         }
 
         /// <summary>
-        /// Creates an encrypted suffix filter.
+        /// Creates a suffix filter against a QE-encrypted string field.
         /// </summary>
         /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
@@ -578,18 +579,18 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates an encrypted normalized equality filter.
+        /// Creates a normalized equality filter against a QE-encrypted string field.
         /// </summary>
         /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A filter.</returns>
         public FilterDefinition<TDocument> EncStrNormalizedEq(FieldDefinition<TDocument> field, string value)
         {
-            return new EncStrFilterDefinition<TDocument>("$encStrNormalizedEq", "string", field, value);
+            return new EncStrFilterDefinition<TDocument>(AstEncStrOperator.NormalizedEq, field, value);
         }
 
         /// <summary>
-        /// Creates an encrypted normalized equality filter.
+        /// Creates a normalized equality filter against a QE-encrypted string field.
         /// </summary>
         /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
@@ -600,18 +601,18 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates an encrypted prefix filter.
+        /// Creates a prefix filter against a QE-encrypted string field.
         /// </summary>
         /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A filter.</returns>
         public FilterDefinition<TDocument> EncStrStartsWith(FieldDefinition<TDocument> field, string value)
         {
-            return new EncStrFilterDefinition<TDocument>("$encStrStartsWith", "prefix", field, value);
+            return new EncStrFilterDefinition<TDocument>(AstEncStrOperator.StartsWith, field, value);
         }
 
         /// <summary>
-        /// Creates an encrypted prefix filter.
+        /// Creates a prefix filter against a QE-encrypted string field.
         /// </summary>
         /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
@@ -2948,15 +2949,13 @@ namespace MongoDB.Driver
 
     internal sealed class EncStrFilterDefinition<TDocument> : FilterDefinition<TDocument>
     {
-        private readonly string _operatorName;
-        private readonly string _argName;
+        private readonly AstEncStrOperator _operator;
         private readonly FieldDefinition<TDocument> _field;
         private readonly string _value;
 
-        public EncStrFilterDefinition(string operatorName, string argName, FieldDefinition<TDocument> field, string value)
+        public EncStrFilterDefinition(AstEncStrOperator @operator, FieldDefinition<TDocument> field, string value)
         {
-            _operatorName = Ensure.IsNotNull(operatorName, nameof(operatorName));
-            _argName = Ensure.IsNotNull(argName, nameof(argName));
+            _operator = @operator;
             _field = Ensure.IsNotNull(field, nameof(field));
             _value = Ensure.IsNotNull(value, nameof(value));
         }
@@ -2964,13 +2963,11 @@ namespace MongoDB.Driver
         public override BsonDocument Render(RenderArgs<TDocument> args)
         {
             var renderedField = _field.Render(args);
-            return new BsonDocument("$expr", new BsonDocument(
-                _operatorName,
-                new BsonDocument
-                {
-                    { "input", "$" + renderedField.FieldName },
-                    { _argName, _value }
-                }));
+            var encStrExpression = AstExpression.EncStrExpression(
+                _operator,
+                AstExpression.FieldPath("$" + renderedField.FieldName),
+                AstExpression.Constant(_value));
+            return new BsonDocument("$expr", encStrExpression.Render());
         }
     }
 }
