@@ -470,6 +470,19 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
                 return base.VisitPickExpression(node);
             }
 
+            public override AstNode VisitReduceExpression(AstReduceExpression node)
+            {
+                // { $reduce : { input : { $map : { input : "$_elements", as : "x", in : f(x) } }, initialValue : [], in : { $concatArrays : ["$$value", "$$this"] } } }
+                // => { __agg0 : { $concatArrays : f(x => element) } } + "$__agg0"
+                if (IsSelectManyShapeOverElements(node, out var rewrittenArg))
+                {
+                    var accumulatorExpression = AstExpression.UnaryAccumulator(AstUnaryAccumulatorOperator.ConcatArrays, rewrittenArg);
+                    return CreateGetAccumulatorFieldExpression(accumulatorExpression);
+                }
+
+                return base.VisitReduceExpression(node);
+            }
+
             public override AstNode VisitUnaryExpression(AstUnaryExpression node)
             {
                 // { $size : "$_elements" } => { __agg0 : { $sum : 1 } } + "$__agg0"
@@ -481,6 +494,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
                         var accumulatorExpression = AstExpression.UnaryAccumulator(AstUnaryAccumulatorOperator.Sum, 1);
                         return CreateGetAccumulatorFieldExpression(accumulatorExpression);
                     }
+                }
+
+                // { $setUnion : { $reduce : { input : { $map : { input : "$_elements", as : "x", in : f(x) } }, initialValue : [], in : { $concatArrays : ["$$value", "$$this"] } } } }
+                // => { __agg0 : { $setUnion : f(x => element) } } + "$__agg0"
+                if (node.Operator == AstUnaryOperator.SetUnion &&
+                    node.Arg is AstReduceExpression setUnionReduceArg &&
+                    IsSelectManyShapeOverElements(setUnionReduceArg, out var setUnionArg))
+                {
+                    var accumulatorExpression = AstExpression.UnaryAccumulator(AstUnaryAccumulatorOperator.SetUnion, setUnionArg);
+                    return CreateGetAccumulatorFieldExpression(accumulatorExpression);
                 }
 
                 // { $accumulator : { $getField : { input : "$$ROOT", field : "_elements" } } } => { __agg0 : { $accumulator : element } } + "$__agg0"
@@ -520,6 +543,43 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
 
                 rewrittenArg = null;
                 return false;
+            }
+
+            // Matches the AST shape that SelectMany(x => f(x)) emits over _elements:
+            //   $reduce(input: $map(input: $_elements, as: x, in: f(x)),
+            //           initialValue: [],
+            //           in: $concatArrays($$value, $$this))
+            // and yields f with x rebound to the element expression.
+            private bool IsSelectManyShapeOverElements(AstReduceExpression node, out AstExpression rewrittenArg)
+            {
+                if (IsMappedElementsField(node.Input, out var mappedArg) &&
+                    IsEmptyArrayConstant(node.InitialValue) &&
+                    IsConcatArraysOfValueAndThis(node.In))
+                {
+                    rewrittenArg = mappedArg;
+                    return true;
+                }
+
+                rewrittenArg = null;
+                return false;
+            }
+
+            private static bool IsEmptyArrayConstant(AstExpression expression)
+            {
+                return
+                    expression is AstConstantExpression constant &&
+                    constant.Value is BsonArray array &&
+                    array.Count == 0;
+            }
+
+            private static bool IsConcatArraysOfValueAndThis(AstExpression expression)
+            {
+                return
+                    expression is AstNaryExpression nary &&
+                    nary.Operator == AstNaryOperator.ConcatArrays &&
+                    nary.Args.Count == 2 &&
+                    nary.Args[0] is AstVarExpression valueVar && valueVar.Name == "value" &&
+                    nary.Args[1] is AstVarExpression thisVar && thisVar.Name == "this";
             }
 
             private AstExpression CreateGetAccumulatorFieldExpression(AstAccumulatorExpression accumulatorExpression)

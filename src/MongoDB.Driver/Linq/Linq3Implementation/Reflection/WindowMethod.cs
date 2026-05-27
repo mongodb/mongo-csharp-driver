@@ -23,6 +23,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
     {
         // private static fields
         private static readonly MethodInfo __addToSet;
+        private static readonly MethodInfo __concatArrays;
+        private static readonly MethodInfo __setUnion;
         private static readonly MethodInfo __averageWithDecimal;
         private static readonly MethodInfo __averageWithDouble;
         private static readonly MethodInfo __averageWithInt32;
@@ -173,6 +175,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         {
             // initialize methods before sets of methods
             __addToSet = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, object> selector, SetWindowFieldsWindow window) => partition.AddToSet(selector, window));
+            __concatArrays = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, IEnumerable<object>> selector, SetWindowFieldsWindow window) => partition.ConcatArrays(selector, window));
+            __setUnion = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, IEnumerable<object>> selector, SetWindowFieldsWindow window) => partition.SetUnion(selector, window));
             __averageWithDecimal = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, decimal> selector, SetWindowFieldsWindow window) => partition.Average(selector, window));
             __averageWithDouble = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, double> selector, SetWindowFieldsWindow window) => partition.Average(selector, window));
             __averageWithInt32 = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, int> selector, SetWindowFieldsWindow window) => partition.Average(selector, window));
@@ -483,6 +487,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
 
         // public properties
         public static MethodInfo AddToSet => __addToSet;
+        public static MethodInfo ConcatArrays => __concatArrays;
+        public static MethodInfo SetUnion => __setUnion;
         public static MethodInfo AverageWithDecimal => __averageWithDecimal;
         public static MethodInfo AverageWithDouble => __averageWithDouble;
         public static MethodInfo AverageWithInt32 => __averageWithInt32;

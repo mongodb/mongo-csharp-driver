@@ -35,10 +35,12 @@ public class SelectManyMethodToAggregationExpressionTranslatorTests : LinqIntegr
     {
         var collection = Fixture.Collection;
 
-        var queryable = collection.AsQueryable().Select(x => x.B.SelectMany(a => a));
+        var queryable = collection.AsQueryable().Where(x => x.Id == 1).Select(x => x.B.SelectMany(a => a));
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $reduce : { input : { $map : { input : '$B', as : 'a', in : '$$a' } }, initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } } }, _id : 0 } }");
+        AssertStages(stages,
+            "{ $match : { _id : 1 } }",
+            "{ $project : { _v : { $reduce : { input : { $map : { input : '$B', as : 'a', in : '$$a' } }, initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } } }, _id : 0 } }");
 
         var result = queryable.Single();
         result.Should().Equal(10, 20, 30);
@@ -51,10 +53,12 @@ public class SelectManyMethodToAggregationExpressionTranslatorTests : LinqIntegr
 
         var collection = Fixture.Collection;
 
-        var queryable = collection.AsQueryable().Select(x => x.B.SelectMany((a, i) => a.Select(y => y + i)));
+        var queryable = collection.AsQueryable().Where(x => x.Id == 1).Select(x => x.B.SelectMany((a, i) => a.Select(y => y + i)));
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $reduce : { input : { $map : { input : '$B', as : 'a', arrayIndexAs : 'i', in : { $map : { input : '$$a', as : 'y', in : { $add : ['$$y', '$$i'] } } } } }, initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } } }, _id : 0 } }");
+        AssertStages(stages,
+            "{ $match : { _id : 1 } }",
+            "{ $project : { _v : { $reduce : { input : { $map : { input : '$B', as : 'a', arrayIndexAs : 'i', in : { $map : { input : '$$a', as : 'y', in : { $add : ['$$y', '$$i'] } } } } }, initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } } }, _id : 0 } }");
 
         var result = queryable.Single();
         result.Should().Equal(10, 20, 31);
@@ -65,10 +69,12 @@ public class SelectManyMethodToAggregationExpressionTranslatorTests : LinqIntegr
     {
         var collection = Fixture.Collection;
 
-        var queryable = collection.AsQueryable().Select(x => x.B.AsQueryable().SelectMany(a => a));
+        var queryable = collection.AsQueryable().Where(x => x.Id == 1).Select(x => x.B.AsQueryable().SelectMany(a => a));
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $reduce : { input : { $map : { input : '$B', as : 'a', in : '$$a' } }, initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } } }, _id : 0 } }");
+        AssertStages(stages,
+            "{ $match : { _id : 1 } }",
+            "{ $project : { _v : { $reduce : { input : { $map : { input : '$B', as : 'a', in : '$$a' } }, initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } } }, _id : 0 } }");
 
         var result = queryable.Single();
         result.Should().Equal(10, 20, 30);
@@ -81,26 +87,146 @@ public class SelectManyMethodToAggregationExpressionTranslatorTests : LinqIntegr
 
         var collection = Fixture.Collection;
 
-        var queryable = collection.AsQueryable().Select(x => x.B.AsQueryable().SelectMany((a, i) => a.Select(y => y + i)));
+        var queryable = collection.AsQueryable().Where(x => x.Id == 1).Select(x => x.B.AsQueryable().SelectMany((a, i) => a.Select(y => y + i)));
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $project : { _v : { $reduce : { input : { $map : { input : '$B', as : 'a', arrayIndexAs : 'i', in : { $map : { input : '$$a', as : 'y', in : { $add : ['$$y', '$$i'] } } } } }, initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } } }, _id : 0 } }");
+        AssertStages(stages,
+            "{ $match : { _id : 1 } }",
+            "{ $project : { _v : { $reduce : { input : { $map : { input : '$B', as : 'a', arrayIndexAs : 'i', in : { $map : { input : '$$a', as : 'y', in : { $add : ['$$y', '$$i'] } } } } }, initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } } }, _id : 0 } }");
 
         var result = queryable.Single();
         result.Should().Equal(10, 20, 31);
+    }
+
+    [Fact]
+    public void SelectMany_in_GroupBy_should_work()
+    {
+        RequireServer.Check().Supports(Feature.ConcatArraysAndSetUnionAccumulators);
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .GroupBy(x => x.Cat)
+            .Select(g => new { Cat = g.Key, AllTags = g.SelectMany(x => x.Tags).ToList() });
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages,
+            "{ $group : { _id : '$Cat', __agg0 : { $concatArrays : '$Tags' } } }",
+            "{ $project : { Cat : '$_id', AllTags : '$__agg0', _id : 0 } }");
+
+        var results = queryable.ToList().OrderBy(x => x.Cat).ToList();
+        results.Should().HaveCount(2);
+        results[0].Cat.Should().Be("A");
+        results[0].AllTags.Should().BeEquivalentTo(new[] { "x", "y", "x", "z" });
+        results[1].Cat.Should().Be("B");
+        results[1].AllTags.Should().BeEquivalentTo(new[] { "y", "z" });
+    }
+
+    [Fact]
+    public void SelectMany_Distinct_in_GroupBy_should_work()
+    {
+        RequireServer.Check().Supports(Feature.ConcatArraysAndSetUnionAccumulators);
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .GroupBy(x => x.Cat)
+            .Select(g => new { Cat = g.Key, UniqueTags = g.SelectMany(x => x.Tags).Distinct().ToList() });
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages,
+            "{ $group : { _id : '$Cat', __agg0 : { $setUnion : '$Tags' } } }",
+            "{ $project : { Cat : '$_id', UniqueTags : '$__agg0', _id : 0 } }");
+
+        var results = queryable.ToList().OrderBy(x => x.Cat).ToList();
+        results.Should().HaveCount(2);
+        results[0].Cat.Should().Be("A");
+        results[0].UniqueTags.Should().BeEquivalentTo(new[] { "x", "y", "z" });
+        results[1].Cat.Should().Be("B");
+        results[1].UniqueTags.Should().BeEquivalentTo(new[] { "y", "z" });
+    }
+
+    [Fact]
+    public void SelectMany_in_GroupBy_with_result_selector_should_work()
+    {
+        RequireServer.Check().Supports(Feature.ConcatArraysAndSetUnionAccumulators);
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .GroupBy(x => x.Cat, (key, elements) => new { Cat = key, AllTags = elements.SelectMany(x => x.Tags).ToList() });
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages,
+            "{ $group : { _id : '$Cat', __agg0 : { $concatArrays : '$Tags' } } }",
+            "{ $project : { Cat : '$_id', AllTags : '$__agg0', _id : 0 } }");
+
+        var results = queryable.ToList().OrderBy(x => x.Cat).ToList();
+        results.Should().HaveCount(2);
+        results[0].Cat.Should().Be("A");
+        results[0].AllTags.Should().BeEquivalentTo(new[] { "x", "y", "x", "z" });
+        results[1].Cat.Should().Be("B");
+        results[1].AllTags.Should().BeEquivalentTo(new[] { "y", "z" });
+    }
+
+    [Fact]
+    public void SelectMany_in_Bucket_should_work()
+    {
+        RequireServer.Check().Supports(Feature.ConcatArraysAndSetUnionAccumulators);
+        var collection = Fixture.Collection;
+
+        var aggregate = collection.Aggregate()
+            .Bucket(
+                x => x.Id,
+                new[] { 1, 3, 5 },
+                g => new { Id = g.Key, AllTags = g.SelectMany(x => x.Tags) });
+
+        var stages = Translate(collection, aggregate);
+        AssertStages(stages,
+            "{ $bucket : { groupBy : '$_id', boundaries : [1, 3, 5], output : { __agg0 : { $concatArrays : '$Tags' } } } }",
+            "{ $project : { _id : '$_id', AllTags : '$__agg0' } }");
+
+        var results = aggregate.ToList().OrderBy(x => x.Id).ToList();
+        results.Should().HaveCount(2);
+        results[0].Id.Should().Be(1);
+        results[0].AllTags.Should().BeEquivalentTo(new[] { "x", "y", "x", "z" });
+        results[1].Id.Should().Be(3);
+        results[1].AllTags.Should().BeEquivalentTo(new[] { "y", "z" });
+    }
+
+    [Fact]
+    public void SelectMany_Distinct_in_BucketAuto_should_work()
+    {
+        RequireServer.Check().Supports(Feature.ConcatArraysAndSetUnionAccumulators);
+        var collection = Fixture.Collection;
+
+        var aggregate = collection.Aggregate()
+            .BucketAuto(
+                x => x.Id,
+                2,
+                g => new { Id = g.Key, UniqueTags = g.SelectMany(x => x.Tags).Distinct() });
+
+        var stages = Translate(collection, aggregate);
+        AssertStages(stages,
+            "{ $bucketAuto : { groupBy : '$_id', buckets : 2, output : { __agg0 : { $setUnion : '$Tags' } } } }",
+            "{ $project : { _id : '$_id', UniqueTags : '$__agg0' } }");
+
+        var results = aggregate.ToList();
+        results.Should().HaveCount(2);
     }
 
     public class C
     {
         public int Id { get; set; }
         public int[][] B { get; set; }
+        public string Cat { get; set; }
+        public string[] Tags { get; set; }
     }
 
     public sealed class ClassFixture : MongoCollectionFixture<C>
     {
         protected override IEnumerable<C> InitialData =>
         [
-            new() { Id = 1, B = new int[][] { [10, 20], [30] } }
+            new() { Id = 1, B = new int[][] { [10, 20], [30] }, Cat = "A", Tags = new[] { "x", "y" } },
+            new() { Id = 2, Cat = "A", Tags = new[] { "x", "z" } },
+            new() { Id = 3, Cat = "B", Tags = new[] { "y", "z" } }
         ];
     }
 }

@@ -102,6 +102,7 @@ internal partial class SerializerFinderVisitor
                 case "As": DeduceAsMethodSerializers(); break;
                 case "AsQueryable": DeduceAsQueryableMethodSerializers(); break;
                 case "Concat": DeduceConcatMethodSerializers(); break;
+                case "ConcatArrays": DeduceConcatArraysMethodSerializers(); break;
                 case "Constant": DeduceConstantMethodSerializers(); break;
                 case "Contains": DeduceContainsMethodSerializers(); break;
                 case "ContainsKey": DeduceContainsKeyMethodSerializers(); break;
@@ -159,6 +160,7 @@ internal partial class SerializerFinderVisitor
                 case "SequenceEqual": DeduceSequenceEqualMethodSerializers(); break;
                 case "SerializeEJson": DeduceSerializeEJsonMethodSerializers(); break;
                 case "SetEquals": DeduceSetEqualsMethodSerializers(); break;
+                case "SetUnion": DeduceSetUnionMethodSerializers(); break;
                 case "SetWindowFields": DeduceSetWindowFieldsMethodSerializers(); break;
                 case "Shift": DeduceShiftMethodSerializers(); break;
                 case "Sigmoid": DeduceSigmoidMethodSerializers(); break;
@@ -801,6 +803,21 @@ internal partial class SerializerFinderVisitor
             else if (method.IsOneOf(StringMethod.ConcatOverloads))
             {
                 DeduceReturnsStringSerializer();
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
+        }
+
+        void DeduceConcatArraysMethodSerializers()
+        {
+            if (method.Is(WindowMethod.ConcatArrays))
+            {
+                var partitionExpression = arguments[0];
+                var selectorLambda = (LambdaExpression)arguments[1];
+                DeduceWindowMethodSelectorParameterSerializer(partitionExpression, selectorLambda);
+                DeduceCollectionAndCollectionSerializers(node, selectorLambda.Body);
             }
             else
             {
@@ -2611,6 +2628,21 @@ internal partial class SerializerFinderVisitor
 
                 DeduceCollectionAndCollectionSerializers(objectExpression, otherExpression);
                 DeduceReturnsBooleanSerializer();
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
+        }
+
+        void DeduceSetUnionMethodSerializers()
+        {
+            if (method.Is(WindowMethod.SetUnion))
+            {
+                var partitionExpression = arguments[0];
+                var selectorLambda = (LambdaExpression)arguments[1];
+                DeduceWindowMethodSelectorParameterSerializer(partitionExpression, selectorLambda);
+                DeduceCollectionAndCollectionSerializers(node, selectorLambda.Body);
             }
             else
             {

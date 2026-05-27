@@ -129,6 +129,11 @@ public class Feature
     public static Feature ClusteredIndexes { get; } = new("ClusteredIndexes", WireVersion.Server53);
 
     /// <summary>
+    /// Gets the $concatArrays and $setUnion accumulators feature.
+    /// </summary>
+    public static Feature ConcatArraysAndSetUnionAccumulators { get; } = new("ConcatArraysAndSetUnionAccumulators", WireVersion.Server81);
+
+    /// <summary>
     /// Gets the conversion of any type to string feature.
     /// </summary>
     public static Feature ConvertOperatorAnyToString { get; } = new("ConvertOperatorAnyToString", WireVersion.Server83);

@@ -34,6 +34,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case "Average": return AverageMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Ceiling": return CeilingMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Concat": return ConcatMethodToAggregationExpressionTranslator.Translate(context, expression);
+                case "ConcatArrays": return ConcatArraysMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Constant": return ConstantMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Contains": return ContainsMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "ContainsKey": return ContainsKeyMethodToAggregationExpressionTranslator.Translate(context, expression);
@@ -87,6 +88,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case "SequenceEqual": return SequenceEqualMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "SerializeEJson": return SerializeEJsonMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "SetEquals": return SetEqualsMethodToAggregationExpressionTranslator.Translate(context, expression);
+                case "SetUnion": return SetUnionMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Shift": return ShiftMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Sigmoid": return SigmoidMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Split": return SplitMethodToAggregationExpressionTranslator.Translate(context, expression);
