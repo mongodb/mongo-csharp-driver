@@ -2723,6 +2723,46 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
         }
 
+        // 25. Test $lookup (case 10)
+        [Fact]
+        public void TestLookupQeJoinsNonCsfleSchema()
+        {
+            RequireServer.Check().Supports(Feature.Csfle2QEv2LookupNonCsfleSchema)
+                .ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced);
+
+            TestLookupSetup();
+
+            var keyVaultCollectionNamespace = new CollectionNamespace("db", "keyvault");
+            var qeNamespace = new CollectionNamespace("db", "qe");
+
+            // Case 10: db.qe joins db.non_csfle_schema
+            var pipeline10 = """
+                             [
+                                 {"$match" : {"qe" : "qe"}},
+                                 {
+                                     "$lookup" : {
+                                         "from" : "non_csfle_schema",
+                                         "as" : "matched",
+                                         "pipeline" : [ {"$match" : {"non_csfle_schema" : "non_csfle_schema"}}, {"$project" : {"_id" : 0, "__safeContent__" : 0}} ]
+                                     }
+                                 },
+                                 {"$project" : {"_id" : 0, "__safeContent__" : 0}}
+                             ]
+                             """;
+            var expectedResult10 = """{"qe" : "qe", "matched" : [ {"non_csfle_schema" : "non_csfle_schema"} ]}""";
+
+            using var mongoClient = ConfigureClientEncrypted(kmsProviderFilter: "local",
+                keyVaultCollectionNamespace: keyVaultCollectionNamespace);
+            var collection = GetCollection(mongoClient, qeNamespace);
+            var result = collection.Aggregate(CreatePipeline(pipeline10)).Single();
+            result.Should().Be(BsonDocument.Parse(expectedResult10));
+
+            PipelineDefinition<BsonDocument, BsonDocument> CreatePipeline(string pipelineJson)
+            {
+                return Bson.Serialization.BsonSerializer.Deserialize<List<BsonDocument>>(pipelineJson);
+            }
+        }
+
         // https://github.com/mongodb/specifications/blob/master/source/client-side-encryption/tests/README.md#27-text-explicit-encryption
         [Theory]
         [ParameterAttributeData]
@@ -3638,12 +3678,14 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             var qe2Namespace = new CollectionNamespace("db", "qe2");
             var noSchemaNamespace = new CollectionNamespace("db", "no_schema");
             var noSchema2Namespace = new CollectionNamespace("db", "no_schema2");
+            var nonCsfleSchemaNamespace = new CollectionNamespace("db", "non_csfle_schema");
 
             var keyDoc = JsonFileReader.Instance.Documents["etc.data.lookup.key-doc.json"];
             var schemaCsfle = JsonFileReader.Instance.Documents["etc.data.lookup.schema-csfle.json"];
             var schemaCsfle2 = JsonFileReader.Instance.Documents["etc.data.lookup.schema-csfle2.json"];
             var schemaQe = JsonFileReader.Instance.Documents["etc.data.lookup.schema-qe.json"];
             var schemaQe2 = JsonFileReader.Instance.Documents["etc.data.lookup.schema-qe2.json"];
+            var schemaNonCsfle = JsonFileReader.Instance.Documents["etc.data.lookup.schema-non-csfle.json"];
 
             // Setup
             using var clientEncrypted = ConfigureClientEncrypted(kmsProviderFilter: "local",
@@ -3657,6 +3699,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             DropCollection(qe2Namespace);
             DropCollection(noSchemaNamespace);
             DropCollection(noSchema2Namespace);
+            DropCollection(nonCsfleSchemaNamespace);
 
             CreateCollection(clientEncrypted, csfleNamespace,
                 validatorSchema: new BsonDocument("$jsonSchema", schemaCsfle));
@@ -3666,6 +3709,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             CreateCollection(clientEncrypted, qe2Namespace, encryptedFields: schemaQe2);
             CreateCollection(clientEncrypted, noSchemaNamespace);
             CreateCollection(clientEncrypted, noSchema2Namespace);
+            CreateCollection(clientEncrypted, nonCsfleSchemaNamespace,
+                validatorSchema: new BsonDocument("$jsonSchema", schemaNonCsfle));
 
             // Collections from encrypted client
             var keyVaultCollectionEncrypted = GetCollection(clientEncrypted, keyVaultCollectionNamespace);
@@ -3675,6 +3720,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             var qe2CollectionEncrypted = GetCollection(clientEncrypted, qe2Namespace);
             var noSchemaCollectionEncrypted = GetCollection(clientEncrypted, noSchemaNamespace);
             var noSchema2CollectionEncrypted = GetCollection(clientEncrypted, noSchema2Namespace);
+            var nonCsfleSchemaCollectionEncrypted = GetCollection(clientEncrypted, nonCsfleSchemaNamespace);
 
             // Collections from plain (unencrypted) client
             var csfleCollection = GetCollection(client, csfleNamespace);
@@ -3705,6 +3751,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
             noSchemaCollectionEncrypted.InsertOne(BsonDocument.Parse("""{"no_schema": "no_schema"}"""));
             noSchema2CollectionEncrypted.InsertOne(BsonDocument.Parse("""{"no_schema2": "no_schema2"}"""));
+            nonCsfleSchemaCollectionEncrypted.InsertOne(BsonDocument.Parse("""{"non_csfle_schema": "non_csfle_schema"}"""));
         }
 
         // nested types
