@@ -24,5 +24,4 @@ export CSFLE_AZURE_KMS_TESTS_ENABLED=true
 export FRAMEWORK=net6.0
 . ./evergreen/install-dotnet.sh
 
-./evergreen/compile-sources.sh
-TEST_CATEGORY=CsfleAZUREKMS ./evergreen/execute-tests.sh
+dotnet test --no-build -c Release --framework net6.0 --filter Category=CsfleAZUREKMS -e MONGODB_URI="$MONGODB_URI" --results-directory ./build/test-results --logger "console;verbosity=detailed" ./tests/**/*.Tests.dll
