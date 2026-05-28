@@ -216,8 +216,7 @@ functions:
           SSL=${SSL} \
           STORAGE_ENGINE=${STORAGE_ENGINE} \
           ORCHESTRATION_FILE=${ORCHESTRATION_FILE} \
-          SKIP_LEGACY_SHELL=${SKIP_LEGACY_SHELL} \
-            bash ${DRIVERS_TOOLS}/.evergreen/run-orchestration.sh
+            bash ${DRIVERS_TOOLS}/.evergreen/run-mongodb.sh start
     # run-orchestration generates expansion file with the MONGODB_URI for the cluster
     - command: expansions.update
       params:
@@ -801,7 +800,7 @@ functions:
         shell: "bash"
         script: |
           ${PREPARE_SHELL}
-          bash ${DRIVERS_TOOLS}/.evergreen/stop-orchestration.sh
+          bash ${DRIVERS_TOOLS}/.evergreen/run-mongodb.sh stop || true
           rm -rf $DRIVERS_TOOLS || true
     - command: subprocess.exec
       params:
@@ -1737,7 +1736,6 @@ tasks:
             TOPOLOGY: "server"
             SSL: "nossl"
             AUTH: "noauth"
-            SKIP_LEGACY_SHELL: "true"
         - func: configure-framework
           vars:
             FRAMEWORK: net8.0
