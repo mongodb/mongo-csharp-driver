@@ -62,7 +62,6 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
         [ParameterAttributeData]
         public async Task Ensure_explicit_session_raises_error_if_connection_does_not_support_sessions([Values(true, false)] bool async)
         {
-            RequireServer.Check().Supports(Feature.ClientSideEncryption);
             CoreTestConfiguration.SkipMongocryptdTests_SERVER_106469();
 
             using var mongocryptdContext = GetMongocryptdContext();
@@ -85,7 +84,6 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
         [ParameterAttributeData]
         public async Task Ensure_implicit_session_is_ignored_if_connection_does_not_support_sessions([Values(true, false)] bool async)
         {
-            RequireServer.Check().Supports(Feature.ClientSideEncryption);
             CoreTestConfiguration.SkipMongocryptdTests_SERVER_106469();
 
             using var mongocryptdContext = GetMongocryptdContext();

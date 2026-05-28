@@ -18,7 +18,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages;
@@ -199,17 +198,8 @@ namespace MongoDB.Driver.Linq
                 AstProjectStage projectStage;
                 IBsonSerializer projectionSerializer;
 
-                var wireVersion = context.TranslationOptions.CompatibilityLevel.ToWireVersion();
-                if (forFind && !Feature.FindProjectionExpressions.IsSupported(wireVersion))
-                {
-                    projectStage = null;
-                    projectionSerializer = ClientSideProjectionDeserializer.Create(inputSerializer, expression);
-                }
-                else
-                {
-                    (projectStage, projectionSerializer) = ClientSideProjectionTranslator.CreateProjectSnippetsStage(context, expression, inputSerializer);
-                    projectStage = simplifier.VisitAndConvert(projectStage);
-                }
+                (projectStage, projectionSerializer) = ClientSideProjectionTranslator.CreateProjectSnippetsStage(context, expression, inputSerializer);
+                projectStage = simplifier.VisitAndConvert(projectStage);
 
                 var renderedProjection = projectStage?.Render()["$project"].AsBsonDocument;
                 return new RenderedProjectionDefinition<TOutput>(renderedProjection, (IBsonSerializer<TOutput>)projectionSerializer);

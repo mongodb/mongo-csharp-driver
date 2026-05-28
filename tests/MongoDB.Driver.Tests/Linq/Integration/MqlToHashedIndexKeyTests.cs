@@ -82,8 +82,6 @@ public class MqlToHashedIndexKeyTests : LinqIntegrationTest<MqlToHashedIndexKeyT
     [Fact]
     public async Task ToHashedIndexKey_in_filter_builder()
     {
-        RequireServer.Check().Supports(Feature.FindProjectionExpressions);
-
         var collection = Fixture.Collection;
 
         var hashedValue = 5347277839332858538L; // hash of "hello"
@@ -100,8 +98,6 @@ public class MqlToHashedIndexKeyTests : LinqIntegrationTest<MqlToHashedIndexKeyT
     [Fact]
     public async Task ToHashedIndexKey_in_projection_builder()
     {
-        RequireServer.Check().Supports(Feature.FindProjectionExpressions);
-
         var collection = Fixture.Collection;
 
         var projection = Builders<C>.Projection.Expression(c => new { Hash = Mql.ToHashedIndexKey(c.Value) });

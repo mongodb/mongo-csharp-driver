@@ -49,8 +49,6 @@ namespace MongoDB.Driver.Tests.Encryption
         [Fact]
         public async Task AddAlternateKeyName_should_correctly_handle_input_arguments()
         {
-            RequireServer.Check().Supports(Feature.ClientSideEncryption);
-
             var guid = new Guid();
 
             using (var subject = CreateSubject())
@@ -63,8 +61,6 @@ namespace MongoDB.Driver.Tests.Encryption
         [Fact]
         public async Task CreateDataKey_should_correctly_handle_input_arguments()
         {
-            RequireServer.Check().Supports(Feature.ClientSideEncryption);
-
             using (var subject = CreateSubject())
             {
                 ShouldBeArgumentNullException(Record.Exception(() => subject.CreateDataKey(kmsProvider: null, new DataKeyOptions())), expectedParamName: "kmsProvider");
@@ -287,8 +283,6 @@ namespace MongoDB.Driver.Tests.Encryption
         [Fact]
         public void CryptClient_should_be_initialized()
         {
-            RequireServer.Check().Supports(Feature.ClientSideEncryption);
-
             using (var subject = CreateSubject())
             {
                 subject._cryptClient().Should().NotBeNull();
@@ -299,8 +293,6 @@ namespace MongoDB.Driver.Tests.Encryption
         [Fact]
         public async Task Decrypt_should_correctly_handle_input_arguments()
         {
-            RequireServer.Check().Supports(Feature.ClientSideEncryption);
-
             using (var subject = CreateSubject())
             {
                 ShouldBeArgumentNullException(Record.Exception(() => subject.Decrypt(value: null)), expectedParamName: "encryptedValue");
@@ -311,8 +303,6 @@ namespace MongoDB.Driver.Tests.Encryption
         [Fact]
         public async Task Encrypt_should_correctly_handle_input_arguments()
         {
-            RequireServer.Check().Supports(Feature.ClientSideEncryption);
-
             using (var subject = CreateSubject())
             {
                 ShouldBeArgumentNullException(Record.Exception(() => subject.Encrypt(value: "test", encryptOptions: null)), expectedParamName: "encryptOptions");
@@ -327,8 +317,6 @@ namespace MongoDB.Driver.Tests.Encryption
         [ParameterAttributeData]
         public async Task Encryption_should_use_correct_binarySubType([Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.ClientSideEncryption);
-
             using (var subject = CreateSubject())
             {
                 var keyId = subject.CreateDataKey("local", new DataKeyOptions());
@@ -347,8 +335,6 @@ namespace MongoDB.Driver.Tests.Encryption
         [Fact]
         public async Task GetKeyByAlternateKeyName_should_correctly_handle_input_arguments()
         {
-            RequireServer.Check().Supports(Feature.ClientSideEncryption);
-
             using (var subject = CreateSubject())
             {
                 ShouldBeArgumentNullException(Record.Exception(() => subject.GetKeyByAlternateKeyName(alternateKeyName: null)), expectedParamName: "alternateKeyName");
@@ -359,8 +345,6 @@ namespace MongoDB.Driver.Tests.Encryption
         [Fact]
         public async Task RemoveAlternateKeyName_should_correctly_handle_input_arguments()
         {
-            RequireServer.Check().Supports(Feature.ClientSideEncryption);
-
             var guid = new Guid();
 
             using (var subject = CreateSubject())
@@ -373,8 +357,6 @@ namespace MongoDB.Driver.Tests.Encryption
         [Fact]
         public async Task RewrapManyDataKey_should_correctly_handle_input_arguments()
         {
-            RequireServer.Check().Supports(Feature.ClientSideEncryption);
-
             using (var subject = CreateSubject())
             {
                 ShouldBeArgumentNullException(Record.Exception(() => subject.RewrapManyDataKey(filter: null, options: new RewrapManyDataKeyOptions("local"))), expectedParamName: "filter");

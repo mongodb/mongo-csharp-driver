@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
             var primary = ServerDescriptionHelper.Connected(clusterId, new DnsEndPoint("localhost", 27017), ServerType.ReplicaSetPrimary, wireVersionRange: new Range<int>(WireVersion.Server70, WireVersion.Server70));
             var secondary1Server70 = ServerDescriptionHelper.Connected(clusterId, new DnsEndPoint("localhost", 27018), ServerType.ReplicaSetSecondary, wireVersionRange: new Range<int>(WireVersion.Server70, WireVersion.Server70));
             var secondary2Server70 = ServerDescriptionHelper.Connected(clusterId, new DnsEndPoint("localhost", 27019), ServerType.ReplicaSetSecondary, wireVersionRange: new Range<int>(WireVersion.Server70, WireVersion.Server70));
-            var secondary3Server42 = ServerDescriptionHelper.Connected(clusterId, new DnsEndPoint("localhost", 27020), ServerType.ReplicaSetSecondary, wireVersionRange: new Range<int>(WireVersion.Server42, WireVersion.Server42));
+            var secondary3Server44 = ServerDescriptionHelper.Connected(clusterId, new DnsEndPoint("localhost", 27020), ServerType.ReplicaSetSecondary, wireVersionRange: new Range<int>(WireVersion.Server44, WireVersion.Server44));
 
             yield return new object[]
             {
@@ -107,7 +107,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
                     false,
                     null,
                     ClusterType.ReplicaSet,
-                    new[] { primary, secondary1Server70, secondary2Server70, secondary3Server42 }),
+                    new[] { primary, secondary1Server70, secondary2Server70, secondary3Server44 }),
                 ReadPreference.Primary,
                 new[] { primary }
             };

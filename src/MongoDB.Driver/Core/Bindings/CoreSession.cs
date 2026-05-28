@@ -505,27 +505,16 @@ namespace MongoDB.Driver.Core.Bindings
                 return;
             }
 
-            var connectedDataBearingServers = _cluster.Description.Servers.Where(s => s.State == ServerState.Connected && s.IsDataBearing).ToList();
+            var hasStandaloneServer = _cluster.Description.Servers
+                .Where(s => s.State == ServerState.Connected && s.IsDataBearing)
+                .Any(s => s.Type == ServerType.Standalone);
 
-            foreach (var connectedDataBearingServer in connectedDataBearingServers)
+            if (!hasStandaloneServer)
             {
-                var serverType = connectedDataBearingServer.Type;
-
-                switch (serverType)
-                {
-                    case ServerType.Standalone:
-                        throw new NotSupportedException("Standalone servers do not support transactions.");
-                    case ServerType.ShardRouter:
-                        Feature.ShardedTransactions.ThrowIfNotSupported(connectedDataBearingServer.MaxWireVersion);
-                        break;
-                    case ServerType.LoadBalanced:
-                        // do nothing, load balancing always supports transactions
-                        break;
-                    default:
-                        Feature.Transactions.ThrowIfNotSupported(connectedDataBearingServer.MaxWireVersion);
-                        break;
-                }
+                return;
             }
+
+            throw new NotSupportedException("Standalone servers do not support transactions.");
         }
 
         private void ExecuteEndTransactionOnPrimary(OperationContext operationContext, EndTransactionOperation operation)

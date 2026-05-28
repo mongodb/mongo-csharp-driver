@@ -21,7 +21,6 @@ using MongoDB.Bson;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Events;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
@@ -44,7 +43,7 @@ namespace MongoDB.Driver.Tests
                 ServerErrorCode.InterruptedAtShutdown)] // 11600
             int errorCode)
         {
-            RequireServer.Check().Supports(Feature.FailPointsFailCommand).ClusterType(ClusterType.ReplicaSet);
+            RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
 
             var eventCapturer = new EventCapturer()
                 .Capture<ConnectionPoolClearedEvent>()
@@ -77,7 +76,7 @@ namespace MongoDB.Driver.Tests
         [ParameterAttributeData]
         public void Connection_pool_should_not_be_cleared_when_replSetStepDown_and_GetMore([Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.KeepConnectionPoolWhenReplSetStepDown).ClusterType(ClusterType.ReplicaSet);
+            RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
 
             var eventCapturer = new EventCapturer().Capture<ConnectionPoolClearedEvent>();
             using (var client = CreateMongoClient(eventCapturer))
@@ -143,9 +142,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void Connection_pool_should_work_as_expected_when_NonPrimary_exception()
         {
-            RequireServer.Check().Supports(Feature.FailPointsFailCommand).ClusterType(ClusterType.ReplicaSet);
-
-            var shouldConnectionPoolBeCleared = !Feature.KeepConnectionPoolWhenNotPrimaryConnectionException.IsSupported(CoreTestConfiguration.MaxWireVersion);
+            RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
 
             var eventCapturer = new EventCapturer()
                 .Capture<ConnectionPoolClearedEvent>()
@@ -163,22 +160,9 @@ namespace MongoDB.Driver.Tests
 
                     var e = exception.Should().BeOfType<MongoNotPrimaryException>().Subject;
                     e.Code.Should().Be(10107);
-
-                    if (shouldConnectionPoolBeCleared)
-                    {
-                        eventCapturer.Next().Should().BeOfType<ConnectionPoolClearedEvent>();
-                        eventCapturer.Events.Should().BeEmpty();
-                    }
-                    else
-                    {
-                        eventCapturer.Events.Should().BeEmpty();
-                    }
+                    eventCapturer.Events.Should().BeEmpty();
 
                     collection.InsertOne(new BsonDocument("test", 1));
-                    if (shouldConnectionPoolBeCleared)
-                    {
-                        eventCapturer.Next().Should().BeOfType<ConnectionCreatedEvent>();
-                    }
                     eventCapturer.Events.Should().BeEmpty();
                 }
             }

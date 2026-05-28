@@ -48,7 +48,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Select_should_work()
         {
-            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
@@ -64,7 +63,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_followed_by_Select_should_work()
         {
-            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()

@@ -17,7 +17,6 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
 
@@ -26,14 +25,13 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
     public class IsNullOrWhiteSpaceMethodToAggregationExpressionTranslatorTests : LinqIntegrationTest<IsNullOrWhiteSpaceMethodToAggregationExpressionTranslatorTests.ClassFixture>
     {
         public IsNullOrWhiteSpaceMethodToAggregationExpressionTranslatorTests(ClassFixture fixture)
-            : base(fixture, server => server.Supports(Feature.TrimOperator))
+            : base(fixture)
         {
         }
 
         [Fact]
         public void Project_IsNullOrWhiteSpace_using_anonymous_class_should_return_expected_results()
         {
-            RequireServer.Check().Supports(Feature.FindProjectionExpressions);
             var collection = Fixture.Collection;
 
             var find = collection.Find("{}")
@@ -50,7 +48,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Project_IsNullOrWhiteSpace_using_named_class_should_return_expected_results()
         {
-            RequireServer.Check().Supports(Feature.FindProjectionExpressions);
             var collection = Fixture.Collection;
 
             var find = collection.Find("{}")

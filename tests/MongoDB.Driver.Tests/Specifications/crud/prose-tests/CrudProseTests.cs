@@ -46,11 +46,6 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
         [Fact]
         public void WriteConcernError_details_should_expose_writeConcernError_errInfo()
         {
-            var failPointFeature = CoreTestConfiguration.Cluster.Description.Type == ClusterType.Sharded
-                ? Feature.FailPointsFailCommandForSharded
-                : Feature.FailPointsFailCommand;
-            RequireServer.Check().Supports(failPointFeature);
-
             var failPointCommand = @"
                 {
                     configureFailPoint : 'failCommand',
@@ -297,8 +292,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
             if (isInTransaction)
             {
                 RequireServer.Check()
-                    .ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded)
-                    .Supports(Feature.Transactions);
+                    .ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded);
             }
 
             var maxDocumentSize = DriverTestConfiguration.GetConnectionDescription().MaxDocumentSize;

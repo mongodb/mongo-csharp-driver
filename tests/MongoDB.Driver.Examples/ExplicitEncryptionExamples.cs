@@ -42,8 +42,6 @@ namespace MongoDB.Driver.Examples
         [Fact]
         public void ClientSideExplicitEncryptionAndDecryptionTour()
         {
-            RequireServer.Check().Supports(Feature.ClientSideEncryption);
-
             var localMasterKey = Convert.FromBase64String(LocalMasterKey);
 
             var kmsProviders = new Dictionary<string, IReadOnlyDictionary<string, object>>();
@@ -93,8 +91,6 @@ namespace MongoDB.Driver.Examples
         [Fact]
         public void ClientSideExplicitEncryptionAndAutoDecryptionTour()
         {
-            RequireServer.Check().Supports(Feature.ClientSideEncryption);
-
             var localMasterKey = Convert.FromBase64String(LocalMasterKey);
 
             var kmsProviders = new Dictionary<string, IReadOnlyDictionary<string, object>>();

@@ -20,6 +20,7 @@ namespace MongoDB.Driver.Core.Misc
     /// <summary>
     /// Represents the hint for find and modify feature.
     /// </summary>
+    [Obsolete("HintForFindAndModifyFeature is obsolete and will be removed in the next major release.")]
     public class HintForFindAndModifyFeature : Feature
     {
         private readonly int _firstWireVersionWhereWeRelyOnServerToReturnError = WireVersion.Server42;

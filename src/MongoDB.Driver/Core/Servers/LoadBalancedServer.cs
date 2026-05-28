@@ -81,7 +81,7 @@ namespace MongoDB.Driver.Core.Servers
                     return; // stale generation number
                 }
 
-                if (ShouldClearConnectionPoolForChannelException(ex, connection.Description.MaxWireVersion) &&
+                if (ShouldClearConnectionPoolForChannelException(ex) &&
                     connection.Description.ServiceId.HasValue) // this value will be always filled in this place, adding this here just in case
                 {
                     // when requiring the connection pool to be cleared, MUST only clear connections for the serviceId.

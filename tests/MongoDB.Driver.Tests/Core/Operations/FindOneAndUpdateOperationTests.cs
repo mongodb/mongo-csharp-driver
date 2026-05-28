@@ -350,8 +350,7 @@ namespace MongoDB.Driver.Core.Operations
                 Hint = hint
             };
             var session = OperationTestHelper.CreateSession();
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.HintForFindAndModifyFeature.FirstSupportedWireVersion);
-
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.HintForFindAndModifyOperations.FirstSupportedWireVersion);
             var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription, null);
 
             var expectedResult = new BsonDocument
@@ -765,40 +764,6 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new FindOneAndUpdateOperation<BsonDocument>(_collectionNamespace, _filter, _update, _findAndModifyValueDeserializer, _messageEncoderSettings);
 
             await VerifyOperationNameIsSet(subject, async, "findAndModify");
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void Execute_with_hint_should_throw_when_hint_is_not_supported(
-            [Values(0, 1)] int w,
-            [Values(false, true)] bool async)
-        {
-            var writeConcern = new WriteConcern(w);
-            var maxWireVersion = CoreTestConfiguration.MaxWireVersion;
-            var subject = new FindOneAndUpdateOperation<BsonDocument>(_collectionNamespace, _filter, _update, _findAndModifyValueDeserializer, _messageEncoderSettings)
-            {
-                Hint = new BsonDocument("_id", 1),
-                WriteConcern = writeConcern
-            };
-
-            var exception = Record.Exception(() => ExecuteOperation(subject, async, useImplicitSession: true));
-
-            if (!writeConcern.IsAcknowledged)
-            {
-                exception.Should().BeOfType<NotSupportedException>();
-            }
-            else if (Feature.HintForFindAndModifyFeature.DriverMustThrowIfNotSupported(maxWireVersion))
-            {
-                exception.Should().BeOfType<NotSupportedException>();
-            }
-            else if (Feature.HintForFindAndModifyFeature.IsSupported(maxWireVersion))
-            {
-                exception.Should().BeNull();
-            }
-            else
-            {
-                exception.Should().BeOfType<MongoCommandException>();
-            }
         }
 
         [Theory]

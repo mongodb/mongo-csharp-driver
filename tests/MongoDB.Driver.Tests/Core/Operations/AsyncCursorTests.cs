@@ -297,16 +297,6 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Fact]
-        public void CreateGetMoreCommand_should_not_include_comment_on_pre_4_4_server_versions()
-        {
-            var subject = CreateSubject(batchSize: 2, comment: "comment");
-
-            var result = subject.CreateGetMoreCommand(CreateConnectionDescriptionSupportingSession(WireVersion.Server42));
-
-            result.Should().Be("{ getMore : 0, collection : \"test\", batchSize : 2 }");
-        }
-
-        [Fact]
         public void CreateGetMoreCommand_should_return_expected_result_when_maxTime_is_provided()
         {
             var subject = CreateSubject(maxTime: TimeSpan.FromSeconds(2));

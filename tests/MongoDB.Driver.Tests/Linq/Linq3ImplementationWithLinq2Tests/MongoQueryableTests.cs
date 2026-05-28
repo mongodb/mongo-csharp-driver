@@ -1935,11 +1935,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests
         [Fact]
         public void AsQueryable_in_transaction()
         {
-            RequireServer.Check().ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded).Supports(Feature.Transactions);
-            if (CoreTestConfiguration.Cluster.Description.Type == ClusterType.Sharded)
-            {
-                RequireServer.Check().Supports(Feature.ShardedTransactions);
-            }
+            RequireServer.Check().ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded);
 
             using (var session = DriverTestConfiguration.Client.StartSession())
             {

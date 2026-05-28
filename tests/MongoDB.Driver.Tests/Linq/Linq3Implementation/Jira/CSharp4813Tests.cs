@@ -19,8 +19,6 @@ using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
-using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
@@ -181,7 +179,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Select_BitArray_Count_should_throw(
             [Values(false, true)] bool enableClientSideProjections)
         {
-            RequireServer.Check().Supports(Feature.FindProjectionExpressions);
             var collection = Fixture.Collection;
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
@@ -225,7 +222,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Select_Dictionary_Count_should_throw(
             [Values(false, true)] bool enableClientSideProjections)
         {
-            RequireServer.Check().Supports(Feature.FindProjectionExpressions);
             var collection = Fixture.Collection;
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
@@ -284,7 +280,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Select_DictionaryInterface_Count_should_throw(
             [Values(false, true)] bool enableClientSideProjections)
         {
-            RequireServer.Check().Supports(Feature.FindProjectionExpressions);
             var collection = Fixture.Collection;
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 

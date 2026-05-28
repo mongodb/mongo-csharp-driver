@@ -18,7 +18,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Tests.Linq.Linq3Implementation;
 using Xunit;
@@ -30,7 +29,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp624
         [Fact]
         public void Watch_client_filtering_on_database_name()
         {
-            RequireServer.Check().ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded).Supports(Feature.ChangeStreamAllChangesForCluster);
+            RequireServer.Check().ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded);
             var client = DriverTestConfiguration.Client;
 
             var pipeline = new EmptyPipelineDefinition<ChangeStreamDocument<BsonDocument>>()
@@ -45,7 +44,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp624
         [Fact]
         public void Watch_client_filtering_on_collection_name()
         {
-            RequireServer.Check().ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded).Supports(Feature.ChangeStreamAllChangesForCluster);
+            RequireServer.Check().ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded);
             var client = DriverTestConfiguration.Client;
 
             var pipeline = new EmptyPipelineDefinition<ChangeStreamDocument<BsonDocument>>()
@@ -60,7 +59,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp624
         [Fact]
         public void Watch_database_filtering_on_collection_name()
         {
-            RequireServer.Check().ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded).Supports(Feature.ChangeStreamForDatabase);
+            RequireServer.Check().ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded);
             var client = DriverTestConfiguration.Client;
             var database = client.GetDatabase("test");
 

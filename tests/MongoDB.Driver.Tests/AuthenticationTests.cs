@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Tests
         public void Authentication_fails_when_user_has_Scram_Sha_1_mechanism_and_mechanism_is_Scram_Sha_256(
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.ScramSha256Authentication).Authentication(true);
+            RequireServer.Check().Authentication(true);
             // mechanisms field in createUser command requires server >=4.0
             var client = DriverTestConfiguration.Client;
             var userName = $"sha1{Guid.NewGuid()}";
@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Tests
         public void Authentication_fails_when_user_has_Scram_Sha_256_mechanism_and_mechanism_is_Scram_Sha_1(
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.ScramSha256Authentication).Authentication(true);
+            RequireServer.Check().Authentication(true);
             var client = DriverTestConfiguration.Client;
             var userName = $"sha256{Guid.NewGuid()}";
             var password = "sha256";
@@ -75,7 +75,7 @@ namespace MongoDB.Driver.Tests
         public void Authentication_fails_when_user_is_non_extant_and_mechanism_is_not_specified(
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.ScramSha256Authentication).Authentication(true);
+            RequireServer.Check().Authentication(true);
             var client = DriverTestConfiguration.Client;
             var userName = $"cipher{Guid.NewGuid()}";
             var password = "bluepill";
@@ -92,7 +92,7 @@ namespace MongoDB.Driver.Tests
         public void Authentication_succeeds_when_user_has_both_Scram_Sha_mechanisms_and_mechanism_is_not_specified(
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.ScramSha256Authentication).Authentication(true);
+            RequireServer.Check().Authentication(true);
             var client = DriverTestConfiguration.Client;
             var userName = $"both{Guid.NewGuid()}";
             var password = "both";
@@ -110,7 +110,7 @@ namespace MongoDB.Driver.Tests
         public void Authentication_succeeds_when_user_has_both_scram_sha_mechanisms_and_mechanism_is_Scram_Sha_256(
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.ScramSha256Authentication).Authentication(true);
+            RequireServer.Check().Authentication(true);
 
             var client = DriverTestConfiguration.Client;
             var userName = $"both{Guid.NewGuid()}";
@@ -128,7 +128,7 @@ namespace MongoDB.Driver.Tests
         public void Authentication_succeeds_when_user_has_Scram_Sha_1_Mechanism_and_mechanism_is_not_specified(
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.ScramSha256Authentication).Authentication(true);
+            RequireServer.Check().Authentication(true);
             // mechanisms field in createUser command requires server >=4.0
             var client = DriverTestConfiguration.Client;
 
@@ -147,7 +147,7 @@ namespace MongoDB.Driver.Tests
         public void Authentication_succeeds_when_user_has_Scram_Sha_256_mechanism_and_mechanism_is_not_specified(
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.ScramSha256Authentication).Authentication(true);
+            RequireServer.Check().Authentication(true);
             var client = DriverTestConfiguration.Client;
 
             var userName = $"sha256{Guid.NewGuid()}";
@@ -165,7 +165,7 @@ namespace MongoDB.Driver.Tests
         public void Authentication_succeeds_when_user_has_Scram_Sha_1_mechanism_and_mechanism_is_Scram_Sha_1(
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.ScramSha256Authentication).Authentication(true);
+            RequireServer.Check().Authentication(true);
 
             // mechanisms field in createUser command requires server >=4.0
             var client = DriverTestConfiguration.Client;
@@ -184,7 +184,7 @@ namespace MongoDB.Driver.Tests
         public void Authentication_succeeds_when_user_has_Scram_Sha_256_mechanism_and_mechanism_is_Scram_Sha_256(
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.ScramSha256Authentication).Authentication(true);
+            RequireServer.Check().Authentication(true);
             var client = DriverTestConfiguration.Client;
             var userName = $"sha256{Guid.NewGuid()}";
             var password = "sha256";
@@ -206,7 +206,7 @@ namespace MongoDB.Driver.Tests
             string unicodePassword,
             bool async)
         {
-            RequireServer.Check().Supports(Feature.ScramSha256Authentication).Authentication(true);
+            RequireServer.Check().Authentication(true);
             var client = DriverTestConfiguration.Client;
             var uniqueAsciiUserName = $"{asciiUsername}{Guid.NewGuid()}";
             var uniqueUnicodeUserName = $"{unicodeUsername}{Guid.NewGuid()}";
@@ -230,7 +230,7 @@ namespace MongoDB.Driver.Tests
             string unicodePassword,
             bool async)
         {
-            RequireServer.Check().Supports(Feature.ScramSha256Authentication).Authentication(true);
+            RequireServer.Check().Authentication(true);
             var client = DriverTestConfiguration.Client;
             var uniqueAsciiUserName = $"{asciiUsername}{Guid.NewGuid()}";
             var uniqueUnicodeUserName = $"{unicodeUsername}{Guid.NewGuid()}";
@@ -254,7 +254,7 @@ namespace MongoDB.Driver.Tests
             string nonSaslPreppedPassword,
             bool async)
         {
-            RequireServer.Check().Supports(Feature.ScramSha256Authentication).Authentication(true);
+            RequireServer.Check().Authentication(true);
             var client = DriverTestConfiguration.Client;
             var uniqueAsciiUserName = $"{asciiUsername}{Guid.NewGuid()}";
             var uniqueUnicodeUserName = $"{unicodeUsername}{Guid.NewGuid()}";
@@ -277,7 +277,7 @@ namespace MongoDB.Driver.Tests
             string unicodePassword,
             bool async)
         {
-            RequireServer.Check().Supports(Feature.ScramSha256Authentication).Authentication(true);
+            RequireServer.Check().Authentication(true);
             var client = DriverTestConfiguration.Client;
             var uniqueAsciiUserName = $"{asciiUsername}{Guid.NewGuid()}";
             var uniqueUnicodeUserName = $"{unicodeUsername}{Guid.NewGuid()}";

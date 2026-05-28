@@ -228,7 +228,7 @@ namespace MongoDB.Driver.Core.Servers
             }
         }
 
-        protected bool ShouldClearConnectionPoolForChannelException(Exception ex, int maxWireVersion)
+        protected bool ShouldClearConnectionPoolForChannelException(Exception ex)
         {
             if (ex is MongoConnectionException mongoCommandException &&
                 mongoCommandException.IsNetworkException &&
@@ -236,13 +236,8 @@ namespace MongoDB.Driver.Core.Servers
             {
                 return true;
             }
-            if (IsStateChangeException(ex))
-            {
-                return
-                    IsShutdownException(ex) ||
-                    !Feature.KeepConnectionPoolWhenNotPrimaryConnectionException.IsSupported(maxWireVersion);
-            }
-            return false;
+
+            return IsShutdownException(ex);
         }
 
         // private methods

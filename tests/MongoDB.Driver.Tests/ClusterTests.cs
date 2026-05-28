@@ -67,7 +67,6 @@ namespace MongoDB.Driver.Tests
         public void SelectServer_loadbalancing_prose_test([Values(false, true)] bool async)
         {
             RequireServer.Check()
-                .Supports(Feature.ShardedTransactions, Feature.FailPointsBlockConnection)
                 .ClusterType(ClusterType.Sharded)
                 .MultipleMongoses(true);
 

@@ -20,9 +20,6 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Linq;
 using MongoDB.Driver.Tests.Linq.Linq3Implementation;
 using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
@@ -235,8 +232,6 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void Project_should_generate_the_correct_fields_and_assign_the_correct_result_serializer()
         {
-            RequireServer.Check().Supports(Feature.FindProjectionExpressions);
-
             var subject = CreateSubject()
                 .Project(x => x.FirstName + " " + x.LastName);
 

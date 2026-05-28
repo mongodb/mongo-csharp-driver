@@ -257,9 +257,6 @@ namespace MongoDB.Driver.Core.Operations
 
         public BsonDocument CreateCommand(OperationContext operationContext, ICoreSession session, ConnectionDescription connectionDescription)
         {
-            var wireVersion = connectionDescription.MaxWireVersion;
-            FindProjectionChecker.ThrowIfAggregationExpressionIsUsedWhenNotSupported(_projection, wireVersion);
-
             var batchSize = _batchSize;
             // https://github.com/mongodb/specifications/blob/668992950d975d3163e538849dd20383a214fc37/source/crud/crud.md?plain=1#L803
             if (batchSize.HasValue && batchSize == _limit)

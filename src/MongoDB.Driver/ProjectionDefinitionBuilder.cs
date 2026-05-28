@@ -1042,22 +1042,6 @@ namespace MongoDB.Driver
         }
     }
 
-    internal sealed class PositionalOperatorProjectionDefinition<TSource> : ProjectionDefinition<TSource>
-    {
-        private readonly FieldDefinition<TSource> _field;
-
-        public PositionalOperatorProjectionDefinition(FieldDefinition<TSource> field)
-        {
-            _field = Ensure.IsNotNull(field, nameof(field));
-        }
-
-        public override BsonDocument Render(RenderArgs<TSource> args)
-        {
-            var renderedField = _field.Render(args);
-            return new BsonDocument(renderedField.FieldName + ".$", 1);
-        }
-    }
-
     internal sealed class SingleFieldProjectionDefinition<TSource> : ProjectionDefinition<TSource>
     {
         private readonly FieldDefinition<TSource> _field;

@@ -82,7 +82,10 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __hedgedReads = new Feature("HedgedReads", WireVersion.Server44);
         private static readonly Feature __hiddenIndex = new Feature("HiddenIndex", WireVersion.Server44);
         private static readonly Feature __hintForDeleteOperations = new Feature("HintForDeleteOperations", WireVersion.Server44);
+#pragma warning disable CS0618 // Type or member is obsolete
         private static readonly HintForFindAndModifyFeature __hintForFindAndModifyFeature = new HintForFindAndModifyFeature("HintForFindAndModify", WireVersion.Server44);
+#pragma warning restore CS0618 // Type or member is obsolete
+        private static readonly Feature __hintForFindAndModifyOperations = new Feature("HintForFindAndModifyOperations", WireVersion.Server44);
         private static readonly Feature __hintForUpdateAndReplaceOperations = new Feature("HintForUpdateAndReplaceOperations", WireVersion.Server42);
         private static readonly Feature __keepConnectionPoolWhenNotPrimaryConnectionException = new Feature("KeepConnectionPoolWhenNotWritablePrimaryConnectionException", WireVersion.Server42);
         private static readonly Feature __keepConnectionPoolWhenReplSetStepDown = new Feature("KeepConnectionPoolWhenReplSetStepDown", WireVersion.Server42);
@@ -415,12 +418,17 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the hint for find and modify operations feature.
         /// </summary>
+        [Obsolete("HintForFindAndModifyFeature is obsolete and will be removed in the next major release. Use HintForFindAndModifyOperations instead")]
         public static HintForFindAndModifyFeature HintForFindAndModifyFeature => __hintForFindAndModifyFeature;
+
+        /// <summary>
+        /// Gets the hint for find and modify operations feature.
+        /// </summary>
+        public static Feature HintForFindAndModifyOperations => __hintForFindAndModifyOperations;
 
         /// <summary>
         /// Gets the hint for update and replace operations feature.
         /// </summary>
-        [Obsolete("This property will be removed in a later release.")]
         public static Feature HintForUpdateAndReplaceOperations => __hintForUpdateAndReplaceOperations;
 
         /// <summary>

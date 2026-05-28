@@ -21,8 +21,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
@@ -98,7 +96,6 @@ public class CSharp5850Tests : LinqIntegrationTest<CSharp5850Tests.ClassFixture>
     [Fact]
     public void Find_using_supported_server_side_projection_should_work()
     {
-        RequireServer.Check().Supports(Feature.FindProjectionExpressions);
         var collection = Fixture.Collection;
         var findOptions = new FindOptions { TranslationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = true } };
 
