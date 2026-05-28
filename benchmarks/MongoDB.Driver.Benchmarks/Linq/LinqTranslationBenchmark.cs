@@ -35,7 +35,7 @@ public class LinqTranslationBenchmark
     private ExpressionTranslationOptions _translationOptions;
 
     private Expression<Func<OrderDocument, bool>> _multiFieldSearchExpression;
-    private Expression<Func<OrderDocument, bool>> _orStatusFilterExpression;
+    private Expression<Func<OrderDocument, bool>> _orFilterExpression;
     private Expression<Func<OrderDocument, bool>> _batchLookupExpression;
     private Expression<Func<OrderDocument, bool>> _arrayElementQueryExpression;
 
@@ -71,7 +71,7 @@ public class LinqTranslationBenchmark
             x.CreatedAt > cutoff &&
             !x.IsPaid;
 
-        _orStatusFilterExpression = x =>
+        _orFilterExpression = x =>
             x.Status == "Active" || x.Status == "Pending" || x.Status == "Processing" || x.Status == "Shipped";
 
         _batchLookupExpression = x => ids.Contains(x.Id);
@@ -117,10 +117,10 @@ public class LinqTranslationBenchmark
     }
 
     [Benchmark]
-    public BsonDocument OrStatusFilter()
+    public BsonDocument OrFilter()
     {
         return LinqProviderAdapter.TranslateExpressionToFilter(
-            _orStatusFilterExpression,
+            _orFilterExpression,
             _orderSerializer,
             BsonSerializer.SerializerRegistry,
             _translationOptions);
