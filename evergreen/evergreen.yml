@@ -672,17 +672,6 @@ functions:
           . ${DRIVERS_TOOLS}/.evergreen/secrets_handling/setup-secrets.sh drivers/atlas-qa
           evergreen/run-atlas-search-test.sh
 
-  run-atlas-search-index-helpers-test:
-    - command: shell.exec
-      type: test
-      params:
-        working_dir: mongo-csharp-driver
-        include_expansions_in_env:
-          - "FRAMEWORK"
-        script: |
-          ${PREPARE_SHELL}
-          MONGODB_URI="${MONGODB_URI}" evergreen/run-atlas-search-index-helpers-test.sh
-
   run-ocsp-test:
     - command: shell.exec
       type: test
@@ -1382,13 +1371,6 @@ tasks:
           vars:
             FRAMEWORK: net6.0
         - func: run-atlas-search-test
-
-    - name: atlas-search-index-helpers-test
-      commands:
-        - func: configure-framework
-          vars:
-            FRAMEWORK: net6.0
-        - func: run-atlas-search-index-helpers-test
 
     - name: test-oidc-auth
       commands:
@@ -2197,41 +2179,6 @@ task_groups:
     tasks:
       - test-csfle-with-gcp-kms
 
-  - name: atlas-search-index-helpers-task-group
-    setup_group_can_fail_task: true
-    setup_group_timeout_secs: 1800 # 30 minutes
-    setup_group:
-      - func: fetch-source
-      - func: prepare-resources
-      - func: fix-absolute-paths
-      - func: init-test-results
-      - func: make-files-executable
-      - func: assume-aws-test-secrets-role
-      - command: subprocess.exec
-        params:
-          binary: bash
-          include_expansions_in_env:
-            - "AWS_ACCESS_KEY_ID"
-            - "AWS_SECRET_ACCESS_KEY"
-            - "AWS_SESSION_TOKEN"
-          env:
-            CLUSTER_PREFIX: dbx-csharp-index
-            MONGODB_VERSION: "8.0"
-          args:
-            - ${DRIVERS_TOOLS}/.evergreen/atlas/setup-atlas-cluster.sh
-      - command: expansions.update
-        params:
-          file: atlas-expansion.yml
-    teardown_group:
-      - func: upload-test-results
-      - command: subprocess.exec
-        params:
-          binary: bash
-          args:
-            - ${DRIVERS_TOOLS}/.evergreen/atlas/teardown-atlas-cluster.sh
-    tasks:
-      - atlas-search-index-helpers-test
-
   - name: test-aws-lambda-task-group
     setup_group_can_fail_task: true
     setup_group_timeout_secs: 1800 # 30 minutes
@@ -2781,13 +2728,6 @@ buildvariants:
     - windows-2022-latest-small # Why on windows?
   tasks:
     - name: atlas-search-test
-
-- name: atlas-search-index-helpers-test
-  display_name: "Atlas Search Index Helpers Tests"
-  run_on:
-    - ubuntu2004-test
-  tasks:
-    - name: atlas-search-index-helpers-task-group
 
 # Socks5 Proxy tests
 - matrix_name: "socks5-proxy-tests-linux"
