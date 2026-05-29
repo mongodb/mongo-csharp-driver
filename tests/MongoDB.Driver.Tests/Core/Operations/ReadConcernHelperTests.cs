@@ -97,15 +97,14 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Theory]
-        [InlineData(false, null, "{ level : 'majority' }", null)]
-        [InlineData(false, 1234, "{ level : 'majority' }", null)]
-        [InlineData(true, null, "{ level : 'majority' }", null)]
-        [InlineData(true, 1234, "{ level : 'majority' }", null)]
+        [InlineData(false, null, "{ level : 'majority' }")]
+        [InlineData(false, 1234, "{ level : 'majority' }")]
+        [InlineData(true, null, "{ level : 'majority' }")]
+        [InlineData(true, 1234, "{ level : 'majority' }")]
         public void GetReadConcernForCommand_should_return_null_when_session_is_snapshot(
             bool isCausallyConsistent,
             int? operationTime,
-            string readConcernJson,
-            string expectedResult)
+            string readConcernJson)
         {
             var session = CreateSession(
                 isSnapshot: true,
@@ -116,7 +115,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var result = ReadConcernHelper.GetReadConcernForCommand(session, connectionDescription, readConcern);
 
-            result.Should().Be(expectedResult);
+            result.Should().BeNull();
         }
 
         [Theory]
