@@ -55,7 +55,6 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __createObjectIdExpression = new Feature("CreateObjectIdExpression", WireVersion.Server83);
         private static readonly Feature __csfleRangeAlgorithm = new Feature("CsfleRangeAlgorithm", WireVersion.Server62);
         private static readonly Feature __csfle2Qev2Lookup = new Feature("csfle2Qev2Lookup", WireVersion.Server81);
-        private static readonly Feature __csfle2Qev2LookupNonCsfleSchema = new Feature("csfle2Qev2LookupNonCsfleSchema", WireVersion.Server82);
         private static readonly Feature __csfle2Qev2RangeAlgorithm = new Feature("csfle2Qev2RangeAlgorithm", WireVersion.Server80);
         private static readonly Feature __csfle2Qev2TextPreviewAlgorithm = new Feature("csfle2Qev2TextPreviewAlgorithm", WireVersion.Server82);
         private static readonly Feature __csfle2 = new Feature("Csfle2", WireVersion.Server60);
@@ -287,7 +286,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the csfle2 $lookup support feature for mixing a queryable encryption schema with a non-CSFLE JSON schema validator.
         /// </summary>
-        public static Feature Csfle2QEv2LookupNonCsfleSchema => __csfle2Qev2LookupNonCsfleSchema;
+        public static Feature Csfle2QEv2LookupNonCsfleSchema => new("csfle2Qev2LookupNonCsfleSchema", WireVersion.Server82);;
 
         /// <summary>
         /// Gets the csfle2 range algorithm feature.
