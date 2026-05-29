@@ -190,6 +190,11 @@ public class Feature
     public static Feature Csfle2QEv2Lookup { get; } = new("csfle2Qev2Lookup", WireVersion.Server81);
 
     /// <summary>
+    /// Gets the csfle2 $lookup support feature for mixing a queryable encryption schema with a non-CSFLE JSON schema validator.
+    /// </summary>
+    public static Feature Csfle2QEv2LookupNonCsfleSchema => new("csfle2Qev2LookupNonCsfleSchema", WireVersion.Server82);
+
+    /// <summary>
     /// Gets the csfle2 range algorithm feature.
     /// </summary>
     public static Feature Csfle2QEv2RangeAlgorithm { get; } = new("csfle2Qev2RangeAlgorithm", WireVersion.Server80);
