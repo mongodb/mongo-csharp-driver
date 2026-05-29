@@ -1,4 +1,4 @@
-﻿description: "causal consistency write commands include afterClusterTime"
+description: "causal consistency write commands include afterClusterTime"
 
 schemaVersion: "1.3"
 
@@ -409,6 +409,28 @@ tests:
                   afterClusterTime: { $$exists: true }
                   level: { $$exists: false }
 
+  - description: "dropDatabase includes afterClusterTime in causally consistent session"
+    operations:
+      - *find
+      - name: dropDatabase
+        object: *client0
+        arguments:
+          session: *session0
+          database: causal-consistency-dropDatabase-test
+    expectEvents:
+      - client: *client0
+        events:
+          - *findEvent
+          - commandStartedEvent:
+              commandName: dropDatabase
+              command:
+                dropDatabase: 1
+                $db: causal-consistency-dropDatabase-test
+                lsid: { $$sessionLsid: *session0 }
+                readConcern:
+                  afterClusterTime: { $$exists: true }
+                  level: { $$exists: false }
+
   - description: "dropIndexes includes afterClusterTime in causally consistent session"
     operations:
       - *find
@@ -428,3 +450,23 @@ tests:
                 readConcern:
                   afterClusterTime: { $$exists: true }
                   level: { $$exists: false }
+
+  # Covers the same condition as Causal Consistency prose test #2, but for a write operation.
+  - description: "first write command in a causally consistent session does not include afterClusterTime"
+    operations:
+      - name: insertOne
+        object: *collection0
+        arguments:
+          session: *session0
+          document: { _id: 4 }
+        expectResult:
+          $$unsetOrMatches: { insertedId: { $$unsetOrMatches: 4 } }
+    expectEvents:
+      - client: *client0
+        events:
+          - commandStartedEvent:
+              commandName: insert
+              command:
+                insert: *collectionName
+                lsid: { $$sessionLsid: *session0 }
+                readConcern: { $$exists: false }

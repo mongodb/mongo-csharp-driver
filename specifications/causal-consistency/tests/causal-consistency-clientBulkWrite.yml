@@ -1,4 +1,4 @@
-﻿description: "causal consistency bulkWrite include afterClusterTime"
+description: "causal consistency bulkWrite include afterClusterTime"
 
 schemaVersion: "1.3"
 

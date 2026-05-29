@@ -80,6 +80,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     "clientBulkWrite" => new UnifiedClientBulkWriteOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "close" => new UnifiedCloseClientOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "createChangeStream" => new UnifiedCreateChangeStreamOnClientOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "dropDatabase" => new UnifiedDropDatabaseOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "listDatabases" => new UnifiedListDatabasesOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "listDatabaseNames" => new UnifiedListDatabaseNamesOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     _ => throw new FormatException($"Invalid method name: '{operationName}'."),
