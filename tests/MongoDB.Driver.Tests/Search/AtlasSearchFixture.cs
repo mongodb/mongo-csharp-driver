@@ -54,15 +54,16 @@ namespace MongoDB.Driver.Tests.Search
 
         private readonly object _initLock = new();
 
-        // Per-collection one-time-init guards
-        private bool _historicalInitialized;
-        private bool _moviesInitialized;
-        private bool _embeddedMoviesInitialized;
-        private bool _airbnbInitialized;
-        private bool _testClassesInitialized;
-        private bool _binaryVectorInitialized;
-        private bool _autoEmbedInitialized;
-        private bool _returnScopeInitialized;
+        // Per-collection one-time-init guards. Marked volatile so the lock-free fast-path
+        // read in EnsureInitialized observes the write that publishes the seeded state.
+        private volatile bool _historicalInitialized;
+        private volatile bool _moviesInitialized;
+        private volatile bool _embeddedMoviesInitialized;
+        private volatile bool _airbnbInitialized;
+        private volatile bool _testClassesInitialized;
+        private volatile bool _binaryVectorInitialized;
+        private volatile bool _autoEmbedInitialized;
+        private volatile bool _returnScopeInitialized;
         private bool? _isRerankSupported;
 
         // Routes events from the shared cluster to whichever subscribers test classes
@@ -222,13 +223,9 @@ namespace MongoDB.Driver.Tests.Search
             }
         }
 
-        private void EnsureHistoricalInitialized()
-        {
-            if (_historicalInitialized) return;
-            lock (_initLock)
+        private void EnsureHistoricalInitialized() =>
+            EnsureInitialized(() => _historicalInitialized, () =>
             {
-                if (_historicalInitialized) return;
-
                 var collection = Database.GetCollection<BsonDocument>(HistoricalDocumentsName);
                 if (!collection.AsQueryable().Any())
                 {
@@ -262,17 +259,11 @@ namespace MongoDB.Driver.Tests.Search
                 });
 
                 _historicalInitialized = true;
-                ClearCapturedEvents();
-            }
-        }
+            });
 
-        private void EnsureMoviesInitialized()
-        {
-            if (_moviesInitialized) return;
-            lock (_initLock)
+        private void EnsureMoviesInitialized() =>
+            EnsureInitialized(() => _moviesInitialized, () =>
             {
-                if (_moviesInitialized) return;
-
                 // Synonyms are sourced from two separate small collections; the synonyms-tests
                 // index references them by collection name.
                 SeedSynonymCollection(TransportSynonymsName, new[]
@@ -328,17 +319,11 @@ namespace MongoDB.Driver.Tests.Search
                 });
 
                 _moviesInitialized = true;
-                ClearCapturedEvents();
-            }
-        }
+            });
 
-        private void EnsureEmbeddedMoviesInitialized()
-        {
-            if (_embeddedMoviesInitialized) return;
-            lock (_initLock)
+        private void EnsureEmbeddedMoviesInitialized() =>
+            EnsureInitialized(() => _embeddedMoviesInitialized, () =>
             {
-                if (_embeddedMoviesInitialized) return;
-
                 var collection = Database.GetCollection<BsonDocument>(EmbeddedMoviesName);
                 if (!collection.AsQueryable().Any())
                 {
@@ -384,17 +369,11 @@ namespace MongoDB.Driver.Tests.Search
                 });
 
                 _embeddedMoviesInitialized = true;
-                ClearCapturedEvents();
-            }
-        }
+            });
 
-        private void EnsureAirbnbInitialized()
-        {
-            if (_airbnbInitialized) return;
-            lock (_initLock)
+        private void EnsureAirbnbInitialized() =>
+            EnsureInitialized(() => _airbnbInitialized, () =>
             {
-                if (_airbnbInitialized) return;
-
                 var collection = Database.GetCollection<BsonDocument>(AirbnbListingsName);
                 if (!collection.AsQueryable().Any())
                 {
@@ -428,17 +407,11 @@ namespace MongoDB.Driver.Tests.Search
                 });
 
                 _airbnbInitialized = true;
-                ClearCapturedEvents();
-            }
-        }
+            });
 
-        private void EnsureTestClassesInitialized()
-        {
-            if (_testClassesInitialized) return;
-            lock (_initLock)
+        private void EnsureTestClassesInitialized() =>
+            EnsureInitialized(() => _testClassesInitialized, () =>
             {
-                if (_testClassesInitialized) return;
-
                 var collection = Database.GetCollection<BsonDocument>(TestClassesName);
                 if (!collection.AsQueryable().Any())
                 {
@@ -458,17 +431,11 @@ namespace MongoDB.Driver.Tests.Search
                 });
 
                 _testClassesInitialized = true;
-                ClearCapturedEvents();
-            }
-        }
+            });
 
-        private void EnsureBinaryVectorInitialized()
-        {
-            if (_binaryVectorInitialized) return;
-            lock (_initLock)
+        private void EnsureBinaryVectorInitialized() =>
+            EnsureInitialized(() => _binaryVectorInitialized, () =>
             {
-                if (_binaryVectorInitialized) return;
-
                 var collection = Database.GetCollection<BsonDocument>(BinaryVectorItemsName);
                 if (!collection.AsQueryable().Any())
                 {
@@ -489,9 +456,7 @@ namespace MongoDB.Driver.Tests.Search
                 });
 
                 _binaryVectorInitialized = true;
-                ClearCapturedEvents();
-            }
-        }
+            });
 
         private void EnsureAutoEmbedInitialized()
         {
@@ -509,10 +474,9 @@ namespace MongoDB.Driver.Tests.Search
                     "key provisioned on the Atlas Local container; gate the calling test " +
                     "with RequireEnvironment.Check().EnvironmentVariable(\"AUTO_EMBEDDING_TESTS_ENABLED\").");
             }
-            lock (_initLock)
-            {
-                if (_autoEmbedInitialized) return;
 
+            EnsureInitialized(() => _autoEmbedInitialized, () =>
+            {
                 var collection = Database.GetCollection<BsonDocument>(AutoEmbedMoviesName);
                 if (!collection.AsQueryable().Any())
                 {
@@ -539,8 +503,7 @@ namespace MongoDB.Driver.Tests.Search
                 WaitForAutoEmbedIndexReady(collection, AutoEmbedIndexName);
 
                 _autoEmbedInitialized = true;
-                ClearCapturedEvents();
-            }
+            });
         }
 
         private static BsonDocument BuildAutoEmbedMovie(string title, string plot, int runtime, int year) =>
@@ -587,13 +550,9 @@ namespace MongoDB.Driver.Tests.Search
                 "Voyage AI API quota or connectivity may be exhausted; verify the Atlas Local container has VOYAGE_API_KEY set.");
         }
 
-        private void EnsureReturnScopeInitialized()
-        {
-            if (_returnScopeInitialized) return;
-            lock (_initLock)
+        private void EnsureReturnScopeInitialized() =>
+            EnsureInitialized(() => _returnScopeInitialized, () =>
             {
-                if (_returnScopeInitialized) return;
-
                 var directors =
                     """
                     [
@@ -728,11 +687,26 @@ namespace MongoDB.Driver.Tests.Search
                 });
 
                 _returnScopeInitialized = true;
+            });
+
+        // ---- Helpers ----
+
+        // Double-checked one-time init shared by every EnsureXInitialized seeder. The single
+        // _initLock serializes all seeding (fine: the suite never runs tests in parallel) and,
+        // unlike Lazy<T>, a throwing seeder leaves the guard false so a transient Atlas/network
+        // failure can be retried on the next access instead of being cached and re-thrown forever.
+        // The guard is read lock-free on the fast path, so it must be a volatile field; isInitialized
+        // reads it and initialize sets it (as its last step, before ClearCapturedEvents runs here).
+        private void EnsureInitialized(Func<bool> isInitialized, Action initialize)
+        {
+            if (isInitialized()) return;
+            lock (_initLock)
+            {
+                if (isInitialized()) return;
+                initialize();
                 ClearCapturedEvents();
             }
         }
-
-        // ---- Helpers ----
 
         private void SeedSynonymCollection(string name, IEnumerable<BsonDocument> docs)
         {
