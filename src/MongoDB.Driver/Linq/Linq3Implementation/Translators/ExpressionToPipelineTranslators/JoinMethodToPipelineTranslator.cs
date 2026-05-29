@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,6 +13,8 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast;
@@ -34,7 +36,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.Is(QueryableMethod.Join))
+            var isLeftJoin = method.IsOneOf(MongoQueryableMethod.LeftJoin, QueryableMethod.LeftJoin);
+            if (isLeftJoin || method.Is(QueryableMethod.Join))
             {
                 var outerExpression = arguments[0];
                 var innerExpression = arguments[1];
@@ -58,6 +61,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                     outerSerializer = pipeline.OutputSerializer;
                 }
 
+                if (isLeftJoin)
+                {
+                    ThrowIfReservedFieldNames(expression, outerSerializer);
+                }
+
                 var wrapOuterStage = AstStage.Project(
                     AstProject.Set("_outer", outerAst),
                     AstProject.Exclude("_id"));
@@ -73,7 +81,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                     foreignField,
                     @as: "_inner");
 
-                var unwindStage = AstStage.Unwind("_inner");
+                var unwindStage = isLeftJoin
+                    ? AstStage.Unwind("_inner", preserveNullAndEmptyArrays: true)
+                    : AstStage.Unwind("_inner");
 
                 var outerParameter = resultSelectorLambda.Parameters[0];
                 var outerField = AstExpression.GetField(AstExpression.RootVar, "_outer");
@@ -96,6 +106,30 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             }
 
             throw new ExpressionNotSupportedException(expression);
+        }
+
+        private static readonly HashSet<string> __reservedFieldNames = new HashSet<string> { "_outer", "_inner" };
+
+        private static void ThrowIfReservedFieldNames(MethodCallExpression expression, IBsonSerializer serializer)
+        {
+            if (serializer is not IBsonDocumentSerializer documentSerializer)
+                return;
+
+            var conflicting = new List<string>();
+            foreach (var member in serializer.ValueType.GetMembers())
+            {
+                if (documentSerializer.TryGetMemberSerializationInfo(member.Name, out var info) &&
+                    __reservedFieldNames.Contains(info.ElementName))
+                {
+                    conflicting.Add(info.ElementName);
+                }
+            }
+
+            if (conflicting.Count > 0)
+            {
+                throw new ExpressionNotSupportedException(expression,
+                    because: $"the outer document type uses reserved field name(s) {string.Join(", ", conflicting.Select(n => $"'{n}'"))} which are used internally by LeftJoin");
+            }
         }
     }
 }
