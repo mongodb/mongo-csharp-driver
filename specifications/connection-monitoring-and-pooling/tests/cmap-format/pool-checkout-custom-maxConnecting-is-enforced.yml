@@ -12,11 +12,13 @@ failPoint:
     closeConnection: false
     blockConnection: true
     blockTimeMS: 500
+    appName: "PoolCheckoutCustomMaxConnectingIsEnforced"
 poolOptions:
   maxConnecting: 1
   # gives opportunity for the checkout in thread2 to establish a new connection, which it must not do until thread1 establishes one
   maxPoolSize: 2
   waitQueueTimeoutMS: 5000
+  appName: "PoolCheckoutCustomMaxConnectingIsEnforced"
 operations:
   - name: ready
   # thread1 exists to consume the single permit to open a connection,

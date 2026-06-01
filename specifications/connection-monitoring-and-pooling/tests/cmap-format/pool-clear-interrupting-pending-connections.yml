@@ -12,8 +12,10 @@ failPoint:
     closeConnection: false
     blockConnection: true
     blockTimeMS: 10000
+    appName: "PoolClearInterruptingPendingConnections"
 poolOptions:
   minPoolSize: 0
+  appName: "PoolClearInterruptingPendingConnections"
 operations:
   - name: ready
   - name: start
