@@ -217,7 +217,7 @@ functions:
           STORAGE_ENGINE=${STORAGE_ENGINE} \
           ORCHESTRATION_FILE=${ORCHESTRATION_FILE} \
             bash ${DRIVERS_TOOLS}/.evergreen/run-mongodb.sh start
-    # run-orchestration generates expansion file with the MONGODB_URI for the cluster
+    # run-mongodb.sh start generates expansion file with the MONGODB_URI for the cluster
     - command: expansions.update
       params:
         file: mo-expansion.yml
