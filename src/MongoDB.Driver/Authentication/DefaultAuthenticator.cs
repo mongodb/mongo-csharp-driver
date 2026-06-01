@@ -59,10 +59,8 @@ namespace MongoDB.Driver.Authentication
             Ensure.IsNotNull(description, nameof(description));
 
             // If we don't have SaslSupportedMechs as part of the response, that means we didn't piggyback the initial
-            // hello or legacy hello request and should query the server (provided that the server >= 4.0), merging results into
-            // a new ConnectionDescription
-            if (!description.HelloResult.HasSaslSupportedMechs
-                && Feature.ScramSha256Authentication.IsSupported(description.MaxWireVersion))
+            // hello or legacy hello request and should query the server, merging results into a new ConnectionDescription
+            if (!description.HelloResult.HasSaslSupportedMechs)
             {
                 var command = CustomizeInitialHelloCommand(operationContext, HelloHelper.CreateCommand(_serverApi, loadBalanced: connection.Settings.LoadBalanced));
                 var helloProtocol = HelloHelper.CreateProtocol(command, _serverApi);
@@ -83,10 +81,8 @@ namespace MongoDB.Driver.Authentication
             Ensure.IsNotNull(description, nameof(description));
 
             // If we don't have SaslSupportedMechs as part of the response, that means we didn't piggyback the initial
-            // hello or legacy hello request and should query the server (provided that the server >= 4.0), merging results into
-            // a new ConnectionDescription
-            if (!description.HelloResult.HasSaslSupportedMechs
-                && Feature.ScramSha256Authentication.IsSupported(description.MaxWireVersion))
+            // hello or legacy hello request and should query the server, merging results into a new ConnectionDescription
+            if (!description.HelloResult.HasSaslSupportedMechs)
             {
                 var command = CustomizeInitialHelloCommand(operationContext, HelloHelper.CreateCommand(_serverApi, loadBalanced: connection.Settings.LoadBalanced));
                 var helloProtocol = HelloHelper.CreateProtocol(command, _serverApi);

@@ -17,8 +17,6 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
 
@@ -34,7 +32,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Project_with_nullable_value_should_work()
         {
-            RequireServer.Check().Supports(Feature.FindProjectionExpressions);
             var collection = Fixture.Collection;
 
             var find = collection
@@ -51,7 +48,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Project_with_anonymous_class_with_nullable_value_should_work()
         {
-            RequireServer.Check().Supports(Feature.FindProjectionExpressions);
             var collection = Fixture.Collection;
 
             var find = collection

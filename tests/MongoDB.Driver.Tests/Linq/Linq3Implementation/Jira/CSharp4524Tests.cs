@@ -17,8 +17,6 @@ using System;
 using System.Collections.Generic;
 using FluentAssertions;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
 
@@ -34,7 +32,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Find_with_projection_should_work()
         {
-            RequireServer.Check().Supports(Feature.FindProjectionExpressions);
             var collection = Fixture.Collection;
             var find = collection.Find("{}").Project(x => new SpawnData(x.StartDate, x.SpawnPeriod));
 

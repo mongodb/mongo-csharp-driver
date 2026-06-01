@@ -302,12 +302,11 @@ namespace MongoDB.Driver.Core.Tests.Jira
             bool streamable)
         {
             var connectionId = new ConnectionId(serverId);
-            var maxWireVersion = streamable ? WireVersion.Server44 : WireVersion.Server42;
             var helloDocument = new BsonDocument
             {
                 { "ok", 1 },
                 { "minWireVersion", 0 },
-                { "maxWireVersion", maxWireVersion },
+                { "maxWireVersion", WireVersion.Server44 },
                 { "msg", "isdbgrid" },
                 { "topologyVersion", new TopologyVersion(ObjectId.Empty, 1).ToBsonDocument(), streamable }
             };

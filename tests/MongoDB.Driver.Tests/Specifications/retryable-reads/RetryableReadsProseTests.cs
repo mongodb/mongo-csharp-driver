@@ -24,7 +24,6 @@ using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Events;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
@@ -40,9 +39,6 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
         [ParameterAttributeData]
         public async Task PoolClearedError_read_retryablity_test([Values(true, false)] bool async)
         {
-            RequireServer.Check().Supports(Feature.FailPointsBlockConnection)
-                .VersionGreaterThanOrEqualTo("4.4.0"); // MongoDB 4.2 does not respect blockTimeMS in combination with errorCode.
-
             var heartbeatInterval = TimeSpan.FromMilliseconds(50);
             var eventsWaitTimeout = TimeSpan.FromMilliseconds(5000);
 
@@ -122,7 +118,6 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
         public async Task Sharded_cluster_retryable_reads_are_retried_on_different_mongos_if_available([Values(true, false)] bool async)
         {
             RequireServer.Check()
-                .Supports(Feature.FailPointsFailCommandForSharded)
                 .ClusterTypes(ClusterType.Sharded)
                 .MultipleMongoses(true);
 
@@ -172,9 +167,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
         [ParameterAttributeData]
         public async Task Sharded_cluster_retryable_reads_are_retried_on_same_mongos_if_no_other_is_available([Values(true, false)] bool async)
         {
-            RequireServer.Check()
-                .Supports(Feature.FailPointsFailCommandForSharded)
-                .ClusterTypes(ClusterType.Sharded);
+            RequireServer.Check().ClusterTypes(ClusterType.Sharded);
 
             var failPointCommand = BsonDocument.Parse(
                 @"{

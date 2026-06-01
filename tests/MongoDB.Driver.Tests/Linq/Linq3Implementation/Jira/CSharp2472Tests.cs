@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
     public class CSharp2472Tests : LinqIntegrationTest<CSharp2472Tests.ClassFixture>
     {
         public CSharp2472Tests(ClassFixture fixture)
-            : base(fixture, server => server.Supports(Feature.ToConversionOperators))
+            : base(fixture)
         {
         }
 

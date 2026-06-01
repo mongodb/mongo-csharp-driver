@@ -347,12 +347,6 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
 
         private bool IsCsfleRequirementSatisfied(BsonElement requirement)
         {
-            var isCsfleSupported = Feature.ClientSideEncryption.IsSupported(CoreTestConfiguration.MaxWireVersion);
-            if (!isCsfleSupported)
-            {
-                return false;
-            }
-
             var requiredValue = requirement.Value;
             if (!requiredValue.IsBsonDocument)
             {

@@ -62,7 +62,6 @@ namespace MongoDB.Driver.Tests
         {
             RequireServer
                 .Check()
-                .Supports(Feature.ShardedTransactions)
                 .ClusterType(ClusterType.Sharded)
                 .MultipleMongoses(true);
 
@@ -122,7 +121,6 @@ namespace MongoDB.Driver.Tests
         {
             RequireServer
                 .Check()
-                .Supports(Feature.ShardedTransactions)
                 .ClusterType(ClusterType.Sharded)
                 .MultipleMongoses(true);
 

@@ -18,8 +18,6 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
 
@@ -35,7 +33,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Builder_Set_with_one_int_field_name_and_constant_with_int_representation_should_work()
         {
-            RequireServer.Check().Supports(Feature.SetStage);
             var collection = Fixture.Collection;
             var fields = Builders<C>.SetFields
                 .Set("X", 2);
@@ -53,7 +50,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Builder_Set_with_one_int_field_name_and_constant_with_string_representation_should_work()
         {
-            RequireServer.Check().Supports(Feature.SetStage);
             var collection = Fixture.Collection;
             var fields = Builders<C>.SetFields
                 .Set("Y", 2);
@@ -71,7 +67,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Builder_Set_with_one_enum_field_name_and_constant_with_int_representation_should_work()
         {
-            RequireServer.Check().Supports(Feature.SetStage);
             var collection = Fixture.Collection;
             var fields = Builders<C>.SetFields
                 .Set("E", E.B);
@@ -89,7 +84,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Builder_Set_with_one_enum_field_name_and_constant_with_string_representation_should_work()
         {
-            RequireServer.Check().Supports(Feature.SetStage);
             var collection = Fixture.Collection;
             var fields = Builders<C>.SetFields
                 .Set("F", E.B);
@@ -107,7 +101,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Builder_Set_with_multiple_int_field_names_should_work()
         {
-            RequireServer.Check().Supports(Feature.SetStage);
             var collection = Fixture.Collection;
             var fields = Builders<C>.SetFields
                 .Set("X", 2)
@@ -129,7 +122,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Builder_Set_with_multiple_enum_field_names_should_work()
         {
-            RequireServer.Check().Supports(Feature.SetStage);
             var collection = Fixture.Collection;
             var fields = Builders<C>.SetFields
                 .Set("E", E.B)
@@ -151,7 +143,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Builder_Set_with_duplicate_int_field_names_should_work()
         {
-            RequireServer.Check().Supports(Feature.SetStage);
             var collection = Fixture.Collection;
             var fields = Builders<C>.SetFields
                 .Set("X", 2)
@@ -170,7 +161,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Builder_Set_with_one_int_field_expression_and_constant_with_int_representation_should_work()
         {
-            RequireServer.Check().Supports(Feature.SetStage);
             var collection = Fixture.Collection;
             var fields = Builders<C>.SetFields
                 .Set(x => x.X, 2);
@@ -188,7 +178,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Builder_Set_with_one_int_field_expression_and_constant_with_string_representation_should_work()
         {
-            RequireServer.Check().Supports(Feature.SetStage);
             var collection = Fixture.Collection;
             var fields = Builders<C>.SetFields
                 .Set(x => x.Y, 2);
@@ -206,7 +195,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Builder_Set_with_one_enum_field_expression_and_constant_with_int_representation_should_work()
         {
-            RequireServer.Check().Supports(Feature.SetStage);
             var collection = Fixture.Collection;
             var fields = Builders<C>.SetFields
                 .Set(x => x.E, E.B);
@@ -224,7 +212,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Builder_Set_with_one_enum_field_expression_and_constant_with_string_representation_should_work()
         {
-            RequireServer.Check().Supports(Feature.SetStage);
             var collection = Fixture.Collection;
             var fields = Builders<C>.SetFields
                 .Set(x => x.F, E.B);
@@ -242,7 +229,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Builder_Set_with_multiple_int_field_expressions_should_work()
         {
-            RequireServer.Check().Supports(Feature.SetStage);
             var collection = Fixture.Collection;
             var fields = Builders<C>.SetFields
                 .Set(x => x.X, 2)
@@ -264,7 +250,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Builder_Set_with_multiple_enum_field_expressions_should_work()
         {
-            RequireServer.Check().Supports(Feature.SetStage);
             var collection = Fixture.Collection;
             var fields = Builders<C>.SetFields
                 .Set(x => x.E, E.B)
@@ -286,7 +271,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Builder_Set_with_duplicate_int_field_expressions_should_work()
         {
-            RequireServer.Check().Supports(Feature.SetStage);
             var collection = Fixture.Collection;
             var fields = Builders<C>.SetFields
                 .Set(x => x.X, 2)
@@ -305,7 +289,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Set_with_new_anonymous_class_with_empty_members_should_work()
         {
-            RequireServer.Check().Supports(Feature.SetStage);
             var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
@@ -321,7 +304,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Set_with_new_anonymous_class_with_members_should_work()
         {
-            RequireServer.Check().Supports(Feature.SetStage);
             var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
@@ -341,7 +323,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Set_with_new_default_constructor_and_no_member_initializers_should_work()
         {
-            RequireServer.Check().Supports(Feature.SetStage);
             var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
@@ -357,7 +338,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Set_with_new_default_constructor_and_empty_member_initializers_should_work()
         {
-            RequireServer.Check().Supports(Feature.SetStage);
             var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
@@ -373,7 +353,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Set_with_new_default_constructor_and_member_initializers_should_work()
         {
-            RequireServer.Check().Supports(Feature.SetStage);
             var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
@@ -391,7 +370,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Set_with_new_copy_constructor_and_no_member_initializers_should_work()
         {
-            RequireServer.Check().Supports(Feature.SetStage);
             var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
@@ -407,7 +385,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Set_with_new_copy_constructor_and_empty_member_initializers_should_work()
         {
-            RequireServer.Check().Supports(Feature.SetStage);
             var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
@@ -423,7 +400,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Set_with_new_copy_constructor_and_member_initializers_should_work()
         {
-            RequireServer.Check().Supports(Feature.SetStage);
             var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
@@ -441,7 +417,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Set_struct_with_new_default_constructor_and_no_member_initializers_should_work()
         {
-            RequireServer.Check().Supports(Feature.SetStage);
             var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
@@ -457,7 +432,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Set_struct_with_new_default_constructor_and_empty_member_initializers_should_work()
         {
-            RequireServer.Check().Supports(Feature.SetStage);
             var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
@@ -473,7 +447,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Set_struct_with_new_default_constructor_and_member_initializers_should_work()
         {
-            RequireServer.Check().Supports(Feature.SetStage);
             var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()

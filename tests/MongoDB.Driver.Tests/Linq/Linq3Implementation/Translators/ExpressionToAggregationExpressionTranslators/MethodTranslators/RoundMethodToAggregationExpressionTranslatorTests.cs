@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
     public class RoundMethodToAggregationExpressionTranslatorTests : LinqIntegrationTest<RoundMethodToAggregationExpressionTranslatorTests.ClassFixture>
     {
         public RoundMethodToAggregationExpressionTranslatorTests(ClassFixture fixture)
-            : base(fixture, server => server.Supports(Feature.Round))
+            : base(fixture)
         {
         }
 

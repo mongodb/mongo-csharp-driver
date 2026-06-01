@@ -598,7 +598,6 @@ namespace MongoDB.Driver.Core.Operations
                     break;
 
                 case "$merge":
-                    RequireServer.Check().Supports(Feature.AggregateMerge);
                     if (usingDifferentOutputDatabase)
                     {
                         pipeline.Add(BsonDocument.Parse($"{{ $merge : {{ into : {{ db : '{outputDatabaseName}', coll : '{outputCollectionName}' }} }} }}"));

@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
     public class IsMatchMethodToAggregationExpressionTranslatorTests : LinqIntegrationTest<IsMatchMethodToAggregationExpressionTranslatorTests.ClassFixture>
     {
         public IsMatchMethodToAggregationExpressionTranslatorTests(ClassFixture fixture)
-            : base(fixture, server => server.Supports(Feature.RegexMatch))
+            : base(fixture)
         {
         }
 

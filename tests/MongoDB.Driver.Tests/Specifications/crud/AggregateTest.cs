@@ -17,8 +17,6 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 
 namespace MongoDB.Driver.Tests.Specifications.crud
 {
@@ -26,16 +24,6 @@ namespace MongoDB.Driver.Tests.Specifications.crud
     {
         private List<BsonDocument> _stages;
         private AggregateOptions _options = new AggregateOptions();
-
-        public override void SkipIfNotSupported(BsonDocument arguments)
-        {
-            var lastStage = arguments["pipeline"].AsBsonArray.Last().AsBsonDocument;
-            var lastStageName = lastStage.GetElement(0).Name;
-            if (lastStageName == "$merge")
-            {
-                RequireServer.Check().Supports(Feature.AggregateMerge);
-            }
-        }
 
         protected override bool TrySetArgument(string name, BsonValue value)
         {

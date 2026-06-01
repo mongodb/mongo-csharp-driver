@@ -20,7 +20,6 @@ using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
@@ -56,20 +55,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void Retryable_write_errorlabel_should_not_be_added_with_retryWrites_false()
         {
-            if (CoreTestConfiguration.Cluster.Description.Type == ClusterType.Sharded)
-            {
-                RequireServer
-                    .Check()
-                    .Supports(Feature.FailPointsFailCommandForSharded)
-                    .ClusterTypes(ClusterType.Sharded);
-            }
-            else
-            {
-                RequireServer
-                    .Check()
-                    .Supports(Feature.FailPointsFailCommand)
-                    .ClusterTypes(ClusterType.ReplicaSet);
-            }
+            RequireServer.Check().ClusterTypes(ClusterType.Sharded, ClusterType.ReplicaSet);
 
             var failPointWithRetryableError = @"
             {

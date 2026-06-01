@@ -239,7 +239,7 @@ namespace MongoDB.Driver.Core.Bindings
         [Trait("Category", "Integration")]
         public void StartTransaction_should_throw_when_write_concern_is_unacknowledged()
         {
-            RequireServer.Check().ClusterType(ClusterType.ReplicaSet).Supports(Feature.Transactions);
+            RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
             var cluster = CoreTestConfiguration.Cluster;
             var session = cluster.StartSession();
             var transactionOptions = new TransactionOptions(writeConcern: WriteConcern.Unacknowledged);
@@ -297,9 +297,8 @@ namespace MongoDB.Driver.Core.Bindings
                     var type = MapServerTypeCode(scenario[1]);
                     var maxWireVersion = type switch
                     {
-                        ServerType.ShardRouter => Feature.ShardedTransactions.FirstSupportedWireVersion,
                         ServerType.LoadBalanced => Feature.LoadBalancedMode.FirstSupportedWireVersion,
-                        _ => Feature.Transactions.FirstSupportedWireVersion,
+                        _ => WireVersion.SupportedWireVersionRange.Min,
                     };
                     return CreateServerDescription(serverId, endPoint, state, type, maxWireVersion);
                 })
@@ -341,42 +340,19 @@ namespace MongoDB.Driver.Core.Bindings
             subject.EnsureTransactionsAreSupported();
         }
 
-        [Theory]
-        [InlineData("NT", "Standalone servers do not support transactions.")]
-        [InlineData("PN", "Server version 3.6 does not support the Transactions feature.")]
-        [InlineData("PN,ST", "Server version 3.6 does not support the Transactions feature.")]
-        [InlineData("PT,SN", "Server version 3.6 does not support the Transactions feature.")]
-        [InlineData("RN", "Server version 4.0 does not support the ShardedTransactions feature.")]
-        [InlineData("RN,RT", "Server version 4.0 does not support the ShardedTransactions feature.")]
-        [InlineData("RT,RN", "Server version 4.0 does not support the ShardedTransactions feature.")]
-        public void EnsureTransactionsAreSupported_should_throw_when_any_connected_data_bearing_server_does_not_support_transactions(string scenarios, string expectedMesage)
+        [Fact]
+        public void EnsureTransactionsAreSupported_should_throw_when_any_connected_data_bearing_server_is_standalone()
         {
             var clusterId = new ClusterId(1);
-            string unsupportedFeatureName = null;
-            var servers =
-                SplitScenarios(scenarios)
-                .Select((scenario, i) =>
-                {
-                    var endPoint = new DnsEndPoint("localhost", 27017 + i);
-                    var serverId = new ServerId(clusterId, endPoint);
-                    var type = MapServerTypeCode(scenario[0]);
-                    var supportsTransactions = MapSupportsTransactionsCode(scenario[1]);
-                    var feature = type == ServerType.ShardRouter ? Feature.ShardedTransactions : Feature.Transactions;
-                    if (!supportsTransactions)
-                    {
-                        unsupportedFeatureName = feature.Name;
-                    }
-                    var maxWireVersion = supportsTransactions ? feature.FirstSupportedWireVersion: feature.LastNotSupportedWireVersion;
-                    return CreateServerDescription(serverId, endPoint, ServerState.Connected, type, maxWireVersion);
-                })
-                .ToList();
-            var cluster = CreateClusterDescription(clusterId, servers: servers);
+            var endPoint = new DnsEndPoint("localhost", 27017);
+            var serverDescription = CreateServerDescription(new ServerId(clusterId, endPoint), endPoint, ServerState.Connected, ServerType.Standalone);
+            var cluster = CreateClusterDescription(clusterId, servers: [serverDescription]);
             var subject = CreateSubject(cluster);
 
             var exception = Record.Exception(() => subject.EnsureTransactionsAreSupported());
 
             var e = exception.Should().BeOfType<NotSupportedException>().Subject;
-            e.Message.Should().Be(expectedMesage);
+            e.Message.Should().Be("Standalone servers do not support transactions.");
         }
 
         // private methods
@@ -409,7 +385,7 @@ namespace MongoDB.Driver.Core.Bindings
             var clusterId = new ClusterId(1);
             var endPoint = new DnsEndPoint("localhost", 27017);
             var serverId = new ServerId(clusterId, endPoint);
-            var maxWireVersion = Feature.Transactions.FirstSupportedWireVersion;
+            var maxWireVersion = WireVersion.SupportedWireVersionRange.Min;
             var servers = new[] { new ServerDescription(serverId, endPoint, state: ServerState.Connected, type: ServerType.ReplicaSetPrimary, version: WireVersion.ToServerVersion(maxWireVersion), wireVersionRange: new Range<int>(0, maxWireVersion)) };
             var clusterDescription = new ClusterDescription(clusterId, false,  null, ClusterType.ReplicaSet, servers);
             var mockCluster = new Mock<IClusterInternal>();
@@ -472,16 +448,6 @@ namespace MongoDB.Driver.Core.Bindings
                 case 'U': return ServerType.Unknown;
                 case 'L': return ServerType.LoadBalanced;
                 default: throw new ArgumentException($"Invalid ServerType code: \"{code}\".", nameof(code));
-            }
-        }
-
-        private bool MapSupportsTransactionsCode(char code)
-        {
-            switch (code)
-            {
-                case 'N': return false;
-                case 'T': return true;
-                default: throw new ArgumentException($"Invalid SupportsTransactions code: \"{code}\".", nameof(code));
             }
         }
 

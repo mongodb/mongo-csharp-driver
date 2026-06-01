@@ -20,7 +20,6 @@ using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Events;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
@@ -34,7 +33,6 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
         public void Sharded_cluster_retryable_writes_are_retried_on_different_mongos_if_available()
         {
             RequireServer.Check()
-                .Supports(Feature.FailPointsFailCommandForSharded)
                 .ClusterTypes(ClusterType.Sharded)
                 .MultipleMongoses(true);
 
@@ -84,9 +82,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
         [Fact]
         public void Sharded_cluster_retryable_writes_are_retried_on_same_mongo_if_no_other_is_available()
         {
-            RequireServer.Check()
-                .Supports(Feature.FailPointsFailCommandForSharded)
-                .ClusterTypes(ClusterType.Sharded);
+            RequireServer.Check().ClusterTypes(ClusterType.Sharded);
 
             var failPointCommand = BsonDocument.Parse(
                 @"{

@@ -1139,8 +1139,6 @@ namespace MongoDB.Driver.Tests
             [Values(false, true)] bool upsert,
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.UpdateWithAggregationPipeline);
-
             string filter = "{ PropA : 4 }";
 
             var subject = CreateSubject();

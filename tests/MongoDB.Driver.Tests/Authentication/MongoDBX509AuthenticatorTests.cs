@@ -137,7 +137,7 @@ namespace MongoDB.Driver.Tests.Authentication
 
             var response = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson("{ }"));
             var connection = new MockConnection(__serverId);
-            connection.Description = CreateConnectionDescription(maxWireVersion: WireVersion.Server36);
+            connection.Description = CreateConnectionDescription(maxWireVersion: WireVersion.Server44);
             connection.EnqueueCommandResponseMessage(response);
 
             var exception = async ?
@@ -158,7 +158,7 @@ namespace MongoDB.Driver.Tests.Authentication
             var response = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson("{ok: 1}"));
 
             var connection = new MockConnection(__serverId);
-            connection.Description = CreateConnectionDescription(maxWireVersion: WireVersion.Server36);
+            connection.Description = CreateConnectionDescription(maxWireVersion: WireVersion.Server44);
             connection.EnqueueCommandResponseMessage(response);
 
             var exception = async ?
@@ -181,7 +181,7 @@ namespace MongoDB.Driver.Tests.Authentication
 
             var connection = new MockConnection(__serverId);
             connection.EnqueueCommandResponseMessage(response);
-            var description = CreateConnectionDescription(maxWireVersion: WireVersion.Server36);
+            var description = CreateConnectionDescription(maxWireVersion: WireVersion.Server44);
             connection.Description = description;
 
             var exception = async ?

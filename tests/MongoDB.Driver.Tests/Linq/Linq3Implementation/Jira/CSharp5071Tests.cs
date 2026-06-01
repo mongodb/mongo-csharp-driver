@@ -41,11 +41,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData("stringproperty+stringproperty", "{ $project : { _v : { $concat : ['$A', '$B'] }, _id : 0 } }", "AB")]
         public void Add_with_two_terms_should_work(string scenario, string expectedStage, string expectedResult)
         {
-            if (expectedStage.Contains("$toString"))
-            {
-                RequireServer.Check().Supports(Feature.AggregateToString);
-            }
-
             var collection = Fixture.Collection;
 
             var queryable = scenario switch
@@ -85,11 +80,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData("stringproperty+stringproperty+stringproperty", "{ $project : { _v : { $concat : ['$A', '$B', '$C'] }, _id : 0 } }", "ABC")]
         public void Add_with_three_terms_should_work(string scenario, string expectedStage, string expectedResult)
         {
-            if (expectedStage.Contains("$toString"))
-            {
-                RequireServer.Check().Supports(Feature.AggregateToString);
-            }
-
             var collection = Fixture.Collection;
 
             var queryable = scenario switch
@@ -124,11 +114,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData("stringproperty", "{ $project : { _v : { $concat : '$A' }, _id : 0 } }", "A")]
         public void Concat_with_one_argument_should_work(string scenario, string expectedStage, string expectedResult)
         {
-            if (expectedStage.Contains("$toString"))
-            {
-                RequireServer.Check().Supports(Feature.AggregateToString);
-            }
-
             var collection = Fixture.Collection;
 
             var queryable = scenario switch
@@ -151,11 +136,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData("stringproperty+stringproperty", "{ $project : { _v : { $concat : ['$A', '$B'] }, _id : 0 } }", "AB")]
         public void Concat_with_two_arguments_should_work(string scenario, string expectedStage, string expectedResult)
         {
-            if (expectedStage.Contains("$toString"))
-            {
-                RequireServer.Check().Supports(Feature.AggregateToString);
-            }
-
             var collection = Fixture.Collection;
 
             var queryable = scenario switch
@@ -195,11 +175,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData("stringproperty+stringproperty+stringproperty", "{ $project : { _v : { $concat : ['$A', '$B', '$C'] }, _id : 0 } }", "ABC")]
         public void Concat_with_three_arguments_should_work(string scenario, string expectedStage, string expectedResult)
         {
-            if (expectedStage.Contains("$toString"))
-            {
-                RequireServer.Check().Supports(Feature.AggregateToString);
-            }
-
             var collection = Fixture.Collection;
 
             var queryable = scenario switch
@@ -260,11 +235,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData("stringproperty+stringproperty+stringproperty", "{ $project : { _v : { $concat : ['$A', '$B', '$C'] }, _id : 0 } }", "ABC")]
         public void Concat_with_array_of_object_argument_should_work(string scenario, string expectedStage, string expectedResult)
         {
-            if (expectedStage.Contains("$toString"))
-            {
-                RequireServer.Check().Supports(Feature.AggregateToString);
-            }
-
             var collection = Fixture.Collection;
 
             var queryable = scenario switch
