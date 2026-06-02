@@ -74,8 +74,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
             var value = valueExpression.GetConstantValue<object>(containingExpression: expression);
 
-            // when the value type doesn't match the field type let the field serializer helper adapt a serializer for it
-            // (e.g. field/value numeric mismatches), matching the builder API and other operators
             var valueSerializer = value == null
                 ? fieldTranslation.Serializer
                 : FieldValueSerializerHelper.GetSerializerForValueType(fieldTranslation.Serializer, BsonSerializer.SerializerRegistry, value.GetType());
