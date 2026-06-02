@@ -71,6 +71,8 @@ echo "CRYPT_SHARED_LIB_PATH:" $CRYPT_SHARED_LIB_PATH
 echo "Initial MongoDB URI:" $MONGODB_URI
 echo "Framework: " $FRAMEWORK
 
+MONGODB_URI="${MONGODB_URI%/}" # remove trailing slash if present
+
 # Provision the correct connection string and set up SSL if needed
 if [ "$TOPOLOGY" == "sharded_cluster" ]; then
        export MONGODB_URI_WITH_MULTIPLE_MONGOSES="${MONGODB_URI}"
