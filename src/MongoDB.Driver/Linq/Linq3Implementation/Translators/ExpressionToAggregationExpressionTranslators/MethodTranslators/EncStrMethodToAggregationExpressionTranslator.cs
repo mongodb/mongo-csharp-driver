@@ -15,6 +15,8 @@
 
 using System;
 using System.Linq.Expressions;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
@@ -33,6 +35,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             {
                 var inputTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, arguments[0]);
                 var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, arguments[1]);
+                if (valueTranslation.Serializer is IRepresentationConfigurable representationConfigurable &&
+                    representationConfigurable.Representation != BsonType.String)
+                {
+                    throw new ExpressionNotSupportedException(arguments[1], expression, because: "it is not serialized as a string");
+                }
 
                 var @operator = method.Name switch
                 {

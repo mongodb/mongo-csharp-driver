@@ -17,7 +17,9 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators;
 using Xunit;
 
@@ -60,10 +62,26 @@ public class EncStrMethodToAggregationExpressionTranslatorTests
         ],
     ];
 
+    [Fact]
+    public void Translate_should_throw_when_value_is_not_serialized_as_string()
+    {
+        var expression = TestHelpers.MakeLambda<MyModel, bool>(model => Mql.EncStrStartsWith(model.Text, model.ObjectIdString));
+        var translationContext = TestHelpers.CreateTranslationContext(expression);
+
+        var exception = Record.Exception(() =>
+            EncStrMethodToAggregationExpressionTranslator.Translate(translationContext, (MethodCallExpression)expression.Body));
+
+        exception.Should().BeOfType<ExpressionNotSupportedException>();
+        exception.Message.Should().Contain("it is not serialized as a string");
+    }
+
     public class MyModel
     {
         public string Text { get; set; }
         public SubModel Sub { get; set; }
+
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string ObjectIdString { get; set; }
     }
 
     public class SubModel

@@ -34,14 +34,10 @@ internal sealed class AstEncStrExpression : AstExpression
 
     public override AstNodeType NodeType => AstNodeType.EncStrExpression;
 
-    public override AstNode Accept(AstNodeVisitor visitor)
-    {
-        return visitor.VisitEncStrExpression(this);
-    }
+    public override AstNode Accept(AstNodeVisitor visitor) => visitor.VisitEncStrExpression(this);
 
-    public override BsonValue Render()
-    {
-        return new BsonDocument
+    public override BsonValue Render() =>
+        new BsonDocument
         {
             { Operator.Render(), new BsonDocument
                 {
@@ -50,7 +46,6 @@ internal sealed class AstEncStrExpression : AstExpression
                 }
             }
         };
-    }
 
     public AstEncStrExpression Update(AstExpression input, AstExpression value)
     {
