@@ -320,12 +320,9 @@ public sealed class DeepPocoRoot
 
 public sealed class DeepPocoNode
 {
-    public object right { get; set; }
-    public object left { get; set; }
+    public DeepPocoNode right { get; set; }
+    public DeepPocoNode left { get; set; }
 
-    public DeepPocoNode GetRightNode() => right as DeepPocoNode;
-    public DeepPocoNode GetLeftNode() => left as DeepPocoNode;
-
-    public string GetRightValue() => right as string;
-    public string GetLeftValue() => left as string;
+    public string rightValue { get; set; }
+    public string leftValue { get; set; }
 }
