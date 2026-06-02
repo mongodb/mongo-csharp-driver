@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-using System;
 using FluentAssertions;
 using MongoDB.Bson.Serialization;
 using Xunit;
@@ -65,25 +64,35 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         }
 
         [Fact]
-        public void Equals_with_string_and_nullable_int_should_throw()
+        public void Equals_with_constant_as_receiver_should_translate()
         {
+            const int value = 1;
+
+            var filter = Builders<TestClass>.Filter.Where(e => value.Equals(e.IntegerProperty));
+
+            filter.Render(__args).Should().Be("{ IntegerProperty : 1 }");
+        }
+
+        [Fact]
+        public void Equals_with_string_and_nullable_int_should_translate()
+        {
+            // a string value is coerced to the field type by the field serializer helper, matching the builder API
             var value = "2";
 
             var filter = Builders<TestClass>.Filter.Where(e => e.NullableIntegerProperty.Equals(value));
 
-            var exception = Record.Exception(() => filter.Render(__args));
-            exception.Should().NotBeNull();
+            filter.Render(__args).Should().Be("{ NullableIntegerProperty : 2 }");
         }
 
         [Fact]
-        public void Equals_with_overflowing_uint64_and_nullable_int_should_throw()
+        public void Equals_with_overflowing_uint64_and_nullable_int_should_translate()
         {
+            // the value is serialized losslessly with its own type rather than throwing; it simply matches no documents
             ulong value = (ulong)int.MaxValue + 1;
 
             var filter = Builders<TestClass>.Filter.Where(e => e.NullableIntegerProperty.Equals(value));
 
-            var exception = Record.Exception(() => filter.Render(__args));
-            exception.Should().BeOfType<OverflowException>();
+            filter.Render(__args).Should().Be("{ NullableIntegerProperty : 2147483648 }");
         }
 
         public class TestClass
