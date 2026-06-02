@@ -103,9 +103,9 @@
       <LibMongoCryptAscUrl>$(LibMongoCryptSourceUrl.Replace('.tar.gz','.asc'))</LibMongoCryptAscUrl>
       <LibMongoCryptAscFile>$(LibMongoCryptTarball.Replace('.tar.gz','.asc'))</LibMongoCryptAscFile>
     </PropertyGroup>
-    <DownloadFile SourceUrl="$(LibMongoCryptSourceUrl)" DestinationFolder="$(LibMongoCryptTmpPath)"/>
-    <DownloadFile SourceUrl="$(LibMongoCryptAscUrl)" DestinationFolder="$(LibMongoCryptTmpPath)"/>
-    <DownloadFile SourceUrl="https://pgp.mongodb.com/libmongocrypt.pub" DestinationFolder="$(LibMongoCryptTmpPath)"/>
+    <DownloadFile SourceUrl="$(LibMongoCryptSourceUrl)" DestinationFolder="$(LibMongoCryptTmpPath)" Retries="5" RetryDelayMilliseconds="10000"/>
+    <DownloadFile SourceUrl="$(LibMongoCryptAscUrl)" DestinationFolder="$(LibMongoCryptTmpPath)" Retries="5" RetryDelayMilliseconds="10000"/>
+    <DownloadFile SourceUrl="https://pgp.mongodb.com/libmongocrypt.pub" DestinationFolder="$(LibMongoCryptTmpPath)" Retries="5" RetryDelayMilliseconds="10000"/>
     <Exec Command='gpg --batch --import "$(LibMongoCryptTmpPath)/libmongocrypt.pub"' Condition="!$([MSBuild]::IsOSPlatform('Windows'))" />
     <Exec Command='gpg --batch --verify "$(LibMongoCryptTmpPath)/$(LibMongoCryptAscFile)" "$(LibMongoCryptTmpPath)/$(LibMongoCryptTarball)"' Condition="!$([MSBuild]::IsOSPlatform('Windows'))" />
     <Exec Command='tar -zxvf "$(LibMongoCryptTmpPath)/$(LibMongoCryptTarball)" -C "$(LibMongoCryptTmpPath)" $(LibMongoCryptSourcePath)' />
