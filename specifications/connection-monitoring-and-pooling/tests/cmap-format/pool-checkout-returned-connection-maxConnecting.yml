@@ -14,10 +14,12 @@ failPoint:
     closeConnection: false
     blockConnection: true
     blockTimeMS: 750
+    appName: "PoolCheckoutReturnedConnectionMaxConnecting"
 poolOptions:
   maxConnecting: 2
   maxPoolSize: 10
   waitQueueTimeoutMS: 5000
+  appName: "PoolCheckoutReturnedConnectionMaxConnecting"
 operations:
   - name: ready
   # check out a connection and hold on to it.
