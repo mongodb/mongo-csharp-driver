@@ -34,7 +34,6 @@ The C# driver for MongoDB.
 | Feature area | Required environment variables |
 |---|---|
 | Atlas Search | `ATLAS_SEARCH_TESTS_ENABLED`, `ATLAS_SEARCH_URI` |
-| Atlas Search index helpers | `ATLAS_SEARCH_INDEX_HELPERS_TESTS_ENABLED`, `ATLAS_SEARCH_URI` |
 | CSFLE / auto-encryption | `CRYPT_SHARED_LIB_PATH` |
 | CSFLE with KMS mock servers | `KMS_MOCK_SERVERS_ENABLED` |
 | CSFLE with AWS KMS | `CSFLE_AWS_TEMPORARY_CREDS_ENABLED` |
