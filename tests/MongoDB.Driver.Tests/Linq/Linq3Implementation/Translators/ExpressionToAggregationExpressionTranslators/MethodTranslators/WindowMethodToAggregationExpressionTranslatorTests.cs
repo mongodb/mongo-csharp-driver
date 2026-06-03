@@ -71,7 +71,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var expectedResult = new[] { 1, 10, 2, 20, 3, 30 };
             foreach (var result in results)
             {
-                result["Result"].AsBsonArray.Select(i => i.AsInt32).Should().BeEquivalentTo(expectedResult);
+                result["Result"].AsBsonArray.Select(i => i.AsInt32).Should().Equal(expectedResult);
             }
         }
 
