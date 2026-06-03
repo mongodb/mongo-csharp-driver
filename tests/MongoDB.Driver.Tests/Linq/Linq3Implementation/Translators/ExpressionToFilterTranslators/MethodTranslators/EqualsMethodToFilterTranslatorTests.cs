@@ -74,13 +74,13 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         }
 
         [Fact]
-        public void Equals_with_string_and_nullable_int_should_translate()
+        public void Equals_with_string_and_nullable_int_should_compare_against_string()
         {
             var value = "2";
 
             var filter = Builders<TestClass>.Filter.Where(e => e.NullableIntegerProperty.Equals(value));
 
-            filter.Render(__args).Should().Be("{ NullableIntegerProperty : 2 }");
+            filter.Render(__args).Should().Be("{ $expr : { $eq : ['$NullableIntegerProperty', '2'] } }");
         }
 
         [Fact]
