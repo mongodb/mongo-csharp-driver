@@ -139,6 +139,32 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
+        [Theory]
+        [InlineData(false, false, null, null)]
+        [InlineData(false, false, 1234, null)]
+        [InlineData(false, true, null, null)]
+        [InlineData(false, true, 1234, "{ afterClusterTime : Timestamp(0, 1234) }")]
+        [InlineData(true, false, null, null)]
+        [InlineData(true, false, 1234, null)]
+        [InlineData(true, true, null, null)]
+        [InlineData(true, true, 1234, null)]
+        public void GetReadConcernForWriteCommand_should_return_expected_result(
+            bool isInTransaction,
+            bool isCausallyConsistent,
+            int? operationTime,
+            string expectedResult)
+        {
+            var session = CreateSession(
+                isInTransaction: isInTransaction,
+                isCausallyConsistent: isCausallyConsistent,
+                operationTime: operationTime.HasValue ? new BsonTimestamp(operationTime.Value) : null);
+            var connectionDescription = CreateConnectionDescription(logicalSessionTimeoutMinutes: true);
+
+            var result = ReadConcernHelper.GetReadConcernForWriteCommand(session, connectionDescription);
+
+            result.Should().Be(expectedResult);
+        }
+
         // private methods
         private ConnectionDescription CreateConnectionDescription(
             bool logicalSessionTimeoutMinutes = false,
