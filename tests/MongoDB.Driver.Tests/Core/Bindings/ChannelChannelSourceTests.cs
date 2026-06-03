@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         [Fact]
-        public void constructor_should_throw_when_server_is_null()
+        public void constructor_should_throw_when_serverEndpoint_is_null()
         {
             var channel = new Mock<IChannelHandle>().Object;
             var session = new Mock<ICoreSessionHandle>().Object;
