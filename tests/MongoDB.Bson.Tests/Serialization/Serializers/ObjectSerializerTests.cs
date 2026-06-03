@@ -14,9 +14,11 @@
 */
 
 using System;
+using System.Collections.Concurrent;
 using System.Dynamic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
@@ -723,6 +725,127 @@ namespace MongoDB.Bson.Tests.Serialization
                 var exception = Record.Exception(() => subject.Serialize(context, guid));
 
                 exception.Should().BeOfType<BsonSerializationException>();
+            }
+        }
+
+        [Fact]
+        public void Deserialize_binary_data_should_use_globally_registered_guid_serializer_when_guid_representation_is_unspecified()
+        {
+            var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(object));
+            var guid = Guid.NewGuid();
+            var bson = new BsonDocument("x", new BsonBinaryData(guid, GuidRepresentation.CSharpLegacy)).ToBson();
+            object result = null;
+
+            WithRegisteredGuidSerializer(GuidRepresentation.CSharpLegacy, () =>
+            {
+                var subject = new ObjectSerializer(discriminatorConvention, GuidRepresentation.Unspecified);
+
+                using var memoryStream = new MemoryStream(bson);
+                using var reader = new BsonBinaryReader(memoryStream);
+                var context = BsonDeserializationContext.CreateRoot(reader);
+                reader.ReadStartDocument();
+                reader.ReadName("x");
+                result = subject.Deserialize<object>(context);
+            });
+
+            result.Should().Be(guid);
+        }
+
+        [Fact]
+        public void Deserialize_binary_data_should_use_guid_serializer_registered_after_object_serializer_is_constructed()
+        {
+            var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(object));
+            var subject = new ObjectSerializer(discriminatorConvention, GuidRepresentation.Unspecified);
+            var guid = Guid.NewGuid();
+            var bson = new BsonDocument("x", new BsonBinaryData(guid, GuidRepresentation.CSharpLegacy)).ToBson();
+            object result = null;
+
+            WithRegisteredGuidSerializer(GuidRepresentation.CSharpLegacy, () =>
+            {
+                using var memoryStream = new MemoryStream(bson);
+                using var reader = new BsonBinaryReader(memoryStream);
+                var context = BsonDeserializationContext.CreateRoot(reader);
+                reader.ReadStartDocument();
+                reader.ReadName("x");
+                result = subject.Deserialize<object>(context);
+            });
+
+            result.Should().Be(guid);
+        }
+
+        [Fact]
+        public void Serialize_guid_should_use_globally_registered_guid_serializer_when_guid_representation_is_unspecified()
+        {
+            var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(object));
+            var guid = Guid.NewGuid();
+            BsonBinaryData binaryData = null;
+
+            WithRegisteredGuidSerializer(GuidRepresentation.CSharpLegacy, () =>
+            {
+                var subject = new ObjectSerializer(discriminatorConvention, GuidRepresentation.Unspecified);
+
+                using var memoryStream = new MemoryStream();
+                using var writer = new BsonBinaryWriter(memoryStream);
+                var context = BsonSerializationContext.CreateRoot(writer);
+                writer.WriteStartDocument();
+                writer.WriteName("x");
+                subject.Serialize(context, guid);
+                writer.WriteEndDocument();
+
+                binaryData = BsonSerializer.Deserialize<BsonDocument>(memoryStream.ToArray())["x"].AsBsonBinaryData;
+            });
+
+            binaryData.SubType.Should().Be(BsonBinarySubType.UuidLegacy);
+            binaryData.ToGuid(GuidRepresentation.CSharpLegacy).Should().Be(guid);
+        }
+
+        [Fact]
+        public void Serialize_guid_should_use_guid_serializer_registered_after_object_serializer_is_constructed()
+        {
+            var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(object));
+            var subject = new ObjectSerializer(discriminatorConvention, GuidRepresentation.Unspecified);
+            var guid = Guid.NewGuid();
+            BsonBinaryData binaryData = null;
+
+            WithRegisteredGuidSerializer(GuidRepresentation.CSharpLegacy, () =>
+            {
+                using var memoryStream = new MemoryStream();
+                using var writer = new BsonBinaryWriter(memoryStream);
+                var context = BsonSerializationContext.CreateRoot(writer);
+                writer.WriteStartDocument();
+                writer.WriteName("x");
+                subject.Serialize(context, guid);
+                writer.WriteEndDocument();
+
+                binaryData = BsonSerializer.Deserialize<BsonDocument>(memoryStream.ToArray())["x"].AsBsonBinaryData;
+            });
+
+            binaryData.SubType.Should().Be(BsonBinarySubType.UuidLegacy);
+            binaryData.ToGuid(GuidRepresentation.CSharpLegacy).Should().Be(guid);
+        }
+
+        private static void WithRegisteredGuidSerializer(GuidRepresentation registeredGuidRepresentation, Action action)
+        {
+            var cacheField = typeof(BsonSerializerRegistry).GetField("_cache", BindingFlags.NonPublic | BindingFlags.Instance);
+            var cache = (ConcurrentDictionary<Type, IBsonSerializer>)cacheField.GetValue(BsonSerializer.SerializerRegistry);
+
+            cache.TryGetValue(typeof(Guid), out var savedSerializer);
+            var newSerializer = new GuidSerializer(registeredGuidRepresentation);
+            cache.AddOrUpdate(typeof(Guid), newSerializer, (_, __) => newSerializer);
+            try
+            {
+                action();
+            }
+            finally
+            {
+                if (savedSerializer != null)
+                {
+                    cache.AddOrUpdate(typeof(Guid), savedSerializer, (_, __) => savedSerializer);
+                }
+                else
+                {
+                    cache.TryRemove(typeof(Guid), out _);
+                }
             }
         }
     }
