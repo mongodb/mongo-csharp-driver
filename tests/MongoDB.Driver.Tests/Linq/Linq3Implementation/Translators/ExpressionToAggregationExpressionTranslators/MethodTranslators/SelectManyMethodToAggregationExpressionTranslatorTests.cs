@@ -25,6 +25,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
 
 public class SelectManyMethodToAggregationExpressionTranslatorTests : LinqIntegrationTest<SelectManyMethodToAggregationExpressionTranslatorTests.ClassFixture>
 {
+    private static readonly bool __accumulatorsSupported = Feature.ConcatArraysAndSetUnionAccumulators.IsSupported(CoreTestConfiguration.MaxWireVersion);
+
     public SelectManyMethodToAggregationExpressionTranslatorTests(ClassFixture fixture)
         : base(fixture)
     {
@@ -101,7 +103,6 @@ public class SelectManyMethodToAggregationExpressionTranslatorTests : LinqIntegr
     [Fact]
     public void SelectMany_in_GroupBy_should_work()
     {
-        RequireServer.Check().Supports(Feature.ConcatArraysAndSetUnionAccumulators);
         var collection = Fixture.Collection;
 
         var queryable = collection.AsQueryable()
@@ -109,9 +110,18 @@ public class SelectManyMethodToAggregationExpressionTranslatorTests : LinqIntegr
             .Select(g => new { Cat = g.Key, AllTags = g.SelectMany(x => x.Tags).ToList() });
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages,
-            "{ $group : { _id : '$Cat', __agg0 : { $concatArrays : '$Tags' } } }",
-            "{ $project : { Cat : '$_id', AllTags : '$__agg0', _id : 0 } }");
+        if (__accumulatorsSupported)
+        {
+            AssertStages(stages,
+                "{ $group : { _id : '$Cat', __agg0 : { $concatArrays : '$Tags' } } }",
+                "{ $project : { Cat : '$_id', AllTags : '$__agg0', _id : 0 } }");
+        }
+        else
+        {
+            AssertStages(stages,
+                "{ $group : { _id : '$Cat', __agg0 : { $push : '$Tags' } } }",
+                "{ $project : { Cat : '$_id', AllTags : { $reduce : { input : '$__agg0', initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } } }, _id : 0 } }");
+        }
 
         var results = queryable.ToList().OrderBy(x => x.Cat).ToList();
         results.Should().HaveCount(2);
@@ -124,7 +134,6 @@ public class SelectManyMethodToAggregationExpressionTranslatorTests : LinqIntegr
     [Fact]
     public void SelectMany_Distinct_in_GroupBy_should_work()
     {
-        RequireServer.Check().Supports(Feature.ConcatArraysAndSetUnionAccumulators);
         var collection = Fixture.Collection;
 
         var queryable = collection.AsQueryable()
@@ -132,9 +141,18 @@ public class SelectManyMethodToAggregationExpressionTranslatorTests : LinqIntegr
             .Select(g => new { Cat = g.Key, UniqueTags = g.SelectMany(x => x.Tags).Distinct().ToList() });
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages,
-            "{ $group : { _id : '$Cat', __agg0 : { $setUnion : '$Tags' } } }",
-            "{ $project : { Cat : '$_id', UniqueTags : '$__agg0', _id : 0 } }");
+        if (__accumulatorsSupported)
+        {
+            AssertStages(stages,
+                "{ $group : { _id : '$Cat', __agg0 : { $setUnion : '$Tags' } } }",
+                "{ $project : { Cat : '$_id', UniqueTags : '$__agg0', _id : 0 } }");
+        }
+        else
+        {
+            AssertStages(stages,
+                "{ $group : { _id : '$Cat', __agg0 : { $push : '$Tags' } } }",
+                "{ $project : { Cat : '$_id', UniqueTags : { $setUnion : { $reduce : { input : '$__agg0', initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } } } }, _id : 0 } }");
+        }
 
         var results = queryable.ToList().OrderBy(x => x.Cat).ToList();
         results.Should().HaveCount(2);
@@ -147,16 +165,24 @@ public class SelectManyMethodToAggregationExpressionTranslatorTests : LinqIntegr
     [Fact]
     public void SelectMany_in_GroupBy_with_result_selector_should_work()
     {
-        RequireServer.Check().Supports(Feature.ConcatArraysAndSetUnionAccumulators);
         var collection = Fixture.Collection;
 
         var queryable = collection.AsQueryable()
             .GroupBy(x => x.Cat, (key, elements) => new { Cat = key, AllTags = elements.SelectMany(x => x.Tags).ToList() });
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages,
-            "{ $group : { _id : '$Cat', __agg0 : { $concatArrays : '$Tags' } } }",
-            "{ $project : { Cat : '$_id', AllTags : '$__agg0', _id : 0 } }");
+        if (__accumulatorsSupported)
+        {
+            AssertStages(stages,
+                "{ $group : { _id : '$Cat', __agg0 : { $concatArrays : '$Tags' } } }",
+                "{ $project : { Cat : '$_id', AllTags : '$__agg0', _id : 0 } }");
+        }
+        else
+        {
+            AssertStages(stages,
+                "{ $group : { _id : '$Cat', __agg0 : { $push : '$Tags' } } }",
+                "{ $project : { Cat : '$_id', AllTags : { $reduce : { input : '$__agg0', initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } } }, _id : 0 } }");
+        }
 
         var results = queryable.ToList().OrderBy(x => x.Cat).ToList();
         results.Should().HaveCount(2);
@@ -169,7 +195,6 @@ public class SelectManyMethodToAggregationExpressionTranslatorTests : LinqIntegr
     [Fact]
     public void SelectMany_in_Bucket_should_work()
     {
-        RequireServer.Check().Supports(Feature.ConcatArraysAndSetUnionAccumulators);
         var collection = Fixture.Collection;
 
         var aggregate = collection.Aggregate()
@@ -179,9 +204,18 @@ public class SelectManyMethodToAggregationExpressionTranslatorTests : LinqIntegr
                 g => new { Id = g.Key, AllTags = g.SelectMany(x => x.Tags) });
 
         var stages = Translate(collection, aggregate);
-        AssertStages(stages,
-            "{ $bucket : { groupBy : '$_id', boundaries : [1, 3, 5], output : { __agg0 : { $concatArrays : '$Tags' } } } }",
-            "{ $project : { _id : '$_id', AllTags : '$__agg0' } }");
+        if (__accumulatorsSupported)
+        {
+            AssertStages(stages,
+                "{ $bucket : { groupBy : '$_id', boundaries : [1, 3, 5], output : { __agg0 : { $concatArrays : '$Tags' } } } }",
+                "{ $project : { _id : '$_id', AllTags : '$__agg0' } }");
+        }
+        else
+        {
+            AssertStages(stages,
+                "{ $bucket : { groupBy : '$_id', boundaries : [1, 3, 5], output : { __agg0 : { $push : '$Tags' } } } }",
+                "{ $project : { _id : '$_id', AllTags : { $reduce : { input : '$__agg0', initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } } } } }");
+        }
 
         var results = aggregate.ToList().OrderBy(x => x.Id).ToList();
         results.Should().HaveCount(2);
@@ -194,7 +228,6 @@ public class SelectManyMethodToAggregationExpressionTranslatorTests : LinqIntegr
     [Fact]
     public void SelectMany_Distinct_in_BucketAuto_should_work()
     {
-        RequireServer.Check().Supports(Feature.ConcatArraysAndSetUnionAccumulators);
         var collection = Fixture.Collection;
 
         var aggregate = collection.Aggregate()
@@ -204,9 +237,18 @@ public class SelectManyMethodToAggregationExpressionTranslatorTests : LinqIntegr
                 g => new { Id = g.Key, UniqueTags = g.SelectMany(x => x.Tags).Distinct() });
 
         var stages = Translate(collection, aggregate);
-        AssertStages(stages,
-            "{ $bucketAuto : { groupBy : '$_id', buckets : 2, output : { __agg0 : { $setUnion : '$Tags' } } } }",
-            "{ $project : { _id : '$_id', UniqueTags : '$__agg0' } }");
+        if (__accumulatorsSupported)
+        {
+            AssertStages(stages,
+                "{ $bucketAuto : { groupBy : '$_id', buckets : 2, output : { __agg0 : { $setUnion : '$Tags' } } } }",
+                "{ $project : { _id : '$_id', UniqueTags : '$__agg0' } }");
+        }
+        else
+        {
+            AssertStages(stages,
+                "{ $bucketAuto : { groupBy : '$_id', buckets : 2, output : { __agg0 : { $push : '$Tags' } } } }",
+                "{ $project : { _id : '$_id', UniqueTags : { $setUnion : { $reduce : { input : '$__agg0', initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } } } } }");
+        }
 
         var results = aggregate.ToList();
         results.Should().HaveCount(2);
