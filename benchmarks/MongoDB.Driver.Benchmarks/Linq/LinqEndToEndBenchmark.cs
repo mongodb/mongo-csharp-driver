@@ -29,6 +29,9 @@ public class LinqEndToEndBenchmark
 {
     private const string DatabaseName = "linqbench";
     private const string CollectionName = "orders";
+    // 500 is intentional: the broad-scan vs. selective contrast (e.g. OrFilter's ~700 KB
+    // result dominating its LINQ-Raw delta) needs enough documents to make serialization
+    // a visible cost. Translation-only timing lives in LinqTranslationBenchmark, not here.
     private const int SeedCount = 500;
 
     private IMongoClient _client;
