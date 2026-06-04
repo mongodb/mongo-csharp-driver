@@ -78,14 +78,14 @@ public static class BenchmarkHelper
         public const string PerfTestDatabaseName = "perftest";
         public const string PerfTestCollectionName = "corpus";
 
-        public static IMongoClient CreateClient()
+        public static IMongoClient CreateClient(string databaseToDrop = PerfTestDatabaseName)
         {
             var mongoUri = Environment.GetEnvironmentVariable("MONGODB_URI");
             var settings = mongoUri != null ? MongoClientSettings.FromConnectionString(mongoUri) : new();
             settings.ClusterSource = DisposingClusterSource.Instance;
 
             var client = new MongoClient(settings);
-            client.DropDatabase(PerfTestDatabaseName);
+            client.DropDatabase(databaseToDrop);
 
             return client;
         }

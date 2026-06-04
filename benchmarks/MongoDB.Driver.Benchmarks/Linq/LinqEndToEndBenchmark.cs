@@ -53,7 +53,7 @@ public class LinqEndToEndBenchmark
     [GlobalSetup]
     public void Setup()
     {
-        _client = MongoConfiguration.CreateClient();
+        _client = MongoConfiguration.CreateClient(DatabaseName);
         var db = _client.GetDatabase(DatabaseName);
         _collection = db.GetCollection<OrderDocument>(CollectionName);
 
