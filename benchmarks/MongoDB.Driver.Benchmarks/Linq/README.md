@@ -1,6 +1,6 @@
 # LINQ Translation Benchmarks
 
-Measures the performance of the LINQ-to-aggregation translation layer — the CPU work the driver does to convert a C# expression tree into a MongoDB query/pipeline document. No database I/O is involved; these benchmarks isolate translator regressions from network and serialization noise.
+Measures the performance of the LINQ-to-aggregation translation layer — the CPU work the driver does to convert a C# expression tree into a MongoDB query/pipeline document. The benchmarks themselves execute no queries; they isolate translator regressions from network and serialization noise. (The two `IQueryable` benchmarks — `QueryablePipeline` and `GroupByAggregation` — create a `MongoClient` in `[GlobalSetup]` because `MongoQueryProvider<T>` is obtained via `collection.AsQueryable()`. No queries are executed against that client; its background cluster monitor is the only DB-side activity, and the measurement impact is expected to sit below the 2-4% drift floor.)
 
 ## Running
 
