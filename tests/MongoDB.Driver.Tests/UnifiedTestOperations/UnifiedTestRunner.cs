@@ -241,7 +241,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         var runCommandOperation = new CountOperation(collection.CollectionNamespace, new MessageEncoderSettings()) { ReadConcern = ReadConcern.Local, };
                         foreach (var server in cluster.Description.Servers.Where(s => s.Type == ServerType.ReplicaSetSecondary))
                         {
-                            using var singleServerBinding = new SingleServerReadBinding(cluster, server.EndPoint, ReadPreference.Secondary, session.WrappedCoreSession);
+                            using var singleServerBinding = new SingleServerReadBinding(cluster, server.EndPoint, ReadPreference.Secondary, session.WrappedCoreSession.Fork());
                             runCommandOperation.Execute(OperationContext.NoTimeout, singleServerBinding);
                         }
                     }
