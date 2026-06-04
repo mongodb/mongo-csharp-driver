@@ -59,7 +59,7 @@ public class SingleServerReadBindingTests
     }
 
     [Fact]
-    public void constructor_should_throw_when_server_is_null()
+    public void constructor_should_throw_when_serverEndpoint_is_null()
     {
         var cluster = new Mock<IClusterInternal>().Object;
         var readPreference = ReadPreference.Primary;

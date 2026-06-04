@@ -231,7 +231,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     collection.InsertMany(session, documents);
                 }
 
-                // do read from all secondaries in case of replicaset to make sure the data is available there already
+                // do read from all secondaries in case of replica set to make sure the data is available there already
                 if (validateInitialDataPropagation)
                 {
                     var cluster = client.GetClusterInternal();
@@ -241,7 +241,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         var runCommandOperation = new CountOperation(collection.CollectionNamespace, new MessageEncoderSettings()) { ReadConcern = ReadConcern.Local, };
                         foreach (var server in cluster.Description.Servers.Where(s => s.Type == ServerType.ReplicaSetSecondary))
                         {
-                            var singleServerBinding = new SingleServerReadBinding(cluster, server.EndPoint, ReadPreference.Secondary, session.WrappedCoreSession);
+                            using var singleServerBinding = new SingleServerReadBinding(cluster, server.EndPoint, ReadPreference.Secondary, session.WrappedCoreSession);
                             runCommandOperation.Execute(OperationContext.NoTimeout, singleServerBinding);
                         }
                     }
