@@ -26,7 +26,7 @@ Each calls `LinqProviderAdapter.TranslateExpressionToFilter`, exercising: prepro
 | Benchmark | Expression | Translator path exercised |
 |---|---|---|
 | `MultiFieldSearch` | `x.Status == s && x.CustomerName.StartsWith(prefix) && x.ShippingAddress.City == city && x.CreatedAt > cutoff && !x.IsPaid` | And → Comparison, MethodCall (StartsWith), nested MemberAccess, Not + boolean MemberAccess |
-| `OrStatusFilter` | 4-way `==` OR with literal constants | Or → Comparison. No closures — fastest filter, most sensitive to small regressions |
+| `OrFilter` | 4-way `==` OR with literal constants | Or → Comparison. No closures — fastest filter, most sensitive to small regressions |
 | `BatchLookup` | `ids.Contains(x.Id)` | MethodCall → ContainsMethodToFilterTranslator → `$in` |
 | `ArrayElementQuery` | `x.Items.Any(i => i.Price > t)` | MethodCall → AllOrAnyMethodToFilterTranslator → `$elemMatch`, `@<elem>` symbol |
 
@@ -80,7 +80,7 @@ This selectivity has been validated via targeted injection tests.
 
 **Allocation changes** are often more actionable than time changes. A new allocation in a hot path is a real regression even if the time delta is within noise. The `[MemoryDiagnoser]` columns (`Gen0`, `Allocated`) make allocation regressions visible.
 
-**`OrStatusFilter`** is the fastest filter (~7µs, ~5x faster than others) because it uses literal constants instead of captured variables, producing a simpler expression tree with less work at every stage. This makes it the most sensitive filter benchmark — small translator regressions that would be lost in the noise on slower benchmarks show up clearly here.
+**`OrFilter`** is the fastest filter (~7µs, ~5x faster than others) because it uses literal constants instead of captured variables, producing a simpler expression tree with less work at every stage. This makes it the most sensitive filter benchmark — small translator regressions that would be lost in the noise on slower benchmarks show up clearly here.
 
 **`ProjectionSentinel`** at ~17ns is not measuring translation. It validates that `LinqProviderAdapter` still short-circuits `x => x` projections. Movement here means the fast-path detection broke, not that translation got slower.
 
@@ -93,7 +93,7 @@ Three drift clusters emerged from characterization:
 | Bucket | Threshold | Benchmarks | Observed range |
 |---|---|---|---|
 | Tight | 15% | `MultiFieldSearch`, `UpdatePipeline`, `BatchLookup`, `ArrayElementQuery` | 9–15% |
-| Wider | 30% | `OrStatusFilter`, `FieldSelection`, `AggregationProjection`, `QueryablePipeline`, `GroupByAggregation` | 20–29% |
+| Wider | 30% | `OrFilter`, `FieldSelection`, `AggregationProjection`, `QueryablePipeline`, `GroupByAggregation` | 20–29% |
 | Sentinel | 100% | `ProjectionSentinel` | 5% |
 
-`OrStatusFilter` and `FieldSelection` land in the wider bucket for different reasons: `OrStatusFilter` is ~7µs and proportional noise is large at that scale; `FieldSelection` is ~2µs with similar characteristics. The three complex benchmarks (`AggregationProjection`, `QueryablePipeline`, `GroupByAggregation`) show higher drift because they allocate more and exercise more GC pressure.
+`OrFilter` and `FieldSelection` land in the wider bucket for different reasons: `OrFilter` is ~7µs and proportional noise is large at that scale; `FieldSelection` is ~2µs with similar characteristics. The three complex benchmarks (`AggregationProjection`, `QueryablePipeline`, `GroupByAggregation`) show higher drift because they allocate more and exercise more GC pressure.
