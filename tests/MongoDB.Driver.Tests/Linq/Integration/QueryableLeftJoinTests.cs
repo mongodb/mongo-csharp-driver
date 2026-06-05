@@ -22,9 +22,9 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Integration;
 
-public class CSharpLeftJoinTests : LinqIntegrationTest<CSharpLeftJoinTests.ClassFixture>
+public class QueryableLeftJoinTests : LinqIntegrationTest<QueryableLeftJoinTests.ClassFixture>
 {
-    public CSharpLeftJoinTests(ClassFixture fixture)
+    public QueryableLeftJoinTests(ClassFixture fixture)
         : base(fixture)
     {
     }
