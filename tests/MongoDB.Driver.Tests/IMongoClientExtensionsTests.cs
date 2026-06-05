@@ -14,6 +14,7 @@
 */
 
 using System.Threading;
+using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
@@ -25,7 +26,7 @@ namespace MongoDB.Driver.Tests
     {
         [Theory]
         [ParameterAttributeData]
-        public void Watch_should_call_client_with_expected_arguments(
+        public async Task Watch_should_call_client_with_expected_arguments(
             [Values(false, true)] bool usingSession,
             [Values(false, true)] bool async)
         {
@@ -40,7 +41,7 @@ namespace MongoDB.Driver.Tests
             {
                 if (async)
                 {
-                    client.WatchAsync(session, options, cancellationToken);
+                    await client.WatchAsync(session, options, cancellationToken);
                     mockClient.Verify(m => m.WatchAsync(session, It.IsAny<EmptyPipelineDefinition<ChangeStreamDocument<BsonDocument>>>(), options, cancellationToken), Times.Once);
                 }
                 else
@@ -53,7 +54,7 @@ namespace MongoDB.Driver.Tests
             {
                 if (async)
                 {
-                    client.WatchAsync(options, cancellationToken);
+                    await client.WatchAsync(options, cancellationToken);
                     mockClient.Verify(m => m.WatchAsync(It.IsAny<EmptyPipelineDefinition<ChangeStreamDocument<BsonDocument>>>(), options, cancellationToken), Times.Once);
                 }
                 else
