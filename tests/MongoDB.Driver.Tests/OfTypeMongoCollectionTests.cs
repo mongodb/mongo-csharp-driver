@@ -601,25 +601,16 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [ParameterAttributeData]
-        public void EstimatedDocumentCount_should_throw(
+        public async Task EstimatedDocumentCount_should_throw(
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
             using var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
 
-            var exception = Record.Exception(() =>
-            {
-                if (async)
-                {
-                    subject.EstimatedDocumentCountAsync(null, cancellationToken).GetAwaiter().GetResult();
-                }
-                else
-                {
-                    subject.EstimatedDocumentCount(null, cancellationToken);
-                }
-
-            });
+            var exception = async ?
+                await Record.ExceptionAsync(() => subject.EstimatedDocumentCountAsync(null, cancellationToken)) :
+                Record.Exception(() => subject.EstimatedDocumentCount(null, cancellationToken));
 
             exception.Should().BeOfType<NotSupportedException>();
         }
