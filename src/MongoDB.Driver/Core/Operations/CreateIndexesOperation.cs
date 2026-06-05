@@ -173,6 +173,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var maxWireVersion = connectionDescription.MaxWireVersion;
             var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, session, _writeConcern);
+            var readConcern = ReadConcernHelper.GetReadConcernForWriteCommand(session, connectionDescription);
             if (_commitQuorum != null)
             {
                 Feature.CreateIndexCommitQuorum.ThrowIfNotSupported(maxWireVersion);
@@ -183,6 +184,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "createIndexes", _collectionNamespace.CollectionName },
                 { "indexes", new BsonArray(_requests.Select(request => request.CreateIndexDocument())) },
                 { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue && !operationContext.IsRootContextTimeoutConfigured() },
+                { "readConcern", readConcern, readConcern != null },
                 { "writeConcern", writeConcern, writeConcern != null },
                 { "comment", _comment, _comment != null },
                 { "commitQuorum", () => _commitQuorum.ToBsonValue(), _commitQuorum != null }

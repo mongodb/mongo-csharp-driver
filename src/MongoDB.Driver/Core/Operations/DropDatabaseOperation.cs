@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
@@ -83,9 +82,11 @@ namespace MongoDB.Driver.Core.Operations
         public BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber)
         {
             var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, session, _writeConcern);
+            var readConcern = ReadConcernHelper.GetReadConcernForWriteCommand(session, connectionDescription);
             return new BsonDocument
             {
                 { "dropDatabase", 1 },
+                { "readConcern", readConcern, readConcern != null },
                 { "writeConcern", writeConcern, writeConcern != null }
             };
         }

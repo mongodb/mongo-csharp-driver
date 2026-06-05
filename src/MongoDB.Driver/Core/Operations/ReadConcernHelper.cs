@@ -27,6 +27,22 @@ namespace MongoDB.Driver.Core.Operations
             return (session.IsInTransaction || session.IsSnapshot) ? null : ToBsonDocument(session, connectionDescription, readConcern);
         }
 
+        // Write commands do not support readConcern.level; only afterClusterTime is allowed for causal consistency.
+        public static BsonDocument GetReadConcernForWriteCommand(ICoreSession session, ConnectionDescription connectionDescription)
+        {
+            if (session.IsInTransaction)
+            {
+                return null;
+            }
+
+            if (AreSessionsSupported(connectionDescription) && session.IsCausallyConsistent && session.OperationTime != null)
+            {
+                return new BsonDocument("afterClusterTime", session.OperationTime);
+            }
+
+            return null;
+        }
+
         public static BsonDocument GetReadConcernForFirstCommandInTransaction(ICoreSession session, ConnectionDescription connectionDescription)
         {
             var readConcern = session.CurrentTransaction.TransactionOptions.ReadConcern;

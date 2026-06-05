@@ -126,6 +126,7 @@ namespace MongoDB.Driver.Core.Operations
                 }
             }
 
+            var readConcern = ReadConcernHelper.GetReadConcernForWriteCommand(session, connectionDescription);
             var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, session, WriteConcern);
             return new BsonDocument
             {
@@ -137,6 +138,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "fields", _projection, _projection != null },
                 { "upsert", true, _isUpsert },
                 { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue && !operationContext.IsRootContextTimeoutConfigured() },
+                { "readConcern", readConcern, readConcern != null },
                 { "writeConcern", writeConcern, writeConcern != null },
                 { "bypassDocumentValidation", () => _bypassDocumentValidation.Value, _bypassDocumentValidation.HasValue },
                 { "collation", () => Collation.ToBsonDocument(), Collation != null },
