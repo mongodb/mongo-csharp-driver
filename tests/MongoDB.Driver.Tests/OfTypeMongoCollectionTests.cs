@@ -757,19 +757,14 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject();
             var update = new BsonDocument("$set", new BsonDocument("x", 5));
 
-            var exception = Record.Exception(() =>
+            if (async)
             {
-                if (async)
-                {
-                    subject.FindOneAndUpdateAsync(_providedFilter, update, null, CancellationToken.None);
-                }
-                else
-                {
-                    subject.FindOneAndUpdate(_providedFilter, update, null, CancellationToken.None);
-                }
-            });
-
-            exception.Should().BeNull();
+                subject.FindOneAndUpdateAsync(_providedFilter, update, null, CancellationToken.None);
+            }
+            else
+            {
+                subject.FindOneAndUpdate(_providedFilter, update, null, CancellationToken.None);
+            }
         }
 
         [Theory]
