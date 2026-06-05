@@ -82,6 +82,6 @@ public class BsonEncodingBenchmark
     [
         new("extended_bson/flat_bson.json", "Flat", 75_310_000, typeof(FlatPoco)),
         new("extended_bson/full_bson.json", "Full", 57_340_000, typeof(FullPoco)),
-        new("extended_bson/deep_bson.json", "Deep", 22_860_000, typeof(DeepPocoRoot))
+        new("extended_bson/deep_bson.json", "Deep", 22_840_000, typeof(DeepPocoRoot))
     ];
 }
