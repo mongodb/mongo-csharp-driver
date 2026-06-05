@@ -56,7 +56,7 @@ namespace MongoDB.Driver.SmokeTests.Sdk
                         customers.AsQueryable(),
                         o => o.CustomerId,
                         c => c.Id,
-                        (o, c) => new LeftJoinResult<Order, Customer> { Outer = o, Inner = c })
+                        (o, c) => new { Outer = o, Inner = c })
                     .OrderBy(r => r.Outer.Id)
                     .ToList();
 

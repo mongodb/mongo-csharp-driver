@@ -49,9 +49,6 @@ public class LeftJoinTests
         // MongoQueryable.LeftJoin: result selector touches the outer parameter (proves outer serializer resolved)
         [TestHelpers.MakeLambda((Model model) => model.Outers.LeftJoin(model.Inners, o => o.Key, i => i.Key, (o, i) => o.OuterName)), typeof(IQueryableSerializer<string>)],
 
-        // MongoQueryable.LeftJoin: result selector projects into LeftJoinResult<TOuter, TInner>
-        [TestHelpers.MakeLambda((Model model) => model.Outers.LeftJoin(model.Inners, o => o.Key, i => i.Key, (o, i) => new LeftJoinResult<Outer, Inner> { Outer = o, Inner = i })), typeof(IQueryableSerializer<LeftJoinResult<Outer, Inner>>)],
-
 #if NET10_0_OR_GREATER
         // .NET 10 BCL Queryable.LeftJoin (IEnumerable inner forces binding away from the IQueryable-inner MongoQueryable overload)
         [TestHelpers.MakeLambda((Model model) => model.Outers.LeftJoin(model.InnerList, o => o.Key, i => i.Key, (o, i) => i.InnerName)), typeof(IQueryableSerializer<string>)],

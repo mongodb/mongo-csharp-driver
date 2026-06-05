@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Driver.Linq;
@@ -28,9 +29,9 @@ public class CSharpLeftJoinTests : LinqIntegrationTest<CSharpLeftJoinTests.Class
     {
     }
 
-    // LeftJoin with LeftJoinResult as the result type (Include/navigation property case)
+    // LeftJoin projecting into a Tuple, materialized (Include/navigation property case)
     [Fact]
-    public void LeftJoin_with_LeftJoinResult_should_work()
+    public void LeftJoin_with_tuple_should_work()
     {
         var orders = Fixture.OrdersCollection;
 
@@ -39,7 +40,7 @@ public class CSharpLeftJoinTests : LinqIntegrationTest<CSharpLeftJoinTests.Class
                 Fixture.CustomersCollection.AsQueryable(),
                 o => o.CustomerId,
                 c => c.Id,
-                (o, c) => new LeftJoinResult<Order, Customer> { Outer = o, Inner = c });
+                (o, c) => Tuple.Create(o, c));
 
         var stages = Translate(orders, queryable);
         AssertStages(
@@ -47,14 +48,14 @@ public class CSharpLeftJoinTests : LinqIntegrationTest<CSharpLeftJoinTests.Class
             "{ $project : { _outer : '$$ROOT', _id : 0 } }",
             "{ $lookup : { from : 'customers', localField : '_outer.CustomerId', foreignField : '_id', as : '_inner' } }",
             "{ $unwind : { path : '$_inner', preserveNullAndEmptyArrays : true } }",
-            "{ $project : { Outer : '$_outer', Inner : '$_inner', _id : 0 } }");
+            "{ $project : { _v : ['$_outer', '$_inner'], _id : 0 } }");
 
         var results = queryable.ToList();
         results.Should().HaveCount(3);
-        results.Select(r => r.Outer.Id).Should().BeEquivalentTo([1, 2, 3]);
+        results.Select(r => r.Item1.Id).Should().BeEquivalentTo([1, 2, 3]);
         // Order 3 has no matching customer (FK = 99), inner should be null
-        var orderWithNoCustomer = results.Single(r => r.Outer.Id == 3);
-        orderWithNoCustomer.Inner.Should().BeNull();
+        var orderWithNoCustomer = results.Single(r => r.Item1.Id == 3);
+        orderWithNoCustomer.Item2.Should().BeNull();
     }
 
     // LeftJoin followed by Select — mid-pipeline source example 1
