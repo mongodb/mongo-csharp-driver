@@ -19,7 +19,9 @@ using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Encryption;
+using MongoDB.Driver.Tests;
 using Xunit.Sdk;
+using ClusterTypeEnum = MongoDB.Driver.Core.Clusters.ClusterType;
 
 namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
 {
@@ -67,7 +69,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
 
         public RequireServer ClusterType(ClusterType clusterType)
         {
-            var actualClusterType = CoreTestConfiguration.Cluster.Description.Type;
+            var actualClusterType = GetActualClusterType();
             if (actualClusterType == clusterType)
             {
                 return this;
@@ -77,7 +79,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
 
         public RequireServer ClusterTypes(params ClusterType[] clusterTypes)
         {
-            var actualClusterType = CoreTestConfiguration.Cluster.Description.Type;
+            var actualClusterType = GetActualClusterType();
             if (clusterTypes.Contains(actualClusterType))
             {
                 return this;
@@ -172,13 +174,13 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
 
         public RequireServer SupportsCausalConsistency()
         {
-            return ClusterTypes(Clusters.ClusterType.Sharded, Clusters.ClusterType.ReplicaSet).SupportsSessions();
+            return ClusterTypes(ClusterTypeEnum.Sharded, ClusterTypeEnum.ReplicaSet).SupportsSessions();
         }
 
         public RequireServer SupportsSessions()
         {
             var clusterDescription = CoreTestConfiguration.Cluster.Description;
-            if (clusterDescription.LogicalSessionTimeout != null || clusterDescription.Type == Clusters.ClusterType.LoadBalanced)
+            if (clusterDescription.LogicalSessionTimeout != null || GetActualClusterType() == ClusterTypeEnum.LoadBalanced)
             {
                 return this;
             }
@@ -220,8 +222,8 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
 
         public RequireServer MultipleMongosesIfSharded(bool required)
         {
-            var clusterType = CoreTestConfiguration.Cluster.Description.Type;
-            if (clusterType == Clusters.ClusterType.Sharded || clusterType == Clusters.ClusterType.LoadBalanced)
+            var clusterType = GetActualClusterType();
+            if (clusterType == ClusterTypeEnum.Sharded || clusterType == ClusterTypeEnum.LoadBalanced)
             {
                 MultipleMongoses(required);
             }
@@ -237,6 +239,31 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
             }
 
             throw new SkipException($"Test skipped because the cluster does not have multiple mongoses.");
+        }
+
+        public RequireServer ReplicaSetDataBearingMembers(int minimum)
+        {
+            // Only meaningful on replica-set topologies; on sharded/standalone/load-balanced the
+            // "data-bearing members" concept doesn't translate to a useful constraint. No-op on
+            // non-RS so callers can chain this onto a multi-topology allowlist (e.g. after
+            // SupportsCausalConsistency, which permits RS or Sharded) without inadvertently
+            // skipping sharded runs. Callers who want RS-only must chain ClusterType(ReplicaSet)
+            // explicitly.
+            if (GetActualClusterType() != ClusterTypeEnum.ReplicaSet)
+            {
+                return this;
+            }
+            // GetReplicaSetNumberOfDataBearingMembers waits for the cluster to connect and then
+            // counts, so it returns promptly with the real count rather than spinning the full
+            // timeout when the count can never reach `minimum` (e.g. a directConnection only ever
+            // sees its single targeted server, so the count tops out at 1).
+            var cluster = CoreTestConfiguration.Cluster;
+            var actualCount = DriverTestConfiguration.GetReplicaSetNumberOfDataBearingMembers(cluster);
+            if (actualCount >= minimum)
+            {
+                return this;
+            }
+            throw new SkipException($"Test skipped because replica set has {actualCount} data-bearing member(s) and at least {minimum} are required: {cluster.Description}.");
         }
 
         public RequireServer VersionGreaterThanOrEqualTo(SemanticVersion version)
@@ -285,6 +312,8 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
         }
 
         // private methods
+        private ClusterType GetActualClusterType() => DriverTestConfiguration.GetActualClusterType(CoreTestConfiguration.Cluster);
+
         private bool CanRunOn(BsonDocument requirements)
         {
             return requirements.All(IsRequirementSatisfied);
@@ -335,9 +364,10 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
                     return true;
                 case "topologies":
                 case "topology":
-                    var actualClusterType = CoreTestConfiguration.Cluster.Description.Type;
-                    var runOnClusterTypes = requirement.Value.AsBsonArray.Select(topology => MapTopologyToClusterType(topology.AsString)).ToList();
-                    return runOnClusterTypes.Contains(actualClusterType);
+                    {
+                        var actualClusterType = GetActualClusterType();
+                        return requirement.Value.AsBsonArray.Any(topology => IsTopologyMatch(topology.AsString, actualClusterType));
+                    }
                 case "csfle":
                     return IsCsfleRequirementSatisfied(requirement);
                 default:
@@ -359,15 +389,15 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
             return SemanticVersionCompareToAsReleased(actualLibmongocryptVersion, minLibmongocryptVersion) >= 0;
         }
 
-        private ClusterType MapTopologyToClusterType(string topology)
+        private bool IsTopologyMatch(string topology, ClusterTypeEnum clusterType)
         {
             switch (topology)
             {
-                case "single": return Clusters.ClusterType.Standalone;
-                case "replicaset": return Clusters.ClusterType.ReplicaSet;
+                case "single": return clusterType == ClusterTypeEnum.Standalone;
+                case "replicaset": return clusterType == ClusterTypeEnum.ReplicaSet;
                 case "sharded-replicaset":
-                case "sharded": return Clusters.ClusterType.Sharded;
-                case "load-balanced": return Clusters.ClusterType.LoadBalanced;
+                case "sharded": return clusterType == ClusterTypeEnum.Sharded;
+                case "load-balanced": return clusterType == ClusterTypeEnum.LoadBalanced;
                 default: throw new ArgumentException($"Invalid topology: \"{topology}\".", nameof(topology));
             }
         }

@@ -223,14 +223,19 @@ namespace MongoDB.Driver.Tests
             };
         }
 
+        // Returns true if any server reports an RS member type (Primary, Secondary, Arbiter,
+        // Other, or Ghost). Callers that need specifically a data-bearing member should use
+        // GetReplicaSetNumberOfDataBearingMembers instead.
         internal static bool IsReplicaSet(IClusterInternal cluster)
         {
-            var clusterTypeIsKnown = SpinWait.SpinUntil(() => cluster.Description.Type != ClusterType.Unknown, TimeSpan.FromSeconds(10));
-            if (!clusterTypeIsKnown)
+            var serverIsKnown = SpinWait.SpinUntil(
+                () => cluster.Description.Servers.Any(s => s.Type != ServerType.Unknown),
+                TimeSpan.FromSeconds(10));
+            if (!serverIsKnown)
             {
                 throw new InvalidOperationException($"Unable to determine cluster type: {cluster.Description}.");
             }
-            return cluster.Description.Type == ClusterType.ReplicaSet;
+            return cluster.Description.Servers.Any(s => s.Type.IsReplicaSetMember());
         }
 
         internal static int GetReplicaSetNumberOfDataBearingMembers(IClusterInternal cluster)
@@ -241,7 +246,56 @@ namespace MongoDB.Driver.Tests
             }
 
             WaitForAllServersToBeConnected(cluster);
+            // Under a directConnect the description only includes the single node being targeted,
+            // so this count reflects only that server. RequireServer.ReplicaSetDataBearingMembers(2)
+            // therefore correctly skips tests that need multiple members when connected directly.
             return cluster.Description.Servers.Count(s => s.IsDataBearing);
+        }
+
+        // Returns the effective cluster type. For direct connections Description.Type is always
+        // Standalone regardless of the actual server type, so the server's reported type is used
+        // instead. Throws (rather than skips) if the type cannot be determined: an undeterminable
+        // topology is an environment failure, not a "this topology isn't applicable" skip.
+        internal static ClusterType GetActualClusterType(IClusterInternal cluster)
+        {
+            var description = cluster.Description;
+            if (description.DirectConnection)
+            {
+                var serverIsKnown = SpinWait.SpinUntil(
+                    () => cluster.Description.Servers.Any(s => s.Type != ServerType.Unknown),
+                    TimeSpan.FromSeconds(10));
+                if (!serverIsKnown)
+                {
+                    throw new InvalidOperationException($"Unable to determine cluster type: {cluster.Description}.");
+                }
+                return cluster.Description.Servers.First(s => s.Type != ServerType.Unknown).Type.ToClusterType();
+            }
+            // For non-direct connections the cluster machinery resolves Description.Type before tests
+            // run, but spin briefly here as well so early-startup invocations don't race against the
+            // initial SDAM rounds.
+            var typeIsKnown = SpinWait.SpinUntil(
+                () => cluster.Description.Type != ClusterType.Unknown,
+                TimeSpan.FromSeconds(10));
+            if (!typeIsKnown)
+            {
+                throw new InvalidOperationException($"Unable to determine cluster type: {cluster.Description}.");
+            }
+            return cluster.Description.Type;
+        }
+
+        internal static bool IsSingleNodeReplicaSet(IClusterInternal cluster)
+        {
+            // IsReplicaSet spins until at least one server type is known (throwing if it never
+            // resolves), so a transient empty / all-Unknown snapshot is never mistaken for "not a
+            // replica set".
+            if (!IsReplicaSet(cluster))
+            {
+                return false;
+            }
+            // Matches both a directConnection to a single RS member and a non-directConnection
+            // single-node RS.
+            var servers = cluster.Description.Servers;
+            return servers.Count == 1 && servers[0].Type.IsReplicaSetMember();
         }
 
         internal static void WaitForAllServersToBeConnected(IClusterInternal cluster)
