@@ -1041,7 +1041,7 @@ namespace MongoDB.Driver.GridFS
             var readPreference = _options.ReadPreference ?? _database.Settings.ReadPreference;
             var selector = new ReadPreferenceServerSelector(readPreference);
             var server = _cluster.SelectServer(operationContext, selector);
-            var binding = new SingleServerReadBinding(_cluster, server, readPreference, NoCoreSession.NewHandle());
+            var binding = new SingleServerReadBinding(_cluster, server.EndPoint, readPreference, NoCoreSession.NewHandle());
             return new ReadBindingHandle(binding);
         }
 
@@ -1050,7 +1050,7 @@ namespace MongoDB.Driver.GridFS
             var readPreference = _options.ReadPreference ?? _database.Settings.ReadPreference;
             var selector = new ReadPreferenceServerSelector(readPreference);
             var server = await _cluster.SelectServerAsync(operationContext, selector).ConfigureAwait(false);
-            var binding = new SingleServerReadBinding(_cluster, server, readPreference, NoCoreSession.NewHandle());
+            var binding = new SingleServerReadBinding(_cluster, server.EndPoint, readPreference, NoCoreSession.NewHandle());
             return new ReadBindingHandle(binding);
         }
 

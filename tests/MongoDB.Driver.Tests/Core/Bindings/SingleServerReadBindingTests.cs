@@ -37,7 +37,7 @@ public class SingleServerReadBindingTests
         var readPreference = ReadPreference.Primary;
         var session = new Mock<ICoreSessionHandle>().Object;
 
-        var result = new SingleServerReadBinding(cluster, server, readPreference, session);
+        var result = new SingleServerReadBinding(cluster, server.EndPoint, readPreference, session);
 
         result._cluster().Should().BeSameAs(cluster);
         result._disposed().Should().BeFalse();
@@ -52,14 +52,14 @@ public class SingleServerReadBindingTests
         var readPreference = ReadPreference.Primary;
         var session = new Mock<ICoreSessionHandle>().Object;
 
-        var exception = Record.Exception(() => new SingleServerReadBinding(null, server, readPreference, session));
+        var exception = Record.Exception(() => new SingleServerReadBinding(null, server.EndPoint, readPreference, session));
 
         var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
         e.ParamName.Should().Be("cluster");
     }
 
     [Fact]
-    public void constructor_should_throw_when_server_is_null()
+    public void constructor_should_throw_when_serverEndpoint_is_null()
     {
         var cluster = new Mock<IClusterInternal>().Object;
         var readPreference = ReadPreference.Primary;
@@ -68,7 +68,7 @@ public class SingleServerReadBindingTests
         var exception = Record.Exception(() => new SingleServerReadBinding(cluster, null, readPreference, session));
 
         var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
-        e.ParamName.Should().Be("server");
+        e.ParamName.Should().Be("serverEndpoint");
     }
 
     [Fact]
@@ -78,7 +78,7 @@ public class SingleServerReadBindingTests
         var server = CreateMockServer().Object;
         var session = new Mock<ICoreSessionHandle>().Object;
 
-        var exception = Record.Exception(() => new SingleServerReadBinding(cluster, server, null, session));
+        var exception = Record.Exception(() => new SingleServerReadBinding(cluster, server.EndPoint, null, session));
 
         var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
         e.ParamName.Should().Be("readPreference");
@@ -91,7 +91,7 @@ public class SingleServerReadBindingTests
         var server = CreateMockServer().Object;
         var readPreference = ReadPreference.Primary;
 
-        var exception = Record.Exception(() => new SingleServerReadBinding(cluster, server, readPreference, null));
+        var exception = Record.Exception(() => new SingleServerReadBinding(cluster, server.EndPoint, readPreference, null));
 
         var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
         e.ParamName.Should().Be("session");
@@ -203,7 +203,7 @@ public class SingleServerReadBindingTests
 
         return new SingleServerReadBinding(
             cluster ?? new Mock<IClusterInternal>().Object,
-            server ?? CreateMockServer().Object,
+            (server ?? CreateMockServer().Object).EndPoint,
             readPreference ?? ReadPreference.Primary,
             session);
     }

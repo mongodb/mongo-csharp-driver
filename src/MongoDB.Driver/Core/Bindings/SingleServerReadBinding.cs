@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
@@ -33,11 +34,10 @@ namespace MongoDB.Driver.Core.Bindings
         private readonly IServerSelector _serverSelector;
         private readonly ICoreSessionHandle _session;
 
-        public SingleServerReadBinding(IClusterInternal cluster, IServer server, ReadPreference readPreference, ICoreSessionHandle session)
+        public SingleServerReadBinding(IClusterInternal cluster, EndPoint serverEndpoint, ReadPreference readPreference, ICoreSessionHandle session)
         {
             _cluster = Ensure.IsNotNull(cluster, nameof(cluster));
-            Ensure.IsNotNull(server, nameof(server));
-            _serverSelector = new EndPointServerSelector(server.EndPoint);
+            _serverSelector = new EndPointServerSelector(Ensure.IsNotNull(serverEndpoint, nameof(serverEndpoint)));
             _readPreference = Ensure.IsNotNull(readPreference, nameof(readPreference));
             _session = Ensure.IsNotNull(session, nameof(session));
         }

@@ -22,10 +22,14 @@ using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Operations;
+using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using MongoDB.Driver.Tests.UnifiedTestOperations.Matchers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit.Sdk;
@@ -85,7 +89,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             var outcome = testCase.Test.GetValue("outcome", null)?.AsBsonArray;
             var async = testCase.Test["async"].AsBoolean; // cannot be null
 
-            Run(schemaVersion, testSetRunOnRequirements, entities, initialData, runOnRequirements, skipReason, operations, expectEvents, expectedLogs, expectTracingMessages, outcome, async);
+            var validateInitialDataPropagation = testCase.Name.Contains("Aggregate with $out includes read preference for 5.0+ server");
+
+            Run(schemaVersion, testSetRunOnRequirements, entities, initialData, runOnRequirements, skipReason, operations, expectEvents, expectedLogs, expectTracingMessages, outcome, async, validateInitialDataPropagation);
         }
 
         public void Run(
@@ -100,7 +106,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             BsonArray expectedLogs,
             BsonArray expectTracingMessages,
             BsonArray outcome,
-            bool async)
+            bool async,
+            bool validateInitialDataPropagation)
         {
             if (_runHasBeenCalled)
             {
@@ -127,7 +134,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 throw new SkipException($"Test skipped because '{skipReason}'.");
             }
 
-            var lastKnownClusterTime = AddInitialData(DriverTestConfiguration.Client, initialData);
+            var lastKnownClusterTime = AddInitialData(DriverTestConfiguration.Client, initialData, validateInitialDataPropagation);
             _entityMap = UnifiedEntityMap.Create(_eventFormatters, _loggingService.LoggingSettings, async, lastKnownClusterTime);
             _entityMap.AddRange(entities);
 
@@ -176,7 +183,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         }
 
         // private methods
-        private BsonDocument AddInitialData(IMongoClient client, BsonArray initialData)
+        private BsonDocument AddInitialData(IMongoClient client, BsonArray initialData, bool validateInitialDataPropagation)
         {
             if (initialData == null)
             {
@@ -210,7 +217,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 }
 
                 _logger.LogDebug("Dropping {0}", collectionName);
-                using var session = client.StartSession();
+                using var session = client.StartSession(new ClientSessionOptions { CausalConsistency = true });
 
                 // For some QE spec tests we need to drop QE state collections (enxcol_.*.esc, enxcol_.*.ecoc).
                 // DropCollection with EncryptedFields automatically handles cleanup of those QE state collections
@@ -222,6 +229,22 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 {
                     var collection = database.GetCollection<BsonDocument>(collectionName);
                     collection.InsertMany(session, documents);
+                }
+
+                // do read from all secondaries in case of replica set to make sure the data is available there already
+                if (validateInitialDataPropagation)
+                {
+                    var cluster = client.GetClusterInternal();
+                    if (DriverTestConfiguration.IsReplicaSet(cluster))
+                    {
+                        var collection = database.GetCollection<BsonDocument>(collectionName);
+                        var runCommandOperation = new CountOperation(collection.CollectionNamespace, new MessageEncoderSettings()) { ReadConcern = ReadConcern.Local, };
+                        foreach (var server in cluster.Description.Servers.Where(s => s.Type == ServerType.ReplicaSetSecondary))
+                        {
+                            using var singleServerBinding = new SingleServerReadBinding(cluster, server.EndPoint, ReadPreference.Secondary, session.WrappedCoreSession.Fork());
+                            runCommandOperation.Execute(OperationContext.NoTimeout, singleServerBinding);
+                        }
+                    }
                 }
 
                 lastKnownClusterTime = session.ClusterTime;
