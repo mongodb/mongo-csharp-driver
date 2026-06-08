@@ -14,7 +14,6 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using BenchmarkDotNet.Attributes;
@@ -235,68 +234,4 @@ public class LinqTranslationBenchmark
             .Select(g => new GroupResult { Status = g.Key, Count = g.Count(), TotalRevenue = g.Sum(x => x.Total) })
             .Expression;
     }
-
-    #region Models
-
-    public class OrderDocument
-    {
-        public int Id { get; set; }
-        public string CustomerName { get; set; }
-        public string Status { get; set; }
-        public decimal Total { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime? UpdatedAt { get; set; }
-        public string Currency { get; set; }
-        public decimal Subtotal { get; set; }
-        public decimal Tax { get; set; }
-        public decimal Discount { get; set; }
-        public string Notes { get; set; }
-        public int ItemCount { get; set; }
-        public bool IsPaid { get; set; }
-        public string PaymentMethod { get; set; }
-        public string ShippingMethod { get; set; }
-        public Address ShippingAddress { get; set; }
-#pragma warning disable CA2227 // Collection properties should be read only
-        public List<OrderItem> Items { get; set; }
-#pragma warning restore CA2227
-    }
-
-    public class Address
-    {
-        public string Street { get; set; }
-        public string City { get; set; }
-        public string State { get; set; }
-        public string Zip { get; set; }
-        public string Country { get; set; }
-    }
-
-    public class OrderItem
-    {
-        public string ProductId { get; set; }
-        public decimal Price { get; set; }
-    }
-
-    public class OrderProjection
-    {
-        public int Id { get; set; }
-        public string Customer { get; set; }
-        public decimal Total { get; set; }
-        public IEnumerable<string> ProductIds { get; set; }
-    }
-
-    public class SetFields
-    {
-        public string Status { get; set; }
-        public DateTime? UpdatedAt { get; set; }
-        public decimal Total { get; set; }
-    }
-
-    public class GroupResult
-    {
-        public string Status { get; set; }
-        public int Count { get; set; }
-        public decimal TotalRevenue { get; set; }
-    }
-
-    #endregion
 }

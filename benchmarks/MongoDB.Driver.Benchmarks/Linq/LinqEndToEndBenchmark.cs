@@ -20,7 +20,6 @@ using BenchmarkDotNet.Attributes;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using static MongoDB.Benchmarks.BenchmarkHelper;
-using static MongoDB.Benchmarks.Linq.LinqTranslationBenchmark;
 
 namespace MongoDB.Benchmarks.Linq;
 
@@ -85,8 +84,6 @@ public class LinqEndToEndBenchmark
         _client.Dispose();
     }
 
-    // --- MultiFieldSearch: compound filter ---
-
     [Benchmark]
     public List<OrderDocument> MultiFieldSearchLinq()
     {
@@ -104,8 +101,6 @@ public class LinqEndToEndBenchmark
         return _collection.Find(_multiFieldFilter).ToList();
     }
 
-    // --- OrFilter: simple OR filter ---
-
     [Benchmark]
     public List<OrderDocument> OrFilterLinq()
     {
@@ -118,8 +113,6 @@ public class LinqEndToEndBenchmark
     {
         return _collection.Find(_orFilter).ToList();
     }
-
-    // --- GroupBy aggregate ---
 
     [Benchmark]
     public List<BsonDocument> GroupByLinq()
@@ -137,8 +130,6 @@ public class LinqEndToEndBenchmark
         return _collection.Aggregate(pipeline).ToList();
     }
 
-    // --- Projection: Find with .Project to a typed DTO ---
-
     [Benchmark]
     public List<OrderSummary> ProjectionLinq()
     {
@@ -155,8 +146,6 @@ public class LinqEndToEndBenchmark
             .ToList();
     }
 
-    // --- InFilter: array Contains → $in ---
-
     [Benchmark]
     public List<OrderDocument> InFilterLinq()
     {
@@ -168,8 +157,6 @@ public class LinqEndToEndBenchmark
     {
         return _collection.Find(_inFilter).ToList();
     }
-
-    // --- PagedQuery: AsQueryable Where → OrderBy → ThenBy → Take, translates to a pipeline ---
 
     [Benchmark]
     public List<OrderDocument> PagedQueryLinq()
@@ -297,10 +284,4 @@ public class LinqEndToEndBenchmark
 
         _collection.InsertMany(documents);
     }
-}
-
-public class OrderSummary
-{
-    public string CustomerName { get; set; }
-    public decimal Total { get; set; }
 }
