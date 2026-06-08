@@ -24,13 +24,12 @@ using static MongoDB.Benchmarks.BenchmarkHelper;
 namespace MongoDB.Benchmarks.Linq;
 
 [MemoryDiagnoser]
+[BenchmarkCategory(DriverBenchmarkCategory.LinqBench, DriverBenchmarkCategory.ExcludeFromComposite)]
 public class LinqEndToEndBenchmark
 {
     private const string DatabaseName = "linqbench";
     private const string CollectionName = "orders";
-    // 500 is intentional: the broad-scan vs. selective contrast (e.g. OrFilter's ~700 KB
-    // result dominating its LINQ-Raw delta) needs enough documents to make serialization
-    // a visible cost. Translation-only timing lives in LinqTranslationBenchmark, not here.
+    // Enough documents to return a realistic result size; see the README for why.
     private const int SeedCount = 500;
 
     private IMongoClient _client;
@@ -64,9 +63,7 @@ public class LinqEndToEndBenchmark
         PreBuildQueries();
     }
 
-    // Indexes minimize server-side filter/group time so cross-benchmark deltas reflect
-    // translation cost rather than COLLSCAN variance. Without indexes, ~95% of e2e time
-    // on the heavier benchmarks goes to the server, and translator changes are invisible.
+    // Indexed so server-side filter/group time stays small; see the README for why.
     private void CreateIndexes()
     {
         _collection.Indexes.CreateMany(new[]

@@ -41,7 +41,6 @@ public class LinqTranslationBenchmark
     private Expression<Func<OrderDocument, string>> _fieldSelectionExpression;
 
     private Expression<Func<OrderDocument, OrderProjection>> _aggregationProjectionExpression;
-    private Expression<Func<OrderDocument, OrderDocument>> _projectionSentinelExpression;
 
     private Expression<Func<OrderDocument, SetFields>> _updatePipelineExpression;
 
@@ -86,8 +85,6 @@ public class LinqTranslationBenchmark
             Total = x.Subtotal + x.Tax - x.Discount,
             ProductIds = x.Items.Select(i => i.ProductId)
         };
-
-        _projectionSentinelExpression = x => x;
 
         _updatePipelineExpression = x => new SetFields
         {
@@ -161,22 +158,6 @@ public class LinqTranslationBenchmark
     {
         return LinqProviderAdapter.TranslateExpressionToProjection(
             _aggregationProjectionExpression,
-            _orderSerializer,
-            BsonSerializer.SerializerRegistry,
-            _translationOptions);
-    }
-
-    // x => x takes the early-return special case in LinqProviderAdapter
-    // and bypasses the translation pipeline. Movement here means the fast-path
-    // detection itself regressed, not the translator.
-    // Excluded from the LinqBench composite: its ~17ns timing would dominate the
-    // averaged translations/second score and mask regressions in the real benchmarks.
-    [Benchmark]
-    [BenchmarkCategory(DriverBenchmarkCategory.ExcludeFromComposite)]
-    public RenderedProjectionDefinition<OrderDocument> ProjectionSentinel()
-    {
-        return LinqProviderAdapter.TranslateExpressionToProjection(
-            _projectionSentinelExpression,
             _orderSerializer,
             BsonSerializer.SerializerRegistry,
             _translationOptions);
