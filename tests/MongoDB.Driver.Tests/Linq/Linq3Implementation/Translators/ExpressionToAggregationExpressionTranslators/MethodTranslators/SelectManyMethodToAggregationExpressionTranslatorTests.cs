@@ -254,6 +254,60 @@ public class SelectManyMethodToAggregationExpressionTranslatorTests : LinqIntegr
         results.Should().HaveCount(2);
     }
 
+    [Theory]
+    [InlineData(ServerVersion.Server81, true)]
+    [InlineData(ServerVersion.Server80, false)]
+    public void SelectMany_in_GroupBy_should_emit_accumulator_only_when_CompatibilityLevel_supports_it(ServerVersion compatibilityLevel, bool expectAccumulator)
+    {
+        var collection = Fixture.Collection;
+        var options = new AggregateOptions { TranslationOptions = new ExpressionTranslationOptions { CompatibilityLevel = compatibilityLevel } };
+
+        var queryable = collection.AsQueryable(options)
+            .GroupBy(x => x.Cat)
+            .Select(g => new { Cat = g.Key, AllTags = g.SelectMany(x => x.Tags).ToList() });
+
+        var stages = Translate(collection, queryable);
+        if (expectAccumulator)
+        {
+            AssertStages(stages,
+                "{ $group : { _id : '$Cat', __agg0 : { $concatArrays : '$Tags' } } }",
+                "{ $project : { Cat : '$_id', AllTags : '$__agg0', _id : 0 } }");
+        }
+        else
+        {
+            AssertStages(stages,
+                "{ $group : { _id : '$Cat', __agg0 : { $push : '$Tags' } } }",
+                "{ $project : { Cat : '$_id', AllTags : { $reduce : { input : '$__agg0', initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } } }, _id : 0 } }");
+        }
+    }
+
+    [Theory]
+    [InlineData(ServerVersion.Server81, true)]
+    [InlineData(ServerVersion.Server80, false)]
+    public void SelectMany_Distinct_in_GroupBy_should_emit_accumulator_only_when_CompatibilityLevel_supports_it(ServerVersion compatibilityLevel, bool expectAccumulator)
+    {
+        var collection = Fixture.Collection;
+        var options = new AggregateOptions { TranslationOptions = new ExpressionTranslationOptions { CompatibilityLevel = compatibilityLevel } };
+
+        var queryable = collection.AsQueryable(options)
+            .GroupBy(x => x.Cat)
+            .Select(g => new { Cat = g.Key, UniqueTags = g.SelectMany(x => x.Tags).Distinct().ToList() });
+
+        var stages = Translate(collection, queryable);
+        if (expectAccumulator)
+        {
+            AssertStages(stages,
+                "{ $group : { _id : '$Cat', __agg0 : { $setUnion : '$Tags' } } }",
+                "{ $project : { Cat : '$_id', UniqueTags : '$__agg0', _id : 0 } }");
+        }
+        else
+        {
+            AssertStages(stages,
+                "{ $group : { _id : '$Cat', __agg0 : { $push : '$Tags' } } }",
+                "{ $project : { Cat : '$_id', UniqueTags : { $setUnion : { $reduce : { input : '$__agg0', initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } } } }, _id : 0 } }");
+        }
+    }
+
     public class C
     {
         public int Id { get; set; }
