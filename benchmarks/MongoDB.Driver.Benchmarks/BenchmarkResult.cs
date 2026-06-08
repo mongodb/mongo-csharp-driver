@@ -33,36 +33,32 @@ public sealed class BenchmarkResult
         var methodName = benchmarkCaseDescriptor.WorkloadMethod.Name;
         Categories = new HashSet<string>(benchmarkCaseDescriptor.Categories);
 
+        var median = benchmarkReport.ResultStatistics.Median;
+
         if (Categories.Contains(DriverBenchmarkCategory.BsonBench))
         {
             var bsonBenchmarkData = (BsonBenchmarkData)benchmarkReport.BenchmarkCase.Parameters["BenchmarkData"];
             Name = bsonBenchmarkData.DataSetName + benchmarkCaseDescriptor.Type.Name;
-
-            var dataSetSize = bsonBenchmarkData.DataSetSize;
-            // dataSetSize is in bytes, median is in nanoseconds — score is MB/s
-            Score = (dataSetSize / (benchmarkReport.ResultStatistics.Median / 1_000_000_000D)) / 1_000_000D;
+            Score = MegabytesPerSecond(bsonBenchmarkData.DataSetSize, median);
             Unit = "MB/s";
             MetricName = "megabytes_per_second";
         }
-        else if (Categories.Contains(DriverBenchmarkCategory.LinqBench))
-        {
-            Name = methodName;
-            // median is in nanoseconds — score is translations/second
-            Score = 1_000_000_000D / benchmarkReport.ResultStatistics.Median;
-            Unit = "translations/s";
-            MetricName = "translations_per_second";
-        }
-        else
+        else if (benchmarkReport.BenchmarkCase.Parameters["BenchmarkDataSetSize"] is int dataSetSize)
         {
             Name = Categories.Contains(DriverBenchmarkCategory.BulkWriteBench)
                 ? methodName
                 : benchmarkCaseDescriptor.Type.Name;
-
-            var dataSetSize = (int)benchmarkReport.BenchmarkCase.Parameters["BenchmarkDataSetSize"];
-            // dataSetSize is in bytes, median is in nanoseconds — score is MB/s
-            Score = (dataSetSize / (benchmarkReport.ResultStatistics.Median / 1_000_000_000D)) / 1_000_000D;
+            Score = MegabytesPerSecond(dataSetSize, median);
             Unit = "MB/s";
             MetricName = "megabytes_per_second";
+        }
+        else
+        {
+            // No dataset size: this is a time-throughput benchmark scored as operations/second.
+            Name = methodName;
+            Score = 1_000_000_000D / median;
+            Unit = "ops/s";
+            MetricName = "operations_per_second";
         }
 
         if (methodName.EndsWith("Poco") || methodName.EndsWith("PocoBenchmark"))
@@ -70,4 +66,8 @@ public sealed class BenchmarkResult
             Name = Name.Replace("Benchmark", "PocoBenchmark");
         }
     }
+
+    // dataSetSize is in bytes, medianNanoseconds is in nanoseconds — result is MB/s
+    private static double MegabytesPerSecond(int dataSetSize, double medianNanoseconds)
+        => (dataSetSize / (medianNanoseconds / 1_000_000_000D)) / 1_000_000D;
 }

@@ -37,18 +37,16 @@ public static class BenchmarkHelper
         }
     }
 
-    public static double CalculateCompositeScore(IEnumerable<BenchmarkResult> benchmarkResults, string benchmarkCategory)
+    public static (double Score, string Unit, string MetricName) CalculateComposite(IEnumerable<BenchmarkResult> benchmarkResults, string benchmarkCategory)
     {
-        var identifiedBenchmarksScores = benchmarkResults
-            .Where(benchmark => benchmark.Categories.Contains(benchmarkCategory))
-            .Select(benchmark => benchmark.Score).ToArray();
+        var members = benchmarkResults
+            .Where(benchmark => benchmark.Categories.Contains(benchmarkCategory)
+                && !benchmark.Categories.Contains(DriverBenchmarkCategory.ExcludeFromComposite))
+            .ToArray();
 
-        if (identifiedBenchmarksScores.Any())
-        {
-            return identifiedBenchmarksScores.Average();
-        }
-
-        return 0;
+        return members.Length == 0
+            ? (0, "ops/s", "operations_per_second")
+            : (members.Average(benchmark => benchmark.Score), members[0].Unit, members[0].MetricName);
     }
 
     public static void CreateEmptyDirectory(string path)

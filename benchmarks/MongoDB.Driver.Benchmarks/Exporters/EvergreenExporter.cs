@@ -53,10 +53,8 @@ public sealed class EvergreenExporter : IExporter
             // write composite scores e.g ReadBench
             foreach (var category in DriverBenchmarkCategory.AllCategories)
             {
-                var metricName = category == DriverBenchmarkCategory.LinqBench
-                    ? "translations_per_second"
-                    : "megabytes_per_second";
-                WriteScoreToResults(jsonWriter, category, CalculateCompositeScore(benchmarkResults, category), metricName);
+                var composite = CalculateComposite(benchmarkResults, category);
+                WriteScoreToResults(jsonWriter, category, composite.Score, composite.MetricName);
             }
 
             // write individual benchmarks results
@@ -71,7 +69,7 @@ public sealed class EvergreenExporter : IExporter
         return new[] { resultsPath };
     }
 
-    private static void WriteScoreToResults(JsonWriter jsonWriter, string name, double score, string metricName = "megabytes_per_second")
+    private static void WriteScoreToResults(JsonWriter jsonWriter, string name, double score, string metricName)
     {
         jsonWriter.WriteStartDocument();
         jsonWriter.WriteStartDocument("info");

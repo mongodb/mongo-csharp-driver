@@ -19,14 +19,15 @@ namespace MongoDB.Benchmarks;
 
 public static class DriverBenchmarkCategory
 {
+    public const string BulkWriteBench = "BulkWriteBench";
     public const string BsonBench = "BSONBench";
     public const string DriverBench = "DriverBench";
+    public const string ExcludeFromComposite = "ExcludeFromComposite";
     public const string MultiBench = "MultiBench";
     public const string ParallelBench = "ParallelBench";
     public const string ReadBench = "ReadBench";
     public const string SingleBench = "SingleBench";
     public const string WriteBench = "WriteBench";
-    public const string BulkWriteBench = "BulkWriteBench";
     public const string LinqBench = "LinqBench";
 
     public static readonly IEnumerable<string> AllCategories = [BsonBench, ReadBench, WriteBench, MultiBench, SingleBench, ParallelBench, DriverBench, BulkWriteBench, LinqBench];

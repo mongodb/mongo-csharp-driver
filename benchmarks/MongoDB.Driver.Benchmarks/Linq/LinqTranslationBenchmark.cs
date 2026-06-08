@@ -170,7 +170,10 @@ public class LinqTranslationBenchmark
     // x => x takes the early-return special case in LinqProviderAdapter
     // and bypasses the translation pipeline. Movement here means the fast-path
     // detection itself regressed, not the translator.
+    // Excluded from the LinqBench composite: its ~17ns timing would dominate the
+    // averaged translations/second score and mask regressions in the real benchmarks.
     [Benchmark]
+    [BenchmarkCategory(DriverBenchmarkCategory.ExcludeFromComposite)]
     public RenderedProjectionDefinition<OrderDocument> ProjectionSentinel()
     {
         return LinqProviderAdapter.TranslateExpressionToProjection(

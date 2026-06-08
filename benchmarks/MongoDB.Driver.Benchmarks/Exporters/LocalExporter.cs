@@ -48,10 +48,8 @@ public sealed class LocalExporter : IExporter
             writer.WriteLine("Scores Summary: ");
             foreach (var category in DriverBenchmarkCategory.AllCategories)
             {
-                var unit = category == DriverBenchmarkCategory.LinqBench
-                    ? "translations/s"
-                    : "MB/s";
-                WriteScore(writer, category, CalculateCompositeScore(benchmarkResults, category), unit);
+                var composite = CalculateComposite(benchmarkResults, category);
+                WriteScore(writer, category, composite.Score, composite.Unit);
             }
 
             foreach (var benchmark in benchmarkResults)
@@ -65,7 +63,7 @@ public sealed class LocalExporter : IExporter
         return exportedFiles;
     }
 
-    private static void WriteScore(StreamWriter writer, string benchName, double score, string unit = "MB/s")
+    private static void WriteScore(StreamWriter writer, string benchName, double score, string unit)
     {
         writer.WriteLine(score != 0
             ? $"Executed {benchName}, score: {score:F3} {unit}"
