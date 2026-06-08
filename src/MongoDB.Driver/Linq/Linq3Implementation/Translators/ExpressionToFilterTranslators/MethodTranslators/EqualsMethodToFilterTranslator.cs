@@ -14,6 +14,7 @@
 */
 
 using System.Linq.Expressions;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
 using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
@@ -72,7 +73,25 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 
             var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
             var value = valueExpression.GetConstantValue<object>(containingExpression: expression);
-            var serializedValue = SerializationHelper.SerializeValue(fieldTranslation.Serializer, value);
+
+            var fieldType = fieldTranslation.Serializer.ValueType;
+            var valueType = value?.GetType();
+
+            IBsonSerializer valueSerializer;
+            if (value == null || fieldType.IsAssignableFrom(valueType))
+            {
+                valueSerializer = fieldTranslation.Serializer;
+            }
+            else if (fieldType.IsNumericOrNullableNumeric() && valueType.IsNumeric())
+            {
+                valueSerializer = FieldValueSerializerHelper.GetSerializerForValueType(fieldTranslation.Serializer, BsonSerializer.SerializerRegistry, valueType);
+            }
+            else
+            {
+                throw new ExpressionNotSupportedException(expression, because: $"comparing a field of type {fieldType} to a value of type {valueType} is not supported");
+            }
+
+            var serializedValue = SerializationHelper.SerializeValue(valueSerializer, value);
             return AstFilter.Eq(fieldTranslation.Ast, serializedValue);
         }
     }
