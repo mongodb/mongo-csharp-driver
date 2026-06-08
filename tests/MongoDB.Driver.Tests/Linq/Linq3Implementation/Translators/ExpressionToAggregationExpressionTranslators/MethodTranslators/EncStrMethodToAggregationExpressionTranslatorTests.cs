@@ -75,6 +75,19 @@ public class EncStrMethodToAggregationExpressionTranslatorTests
         exception.Message.Should().Contain("it is not serialized as a string");
     }
 
+    [Fact]
+    public void Translate_should_throw_when_input_is_not_serialized_as_string()
+    {
+        var expression = TestHelpers.MakeLambda<MyModel, bool>(model => Mql.EncStrStartsWith(model.ObjectIdString, "pre"));
+        var translationContext = TestHelpers.CreateTranslationContext(expression);
+
+        var exception = Record.Exception(() =>
+            EncStrMethodToAggregationExpressionTranslator.Translate(translationContext, (MethodCallExpression)expression.Body));
+
+        exception.Should().BeOfType<ExpressionNotSupportedException>();
+        exception.Message.Should().Contain("it is not serialized as a string");
+    }
+
     public class MyModel
     {
         public string Text { get; set; }

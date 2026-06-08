@@ -35,11 +35,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             {
                 var inputTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, arguments[0]);
                 var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, arguments[1]);
-                if (valueTranslation.Serializer is IRepresentationConfigurable representationConfigurable &&
-                    representationConfigurable.Representation != BsonType.String)
-                {
-                    throw new ExpressionNotSupportedException(arguments[1], expression, because: "it is not serialized as a string");
-                }
+                EnsureSerializedAsString(inputTranslation, arguments[0], expression);
+                EnsureSerializedAsString(valueTranslation, arguments[1], expression);
 
                 var @operator = method.Name switch
                 {
@@ -55,6 +52,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             }
 
             throw new ExpressionNotSupportedException(expression);
+        }
+
+        private static void EnsureSerializedAsString(TranslatedExpression translation, Expression argument, Expression containingExpression)
+        {
+            if (translation.Serializer is IRepresentationConfigurable representationConfigurable &&
+                representationConfigurable.Representation != BsonType.String)
+            {
+                throw new ExpressionNotSupportedException(argument, containingExpression, because: "it is not serialized as a string");
+            }
         }
     }
 }
