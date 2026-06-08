@@ -23,8 +23,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
     {
         // private static fields
         private static readonly MethodInfo __addToSet;
-        private static readonly MethodInfo __concatArrays;
-        private static readonly MethodInfo __setUnion;
         private static readonly MethodInfo __averageWithDecimal;
         private static readonly MethodInfo __averageWithDouble;
         private static readonly MethodInfo __averageWithInt32;
@@ -37,6 +35,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __averageWithSingle;
         private static readonly MethodInfo __bottom;
         private static readonly MethodInfo __bottomN;
+        private static readonly MethodInfo __concatArrays;
         private static readonly MethodInfo __count;
         private static readonly MethodInfo __covariancePopulationWithDecimals;
         private static readonly MethodInfo __covariancePopulationWithDoubles;
@@ -116,6 +115,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __percentileWithSingle;
         private static readonly MethodInfo __push;
         private static readonly MethodInfo __rank;
+        private static readonly MethodInfo __setUnion;
         private static readonly MethodInfo __shift;
         private static readonly MethodInfo __shiftWithDefaultValue;
         private static readonly MethodInfo __standardDeviationPopulationWithDecimal;
@@ -175,8 +175,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         {
             // initialize methods before sets of methods
             __addToSet = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, object> selector, SetWindowFieldsWindow window) => partition.AddToSet(selector, window));
-            __concatArrays = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, IEnumerable<object>> selector, SetWindowFieldsWindow window) => partition.ConcatArrays(selector, window));
-            __setUnion = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, IEnumerable<object>> selector, SetWindowFieldsWindow window) => partition.SetUnion(selector, window));
             __averageWithDecimal = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, decimal> selector, SetWindowFieldsWindow window) => partition.Average(selector, window));
             __averageWithDouble = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, double> selector, SetWindowFieldsWindow window) => partition.Average(selector, window));
             __averageWithInt32 = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, int> selector, SetWindowFieldsWindow window) => partition.Average(selector, window));
@@ -189,6 +187,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __averageWithSingle = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, float> selector, SetWindowFieldsWindow window) => partition.Average(selector, window));
             __bottom = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, SortDefinition<object> sortBy, Func<object, object> selector, SetWindowFieldsWindow window) => partition.Bottom(sortBy, selector, window));
             __bottomN = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, SortDefinition<object> sortBy, Func<object, object> selector, int n, SetWindowFieldsWindow window) => partition.BottomN(sortBy, selector, n, window));
+            __concatArrays = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, IEnumerable<object>> selector, SetWindowFieldsWindow window) => partition.ConcatArrays(selector, window));
             __count = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, SetWindowFieldsWindow window) => partition.Count(window));
             __covariancePopulationWithDecimals = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, decimal> selector1, Func<object, decimal> selector2, SetWindowFieldsWindow window) => partition.CovariancePopulation(selector1, selector2, window));
             __covariancePopulationWithDoubles = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, double> selector1, Func<object, double> selector2, SetWindowFieldsWindow window) => partition.CovariancePopulation(selector1, selector2, window));
@@ -268,6 +267,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __percentileWithSingle = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, float> selector, IEnumerable<double> percentiles, SetWindowFieldsWindow window) => partition.Percentile(selector, percentiles, window));
             __push = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, object> selector, SetWindowFieldsWindow window) => partition.Push(selector, window));
             __rank = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition) => partition.Rank());
+            __setUnion = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, IEnumerable<object>> selector, SetWindowFieldsWindow window) => partition.SetUnion(selector, window));
             __shift = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, object> selector, int by) => partition.Shift(selector, by));
             __shiftWithDefaultValue = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, object> selector, int by, object defaultValue) => partition.Shift(selector, by, defaultValue));
             __standardDeviationPopulationWithDecimal = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, decimal> selector, SetWindowFieldsWindow window) => partition.StandardDeviationPopulation(selector, window));
@@ -487,8 +487,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
 
         // public properties
         public static MethodInfo AddToSet => __addToSet;
-        public static MethodInfo ConcatArrays => __concatArrays;
-        public static MethodInfo SetUnion => __setUnion;
         public static MethodInfo AverageWithDecimal => __averageWithDecimal;
         public static MethodInfo AverageWithDouble => __averageWithDouble;
         public static MethodInfo AverageWithInt32 => __averageWithInt32;
@@ -501,6 +499,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo AverageWithSingle => __averageWithSingle;
         public static MethodInfo Bottom => __bottom;
         public static MethodInfo BottomN => __bottomN;
+        public static MethodInfo ConcatArrays => __concatArrays;
         public static MethodInfo Count => __count;
         public static MethodInfo CovariancePopulationWithDecimals => __covariancePopulationWithDecimals;
         public static MethodInfo CovariancePopulationWithDoubles => __covariancePopulationWithDoubles;
@@ -580,6 +579,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo PercentileWithSingle => __percentileWithSingle;
         public static MethodInfo Push => __push;
         public static MethodInfo Rank => __rank;
+        public static MethodInfo SetUnion => __setUnion;
         public static MethodInfo Shift => __shift;
         public static MethodInfo ShiftWithDefaultValue => __shiftWithDefaultValue;
         public static MethodInfo StandardDeviationPopulationWithDecimal => __standardDeviationPopulationWithDecimal;

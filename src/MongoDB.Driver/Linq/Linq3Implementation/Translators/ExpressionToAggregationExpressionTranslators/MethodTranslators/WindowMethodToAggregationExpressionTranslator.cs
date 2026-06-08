@@ -41,8 +41,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         private static readonly IReadOnlyMethodInfoSet __unaryOverloads = MethodInfoSet.Create(
         [
             WindowMethod.AddToSet,
-            WindowMethod.ConcatArrays,
-            WindowMethod.SetUnion,
             WindowMethod.AverageWithDecimal,
             WindowMethod.AverageWithDouble,
             WindowMethod.AverageWithInt32,
@@ -53,12 +51,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             WindowMethod.AverageWithNullableInt64,
             WindowMethod.AverageWithNullableSingle,
             WindowMethod.AverageWithSingle,
+            WindowMethod.ConcatArrays,
             WindowMethod.First,
             WindowMethod.Last,
             WindowMethod.Locf,
             WindowMethod.Max,
             WindowMethod.Min,
             WindowMethod.Push,
+            WindowMethod.SetUnion,
             WindowMethod.StandardDeviationPopulationWithDecimal,
             WindowMethod.StandardDeviationPopulationWithDouble,
             WindowMethod.StandardDeviationPopulationWithInt32,

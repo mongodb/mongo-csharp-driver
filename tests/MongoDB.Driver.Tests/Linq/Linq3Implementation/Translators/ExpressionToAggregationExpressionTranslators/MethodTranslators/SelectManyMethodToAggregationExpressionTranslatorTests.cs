@@ -247,11 +247,13 @@ public class SelectManyMethodToAggregationExpressionTranslatorTests : LinqIntegr
         {
             AssertStages(stages,
                 "{ $bucketAuto : { groupBy : '$_id', buckets : 2, output : { __agg0 : { $push : '$Tags' } } } }",
-                "{ $project : { _id : '$_id', UniqueTags : { $setUnion : { $reduce : { input : '$__agg0', initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } } } } }");
+                "{ $project : { _id : '$_id', UniqueTags : { $setUnion : { $reduce : { input : '$__agg0', initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } } } } } }");
         }
 
         var results = aggregate.ToList();
         results.Should().HaveCount(2);
+        results[0].UniqueTags.Should().BeEquivalentTo(new[] { "x", "y", "z" });
+        results[1].UniqueTags.Should().BeEquivalentTo(new[] { "y", "z" });
     }
 
     [Theory]
