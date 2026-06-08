@@ -1,23 +1,29 @@
-# LINQ Translation Benchmarks
+# LINQ Benchmarks
 
-Measures the performance of the LINQ-to-aggregation translation layer — the CPU work the driver does to convert a C# expression tree into a MongoDB query/pipeline document. The benchmarks themselves execute no queries; they isolate translator regressions from network and serialization noise. (The two `IQueryable` benchmarks — `QueryablePipeline` and `GroupByAggregation` — create a `MongoClient` in `[GlobalSetup]` because `MongoQueryProvider<T>` is obtained via `collection.AsQueryable()`. No queries are executed against that client; its background cluster monitor is the only DB-side activity, and the measurement impact is expected to sit below the 2-4% drift floor.)
+This directory contains two LINQ benchmark suites with different goals:
+
+- **Translation** (`LinqTranslationBenchmark`, category `LinqBench`) — measures the CPU work the driver does to convert a C# expression tree into a MongoDB query/pipeline document. These benchmarks execute no queries; they isolate translator regressions from network and serialization noise. (The two `IQueryable` benchmarks — `QueryablePipeline` and `GroupByAggregation` — create a `MongoClient` in `[GlobalSetup]` because `MongoQueryProvider<T>` is obtained via `collection.AsQueryable()`. No queries are executed against that client; its background cluster monitor is the only DB-side activity, and the measurement impact is expected to sit below the 2-4% drift floor.)
+- **End-to-end** (`LinqEndToEndBenchmark`, also category `LinqBench` but excluded from its composite) — runs real queries against a server and measures how much of user-visible latency the translator accounts for under realistic result sizes. See [End-to-End Benchmarks](#end-to-end-benchmarks) below.
 
 ## Running
 
 ```bash
 cd benchmarks/MongoDB.Driver.Benchmarks
 
-# All LINQ benchmarks
+# All translation benchmarks (no server needed)
 dotnet run -c Release -- --filter "*LinqTranslation*"
+
+# All end-to-end benchmarks (requires a reachable server; seeds and drops the linqbench database)
+dotnet run -c Release -- --filter "*LinqEndToEnd*"
 
 # Specific benchmark
 dotnet run -c Release -- --filter "*MultiFieldSearch*"
 
-# As part of the full perf suite (also runs DriverBench, BsonBench, etc.)
+# As part of the full perf suite (also runs DriverBench, BsonBench, etc.); LinqBench covers both LINQ suites
 dotnet run -c Release -- --driverBenchmarks --anyCategories "LinqBench"
 ```
 
-## Benchmark Inventory
+## Translation Benchmark Inventory
 
 ### Filter benchmarks (4)
 
@@ -36,12 +42,11 @@ Each calls `LinqProviderAdapter.TranslateExpressionToFilter`, exercising: prepro
 |---|---|---|
 | `FieldSelection` | `x => x.Items[0].ProductId` | `TranslateExpressionToField` → ExpressionToFilterFieldTranslator (MethodCall/get_Item, MemberAccess, Parameter sub-translators) |
 
-### Projection benchmarks (2)
+### Projection benchmark (1)
 
 | Benchmark | Entry Point | Notes |
 |---|---|---|
 | `AggregationProjection` | `TranslateExpressionToProjection` | 4-field DTO with computed arithmetic (`Subtotal + Tax - Discount`) and nested `Items.Select(i => i.ProductId)` transform |
-| `ProjectionSentinel` | `TranslateExpressionToProjection` | `x => x` — fast-path early return. Sentinel for fast-path breakage, not translator perf. |
 
 ### Update benchmark (1)
 
@@ -58,42 +63,40 @@ Both use `ExpressionToExecutableQueryTranslator.Translate` via `MongoQueryProvid
 | `QueryablePipeline` | `Where → Select → OrderBy → Take` | Exercises filter, projection, sort, and limit pipeline stages |
 | `GroupByAggregation` | `GroupBy → Select` with Count + Sum | Exercises `GroupByMethodToPipelineTranslator`, `$group` stage, IGroupingSerializer, accumulators |
 
-## Code Path Coverage
-
-Each benchmark exercises a specific subset of the translation pipeline:
-
-| Component | Filters | FieldSelection | Projections | Sentinel | Update | IQueryable |
-|---|:---:|:---:|:---:|:---:|:---:|:---:|
-| `LinqExpressionPreprocessor` | ✓ | ✓ | ✓ | — | values only | ✓ |
-| `SerializerFinder` | ✓ | ✓ | ✓ | — | ✓ | ✓ |
-| `ExpressionToFilterTranslator` (incl. Not, MemberAccess) | ✓ | — | — | — | — | ✓ (Where) |
-| `ExpressionToFilterFieldTranslator` | — | ✓ | — | — | — | — |
-| `ExpressionToAggregationExpressionTranslator` | — | — | ✓ | — | ✓ (values) | ✓ (Select) |
-| `ExpressionToSetStageTranslator` | — | — | — | — | ✓ | — |
-| `GroupByMethodToPipelineTranslator` | — | — | — | — | — | GroupBy only |
-| `AstSimplifier` | ✓ | — | ✓ | — | ✓ | ✓ |
-| `AstPipelineOptimizer` | — | — | — | — | — | ✓ |
-
-This selectivity has been validated via targeted injection tests.
-
 ## Interpreting Results
 
 **Allocation changes** are often more actionable than time changes. A new allocation in a hot path is a real regression even if the time delta is within noise. The `[MemoryDiagnoser]` columns (`Gen0`, `Allocated`) make allocation regressions visible.
 
 **`OrFilter`** is the fastest filter (~7µs, ~5x faster than others) because it uses literal constants instead of captured variables, producing a simpler expression tree with less work at every stage. This makes it the most sensitive filter benchmark — small translator regressions that would be lost in the noise on slower benchmarks show up clearly here.
 
-**`ProjectionSentinel`** at ~17ns is not measuring translation. It validates that `LinqProviderAdapter` still short-circuits `x => x` projections. Movement here means the fast-path detection broke, not that translation got slower.
+## End-to-End Benchmarks
+
+`LinqEndToEndBenchmark` executes real queries against a server. Each operation appears as a pair: a `*Linq` variant that translates the expression on every call, and a `*Raw` variant that sends a pre-built BSON document and skips translation. Both issue the same query shape (the raw shapes are built in `[GlobalSetup]` to match what the provider emits), so everything downstream — server execution, network, serialization, deserialization — is common to both, and the Linq−Raw delta approximates translation's contribution to that operation's end-to-end time.
+
+The collection is seeded with 500 documents and indexed so server-side filter/group time stays small. This keeps the cross-benchmark deltas dominated by translation and serialization rather than COLLSCAN variance, while still returning a realistic result size so serialization is a visible part of the total.
+
+| Pair | Operation |
+|---|---|
+| `MultiFieldSearch{Linq,Raw}` | compound `Find` filter |
+| `OrFilter{Linq,Raw}` | 4-way `$or` `Find` filter |
+| `GroupBy{Linq,Raw}` | `$group` aggregate (count + sum) |
+| `Projection{Linq,Raw}` | `Find` with server-side inclusion projection |
+| `InFilter{Linq,Raw}` | `$in` over a set of ids |
+| `PagedQuery{Linq,Raw}` | `Where → OrderBy → ThenBy → Take` pipeline |
+
+**What this suite is for — and what it is not.** Translation is a low-single-digit fraction of end-to-end latency (for `OrFilter`, whose result set serializes hundreds of KB, the translator's share is ~1.2%). That sits well under the suite's drift floor, so a *translator regression is not reliably visible here* — those are caught directly by the translation suite above. What the end-to-end suite uniquely shows, tracked over time, is movement in the *non-translation* costs — serialization, deserialization, server, network — that changes how large a share translation represents. The translation suite is blind to those by construction.
+
+Because the numbers are dominated by server and network time, they carry confounds the translation suite does not (server version, hardware, network). They are tracked as a **trend**, not a pass/fail gate: read the series for how the translator's share drifts, not for single-run regressions.
 
 ## Regression Thresholds
 
-Provisional thresholds based on 7-run M1 Max characterization (min/max range as a % of median). These should be tightened once calibrated on the perf-job hardware (`rhel90-dbx-perf-large`).
+Provisional thresholds for the **translation** benchmarks, based on local characterization (min/max range as a % of median). These should be tightened once calibrated on the perf-job hardware. The end-to-end benchmarks are tracked as a trend rather than gated — their server- and network-dominated timings make single-run thresholds unreliable, and translator regressions surface in the translation suite, not here.
 
-Three drift clusters emerged from characterization:
+Two drift clusters emerged from characterization:
 
 | Bucket | Threshold | Benchmarks | Observed range |
 |---|---|---|---|
 | Tight | 15% | `MultiFieldSearch`, `UpdatePipeline`, `BatchLookup`, `ArrayElementQuery` | 9–15% |
 | Wider | 30% | `OrFilter`, `FieldSelection`, `AggregationProjection`, `QueryablePipeline`, `GroupByAggregation` | 20–29% |
-| Sentinel | 100% | `ProjectionSentinel` | 5% |
 
 `OrFilter` and `FieldSelection` land in the wider bucket for different reasons: `OrFilter` is ~7µs and proportional noise is large at that scale; `FieldSelection` is ~2µs with similar characteristics. The three complex benchmarks (`AggregationProjection`, `QueryablePipeline`, `GroupByAggregation`) show higher drift because they allocate more and exercise more GC pressure.
