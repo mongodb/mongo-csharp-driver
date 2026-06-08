@@ -70,7 +70,7 @@ public class LinqEndToEndBenchmark
         {
             new CreateIndexModel<OrderDocument>(Builders<OrderDocument>.IndexKeys.Ascending(x => x.Status)),
             new CreateIndexModel<OrderDocument>(Builders<OrderDocument>.IndexKeys.Ascending(x => x.CreatedAt)),
-            new CreateIndexModel<OrderDocument>(Builders<OrderDocument>.IndexKeys.Ascending("ShippingAddress.City")),
+            new CreateIndexModel<OrderDocument>(Builders<OrderDocument>.IndexKeys.Ascending(x => x.ShippingAddress.City)),
         });
     }
 

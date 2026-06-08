@@ -61,6 +61,7 @@ public class LinqTranslationBenchmark
         var city = "Seattle";
         var ids = new[] { 1, 2, 3, 4, 5 };
         var priceThreshold = 100m;
+        var updatedAt = new DateTime(2025, 6, 1);
 
         _multiFieldSearchExpression = x =>
             x.Status == statusFilter &&
@@ -89,7 +90,7 @@ public class LinqTranslationBenchmark
         _updatePipelineExpression = x => new SetFields
         {
             Status = "Shipped",
-            UpdatedAt = DateTime.UtcNow,
+            UpdatedAt = updatedAt,
             Total = x.Subtotal + x.Tax - x.Discount
         };
 

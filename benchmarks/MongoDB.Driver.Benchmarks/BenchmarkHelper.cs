@@ -44,9 +44,16 @@ public static class BenchmarkHelper
                 && !benchmark.Categories.Contains(DriverBenchmarkCategory.ExcludeFromComposite))
             .ToArray();
 
-        return members.Length == 0
-            ? (0, "ops/s", "operations_per_second")
-            : (members.Average(benchmark => benchmark.Score), members[0].Unit, members[0].MetricName);
+        if (members.Length == 0)
+        {
+            // No members to derive the unit from; fall back to the category's normal unit so the
+            // composite's metric name is stable whether or not the category ran this time.
+            return benchmarkCategory == DriverBenchmarkCategory.LinqBench
+                ? (0, "ops/s", "operations_per_second")
+                : (0, "MB/s", "megabytes_per_second");
+        }
+
+        return (members.Average(benchmark => benchmark.Score), members[0].Unit, members[0].MetricName);
     }
 
     public static void CreateEmptyDirectory(string path)
