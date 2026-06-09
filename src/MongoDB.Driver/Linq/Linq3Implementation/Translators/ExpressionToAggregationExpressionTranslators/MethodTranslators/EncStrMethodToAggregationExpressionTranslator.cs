@@ -22,45 +22,44 @@ using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
 
-namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
+namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators;
+
+internal static class EncStrMethodToAggregationExpressionTranslator
 {
-    internal static class EncStrMethodToAggregationExpressionTranslator
+    public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
     {
-        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
+        var method = expression.Method;
+        var arguments = expression.Arguments;
+
+        if (method.IsOneOf(MqlMethod.EncStrMethodOverloads))
         {
-            var method = expression.Method;
-            var arguments = expression.Arguments;
+            var inputTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, arguments[0]);
+            var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, arguments[1]);
+            EnsureSerializedAsString(inputTranslation, arguments[0], expression);
+            EnsureSerializedAsString(valueTranslation, arguments[1], expression);
 
-            if (method.IsOneOf(MqlMethod.EncStrMethodOverloads))
+            var @operator = method.Name switch
             {
-                var inputTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, arguments[0]);
-                var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, arguments[1]);
-                EnsureSerializedAsString(inputTranslation, arguments[0], expression);
-                EnsureSerializedAsString(valueTranslation, arguments[1], expression);
+                "EncStrContains" => AstEncStrOperator.Contains,
+                "EncStrEndsWith" => AstEncStrOperator.EndsWith,
+                "EncStrNormalizedEq" => AstEncStrOperator.NormalizedEq,
+                "EncStrStartsWith" => AstEncStrOperator.StartsWith,
+                _ => throw new InvalidOperationException($"Unexpected method: {method.Name}")
+            };
 
-                var @operator = method.Name switch
-                {
-                    "EncStrContains" => AstEncStrOperator.Contains,
-                    "EncStrEndsWith" => AstEncStrOperator.EndsWith,
-                    "EncStrNormalizedEq" => AstEncStrOperator.NormalizedEq,
-                    "EncStrStartsWith" => AstEncStrOperator.StartsWith,
-                    _ => throw new InvalidOperationException($"Unexpected method: {method.Name}")
-                };
-
-                var ast = AstExpression.EncStrExpression(@operator, inputTranslation.Ast, valueTranslation.Ast);
-                return new TranslatedExpression(expression, ast, BooleanSerializer.Instance);
-            }
-
-            throw new ExpressionNotSupportedException(expression);
+            var ast = AstExpression.EncStrExpression(@operator, inputTranslation.Ast, valueTranslation.Ast);
+            return new TranslatedExpression(expression, ast, BooleanSerializer.Instance);
         }
 
-        private static void EnsureSerializedAsString(TranslatedExpression translation, Expression argument, Expression containingExpression)
+        throw new ExpressionNotSupportedException(expression);
+    }
+
+    private static void EnsureSerializedAsString(TranslatedExpression translation, Expression argument, Expression containingExpression)
+    {
+        if (translation.Serializer is IRepresentationConfigurable representationConfigurable &&
+            representationConfigurable.Representation != BsonType.String)
         {
-            if (translation.Serializer is IRepresentationConfigurable representationConfigurable &&
-                representationConfigurable.Representation != BsonType.String)
-            {
-                throw new ExpressionNotSupportedException(argument, containingExpression, because: "it is not serialized as a string");
-            }
+            throw new ExpressionNotSupportedException(argument, containingExpression, because: "it is not serialized as a string");
         }
     }
 }
