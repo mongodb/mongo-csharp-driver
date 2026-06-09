@@ -61,6 +61,7 @@ namespace MongoDB.Driver.Search
         private readonly List<SearchDefinition<TDocument>> _must;
         private readonly List<SearchDefinition<TDocument>> _mustNot;
         private readonly List<SearchDefinition<TDocument>> _should;
+        private readonly string[] _doesNotAffect;
 
         public CompoundSearchDefinition(
             List<SearchDefinition<TDocument>> must,
@@ -68,6 +69,7 @@ namespace MongoDB.Driver.Search
             List<SearchDefinition<TDocument>> should,
             List<SearchDefinition<TDocument>> filter,
             int minimumShouldMatch,
+            IEnumerable<string> doesNotAffect,
             SearchScoreDefinition<TDocument> score)
                 : base(OperatorType.Compound, score)
         {
@@ -77,6 +79,7 @@ namespace MongoDB.Driver.Search
             _should = should;
             _filter = filter;
             _minimumShouldMatch = minimumShouldMatch;
+            _doesNotAffect = doesNotAffect?.ToArray();
         }
 
         private protected override BsonDocument RenderArguments(
@@ -90,6 +93,7 @@ namespace MongoDB.Driver.Search
                 { "should", Render(_should), _should != null },
                 { "filter", Render(_filter), _filter != null },
                 { "minimumShouldMatch", _minimumShouldMatch, _minimumShouldMatch > 0 },
+                { "doesNotAffect", () => new BsonArray(_doesNotAffect), _doesNotAffect is { Length: > 0 } }
             };
 
             Func<BsonArray> Render(List<SearchDefinition<TDocument>> searchDefinitions) =>
@@ -126,11 +130,13 @@ namespace MongoDB.Driver.Search
     internal sealed class EqualsSearchDefinition<TDocument, TField> : OperatorSearchDefinition<TDocument>
     {
         private readonly TField _value;
+        private readonly string[] _doesNotAffect;
 
-        public EqualsSearchDefinition(FieldDefinition<TDocument> path, TField value, SearchScoreDefinition<TDocument> score)
+        public EqualsSearchDefinition(FieldDefinition<TDocument> path, TField value, IEnumerable<string> doesNotAffect, SearchScoreDefinition<TDocument> score)
             : base(OperatorType.Equals, path, score)
         {
             _value = value;
+            _doesNotAffect = doesNotAffect?.ToArray();
         }
 
         private protected override BsonDocument RenderArguments(
@@ -154,7 +160,11 @@ namespace MongoDB.Driver.Search
                 serializedValue = ToBsonValue(_value);
             }
 
-            return new BsonDocument("value", serializedValue);
+            return new BsonDocument
+            {
+                { "value", serializedValue },
+                { "doesNotAffect", () => new BsonArray(_doesNotAffect), _doesNotAffect is { Length: > 0 } }
+            };
         }
     }
 
@@ -284,15 +294,18 @@ namespace MongoDB.Driver.Search
     internal sealed class InSearchDefinition<TDocument, TField> : OperatorSearchDefinition<TDocument>
     {
         private readonly TField[] _values;
+        private readonly string[] _doesNotAffect;
 
         public InSearchDefinition(
            SearchPathDefinition<TDocument> path,
            IEnumerable<TField> values,
+           IEnumerable<string> doesNotAffect,
            SearchScoreDefinition<TDocument> score)
                 : base(OperatorType.In, path, score)
         {
             Ensure.IsNotNullOrEmpty(values, nameof(values));
             _values = values.ToArray();
+            _doesNotAffect = doesNotAffect?.ToArray();
         }
 
         private protected override BsonDocument RenderArguments(
@@ -316,7 +329,11 @@ namespace MongoDB.Driver.Search
                 serializedValues = new BsonArray(_values.Select(ToBsonValue));
             }
 
-            return new BsonDocument("value", serializedValues);
+            return new BsonDocument
+            {
+                { "value", serializedValues },
+                { "doesNotAffect", () => new BsonArray(_doesNotAffect), _doesNotAffect is { Length: > 0 } }
+            };
         }
     }
 
@@ -421,14 +438,17 @@ namespace MongoDB.Driver.Search
     internal sealed class RangeSearchDefinition<TDocument, TField> : OperatorSearchDefinition<TDocument>
     {
         private readonly SearchRangeV2<TField> _range;
+        private readonly string[] _doesNotAffect;
 
         public RangeSearchDefinition(
             SearchPathDefinition<TDocument> path,
             SearchRangeV2<TField> range,
+            IEnumerable<string> doesNotAffect,
             SearchScoreDefinition<TDocument> score)
                 : base(OperatorType.Range, path, score)
         {
             _range = range;
+            _doesNotAffect = doesNotAffect?.ToArray();
         }
 
         private protected override BsonDocument RenderArguments(
@@ -461,7 +481,8 @@ namespace MongoDB.Driver.Search
             return new BsonDocument
             {
                 { minInclusive ? "gte" : "gt", serializedMin, serializedMin != null },
-                { maxInclusive ? "lte" : "lt", serializedMax, serializedMax != null }
+                { maxInclusive ? "lte" : "lt", serializedMax, serializedMax != null },
+                { "doesNotAffect", () => new BsonArray(_doesNotAffect), _doesNotAffect is { Length: > 0 } }
             };
         }
     }

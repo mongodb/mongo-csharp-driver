@@ -123,7 +123,25 @@ namespace MongoDB.Driver.Search
             FieldDefinition<TDocument, TField> path,
             TField value,
             SearchScoreDefinition<TDocument> score = null) =>
-                new EqualsSearchDefinition<TDocument, TField>(path, value, score);
+                Equals(path, value, null, score);
+
+        /// <summary>
+        /// Creates a search definition that queries for documents where an indexed field is equal
+        /// to the specified value.
+        /// Supported value types are null, boolean, numeric, ObjectId, Guid, date and string.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="path">The indexed field to search.</param>
+        /// <param name="value">The value to query for.</param>
+        /// <param name="doesNotAffect">The names of the facets whose counts this operator should not restrict. Those facets reflect the full result set regardless of the operator's filter.</param>
+        /// <param name="score">The score modifier.</param>
+        /// <returns>An equality search definition.</returns>
+        public SearchDefinition<TDocument> Equals<TField>(
+            FieldDefinition<TDocument, TField> path,
+            TField value,
+            IEnumerable<string> doesNotAffect,
+            SearchScoreDefinition<TDocument> score = null) =>
+                new EqualsSearchDefinition<TDocument, TField>(path, value, doesNotAffect, score);
 
         /// <summary>
         /// Creates a search definition that queries for documents where an indexed field is equal
@@ -139,7 +157,25 @@ namespace MongoDB.Driver.Search
             Expression<Func<TDocument, TField>> path,
             TField value,
             SearchScoreDefinition<TDocument> score = null) =>
-                Equals(new ExpressionFieldDefinition<TDocument, TField>(path), value, score);
+                Equals(new ExpressionFieldDefinition<TDocument, TField>(path), value, null, score);
+
+        /// <summary>
+        /// Creates a search definition that queries for documents where an indexed field is equal
+        /// to the specified value.
+        /// Supported value types are null, boolean, numeric, ObjectId, Guid, date and string.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="path">The indexed field to search.</param>
+        /// <param name="value">The value to query for.</param>
+        /// <param name="doesNotAffect">The names of the facets whose counts this operator should not restrict. Those facets reflect the full result set regardless of the operator's filter.</param>
+        /// <param name="score">The score modifier.</param>
+        /// <returns>An equality search definition.</returns>
+        public SearchDefinition<TDocument> Equals<TField>(
+            Expression<Func<TDocument, TField>> path,
+            TField value,
+            IEnumerable<string> doesNotAffect,
+            SearchScoreDefinition<TDocument> score = null) =>
+                Equals(new ExpressionFieldDefinition<TDocument, TField>(path), value, doesNotAffect, score);
 
         /// <summary>
         /// Creates a search definition that queries for documents where at least one element in an indexed array field is equal
@@ -155,8 +191,26 @@ namespace MongoDB.Driver.Search
             Expression<Func<TDocument, IEnumerable<TField>>> path,
             TField value,
             SearchScoreDefinition<TDocument> score = null) =>
-            new EqualsSearchDefinition<TDocument, TField>(
-                new ExpressionFieldDefinition<TDocument, IEnumerable<TField>>(path), value, score);
+                Equals(path, value, null, score);
+
+        /// <summary>
+        /// Creates a search definition that queries for documents where at least one element in an indexed array field is equal
+        /// to the specified value.
+        /// Supported value types are boolean, numeric, ObjectId, date and string.
+        /// </summary>
+        /// <typeparam name="TField">The type of elements contained in the indexed array field.</typeparam>
+        /// <param name="path">The indexed array field to search.</param>
+        /// <param name="value">The value to query for.</param>
+        /// <param name="doesNotAffect">The names of the facets whose counts this operator should not restrict. Those facets reflect the full result set regardless of the operator's filter.</param>
+        /// <param name="score">The score modifier.</param>
+        /// <returns>An equality search definition.</returns>
+        public SearchDefinition<TDocument> Equals<TField>(
+            Expression<Func<TDocument, IEnumerable<TField>>> path,
+            TField value,
+            IEnumerable<string> doesNotAffect,
+            SearchScoreDefinition<TDocument> score = null) =>
+                new EqualsSearchDefinition<TDocument, TField>(
+                    new ExpressionFieldDefinition<TDocument, IEnumerable<TField>>(path), value, doesNotAffect, score);
 
         /// <summary>
         /// Creates a search definition that tests if a path to a specified indexed field name
@@ -386,7 +440,7 @@ namespace MongoDB.Driver.Search
         /// Creates a search definition that queries for documents where the value of the field equals to any of specified values.
         /// </summary>
         /// <typeparam name="TField">The type of the field. Valid types are: boolean, ObjectId, Guid, number, date, string.</typeparam>
-        /// <param name="path">The indexed field or fields to search.</param>
+        /// <param name="path">The indexed field to search.</param>
         /// <param name="values">Values to compare the field with.</param>
         /// <param name="score">The score modifier.</param>
         /// <returns>An In search definition.</returns>
@@ -394,13 +448,29 @@ namespace MongoDB.Driver.Search
             SearchPathDefinition<TDocument> path,
             IEnumerable<TField> values,
             SearchScoreDefinition<TDocument> score = null) =>
-                new InSearchDefinition<TDocument, TField>(path, values, score);
+                In(path, values, null, score);
+
+        /// <summary>
+        /// Creates a search definition that queries for documents where the value of the field equals to any of specified values.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field. Valid types are: boolean, ObjectId, Guid, number, date, string.</typeparam>
+        /// <param name="path">The indexed field to search.</param>
+        /// <param name="values">Values to compare the field with.</param>
+        /// <param name="doesNotAffect">The names of the facets whose counts this operator should not restrict. Those facets reflect the full result set regardless of the operator's filter.</param>
+        /// <param name="score">The score modifier.</param>
+        /// <returns>An In search definition.</returns>
+        public SearchDefinition<TDocument> In<TField>(
+            SearchPathDefinition<TDocument> path,
+            IEnumerable<TField> values,
+            IEnumerable<string> doesNotAffect,
+            SearchScoreDefinition<TDocument> score = null) =>
+                new InSearchDefinition<TDocument, TField>(path, values, doesNotAffect, score);
 
         /// <summary>
         /// Creates a search definition that queries for documents where the value of the field equals to any of specified values.
         /// </summary>
         /// <typeparam name="TField">The type of the field. Valid types are: boolean, ObjectId, Guid, number, date, string, arrays.</typeparam>
-        /// <param name="path">The indexed field or fields to search.</param>
+        /// <param name="path">The indexed field to search.</param>
         /// <param name="values">Values to compare the field with.</param>
         /// <param name="score">The score modifier.</param>
         /// <returns>An In search definition.</returns>
@@ -408,13 +478,29 @@ namespace MongoDB.Driver.Search
             Expression<Func<TDocument, TField>> path,
             IEnumerable<TField> values,
             SearchScoreDefinition<TDocument> score = null) =>
-                In(new ExpressionFieldDefinition<TDocument>(path), values, score);
+                In(new ExpressionFieldDefinition<TDocument>(path), values, null, score);
 
         /// <summary>
         /// Creates a search definition that queries for documents where the value of the field equals to any of specified values.
         /// </summary>
         /// <typeparam name="TField">The type of the field. Valid types are: boolean, ObjectId, Guid, number, date, string, arrays.</typeparam>
-        /// <param name="path">The indexed field or fields to search.</param>
+        /// <param name="path">The indexed field to search.</param>
+        /// <param name="values">Values to compare the field with.</param>
+        /// <param name="doesNotAffect">The names of the facets whose counts this operator should not restrict. Those facets reflect the full result set regardless of the operator's filter.</param>
+        /// <param name="score">The score modifier.</param>
+        /// <returns>An In search definition.</returns>
+        public SearchDefinition<TDocument> In<TField>(
+            Expression<Func<TDocument, TField>> path,
+            IEnumerable<TField> values,
+            IEnumerable<string> doesNotAffect,
+            SearchScoreDefinition<TDocument> score = null) =>
+                In(new ExpressionFieldDefinition<TDocument>(path), values, doesNotAffect, score);
+
+        /// <summary>
+        /// Creates a search definition that queries for documents where the value of the field equals to any of specified values.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field. Valid types are: boolean, ObjectId, Guid, number, date, string, arrays.</typeparam>
+        /// <param name="path">The indexed field to search.</param>
         /// <param name="values">Values to compare the field with.</param>
         /// <param name="score">The score modifier.</param>
         /// <returns>An In search definition.</returns>
@@ -422,7 +508,23 @@ namespace MongoDB.Driver.Search
             Expression<Func<TDocument, IEnumerable<TField>>> path,
             IEnumerable<TField> values,
             SearchScoreDefinition<TDocument> score = null) =>
-            In(new ExpressionFieldDefinition<TDocument>(path), values, score);
+                In(new ExpressionFieldDefinition<TDocument>(path), values, null, score);
+
+        /// <summary>
+        /// Creates a search definition that queries for documents where the value of the field equals to any of specified values.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field. Valid types are: boolean, ObjectId, Guid, number, date, string, arrays.</typeparam>
+        /// <param name="path">The indexed field to search.</param>
+        /// <param name="values">Values to compare the field with.</param>
+        /// <param name="doesNotAffect">The names of the facets whose counts this operator should not restrict. Those facets reflect the full result set regardless of the operator's filter.</param>
+        /// <param name="score">The score modifier.</param>
+        /// <returns>An In search definition.</returns>
+        public SearchDefinition<TDocument> In<TField>(
+            Expression<Func<TDocument, IEnumerable<TField>>> path,
+            IEnumerable<TField> values,
+            IEnumerable<string> doesNotAffect,
+            SearchScoreDefinition<TDocument> score = null) =>
+                In(new ExpressionFieldDefinition<TDocument>(path), values, doesNotAffect, score);
 
         /// <summary>
         /// Creates a search definition that returns documents similar to the input documents.
@@ -449,7 +551,7 @@ namespace MongoDB.Driver.Search
         /// <summary>
         /// Creates a search definition that supports querying and scoring numeric and date values.
         /// </summary>
-        /// <param name="path">The indexed field or fields to search.</param>
+        /// <param name="path">The indexed field to search.</param>
         /// <param name="origin">The number, date, or geographic point to search near.</param>
         /// <param name="pivot">The value to use to calculate scores of result documents.</param>
         /// <param name="score">The score modifier.</param>
@@ -465,7 +567,7 @@ namespace MongoDB.Driver.Search
         /// Creates a search definition that supports querying and scoring numeric and date values.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="path">The indexed field or fields to search.</param>
+        /// <param name="path">The indexed field to search.</param>
         /// <param name="origin">The number, date, or geographic point to search near.</param>
         /// <param name="pivot">The value to use to calculate scores of result documents.</param>
         /// <param name="score">The score modifier.</param>
@@ -480,7 +582,7 @@ namespace MongoDB.Driver.Search
         /// <summary>
         /// Creates a search definition that supports querying and scoring numeric and date values.
         /// </summary>
-        /// <param name="path">The indexed field or fields to search.</param>
+        /// <param name="path">The indexed field to search.</param>
         /// <param name="origin">The number, date, or geographic point to search near.</param>
         /// <param name="pivot">The value to use to calculate scores of result documents.</param>
         /// <param name="score">The score modifier.</param>
@@ -496,7 +598,7 @@ namespace MongoDB.Driver.Search
         /// Creates a search definition that supports querying and scoring numeric and date values.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="path">The indexed field or fields to search.</param>
+        /// <param name="path">The indexed field to search.</param>
         /// <param name="origin">The number, date, or geographic point to search near.</param>
         /// <param name="pivot">The value to use to calculate scores of result documents.</param>
         /// <param name="score">The score modifier.</param>
@@ -511,7 +613,7 @@ namespace MongoDB.Driver.Search
         /// <summary>
         /// Creates a search definition that supports querying and scoring numeric and date values.
         /// </summary>
-        /// <param name="path">The indexed field or fields to search.</param>
+        /// <param name="path">The indexed field to search.</param>
         /// <param name="origin">The number, date, or geographic point to search near.</param>
         /// <param name="pivot">The value to use to calculate scores of result documents.</param>
         /// <param name="score">The score modifier.</param>
@@ -527,7 +629,7 @@ namespace MongoDB.Driver.Search
         /// Creates a search definition that supports querying and scoring numeric and date values.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="path">The indexed field or fields to search.</param>
+        /// <param name="path">The indexed field to search.</param>
         /// <param name="origin">The number, date, or geographic point to search near.</param>
         /// <param name="pivot">The value to use to calculate scores of result documents.</param>
         /// <param name="score">The score modifier.</param>
@@ -542,7 +644,7 @@ namespace MongoDB.Driver.Search
         /// <summary>
         /// Creates a search definition that supports querying and scoring numeric and date values.
         /// </summary>
-        /// <param name="path">The indexed field or fields to search.</param>
+        /// <param name="path">The indexed field to search.</param>
         /// <param name="origin">The number, date, or geographic point to search near.</param>
         /// <param name="pivot">The value to use to calculate scores of result documents.</param>
         /// <param name="score">The score modifier.</param>
@@ -558,7 +660,7 @@ namespace MongoDB.Driver.Search
         /// Creates a search definition that supports querying and scoring numeric and date values.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="path">The indexed field or fields to search.</param>
+        /// <param name="path">The indexed field to search.</param>
         /// <param name="origin">The number, date, or geographic point to search near.</param>
         /// <param name="pivot">The value to use to calculate scores of result documents.</param>
         /// <param name="score">The score modifier.</param>
@@ -574,7 +676,7 @@ namespace MongoDB.Driver.Search
         /// Creates a search definition that supports querying and scoring numeric and date values.
         /// </summary>
         /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
-        /// <param name="path">The indexed field or fields to search.</param>
+        /// <param name="path">The indexed field to search.</param>
         /// <param name="origin">The number, date, or geographic point to search near.</param>
         /// <param name="pivot">The value to use to calculate scores of result documents.</param>
         /// <param name="score">The score modifier.</param>
@@ -592,7 +694,7 @@ namespace MongoDB.Driver.Search
         /// </summary>
         /// <typeparam name="TCoordinates">The type of the coordinates</typeparam>
         /// <typeparam name="TField">The type of the fields.</typeparam>
-        /// <param name="path">The indexed field or fields to search.</param>
+        /// <param name="path">The indexed field to search.</param>
         /// <param name="origin">The number, date, or geographic point to search near.</param>
         /// <param name="pivot">The value to user to calculate scores of result documents.</param>
         /// <param name="score">The score modifier.</param>
@@ -609,7 +711,7 @@ namespace MongoDB.Driver.Search
         /// Creates a search definition that performs search for documents containing an ordered
         /// sequence of terms.
         /// </summary>
-        /// <param name="path">The indexed field or fields to search.</param>
+        /// <param name="path">The indexed field to search.</param>
         /// <param name="query">The string or strings to search for.</param>
         /// <param name="slop">The allowable distance between words in the query phrase.</param>
         /// <param name="score">The score modifier.</param>
@@ -625,7 +727,7 @@ namespace MongoDB.Driver.Search
         /// Creates a search definition that performs search for documents containing an ordered
         /// sequence of terms.
         /// </summary>
-        /// <param name="path">The indexed field or fields to search.</param>
+        /// <param name="path">The indexed field to search.</param>
         /// <param name="query">The string or strings to search for.</param>
         /// <param name="options">The options.</param>
         /// <returns>A phrase search definition.</returns>
@@ -640,7 +742,7 @@ namespace MongoDB.Driver.Search
         /// sequence of terms.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="path">The indexed field or fields to search.</param>
+        /// <param name="path">The indexed field to search.</param>
         /// <param name="query">The string or strings to search for.</param>
         /// <param name="slop">The allowable distance between words in the query phrase.</param>
         /// <param name="score">The score modifier.</param>
@@ -657,7 +759,7 @@ namespace MongoDB.Driver.Search
         /// sequence of terms.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="path">The indexed field or fields to search.</param>
+        /// <param name="path">The indexed field to search.</param>
         /// <param name="query">The string or strings to search for.</param>
         /// <param name="options">The options.</param>
         /// <returns>A phrase search definition.</returns>
@@ -698,7 +800,7 @@ namespace MongoDB.Driver.Search
         /// Creates a search definition that queries for documents where a field is in the specified range.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="path">The indexed field or fields to search.</param>
+        /// <param name="path">The indexed field to search.</param>
         /// <param name="range">The field range.</param>
         /// <param name="score">The score modifier.</param>
         /// <returns>A range search definition.</returns>
@@ -707,13 +809,30 @@ namespace MongoDB.Driver.Search
             SearchRange<TField> range,
             SearchScoreDefinition<TDocument> score = null)
             where TField : struct, IComparable<TField> =>
-                Range(new ExpressionFieldDefinition<TDocument>(path), range, score);
+                Range(new ExpressionFieldDefinition<TDocument>(path), range, null, score);
 
         /// <summary>
         /// Creates a search definition that queries for documents where a field is in the specified range.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="path">The indexed field or fields to search.</param>
+        /// <param name="path">The indexed field to search.</param>
+        /// <param name="range">The field range.</param>
+        /// <param name="doesNotAffect">The names of the facets whose counts this operator should not restrict. Those facets reflect the full result set regardless of the operator's filter.</param>
+        /// <param name="score">The score modifier.</param>
+        /// <returns>A range search definition.</returns>
+        public SearchDefinition<TDocument> Range<TField>(
+            Expression<Func<TDocument, TField>> path,
+            SearchRange<TField> range,
+            IEnumerable<string> doesNotAffect,
+            SearchScoreDefinition<TDocument> score = null)
+            where TField : struct, IComparable<TField> =>
+                Range(new ExpressionFieldDefinition<TDocument>(path), range, doesNotAffect, score);
+
+        /// <summary>
+        /// Creates a search definition that queries for documents where a field is in the specified range.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="path">The indexed field to search.</param>
         /// <param name="range">The field range.</param>
         /// <param name="score">The score modifier.</param>
         /// <returns>A range search definition.</returns>
@@ -722,13 +841,30 @@ namespace MongoDB.Driver.Search
             SearchRange<TField> range,
             SearchScoreDefinition<TDocument> score = null)
             where TField : struct, IComparable<TField> =>
-            Range(new ExpressionFieldDefinition<TDocument>(path), range, score);
+                Range(new ExpressionFieldDefinition<TDocument>(path), range, null, score);
 
         /// <summary>
         /// Creates a search definition that queries for documents where a field is in the specified range.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="path">The indexed field or fields to search.</param>
+        /// <param name="path">The indexed field to search.</param>
+        /// <param name="range">The field range.</param>
+        /// <param name="doesNotAffect">The names of the facets whose counts this operator should not restrict. Those facets reflect the full result set regardless of the operator's filter.</param>
+        /// <param name="score">The score modifier.</param>
+        /// <returns>A range search definition.</returns>
+        public SearchDefinition<TDocument> Range<TField>(
+            Expression<Func<TDocument, IEnumerable<TField>>> path,
+            SearchRange<TField> range,
+            IEnumerable<string> doesNotAffect,
+            SearchScoreDefinition<TDocument> score = null)
+            where TField : struct, IComparable<TField> =>
+                Range(new ExpressionFieldDefinition<TDocument>(path), range, doesNotAffect, score);
+
+        /// <summary>
+        /// Creates a search definition that queries for documents where a field is in the specified range.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="path">The indexed field to search.</param>
         /// <param name="range">The field range.</param>
         /// <param name="score">The score modifier.</param>
         /// <returns>A range search definition.</returns>
@@ -737,18 +873,36 @@ namespace MongoDB.Driver.Search
             SearchRange<TField> range,
             SearchScoreDefinition<TDocument> score = null)
             where TField : struct, IComparable<TField> =>
-            Range(
-                path,
-                new SearchRangeV2<TField>(
-                    range.Min.HasValue ? new(range.Min.Value, range.IsMinInclusive) : null,
-                    range.Max.HasValue ? new(range.Max.Value, range.IsMaxInclusive) : null),
-                score);
+                Range(path, range, null, score);
 
         /// <summary>
         /// Creates a search definition that queries for documents where a field is in the specified range.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="path">The indexed field or fields to search.</param>
+        /// <param name="path">The indexed field to search.</param>
+        /// <param name="range">The field range.</param>
+        /// <param name="doesNotAffect">The names of the facets whose counts this operator should not restrict. Those facets reflect the full result set regardless of the operator's filter.</param>
+        /// <param name="score">The score modifier.</param>
+        /// <returns>A range search definition.</returns>
+        public SearchDefinition<TDocument> Range<TField>(
+            SearchPathDefinition<TDocument> path,
+            SearchRange<TField> range,
+            IEnumerable<string> doesNotAffect,
+            SearchScoreDefinition<TDocument> score = null)
+            where TField : struct, IComparable<TField> =>
+                Range(
+                    path,
+                    new SearchRangeV2<TField>(
+                        range.Min.HasValue ? new(range.Min.Value, range.IsMinInclusive) : null,
+                        range.Max.HasValue ? new(range.Max.Value, range.IsMaxInclusive) : null),
+                    doesNotAffect,
+                    score);
+
+        /// <summary>
+        /// Creates a search definition that queries for documents where a field is in the specified range.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="path">The indexed field to search.</param>
         /// <param name="range">The field range.</param>
         /// <param name="score">The score modifier.</param>
         /// <returns>A range search definition.</returns>
@@ -756,13 +910,29 @@ namespace MongoDB.Driver.Search
             Expression<Func<TDocument, TField>> path,
             SearchRangeV2<TField> range,
             SearchScoreDefinition<TDocument> score = null) =>
-            Range(new ExpressionFieldDefinition<TDocument>(path), range, score);
+                Range(new ExpressionFieldDefinition<TDocument>(path), range, null, score);
 
         /// <summary>
         /// Creates a search definition that queries for documents where a field is in the specified range.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="path">The indexed field or fields to search.</param>
+        /// <param name="path">The indexed field to search.</param>
+        /// <param name="range">The field range.</param>
+        /// <param name="doesNotAffect">The names of the facets whose counts this operator should not restrict. Those facets reflect the full result set regardless of the operator's filter.</param>
+        /// <param name="score">The score modifier.</param>
+        /// <returns>A range search definition.</returns>
+        public SearchDefinition<TDocument> Range<TField>(
+            Expression<Func<TDocument, TField>> path,
+            SearchRangeV2<TField> range,
+            IEnumerable<string> doesNotAffect,
+            SearchScoreDefinition<TDocument> score = null) =>
+                Range(new ExpressionFieldDefinition<TDocument>(path), range, doesNotAffect, score);
+
+        /// <summary>
+        /// Creates a search definition that queries for documents where a field is in the specified range.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="path">The indexed field to search.</param>
         /// <param name="range">The field range.</param>
         /// <param name="score">The score modifier.</param>
         /// <returns>A range search definition.</returns>
@@ -770,13 +940,29 @@ namespace MongoDB.Driver.Search
             Expression<Func<TDocument, IEnumerable<TField>>> path,
             SearchRangeV2<TField> range,
             SearchScoreDefinition<TDocument> score = null) =>
-            Range(new ExpressionFieldDefinition<TDocument>(path), range, score);
+                Range(new ExpressionFieldDefinition<TDocument>(path), range, null, score);
 
         /// <summary>
         /// Creates a search definition that queries for documents where a field is in the specified range.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="path">The indexed field or fields to search.</param>
+        /// <param name="path">The indexed field to search.</param>
+        /// <param name="range">The field range.</param>
+        /// <param name="doesNotAffect">The names of the facets whose counts this operator should not restrict. Those facets reflect the full result set regardless of the operator's filter.</param>
+        /// <param name="score">The score modifier.</param>
+        /// <returns>A range search definition.</returns>
+        public SearchDefinition<TDocument> Range<TField>(
+            Expression<Func<TDocument, IEnumerable<TField>>> path,
+            SearchRangeV2<TField> range,
+            IEnumerable<string> doesNotAffect,
+            SearchScoreDefinition<TDocument> score = null) =>
+                Range(new ExpressionFieldDefinition<TDocument>(path), range, doesNotAffect, score);
+
+        /// <summary>
+        /// Creates a search definition that queries for documents where a field is in the specified range.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="path">The indexed field to search.</param>
         /// <param name="range">The field range.</param>
         /// <param name="score">The score modifier.</param>
         /// <returns>A range search definition.</returns>
@@ -784,12 +970,28 @@ namespace MongoDB.Driver.Search
             SearchPathDefinition<TDocument> path,
             SearchRangeV2<TField> range,
             SearchScoreDefinition<TDocument> score = null) =>
-            new RangeSearchDefinition<TDocument, TField>(path, range, score);
+                Range(path, range, null, score);
+
+        /// <summary>
+        /// Creates a search definition that queries for documents where a field is in the specified range.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="path">The indexed field to search.</param>
+        /// <param name="range">The field range.</param>
+        /// <param name="doesNotAffect">The names of the facets whose counts this operator should not restrict. Those facets reflect the full result set regardless of the operator's filter.</param>
+        /// <param name="score">The score modifier.</param>
+        /// <returns>A range search definition.</returns>
+        public SearchDefinition<TDocument> Range<TField>(
+            SearchPathDefinition<TDocument> path,
+            SearchRangeV2<TField> range,
+            IEnumerable<string> doesNotAffect,
+            SearchScoreDefinition<TDocument> score = null) =>
+                new RangeSearchDefinition<TDocument, TField>(path, range, doesNotAffect, score);
 
         /// <summary>
         /// Creates a search definition that interprets the query as a regular expression.
         /// </summary>
-        /// <param name="path">The indexed field or fields to search.</param>
+        /// <param name="path">The indexed field to search.</param>
         /// <param name="query">The string or strings to search for.</param>
         /// <param name="allowAnalyzedField">
         /// Must be set to true if the query is run against an analyzed field.
@@ -807,7 +1009,7 @@ namespace MongoDB.Driver.Search
         /// Creates a search definition that interprets the query as a regular expression.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="path">The indexed field or fields to search.</param>
+        /// <param name="path">The indexed field to search.</param>
         /// <param name="query">The string or strings to search for.</param>
         /// <param name="allowAnalyzedField">
         /// Must be set to true if the query is run against an analyzed field.
@@ -834,7 +1036,7 @@ namespace MongoDB.Driver.Search
         /// Creates a search definition that performs full-text search using the analyzer specified
         /// in the index configuration.
         /// </summary>
-        /// <param name="path">The indexed field or fields to search.</param>
+        /// <param name="path">The indexed field to search.</param>
         /// <param name="query">The string or strings to search for.</param>
         /// <param name="options">The options.</param>
         /// <returns>A text search definition.</returns>
@@ -848,7 +1050,7 @@ namespace MongoDB.Driver.Search
         /// Creates a search definition that performs full-text search using the analyzer specified
         /// in the index configuration.
         /// </summary>
-        /// <param name="path">The indexed field or fields to search.</param>
+        /// <param name="path">The indexed field to search.</param>
         /// <param name="query">The string or strings to search for.</param>
         /// <param name="fuzzy">The options for fuzzy search.</param>
         /// <param name="score">The score modifier.</param>
@@ -864,7 +1066,7 @@ namespace MongoDB.Driver.Search
         /// Creates a search definition that performs full-text search with synonyms using the analyzer specified
         /// in the index configuration.
         /// </summary>
-        /// <param name="path">The indexed field or fields to search.</param>
+        /// <param name="path">The indexed field to search.</param>
         /// <param name="query">The string or strings to search for.</param>
         /// <param name="synonyms">The name of the synonym mapping definition in the index definition</param>
         /// <param name="score">The score modifier.</param>
@@ -929,7 +1131,7 @@ namespace MongoDB.Driver.Search
         /// Creates a search definition that uses special characters in the search string that can
         /// match any character.
         /// </summary>
-        /// <param name="path">The indexed field or fields to search.</param>
+        /// <param name="path">The indexed field to search.</param>
         /// <param name="query">The string or strings to search for.</param>
         /// <param name="allowAnalyzedField">
         /// Must be set to true if the query is run against an analyzed field.
@@ -948,7 +1150,7 @@ namespace MongoDB.Driver.Search
         /// match any character.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="path">The indexed field or fields to search.</param>
+        /// <param name="path">The indexed field to search.</param>
         /// <param name="query">The string or strings to search for.</param>
         /// <param name="allowAnalyzedField">
         /// Must be set to true if the query is run against an analyzed field.
@@ -965,7 +1167,7 @@ namespace MongoDB.Driver.Search
         /// <summary>
         /// Creates a search definition for a vector search as a search operator.
         /// </summary>
-        /// <param name="path">The indexed field or fields to search.</param>
+        /// <param name="path">The indexed field to search.</param>
         /// <param name="queryVector">The query vector.</param>
         /// <param name="limit">The limit.</param>
         /// <param name="options">The vector search options.</param>
@@ -982,7 +1184,7 @@ namespace MongoDB.Driver.Search
         /// <summary>
         /// Creates a search definition for a vector search as a search operator.
         /// </summary>
-        /// <param name="path">The indexed field or fields to search.</param>
+        /// <param name="path">The indexed field to search.</param>
         /// <param name="queryVector">The query vector.</param>
         /// <param name="limit">The limit.</param>
         /// <param name="options">The vector search options.</param>

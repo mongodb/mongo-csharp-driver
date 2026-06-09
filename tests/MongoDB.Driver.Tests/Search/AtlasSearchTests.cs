@@ -333,6 +333,23 @@ namespace MongoDB.Driver.Tests.Search
         }
 
         [Fact]
+        public void Compound_with_doesNotAffect()
+        {
+            var results = GetMoviesCollection<Movie>()
+                .Aggregate()
+                .SearchMeta(Builders<Movie>.Search.Facet(
+                    Builders<Movie>.Search.Compound()
+                        .Must(
+                            Builders<Movie>.Search.Text(m => m.Title, "life"),
+                            Builders<Movie>.Search.Text(m => m.Title, "liberty"))
+                        .DoesNotAffect("year"),
+                    Builders<Movie>.SearchFacet.Number("year", x => x.Year, 1900, 1950, 2000, 2100)))
+                .Single();
+
+            results.Facet["year"].Buckets.Should().NotContain(x => x.Count <= 1);
+        }
+
+        [Fact]
         public void Count_total()
         {
             var results = GetTestCollection().Aggregate()
@@ -453,6 +470,19 @@ namespace MongoDB.Driver.Tests.Search
         }
 
         [Fact]
+        public void Equals_with_doesNotAffect()
+        {
+            var results = GetMoviesCollection<Movie>()
+                .Aggregate()
+                .SearchMeta(Builders<Movie>.Search.Facet(
+                    Builders<Movie>.Search.Equals(x => x.Runtime, 232, ["year"]),
+                    Builders<Movie>.SearchFacet.Number("year", x => x.Year, 1900, 1950, 2000, 2100)))
+                .Single();
+
+            results.Facet["year"].Buckets.Should().NotContain(x => x.Count <= 1);
+        }
+
+        [Fact]
         public void Exists()
         {
             var result = SearchSingle(
@@ -556,6 +586,19 @@ namespace MongoDB.Driver.Tests.Search
             results.Count.Should().Be(2);
             results[0].Runtime.Should().Be(231);
             results[1].Runtime.Should().Be(31);
+        }
+
+        [Fact]
+        public void In_with_doesNotAffect()
+        {
+            var results = GetMoviesCollection<Movie>()
+                .Aggregate()
+                .SearchMeta(Builders<Movie>.Search.Facet(
+                    Builders<Movie>.Search.In(x => x.Runtime, [231], ["year"]),
+                    Builders<Movie>.SearchFacet.Number("year", x => x.Year, 1900, 1950, 2000, 2100)))
+                .Single();
+
+            results.Facet["year"].Buckets.Should().NotContain(x => x.Count <= 1);
         }
 
         [Fact]
@@ -741,6 +784,19 @@ namespace MongoDB.Driver.Tests.Search
                     GeoBuilders.Search.Range(x => x.Beds, SearchRangeV2Builder.Gte(14).Lte(14))));
 
             results.Should().ContainSingle().Which.Name.Should().Be("House close to station & direct to opera house....");
+        }
+
+        [Fact]
+        public void Range_with_doesNotAffect()
+        {
+            var results = GetMoviesCollection<Movie>()
+                .Aggregate()
+                .SearchMeta(Builders<Movie>.Search.Facet(
+                    Builders<Movie>.Search.Range(x => x.Runtime, new SearchRange<int>(230, 233, false, false), ["year"]),
+                    Builders<Movie>.SearchFacet.Number("year", x => x.Year, 1900, 1950, 2000, 2100)))
+                .Single();
+
+            results.Facet["year"].Buckets.Should().NotContain(x => x.Count <= 1);
         }
 
         [Fact]
@@ -1465,6 +1521,9 @@ namespace MongoDB.Driver.Tests.Search
 
             [BsonElement("title")]
             public string Title { get; set; }
+
+            [BsonElement("year")]
+            public int Year { get; set; }
 
             [BsonElement("runtime")]
             public int Runtime { get; set; }

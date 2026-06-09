@@ -169,6 +169,21 @@ namespace MongoDB.Driver.Tests.Search
         }
 
         [Fact]
+        public void Compound_should_render_doesNotAffect()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            AssertRendered<BsonDocument>(
+                subject.Compound()
+                    .Must(
+                        subject.Exists("x"),
+                        subject.Exists("y"))
+                    .DoesNotAffect("y")
+                    .DoesNotAffect("z"),
+                "{ compound: { must: [{ exists: { path: 'x' } }, { exists: { path: 'y' } }], doesNotAffect: ['y', 'z'] } }");
+        }
+
+        [Fact]
         public void Compound_typed()
         {
             var subject = CreateSubject<Person>();
@@ -275,6 +290,16 @@ namespace MongoDB.Driver.Tests.Search
             AssertRendered(
                 subjectTyped.Equals(p => p.Hobbies, "soccer"),
                 "{ equals: { path: 'hobbies', value: 'soccer' } }");
+        }
+
+        [Fact]
+        public void Equals_should_render_doesNotAffect()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            AssertRendered(
+                subject.Equals("x", "a", doesNotAffect: ["y"]),
+                "{ equals: { path: 'x', value: 'a', doesNotAffect: ['y'] } }");
         }
 
         [Theory]
@@ -728,6 +753,16 @@ namespace MongoDB.Driver.Tests.Search
             AssertRendered(
                 subject.In("x", fieldValues),
                 $"{{ in: {{ path: 'x', value: [{string.Join(",", fieldsRendered)}] }} }}");
+        }
+
+        [Fact]
+        public void In_should_render_doesNotAffect()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            AssertRendered(
+                subject.In("x", ["a", "b"], doesNotAffect: ["y"]),
+                "{ in: { path: 'x', value: ['a', 'b'], doesNotAffect: ['y'] } }");
         }
 
         [Theory]
@@ -1212,6 +1247,16 @@ namespace MongoDB.Driver.Tests.Search
             AssertRendered(
                     subject.Range("x", new SearchRange<int>(min, max, minInclusive, maxInclusive)),
                     $"{{ range: {{ path: 'x', {rangeRendered} }} }}");
+        }
+
+        [Fact]
+        public void Range_should_render_doesNotAffect()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            AssertRendered(
+                subject.Range("x", new SearchRange<int>(0, 10, true, true), ["y"]),
+                "{ range: { path: 'x', gte: 0, lte: 10, doesNotAffect: ['y'] } }");
         }
 
         [Theory]
