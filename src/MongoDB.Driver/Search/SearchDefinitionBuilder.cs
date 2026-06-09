@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Search
         /// Creates a search definition that performs a search for a word or phrase that contains
         /// a sequence of characters from an incomplete input string.
         /// </summary>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="query">The query definition specifying the string or strings to search for.</param>
         /// <param name="tokenOrder">The order in which to search for tokens.</param>
         /// <param name="fuzzy">The options for fuzzy search.</param>
@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Search
         /// a sequence of characters from an incomplete search string.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="query">The query definition specifying the string or strings to search for.</param>
         /// <param name="tokenOrder">The order in which to search for tokens.</param>
         /// <param name="fuzzy">The options for fuzzy search.</param>
@@ -79,7 +79,7 @@ namespace MongoDB.Driver.Search
         /// of an array of embedded documents specified by <paramref name="path"/>.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="operator">The operator.</param>
         /// <param name="score">The score modifier.</param>
         /// <returns>
@@ -97,7 +97,7 @@ namespace MongoDB.Driver.Search
         /// of an array of embedded documents specified by <paramref name="path"/>.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="operator">The operator.</param>
         /// <param name="score">The score modifier.</param>
         /// <returns>
@@ -115,7 +115,7 @@ namespace MongoDB.Driver.Search
         /// Supported value types are null, boolean, numeric, ObjectId, Guid, date and string.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="value">The value to query for.</param>
         /// <param name="score">The score modifier.</param>
         /// <returns>An equality search definition.</returns>
@@ -131,7 +131,7 @@ namespace MongoDB.Driver.Search
         /// Supported value types are null, boolean, numeric, ObjectId, Guid, date and string.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="value">The value to query for.</param>
         /// <param name="doesNotAffect">The names of the facets whose counts this operator should not restrict. Those facets reflect the full result set regardless of the operator's filter.</param>
         /// <param name="score">The score modifier.</param>
@@ -149,7 +149,7 @@ namespace MongoDB.Driver.Search
         /// Supported value types are null, boolean, numeric, ObjectId, Guid, date and string.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="value">The value to query for.</param>
         /// <param name="score">The score modifier.</param>
         /// <returns>An equality search definition.</returns>
@@ -165,7 +165,7 @@ namespace MongoDB.Driver.Search
         /// Supported value types are null, boolean, numeric, ObjectId, Guid, date and string.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="value">The value to query for.</param>
         /// <param name="doesNotAffect">The names of the facets whose counts this operator should not restrict. Those facets reflect the full result set regardless of the operator's filter.</param>
         /// <param name="score">The score modifier.</param>
@@ -440,7 +440,7 @@ namespace MongoDB.Driver.Search
         /// Creates a search definition that queries for documents where the value of the field equals to any of specified values.
         /// </summary>
         /// <typeparam name="TField">The type of the field. Valid types are: boolean, ObjectId, Guid, number, date, string.</typeparam>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="values">Values to compare the field with.</param>
         /// <param name="score">The score modifier.</param>
         /// <returns>An In search definition.</returns>
@@ -454,7 +454,7 @@ namespace MongoDB.Driver.Search
         /// Creates a search definition that queries for documents where the value of the field equals to any of specified values.
         /// </summary>
         /// <typeparam name="TField">The type of the field. Valid types are: boolean, ObjectId, Guid, number, date, string.</typeparam>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="values">Values to compare the field with.</param>
         /// <param name="doesNotAffect">The names of the facets whose counts this operator should not restrict. Those facets reflect the full result set regardless of the operator's filter.</param>
         /// <param name="score">The score modifier.</param>
@@ -470,7 +470,7 @@ namespace MongoDB.Driver.Search
         /// Creates a search definition that queries for documents where the value of the field equals to any of specified values.
         /// </summary>
         /// <typeparam name="TField">The type of the field. Valid types are: boolean, ObjectId, Guid, number, date, string, arrays.</typeparam>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="values">Values to compare the field with.</param>
         /// <param name="score">The score modifier.</param>
         /// <returns>An In search definition.</returns>
@@ -484,7 +484,7 @@ namespace MongoDB.Driver.Search
         /// Creates a search definition that queries for documents where the value of the field equals to any of specified values.
         /// </summary>
         /// <typeparam name="TField">The type of the field. Valid types are: boolean, ObjectId, Guid, number, date, string, arrays.</typeparam>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="values">Values to compare the field with.</param>
         /// <param name="doesNotAffect">The names of the facets whose counts this operator should not restrict. Those facets reflect the full result set regardless of the operator's filter.</param>
         /// <param name="score">The score modifier.</param>
@@ -500,7 +500,7 @@ namespace MongoDB.Driver.Search
         /// Creates a search definition that queries for documents where the value of the field equals to any of specified values.
         /// </summary>
         /// <typeparam name="TField">The type of the field. Valid types are: boolean, ObjectId, Guid, number, date, string, arrays.</typeparam>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="values">Values to compare the field with.</param>
         /// <param name="score">The score modifier.</param>
         /// <returns>An In search definition.</returns>
@@ -514,7 +514,7 @@ namespace MongoDB.Driver.Search
         /// Creates a search definition that queries for documents where the value of the field equals to any of specified values.
         /// </summary>
         /// <typeparam name="TField">The type of the field. Valid types are: boolean, ObjectId, Guid, number, date, string, arrays.</typeparam>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="values">Values to compare the field with.</param>
         /// <param name="doesNotAffect">The names of the facets whose counts this operator should not restrict. Those facets reflect the full result set regardless of the operator's filter.</param>
         /// <param name="score">The score modifier.</param>
@@ -551,7 +551,7 @@ namespace MongoDB.Driver.Search
         /// <summary>
         /// Creates a search definition that supports querying and scoring numeric and date values.
         /// </summary>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="origin">The number, date, or geographic point to search near.</param>
         /// <param name="pivot">The value to use to calculate scores of result documents.</param>
         /// <param name="score">The score modifier.</param>
@@ -567,7 +567,7 @@ namespace MongoDB.Driver.Search
         /// Creates a search definition that supports querying and scoring numeric and date values.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="origin">The number, date, or geographic point to search near.</param>
         /// <param name="pivot">The value to use to calculate scores of result documents.</param>
         /// <param name="score">The score modifier.</param>
@@ -582,7 +582,7 @@ namespace MongoDB.Driver.Search
         /// <summary>
         /// Creates a search definition that supports querying and scoring numeric and date values.
         /// </summary>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="origin">The number, date, or geographic point to search near.</param>
         /// <param name="pivot">The value to use to calculate scores of result documents.</param>
         /// <param name="score">The score modifier.</param>
@@ -598,7 +598,7 @@ namespace MongoDB.Driver.Search
         /// Creates a search definition that supports querying and scoring numeric and date values.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="origin">The number, date, or geographic point to search near.</param>
         /// <param name="pivot">The value to use to calculate scores of result documents.</param>
         /// <param name="score">The score modifier.</param>
@@ -613,7 +613,7 @@ namespace MongoDB.Driver.Search
         /// <summary>
         /// Creates a search definition that supports querying and scoring numeric and date values.
         /// </summary>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="origin">The number, date, or geographic point to search near.</param>
         /// <param name="pivot">The value to use to calculate scores of result documents.</param>
         /// <param name="score">The score modifier.</param>
@@ -629,7 +629,7 @@ namespace MongoDB.Driver.Search
         /// Creates a search definition that supports querying and scoring numeric and date values.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="origin">The number, date, or geographic point to search near.</param>
         /// <param name="pivot">The value to use to calculate scores of result documents.</param>
         /// <param name="score">The score modifier.</param>
@@ -644,7 +644,7 @@ namespace MongoDB.Driver.Search
         /// <summary>
         /// Creates a search definition that supports querying and scoring numeric and date values.
         /// </summary>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="origin">The number, date, or geographic point to search near.</param>
         /// <param name="pivot">The value to use to calculate scores of result documents.</param>
         /// <param name="score">The score modifier.</param>
@@ -660,7 +660,7 @@ namespace MongoDB.Driver.Search
         /// Creates a search definition that supports querying and scoring numeric and date values.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="origin">The number, date, or geographic point to search near.</param>
         /// <param name="pivot">The value to use to calculate scores of result documents.</param>
         /// <param name="score">The score modifier.</param>
@@ -676,7 +676,7 @@ namespace MongoDB.Driver.Search
         /// Creates a search definition that supports querying and scoring numeric and date values.
         /// </summary>
         /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="origin">The number, date, or geographic point to search near.</param>
         /// <param name="pivot">The value to use to calculate scores of result documents.</param>
         /// <param name="score">The score modifier.</param>
@@ -694,7 +694,7 @@ namespace MongoDB.Driver.Search
         /// </summary>
         /// <typeparam name="TCoordinates">The type of the coordinates</typeparam>
         /// <typeparam name="TField">The type of the fields.</typeparam>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="origin">The number, date, or geographic point to search near.</param>
         /// <param name="pivot">The value to user to calculate scores of result documents.</param>
         /// <param name="score">The score modifier.</param>
@@ -711,7 +711,7 @@ namespace MongoDB.Driver.Search
         /// Creates a search definition that performs search for documents containing an ordered
         /// sequence of terms.
         /// </summary>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="query">The string or strings to search for.</param>
         /// <param name="slop">The allowable distance between words in the query phrase.</param>
         /// <param name="score">The score modifier.</param>
@@ -727,7 +727,7 @@ namespace MongoDB.Driver.Search
         /// Creates a search definition that performs search for documents containing an ordered
         /// sequence of terms.
         /// </summary>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="query">The string or strings to search for.</param>
         /// <param name="options">The options.</param>
         /// <returns>A phrase search definition.</returns>
@@ -742,7 +742,7 @@ namespace MongoDB.Driver.Search
         /// sequence of terms.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="query">The string or strings to search for.</param>
         /// <param name="slop">The allowable distance between words in the query phrase.</param>
         /// <param name="score">The score modifier.</param>
@@ -759,7 +759,7 @@ namespace MongoDB.Driver.Search
         /// sequence of terms.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="query">The string or strings to search for.</param>
         /// <param name="options">The options.</param>
         /// <returns>A phrase search definition.</returns>
@@ -800,7 +800,7 @@ namespace MongoDB.Driver.Search
         /// Creates a search definition that queries for documents where a field is in the specified range.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="range">The field range.</param>
         /// <param name="score">The score modifier.</param>
         /// <returns>A range search definition.</returns>
@@ -815,7 +815,7 @@ namespace MongoDB.Driver.Search
         /// Creates a search definition that queries for documents where a field is in the specified range.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="range">The field range.</param>
         /// <param name="doesNotAffect">The names of the facets whose counts this operator should not restrict. Those facets reflect the full result set regardless of the operator's filter.</param>
         /// <param name="score">The score modifier.</param>
@@ -832,7 +832,7 @@ namespace MongoDB.Driver.Search
         /// Creates a search definition that queries for documents where a field is in the specified range.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="range">The field range.</param>
         /// <param name="score">The score modifier.</param>
         /// <returns>A range search definition.</returns>
@@ -847,7 +847,7 @@ namespace MongoDB.Driver.Search
         /// Creates a search definition that queries for documents where a field is in the specified range.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="range">The field range.</param>
         /// <param name="doesNotAffect">The names of the facets whose counts this operator should not restrict. Those facets reflect the full result set regardless of the operator's filter.</param>
         /// <param name="score">The score modifier.</param>
@@ -864,7 +864,7 @@ namespace MongoDB.Driver.Search
         /// Creates a search definition that queries for documents where a field is in the specified range.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="range">The field range.</param>
         /// <param name="score">The score modifier.</param>
         /// <returns>A range search definition.</returns>
@@ -879,7 +879,7 @@ namespace MongoDB.Driver.Search
         /// Creates a search definition that queries for documents where a field is in the specified range.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="range">The field range.</param>
         /// <param name="doesNotAffect">The names of the facets whose counts this operator should not restrict. Those facets reflect the full result set regardless of the operator's filter.</param>
         /// <param name="score">The score modifier.</param>
@@ -902,7 +902,7 @@ namespace MongoDB.Driver.Search
         /// Creates a search definition that queries for documents where a field is in the specified range.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="range">The field range.</param>
         /// <param name="score">The score modifier.</param>
         /// <returns>A range search definition.</returns>
@@ -916,7 +916,7 @@ namespace MongoDB.Driver.Search
         /// Creates a search definition that queries for documents where a field is in the specified range.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="range">The field range.</param>
         /// <param name="doesNotAffect">The names of the facets whose counts this operator should not restrict. Those facets reflect the full result set regardless of the operator's filter.</param>
         /// <param name="score">The score modifier.</param>
@@ -932,7 +932,7 @@ namespace MongoDB.Driver.Search
         /// Creates a search definition that queries for documents where a field is in the specified range.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="range">The field range.</param>
         /// <param name="score">The score modifier.</param>
         /// <returns>A range search definition.</returns>
@@ -946,7 +946,7 @@ namespace MongoDB.Driver.Search
         /// Creates a search definition that queries for documents where a field is in the specified range.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="range">The field range.</param>
         /// <param name="doesNotAffect">The names of the facets whose counts this operator should not restrict. Those facets reflect the full result set regardless of the operator's filter.</param>
         /// <param name="score">The score modifier.</param>
@@ -962,7 +962,7 @@ namespace MongoDB.Driver.Search
         /// Creates a search definition that queries for documents where a field is in the specified range.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="range">The field range.</param>
         /// <param name="score">The score modifier.</param>
         /// <returns>A range search definition.</returns>
@@ -976,7 +976,7 @@ namespace MongoDB.Driver.Search
         /// Creates a search definition that queries for documents where a field is in the specified range.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="range">The field range.</param>
         /// <param name="doesNotAffect">The names of the facets whose counts this operator should not restrict. Those facets reflect the full result set regardless of the operator's filter.</param>
         /// <param name="score">The score modifier.</param>
@@ -991,7 +991,7 @@ namespace MongoDB.Driver.Search
         /// <summary>
         /// Creates a search definition that interprets the query as a regular expression.
         /// </summary>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="query">The string or strings to search for.</param>
         /// <param name="allowAnalyzedField">
         /// Must be set to true if the query is run against an analyzed field.
@@ -1009,7 +1009,7 @@ namespace MongoDB.Driver.Search
         /// Creates a search definition that interprets the query as a regular expression.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="query">The string or strings to search for.</param>
         /// <param name="allowAnalyzedField">
         /// Must be set to true if the query is run against an analyzed field.
@@ -1036,7 +1036,7 @@ namespace MongoDB.Driver.Search
         /// Creates a search definition that performs full-text search using the analyzer specified
         /// in the index configuration.
         /// </summary>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="query">The string or strings to search for.</param>
         /// <param name="options">The options.</param>
         /// <returns>A text search definition.</returns>
@@ -1050,7 +1050,7 @@ namespace MongoDB.Driver.Search
         /// Creates a search definition that performs full-text search using the analyzer specified
         /// in the index configuration.
         /// </summary>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="query">The string or strings to search for.</param>
         /// <param name="fuzzy">The options for fuzzy search.</param>
         /// <param name="score">The score modifier.</param>
@@ -1066,7 +1066,7 @@ namespace MongoDB.Driver.Search
         /// Creates a search definition that performs full-text search with synonyms using the analyzer specified
         /// in the index configuration.
         /// </summary>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="query">The string or strings to search for.</param>
         /// <param name="synonyms">The name of the synonym mapping definition in the index definition</param>
         /// <param name="score">The score modifier.</param>
@@ -1131,7 +1131,7 @@ namespace MongoDB.Driver.Search
         /// Creates a search definition that uses special characters in the search string that can
         /// match any character.
         /// </summary>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="query">The string or strings to search for.</param>
         /// <param name="allowAnalyzedField">
         /// Must be set to true if the query is run against an analyzed field.
@@ -1150,7 +1150,7 @@ namespace MongoDB.Driver.Search
         /// match any character.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="query">The string or strings to search for.</param>
         /// <param name="allowAnalyzedField">
         /// Must be set to true if the query is run against an analyzed field.
@@ -1167,7 +1167,7 @@ namespace MongoDB.Driver.Search
         /// <summary>
         /// Creates a search definition for a vector search as a search operator.
         /// </summary>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="queryVector">The query vector.</param>
         /// <param name="limit">The limit.</param>
         /// <param name="options">The vector search options.</param>
@@ -1184,7 +1184,7 @@ namespace MongoDB.Driver.Search
         /// <summary>
         /// Creates a search definition for a vector search as a search operator.
         /// </summary>
-        /// <param name="path">The indexed field to search.</param>
+        /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="queryVector">The query vector.</param>
         /// <param name="limit">The limit.</param>
         /// <param name="options">The vector search options.</param>
