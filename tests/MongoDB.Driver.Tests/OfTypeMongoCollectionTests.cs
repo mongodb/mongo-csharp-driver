@@ -769,6 +769,25 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [ParameterAttributeData]
+        public void FindOneAndUpdate_with_session_should_not_throw_when_options_is_null(
+            [Values(false, true)] bool async)
+        {
+            var subject = CreateSubject();
+            var session = CreateSession(usingSession: true);
+            var update = new BsonDocument("$set", new BsonDocument("x", 5));
+
+            if (async)
+            {
+                subject.FindOneAndUpdateAsync(session, _providedFilter, update, null, CancellationToken.None);
+            }
+            else
+            {
+                subject.FindOneAndUpdate(session, _providedFilter, update, null, CancellationToken.None);
+            }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         public async Task MapReduce_should_include_the_filter_when_one_was_not_provided(
             [Values(false, true)] bool async)
         {
