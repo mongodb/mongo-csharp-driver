@@ -95,7 +95,7 @@ public class QueryableEncryptionTextQueryTests : LoggableTestClass
         RequireServer.Check()
             .Supports(Feature.Csfle2QEv2TextPreviewAlgorithm)
             .ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced)
-            .VersionLessThanOrEqualTo("8.99.99"); // 9.0 removed the prefix/suffix preview operators (SERVER-123416)
+            .VersionLessThanOrEqualTo("8.99.99"); // the encryptedFields fixtures use the deprecated prefixPreview/suffixPreview/substringPreview query types, which 9.0 rejects (SERVER-123416)
 
         // QE text queries require crypt_shared; skip when only mongocryptd is available (see SERVER-106469).
         CoreTestConfiguration.SkipMongocryptdTests_SERVER_106469(checkForSharedLib: true);
