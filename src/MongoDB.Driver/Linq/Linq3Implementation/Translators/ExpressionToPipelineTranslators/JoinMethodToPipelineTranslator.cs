@@ -74,7 +74,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                 }
                 else
                 {
-                    var rootInnerExpression = GetRootQueryableExpression(innerExpression);
+                    var rootInnerExpression = TranslationContext.GetUltimateSource(innerExpression);
                     (innerCollectionName, innerSerializer) = rootInnerExpression.GetCollectionInfoFromQueryable(containerExpression: expression);
                     var innerTranslation = ExpressionToPipelineTranslator.Translate(context, innerExpression);
                     innerSerializer = innerTranslation.OutputSerializer;
@@ -111,13 +111,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             }
 
             throw new ExpressionNotSupportedException(expression);
-        }
-
-        private static Expression GetRootQueryableExpression(Expression expression)
-        {
-            while (expression is MethodCallExpression methodCall)
-                expression = methodCall.Arguments[0];
-            return expression;
         }
     }
 }
