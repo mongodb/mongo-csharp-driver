@@ -53,13 +53,14 @@ public sealed class EvergreenExporter : IExporter
             // write composite scores e.g ReadBench
             foreach (var category in DriverBenchmarkCategory.AllCategories)
             {
-                WriteScoreToResults(jsonWriter, category, CalculateCompositeScore(benchmarkResults, category));
+                var composite = CalculateComposite(benchmarkResults, category);
+                WriteScoreToResults(jsonWriter, category, composite.Score, composite.MetricName);
             }
 
             // write individual benchmarks results
             foreach (var benchmark in benchmarkResults)
             {
-                WriteScoreToResults(jsonWriter, benchmark.Name, benchmark.Score);
+                WriteScoreToResults(jsonWriter, benchmark.Name, benchmark.Score, benchmark.MetricName);
             }
 
             jsonWriter.WriteEndArray();
@@ -68,7 +69,7 @@ public sealed class EvergreenExporter : IExporter
         return new[] { resultsPath };
     }
 
-    private static void WriteScoreToResults(JsonWriter jsonWriter, string name, double score)
+    private static void WriteScoreToResults(JsonWriter jsonWriter, string name, double score, string metricName)
     {
         jsonWriter.WriteStartDocument();
         jsonWriter.WriteStartDocument("info");
@@ -77,7 +78,7 @@ public sealed class EvergreenExporter : IExporter
 
         jsonWriter.WriteStartArray("metrics");
         jsonWriter.WriteStartDocument();
-        jsonWriter.WriteString("name", "megabytes_per_second");
+        jsonWriter.WriteString("name", metricName);
         jsonWriter.WriteDouble("value", score);
         jsonWriter.WriteEndDocument();
         jsonWriter.WriteEndArray();

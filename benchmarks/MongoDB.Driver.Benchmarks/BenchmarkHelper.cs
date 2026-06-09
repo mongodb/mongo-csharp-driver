@@ -37,18 +37,23 @@ public static class BenchmarkHelper
         }
     }
 
-    public static double CalculateCompositeScore(IEnumerable<BenchmarkResult> benchmarkResults, string benchmarkCategory)
+    public static (double Score, string Unit, string MetricName) CalculateComposite(IEnumerable<BenchmarkResult> benchmarkResults, string benchmarkCategory)
     {
-        var identifiedBenchmarksScores = benchmarkResults
-            .Where(benchmark => benchmark.Categories.Contains(benchmarkCategory))
-            .Select(benchmark => benchmark.Score).ToArray();
+        var members = benchmarkResults
+            .Where(benchmark => benchmark.Categories.Contains(benchmarkCategory)
+                && !benchmark.Categories.Contains(DriverBenchmarkCategory.ExcludeFromComposite))
+            .ToArray();
 
-        if (identifiedBenchmarksScores.Any())
+        if (members.Length == 0)
         {
-            return identifiedBenchmarksScores.Average();
+            // No members to derive the unit from; fall back to the category's normal unit so the
+            // composite's metric name is stable whether or not the category ran this time.
+            return benchmarkCategory == DriverBenchmarkCategory.LinqBench
+                ? (0, "ops/s", "operations_per_second")
+                : (0, "MB/s", "megabytes_per_second");
         }
 
-        return 0;
+        return (members.Average(benchmark => benchmark.Score), members[0].Unit, members[0].MetricName);
     }
 
     public static void CreateEmptyDirectory(string path)
@@ -78,14 +83,14 @@ public static class BenchmarkHelper
         public const string PerfTestDatabaseName = "perftest";
         public const string PerfTestCollectionName = "corpus";
 
-        public static IMongoClient CreateClient()
+        public static IMongoClient CreateClient(string databaseToDrop = PerfTestDatabaseName)
         {
             var mongoUri = Environment.GetEnvironmentVariable("MONGODB_URI");
             var settings = mongoUri != null ? MongoClientSettings.FromConnectionString(mongoUri) : new();
             settings.ClusterSource = DisposingClusterSource.Instance;
 
             var client = new MongoClient(settings);
-            client.DropDatabase(PerfTestDatabaseName);
+            client.DropDatabase(databaseToDrop);
 
             return client;
         }
