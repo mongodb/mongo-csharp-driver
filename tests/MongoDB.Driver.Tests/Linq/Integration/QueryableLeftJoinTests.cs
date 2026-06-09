@@ -16,6 +16,8 @@
 using System;
 using System.Linq;
 using FluentAssertions;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
@@ -212,6 +214,10 @@ public class QueryableLeftJoinTests : LinqIntegrationTest<QueryableLeftJoinTests
     [Fact]
     public void LeftJoin_with_filtered_inner_queryable_should_apply_filter()
     {
+        // A filtered inner sequence is translated to a $lookup that combines localField/foreignField
+        // with a pipeline, which requires the concise $lookup syntax introduced in MongoDB 5.0.
+        RequireServer.Check().Supports(Feature.LookupConciseSyntax);
+
         var orders = Fixture.OrdersCollection;
 
         // Only Alice (id=10) should participate as an inner match.

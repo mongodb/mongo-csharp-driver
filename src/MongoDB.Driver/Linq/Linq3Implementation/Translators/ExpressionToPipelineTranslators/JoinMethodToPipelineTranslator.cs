@@ -84,6 +84,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                 var localField = outerKeySelectorLambda.TranslateToDottedFieldName(context, wrappedOuterSerializer);
                 var foreignField = innerKeySelectorLambda.TranslateToDottedFieldName(context, innerSerializer);
 
+                // When the inner sequence is filtered we emit a $lookup that combines localField/foreignField
+                // with a pipeline. That concise syntax requires MongoDB 5.0+ (Feature.LookupConciseSyntax);
+                // a bare inner sequence uses the simpler localField/foreignField form supported by all servers.
                 var lookupStage = innerFilterPipeline != null
                     ? AstStage.Lookup(innerCollectionName, localField, foreignField, [], innerFilterPipeline, "_inner")
                     : AstStage.Lookup(from: innerCollectionName, localField, foreignField, @as: "_inner");

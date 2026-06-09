@@ -837,6 +837,10 @@ namespace MongoDB.Driver.Linq
         /// <returns>
         /// An <see cref="IQueryable{TResult}" /> that contains elements of type <typeparamref name="TResult" /> obtained by performing a left outer join on two sequences.
         /// </returns>
+        /// <remarks>
+        /// When <paramref name="inner" /> carries additional query operators (such as Where) it is translated to a
+        /// $lookup that combines localField/foreignField with a pipeline, which requires MongoDB 5.0 or later.
+        /// </remarks>
         public static IQueryable<TResult> LeftJoin<TOuter, TInner, TKey, TResult>(this IQueryable<TOuter> outer, IQueryable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, TInner, TResult>> resultSelector)
         {
             Ensure.IsNotNull(outer, nameof(outer));
