@@ -61,8 +61,8 @@ echo -e "\n================================="
 echo "Resolving libmongocrypt version"
 echo "================================="
 
-LIBMONGOCRYPT_VERSION=$(sed -n 's/.*<LibMongoCryptVersion>\([^<]*\)<\/LibMongoCryptVersion>.*/\1/p' \
-  src/MongoDB.Driver.Encryption/MongoDB.Driver.Encryption.csproj | head -1)
+LIBMONGOCRYPT_VERSION=$(dotnet msbuild src/MongoDB.Driver.Encryption/MongoDB.Driver.Encryption.csproj \
+  -getProperty:LibMongoCryptVersion 2>/dev/null)
 
 if [[ -z "$LIBMONGOCRYPT_VERSION" ]]; then
   echo "ERROR: Could not extract LibMongoCryptVersion from MongoDB.Driver.Encryption.csproj" >&2
