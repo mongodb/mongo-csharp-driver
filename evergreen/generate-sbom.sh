@@ -31,8 +31,8 @@ dotnet tool install --global CycloneDX --version 6.2.0 --allow-downgrade
 echo -e "\nGenerating SBOM"
 echo "************************************************"
 
-# Attempt GitHub license resolution only if GITHUB_USER and GITHUB_APIKEY are both set
-if [[ -v GITHUB_USER && -v GITHUB_APIKEY ]]; then
+# Attempt GitHub license resolution only if GITHUB_USER and GITHUB_APIKEY are both non-empty
+if [[ -n "${GITHUB_USER:-}" && -n "${GITHUB_APIKEY:-}" ]]; then
   echo "GitHub license resolution enabled for user: ${GITHUB_USER}"
   github_options=(--enable-github-licenses --github-username "${GITHUB_USER}" --github-token "${GITHUB_APIKEY}")
 else
@@ -64,9 +64,14 @@ echo "================================="
 MONGOCRYPT_COMMIT=$(sed -n 's/.*<LibMongoCryptCommit>\([^<]*\)<\/LibMongoCryptCommit>.*/\1/p' \
   src/MongoDB.Driver.Encryption/MongoDB.Driver.Encryption.csproj | head -1)
 
+if [[ -z "$MONGOCRYPT_COMMIT" ]]; then
+  echo "ERROR: Could not extract LibMongoCryptCommit from MongoDB.Driver.Encryption.csproj" >&2
+  exit 1
+fi
+
 echo "Looking up tag for libmongocrypt commit ${MONGOCRYPT_COMMIT}"
 github_auth_args=()
-[[ -v GITHUB_APIKEY ]] && github_auth_args=(-H "Authorization: Bearer ${GITHUB_APIKEY}")
+[[ -n "${GITHUB_APIKEY:-}" ]] && github_auth_args=(-H "Authorization: Bearer ${GITHUB_APIKEY}")
 
 # The tags API returns newest-first; bare semver tags (1.x.y) may not appear until page 2+
 # because pymongocrypt-* and node-v* tags dominate the first pages. Stop early when found.
@@ -77,6 +82,7 @@ for page in 1 2 3 4 5; do
     "${github_auth_args[@]+"${github_auth_args[@]}"}" \
     "https://api.github.com/repos/mongodb/libmongocrypt/tags?per_page=100&page=${page}" \
     2>/dev/null || echo '[]')
+  [[ $(jq -r 'type' <<< "$tags_json") != "array" ]] && { echo "Unexpected GitHub API response (not an array), stopping tag lookup" >&2; break; }
   [[ $(jq 'length' <<< "$tags_json") -eq 0 ]] && break
   # Prefer bare semver tags (e.g. 1.15.1) over language-prefixed tags for the same commit
   LIBMONGOCRYPT_VERSION=$(jq -r --arg sha "$MONGOCRYPT_COMMIT" \
@@ -96,7 +102,8 @@ fi
 LIBMONGOCRYPT_PURL="pkg:github/mongodb/libmongocrypt@${LIBMONGOCRYPT_VERSION}"
 ENCRYPTION_PURL="pkg:nuget/MongoDB.Driver.Encryption@${PACKAGE_VERSION}"
 
-contents=$(jq \
+tmp=$(mktemp)
+jq \
   --arg purl  "$LIBMONGOCRYPT_PURL" \
   --arg ver   "$LIBMONGOCRYPT_VERSION" \
   --arg encpurl "$ENCRYPTION_PURL" \
@@ -110,8 +117,7 @@ contents=$(jq \
   .dependencies += [{
     "ref": $encpurl,
     "dependsOn": [$purl]
-  }]' sbom.cdx.json)
-printf '%s\n' "${contents}" > sbom.cdx.json
+  }]' sbom.cdx.json > "$tmp" && mv "$tmp" sbom.cdx.json
 
 echo -e "\n================================="
 echo "Updating sbom.json with version tracking"
