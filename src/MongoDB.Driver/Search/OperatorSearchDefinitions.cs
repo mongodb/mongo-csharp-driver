@@ -136,7 +136,7 @@ namespace MongoDB.Driver.Search
             : base(OperatorType.Equals, path, score)
         {
             _value = value;
-            _doesNotAffect = doesNotAffect?.ToArray();
+            _doesNotAffect = doesNotAffect?.Select(f => Ensure.IsNotNullOrEmpty(f, nameof(doesNotAffect))).ToArray();
         }
 
         private protected override BsonDocument RenderArguments(
@@ -305,7 +305,7 @@ namespace MongoDB.Driver.Search
         {
             Ensure.IsNotNullOrEmpty(values, nameof(values));
             _values = values.ToArray();
-            _doesNotAffect = doesNotAffect?.ToArray();
+            _doesNotAffect = doesNotAffect?.Select(f => Ensure.IsNotNullOrEmpty(f, nameof(doesNotAffect))).ToArray();
         }
 
         private protected override BsonDocument RenderArguments(
@@ -448,7 +448,7 @@ namespace MongoDB.Driver.Search
                 : base(OperatorType.Range, path, score)
         {
             _range = range;
-            _doesNotAffect = doesNotAffect?.ToArray();
+            _doesNotAffect = doesNotAffect?.Select(f => Ensure.IsNotNullOrEmpty(f, nameof(doesNotAffect))).ToArray();
         }
 
         private protected override BsonDocument RenderArguments(
