@@ -36,94 +36,148 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var method = expression.Method;
             var arguments = expression.Arguments.ToArray();
 
+            if (method.IsOneOf(EnumerableMethod.PickExpressionOperatorOverloads))
+            {
+                return TranslateExpressionOperator(context, expression, method, arguments);
+            }
+
             if (method.IsOneOf(EnumerableMethod.PickOverloads))
             {
-                var sourceExpression = arguments[0];
-                var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
-                NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsQueryableSource(expression, sourceTranslation);
-                var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
-
-                if (method.IsOneOf(EnumerableMethod.PickOverloadsThatCanOnlyBeUsedAsGroupByAccumulators) && !IsGroupingSource(sourceTranslation.Ast))
-                {
-                    throw new ExpressionNotSupportedException(expression, because: $"{method.Name} can only be used as an accumulator with GroupBy");
-                }
-
-                AstSortFields sortBy = null;
-                if (method.IsOneOf(EnumerableMethod.PickWithSortByOverloads))
-                {
-                    var sortByExpression = arguments[1];
-                    var sortByDefinition = GetSortByDefinition(sortByExpression, expression);
-                    sortBy = TranslateSortByDefinition(expression, sortByExpression, sortByDefinition, itemSerializer, context.TranslationOptions);
-                }
-
-                var selectorLambda = (LambdaExpression)GetSelectorArgument(method, arguments);
-                var selectorParameter = selectorLambda.Parameters.Single();
-                var selectorParameterSymbol = context.CreateSymbol(selectorParameter, itemSerializer);
-                var selectorContext = context.WithSymbol(selectorParameterSymbol);
-                var selectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(selectorContext, selectorLambda, itemSerializer, asRoot: false);
-
-                TranslatedExpression nTranslation = null;
-                IBsonSerializer resultSerializer;
-                if (method.IsOneOf(EnumerableMethod.PickWithNOverloads, EnumerableMethod.PickWithComputedNOverloads))
-                {
-                    var nExpression = arguments.Last();
-                    if (method.IsOneOf(EnumerableMethod.PickWithNOverloads))
-                    {
-                        nTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, nExpression);
-                    }
-                    else
-                    {
-                        var keyExpression = arguments[arguments.Length - 2];
-                        var keyTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, keyExpression);
-                        if (!IsValidKey(keyTranslation))
-                        {
-                            throw new ExpressionNotSupportedException(keyExpression, expression, because: "key must be a reference the _id field");
-                        }
-
-                        var nLambda = (LambdaExpression)nExpression;
-                        var keyParameter = nLambda.Parameters.Single();
-                        var keySymbol = context.CreateSymbol(keyParameter, keyTranslation.Serializer, isCurrent: true);
-                        var nContext = context.WithSingleSymbol(keySymbol);
-                        nTranslation = ExpressionToAggregationExpressionTranslator.Translate(nContext, nLambda.Body);
-                    }
-                    resultSerializer = IEnumerableSerializer.Create(selectorTranslation.Serializer);
-                }
-                else
-                {
-                    resultSerializer = selectorTranslation.Serializer;
-                }
-
-                AstPickOperator @operator;
-                var sourceAst = sourceTranslation.Ast;
-                var @as = selectorParameterSymbol.Var;
-                var selectorAst = selectorTranslation.Ast;
-                if (IsGroupingSource(sourceTranslation.Ast))
-                {
-                    @operator = GetPlaceholderOperator(method);
-                }
-                else
-                {
-                    @operator = GetArrayOperator(method);
-                    sourceAst = AstExpression.Map(
-                        input: sourceAst,
-                        @as: selectorParameterSymbol.Var,
-                        @in: selectorAst);
-                    @as = null;
-                    selectorAst = null;
-                }
-
-                var ast = AstExpression.PickExpression(
-                    @operator,
-                    sourceAst,
-                    sortBy,
-                    @as,
-                    selectorAst,
-                    nTranslation?.Ast);
-
-                return new TranslatedExpression(expression, ast, resultSerializer);
+                return TranslateAccumulatorOperator(context, expression, method, arguments);
             }
 
             throw new ExpressionNotSupportedException(expression);
+        }
+
+        private static TranslatedExpression TranslateAccumulatorOperator(TranslationContext context, MethodCallExpression expression, MethodInfo method, Expression[] arguments)
+        {
+            var sourceExpression = arguments[0];
+            var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
+            NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsQueryableSource(expression, sourceTranslation);
+            var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
+
+            if (method.IsOneOf(EnumerableMethod.PickOverloadsThatCanOnlyBeUsedAsGroupByAccumulators) && !IsGroupingSource(sourceTranslation.Ast))
+            {
+                throw new ExpressionNotSupportedException(expression, because: $"{method.Name} can only be used as an accumulator with GroupBy");
+            }
+
+            AstSortFields sortBy = null;
+            if (method.IsOneOf(EnumerableMethod.PickWithSortByOverloads))
+            {
+                var sortByExpression = arguments[1];
+                var sortByDefinition = GetSortByDefinition(sortByExpression, expression);
+                sortBy = TranslateSortByDefinition(expression, sortByExpression, sortByDefinition, itemSerializer, context.TranslationOptions);
+            }
+
+            var selectorLambda = (LambdaExpression)GetSelectorArgument(method, arguments);
+            var selectorParameter = selectorLambda.Parameters.Single();
+            var selectorParameterSymbol = context.CreateSymbol(selectorParameter, itemSerializer);
+            var selectorContext = context.WithSymbol(selectorParameterSymbol);
+            var selectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(selectorContext, selectorLambda, itemSerializer, asRoot: false);
+
+            TranslatedExpression nTranslation = null;
+            IBsonSerializer resultSerializer;
+            if (method.IsOneOf(EnumerableMethod.PickWithNOverloads, EnumerableMethod.PickWithComputedNOverloads))
+            {
+                var nExpression = arguments.Last();
+                if (method.IsOneOf(EnumerableMethod.PickWithNOverloads))
+                {
+                    nTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, nExpression);
+                }
+                else
+                {
+                    var keyExpression = arguments[arguments.Length - 2];
+                    var keyTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, keyExpression);
+                    if (!IsValidKey(keyTranslation))
+                    {
+                        throw new ExpressionNotSupportedException(keyExpression, expression, because: "key must be a reference the _id field");
+                    }
+
+                    var nLambda = (LambdaExpression)nExpression;
+                    var keyParameter = nLambda.Parameters.Single();
+                    var keySymbol = context.CreateSymbol(keyParameter, keyTranslation.Serializer, isCurrent: true);
+                    var nContext = context.WithSingleSymbol(keySymbol);
+                    nTranslation = ExpressionToAggregationExpressionTranslator.Translate(nContext, nLambda.Body);
+                }
+                resultSerializer = IEnumerableSerializer.Create(selectorTranslation.Serializer);
+            }
+            else
+            {
+                resultSerializer = selectorTranslation.Serializer;
+            }
+
+            AstPickOperator @operator;
+            var sourceAst = sourceTranslation.Ast;
+            var @as = selectorParameterSymbol.Var;
+            var selectorAst = selectorTranslation.Ast;
+            if (IsGroupingSource(sourceTranslation.Ast))
+            {
+                @operator = GetPlaceholderOperator(method);
+            }
+            else
+            {
+                @operator = GetArrayOperator(method);
+                sourceAst = AstExpression.Map(
+                    input: sourceAst,
+                    @as: selectorParameterSymbol.Var,
+                    @in: selectorAst);
+                @as = null;
+                selectorAst = null;
+            }
+
+            var ast = AstExpression.PickExpression(
+                @operator,
+                sourceAst,
+                sortBy,
+                @as,
+                selectorAst,
+                nTranslation?.Ast);
+
+            return new TranslatedExpression(expression, ast, resultSerializer);
+        }
+
+        private static TranslatedExpression TranslateExpressionOperator(TranslationContext context, MethodCallExpression expression, MethodInfo method, Expression[] arguments)
+        {
+            var sourceExpression = arguments[0];
+            var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
+            if (IsGroupingSource(sourceTranslation.Ast))
+            {
+                throw new ExpressionNotSupportedException(expression, because: $"{method.Name} can only be used as an expression operator on an array; use the overload with a selector to use it as a GroupBy accumulator");
+            }
+
+            var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
+
+            var sortByExpression = arguments[1];
+            var sortByDefinition = GetSortByDefinition(sortByExpression, expression);
+            var sortBy = TranslateSortByDefinition(expression, sortByExpression, sortByDefinition, itemSerializer, context.TranslationOptions);
+
+            AstExpression nAst = null;
+            IBsonSerializer resultSerializer;
+            if (method.IsOneOf(EnumerableMethod.TopNExpressionOperator, EnumerableMethod.BottomNExpressionOperator))
+            {
+                nAst = ExpressionToAggregationExpressionTranslator.Translate(context, arguments[2]).Ast;
+                resultSerializer = IEnumerableSerializer.Create(itemSerializer);
+            }
+            else
+            {
+                resultSerializer = itemSerializer;
+            }
+
+            var @operator = GetArrayExpressionOperator(method);
+            var ast = AstExpression.PickExpression(@operator, sourceTranslation.Ast, sortBy, @as: null, selector: null, n: nAst);
+            return new TranslatedExpression(expression, ast, resultSerializer);
+        }
+
+        private static AstPickOperator GetArrayExpressionOperator(MethodInfo method)
+        {
+            return method switch
+            {
+                _ when method.Is(EnumerableMethod.BottomExpressionOperator) => AstPickOperator.BottomArray,
+                _ when method.Is(EnumerableMethod.BottomNExpressionOperator) => AstPickOperator.BottomNArray,
+                _ when method.Is(EnumerableMethod.TopExpressionOperator) => AstPickOperator.TopArray,
+                _ when method.Is(EnumerableMethod.TopNExpressionOperator) => AstPickOperator.TopNArray,
+                _ => throw new InvalidOperationException($"Invalid method name: {method.Name}.")
+            };
         }
 
         private static AstPickOperator GetPlaceholderOperator(MethodInfo method)

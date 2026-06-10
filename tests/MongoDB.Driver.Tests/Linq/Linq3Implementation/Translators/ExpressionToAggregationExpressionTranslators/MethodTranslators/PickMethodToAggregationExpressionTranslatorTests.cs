@@ -25,16 +25,23 @@ using MongoDB.Driver.Linq;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
-namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
+namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
-    public class CSharp3529Tests : Linq3IntegrationTest
+    public class PickMethodToAggregationExpressionTranslatorTests : LinqIntegrationTest<PickMethodToAggregationExpressionTranslatorTests.ClassFixture>
     {
+        public PickMethodToAggregationExpressionTranslatorTests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
+        #region Accumulator operators
+
         // $bottom examples are from: https://www.mongodb.com/docs/v6.0/reference/operator/aggregation/bottom/
         [Fact]
         public void Bottom_find_the_bottom_score_in_a_single_game_example_using_GroupBy_with_result_selector_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateGameScoresCollection();
+            var collection = Fixture.GameScoresCollection;
             var queryable = collection
                 .AsQueryable()
                 .Where(x => x.GameId == "G1")
@@ -64,7 +71,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Bottom_find_the_bottom_score_in_a_single_game_example_using_GroupBy_and_Select_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateGameScoresCollection();
+            var collection = Fixture.GameScoresCollection;
             var queryable = collection
                 .AsQueryable()
                 .Where(x => x.GameId == "G1")
@@ -94,7 +101,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Bottom_find_the_bottom_score_across_multiple_games_example_using_GroupBy_with_result_selector_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateGameScoresCollection();
+            var collection = Fixture.GameScoresCollection;
             var queryable = collection
                 .AsQueryable()
                 .GroupBy(
@@ -124,7 +131,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Bottom_find_the_bottom_score_across_multiple_games_example_using_GroupBy_and_Select_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateGameScoresCollection();
+            var collection = Fixture.GameScoresCollection;
             var queryable = collection
                 .AsQueryable()
                 .GroupBy(x => x.GameId)
@@ -156,7 +163,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [Values(false, true)] bool enableClientSideProjections)
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateDocumentsWithArrayCollection();
+            var collection = Fixture.DocumentsWithArrayCollection;
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
             var queryable = collection
@@ -186,7 +193,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void BottomN_find_the_three_lowest_scores_in_a_single_game_example_using_GroupBy_with_result_selector_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateGameScoresCollection();
+            var collection = Fixture.GameScoresCollection;
             var queryable = collection
                 .AsQueryable()
                 .Where(x => x.GameId == "G1")
@@ -219,7 +226,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void BottomN_find_the_three_lowest_scores_in_a_single_game_example_using_GroupBy_and_Select_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateGameScoresCollection();
+            var collection = Fixture.GameScoresCollection;
             var queryable = collection
                 .AsQueryable()
                 .Where(x => x.GameId == "G1")
@@ -252,7 +259,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void BottomN_find_the_three_lowest_scores_across_multiple_games_example_using_GroupBy_with_result_selector_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateGameScoresCollection();
+            var collection = Fixture.GameScoresCollection;
             var queryable = collection
                 .AsQueryable()
                 .GroupBy(
@@ -285,7 +292,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void BottomN_find_the_three_lowest_scores_across_multiple_games_example_using_GroupBy_and_Select_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateGameScoresCollection();
+            var collection = Fixture.GameScoresCollection;
             var queryable = collection
                 .AsQueryable()
                 .GroupBy(x => x.GameId)
@@ -318,7 +325,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void BottomN_computing_n_based_on_the_group_key_example_using_GroupBy_with_result_selector_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateGameScoresCollection();
+            var collection = Fixture.GameScoresCollection;
             var queryable = collection
                 .AsQueryable()
                 .GroupBy(
@@ -352,7 +359,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void BottomN_computing_n_based_on_the_group_key_example_using_GroupBy_and_Select_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateGameScoresCollection();
+            var collection = Fixture.GameScoresCollection;
             var queryable = collection
                 .AsQueryable()
                 .GroupBy(x => new { GameId = x.GameId })
@@ -388,7 +395,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [Values(false, true)] bool enableClientSideProjections)
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateDocumentsWithArrayCollection();
+            var collection = Fixture.DocumentsWithArrayCollection;
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
             var queryable = collection
@@ -418,7 +425,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void First_use_in_group_stage_example_using_GroupBy_with_result_selector_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateSalesCollection();
+            var collection = Fixture.SalesCollection;
             var queryable = collection
                 .AsQueryable()
                 .OrderBy(x => x.Item).ThenBy(x => x.Date)
@@ -449,7 +456,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void First_use_in_group_stage_example_using_GroupBy_and_Select_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateSalesCollection();
+            var collection = Fixture.SalesCollection;
             var queryable = collection
                 .AsQueryable()
                 .OrderBy(x => x.Item).ThenBy(x => x.Date)
@@ -481,7 +488,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void FirstN_find_the_first_three_player_scores_for_a_single_game_example_using_GroupBy_with_result_selector_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateGameScoresCollection();
+            var collection = Fixture.GameScoresCollection;
             var queryable = collection
                 .AsQueryable()
                 .Where(x => x.GameId == "G1")
@@ -513,7 +520,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void FirstN_find_the_first_three_player_scores_for_a_single_game_example_using_GroupBy_and_Select_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateGameScoresCollection();
+            var collection = Fixture.GameScoresCollection;
             var queryable = collection
                 .AsQueryable()
                 .Where(x => x.GameId == "G1")
@@ -545,7 +552,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void FirstN_using_sort_with_firstN_example_using_GroupBy_with_result_selector_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateGameScoresCollection();
+            var collection = Fixture.GameScoresCollection;
             var queryable = collection
                 .AsQueryable()
                 .OrderByDescending(x => x.Score)
@@ -579,7 +586,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void FirstN_using_sort_with_firstN_example_using_GroupBy_and_Select_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateGameScoresCollection();
+            var collection = Fixture.GameScoresCollection;
             var queryable = collection
                 .AsQueryable()
                 .OrderByDescending(x => x.Score)
@@ -613,7 +620,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void FirstN_computing_n_based_on_the_group_key_example_using_GroupBy_with_result_selector_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateGameScoresCollection();
+            var collection = Fixture.GameScoresCollection;
             var queryable = collection
                 .AsQueryable()
                 .GroupBy(
@@ -646,7 +653,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void FirstN_computing_n_based_on_the_group_key_example_using_GroupBy_and_Select_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateGameScoresCollection();
+            var collection = Fixture.GameScoresCollection;
             var queryable = collection
                 .AsQueryable()
                 .GroupBy(x => new { GameId = x.GameId })
@@ -679,7 +686,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void FirstN_array_operator_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateDocumentsWithArrayCollection();
+            var collection = Fixture.DocumentsWithArrayCollection;
             var queryable = collection
                 .AsQueryable()
                 .Select(x => x.A.FirstN(e => e.X, 2));
@@ -699,7 +706,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Last_use_in_group_stage_example_using_GroupBy_with_result_selector_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateSalesCollection();
+            var collection = Fixture.SalesCollection;
             var queryable = collection
                 .AsQueryable()
                 .OrderBy(x => x.Item).ThenBy(x => x.Date)
@@ -730,7 +737,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Last_use_in_group_stage_example_using_GroupBy_and_Select_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateSalesCollection();
+            var collection = Fixture.SalesCollection;
             var queryable = collection
                 .AsQueryable()
                 .OrderBy(x => x.Item).ThenBy(x => x.Date)
@@ -762,7 +769,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void LastN_find_the_last_three_player_scores_for_a_single_game_example_using_GroupBy_with_result_selector_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateGameScoresCollection();
+            var collection = Fixture.GameScoresCollection;
             var queryable = collection
                 .AsQueryable()
                 .Where(x => x.GameId == "G1")
@@ -794,7 +801,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void LastN_find_the_last_three_player_scores_for_a_single_game_example_using_GroupBy_and_Select_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateGameScoresCollection();
+            var collection = Fixture.GameScoresCollection;
             var queryable = collection
                 .AsQueryable()
                 .Where(x => x.GameId == "G1")
@@ -826,7 +833,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void LastN_using_sort_with_lastN_example_using_GroupBy_with_result_selector_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateGameScoresCollection();
+            var collection = Fixture.GameScoresCollection;
             var queryable = collection
                 .AsQueryable()
                 .OrderByDescending(x => x.Score)
@@ -860,7 +867,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void LastN_using_sort_with_lastN_example_using_GroupBy_and_Select_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateGameScoresCollection();
+            var collection = Fixture.GameScoresCollection;
             var queryable = collection
                 .AsQueryable()
                 .OrderByDescending(x => x.Score)
@@ -894,7 +901,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void LastN_computing_n_based_on_the_group_key_example_using_GroupBy_with_result_selector_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateGameScoresCollection();
+            var collection = Fixture.GameScoresCollection;
             var queryable = collection
                 .AsQueryable()
                 .GroupBy(
@@ -927,7 +934,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void LastN_computing_n_based_on_the_group_key_example_using_GroupBy_and_Select_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateGameScoresCollection();
+            var collection = Fixture.GameScoresCollection;
             var queryable = collection
                 .AsQueryable()
                 .GroupBy(x => new { GameId = x.GameId })
@@ -960,7 +967,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void LastN_array_operator_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateDocumentsWithArrayCollection();
+            var collection = Fixture.DocumentsWithArrayCollection;
             var queryable = collection
                 .AsQueryable()
                 .Select(x => x.A.LastN(e => e.X, 2));
@@ -980,7 +987,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Max_use_in_group_stage_example_using_GroupBy_with_result_selector_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateSalesCollection();
+            var collection = Fixture.SalesCollection;
             var queryable = collection
                 .AsQueryable()
                 .GroupBy(
@@ -1010,7 +1017,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Max_use_in_group_stage_example_using_GroupBy_and_Select_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateSalesCollection();
+            var collection = Fixture.SalesCollection;
             var queryable = collection
                 .AsQueryable()
                 .GroupBy(x => x.Item)
@@ -1041,7 +1048,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void MaxN_find_the_maximum_three_scores_for_a_single_game_example_using_GroupBy_with_result_selector_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateGameScoresCollection();
+            var collection = Fixture.GameScoresCollection;
             var queryable = collection
                 .AsQueryable()
                 .Where(x => x.GameId == "G1")
@@ -1073,7 +1080,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void MaxN_find_the_maximum_three_scores_for_a_single_game_example_using_GroupBy_and_Select_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateGameScoresCollection();
+            var collection = Fixture.GameScoresCollection;
             var queryable = collection
                 .AsQueryable()
                 .Where(x => x.GameId == "G1")
@@ -1105,7 +1112,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void MaxN_find_the_maximum_three_scores_across_multiple_games_example_using_GroupBy_with_result_selector_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateGameScoresCollection();
+            var collection = Fixture.GameScoresCollection;
             var queryable = collection
                 .AsQueryable()
                 .GroupBy(
@@ -1137,7 +1144,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void MaxN_find_the_maximum_three_scores_across_multiple_games_example_using_GroupBy_and_Select_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateGameScoresCollection();
+            var collection = Fixture.GameScoresCollection;
             var queryable = collection
                 .AsQueryable()
                 .GroupBy(x => x.GameId)
@@ -1169,7 +1176,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void MaxN_computing_n_based_on_the_group_key_example_using_GroupBy_with_result_selector_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateGameScoresCollection();
+            var collection = Fixture.GameScoresCollection;
             var queryable = collection
                 .AsQueryable()
                 .GroupBy(
@@ -1202,7 +1209,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void MaxN_computing_n_based_on_the_group_key_example_using_GroupBy_and_Select_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateGameScoresCollection();
+            var collection = Fixture.GameScoresCollection;
             var queryable = collection
                 .AsQueryable()
                 .GroupBy(x => new { GameId = x.GameId })
@@ -1235,7 +1242,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void MaxN_array_operator_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateDocumentsWithArrayCollection();
+            var collection = Fixture.DocumentsWithArrayCollection;
             var queryable = collection
                 .AsQueryable()
                 .Select(x => x.A.MaxN(e => e.X, 2));
@@ -1255,7 +1262,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Min_use_in_group_stage_example_using_GroupBy_with_result_selector_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateSalesCollection();
+            var collection = Fixture.SalesCollection;
             var queryable = collection
                 .AsQueryable()
                 .GroupBy(
@@ -1284,7 +1291,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Min_use_in_group_stage_example_using_GroupBy_and_Select_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateSalesCollection();
+            var collection = Fixture.SalesCollection;
             var queryable = collection
                 .AsQueryable()
                 .GroupBy(x => x.Item)
@@ -1314,7 +1321,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void MinN_find_the_minimum_three_scores_for_a_single_game_example_using_GroupBy_with_result_selector_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateGameScoresCollection();
+            var collection = Fixture.GameScoresCollection;
             var queryable = collection
                 .AsQueryable()
                 .Where(x => x.GameId == "G1")
@@ -1346,7 +1353,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void MinN_find_the_minimum_three_scores_for_a_single_game_example_using_GroupBy_and_Select_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateGameScoresCollection();
+            var collection = Fixture.GameScoresCollection;
             var queryable = collection
                 .AsQueryable()
                 .Where(x => x.GameId == "G1")
@@ -1378,7 +1385,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void MinN_find_the_minimum_three_scores_across_multiple_games_example_using_GroupBy_with_result_selector_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateGameScoresCollection();
+            var collection = Fixture.GameScoresCollection;
             var queryable = collection
                 .AsQueryable()
                 .GroupBy(
@@ -1410,7 +1417,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void MinN_find_the_minimum_three_scores_across_multiple_games_example_using_GroupBy_and_Select_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateGameScoresCollection();
+            var collection = Fixture.GameScoresCollection;
             var queryable = collection
                 .AsQueryable()
                 .GroupBy(x => x.GameId)
@@ -1442,7 +1449,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void MinN_computing_n_based_on_the_group_key_example_using_GroupBy_with_result_selector_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateGameScoresCollection();
+            var collection = Fixture.GameScoresCollection;
             var queryable = collection
                 .AsQueryable()
                 .GroupBy(
@@ -1475,7 +1482,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void MinN_computing_n_based_on_the_group_key_example_using_GroupBy_and_Select_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateGameScoresCollection();
+            var collection = Fixture.GameScoresCollection;
             var queryable = collection
                 .AsQueryable()
                 .GroupBy(x => new { GameId = x.GameId })
@@ -1508,7 +1515,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void MinN_array_operator_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateDocumentsWithArrayCollection();
+            var collection = Fixture.DocumentsWithArrayCollection;
             var queryable = collection
                 .AsQueryable()
                 .Select(x => x.A.MinN(e => e.X, 2));
@@ -1528,7 +1535,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Top_find_the_top_score_in_a_single_game_example_using_GroupBy_with_result_selector_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateGameScoresCollection();
+            var collection = Fixture.GameScoresCollection;
             var queryable = collection
                 .AsQueryable()
                 .Where(x => x.GameId == "G1")
@@ -1558,7 +1565,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Top_find_the_top_score_in_a_single_game_example_using_GroupBy_and_Select_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateGameScoresCollection();
+            var collection = Fixture.GameScoresCollection;
             var queryable = collection
                 .AsQueryable()
                 .Where(x => x.GameId == "G1")
@@ -1588,7 +1595,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Top_find_the_top_score_across_multiple_games_example_using_GroupBy_with_result_selector_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateGameScoresCollection();
+            var collection = Fixture.GameScoresCollection;
             var queryable = collection
                 .AsQueryable()
                 .GroupBy(
@@ -1618,7 +1625,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Top_find_the_top_score_across_multiple_games_example_using_GroupBy_and_Select_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateGameScoresCollection();
+            var collection = Fixture.GameScoresCollection;
             var queryable = collection
                 .AsQueryable()
                 .GroupBy(x => x.GameId)
@@ -1650,7 +1657,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [Values(false, true)] bool enableClientSideProjections)
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateDocumentsWithArrayCollection();
+            var collection = Fixture.DocumentsWithArrayCollection;
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
             var queryable = collection
@@ -1680,7 +1687,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void TopN_find_the_three_highest_scores_in_a_single_game_example_using_GroupBy_with_result_selector_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateGameScoresCollection();
+            var collection = Fixture.GameScoresCollection;
             var queryable = collection
                 .AsQueryable()
                 .Where(x => x.GameId == "G1")
@@ -1713,7 +1720,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void TopN_find_the_three_highest_scores_in_a_single_game_example_using_GroupBy_and_Select_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateGameScoresCollection();
+            var collection = Fixture.GameScoresCollection;
             var queryable = collection
                 .AsQueryable()
                 .Where(x => x.GameId == "G1")
@@ -1746,7 +1753,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void TopN_find_the_three_highest_scores_across_multiple_games_example_using_GroupBy_with_result_selector_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateGameScoresCollection();
+            var collection = Fixture.GameScoresCollection;
             var queryable = collection
                 .AsQueryable()
                 .GroupBy(
@@ -1779,7 +1786,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void TopN_find_the_three_highest_scores_across_multiple_games_example_using_GroupBy_and_Select_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateGameScoresCollection();
+            var collection = Fixture.GameScoresCollection;
             var queryable = collection
                 .AsQueryable()
                 .GroupBy(x => x.GameId)
@@ -1812,7 +1819,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void TopN_computing_n_based_on_the_group_key_example_using_GroupBy_with_result_selector_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateGameScoresCollection();
+            var collection = Fixture.GameScoresCollection;
             var queryable = collection
                 .AsQueryable()
                 .GroupBy(
@@ -1846,7 +1853,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void TopN_computing_n_based_on_the_group_key_example_using_GroupBy_and_Select_should_work()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateGameScoresCollection();
+            var collection = Fixture.GameScoresCollection;
             var queryable = collection
                 .AsQueryable()
                 .GroupBy(x => new { GameId = x.GameId })
@@ -1882,7 +1889,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [Values(false, true)] bool enableClientSideProjections)
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
-            var collection = CreateDocumentsWithArrayCollection();
+            var collection = Fixture.DocumentsWithArrayCollection;
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
             var queryable = collection
@@ -1907,50 +1914,208 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             }
         }
 
-        private IMongoCollection<DocumentWithArray> CreateDocumentsWithArrayCollection()
+        #endregion
+
+        #region Expression operators
+
+        [Fact]
+        public void Bottom_expression_operator_in_GroupBy_should_throw()
         {
-            var collection = GetCollection<DocumentWithArray>();
+            var collection = Fixture.GameScoresCollection;
 
-            CreateCollection(
-                collection,
-                new DocumentWithArray { Id = 1, A = new[] { new ArrayElement { X = 1 }, new ArrayElement { X = 2 }, new ArrayElement { X = 3 } } });
+            var queryable = collection
+                .AsQueryable()
+                .GroupBy(
+                    x => x.GameId,
+                    (key, elements) => elements.Bottom(Builders<GameScore>.Sort.Descending(g => g.Score)));
 
-            return collection;
+            var exception = Record.Exception(() => Translate(collection, queryable));
+            exception.Should().BeOfType<ExpressionNotSupportedException>();
+            exception.Message.Should().Contain("Bottom can only be used as an expression operator on an array");
         }
 
-        private IMongoCollection<GameScore> CreateGameScoresCollection()
+        [Fact]
+        public void Bottom_expression_operator_should_work()
         {
-            var collection = GetCollection<GameScore>();
+            RequireServer.Check().Supports(Feature.PickExpressionOperators);
+            var collection = Fixture.DocumentsWithArrayCollection;
 
-            CreateCollection(
-                collection,
-                new GameScore { Id = 1, PlayerId = "PlayerA", GameId = "G1", Score = 31 },
-                new GameScore { Id = 2, PlayerId = "PlayerB", GameId = "G1", Score = 33 },
-                new GameScore { Id = 3, PlayerId = "PlayerC", GameId = "G1", Score = 99 },
-                new GameScore { Id = 4, PlayerId = "PlayerD", GameId = "G1", Score = 1 },
-                new GameScore { Id = 5, PlayerId = "PlayerA", GameId = "G2", Score = 10 },
-                new GameScore { Id = 6, PlayerId = "PlayerB", GameId = "G2", Score = 14 },
-                new GameScore { Id = 7, PlayerId = "PlayerC", GameId = "G2", Score = 66 },
-                new GameScore { Id = 8, PlayerId = "PlayerD", GameId = "G2", Score = 80 });
+            var queryable = collection
+                .AsQueryable()
+                .Select(x => x.A.Bottom(Builders<ArrayElement>.Sort.Descending(e => e.X)));
 
-            return collection;
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : { $bottom : { input : '$A', sortBy : { X : -1 } } }, _id : 0 } }");
+
+            var results = queryable.ToList();
+            results.Should().HaveCount(1);
+            results[0].X.Should().Be(1);
         }
 
-        private IMongoCollection<Sale> CreateSalesCollection()
+        [Fact]
+        public void BottomN_expression_operator_in_GroupBy_should_throw()
         {
-            var collection = GetCollection<Sale>();
+            var collection = Fixture.GameScoresCollection;
 
-            CreateCollection(
-                collection,
-                new Sale { Id = 1, Item = "abc", Price = 10.00, Quantity = 2, Date = DateTime.Parse("2014-01-01T08:00:00Z", null, DateTimeStyles.AdjustToUniversal) },
-                new Sale { Id = 2, Item = "jkl", Price = 20.00, Quantity = 1, Date = DateTime.Parse("2014-02-03T09:00:00Z", null, DateTimeStyles.AdjustToUniversal) },
-                new Sale { Id = 3, Item = "xyz", Price = 5.00, Quantity = 5, Date = DateTime.Parse("2014-02-03T09:05:00Z", null, DateTimeStyles.AdjustToUniversal) },
-                new Sale { Id = 4, Item = "abc", Price = 10.00, Quantity = 10, Date = DateTime.Parse("2014-02-15T08:00:00Z", null, DateTimeStyles.AdjustToUniversal) },
-                new Sale { Id = 5, Item = "xyz", Price = 5.00, Quantity = 10, Date = DateTime.Parse("2014-02-15T09:05:00Z", null, DateTimeStyles.AdjustToUniversal) },
-                new Sale { Id = 6, Item = "xyz", Price = 5.00, Quantity = 5, Date = DateTime.Parse("2014-02-15T12:05:10Z", null, DateTimeStyles.AdjustToUniversal) },
-                new Sale { Id = 7, Item = "xyz", Price = 5.00, Quantity = 10, Date = DateTime.Parse("2014-02-15T14:12:12Z", null, DateTimeStyles.AdjustToUniversal) });
+            var queryable = collection
+                .AsQueryable()
+                .GroupBy(
+                    x => x.GameId,
+                    (key, elements) => elements.BottomN(Builders<GameScore>.Sort.Descending(g => g.Score), 2));
 
-            return collection;
+            var exception = Record.Exception(() => Translate(collection, queryable));
+            exception.Should().BeOfType<ExpressionNotSupportedException>();
+            exception.Message.Should().Contain("BottomN can only be used as an expression operator on an array");
+        }
+
+        [Fact]
+        public void BottomN_expression_operator_should_work()
+        {
+            RequireServer.Check().Supports(Feature.PickExpressionOperators);
+            var collection = Fixture.DocumentsWithArrayCollection;
+
+            var queryable = collection
+                .AsQueryable()
+                .Select(x => x.A.BottomN(Builders<ArrayElement>.Sort.Descending(e => e.X), 2));
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : { $bottomN : { input : '$A', sortBy : { X : -1 }, n : 2 } }, _id : 0 } }");
+
+            var results = queryable.ToList();
+            results.Should().HaveCount(1);
+            results[0].Select(e => e.X).Should().Equal(2, 1);
+        }
+
+        [Fact]
+        public void Top_expression_operator_in_GroupBy_should_throw()
+        {
+            var collection = Fixture.GameScoresCollection;
+
+            var queryable = collection
+                .AsQueryable()
+                .GroupBy(
+                    x => x.GameId,
+                    (key, elements) => elements.Top(Builders<GameScore>.Sort.Descending(g => g.Score)));
+
+            var exception = Record.Exception(() => Translate(collection, queryable));
+            exception.Should().BeOfType<ExpressionNotSupportedException>();
+            exception.Message.Should().Contain("Top can only be used as an expression operator on an array");
+        }
+
+        [Fact]
+        public void Top_expression_operator_should_work()
+        {
+            RequireServer.Check().Supports(Feature.PickExpressionOperators);
+            var collection = Fixture.DocumentsWithArrayCollection;
+
+            var queryable = collection
+                .AsQueryable()
+                .Select(x => x.A.Top(Builders<ArrayElement>.Sort.Descending(e => e.X)));
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : { $top : { input : '$A', sortBy : { X : -1 } } }, _id : 0 } }");
+
+            var results = queryable.ToList();
+            results.Should().HaveCount(1);
+            results[0].X.Should().Be(3);
+        }
+
+        [Fact]
+        public void Top_expression_operator_with_compound_sortBy_should_work()
+        {
+            RequireServer.Check().Supports(Feature.PickExpressionOperators);
+            var collection = Fixture.DocumentsWithArrayCollection;
+
+            // Y ties for X=1 and X=2; the descending X tiebreaker decides, so the result depends on the second sort field
+            var queryable = collection
+                .AsQueryable()
+                .Select(x => x.A.Top(Builders<ArrayElement>.Sort.Ascending(e => e.Y).Descending(e => e.X)));
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : { $top : { input : '$A', sortBy : { Y : 1, X : -1 } } }, _id : 0 } }");
+
+            var results = queryable.ToList();
+            results.Should().HaveCount(1);
+            results[0].X.Should().Be(2);
+        }
+
+        [Fact]
+        public void TopN_expression_operator_in_GroupBy_should_throw()
+        {
+            var collection = Fixture.GameScoresCollection;
+
+            var queryable = collection
+                .AsQueryable()
+                .GroupBy(
+                    x => x.GameId,
+                    (key, elements) => elements.TopN(Builders<GameScore>.Sort.Descending(g => g.Score), 2));
+
+            var exception = Record.Exception(() => Translate(collection, queryable));
+            exception.Should().BeOfType<ExpressionNotSupportedException>();
+            exception.Message.Should().Contain("TopN can only be used as an expression operator on an array");
+        }
+
+        [Fact]
+        public void TopN_expression_operator_should_work()
+        {
+            RequireServer.Check().Supports(Feature.PickExpressionOperators);
+            var collection = Fixture.DocumentsWithArrayCollection;
+
+            var queryable = collection
+                .AsQueryable()
+                .Select(x => x.A.TopN(Builders<ArrayElement>.Sort.Descending(e => e.X), 2));
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : { $topN : { input : '$A', sortBy : { X : -1 }, n : 2 } }, _id : 0 } }");
+
+            var results = queryable.ToList();
+            results.Should().HaveCount(1);
+            results[0].Select(e => e.X).Should().Equal(3, 2);
+        }
+
+        #endregion
+
+        public sealed class ClassFixture : MongoDatabaseFixture
+        {
+            public IMongoCollection<DocumentWithArray> DocumentsWithArrayCollection { get; private set; }
+
+            public IMongoCollection<GameScore> GameScoresCollection { get; private set; }
+
+            public IMongoCollection<Sale> SalesCollection { get; private set; }
+
+            protected override void InitializeFixture()
+            {
+                DocumentsWithArrayCollection = CreateCollection<DocumentWithArray>("documentsWithArray");
+                DocumentsWithArrayCollection.InsertMany(
+                [
+                    new DocumentWithArray { Id = 1, A = [new ArrayElement { X = 1, Y = 10 }, new ArrayElement { X = 2, Y = 10 }, new ArrayElement { X = 3, Y = 20 }] }
+                ]);
+
+                GameScoresCollection = CreateCollection<GameScore>("gameScores");
+                GameScoresCollection.InsertMany(
+                [
+                    new GameScore { Id = 1, PlayerId = "PlayerA", GameId = "G1", Score = 31 },
+                    new GameScore { Id = 2, PlayerId = "PlayerB", GameId = "G1", Score = 33 },
+                    new GameScore { Id = 3, PlayerId = "PlayerC", GameId = "G1", Score = 99 },
+                    new GameScore { Id = 4, PlayerId = "PlayerD", GameId = "G1", Score = 1 },
+                    new GameScore { Id = 5, PlayerId = "PlayerA", GameId = "G2", Score = 10 },
+                    new GameScore { Id = 6, PlayerId = "PlayerB", GameId = "G2", Score = 14 },
+                    new GameScore { Id = 7, PlayerId = "PlayerC", GameId = "G2", Score = 66 },
+                    new GameScore { Id = 8, PlayerId = "PlayerD", GameId = "G2", Score = 80 }
+                ]);
+
+                SalesCollection = CreateCollection<Sale>("sales");
+                SalesCollection.InsertMany(
+                [
+                    new Sale { Id = 1, Item = "abc", Price = 10.00, Quantity = 2, Date = DateTime.Parse("2014-01-01T08:00:00Z", null, DateTimeStyles.AdjustToUniversal) },
+                    new Sale { Id = 2, Item = "jkl", Price = 20.00, Quantity = 1, Date = DateTime.Parse("2014-02-03T09:00:00Z", null, DateTimeStyles.AdjustToUniversal) },
+                    new Sale { Id = 3, Item = "xyz", Price = 5.00, Quantity = 5, Date = DateTime.Parse("2014-02-03T09:05:00Z", null, DateTimeStyles.AdjustToUniversal) },
+                    new Sale { Id = 4, Item = "abc", Price = 10.00, Quantity = 10, Date = DateTime.Parse("2014-02-15T08:00:00Z", null, DateTimeStyles.AdjustToUniversal) },
+                    new Sale { Id = 5, Item = "xyz", Price = 5.00, Quantity = 10, Date = DateTime.Parse("2014-02-15T09:05:00Z", null, DateTimeStyles.AdjustToUniversal) },
+                    new Sale { Id = 6, Item = "xyz", Price = 5.00, Quantity = 5, Date = DateTime.Parse("2014-02-15T12:05:10Z", null, DateTimeStyles.AdjustToUniversal) },
+                    new Sale { Id = 7, Item = "xyz", Price = 5.00, Quantity = 10, Date = DateTime.Parse("2014-02-15T14:12:12Z", null, DateTimeStyles.AdjustToUniversal) }
+                ]);
+            }
         }
 
         public class GameScore
@@ -1979,6 +2144,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public class ArrayElement
         {
             public int X { get; set; }
+            public int Y { get; set; }
         }
     }
 }

@@ -2039,6 +2039,30 @@ internal partial class SerializerFinderVisitor
         {
             if (method.IsOneOf(EnumerableMethod.PickOverloads))
             {
+                if (method.IsOneOf(EnumerableMethod.PickExpressionOperatorOverloads))
+                {
+                    var sortByExpression = arguments[1];
+                    if (IsNotKnown(sortByExpression))
+                    {
+                        AddNodeSerializer(sortByExpression, IgnoreSubtreeSerializer.Create(sortByExpression.Type));
+                    }
+
+                    if (IsNotKnown(node))
+                    {
+                        var arraySourceExpression = arguments[0];
+                        if (IsKnown(arraySourceExpression, out var arraySourceSerializer))
+                        {
+                            var sourceItemSerializer = ArraySerializerHelper.GetItemSerializer(arraySourceSerializer);
+                            var nodeSerializer = method.IsOneOf(EnumerableMethod.TopExpressionOperator, EnumerableMethod.BottomExpressionOperator) ?
+                                sourceItemSerializer :
+                                IEnumerableSerializer.Create(sourceItemSerializer);
+                            AddNodeSerializer(node, nodeSerializer);
+                        }
+                    }
+
+                    return;
+                }
+
                 if (method.IsOneOf(EnumerableMethod.PickWithSortByOverloads))
                 {
                     var sortByExpression = arguments[1];
