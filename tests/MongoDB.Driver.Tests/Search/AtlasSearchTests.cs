@@ -475,7 +475,7 @@ namespace MongoDB.Driver.Tests.Search
             var results = GetMoviesCollection<Movie>()
                 .Aggregate()
                 .SearchMeta(Builders<Movie>.Search.Facet(
-                    Builders<Movie>.Search.Equals(x => x.Runtime, 232, ["year"]),
+                    Builders<Movie>.Search.Equals(x => x.Runtime, 232, new EqualsSearchOperatorOptions<Movie> { DoesNotAffect = ["year"] }),
                     Builders<Movie>.SearchFacet.Number("year", x => x.Year, 1900, 1950, 2000, 2100)))
                 .Single();
 
@@ -594,7 +594,7 @@ namespace MongoDB.Driver.Tests.Search
             var results = GetMoviesCollection<Movie>()
                 .Aggregate()
                 .SearchMeta(Builders<Movie>.Search.Facet(
-                    Builders<Movie>.Search.In(x => x.Runtime, [231], ["year"]),
+                    Builders<Movie>.Search.In(x => x.Runtime, [231], new InSearchOperatorOptions<Movie> { DoesNotAffect = ["year"] }),
                     Builders<Movie>.SearchFacet.Number("year", x => x.Year, 1900, 1950, 2000, 2100)))
                 .Single();
 
@@ -792,7 +792,7 @@ namespace MongoDB.Driver.Tests.Search
             var results = GetMoviesCollection<Movie>()
                 .Aggregate()
                 .SearchMeta(Builders<Movie>.Search.Facet(
-                    Builders<Movie>.Search.Range(x => x.Runtime, new SearchRange<int>(230, 233, false, false), ["year"]),
+                    Builders<Movie>.Search.Range(x => x.Runtime, new SearchRange<int>(230, 233, false, false), new RangeSearchOperatorOptions<Movie> { DoesNotAffect = ["year"] }),
                     Builders<Movie>.SearchFacet.Number("year", x => x.Year, 1900, 1950, 2000, 2100)))
                 .Single();
 

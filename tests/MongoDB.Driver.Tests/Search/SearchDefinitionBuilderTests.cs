@@ -298,7 +298,7 @@ namespace MongoDB.Driver.Tests.Search
             var subject = CreateSubject<BsonDocument>();
 
             AssertRendered(
-                subject.Equals("x", "a", doesNotAffect: ["y"]),
+                subject.Equals("x", "a", new EqualsSearchOperatorOptions<BsonDocument> { DoesNotAffect = ["y"] }),
                 "{ equals: { path: 'x', value: 'a', doesNotAffect: ['y'] } }");
         }
 
@@ -761,7 +761,7 @@ namespace MongoDB.Driver.Tests.Search
             var subject = CreateSubject<BsonDocument>();
 
             AssertRendered(
-                subject.In("x", ["a", "b"], doesNotAffect: ["y"]),
+                subject.In("x", ["a", "b"], new InSearchOperatorOptions<BsonDocument> { DoesNotAffect = ["y"] }),
                 "{ in: { path: 'x', value: ['a', 'b'], doesNotAffect: ['y'] } }");
         }
 
@@ -1255,7 +1255,7 @@ namespace MongoDB.Driver.Tests.Search
             var subject = CreateSubject<BsonDocument>();
 
             AssertRendered(
-                subject.Range("x", new SearchRange<int>(0, 10, true, true), ["y"]),
+                subject.Range("x", new SearchRange<int>(0, 10, true, true), new RangeSearchOperatorOptions<BsonDocument> { DoesNotAffect = ["y"] }),
                 "{ range: { path: 'x', gte: 0, lte: 10, doesNotAffect: ['y'] } }");
         }
 
