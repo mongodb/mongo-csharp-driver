@@ -93,30 +93,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters
 
         public static AstFieldOperationFilter ElemMatch(AstFilterField field, AstFilter filter)
         {
-            if (!ServerSupportsElemMatchFilter(filter))
-            {
-                throw new ExpressionNotSupportedException($"$elemMatch does not support filter: {filter}");
-            }
-
             return new AstFieldOperationFilter(field, new AstElemMatchFilterOperation(filter));
-
-            static bool ServerSupportsElemMatchFilter(AstFilter filter)
-            {
-                if (filter is AstOrFilter orFilter &&
-                    orFilter.Filters.Any(IsImpliedElementFilter))
-                {
-                    return false;
-                }
-
-                // TODO: add detection of other unsupported filters as we discover them
-
-                return true;
-
-                static bool IsImpliedElementFilter(AstFilter filter)
-                    =>
-                        filter is AstFieldOperationFilter fieldOperationFilter &&
-                        fieldOperationFilter.Field.Path == "@<elem>";
-            }
         }
 
         public static AstFieldOperationFilter Eq(AstFilterField field, BsonValue value)

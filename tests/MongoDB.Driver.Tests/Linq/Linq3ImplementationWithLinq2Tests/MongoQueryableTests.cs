@@ -136,6 +136,106 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests
         }
 
         [Fact]
+        public void Average_on_empty_set()
+        {
+            Action action = () => CreateQuery().Where(x => x.A == "__dummy__").Select(x => x.W).Average();
+
+            action.ShouldThrow<InvalidOperationException>().WithMessage("Sequence contains no elements");
+        }
+
+        [Fact]
+        public void Average_on_empty_set_with_selector()
+        {
+            Action action = () => CreateQuery().Where(x => x.A == "__dummy__").Average(x => x.X);
+
+            action.ShouldThrow<InvalidOperationException>().WithMessage("Sequence contains no elements");
+        }
+
+        [Fact]
+        public void AverageAsync_on_empty_set()
+        {
+            var subject = CreateQuery().Where(x => x.A == "__dummy__").Select(x => x.Y).AverageAsync();
+
+            subject.Awaiting(async q => await q)
+                .ShouldThrow<InvalidOperationException>()
+                .WithMessage("Sequence contains no elements");
+        }
+
+        [Fact]
+        public void AverageAsync_on_empty_set_with_selector()
+        {
+            var subject = CreateQuery().Where(x => x.A == "__dummy__").AverageAsync(x => x.Z);
+
+            subject.Awaiting(async q => await q)
+                .ShouldThrow<InvalidOperationException>()
+                .WithMessage("Sequence contains no elements");
+        }
+
+        [Fact]
+        public void Average_on_nullable_empty_set()
+        {
+            var result = CreateQuery().Where(x => x.A == "__dummy__").Select(x => x.NullableW).Average();
+
+            result.Should().Be(null);
+        }
+
+        [Fact]
+        public void Average_on_nullable_empty_set_with_selector()
+        {
+            var result = CreateQuery().Where(x => x.A == "__dummy__").Average(x => x.NullableX);
+
+            result.Should().Be(null);
+        }
+
+        [Fact]
+        public async Task AverageAsync_on_nullable_empty_set()
+        {
+            var result = await CreateQuery().Where(x => x.A == "__dummy__").Select(x => x.NullableY).AverageAsync();
+
+            result.Should().Be(null);
+        }
+
+        [Fact]
+        public async Task AverageAsync_on_nullable_empty_set_with_selector()
+        {
+            var result = await CreateQuery().Where(x => x.A == "__dummy__").AverageAsync(x => x.NullableZ);
+
+            result.Should().Be(null);
+        }
+
+        [Fact]
+        public void Average_on_empty_set_cast_to_nullable()
+        {
+            var result = CreateQuery().Where(x => x.A == "__dummy__").Select(x => (double?)x.W).Average();
+
+            result.Should().Be(null);
+        }
+
+        [Fact]
+        public void Average_on_empty_set_cast_to_nullable_with_selector()
+        {
+            var result = CreateQuery().Where(x => x.A == "__dummy__").Average(x => (long?)x.X);
+
+            result.Should().Be(null);
+        }
+
+        [Fact]
+        public async Task AverageAsync_on_empty_set_cast_to_nullable()
+        {
+            var result = await CreateQuery().Where(x => x.A == "__dummy__").Select(x => (int?)x.Y).AverageAsync();
+
+            result.Should().Be(null);
+        }
+
+        [Fact]
+        public async Task AverageAsync_on_empty_set_cast_to_nullable_with_selector()
+        {
+            var result = await CreateQuery().Where(x => x.A == "__dummy__").AverageAsync(x => (decimal?)x.Z);
+
+            result.Should().Be(null);
+        }
+
+        [Fact]
         public void GroupBy_combined_with_a_previous_embedded_pipeline()
         {
             var bs = new List<string>
@@ -1835,11 +1935,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests
         [Fact]
         public void AsQueryable_in_transaction()
         {
-            RequireServer.Check().ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded).Supports(Feature.Transactions);
-            if (CoreTestConfiguration.Cluster.Description.Type == ClusterType.Sharded)
-            {
-                RequireServer.Check().Supports(Feature.ShardedTransactions);
-            }
+            RequireServer.Check().ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded);
 
             using (var session = DriverTestConfiguration.Client.StartSession())
             {

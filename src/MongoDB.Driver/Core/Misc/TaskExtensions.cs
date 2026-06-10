@@ -22,6 +22,40 @@ namespace MongoDB.Driver.Core.Misc
 {
     internal static class TaskExtensions
     {
+        public static void WaitTask(this Task task, TimeSpan timeout, CancellationToken cancellationToken)
+        {
+            Ensure.IsInfiniteOrGreaterThanOrEqualToZero(timeout, nameof(timeout));
+            cancellationToken.ThrowIfCancellationRequested();
+
+            try
+            {
+                if (task.IsCompleted)
+                {
+                    task.GetAwaiter().GetResult(); // re-throws exception if any
+                    return;
+                }
+
+                if (task.Wait((int)timeout.TotalMilliseconds, cancellationToken))
+                {
+                    task.GetAwaiter().GetResult(); // re-throws exception if any
+                }
+                else
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    throw new TimeoutException();
+                }
+            }
+            catch (AggregateException e)
+            {
+                if (e.InnerExceptions.Count == 1)
+                {
+                    throw e.InnerExceptions[0];
+                }
+
+                throw;
+            }
+        }
+
 #if !NET6_0_OR_GREATER
         public static Task WaitAsync(this Task task, TimeSpan timeout, CancellationToken cancellationToken)
         {

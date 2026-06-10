@@ -96,10 +96,15 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 cluster.Initialize();
 
                 // Trigger Cluster._rapidHeartbeatTimer
-                _ = cluster.SelectServerAsync(OperationContext.NoTimeout, CreateWritableServerAndEndPointSelector(__endPoint1));
+                using var cancellationTokenSource = new CancellationTokenSource();
+                var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationTokenSource.Token);
+                cluster.SelectServerAsync(operationContext, CreateWritableServerAndEndPointSelector(__endPoint1))
+                    .IgnoreExceptions();
 
                 // Wait for all heartbeats to complete
                 await Task.WhenAny(allHeartbeatsReceived.Task, Task.Delay(1000));
+
+                cancellationTokenSource.Cancel();
             }
 
             allHeartbeatsReceived.Task.Status.Should().Be(TaskStatus.RanToCompletion);

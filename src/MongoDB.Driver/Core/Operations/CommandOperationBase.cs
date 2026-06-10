@@ -27,21 +27,17 @@ namespace MongoDB.Driver.Core.Operations
     internal abstract class CommandOperationBase<TCommandResult>
     {
         private BsonDocument _additionalOptions;
-        private BsonDocument _command;
         private IElementNameValidator _commandValidator = NoOpElementNameValidator.Instance;
         private string _comment;
         private DatabaseNamespace _databaseNamespace;
         private MessageEncoderSettings _messageEncoderSettings;
         private IBsonSerializer<TCommandResult> _resultSerializer;
 
-        protected CommandOperationBase(
-            DatabaseNamespace databaseNamespace,
-            BsonDocument command,
+        protected CommandOperationBase(DatabaseNamespace databaseNamespace,
             IBsonSerializer<TCommandResult> resultSerializer,
             MessageEncoderSettings messageEncoderSettings)
         {
             _databaseNamespace = Ensure.IsNotNull(databaseNamespace, nameof(databaseNamespace));
-            _command = Ensure.IsNotNull(command, nameof(command));
             _resultSerializer = Ensure.IsNotNull(resultSerializer, nameof(resultSerializer));
             _messageEncoderSettings = messageEncoderSettings;
         }
@@ -50,11 +46,6 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _additionalOptions; }
             set { _additionalOptions = value; }
-        }
-
-        public BsonDocument Command
-        {
-            get { return _command; }
         }
 
         public IElementNameValidator CommandValidator
@@ -84,7 +75,7 @@ namespace MongoDB.Driver.Core.Operations
             get { return _resultSerializer; }
         }
 
-        protected TCommandResult ExecuteProtocol(OperationContext operationContext, IChannelHandle channel, ICoreSessionHandle session, ReadPreference readPreference)
+        protected TCommandResult ExecuteProtocol(OperationContext operationContext, IChannelHandle channel, ICoreSessionHandle session, ReadPreference readPreference, BsonDocument command)
         {
             var additionalOptions = GetEffectiveAdditionalOptions();
 
@@ -93,7 +84,7 @@ namespace MongoDB.Driver.Core.Operations
                 session,
                 readPreference,
                 _databaseNamespace,
-                _command,
+                command,
                 null, // commandPayloads
                 _commandValidator,
                 additionalOptions,
@@ -107,15 +98,16 @@ namespace MongoDB.Driver.Core.Operations
             OperationContext operationContext,
             IChannelSource channelSource,
             ICoreSessionHandle session,
-            ReadPreference readPreference)
+            ReadPreference readPreference,
+            BsonDocument command)
         {
             using (var channel = channelSource.GetChannel(operationContext))
             {
-                return ExecuteProtocol(operationContext, channel, session, readPreference);
+                return ExecuteProtocol(operationContext, channel, session, readPreference, command);
             }
         }
 
-        protected Task<TCommandResult> ExecuteProtocolAsync(OperationContext operationContext, IChannelHandle channel, ICoreSessionHandle session, ReadPreference readPreference)
+        protected Task<TCommandResult> ExecuteProtocolAsync(OperationContext operationContext, IChannelHandle channel, ICoreSessionHandle session, ReadPreference readPreference, BsonDocument command)
         {
             var additionalOptions = GetEffectiveAdditionalOptions();
 
@@ -124,7 +116,7 @@ namespace MongoDB.Driver.Core.Operations
                 session,
                 readPreference,
                 _databaseNamespace,
-                _command,
+                command,
                 null, // TODO: support commandPayloads
                 _commandValidator,
                 additionalOptions,
@@ -138,11 +130,12 @@ namespace MongoDB.Driver.Core.Operations
             OperationContext operationContext,
             IChannelSource channelSource,
             ICoreSessionHandle session,
-            ReadPreference readPreference)
+            ReadPreference readPreference,
+            BsonDocument command)
         {
             using (var channel = await channelSource.GetChannelAsync(operationContext).ConfigureAwait(false))
             {
-                return await ExecuteProtocolAsync(operationContext, channel, session, readPreference).ConfigureAwait(false);
+                return await ExecuteProtocolAsync(operationContext, channel, session, readPreference, command).ConfigureAwait(false);
             }
         }
 

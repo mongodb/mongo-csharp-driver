@@ -14,7 +14,7 @@
 */
 
 using System.IO;
-using MongoDB.Bson;
+using System.Runtime.InteropServices;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using Xunit;
@@ -34,7 +34,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestCircularBsonArray()
         {
             // note: setting a breakpoint in this method will crash the debugger if the locals window is open
-            // because it tries to display the value of array (presumably it's getting an internal stack overflow)
+            // because it tries to display the value of an array (presumably it's getting an internal stack overflow)
             var array = new BsonArray();
             array.Add(array);
             var c1 = new C { X = 1, BsonArray = array };
@@ -46,11 +46,23 @@ namespace MongoDB.Bson.Tests.Serialization
         [Fact]
         public void TestCircularDocument()
         {
+            var bsonWriterSettings = new BsonBinaryWriterSettings();
+            var bsonDocumentWriterSettings = new BsonDocumentWriterSettings();
+            var jsonWriterSettings = new JsonWriterSettings { OutputMode = JsonOutputMode.Shell };
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                // Stack size is smaller on OS, observed on NET10
+                bsonWriterSettings.MaxSerializationDepth = 50;
+                bsonDocumentWriterSettings.MaxSerializationDepth = 50;
+                jsonWriterSettings.MaxSerializationDepth = 50;
+            }
+
             var c1 = new C { X = 1 };
             c1.NestedDocument = c1;
-            Assert.Throws<BsonSerializationException>(() => c1.ToBson());
-            Assert.Throws<BsonSerializationException>(() => c1.ToBsonDocument());
-            Assert.Throws<BsonSerializationException>(() => c1.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
+            Assert.Throws<BsonSerializationException>(() => c1.ToBson(writerSettings: bsonWriterSettings));
+            Assert.Throws<BsonSerializationException>(() => c1.ToBsonDocument(bsonDocumentWriterSettings: bsonDocumentWriterSettings));
+            Assert.Throws<BsonSerializationException>(() => c1.ToJson(writerSettings: jsonWriterSettings));
         }
 
         [Fact]

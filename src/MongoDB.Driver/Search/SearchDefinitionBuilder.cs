@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.GeoJsonObjectModel;
 
 namespace MongoDB.Driver.Search
@@ -185,8 +186,11 @@ namespace MongoDB.Driver.Search
         /// <returns>A facet search definition.</returns>
         public SearchDefinition<TDocument> Facet(
             SearchDefinition<TDocument> @operator,
-            IEnumerable<SearchFacet<TDocument>> facets) =>
-                new FacetSearchDefinition<TDocument>(@operator, facets);
+            IEnumerable<SearchFacet<TDocument>> facets)
+        {
+            Ensure.IsNotNull(@operator, nameof(@operator));
+            return new FacetSearchDefinition<TDocument>(@operator, facets);
+        }
 
         /// <summary>
         /// Creates a search definition that groups results by values or ranges in the specified
@@ -199,6 +203,27 @@ namespace MongoDB.Driver.Search
             SearchDefinition<TDocument> @operator,
             params SearchFacet<TDocument>[] facets) =>
                 Facet(@operator, (IEnumerable<SearchFacet<TDocument>>)facets);
+
+        /// <summary>
+        /// Creates a search definition that groups results by values or ranges in the specified
+        /// faceted fields and returns the count for each of those groups.
+        /// Facets are computed over all documents in the index.
+        /// </summary>
+        /// <param name="facets">Information for bucketing the data for each facet.</param>
+        /// <returns>A facet search definition.</returns>
+        public SearchDefinition<TDocument> Facet(IEnumerable<SearchFacet<TDocument>> facets)
+        {
+            return new FacetSearchDefinition<TDocument>(null, facets);
+        }
+
+        /// <summary>
+        /// Creates a search definition that groups results by values or ranges in the specified
+        /// faceted fields and returns the count for each of those groups.
+        /// Facets are computed over all documents in the index.
+        /// </summary>
+        /// <param name="facets">Information for bucketing the data for each facet.</param>
+        /// <returns>A facet search definition.</returns>
+        public SearchDefinition<TDocument> Facet(params SearchFacet<TDocument>[] facets) => Facet((IEnumerable<SearchFacet<TDocument>>)facets);
 
         /// <summary>
         /// Creates a search definition that queries for shapes with a given geometry.
@@ -312,6 +337,50 @@ namespace MongoDB.Driver.Search
             SearchScoreDefinition<TDocument> score = null)
             where TCoordinates : GeoJsonCoordinates =>
                 new GeoWithinSearchDefinition<TDocument, TCoordinates>(path, area, score);
+
+        /// <summary>
+        /// Creates a search definition that moves the context back up the tree of embedded documents
+        /// to one of the ancestors of the current embedded document such that ancestor fields can be used in searches
+        /// of embedded documents.
+        /// </summary>
+        /// <typeparam name="TField">The type of the ancestor documents.</typeparam>
+        /// <param name="path">The path from the root to the ancestor.</param>
+        /// <param name="operator">The operator to execute in the ancestor context specified by <paramref name="path"/>.</param>
+        /// <param name="score">The score modifier.</param>
+        /// <returns>A search definition for the ancestor.</returns>
+        public SearchDefinition<TDocument> HasAncestor<TField>(
+            FieldDefinition<TDocument, IEnumerable<TField>> path,
+            SearchDefinition<TDocument> @operator,
+            SearchScoreDefinition<TDocument> score = null)
+            => new HasAncestorSearchDefinition<TDocument>(path, @operator, score);
+
+        /// <summary>
+        /// Creates a search definition that moves the context back up the tree of embedded documents
+        /// to one of the ancestors of the current embedded document such that ancestor fields can be used in searches
+        /// of embedded documents.
+        /// </summary>
+        /// <typeparam name="TField">The type of the ancestor documents.</typeparam>
+        /// <param name="path">The path from the root to the ancestor.</param>
+        /// <param name="operator">The operator to execute in the ancestor context specified by <paramref name="path"/>.</param>
+        /// <param name="score">The score modifier.</param>
+        /// <returns>A search definition for the ancestor.</returns>
+        public SearchDefinition<TDocument> HasAncestor<TField>(
+            Expression<Func<TDocument, IEnumerable<TField>>> path,
+            SearchDefinition<TDocument> @operator,
+            SearchScoreDefinition<TDocument> score = null)
+            => HasAncestor(new ExpressionFieldDefinition<TDocument, IEnumerable<TField>>(path), @operator, score);
+
+        /// <summary>
+        /// Creates a search definition that moves the context back up the tree of embedded documents
+        /// to the root such that root fields can be used in searches of embedded documents.
+        /// </summary>
+        /// <param name="operator">The operator to execute at the root.</param>
+        /// <param name="score">The score modifier.</param>
+        /// <returns>A search definition for the root.</returns>
+        public SearchDefinition<TDocument> HasRoot(
+            SearchDefinition<TDocument> @operator,
+            SearchScoreDefinition<TDocument> score = null)
+            => new HasRootSearchDefinition<TDocument>(@operator, score);
 
         /// <summary>
         /// Creates a search definition that queries for documents where the value of the field equals to any of specified values.
@@ -892,5 +961,39 @@ namespace MongoDB.Driver.Search
             bool allowAnalyzedField = false,
             SearchScoreDefinition<TDocument> score = null) =>
                 Wildcard(new ExpressionFieldDefinition<TDocument>(path), query, allowAnalyzedField, score);
+
+        /// <summary>
+        /// Creates a search definition for a vector search as a search operator.
+        /// </summary>
+        /// <param name="path">The indexed field or fields to search.</param>
+        /// <param name="queryVector">The query vector.</param>
+        /// <param name="limit">The limit.</param>
+        /// <param name="options">The vector search options.</param>
+        /// <param name="score">The score modifier.</param>
+        /// <returns>A vector search definition.</returns>
+        public SearchDefinition<TDocument> VectorSearch(
+            SearchPathDefinition<TDocument> path,
+            QueryVector queryVector,
+            int limit,
+            VectorSearchOperatorOptions<TDocument> options = null,
+            SearchScoreDefinition<TDocument> score = null) =>
+                new VectorSearchDefinition<TDocument>(path, queryVector, limit, options, score);
+
+        /// <summary>
+        /// Creates a search definition for a vector search as a search operator.
+        /// </summary>
+        /// <param name="path">The indexed field or fields to search.</param>
+        /// <param name="queryVector">The query vector.</param>
+        /// <param name="limit">The limit.</param>
+        /// <param name="options">The vector search options.</param>
+        /// <param name="score">The score modifier.</param>
+        /// <returns>A vector search definition.</returns>
+        public SearchDefinition<TDocument> VectorSearch<TField>(
+            Expression<Func<TDocument, TField>> path,
+            QueryVector queryVector,
+            int limit,
+            VectorSearchOperatorOptions<TDocument> options = null,
+            SearchScoreDefinition<TDocument> score = null) =>
+                VectorSearch(new ExpressionFieldDefinition<TDocument>(path), queryVector, limit, options, score);
     }
 }

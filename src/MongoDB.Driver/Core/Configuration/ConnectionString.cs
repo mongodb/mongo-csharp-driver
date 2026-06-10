@@ -69,6 +69,7 @@ namespace MongoDB.Driver.Core.Configuration
         private TimeSpan? _connectTimeout;
         private string _databaseName;
         private bool _directConnection;
+        private bool? _enableOverloadRetargeting;
         private bool? _fsync;
         private TimeSpan? _heartbeatInterval;
         private TimeSpan? _heartbeatTimeout;
@@ -79,6 +80,7 @@ namespace MongoDB.Driver.Core.Configuration
         private bool? _journal;
         private bool _loadBalanced;
         private TimeSpan? _localThreshold;
+        private int? _maxAdaptiveRetries;
         private int? _maxConnecting;
         private TimeSpan? _maxIdleTime;
         private TimeSpan? _maxLifeTime;
@@ -92,6 +94,10 @@ namespace MongoDB.Driver.Core.Configuration
         private string _replicaSet;
         private bool? _retryReads;
         private bool? _retryWrites;
+        private string _proxyHost;
+        private int? _proxyPort;
+        private string _proxyUsername;
+        private string _proxyPassword;
         private ConnectionStringScheme _scheme;
         private ServerMonitoringMode? _serverMonitoringMode;
         private TimeSpan? _serverSelectionTimeout;
@@ -235,6 +241,14 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         /// <summary>
+        /// Gets a value indicating whether overload retargeting is enabled.
+        /// </summary>
+        public bool? EnableOverloadRetargeting
+        {
+            get { return _enableOverloadRetargeting; }
+        }
+
+        /// <summary>
         /// Gets the fsync value of the write concern.
         /// </summary>
         public bool? FSync
@@ -304,6 +318,14 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         /// <summary>
+        /// Gets the maximum number of adaptive retries for overload errors.
+        /// </summary>
+        public int? MaxAdaptiveRetries
+        {
+            get { return _maxAdaptiveRetries; }
+        }
+
+        /// <summary>
         /// Gets the maximum number of connections a pool may be establishing concurrently. Defaults to 2.
         /// </summary>
         public int? MaxConnecting
@@ -358,6 +380,26 @@ namespace MongoDB.Driver.Core.Configuration
         {
             get { return _password; }
         }
+
+        /// <summary>
+        /// Gets the proxy host.
+        /// </summary>
+        public string ProxyHost => _proxyHost;
+
+        /// <summary>
+        /// Gets the proxy port.
+        /// </summary>
+        public int? ProxyPort => _proxyPort;
+
+        /// <summary>
+        /// Gets the proxy username.
+        /// </summary>
+        public string ProxyUsername => _proxyUsername;
+
+        /// <summary>
+        /// Gets the proxy password.
+        /// </summary>
+        public string ProxyPassword => _proxyPassword;
 
         /// <summary>
         /// Gets the read concern level.
@@ -911,6 +953,34 @@ namespace MongoDB.Driver.Core.Configuration
                 }
             }
 
+            if (string.IsNullOrEmpty(_proxyHost))
+            {
+                if (_proxyPort is not null)
+                {
+                    throw new MongoConfigurationException("proxyPort cannot be specified without proxyHost.");
+                }
+
+                if (!string.IsNullOrEmpty(_proxyUsername))
+                {
+                    throw new MongoConfigurationException("proxyUsername cannot be specified without proxyHost.");
+                }
+
+                if (!string.IsNullOrEmpty(_proxyPassword))
+                {
+                    throw new MongoConfigurationException("proxyPassword cannot be specified without proxyHost.");
+                }
+            }
+
+            if (string.IsNullOrEmpty(_proxyUsername) != string.IsNullOrEmpty(_proxyPassword))
+            {
+                throw new MongoConfigurationException("proxyUsername and proxyPassword must both be specified or neither.");
+            }
+
+            if (_minPoolSize > _maxPoolSize)
+            {
+                throw new MongoConfigurationException("maxPoolSize must be greater than or equal to minPoolSize.");
+            }
+
             string ProtectConnectionString(string connectionString)
             {
                 var protectedString = Regex.Replace(connectionString, @"(?<=://)[^/]*(?=@)", "<hidden>");
@@ -952,6 +1022,9 @@ namespace MongoDB.Driver.Core.Configuration
                 case "directconnection":
                     _directConnection = ParseBoolean(name, value);
                     break;
+                case "enableoverloadretargeting":
+                    _enableOverloadRetargeting = ParseBoolean(name, value);
+                    break;
                 case "fsync":
                     _fsync = ParseBoolean(name, value);
                     break;
@@ -978,6 +1051,14 @@ namespace MongoDB.Driver.Core.Configuration
                 case "loadbalanced":
                     _loadBalanced = ParseBoolean(name, value);
                     break;
+                case "maxadaptiveretries":
+                    var maxAdaptiveRetriesValue = ParseInt32(name, value);
+                    if (maxAdaptiveRetriesValue < 0)
+                    {
+                        throw new MongoConfigurationException("maxAdaptiveRetries must be greater than or equal to 0.");
+                    }
+                    _maxAdaptiveRetries = maxAdaptiveRetriesValue;
+                    break;
                 case "maxconnecting":
                     _maxConnecting = ParseInt32(name, value);
                     break;
@@ -1002,6 +1083,55 @@ namespace MongoDB.Driver.Core.Configuration
                     break;
                 case "minpoolsize":
                     _minPoolSize = ParseInt32(name, value);
+                    break;
+                case "proxyhost":
+                    if (_proxyHost != null)
+                    {
+                        throw new MongoConfigurationException("Multiple proxyHost options are not allowed.");
+                    }
+
+                    _proxyHost = value;
+                    if (_proxyHost.Length == 0)
+                    {
+                        throw new MongoConfigurationException("proxyHost cannot be empty.");
+                    }
+                    break;
+                case "proxyport":
+                    if (_proxyPort != null)
+                    {
+                        throw new MongoConfigurationException("Multiple proxyPort options are not allowed.");
+                    }
+
+                    var proxyPortValue = ParseInt32(name, value);
+                    if (proxyPortValue is < 1 or > 65535)
+                    {
+                        throw new MongoConfigurationException($"Invalid proxy port {proxyPortValue}: must be between 1 and 65535, inclusive.");
+                    }
+                    _proxyPort = proxyPortValue;
+                    break;
+                case "proxyusername":
+                    if (_proxyUsername != null)
+                    {
+                        throw new MongoConfigurationException("Multiple proxyUsername options are not allowed.");
+                    }
+
+                    _proxyUsername = value;
+                    if (_proxyUsername.Length == 0)
+                    {
+                        throw new MongoConfigurationException("proxyUsername cannot be empty.");
+                    }
+                    break;
+                case "proxypassword":
+                    if (_proxyPassword != null)
+                    {
+                        throw new MongoConfigurationException("Multiple proxyPassword options are not allowed.");
+                    }
+
+                    _proxyPassword = value;
+                    if (_proxyPassword.Length == 0)
+                    {
+                        throw new MongoConfigurationException("proxyPassword cannot be empty.");
+                    }
                     break;
                 case "readconcernlevel":
                     _readConcernLevel = ParseEnum<ReadConcernLevel>(name, value);

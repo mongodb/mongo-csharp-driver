@@ -39,6 +39,9 @@ namespace MongoDB.Driver.Core.Connections
         Task<ResponseMessage> ReceiveMessageAsync(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings);
         void SendMessage(OperationContext operationContext, RequestMessage message, MessageEncoderSettings messageEncoderSettings);
         Task SendMessageAsync(OperationContext operationContext, RequestMessage message, MessageEncoderSettings messageEncoderSettings);
+
+        void CompleteCommandActivityWithException(Exception exception);
+        void EnsureCommandActivityCompleted();
     }
 
     internal interface IConnectionHandle : IConnection

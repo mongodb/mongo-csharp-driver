@@ -29,7 +29,9 @@ namespace MongoDB.Driver.Core.Operations
     {
         private bool? _authorizedDatabases;
         private BsonValue _comment;
+        private bool _enableOverloadRetargeting;
         private BsonDocument _filter;
+        private int _maxAdaptiveRetries;
         private MessageEncoderSettings _messageEncoderSettings;
         private bool? _nameOnly;
         private bool _retryRequested;
@@ -62,10 +64,24 @@ namespace MongoDB.Driver.Core.Operations
             get { return _messageEncoderSettings; }
         }
 
+        public string OperationName => "listDatabases";
+
         public bool? NameOnly
         {
             get { return _nameOnly; }
             set { _nameOnly = value; }
+        }
+
+        public bool EnableOverloadRetargeting
+        {
+            get { return _enableOverloadRetargeting; }
+            set { _enableOverloadRetargeting = value; }
+        }
+
+        public int MaxAdaptiveRetries
+        {
+            get { return _maxAdaptiveRetries; }
+            set { _maxAdaptiveRetries = value; }
         }
 
         public bool RetryRequested
@@ -73,6 +89,8 @@ namespace MongoDB.Driver.Core.Operations
             get { return _retryRequested; }
             set { _retryRequested = value; }
         }
+
+        public bool IsOperationRetryable => true;
 
         public BsonDocument CreateCommand()
         {
@@ -110,7 +128,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private IDisposable BeginOperation() => EventContext.BeginOperation(null, "listDatabases");
+        private EventContext.OperationIdDisposer BeginOperation() => EventContext.BeginOperation(null, "listDatabases");
 
         private IAsyncCursor<BsonDocument> CreateCursor(BsonDocument reply)
         {
@@ -121,9 +139,11 @@ namespace MongoDB.Driver.Core.Operations
         private ReadCommandOperation<BsonDocument> CreateOperation()
         {
             var command = CreateCommand();
-            return new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            return new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, _messageEncoderSettings, OperationName)
             {
-                RetryRequested = _retryRequested
+                EnableOverloadRetargeting = _enableOverloadRetargeting,
+                MaxAdaptiveRetries = _maxAdaptiveRetries,
+                RetryRequested = _retryRequested,
             };
         }
     }

@@ -16,7 +16,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
 
@@ -61,16 +60,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.Should().Be(10);
         }
 
-        private ExpressionTranslationOptions GetTranslationOptions()
-        {
-            var wireVersion = CoreTestConfiguration.MaxWireVersion;
-            var compatibilityLevel = Feature.FindProjectionExpressions.IsSupported(wireVersion) ? (ServerVersion?)null : ServerVersion.Server42;
-            return new ExpressionTranslationOptions
+        private ExpressionTranslationOptions GetTranslationOptions() =>
+            new()
             {
-                EnableClientSideProjections = true,
-                CompatibilityLevel = compatibilityLevel,
+                EnableClientSideProjections = true
             };
-        }
 
         private static int Add(int x, int y) => x + y;
 

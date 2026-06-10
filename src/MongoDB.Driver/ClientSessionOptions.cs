@@ -14,7 +14,9 @@
 */
 
 using System;
+using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Operations;
 
 namespace MongoDB.Driver
 {
@@ -46,16 +48,28 @@ namespace MongoDB.Driver
         /// </value>
         public bool Snapshot { get; set;}
 
+        /// <summary>
+        /// Gets or sets the snapshot time. If set, Snapshot must be true.
+        /// </summary>
+        /// <value> The snapshot time. </value>
+        public BsonTimestamp SnapshotTime { get; set; }
+
         // internal methods
-        internal CoreSessionOptions ToCore(bool isImplicit = false)
+        internal CoreSessionOptions ToCore(
+            bool isImplicit = false,
+            int maxAdaptiveRetries = RetryabilityHelper.OperationRetryBackpressureConstants.DefaultMaxRetries,
+            bool enableOverloadRetargeting = false)
         {
             var isCausallyConsistent = CausalConsistency ?? !Snapshot;
 
             return new CoreSessionOptions(
                 isCausallyConsistent: isCausallyConsistent,
                 isImplicit: isImplicit,
+                defaultTransactionOptions: DefaultTransactionOptions,
                 isSnapshot: Snapshot,
-                defaultTransactionOptions: DefaultTransactionOptions);
+                snapshotTime: SnapshotTime,
+                maxAdaptiveRetries: maxAdaptiveRetries,
+                enableOverloadRetargeting: enableOverloadRetargeting);
         }
     }
 }

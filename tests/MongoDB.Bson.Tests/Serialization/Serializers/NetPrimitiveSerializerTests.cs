@@ -1555,6 +1555,34 @@ namespace MongoDB.Bson.Tests.Serialization
             Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
+        [Theory]
+        [MemberData(nameof(IpAddressSpecialValuesTestCases))]
+        public void TestSpecialValues(IPAddress ipAddress, string serializedValue)
+        {
+            var obj = new TestClass
+            {
+                Address = ipAddress
+            };
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
+            var expected = $"{{ \"Address\" : \"{serializedValue}\" }}";
+            Assert.Equal(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        public static IEnumerable<object[]> IpAddressSpecialValuesTestCases =>
+        [
+            [IPAddress.Any, "0.0.0.0"],
+            [IPAddress.Broadcast, "255.255.255.255"],
+            [IPAddress.IPv6Any, "[::]"],
+            [IPAddress.IPv6Loopback, "[::1]"],
+            [IPAddress.IPv6None, "[::]"],
+            [IPAddress.Loopback, "127.0.0.1"],
+            [IPAddress.None, "255.255.255.255"],
+        ];
+
         [Fact]
         public void Equals_null_should_return_false()
         {

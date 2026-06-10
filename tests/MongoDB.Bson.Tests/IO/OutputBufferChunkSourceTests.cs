@@ -21,6 +21,7 @@ using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
@@ -62,12 +63,11 @@ namespace MongoDB.Bson.Tests.IO
 
             var subject = new OutputBufferChunkSource(mockBaseSource.Object, initialUnpooledChunkSize, minChunkSize, maxChunkSize);
 
-            var reflector = new Reflector(subject);
-            subject.BaseSource.Should().BeSameAs(mockBaseSource.Object);
+            subject.BaseSource.Should().Be(mockBaseSource.Object);
             subject.InitialUnpooledChunkSize.Should().Be(initialUnpooledChunkSize);
             subject.MaxChunkSize.Should().Be(maxChunkSize);
             subject.MinChunkSize.Should().Be(minChunkSize);
-            reflector._disposed.Should().BeFalse();
+            Reflector.GetFieldValue(subject, "_disposed").Should().Be(false);
         }
 
         [Fact]
@@ -169,9 +169,7 @@ namespace MongoDB.Bson.Tests.IO
 
             subject.Dispose();
 
-            var reflector = new Reflector(subject);
-            reflector._disposed.Should().BeTrue();
-
+            Reflector.GetFieldValue(subject, "_disposed").Should().Be(true);
         }
 
         [Theory]
@@ -262,7 +260,7 @@ namespace MongoDB.Bson.Tests.IO
         public void InitialUnpooledChunkSize_get_should_return_expected_result()
         {
             var mockBaseSource = new Mock<IBsonChunkSource>();
-            var initialUnpooledChunkSize = Reflector.DefaultInitialUnpooledChunkSize * 2;
+            var initialUnpooledChunkSize = Reflector.GetStaticFieldValue<OutputBufferChunkSource, int>("DefaultInitialUnpooledChunkSize") * 2;
             var subject = new OutputBufferChunkSource(mockBaseSource.Object, initialUnpooledChunkSize: initialUnpooledChunkSize);
 
             var result = subject.InitialUnpooledChunkSize;
@@ -274,7 +272,7 @@ namespace MongoDB.Bson.Tests.IO
         public void MaxChunkSize_get_should_return_expected_result()
         {
             var mockBaseSource = new Mock<IBsonChunkSource>();
-            var maxChunkSize = Reflector.DefaultMaxChunkSize * 2;
+            var maxChunkSize = Reflector.GetStaticFieldValue<OutputBufferChunkSource, int>("DefaultMaxChunkSize") * 2;
             var subject = new OutputBufferChunkSource(mockBaseSource.Object, maxChunkSize: maxChunkSize);
 
             var result = subject.MaxChunkSize;
@@ -286,61 +284,12 @@ namespace MongoDB.Bson.Tests.IO
         public void MinChunkSize_get_should_return_expected_result()
         {
             var mockBaseSource = new Mock<IBsonChunkSource>();
-            var minChunkSize = Reflector.DefaultMinChunkSize * 2;
+            var minChunkSize = Reflector.GetStaticFieldValue<OutputBufferChunkSource, int>("DefaultMinChunkSize") * 2;
             var subject = new OutputBufferChunkSource(mockBaseSource.Object, minChunkSize: minChunkSize);
 
             var result = subject.MinChunkSize;
 
             result.Should().Be(minChunkSize);
-        }
-
-        // nested types
-        private class Reflector
-        {
-            #region static
-            public static int DefaultInitialUnpooledChunkSize
-            {
-                get
-                {
-                    var field = typeof(OutputBufferChunkSource).GetField("DefaultInitialUnpooledChunkSize", BindingFlags.NonPublic | BindingFlags.Static);
-                    return (int)field.GetValue(null);
-                }
-            }
-
-            public static int DefaultMaxChunkSize
-            {
-                get
-                {
-                    var field = typeof(OutputBufferChunkSource).GetField("DefaultMaxChunkSize", BindingFlags.NonPublic | BindingFlags.Static);
-                    return (int)field.GetValue(null);
-                }
-            }
-
-            public static int DefaultMinChunkSize
-            {
-                get
-                {
-                    var field = typeof(OutputBufferChunkSource).GetField("DefaultMinChunkSize", BindingFlags.NonPublic | BindingFlags.Static);
-                    return (int)field.GetValue(null);
-                }
-            }
-            #endregion
-
-            private readonly OutputBufferChunkSource _instance;
-
-            public Reflector(OutputBufferChunkSource instance)
-            {
-                _instance = instance;
-            }
-
-            public bool _disposed
-            {
-                get
-                {
-                    var field = typeof(OutputBufferChunkSource).GetField("_disposed", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (bool)field.GetValue(_instance);
-                }
-            }
         }
     }
 }

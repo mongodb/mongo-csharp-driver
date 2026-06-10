@@ -30,6 +30,30 @@ namespace MongoDB.Bson.Serialization.Serializers
     }
 
     /// <summary>
+    /// Static factory class for KeyValuePairSerializers.
+    /// </summary>
+    public static class KeyValuePairSerializer
+    {
+        /// <summary>
+        /// Creates a KeyValuePairSerializer.
+        /// </summary>
+        /// <param name="representation">The representation.</param>
+        /// <param name="keySerializer">The key serializer.</param>
+        /// <param name="valueSerializer">The value Serializer.</param>
+        /// <returns>A KeyValuePairSerializer.</returns>
+        public static IBsonSerializer Create(
+            BsonType representation,
+            IBsonSerializer keySerializer,
+            IBsonSerializer valueSerializer)
+        {
+            var keyType = keySerializer.ValueType;
+            var valueType = valueSerializer.ValueType;
+            var keyValuePairSerializerType = typeof(KeyValuePairSerializer<,>).MakeGenericType(keyType, valueType);
+            return (IBsonSerializer)Activator.CreateInstance(keyValuePairSerializerType, [representation, keySerializer, valueSerializer]);
+        }
+    }
+
+    /// <summary>
     /// Represents a serializer for KeyValuePairs.
     /// </summary>
     /// <typeparam name="TKey">The type of the keys.</typeparam>

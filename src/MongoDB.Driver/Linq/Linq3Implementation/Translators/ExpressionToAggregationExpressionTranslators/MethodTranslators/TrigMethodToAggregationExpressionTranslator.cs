@@ -26,18 +26,18 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class TrigMethodToAggregationExpressionTranslator
     {
-        private static readonly MethodInfo[] __binaryTrigMethods;
-        private static readonly MethodInfo[] __unaryTrigMethods;
+        private static readonly IReadOnlyMethodInfoSet __binaryTrigMethods;
+        private static readonly IReadOnlyMethodInfoSet __unaryTrigMethods;
 
         static TrigMethodToAggregationExpressionTranslator()
         {
-            __binaryTrigMethods = new[]
-            {
+            __binaryTrigMethods = MethodInfoSet.Create(
+            [
                 MathMethod.Atan2
-            };
+            ]);
 
-            __unaryTrigMethods = new[]
-            {
+            __unaryTrigMethods = MethodInfoSet.Create(
+            [
                 MathMethod.Acos,
                 MathMethod.Acosh,
                 MathMethod.Asin,
@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 MathMethod.Tanh,
                 MongoDBMathMethod.DegreesToRadians,
                 MongoDBMathMethod.RadiansToDegrees
-            };
+            ]);
         }
 
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)

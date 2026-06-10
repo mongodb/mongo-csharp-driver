@@ -24,7 +24,6 @@ using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
-using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Encryption;
 
@@ -45,7 +44,7 @@ namespace MongoDB.Driver.Tests
         // static constructor
         static DriverTestConfiguration()
         {
-            __client = new Lazy<IMongoClient>(CreateMongoClient, isThreadSafe: true);
+            __client = new Lazy<IMongoClient>(() => CreateMongoClient(), isThreadSafe: true);
             __clientWithMultipleShardRouters = new Lazy<IMongoClient>(() => CreateMongoClient(useMultipleShardRouters: true), true);
             __databaseNamespace = CoreTestConfiguration.DatabaseNamespace;
             __directClientsToShardRouters = new Lazy<IReadOnlyList<IMongoClient>>(
@@ -128,7 +127,8 @@ namespace MongoDB.Driver.Tests
 
         public static IMongoClient CreateMongoClient(
             Action<MongoClientSettings> clientSettingsConfigurator = null,
-            bool useMultipleShardRouters = false)
+            bool useMultipleShardRouters = false,
+            bool waitForAllServersToBeConnected = false)
         {
             var clusterType = CoreTestConfiguration.Cluster.Description.Type;
             if (clusterType != ClusterType.Sharded && clusterType != ClusterType.LoadBalanced)
@@ -153,7 +153,13 @@ namespace MongoDB.Driver.Tests
                 OidcCallbackAdapterCachingFactory.Instance.Reset();
             }
 
-            return new MongoClient(clientSettings);
+            var client = new MongoClient(clientSettings);
+            if (waitForAllServersToBeConnected)
+            {
+                WaitForAllServersToBeConnected(client.GetClusterInternal());
+            }
+
+            return client;
         }
 
         public static IMongoClient CreateMongoClient(EventCapturer capturer, LoggingSettings loggingSettings = null) =>
@@ -171,9 +177,6 @@ namespace MongoDB.Driver.Tests
             return new MongoClient(settings);
         }
 
-        private static IMongoClient CreateMongoClient() =>
-            CreateMongoClient(GetClientSettings());
-
         public static MongoClientSettings GetClientSettings()
         {
             var connectionString = CoreTestConfiguration.ConnectionString.ToString();
@@ -184,6 +187,13 @@ namespace MongoDB.Driver.Tests
             {
                 serverSelectionTimeoutString = "30000";
             }
+
+            if (System.Diagnostics.Debugger.IsAttached)
+            {
+                clientSettings.HeartbeatTimeout = TimeSpan.FromDays(1);
+                clientSettings.ServerMonitoringMode = ServerMonitoringMode.Poll;
+            }
+
             clientSettings.ServerSelectionTimeout = TimeSpan.FromMilliseconds(int.Parse(serverSelectionTimeoutString));
             clientSettings.ClusterConfigurator = cb => CoreTestConfiguration.ConfigureLogging(cb);
             clientSettings.ServerApi = CoreTestConfiguration.ServerApi;
@@ -213,30 +223,88 @@ namespace MongoDB.Driver.Tests
             };
         }
 
-        public static bool IsReplicaSet(IMongoClient client)
+        // Returns true if any server reports an RS member type (Primary, Secondary, Arbiter,
+        // Other, or Ghost). Callers that need specifically a data-bearing member should use
+        // GetReplicaSetNumberOfDataBearingMembers instead.
+        internal static bool IsReplicaSet(IClusterInternal cluster)
         {
-            var clusterTypeIsKnown = SpinWait.SpinUntil(() => client.Cluster.Description.Type != ClusterType.Unknown, TimeSpan.FromSeconds(10));
-            if (!clusterTypeIsKnown)
+            var serverIsKnown = SpinWait.SpinUntil(
+                () => cluster.Description.Servers.Any(s => s.Type != ServerType.Unknown),
+                TimeSpan.FromSeconds(10));
+            if (!serverIsKnown)
             {
-                throw new InvalidOperationException($"Unable to determine cluster type: {client.Cluster.Description}.");
+                throw new InvalidOperationException($"Unable to determine cluster type: {cluster.Description}.");
             }
-            return client.Cluster.Description.Type == ClusterType.ReplicaSet;
+            return cluster.Description.Servers.Any(s => s.Type.IsReplicaSetMember());
         }
 
-        public static int GetReplicaSetNumberOfDataBearingMembers(IMongoClient client)
+        internal static int GetReplicaSetNumberOfDataBearingMembers(IClusterInternal cluster)
         {
-            if (!IsReplicaSet(client))
+            if (!IsReplicaSet(cluster))
             {
-                throw new InvalidOperationException($"Cluster is not a replica set: {client.Cluster.Description}.");
+                throw new InvalidOperationException($"Cluster is not a replica set: {cluster.Description}.");
             }
 
-            var allServersAreConnected = SpinWait.SpinUntil(() => client.Cluster.Description.Servers.All(s => s.State == ServerState.Connected), TimeSpan.FromSeconds(10));
+            WaitForAllServersToBeConnected(cluster);
+            // Under a directConnect the description only includes the single node being targeted,
+            // so this count reflects only that server. RequireServer.ReplicaSetDataBearingMembers(2)
+            // therefore correctly skips tests that need multiple members when connected directly.
+            return cluster.Description.Servers.Count(s => s.IsDataBearing);
+        }
+
+        // Returns the effective cluster type. For direct connections Description.Type is always
+        // Standalone regardless of the actual server type, so the server's reported type is used
+        // instead. Throws (rather than skips) if the type cannot be determined: an undeterminable
+        // topology is an environment failure, not a "this topology isn't applicable" skip.
+        internal static ClusterType GetActualClusterType(IClusterInternal cluster)
+        {
+            var description = cluster.Description;
+            if (description.DirectConnection)
+            {
+                var serverIsKnown = SpinWait.SpinUntil(
+                    () => cluster.Description.Servers.Any(s => s.Type != ServerType.Unknown),
+                    TimeSpan.FromSeconds(10));
+                if (!serverIsKnown)
+                {
+                    throw new InvalidOperationException($"Unable to determine cluster type: {cluster.Description}.");
+                }
+                return cluster.Description.Servers.First(s => s.Type != ServerType.Unknown).Type.ToClusterType();
+            }
+            // For non-direct connections the cluster machinery resolves Description.Type before tests
+            // run, but spin briefly here as well so early-startup invocations don't race against the
+            // initial SDAM rounds.
+            var typeIsKnown = SpinWait.SpinUntil(
+                () => cluster.Description.Type != ClusterType.Unknown,
+                TimeSpan.FromSeconds(10));
+            if (!typeIsKnown)
+            {
+                throw new InvalidOperationException($"Unable to determine cluster type: {cluster.Description}.");
+            }
+            return cluster.Description.Type;
+        }
+
+        internal static bool IsSingleNodeReplicaSet(IClusterInternal cluster)
+        {
+            // IsReplicaSet spins until at least one server type is known (throwing if it never
+            // resolves), so a transient empty / all-Unknown snapshot is never mistaken for "not a
+            // replica set".
+            if (!IsReplicaSet(cluster))
+            {
+                return false;
+            }
+            // Matches both a directConnection to a single RS member and a non-directConnection
+            // single-node RS.
+            var servers = cluster.Description.Servers;
+            return servers.Count == 1 && servers[0].Type.IsReplicaSetMember();
+        }
+
+        internal static void WaitForAllServersToBeConnected(IClusterInternal cluster)
+        {
+            var allServersAreConnected = SpinWait.SpinUntil(() => cluster.Description.Servers.All(s => s.State == ServerState.Connected), TimeSpan.FromSeconds(10));
             if (!allServersAreConnected)
             {
-                throw new InvalidOperationException($"Unable to connect to all members of the replica set: {client.Cluster.Description}.");
+                throw new InvalidOperationException($"Unable to connect to all members of the cluster: {cluster.Description}.");
             }
-
-            return client.Cluster.Description.Servers.Count(s => s.IsDataBearing);
         }
 
         private static void EnsureUniqueCluster(MongoClientSettings settings)

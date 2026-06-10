@@ -299,40 +299,19 @@ namespace MongoDB.Driver.Core.Operations
             {
                 var resumeResult = cursor.GetResumeToken();
                 // the batch is empty
-                if (Feature.ChangeStreamPostBatchResumeToken.IsSupported(CoreTestConfiguration.MaxWireVersion))
-                {
-                    var postBatchResumeToken = cursor._postBatchResumeToken();
-                    postBatchResumeToken.Should().NotBeNull();
-                    resumeResult.Should().Be(postBatchResumeToken);
-                }
-                else
-                {
-                    if (withResumeAfter)
-                    {
-                        resumeResult.Should().Be(subject.ResumeAfter);
-                    }
-                    else
-                    {
-                        resumeResult.Should().BeNull();
-                    }
-                }
+
+                var postBatchResumeToken1 = cursor._postBatchResumeToken();
+                postBatchResumeToken1.Should().NotBeNull();
+                resumeResult.Should().Be(postBatchResumeToken1);
 
                 // the batch has been iterated to the last document
                 Insert("{ a : 1 }");
                 enumerator.MoveNext();
                 resumeResult = cursor.GetResumeToken();
-                if (Feature.ChangeStreamPostBatchResumeToken.IsSupported(CoreTestConfiguration.MaxWireVersion))
-                {
-                    var postBatchResumeToken = cursor._postBatchResumeToken();
-                    postBatchResumeToken.Should().NotBeNull();
-                    resumeResult.Should().Be(postBatchResumeToken);
-                }
-                else
-                {
-                    var documentResumeToken = cursor._documentResumeToken();
-                    documentResumeToken.Should().NotBeNull();
-                    resumeResult.Should().Be(documentResumeToken);
-                }
+
+                var postBatchResumeToken2 = cursor._postBatchResumeToken();
+                postBatchResumeToken2.Should().NotBeNull();
+                resumeResult.Should().Be(postBatchResumeToken2);
             }
         }
 
@@ -374,18 +353,9 @@ namespace MongoDB.Driver.Core.Operations
                 // The batch is not empty.
                 // The batch hasn’t been iterated at all.
                 // The stream has iterated beyond a previous batch and a getMore command has just been executed.
-                if (Feature.ChangeStreamPostBatchResumeToken.IsSupported(CoreTestConfiguration.MaxWireVersion))
-                {
-                    var postBatchResumeToken = cursor._postBatchResumeToken();
-                    postBatchResumeToken.Should().NotBeNull();
-                    resumeToken.Should().Be(postBatchResumeToken);
-                }
-                else
-                {
-                    var documentResumeToken = cursor._documentResumeToken();
-                    documentResumeToken.Should().NotBeNull();
-                    resumeToken.Should().Be(documentResumeToken);
-                }
+                var postBatchResumeToken = cursor._postBatchResumeToken();
+                postBatchResumeToken.Should().NotBeNull();
+                resumeToken.Should().Be(postBatchResumeToken);
             }
         }
 

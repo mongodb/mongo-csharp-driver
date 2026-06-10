@@ -30,6 +30,8 @@ namespace MongoDB.Driver
             ReadConcern readConcern,
             MessageEncoderSettings messageEncoderSettings,
             bool retryRequested,
+            int maxAdaptiveRetries,
+            bool enableOverloadRetargeting,
             ExpressionTranslationOptions translationOptions)
         {
             var renderedPipeline = RenderPipeline(pipeline, BsonDocumentSerializer.Instance, translationOptions);
@@ -39,6 +41,8 @@ namespace MongoDB.Driver
                 renderedPipeline.OutputSerializer,
                 messageEncoderSettings)
             {
+                EnableOverloadRetargeting = enableOverloadRetargeting,
+                MaxAdaptiveRetries = maxAdaptiveRetries,
                 RetryRequested = retryRequested
             };
             SetOperationOptions(operation, options, readConcern);
@@ -53,6 +57,8 @@ namespace MongoDB.Driver
             ReadConcern readConcern,
             MessageEncoderSettings messageEncoderSettings,
             bool retryRequested,
+            int maxAdaptiveRetries,
+            bool enableOverloadRetargeting,
             ExpressionTranslationOptions translationOptions)
         {
             var renderedPipeline = RenderPipeline(pipeline, BsonDocumentSerializer.Instance, translationOptions);
@@ -63,6 +69,8 @@ namespace MongoDB.Driver
                 renderedPipeline.OutputSerializer,
                 messageEncoderSettings)
             {
+                EnableOverloadRetargeting = enableOverloadRetargeting,
+                MaxAdaptiveRetries = maxAdaptiveRetries,
                 RetryRequested = retryRequested
             };
             SetOperationOptions(operation, options, readConcern);
@@ -78,6 +86,8 @@ namespace MongoDB.Driver
             ReadConcern readConcern,
             MessageEncoderSettings messageEncoderSettings,
             bool retryRequested,
+            int maxAdaptiveRetries,
+            bool enableOverloadRetargeting,
             ExpressionTranslationOptions translationOptions)
         {
             var renderedPipeline = RenderPipeline(pipeline, documentSerializer, translationOptions);
@@ -88,6 +98,8 @@ namespace MongoDB.Driver
                 renderedPipeline.OutputSerializer,
                 messageEncoderSettings)
             {
+                EnableOverloadRetargeting = enableOverloadRetargeting,
+                MaxAdaptiveRetries = maxAdaptiveRetries,
                 RetryRequested = retryRequested
             };
             SetOperationOptions(operation, options, readConcern);

@@ -27,6 +27,8 @@ namespace MongoDB.Driver.Core.Operations
     {
         private readonly CollectionNamespace _collectionNamespace;
         private BsonValue _comment;
+        private bool _enableOverloadRetargeting;
+        private int _maxAdaptiveRetries;
         private TimeSpan? _maxTime;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private ReadConcern _readConcern = ReadConcern.Default;
@@ -54,10 +56,24 @@ namespace MongoDB.Driver.Core.Operations
 
         public MessageEncoderSettings MessageEncoderSettings => _messageEncoderSettings;
 
+        public string OperationName => "count";
+
         public ReadConcern ReadConcern
         {
             get => _readConcern;
             set => _readConcern = Ensure.IsNotNull(value, nameof(value));
+        }
+
+        public bool EnableOverloadRetargeting
+        {
+            get => _enableOverloadRetargeting;
+            set => _enableOverloadRetargeting = value;
+        }
+
+        public int MaxAdaptiveRetries
+        {
+            get => _maxAdaptiveRetries;
+            set => _maxAdaptiveRetries = value;
         }
 
         public bool RetryRequested
@@ -66,12 +82,14 @@ namespace MongoDB.Driver.Core.Operations
             set => _retryRequested = value;
         }
 
+        public bool IsOperationRetryable => true;
+
         public long Execute(OperationContext operationContext, IReadBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = RetryableReadContext.Create(operationContext, binding, _retryRequested))
+            using (var context = new RetryableReadContext(binding, _retryRequested, _maxAdaptiveRetries, _enableOverloadRetargeting))
             {
                 var operation = CreateCountOperation();
 
@@ -84,7 +102,7 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = RetryableReadContext.Create(operationContext, binding, _retryRequested))
+            using (var context = new RetryableReadContext(binding, _retryRequested, _maxAdaptiveRetries, _enableOverloadRetargeting))
             {
                 var operation = CreateCountOperation();
 
@@ -92,13 +110,15 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private IDisposable BeginOperation() => EventContext.BeginOperation("count");
+        private EventContext.OperationIdDisposer BeginOperation() => EventContext.BeginOperation(null, OperationName);
 
         private IExecutableInRetryableReadContext<long> CreateCountOperation()
         {
             var countOperation = new CountOperation(_collectionNamespace, _messageEncoderSettings)
             {
                 Comment = _comment,
+                EnableOverloadRetargeting = _enableOverloadRetargeting,
+                MaxAdaptiveRetries = _maxAdaptiveRetries,
                 MaxTime = _maxTime,
                 ReadConcern = _readConcern,
                 RetryRequested = _retryRequested

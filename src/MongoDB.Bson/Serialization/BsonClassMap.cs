@@ -1325,24 +1325,36 @@ namespace MongoDB.Bson.Serialization
             {
                 // it's possible but harmless for multiple threads to do the discriminator convention lookup at the same time
                 discriminatorConvention = LookupDiscriminatorConvention();
-                _discriminatorConvention = discriminatorConvention;
 
                 if (discriminatorConvention != null)
                 {
-                    var conflictingMemberMap = _allMemberMaps.FirstOrDefault(memberMap => memberMap.ElementName == discriminatorConvention.ElementName);
-
-                    if (conflictingMemberMap != null)
-                    {
-                        var fieldOrProperty = conflictingMemberMap.MemberInfo is FieldInfo ? "field" : "property";
-
-                        throw new BsonSerializationException(
-                            $"The discriminator element name cannot be {discriminatorConvention.ElementName} " +
-                            $"because it is already being used by the {fieldOrProperty} {conflictingMemberMap.MemberName} of type {_classType.FullName}");
-                    }
+                    EnsureNoMemberMapConflicts(discriminatorConvention.ElementName);
                 }
+
+                // only cache if validation succeeds
+                _discriminatorConvention = discriminatorConvention;
             }
 
             return discriminatorConvention;
+
+            void EnsureNoMemberMapConflicts(string elementName)
+            {
+                if (AppContext.TryGetSwitch("Switch.MongoDB.Driver.DisableDiscriminatorFieldConflictCheck", out bool disableConflictCheck) && disableConflictCheck)
+                {
+                    return;
+                }
+
+                var conflictingMemberMap = _allMemberMaps.FirstOrDefault(memberMap => memberMap.ElementName == elementName);
+
+                if (conflictingMemberMap != null)
+                {
+                    var fieldOrProperty = conflictingMemberMap.MemberInfo is FieldInfo ? "field" : "property";
+
+                    throw new BsonSerializationException(
+                        $"The discriminator element name cannot be {discriminatorConvention.ElementName} " +
+                        $"because it is already being used by the {fieldOrProperty} {conflictingMemberMap.MemberName} of type {_classType.FullName}");
+                }
+            }
 
             IDiscriminatorConvention LookupDiscriminatorConvention()
             {

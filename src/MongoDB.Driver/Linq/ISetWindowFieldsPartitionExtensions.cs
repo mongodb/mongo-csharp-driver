@@ -11,7 +11,7 @@
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 * See the License for the specific language governing permissions and
 * limitations under the License.
-* 
+*
 */
 
 using System;
@@ -466,6 +466,7 @@ namespace MongoDB.Driver.Linq
         /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
         /// <param name="partition">The partition.</param>
         /// <returns>The document position.</returns>
+        // note: the return type should have been long, but changing it now would be a breaking change
         public static decimal DenseRank<TInput>(this ISetWindowFieldsPartition<TInput> partition)
         {
             throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
@@ -612,6 +613,7 @@ namespace MongoDB.Driver.Linq
         /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
         /// <param name="partition">The partition.</param>
         /// <returns>The document position.</returns>
+        // note: the return type should have been long, but changing it now would be a breaking change
         public static decimal DocumentNumber<TInput>(this ISetWindowFieldsPartition<TInput> partition)
         {
             throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
@@ -1182,6 +1184,7 @@ namespace MongoDB.Driver.Linq
         /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
         /// <param name="partition">The partition.</param>
         /// <returns>The document position.</returns>
+        // note: the return type should have been long, but changing it now would be a breaking change
         public static decimal Rank<TInput>(this ISetWindowFieldsPartition<TInput> partition)
         {
             throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");

@@ -37,9 +37,9 @@ namespace MongoDB.Driver.Tests.Jira
             var outCollection = database.GetCollection<BsonDocument>("timeCol");
 
             var writeConcern = WriteConcern.WMajority;
-            if (DriverTestConfiguration.IsReplicaSet(client))
+            if (DriverTestConfiguration.IsReplicaSet(client.GetClusterInternal()))
             {
-                var n = DriverTestConfiguration.GetReplicaSetNumberOfDataBearingMembers(client);
+                var n = DriverTestConfiguration.GetReplicaSetNumberOfDataBearingMembers(client.GetClusterInternal());
                 writeConcern = new WriteConcern(n);
             }
 

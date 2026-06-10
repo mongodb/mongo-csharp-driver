@@ -51,8 +51,6 @@ namespace MongoDB.Driver.Tests.Encryption
         [ParameterAttributeData]
         public void CryptClient_should_be_initialized([Values(false, true)] bool withAutoEncryption)
         {
-            RequireServer.Check().Supports(Feature.ClientSideEncryption);
-
             using (var client = GetClient(withAutoEncryption))
             {
                 var libMongoCryptController = client.LibMongoCryptController;
@@ -72,8 +70,6 @@ namespace MongoDB.Driver.Tests.Encryption
         [ParameterAttributeData]
         public async Task Mongocryptd_should_be_initialized_when_auto_encryption([Values(false, true)] bool withAutoEncryption, [Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.ClientSideEncryption);
-
             using (var client = GetClient(
                 withAutoEncryption,
                 new Dictionary<string, object> { { "cryptSharedLibPath", "non_existing_path_to_use_mongocryptd" } }))
@@ -124,7 +120,6 @@ namespace MongoDB.Driver.Tests.Encryption
         [Fact]
         public void Shared_library_should_be_loaded_when_CRYPT_SHARED_LIB_PATH_is_set()
         {
-            RequireServer.Check().Supports(Feature.ClientSideEncryption);
             RequireEnvironment.Check().EnvironmentVariable("CRYPT_SHARED_LIB_PATH", isDefined: true, allowEmpty: false);
             Ensure.That(File.Exists(Environment.GetEnvironmentVariable("CRYPT_SHARED_LIB_PATH")), "CRYPT_SHARED_LIB_PATH should exist.");
 
@@ -161,7 +156,7 @@ namespace MongoDB.Driver.Tests.Encryption
         }
 
         // private methods
-        private IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> GetKmsProviders() => EncryptionTestHelper.GetKmsProviders(filter: "local");
+        private IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> GetKmsProviders() => EncryptionTestHelper.GetKmsProviders("local");
     }
 
     internal static class LibMongoCryptControllerBaseReflector

@@ -87,7 +87,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [InlineData(4, "throws:MongoCommandException")]
         public void MongoDBFunctions_DateFromString_with_format_should_work(int id, string expectedResult)
         {
-            RequireServer.Check().Supports(Feature.DateFromStringFormatArgument);
             var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
@@ -111,7 +110,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [InlineData(4, "throws:MongoCommandException")]
         public void MongoDBFunctions_DateFromString_with_format_and_timezone_should_work(int id, string expectedResult)
         {
-            RequireServer.Check().Supports(Feature.DateFromStringFormatArgument);
             var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
@@ -138,7 +136,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [InlineData(7, "1111-11-11T11:11:11Z")]
         public void MongoDBFunctions_DateFromString_with_format_and_timezone_and_onError_and_onNull_should_work(int id, string expectedResult)
         {
-            RequireServer.Check().Supports(Feature.DateFromStringFormatArgument);
             var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()

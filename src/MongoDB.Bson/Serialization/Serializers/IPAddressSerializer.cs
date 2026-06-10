@@ -55,6 +55,13 @@ namespace MongoDB.Bson.Serialization.Serializers
             throw new FormatException(message);
         }
 
+        /// <inheritdoc/>
+        public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, IPAddress value)
+        {
+            args.SerializeAsNominalType = true;
+            base.Serialize(context, args, value);
+        }
+
         /// <summary>
         /// Serializes a value.
         /// </summary>

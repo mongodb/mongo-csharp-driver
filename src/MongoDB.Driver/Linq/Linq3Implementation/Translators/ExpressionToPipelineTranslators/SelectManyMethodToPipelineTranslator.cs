@@ -14,8 +14,13 @@
 */
 
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Options;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages;
@@ -28,32 +33,19 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
 {
     internal static class SelectManyMethodToPipelineTranslator
     {
-        // private static fields
-        private static readonly MethodInfo[] __selectManyMethods;
-
-        // static constructor
-        static SelectManyMethodToPipelineTranslator()
-        {
-            __selectManyMethods = new[]
-            {
-                QueryableMethod.SelectMany,
-                QueryableMethod.SelectManyWithCollectionSelectorAndResultSelector
-            };
-        }
-
         // public static methods
         public static TranslatedPipeline Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__selectManyMethods))
+            if (method.IsOneOf(QueryableMethod.SelectManyOverloads))
             {
                 var sourceExpression = arguments[0];
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
                 ClientSideProjectionHelper.ThrowIfClientSideProjection(expression, pipeline, method);
 
-                if (method.Is(QueryableMethod.SelectMany))
+                if (method.Is(QueryableMethod.SelectManyWithSelector))
                 {
                     return TranslateSelectMany(context, pipeline, arguments);
                 }
@@ -74,16 +66,23 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
         {
             var sourceSerializer = pipeline.OutputSerializer;
             var selectorLambda = ExpressionHelper.UnquoteLambda(arguments[1]);
-            var selectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, selectorLambda, sourceSerializer, asRoot: true);
-            var resultValueSerializer = ArraySerializerHelper.GetItemSerializer(selectorTranslation.Serializer);
-            var resultWrappedValueSerializer = WrappedValueSerializer.Create("_v", resultValueSerializer);
+            var selectorParameter = selectorLambda.Parameters.Single();
+            var selectorParameterSymbol = context.CreateSymbol(selectorParameter, sourceSerializer, isCurrent: true);
+            var selectorContext = context.WithSymbol(selectorParameterSymbol);
+            var selectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(selectorContext, selectorLambda.Body);
+
+            var valuesAst = selectorTranslation.Ast;
+            var valuesSerializer = selectorTranslation.Serializer;
+
+            var valuesItemSerializer = ArraySerializerHelper.GetItemSerializer(valuesSerializer);
+            var wrappedValueSerializer = WrappedValueSerializer.Create("_v", valuesItemSerializer);
 
             pipeline = pipeline.AddStages(
                 AstStage.Project(
-                    AstProject.Set("_v", selectorTranslation.Ast),
+                    AstProject.Set("_v", valuesAst),
                     AstProject.ExcludeId()),
                 AstStage.Unwind("_v"),
-                resultWrappedValueSerializer);
+                wrappedValueSerializer);
 
             return pipeline;
         }

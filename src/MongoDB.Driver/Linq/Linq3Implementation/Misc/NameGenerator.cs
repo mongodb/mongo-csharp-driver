@@ -33,6 +33,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             return $"_p{_parameterCounter++}";
         }
 
+        public string GenerateVarName()
+        {
+            return $"v__{_varCounter++}";
+        }
+
         public string GetVarName(string symbolName)
         {
             if (IsValidVarName(symbolName))
@@ -40,7 +45,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                 return symbolName;
             }
 
-            return $"v__{_varCounter++}";
+            return GenerateVarName();
 
             static bool IsValidVarName(string name)
             {

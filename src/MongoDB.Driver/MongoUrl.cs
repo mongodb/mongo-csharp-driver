@@ -45,6 +45,7 @@ namespace MongoDB.Driver
         private readonly TimeSpan _connectTimeout;
         private readonly string _databaseName;
         private readonly bool _directConnection;
+        private readonly bool? _enableOverloadRetargeting;
         private readonly bool? _fsync;
         private readonly TimeSpan _heartbeatInterval;
         private readonly TimeSpan _heartbeatTimeout;
@@ -52,6 +53,7 @@ namespace MongoDB.Driver
         private readonly bool _isResolved;
         private readonly bool? _journal;
         private readonly bool _loadBalanced;
+        private readonly int? _maxAdaptiveRetries;
         private readonly int _maxConnecting;
         private readonly TimeSpan _maxConnectionIdleTime;
         private readonly TimeSpan _maxConnectionLifeTime;
@@ -64,6 +66,10 @@ namespace MongoDB.Driver
         private readonly bool? _retryReads;
         private readonly bool? _retryWrites;
         private readonly TimeSpan _localThreshold;
+        private readonly string _proxyHost;
+        private readonly int? _proxyPort;
+        private readonly string _proxyUsername;
+        private readonly string _proxyPassword;
         private readonly ConnectionStringScheme _scheme;
         private readonly IEnumerable<MongoServerAddress> _servers;
         private readonly ServerMonitoringMode? _serverMonitoringMode;
@@ -102,6 +108,7 @@ namespace MongoDB.Driver
             _authenticationSource = builder.AuthenticationSource;
             _compressors = builder.Compressors;
             _directConnection = builder.DirectConnection;
+            _enableOverloadRetargeting = builder.EnableOverloadRetargeting;
             _connectTimeout = builder.ConnectTimeout;
             _databaseName = builder.DatabaseName;
             _fsync = builder.FSync;
@@ -112,12 +119,17 @@ namespace MongoDB.Driver
             _journal = builder.Journal;
             _loadBalanced = builder.LoadBalanced;
             _localThreshold = builder.LocalThreshold;
+            _maxAdaptiveRetries = builder.MaxAdaptiveRetries;
             _maxConnecting = builder.MaxConnecting;
             _maxConnectionIdleTime = builder.MaxConnectionIdleTime;
             _maxConnectionLifeTime = builder.MaxConnectionLifeTime;
             _maxConnectionPoolSize = builder.MaxConnectionPoolSize;
             _minConnectionPoolSize = builder.MinConnectionPoolSize;
             _password = builder.Password;
+            _proxyHost = builder.ProxyHost;
+            _proxyPort = builder.ProxyPort;
+            _proxyUsername = builder.ProxyUsername;
+            _proxyPassword = builder.ProxyPassword;
             _readConcernLevel = builder.ReadConcernLevel;
             _readPreference = builder.ReadPreference;
             _replicaSetName = builder.ReplicaSetName;
@@ -235,6 +247,11 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets a value indicating whether overload retargeting is enabled.
+        /// </summary>
+        public bool? EnableOverloadRetargeting => _enableOverloadRetargeting;
+
+        /// <summary>
         /// Gets the FSync component of the write concern.
         /// </summary>
         public bool? FSync
@@ -313,6 +330,11 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets the maximum number of adaptive retries for overload errors.
+        /// </summary>
+        public int? MaxAdaptiveRetries => _maxAdaptiveRetries;
+
+        /// <summary>
         /// Gets the maximum concurrently connecting connections.
         /// </summary>
         public int MaxConnecting
@@ -359,6 +381,26 @@ namespace MongoDB.Driver
         {
             get { return _password; }
         }
+
+        /// <summary>
+        /// Gets the proxy host.
+        /// </summary>
+        public string ProxyHost => _proxyHost;
+
+        /// <summary>
+        /// Gets the proxy port.
+        /// </summary>
+        public int? ProxyPort => _proxyPort;
+
+        /// <summary>
+        /// Gets the proxy username.
+        /// </summary>
+        public string ProxyUsername => _proxyUsername;
+
+        /// <summary>
+        /// Gets the proxy password.
+        /// </summary>
+        public string ProxyPassword => _proxyPassword;
 
         /// <summary>
         /// Gets the read concern level.

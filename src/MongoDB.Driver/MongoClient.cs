@@ -501,7 +501,9 @@ namespace MongoDB.Driver
             var renderArgs = GetRenderArgs();
             var operation = new ClientBulkWriteOperation(models, options, messageEncoderSettings, renderArgs)
             {
-                RetryRequested = _settings.RetryWrites,
+                EnableOverloadRetargeting = _settings.EnableOverloadRetargeting,
+                MaxAdaptiveRetries = _settings.MaxAdaptiveRetries,
+                RetryRequested = _settings.RetryWrites
             };
             if (options?.WriteConcern == null)
             {
@@ -519,6 +521,9 @@ namespace MongoDB.Driver
         private DropDatabaseOperation CreateDropDatabaseOperation(string name)
             => new(new DatabaseNamespace(name), GetMessageEncoderSettings())
             {
+                EnableOverloadRetargeting = _settings.EnableOverloadRetargeting,
+                MaxAdaptiveRetries = _settings.MaxAdaptiveRetries,
+                RetryRequested = _settings.RetryWrites,
                 WriteConcern = _settings.WriteConcern
             };
 
@@ -532,7 +537,9 @@ namespace MongoDB.Driver
             {
                 AuthorizedDatabases = options.AuthorizedDatabases,
                 Comment = options.Comment,
+                EnableOverloadRetargeting = _settings.EnableOverloadRetargeting,
                 Filter = options.Filter?.Render(new(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry, translationOptions: translationOptions)),
+                MaxAdaptiveRetries = _settings.MaxAdaptiveRetries,
                 NameOnly = options.NameOnly,
                 RetryRequested = _settings.RetryReads
             };
@@ -561,9 +568,11 @@ namespace MongoDB.Driver
                 _settings.ReadConcern,
                 GetMessageEncoderSettings(),
                 _settings.RetryReads,
+                _settings.MaxAdaptiveRetries,
+                _settings.EnableOverloadRetargeting,
                 _settings.TranslationOptions);
 
-        private OperationContext CreateOperationContext(IClientSessionHandle session, TimeSpan? timeout, CancellationToken cancellationToken)
+        private OperationContext CreateOperationContext(IClientSessionHandle session, TimeSpan? timeout, string operationName, CancellationToken cancellationToken)
         {
             var operationContext = session.WrappedCoreSession.CurrentTransaction?.OperationContext;
             if (operationContext != null && timeout != null)
@@ -571,32 +580,44 @@ namespace MongoDB.Driver
                 throw new InvalidOperationException("Cannot specify per operation timeout inside transaction.");
             }
 
-            return operationContext?.Fork() ?? new OperationContext(timeout ?? _settings.Timeout, cancellationToken);
+            var tracingOptions = _settings.TracingOptions;
+            var isTracingEnabled = tracingOptions?.Disabled != true && MongoTelemetry.ActivitySource.HasListeners();
+
+            if (operationContext != null)
+            {
+                return isTracingEnabled
+                    ? operationContext.ForkWithOperationMetadata(operationName, "admin", null, isTracingEnabled)
+                    : operationContext.Fork();
+            }
+
+            return isTracingEnabled
+                ? new OperationContext(timeout ?? _settings.Timeout, operationName, "admin", null, isTracingEnabled, cancellationToken)
+                : new OperationContext(timeout ?? _settings.Timeout, cancellationToken);
         }
 
         private TResult ExecuteReadOperation<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, TimeSpan? timeout, CancellationToken cancellationToken)
         {
             var readPreference = session.GetEffectiveReadPreference(_settings.ReadPreference);
-            using var operationContext = CreateOperationContext(session, timeout, cancellationToken);
+            using var operationContext = CreateOperationContext(session, timeout, operation.OperationName, cancellationToken);
             return _operationExecutor.ExecuteReadOperation(operationContext, session, operation, readPreference, false);
         }
 
         private async Task<TResult> ExecuteReadOperationAsync<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, TimeSpan? timeout, CancellationToken cancellationToken)
         {
             var readPreference = session.GetEffectiveReadPreference(_settings.ReadPreference);
-            using var operationContext = CreateOperationContext(session, timeout, cancellationToken);
+            using var operationContext = CreateOperationContext(session, timeout, operation.OperationName, cancellationToken);
             return await _operationExecutor.ExecuteReadOperationAsync(operationContext, session, operation, readPreference, false).ConfigureAwait(false);
         }
 
         private TResult ExecuteWriteOperation<TResult>(IClientSessionHandle session, IWriteOperation<TResult> operation, TimeSpan? timeout, CancellationToken cancellationToken)
         {
-            using var operationContext = CreateOperationContext(session, timeout, cancellationToken);
+            using var operationContext = CreateOperationContext(session, timeout, operation.OperationName, cancellationToken);
             return _operationExecutor.ExecuteWriteOperation(operationContext, session, operation, false);
         }
 
         private async Task<TResult> ExecuteWriteOperationAsync<TResult>(IClientSessionHandle session, IWriteOperation<TResult> operation, TimeSpan? timeout, CancellationToken cancellationToken)
         {
-            using var operationContext = CreateOperationContext(session, timeout, cancellationToken);
+            using var operationContext = CreateOperationContext(session, timeout, operation.OperationName, cancellationToken);
             return await _operationExecutor.ExecuteWriteOperationAsync(operationContext, session, operation, false).ConfigureAwait(false);
         }
 
@@ -622,9 +643,17 @@ namespace MongoDB.Driver
 
         private IClientSessionHandle StartSession(ClientSessionOptions options)
         {
-            if (options != null && options.Snapshot && options.CausalConsistency == true)
+            if (options != null)
             {
-                throw new NotSupportedException("Combining both causal consistency and snapshot options is not supported.");
+                if (options.SnapshotTime != null && !options.Snapshot)
+                {
+                    throw new InvalidOperationException("Specifying a snapshot time requires snapshot to be true.");
+                }
+
+                if (options.Snapshot && options.CausalConsistency == true)
+                {
+                    throw new NotSupportedException("Combining both causal consistency and snapshot options is not supported.");
+                }
             }
 
             options ??= new ClientSessionOptions();
@@ -638,7 +667,9 @@ namespace MongoDB.Driver
                     options.DefaultTransactionOptions?.MaxCommitTime);
             }
 
-            var coreSession = _cluster.StartSession(options.ToCore());
+            var coreSession = _cluster.StartSession(options.ToCore(
+                maxAdaptiveRetries: _settings.MaxAdaptiveRetries,
+                enableOverloadRetargeting: _settings.EnableOverloadRetargeting));
 
             return new ClientSessionHandle(this, options, coreSession);
         }

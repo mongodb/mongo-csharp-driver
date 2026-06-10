@@ -53,10 +53,14 @@ namespace MongoDB.Driver.Core.Operations
             Comment = options?.Comment;
             IsOrdered = (options?.IsOrdered).GetValueOrDefault(true);
             WriteConcern = options?.WriteConcern;
+            IsOperationRetryable = true;
         }
 
-        protected override BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, int attempt, long? transactionNumber)
+        public override string OperationName => "bulkWrite";
+
+        protected override BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber)
         {
+            var readConcern = ReadConcernHelper.GetReadConcernForWriteCommand(session, connectionDescription);
             var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, session, WriteConcern);
             return new BsonDocument
             {
@@ -66,6 +70,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "bypassDocumentValidation", () => _bypassDocumentValidation, _bypassDocumentValidation.HasValue },
                 { "comment", Comment, Comment != null },
                 { "let", _let, _let != null },
+                { "readConcern", readConcern, readConcern != null },
                 { "writeConcern", writeConcern, writeConcern != null },
                 { "txnNumber", () => transactionNumber.Value, transactionNumber.HasValue }
             };
@@ -94,7 +99,7 @@ namespace MongoDB.Driver.Core.Operations
             var bulkWriteResults = new BulkWriteRawResult();
             while (true)
             {
-                using var context = RetryableWriteContext.Create(operationContext, binding, GetEffectiveRetryRequested());
+                using var context = new RetryableWriteContext(binding, GetEffectiveRetryRequested(), MaxAdaptiveRetries, EnableOverloadRetargeting);
                 BsonDocument serverResponse = null;
                 try
                 {
@@ -110,7 +115,7 @@ namespace MongoDB.Driver.Core.Operations
                     bulkWriteResults.TopLevelException = commandException;
                     serverResponse = commandException.Result;
                 }
-                catch (Exception exception)
+                catch (Exception exception) when (context.Channel is not null)
                 {
                     bulkWriteResults.TopLevelException = exception;
                 }
@@ -152,7 +157,7 @@ namespace MongoDB.Driver.Core.Operations
             var bulkWriteResults = new BulkWriteRawResult();
             while (true)
             {
-                using var context = RetryableWriteContext.Create(operationContext, binding, GetEffectiveRetryRequested());
+                using var context = new RetryableWriteContext(binding, GetEffectiveRetryRequested(), MaxAdaptiveRetries, EnableOverloadRetargeting);
                 BsonDocument serverResponse = null;
                 try
                 {
@@ -168,7 +173,7 @@ namespace MongoDB.Driver.Core.Operations
                     bulkWriteResults.TopLevelException = commandException;
                     serverResponse = commandException.Result;
                 }
-                catch (Exception exception)
+                catch (Exception exception) when (context.Channel is not null)
                 {
                     bulkWriteResults.TopLevelException = exception;
                 }
@@ -204,7 +209,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private IDisposable BeginOperation() => EventContext.BeginOperation(null, "bulkWrite");
+        private EventContext.OperationIdDisposer BeginOperation() => EventContext.BeginOperation(null, OperationName);
 
         private void EnsureCanProceedNextBatch(ConnectionId connectionId, BulkWriteRawResult bulkWriteResult)
         {
@@ -284,7 +289,11 @@ namespace MongoDB.Driver.Core.Operations
                 0,
                 0,
                 BsonDocumentSerializer.Instance,
-                MessageEncoderSettings);
+                MessageEncoderSettings,
+                maxTime: null,
+                retryRequested: RetryRequested,
+                maxAdaptiveRetries: MaxAdaptiveRetries,
+                enableOverloadRetargeting: EnableOverloadRetargeting);
         }
 
         private void PopulateBulkWriteResponse(BsonDocument bulkWriteResponse, BulkWriteRawResult bulkWriteResult)

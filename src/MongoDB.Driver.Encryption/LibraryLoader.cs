@@ -181,11 +181,11 @@ namespace MongoDB.Driver.Encryption
                 var osArchitecture = RuntimeInformation.OSArchitecture.ToString().ToLower();
 #pragma warning restore CA1304
 
-                var finalpath = IsAlpine() ? $"alpine/{osArchitecture}" : $"{osArchitecture}";
+                var runtimeSuffix = IsAlpine() ? $"musl-{osArchitecture}" : $"{osArchitecture}";
 
                 __suffixPaths = new []{
-                    $"../../runtimes/linux/native/{finalpath}",
-                    $"runtimes/linux/native/{finalpath}",
+                    $"../../runtimes/linux-{runtimeSuffix}/native/",
+                    $"runtimes/linux-{runtimeSuffix}/native/",
                     string.Empty
                 };
 
@@ -246,8 +246,8 @@ namespace MongoDB.Driver.Encryption
         {
             private static readonly string[] __suffixPaths =
             {
-                @"..\..\runtimes\win\native\",
-                @".\runtimes\win\native\",
+                @"..\..\runtimes\win-x64\native\",
+                @".\runtimes\win-x64\native\",
                 string.Empty
             };
 

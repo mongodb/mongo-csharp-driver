@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                     return AstFilter.Ne(fieldTranslation.Ast, BsonNull.Value);
                 }
 
-                if (propertyInfo.PropertyType == typeof(bool))
+                if (propertyInfo.PropertyType == typeof(bool) || propertyInfo.PropertyType == typeof(bool?))
                 {
                     var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, expression);
                     var serializedTrue = SerializationHelper.SerializeValue(fieldTranslation.Serializer, true);

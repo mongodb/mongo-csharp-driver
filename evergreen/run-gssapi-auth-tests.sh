@@ -17,8 +17,6 @@ echo "Running GSSAPI authentication tests"
 
 export GSSAPI_TESTS_ENABLED=true
 
-TARGET="TestGssapi${FRAMEWORK}"
-
 if [ "Windows_NT" = "$OS" ]; then
   cmd /c "REG ADD HKLM\SYSTEM\ControlSet001\Control\Lsa\Kerberos\Domains\LDAPTEST.10GEN.CC /v KdcNames /d ldaptest.10gen.cc /t REG_MULTI_SZ /f"
   echo "LDAPTEST.10GEN.CC registry has been added"
@@ -30,8 +28,6 @@ if [ "Windows_NT" = "$OS" ]; then
     setx $var z:\\data\\tmp
     export $var=z:\\data\\tmp
   done
-
-  powershell.exe .\\build.ps1 --target $TARGET
 else
   echo "Setting krb5 config file"
   touch ${PROJECT_DIRECTORY}/evergreen/krb5.conf.empty
@@ -46,6 +42,7 @@ else
   for var in TMP TEMP NUGET_PACKAGES NUGET_HTTP_CACHE_PATH APPDATA; do
     export $var=/data/tmp;
   done
-
-  ./build.sh --target=$TARGET
 fi;
+
+./evergreen/compile-sources.sh
+TEST_CATEGORY=GssapiMechanism ./evergreen/execute-tests.sh

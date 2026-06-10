@@ -36,9 +36,10 @@ namespace MongoDB.Driver.Core.Clusters
                 return pinnedServer;
             }
 
-            selector = deprioritizedServers != null
-                ? new CompositeServerSelector(new[] { new PriorityServerSelector(deprioritizedServers), selector })
-                : selector;
+            if (deprioritizedServers != null)
+            {
+                selector = new DeprioritizedServersServerSelector(deprioritizedServers, selector);
+            }
 
             // Server selection also updates the cluster type, allowing us to determine if the server
             // should be pinned.
@@ -60,9 +61,10 @@ namespace MongoDB.Driver.Core.Clusters
                 return pinnedServer;
             }
 
-            selector = deprioritizedServers != null
-                ? new CompositeServerSelector(new[] { new PriorityServerSelector(deprioritizedServers), selector })
-                : selector;
+            if (deprioritizedServers != null)
+            {
+                selector = new DeprioritizedServersServerSelector(deprioritizedServers, selector);
+            }
 
             // Server selection also updates the cluster type, allowing us to determine if the server
             // should be pinned.

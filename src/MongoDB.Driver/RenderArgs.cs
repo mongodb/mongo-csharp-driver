@@ -33,6 +33,7 @@ namespace MongoDB.Driver
     {
         private readonly IBsonSerializer<TDocument> _documentSerializer = default;
         private readonly PathRenderArgs _pathRenderArgs = default;
+        private readonly string _subPathRoot = default;
         private readonly bool _renderDollarForm = default;
         private readonly bool _renderForElemMatch = false;
         private readonly bool _renderForFind = false;
@@ -90,6 +91,11 @@ namespace MongoDB.Driver
         /// Gets the path render arguments.
         /// </summary>
         public readonly PathRenderArgs PathRenderArgs { get => _pathRenderArgs; init => _pathRenderArgs = value; }
+
+        /// <summary>
+        /// Gets the sub-path that should be used for the root of the rendered document.
+        /// </summary>
+        public readonly string SubPathRoot { get => _subPathRoot; init => _subPathRoot = value; }
 
         /// <summary>
         /// Gets the value indicating whether full dollar form should be rendered.

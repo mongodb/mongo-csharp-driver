@@ -17,6 +17,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
@@ -26,7 +28,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
     public class CSharp2472Tests : LinqIntegrationTest<CSharp2472Tests.ClassFixture>
     {
         public CSharp2472Tests(ClassFixture fixture)
-            : base(fixture, server => server.Supports(Feature.ToConversionOperators))
+            : base(fixture)
         {
         }
 

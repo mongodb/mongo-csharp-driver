@@ -43,6 +43,8 @@ namespace MongoDB.Driver.GridFS
         private int _nextChunkNumber;
         private long _position;
         private bool _retryReads;
+        private int _maxAdaptiveRetries = Core.Operations.RetryabilityHelper.OperationRetryBackpressureConstants.DefaultMaxRetries;
+        private bool _enableOverloadRetargeting;
 
         // constructors
         public GridFSForwardOnlyDownloadStream(
@@ -86,6 +88,18 @@ namespace MongoDB.Driver.GridFS
         {
             get => _retryReads;
             set => _retryReads = value;
+        }
+
+        public int MaxAdaptiveRetries
+        {
+            get => _maxAdaptiveRetries;
+            set => _maxAdaptiveRetries = value;
+        }
+
+        public bool EnableOverloadRetargeting
+        {
+            get => _enableOverloadRetargeting;
+            set => _enableOverloadRetargeting = value;
         }
 
         // methods
@@ -187,9 +201,11 @@ namespace MongoDB.Driver.GridFS
                 BsonDocumentSerializer.Instance,
                 messageEncoderSettings)
             {
+                EnableOverloadRetargeting = _enableOverloadRetargeting,
                 Filter = filter,
-                Sort = sort,
-                RetryRequested = _retryReads
+                MaxAdaptiveRetries = _maxAdaptiveRetries,
+                RetryRequested = _retryReads,
+                Sort = sort
             };
         }
 

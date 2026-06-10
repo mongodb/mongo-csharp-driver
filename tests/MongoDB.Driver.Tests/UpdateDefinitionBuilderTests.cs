@@ -20,6 +20,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Linq;
 using MongoDB.TestHelpers.XunitExtensions;
@@ -64,6 +65,102 @@ namespace MongoDB.Driver.Tests
 
             Assert(subject.AddToSetEach(x => x.FavoriteColors, new[] { "green", "violet" }), "{$addToSet: {colors: {$each: ['green', 'violet']}}}");
             Assert(subject.AddToSetEach("FavoriteColors", new[] { "green", "violet" }), "{$addToSet: {colors: {$each: ['green', 'violet']}}}");
+        }
+
+        [Fact]
+        public void AddToSet_with_string_path_through_dictionary_to_list_value()
+        {
+            var subject = CreateSubject<DocumentWithDictionaryOfLists>();
+
+            Assert(subject.AddToSet("Buckets.myKey", "newValue"), "{$addToSet: {'buckets.myKey': 'newValue'}}");
+        }
+
+        [Fact]
+        public void AddToSet_with_expression_path_through_dictionary_to_list_value()
+        {
+            var subject = CreateSubject<DocumentWithDictionaryOfLists>();
+
+            Assert(subject.AddToSet(x => x.Buckets["myKey"], "newValue"), "{$addToSet: {'buckets.myKey': 'newValue'}}");
+        }
+
+        [Fact]
+        public void AddToSetEach_with_string_path_through_dictionary_to_list_value()
+        {
+            var subject = CreateSubject<DocumentWithDictionaryOfLists>();
+
+            Assert(subject.AddToSetEach("Buckets.myKey", new[] { "a", "b" }), "{$addToSet: {'buckets.myKey': {$each: ['a', 'b']}}}");
+        }
+
+        [Fact]
+        public void AddToSetEach_with_expression_path_through_dictionary_to_list_value()
+        {
+            var subject = CreateSubject<DocumentWithDictionaryOfLists>();
+
+            Assert(subject.AddToSetEach(x => x.Buckets["myKey"], new[] { "a", "b" }), "{$addToSet: {'buckets.myKey': {$each: ['a', 'b']}}}");
+        }
+
+        [Fact]
+        public void AddToSet_with_string_path_through_dictionary_to_nested_list()
+        {
+            var subject = CreateSubject<DocumentWithDictionaryOfObjects>();
+
+            Assert(subject.AddToSet("Buckets.myKey.Items", "newValue"), "{$addToSet: {'buckets.myKey.items': 'newValue'}}");
+        }
+
+        [Fact]
+        public void AddToSet_with_expression_path_through_dictionary_to_nested_list()
+        {
+            var subject = CreateSubject<DocumentWithDictionaryOfObjects>();
+
+            Assert(subject.AddToSet(x => x.Buckets["myKey"].Items, "newValue"), "{$addToSet: {'buckets.myKey.items': 'newValue'}}");
+        }
+
+        [Fact]
+        public void AddToSet_with_string_path_through_dictionary_to_hashset_value()
+        {
+            var subject = CreateSubject<DocumentWithDictionaryOfHashSets>();
+
+            Assert(subject.AddToSet("Buckets.myKey", "newValue"), "{$addToSet: {'buckets.myKey': 'newValue'}}");
+        }
+
+        [Fact]
+        public void AddToSet_with_expression_path_through_dictionary_to_hashset_value()
+        {
+            var subject = CreateSubject<DocumentWithDictionaryOfHashSets>();
+
+            Assert(subject.AddToSet(x => x.Buckets["myKey"], "newValue"), "{$addToSet: {'buckets.myKey': 'newValue'}}");
+        }
+
+        [Fact]
+        public void AddToSet_with_string_path_through_array_rep_dictionary()
+        {
+            var subject = CreateSubject<DocumentWithArrayRepDictionary>();
+
+            Assert(subject.AddToSet("Buckets.myKey", "newValue"), "{$addToSet: {'buckets.myKey': 'newValue'}}");
+        }
+
+        [Fact]
+        public void AddToSet_with_string_path_through_dictionary_where_value_is_IEnumerable_interface()
+        {
+            var subject = CreateSubject<DocumentWithDictionaryOfIEnumerable>();
+
+            Assert(subject.AddToSet("Buckets.myKey", "newValue"), "{$addToSet: {'buckets.myKey': 'newValue'}}");
+        }
+
+        [Fact]
+        public void AddToSet_with_numeric_string_key_through_dictionary()
+        {
+            var subject = CreateSubject<DataContainer>();
+
+            Assert(subject.AddToSet("Buckets.10", new DataRecord { Label = "test" }), "{$addToSet: {'buckets.10': { CreatedAt: ISODate('0001-01-01T00:00:00Z'), Label: 'test' }}}");
+        }
+
+        [Fact]
+        public void AddToSet_with_numeric_string_key_through_dictionary_of_List()
+        {
+            var subject = CreateSubject<DocumentWithDictionaryOfLists>();
+
+            Assert(subject.AddToSet("Buckets.10", "newValue"), "{$addToSet: {'buckets.10': 'newValue'}}");
         }
 
         [Fact]
@@ -741,6 +838,71 @@ namespace MongoDB.Driver.Tests
         public class F
         {
             public string Z { get; set; }
+        }
+
+        private class DocumentWithDictionaryOfLists
+        {
+            public ObjectId Id { get; set; }
+
+            [BsonElement("buckets")]
+            public Dictionary<string, List<string>> Buckets { get; set; }
+        }
+
+        private class DocumentWithDictionaryOfObjects
+        {
+            public ObjectId Id { get; set; }
+
+            [BsonElement("buckets")]
+            public Dictionary<string, Bucket> Buckets { get; set; }
+        }
+
+        private class DocumentWithDictionaryOfHashSets
+        {
+            public ObjectId Id { get; set; }
+
+            [BsonElement("buckets")]
+            public Dictionary<string, HashSet<string>> Buckets { get; set; }
+        }
+
+        private class DocumentWithArrayRepDictionary
+        {
+            public ObjectId Id { get; set; }
+
+            [BsonElement("buckets")]
+            [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfDocuments)]
+            public Dictionary<string, List<string>> Buckets { get; set; }
+        }
+
+        private class DocumentWithDictionaryOfIEnumerable
+        {
+            public ObjectId Id { get; set; }
+
+            [BsonElement("buckets")]
+            public Dictionary<string, IEnumerable<string>> Buckets { get; set; }
+        }
+
+        [BsonIgnoreExtraElements]
+        private class DataContainer
+        {
+            public string Id { get; set; }
+
+            [BsonElement("buckets")]
+            [BsonDictionaryOptions(DictionaryRepresentation.Document)]
+            public IDictionary<string, IEnumerable<DataRecord>> Buckets { get; set; }
+                = new Dictionary<string, IEnumerable<DataRecord>>();
+        }
+
+        [BsonIgnoreExtraElements]
+        private class DataRecord
+        {
+            public DateTime CreatedAt { get; set; }
+            public string Label { get; set; }
+        }
+
+        private class Bucket
+        {
+            [BsonElement("items")]
+            public List<string> Items { get; set; }
         }
     }
 }

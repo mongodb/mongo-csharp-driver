@@ -55,7 +55,7 @@ namespace MongoDB.Driver.Tests.Search
             var query = subject
                 .VectorSearch(p => p.FirstName, new[] { 123, 456 }, 10, new() { IndexName = "my_index", NumberOfCandidates = 33 });
 
-            query.ToString().Should().EndWith("Aggregate([{ \"$vectorSearch\" : { \"queryVector\" : [123.0, 456.0], \"path\" : \"fn\", \"limit\" : 10, \"numCandidates\" : 33, \"index\" : \"my_index\" } }])");
+            query.ToString().Should().EndWith("Aggregate([{ \"$vectorSearch\" : { \"path\" : \"fn\", \"limit\" : 10, \"numCandidates\" : 33, \"index\" : \"my_index\", \"queryVector\" : [123.0, 456.0] } }])");
         }
 
         [Fact]
@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Tests.Search
             var query = subject
                 .VectorSearch(p => p.FirstName, new[] { 123, 456 }, 10, new() { IndexName = "my_index", Exact = true });
 
-            query.ToString().Should().EndWith("Aggregate([{ \"$vectorSearch\" : { \"queryVector\" : [123.0, 456.0], \"path\" : \"fn\", \"limit\" : 10, \"index\" : \"my_index\", \"exact\" : true } }])");
+            query.ToString().Should().EndWith("Aggregate([{ \"$vectorSearch\" : { \"path\" : \"fn\", \"limit\" : 10, \"index\" : \"my_index\", \"exact\" : true, \"queryVector\" : [123.0, 456.0] } }])");
         }
 
         [Fact]
@@ -78,7 +78,7 @@ namespace MongoDB.Driver.Tests.Search
                 .VectorSearch(p => p.FirstName, new[] { 123, 456 }, 10, new() { IndexName = "my_index", Exact = true, NumberOfCandidates = 22 }));
 
             exception.Should().BeOfType<ArgumentException>();
-            exception.Message.Should().Be("Number of candidates must be omitted for exact nearest neighbour search (ENN).");
+            exception.Message.Should().Be("Number of candidates must be omitted for exact nearest neighbor search (ENN).");
         }
 
         private IQueryable<Person> CreateSubject()

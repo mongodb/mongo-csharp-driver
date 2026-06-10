@@ -13,16 +13,35 @@
  * limitations under the License.
  */
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 
 namespace MongoDB.Driver
 {
-    // TODO: CSOT: Make it public when CSOT will be ready for GA
-    internal static class IClientSessionExtensions
+    /// <summary>
+    /// Extension methods for <see cref="IClientSession"/>.
+    /// </summary>
+    public static class IClientSessionExtensions
     {
+        /// <summary>
+        /// Gets the snapshot time for a snapshot session.
+        /// </summary>
+        /// <param name="session">The client session handle.</param>
+        /// <returns>The snapshot time as a <see cref="BsonTimestamp"/>.</returns>
+        /// <exception cref="InvalidOperationException">Thrown when the session is not a snapshot session.</exception>
+        public static BsonTimestamp GetSnapshotTime(this IClientSession session)
+        {
+            var clientSessionHandle = (ClientSessionHandle)session;
+            return clientSessionHandle.WrappedCoreSession.IsSnapshot ?
+                clientSessionHandle.SnapshotTime
+                : throw new InvalidOperationException("Cannot retrieve snapshot time from a non-snapshot session.");
+        }
+
+        // TODO: CSOT: Make the following methods public when CSOT will be ready for GA
         // TODO: Merge these extension methods in IClientSession interface on major release
-        public static void AbortTransaction(this IClientSession session, AbortTransactionOptions options, CancellationToken cancellationToken = default)
+        internal static void AbortTransaction(this IClientSession session, AbortTransactionOptions options, CancellationToken cancellationToken = default)
         {
             if (options?.Timeout == null || session.Options.DefaultTransactionOptions?.Timeout == options.Timeout)
             {
@@ -33,7 +52,7 @@ namespace MongoDB.Driver
             ((IClientSessionInternal)session).AbortTransaction(options, cancellationToken);
         }
 
-        public static Task AbortTransactionAsync(this IClientSession session, AbortTransactionOptions options, CancellationToken cancellationToken = default)
+        internal static Task AbortTransactionAsync(this IClientSession session, AbortTransactionOptions options, CancellationToken cancellationToken = default)
         {
             if (options?.Timeout == null || session.Options.DefaultTransactionOptions?.Timeout == options.Timeout)
             {
@@ -43,7 +62,7 @@ namespace MongoDB.Driver
             return ((IClientSessionInternal)session).AbortTransactionAsync(options, cancellationToken);
         }
 
-        public static void CommitTransaction(this IClientSession session, CommitTransactionOptions options, CancellationToken cancellationToken = default)
+        internal static void CommitTransaction(this IClientSession session, CommitTransactionOptions options, CancellationToken cancellationToken = default)
         {
             if (options?.Timeout == null || session.Options.DefaultTransactionOptions?.Timeout == options.Timeout)
             {
@@ -54,7 +73,7 @@ namespace MongoDB.Driver
             ((IClientSessionInternal)session).CommitTransaction(options, cancellationToken);
         }
 
-        public static Task CommitTransactionAsync(this IClientSession session, CommitTransactionOptions options, CancellationToken cancellationToken = default)
+        internal static Task CommitTransactionAsync(this IClientSession session, CommitTransactionOptions options, CancellationToken cancellationToken = default)
         {
             if (options?.Timeout == null || session.Options.DefaultTransactionOptions?.Timeout == options.Timeout)
             {

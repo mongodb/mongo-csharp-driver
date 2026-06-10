@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -62,7 +63,7 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [ParameterAttributeData]
-        public void Aggregate_should_add_match_to_beginning_of_pipeline(
+        public async Task Aggregate_should_add_match_to_beginning_of_pipeline(
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
@@ -70,7 +71,7 @@ namespace MongoDB.Driver.Tests
 
             if (async)
             {
-                subject.AggregateAsync<B>(new[] { new BsonDocument("$skip", 10) }, options, CancellationToken.None);
+                await subject.AggregateAsync<B>(new[] { new BsonDocument("$skip", 10) }, options, CancellationToken.None);
 
                 _mockDerivedCollection.Verify(
                     c => c.AggregateAsync(
@@ -94,7 +95,7 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [ParameterAttributeData]
-        public void Aggregate_should_combine_match_statements_at_the_beginning_of_a_pipeline(
+        public async Task Aggregate_should_combine_match_statements_at_the_beginning_of_a_pipeline(
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
@@ -102,7 +103,7 @@ namespace MongoDB.Driver.Tests
 
             if (async)
             {
-                subject.AggregateAsync<B>(new[] { new BsonDocument("$match", new BsonDocument("x", 1)) }, options, CancellationToken.None);
+                await subject.AggregateAsync<B>(new[] { new BsonDocument("$match", new BsonDocument("x", 1)) }, options, CancellationToken.None);
 
                 var expectedFilter = new BsonDocument(_ofTypeFilter).Add("x", 1);
                 _mockDerivedCollection.Verify(
@@ -128,7 +129,7 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [ParameterAttributeData]
-        public void AggregateToCollection_should_add_match_to_beginning_of_pipeline(
+        public async Task AggregateToCollection_should_add_match_to_beginning_of_pipeline(
             [Values(false, true)] bool usingSession,
             [Values(false, true)] bool async)
         {
@@ -140,7 +141,7 @@ namespace MongoDB.Driver.Tests
             {
                 if (usingSession)
                 {
-                    subject.AggregateToCollectionAsync<B>(session, new[] { new BsonDocument("$skip", 10) }, options, CancellationToken.None);
+                    await subject.AggregateToCollectionAsync<B>(session, new[] { new BsonDocument("$skip", 10) }, options, CancellationToken.None);
 
                     _mockDerivedCollection.Verify(
                         c => c.AggregateToCollectionAsync(
@@ -152,7 +153,7 @@ namespace MongoDB.Driver.Tests
                 }
                 else
                 {
-                    subject.AggregateToCollectionAsync<B>(new[] { new BsonDocument("$skip", 10) }, options, CancellationToken.None);
+                    await subject.AggregateToCollectionAsync<B>(new[] { new BsonDocument("$skip", 10) }, options, CancellationToken.None);
 
                     _mockDerivedCollection.Verify(
                         c => c.AggregateToCollectionAsync(
@@ -192,7 +193,7 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [ParameterAttributeData]
-        public void AggregateToCollection_should_combine_match_statements_at_the_beginning_of_a_pipeline(
+        public async Task AggregateToCollection_should_combine_match_statements_at_the_beginning_of_a_pipeline(
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
@@ -200,7 +201,7 @@ namespace MongoDB.Driver.Tests
 
             if (async)
             {
-                subject.AggregateToCollectionAsync<B>(new[] { new BsonDocument("$match", new BsonDocument("x", 1)) }, options, CancellationToken.None);
+                await subject.AggregateToCollectionAsync<B>(new[] { new BsonDocument("$match", new BsonDocument("x", 1)) }, options, CancellationToken.None);
 
                 var expectedFilter = new BsonDocument(_ofTypeFilter).Add("x", 1);
                 _mockDerivedCollection.Verify(
@@ -226,7 +227,7 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [ParameterAttributeData]
-        public void BulkWrite_with_DeleteOne(
+        public async Task BulkWrite_with_DeleteOne(
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
@@ -239,7 +240,7 @@ namespace MongoDB.Driver.Tests
 
             if (async)
             {
-                subject.BulkWriteAsync(new[] { model }, options, CancellationToken.None);
+                await subject.BulkWriteAsync(new[] { model }, options, CancellationToken.None);
 
                 _mockDerivedCollection.Verify(
                     c => c.BulkWriteAsync(
@@ -269,7 +270,7 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [ParameterAttributeData]
-        public void BulkWrite_with_DeleteMany(
+        public async Task BulkWrite_with_DeleteMany(
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
@@ -281,7 +282,7 @@ namespace MongoDB.Driver.Tests
 
             if (async)
             {
-                subject.BulkWriteAsync(new[] { model }, options, CancellationToken.None);
+                await subject.BulkWriteAsync(new[] { model }, options, CancellationToken.None);
 
                 _mockDerivedCollection.Verify(
                     c => c.BulkWriteAsync(
@@ -307,7 +308,7 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [ParameterAttributeData]
-        public void BulkWrite_with_ReplaceOne(
+        public async Task BulkWrite_with_ReplaceOne(
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
@@ -321,7 +322,7 @@ namespace MongoDB.Driver.Tests
 
             if (async)
             {
-                subject.BulkWriteAsync(new[] { model }, options, CancellationToken.None);
+                await subject.BulkWriteAsync(new[] { model }, options, CancellationToken.None);
 
                 _mockDerivedCollection.Verify(
                     c => c.BulkWriteAsync(
@@ -353,7 +354,7 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [ParameterAttributeData]
-        public void BulkWrite_with_UpdateMany<TRoot, TDerived>(
+        public async Task BulkWrite_with_UpdateMany<TRoot, TDerived>(
             [ClassValues(typeof(UpdateTestCases))] (TRoot, TDerived, string Discriminator) testCase,
             [Values(false, true)] bool isUpsert,
             [Values(false, true)] bool async)
@@ -386,7 +387,7 @@ namespace MongoDB.Driver.Tests
 
             if (async)
             {
-                subject.BulkWriteAsync(new[] { model }, options, CancellationToken.None);
+                await subject.BulkWriteAsync(new[] { model }, options, CancellationToken.None);
 
                 mockDerivedCollection.Verify(
                     c => c.BulkWriteAsync(
@@ -410,7 +411,7 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [ParameterAttributeData]
-        public void BulkWrite_with_UpdateOne<TRoot, TDerived>(
+        public async Task BulkWrite_with_UpdateOne<TRoot, TDerived>(
             [ClassValues(typeof(UpdateTestCases))] (TRoot, TDerived, string Discriminator) testCase,
             [Values(false, true)] bool isUpsert,
             [Values(false, true)] bool async)
@@ -442,7 +443,7 @@ namespace MongoDB.Driver.Tests
 
             if (async)
             {
-                subject.BulkWriteAsync(new[] { model }, options, CancellationToken.None);
+                await subject.BulkWriteAsync(new[] { model }, options, CancellationToken.None);
 
                 mockDerivedCollection.Verify(
                     c => c.BulkWriteAsync(
@@ -466,7 +467,7 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [ParameterAttributeData]
-        public void Count_should_include_the_filter(
+        public async Task Count_should_include_the_filter(
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
@@ -475,7 +476,7 @@ namespace MongoDB.Driver.Tests
             if (async)
             {
 #pragma warning disable 618
-                subject.CountAsync(_providedFilter, options, CancellationToken.None);
+                await subject.CountAsync(_providedFilter, options, CancellationToken.None);
 
                 _mockDerivedCollection.Verify(
                     c => c.CountAsync(
@@ -502,7 +503,7 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [ParameterAttributeData]
-        public void CountDocuments_should_include_the_filter(
+        public async Task CountDocuments_should_include_the_filter(
             [Values(false, true)] bool usingSession,
             [Values(false, true)] bool async)
         {
@@ -514,7 +515,7 @@ namespace MongoDB.Driver.Tests
             {
                 if (usingSession)
                 {
-                    subject.CountDocumentsAsync(session, _providedFilter, options, CancellationToken.None);
+                    await subject.CountDocumentsAsync(session, _providedFilter, options, CancellationToken.None);
 
                     _mockDerivedCollection.Verify(
                         c => c.CountDocumentsAsync(
@@ -526,7 +527,7 @@ namespace MongoDB.Driver.Tests
                 }
                 else
                 {
-                    subject.CountDocumentsAsync(_providedFilter, options, CancellationToken.None);
+                    await subject.CountDocumentsAsync(_providedFilter, options, CancellationToken.None);
 
                     _mockDerivedCollection.Verify(
                         c => c.CountDocumentsAsync(
@@ -566,7 +567,7 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [ParameterAttributeData]
-        public void Distinct_should_include_the_filter(
+        public async Task Distinct_should_include_the_filter(
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
@@ -574,7 +575,7 @@ namespace MongoDB.Driver.Tests
 
             if (async)
             {
-                subject.DistinctAsync(x => x.PropA, _providedFilter, options, CancellationToken.None);
+                await subject.DistinctAsync(x => x.PropA, _providedFilter, options, CancellationToken.None);
 
                 _mockDerivedCollection.Verify(
                     c => c.DistinctAsync(
@@ -600,32 +601,23 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [ParameterAttributeData]
-        public void EstimatedDocumentCount_should_throw(
+        public async Task EstimatedDocumentCount_should_throw(
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
             using var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
 
-            var exception = Record.Exception(() =>
-            {
-                if (async)
-                {
-                    subject.EstimatedDocumentCountAsync(null, cancellationToken).GetAwaiter().GetResult();
-                }
-                else
-                {
-                    subject.EstimatedDocumentCount(null, cancellationToken);
-                }
-
-            });
+            var exception = async ?
+                await Record.ExceptionAsync(() => subject.EstimatedDocumentCountAsync(null, cancellationToken)) :
+                Record.Exception(() => subject.EstimatedDocumentCount(null, cancellationToken));
 
             exception.Should().BeOfType<NotSupportedException>();
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void Find_should_include_the_filter(
+        public async Task Find_should_include_the_filter(
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
@@ -633,7 +625,7 @@ namespace MongoDB.Driver.Tests
 
             if (async)
             {
-                subject.FindAsync(_providedFilter, options, CancellationToken.None);
+                await subject.FindAsync(_providedFilter, options, CancellationToken.None);
 
                 _mockDerivedCollection.Verify(
                     c => c.FindAsync(
@@ -657,7 +649,7 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [ParameterAttributeData]
-        public void FindOneAndDelete_should_include_the_filter(
+        public async Task FindOneAndDelete_should_include_the_filter(
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
@@ -665,7 +657,7 @@ namespace MongoDB.Driver.Tests
 
             if (async)
             {
-                subject.FindOneAndDeleteAsync(_providedFilter, options, CancellationToken.None);
+                await subject.FindOneAndDeleteAsync(_providedFilter, options, CancellationToken.None);
 
                 _mockDerivedCollection.Verify(
                     c => c.FindOneAndDeleteAsync(
@@ -689,7 +681,7 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [ParameterAttributeData]
-        public void FindOneAndReplace_should_include_the_filter(
+        public async Task FindOneAndReplace_should_include_the_filter(
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
@@ -698,7 +690,7 @@ namespace MongoDB.Driver.Tests
 
             if (async)
             {
-                subject.FindOneAndReplaceAsync(_providedFilter, replacement, options, CancellationToken.None);
+                await subject.FindOneAndReplaceAsync(_providedFilter, replacement, options, CancellationToken.None);
 
                 _mockDerivedCollection.Verify(
                     c => c.FindOneAndReplaceAsync(
@@ -724,7 +716,7 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [ParameterAttributeData]
-        public void FindOneAndUpdate_should_include_the_filter(
+        public async Task FindOneAndUpdate_should_include_the_filter(
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
@@ -733,7 +725,7 @@ namespace MongoDB.Driver.Tests
 
             if (async)
             {
-                subject.FindOneAndUpdateAsync(_providedFilter, update, options, CancellationToken.None);
+                await subject.FindOneAndUpdateAsync(_providedFilter, update, options, CancellationToken.None);
 
                 _mockDerivedCollection.Verify(
                     c => c.FindOneAndUpdateAsync(
@@ -759,7 +751,44 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [ParameterAttributeData]
-        public void MapReduce_should_include_the_filter_when_one_was_not_provided(
+        public void FindOneAndUpdate_should_not_throw_when_options_is_null(
+            [Values(false, true)] bool async)
+        {
+            var subject = CreateSubject();
+            var update = new BsonDocument("$set", new BsonDocument("x", 5));
+
+            if (async)
+            {
+                subject.FindOneAndUpdateAsync(_providedFilter, update, null, CancellationToken.None);
+            }
+            else
+            {
+                subject.FindOneAndUpdate(_providedFilter, update, null, CancellationToken.None);
+            }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void FindOneAndUpdate_with_session_should_not_throw_when_options_is_null(
+            [Values(false, true)] bool async)
+        {
+            var subject = CreateSubject();
+            var session = CreateSession(usingSession: true);
+            var update = new BsonDocument("$set", new BsonDocument("x", 5));
+
+            if (async)
+            {
+                subject.FindOneAndUpdateAsync(session, _providedFilter, update, null, CancellationToken.None);
+            }
+            else
+            {
+                subject.FindOneAndUpdate(session, _providedFilter, update, null, CancellationToken.None);
+            }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task MapReduce_should_include_the_filter_when_one_was_not_provided(
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
@@ -767,7 +796,7 @@ namespace MongoDB.Driver.Tests
             if (async)
             {
 #pragma warning disable CS0618 // Type or member is obsolete
-                subject.MapReduceAsync<B>("map", "reduce", null, CancellationToken.None);
+                await subject.MapReduceAsync<B>("map", "reduce", null, CancellationToken.None);
 
                 _mockDerivedCollection.Verify(
                     c => c.MapReduceAsync(
@@ -794,7 +823,7 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [ParameterAttributeData]
-        public void MapReduce_should_include_the_filter(
+        public async Task MapReduce_should_include_the_filter(
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
@@ -806,7 +835,7 @@ namespace MongoDB.Driver.Tests
 
             if (async)
             {
-                subject.MapReduceAsync("map", "reduce", options, CancellationToken.None);
+                await subject.MapReduceAsync("map", "reduce", options, CancellationToken.None);
 
                 _mockDerivedCollection.Verify(
                     c => c.MapReduceAsync(
@@ -1139,8 +1168,6 @@ namespace MongoDB.Driver.Tests
             [Values(false, true)] bool upsert,
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.UpdateWithAggregationPipeline);
-
             string filter = "{ PropA : 4 }";
 
             var subject = CreateSubject();

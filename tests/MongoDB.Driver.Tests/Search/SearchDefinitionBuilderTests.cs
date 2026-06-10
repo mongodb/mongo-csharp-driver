@@ -457,21 +457,95 @@ namespace MongoDB.Driver.Tests.Search
         }
 
         [Fact]
+        public void Facet_should_throw_when_facet_array_is_empty()
+        {
+            var person = CreateSubject<Person>();
+            var bsonDoc = CreateSubject<BsonDocument>();
+            var op = person.Phrase(x => x.LastName, "foo");
+
+            // Without operator
+            Record.Exception(() => bsonDoc.Facet()).Should().BeOfType<ArgumentException>();
+            Record.Exception(() => bsonDoc.Facet(Array.Empty<SearchFacet<BsonDocument>>())).Should().BeOfType<ArgumentException>();
+            Record.Exception(() => bsonDoc.Facet((IEnumerable<SearchFacet<BsonDocument>>)new List<SearchFacet<BsonDocument>>())).Should().BeOfType<ArgumentException>();
+
+            // With operator
+            Record.Exception(() => person.Facet(op)).Should().BeOfType<ArgumentException>();
+            Record.Exception(() => person.Facet(op,
+                Array.Empty<SearchFacet<Person>>())).Should().BeOfType<ArgumentException>();
+            Record.Exception(() => person.Facet(op, (IEnumerable<SearchFacet<Person>>)new
+                List<SearchFacet<Person>>())).Should().BeOfType<ArgumentException>();
+        }
+
+        [Fact]
+        public void Facet_should_throw_when_facet_array_is_null()
+        {
+            var person = CreateSubject<Person>();
+            var bsonDoc = CreateSubject<BsonDocument>();
+            var op = person.Phrase(x => x.LastName, "foo");
+
+            // Without operator
+            Record.Exception(() => bsonDoc.Facet((IEnumerable<SearchFacet<BsonDocument>>)null)).Should().BeOfType<ArgumentNullException>();
+            Record.Exception(() => bsonDoc.Facet((SearchFacet<BsonDocument>[])null)).Should().BeOfType<ArgumentNullException>();
+
+            // With operator
+            Record.Exception(() => person.Facet(op, (SearchFacet<Person>[])null)).Should().BeOfType<ArgumentNullException>();
+            Record.Exception(() => person.Facet(op, (IEnumerable<SearchFacet<Person>>)null)).Should().BeOfType<ArgumentNullException>();
+        }
+
+        [Fact]
+        public void Facet_should_throw_when_operator_is_null()
+        {
+            var subject = CreateSubject<BsonDocument>();
+            var facetBuilder = new SearchFacetBuilder<BsonDocument>();
+
+            Record.Exception(() => subject.Facet((SearchDefinition<BsonDocument>)null, facetBuilder.String("string", "y", 100))).Should().BeOfType<ArgumentNullException>();
+        }
+
+        [Fact]
         public void Facet_typed()
         {
             var subject = CreateSubject<Person>();
             var facetBuilder = new SearchFacetBuilder<Person>();
+            var expected =
+                "{ facet: { operator: { phrase: { query: 'foo', path: 'ln' } }, facets: { string: { type: 'string', path: 'fn', numBuckets: 100 } } } }";
 
             AssertRendered(
                 subject.Facet(
                     subject.Phrase(x => x.LastName, "foo"),
-                    facetBuilder.String("string", x => x.FirstName, 100)),
-                "{ facet: { operator: { phrase: { query: 'foo', path: 'ln' } }, facets: { string: { type: 'string', path: 'fn', numBuckets: 100 } } } }");
+                    facetBuilder.String("string", x => x.FirstName, 100)), expected);
             AssertRendered(
                 subject.Facet(
                     subject.Phrase("LastName", "foo"),
+                    facetBuilder.String("string", "FirstName", 100)), expected);
+        }
+
+        [Fact]
+        public void Facet_typed_without_operator()
+        {
+            var subject = CreateSubject<Person>();
+            var facetBuilder = new SearchFacetBuilder<Person>();
+            var expected = "{ facet: { facets: { string: { type: 'string', path: 'fn', numBuckets: 100 } } } }";
+
+            AssertRendered(
+                subject.Facet(
+                    facetBuilder.String("string", x => x.FirstName, 100)),
+                expected);
+            AssertRendered(
+                subject.Facet(
                     facetBuilder.String("string", "FirstName", 100)),
-                "{ facet: { operator: { phrase: { query: 'foo', path: 'ln' } }, facets: { string: { type: 'string', path: 'fn', numBuckets: 100 } } } }");
+                expected);
+        }
+
+        [Fact]
+        public void Facet_without_operator()
+        {
+            var subject = CreateSubject<BsonDocument>();
+            var facetBuilder = new SearchFacetBuilder<BsonDocument>();
+
+            AssertRendered(
+                subject.Facet(
+                    facetBuilder.String("string", "y", 100)),
+                "{ facet: { facets: { string: { type: 'string', path: 'y', numBuckets: 100 } } } }");
         }
 
         [Fact]
@@ -571,6 +645,78 @@ namespace MongoDB.Driver.Tests.Search
             AssertRendered(
                 subject.GeoWithin("Location", __testCircle),
                 "{ geoWithin: { circle: { center: { type: 'Point', coordinates: [-161.323242, 22.512557] }, radius: 7.5 }, path: 'location' } }");
+        }
+
+        [Fact]
+        public void HasAncestor()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            AssertRendered(
+                subject.HasAncestor<BsonDocument>("x", subject.Text("x.y", "foo")),
+                "{ hasAncestor: { ancestorPath: 'x', operator: { text: { query: 'foo', path: 'x.y' } } } }");
+
+            var scoreBuilder = new SearchScoreDefinitionBuilder<BsonDocument>();
+            AssertRendered(
+                subject.HasAncestor<BsonDocument>("x", subject.Text("x.y", "foo"), scoreBuilder.Constant(1)),
+                "{ hasAncestor: { ancestorPath: 'x', operator: { text: { query: 'foo', path: 'x.y' } }, score: { constant: { value: 1 } } } }");
+        }
+
+        [Fact]
+        public void HasAncestor_typed()
+        {
+            var subjectFamily = CreateSubject<Family>();
+
+            AssertRendered(
+                subjectFamily.HasAncestor(f => f.Children, subjectFamily.Text("fn", "John")),
+                "{ hasAncestor: { ancestorPath: 'Children', operator: { text: { query: 'John', path: 'fn' } } } }");
+
+            AssertRendered(
+                subjectFamily.HasAncestor<SimplePerson>("Children", subjectFamily.Text("fn", "John")),
+                "{ hasAncestor: { ancestorPath: 'Children', operator: { text: { query: 'John', path: 'fn' } } } }");
+
+            // Inside EmbeddedDocument: ancestorPath uses the raw field name and the inner operator's
+            // path is not prefixed (PathPrefix is reset to null by HasAncestor).
+            AssertRendered(
+                subjectFamily.EmbeddedDocument<Family>(
+                    "Children",
+                    subjectFamily.HasAncestor(
+                        f => f.Children,
+                        subjectFamily.Text("fn", "John"))),
+                "{ embeddedDocument: { path: 'Children', operator: { hasAncestor: { ancestorPath: 'Children', operator: { text: { query: 'John', path: 'fn' } } } } } }");
+        }
+
+        [Fact]
+        public void HasRoot()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            AssertRendered(
+                subject.HasRoot(subject.Text("x.y", "foo")),
+                "{ hasRoot: { operator: { text: { query: 'foo', path: 'x.y' } } } }");
+
+            var scoreBuilder = new SearchScoreDefinitionBuilder<BsonDocument>();
+            AssertRendered(
+                subject.HasRoot(subject.Text("x.y", "foo"), scoreBuilder.Constant(1)),
+                "{ hasRoot: { operator: { text: { query: 'foo', path: 'x.y' } }, score: { constant: { value: 1 } } } }");
+        }
+
+        [Fact]
+        public void HasRoot_typed()
+        {
+            var subjectFamily = CreateSubject<Family>();
+
+            AssertRendered(
+                subjectFamily.HasRoot(subjectFamily.Text("fn", "John")),
+                "{ hasRoot: { operator: { text: { query: 'John', path: 'fn' } } } }");
+
+            // Inside EmbeddedDocument: the inner operator's path is not prefixed
+            // (PathPrefix is reset to null by HasRoot).
+            AssertRendered(
+                subjectFamily.EmbeddedDocument<Family>(
+                    "Children",
+                    subjectFamily.HasRoot(subjectFamily.Text("fn", "John"))),
+                "{ embeddedDocument: { path: 'Children', operator: { hasRoot: { operator: { text: { query: 'John', path: 'fn' } } } } } }");
         }
 
         [Theory]
@@ -1417,6 +1563,67 @@ namespace MongoDB.Driver.Tests.Search
             AssertRendered(
                 subject.Text(new[] { "FirstName", "LastName" }, new[] { "foo", "bar" }),
                 "{ text: { query: ['foo', 'bar'], path: ['fn', 'ln'] } }");
+        }
+
+        [Fact]
+        public void VectorSearch()
+        {
+            var subject = CreateSubject<BsonDocument>();
+            var queryVector = new[] { 1.0f, 2.0f, 3.0f };
+
+            AssertRendered(
+                subject.VectorSearch("x", queryVector, 5),
+                "{ vectorSearch: { queryVector: [1.0, 2.0, 3.0], limit: 5, numCandidates: 50, path: 'x' } }");
+
+            var options = new VectorSearchOperatorOptions<BsonDocument>
+            {
+                NumberOfCandidates = 128,
+                Filter = subject.Text("description", "test")
+            };
+            AssertRendered(
+                subject.VectorSearch("x", queryVector, 10, options),
+                "{ vectorSearch: { queryVector: [1.0, 2.0, 3.0], limit: 10, numCandidates: 128, filter: { text: { query: 'test', path: 'description' } }, path: 'x' } }");
+
+            var scoreBuilder = new SearchScoreDefinitionBuilder<BsonDocument>();
+            options = new VectorSearchOperatorOptions<BsonDocument>
+            {
+                Exact = true
+            };
+            AssertRendered(
+                subject.VectorSearch("x", queryVector, 5, options, scoreBuilder.Constant(2)),
+                "{ vectorSearch: { queryVector: [1.0, 2.0, 3.0], limit: 5, exact: true, path: 'x', score: { constant: { value: 2 } } } }");
+        }
+
+        [Fact]
+        public void VectorSearch_typed()
+        {
+            var subject = CreateSubject<Person>();
+            var queryVector = new[] { 1.0f, 2.0f, 3.0f };
+
+            AssertRendered(
+                subject.VectorSearch(x => x.FirstName, queryVector, 5),
+                "{ vectorSearch: { queryVector: [1.0, 2.0, 3.0], limit: 5, numCandidates: 50, path: 'fn' } }");
+            AssertRendered(
+                subject.VectorSearch("FirstName", queryVector, 5),
+                "{ vectorSearch: { queryVector: [1.0, 2.0, 3.0], limit: 5, numCandidates: 50, path: 'fn' } }");
+
+            var options = new VectorSearchOperatorOptions<Person>
+            {
+                NumberOfCandidates = 128,
+                Filter = subject.Text(x => x.LastName, "test")
+            };
+            AssertRendered(
+                subject.VectorSearch(x => x.FirstName, queryVector, 10, options),
+                "{ vectorSearch: { queryVector: [1.0, 2.0, 3.0], limit: 10, numCandidates: 128, filter: { text: { query: 'test', path: 'ln' } }, path: 'fn' } }");
+
+            var scoreBuilder = new SearchScoreDefinitionBuilder<Person>();
+            options = new VectorSearchOperatorOptions<Person>
+            {
+                Exact = true
+            };
+            AssertRendered(
+                subject.VectorSearch(x => x.FirstName, queryVector, 5, options, scoreBuilder.Constant(2)),
+                "{ vectorSearch: { queryVector: [1.0, 2.0, 3.0], limit: 5, exact: true, path: 'fn', score: { constant: { value: 2 } } } }");
         }
 
         [Fact]

@@ -250,7 +250,6 @@ namespace MongoDB.Driver.Core.Connections
         [InlineData("{ ok: 1, isreplicaset: false }", ServerType.Standalone)]
         [InlineData("{ ok: 1, isreplicaset: 0 }", ServerType.Standalone)]
         [InlineData("{ ok: 1, msg: \"isdbgrid\" }", ServerType.ShardRouter)]
-        [InlineData("{ ok: 1, msg: \"isdbgrid\" }", ServerType.ShardRouter)]
         [InlineData("{ ok: 1, serviceId: ObjectId('111111111111111111111111') }", ServerType.LoadBalanced)]
         [InlineData("{ ok: 1 }", ServerType.Standalone)]
         [InlineData("{ ok: 0 }", ServerType.Unknown)]

@@ -17,8 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using FluentAssertions;
-using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
 
@@ -34,7 +32,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Projection_to_derived_type_should_work()
         {
-            RequireServer.Check().Supports(Feature.FindProjectionExpressions);
             var collection = Fixture.Collection;
             Expression<Func<C, object>> projection = x => new R { X = x.Id };
 

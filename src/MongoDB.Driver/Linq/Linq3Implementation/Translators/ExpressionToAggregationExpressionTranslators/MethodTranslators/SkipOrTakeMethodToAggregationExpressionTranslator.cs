@@ -24,32 +24,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class SkipOrTakeMethodToAggregationExpressionTranslator
     {
-        private static MethodInfo[] __skipOrTakeMethods =
-        {
-            EnumerableMethod.Skip,
-            EnumerableMethod.Take,
-            QueryableMethod.Skip,
-            QueryableMethod.Take,
-        };
-
-        private static MethodInfo[] __skipMethods =
-        {
-            EnumerableMethod.Skip,
-            QueryableMethod.Skip
-        };
-
-        private static MethodInfo[] __takeMethods =
-        {
-            EnumerableMethod.Take,
-            QueryableMethod.Take
-        };
-
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__skipOrTakeMethods))
+            if (method.IsOneOf(EnumerableOrQueryableMethod.SkipOrTakeOverloads))
             {
                 var sourceExpression = arguments[0];
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
@@ -63,8 +43,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                 var ast = method switch
                 {
-                    _ when method.IsOneOf(__skipMethods) => AstExpression.Slice(sourceTranslation.Ast, countAst, int.MaxValue),
-                    _ when method.IsOneOf(__takeMethods) => AstExpression.Slice(sourceTranslation.Ast, countAst),
+                    _ when method.IsOneOf(EnumerableOrQueryableMethod.SkipOverloads) => AstExpression.Slice(sourceTranslation.Ast, countAst, int.MaxValue),
+                    _ when method.IsOneOf(EnumerableOrQueryableMethod.TakeOverloads) => AstExpression.Slice(sourceTranslation.Ast, countAst),
                     _ => throw new ExpressionNotSupportedException(expression)
                 };
 

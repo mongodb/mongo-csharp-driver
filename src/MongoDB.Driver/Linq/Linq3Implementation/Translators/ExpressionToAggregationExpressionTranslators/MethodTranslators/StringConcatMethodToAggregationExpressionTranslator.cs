@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -28,18 +29,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class StringConcatMethodToAggregationExpressionTranslator
     {
-        private static readonly MethodInfo[] __stringConcatMethods = new[]
-        {
-            StringMethod.ConcatWith1Object,
-            StringMethod.ConcatWith2Objects,
-            StringMethod.ConcatWith3Objects,
-            StringMethod.ConcatWithObjectArray,
-            StringMethod.ConcatWith2Strings,
-            StringMethod.ConcatWith3Strings,
-            StringMethod.ConcatWith4Strings,
-            StringMethod.ConcatWithStringArray
-        };
-
         public static bool CanTranslate(BinaryExpression expression, out MethodInfo method, out ReadOnlyCollection<Expression> arguments)
         {
             if (expression.NodeType == ExpressionType.Add &&
@@ -58,7 +47,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
         public static bool CanTranslate(MethodCallExpression expression, out MethodInfo method, out ReadOnlyCollection<Expression> arguments)
         {
-            if (expression.Method.IsOneOf(__stringConcatMethods))
+            if (expression.Method.IsOneOf(StringMethod.ConcatOverloads))
             {
                 method = expression.Method;
                 arguments = expression.Arguments;

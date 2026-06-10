@@ -55,8 +55,9 @@ namespace MongoDB.Driver.Core.Operations
                 { "dropDatabase", 1 }
             };
             var session = OperationTestHelper.CreateSession();
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
-            var result = subject.CreateCommand(OperationContext.NoTimeout, session);
+            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription, null);
 
             result.Should().Be(expectedResult);
         }
@@ -81,8 +82,9 @@ namespace MongoDB.Driver.Core.Operations
             };
             var operationContext = hasOperationTimeout ? new OperationContext(TimeSpan.FromSeconds(42), CancellationToken.None) : OperationContext.NoTimeout;
             var session = OperationTestHelper.CreateSession();
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
-            var result = subject.CreateCommand(operationContext, session);
+            var result = subject.CreateCommand(operationContext, session, connectionDescription, null);
 
             var expectedWriteConcern = writeConcern?.ToBsonDocument();
             if (hasOperationTimeout)

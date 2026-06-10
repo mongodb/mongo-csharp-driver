@@ -98,7 +98,7 @@ namespace MongoDB.Driver.Core.Servers
             var (invalidateAndClear, cancelCheck) = ex switch
             {
                 MongoAuthenticationException => (invalidateAndClear: true, cancelCheck: false),
-                _ => (invalidateAndClear: connectionException.IsNetworkException || connectionException.ContainsTimeoutException,
+                _ => (invalidateAndClear: (connectionException.IsNetworkException || connectionException.ContainsTimeoutException) && !connectionException.HasErrorLabel("SystemOverloadedError"),
                       cancelCheck: connectionException.IsNetworkException && !connectionException.ContainsTimeoutException)
             };
 
@@ -144,7 +144,7 @@ namespace MongoDB.Driver.Core.Servers
                 var description = _currentDescription;
                 if (ShouldInvalidateServer(connection, ex, description, out TopologyVersion responseTopologyVersion))
                 {
-                    var shouldClearConnectionPool = ShouldClearConnectionPoolForChannelException(ex, connection.Description.MaxWireVersion);
+                    var shouldClearConnectionPool = ShouldClearConnectionPoolForChannelException(ex);
                     Invalidate($"ChannelException:{ex}", shouldClearConnectionPool, responseTopologyVersion);
                 }
                 else

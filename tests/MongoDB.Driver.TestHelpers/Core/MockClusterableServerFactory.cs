@@ -202,7 +202,6 @@ namespace MongoDB.Driver.Core.TestHelpers
             public IClusterableServer Server;
             public IServerMonitor Monitor;
         }
-
     }
     internal static class ServerReflector
     {

@@ -15,6 +15,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -352,6 +353,147 @@ namespace MongoDB.Driver.Core.WireProtocol
             result.Should().BeNull();
 
             mockConnection.Verify(c => c.ReceiveMessageAsync(It.IsAny<OperationContext>(), It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), messageEncoderSettings), Times.Once);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Execute_should_send_only_one_readConcern_for_snapshot_session_with_non_default_readConcern(
+            [Values(false, true)] bool async)
+        {
+            var snapshotConnectionDescription = new ConnectionDescription(
+                new ConnectionId(__serverId),
+                new HelloResult(
+                    new BsonDocument("ok", 1)
+                    .Add(OppressiveLanguageConstants.LegacyHelloResponseIsWritablePrimaryFieldName, 1)
+                    .Add("logicalSessionTimeoutMinutes", 30)
+                    .Add("maxWireVersion", WireVersion.Server50)));
+
+            var connection = new MockConnection();
+            connection.Description = snapshotConnectionDescription;
+            connection.EnqueueCommandResponseMessage(
+                MessageHelper.BuildCommandResponse(CreateRawBsonDocument(new BsonDocument("ok", 1))));
+
+            var command = new BsonDocument
+            {
+                { "find", "testCollection" }
+            };
+
+            var subject = new CommandWireProtocol<BsonDocument>(
+                CreateSnapshotSession(),
+                ReadPreference.Primary,
+                new DatabaseNamespace("test"),
+                command,
+                commandPayloads: null,
+                NoOpElementNameValidator.Instance,
+                additionalOptions: null,
+                postWriteAction: null,
+                CommandResponseHandling.Return,
+                BsonDocumentSerializer.Instance,
+                new MessageEncoderSettings(),
+                null,
+                TimeSpan.FromMilliseconds(42));
+
+            if (async)
+            {
+                await subject.ExecuteAsync(OperationContext.NoTimeout, connection);
+            }
+            else
+            {
+                subject.Execute(OperationContext.NoTimeout, connection);
+            }
+
+            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(4))
+                .Should().BeTrue();
+
+            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
+            var document = sentMessages[0]["sections"][0]["document"].AsBsonDocument;
+
+            var readConcernElements = document.Elements.Where(e => e.Name == "readConcern").ToList();
+            readConcernElements.Should().HaveCount(1,
+                "readConcern should appear exactly once");
+            readConcernElements[0].Value.AsBsonDocument["level"].AsString
+                .Should().Be("snapshot");
+
+            ICoreSession CreateSnapshotSession()
+            {
+                var mockSession = new Mock<ICoreSession>();
+                mockSession.SetupGet(m => m.IsSnapshot).Returns(true);
+                mockSession.SetupGet(m => m.Id).Returns(
+                    new BsonDocument("id", new BsonBinaryData(Guid.NewGuid(), GuidRepresentation.Standard)));
+                return mockSession.Object;
+            }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Execute_should_not_duplicate_readConcern_for_transaction_with_non_default_readConcern_in_command(
+            [Values(false, true)] bool async)
+        {
+            var transactionConnectionDescription = new ConnectionDescription(
+                new ConnectionId(__serverId),
+                new HelloResult(
+                    new BsonDocument("ok", 1)
+                    .Add(OppressiveLanguageConstants.LegacyHelloResponseIsWritablePrimaryFieldName, 1)
+                    .Add("logicalSessionTimeoutMinutes", 30)
+                    .Add("maxWireVersion", WireVersion.Server50)));
+
+            var connection = new MockConnection();
+            connection.Description = transactionConnectionDescription;
+            connection.EnqueueCommandResponseMessage(
+                MessageHelper.BuildCommandResponse(CreateRawBsonDocument(new BsonDocument("ok", 1))));
+
+            var command = new BsonDocument
+            {
+                { "find", "testCollection" },
+                { "readConcern", new BsonDocument("level", "local") }
+            };
+
+            var subject = new CommandWireProtocol<BsonDocument>(
+                CreateTransactionSession(),
+                ReadPreference.Primary,
+                new DatabaseNamespace("test"),
+                command,
+                commandPayloads: null,
+                NoOpElementNameValidator.Instance,
+                additionalOptions: null,
+                postWriteAction: null,
+                CommandResponseHandling.Return,
+                BsonDocumentSerializer.Instance,
+                new MessageEncoderSettings(),
+                null,
+                TimeSpan.FromMilliseconds(42));
+
+            if (async)
+            {
+                await subject.ExecuteAsync(OperationContext.NoTimeout, connection);
+            }
+            else
+            {
+                subject.Execute(OperationContext.NoTimeout, connection);
+            }
+
+            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(4))
+                .Should().BeTrue();
+
+            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
+            var document = sentMessages[0]["sections"][0]["document"].AsBsonDocument;
+
+            var readConcernElements = document.Elements.Where(e => e.Name == "readConcern").ToList();
+            readConcernElements.Should().HaveCount(1,
+                "readConcern should appear exactly once even when command already contains it");
+
+            ICoreSession CreateTransactionSession()
+            {
+                var transaction = new CoreTransaction(1, new TransactionOptions(ReadConcern.Majority));
+                transaction.SetState(CoreTransactionState.Starting);
+
+                var mockSession = new Mock<ICoreSession>();
+                mockSession.SetupGet(m => m.CurrentTransaction).Returns(transaction);
+                mockSession.SetupGet(m => m.IsInTransaction).Returns(true);
+                mockSession.SetupGet(m => m.Id).Returns(
+                    new BsonDocument("id", new BsonBinaryData(Guid.NewGuid(), GuidRepresentation.Standard)));
+                return mockSession.Object;
+            }
         }
 
         // private methods

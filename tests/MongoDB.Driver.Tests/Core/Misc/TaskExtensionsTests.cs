@@ -26,56 +26,80 @@ namespace MongoDB.Driver.Core.Misc
     {
         [Theory]
         [ParameterAttributeData]
-        public async Task WaitAsync_should_throw_on_negative_timeout([Values(true, false)] bool isPromiseTask)
+        public async Task Wait_should_throw_on_negative_timeout([Values(true, false)] bool isPromiseTask, [Values(true, false)] bool async)
         {
             var task = CreateSubject(isPromiseTask);
 
-            var exception = await Record.ExceptionAsync(() => task.WaitAsync(TimeSpan.FromSeconds(-42), CancellationToken.None));
+            var exception = async ?
+                await Record.ExceptionAsync(() => task.WaitAsync(TimeSpan.FromSeconds(-42), CancellationToken.None)) :
+                Record.Exception(() => task.WaitTask(TimeSpan.FromSeconds(-42), CancellationToken.None));
 
             exception.Should().BeOfType<ArgumentOutOfRangeException>();
         }
 
         [Theory]
         [ParameterAttributeData]
-        public async Task WaitAsync_should_work_for_task([Values(true, false)] bool isPromiseTask)
+        public async Task Wait_should_work_for_task([Values(true, false)] bool isPromiseTask, [Values(true, false)] bool async)
         {
             var task = CreateSubject(isPromiseTask);
 
-            await task.WaitAsync(Timeout.InfiniteTimeSpan, CancellationToken.None);
+            if (async)
+            {
+                await task.WaitAsync(Timeout.InfiniteTimeSpan, CancellationToken.None);
+            }
+            else
+            {
+                task.WaitTask(Timeout.InfiniteTimeSpan, CancellationToken.None);
+            }
 
             task.IsCompleted.Should().BeTrue();
         }
 
         [Theory]
         [ParameterAttributeData]
-        public async Task WaitAsync_should_rethrow_for_failed_task([Values(true, false)] bool isPromiseTask)
+        public async Task Wait_should_rethrow_for_failed_task([Values(true, false)] bool isPromiseTask, [Values(true, false)] bool async)
         {
             var ex = new InvalidOperationException();
             var task = CreateSubject(isPromiseTask, ex);
 
-            var exception = await Record.ExceptionAsync(() => task.WaitAsync(Timeout.InfiniteTimeSpan, CancellationToken.None));
+            var exception = async ?
+                await Record.ExceptionAsync(() => task.WaitAsync(Timeout.InfiniteTimeSpan, CancellationToken.None)) :
+                Record.Exception(() => task.WaitTask(Timeout.InfiniteTimeSpan, CancellationToken.None));
 
             exception.Should().Be(ex);
         }
 
-        [Fact]
-        public async Task WaitAsync_should_throw_on_cancellation()
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Wait_should_throw_on_cancellation([Values(true, false)]bool async)
         {
             var task = CreateSubject(true);
             using var cts = new CancellationTokenSource(5);
 
-            var exception = await Record.ExceptionAsync(() => task.WaitAsync(Timeout.InfiniteTimeSpan, cts.Token));
+            var exception = async ?
+                await Record.ExceptionAsync(() => task.WaitAsync(Timeout.InfiniteTimeSpan, cts.Token)) :
+                Record.Exception(() => task.WaitTask(Timeout.InfiniteTimeSpan, cts.Token));
 
             task.IsCompleted.Should().BeFalse();
-            exception.Should().BeOfType<TaskCanceledException>();
+            if (async)
+            {
+                exception.Should().BeOfType<TaskCanceledException>();
+            }
+            else
+            {
+                exception.Should().BeOfType<OperationCanceledException>();
+            }
         }
 
-        [Fact]
-        public async Task WaitAsync_should_throw_on_timeout()
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Wait_should_throw_on_timeout([Values(true, false)] bool async)
         {
             var task = CreateSubject(true);
 
-            var exception = await Record.ExceptionAsync(() => task.WaitAsync(TimeSpan.FromMilliseconds(5), CancellationToken.None));
+            var exception = async ?
+                await Record.ExceptionAsync(() => task.WaitAsync(TimeSpan.FromMilliseconds(5), CancellationToken.None)) :
+                Record.Exception(() => task.WaitTask(TimeSpan.FromMilliseconds(5), CancellationToken.None));
 
             task.IsCompleted.Should().BeFalse();
             exception.Should().BeOfType<TimeoutException>();

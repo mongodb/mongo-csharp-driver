@@ -21,6 +21,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
 {
     internal sealed class AstMapExpression : AstExpression
     {
+        private readonly AstVarExpression _arrayIndexAs;
         private readonly AstVarExpression _as;
         private readonly AstExpression _in;
         private readonly AstExpression _input;
@@ -28,13 +29,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
         public AstMapExpression(
             AstExpression input,
             AstVarExpression @as,
-            AstExpression @in)
+            AstExpression @in,
+            AstVarExpression arrayIndexAs = null)
         {
             _input = Ensure.IsNotNull(input, nameof(input));
             _as = @as;
             _in = Ensure.IsNotNull(@in, nameof(@in));
+            _arrayIndexAs = arrayIndexAs;
         }
 
+        public AstVarExpression ArrayIndexAs => _arrayIndexAs;
         public AstVarExpression As => _as;
         public new AstExpression In => _in;
         public AstExpression Input => _input;
@@ -53,6 +57,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
                     {
                         { "input", _input.Render() },
                         { "as", _as?.Name, _as != null },
+                        { "arrayIndexAs", _arrayIndexAs?.Name, _arrayIndexAs != null },
                         { "in", _in.Render() }
                     }
                 }
@@ -62,14 +67,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
         public AstMapExpression Update(
             AstExpression input,
             AstVarExpression @as,
+            AstVarExpression arrayIndexAs,
             AstExpression @in)
         {
-            if (input == _input && @as == _as && @in == _in)
+            if (input == _input && @as == _as && arrayIndexAs == _arrayIndexAs && @in == _in)
             {
                 return this;
             }
 
-            return new AstMapExpression(input, @as, @in);
+            return new AstMapExpression(input, @as, @in, arrayIndexAs);
         }
     }
 }

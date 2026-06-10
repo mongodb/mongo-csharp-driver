@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,8 +15,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading;
+using System.Net;
 using System.Threading.Tasks;
+using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 
@@ -24,16 +26,18 @@ namespace MongoDB.Driver.Core.Bindings
 {
     internal sealed class SingleServerReadBinding : IReadBinding
     {
-        private const int SingleServerSelectionTimeoutMS = 1000;
-
+#pragma warning disable CA2213 // Disposable fields should be disposed
+        private readonly IClusterInternal _cluster;
+#pragma warning restore CA2213 // Disposable fields should be disposed
         private bool _disposed;
         private readonly ReadPreference _readPreference;
-        private readonly IServer _server;
+        private readonly IServerSelector _serverSelector;
         private readonly ICoreSessionHandle _session;
 
-        public SingleServerReadBinding(IServer server, ReadPreference readPreference, ICoreSessionHandle session)
+        public SingleServerReadBinding(IClusterInternal cluster, EndPoint serverEndpoint, ReadPreference readPreference, ICoreSessionHandle session)
         {
-            _server = Ensure.IsNotNull(server, nameof(server));
+            _cluster = Ensure.IsNotNull(cluster, nameof(cluster));
+            _serverSelector = new EndPointServerSelector(Ensure.IsNotNull(serverEndpoint, nameof(serverEndpoint)));
             _readPreference = Ensure.IsNotNull(readPreference, nameof(readPreference));
             _session = Ensure.IsNotNull(session, nameof(session));
         }
@@ -51,24 +55,22 @@ namespace MongoDB.Driver.Core.Bindings
         public IChannelSourceHandle GetReadChannelSource(OperationContext operationContext)
         {
             ThrowIfDisposed();
-            return GetChannelSourceHelper();
+            var server = _cluster.SelectServer(operationContext, _serverSelector);
+            return new ChannelSourceHandle(new ServerChannelSource(server, _session.Fork()));
         }
 
-        public Task<IChannelSourceHandle> GetReadChannelSourceAsync(OperationContext operationContext)
+        public async Task<IChannelSourceHandle> GetReadChannelSourceAsync(OperationContext operationContext)
         {
             ThrowIfDisposed();
-            return Task.FromResult(GetChannelSourceHelper());
+            var server = await _cluster.SelectServerAsync(operationContext, _serverSelector).ConfigureAwait(false);
+            return new ChannelSourceHandle(new ServerChannelSource(server, _session.Fork()));
         }
 
-        public IChannelSourceHandle GetReadChannelSource(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
-        {
-            return GetReadChannelSource(operationContext);
-        }
+        public IChannelSourceHandle GetReadChannelSource(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers) =>
+            GetReadChannelSource(operationContext);
 
-        public Task<IChannelSourceHandle> GetReadChannelSourceAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
-        {
-            return GetReadChannelSourceAsync(operationContext);
-        }
+        public Task<IChannelSourceHandle> GetReadChannelSourceAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers) =>
+            GetReadChannelSourceAsync(operationContext);
 
         public void Dispose()
         {
@@ -77,20 +79,6 @@ namespace MongoDB.Driver.Core.Bindings
                 _session.Dispose();
                 _disposed = true;
             }
-        }
-
-        private IChannelSourceHandle GetChannelSourceHelper()
-        {
-            // server might be in unknown state due to previous failed operation, allow description to be updated
-            // this is done instead of server selection
-            // TODO parameterize timeout and avoid busy wait, or offload waiting to server level
-            // Should be addressed by CSHARP-3556
-            if (_server.Description.State == ServerState.Disconnected)
-            {
-                SpinWait.SpinUntil(() => _server.Description.State == ServerState.Connected, SingleServerSelectionTimeoutMS);
-            }
-
-            return new ChannelSourceHandle(new ServerChannelSource(_server, _session.Fork()));
         }
 
         private void ThrowIfDisposed()

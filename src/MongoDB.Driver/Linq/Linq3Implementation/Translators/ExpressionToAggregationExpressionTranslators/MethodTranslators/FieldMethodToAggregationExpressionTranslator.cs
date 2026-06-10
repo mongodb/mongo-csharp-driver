@@ -14,7 +14,6 @@
 */
 
 using System.Linq.Expressions;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
@@ -33,11 +32,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             {
                 var documentExpression = arguments[0];
                 var fieldNameExpression = arguments[1];
-                var fieldSerializerExpression = arguments[2];
 
                 var documentTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, documentExpression);
                 var fieldName = fieldNameExpression.GetConstantValue<string>(expression);
-                var fieldSerializer = fieldSerializerExpression.GetConstantValue<IBsonSerializer>(expression);
+                var fieldSerializer = context.GetSerializer(expression);
 
                 var ast = AstExpression.GetField(documentTranslation.Ast, fieldName);
                 return new TranslatedExpression(expression, ast, fieldSerializer);

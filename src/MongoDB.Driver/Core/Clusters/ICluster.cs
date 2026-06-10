@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
@@ -55,6 +56,8 @@ namespace MongoDB.Driver.Core.Clusters
 
     internal interface IClusterInternal : ICluster
     {
+        IEnumerable<IClusterableServer> Servers { get; }
+
         event EventHandler<ClusterDescriptionChangedEventArgs> DescriptionChanged;
 
         ICoreServerSession AcquireServerSession();

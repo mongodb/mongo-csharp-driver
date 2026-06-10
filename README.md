@@ -2,7 +2,7 @@
 =================
 
 [![MongoDB.Driver](https://img.shields.io/nuget/v/MongoDB.Driver.svg)](https://www.nuget.org/packages/MongoDB.Driver/)
-[![Documentation](https://img.shields.io/badge/docs-docfx-blue.svg)](https://mongodb.github.io/mongo-csharp-driver/3.4.0/api/index.html)
+[![Documentation](https://img.shields.io/badge/docs-docfx-blue.svg)](https://mongodb.github.io/mongo-csharp-driver/latest.html)
 [![Documentation](https://img.shields.io/badge/docs-mongo-green.svg)](https://www.mongodb.com/docs/drivers/csharp/current/)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/mongodb/mongo-csharp-driver/blob/main/LICENSE.md)
 
@@ -70,11 +70,10 @@ Documentation
 -------------
 * [MongoDB](https://www.mongodb.com/docs)
 * [.NET/C# Driver](https://www.mongodb.com/docs/drivers/csharp/current/)
-* [API Reference](https://mongodb.github.io/mongo-csharp-driver/3.4.0/api/index.html)
+* [API Reference](https://mongodb.github.io/mongo-csharp-driver/latest.html)
 
 Questions/Bug Reports
 ---------------------
-* [MongoDB Community Forum](https://www.mongodb.com/community/forums/tags/c/data/drivers-odms/7/dot-net)
 * [Jira](https://jira.mongodb.org/browse/CSHARP)
 
 If you’ve identified a security vulnerability in a driver or any other MongoDB project, please report it according to the [instructions here](https://www.mongodb.com/docs/manual/tutorial/create-a-vulnerability-report).

@@ -19,7 +19,6 @@ using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core;
-using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
@@ -60,9 +59,9 @@ namespace MongoDB.Driver.Tests
                 CommandStartedEvent sentCommand = ((CommandStartedEvent)eventCapturer.Events[0]);
                 SpinWait.SpinUntil(() => client.Cluster.Description.Servers.Any(s => s.State == ServerState.Connected), TimeSpan.FromSeconds(5)).Should().BeTrue();
 
-                var clusterType = client.Cluster.Description.Type;
+                var serverType = client.Cluster.Description.Servers.First().Type;
 
-                var expectedContainsReadPreference = clusterType != ClusterType.Standalone;
+                var expectedContainsReadPreference = serverType != ServerType.Standalone;
                 var readPreferenceFieldName = sentCommand.Command.Contains("$readPreference")
                     ? "$readPreference"
                     : "readPreference";

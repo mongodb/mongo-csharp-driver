@@ -15,7 +15,6 @@
 
 using System;
 using System.Buffers.Binary;
-using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
@@ -46,15 +45,12 @@ namespace MongoDB.Driver.Core.Connections
         private ConnectionInitializerContext _connectionInitializerContext;
         private EndPoint _endPoint;
         private ConnectionDescription _description;
-        private readonly Dropbox _dropbox = new Dropbox();
         private bool _failedEventHasBeenRaised;
         private DateTime _lastUsedAtUtc;
         private DateTime _openedAtUtc;
         private readonly object _openLock = new object();
         private Task _openTask;
-        private readonly SemaphoreSlim _receiveLock;
         private CompressorType? _sendCompressorType;
-        private readonly SemaphoreSlim _sendLock;
         private readonly ConnectionSettings _settings;
         private readonly TimeSpan _socketReadTimeout;
         private readonly TimeSpan _socketWriteTimeout;
@@ -72,6 +68,7 @@ namespace MongoDB.Driver.Core.Connections
             IConnectionInitializer connectionInitializer,
             IEventSubscriber eventSubscriber,
             ILoggerFactory loggerFactory,
+            TracingOptions tracingOptions,
             TimeSpan socketReadTimeout,
             TimeSpan socketWriteTimeout)
         {
@@ -83,13 +80,11 @@ namespace MongoDB.Driver.Core.Connections
             Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
 
             _connectionId = new ConnectionId(serverId, settings.ConnectionIdLocalValueProvider());
-            _receiveLock = new SemaphoreSlim(1);
-            _sendLock = new SemaphoreSlim(1);
             _state = new InterlockedInt32(State.Initial);
 
             _compressorSource = new CompressorSource(settings.Compressors);
             _eventLogger = loggerFactory.CreateEventLogger<LogCategories.Connection>(eventSubscriber);
-            _commandEventHelper = new CommandEventHelper(loggerFactory.CreateEventLogger<LogCategories.Command>(eventSubscriber));
+            _commandEventHelper = new CommandEventHelper(loggerFactory.CreateEventLogger<LogCategories.Command>(eventSubscriber), tracingOptions);
             _socketReadTimeout = socketReadTimeout;
             _socketWriteTimeout = socketWriteTimeout;
         }
@@ -128,7 +123,7 @@ namespace MongoDB.Driver.Core.Connections
                 }
 
                 // connection has been idle for too long
-                if (_settings.MaxIdleTime.TotalMilliseconds > -1 && now > _lastUsedAtUtc.Add(_settings.MaxIdleTime))
+                if (_settings.MaxIdleTime.TotalMilliseconds > 0 && now > _lastUsedAtUtc.Add(_settings.MaxIdleTime))
                 {
                     return true;
                 }
@@ -160,7 +155,11 @@ namespace MongoDB.Driver.Core.Connections
             {
                 _failedEventHasBeenRaised = true;
                 _eventLogger.LogAndPublish(new ConnectionFailedEvent(_connectionId, exception));
-                _commandEventHelper.ConnectionFailed(_connectionId, _description?.ServiceId, exception, IsInitializing);
+
+                if (_commandEventHelper.ShouldCallConnectionFailed)
+                {
+                    _commandEventHelper.ConnectionFailed(_connectionId, _description?.ServiceId, exception, IsInitializing);
+                }
             }
         }
 
@@ -179,9 +178,6 @@ namespace MongoDB.Driver.Core.Connections
                     _eventLogger.LogAndPublish(new ConnectionClosingEvent(_connectionId, EventContext.OperationId));
 
                     var stopwatch = Stopwatch.StartNew();
-                    _receiveLock.Dispose();
-                    _sendLock.Dispose();
-
                     if (_stream != null)
                     {
                         try
@@ -291,6 +287,12 @@ namespace MongoDB.Driver.Core.Connections
             {
                 _description ??= handshakeDescription;
                 var wrappedException = WrapExceptionIfRequired(operationContext, ex, "opening a connection to the server");
+                if (handshakeDescription == null)
+                {
+                    // Should apply Backpressure error labels on network errors only during the connection establishment or the `hello` message.
+                    AddBackpressureErrorLabelsIfRequired(wrappedException);
+                }
+
                 helper.FailedOpeningConnection(wrappedException ?? ex);
                 if (wrappedException == null) { throw; } else { throw wrappedException; }
             }
@@ -324,6 +326,12 @@ namespace MongoDB.Driver.Core.Connections
             {
                 _description ??= handshakeDescription;
                 var wrappedException = WrapExceptionIfRequired(operationContext, ex, "opening a connection to the server");
+                if (handshakeDescription == null)
+                {
+                    // Should apply Backpressure error labels on network errors only during the connection establishment or the `hello` message.
+                    AddBackpressureErrorLabelsIfRequired(wrappedException);
+                }
+
                 helper.FailedOpeningConnection(wrappedException ?? ex);
                 if (wrappedException == null) { throw; } else { throw wrappedException; }
             }
@@ -354,14 +362,14 @@ namespace MongoDB.Driver.Core.Connections
             try
             {
                 var messageSizeBytes = new byte[4];
-                _stream.ReadBytes(operationContext, messageSizeBytes, 0, 4, _socketReadTimeout);
+                _stream.ReadBytes(messageSizeBytes, 0, 4, (int)operationContext.RemainingTimeoutOrDefault(_socketReadTimeout).TotalMilliseconds, operationContext.CancellationToken);
                 var messageSize = BinaryPrimitives.ReadInt32LittleEndian(messageSizeBytes);
                 EnsureMessageSizeIsValid(messageSize);
                 var inputBufferChunkSource = new InputBufferChunkSource(BsonChunkPool.Default);
                 var buffer = ByteBufferFactory.Create(inputBufferChunkSource, messageSize);
                 buffer.Length = messageSize;
                 buffer.SetBytes(0, messageSizeBytes, 0, 4);
-                _stream.ReadBytes(operationContext, buffer, 4, messageSize - 4, _socketReadTimeout);
+                _stream.ReadBytes(buffer, 4, messageSize - 4, (int)operationContext.RemainingTimeoutOrDefault(_socketReadTimeout).TotalMilliseconds, operationContext.CancellationToken);
                 _lastUsedAtUtc = DateTime.UtcNow;
                 buffer.MakeReadOnly();
                 return buffer;
@@ -371,50 +379,6 @@ namespace MongoDB.Driver.Core.Connections
                 var wrappedException = WrapExceptionIfRequired(operationContext, ex, "receiving a message from the server");
                 ConnectionFailed(wrappedException ?? ex);
                 if (wrappedException == null) { throw; } else { throw wrappedException; }
-            }
-        }
-
-        private IByteBuffer ReceiveBuffer(OperationContext operationContext, int responseTo)
-        {
-            using (var receiveLockRequest = new SemaphoreSlimRequest(_receiveLock, operationContext.RemainingTimeout, operationContext.CancellationToken))
-            {
-                var messageTask = _dropbox.GetMessageAsync(responseTo);
-                try
-                {
-                    Task.WaitAny(messageTask, receiveLockRequest.Task);
-                    if (messageTask.IsCompleted)
-                    {
-                        return _dropbox.RemoveMessage(responseTo); // also propagates exception if any
-                    }
-
-                    receiveLockRequest.Task.GetAwaiter().GetResult(); // propagate exceptions
-                    while (true)
-                    {
-                        try
-                        {
-                            var buffer = ReceiveBuffer(operationContext);
-                            _dropbox.AddMessage(buffer);
-                        }
-                        catch (Exception ex)
-                        {
-                            _dropbox.AddException(ex);
-                        }
-
-                        if (messageTask.IsCompleted)
-                        {
-                            return _dropbox.RemoveMessage(responseTo); // also propagates exception if any
-                        }
-
-                        operationContext.ThrowIfTimedOutOrCanceled();
-                    }
-                }
-                catch
-                {
-                    var ignored = messageTask.ContinueWith(
-                        t => { _dropbox.RemoveMessage(responseTo).Dispose(); },
-                        TaskContinuationOptions.OnlyOnRanToCompletion);
-                    throw;
-                }
             }
         }
 
@@ -423,14 +387,14 @@ namespace MongoDB.Driver.Core.Connections
             try
             {
                 var messageSizeBytes = new byte[4];
-                await _stream.ReadBytesAsync(operationContext, messageSizeBytes, 0, 4, _socketReadTimeout).ConfigureAwait(false);
+                await _stream.ReadBytesAsync(messageSizeBytes, 0, 4, (int)operationContext.RemainingTimeoutOrDefault(_socketReadTimeout).TotalMilliseconds, operationContext.CancellationToken).ConfigureAwait(false);
                 var messageSize = BinaryPrimitives.ReadInt32LittleEndian(messageSizeBytes);
                 EnsureMessageSizeIsValid(messageSize);
                 var inputBufferChunkSource = new InputBufferChunkSource(BsonChunkPool.Default);
                 var buffer = ByteBufferFactory.Create(inputBufferChunkSource, messageSize);
                 buffer.Length = messageSize;
                 buffer.SetBytes(0, messageSizeBytes, 0, 4);
-                await _stream.ReadBytesAsync(operationContext, buffer, 4, messageSize - 4, _socketReadTimeout).ConfigureAwait(false);
+                await _stream.ReadBytesAsync(buffer, 4, messageSize - 4, (int)operationContext.RemainingTimeoutOrDefault(_socketReadTimeout).TotalMilliseconds, operationContext.CancellationToken).ConfigureAwait(false);
                 _lastUsedAtUtc = DateTime.UtcNow;
                 buffer.MakeReadOnly();
                 return buffer;
@@ -440,50 +404,6 @@ namespace MongoDB.Driver.Core.Connections
                 var wrappedException = WrapExceptionIfRequired(operationContext, ex, "receiving a message from the server");
                 ConnectionFailed(wrappedException ?? ex);
                 if (wrappedException == null) { throw; } else { throw wrappedException; }
-            }
-        }
-
-        private async Task<IByteBuffer> ReceiveBufferAsync(OperationContext operationContext, int responseTo)
-        {
-            using (var receiveLockRequest = new SemaphoreSlimRequest(_receiveLock, operationContext.RemainingTimeout, operationContext.CancellationToken))
-            {
-                var messageTask = _dropbox.GetMessageAsync(responseTo);
-                try
-                {
-                    await Task.WhenAny(messageTask, receiveLockRequest.Task).ConfigureAwait(false);
-                    if (messageTask.IsCompleted)
-                    {
-                        return _dropbox.RemoveMessage(responseTo); // also propagates exception if any
-                    }
-
-                    await receiveLockRequest.Task.ConfigureAwait(false); // propagate exceptions
-                    while (true)
-                    {
-                        try
-                        {
-                            var buffer = await ReceiveBufferAsync(operationContext).ConfigureAwait(false);
-                            _dropbox.AddMessage(buffer);
-                        }
-                        catch (Exception ex)
-                        {
-                            _dropbox.AddException(ex);
-                        }
-
-                        if (messageTask.IsCompleted)
-                        {
-                            return _dropbox.RemoveMessage(responseTo); // also propagates exception if any
-                        }
-
-                        operationContext.ThrowIfTimedOutOrCanceled();
-                    }
-                }
-                catch
-                {
-                    var ignored = messageTask.ContinueWith(
-                        t => { _dropbox.RemoveMessage(responseTo).Dispose(); },
-                        TaskContinuationOptions.OnlyOnRanToCompletion);
-                    throw;
-                }
             }
         }
 
@@ -500,22 +420,31 @@ namespace MongoDB.Driver.Core.Connections
             try
             {
                 helper.ReceivingMessage();
-                using (var buffer = ReceiveBuffer(operationContext, responseTo))
+                while (true)
                 {
-                    var message = helper.DecodeMessage(operationContext, buffer, encoderSelector);
-                    helper.ReceivedMessage(buffer, message);
-                    return message;
+                    using (var buffer = ReceiveBuffer(operationContext))
+                    {
+                        if (responseTo != GetResponseTo(buffer))
+                        {
+                            continue;
+                        }
+
+                        var message = helper.DecodeMessage(operationContext, buffer, encoderSelector);
+                        helper.ReceivedMessage(buffer, message);
+                        return message;
+                    }
                 }
             }
             catch (Exception ex)
             {
                 helper.FailedReceivingMessage(ex);
-                ThrowOperationCanceledExceptionIfRequired(ex);
                 throw;
             }
         }
 
-        public async Task<ResponseMessage> ReceiveMessageAsync(OperationContext operationContext, int responseTo,
+        public async Task<ResponseMessage> ReceiveMessageAsync(
+            OperationContext operationContext,
+            int responseTo,
             IMessageEncoderSelector encoderSelector,
             MessageEncoderSettings messageEncoderSettings)
         {
@@ -526,74 +455,73 @@ namespace MongoDB.Driver.Core.Connections
             try
             {
                 helper.ReceivingMessage();
-                using (var buffer = await ReceiveBufferAsync(operationContext, responseTo).ConfigureAwait(false))
+                while (true)
                 {
-                    var message = helper.DecodeMessage(operationContext, buffer, encoderSelector);
-                    helper.ReceivedMessage(buffer, message);
-                    return message;
+                    using (var buffer = await ReceiveBufferAsync(operationContext).ConfigureAwait(false))
+                    {
+                        if (responseTo != GetResponseTo(buffer))
+                        {
+                            continue;
+                        }
+
+                        var message = helper.DecodeMessage(operationContext, buffer, encoderSelector);
+                        helper.ReceivedMessage(buffer, message);
+                        return message;
+                    }
                 }
             }
             catch (Exception ex)
             {
                 helper.FailedReceivingMessage(ex);
-                ThrowOperationCanceledExceptionIfRequired(ex);
                 throw;
             }
         }
 
+        private int GetResponseTo(IByteBuffer message)
+        {
+            var backingBytes = message.AccessBackingBytes(8);
+            return BinaryPrimitives.ReadInt32LittleEndian(backingBytes.Array.AsSpan().Slice(backingBytes.Offset, 4));
+        }
+
         private void SendBuffer(OperationContext operationContext, IByteBuffer buffer)
         {
-            _sendLock.Wait(operationContext.RemainingTimeout, operationContext.CancellationToken);
+            if (_state.Value == State.Failed)
+            {
+                throw new MongoConnectionClosedException(_connectionId);
+            }
+
             try
             {
-                if (_state.Value == State.Failed)
-                {
-                    throw new MongoConnectionClosedException(_connectionId);
-                }
-
-                try
-                {
-                    _stream.WriteBytes(operationContext, buffer, 0, buffer.Length, _socketWriteTimeout);
-                    _lastUsedAtUtc = DateTime.UtcNow;
-                }
-                catch (Exception ex)
-                {
-                    var wrappedException = WrapExceptionIfRequired(operationContext, ex, "sending a message to the server");
-                    ConnectionFailed(wrappedException ?? ex);
-                    if (wrappedException == null) { throw; } else { throw wrappedException; }
-                }
+                var timeout = operationContext.RemainingTimeoutOrDefault(_socketWriteTimeout);
+                _stream.WriteBytes(buffer, 0, buffer.Length, (int)timeout.TotalMilliseconds, operationContext.CancellationToken);
+                _lastUsedAtUtc = DateTime.UtcNow;
             }
-            finally
+            catch (Exception ex)
             {
-                _sendLock.Release();
+                var wrappedException = WrapExceptionIfRequired(operationContext, ex, "sending a message to the server");
+                ConnectionFailed(wrappedException ?? ex);
+                if (wrappedException == null) { throw; } else { throw wrappedException; }
             }
         }
 
         private async Task SendBufferAsync(OperationContext operationContext, IByteBuffer buffer)
         {
-            await _sendLock.WaitAsync(operationContext.RemainingTimeout, operationContext.CancellationToken).ConfigureAwait(false);
+            if (_state.Value == State.Failed)
+            {
+                throw new MongoConnectionClosedException(_connectionId);
+            }
+
             try
             {
-                if (_state.Value == State.Failed)
-                {
-                    throw new MongoConnectionClosedException(_connectionId);
-                }
-
-                try
-                {
-                    await _stream.WriteBytesAsync(operationContext, buffer, 0, buffer.Length, _socketWriteTimeout).ConfigureAwait(false);
-                    _lastUsedAtUtc = DateTime.UtcNow;
-                }
-                catch (Exception ex)
-                {
-                    var wrappedException = WrapExceptionIfRequired(operationContext, ex, "sending a message to the server");
-                    ConnectionFailed(wrappedException ?? ex);
-                    if (wrappedException == null) { throw; } else { throw wrappedException; }
-                }
+                var timeout = operationContext.RemainingTimeoutOrDefault(_socketWriteTimeout);
+                await _stream.WriteBytesAsync(buffer, 0, buffer.Length, (int)timeout.TotalMilliseconds, operationContext.CancellationToken).ConfigureAwait(false);
+                _lastUsedAtUtc = DateTime.UtcNow;
             }
-            finally
+            catch (Exception ex)
             {
-                _sendLock.Release();
+                var wrappedException = WrapExceptionIfRequired(operationContext, ex, "sending a message to the server");
+                ConnectionFailed(wrappedException ?? ex);
+                if (wrappedException == null) { throw; } else { throw wrappedException; }
             }
         }
 
@@ -629,7 +557,6 @@ namespace MongoDB.Driver.Core.Connections
             catch (Exception ex)
             {
                 helper.FailedSendingMessage(ex);
-                ThrowOperationCanceledExceptionIfRequired(ex);
                 throw;
             }
         }
@@ -666,12 +593,40 @@ namespace MongoDB.Driver.Core.Connections
             catch (Exception ex)
             {
                 helper.FailedSendingMessage(ex);
-                ThrowOperationCanceledExceptionIfRequired(ex);
                 throw;
             }
         }
 
+        public void CompleteCommandActivityWithException(Exception exception)
+        {
+            _commandEventHelper.CompleteFailedCommandActivity(exception);
+        }
+
+        public void EnsureCommandActivityCompleted()
+        {
+            _commandEventHelper.EnsureCommandActivityCompleted();
+        }
+
         // private methods
+        private void AddBackpressureErrorLabelsIfRequired(MongoConnectionException exception)
+        {
+            if (exception == null)
+            {
+                return;
+            }
+
+            if (exception.InnerException is MongoProxyConnectionException)
+            {
+                return;
+            }
+
+            if (exception.InnerException is IOException || exception.ContainsTimeoutException)
+            {
+                exception.AddErrorLabel("SystemOverloadedError");
+                exception.AddErrorLabel("RetryableError");
+            }
+        }
+
         private bool ShouldBeCompressed(RequestMessage message)
         {
             return _sendCompressorType.HasValue && message.MayBeCompressed;
@@ -755,7 +710,7 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        private Exception WrapExceptionIfRequired(OperationContext operationContext, Exception ex, string action)
+        private MongoConnectionException WrapExceptionIfRequired(OperationContext operationContext, Exception ex, string action)
         {
             if (ex is TimeoutException && operationContext.IsRootContextTimeoutConfigured())
             {
@@ -772,65 +727,16 @@ namespace MongoDB.Driver.Core.Connections
                 return null;
             }
 
+            if (ex is MongoConnectionException mongoConnectionException)
+            {
+                return mongoConnectionException;
+            }
+
             var message = string.Format("An exception occurred while {0}.", action);
             return new MongoConnectionException(_connectionId, message, ex);
         }
 
-        private void ThrowOperationCanceledExceptionIfRequired(Exception exception)
-        {
-            if (exception is ObjectDisposedException objectDisposedException)
-            {
-                // We expect two cases here:
-                //      objectDisposedException.ObjectName == GetType().Name
-                //      objectDisposedException.Message == "The semaphore has been disposed."
-                // but since the last one is language-specific, the only option we have is avoiding any additional conditions for ObjectDisposedException
-                // TODO: this logic should be reviewed in the scope of https://jira.mongodb.org/browse/CSHARP-3165
-                throw new OperationCanceledException($"The {nameof(BinaryConnection)} operation has been cancelled.", exception);
-            }
-        }
-
         // nested classes
-        private class Dropbox
-        {
-            private readonly ConcurrentDictionary<int, TaskCompletionSource<IByteBuffer>> _messages = new ConcurrentDictionary<int, TaskCompletionSource<IByteBuffer>>();
-
-            // public methods
-            public void AddException(Exception exception)
-            {
-                foreach (var taskCompletionSource in _messages.Values)
-                {
-                    taskCompletionSource.TrySetException(exception); // has no effect on already completed tasks
-                }
-            }
-
-            public void AddMessage(IByteBuffer message)
-            {
-                var responseTo = GetResponseTo(message);
-                var tcs = _messages.GetOrAdd(responseTo, x => new TaskCompletionSource<IByteBuffer>());
-                tcs.TrySetResult(message);
-            }
-
-            public Task<IByteBuffer> GetMessageAsync(int responseTo)
-            {
-                var tcs = _messages.GetOrAdd(responseTo, _ => new TaskCompletionSource<IByteBuffer>());
-                return tcs.Task;
-            }
-
-            public IByteBuffer RemoveMessage(int responseTo)
-            {
-                TaskCompletionSource<IByteBuffer> tcs;
-                _messages.TryRemove(responseTo, out tcs);
-                return tcs.Task.GetAwaiter().GetResult(); // RemoveMessage is only called when Task is complete
-            }
-
-            // private methods
-            private int GetResponseTo(IByteBuffer message)
-            {
-                var backingBytes = message.AccessBackingBytes(8);
-                return BinaryPrimitives.ReadInt32LittleEndian(new ReadOnlySpan<byte>(backingBytes.Array, backingBytes.Offset, 4));
-            }
-        }
-
         private class OpenConnectionHelper
         {
             private readonly BinaryConnection _connection;

@@ -32,7 +32,10 @@ namespace MongoDB.Driver.Core.Operations
         private bool? _bypassDocumentValidation;
         private CollectionNamespace _collectionNamespace;
         private BsonValue _comment;
+        private bool _enableOverloadRetargeting;
+        private readonly bool _isOperationRetryable;
         private bool _isOrdered = true;
+        private int _maxAdaptiveRetries;
         private int? _maxBatchCount;
         private int? _maxBatchLength;
         private MessageEncoderSettings _messageEncoderSettings;
@@ -56,6 +59,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
             _requests = Ensure.IsNotNull(requests, nameof(requests));
+            _isOperationRetryable = _requests.All(r => r.IsRetryable());
             _messageEncoderSettings = messageEncoderSettings;
         }
 
@@ -77,10 +81,22 @@ namespace MongoDB.Driver.Core.Operations
             set { _comment = value; }
         }
 
+        public bool EnableOverloadRetargeting
+        {
+            get { return _enableOverloadRetargeting; }
+            set { _enableOverloadRetargeting = value; }
+        }
+
         public bool IsOrdered
         {
             get { return _isOrdered; }
             set { _isOrdered = value; }
+        }
+
+        public int MaxAdaptiveRetries
+        {
+            get { return _maxAdaptiveRetries; }
+            set { _maxAdaptiveRetries = value; }
         }
 
         public int? MaxBatchCount
@@ -101,6 +117,8 @@ namespace MongoDB.Driver.Core.Operations
             set { _messageEncoderSettings = value; }
         }
 
+        public string OperationName => "bulkWrite";
+
         public IEnumerable<TWriteRequest> Requests
         {
             get { return _requests; }
@@ -111,6 +129,8 @@ namespace MongoDB.Driver.Core.Operations
             get { return _retryRequested; }
             set { _retryRequested = value; }
         }
+
+        public bool IsOperationRetryable => _isOperationRetryable;
 
         public WriteConcern WriteConcern
         {
@@ -129,7 +149,7 @@ namespace MongoDB.Driver.Core.Operations
         public BulkWriteOperationResult Execute(OperationContext operationContext, IWriteBinding binding)
         {
             using (BeginOperation())
-            using (var context = RetryableWriteContext.Create(operationContext, binding, IsOperationRetryable()))
+            using (var context = new RetryableWriteContext(binding, _retryRequested, _maxAdaptiveRetries, _enableOverloadRetargeting))
             {
                 return Execute(operationContext, context);
             }
@@ -145,7 +165,7 @@ namespace MongoDB.Driver.Core.Operations
         public async Task<BulkWriteOperationResult> ExecuteAsync(OperationContext operationContext, IWriteBinding binding)
         {
             using (BeginOperation())
-            using (var context = await RetryableWriteContext.CreateAsync(operationContext, binding, IsOperationRetryable()).ConfigureAwait(false))
+            using (var context = new RetryableWriteContext(binding, _retryRequested, _maxAdaptiveRetries, _enableOverloadRetargeting))
             {
                 return await ExecuteAsync(operationContext, context).ConfigureAwait(false);
             }
@@ -157,10 +177,7 @@ namespace MongoDB.Driver.Core.Operations
         protected abstract bool RequestHasHint(TWriteRequest request);
 
         // private methods
-        private bool IsOperationRetryable()
-            => _retryRequested && _requests.All(r => r.IsRetryable());
-
-        private IDisposable BeginOperation() =>
+        private EventContext.OperationIdDisposer BeginOperation() =>
             EventContext.BeginOperation(null, _requests.FirstOrDefault()?.RequestType.ToString().ToLower());
 
         private BulkWriteBatchResult CreateBatchResult(
@@ -284,7 +301,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 var combiner = new BulkWriteBatchResultCombiner(_batchResults, _writeConcern.IsAcknowledged);
                 var remainingRequests = _requests.GetUnprocessedItems();
-                return combiner.CreateResultOrThrowIfHasErrors(channel.ConnectionDescription.ConnectionId, remainingRequests);
+                return combiner.CreateResultOrThrowIfHasErrors(channel?.ConnectionDescription.ConnectionId, remainingRequests);
             }
 
             // private methods

@@ -98,7 +98,7 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
             var session = OperationTestHelper.CreateSession();
 
-            var result = subject.CreateCommand(OperationContext.NoTimeout, session);
+            var result = subject.CreateCommand(OperationContext.NoTimeout, session, OperationTestHelper.CreateConnectionDescription(), null);
 
             var expectedResult = new BsonDocument
             {
@@ -119,7 +119,7 @@ namespace MongoDB.Driver.Core.Operations
             };
             var session = OperationTestHelper.CreateSession();
 
-            var result = subject.CreateCommand(OperationContext.NoTimeout, session);
+            var result = subject.CreateCommand(OperationContext.NoTimeout, session, OperationTestHelper.CreateConnectionDescription(), null);
 
             var expectedResult = new BsonDocument
             {
@@ -142,7 +142,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var session = OperationTestHelper.CreateSession();
 
-            var result = subject.CreateCommand(OperationContext.NoTimeout, session);
+            var result = subject.CreateCommand(OperationContext.NoTimeout, session, OperationTestHelper.CreateConnectionDescription(), null);
 
             var expectedResult = new BsonDocument
             {
@@ -164,7 +164,7 @@ namespace MongoDB.Driver.Core.Operations
             };
             var session = OperationTestHelper.CreateSession();
 
-            var result = subject.CreateCommand(OperationContext.NoTimeout, session);
+            var result = subject.CreateCommand(OperationContext.NoTimeout, session, OperationTestHelper.CreateConnectionDescription(), null);
 
             var expectedResult = new BsonDocument
             {
@@ -187,7 +187,7 @@ namespace MongoDB.Driver.Core.Operations
             };
             var session = OperationTestHelper.CreateSession();
 
-            var result = subject.CreateCommand(OperationContext.NoTimeout, session);
+            var result = subject.CreateCommand(OperationContext.NoTimeout, session, OperationTestHelper.CreateConnectionDescription(), null);
 
             var expectedResult = new BsonDocument
             {
@@ -210,7 +210,7 @@ namespace MongoDB.Driver.Core.Operations
             };
             var session = OperationTestHelper.CreateSession();
 
-            var result = subject.CreateCommand(OperationContext.NoTimeout, session);
+            var result = subject.CreateCommand(OperationContext.NoTimeout, session, OperationTestHelper.CreateConnectionDescription(), null);
 
             var expectedResult = new BsonDocument
             {
@@ -232,7 +232,7 @@ namespace MongoDB.Driver.Core.Operations
             };
             var session = OperationTestHelper.CreateSession();
 
-            var result = subject.CreateCommand(OperationContext.NoTimeout, session);
+            var result = subject.CreateCommand(OperationContext.NoTimeout, session, OperationTestHelper.CreateConnectionDescription(), null);
 
             var expectedResult = new BsonDocument
             {
@@ -254,7 +254,7 @@ namespace MongoDB.Driver.Core.Operations
             };
             var session = OperationTestHelper.CreateSession();
 
-            var result = subject.CreateCommand(OperationContext.NoTimeout, session);
+            var result = subject.CreateCommand(OperationContext.NoTimeout, session, OperationTestHelper.CreateConnectionDescription(), null);
 
             var expectedResult = new BsonDocument
             {
@@ -277,7 +277,7 @@ namespace MongoDB.Driver.Core.Operations
             };
             var session = OperationTestHelper.CreateSession();
 
-            var result = subject.CreateCommand(OperationContext.NoTimeout, session);
+            var result = subject.CreateCommand(OperationContext.NoTimeout, session, OperationTestHelper.CreateConnectionDescription(), null);
 
             var expectedResult = new BsonDocument
             {
@@ -299,7 +299,7 @@ namespace MongoDB.Driver.Core.Operations
             };
             var session = OperationTestHelper.CreateSession();
 
-            var result = subject.CreateCommand(OperationContext.NoTimeout, session);
+            var result = subject.CreateCommand(OperationContext.NoTimeout, session, OperationTestHelper.CreateConnectionDescription(), null);
 
             var expectedResult = new BsonDocument
             {
@@ -321,7 +321,7 @@ namespace MongoDB.Driver.Core.Operations
             };
             var session = OperationTestHelper.CreateSession();
 
-            var result = subject.CreateCommand(OperationContext.NoTimeout, session);
+            var result = subject.CreateCommand(OperationContext.NoTimeout, session, OperationTestHelper.CreateConnectionDescription(), null);
 
             var expectedResult = new BsonDocument
             {
@@ -344,7 +344,7 @@ namespace MongoDB.Driver.Core.Operations
             };
             var session = OperationTestHelper.CreateSession();
 
-            var result = subject.CreateCommand(OperationContext.NoTimeout, session);
+            var result = subject.CreateCommand(OperationContext.NoTimeout, session, OperationTestHelper.CreateConnectionDescription(), null);
 
             var expectedResult = new BsonDocument
             {
@@ -375,7 +375,7 @@ namespace MongoDB.Driver.Core.Operations
             var operationContext = hasOperationTimeout ? new OperationContext(TimeSpan.FromSeconds(42), CancellationToken.None) : OperationContext.NoTimeout;
             var session = OperationTestHelper.CreateSession();
 
-            var result = subject.CreateCommand(operationContext, session);
+            var result = subject.CreateCommand(operationContext, session, OperationTestHelper.CreateConnectionDescription(), null);
 
             var expectedConcern = writeConcern?.ToBsonDocument();
             if (hasOperationTimeout)
@@ -399,7 +399,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var s = subject.Should().BeOfType<CreateCollectionOperation>().Subject;
 
-            var command = s.CreateCommand(OperationContext.NoTimeout, session);
+            var command = s.CreateCommand(OperationContext.NoTimeout, session, OperationTestHelper.CreateConnectionDescription(), null);
 
             var expectedResult = new BsonDocument
             {
@@ -489,8 +489,8 @@ namespace MongoDB.Driver.Core.Operations
 
                 var result = operation switch
                 {
-                    CreateCollectionOperation createCollectionOperation => createCollectionOperation.CreateCommand(OperationContext.NoTimeout, session),
-                    CreateIndexesOperation createIndexesOperation => createIndexesOperation.CreateCommand(OperationContext.NoTimeout, session, OperationTestHelper.CreateConnectionDescription()),
+                    CreateCollectionOperation createCollectionOperation => createCollectionOperation.CreateCommand(OperationContext.NoTimeout, session, OperationTestHelper.CreateConnectionDescription(), null),
+                    CreateIndexesOperation createIndexesOperation => createIndexesOperation.CreateCommand(OperationContext.NoTimeout, session, OperationTestHelper.CreateConnectionDescription(), null),
                     _ => throw new Exception($"Unexpected operation {operation}."),
                 };
                 result.Should().Be(expectedResult);

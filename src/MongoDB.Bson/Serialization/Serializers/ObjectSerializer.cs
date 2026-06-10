@@ -60,7 +60,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         private readonly Func<Type, bool> _allowedSerializationTypes;
         private readonly IDiscriminatorConvention _discriminatorConvention;
         private readonly GuidRepresentation _guidRepresentation;
-        private readonly GuidSerializer _guidSerializer;
+        private readonly Lazy<IBsonSerializer<Guid>> _guidSerializer;
 
         // constructors
         /// <summary>
@@ -135,10 +135,17 @@ namespace MongoDB.Bson.Serialization.Serializers
             Func<Type, bool> allowedSerializationTypes)
         {
             _discriminatorConvention = discriminatorConvention ?? throw new ArgumentNullException(nameof(discriminatorConvention));
-            _guidRepresentation = guidRepresentation;
-            _guidSerializer = new GuidSerializer(_guidRepresentation);
             _allowedDeserializationTypes = allowedDeserializationTypes ?? throw new ArgumentNullException(nameof(allowedDeserializationTypes));
             _allowedSerializationTypes = allowedSerializationTypes ?? throw new ArgumentNullException(nameof(allowedSerializationTypes));
+            _guidRepresentation = guidRepresentation;
+            if (guidRepresentation != GuidRepresentation.Unspecified)
+            {
+                _guidSerializer = new Lazy<IBsonSerializer<Guid>>(() => new GuidSerializer(guidRepresentation));
+            }
+            else
+            {
+                _guidSerializer = new Lazy<IBsonSerializer<Guid>>(() => BsonSerializer.LookupSerializer<Guid>());
+            }
         }
 
         // public properties
@@ -190,7 +197,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     if (subType == BsonBinarySubType.UuidStandard || subType == BsonBinarySubType.UuidLegacy)
                     {
                         bsonReader.ReturnToBookmark(binaryDataBookmark);
-                        return _guidSerializer.Deserialize(context);
+                        return _guidSerializer.Value.Deserialize(context);
                     }
                     goto default;
 
@@ -317,7 +324,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                                 if (actualType == typeof(Guid))
                                 {
                                     var guid = (Guid)value;
-                                    _guidSerializer.Serialize(context, args, guid);
+                                    _guidSerializer.Value.Serialize(context, args, guid);
                                     return;
                                 }
                                 if (actualType == typeof(ObjectId))

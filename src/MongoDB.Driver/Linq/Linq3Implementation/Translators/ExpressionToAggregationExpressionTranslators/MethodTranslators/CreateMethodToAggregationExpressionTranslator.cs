@@ -28,36 +28,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class CreateMethodToAggregationExpressionTranslator
     {
-        private static MethodInfo[] __tupleCreateMethods = new[]
-        {
-            TupleMethod.Create1,
-            TupleMethod.Create2,
-            TupleMethod.Create3,
-            TupleMethod.Create4,
-            TupleMethod.Create5,
-            TupleMethod.Create6,
-            TupleMethod.Create7,
-            TupleMethod.Create8
-        };
-
-        private static MethodInfo[] __valueTupleCreateMethods = new[]
-        {
-            ValueTupleMethod.Create1,
-            ValueTupleMethod.Create2,
-            ValueTupleMethod.Create3,
-            ValueTupleMethod.Create4,
-            ValueTupleMethod.Create5,
-            ValueTupleMethod.Create6,
-            ValueTupleMethod.Create7,
-            ValueTupleMethod.Create8
-        };
-
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__tupleCreateMethods) || method.IsOneOf(__valueTupleCreateMethods))
+            if (method.IsOneOf(TupleOrValueTupleMethod.CreateOverloads))
             {
                 var tupleType = method.ReturnType;
 

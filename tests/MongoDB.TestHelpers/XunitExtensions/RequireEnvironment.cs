@@ -14,10 +14,13 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using Xunit.Sdk;
 
 namespace MongoDB.TestHelpers.XunitExtensions
@@ -30,6 +33,33 @@ namespace MongoDB.TestHelpers.XunitExtensions
             return new RequireEnvironment();
         }
         #endregion
+
+        public RequireEnvironment KmsProvider(string kmsProviderName)
+        {
+            CheckProvider("kmip", "KMS_MOCK_SERVERS_ENABLED");
+
+            if (!CheckProvider("awsTemporary", "CSFLE_AWS_TEMPORARY_CREDS_ENABLED"))
+            {
+                CheckProvider("aws", "FLE_AWS_KEY");
+            }
+
+            CheckProvider("azure", "FLE_AZURE_TENANTID");
+            CheckProvider("gcp", "FLE_GCP_EMAIL");
+
+            return this;
+
+            bool CheckProvider(string match, string environmentVariable)
+            {
+                if (kmsProviderName == null || kmsProviderName.IndexOf(match, StringComparison.OrdinalIgnoreCase) < 0)
+                {
+                    return false;
+                }
+
+                Check().EnvironmentVariable(environmentVariable, isDefined: true);
+                return true;
+            }
+        }
+
 
         public RequireEnvironment EnvironmentVariable(string name, bool isDefined = true, bool allowEmpty = true)
         {
@@ -63,6 +93,65 @@ namespace MongoDB.TestHelpers.XunitExtensions
                 return this;
             }
             throw new SkipException($"Test skipped because an OS process {processName} has not been detected.");
+        }
+
+        // Cloudflare WARP (and similar VPN software) can write both plain IPv4 and IPv4-mapped IPv6
+        // forms of the same loopback address into /etc/resolv.conf (e.g. 127.0.2.3 and ::ffff:127.0.2.3).
+        // DnsClient reads /etc/resolv.conf directly and may select the ::ffff: form for UDP queries.
+        // On macOS, the kernel does not route IPv4-mapped IPv6 loopback addresses via UDP correctly,
+        // causing a socket timeout. Linux handles this correctly. Skip DNS-dependent tests on macOS
+        // when this configuration is detected.
+        public RequireEnvironment NoDuplicateIpv4MappedNameServers()
+        {
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                return this;
+            }
+
+            const string resolveConfPath = "/etc/resolv.conf";
+            if (!File.Exists(resolveConfPath))
+            {
+                return this;
+            }
+
+            var ipv4Addresses = new HashSet<IPAddress>();
+            var allAddresses = new List<IPAddress>();
+
+            try
+            {
+                foreach (var line in File.ReadAllLines(resolveConfPath))
+                {
+                    var trimmed = line.Trim();
+                    if (!trimmed.StartsWith("nameserver", StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+
+                    var parts = trimmed.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+                    if (parts.Length >= 2 && IPAddress.TryParse(parts[1], out var ip))
+                    {
+                        allAddresses.Add(ip);
+                        if (ip.AddressFamily == AddressFamily.InterNetwork && IPAddress.IsLoopback(ip))
+                        {
+                            ipv4Addresses.Add(ip);
+                        }
+                    }
+                }
+            }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+            {
+                return this;
+            }
+
+            if (allAddresses.Any(ip => ip.IsIPv4MappedToIPv6 && ipv4Addresses.Contains(ip.MapToIPv4())))
+            {
+                throw new SkipException(
+                    "Test skipped because /etc/resolv.conf contains both an IPv4 nameserver address and its IPv4-mapped " +
+                    "IPv6 equivalent (e.g. Cloudflare WARP). DnsClient may time out when it selects the ::ffff: form " +
+                    "for a UDP query on this platform. See CSHARP-5930.");
+            }
+
+            return this;
         }
 
         public RequireEnvironment HostReachable(DnsEndPoint endPoint)

@@ -34,6 +34,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             AstFilter filter;
             try
             {
+                if (!context.HasResultSerializer(expression))
+                {
+                    throw new ExpressionNotSupportedException(expression);
+                }
+
                 filter = TranslateUsingQueryOperators(context, expression);
             }
             catch (ExpressionNotSupportedException)
@@ -117,7 +122,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                     return ConstantExpressionToFilterTranslator.Translate(context, (ConstantExpression)expression);
             }
 
-            if (expression.Type == typeof(bool))
+            if (expression.Type == typeof(bool) || expression.Type == typeof(bool?))
             {
                 var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, expression);
                 var serializedTrue = SerializationHelper.SerializeValue(fieldTranslation.Serializer, true);

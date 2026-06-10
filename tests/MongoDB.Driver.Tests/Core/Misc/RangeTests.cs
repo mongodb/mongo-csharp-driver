@@ -37,7 +37,6 @@ namespace MongoDB.Driver.Core.Misc
         [Theory]
         [InlineData(0, 0, 0, 0, true)]
         [InlineData(0, 1, 0, 1, true)]
-        [InlineData(0, 0, 0, 0, true)]
         [InlineData(0, 1, 0, 0, false)]
         [InlineData(0, 0, 0, 1, false)]
         public void Equals_should_return_correct_value(int a1, int a2, int b1, int b2, bool expected)
@@ -50,7 +49,6 @@ namespace MongoDB.Driver.Core.Misc
 
         [Theory]
         [InlineData(0, 0, 0, 0, true)]
-        [InlineData(0, 1, 0, 0, true)]
         [InlineData(0, 1, 0, 0, true)]
         [InlineData(0, 1, 1, 1, true)]
         [InlineData(0, 0, 0, 1, true)]

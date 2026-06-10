@@ -144,6 +144,8 @@ namespace MongoDB.Driver.Search
             Facet,
             GeoShape,
             GeoWithin,
+            HasAncestor,
+            HasRoot,
             In,
             MoreLikeThis,
             Near,
@@ -153,7 +155,8 @@ namespace MongoDB.Driver.Search
             Regex,
             Span,
             Text,
-            Wildcard
+            Wildcard,
+            VectorSearch
         }
 
         private readonly OperatorType _operatorType;

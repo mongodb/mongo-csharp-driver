@@ -201,7 +201,10 @@ namespace MongoDB.Driver.Core.Operations
                 limit,
                 serializer,
                 messageEncoderSettings,
-                maxTime);
+                maxTime,
+                retryRequested: false,
+                maxAdaptiveRetries: RetryabilityHelper.OperationRetryBackpressureConstants.DefaultMaxRetries,
+                enableOverloadRetargeting: false);
 
             result._batchSize().Should().Be(batchSize);
             result._channelSource().Should().Be(channelSource);
@@ -291,16 +294,6 @@ namespace MongoDB.Driver.Core.Operations
             var result = subject.CreateGetMoreCommand(CreateConnectionDescriptionSupportingSession(WireVersion.Server44));
 
             result.Should().Be("{ getMore : 0, collection : \"test\", batchSize : 2, comment: \"comment\" }");
-        }
-
-        [Fact]
-        public void CreateGetMoreCommand_should_not_include_comment_on_pre_4_4_server_versions()
-        {
-            var subject = CreateSubject(batchSize: 2, comment: "comment");
-
-            var result = subject.CreateGetMoreCommand(CreateConnectionDescriptionSupportingSession(WireVersion.Server42));
-
-            result.Should().Be("{ getMore : 0, collection : \"test\", batchSize : 2 }");
         }
 
         [Fact]
@@ -411,6 +404,13 @@ namespace MongoDB.Driver.Core.Operations
             var subject = CreateSubject(collectionNamespace: collectionNamespace, cursorId: cursorId, channelSource: Optional.Create(channelSource));
             var connectionDescription = CreateConnectionDescriptionSupportingSession();
 
+            mockSession.Setup(m => m.Fork()).Returns(mockSession.Object);
+            mockChannel.Setup(m => m.Fork()).Returns(mockChannel.Object);
+            var mockServer = new Mock<IServer>();
+            var serverId = new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27017));
+            mockServer.SetupGet(m => m.Description).Returns(new ServerDescription(serverId, serverId.EndPoint));
+            mockChannelSource.SetupGet(m => m.Server).Returns(mockServer.Object);
+
             mockChannelSource.SetupGet(m => m.Session).Returns(session);
             mockChannel.SetupGet(m => m.ConnectionDescription).Returns(connectionDescription);
             var nextBatchBytes = new byte[] { 5, 0, 0, 0, 0 };
@@ -429,12 +429,12 @@ namespace MongoDB.Driver.Core.Operations
             var sameSessionWasUsed = false;
             if (async)
             {
-                mockChannelSource.Setup(m => m.GetChannelAsync(It.IsAny<OperationContext>())).Returns(Task.FromResult(channel));
+                mockChannelSource.Setup(m => m.GetChannelAsync(It.IsAny<OperationContext>())).ReturnsAsync(channel);
                 mockChannel
                     .Setup(m => m.CommandAsync(
                         It.IsAny<OperationContext>(),
                         session,
-                        null,
+                        ReadPreference.Primary,
                         databaseNamespace,
                         It.IsAny<BsonDocument>(),
                         null,
@@ -456,7 +456,7 @@ namespace MongoDB.Driver.Core.Operations
                     .Setup(m => m.Command(
                         It.IsAny<OperationContext>(),
                         session,
-                        null,
+                        ReadPreference.Primary,
                         databaseNamespace,
                         It.IsAny<BsonDocument>(),
                         null,
@@ -500,7 +500,8 @@ namespace MongoDB.Driver.Core.Operations
             Optional<int?> batchSize = default(Optional<int?>),
             Optional<int?> limit = default(Optional<int?>),
             Optional<TimeSpan?> maxTime = default(Optional<TimeSpan?>),
-            Optional<string> comment = default(Optional<string>))
+            Optional<string> comment = default(Optional<string>),
+            Optional<bool> retryRequested = default(Optional<bool>))
         {
             return new AsyncCursor<BsonDocument>(
                 channelSource.WithDefault(new Mock<IChannelSource>().Object),
@@ -512,7 +513,10 @@ namespace MongoDB.Driver.Core.Operations
                 limit.WithDefault(null),
                 serializer.WithDefault(BsonDocumentSerializer.Instance),
                 new MessageEncoderSettings(),
-                maxTime.WithDefault(null));
+                maxTime.WithDefault(null),
+                retryRequested.WithDefault(false),
+                maxAdaptiveRetries: RetryabilityHelper.OperationRetryBackpressureConstants.DefaultMaxRetries,
+                enableOverloadRetargeting: false);
         }
 
         private void SetupChannelMocks(Mock<IChannelSource> mockChannelSource, Mock<IChannelHandle> mockChannelHandle, bool async, string commandResult, int maxWireVersion = WireVersion.Server36, bool isChannelExpired = false)
@@ -656,7 +660,7 @@ namespace MongoDB.Driver.Core.Operations
                 long cursorId;
                 var firstBatch = GetFirstBatch(channel, query, batchSize, CancellationToken.None, out cursorId);
 
-                using (var cursor = new AsyncCursor<BsonDocument>(channelSource, _collectionNamespace, comment: null, firstBatch, cursorId, batchSize, null, BsonDocumentSerializer.Instance, new MessageEncoderSettings()))
+                using (var cursor = new AsyncCursor<BsonDocument>(channelSource, _collectionNamespace, comment: null, firstBatch, cursorId, batchSize, null, BsonDocumentSerializer.Instance, new MessageEncoderSettings(), maxTime: null, retryRequested: false, maxAdaptiveRetries: RetryabilityHelper.OperationRetryBackpressureConstants.DefaultMaxRetries, enableOverloadRetargeting: false))
                 {
                     AssertExpectedSessionReferenceCount(_session, cursor);
                     while (cursor.MoveNext(CancellationToken.None))

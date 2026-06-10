@@ -56,7 +56,6 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
         [InlineData(true, true, false, false, false)]
         [InlineData(true, true, false, true, false)]
         [InlineData(true, true, true, false, true)]
-        [InlineData(true, true, true, false, true)]
         public void DoesContextAllowRetries_should_return_expected_result(
             bool retryRequested,
             bool areRetryableWritesSupported,
@@ -118,7 +117,9 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
         private RetryableWriteContext CreateContext(bool retryRequested, bool areRetryableWritesSupported, bool hasSessionId, bool isInTransaction)
         {
             var binding = CreateBinding(areRetryableWritesSupported, hasSessionId, isInTransaction);
-            var context = RetryableWriteContext.Create(OperationContext.NoTimeout, binding, retryRequested);
+            var context = new RetryableWriteContext(binding, retryRequested, RetryabilityHelper.OperationRetryBackpressureConstants.DefaultMaxRetries, false);
+            context.SelectServer(OperationContext.NoTimeout, null);
+            context.AcquireChannel(OperationContext.NoTimeout);
             return context;
         }
 

@@ -17,9 +17,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
-using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Tests.JsonDrivenTests
 {
@@ -34,27 +32,18 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
 
         protected override void CallMethod(CancellationToken cancellationToken)
         {
-            var server = GetFailPointServer();
-            TestRunner.ConfigureFailPoint(server, NoCoreSession.NewHandle(), _failCommand);
+            var serverSelector = GetFailPointServerSelector();
+            TestRunner.ConfigureFailPoint(serverSelector, _failCommand);
         }
 
         protected override async Task CallMethodAsync(CancellationToken cancellationToken)
         {
-            var server = await GetFailPointServerAsync().ConfigureAwait(false);
-            await TestRunner.ConfigureFailPointAsync(server, NoCoreSession.NewHandle(), _failCommand).ConfigureAwait(false);
+            var serverSelector = GetFailPointServerSelector();
+            await TestRunner.ConfigureFailPointAsync(serverSelector, _failCommand).ConfigureAwait(false);
         }
 
-        protected virtual IServer GetFailPointServer()
-        {
-            var cluster = TestRunner.FailPointCluster;
-            return cluster.SelectServer(OperationContext.NoTimeout, WritableServerSelector.Instance);
-        }
-
-        protected async virtual Task<IServer> GetFailPointServerAsync()
-        {
-            var cluster = TestRunner.FailPointCluster;
-            return await cluster.SelectServerAsync(OperationContext.NoTimeout, WritableServerSelector.Instance).ConfigureAwait(false);
-        }
+        protected virtual IServerSelector GetFailPointServerSelector() =>
+            WritableServerSelector.Instance;
 
         protected override void SetArgument(string name, BsonValue value)
         {

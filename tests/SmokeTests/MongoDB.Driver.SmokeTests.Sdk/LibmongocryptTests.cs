@@ -37,7 +37,6 @@ namespace MongoDB.Driver.SmokeTests.Sdk
 
         public LibmongocryptTests(ITestOutputHelper output)
         {
-            InfrastructureUtilities.ValidateMongoDBPackageVersion();
             MongoClientSettings.Extensions.AddAutoEncryption();
             _output = output;
         }
@@ -60,7 +59,7 @@ namespace MongoDB.Driver.SmokeTests.Sdk
                 kmsProviders.Add("local", localKey);
 
                 var keyVaultNamespace = CollectionNamespace.FromFullName("encryption.__keyVault");
-                var keyVaultMongoClient = new MongoClient();
+                var keyVaultMongoClient = new MongoClient(InfrastructureUtilities.MongoUri);
                 var clientEncryptionSettings = new ClientEncryptionOptions(
                     keyVaultMongoClient,
                     keyVaultNamespace,
@@ -133,6 +132,7 @@ namespace MongoDB.Driver.SmokeTests.Sdk
                 finally
                 {
                     ClusterRegistry.Instance.UnregisterAndDisposeCluster(client.Cluster);
+                    ClusterRegistry.Instance.UnregisterAndDisposeCluster(keyVaultMongoClient.Cluster);
                 }
             }
 

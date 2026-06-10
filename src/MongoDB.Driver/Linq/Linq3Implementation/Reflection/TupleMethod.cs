@@ -30,9 +30,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __create7;
         private static readonly MethodInfo __create8;
 
+        // sets of methods
+        private static readonly IReadOnlyMethodInfoSet __createOverloads;
+
         // static constructor
         static TupleMethod()
         {
+            // initialize methods before sets of methods
             __create1 = ReflectionInfo.Method((object item1) => Tuple.Create(item1));
             __create2 = ReflectionInfo.Method((object item1, object item2) => Tuple.Create(item1, item2));
             __create3 = ReflectionInfo.Method((object item1, object item2, object item3) => Tuple.Create(item1, item2, item3));
@@ -41,6 +45,19 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __create6 = ReflectionInfo.Method((object item1, object item2, object item3, object item4, object item5, object item6) => Tuple.Create(item1, item2, item3, item4, item5, item6));
             __create7 = ReflectionInfo.Method((object item1, object item2, object item3, object item4, object item5, object item6, object item7) => Tuple.Create(item1, item2, item3, item4, item5, item6, item7));
             __create8 = ReflectionInfo.Method((object item1, object item2, object item3, object item4, object item5, object item6, object item7, object item8) => Tuple.Create(item1, item2, item3, item4, item5, item6, item7, item8));
+
+            // initialize sets of methods after methods
+            __createOverloads = MethodInfoSet.Create(
+            [
+                __create1,
+                __create2,
+                __create3,
+                __create4,
+                __create5,
+                __create6,
+                __create7,
+                __create8
+            ]);
         }
 
         // public properties
@@ -52,5 +69,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo Create6 => __create6;
         public static MethodInfo Create7 => __create7;
         public static MethodInfo Create8 => __create8;
+
+        // sets of methods
+        public static IReadOnlyMethodInfoSet CreateOverloads => __createOverloads;
     }
 }

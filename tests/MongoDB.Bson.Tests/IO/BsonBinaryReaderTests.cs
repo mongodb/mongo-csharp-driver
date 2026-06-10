@@ -28,6 +28,73 @@ namespace MongoDB.Bson.Tests.IO
     public class BsonBinaryReaderTests
     {
         [Fact]
+        public void Bookmarks_should_work()
+        {
+            var document = new BsonDocument { { "x", 1 }, { "y", 2 }, { "z", new BsonDocument { { "a", "a"}, { "b", "b" } } } };
+
+            using var memoryStream = new MemoryStream(document.ToBson());
+            using var bsonReader = new BsonBinaryReader(memoryStream);
+
+            AssertRead(() => bsonReader.ReadBsonType(), BsonType.Document);
+            DoReaderAction(() => bsonReader.ReadStartDocument());
+
+            var bookmarkX = bsonReader.GetBookmark();
+            AssertRead(() => bsonReader.ReadBsonType(), BsonType.Int32);
+            AssertRead(() => bsonReader.ReadName(), "x");
+            AssertRead(() => bsonReader.ReadInt32(), 1);
+
+            AssertRead(() => bsonReader.ReadBsonType(), BsonType.Int32);
+            AssertRead(() => bsonReader.ReadName(), "y");
+            AssertRead(() => bsonReader.ReadInt32(), 2);
+
+            AssertRead(() => bsonReader.ReadBsonType(), BsonType.Document);
+            AssertRead(() => bsonReader.ReadName(), "z");
+            DoReaderAction(() => bsonReader.ReadStartDocument());
+
+            AssertRead(() => bsonReader.ReadBsonType(), BsonType.String);
+            AssertRead(() => bsonReader.ReadName(), "a");
+            AssertRead(() => bsonReader.ReadString(), "a");
+
+            var bookmarkB = bsonReader.GetBookmark();
+            AssertRead(() => bsonReader.ReadBsonType(), BsonType.String);
+            AssertRead(() => bsonReader.ReadName(), "b");
+            AssertRead(() => bsonReader.ReadString(), "b");
+            DoReaderAction(() => bsonReader.ReadEndDocument());
+
+            DoReaderAction(() => bsonReader.ReadEndDocument());
+            bsonReader.State.Should().Be(BsonReaderState.Initial);
+            bsonReader.IsAtEndOfFile().Should().BeTrue();
+
+            bsonReader.ReturnToBookmark(bookmarkX);
+            AssertRead(() => bsonReader.ReadBsonType(), BsonType.Int32);
+            AssertRead(() => bsonReader.ReadName(), "x");
+            AssertRead(() => bsonReader.ReadInt32(), 1);
+
+            bsonReader.ReturnToBookmark(bookmarkB);
+            AssertRead(() => bsonReader.ReadBsonType(), BsonType.String);
+            AssertRead(() => bsonReader.ReadName(), "b");
+            AssertRead(() => bsonReader.ReadString(), "b");
+            DoReaderAction(() => bsonReader.ReadEndDocument());
+
+            // do everything twice returning to bookmark in between
+            void DoReaderAction(Action readerAction)
+            {
+                var bookmark = bsonReader.GetBookmark();
+                readerAction();
+                bsonReader.ReturnToBookmark(bookmark);
+                readerAction();
+            }
+
+            void AssertRead<T>(Func<T> reader, T expected)
+            {
+                var bookmark = bsonReader.GetBookmark();
+                reader().Should().Be(expected);
+                bsonReader.ReturnToBookmark(bookmark);
+                reader().Should().Be(expected);
+            }
+        }
+
+        [Fact]
         public void BsonBinaryReader_should_support_reading_more_than_2GB()
         {
             RequireEnvironment.Check().EnvironmentVariable("EXPLICIT");
@@ -344,64 +411,27 @@ namespace MongoDB.Bson.Tests.IO
         }
 
         [Theory]
-        [ParameterAttributeData]
-        public void ReadBinaryData_subtype_3_should_use_GuidRepresentation_from_settings(
-            [Values(
-                GuidRepresentation.CSharpLegacy,
-                GuidRepresentation.JavaLegacy,
-                GuidRepresentation.PythonLegacy,
-                GuidRepresentation.Unspecified)] GuidRepresentation guidRepresentation)
+        [InlineData(BsonBinarySubType.UuidStandard)]
+        [InlineData(BsonBinarySubType.UuidLegacy)]
+        public void ReadBinaryData_should_read_correct_subtype(BsonBinarySubType subType)
         {
-            var settings = new BsonBinaryReaderSettings();
-            var bytes = new byte[] { 29, 0, 0, 0, 5, 120, 0, 16, 0, 0, 0, 3, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 0 };
-            using (var stream = new MemoryStream(bytes))
-            using (var reader = new BsonBinaryReader(stream, settings))
-            {
-                reader.ReadStartDocument();
-                var type = reader.ReadBsonType();
-                var name = reader.ReadName();
-                var binaryData = reader.ReadBinaryData();
-                var endOfDocument = reader.ReadBsonType();
-                reader.ReadEndDocument();
+            var bytes = new byte[] { 29, 0, 0, 0, 5, 120, 0, 16, 0, 0, 0, (byte)subType, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 0 };
+            using var stream = new MemoryStream(bytes);
 
-                name.Should().Be("x");
-                type.Should().Be(BsonType.Binary);
-                binaryData.SubType.Should().Be(BsonBinarySubType.UuidLegacy);
-                binaryData.Bytes.Should().Equal(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 });
-                endOfDocument.Should().Be(BsonType.EndOfDocument);
-                stream.Position.Should().Be(stream.Length);
-            }
-        }
+            using var reader = new BsonBinaryReader(stream, new());
+            reader.ReadStartDocument();
+            var type = reader.ReadBsonType();
+            var name = reader.ReadName();
+            var binaryData = reader.ReadBinaryData();
+            var endOfDocument = reader.ReadBsonType();
+            reader.ReadEndDocument();
 
-        [Theory]
-        [ParameterAttributeData]
-        public void ReadBinaryData_subtype_4_should_use_GuidRepresentation_Standard(
-            [Values(
-                GuidRepresentation.CSharpLegacy,
-                GuidRepresentation.JavaLegacy,
-                GuidRepresentation.PythonLegacy,
-                GuidRepresentation.Standard,
-                GuidRepresentation.Unspecified)] GuidRepresentation guidRepresentation)
-        {
-            var settings = new BsonBinaryReaderSettings();
-            var bytes = new byte[] { 29, 0, 0, 0, 5, 120, 0, 16, 0, 0, 0, 4, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 0 };
-            using (var stream = new MemoryStream(bytes))
-            using (var reader = new BsonBinaryReader(stream, settings))
-            {
-                reader.ReadStartDocument();
-                var type = reader.ReadBsonType();
-                var name = reader.ReadName();
-                var binaryData = reader.ReadBinaryData();
-                var endOfDocument = reader.ReadBsonType();
-                reader.ReadEndDocument();
-
-                name.Should().Be("x");
-                type.Should().Be(BsonType.Binary);
-                binaryData.SubType.Should().Be(BsonBinarySubType.UuidStandard);
-                binaryData.Bytes.Should().Equal(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 });
-                endOfDocument.Should().Be(BsonType.EndOfDocument);
-                stream.Position.Should().Be(stream.Length);
-            }
+            name.Should().Be("x");
+            type.Should().Be(BsonType.Binary);
+            binaryData.SubType.Should().Be(subType);
+            binaryData.Bytes.Should().Equal(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16);
+            endOfDocument.Should().Be(BsonType.EndOfDocument);
+            stream.Position.Should().Be(stream.Length);
         }
 
         // private methods

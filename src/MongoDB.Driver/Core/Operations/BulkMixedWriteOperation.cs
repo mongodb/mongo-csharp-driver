@@ -31,13 +31,17 @@ namespace MongoDB.Driver.Core.Operations
         private bool? _bypassDocumentValidation;
         private readonly CollectionNamespace _collectionNamespace;
         private BsonValue _comment;
+        private bool _enableOverloadRetargeting;
+        private readonly bool _isOperationRetryable;
         private bool _isOrdered = true;
         private BsonDocument _let;
+        private int _maxAdaptiveRetries;
         private int? _maxBatchCount;
         private int? _maxBatchLength;
         private int? _maxDocumentSize;
         private int? _maxWireDocumentSize;
         private readonly MessageEncoderSettings _messageEncoderSettings;
+        private readonly string _operationName;
         private readonly List<WriteRequest> _requests;
         private bool _retryRequested;
         private WriteConcern _writeConcern;
@@ -45,19 +49,23 @@ namespace MongoDB.Driver.Core.Operations
         public BulkMixedWriteOperation(
             CollectionNamespace collectionNamespace,
             IEnumerable<WriteRequest> requests,
-            MessageEncoderSettings messageEncoderSettings)
-            : this(collectionNamespace, Ensure.IsNotNull(requests, nameof(requests)).ToList(), messageEncoderSettings)
+            MessageEncoderSettings messageEncoderSettings,
+            string operationName = null)
+            : this(collectionNamespace, Ensure.IsNotNull(requests, nameof(requests)).ToList(), messageEncoderSettings, operationName)
         {
         }
 
         public BulkMixedWriteOperation(
             CollectionNamespace collectionNamespace,
             List<WriteRequest> requests,
-            MessageEncoderSettings messageEncoderSettings)
+            MessageEncoderSettings messageEncoderSettings,
+            string operationName = null)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
             _requests = Ensure.IsNotNull(requests, nameof(requests));
+            _isOperationRetryable = _requests.All(r => r.IsRetryable());
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
+            _operationName = operationName;
             _writeConcern = WriteConcern.Acknowledged;
         }
 
@@ -78,6 +86,12 @@ namespace MongoDB.Driver.Core.Operations
             set { _comment = value; }
         }
 
+        public bool EnableOverloadRetargeting
+        {
+            get { return _enableOverloadRetargeting; }
+            set { _enableOverloadRetargeting = value; }
+        }
+
         public bool IsOrdered
         {
             get { return _isOrdered; }
@@ -88,6 +102,12 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _let; }
             set { _let = value; }
+        }
+
+        public int MaxAdaptiveRetries
+        {
+            get { return _maxAdaptiveRetries; }
+            set { _maxAdaptiveRetries = value; }
         }
 
         public int? MaxBatchCount
@@ -119,6 +139,8 @@ namespace MongoDB.Driver.Core.Operations
             get { return _messageEncoderSettings; }
         }
 
+        public string OperationName => _operationName ?? "bulkWrite";
+
         public IEnumerable<WriteRequest> Requests
         {
             get { return _requests; }
@@ -130,6 +152,8 @@ namespace MongoDB.Driver.Core.Operations
             set { _retryRequested = value; }
         }
 
+        public bool IsOperationRetryable => _isOperationRetryable;
+
         public WriteConcern WriteConcern
         {
             get { return _writeConcern; }
@@ -139,7 +163,7 @@ namespace MongoDB.Driver.Core.Operations
         public BulkWriteOperationResult Execute(OperationContext operationContext, IWriteBinding binding)
         {
             using (BeginOperation())
-            using (var context = RetryableWriteContext.Create(operationContext, binding, IsOperationRetryable()))
+            using (var context = new RetryableWriteContext(binding, _retryRequested, _maxAdaptiveRetries, _enableOverloadRetargeting))
             {
                 EnsureHintIsSupportedIfAnyRequestHasHint();
                 var helper = new BatchHelper(_requests, _isOrdered, _writeConcern);
@@ -154,7 +178,7 @@ namespace MongoDB.Driver.Core.Operations
         public async Task<BulkWriteOperationResult> ExecuteAsync(OperationContext operationContext, IWriteBinding binding)
         {
             using (BeginOperation())
-            using (var context = await RetryableWriteContext.CreateAsync(operationContext, binding, IsOperationRetryable()).ConfigureAwait(false))
+            using (var context = new RetryableWriteContext(binding, _retryRequested, _maxAdaptiveRetries, _enableOverloadRetargeting))
             {
                 EnsureHintIsSupportedIfAnyRequestHasHint();
                 var helper = new BatchHelper(_requests, _isOrdered, _writeConcern);
@@ -166,10 +190,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private bool IsOperationRetryable()
-            => _retryRequested && _requests.All(r => r.IsRetryable());
-
-        private IDisposable BeginOperation() =>
+        private EventContext.OperationIdDisposer BeginOperation() =>
             // Execution starts with the first request
             EventContext.BeginOperation(null, _requests.FirstOrDefault()?.RequestType.ToString().ToLower());
 

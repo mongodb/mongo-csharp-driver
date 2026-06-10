@@ -33,6 +33,73 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// </summary>
     public static class NullableSerializer
     {
+        private readonly static IBsonSerializer __nullableBooleanInstance = new NullableSerializer<bool>(BooleanSerializer.Instance);
+        private readonly static IBsonSerializer __nullableDecimalInstance = new NullableSerializer<decimal>(DecimalSerializer.Instance);
+        private readonly static IBsonSerializer __nullableDecimal128Instance = new NullableSerializer<Decimal128>(Decimal128Serializer.Instance);
+        private readonly static IBsonSerializer __nullableDoubleInstance = new NullableSerializer<double>(DoubleSerializer.Instance);
+        private readonly static IBsonSerializer __nullableInt32Instance = new NullableSerializer<int>(Int32Serializer.Instance);
+        private readonly static IBsonSerializer __nullableInt64Instance = new NullableSerializer<long>(Int64Serializer.Instance);
+        private readonly static IBsonSerializer __nullableLocalDateTimeInstance = new NullableSerializer<DateTime>(DateTimeSerializer.LocalInstance);
+        private readonly static IBsonSerializer __nullableObjectIdInstance = new NullableSerializer<ObjectId>(ObjectIdSerializer.Instance);
+        private readonly static IBsonSerializer __nullableSingleInstance = new NullableSerializer<float>(SingleSerializer.Instance);
+        private readonly static IBsonSerializer __nullableStandardGuidInstance = new NullableSerializer<Guid>(GuidSerializer.StandardInstance);
+        private readonly static IBsonSerializer __nullableUtcDateTimeInstance = new NullableSerializer<DateTime>(DateTimeSerializer.UtcInstance);
+
+        /// <summary>
+        /// Gets a serializer for nullable bools.
+        /// </summary>
+        public static IBsonSerializer NullableBooleanInstance => __nullableBooleanInstance;
+
+        /// <summary>
+        /// Gets a serializer for nullable decimals.
+        /// </summary>
+        public static IBsonSerializer NullableDecimalInstance => __nullableDecimalInstance;
+
+        /// <summary>
+        /// Gets a serializer for nullable Decimal128s.
+        /// </summary>
+        public static IBsonSerializer NullableDecimal128Instance => __nullableDecimal128Instance;
+
+        /// <summary>
+        /// Gets a serializer for nullable doubles.
+        /// </summary>
+        public static IBsonSerializer NullableDoubleInstance => __nullableDoubleInstance;
+
+        /// <summary>
+        /// Gets a serializer for nullable ints.
+        /// </summary>
+        public static IBsonSerializer NullableInt32Instance => __nullableInt32Instance;
+
+        /// <summary>
+        /// Gets a serializer for nullable longs.
+        /// </summary>
+        public static IBsonSerializer NullableInt64Instance => __nullableInt64Instance;
+
+        /// <summary>
+        /// Gets a serializer for local DateTime.
+        /// </summary>
+        public static IBsonSerializer NullableLocalDateTimeInstance => __nullableLocalDateTimeInstance;
+
+        /// <summary>
+        /// Gets a serializer for nullable floats.
+        /// </summary>
+        public static IBsonSerializer NullableSingleInstance => __nullableSingleInstance;
+
+        /// <summary>
+        /// Gets a serializer for nullable ObjectIds.
+        /// </summary>
+        public static IBsonSerializer NullableObjectIdInstance => __nullableObjectIdInstance;
+
+        /// <summary>
+        /// Gets a serializer for nullable Guids with standard representation.
+        /// </summary>
+        public static IBsonSerializer NullableStandardGuidInstance => __nullableStandardGuidInstance;
+
+        /// <summary>
+        /// Gets a serializer for UTC DateTime.
+        /// </summary>
+        public static IBsonSerializer NullableUtcDateTimeInstance => __nullableUtcDateTimeInstance;
+
         /// <summary>
         /// Creates a NullableSerializer.
         /// </summary>

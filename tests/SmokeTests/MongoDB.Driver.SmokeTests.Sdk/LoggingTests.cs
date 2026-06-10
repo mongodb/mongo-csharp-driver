@@ -30,7 +30,6 @@ namespace MongoDB.Driver.SmokeTests.Sdk
 
         public LoggingTests(ITestOutputHelper output)
         {
-            InfrastructureUtilities.ValidateMongoDBPackageVersion();
             _output = output;
         }
 

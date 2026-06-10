@@ -1437,16 +1437,52 @@ namespace MongoDB.Driver
         public static PipelineStageDefinition<TInput, TInput> Search<TInput>(
             SearchDefinition<TInput> searchDefinition,
             SearchOptions<TInput> searchOptions)
+            => Search<TInput, TInput>(searchDefinition, returnScope: null, searchOptions);
+
+        /// <summary>
+        /// Creates a $search stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <param name="searchDefinition">The search definition.</param>
+        /// <param name="returnScope">The level of nested documents to return.</param>
+        /// <param name="searchOptions">The search options.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, TOutput> Search<TInput, TOutput>(
+            SearchDefinition<TInput> searchDefinition,
+            FieldDefinition<TInput, IEnumerable<TOutput>> returnScope,
+            SearchOptions<TInput> searchOptions)
         {
             Ensure.IsNotNull(searchDefinition, nameof(searchDefinition));
 
+            searchOptions ??= new SearchOptions<TInput>();
+
             const string operatorName = "$search";
-            var stage = new DelegatedPipelineStageDefinition<TInput, TInput>(
+            var stage = new DelegatedPipelineStageDefinition<TInput, TOutput>(
                 operatorName,
                 args =>
                 {
                     ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
                     var renderedSearchDefinition = searchDefinition.Render(args);
+
+                    IBsonSerializer<TOutput> outputSerializer;
+                    if (returnScope == null)
+                    {
+                        if (typeof(TOutput) != typeof(TInput))
+                        {
+                            throw new InvalidOperationException(
+                                $"The search output type '{typeof(TOutput).Name}' must be the same as the input type '{typeof(TInput).Name}' when 'returnScope' is not specified. Use the overload that specifies 'returnScope' to return documents of a nested collection type.");
+                        }
+
+                        outputSerializer = (IBsonSerializer<TOutput>)args.DocumentSerializer;
+                    }
+                    else
+                    {
+                        var renderedField = returnScope.Render(args);
+                        outputSerializer = (IBsonSerializer<TOutput>)renderedField.ValueSerializer.GetItemSerializer();
+                        renderedSearchDefinition.Add("returnScope", new BsonDocument { { "path", renderedField.FieldName } });
+                    }
+
                     renderedSearchDefinition.Add("highlight", () => searchOptions.Highlight.Render(args), searchOptions.Highlight != null);
                     renderedSearchDefinition.Add("count", () => searchOptions.CountOptions.Render(), searchOptions.CountOptions != null);
                     renderedSearchDefinition.Add("sort", () => searchOptions.Sort.Render(args), searchOptions.Sort != null);
@@ -1458,7 +1494,7 @@ namespace MongoDB.Driver
                     renderedSearchDefinition.Add("searchBefore", () => searchOptions.SearchBefore, searchOptions.SearchBefore != null);
 
                     var document = new BsonDocument(operatorName, renderedSearchDefinition);
-                    return new RenderedPipelineStageDefinition<TInput>(operatorName, document, args.DocumentSerializer);
+                    return new RenderedPipelineStageDefinition<TOutput>(operatorName, document, outputSerializer);
                 });
 
             return stage;
@@ -1476,6 +1512,22 @@ namespace MongoDB.Driver
             SearchDefinition<TInput> searchDefinition,
             string indexName = null,
             SearchCountOptions count = null)
+            => SearchMeta(searchDefinition, returnScope: null, indexName, count);
+
+        /// <summary>
+        /// Creates a $searchMeta stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <param name="searchDefinition">The search definition.</param>
+        /// <param name="returnScope">The level of nested documents to return.</param>
+        /// <param name="indexName">The index name.</param>
+        /// <param name="count">The count options.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, SearchMetaResult> SearchMeta<TInput>(
+            SearchDefinition<TInput> searchDefinition,
+            FieldDefinition<TInput> returnScope,
+            string indexName = null,
+            SearchCountOptions count = null)
         {
             Ensure.IsNotNull(searchDefinition, nameof(searchDefinition));
 
@@ -1488,6 +1540,7 @@ namespace MongoDB.Driver
                     var renderedSearchDefinition = searchDefinition.Render(args);
                     renderedSearchDefinition.Add("count", () => count.Render(), count != null);
                     renderedSearchDefinition.Add("index", indexName, indexName != null);
+                    renderedSearchDefinition.Add("returnScope", () => new BsonDocument { { "path", returnScope!.Render(args).FieldName } }, returnScope != null);
 
                     var document = new BsonDocument(operatorName, renderedSearchDefinition);
                     return new RenderedPipelineStageDefinition<SearchMetaResult>(
@@ -1525,15 +1578,9 @@ namespace MongoDB.Driver
                 args =>
                 {
                     ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
-                    var renderedPipelines = new BsonDocument();
-                    foreach (var pipeline in pipelines)
-                    {
-                        renderedPipelines.Add(pipeline.Key, new BsonArray(pipeline.Value.Render(args).Documents));
-                    }
-
                     var document = new BsonDocument
                     {
-                        { "input", new BsonDocument("pipelines", renderedPipelines) },
+                        { "input", new BsonDocument("pipelines", RenderNamedPipelines(args, pipelines)) },
                         {
                             "combination", () => new BsonDocument
                             {
@@ -1566,13 +1613,7 @@ namespace MongoDB.Driver
             RankFusionOptions<TOutput> options = null)
         {
             Ensure.IsNotNull(pipelines, nameof(pipelines));
-
-            var pipelinesMap = new Dictionary<string, PipelineDefinition<TInput, TOutput>>();
-            for (var i = 0; i < pipelines.Length; i++)
-            {
-                pipelinesMap[$"pipeline{i + 1}"] = pipelines[i];
-            }
-            return RankFusion(pipelinesMap, null, options);
+            return RankFusion(BuildAutoNamedPipelineMap(pipelines), null, options);
         }
 
         /// <summary>
@@ -1588,19 +1629,7 @@ namespace MongoDB.Driver
             RankFusionOptions<TOutput> options = null)
         {
             Ensure.IsNotNull(pipelinesWithWeights, nameof(pipelinesWithWeights));
-
-            var pipelinesMap = new Dictionary<string, PipelineDefinition<TInput, TOutput>>();
-            var weightsMap = new Dictionary<string, double>();
-            for (var i = 0; i < pipelinesWithWeights.Length; i++)
-            {
-                var pipelineName = $"pipeline{i + 1}";
-                pipelinesMap[pipelineName] = pipelinesWithWeights[i].Pipeline;
-
-                if (pipelinesWithWeights[i].Weight.HasValue)
-                {
-                    weightsMap[pipelineName] = pipelinesWithWeights[i].Weight.Value;
-                }
-            }
+            var (pipelinesMap, weightsMap) = BuildAutoNamedPipelineMapWithWeights(pipelinesWithWeights);
             return RankFusion(pipelinesMap, weightsMap, options);
         }
 
@@ -1682,6 +1711,159 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(newRoot, nameof(newRoot));
             return ReplaceWith(new ExpressionAggregateExpressionDefinition<TInput, TOutput>(newRoot));
+        }
+
+        /// <summary>
+        /// Creates a $rerank stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="query">The rerank query.</param>
+        /// <param name="path">The field to send to the reranker.</param>
+        /// <param name="numDocsToRerank">The maximum number of documents to rerank.</param>
+        /// <param name="model">The reranking model name.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, TInput> Rerank<TInput, TField>(
+            RerankQuery query,
+            Expression<Func<TInput, TField>> path,
+            int numDocsToRerank,
+            string model)
+            => Rerank(
+                query,
+                new ExpressionFieldDefinition<TInput>(Ensure.IsNotNull(path, nameof(path))),
+                numDocsToRerank,
+                model);
+
+        /// <summary>
+        /// Creates a $rerank stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <param name="query">The rerank query.</param>
+        /// <param name="path">The field to send to the reranker.</param>
+        /// <param name="numDocsToRerank">The maximum number of documents to rerank.</param>
+        /// <param name="model">The reranking model name.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, TInput> Rerank<TInput>(
+            RerankQuery query,
+            FieldDefinition<TInput> path,
+            int numDocsToRerank,
+            string model)
+            => Rerank(
+                query,
+                [Ensure.IsNotNull(path, nameof(path))],
+                numDocsToRerank,
+                model);
+
+        /// <summary>
+        /// Creates a $rerank stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <param name="query">The rerank query.</param>
+        /// <param name="paths">The fields to send to the reranker.</param>
+        /// <param name="numDocsToRerank">The maximum number of documents to rerank.</param>
+        /// <param name="model">The reranking model name.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, TInput> Rerank<TInput>(
+            RerankQuery query,
+            IEnumerable<FieldDefinition<TInput>> paths,
+            int numDocsToRerank,
+            string model)
+        {
+            Ensure.IsNotNull(query, nameof(query));
+            Ensure.IsNotNullOrEmpty(paths, nameof(paths));
+            Ensure.IsGreaterThanZero(numDocsToRerank, nameof(numDocsToRerank));
+            Ensure.IsNotNull(model, nameof(model));
+
+            const string operatorName = "$rerank";
+            var stage = new DelegatedPipelineStageDefinition<TInput, TInput>(
+                operatorName,
+                args =>
+                {
+                    ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
+
+                    var renderedPaths = paths.Select(p => p.Render(args).FieldName).ToList();
+                    BsonValue pathValue = renderedPaths.Count == 1
+                        ? renderedPaths[0]
+                        : new BsonArray(renderedPaths);
+
+                    var rerankDocument = new BsonDocument
+                    {
+                        { "query", query.Render() },
+                        { "path", pathValue },
+                        { "numDocsToRerank", numDocsToRerank },
+                        { "model", model }
+                    };
+
+                    var document = new BsonDocument(operatorName, rerankDocument);
+                    return new RenderedPipelineStageDefinition<TInput>(operatorName, document, args.DocumentSerializer);
+                });
+
+            return stage;
+        }
+
+        /// <summary>
+        /// Creates a $scoreFusion stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <param name="pipelines">The map of named pipelines whose results will be combined. The pipelines must operate on the same collection.</param>
+        /// <param name="normalization">The normalization applied to per-pipeline scores before combination.</param>
+        /// <param name="weights">The map of pipeline names to non-negative numerical weights determining result importance during combination. Default weight is 1 when unspecified.</param>
+        /// <param name="options">The scoreFusion options.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, TOutput> ScoreFusion<TInput, TOutput>(
+            Dictionary<string, PipelineDefinition<TInput, TOutput>> pipelines,
+            ScoreFusionNormalization normalization,
+            Dictionary<string, double> weights = null,
+            ScoreFusionOptions<TOutput> options = null)
+        {
+            Ensure.IsNotNullOrEmpty(pipelines, nameof(pipelines));
+
+            if (pipelines.Any(pipeline => pipeline.Value == null))
+            {
+                throw new ArgumentNullException(nameof(pipelines), "Value cannot contain a null pipeline.");
+            }
+
+            return ScoreFusionCore(pipelines, normalization, weights, options);
+        }
+
+        /// <summary>
+        /// Creates a $scoreFusion stage. Pipelines will be automatically named as "pipeline1", "pipeline2", etc.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <param name="pipelines">The collection of pipelines whose results will be combined. The pipelines must operate on the same collection.</param>
+        /// <param name="normalization">The normalization applied to per-pipeline scores before combination.</param>
+        /// <param name="options">The scoreFusion options.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, TOutput> ScoreFusion<TInput, TOutput>(
+            PipelineDefinition<TInput, TOutput>[] pipelines,
+            ScoreFusionNormalization normalization,
+            ScoreFusionOptions<TOutput> options = null)
+        {
+            Ensure.IsNotNullOrEmpty(pipelines, nameof(pipelines));
+
+            return ScoreFusionCore(BuildAutoNamedPipelineMap(pipelines), normalization, null, options);
+        }
+
+        /// <summary>
+        /// Creates a $scoreFusion stage. Pipelines will be automatically named as "pipeline1", "pipeline2", etc.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <param name="pipelinesWithWeights">The collection of tuples containing (pipeline, weight) pairs. The pipelines must operate on the same collection.</param>
+        /// <param name="normalization">The normalization applied to per-pipeline scores before combination.</param>
+        /// <param name="options">The scoreFusion options.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, TOutput> ScoreFusion<TInput, TOutput>(
+            (PipelineDefinition<TInput, TOutput> Pipeline, double? Weight)[] pipelinesWithWeights,
+            ScoreFusionNormalization normalization,
+            ScoreFusionOptions<TOutput> options = null)
+        {
+            Ensure.IsNotNullOrEmpty(pipelinesWithWeights, nameof(pipelinesWithWeights));
+
+            var (pipelinesMap, weightsMap) = BuildAutoNamedPipelineMapWithWeights(pipelinesWithWeights);
+            return ScoreFusionCore(pipelinesMap, normalization, weightsMap.Count == 0 ? null : weightsMap, options);
         }
 
         /// <summary>
@@ -2159,7 +2341,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(field, nameof(field));
             Ensure.IsNotNull(queryVector, nameof(queryVector));
             Ensure.IsGreaterThanZero(limit, nameof(limit));
-            Ensure.That(options?.NumberOfCandidates is null || options.Exact == false, "Number of candidates must be omitted for exact nearest neighbour search (ENN).");
+            Ensure.That(options?.NumberOfCandidates is null || !options.Exact, "Number of candidates must be omitted for exact nearest neighbor search (ENN).");
 
             const string operatorName = "$vectorSearch";
             var stage = new DelegatedPipelineStageDefinition<TInput, TInput>(
@@ -2167,16 +2349,57 @@ namespace MongoDB.Driver
                 args =>
                 {
                     ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
+
+                    var path = field.Render(args).FieldName;
+                    var dotPos = path.LastIndexOf('.');
+                    var nestedRoot = dotPos > 0 ? path.Substring(0, dotPos) : null;
+
                     var vectorSearchOperator = new BsonDocument
                     {
-                        { "queryVector", queryVector.Vector },
-                        { "path", field.Render(args).FieldName },
+                        { "path", path },
                         { "limit", limit },
                         { "numCandidates", options?.NumberOfCandidates ?? limit * 10, options?.Exact != true },
                         { "index", options?.IndexName ?? "default" },
-                        { "filter", () => options?.Filter.Render(args with { RenderDollarForm = true }), options?.Filter != null },
-                        { "exact", true, options?.Exact == true }
+                        { options?.NestedFilter != null ? "parentFilter" : "filter", () => options?.Filter.Render(args with { RenderDollarForm = true }), options?.Filter != null },
+                        { "exact", true, options?.Exact == true },
+                        { "returnStoredSource", true, options?.ReturnStoredSource == true },
                     };
+
+                    if (options?.NestedFilter != null)
+                    {
+                        if (nestedRoot == null)
+                        {
+                            throw new InvalidOperationException(
+                                $"A nested filter was specified for the search against field '{path}', but the field is not nested. Nested filters can only be used when searching against vectors in nested (embedded) documents.");
+                        }
+
+                        vectorSearchOperator.Add("filter", options.NestedFilter.Render(
+                            (args with { SubPathRoot = nestedRoot }) with { RenderDollarForm = true }));
+                    }
+
+                    if (options?.EmbeddedScoreMode != null)
+                    {
+                        if (nestedRoot == null)
+                        {
+                            throw new InvalidOperationException(
+                                $"The option '{nameof(VectorSearchOptions<TInput>.EmbeddedScoreMode)}' was set for the search against field '{path}', but the field is not nested. Embedded score mode can only be used when searching against vectors in nested (embedded) documents.");
+                        }
+
+                        vectorSearchOperator.Add("nestedOptions", new BsonDocument
+                        {
+                            { "scoreMode", options.EmbeddedScoreMode == SearchScoreFunction.Average ? "avg" : "max" }
+                        });
+                    }
+
+                    if (queryVector.Vector is BsonString bsonString)
+                    {
+                        vectorSearchOperator["query"] = new BsonDocument { { "text", bsonString } };
+                        vectorSearchOperator.Add("model", options?.AutoEmbeddingModelName, options?.AutoEmbeddingModelName != null);
+                    }
+                    else
+                    {
+                        vectorSearchOperator["queryVector"] = queryVector.Vector;
+                    }
 
                     var document = new BsonDocument(operatorName, vectorSearchOperator);
                     return new RenderedPipelineStageDefinition<TInput>(operatorName, document, args.DocumentSerializer);
@@ -2206,6 +2429,137 @@ namespace MongoDB.Driver
             }
 
             return false;
+        }
+
+        private static Dictionary<string, PipelineDefinition<TInput, TOutput>> BuildAutoNamedPipelineMap<TInput, TOutput>(
+            PipelineDefinition<TInput, TOutput>[] pipelines)
+        {
+            if (pipelines.Any(p => p == null))
+            {
+                throw new ArgumentNullException(nameof(pipelines), "Value cannot contain a null pipeline.");
+            }
+
+            var pipelinesMap = new Dictionary<string, PipelineDefinition<TInput, TOutput>>();
+            for (var i = 0; i < pipelines.Length; i++)
+            {
+                pipelinesMap[$"pipeline{i + 1}"] = pipelines[i];
+            }
+            return pipelinesMap;
+        }
+
+        private static (Dictionary<string, PipelineDefinition<TInput, TOutput>> Pipelines, Dictionary<string, double> Weights) BuildAutoNamedPipelineMapWithWeights<TInput, TOutput>(
+            (PipelineDefinition<TInput, TOutput> Pipeline, double? Weight)[] pipelinesWithWeights)
+        {
+            if (pipelinesWithWeights.Any(p => p.Pipeline == null))
+            {
+                throw new ArgumentNullException(nameof(pipelinesWithWeights), "Value cannot contain a tuple with a null pipeline.");
+            }
+
+            var pipelinesMap = new Dictionary<string, PipelineDefinition<TInput, TOutput>>();
+            var weightsMap = new Dictionary<string, double>();
+            for (var i = 0; i < pipelinesWithWeights.Length; i++)
+            {
+                var pipelineName = $"pipeline{i + 1}";
+                pipelinesMap[pipelineName] = pipelinesWithWeights[i].Pipeline;
+
+                if (pipelinesWithWeights[i].Weight.HasValue)
+                {
+                    weightsMap[pipelineName] = pipelinesWithWeights[i].Weight.Value;
+                }
+            }
+            return (pipelinesMap, weightsMap);
+        }
+
+        private static BsonDocument BuildScoreFusionCombination<TOutput>(
+            Dictionary<string, double> weights,
+            ScoreFusionOptions<TOutput> options)
+        {
+            var hasCombination = weights != null
+                || options?.CombinationMethod != null
+                || options?.CombinationExpression != null;
+
+            if (!hasCombination)
+            {
+                return null;
+            }
+
+            var combination = new BsonDocument();
+            if (weights != null)
+            {
+                combination.Add("weights", new BsonDocument(weights.Select(w => new BsonElement(w.Key, w.Value))));
+            }
+
+            if (options != null)
+            {
+                if (options.CombinationMethod.HasValue)
+                {
+                    combination.Add("method", options.CombinationMethod.Value.ToCamelCase());
+                }
+                if (options.CombinationExpression != null)
+                {
+                    combination.Add("expression", options.CombinationExpression);
+                }
+            }
+            return combination;
+        }
+
+        private static BsonDocument RenderNamedPipelines<TInput, TOutput>(
+            RenderArgs<TInput> args,
+            Dictionary<string, PipelineDefinition<TInput, TOutput>> pipelines)
+        {
+            var renderedPipelines = new BsonDocument();
+            foreach (var pipeline in pipelines)
+            {
+                renderedPipelines.Add(pipeline.Key, new BsonArray(pipeline.Value.Render(args).Documents));
+            }
+            return renderedPipelines;
+        }
+
+        private static PipelineStageDefinition<TInput, TOutput> ScoreFusionCore<TInput, TOutput>(
+            Dictionary<string, PipelineDefinition<TInput, TOutput>> pipelines,
+            ScoreFusionNormalization normalization,
+            Dictionary<string, double> weights,
+            ScoreFusionOptions<TOutput> options)
+        {
+            if (options?.CombinationMethod == ScoreFusionCombinationMethod.Expression && options.CombinationExpression == null)
+            {
+                throw new ArgumentException(
+                    $"{nameof(ScoreFusionOptions<TOutput>.CombinationExpression)} must be supplied when {nameof(ScoreFusionOptions<TOutput>.CombinationMethod)} is {nameof(ScoreFusionCombinationMethod.Expression)}.",
+                    nameof(options));
+            }
+
+            if (options?.CombinationExpression != null && options.CombinationMethod != ScoreFusionCombinationMethod.Expression)
+            {
+                throw new ArgumentException(
+                    $"{nameof(ScoreFusionOptions<TOutput>.CombinationMethod)} must be {nameof(ScoreFusionCombinationMethod.Expression)} when {nameof(ScoreFusionOptions<TOutput>.CombinationExpression)} is supplied.",
+                    nameof(options));
+            }
+
+            const string operatorName = "$scoreFusion";
+            return new DelegatedPipelineStageDefinition<TInput, TOutput>(
+                operatorName,
+                args =>
+                {
+                    ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
+                    var combination = BuildScoreFusionCombination(weights, options);
+                    var document = new BsonDocument
+                    {
+                        {
+                            "input", new BsonDocument
+                            {
+                                { "pipelines", RenderNamedPipelines(args, pipelines) },
+                                { "normalization", normalization.ToCamelCase() }
+                            }
+                        },
+                        { "combination", combination, combination != null },
+                        { "scoreDetails", true, options?.ScoreDetails == true }
+                    };
+
+                    return new RenderedPipelineStageDefinition<TOutput>(
+                        operatorName,
+                        new BsonDocument(operatorName, document),
+                        options?.OutputSerializer ?? args.SerializerRegistry.GetSerializer<TOutput>());
+                });
         }
     }
 

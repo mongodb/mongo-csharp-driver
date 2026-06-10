@@ -63,7 +63,8 @@ namespace MongoDB.Driver.Tests.Linq
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var documentSerializer = serializerRegistry.GetSerializer<C>();
 
-            var result = LinqProviderAdapter.TranslateExpressionToField(expression, documentSerializer, serializerRegistry, translationOptions: null);
+            var result = LinqProviderAdapter.TranslateExpressionToField(expression, documentSerializer,
+                serializerRegistry, translationOptions: null, subPathRoot: null);
 
             result.FieldName.Should().Be("X");
             result.FieldSerializer.Should().BeOfType(typeof(Int32Serializer));
@@ -76,7 +77,9 @@ namespace MongoDB.Driver.Tests.Linq
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var documentSerializer = serializerRegistry.GetSerializer<C>();
 
-            var result = LinqProviderAdapter.TranslateExpressionToField(expression, documentSerializer, serializerRegistry, translationOptions: null, allowScalarValueForArrayField: false);
+            var result = LinqProviderAdapter.TranslateExpressionToField(expression, documentSerializer,
+                serializerRegistry, translationOptions: null, allowScalarValueForArrayField: false,
+                subPathRoot: null);
 
             result.FieldName.Should().Be("X");
             result.FieldSerializer.Should().BeOfType(typeof(Int32Serializer));

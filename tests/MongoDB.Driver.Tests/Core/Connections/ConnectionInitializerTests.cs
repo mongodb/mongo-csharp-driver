@@ -229,7 +229,7 @@ namespace MongoDB.Driver.Core.Connections
             var serverApi = new ServerApi(ServerApiVersion.V1, true, true);
 
             var connection = new MockConnection(__serverId);
-            var helloReply = RawBsonDocumentHelper.FromJson($"{{ ok : 1, connectionId : 1, maxWireVersion : {WireVersion.Server42} }}");
+            var helloReply = RawBsonDocumentHelper.FromJson($"{{ ok : 1, connectionId : 1, maxWireVersion : {WireVersion.Server44} }}");
             connection.EnqueueCommandResponseMessage(MessageHelper.BuildCommandResponse(helloReply));
 
             var subject = new ConnectionInitializer("test", new[] { new CompressorConfiguration(CompressorType.Zlib) }, serverApi, null);
@@ -256,7 +256,7 @@ namespace MongoDB.Driver.Core.Connections
         public async Task InitializeConnection_without_serverApi_should_send_legacy_hello([Values(false, true)] bool async)
         {
             var connection = new MockConnection(__serverId);
-            var helloReply = RawBsonDocumentHelper.FromJson($"{{ ok : 1, connectionId : 1, maxWireVersion : {WireVersion.Server42} }}");
+            var helloReply = RawBsonDocumentHelper.FromJson($"{{ ok : 1, connectionId : 1, maxWireVersion : {WireVersion.Server44} }}");
             connection.EnqueueReplyMessage(MessageHelper.BuildReply(helloReply));
 
             var subject = CreateSubject();
@@ -282,7 +282,7 @@ namespace MongoDB.Driver.Core.Connections
         public async Task InitializeConnection_without_serverApi_but_with_loadBalancing_should_send_hello([Values(false, true)] bool async)
         {
             var connection = new MockConnection(__serverId, new ConnectionSettings(loadBalanced:true), null);
-            var helloReply = RawBsonDocumentHelper.FromJson($"{{ ok : 1, connectionId : 1, maxWireVersion : {WireVersion.Server42}, serviceId : '{ObjectId.GenerateNewId()}' }}");
+            var helloReply = RawBsonDocumentHelper.FromJson($"{{ ok : 1, connectionId : 1, maxWireVersion : {WireVersion.Server44}, serviceId : '{ObjectId.GenerateNewId()}' }}");
             connection.EnqueueCommandResponseMessage(MessageHelper.BuildCommandResponse(helloReply));
 
             var subject = CreateSubject();
@@ -347,7 +347,7 @@ namespace MongoDB.Driver.Core.Connections
         {
             var legacyHelloReply = MessageHelper.BuildReply(
                 RawBsonDocumentHelper.FromJson(
-                    $"{{ ok : 1, connectionId : 1, maxWireVersion : {WireVersion.Server42} }}"));
+                    $"{{ ok : 1, connectionId : 1, maxWireVersion : {WireVersion.Server44} }}"));
             var identity = new MongoExternalIdentity(source: "Voyager", username: "Seven of Nine");
             var evidence = new PasswordEvidence("Omega-Phi-9-3");
             var authenticator = CreateAuthenticator("default", identity, evidence);

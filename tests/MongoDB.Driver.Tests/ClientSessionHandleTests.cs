@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,6 +25,7 @@ using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.TestHelpers;
 using Moq;
 using Xunit;
@@ -154,6 +156,19 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void SnapshotTime_returns_expected_result()
+        {
+            var subject = CreateSubject();
+            var value = new BsonTimestamp(1234567890, 1);
+            var mockCoreSession = Mock.Get(subject.WrappedCoreSession);
+            mockCoreSession.SetupGet(m => m.SnapshotTime).Returns(value);
+
+            var result = subject.SnapshotTime;
+
+            result.Should().BeSameAs(value);
+        }
+
+        [Fact]
         public void WrappedCoreSession_returns_expected_result()
         {
             var coreSession = CreateCoreSession();
@@ -275,7 +290,7 @@ namespace MongoDB.Driver.Tests
 
             subject.StartTransaction(transactionOptions);
 
-            Mock.Get(subject.WrappedCoreSession).Verify(m => m.StartTransaction(It.IsAny<TransactionOptions>()), Times.Once);
+            Mock.Get(subject.WrappedCoreSession).As<ICoreSessionInternal>().Verify(m => m.StartTransaction(It.IsAny<TransactionOptions>(), It.IsAny<bool>()), Times.Once);
         }
 
         [Theory]
@@ -405,7 +420,7 @@ namespace MongoDB.Driver.Tests
                 mockCoreSession.Verify(handle => handle.CommitTransaction(It.IsAny<CancellationToken>()), Times.Exactly(expectedCommitTransactionAttempts));
             }
 
-            mockCoreSession.Verify(handle => handle.StartTransaction(It.IsAny<TransactionOptions>()), Times.Exactly(expectedStartTransactionAttempts));
+            mockCoreSession.As<ICoreSessionInternal>().Verify(handle => handle.StartTransaction(It.IsAny<TransactionOptions>(), It.IsAny<bool>()), Times.Exactly(expectedStartTransactionAttempts));
         }
 
         [Theory]
@@ -428,7 +443,7 @@ namespace MongoDB.Driver.Tests
 
             Assert.Throws<MongoException>(() => subject.WithTransaction<bool>((handle, cancellationToken) => throw new MongoException("test")));
 
-            mockCoreSession.Verify(handle => handle.StartTransaction(It.IsAny<TransactionOptions>()), Times.Once);
+            mockCoreSession.As<ICoreSessionInternal>().Verify(handle => handle.StartTransaction(It.IsAny<TransactionOptions>(), It.IsAny<bool>()), Times.Once);
             mockCoreSession.Verify(handle => handle.CommitTransaction(It.IsAny<CancellationToken>()), Times.Never);
         }
 
@@ -472,8 +487,6 @@ namespace MongoDB.Driver.Tests
         [InlineData(new[] { false, false }, new[] { WithTransactionErrorState.UnknownTransactionCommitResult, WithTransactionErrorState.UnknownTransactionCommitResult, WithTransactionErrorState.NoError }, false /*Should exception be thrown*/, 1, false)]
         [InlineData(new[] { false, true }, new[] { WithTransactionErrorState.UnknownTransactionCommitResult, WithTransactionErrorState.UnknownTransactionCommitResult }, true /*Should exception be thrown*/, 1, false)]
 
-        [InlineData(new[] { false, false }, new[] { WithTransactionErrorState.UnknownTransactionCommitResult, WithTransactionErrorState.UnknownTransactionCommitResult, WithTransactionErrorState.NoError }, false /*Should exception be thrown*/, 1, false)]
-
         // async
         [InlineData(null, new[] { WithTransactionErrorState.NoError }, false /*Should exception be thrown*/, 1, true)]
         [InlineData(null, new[] { WithTransactionErrorState.TransientTransactionError, WithTransactionErrorState.NoError }, false /*Should exception be thrown*/, 2, true)]
@@ -485,8 +498,6 @@ namespace MongoDB.Driver.Tests
 
         [InlineData(new[] { false, false }, new[] { WithTransactionErrorState.UnknownTransactionCommitResult, WithTransactionErrorState.UnknownTransactionCommitResult, WithTransactionErrorState.NoError }, false /*Should exception be thrown*/, 1, true)]
         [InlineData(new[] { false, true }, new[] { WithTransactionErrorState.UnknownTransactionCommitResult, WithTransactionErrorState.UnknownTransactionCommitResult }, true /*Should exception be thrown*/, 1, true)]
-
-        [InlineData(new[] { false, false }, new[] { WithTransactionErrorState.UnknownTransactionCommitResult, WithTransactionErrorState.UnknownTransactionCommitResult, WithTransactionErrorState.NoError }, false /*Should exception be thrown*/, 1, true)]
         public void WithTransaction_commit_after_callback_processing_should_be_processed_with_expected_result(
             bool[] isRetryAttemptsWithTimeout, // the array length should be the same with a number of failed attempts from `commitTransactionErrorStates`
             WithTransactionErrorState[] commitTransactionErrorStates,
@@ -595,7 +606,7 @@ namespace MongoDB.Driver.Tests
 
             Assert.Throws<Exception>(() => subject.WithTransaction<object>((handle, cancellationToken) => throw new Exception("test")));
 
-            mockCoreSession.Verify(handle => handle.StartTransaction(It.IsAny<TransactionOptions>()), Times.Once);
+            mockCoreSession.As<ICoreSessionInternal>().Verify(handle => handle.StartTransaction(It.IsAny<TransactionOptions>(), It.IsAny<bool>()), Times.Once);
             mockCoreSession.Verify(handle => handle.AbortTransaction(It.IsAny<CancellationToken>()), shouldAbortTransactionBeCalled ? Times.Once() : Times.Never());
             mockCoreSession.Verify(handle => handle.CommitTransaction(It.IsAny<CancellationToken>()), Times.Never);
         }
@@ -604,13 +615,13 @@ namespace MongoDB.Driver.Tests
         public void WithTransaction_with_error_in_StartTransaction_should_return_control_immediately()
         {
             var mockCoreSession = CreateCoreSessionMock();
-            mockCoreSession
-                .Setup(c => c.StartTransaction(It.IsAny<TransactionOptions>()))
+            mockCoreSession.As<ICoreSessionInternal>()
+                .Setup(c => c.StartTransaction(It.IsAny<TransactionOptions>(), It.IsAny<bool>()))
                 .Throws<Exception>();
             var subject = CreateSubject(coreSession: mockCoreSession.Object);
 
             Assert.Throws<Exception>(() => subject.WithTransaction<object>((handle, cancellationToken) => 1));
-            mockCoreSession.Verify(handle => handle.StartTransaction(It.IsAny<TransactionOptions>()), Times.Once);
+            mockCoreSession.As<ICoreSessionInternal>().Verify(handle => handle.StartTransaction(It.IsAny<TransactionOptions>(), It.IsAny<bool>()), Times.Once);
             mockCoreSession.Verify(handle => handle.AbortTransaction(It.IsAny<CancellationToken>()), Times.Never);
             mockCoreSession.Verify(handle => handle.CommitTransaction(It.IsAny<CancellationToken>()), Times.Never);
         }
@@ -625,8 +636,52 @@ namespace MongoDB.Driver.Tests
 
             subject.WithTransaction<object>((handle, cancellationToken) => 1);
 
-            mockCoreSession.Verify(handle => handle.StartTransaction(It.IsAny<TransactionOptions>()), Times.Once);
+            mockCoreSession.As<ICoreSessionInternal>().Verify(handle => handle.StartTransaction(It.IsAny<TransactionOptions>(), It.IsAny<bool>()), Times.Once);
             mockCoreSession.Verify(handle => handle.CommitTransaction(It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        // This is an equivalent to the prose test described at https://github.com/mongodb/specifications/blob/192976b194afdb1f458cbba2530c73de6b2c700f/source/transactions-convenient-api/tests/README.md?plain=1#L44
+        // It's much harder to substitute at the mongoClient level for now, so we will have the tests for ClientSessionHandle instead
+        [Theory]
+        [ParameterAttributeData]
+        public async Task WithTransaction_retry_backoff_is_enforced([Values(true, false)] bool async)
+        {
+            var randomNumberGeneratorMock = new Mock<IRandom>();
+            var coreSessionMock = CreateCoreSessionMock();
+            var subject = CreateSubject(coreSession: coreSessionMock.Object, random: randomNumberGeneratorMock.Object);
+
+            var noBackoffTimeMs = await ExecuteWithTransactionAsync(0);
+            var backoffTimeMs = await ExecuteWithTransactionAsync(1);
+
+            backoffTimeMs.Should().BeApproximately(noBackoffTimeMs + 1800, 150);
+
+            async Task<double> ExecuteWithTransactionAsync(double randomValue)
+            {
+                randomNumberGeneratorMock.Reset();
+                randomNumberGeneratorMock.Setup(r => r.NextDouble()).Returns(randomValue);
+                ConfigureCoreSessionMock(coreSessionMock);
+
+                var sw = Stopwatch.StartNew();
+                _ = async ?
+                    await subject.WithTransactionAsync((_, _) => Task.FromResult(true)) :
+                    subject.WithTransaction((_, _) => true);
+
+                return sw.Elapsed.TotalMilliseconds;
+            }
+
+            void ConfigureCoreSessionMock(Mock<ICoreSessionHandle> coreSession)
+            {
+                var commitSync = coreSession.SetupSequence(s => s.CommitTransaction(It.IsAny<CancellationToken>()));
+                var commitAsync = coreSession.SetupSequence(s => s.CommitTransactionAsync(It.IsAny<CancellationToken>()));
+                for (var i = 0; i < 13; i++)
+                {
+                    commitSync.Throws(PrepareException(WithTransactionErrorState.TransientTransactionError));
+                    commitAsync.Throws(PrepareException(WithTransactionErrorState.TransientTransactionError));
+                }
+
+                commitSync.Pass();
+                commitAsync.Returns(Task.CompletedTask);
+            }
         }
 
         // private methods
@@ -638,6 +693,7 @@ namespace MongoDB.Driver.Tests
             options = options ?? new CoreSessionOptions();
 
             var mockCoreSession = new Mock<ICoreSessionHandle>();
+            mockCoreSession.As<ICoreSessionInternal>();
             mockCoreSession.Setup(m => m.CurrentTransaction).Returns(new CoreTransaction(It.IsAny<long>(), It.IsAny<TransactionOptions>()));
             mockCoreSession.SetupGet(m => m.Options).Returns(options);
             mockCoreSession.SetupGet(m => m.ServerSession).Returns(serverSession);
@@ -656,13 +712,15 @@ namespace MongoDB.Driver.Tests
             IMongoClient client = null,
             ClientSessionOptions options = null,
             ICoreSessionHandle coreSession = null,
-            IClock clock = null)
+            IClock clock = null,
+            IRandom random = null)
         {
-            client = client ?? Mock.Of<IMongoClient>();
-            options = options ?? new ClientSessionOptions();
-            coreSession = coreSession ?? CreateCoreSession(options: options.ToCore());
-            clock = clock ?? SystemClock.Instance;
-            return new ClientSessionHandle(client, options, coreSession, clock);
+            client ??= Mock.Of<IMongoClient>(c => c.Settings == new MongoClientSettings());
+            options ??= new ClientSessionOptions();
+            coreSession ??= CreateCoreSession(options: options.ToCore());
+            clock ??= SystemClock.Instance;
+            random ??= DefaultRandom.Instance;
+            return new ClientSessionHandle(client, options, coreSession, clock, random);
         }
 
         private MongoException PrepareException(WithTransactionErrorState state)

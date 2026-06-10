@@ -139,7 +139,7 @@ namespace MongoDB.Driver.Tests.GridFS
         {
             var subject = CreateSubject();
 
-            Action action = () => subject.Read(null, 0, 0);
+            Action action = () => _ = subject.Read(null!, 0, 0);
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("buffer");
         }
@@ -171,7 +171,7 @@ namespace MongoDB.Driver.Tests.GridFS
             }
             else
             {
-                action = () => subject.Read(buffer, offset, count);
+                action = () => _ = subject.Read(buffer, offset, count);
             }
 
             action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("count");
@@ -196,7 +196,7 @@ namespace MongoDB.Driver.Tests.GridFS
             }
             else
             {
-                action = () => subject.Read(buffer, offset, 0);
+                action = () => _ = subject.Read(buffer, offset, 0);
             }
 
             action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("offset");

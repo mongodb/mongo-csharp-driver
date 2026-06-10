@@ -98,6 +98,25 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             throw new ArgumentException($"{widerType} is not a wider type for {narrowerType}", nameof(widerType));
         }
 
+        public static bool IsNullableNumericOrCharConversion(Type sourceType, Type targetType, out Type sourceUnderlyingType, out Type targetUnderlyingType)
+        {
+            if (sourceType.IsNullable(out sourceUnderlyingType) &&
+                targetType.IsNullable(out targetUnderlyingType) &&
+                IsNumericOrCharConversion(sourceUnderlyingType, targetUnderlyingType))
+            {
+                return true;
+            }
+
+            sourceUnderlyingType = null;
+            targetUnderlyingType = null;
+            return false;
+        }
+
+        public static bool IsNumericOrCharConversion(Type sourceType, Type targetType)
+        {
+            return sourceType.IsNumericOrChar() && targetType.IsNumericOrChar();
+        }
+
         public static bool IsWideningConvert(Type sourceType, Type targetType)
         {
             return __wideningConverts.Contains((sourceType, targetType));

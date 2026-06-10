@@ -21,4 +21,7 @@ echo "Running Azure Credential Acquisition Test"
 export DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
 export CSFLE_AZURE_KMS_TESTS_ENABLED=true
 
-./build.sh --target=TestCsfleWithAzureKms
+export FRAMEWORK=net6.0
+. ./evergreen/install-dotnet.sh
+
+dotnet test --no-build -c Release --framework net6.0 --filter Category=CsfleAZUREKMS -e MONGODB_URI="$MONGODB_URI" --results-directory ./build/test-results --logger "console;verbosity=detailed" ./tests/**/*.Tests.dll

@@ -317,7 +317,10 @@ namespace MongoDB.Driver
                 limit: null,
                 serializer: BsonDocumentSerializer.Instance,
                 messageEncoderSettings: new MessageEncoderSettings(),
-                maxTime: null);
+                maxTime: null,
+                retryRequested: false,
+                maxAdaptiveRetries: 2,
+                enableOverloadRetargeting: false);
         }
 
         private IAsyncCursorSource<BsonDocument> CreateCursorSource(int count)

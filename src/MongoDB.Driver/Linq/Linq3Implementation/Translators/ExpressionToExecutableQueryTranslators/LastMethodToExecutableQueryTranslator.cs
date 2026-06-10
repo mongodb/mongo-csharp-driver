@@ -29,28 +29,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
     internal static class LastMethodToExecutableQueryTranslator<TOutput>
     {
         // private static fields
-        private static readonly MethodInfo[] __lastMethods;
-        private static readonly MethodInfo[] __lastWithPredicateMethods;
         private static readonly IExecutableQueryFinalizer<TOutput, TOutput> __singleFinalizer = new SingleFinalizer<TOutput>();
         private static readonly IExecutableQueryFinalizer<TOutput, TOutput> __singleOrDefaultFinalizer = new SingleOrDefaultFinalizer<TOutput>();
-
-        // static constructor
-        static LastMethodToExecutableQueryTranslator()
-        {
-            __lastMethods = new[]
-            {
-                QueryableMethod.Last,
-                QueryableMethod.LastWithPredicate,
-                QueryableMethod.LastOrDefault,
-                QueryableMethod.LastOrDefaultWithPredicate
-            };
-
-            __lastWithPredicateMethods = new[]
-            {
-                QueryableMethod.LastWithPredicate,
-                QueryableMethod.LastOrDefaultWithPredicate
-            };
-        }
 
         // public methods
         public static ExecutableQuery<TDocument, TOutput> Translate<TDocument>(MongoQueryProvider<TDocument> provider, TranslationContext context, MethodCallExpression expression)
@@ -58,12 +38,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__lastMethods))
+            if (method.IsOneOf(QueryableMethod.LastOverloads))
             {
                 var sourceExpression = arguments[0];
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
 
-                if (method.IsOneOf(__lastWithPredicateMethods))
+                if (method.IsOneOf(QueryableMethod.LastWithPredicateOverloads))
                 {
                     ClientSideProjectionHelper.ThrowIfClientSideProjection(expression, pipeline, method, "with a predicate");
 

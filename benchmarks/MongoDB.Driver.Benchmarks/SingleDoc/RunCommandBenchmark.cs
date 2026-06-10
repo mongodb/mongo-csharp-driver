@@ -16,40 +16,40 @@
 using BenchmarkDotNet.Attributes;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using MongoDB.Driver.TestHelpers;
 
-namespace MongoDB.Benchmarks.SingleDoc
+namespace MongoDB.Benchmarks.SingleDoc;
+
+[IterationTime(3000)]
+[BenchmarkCategory("RunBench")]
+public class RunCommandBenchmark
 {
-    [IterationTime(3000)]
-    [BenchmarkCategory("RunBench")]
-    public class RunCommandBenchmark
+    private const int Iterations = 10_000;
+
+    private IMongoClient _client;
+    private IMongoDatabase _database;
+
+    [Params(130_000)]
+    public int BenchmarkDataSetSize { get; set; } // used in BenchmarkResult.cs
+
+    [GlobalSetup]
+    public void Setup()
     {
-        private IMongoClient _client;
-        private IMongoDatabase _database;
+        _client = BenchmarkHelper.MongoConfiguration.CreateClient();
+        _database = _client.GetDatabase("admin");
+    }
 
-        [Params(130_000)]
-        public int BenchmarkDataSetSize { get; set; } // used in BenchmarkResult.cs
-
-        [GlobalSetup]
-        public void Setup()
+    [Benchmark]
+    public void RunCommand()
+    {
+        for (int i = 0; i < Iterations; i++)
         {
-            _client = BenchmarkHelper.MongoConfiguration.CreateClient();
-            _database = _client.GetDatabase("admin");
+            _ = _database.RunCommand<BsonDocument>(new BsonDocument("hello", true));
         }
+    }
 
-        [Benchmark]
-        public void RunCommand()
-        {
-            for (int i = 0; i < 10000; i++)
-            {
-                _database.RunCommand<BsonDocument>(new BsonDocument("hello", true));
-            }
-        }
-
-        [GlobalCleanup]
-        public void Teardown()
-        {
-            _client.Dispose();
-        }
+    [GlobalCleanup]
+    public void Teardown()
+    {
+        _client.Dispose();
     }
 }

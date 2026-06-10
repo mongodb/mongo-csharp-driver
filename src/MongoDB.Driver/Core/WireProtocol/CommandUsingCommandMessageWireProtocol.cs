@@ -291,6 +291,8 @@ namespace MongoDB.Driver.Core.WireProtocol
         private Type0CommandMessageSection<BsonDocument> CreateType0Section(OperationContext operationContext, ConnectionDescription connectionDescription)
         {
             var extraElements = new List<BsonElement>();
+            BsonDocument sessionId = null;
+            long? transactionNumber = null;
 
             AddIfNotAlreadyAdded("$db", _databaseNamespace.DatabaseName);
 
@@ -320,6 +322,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 else if (IsSessionAcknowledged())
                 {
                     AddIfNotAlreadyAdded("lsid", _session.Id);
+                    sessionId = _session.Id;
                 }
                 else
                 {
@@ -349,7 +352,8 @@ namespace MongoDB.Driver.Core.WireProtocol
             if (_session.IsInTransaction)
             {
                 var transaction = _session.CurrentTransaction;
-                AddIfNotAlreadyAdded("txnNumber", transaction.TransactionNumber);
+                transactionNumber = transaction.TransactionNumber;
+                AddIfNotAlreadyAdded("txnNumber", transactionNumber.Value);
                 if (transaction.State == CoreTransactionState.Starting)
                 {
                     AddIfNotAlreadyAdded("startTransaction", true);
@@ -393,7 +397,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
 
             var elementAppendingSerializer = new ElementAppendingSerializer<BsonDocument>(BsonDocumentSerializer.Instance, extraElements);
-            return new Type0CommandMessageSection<BsonDocument>(_command, elementAppendingSerializer);
+            return new Type0CommandMessageSection<BsonDocument>(_command, elementAppendingSerializer, _databaseNamespace, sessionId, transactionNumber);
 
             void AddIfNotAlreadyAdded(string key, BsonValue value)
             {
@@ -428,6 +432,11 @@ namespace MongoDB.Driver.Core.WireProtocol
 
         private void MessageWasProbablySent(CommandRequestMessage message)
         {
+            if (!message.WasSent)
+            {
+                return;
+            }
+
             if (_session.Id != null)
             {
                 _session.WasUsed();
@@ -561,10 +570,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 }
                 finally
                 {
-                    if (message.WasSent)
-                    {
-                        MessageWasProbablySent(message);
-                    }
+                    MessageWasProbablySent(message);
                 }
 
                 responseExpected = message.WrappedMessage.ResponseExpected; // mutable, read after sending
@@ -574,11 +580,28 @@ namespace MongoDB.Driver.Core.WireProtocol
             {
                 var encoderSelector = new CommandResponseMessageEncoderSelector();
                 var response = (CommandResponseMessage)connection.ReceiveMessage(operationContext, responseTo, encoderSelector, _messageEncoderSettings);
-                // TODO: CSOT: Propagate operationContext into Encryption
-                response = AutoDecryptFieldsIfNecessary(response, operationContext.CancellationToken);
-                var result = ProcessResponse(connection.ConnectionId, response.WrappedMessage);
-                SaveResponseInfo(response);
-                return result;
+                try
+                {
+                    // TODO: CSOT: Propagate operationContext into Encryption
+                    response = AutoDecryptFieldsIfNecessary(response, operationContext.CancellationToken);
+                    var result = ProcessResponse(connection.ConnectionId, response.WrappedMessage);
+                    SaveResponseInfo(response);
+                    return result;
+                }
+                catch (MongoCommandException ex) when (ex is not MongoWriteConcernException)
+                {
+                    connection.CompleteCommandActivityWithException(ex);
+                    throw;
+                }
+                catch (MongoExecutionTimeoutException ex)
+                {
+                    connection.CompleteCommandActivityWithException(ex);
+                    throw;
+                }
+                finally
+                {
+                    connection.EnsureCommandActivityCompleted();
+                }
             }
             else
             {
@@ -598,10 +621,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 }
                 finally
                 {
-                    if (message.WasSent)
-                    {
-                        MessageWasProbablySent(message);
-                    }
+                    MessageWasProbablySent(message);
                 }
                 responseExpected = message.WrappedMessage.ResponseExpected; // mutable, read after sending
             }
@@ -610,11 +630,28 @@ namespace MongoDB.Driver.Core.WireProtocol
             {
                 var encoderSelector = new CommandResponseMessageEncoderSelector();
                 var response = (CommandResponseMessage)await connection.ReceiveMessageAsync(operationContext, responseTo, encoderSelector, _messageEncoderSettings).ConfigureAwait(false);
-                // TODO: CSOT: Propagate operationContext into Encryption
-                response = await AutoDecryptFieldsIfNecessaryAsync(response, operationContext.CancellationToken).ConfigureAwait(false);
-                var result = ProcessResponse(connection.ConnectionId, response.WrappedMessage);
-                SaveResponseInfo(response);
-                return result;
+                try
+                {
+                    // TODO: CSOT: Propagate operationContext into Encryption
+                    response = await AutoDecryptFieldsIfNecessaryAsync(response, operationContext.CancellationToken).ConfigureAwait(false);
+                    var result = ProcessResponse(connection.ConnectionId, response.WrappedMessage);
+                    SaveResponseInfo(response);
+                    return result;
+                }
+                catch (MongoCommandException ex) when (ex is not MongoWriteConcernException)
+                {
+                    connection.CompleteCommandActivityWithException(ex);
+                    throw;
+                }
+                catch (MongoExecutionTimeoutException ex)
+                {
+                    connection.CompleteCommandActivityWithException(ex);
+                    throw;
+                }
+                finally
+                {
+                    connection.EnsureCommandActivityCompleted();
+                }
             }
             else
             {

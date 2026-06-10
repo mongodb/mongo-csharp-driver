@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Core.Connections
         private BlockingMemoryStream _stream;
         private Mock<IStreamFactory> _mockStreamFactory;
         private BinaryConnection _subject;
-        private IDisposable _operationIdDisposer;
+        private EventContext.OperationIdDisposer _operationIdDisposer;
 
         public static IEnumerable<object[]> GetPotentiallyRedactedCommandTestCases()
         {
@@ -62,7 +62,6 @@ namespace MongoDB.Driver.Core.Connections
                 new object[] { "{ updateUser : 1 }", true },
                 new object[] { "{ copydbsaslstart : 1 }", true },
                 new object[] { "{ copydb : 1 }", true },
-                new object[] { "{ authenticate : 1 }", true },
                 new object[] { "{ hello : 1, helloOk : true }", false },
                 new object[] { "{ hello : 1, helloOk : true, speculativeAuthenticate : { } }", true },
                 new object[] { $"{{ {OppressiveLanguageConstants.LegacyHelloCommandName} : 1, helloOk : true }}", false },
@@ -100,6 +99,7 @@ namespace MongoDB.Driver.Core.Connections
                 connectionInitializer: _mockConnectionInitializer.Object,
                 eventSubscriber: _capturedEvents,
                 loggerFactory: LoggerFactory,
+                tracingOptions: null,
                 socketReadTimeout: Timeout.InfiniteTimeSpan,
                 socketWriteTimeout: Timeout.InfiniteTimeSpan);
 

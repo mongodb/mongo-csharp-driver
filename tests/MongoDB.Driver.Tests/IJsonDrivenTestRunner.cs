@@ -17,9 +17,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Servers;
+using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.TestHelpers;
 
 namespace MongoDB.Driver.Tests
@@ -27,8 +26,8 @@ namespace MongoDB.Driver.Tests
     internal interface IJsonDrivenTestRunner
     {
         IClusterInternal FailPointCluster { get; }
-        void ConfigureFailPoint(IServer server, ICoreSessionHandle session, BsonDocument failCommand);
-        Task ConfigureFailPointAsync(IServer server, ICoreSessionHandle session, BsonDocument failCommand);
+        void ConfigureFailPoint(IServerSelector serverSelector, BsonDocument failCommand);
+        Task ConfigureFailPointAsync(IServerSelector serverSelector, BsonDocument failCommand);
     }
 
     internal sealed class JsonDrivenTestRunner : IJsonDrivenTestRunner, IDisposable
@@ -47,15 +46,15 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        public void ConfigureFailPoint(IServer server, ICoreSessionHandle session, BsonDocument failCommand)
+        public void ConfigureFailPoint(IServerSelector serverSelector, BsonDocument failCommand)
         {
-            var failPoint = FailPoint.Configure(server, session, failCommand, withAsync: false);
+            var failPoint = FailPoint.Configure(serverSelector, failCommand, withAsync: false, cluster: FailPointCluster);
             _disposables.Add(failPoint);
         }
 
-        public async Task ConfigureFailPointAsync(IServer server, ICoreSessionHandle session, BsonDocument failCommand)
+        public async Task ConfigureFailPointAsync(IServerSelector serverSelector, BsonDocument failCommand)
         {
-            var failPoint = await Task.Run(() => FailPoint.Configure(server, session, failCommand, withAsync: true)).ConfigureAwait(false);
+            var failPoint = await Task.Run(() => FailPoint.Configure(serverSelector, failCommand, withAsync: true, cluster: FailPointCluster)).ConfigureAwait(false);
             _disposables.Add(failPoint);
         }
 

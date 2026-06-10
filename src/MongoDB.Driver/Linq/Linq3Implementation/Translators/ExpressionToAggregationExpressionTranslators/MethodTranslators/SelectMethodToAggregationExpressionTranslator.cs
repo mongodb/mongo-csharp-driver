@@ -24,18 +24,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class SelectMethodToAggregationExpressionTranslator
     {
-        private static readonly MethodInfo[] __selectMethods =
-        {
-            EnumerableMethod.Select,
-            QueryableMethod.Select
-        };
-
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__selectMethods))
+            if (method.IsOneOf(EnumerableOrQueryableMethod.Select))
             {
                 var sourceExpression = arguments[0];
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
@@ -53,6 +47,30 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     selectorParameterSymbol.Var,
                     translatedSelector.Ast);
                 var serializer = NestedAsQueryableSerializer.CreateIEnumerableOrNestedAsQueryableSerializer(expression.Type, itemSerializer : translatedSelector.Serializer);
+
+                return new TranslatedExpression(expression, ast, serializer);
+            }
+
+            if (method.IsOneOf(EnumerableOrQueryableMethod.SelectWithSelectorTakingIndex))
+            {
+                var sourceExpression = arguments[0];
+                var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
+                NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsQueryableSource(expression, sourceTranslation);
+
+                var selectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
+                var itemParameter = selectorLambda.Parameters[0];
+                var indexParameter = selectorLambda.Parameters[1];
+                var itemSymbol = context.CreateSymbol(itemParameter, context.GetSerializer(itemParameter));
+                var indexSymbol = context.CreateSymbol(indexParameter, context.GetSerializer(indexParameter));
+                var selectorContext = context.WithSymbols(itemSymbol, indexSymbol);
+                var translatedSelector = ExpressionToAggregationExpressionTranslator.Translate(selectorContext, selectorLambda.Body);
+
+                var ast = AstExpression.Map(
+                    sourceTranslation.Ast,
+                    itemSymbol.Var,
+                    translatedSelector.Ast,
+                    arrayIndexAs: indexSymbol.Var);
+                var serializer = NestedAsQueryableSerializer.CreateIEnumerableOrNestedAsQueryableSerializer(expression.Type, itemSerializer: translatedSelector.Serializer);
 
                 return new TranslatedExpression(expression, ast, serializer);
             }

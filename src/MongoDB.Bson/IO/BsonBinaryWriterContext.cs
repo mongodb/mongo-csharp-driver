@@ -13,47 +13,12 @@
 * limitations under the License.
 */
 
-namespace MongoDB.Bson.IO
+namespace MongoDB.Bson.IO;
+
+internal struct BsonBinaryWriterContext(ContextType contextType, long startPosition)
 {
-    internal class BsonBinaryWriterContext
-    {
-        // private fields
-        private BsonBinaryWriterContext _parentContext;
-        private ContextType _contextType;
-        private long _startPosition;
-        private int _index; // used when contextType is Array
+    public ContextType ContextType { get; } = contextType;
+    public long StartPosition { get; } = startPosition;
 
-        // constructors
-        internal BsonBinaryWriterContext(
-            BsonBinaryWriterContext parentContext,
-            ContextType contextType,
-            long startPosition)
-        {
-            _parentContext = parentContext;
-            _contextType = contextType;
-            _startPosition = startPosition;
-        }
-
-        // internal properties
-        internal BsonBinaryWriterContext ParentContext
-        {
-            get { return _parentContext; }
-        }
-
-        internal ContextType ContextType
-        {
-            get { return _contextType; }
-        }
-
-        internal long StartPosition
-        {
-            get { return _startPosition; }
-        }
-
-        internal int Index
-        {
-            get { return _index; }
-            set { _index = value; }
-        }
-    }
+    public int Index { get; set; }
 }

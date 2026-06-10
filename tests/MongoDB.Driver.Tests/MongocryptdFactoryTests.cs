@@ -68,7 +68,6 @@ namespace MongoDB.Driver.Tests
         [InlineData("{ mongocryptdBypassSpawn : false }", "mongocryptd#extension#", "--idleShutdownTimeoutSecs 60 --logpath #logpath# --logappend", true)]
         [InlineData("{ mongocryptdBypassSpawn : false, mongocryptdSpawnPath : 'c:/mongocryptd.exe' }", "c:/mongocryptd.exe", "--idleShutdownTimeoutSecs 60 --logpath #logpath# --logappend", true)]
         [InlineData("{ mongocryptdBypassSpawn : false, mongocryptdSpawnPath : 'c:/mgcr.exe' }", "c:/mgcr.exe", "--idleShutdownTimeoutSecs 60 --logpath #logpath# --logappend", true)]
-        [InlineData("{ mongocryptdBypassSpawn : false, mongocryptdSpawnPath : 'c:/mgcr.exe' }", "c:/mgcr.exe", "--idleShutdownTimeoutSecs 60 --logpath #logpath# --logappend", true)]
         // args string
         [InlineData("{ mongocryptdSpawnArgs : '--arg1 A --arg2 B' }", "mongocryptd#extension#", "--arg1 A --arg2 B --idleShutdownTimeoutSecs 60 --logpath #logpath# --logappend", true)]
         [InlineData("{ mongocryptdSpawnArgs : '--arg1 A --arg2 B --idleShutdownTimeoutSecs 50' }", "mongocryptd#extension#", "--arg1 A --arg2 B --idleShutdownTimeoutSecs 50 --logpath #logpath# --logappend", true)]

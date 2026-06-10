@@ -17,9 +17,13 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers;
+using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
@@ -48,19 +52,30 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring.pr
                 .Check()
                 .Supports(Feature.DirectConnectionSetting)
                 .ClusterTypes(ClusterType.ReplicaSet)
+                .ReplicaSetDataBearingMembers(2)
                 .Authentication(false); // we don't use auth connection string in this test
 
             var setupClient = DriverTestConfiguration.Client;
             setupClient.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName).RunCommand<BsonDocument>("{ ping : 1 }");
 
             var setupCluster = setupClient.Cluster;
-            SpinWait.SpinUntil(() => setupCluster.Description.State == ClusterState.Connected, TimeSpan.FromSeconds(3));
+            // ReplicaSetDataBearingMembers(2) confirms a secondary exists in the topology but not that it
+            // has finished its individual connection handshake. ClusterState.Connected only requires *any*
+            // server to be connected (typically the primary), so waiting on that predicate doesn't help
+            // here. Spin directly on the predicate we actually need: a Connected ReplicaSetSecondary.
+            SpinWait.SpinUntil(
+                () => setupCluster.Description.Servers.Any(s => s.State == ServerState.Connected && s.Type == ServerType.ReplicaSetSecondary),
+                TimeSpan.FromSeconds(10));
 
             var clusterDescription = setupCluster.Description;
             var secondary = clusterDescription.Servers.FirstOrDefault(s => s.State == ServerState.Connected && s.Type == ServerType.ReplicaSetSecondary);
             if (secondary == null)
             {
-                throw new Exception("No secondary was found.");
+                // Intentionally a hard failure (not SkipException): ReplicaSetDataBearingMembers(2) already
+                // gated on >=2 data-bearing members, and the spin above gave the secondary a generous
+                // window to connect. Hitting this branch indicates the data-bearing spin is undercounting
+                // or a real topology bug — surface it as a failure with the cluster description.
+                throw new Exception($"No connected secondary found despite RequireServer.ReplicaSetDataBearingMembers(2) guard. Cluster: {clusterDescription}.");
             }
 
             var dnsEndpoint = (DnsEndPoint)secondary.EndPoint;
@@ -83,6 +98,62 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring.pr
                 {
                     exception.Should().BeNull();
                 }
+            }
+        }
+
+        // https://github.com/mongodb/specifications/blob/a8d34be0df234365600a9269af5a463f581562fd/source/server-discovery-and-monitoring/server-discovery-and-monitoring-tests.md?plain=1#L176
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Connection_Pool_Backpressure([Values(true, false)]bool async)
+        {
+            RequireServer.Check().VersionGreaterThanOrEqualTo("7.0.23");
+
+            var setupClient = DriverTestConfiguration.Client;
+            var adminDatabase = setupClient.GetDatabase(DatabaseNamespace.Admin.DatabaseName);
+
+            adminDatabase.RunCommand<BsonDocument>(
+                @"{
+                    setParameter : 1,
+                    ingressConnectionEstablishmentRateLimiterEnabled: true,
+                    ingressConnectionEstablishmentRatePerSec: 20,
+                    ingressConnectionEstablishmentBurstCapacitySecs: 1,
+                    ingressConnectionEstablishmentMaxQueueDepth: 1
+                }");
+
+            try
+            {
+                var eventCapturer = new EventCapturer()
+                    .Capture<ConnectionPoolCheckingOutConnectionFailedEvent>()
+                    .Capture<ConnectionPoolClearedEvent>();
+
+                using var client = DriverTestConfiguration.CreateMongoClient(settings =>
+                {
+                    settings.MaxConnecting = 100;
+                    settings.LoggingSettings = LoggingSettings;
+                    settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
+                });
+
+                var collection = client.GetDatabase("test").GetCollection<BsonDocument>("test");
+                collection.DeleteMany(FilterDefinition<BsonDocument>.Empty);
+                collection.InsertOne(new BsonDocument());
+
+                var filter = "{ $where : \"function() { sleep(2000); return true; }\" }";
+                _ = await ThreadingUtilities.ExecuteTasksOnNewThreadsCollectExceptions(
+                    100,
+                    _ => async ? collection.FindAsync(filter) : Task.FromResult(collection.FindSync(filter)), Timeout.Infinite);
+
+                eventCapturer.Events.Count(e => e is ConnectionPoolCheckingOutConnectionFailedEvent).Should().BeGreaterOrEqualTo(10);
+                eventCapturer.Events.Should().NotContain(e => e is ConnectionPoolClearedEvent);
+            }
+            finally
+            {
+                Thread.Sleep(1000);
+
+                adminDatabase.RunCommand<BsonDocument>(
+                    @"{
+                        setParameter : 1,
+                        ingressConnectionEstablishmentRateLimiterEnabled: false
+                    }");
             }
         }
 

@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers
         IBsonSerializer InputSerializer { get; }
     }
 
-    internal class ISetWindowFieldsPartitionSerializer<TInput> : IBsonSerializer<ISetWindowFieldsPartition<TInput>>, ISetWindowFieldsPartitionSerializer
+    internal class ISetWindowFieldsPartitionSerializer<TInput> : IBsonSerializer<ISetWindowFieldsPartition<TInput>>, ISetWindowFieldsPartitionSerializer, IBsonArraySerializer
     {
         private readonly IBsonSerializer<TInput> _inputSerializer;
 
@@ -61,16 +61,20 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers
             throw new InvalidOperationException("This serializer is not intended to be used.");
         }
 
-
         public void Serialize(BsonSerializationContext context, BsonSerializationArgs args, object value)
         {
             throw new InvalidOperationException("This serializer is not intended to be used.");
         }
 
-
         object IBsonSerializer.Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             throw new InvalidOperationException("This serializer is not intended to be used.");
+        }
+
+        public bool TryGetItemSerializationInfo(out BsonSerializationInfo itemSerializationInfo)
+        {
+            itemSerializationInfo = new BsonSerializationInfo(null, _inputSerializer, _inputSerializer.ValueType);
+            return true;
         }
     }
 }

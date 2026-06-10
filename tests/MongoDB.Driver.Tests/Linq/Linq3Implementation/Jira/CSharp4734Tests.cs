@@ -13,11 +13,9 @@
 * limitations under the License.
 */
 
-using System;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.Misc;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
@@ -106,18 +104,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 .Find("{}")
                 .Project(projection);
 
-            var wireVersion = CoreTestConfiguration.MaxWireVersion;
-            if (Feature.FindProjectionExpressions.IsSupported(wireVersion))
-            {
-                var result = find.Single();
-                result.Should().BeEquivalentTo(expectedResult); // order of result elements varies by server version
-            }
-            else
-            {
-                var exception = Record.Exception(() => find.Single());
-                exception.Should().BeOfType<NotSupportedException>();
-                exception.Message.Should().Contain("is not supported with find on servers prior to version 4.4.");
-            }
+            var result = find.Single();
+            result.Should().BeEquivalentTo(expectedResult); // order of result elements varies by server version
         }
 
         [Theory]
@@ -133,18 +121,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 .Find("{}")
                 .Project(projection);
 
-            var wireVersion = CoreTestConfiguration.MaxWireVersion;
-            if (Feature.FindProjectionExpressions.IsSupported(wireVersion))
-            {
-                var result = find.Single();
-                result.Should().BeEquivalentTo(expectedResult); // order of result elements varies by server version
-            }
-            else
-            {
-                var exception = Record.Exception(() => find.Single());
-                exception.Should().BeOfType<NotSupportedException>();
-                exception.Message.Should().Contain("is not supported with find on servers prior to version 4.4.");
-            }
+            var result = find.Single();
+            result.Should().BeEquivalentTo(expectedResult); // order of result elements varies by server version
         }
 
         [Fact] // it is sufficient to test only one projection because the rest are tested using Find
@@ -154,18 +132,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var filter = "{ _id : 1 }";
             var options = new FindOneAndDeleteOptions<BsonDocument> { Projection = "{ Z : '$Y' }" };
 
-            var wireVersion = CoreTestConfiguration.MaxWireVersion;
-            if (Feature.FindProjectionExpressions.IsSupported(wireVersion))
-            {
-                var result = collection.FindOneAndDelete(filter, options);
-                result.Should().BeEquivalentTo("{ _id : 1, Z : 3 }"); // order of result elements varies by server version
-            }
-            else
-            {
-                var exception = Record.Exception(() => collection.FindOneAndDelete(filter, options));
-                exception.Should().BeOfType<NotSupportedException>();
-                exception.Message.Should().Contain("is not supported with find on servers prior to version 4.4.");
-            }
+            var result = collection.FindOneAndDelete(filter, options);
+            result.Should().BeEquivalentTo("{ _id : 1, Z : 3 }"); // order of result elements varies by server version
         }
 
         [Fact] // it is sufficient to test only one projection because the rest are tested using Find
@@ -176,18 +144,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var replacement = BsonDocument.Parse("{ _id : 1, X : 4, Y : 5 }");
             var options = new FindOneAndReplaceOptions<BsonDocument> { Projection = "{ Z : '$Y' }", ReturnDocument = ReturnDocument.After };
 
-            var wireVersion = CoreTestConfiguration.MaxWireVersion;
-            if (Feature.FindProjectionExpressions.IsSupported(wireVersion))
-            {
-                var result = collection.FindOneAndReplace(filter, replacement, options);
-                result.Should().BeEquivalentTo("{ _id : 1, Z : 5 }"); // order of result elements varies by server version
-            }
-            else
-            {
-                var exception = Record.Exception(() => collection.FindOneAndReplace(filter, replacement, options));
-                exception.Should().BeOfType<NotSupportedException>();
-                exception.Message.Should().Contain("is not supported with find on servers prior to version 4.4.");
-            }
+            var result = collection.FindOneAndReplace(filter, replacement, options);
+            result.Should().BeEquivalentTo("{ _id : 1, Z : 5 }"); // order of result elements varies by server version
         }
 
         [Fact] // it is sufficient to test only one projection because the rest are tested using Find
@@ -198,18 +156,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var update = "{ $inc : { Y : 1 } }";
             var options = new FindOneAndUpdateOptions<BsonDocument> { Projection = "{ Z : '$Y' }", ReturnDocument = ReturnDocument.After };
 
-            var wireVersion = CoreTestConfiguration.MaxWireVersion;
-            if (Feature.FindProjectionExpressions.IsSupported(wireVersion))
-            {
-                var result = collection.FindOneAndUpdate(filter, update, options);
-                result.Should().BeEquivalentTo("{ _id : 1, Z : 4 }"); // order of result elements varies by server version
-            }
-            else
-            {
-                var exception = Record.Exception(() => collection.FindOneAndUpdate(filter, update, options));
-                exception.Should().BeOfType<NotSupportedException>();
-                exception.Message.Should().Contain("is not supported with find on servers prior to version 4.4.");
-            }
+            var result = collection.FindOneAndUpdate(filter, update, options);
+            result.Should().BeEquivalentTo("{ _id : 1, Z : 4 }"); // order of result elements varies by server version
         }
 
         private IMongoCollection<BsonDocument> GetCollection(params string[] documents)

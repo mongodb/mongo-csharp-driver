@@ -18,8 +18,8 @@ using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -56,6 +56,8 @@ namespace MongoDB.Driver.Core.Operations
             get { return _collectionNamespace; }
         }
 
+        public override string OperationName => null;
+
         public BatchableSource<TDocument> Documents
         {
             get { return _documents; }
@@ -66,15 +68,17 @@ namespace MongoDB.Driver.Core.Operations
             get { return _documentSerializer; }
         }
 
-        protected override BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, int attempt, long? transactionNumber)
+        protected override BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber)
         {
             var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, session, WriteConcern);
+            var readConcern = ReadConcernHelper.GetReadConcernForWriteCommand(session, connectionDescription);
             return new BsonDocument
             {
                 { "insert", _collectionNamespace.CollectionName },
                 { "ordered", IsOrdered },
                 { "bypassDocumentValidation", () => _bypassDocumentValidation, _bypassDocumentValidation.HasValue },
                 { "comment", Comment, Comment != null },
+                { "readConcern", readConcern, readConcern != null },
                 { "writeConcern", writeConcern, writeConcern != null },
                 { "txnNumber", () => transactionNumber.Value, transactionNumber.HasValue }
             };
@@ -97,55 +101,6 @@ namespace MongoDB.Driver.Core.Operations
             var maxDocumentSize = channel.ConnectionDescription.MaxDocumentSize;
             var payload = new Type1CommandMessageSection<TDocument>("documents", documents, _documentSerializer, elementNameValidator, maxBatchCount, maxDocumentSize);
             return new Type1CommandMessageSection[] { payload };
-        }
-
-        // nested types
-        private class InsertSerializer : SerializerBase<TDocument>
-        {
-            // private fields
-            private IBsonSerializer _cachedSerializer;
-            private readonly IBsonSerializer<TDocument> _documentSerializer;
-
-            // constructors
-            public InsertSerializer(IBsonSerializer<TDocument> documentSerializer)
-            {
-                _documentSerializer = documentSerializer;
-                _cachedSerializer = documentSerializer;
-            }
-
-            // public methods
-            public override bool Equals(object obj)
-            {
-                if (object.ReferenceEquals(obj, null)) { return false; }
-                if (object.ReferenceEquals(this, obj)) { return true; }
-                return
-                    base.Equals(obj) &&
-                    obj is InsertSerializer other &&
-                    object.Equals(_documentSerializer, other._documentSerializer);
-            }
-
-            public override int GetHashCode() => 0;
-
-            public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TDocument value)
-            {
-                IBsonSerializer serializer;
-
-                var actualType = value.GetType();
-                if (actualType == typeof(TDocument))
-                {
-                    serializer = _documentSerializer;
-                }
-                else
-                {
-                    if (_cachedSerializer.ValueType != actualType)
-                    {
-                        _cachedSerializer = BsonSerializer.LookupSerializer(actualType);
-                    }
-                    serializer = _cachedSerializer;
-                }
-
-                serializer.Serialize(context, value);
-            }
         }
     }
 }

@@ -96,6 +96,7 @@ namespace MongoDB.Driver.Core.Connections
                 connectionInitializer: _mockConnectionInitializer.Object,
                 eventSubscriber: _capturedEvents,
                 loggerFactory: LoggerFactory,
+                tracingOptions: null,
                 socketReadTimeout: TimeSpan.FromMilliseconds(1000),
                 socketWriteTimeout: TimeSpan.FromMilliseconds(1000));
         }
@@ -185,6 +186,7 @@ namespace MongoDB.Driver.Core.Connections
                 connectionInitializer: connectionInitializer,
                 eventSubscriber: _capturedEvents,
                 loggerFactory: LoggerFactory,
+                tracingOptions: null,
                 socketReadTimeout: Timeout.InfiniteTimeSpan,
                 socketWriteTimeout: Timeout.InfiniteTimeSpan);
 
@@ -500,52 +502,6 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public async Task ReceiveMessage_should_handle_out_of_order_replies(
-            [Values(false, true)]
-            bool async1,
-            [Values(false, true)]
-            bool async2)
-        {
-            using (var stream = new BlockingMemoryStream())
-            {
-                _mockStreamFactory.Setup(f => f.CreateStreamAsync(_endPoint, It.IsAny<CancellationToken>())).ReturnsAsync(stream);
-                await _subject.OpenAsync(OperationContext.NoTimeout);
-                _capturedEvents.Clear();
-
-                var encoderSelector = new ReplyMessageEncoderSelector<BsonDocument>(BsonDocumentSerializer.Instance);
-
-                var receivedTask10 = async1 ?
-                    _subject.ReceiveMessageAsync(OperationContext.NoTimeout, 10, encoderSelector, _messageEncoderSettings) :
-                    Task.Run(() => _subject.ReceiveMessage(OperationContext.NoTimeout, 10, encoderSelector, _messageEncoderSettings));
-
-                var receivedTask11 = async2 ?
-                    _subject.ReceiveMessageAsync(OperationContext.NoTimeout, 11, encoderSelector, _messageEncoderSettings) :
-                    Task.Run(() => _subject.ReceiveMessage(OperationContext.NoTimeout, 11, encoderSelector, _messageEncoderSettings));
-
-                SpinWait.SpinUntil(() => _capturedEvents.Count >= 2, TimeSpan.FromSeconds(5)).Should().BeTrue();
-
-                var messageToReceive10 = MessageHelper.BuildReply<BsonDocument>(new BsonDocument("_id", 10), BsonDocumentSerializer.Instance, responseTo: 10);
-                var messageToReceive11 = MessageHelper.BuildReply<BsonDocument>(new BsonDocument("_id", 11), BsonDocumentSerializer.Instance, responseTo: 11);
-                MessageHelper.WriteResponsesToStream(stream, messageToReceive11, messageToReceive10); // out of order
-
-                var received10 = await receivedTask10;
-                var received11 = await receivedTask11;
-
-                var expected = MessageHelper.TranslateMessagesToBsonDocuments(new[] { messageToReceive10, messageToReceive11 });
-                var actual = MessageHelper.TranslateMessagesToBsonDocuments(new[] { received10, received11 });
-
-                actual.Should().BeEquivalentTo(expected);
-
-                _capturedEvents.Next().Should().BeOfType<ConnectionReceivingMessageEvent>();
-                _capturedEvents.Next().Should().BeOfType<ConnectionReceivingMessageEvent>();
-                _capturedEvents.Next().Should().BeOfType<ConnectionReceivedMessageEvent>();
-                _capturedEvents.Next().Should().BeOfType<ConnectionReceivedMessageEvent>();
-                _capturedEvents.Any().Should().BeFalse();
-            }
-        }
-
         [Fact]
         public async Task ReceiveMessage_should_not_produce_unobserved_task_exceptions_on_fail()
         {
@@ -633,58 +589,6 @@ namespace MongoDB.Driver.Core.Connections
             {
                 TaskScheduler.UnobservedTaskException -= eventHandler;
                 mockStream.Object?.Dispose();
-            }
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public async Task ReceiveMessage_should_throw_network_exception_to_all_awaiters(
-            [Values(false, true)]
-            bool async1,
-            [Values(false, true)]
-            bool async2)
-        {
-            var mockStream = new Mock<Stream>();
-            using (mockStream.Object)
-            {
-                var encoderSelector = new ReplyMessageEncoderSelector<BsonDocument>(BsonDocumentSerializer.Instance);
-
-                _mockStreamFactory.Setup(f => f.CreateStream(_endPoint, It.IsAny<CancellationToken>()))
-                  .Returns(mockStream.Object);
-                var readTcs = new TaskCompletionSource<int>();
-                SetupStreamRead(mockStream, readTcs);
-                _subject.Open(OperationContext.NoTimeout);
-                _capturedEvents.Clear();
-
-                var task1 = async1 ?
-                    _subject.ReceiveMessageAsync(OperationContext.NoTimeout, 1, encoderSelector, _messageEncoderSettings) :
-                    Task.Run(() => _subject.ReceiveMessage(OperationContext.NoTimeout, 1, encoderSelector, _messageEncoderSettings));
-
-                var task2 = async2 ?
-                    _subject.ReceiveMessageAsync(OperationContext.NoTimeout, 2, encoderSelector, _messageEncoderSettings) :
-                    Task.Run(() => _subject.ReceiveMessage(OperationContext.NoTimeout, 2, encoderSelector, _messageEncoderSettings));
-
-                SpinWait.SpinUntil(() => _capturedEvents.Count >= 2, TimeSpan.FromSeconds(5)).Should().BeTrue();
-
-                readTcs.SetException(new SocketException());
-
-                var exception1 = await Record.ExceptionAsync(() => task1);
-                var exception2 = await Record.ExceptionAsync(() => task2);
-
-                exception1.Should().BeOfType<MongoConnectionException>().Subject
-                    .ConnectionId.Should().Be(_subject.ConnectionId);
-                exception1.InnerException.Should().BeOfType<SocketException>();
-
-                exception2.Should().BeOfType<MongoConnectionException>().Subject
-                    .ConnectionId.Should().Be(_subject.ConnectionId);
-                exception2.InnerException.Should().BeOfType<SocketException>();
-
-                _capturedEvents.Next().Should().BeOfType<ConnectionReceivingMessageEvent>();
-                _capturedEvents.Next().Should().BeOfType<ConnectionReceivingMessageEvent>();
-                _capturedEvents.Next().Should().BeOfType<ConnectionFailedEvent>();
-                _capturedEvents.Next().Should().BeOfType<ConnectionReceivingMessageFailedEvent>();
-                _capturedEvents.Next().Should().BeOfType<ConnectionReceivingMessageFailedEvent>();
-                _capturedEvents.Any().Should().BeFalse();
             }
         }
 
@@ -809,21 +713,48 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
+        [Fact]
+        public void IsExpired_should_return_false_when_maxIdleTime_has_no_limit()
+        {
+            var subject = new BinaryConnection(
+                serverId: _serverId,
+                endPoint: _endPoint,
+                settings: new ConnectionSettings(maxIdleTime: TimeSpan.FromMilliseconds(0)),
+                streamFactory: _mockStreamFactory.Object,
+                connectionInitializer: _mockConnectionInitializer.Object,
+                eventSubscriber: _capturedEvents,
+                loggerFactory: LoggerFactory,
+                tracingOptions: null,
+                socketReadTimeout: TimeSpan.FromMilliseconds(1000),
+                socketWriteTimeout: TimeSpan.FromMilliseconds(1000));
+
+            subject.Open(OperationContext.NoTimeout);
+            subject.IsExpired.Should().BeFalse();
+        }
+
+        [Fact]
+        public void IsExpired_should_return_true_when_maxIdleTime_is_positive_and_connection_was_unused()
+        {
+            var subject = new BinaryConnection(
+                serverId: _serverId,
+                endPoint: _endPoint,
+                settings: new ConnectionSettings(maxIdleTime: TimeSpan.FromMilliseconds(10), maxLifeTime: TimeSpan.FromMinutes(10)),
+                streamFactory: _mockStreamFactory.Object,
+                connectionInitializer: _mockConnectionInitializer.Object,
+                eventSubscriber: _capturedEvents,
+                loggerFactory: LoggerFactory,
+                tracingOptions: null,
+                socketReadTimeout: TimeSpan.FromMilliseconds(1000),
+                socketWriteTimeout: TimeSpan.FromMilliseconds(1000));
+
+            subject.Open(OperationContext.NoTimeout);
+            subject.IsExpired.Should().BeTrue();
+        }
+
         private void SetupStreamRead(Mock<Stream> streamMock, TaskCompletionSource<int> tcs)
         {
-            streamMock.Setup(s => s.BeginRead(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<AsyncCallback>(), It.IsAny<object>()))
-                .Returns((byte[] _, int __, int ___, AsyncCallback callback, object state) =>
-                {
-                    var innerTcs = new TaskCompletionSource<int>(state);
-                    tcs.Task.ContinueWith(t =>
-                    {
-                        innerTcs.TrySetException(t.Exception.InnerException);
-                        callback(innerTcs.Task);
-                    });
-                    return innerTcs.Task;
-                });
-            streamMock.Setup(s => s.EndRead(It.IsAny<IAsyncResult>()))
-                .Returns<IAsyncResult>(x => ((Task<int>)x).GetAwaiter().GetResult());
+            streamMock.Setup(s => s.Read(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>()))
+                .Returns((byte[] _, int __, int ___) => tcs.Task.GetAwaiter().GetResult());
             streamMock.Setup(s => s.ReadAsync(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
                 .Returns(tcs.Task);
             streamMock.Setup(s => s.Close()).Callback(() => tcs.TrySetException(new ObjectDisposedException("stream")));

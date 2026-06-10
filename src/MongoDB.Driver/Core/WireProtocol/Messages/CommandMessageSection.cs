@@ -36,24 +36,40 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     internal abstract class Type0CommandMessageSection : CommandMessageSection
     {
         // constructors
-        public Type0CommandMessageSection(object document, IBsonSerializer documentSerializer)
+        public Type0CommandMessageSection(
+            object document,
+            IBsonSerializer documentSerializer,
+            DatabaseNamespace databaseNamespace = null,
+            BsonDocument sessionId = null,
+            long? transactionNumber = null)
         {
             Ensure.IsNotNull((object)document, nameof(document));
             Document = document;
             DocumentSerializer = Ensure.IsNotNull(documentSerializer, nameof(documentSerializer));
+            DatabaseNamespace = databaseNamespace;
+            SessionId = sessionId;
+            TransactionNumber = transactionNumber;
         }
 
         // public properties
+        public DatabaseNamespace DatabaseNamespace { get; }
         public object Document { get; }
         public IBsonSerializer DocumentSerializer { get; }
         public override PayloadType PayloadType => PayloadType.Type0;
+        public BsonDocument SessionId { get; }
+        public long? TransactionNumber { get; }
     }
 
     internal sealed class Type0CommandMessageSection<TDocument> : Type0CommandMessageSection
     {
         // constructors
-        public Type0CommandMessageSection(TDocument document, IBsonSerializer<TDocument> documentSerializer)
-            : base(document, documentSerializer)
+        public Type0CommandMessageSection(
+            TDocument document,
+            IBsonSerializer<TDocument> documentSerializer,
+            DatabaseNamespace databaseNamespace = null,
+            BsonDocument sessionId = null,
+            long? transactionNumber = null)
+            : base(document, documentSerializer, databaseNamespace, sessionId, transactionNumber)
         {
             Ensure.IsNotNull((object)document, nameof(document));
             Document = document;

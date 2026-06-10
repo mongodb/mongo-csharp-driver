@@ -154,6 +154,80 @@ namespace MongoDB.Driver.Tests
             Assert(subject.MetaTextScore("awesome"), "{awesome: {$meta: 'textScore'}}");
         }
 
+        [Fact]
+        public void Ascending_using_extension_methods()
+        {
+            var subject = CreateSubject<Person>();
+
+            var sort = subject.Descending("FirstName")
+                .Ascending("LastName");
+
+            Assert(sort, "{fn: -1, ln: 1}");
+        }
+
+        [Fact]
+        public void Ascending_Typed_using_extension_methods()
+        {
+            var subject = CreateSubject<Person>();
+
+            var sort = subject.Descending("FirstName")
+                .Ascending(x => x.LastName);
+
+            Assert(sort, "{fn: -1, ln: 1}");
+        }
+
+        [Fact]
+        public void Descending_using_extension_methods()
+        {
+            var subject = CreateSubject<Person>();
+
+            var sort = subject.Ascending("FirstName")
+                .Descending("LastName");
+
+            Assert(sort, "{fn: 1, ln: -1}");
+        }
+
+        [Fact]
+        public void Descending_Typed_using_extension_methods()
+        {
+            var subject = CreateSubject<Person>();
+
+            var sort = subject.Ascending("FirstName")
+                .Descending(x => x.LastName);
+
+            Assert(sort, "{fn: 1, ln: -1}");
+        }
+
+        [Fact]
+        public void MetaSearchScoreAscending_using_extension_methods()
+        {
+            var subject = CreateSubject<Person>();
+
+            var sort = subject.Descending("FirstName").MetaSearchScoreAscending();
+
+            Assert(sort, "{fn: -1, unused: {$meta: 'searchScore', order: 1}}");
+        }
+
+        [Fact]
+        public void MetaSearchScoreDescending_using_extension_methods()
+        {
+            var subject = CreateSubject<Person>();
+
+            var sort = subject.Descending("FirstName").MetaSearchScoreDescending();
+
+            Assert(sort, "{fn: -1, unused: {$meta: 'searchScore'}}");
+        }
+
+        [Fact]
+        public void MetaTextScore_using_extension_methods()
+        {
+            var subject = CreateSubject<Person>();
+
+            var sort = subject.Ascending("FirstName").MetaTextScore("awesome");
+
+            Assert(sort, "{fn: 1, awesome: {$meta: 'textScore'}}");
+        }
+
         private void Assert<TDocument>(SortDefinition<TDocument> sort, string expectedJson)
         {
             var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
@@ -171,6 +245,9 @@ namespace MongoDB.Driver.Tests
         {
             [BsonElement("fn")]
             public string FirstName { get; set; }
+
+            [BsonElement("ln")]
+            public string LastName { get; set; }
         }
     }
 }

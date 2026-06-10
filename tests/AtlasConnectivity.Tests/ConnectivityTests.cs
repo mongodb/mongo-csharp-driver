@@ -18,6 +18,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Core.TestHelpers.Logging;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -30,6 +31,7 @@ namespace AtlasConnectivity.Tests
         public ConnectivityTests(ITestOutputHelper testOutputHelper)
             : base(testOutputHelper)
         {
+            RequireEnvironment.Check().EnvironmentVariable("ATLAS_CONNECTIVITY_TESTS_ENABLED");
         }
 
         // public methods

@@ -1,0 +1,39 @@
+/* Copyright 2010-present MongoDB Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+namespace MongoDB.Driver.Search;
+
+/// <summary>
+/// Vector search options to use when the vector search is used as an operator instead of as a top-level query.
+/// </summary>
+/// <typeparam name="TDocument">The type of the document.</typeparam>
+public sealed class VectorSearchOperatorOptions<TDocument>
+{
+    /// <summary>
+    /// Gets or sets the pre-search filter.
+    /// </summary>
+    public SearchDefinition<TDocument> Filter { get; set; }
+
+    /// <summary>
+    /// Gets or sets the number of candidates.
+    /// </summary>
+    public int? NumberOfCandidates { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating if exact nearest neighbor (ENN) is to be used, false by default.
+    /// If false, approximate nearest neighbor (ANN) is used.
+    /// </summary>
+    public bool Exact { get; set; }
+}

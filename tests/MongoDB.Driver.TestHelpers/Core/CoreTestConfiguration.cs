@@ -29,7 +29,6 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using MongoDB.Driver.Encryption;
 using MongoDB.Driver.TestHelpers;
 using Xunit.Sdk;
 
@@ -52,8 +51,6 @@ namespace MongoDB.Driver
         private static Lazy<SemanticVersion> __serverVersion = new Lazy<SemanticVersion>(GetServerVersion, isThreadSafe: true);
         private static Lazy<string> __storageEngine = new Lazy<string>(GetStorageEngine, isThreadSafe: true);
         private static TraceSource __traceSource;
-
-        public static TimeSpan DefaultTestTimeout { get; } = TimeSpan.FromMinutes(3);
 
         // static properties
         internal static IClusterInternal Cluster
@@ -129,7 +126,16 @@ namespace MongoDB.Driver
         {
             builder = builder
                 .ConfigureWithConnectionString(__connectionString.Value, __serverApi.Value)
-                .ConfigureCluster(c => c.With(serverSelectionTimeout: __defaultServerSelectionTimeout.Value));
+                .ConfigureCluster(c => c.With(serverSelectionTimeout: __defaultServerSelectionTimeout.Value))
+                .ConfigureServer(s =>
+                {
+                    if (Debugger.IsAttached)
+                    {
+                        s = s.With(heartbeatTimeout: TimeSpan.FromDays(1), serverMonitoringMode: ServerMonitoringMode.Poll);
+                    }
+
+                    return s;
+                });;
 
             if (__connectionString.Value.Tls.HasValue &&
                 __connectionString.Value.Tls.Value &&
@@ -145,11 +151,11 @@ namespace MongoDB.Driver
                         X509Certificate cert;
                         if (password == null)
                         {
-                            cert = new X509Certificate2(certificateFilename);
+                            cert = X509CertificateLoader.LoadCertificateFromFile(certificateFilename);
                         }
                         else
                         {
-                            cert = new X509Certificate2(certificateFilename, password);
+                            cert = X509CertificateLoader.LoadPkcs12FromFile(certificateFilename, password);
                         }
                         return ssl.With(
                             clientCertificates: new[] { cert });

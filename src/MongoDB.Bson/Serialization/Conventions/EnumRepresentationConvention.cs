@@ -14,7 +14,8 @@
 */
 
 using System;
-using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MongoDB.Bson.Serialization.Conventions
 {
@@ -89,7 +90,27 @@ namespace MongoDB.Bson.Serialization.Conventions
                 => s.ValueType.IsEnum ? (s as IRepresentationConfigurable)?.WithRepresentation(_representation) : null;
 
             bool CouldApply(Type type)
-                => type.IsEnum || type.IsNullableEnum() || type.IsArray || typeof(IEnumerable).IsAssignableFrom(type);
+            {
+                var visited = new HashSet<Type>();
+                return CouldApplyCore(type);
+
+                bool CouldApplyCore(Type t)
+                {
+                    if (!visited.Add(t))
+                    {
+                        return false;
+                    }
+
+                    return t.IsEnum ||
+                           t.IsNullableEnum() ||
+                           (t.IsArray && CouldApplyCore(t.GetElementType())) || // This is covered by IEnumerable<T>, but it's a good short-circuit
+                           t.GetInterfaces().Prepend(t).Any(
+                               i =>
+                                   i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>) && CouldApplyCore(i.GetGenericArguments()[0]) || // IEnumerable<T>
+                                   i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IDictionary<,>) && (CouldApplyCore(i.GetGenericArguments()[0]) || CouldApplyCore(i.GetGenericArguments()[1])) // IDictionary<TKey, TValue>
+                           );
+                }
+            }
         }
 
         // private methods

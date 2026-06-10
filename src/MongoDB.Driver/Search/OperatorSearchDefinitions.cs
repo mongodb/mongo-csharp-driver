@@ -174,8 +174,8 @@ namespace MongoDB.Driver.Search
         public FacetSearchDefinition(SearchDefinition<TDocument> @operator, IEnumerable<SearchFacet<TDocument>> facets)
             : base(OperatorType.Facet)
         {
-            _operator = Ensure.IsNotNull(@operator, nameof(@operator));
-            _facets = Ensure.IsNotNull(facets, nameof(facets)).ToArray();
+            _operator = @operator;
+            _facets = Ensure.IsNotNullOrEmpty(facets, nameof(facets)).ToArray();
         }
 
         private protected override BsonDocument RenderArguments(
@@ -183,7 +183,7 @@ namespace MongoDB.Driver.Search
             IBsonSerializer fieldSerializer) =>
             new()
             {
-                { "operator", _operator.Render(args) },
+                { "operator", () => _operator.Render(args), _operator != null },
                 { "facets", new BsonDocument(_facets.Select(f => new BsonElement(f.Name, f.Render(args)))) }
             };
     }
@@ -233,6 +233,52 @@ namespace MongoDB.Driver.Search
             RenderArgs<TDocument> args,
             IBsonSerializer fieldSerializer) =>
             new(_area.Render());
+    }
+
+    internal sealed class HasAncestorSearchDefinition<TDocument> : OperatorSearchDefinition<TDocument>
+    {
+        private readonly FieldDefinition<TDocument> _ancestorPath;
+        private readonly SearchDefinition<TDocument> _operator;
+
+        public HasAncestorSearchDefinition(
+            FieldDefinition<TDocument> ancestorPath,
+            SearchDefinition<TDocument> @operator,
+            SearchScoreDefinition<TDocument> score)
+            : base(OperatorType.HasAncestor, score)
+        {
+            _ancestorPath = Ensure.IsNotNull(ancestorPath, nameof(ancestorPath));
+            _operator = Ensure.IsNotNull(@operator, nameof(@operator));
+        }
+
+        private protected override BsonDocument RenderArguments(
+            RenderArgs<TDocument> args,
+            IBsonSerializer fieldSerializer)
+            => new()
+            {
+                { "ancestorPath", _ancestorPath.Render(args).FieldName },
+                { "operator", _operator.Render(args with { PathRenderArgs = args.PathRenderArgs with { PathPrefix = null } }) }
+            };
+    }
+
+    internal sealed class HasRootSearchDefinition<TDocument> : OperatorSearchDefinition<TDocument>
+    {
+        private readonly SearchDefinition<TDocument> _operator;
+
+        public HasRootSearchDefinition(
+            SearchDefinition<TDocument> @operator,
+            SearchScoreDefinition<TDocument> score)
+            : base(OperatorType.HasRoot, score)
+        {
+            _operator = Ensure.IsNotNull(@operator, nameof(@operator));
+        }
+
+        private protected override BsonDocument RenderArguments(
+            RenderArgs<TDocument> args,
+            IBsonSerializer fieldSerializer)
+            => new()
+            {
+                { "operator", _operator.Render(args with { PathRenderArgs = args.PathRenderArgs with { PathPrefix = null } }) }
+            };
     }
 
     internal sealed class InSearchDefinition<TDocument, TField> : OperatorSearchDefinition<TDocument>
@@ -497,6 +543,43 @@ namespace MongoDB.Driver.Search
                 { "matchCriteria", _matchCriteria, _matchCriteria != null }
             };
         }
+    }
+
+    internal sealed class VectorSearchDefinition<TDocument> : OperatorSearchDefinition<TDocument>
+    {
+        private readonly QueryVector _queryVector;
+        private readonly int _limit;
+        private readonly VectorSearchOperatorOptions<TDocument> _options;
+
+        public VectorSearchDefinition(
+            SearchPathDefinition<TDocument> path,
+            QueryVector queryVector,
+            int limit,
+            VectorSearchOperatorOptions<TDocument> options,
+            SearchScoreDefinition<TDocument> score)
+            : base(OperatorType.VectorSearch, path, score)
+        {
+            Ensure.IsNotNull(path, nameof(path));
+            Ensure.IsNotNull(queryVector, nameof(queryVector));
+            Ensure.IsGreaterThanZero(limit, nameof(limit));
+            Ensure.That(options?.NumberOfCandidates is null || !options.Exact, "Number of candidates must be omitted for exact nearest neighbor search (ENN).");
+
+            _queryVector = queryVector;
+            _limit = limit;
+            _options = options;
+        }
+
+        private protected override BsonDocument RenderArguments(
+            RenderArgs<TDocument> args,
+            IBsonSerializer fieldSerializer) =>
+            new()
+            {
+                { "queryVector", _queryVector.Vector },
+                { "limit", _limit },
+                { "numCandidates", _options?.NumberOfCandidates ?? _limit * 10, _options?.Exact != true },
+                { "filter", () => _options?.Filter.Render(args), _options?.Filter != null },
+                { "exact", true, _options?.Exact == true }
+            };
     }
 
     internal sealed class WildcardSearchDefinition<TDocument> : OperatorSearchDefinition<TDocument>

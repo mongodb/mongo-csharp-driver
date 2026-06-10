@@ -14,8 +14,8 @@
 */
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -28,7 +28,6 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Encryption;
-using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 using Xunit.Abstractions;
@@ -63,7 +62,6 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
         [ParameterAttributeData]
         public async Task Ensure_explicit_session_raises_error_if_connection_does_not_support_sessions([Values(true, false)] bool async)
         {
-            RequireServer.Check().Supports(Feature.ClientSideEncryption);
             CoreTestConfiguration.SkipMongocryptdTests_SERVER_106469();
 
             using var mongocryptdContext = GetMongocryptdContext();
@@ -86,7 +84,6 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
         [ParameterAttributeData]
         public async Task Ensure_implicit_session_is_ignored_if_connection_does_not_support_sessions([Values(true, false)] bool async)
         {
-            RequireServer.Check().Supports(Feature.ClientSideEncryption);
             CoreTestConfiguration.SkipMongocryptdTests_SERVER_106469();
 
             using var mongocryptdContext = GetMongocryptdContext();
@@ -279,7 +276,7 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
             collection.InsertOne(new BsonDocument("x", 0));
 
             var serverSessionPool = (CoreServerSessionPool)Reflector.GetFieldValue(client.Cluster, "_serverSessionPool");
-            var serverSessionsList = (List<ICoreServerSession>)Reflector.GetFieldValue(serverSessionPool, "_pool");
+            var serverSessionsList = (ConcurrentStack<ICoreServerSession>)Reflector.GetFieldValue(serverSessionPool, "_pool");
 
             var serverSession = serverSessionsList.Single();
             eventCapturer.Clear();
@@ -355,6 +352,44 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
             commandStartedEvents.Length.Should().Be(1);
             commandStartedEvents[0].CommandName.Should().Be("ping");
             commandStartedEvents[0].Command["$clusterTime"].Should().Be(clusterTime);
+        }
+
+        // https://github.com/mongodb/specifications/blob/192976b194afdb1f458cbba2530c73de6b2c700f/source/sessions/tests/README.md#21-having-snapshottime-set-and-snapshot-set-to-false-is-not-allowed
+        [Fact]
+        public void If_SnapshotTime_is_set_Snapshot_must_be_true()
+        {
+            RequireServer.Check();
+
+            var sessionOptions = new ClientSessionOptions
+            {
+                Snapshot = false,
+                SnapshotTime = new BsonTimestamp(1, 1)
+            };
+
+            var mongoClient = DriverTestConfiguration.Client;
+
+            var exception = Record.Exception(() => mongoClient.StartSession(sessionOptions));
+            exception.Should().BeOfType<InvalidOperationException>();
+        }
+
+        // https://github.com/mongodb/specifications/blob/192976b194afdb1f458cbba2530c73de6b2c700f/source/sessions/tests/README.md#22-retrieving-snapshottime-on-a-non-snapshot-session-raises-an-error
+        [Fact]
+        public void Retrieving_SnapshotTime_on_non_snapshot_session_raises_error()
+        {
+            RequireServer.Check().Supports(Feature.SnapshotReads).ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded);
+
+            var sessionOptions = new ClientSessionOptions
+            {
+                Snapshot = false
+            };
+
+            var mongoClient = DriverTestConfiguration.Client;
+
+            using var session = mongoClient.StartSession(sessionOptions);
+
+            var exception = Record.Exception(() => session.GetSnapshotTime());
+            exception.Should().BeOfType<InvalidOperationException>();
+            exception.Message.Should().Contain("non-snapshot session");
         }
 
         private sealed class MongocryptdContext : IDisposable

@@ -27,13 +27,15 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    internal sealed class DistinctOperation<TValue> : IReadOperation<IAsyncCursor<TValue>>
+    internal sealed class DistinctOperation<TValue> : IReadOperation<IAsyncCursor<TValue>>, ICommandCreator
     {
         private Collation _collation;
         private CollectionNamespace _collectionNamespace;
         private BsonValue _comment;
+        private bool _enableOverloadRetargeting;
         private BsonDocument _filter;
         private string _fieldName;
+        private int _maxAdaptiveRetries;
         private TimeSpan? _maxTime;
         private MessageEncoderSettings _messageEncoderSettings;
         private ReadConcern _readConcern = ReadConcern.Default;
@@ -87,10 +89,24 @@ namespace MongoDB.Driver.Core.Operations
             get { return _messageEncoderSettings; }
         }
 
+        public string OperationName => "distinct";
+
         public ReadConcern ReadConcern
         {
             get { return _readConcern; }
             set { _readConcern = Ensure.IsNotNull(value, nameof(value)); }
+        }
+
+        public bool EnableOverloadRetargeting
+        {
+            get => _enableOverloadRetargeting;
+            set => _enableOverloadRetargeting = value;
+        }
+
+        public int MaxAdaptiveRetries
+        {
+            get => _maxAdaptiveRetries;
+            set => _maxAdaptiveRetries = value;
         }
 
         public bool RetryRequested
@@ -98,6 +114,8 @@ namespace MongoDB.Driver.Core.Operations
             get => _retryRequested;
             set => _retryRequested = value;
         }
+
+        public bool IsOperationRetryable => true;
 
         public IBsonSerializer<TValue> ValueSerializer
         {
@@ -109,9 +127,9 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = RetryableReadContext.Create(operationContext, binding, _retryRequested))
+            using (var context = new RetryableReadContext(binding, _retryRequested, _maxAdaptiveRetries, _enableOverloadRetargeting))
             {
-                var operation = CreateOperation(operationContext, context);
+                var operation = CreateOperation(operationContext);
                 var result = operation.Execute(operationContext, context);
 
                 binding.Session.SetSnapshotTimeIfNeeded(result.AtClusterTime);
@@ -125,9 +143,9 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = await RetryableReadContext.CreateAsync(operationContext, binding, _retryRequested).ConfigureAwait(false))
+            using (var context = new RetryableReadContext(binding, _retryRequested, _maxAdaptiveRetries, _enableOverloadRetargeting))
             {
-                var operation = CreateOperation(operationContext, context);
+                var operation = CreateOperation(operationContext);
                 var result = await operation.ExecuteAsync(operationContext, context).ConfigureAwait(false);
 
                 binding.Session.SetSnapshotTimeIfNeeded(result.AtClusterTime);
@@ -151,15 +169,21 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        private IDisposable BeginOperation() => EventContext.BeginOperation("distinct");
+        private EventContext.OperationIdDisposer BeginOperation() => EventContext.BeginOperation(null, OperationName);
 
-        private ReadCommandOperation<DistinctResult> CreateOperation(OperationContext operationContext, RetryableReadContext context)
+        private ReadCommandOperation<DistinctResult> CreateOperation(OperationContext operationContext)
         {
-            var command = CreateCommand(operationContext, context.Binding.Session, context.Channel.ConnectionDescription);
             var serializer = new DistinctResultDeserializer(_valueSerializer);
 
-            return new ReadCommandOperation<DistinctResult>(_collectionNamespace.DatabaseNamespace, command, serializer, _messageEncoderSettings)
+            return new ReadCommandOperation<DistinctResult>(
+                _collectionNamespace.DatabaseNamespace,
+                this,
+                serializer,
+                _messageEncoderSettings,
+                OperationName)
             {
+                EnableOverloadRetargeting = _enableOverloadRetargeting,
+                MaxAdaptiveRetries = _maxAdaptiveRetries,
                 RetryRequested = _retryRequested // might be overridden by retryable read context
             };
         }

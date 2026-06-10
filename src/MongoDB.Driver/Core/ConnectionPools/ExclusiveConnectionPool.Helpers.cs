@@ -509,6 +509,16 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
+            public void CompleteCommandActivityWithException(Exception exception)
+            {
+                _connection.CompleteCommandActivityWithException(exception);
+            }
+
+            public void EnsureCommandActivityCompleted()
+            {
+                _connection.EnsureCommandActivityCompleted();
+            }
+
             public void SetCheckOutReasonIfNotAlreadySet(CheckOutReason reason)
             {
                 if (_checkOutReason == null)
@@ -650,6 +660,18 @@ namespace MongoDB.Driver.Core.ConnectionPools
             {
                 ThrowIfDisposed();
                 return _reference.Instance.SendMessageAsync(operationContext, message, messageEncoderSettings);
+            }
+
+            public void CompleteCommandActivityWithException(Exception exception)
+            {
+                ThrowIfDisposed();
+                _reference.Instance.CompleteCommandActivityWithException(exception);
+            }
+
+            public void EnsureCommandActivityCompleted()
+            {
+                ThrowIfDisposed();
+                _reference.Instance.EnsureCommandActivityCompleted();
             }
 
             public void SetCheckOutReasonIfNotAlreadySet(CheckOutReason reason)

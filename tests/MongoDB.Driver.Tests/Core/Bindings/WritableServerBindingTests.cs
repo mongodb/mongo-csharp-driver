@@ -189,7 +189,7 @@ namespace MongoDB.Driver.Core.Bindings
 
         [Theory]
         [ParameterAttributeData]
-        public async Task GetWriteChannelSource_should_use_a_composite_server_selector_to_select_the_server_from_the_cluster_when_deprioritized_servers_present(
+        public async Task GetWriteChannelSource_should_use_a_deprioritized_servers_server_selector_to_select_the_server_from_the_cluster_when_deprioritized_servers_present(
             [Values(false, true)]
             bool async)
         {
@@ -212,19 +212,19 @@ namespace MongoDB.Driver.Core.Bindings
 
             if (async)
             {
-                _mockCluster.Setup(c => c.SelectServerAsync(OperationContext.NoTimeout, It.Is<CompositeServerSelector>(cp => cp.ToString().Contains("PriorityServerSelector")))).Returns(Task.FromResult(selectedServer));
+                _mockCluster.Setup(c => c.SelectServerAsync(OperationContext.NoTimeout, It.IsAny<DeprioritizedServersServerSelector>())).Returns(Task.FromResult(selectedServer));
 
                 await subject.GetWriteChannelSourceAsync(OperationContext.NoTimeout, deprioritizedServers);
 
-                _mockCluster.Verify(c => c.SelectServerAsync(OperationContext.NoTimeout, It.Is<CompositeServerSelector>(cp => cp.ToString().Contains("PriorityServerSelector"))), Times.Once);
+                _mockCluster.Verify(c => c.SelectServerAsync(OperationContext.NoTimeout, It.IsAny<DeprioritizedServersServerSelector>()), Times.Once);
             }
             else
             {
-                _mockCluster.Setup(c => c.SelectServer(OperationContext.NoTimeout, It.Is<CompositeServerSelector>(cp => cp.ToString().Contains("PriorityServerSelector")))).Returns(selectedServer);
+                _mockCluster.Setup(c => c.SelectServer(OperationContext.NoTimeout, It.IsAny<DeprioritizedServersServerSelector>())).Returns(selectedServer);
 
                 subject.GetWriteChannelSource(OperationContext.NoTimeout, deprioritizedServers);
 
-                _mockCluster.Verify(c => c.SelectServer(OperationContext.NoTimeout, It.Is<CompositeServerSelector>(c => c.ToString().Contains("PriorityServerSelector"))), Times.Once);
+                _mockCluster.Verify(c => c.SelectServer(OperationContext.NoTimeout, It.IsAny<DeprioritizedServersServerSelector>()), Times.Once);
             }
         }
 

@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
@@ -113,7 +112,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Xor_with_two_arguments_should_throw(
             [Values(false, true)] bool enableClientSideProjections)
         {
-            RequireServer.Check().Supports(Feature.FindProjectionExpressions);
             var collection = Fixture.Collection;
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 

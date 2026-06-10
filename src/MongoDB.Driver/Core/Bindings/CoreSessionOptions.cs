@@ -13,6 +13,10 @@
 * limitations under the License.
 */
 
+using MongoDB.Bson;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Operations;
+
 namespace MongoDB.Driver.Core.Bindings
 {
     /// <summary>
@@ -22,28 +26,65 @@ namespace MongoDB.Driver.Core.Bindings
     {
         // private fields
         private readonly TransactionOptions _defaultTransactionOptions;
+        private readonly bool _enableOverloadRetargeting;
         private readonly bool _isCausallyConsistent;
         private readonly bool _isImplicit;
         private readonly bool _isSnapshot;
+        private readonly int _maxAdaptiveRetries;
+        private readonly BsonTimestamp _snapshotTime;
 
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="CoreSessionOptions" /> class.
         /// </summary>
-        /// <param name="isCausallyConsistent">if set to <c>true</c> this session is causally consistent]</param>
+        /// <param name="isCausallyConsistent">if set to <c>true</c> this session is causally consistent</param>
         /// <param name="isImplicit">if set to <c>true</c> this session is an implicit session.</param>
         /// <param name="isSnapshot">if set to <c>true</c> this session is a snapshot session.</param>
         /// <param name="defaultTransactionOptions">The default transaction options.</param>
+        /// <param name="snapshotTime">The snapshot time. If this is set, isSnapshot must be true.</param>
         public CoreSessionOptions(
             bool isCausallyConsistent = false,
             bool isImplicit = false,
             TransactionOptions defaultTransactionOptions = null,
-            bool isSnapshot = false)
+            bool isSnapshot = false,
+            BsonTimestamp snapshotTime = null)
+            : this(isCausallyConsistent, isImplicit, defaultTransactionOptions, isSnapshot, snapshotTime,
+                  RetryabilityHelper.OperationRetryBackpressureConstants.DefaultMaxRetries, enableOverloadRetargeting: false)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CoreSessionOptions" /> class.
+        /// </summary>
+        /// <param name="isCausallyConsistent">if set to <c>true</c> this session is causally consistent</param>
+        /// <param name="isImplicit">if set to <c>true</c> this session is an implicit session.</param>
+        /// <param name="isSnapshot">if set to <c>true</c> this session is a snapshot session.</param>
+        /// <param name="defaultTransactionOptions">The default transaction options.</param>
+        public CoreSessionOptions(
+            bool isCausallyConsistent,
+            bool isImplicit,
+            TransactionOptions defaultTransactionOptions,
+            bool isSnapshot)
+            : this(isCausallyConsistent, isImplicit, defaultTransactionOptions, isSnapshot, null)
+        {
+        }
+
+        internal CoreSessionOptions(
+            bool isCausallyConsistent,
+            bool isImplicit,
+            TransactionOptions defaultTransactionOptions,
+            bool isSnapshot,
+            BsonTimestamp snapshotTime,
+            int maxAdaptiveRetries,
+            bool enableOverloadRetargeting)
         {
             _isCausallyConsistent = isCausallyConsistent;
             _isImplicit = isImplicit;
             _isSnapshot = isSnapshot;
             _defaultTransactionOptions = defaultTransactionOptions;
+            _snapshotTime = snapshotTime;
+            _maxAdaptiveRetries = maxAdaptiveRetries;
+            _enableOverloadRetargeting = enableOverloadRetargeting;
         }
 
         // public properties
@@ -78,5 +119,18 @@ namespace MongoDB.Driver.Core.Bindings
         ///   <c>true</c> if this session is a snapshot session; otherwise, <c>false</c>.
         /// </value>
         public bool IsSnapshot => _isSnapshot;
+
+        /// <summary>
+        /// Gets the snapshot time for snapshot sessions.
+        /// </summary>
+        /// <value>
+        /// The snapshot time as a <see cref="BsonTimestamp"/>, or <c>null</c> if not set.
+        /// </value>
+        public BsonTimestamp SnapshotTime => _snapshotTime;
+
+        // internal properties
+        internal bool EnableOverloadRetargeting => _enableOverloadRetargeting;
+
+        internal int MaxAdaptiveRetries => _maxAdaptiveRetries;
     }
 }

@@ -232,6 +232,7 @@ namespace MongoDB.Driver.Encryption
                     encryptOptions.Algorithm,
                     wrappedValueBytes,
                     ToBsonIfNotNull(encryptOptions.RangeOptions?.CreateDocument()),
+                    ToBsonIfNotNull(encryptOptions.TextOptions?.CreateDocument()),
                     isExpressionMode);
 
                 using (context)
@@ -267,6 +268,7 @@ namespace MongoDB.Driver.Encryption
                     encryptOptions.Algorithm,
                     wrappedValueBytes,
                     ToBsonIfNotNull(encryptOptions.RangeOptions?.CreateDocument()),
+                    ToBsonIfNotNull(encryptOptions.TextOptions?.CreateDocument()),
                     isExpressionMode);
 
                 using (context)

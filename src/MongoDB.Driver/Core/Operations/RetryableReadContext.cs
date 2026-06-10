@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,107 +24,115 @@ namespace MongoDB.Driver.Core.Operations
 {
     internal sealed class RetryableReadContext : IDisposable
     {
-        #region static
-
-        public static RetryableReadContext Create(OperationContext operationContext, IReadBinding binding, bool retryRequested)
-        {
-            var context = new RetryableReadContext(binding, retryRequested);
-            try
-            {
-                context.AcquireOrReplaceChannel(operationContext, null);
-            }
-            catch
-            {
-                context.Dispose();
-                throw;
-            }
-
-            ChannelPinningHelper.PinChannellIfRequired(context.ChannelSource, context.Channel, context.Binding.Session);
-            return context;
-        }
-
-        public static async Task<RetryableReadContext> CreateAsync(OperationContext operationContext, IReadBinding binding, bool retryRequested)
-        {
-            var context = new RetryableReadContext(binding, retryRequested);
-            try
-            {
-                await context.AcquireOrReplaceChannelAsync(operationContext, null).ConfigureAwait(false);
-            }
-            catch
-            {
-                context.Dispose();
-                throw;
-            }
-
-            ChannelPinningHelper.PinChannellIfRequired(context.ChannelSource, context.Channel, context.Binding.Session);
-            return context;
-        }
-        #endregion
-
 #pragma warning disable CA2213 // Disposable fields should be disposed
         private readonly IReadBinding _binding;
 #pragma warning restore CA2213 // Disposable fields should be disposed
         private IChannelHandle _channel;
         private IChannelSourceHandle _channelSource;
         private bool _disposed;
+        private readonly bool _enableOverloadRetargeting;
+        private readonly int _maxAdaptiveRetries;
         private bool _retryRequested;
+        private IRandom _random;
 
-        public RetryableReadContext(IReadBinding binding, bool retryRequested)
+        public RetryableReadContext(IReadBinding binding, bool retryRequested, int maxAdaptiveRetries, bool enableOverloadRetargeting, IRandom random = null)
         {
             _binding = Ensure.IsNotNull(binding, nameof(binding));
             _retryRequested = retryRequested;
+            _maxAdaptiveRetries = maxAdaptiveRetries;
+            _enableOverloadRetargeting = enableOverloadRetargeting;
+            _random = random ?? DefaultRandom.Instance;
         }
 
         public IReadBinding Binding => _binding;
         public IChannelHandle Channel => _channel;
         public IChannelSourceHandle ChannelSource => _channelSource;
+        public bool EnableOverloadRetargeting => _enableOverloadRetargeting;
+        public int MaxAdaptiveRetries => _maxAdaptiveRetries;
+        /// <summary>
+        /// Indicates whether the user has enabled retries via retryReads/retryWrites client settings.
+        /// If false, all retries are disabled (including backpressure).
+        /// </summary>
         public bool RetryRequested => _retryRequested;
+        public IRandom Random => _random;
 
         public void Dispose()
         {
             if (!_disposed)
             {
-                _channelSource?.Dispose();
-                _channel?.Dispose();
+                DisposeChannelAndSource();
                 _disposed = true;
             }
         }
 
-        public void AcquireOrReplaceChannel(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
+        public ServerDescription SelectServer(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
-            var attempt = 1;
-            while (true)
+            try
             {
                 operationContext.ThrowIfTimedOutOrCanceled();
-                ReplaceChannelSource(Binding.GetReadChannelSource(operationContext, deprioritizedServers));
-                try
-                {
-                    ReplaceChannel(ChannelSource.GetChannel(operationContext));
-                    return;
-                }
-                catch (Exception ex) when (RetryableReadOperationExecutor.ShouldConnectionAcquireBeRetried(operationContext, this, ex, attempt))
-                {
-                    attempt++;
-                }
+                var readChannelSource = Binding.GetReadChannelSource(operationContext, deprioritizedServers);
+                ReplaceChannelSource(readChannelSource);
+                return ChannelSource.ServerDescription;
+            }
+            catch
+            {
+                DisposeChannelAndSource();
+                throw;
             }
         }
 
-        public async Task AcquireOrReplaceChannelAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
+        public async Task<ServerDescription> SelectServerAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
-            var attempt = 1;
-            while (true)
+            try
             {
                 operationContext.ThrowIfTimedOutOrCanceled();
-                ReplaceChannelSource(await Binding.GetReadChannelSourceAsync(operationContext, deprioritizedServers).ConfigureAwait(false));
-                try
+                var readChannelSource = await Binding
+                    .GetReadChannelSourceAsync(operationContext, deprioritizedServers).ConfigureAwait(false);
+                ReplaceChannelSource(readChannelSource);
+                return ChannelSource.ServerDescription;
+            }
+            catch
+            {
+                DisposeChannelAndSource();
+                throw;
+            }
+        }
+
+        public void AcquireChannel(OperationContext operationContext)
+        {
+            try
+            {
+                if (_channelSource is null)
                 {
-                    ReplaceChannel(await ChannelSource.GetChannelAsync(operationContext).ConfigureAwait(false));
-                    return;
+                    throw new InvalidOperationException("Channel source is not initialized. Server selection must be performed before channel acquisition.");
                 }
-                catch (Exception ex) when (RetryableReadOperationExecutor.ShouldConnectionAcquireBeRetried(operationContext, this, ex, attempt))
+                operationContext.ThrowIfTimedOutOrCanceled();
+                ReplaceChannel(ChannelSource.GetChannel(operationContext));
+                ChannelPinningHelper.PinChannellIfRequired(ChannelSource, Channel, Binding.Session);
+            }
+            catch
+            {
+                DisposeChannelAndSource();
+                throw;
+            }
+        }
+
+        public async Task AcquireChannelAsync(OperationContext operationContext)
+        {
+            try
+            {
+                if (_channelSource is null)
                 {
-                    attempt++;
+                    throw new InvalidOperationException("Channel source is not initialized. Server selection must be performed before channel acquisition.");
                 }
+                operationContext.ThrowIfTimedOutOrCanceled();
+                ReplaceChannel(await ChannelSource.GetChannelAsync(operationContext).ConfigureAwait(false));
+                ChannelPinningHelper.PinChannellIfRequired(ChannelSource, Channel, Binding.Session);
+            }
+            catch
+            {
+                DisposeChannelAndSource();
+                throw;
             }
         }
 
@@ -141,6 +149,14 @@ namespace MongoDB.Driver.Core.Operations
             _channelSource?.Dispose();
             _channel?.Dispose();
             _channelSource = channelSource;
+            _channel = null;
+        }
+
+        private void DisposeChannelAndSource()
+        {
+            _channelSource?.Dispose();
+            _channel?.Dispose();
+            _channelSource = null;
             _channel = null;
         }
     }

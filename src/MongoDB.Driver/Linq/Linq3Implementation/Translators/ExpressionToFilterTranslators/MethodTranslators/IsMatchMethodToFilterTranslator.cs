@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
         // public static methods
         public static AstFilter Translate(TranslationContext context, MethodCallExpression expression)
         {
-            if (RegexMethod.IsMatchMethod(expression, out var fieldExpression, out var regex))
+            if (RegexMethod.IsIsMatchMethod(expression, out var fieldExpression, out var regex))
             {
                 var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
                 var regularExpression = new BsonRegularExpression(regex);

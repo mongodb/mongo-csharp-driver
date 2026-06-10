@@ -49,7 +49,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData("$tanh", 0.0, 0.0)]
         public void Trig_method_should_work(string trigOperator, double x, double expectedResult)
         {
-            RequireServer.Check().Supports(Feature.TrigOperators);
             var collection = CreateCollection(x);
 
             Expression<Func<C, double>> projection = trigOperator switch
@@ -91,7 +90,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Atan2_should_work()
         {
-            RequireServer.Check().Supports(Feature.TrigOperators);
             var collection = CreateCollection(0.0);
 
             var queryable = collection

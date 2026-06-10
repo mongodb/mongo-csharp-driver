@@ -23,23 +23,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class AbsMethodToAggregationExpressionTranslator
     {
-        private static readonly MethodInfo[] __absMethods =
-        {
-            MathMethod.AbsDecimal,
-            MathMethod.AbsDouble,
-            MathMethod.AbsInt16,
-            MathMethod.AbsInt32,
-            MathMethod.AbsInt64,
-            MathMethod.AbsSByte,
-            MathMethod.AbsSingle
-        };
-
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__absMethods))
+            if (method.IsOneOf(MathMethod.AbsOverloads))
             {
                 var valueExpression = arguments[0];
                 var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);

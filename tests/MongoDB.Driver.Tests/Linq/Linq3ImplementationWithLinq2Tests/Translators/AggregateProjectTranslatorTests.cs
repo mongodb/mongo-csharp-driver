@@ -19,6 +19,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
@@ -336,8 +337,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
         [Fact]
         public void Should_translate_boolToString()
         {
-            RequireServer.Check().Supports(Feature.AggregateToString);
-
             var result = Project(x => new { Result = x.K.ToString() });
 
             result.Projection.Should().Be("{ Result: { \"$toString\": \"$K\" }, _id: 0 }");
@@ -426,8 +425,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
         [Fact]
         public void Should_translate_dateTimeToString()
         {
-            RequireServer.Check().Supports(Feature.AggregateToString);
-
             var result = Project(x => new { Result = x.J.ToString() }); // without a format argument
 
             result.Projection.Should().Be("{ Result: { \"$toString\": \"$J\" }, _id: 0 }");
@@ -480,8 +477,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
         [Fact]
         public void Should_translate_decimalToString()
         {
-            RequireServer.Check().Supports(Feature.AggregateToString);
-
             var result = Project(x => new { Result = x.Z.ToString() });
 
             result.Projection.Should().Be("{ Result: { \"$toString\": \"$Z\" }, _id: 0 }");
@@ -512,8 +507,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
         [Fact]
         public void Should_translate_doubleToString()
         {
-            RequireServer.Check().Supports(Feature.AggregateToString);
-
             var result = Project(x => new { Result = x.W.ToString() });
 
             result.Projection.Should().Be("{ Result: { \"$toString\": \"$W\" }, _id: 0 }");
@@ -646,8 +639,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
         [Fact]
         public void Should_translate_intToString()
         {
-            RequireServer.Check().Supports(Feature.AggregateToString);
-
             var result = Project(x => new { Result = x.Y.ToString() });
 
             result.Projection.Should().Be("{ Result: { \"$toString\": \"$Y\" }, _id: 0 }");
@@ -726,8 +717,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
         [Fact]
         public void Should_translate_longToString()
         {
-            RequireServer.Check().Supports(Feature.AggregateToString);
-
             var result = Project(x => new { Result = x.X.ToString() });
 
             result.Projection.Should().Be("{ Result: { \"$toString\": \"$X\" }, _id: 0 }");
@@ -920,8 +909,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
         [Fact]
         public void Should_translate_objectIdToString()
         {
-            RequireServer.Check().Supports(Feature.AggregateToString);
-
             var result = Project(x => new { Result = x.ObjectId.ToString() });
 
             result.Projection.Should().Be("{ Result: { \"$toString\": \"$ObjectId\" }, _id: 0 }");
@@ -1111,7 +1098,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
         {
             RequireServer.Check();
 
-            var result = Project(x => new { Result = x.M.Reverse() });
+            var result = Project(x => new { Result = ((IEnumerable<int>)x.M).Reverse() });
 
             result.Projection.Should().Be("{ Result: { \"$reverseArray\": \"$M\" }, _id: 0 }");
 
@@ -1325,8 +1312,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
         [Fact]
         public void Should_translate_stringToString()
         {
-            RequireServer.Check().Supports(Feature.AggregateToString);
-
             var result = Project(x => new { Result = x.A.ToString() });
 
             result.Projection.Should().Be("{ Result: { \"$toString\": \"$A\" }, _id: 0 }");
@@ -1756,9 +1741,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
             var query = __collection.AsQueryable().Select(projector);
 
             var provider = (MongoQueryProvider<Root>)query.Provider;
+            var inputSerializer = (IBsonSerializer<Root>)provider.PipelineInputSerializer;
+            var serializerRegistry = provider.Collection.Settings.SerializerRegistry;
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = false };
-            var executableQuery = ExpressionToExecutableQueryTranslator.Translate<Root, TResult>(provider, query.Expression, translationOptions);
-            var projection = executableQuery.Pipeline.Ast.Stages.First().Render()["$project"].AsBsonDocument;
+            var renderedProjection = LinqProviderAdapter.TranslateExpressionToProjection(
+                projector,
+                inputSerializer,
+                serializerRegistry,
+                translationOptions);
+
+            var projection = renderedProjection.Document;
             var value = query.Take(1).FirstOrDefault();
 
             return new ProjectedResult<TResult>

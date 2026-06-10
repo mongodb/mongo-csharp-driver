@@ -26,13 +26,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
     {
         public static AstFilter Translate(TranslationContext context, BinaryExpression expression)
         {
-            var comparisonOperator = GetComparisonOperator(expression);
+            var comparisonOperator = GetAstComparisonOperator(expression);
             var leftExpression = expression.Left;
             var rightExpression = expression.Right;
 
             if (leftExpression.NodeType == ExpressionType.Constant && rightExpression.NodeType != ExpressionType.Constant)
             {
-                comparisonOperator = GetComparisonOperatorForSwappedLeftAndRight(expression);
+                comparisonOperator = comparisonOperator.GetComparisonOperatorForSwappedLeftAndRight();
                 (leftExpression, rightExpression) = (rightExpression, leftExpression);
             }
 
@@ -46,9 +46,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 return BitMaskComparisonExpressionToFilterTranslator.Translate(context, expression, leftExpression, comparisonOperator, rightExpression);
             }
 
-            if (CompareToComparisonExpressionToFilterTranslator.CanTranslate(leftExpression))
+            if (CompareComparisonExpressionToFilterTranslator.CanTranslate(leftExpression))
             {
-                return CompareToComparisonExpressionToFilterTranslator.Translate(context, expression, leftExpression, comparisonOperator, rightExpression);
+                return CompareComparisonExpressionToFilterTranslator.Translate(context, expression, leftExpression, comparisonOperator, rightExpression);
             }
 
             if (CountComparisonExpressionToFilterTranslator.CanTranslate(leftExpression, rightExpression, out var countExpression, out sizeExpression))
@@ -82,9 +82,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 throw new ExpressionNotSupportedException(expression, because: "comparand must be a constant");
             }
 
-            if (leftExpression.Type == typeof(bool) &&
+            if (leftExpression.Type == rightExpression.Type &&
                 (comparisonOperator == AstComparisonFilterOperator.Eq || comparisonOperator == AstComparisonFilterOperator.Ne) &&
-                rightExpression.Type == typeof(bool))
+                (leftExpression.Type == typeof(bool) || leftExpression.Type == typeof(bool?)) &&
+                comparandExpression.Value != null)
             {
                 return TranslateComparisonToBooleanConstant(context, expression, leftExpression, comparisonOperator, (bool)comparandExpression.Value);
             }
@@ -129,7 +130,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             }
         }
 
-        private static AstComparisonFilterOperator GetComparisonOperator(Expression expression)
+        private static AstComparisonFilterOperator GetAstComparisonOperator(Expression expression)
         {
             switch (expression.NodeType)
             {
@@ -138,20 +139,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 case ExpressionType.GreaterThanOrEqual: return AstComparisonFilterOperator.Gte;
                 case ExpressionType.LessThan: return AstComparisonFilterOperator.Lt;
                 case ExpressionType.LessThanOrEqual: return AstComparisonFilterOperator.Lte;
-                case ExpressionType.NotEqual: return AstComparisonFilterOperator.Ne;
-                default: throw new ExpressionNotSupportedException(expression);
-            }
-        }
-
-        private static AstComparisonFilterOperator GetComparisonOperatorForSwappedLeftAndRight(Expression expression)
-        {
-            switch (expression.NodeType)
-            {
-                case ExpressionType.Equal: return AstComparisonFilterOperator.Eq;
-                case ExpressionType.GreaterThan: return AstComparisonFilterOperator.Lt;
-                case ExpressionType.GreaterThanOrEqual: return AstComparisonFilterOperator.Lte;
-                case ExpressionType.LessThan: return AstComparisonFilterOperator.Gt;
-                case ExpressionType.LessThanOrEqual: return AstComparisonFilterOperator.Gte;
                 case ExpressionType.NotEqual: return AstComparisonFilterOperator.Ne;
                 default: throw new ExpressionNotSupportedException(expression);
             }

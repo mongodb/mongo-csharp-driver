@@ -18,32 +18,17 @@ using System.Reflection;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
-using MongoDB.Driver.Support;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
     internal static class ElementAtMethodToAggregationExpressionTranslator
     {
-        private static readonly MethodInfo[] __elementAtMethods =
-        {
-            EnumerableMethod.ElementAt,
-            EnumerableMethod.ElementAtOrDefault,
-            QueryableMethod.ElementAt,
-            QueryableMethod.ElementAtOrDefault
-        };
-
-        private static readonly MethodInfo[] __elementAtOrDefaultMethods =
-        {
-            EnumerableMethod.ElementAtOrDefault,
-            QueryableMethod.ElementAtOrDefault
-        };
-
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__elementAtMethods))
+            if (method.IsOneOf(EnumerableOrQueryableMethod.ElementAtOverloads))
             {
                 var sourceExpression = arguments[0];
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
@@ -54,7 +39,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var indexTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, indexExpression);
 
                 AstExpression ast;
-                if (method.IsOneOf(__elementAtOrDefaultMethods))
+                if (method.IsOneOf(EnumerableOrQueryableMethod.ElementAtOrDefault))
                 {
                     var defaultValue = itemSerializer.ValueType.GetDefaultValue();
                     var serializedDefaultValue = SerializationHelper.SerializeValue(itemSerializer, defaultValue);

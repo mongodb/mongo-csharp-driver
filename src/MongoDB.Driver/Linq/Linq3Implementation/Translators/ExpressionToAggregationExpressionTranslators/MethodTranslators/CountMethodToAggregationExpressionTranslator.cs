@@ -27,45 +27,19 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class CountMethodToAggregationExpressionTranslator
     {
-        private static readonly MethodInfo[] __countMethods;
-        private static readonly MethodInfo[] __countWithPredicateMethods;
-
-        static CountMethodToAggregationExpressionTranslator()
-        {
-            __countMethods = new[]
-            {
-                EnumerableMethod.Count,
-                EnumerableMethod.CountWithPredicate,
-                EnumerableMethod.LongCount,
-                EnumerableMethod.LongCountWithPredicate,
-                QueryableMethod.Count,
-                QueryableMethod.CountWithPredicate,
-                QueryableMethod.LongCount,
-                QueryableMethod.LongCountWithPredicate
-            };
-
-            __countWithPredicateMethods = new[]
-            {
-                EnumerableMethod.CountWithPredicate,
-                EnumerableMethod.LongCountWithPredicate,
-                QueryableMethod.CountWithPredicate,
-                QueryableMethod.LongCountWithPredicate
-            };
-        }
-
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__countMethods))
+            if (method.IsOneOf(EnumerableOrQueryableMethod.CountOverloads))
             {
                 var sourceExpression = arguments[0];
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
                 NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsQueryableSource(expression, sourceTranslation);
 
                 AstExpression ast;
-                if (method.IsOneOf(__countWithPredicateMethods))
+                if (method.IsOneOf(EnumerableOrQueryableMethod.CountWithPredicateOverloads))
                 {
                     if (sourceExpression.Type == typeof(string))
                     {

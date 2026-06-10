@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Core.Configuration
             _connectionIdLocalValueProvider = LongIdGenerator<ConnectionId>.GetNextId;
             _libraryInfo = libraryInfo.WithDefault(null);
             _loadBalanced = loadBalanced.WithDefault(false);
-            _maxIdleTime = Ensure.IsGreaterThanZero(maxIdleTime.WithDefault(TimeSpan.FromMinutes(10)), "maxIdleTime");
+            _maxIdleTime = Ensure.IsGreaterThanOrEqualToZero(maxIdleTime.WithDefault(TimeSpan.FromMinutes(10)), "maxIdleTime");
             _maxLifeTime = Ensure.IsGreaterThanZero(maxLifeTime.WithDefault(TimeSpan.FromMinutes(30)), "maxLifeTime");
             _applicationName = ApplicationNameHelper.EnsureApplicationNameIsValid(applicationName.WithDefault(null), nameof(applicationName));
         }
@@ -79,7 +79,7 @@ namespace MongoDB.Driver.Core.Configuration
             _connectionIdLocalValueProvider = connectionIdLocalValueProvider.WithDefault(LongIdGenerator<ConnectionId>.GetNextId);
             _libraryInfo = libraryInfo.WithDefault(null);
             _loadBalanced = loadBalanced.WithDefault(false);
-            _maxIdleTime = Ensure.IsGreaterThanZero(maxIdleTime.WithDefault(TimeSpan.FromMinutes(10)), "maxIdleTime");
+            _maxIdleTime = Ensure.IsGreaterThanOrEqualToZero(maxIdleTime.WithDefault(TimeSpan.FromMinutes(10)), "maxIdleTime");
             _maxLifeTime = Ensure.IsGreaterThanZero(maxLifeTime.WithDefault(TimeSpan.FromMinutes(30)), "maxLifeTime");
             _applicationName = ApplicationNameHelper.EnsureApplicationNameIsValid(applicationName.WithDefault(null), nameof(applicationName));
         }

@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2013-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -30,8 +30,10 @@ namespace MongoDB.Driver.Core.Operations
         private bool? _authorizedCollections;
         private int? _batchSize;
         private BsonValue _comment;
+        private bool _enableOverloadRetargeting;
         private BsonDocument _filter;
         private readonly DatabaseNamespace _databaseNamespace;
+        private int _maxAdaptiveRetries;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private bool? _nameOnly;
         private bool _retryRequested;
@@ -78,10 +80,24 @@ namespace MongoDB.Driver.Core.Operations
             get { return _messageEncoderSettings; }
         }
 
+        public string OperationName => "listCollections";
+
         public bool? NameOnly
         {
             get { return _nameOnly; }
             set { _nameOnly = value; }
+        }
+
+        public bool EnableOverloadRetargeting
+        {
+            get => _enableOverloadRetargeting;
+            set => _enableOverloadRetargeting = value;
+        }
+
+        public int MaxAdaptiveRetries
+        {
+            get => _maxAdaptiveRetries;
+            set => _maxAdaptiveRetries = value;
         }
 
         public bool RetryRequested
@@ -90,13 +106,15 @@ namespace MongoDB.Driver.Core.Operations
             set => _retryRequested = value;
         }
 
+        public bool IsOperationRetryable => true;
+
         public IAsyncCursor<BsonDocument> Execute(OperationContext operationContext, IReadBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
             {
-                using (var context = RetryableReadContext.Create(operationContext, binding, _retryRequested))
+                using (var context = new RetryableReadContext(binding, _retryRequested, _maxAdaptiveRetries, _enableOverloadRetargeting))
                 {
                     return Execute(operationContext, context);
                 }
@@ -121,7 +139,7 @@ namespace MongoDB.Driver.Core.Operations
 
             using (BeginOperation())
             {
-                using (var context = await RetryableReadContext.CreateAsync(operationContext, binding, _retryRequested).ConfigureAwait(false))
+                using (var context = new RetryableReadContext(binding, _retryRequested, _maxAdaptiveRetries, _enableOverloadRetargeting))
                 {
                     return await ExecuteAsync(operationContext, context).ConfigureAwait(false);
                 }
@@ -140,7 +158,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private IDisposable BeginOperation() => EventContext.BeginOperation(null, "listCollections");
+        private EventContext.OperationIdDisposer BeginOperation() => EventContext.BeginOperation(null, "listCollections");
 
         private ReadCommandOperation<BsonDocument> CreateOperation()
         {
@@ -153,9 +171,11 @@ namespace MongoDB.Driver.Core.Operations
                 { "authorizedCollections", () => _authorizedCollections.Value, _authorizedCollections.HasValue },
                 { "comment", _comment, _comment != null }
             };
-            return new ReadCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            return new ReadCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings, OperationName)
             {
-                RetryRequested = _retryRequested // might be overridden by retryable read context
+                EnableOverloadRetargeting = _enableOverloadRetargeting,
+                MaxAdaptiveRetries = _maxAdaptiveRetries,
+                RetryRequested = _retryRequested, // might be overridden by retryable read context
             };
         }
 
@@ -173,7 +193,11 @@ namespace MongoDB.Driver.Core.Operations
                 batchSize: _batchSize ?? 0,
                 0,
                 BsonDocumentSerializer.Instance,
-                _messageEncoderSettings);
+                _messageEncoderSettings,
+                maxTime: null,
+                retryRequested: _retryRequested,
+                maxAdaptiveRetries: _maxAdaptiveRetries,
+                enableOverloadRetargeting: _enableOverloadRetargeting);
 
             return cursor;
         }

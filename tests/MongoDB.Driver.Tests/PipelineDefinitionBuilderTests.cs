@@ -21,6 +21,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.GeoJsonObjectModel;
 using MongoDB.Driver.Search;
+using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
 
@@ -194,7 +195,7 @@ namespace MongoDB.Driver.Tests
 
             var stages = RenderStages(result, BsonDocumentSerializer.Instance);
             stages.Count.Should().Be(1);
-            stages[0].Should().Be("{ $merge : { into : { db : 'database', coll : 'collection' } } }");
+            stages[0].Should().BeEquivalentTo("{ $merge : { into : { db : 'database', coll : 'collection' } } }");
         }
 
         [Fact]
@@ -322,6 +323,80 @@ namespace MongoDB.Driver.Tests
             }).ParamName.Should().Be("pipeline");
         }
 
+        [Fact]
+        public void Rerank_with_single_string_path_should_render_expected_stage()
+        {
+            var pipeline = new EmptyPipelineDefinition<BsonDocument>();
+
+            var result = pipeline.Rerank(RerankQuery.Text("machine learning"), "plot", 25, "rerank-2.5");
+
+            var stages = RenderStages(result, BsonDocumentSerializer.Instance);
+            stages.Count.Should().Be(1);
+            stages[0].Should().Be("""
+                                  {
+                                      $rerank: {
+                                          "query": { "text": "machine learning" },
+                                          "path": "plot",
+                                          "numDocsToRerank": 25,
+                                          "model": "rerank-2.5"
+                                      }
+                                  }
+                                  """);
+        }
+
+        [Fact]
+        public void Rerank_with_multiple_string_paths_should_render_expected_stage()
+        {
+            var pipeline = new EmptyPipelineDefinition<BsonDocument>();
+
+            var result = pipeline.Rerank(RerankQuery.Text("machine learning"), ["plot", "title"], 100, "rerank-2.5-lite");
+
+            var stages = RenderStages(result, BsonDocumentSerializer.Instance);
+            stages.Count.Should().Be(1);
+            stages[0].Should().Be("""
+                                  {
+                                      $rerank: {
+                                          "query": { "text": "machine learning" },
+                                          "path": ["plot", "title"],
+                                          "numDocsToRerank": 100,
+                                          "model": "rerank-2.5-lite"
+                                      }
+                                  }
+                                  """);
+        }
+
+        [Fact]
+        public void Rerank_with_expression_path_should_render_expected_stage()
+        {
+            var pipeline = new EmptyPipelineDefinition<MovieWithPlot>();
+
+            var result = pipeline.Rerank(RerankQuery.Text("tutorials"), x => x.Title, 50, "rerank-2");
+
+            var stages = RenderStages(result, BsonSerializer.SerializerRegistry.GetSerializer<MovieWithPlot>());
+            stages.Count.Should().Be(1);
+            stages[0].Should().Be("""
+                                  {
+                                      $rerank: {
+                                          "query": { "text": "tutorials" },
+                                          "path": "Title",
+                                          "numDocsToRerank": 50,
+                                          "model": "rerank-2"
+                                      }
+                                  }
+                                  """);
+        }
+
+        [Fact]
+        public void Rerank_should_throw_when_pipeline_is_null()
+        {
+            PipelineDefinition<BsonDocument, BsonDocument> pipeline = null;
+
+            var exception = Record.Exception(() => pipeline.Rerank(RerankQuery.Text("query"), "field", 10, "rerank-2.5"));
+
+            exception.Should().BeOfType<ArgumentNullException>()
+                .Which.ParamName.Should().Be("pipeline");
+        }
+
         [Theory]
         [InlineData(0)]
         [InlineData(15)]
@@ -356,6 +431,120 @@ namespace MongoDB.Driver.Tests
 
             exception.Should().BeOfType<ArgumentOutOfRangeException>()
                 .Which.ParamName.Should().Be("size");
+        }
+
+        [Fact]
+        public void ScoreFusion_should_throw_when_pipeline_is_null()
+        {
+            PipelineDefinition<BsonDocument, BsonDocument> pipeline = null;
+
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                pipeline.ScoreFusion(
+                    (Dictionary<string, PipelineDefinition<BsonDocument, BsonDocument>>)null,
+                    ScoreFusionNormalization.None);
+            }).ParamName.Should().Be("pipeline");
+
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                pipeline.ScoreFusion(
+                    (PipelineDefinition<BsonDocument, BsonDocument>[])null,
+                    ScoreFusionNormalization.None);
+            }).ParamName.Should().Be("pipeline");
+
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                pipeline.ScoreFusion(
+                    ((PipelineDefinition<BsonDocument, BsonDocument>, double?)[])null,
+                    ScoreFusionNormalization.None);
+            }).ParamName.Should().Be("pipeline");
+        }
+
+        [Fact]
+        public void ScoreFusion_using_pipeline_weight_tuples_should_add_expected_stage()
+        {
+            var result = new EmptyPipelineDefinition<BsonDocument>().ScoreFusion(
+            [
+                (new EmptyPipelineDefinition<BsonDocument>().Match("{ x : 1 }").Sort("{ y : 1 }"), (double?)0.3),
+                (new EmptyPipelineDefinition<BsonDocument>().Match("{ x : 2 }").Sort("{ y : -1 }"), (double?)0.7),
+                (new EmptyPipelineDefinition<BsonDocument>().Match("{ x : 3 }").Sort("{ y : 1 }"), null)
+            ],
+            ScoreFusionNormalization.None);
+
+            var stages = RenderStages(result, BsonDocumentSerializer.Instance);
+            stages.Count.Should().Be(1);
+            stages[0].Should().Be("""
+                                  {
+                                      $scoreFusion: {
+                                          "input" : {
+                                              "pipelines" : {
+                                                 "pipeline1" : [{ "$match" : { "x" : 1 } }, { "$sort" : { "y" : 1 } }],
+                                                 "pipeline2" : [{ "$match" : { "x" : 2 } }, { "$sort" : { "y" : -1 } }],
+                                                 "pipeline3" : [{ "$match" : { "x" : 3 } }, { "$sort" : { "y" : 1 } }]
+                                              },
+                                              "normalization" : "none"
+                                          },
+                                          "combination" : { "weights" : { "pipeline1" : 0.3, "pipeline2" : 0.7 } }
+                                      }
+                                  }
+                                  """);
+        }
+
+        [Fact]
+        public void ScoreFusion_with_named_pipelines_should_add_expected_stage()
+        {
+            var result = new EmptyPipelineDefinition<BsonDocument>().ScoreFusion(
+                new Dictionary<string, PipelineDefinition<BsonDocument, BsonDocument>>
+                {
+                    { "p1", new EmptyPipelineDefinition<BsonDocument>().Match("{ x : 1 }").Sort("{ y : 1 }") },
+                    { "p2", new EmptyPipelineDefinition<BsonDocument>().Match("{ x : 2 }").Sort("{ y : -1 }") }
+                },
+                ScoreFusionNormalization.None,
+                new Dictionary<string, double> { { "p1", 0.3 }, { "p2", 0.7 } });
+
+            var stages = RenderStages(result, BsonDocumentSerializer.Instance);
+            stages.Count.Should().Be(1);
+            stages[0].Should().Be("""
+                                  {
+                                      $scoreFusion: {
+                                          "input" : {
+                                              "pipelines" : {
+                                                 "p1" : [{ "$match" : { "x" : 1 } }, { "$sort" : { "y" : 1 } }],
+                                                 "p2" : [{ "$match" : { "x" : 2 } }, { "$sort" : { "y" : -1 } }]
+                                              },
+                                              "normalization" : "none"
+                                          },
+                                          "combination" : { "weights" : { "p1" : 0.3, "p2" : 0.7 } }
+                                      }
+                                  }
+                                  """);
+        }
+
+        [Fact]
+        public void ScoreFusion_without_named_pipelines_should_add_expected_stage()
+        {
+            var result = new EmptyPipelineDefinition<BsonDocument>().ScoreFusion(
+            [
+                new EmptyPipelineDefinition<BsonDocument>().Match("{ x : 1 }").Sort("{ y : 1 }"),
+                new EmptyPipelineDefinition<BsonDocument>().Match("{ x : 2 }").Sort("{ y : -1 }")
+            ],
+            ScoreFusionNormalization.None);
+
+            var stages = RenderStages(result, BsonDocumentSerializer.Instance);
+            stages.Count.Should().Be(1);
+            stages[0].Should().Be("""
+                                  {
+                                      $scoreFusion: {
+                                          "input" : {
+                                              "pipelines" : {
+                                                 "pipeline1" : [{ "$match" : { "x" : 1 } }, { "$sort" : { "y" : 1 } }],
+                                                 "pipeline2" : [{ "$match" : { "x" : 2 } }, { "$sort" : { "y" : -1 } }]
+                                              },
+                                              "normalization" : "none"
+                                          }
+                                      }
+                                  }
+                                  """);
         }
 
         [Fact]
@@ -614,7 +803,7 @@ namespace MongoDB.Driver.Tests
             var result = pipeline.VectorSearch("x", new[] { 1.0, 2.0, 3.0 }, 1);
 
             var stages = RenderStages(result, BsonDocumentSerializer.Instance);
-            stages[0].Should().Be("{ $vectorSearch: { queryVector: [1.0, 2.0, 3.0], path: 'x', limit: 1, numCandidates: 10, index : 'default' } }");
+            stages[0].Should().BeEquivalentTo("{ $vectorSearch: { queryVector: [1.0, 2.0, 3.0], path: 'x', limit: 1, numCandidates: 10, index : 'default' } }");
         }
 
         [Fact]
@@ -624,7 +813,7 @@ namespace MongoDB.Driver.Tests
             var result = pipeline.VectorSearch("x", new[] { 1f, 2f, 3f }, 1);
 
             var stages = RenderStages(result, BsonDocumentSerializer.Instance);
-            stages[0].Should().Be("{ $vectorSearch: { queryVector: [1.0, 2.0, 3.0],  path: 'x', limit: 1, numCandidates: 10, index : 'default'  } }");
+            stages[0].Should().BeEquivalentTo("{ $vectorSearch: { queryVector: [1.0, 2.0, 3.0],  path: 'x', limit: 1, numCandidates: 10, index : 'default'  } }");
         }
 
         [Fact]
@@ -640,7 +829,160 @@ namespace MongoDB.Driver.Tests
             var result = pipeline.VectorSearch("x", new[] { 1.0, 2.0, 3.0 }, 1, options);
 
             var stages = RenderStages(result, BsonDocumentSerializer.Instance);
-            stages[0].Should().Be("{ $vectorSearch: { queryVector: [1.0, 2.0, 3.0], path: 'x', limit: 1, numCandidates: 123, index: 'index_name', filter : { $and : [{ x : { $eq : 1 } }, { y : { $eq : 2 } }] } } }");
+            stages[0].Should().BeEquivalentTo("{ $vectorSearch: { queryVector: [1.0, 2.0, 3.0], path: 'x', limit: 1, numCandidates: 123, index: 'index_name', filter : { $and : [{ x : { $eq : 1 } }, { y : { $eq : 2 } }] } } }");
+        }
+
+        [Fact]
+        public void VectorSearch_should_add_expected_stage_with_ReturnStoredSource()
+        {
+            var pipeline = new EmptyPipelineDefinition<BsonDocument>();
+            var options = new VectorSearchOptions<BsonDocument>()
+            {
+                IndexName = "index_name",
+                ReturnStoredSource = true
+            };
+            var result = pipeline.VectorSearch("x", new[] { 1.0, 2.0, 3.0 }, 1, options);
+
+            var stages = RenderStages(result, BsonDocumentSerializer.Instance);
+            stages[0].Should().BeEquivalentTo("{ $vectorSearch: { queryVector: [1.0, 2.0, 3.0], path: 'x', limit: 1, numCandidates: 10, index: 'index_name', returnStoredSource: true } }");
+        }
+
+        [Fact]
+        public void VectorSearch_should_add_expected_stage_with_nested_options()
+        {
+            var pipeline = new EmptyPipelineDefinition<BsonDocument>();
+            var options = new VectorSearchOptions<BsonDocument>()
+            {
+                IndexName = "index_name",
+                EmbeddedScoreMode = SearchScoreFunction.Average,
+            };
+            var result = pipeline.VectorSearch("x.y", new[] { 1.0, 2.0, 3.0 }, 1, options);
+
+            var stages = RenderStages(result, BsonDocumentSerializer.Instance);
+            stages[0].Should().BeEquivalentTo("{ $vectorSearch: { queryVector: [1.0, 2.0, 3.0], path: 'x.y', limit: 1, numCandidates: 10, index: 'index_name', nestedOptions: { scoreMode: 'avg' } } }");
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void VectorSearch_should_add_expected_stage_with_parent_filters([Values(false, true)] bool expressions)
+        {
+            var pipeline = new EmptyPipelineDefinition<MovieWithPlot>();
+            var options = new VectorSearchOptions<MovieWithPlot>()
+            {
+                IndexName = "index_name",
+            };
+
+            if (expressions)
+            {
+                options.Filter = Builders<MovieWithPlot>.Filter.Gt(m => m.Year, 1900);
+                options.NestedFilter = Builders<MovieWithPlot>.Filter.Lt(m => m.Plot.Rating, 6)
+                                       & Builders<MovieWithPlot>.Filter.Eq(m => m.Plot.Synced, true);
+            }
+            else
+            {
+                options.Filter = Builders<MovieWithPlot>.Filter.Gt("Year", 1900);
+                options.NestedFilter = Builders<MovieWithPlot>.Filter.Lt("Plot.Rating", 6)
+                                       & Builders<MovieWithPlot>.Filter.Eq("Plot.Synced", true);
+            }
+
+            var result = pipeline.VectorSearch(m => m.Plot.PlotEmbedding, new[] { 1.0, 2.0, 3.0 }, 1, options);
+
+            var stages = RenderStages(result, BsonSerializer.SerializerRegistry.GetSerializer<MovieWithPlot>());
+            stages[0].Should().BeEquivalentTo("{ $vectorSearch: { queryVector: [1.0, 2.0, 3.0], path: 'Plot.PlotEmbedding', limit: 1, numCandidates: 10, index: 'index_name', filter: { '$and' : [{ Rating: { '$lt' : 6 } }, { Synced: { '$eq' : true } }] }, parentFilter: { 'Year' : { '$gt' : 1900 } } } }");
+        }
+
+        [Fact]
+        public void VectorSearch_should_add_expected_stage_with_filter_but_no_nested_filters()
+        {
+            var result = new EmptyPipelineDefinition<MovieWithPlot>().VectorSearch(m => m.Plot.PlotEmbedding,
+                new[] { 1.0, 2.0, 3.0 }, 1, new VectorSearchOptions<MovieWithPlot>()
+                {
+                    IndexName = "index_name",
+                    Filter = Builders<MovieWithPlot>.Filter.Lt("Plot.Rating", 6)
+                             & Builders<MovieWithPlot>.Filter.Eq("Plot.Synced", true)
+                });
+
+            var stages = RenderStages(result, BsonSerializer.SerializerRegistry.GetSerializer<MovieWithPlot>());
+            stages[0].Should().BeEquivalentTo(
+                "{ $vectorSearch: { queryVector: [1.0, 2.0, 3.0], path: 'Plot.PlotEmbedding', limit: 1, numCandidates: 10, index: 'index_name', filter: { '$and' : [{ 'Plot.Rating': { '$lt' : 6 } }, { 'Plot.Synced': { '$eq' : true } }] } } }");
+        }
+
+        private class MovieWithPlot
+        {
+            public string Title { get; set; }
+            public string Synopsis { get; set; }
+            public int Year { get; set; }
+            public NestedPlot Plot { get; set; }
+            public float[] NonNestedEmbedding  { get; set; }
+        }
+
+        private class NestedPlot
+        {
+            public bool Synced { get; set; }
+            public int Rating  { get; set; }
+            public float[] PlotEmbedding  { get; set; }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void VectorSearch_should_throw_when_filter_is_at_wrong_level([Values(false, true)] bool expressions)
+        {
+            var pipeline = new EmptyPipelineDefinition<MovieWithPlot>();
+            var options = new VectorSearchOptions<MovieWithPlot>()
+            {
+                IndexName = "index_name",
+            };
+
+            options.NestedFilter = expressions
+                ? Builders<MovieWithPlot>.Filter.Lt(m => m.Year, 1900)
+                : Builders<MovieWithPlot>.Filter.Lt("Year", 1900);
+
+            var result = pipeline.VectorSearch(m => m.Plot.PlotEmbedding, new[] { 1.0, 2.0, 3.0 }, 1, options);
+
+            var exception = Record.Exception(() => RenderStages(result, BsonSerializer.SerializerRegistry.GetSerializer<MovieWithPlot>()));
+
+            exception.Should().BeOfType<InvalidOperationException>()
+                .Which.Message.Should().Contain("The field 'Year' is not part of the nested document 'Plot', which is the root of this search.");
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void VectorSearch_should_throw_when_nested_filter_is_used_without_nesting([Values(false, true)] bool expressions)
+        {
+            var pipeline = new EmptyPipelineDefinition<MovieWithPlot>();
+            var options = new VectorSearchOptions<MovieWithPlot>()
+            {
+                IndexName = "index_name",
+            };
+
+            options.NestedFilter = expressions
+                ? Builders<MovieWithPlot>.Filter.Lt(m => m.Plot.Rating, 1900)
+                : Builders<MovieWithPlot>.Filter.Lt("Plot.Rating", 1900);
+
+            var result = pipeline.VectorSearch(m => m.NonNestedEmbedding, new[] { 1.0, 2.0, 3.0 }, 1, options);
+
+            var exception = Record.Exception(() => RenderStages(result, BsonSerializer.SerializerRegistry.GetSerializer<MovieWithPlot>()));
+
+            exception.Should().BeOfType<InvalidOperationException>()
+                .Which.Message.Should().Contain("A nested filter was specified for the search against field 'NonNestedEmbedding',");
+        }
+
+        [Fact]
+        public void VectorSearch_should_throw_when_embedded_score_is_used_without_nesting()
+        {
+            var pipeline = new EmptyPipelineDefinition<MovieWithPlot>();
+            var options = new VectorSearchOptions<MovieWithPlot>()
+            {
+                IndexName = "index_name",
+                EmbeddedScoreMode = SearchScoreFunction.Average,
+            };
+
+            var result = pipeline.VectorSearch(m => m.NonNestedEmbedding, new[] { 1.0, 2.0, 3.0 }, 1, options);
+
+            var exception = Record.Exception(() => RenderStages(result, BsonSerializer.SerializerRegistry.GetSerializer<MovieWithPlot>()));
+
+            exception.Should().BeOfType<InvalidOperationException>()
+                .Which.Message.Should().Contain("The option 'EmbeddedScoreMode' was set for the search against field 'NonNestedEmbedding', but the field is not nested.");
         }
 
         [Fact]

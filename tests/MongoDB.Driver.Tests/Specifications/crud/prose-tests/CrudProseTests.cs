@@ -20,7 +20,6 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core;
-using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
@@ -47,11 +46,6 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
         [Fact]
         public void WriteConcernError_details_should_expose_writeConcernError_errInfo()
         {
-            var failPointFeature = CoreTestConfiguration.Cluster.Description.Type == ClusterType.Sharded
-                ? Feature.FailPointsFailCommandForSharded
-                : Feature.FailPointsFailCommand;
-            RequireServer.Check().Supports(failPointFeature);
-
             var failPointCommand = @"
                 {
                     configureFailPoint : 'failCommand',
@@ -298,8 +292,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
             if (isInTransaction)
             {
                 RequireServer.Check()
-                    .ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded)
-                    .Supports(Feature.Transactions);
+                    .ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded);
             }
 
             var maxDocumentSize = DriverTestConfiguration.GetConnectionDescription().MaxDocumentSize;
@@ -696,13 +689,8 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
         }
 
         // private methods
-        private FailPoint ConfigureFailPoint(string failpointCommand)
-        {
-            var cluster = DriverTestConfiguration.Client.GetClusterInternal();
-            var session = NoCoreSession.NewHandle();
-
-            return FailPoint.Configure(cluster, session, BsonDocument.Parse(failpointCommand));
-        }
+        private FailPoint ConfigureFailPoint(string failpointCommand) =>
+            FailPoint.Configure(BsonDocument.Parse(failpointCommand));
 
         private IMongoClient CreateMongoClient(EventCapturer eventCapturer = null)
         {

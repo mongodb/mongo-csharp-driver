@@ -43,6 +43,7 @@ namespace MongoDB.Driver.Core
         private readonly Dictionary<Type, Func<object, bool>> _eventsToCapture;
         private readonly object _lock = new object();
         private readonly IEventSubscriber _subscriber;
+        private volatile bool _enabled = true;
 
         public EventCapturer(IEventFormatter eventFormatter = null)
         {
@@ -128,6 +129,11 @@ namespace MongoDB.Driver.Core
         {
             var notifier = new EventNotifier(this, condition);
             return notifier.Initialize();
+        }
+
+        public void Stop()
+        {
+            _enabled = false;
         }
 
         public override string ToString()
@@ -217,6 +223,11 @@ namespace MongoDB.Driver.Core
         // private methods
         private void Capture<TEvent>(TEvent @event)
         {
+            if (!_enabled)
+            {
+                return;
+            }
+
             var obj = @event as object;
             if (obj == null)
             {

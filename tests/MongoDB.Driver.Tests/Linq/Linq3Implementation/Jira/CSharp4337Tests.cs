@@ -32,10 +32,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
     {
         private static (Expression<Func<C, R<bool>>> Projection, string ExpectedStage, bool[] ExpectedResults)[] __predicate_should_use_correct_representation_test_cases = new (Expression<Func<C, R<bool>>> Projection, string ExpectedStage, bool[] ExpectedResults)[]
         {
-            (d => new R<bool> { N = d.Id, V = d.I1 == E.E1 ? true : false }, "{ $project : { N : '$_id', V : { $cond : { if : { $eq : ['$I1', 1] }, then : true, else : false } }, _id : 0 } }", new[] { true, false }),
-            (d => new R<bool> { N = d.Id, V = d.S1 == E.E1 ? true : false }, "{ $project : { N : '$_id', V : { $cond : { if : { $eq : ['$S1', 'E1'] }, then : true, else : false } }, _id : 0 } }", new[] { true, false }),
-            (d => new R<bool> { N = d.Id, V = E.E1 == d.I1 ? true : false }, "{ $project : { N : '$_id', V : { $cond : { if : { $eq : [1, '$I1'] }, then : true, else : false } }, _id : 0 } }", new[] { true, false }),
-            (d => new R<bool> { N = d.Id, V = E.E1 == d.S1 ? true : false }, "{ $project : { N : '$_id', V : { $cond : { if : { $eq : ['E1', '$S1'] }, then : true, else : false } }, _id : 0 } }", new[] { true, false })
+            (d => new R<bool> { N = d.Id, V = d.I1 == E.E1 ? true : false }, "{ $project : { N : '$_id', V : { $eq : ['$I1', 1] }, _id : 0 } }", new[] { true, false }),
+            (d => new R<bool> { N = d.Id, V = d.S1 == E.E1 ? true : false }, "{ $project : { N : '$_id', V : { $eq : ['$S1', 'E1'] }, _id : 0 } }", new[] { true, false }),
+            (d => new R<bool> { N = d.Id, V = E.E1 == d.I1 ? true : false }, "{ $project : { N : '$_id', V : { $eq : [1, '$I1'] }, _id : 0 } }", new[] { true, false }),
+            (d => new R<bool> { N = d.Id, V = E.E1 == d.S1 ? true : false }, "{ $project : { N : '$_id', V : { $eq : ['E1', '$S1'] }, _id : 0 } }", new[] { true, false })
         };
 
         public CSharp4337Tests(ClassFixture fixture)

@@ -14,12 +14,14 @@ failPoint:
     closeConnection: false
     blockConnection: true
     blockTimeMS: 750
+    appName: "PoolCheckoutMaxConnectingTimeout"
 poolOptions:
   maxPoolSize: 10
   # Drivers that limit connection establishment by waitQueueTimeoutMS may skip
   # this test. While waitQueueTimeoutMS is technically not supposed to limit establishment time,
   # it will soon be deprecated, so it is easier for those drivers to just skip this test.
   waitQueueTimeoutMS: 50
+  appName: "PoolCheckoutMaxConnectingTimeout"
 operations:
   - name: ready
   # start creating two connections simultaneously.

@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Authentication
             // authentication is currently broken on arbiters
             if (!description.HelloResult.IsArbiter)
             {
-                    await authenticator.AuthenticateAsync(operationContext, connection, description).ConfigureAwait(false);
+                await authenticator.AuthenticateAsync(operationContext, connection, description).ConfigureAwait(false);
             }
         }
 

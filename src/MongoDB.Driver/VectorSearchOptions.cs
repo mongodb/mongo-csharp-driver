@@ -27,6 +27,12 @@ namespace MongoDB.Driver
         public FilterDefinition<TDocument> Filter { get; set; }
 
         /// <summary>
+        /// Gets or sets the nested filter. This can only be used when the vector search is performed on a nested
+        /// document, in which case this filter can be used as an additional filter on the nested documents.
+        /// </summary>
+        public FilterDefinition<TDocument> NestedFilter { get; set; }
+
+        /// <summary>
         /// Gets or sets the name of the index.
         /// </summary>
         public string IndexName { get; set; }
@@ -37,9 +43,25 @@ namespace MongoDB.Driver
         public int? NumberOfCandidates { get; set; }
 
         /// <summary>
-        /// Get or sets a value indicating if exact nearest neighbor (ENN) is to be used, false by default.
+        /// Gets or sets a value indicating if exact nearest neighbor (ENN) is to be used, false by default.
         /// If false, approximate nearest neighbor (ANN) is used.
         /// </summary>
         public bool Exact { get; set; }
+
+        /// <summary>
+        /// The model to for auto-embedding in the query. Must be compatible with the model used to create the index.
+        /// </summary>
+        public string AutoEmbeddingModelName { get; set; }
+
+        /// <summary>
+        /// Gets or sets a flag that specifies whether to perform a full document lookup on the backend database
+        /// or return only stored source fields directly from Atlas Search.
+        /// </summary>
+        public bool ReturnStoredSource { get; set; }
+
+        /// <summary>
+        /// Gets or sets the function to use when scoring results from a search on embedded documents.
+        /// </summary>
+        public SearchScoreFunction? EmbeddedScoreMode { get; set; }
     }
 }

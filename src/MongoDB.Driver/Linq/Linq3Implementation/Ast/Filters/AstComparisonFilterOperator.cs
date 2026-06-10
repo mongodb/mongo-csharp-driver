@@ -29,6 +29,20 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters
 
     internal static class AstComparisonFilterOperatorExtensions
     {
+        public static AstComparisonFilterOperator GetComparisonOperatorForSwappedLeftAndRight(this AstComparisonFilterOperator @operator)
+        {
+            return @operator switch
+            {
+                AstComparisonFilterOperator.Eq => AstComparisonFilterOperator.Eq,
+                AstComparisonFilterOperator.Gt => AstComparisonFilterOperator.Lt,
+                AstComparisonFilterOperator.Gte => AstComparisonFilterOperator.Lte,
+                AstComparisonFilterOperator.Lt => AstComparisonFilterOperator.Gt,
+                AstComparisonFilterOperator.Lte => AstComparisonFilterOperator.Gte,
+                AstComparisonFilterOperator.Ne => AstComparisonFilterOperator.Ne,
+                _ => throw new InvalidOperationException($"Unexpected comparison filter operator: {@operator}.")
+            };
+        }
+
         public static string Render(this AstComparisonFilterOperator @operator)
         {
             return @operator switch

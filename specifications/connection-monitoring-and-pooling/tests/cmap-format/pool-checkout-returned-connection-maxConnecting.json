@@ -19,12 +19,15 @@
       ],
       "closeConnection": false,
       "blockConnection": true,
-      "blockTimeMS": 750
+      "blockTimeMS": 750,
+      "appName": "PoolCheckoutReturnedConnectionMaxConnecting"
     }
   },
   "poolOptions": {
+    "maxConnecting": 2,
     "maxPoolSize": 10,
-    "waitQueueTimeoutMS": 5000
+    "waitQueueTimeoutMS": 5000,
+    "appName": "PoolCheckoutReturnedConnectionMaxConnecting"
   },
   "operations": [
     {
@@ -72,9 +75,8 @@
       "connection": "conn0"
     },
     {
-      "name": "waitForEvent",
-      "event": "ConnectionCheckedOut",
-      "count": 4
+      "name": "wait",
+      "ms": 100
     }
   ],
   "events": [
@@ -103,14 +105,6 @@
     {
       "type": "ConnectionCheckedOut",
       "connectionId": 1,
-      "address": 42
-    },
-    {
-      "type": "ConnectionCheckedOut",
-      "address": 42
-    },
-    {
-      "type": "ConnectionCheckedOut",
       "address": 42
     }
   ],

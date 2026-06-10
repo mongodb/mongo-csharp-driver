@@ -35,8 +35,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void DateTime_ToString_with_no_arguments_should_work()
         {
-            RequireServer.Check().Supports(Feature.ToConversionOperators);
-
             var collection = Fixture.Collection;
 
             var queryable = collection
@@ -141,8 +139,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void NullableDateTime_ToString_with_no_arguments_should_work()
         {
-            RequireServer.Check().Supports(Feature.ToConversionOperators);
-
             var collection = Fixture.Collection;
 
             var queryable = collection

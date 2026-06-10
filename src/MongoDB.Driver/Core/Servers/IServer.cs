@@ -18,6 +18,7 @@ using System.Net;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver.Core.Servers
@@ -40,6 +41,7 @@ namespace MongoDB.Driver.Core.Servers
 
     internal interface IClusterableServer : IServer, IDisposable
     {
+        IConnectionPool ConnectionPool { get; }
         bool IsInitialized { get; }
         int OutstandingOperationsCount { get; }
 

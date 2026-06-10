@@ -31,87 +31,25 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class PickMethodToAggregationExpressionTranslator
     {
-        private static readonly MethodInfo[] __pickMethods = new[]
-        {
-            EnumerableMethod.Bottom,
-            EnumerableMethod.BottomN,
-            EnumerableMethod.BottomNWithComputedN,
-            EnumerableMethod.FirstN,
-            EnumerableMethod.FirstNWithComputedN,
-            EnumerableMethod.LastN,
-            EnumerableMethod.LastNWithComputedN,
-            EnumerableMethod.MaxN,
-            EnumerableMethod.MaxNWithComputedN,
-            EnumerableMethod.MinN,
-            EnumerableMethod.MinNWithComputedN,
-            EnumerableMethod.Top,
-            EnumerableMethod.TopN,
-            EnumerableMethod.TopNWithComputedN
-        };
-
-        private static readonly MethodInfo[] __withNMethods = new[]
-        {
-            EnumerableMethod.BottomN,
-            EnumerableMethod.FirstN,
-            EnumerableMethod.LastN,
-            EnumerableMethod.MaxN,
-            EnumerableMethod.MinN,
-            EnumerableMethod.TopN
-        };
-
-        private static readonly MethodInfo[] __withComputedNMethods = new[]
-        {
-            EnumerableMethod.BottomNWithComputedN,
-            EnumerableMethod.FirstNWithComputedN,
-            EnumerableMethod.LastNWithComputedN,
-            EnumerableMethod.MaxNWithComputedN,
-            EnumerableMethod.MinNWithComputedN,
-            EnumerableMethod.TopNWithComputedN
-        };
-
-        private static readonly MethodInfo[] __withSortByMethods = new[]
-        {
-            EnumerableMethod.Bottom,
-            EnumerableMethod.BottomN,
-            EnumerableMethod.BottomNWithComputedN,
-            EnumerableMethod.Top,
-            EnumerableMethod.TopN,
-            EnumerableMethod.TopNWithComputedN
-        };
-
-        private static readonly MethodInfo[] __accumulatorOnlyMethods = new[]
-        {
-            EnumerableMethod.Bottom,
-            EnumerableMethod.BottomN,
-            EnumerableMethod.BottomNWithComputedN,
-            EnumerableMethod.FirstNWithComputedN,
-            EnumerableMethod.LastNWithComputedN,
-            EnumerableMethod.MaxNWithComputedN,
-            EnumerableMethod.MinNWithComputedN,
-            EnumerableMethod.Top,
-            EnumerableMethod.TopN,
-            EnumerableMethod.TopNWithComputedN
-        };
-
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments.ToArray();
 
-            if (method.IsOneOf(__pickMethods))
+            if (method.IsOneOf(EnumerableMethod.PickOverloads))
             {
                 var sourceExpression = arguments[0];
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
                 NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsQueryableSource(expression, sourceTranslation);
                 var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
 
-                if (method.IsOneOf(__accumulatorOnlyMethods) && !IsGroupingSource(sourceTranslation.Ast))
+                if (method.IsOneOf(EnumerableMethod.PickOverloadsThatCanOnlyBeUsedAsGroupByAccumulators) && !IsGroupingSource(sourceTranslation.Ast))
                 {
                     throw new ExpressionNotSupportedException(expression, because: $"{method.Name} can only be used as an accumulator with GroupBy");
                 }
 
                 AstSortFields sortBy = null;
-                if (method.IsOneOf(__withSortByMethods))
+                if (method.IsOneOf(EnumerableMethod.PickWithSortByOverloads))
                 {
                     var sortByExpression = arguments[1];
                     var sortByDefinition = GetSortByDefinition(sortByExpression, expression);
@@ -126,10 +64,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                 TranslatedExpression nTranslation = null;
                 IBsonSerializer resultSerializer;
-                if (method.IsOneOf(__withNMethods, __withComputedNMethods))
+                if (method.IsOneOf(EnumerableMethod.PickWithNOverloads, EnumerableMethod.PickWithComputedNOverloads))
                 {
                     var nExpression = arguments.Last();
-                    if (method.IsOneOf(__withNMethods))
+                    if (method.IsOneOf(EnumerableMethod.PickWithNOverloads))
                     {
                         nTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, nExpression);
                     }

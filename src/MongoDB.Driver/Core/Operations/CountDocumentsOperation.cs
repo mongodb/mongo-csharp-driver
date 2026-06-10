@@ -1,4 +1,4 @@
-﻿/* Copyright 2018-present MongoDB Inc.
+/* Copyright 2018-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -30,9 +30,11 @@ namespace MongoDB.Driver.Core.Operations
         private Collation _collation;
         private readonly CollectionNamespace _collectionNamespace;
         private BsonValue _comment;
+        private bool _enableOverloadRetargeting;
         private BsonDocument _filter;
         private BsonValue _hint;
         private long? _limit;
+        private int _maxAdaptiveRetries;
         private TimeSpan? _maxTime;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private ReadConcern _readConcern = ReadConcern.Default;
@@ -91,10 +93,24 @@ namespace MongoDB.Driver.Core.Operations
             get { return _messageEncoderSettings; }
         }
 
+        public string OperationName => "countDocuments";
+
         public ReadConcern ReadConcern
         {
             get { return _readConcern; }
             set { _readConcern = Ensure.IsNotNull(value, nameof(value)); }
+        }
+
+        public bool EnableOverloadRetargeting
+        {
+            get => _enableOverloadRetargeting;
+            set => _enableOverloadRetargeting = value;
+        }
+
+        public int MaxAdaptiveRetries
+        {
+            get => _maxAdaptiveRetries;
+            set => _maxAdaptiveRetries = value;
         }
 
         public bool RetryRequested
@@ -102,6 +118,8 @@ namespace MongoDB.Driver.Core.Operations
             get => _retryRequested;
             set => _retryRequested = value;
         }
+
+        public bool IsOperationRetryable => true;
 
         public long? Skip
         {
@@ -135,7 +153,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private IDisposable BeginOperation() => EventContext.BeginOperation("aggregate");
+        private EventContext.OperationNameDisposer BeginOperation() => EventContext.BeginOperation("aggregate");
 
         private AggregateOperation<BsonDocument> CreateOperation()
         {
@@ -146,6 +164,8 @@ namespace MongoDB.Driver.Core.Operations
                 Comment = _comment,
                 Hint = _hint,
                 MaxTime = _maxTime,
+                EnableOverloadRetargeting = _enableOverloadRetargeting,
+                MaxAdaptiveRetries = _maxAdaptiveRetries,
                 ReadConcern = _readConcern,
                 RetryRequested = _retryRequested
             };

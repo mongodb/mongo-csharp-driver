@@ -50,6 +50,30 @@ namespace MongoDB.Driver.Tests
             exception.Should().BeOfType<ArgumentOutOfRangeException>();
         }
 
+        [Fact]
+        public void Constructor_with_metadata_should_initialize_all_properties()
+        {
+            var timeout = TimeSpan.FromSeconds(30);
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
+
+            using var operationContext = new OperationContext(
+                timeout,
+                "find",
+                "testdb",
+                "testcol",
+                true,
+                cancellationToken);
+
+            operationContext.Timeout.Should().Be(timeout);
+            operationContext.CancellationToken.Should().Be(cancellationToken);
+            operationContext.OperationName.Should().Be("find");
+            operationContext.DatabaseName.Should().Be("testdb");
+            operationContext.CollectionName.Should().Be("testcol");
+            operationContext.IsTracingEnabled.Should().BeTrue();
+            operationContext.RootContext.Should().Be(operationContext);
+        }
+
         [Theory]
         [InlineData(Timeout.Infinite, 0)]
         [InlineData(Timeout.Infinite, 100)]
@@ -81,6 +105,25 @@ namespace MongoDB.Driver.Tests
             forkedContext.Timeout.Should().Be(originalContext.Timeout);
             forkedContext.Elapsed.Should().Be(originalContext.Elapsed);
             forkedContext.RootContext.Should().Be(originalContext.RootContext);
+        }
+
+        [Fact]
+        public void ForkWithOperationMetadata_should_copy_context_and_set_metadata()
+        {
+            using var cancellationTokenSource = new CancellationTokenSource();
+            using var originalContext = CreateSubject(TimeSpan.FromMilliseconds(100), TimeSpan.FromMilliseconds(25), cancellationTokenSource.Token);
+
+            using var forkedContext = originalContext.ForkWithOperationMetadata("insert", "mydb", "mycol", true);
+
+            forkedContext.Should().NotBe(originalContext);
+            forkedContext.CancellationToken.Should().Be(originalContext.CancellationToken);
+            forkedContext.Timeout.Should().Be(originalContext.Timeout);
+            forkedContext.Elapsed.Should().Be(originalContext.Elapsed);
+            forkedContext.RootContext.Should().Be(originalContext.RootContext);
+            forkedContext.OperationName.Should().Be("insert");
+            forkedContext.DatabaseName.Should().Be("mydb");
+            forkedContext.CollectionName.Should().Be("mycol");
+            forkedContext.IsTracingEnabled.Should().BeTrue();
         }
 
         [Fact]
@@ -298,6 +341,20 @@ namespace MongoDB.Driver.Tests
             using var resultContext = rootContext.WithTimeout(TimeSpan.FromSeconds(10));
 
             resultContext.RootContext.Should().Be(rootContext);
+        }
+
+        [Fact]
+        public void WithTimeout_should_preserve_operation_metadata()
+        {
+            using var originalContext = CreateSubject(timeout: TimeSpan.FromSeconds(100), elapsed: TimeSpan.Zero);
+            using var contextWithMetadata = originalContext.ForkWithOperationMetadata("find", "testdb", "testcol", true);
+
+            using var resultContext = contextWithMetadata.WithTimeout(TimeSpan.FromSeconds(50));
+
+            resultContext.OperationName.Should().Be("find");
+            resultContext.DatabaseName.Should().Be("testdb");
+            resultContext.CollectionName.Should().Be("testcol");
+            resultContext.IsTracingEnabled.Should().BeTrue();
         }
 
         [Fact]

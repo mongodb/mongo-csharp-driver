@@ -14,6 +14,7 @@
 */
 
 using System.Collections.Generic;
+using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
@@ -39,6 +40,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 BypassDocumentValidation = BypassDocumentValidation,
                 Comment = Comment,
+                IsOperationRetryable = batch.Requests.Items.All(r => r.IsRetryable()),
                 IsOrdered = IsOrdered,
                 MaxBatchCount = MaxBatchCount,
                 RetryRequested = RetryRequested,

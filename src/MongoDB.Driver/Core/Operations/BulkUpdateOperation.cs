@@ -14,6 +14,7 @@
 */
 
 using System.Collections.Generic;
+using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
@@ -45,6 +46,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 BypassDocumentValidation = BypassDocumentValidation,
                 Comment = Comment,
+                IsOperationRetryable = batch.Requests.Items.All(r => r.IsRetryable()),
                 IsOrdered = IsOrdered,
                 Let = _let,
                 MaxBatchCount = MaxBatchCount,

@@ -200,7 +200,8 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void Function_should_return_expected_result()
         {
-            RequireServer.Check().Supports(Feature.AggregateFunction);
+            RequireServer.Check().Supports(Feature.AggregateFunction)
+                .VersionLessThan("8.99.99"); // Disable the test on the latest/rapid temporarily while SERVER-127318 is being fixed.
 
             var client = DriverTestConfiguration.Client;
             var databaseName = "test";

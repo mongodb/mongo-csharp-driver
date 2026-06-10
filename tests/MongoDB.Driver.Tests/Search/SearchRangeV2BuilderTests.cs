@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Tests.Search
         [InlineData(0, 1, true, true)]
         [InlineData(0, 1, false, true)]
         [InlineData(0, 1, true, false)]
-        [InlineData(0, 1, true, true)]
+        [InlineData(0, 1, false, false)]
         public void SearchRangeV2Builder_should_return_valid_instance(int? min, int? max, bool minInclusive, bool maxInclusive)
         {
             SearchRangeV2<int>? subject = null;

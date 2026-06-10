@@ -115,9 +115,10 @@ namespace MongoDB.Driver.Core.Operations
         public override BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber)
         {
             var wireVersion = connectionDescription.MaxWireVersion;
-            FindProjectionChecker.ThrowIfAggregationExpressionIsUsedWhenNotSupported(_projection, wireVersion);
-
+            // TODO: Investigate and remove code below in scope of https://jira.mongodb.org/browse/CSHARP-6061
+#pragma warning disable CS0618 // Type or member is obsolete
             if (Feature.HintForFindAndModifyFeature.DriverMustThrowIfNotSupported(wireVersion) || (WriteConcern != null && !WriteConcern.IsAcknowledged))
+#pragma warning restore CS0618 // Type or member is obsolete
             {
                 if (_hint != null)
                 {
@@ -125,6 +126,7 @@ namespace MongoDB.Driver.Core.Operations
                 }
             }
 
+            var readConcern = ReadConcernHelper.GetReadConcernForWriteCommand(session, connectionDescription);
             var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, session, WriteConcern);
             return new BsonDocument
             {
@@ -136,6 +138,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "fields", _projection, _projection != null },
                 { "upsert", true, _isUpsert },
                 { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue && !operationContext.IsRootContextTimeoutConfigured() },
+                { "readConcern", readConcern, readConcern != null },
                 { "writeConcern", writeConcern, writeConcern != null },
                 { "bypassDocumentValidation", () => _bypassDocumentValidation.Value, _bypassDocumentValidation.HasValue },
                 { "collation", () => Collation.ToBsonDocument(), Collation != null },

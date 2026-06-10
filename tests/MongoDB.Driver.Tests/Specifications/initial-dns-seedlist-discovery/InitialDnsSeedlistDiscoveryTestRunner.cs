@@ -39,6 +39,8 @@ namespace MongoDB.Driver.Tests.Specifications.initial_dns_seedlist_discovery
         [ClassData(typeof(TestCaseFactory))]
         public void RunTestDefinition(TestCase testCase)
         {
+            RequireEnvironment.Check().NoDuplicateIpv4MappedNameServers();
+
             ConnectionString connectionString = null;
             Exception resolveException = Record.Exception(() => connectionString = new ConnectionString((string)testCase.Definition["uri"]).Resolve());
             Assert(connectionString, resolveException, testCase.Definition);
@@ -48,6 +50,8 @@ namespace MongoDB.Driver.Tests.Specifications.initial_dns_seedlist_discovery
         [ClassData(typeof(TestCaseFactory))]
         public async Task RunTestDefinitionAsync(TestCase testCase)
         {
+            RequireEnvironment.Check().NoDuplicateIpv4MappedNameServers();
+
             ConnectionString connectionString = null;
             Exception resolveException = await Record.ExceptionAsync(async () => connectionString = await new ConnectionString((string)testCase.Definition["uri"]).ResolveAsync());
             Assert(connectionString, resolveException, testCase.Definition);
@@ -96,6 +100,26 @@ namespace MongoDB.Driver.Tests.Specifications.initial_dns_seedlist_discovery
 
                     var optionName = GetOptionName(option);
                     var actualValue = Uri.UnescapeDataString(connectionString.GetOption(optionName).Split(',').Last());
+
+                    actualValue.Should().Be(expectedValue);
+                }
+            }
+
+            if (definition.Contains("parsed_options"))
+            {
+                foreach (BsonElement option in definition["parsed_options"].AsBsonDocument)
+                {
+                    var expectedValue = ValueToString(option.Name, option.Value);
+
+                    var optionName = GetOptionName(option);
+                    var actualValue = optionName switch
+                    {
+                        "user" => connectionString.Username,
+                        "password" => connectionString.Password,
+                        "auth_database" => connectionString.DatabaseName,
+                        "db" => connectionString.DatabaseName,
+                        _ => throw new FormatException($"Unexpected option name: {optionName}")
+                    };
 
                     actualValue.Should().Be(expectedValue);
                 }

@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using Microsoft.Extensions.Logging;
@@ -53,6 +54,8 @@ namespace MongoDB.Driver.Core.Clusters
 
                     if (_server != null)
                     {
+                        ReleaseServerSessionPool();
+
                         _clusterEventLogger.LogAndPublish(new ClusterRemovingServerEvent(_server.ServerId, "Removing server."));
 
                         _server.DescriptionChanged -= ServerDescriptionChanged;
@@ -69,6 +72,19 @@ namespace MongoDB.Driver.Core.Clusters
             if (stopwatch != null)
             {
                 _clusterEventLogger.LogAndPublish(new ClusterClosedEvent(ClusterId, stopwatch.Elapsed));
+            }
+        }
+
+        public override IEnumerable<IClusterableServer> Servers
+        {
+            get
+            {
+                if (_server == null)
+                {
+                    return [];
+                }
+
+                return [_server];
             }
         }
 

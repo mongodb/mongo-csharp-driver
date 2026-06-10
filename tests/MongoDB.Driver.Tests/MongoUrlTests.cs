@@ -66,6 +66,11 @@ namespace MongoDB.Driver.Tests
         [InlineData("mongodb+srv://test2.test.build.10gen.cc")]
         public void constructor_with_resolved_connection_string_should_initialize_resolved_instance(string url)
         {
+            if (url.StartsWith("mongodb+srv://", StringComparison.OrdinalIgnoreCase))
+            {
+                RequireEnvironment.Check().NoDuplicateIpv4MappedNameServers();
+            }
+
             var connectionString = new ConnectionString(url);
             var resolvedConnectionString = connectionString.Resolve();
             var builder = new MongoUrlBuilder(resolvedConnectionString);
@@ -126,6 +131,8 @@ namespace MongoDB.Driver.Tests
         [InlineData("mongodb+srv://test1.test.build.10gen.cc/?srvMaxHosts=2", true, 2, true)]
         public void Resolve_with_srvMaxHosts_should_return_expected_result(string url, bool resolveHosts, int expectedSrvMaxHosts, bool async)
         {
+            RequireEnvironment.Check().NoDuplicateIpv4MappedNameServers();
+
             var subject = new MongoUrl(url);
 
             MongoUrl result;
@@ -144,7 +151,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestAll()
         {
-            var readPreference = new ReadPreference(ReadPreferenceMode.Secondary, new[] { new TagSet(new[] { new Tag("dc", "1") }) }, TimeSpan.FromSeconds(11));
+            var readPreference = new ReadPreference(ReadPreferenceMode.Secondary, [new TagSet([new Tag("dc", "1")])], TimeSpan.FromSeconds(11));
             var authMechanismProperties = new Dictionary<string, string>
             {
                 { "SERVICE_NAME", "other" },
@@ -156,6 +163,8 @@ namespace MongoDB.Driver.Tests
 
             var built = new MongoUrlBuilder()
             {
+                EnableOverloadRetargeting = true,
+                MaxAdaptiveRetries = 3,
                 AllowInsecureTls = true,
                 ApplicationName = "app",
                 AuthenticationMechanism = "GSSAPI",
@@ -172,8 +181,8 @@ namespace MongoDB.Driver.Tests
                 MaxConnecting = 3,
                 MaxConnectionIdleTime = TimeSpan.FromSeconds(2),
                 MaxConnectionLifeTime = TimeSpan.FromSeconds(3),
-                MaxConnectionPoolSize = 4,
-                MinConnectionPoolSize = 5,
+                MaxConnectionPoolSize = 5,
+                MinConnectionPoolSize = 4,
                 Password = "password",
                 ReadConcernLevel = ReadConcernLevel.Majority,
                 ReadPreference = readPreference,
@@ -186,7 +195,9 @@ namespace MongoDB.Driver.Tests
                 ServerMonitoringMode = ServerMonitoringMode.Poll,
                 ServerSelectionTimeout = TimeSpan.FromSeconds(10),
                 SocketTimeout = TimeSpan.FromSeconds(7),
+#if DEBUG // TODO: CSOT: Make it public when CSOT will be ready for GA
                 Timeout = TimeSpan.FromSeconds(13),
+#endif
                 Username = "username",
                 UseTls = true,
                 W = 2,
@@ -207,6 +218,7 @@ namespace MongoDB.Driver.Tests
                 "tlsInsecure=true",
                 "compressors=zlib",
                 "zlibCompressionLevel=4",
+                "enableOverloadRetargeting=true",
                 "replicaSet=name",
                 "readConcernLevel=majority",
                 "readPreference=secondary&readPreferenceTags=dc:1&maxStaleness=11s",
@@ -218,15 +230,18 @@ namespace MongoDB.Driver.Tests
                 "heartbeatInterval=11s",
                 "heartbeatTimeout=12s",
                 "localThreshold=6s",
+                "maxAdaptiveRetries=3",
                 "maxConnecting=3",
                 "maxIdleTime=2s",
                 "maxLifeTime=3s",
-                "maxPoolSize=4",
-                "minPoolSize=5",
+                "maxPoolSize=5",
+                "minPoolSize=4",
                 "serverMonitoringMode=Poll",
                 "serverSelectionTimeout=10s",
                 "socketTimeout=7s",
+#if DEBUG // TODO: CSOT: Make it public when CSOT will be ready for GA
                 "timeout=13s",
+#endif
                 "waitQueueSize=123",
                 "waitQueueTimeout=8s",
                 "retryReads=false",
@@ -235,6 +250,8 @@ namespace MongoDB.Driver.Tests
 
             foreach (var url in EnumerateBuiltAndParsedUrls(built, connectionString))
             {
+                Assert.Equal(true, url.EnableOverloadRetargeting);
+                Assert.Equal(3, url.MaxAdaptiveRetries);
                 Assert.Equal(true, url.AllowInsecureTls);
                 Assert.Equal("app", url.ApplicationName);
                 Assert.Equal("GSSAPI", url.AuthenticationMechanism);
@@ -256,8 +273,8 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(3, url.MaxConnecting);
                 Assert.Equal(TimeSpan.FromSeconds(2), url.MaxConnectionIdleTime);
                 Assert.Equal(TimeSpan.FromSeconds(3), url.MaxConnectionLifeTime);
-                Assert.Equal(4, url.MaxConnectionPoolSize);
-                Assert.Equal(5, url.MinConnectionPoolSize);
+                Assert.Equal(5, url.MaxConnectionPoolSize);
+                Assert.Equal(4, url.MinConnectionPoolSize);
                 Assert.Equal("password", url.Password);
                 Assert.Equal(ReadConcernLevel.Majority, url.ReadConcernLevel);
                 Assert.Equal(readPreference, url.ReadPreference);
@@ -270,7 +287,9 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(ServerMonitoringMode.Poll, url.ServerMonitoringMode);
                 Assert.Equal(TimeSpan.FromSeconds(10), url.ServerSelectionTimeout);
                 Assert.Equal(TimeSpan.FromSeconds(7), url.SocketTimeout);
+#if DEBUG // TODO: CSOT: Make it public when CSOT will be ready for GA
                 Assert.Equal(TimeSpan.FromSeconds(13), url.Timeout);
+#endif
                 Assert.Equal(true, url.TlsDisableCertificateRevocationCheck);
                 Assert.Equal("username", url.Username);
 #pragma warning disable 618

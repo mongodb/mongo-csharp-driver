@@ -16,7 +16,9 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
@@ -29,9 +31,23 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         // public static methods
         public static TranslatedExpression Translate(TranslationContext context, Expression expression)
         {
+            var translatedExpression = TranslateWithoutUnwrapping(context, expression);
+            return UnwrapIfWrapped(expression, translatedExpression);
+        }
+
+        public static AstExpression TranslateAndEnsureRepresentation(TranslationContext context, Expression expression, BsonType representation)
+        {
+            var translation = Translate(context, expression);
+            SerializationHelper.EnsureSerializerRepresentation(expression, translation.Serializer, representation);
+            return translation.Ast;
+        }
+
+        public static TranslatedExpression TranslateWithoutUnwrapping(TranslationContext context, Expression expression)
+        {
             switch (expression.NodeType)
             {
                 case ExpressionType.Convert:
+                case ExpressionType.ConvertChecked:
                 case ExpressionType.TypeAs:
                     return ConvertExpressionToAggregationExpressionTranslator.Translate(context, (UnaryExpression)expression);
 
@@ -67,7 +83,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case ExpressionType.Conditional:
                     return ConditionalExpressionToAggregationExpressionTranslator.Translate(context, (ConditionalExpression)expression);
                 case ExpressionType.Constant:
-                    return ConstantExpressionToAggregationExpressionTranslator.Translate((ConstantExpression)expression);
+                    return ConstantExpressionToAggregationExpressionTranslator.Translate(context, (ConstantExpression)expression);
                 case ExpressionType.Index:
                     return IndexExpressionToAggregationExpressionTranslator.Translate(context, (IndexExpression)expression);
                 case ExpressionType.ListInit:
@@ -95,15 +111,27 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         {
             var aggregateExpression = Translate(context, expression);
 
-            var serializer = aggregateExpression.Serializer;
-            if (serializer is IWrappedEnumerableSerializer wrappedEnumerableSerializer)
+            if (aggregateExpression.Serializer is IWrappedEnumerableSerializer wrappedEnumerableSerializer)
             {
                 var enumerableFieldName = wrappedEnumerableSerializer.EnumerableFieldName;
                 var enumerableElementSerializer = wrappedEnumerableSerializer.EnumerableElementSerializer;
-                var enumerableSerializer = IEnumerableSerializer.Create(enumerableElementSerializer);
-                var ast = AstExpression.GetField(aggregateExpression.Ast, enumerableFieldName);
 
-                return new TranslatedExpression(aggregateExpression.Expression, ast, enumerableSerializer);
+                var ast = AstExpression.GetField(aggregateExpression.Ast, enumerableFieldName);
+                var ienumerableSerializer = IEnumerableSerializer.Create(enumerableElementSerializer);
+
+                aggregateExpression = new TranslatedExpression(expression, ast, ienumerableSerializer);
+            }
+
+            if (aggregateExpression.Serializer is IBsonDictionarySerializer dictionarySerializer &&
+                dictionarySerializer.DictionaryRepresentation == DictionaryRepresentation.Document)
+            {
+                var keySerializer = dictionarySerializer.KeySerializer;
+                var valueSerializer = dictionarySerializer.ValueSerializer;
+
+                var ast  = AstExpression.ObjectToArray(aggregateExpression.Ast);
+                var arrayOfDocumentsDictionarySerializer = DictionarySerializer.Create(DictionaryRepresentation.ArrayOfDocuments, keySerializer, valueSerializer);
+
+                aggregateExpression = new TranslatedExpression(expression, ast, arrayOfDocumentsDictionarySerializer);
             }
 
             return aggregateExpression;
@@ -131,9 +159,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         public static TranslatedExpression TranslateLambdaBody(
             TranslationContext context,
             LambdaExpression lambdaExpression,
-            Symbol parameterSymbol)
+            params Symbol[] parameterSymbols)
         {
-            var lambdaContext = context.WithSymbol(parameterSymbol);
+            var lambdaContext = context.WithSymbols(parameterSymbols);
             var translatedBody = Translate(lambdaContext, lambdaExpression.Body);
 
             var lambdaReturnType = lambdaExpression.ReturnType;
@@ -153,6 +181,17 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             }
 
             return translatedBody;
+        }
+
+        private static TranslatedExpression UnwrapIfWrapped(Expression expression, TranslatedExpression translatedExpression)
+        {
+            if (translatedExpression.Serializer is IWrappedValueSerializer wrappedValueSerializer)
+            {
+                var unwrappedAst = AstExpression.GetField(translatedExpression.Ast, wrappedValueSerializer.FieldName);
+                return new TranslatedExpression(expression, unwrappedAst, wrappedValueSerializer.ValueSerializer);
+            }
+
+            return translatedExpression;
         }
     }
 }

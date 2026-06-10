@@ -17,6 +17,7 @@ using System;
 using System.Security.Cryptography.X509Certificates;
 using FluentAssertions;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -120,6 +121,6 @@ public class X509Tests
         var path = Environment.GetEnvironmentVariable(pathVariable);
         var password = Environment.GetEnvironmentVariable(passwordVariable);
 
-        return new X509Certificate2(path, password);
+        return X509CertificateLoader.LoadPkcs12FromFile(path, password);
     }
 }

@@ -92,9 +92,10 @@ namespace MongoDB.Driver.Tests
 
         public static IEnumerable<object[]> DataImplicitCast =>
             [
-                [() => (QueryVector)(new[] { 1.1, 2.2 }), ToBsonArray(new[] { 1.1, 2.2 })],
-                [() => (QueryVector)(new[] { 1.1f, 2.2f }), ToBsonArray(new[] { 1.1f, 2.2f })],
-                [() => (QueryVector)(new[] { 1, 2 }), ToBsonArray(new[] { 1.0, 2.0 })],
+                [() => (QueryVector)"I will be a vector! I will!", new BsonString("I will be a vector! I will!")],
+                [() => (QueryVector)new[] { 1.1, 2.2 }, ToBsonArray(new[] { 1.1, 2.2 })],
+                [() => (QueryVector)new[] { 1.1f, 2.2f }, ToBsonArray(new[] { 1.1f, 2.2f })],
+                [() => (QueryVector)new[] { 1, 2 }, ToBsonArray(new[] { 1.0, 2.0 })],
                 [() => (QueryVector)new ReadOnlyMemory<double>([1.1, 2.2]), ToBsonArray(new[] { 1.1, 2.2 })],
                 [() => (QueryVector)new ReadOnlyMemory<float>([1.1f, 2.2f]), ToBsonArray(new[] { 1.1f, 2.2f })],
                 [() => (QueryVector)new ReadOnlyMemory<int>([1, 2]), ToBsonArray(new[] { 1, 2 })],
@@ -105,6 +106,7 @@ namespace MongoDB.Driver.Tests
 
         public static IEnumerable<object[]> DataCtor =>
             [
+                [() => new QueryVector("Oh, to be vectorized!"), new BsonString("Oh, to be vectorized!")],
                 [() => new QueryVector(new[] { 1.1, 2.2 }), ToBsonArray(new[] { 1.1, 2.2 })],
                 [() => new QueryVector(new[] { 1.1f, 2.2f }), ToBsonArray(new[] { 1.1f, 2.2f })],
                 [() => new QueryVector(new[] { 1, 2 }), ToBsonArray(new[] { 1.0, 2.0 })],

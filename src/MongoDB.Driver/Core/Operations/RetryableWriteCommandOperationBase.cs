@@ -21,6 +21,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol;
 using MongoDB.Driver.Core.WireProtocol.Messages;
@@ -32,10 +33,13 @@ namespace MongoDB.Driver.Core.Operations
     {
         private BsonValue _comment;
         private readonly DatabaseNamespace _databaseNamespace;
+        private bool _enableOverloadRetargeting;
         private bool _isOrdered = true;
+        private int _maxAdaptiveRetries;
         private int? _maxBatchCount;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private bool _retryRequested;
+        private bool _isOperationRetryable;
         private WriteConcern _writeConcern = WriteConcern.Acknowledged;
 
         public RetryableWriteCommandOperationBase(
@@ -57,10 +61,22 @@ namespace MongoDB.Driver.Core.Operations
             get { return _databaseNamespace; }
         }
 
+        public bool EnableOverloadRetargeting
+        {
+            get { return _enableOverloadRetargeting; }
+            set { _enableOverloadRetargeting = value; }
+        }
+
         public bool IsOrdered
         {
             get { return _isOrdered; }
             set { _isOrdered = value; }
+        }
+
+        public int MaxAdaptiveRetries
+        {
+            get { return _maxAdaptiveRetries; }
+            set { _maxAdaptiveRetries = value; }
         }
 
         public int? MaxBatchCount
@@ -74,10 +90,18 @@ namespace MongoDB.Driver.Core.Operations
             get { return _messageEncoderSettings; }
         }
 
+        public abstract string OperationName { get; }
+
         public bool RetryRequested
         {
             get { return _retryRequested; }
             set { _retryRequested = value; }
+        }
+
+        public bool IsOperationRetryable
+        {
+            get { return _isOperationRetryable; }
+            set { _isOperationRetryable = value; }
         }
 
         public WriteConcern WriteConcern
@@ -88,7 +112,7 @@ namespace MongoDB.Driver.Core.Operations
 
         public virtual BsonDocument Execute(OperationContext operationContext, IWriteBinding binding)
         {
-            using (var context = RetryableWriteContext.Create(operationContext, binding, _retryRequested))
+            using (var context = new RetryableWriteContext(binding, _retryRequested, _maxAdaptiveRetries, _enableOverloadRetargeting))
             {
                 return Execute(operationContext, context);
             }
@@ -101,7 +125,7 @@ namespace MongoDB.Driver.Core.Operations
 
         public virtual async Task<BsonDocument> ExecuteAsync(OperationContext operationContext, IWriteBinding binding)
         {
-            using (var context = await RetryableWriteContext.CreateAsync(operationContext, binding, _retryRequested).ConfigureAwait(false))
+            using (var context = new RetryableWriteContext(binding, _retryRequested, _maxAdaptiveRetries, _enableOverloadRetargeting))
             {
                 return await ExecuteAsync(operationContext, context).ConfigureAwait(false);
             }
@@ -148,7 +172,7 @@ namespace MongoDB.Driver.Core.Operations
                 args.MessageEncoderSettings);
         }
 
-        protected abstract BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, int attempt, long? transactionNumber);
+        protected abstract BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber);
 
         protected abstract IEnumerable<BatchableCommandMessageSection> CreateCommandPayloads(IChannelHandle channel, int attempt);
 
@@ -164,7 +188,7 @@ namespace MongoDB.Driver.Core.Operations
         private CommandArgs GetCommandArgs(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
         {
             var args = new CommandArgs();
-            args.Command = CreateCommand(operationContext, context.Binding.Session, attempt, transactionNumber);
+            args.Command = CreateCommand(operationContext, context.Binding.Session, context.Channel.ConnectionDescription, transactionNumber);
             args.CommandPayloads = CreateCommandPayloads(context.Channel, attempt).ToList();
             args.PostWriteAction = GetPostWriteAction(args.CommandPayloads);
             args.ResponseHandling = GetResponseHandling();

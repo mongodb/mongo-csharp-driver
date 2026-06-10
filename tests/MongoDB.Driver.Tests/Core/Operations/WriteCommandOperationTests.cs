@@ -42,8 +42,9 @@ namespace MongoDB.Driver.Core.Operations
             var command = new BsonDocument("command", 1);
             var resultSerializer = BsonDocumentSerializer.Instance;
             var messageEncoderSettings = new MessageEncoderSettings();
+            var operationName = "testOperation";
 
-            var result = new WriteCommandOperation<BsonDocument>(databaseNamespace, command, resultSerializer, messageEncoderSettings);
+            var result = new WriteCommandOperation<BsonDocument>(databaseNamespace, command, resultSerializer, messageEncoderSettings, operationName);
 
             result.AdditionalOptions.Should().BeNull();
             result.Command.Should().BeSameAs(command);
@@ -51,6 +52,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Comment.Should().BeNull();
             result.DatabaseNamespace.Should().BeSameAs(databaseNamespace);
             result.MessageEncoderSettings.Should().BeSameAs(messageEncoderSettings);
+            result.OperationName.Should().Be(operationName);
             result.ResultSerializer.Should().BeSameAs(resultSerializer);
         }
 

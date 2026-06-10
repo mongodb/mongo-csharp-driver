@@ -24,18 +24,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class IntersectMethodToAggregationExpressionTranslator
     {
-        private static readonly MethodInfo[] __intersectMethods =
-        {
-            EnumerableMethod.Intersect,
-            QueryableMethod.Interset
-        };
-
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__intersectMethods))
+            if (method.IsOneOf(EnumerableOrQueryableMethod.Intersect))
             {
                 var firstExpression = arguments[0];
                 var firstTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, firstExpression);

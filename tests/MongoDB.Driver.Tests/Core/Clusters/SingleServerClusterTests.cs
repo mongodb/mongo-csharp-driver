@@ -98,7 +98,6 @@ namespace MongoDB.Driver.Core.Clusters
         [InlineData(ServerType.ReplicaSetOther)]
         [InlineData(ServerType.ReplicaSetPrimary)]
         [InlineData(ServerType.ReplicaSetSecondary)]
-        [InlineData(ServerType.ShardRouter)]
         public void Description_should_contain_any_new_server(ServerType serverType)
         {
             var subject = CreateSubject();

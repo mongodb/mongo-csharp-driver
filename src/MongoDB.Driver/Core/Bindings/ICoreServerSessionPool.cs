@@ -13,11 +13,13 @@
 * limitations under the License.
 */
 
-namespace MongoDB.Driver
+using MongoDB.Driver.Core.Servers;
+
+namespace MongoDB.Driver;
+
+internal interface ICoreServerSessionPool
 {
-    internal interface ICoreServerSessionPool
-    {
-        ICoreServerSession AcquireSession();
-        void ReleaseSession(ICoreServerSession serverSession);
-    }
+    ICoreServerSession AcquireSession();
+    void ReleaseSession(ICoreServerSession serverSession);
+    void CloseAndDispose(IServer server);
 }

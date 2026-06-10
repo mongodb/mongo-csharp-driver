@@ -24,7 +24,6 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core;
-using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
@@ -96,7 +95,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
 
             var mockStream = new Mock<Stream>();
             mockStream
-                .Setup(s => s.BeginWrite(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<AsyncCallback>(), It.IsAny<object>()))
+                .Setup(s => s.Write(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>()))
                 .Callback(() => EnqueueEvent(HelloReceivedEvent))
                 .Throws(new Exception("Stream is closed."));
 
@@ -165,8 +164,8 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
             settings.ApplicationName = appName;
             settings.ServerSelectionTimeout = TimeSpan.FromSeconds(5);
 
-            var server = DriverTestConfiguration.Client.GetClusterInternal().SelectServer(OperationContext.NoTimeout, new EndPointServerSelector(new DnsEndPoint(serverAddress.Host, serverAddress.Port)));
-            using var failPoint = FailPoint.Configure(server, NoCoreSession.NewHandle(), failPointCommand);
+            var failPointServerSelector = new EndPointServerSelector(new DnsEndPoint(serverAddress.Host, serverAddress.Port));
+            using var failPoint = FailPoint.Configure(failPointServerSelector, failPointCommand);
             using var client = DriverTestConfiguration.CreateMongoClient(settings);
 
             var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
@@ -216,7 +215,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
                         }}
                     }}");
 
-                using (FailPoint.Configure(client.GetClusterInternal(), NoCoreSession.NewHandle(), failPointCommand))
+                using (FailPoint.Configure(failPointCommand))
                 {
                     // Note that the Server Description Equality rule means that ServerDescriptionChangedEvents will not be published.
                     // So we use reflection to obtain the latest RTT instead.
@@ -273,8 +272,8 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
                 eventsWaitTimeout);
             eventCapturer.Clear();
 
-            var failpointServer = DriverTestConfiguration.Client.GetClusterInternal().SelectServer(OperationContext.NoTimeout, new EndPointServerSelector(new DnsEndPoint(serverAddress.Host, serverAddress.Port)));
-            using var failPoint = FailPoint.Configure(failpointServer, NoCoreSession.NewHandle(), failPointCommand);
+            var failPointServerSelector = new EndPointServerSelector(new DnsEndPoint(serverAddress.Host, serverAddress.Port));
+            using var failPoint = FailPoint.Configure(failPointServerSelector, failPointCommand);
 
             eventCapturer.WaitForEventOrThrowIfTimeout<ConnectionPoolReadyEvent>(eventsWaitTimeout);
             var events = eventCapturer.Events

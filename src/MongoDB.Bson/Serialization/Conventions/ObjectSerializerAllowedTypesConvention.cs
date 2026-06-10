@@ -162,26 +162,46 @@ namespace MongoDB.Bson.Serialization.Conventions
 
             var serializer = memberMap.GetSerializer();
 
-            var reconfiguredSerializer = Reconfigure(serializer);
+            var reconfiguredSerializer = SerializerConfigurator.ReconfigureSerializerRecursively(serializer, Reconfigure);
+
             if (reconfiguredSerializer is not null)
             {
                 memberMap.SetSerializer(reconfiguredSerializer);
             }
 
             bool CouldApply(Type type)
-                => type == typeof(object) || type.IsNullable() || type.IsArray || typeof(IEnumerable).IsAssignableFrom(type);
+            {
+                var visited = new HashSet<Type>();
+                return CouldApplyCore(type);
+
+                bool CouldApplyCore(Type t)
+                {
+                    if (!visited.Add(t))
+                    {
+                        return false;
+                    }
+
+                    return t == typeof(object) ||
+                           (t.IsArray && CouldApplyCore(t.GetElementType())) || // This is covered by IEnumerable<T>, but it's a good short-circuit
+                           IsNonGenericEnumerable(t) ||
+                           t.GetInterfaces().Prepend(t).Any(
+                               i =>
+                                   i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>) && CouldApplyCore(i.GetGenericArguments()[0]) || // IEnumerable<T>
+                                   i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IDictionary<,>) && (CouldApplyCore(i.GetGenericArguments()[0]) || CouldApplyCore(i.GetGenericArguments()[1])) // IDictionary<TKey, TValue>
+                           );
+                }
+            }
+
+            // A type that implements IEnumerable but not IEnumerable<T> (e.g. ArrayList, Hashtable).
+            static bool IsNonGenericEnumerable(Type type)
+                => !type.IsArray &&
+                   typeof(IEnumerable).IsAssignableFrom(type) &&
+                   !type.GetInterfaces().Prepend(type).Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
         }
 
         // private methods
         private IBsonSerializer Reconfigure(IBsonSerializer serializer)
         {
-            if (serializer is IChildSerializerConfigurable childSerializerConfigurable)
-            {
-                var childSerializer = childSerializerConfigurable.ChildSerializer;
-                var reconfiguredChildSerializer = Reconfigure(childSerializer);
-                return reconfiguredChildSerializer is null ? null : childSerializerConfigurable.WithChildSerializer(reconfiguredChildSerializer);
-            }
-
             if (serializer.ValueType == typeof(object) && serializer is ObjectSerializer objectSerializer)
             {
                 return objectSerializer.WithAllowedTypes(_effectiveAllowedDeserializationTypes.Value, _effectiveAllowedSerializationTypes.Value);

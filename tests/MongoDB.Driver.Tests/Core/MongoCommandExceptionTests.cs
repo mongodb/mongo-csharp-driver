@@ -79,7 +79,6 @@ namespace MongoDB.Driver
         [Theory]
         [InlineData(null, new string[0])]
         [InlineData("{ }", new string[0])]
-        [InlineData("{ }", new string[0])]
         [InlineData("{ errorLabels : \"not an array\" }", new string[0])]
         [InlineData("{ errorLabels : [ ] }", new string[0])]
         [InlineData("{ errorLabels : [ 1 ] }", new string[0])]

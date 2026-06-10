@@ -42,8 +42,6 @@ namespace MongoDB.Driver.Examples
         [Fact]
         public void ClientSideEncryptionSimpleTour()
         {
-            RequireServer.Check().Supports(Feature.ClientSideEncryption);
-
             var localMasterKey = Convert.FromBase64String(LocalMasterKey);
 
             var kmsProviders = new Dictionary<string, IReadOnlyDictionary<string, object>>();
@@ -56,10 +54,8 @@ namespace MongoDB.Driver.Examples
             var keyVaultNamespace = CollectionNamespace.FromFullName("encryption.__keyVault");
             var autoEncryptionOptions = new AutoEncryptionOptions(keyVaultNamespace, kmsProviders);
 
-            var mongoClientSettings = new MongoClientSettings
-            {
-                AutoEncryptionOptions = autoEncryptionOptions
-            };
+            var mongoClientSettings = MongoClientSettings.FromConnectionString(CoreTestConfiguration.ConnectionString.ToString());
+            mongoClientSettings.AutoEncryptionOptions = autoEncryptionOptions;
 
             var client = new MongoClient(mongoClientSettings);
             var database = client.GetDatabase("test");
@@ -75,8 +71,6 @@ namespace MongoDB.Driver.Examples
         [Fact]
         public void ClientSideEncryptionAutoEncryptionSettingsTour()
         {
-            RequireServer.Check().Supports(Feature.ClientSideEncryption);
-
             var localMasterKey = Convert.FromBase64String(LocalMasterKey);
 
             var kmsProviders = new Dictionary<string, IReadOnlyDictionary<string, object>>();
@@ -87,7 +81,8 @@ namespace MongoDB.Driver.Examples
             kmsProviders.Add("local", localKey);
 
             var keyVaultNamespace = CollectionNamespace.FromFullName("encryption.__keyVault");
-            var keyVaultMongoClient = new MongoClient();
+            var keyVaultClientSettings = MongoClientSettings.FromConnectionString(CoreTestConfiguration.ConnectionString.ToString());
+            var keyVaultMongoClient = new MongoClient(keyVaultClientSettings);
             var clientEncryptionSettings = new ClientEncryptionOptions(
                 keyVaultMongoClient,
                 keyVaultNamespace,
@@ -124,10 +119,9 @@ namespace MongoDB.Driver.Examples
                 {
                     { collectionNamespace.ToString(), BsonDocument.Parse(schemaMap) }
                 });
-            var clientSettings = new MongoClientSettings
-            {
-                AutoEncryptionOptions = autoEncryptionSettings
-            };
+
+            var clientSettings = MongoClientSettings.FromConnectionString(CoreTestConfiguration.ConnectionString.ToString());
+            clientSettings.AutoEncryptionOptions = autoEncryptionSettings;
 
             var client = new MongoClient(clientSettings);
             var database = client.GetDatabase("test");

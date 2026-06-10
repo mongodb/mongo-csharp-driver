@@ -36,7 +36,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Find_with_predicate_on_Body_should_work()
         {
-            RequireServer.Check().Supports(Feature.AggregateToString);
             var collection = Fixture.Collection;
             var filter = new ExpressionFilterDefinition<Entity>(x => new[] { "Test1", "Test2" }.Contains((string)x.Body["name"]));
 
@@ -73,7 +72,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_with_predicate_on_Body_should_work()
         {
-            RequireServer.Check().Supports(Feature.AggregateToString);
             var collection = Fixture.Collection;
 
             var queryable = collection

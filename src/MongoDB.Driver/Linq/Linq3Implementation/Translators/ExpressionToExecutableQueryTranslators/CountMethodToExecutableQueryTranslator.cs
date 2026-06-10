@@ -30,27 +30,25 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
     internal static class CountMethodToExecutableQueryTranslator
     {
         // private static fields
-        private static readonly MethodInfo[] __countMethods;
-        private static readonly MethodInfo[] __countWithPredicateMethods;
+        private static readonly IReadOnlyMethodInfoSet __countOverloads;
+        private static readonly IReadOnlyMethodInfoSet __countWithPredicateOverloads;
         private static readonly IExecutableQueryFinalizer<int, int> _finalizer = new SingleOrDefaultFinalizer<int>();
         private static readonly IBsonSerializer<int> __wrappedInt32Serializer = new WrappedValueSerializer<int>("_v", new Int32Serializer());
 
         // static constructor
         static CountMethodToExecutableQueryTranslator()
         {
-            __countMethods = new[]
-            {
-                QueryableMethod.Count,
-                QueryableMethod.CountWithPredicate,
-                MongoQueryableMethod.CountAsync,
-                MongoQueryableMethod.CountWithPredicateAsync
-            };
+            __countOverloads = MethodInfoSet.Create(
+            [
+                QueryableMethod.CountOverloads,
+                MongoQueryableMethod.CountOverloads
+            ]);
 
-            __countWithPredicateMethods = new[]
-            {
+            __countWithPredicateOverloads = MethodInfoSet.Create(
+            [
                 QueryableMethod.CountWithPredicate,
                 MongoQueryableMethod.CountWithPredicateAsync
-            };
+            ]);
         }
 
         // public static methods
@@ -59,12 +57,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__countMethods))
+            if (method.IsOneOf(__countOverloads))
             {
                 var sourceExpression = arguments[0];
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
 
-                if (method.IsOneOf(__countWithPredicateMethods))
+                if (method.IsOneOf(__countWithPredicateOverloads))
                 {
                     ClientSideProjectionHelper.ThrowIfClientSideProjection(expression, pipeline, method, "with a predicate");
 

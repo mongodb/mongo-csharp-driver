@@ -15,6 +15,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -147,9 +148,16 @@ namespace MongoDB.Driver.Core.WireProtocol
 
         private CommandRequestMessage CreateEncryptedRequestMessage(CommandRequestMessage unencryptedRequestMessage, byte[] encryptedDocumentBytes)
         {
-            var encryptedDocument = new RawBsonDocument(encryptedDocumentBytes);
-            var encryptedSections = new[] { new Type0CommandMessageSection<RawBsonDocument>(encryptedDocument, RawBsonDocumentSerializer.Instance) };
             var unencryptedCommandMessage = unencryptedRequestMessage.WrappedMessage;
+            var unencryptedType0Section = unencryptedCommandMessage.Sections.OfType<Type0CommandMessageSection>().Single();
+
+            var encryptedDocument = new RawBsonDocument(encryptedDocumentBytes);
+            var encryptedSections = new[] { new Type0CommandMessageSection<RawBsonDocument>(
+                encryptedDocument,
+                RawBsonDocumentSerializer.Instance,
+                unencryptedType0Section.DatabaseNamespace,
+                unencryptedType0Section.SessionId,
+                unencryptedType0Section.TransactionNumber) };
             var encryptedCommandMessage = new CommandMessage(
                 unencryptedCommandMessage.RequestId,
                 unencryptedCommandMessage.ResponseTo,

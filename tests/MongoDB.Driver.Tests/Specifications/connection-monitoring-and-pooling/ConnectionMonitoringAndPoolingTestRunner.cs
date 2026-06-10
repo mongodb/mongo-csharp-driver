@@ -26,7 +26,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core;
-using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Configuration;
@@ -269,6 +268,11 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
                     throw new NotImplementedException();
                 }
             }
+
+            if (expectedEvent.TryGetValue("interruptInUseConnections", out var interruptInUseConnections))
+            {
+                actualEvent.CloseInUseConnections().Should().Be(interruptInUseConnections.ToBoolean());
+            }
         }
 
         private void AssertEvents(BsonDocument test, EventCapturer eventCapturer, Func<object, bool> eventsFilter)
@@ -281,7 +285,7 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
                 for (var i = 0; i < minCount; i++)
                 {
                     var expectedEvent = expectedEvents[i];
-                    JsonDrivenHelper.EnsureAllFieldsAreValid(expectedEvent, "type", "address", "connectionId", "duration", "options", "reason");
+                    JsonDrivenHelper.EnsureAllFieldsAreValid(expectedEvent, "type", "address", "connectionId", "duration", "options", "reason", "interruptInUseConnections");
                     AssertEvent(actualEvents[i], expectedEvent);
                 }
 
@@ -387,6 +391,7 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
                     else
                     {
                         tasks[target] = CreateTask(() => CheckOut(operation, connectionPool, map));
+                        tasks[target].IgnoreExceptions();
                     }
                 }
             }
@@ -436,8 +441,8 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
                     ExecuteCheckOut(connectionPool, operation, connectionMap, tasks, async, out exception);
                     break;
                 case "clear":
-                    JsonDrivenHelper.EnsureAllFieldsAreValid(operation, "name", "closeInUseConnections");
-                    var closeInUseConnections = operation.GetValue("closeInUseConnections", defaultValue: false).ToBoolean();
+                    JsonDrivenHelper.EnsureAllFieldsAreValid(operation, "name", "interruptInUseConnections");
+                    var closeInUseConnections = operation.GetValue("interruptInUseConnections", defaultValue: false).ToBoolean();
                     connectionPool.Clear(closeInUseConnections: closeInUseConnections);
                     break;
                 case "close":
@@ -717,8 +722,8 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
                         eventCapturer.WaitForOrThrowIfTimeout(events => events.Any(e => e is ConnectionPoolClearedEvent), TimeSpan.FromMilliseconds(500));
                     }
 
-                    var failPointServer = CoreTestConfiguration.Cluster.SelectServer(OperationContext.NoTimeout, new EndPointServerSelector(server.EndPoint));
-                    failPoint = FailPoint.Configure(failPointServer, NoCoreSession.NewHandle(), failPointDocument.AsBsonDocument, withAsync: async);
+                    var failPointServerSelector = new EndPointServerSelector(server.EndPoint);
+                    failPoint = FailPoint.Configure(failPointServerSelector, failPointDocument.AsBsonDocument, withAsync: async);
 
                     if (resetPool)
                     {
@@ -798,6 +803,11 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
 
     internal static class CmapEventsReflector
     {
+        public static bool CloseInUseConnections(this object @event)
+        {
+            return (bool)Reflector.GetPropertyValue(@event, nameof(CloseInUseConnections), BindingFlags.Public | BindingFlags.Instance);
+        }
+
         public static ConnectionId ConnectionId(this object @event)
         {
             return (ConnectionId)Reflector.GetPropertyValue(@event, nameof(ConnectionId), BindingFlags.Public | BindingFlags.Instance);

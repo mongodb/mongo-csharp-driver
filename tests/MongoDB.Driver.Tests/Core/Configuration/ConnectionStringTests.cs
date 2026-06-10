@@ -374,6 +374,10 @@ namespace MongoDB.Driver.Core.Configuration
             subject.MaxPoolSize.Should().Be(null);
             subject.MinPoolSize.Should().Be(null);
             subject.Password.Should().BeNull();
+            subject.ProxyHost.Should().BeNull();
+            subject.ProxyPort.Should().Be(null);
+            subject.ProxyPassword.Should().BeNull();
+            subject.ProxyUsername.Should().BeNull();
             subject.ReadConcernLevel.Should().BeNull();
             subject.ReadPreference.Should().BeNull();
             subject.ReadPreferenceTags.Should().BeNull();
@@ -402,6 +406,7 @@ namespace MongoDB.Driver.Core.Configuration
         public void When_everything_is_specified()
         {
             var connectionString = @"mongodb://user:pass@localhost1,localhost2:30000/test?" +
+                "enableOverloadRetargeting=true;" +
                 "appname=app;" +
                 "authMechanism=GSSAPI;" +
                 "authMechanismProperties=CANONICALIZE_HOST_NAME:true;" +
@@ -421,6 +426,10 @@ namespace MongoDB.Driver.Core.Configuration
                 "maxLifeTime=5ms;" +
                 "maxPoolSize=20;" +
                 "minPoolSize=15;" +
+                "proxyHost=host.com;" +
+                "proxyPort=2020;" +
+                "proxyUsername=user;" +
+                "proxyPassword=passw;" +
                 "readConcernLevel=majority;" +
                 "readPreference=primary;" +
                 "readPreferenceTags=dc:1;" +
@@ -433,7 +442,9 @@ namespace MongoDB.Driver.Core.Configuration
                 "socketTimeout=40ms;" +
                 "ssl=false;" +
                 "sslVerifyCertificate=true;" +
+#if DEBUG // TODO: CSOT: Make it public when CSOT will be ready for GA
                 "timeout=42ms;" +
+#endif
                 "waitQueueMultiple=10;" +
                 "waitQueueSize=30;" +
                 "waitQueueTimeout=60ms;" +
@@ -442,6 +453,7 @@ namespace MongoDB.Driver.Core.Configuration
 
             var subject = new ConnectionString(connectionString);
 
+            subject.EnableOverloadRetargeting.Should().BeTrue();
             subject.ApplicationName.Should().Be("app");
             subject.AuthMechanism.Should().Be("GSSAPI");
             subject.AuthMechanismProperties.Count.Should().Be(1);
@@ -464,6 +476,10 @@ namespace MongoDB.Driver.Core.Configuration
             subject.MaxPoolSize.Should().Be(20);
             subject.MinPoolSize.Should().Be(15);
             subject.Password.Should().Be("pass");
+            subject.ProxyHost.Should().Be("host.com");
+            subject.ProxyPort.Should().Be(2020);
+            subject.ProxyUsername.Should().Be("user");
+            subject.ProxyPassword.Should().Be("passw");
             subject.ReadConcernLevel.Should().Be(ReadConcernLevel.Majority);
             subject.ReadPreference.Should().Be(ReadPreferenceMode.Primary);
             subject.ReadPreferenceTags.Single().Should().Be(new TagSet(new[] { new Tag("dc", "1") }));
@@ -478,7 +494,9 @@ namespace MongoDB.Driver.Core.Configuration
             subject.Ssl.Should().BeFalse();
             subject.SslVerifyCertificate.Should().Be(true);
 #pragma warning restore 618
+#if DEBUG // TODO: CSOT: Make it public when CSOT will be ready for GA
             subject.Timeout.Should().Be(TimeSpan.FromMilliseconds(42));
+#endif
             subject.Tls.Should().BeFalse();
             subject.TlsInsecure.Should().Be(false);
             subject.Username.Should().Be("user");
@@ -934,6 +952,38 @@ namespace MongoDB.Driver.Core.Configuration
 
         [Theory]
         [InlineData("mongodb://localhost", null)]
+        [InlineData("mongodb://localhost?enableOverloadRetargeting=true", true)]
+        [InlineData("mongodb://localhost?enableOverloadRetargeting=false", false)]
+        public void When_enableOverloadRetargeting_is_specified(string connectionString, bool? enableOverloadRetargeting)
+        {
+            var subject = new ConnectionString(connectionString);
+
+            subject.EnableOverloadRetargeting.Should().Be(enableOverloadRetargeting);
+        }
+
+        [Theory]
+        [InlineData("mongodb://localhost", null)]
+        [InlineData("mongodb://localhost?maxAdaptiveRetries=3", 3)]
+        [InlineData("mongodb://localhost?maxAdaptiveRetries=0", 0)]
+        public void When_maxAdaptiveRetries_is_specified(string connectionString, int? maxAdaptiveRetries)
+        {
+            var subject = new ConnectionString(connectionString);
+
+            subject.MaxAdaptiveRetries.Should().Be(maxAdaptiveRetries);
+        }
+
+        [Theory]
+        [InlineData("mongodb://localhost?maxAdaptiveRetries=-1")]
+        [InlineData("mongodb://localhost?maxAdaptiveRetries=-5")]
+        public void Invalid_maxAdaptiveRetries_configuration_should_throw(string connectionString)
+        {
+            var exception = Record.Exception(() => new ConnectionString(connectionString));
+
+            exception.Should().BeOfType<MongoConfigurationException>();
+        }
+
+        [Theory]
+        [InlineData("mongodb://localhost", null)]
         [InlineData("mongodb://localhost?retryReads=true", true)]
         [InlineData("mongodb://localhost?retryReads=false", false)]
         public void When_retryReads_is_specified(string connectionString, bool? retryReads)
@@ -1051,6 +1101,7 @@ namespace MongoDB.Driver.Core.Configuration
 #pragma warning restore 618
         }
 
+#if DEBUG // TODO: CSOT: Make it public when CSOT will be ready for GA
         [Theory]
         [InlineData("mongodb://localhost?timeoutMS=0", -1)]
         [InlineData("mongodb://localhost?timeout=0", -1)]
@@ -1066,6 +1117,7 @@ namespace MongoDB.Driver.Core.Configuration
 
             subject.Timeout.Should().Be(TimeSpan.FromMilliseconds(milliseconds));
         }
+#endif
 
         [Theory]
         [InlineData("mongodb://localhost?tls=true", true)]
@@ -1220,6 +1272,60 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         [Theory]
+        [InlineData("mongodb://localhost?proxyHost=222.222.222.12", "222.222.222.12", null, null, null)]
+        [InlineData("mongodb://localhost?proxyHost=222.222.222.12&proxyPort=8080", "222.222.222.12", 8080, null, null)]
+        [InlineData("mongodb://localhost?proxyHost=example.com", "example.com", null, null, null)]
+        [InlineData("mongodb://localhost?proxyHost=example.com&proxyPort=8080", "example.com", 8080, null, null)]
+        [InlineData("mongodb://localhost?proxyHost=example.com&proxyUsername=user&proxyPassword=passw", "example.com", null, "user", "passw")]
+        [InlineData("mongodb://localhost?proxyHost=example.com&proxyPort=8080&proxyUsername=user&proxyPassword=passw", "example.com", 8080, "user", "passw")]
+        public void When_proxy_parameters_are_specified(string connectionString, string host, int? port, string username, string password)
+        {
+            var subject = new ConnectionString(connectionString);
+
+            subject.ProxyHost.Should().Be(host);
+            subject.ProxyPort.Should().Be(port);
+            subject.ProxyUsername.Should().Be(username);
+            subject.ProxyPassword.Should().Be(password);
+        }
+
+        [Theory]
+        [InlineData("mongodb://localhost?proxyHost=localhost&proxyHost=localhost", "proxyHost")]
+        [InlineData("mongodb://localhost?proxyHost=localhost&proxyPort=2222&proxyPort=2222", "proxyPort")]
+        [InlineData("mongodb://localhost?proxyHost=localhost&proxyUsername=2222&proxyUsername=2222", "proxyUsername")]
+        [InlineData("mongodb://localhost?proxyHost=localhost&proxyPassword=2222&proxyPassword=2222", "proxyPassword")]
+        public void When_proxyParameter_is_specified_more_than_once(string connectionString, string parameterName)
+        {
+            var exception = Record.Exception(() => new ConnectionString(connectionString));
+
+            exception.Should().BeOfType<MongoConfigurationException>();
+            exception.Message.Should().Contain(parameterName);
+            exception.Message.Should().Contain("Multiple");
+        }
+
+        [Theory]
+        [InlineData("mongodb://localhost?proxyPort=2020", "proxyPort")]
+        [InlineData("mongodb://localhost?proxyUsername=user", "proxyUsername")]
+        [InlineData("mongodb://localhost?proxyPassword=pasw", "proxyPassword")]
+        public void When_proxyParameter_is_specified_without_proxyHost(string connectionString, string parameterName)
+        {
+            var exception = Record.Exception(() => new ConnectionString(connectionString));
+
+            exception.Should().BeOfType<MongoConfigurationException>();
+            exception.Message.Should().Contain(parameterName);
+        }
+
+        [Theory]
+        [InlineData("mongodb://localhost?proxyHost=host.com&proxyUsername=user")]
+        [InlineData("mongodb://localhost?proxyHost=host.com&proxyPassword=pasw")]
+        public void When_proxyPassword_and_proxyUsername_are_not_specified_together(string connectionString)
+        {
+            var exception = Record.Exception(() => new ConnectionString(connectionString));
+
+            exception.Should().BeOfType<MongoConfigurationException>();
+            exception.Message.Should().Contain("proxyUsername and proxyPassword");
+        }
+
+        [Theory]
         [ParameterAttributeData]
         public void Valid_srvMaxHosts_with_mongodbsrv_scheme_should_be_valid([Values(0, 42)]int srvMaxHosts)
         {
@@ -1246,6 +1352,28 @@ namespace MongoDB.Driver.Core.Configuration
             var exception = Record.Exception(() => new ConnectionString(connectionString));
 
             exception.Should().BeOfType<MongoConfigurationException>();
+        }
+
+        [Theory]
+        [InlineData("mongodb://localhost?maxPoolSize=5&minPoolSize=10", true)]
+        [InlineData("mongodb://localhost?maxPoolSize=10&minPoolSize=10", false)]
+        [InlineData("mongodb://localhost?maxPoolSize=10&minPoolSize=5", false)]
+        [InlineData("mongodb://localhost?maxPoolSize=10", false)]
+        [InlineData("mongodb://localhost?minPoolSize=5", false)]
+        public void MaxPoolSize_less_than_MinPoolSize_should_throw(string connectionString, bool shouldThrow)
+        {
+            var exception = Record.Exception(() => new ConnectionString(connectionString));
+
+            if (shouldThrow)
+            {
+                exception.Should().BeOfType<MongoConfigurationException>();
+                exception.Message.Should().Contain("maxPoolSize must be greater than or equal to minPoolSize.");
+
+            }
+            else
+            {
+                exception.Should().BeNull();
+            }
         }
 
         [Fact]

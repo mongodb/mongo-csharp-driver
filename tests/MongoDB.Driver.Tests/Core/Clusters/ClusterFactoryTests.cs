@@ -47,7 +47,6 @@ namespace MongoDB.Driver.Core.Clusters
 
         [Theory]
         [InlineData("mongodb://a.MONGO.COSMOS.AZURE.COM:19555", ExpectedCosmosDBMessage)]
-        [InlineData("mongodb://a.MONGO.COSMOS.AZURE.COM:19555", ExpectedCosmosDBMessage)]
         [InlineData("mongodb://a.mongo.cosmos.azure.com:19555", ExpectedCosmosDBMessage)]
         [InlineData("mongodb://a.DOCDB-ELASTIC.AMAZONAWS.COM:27017/", ExpectedDocumentDBMessage)]
         [InlineData("mongodb://a.docdb-elastic.amazonaws.com:27017/", ExpectedDocumentDBMessage)]

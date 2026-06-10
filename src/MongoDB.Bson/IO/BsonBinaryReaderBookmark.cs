@@ -13,40 +13,43 @@
 * limitations under the License.
 */
 
-namespace MongoDB.Bson.IO
+using System.Collections.Generic;
+namespace MongoDB.Bson.IO;
+
+/// <summary>
+/// Represents a bookmark that can be used to return a reader to the current position and state.
+/// </summary>
+public class BsonBinaryReaderBookmark : BsonReaderBookmark
 {
-    /// <summary>
-    /// Represents a bookmark that can be used to return a reader to the current position and state.
-    /// </summary>
-    public class BsonBinaryReaderBookmark : BsonReaderBookmark
+    private readonly BsonBinaryReaderContext _context;
+    private readonly BsonBinaryReaderContext[] _contextArray;
+    private readonly long _position;
+
+    internal BsonBinaryReaderBookmark(
+        BsonReaderState state,
+        BsonType currentBsonType,
+        string currentName,
+        BsonBinaryReaderContext currentContext,
+        Stack<BsonBinaryReaderContext> contextStack,
+        long position)
+        : base(state, currentBsonType, currentName)
     {
-        // private fields
-        private BsonBinaryReaderContext _context;
-        private long _position;
+        _context = currentContext;
+        _contextArray = contextStack.ToArray();
+        _position = position;
+    }
 
-        // constructors
-        internal BsonBinaryReaderBookmark(
-            BsonReaderState state,
-            BsonType currentBsonType,
-            string currentName,
-            BsonBinaryReaderContext context,
-            long position)
-            : base(state, currentBsonType, currentName)
+    internal long Position => _position;
+
+    internal BsonBinaryReaderContext RestoreContext(Stack<BsonBinaryReaderContext> contextStack)
+    {
+        contextStack.Clear();
+
+        for (var i = _contextArray.Length - 1; i >= 0; i--)
         {
-            _context = context.Clone();
-            _position = position;
+            contextStack.Push(_contextArray[i]);
         }
 
-        // internal properties
-        internal long Position
-        {
-            get { return _position; }
-        }
-
-        // internal methods
-        internal BsonBinaryReaderContext CloneContext()
-        {
-            return _context.Clone();
-        }
+        return _context;
     }
 }

@@ -1,17 +1,17 @@
 ﻿/* Copyright 2010-present MongoDB Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 using System;
 using System.Collections.Generic;
@@ -38,6 +38,18 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNullOrEmpty(array, nameof(array));
             Vector = array;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="QueryVector"/> class with un-vectorized text for use with
+        /// an auto-embedding vector index, which will create the actual vector from this text.
+        /// </summary>
+        /// <param name="text">The text to search for.</param>
+        public QueryVector(string text)
+        {
+            Ensure.IsNotNull(text, nameof(text));
+
+            Vector = text;
         }
 
         /// <summary>
@@ -78,6 +90,15 @@ namespace MongoDB.Driver
             this(new QueryVectorBsonArray<int>(readOnlyMemory))
         {
         }
+
+        /// <summary>
+        /// Performs an implicit conversion from <see cref="string"/> to <see cref="QueryVector"/>.
+        /// </summary>
+        /// <param name="text">The query text, for use with an auto-embedding index.</param>
+        /// <returns>
+        /// The result of the conversion.
+        /// </returns>
+        public static implicit operator QueryVector(string text) => new(text);
 
         /// <summary>
         /// Performs an implicit conversion from <see cref="double"/>[] to <see cref="QueryVector"/>.
@@ -180,12 +201,22 @@ namespace MongoDB.Driver
 
         public ReadOnlySpan<T> Span => _memory.Span;
 
+        // note: indexer is only used in tests
+        public override BsonValue this[int index]
+        {
+            get
+            {
+                return _memory.Span[index].ToDouble(null);
+            }
+            set => throw new NotSupportedException($"{nameof(QueryVectorBsonArray<T>)} is read-only.");
+        }
+
         // note: Values is only used in tests
         public override IEnumerable<BsonValue> Values
         {
             get
             {
-                for (int i = 0; i < _memory.Span.Length; i++)
+                for (var i = 0; i < _memory.Span.Length; i++)
                 {
                     yield return _memory.Span[i].ToDouble(null);
                 }

@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core.Clusters;
@@ -44,13 +45,8 @@ namespace MongoDB.Driver.Tests.Specifications
         [UnifiedTestsTheory("auth.tests.unified")]
         public void Auth(JsonDrivenTestCase testCase) => Run(testCase);
 
-        [Trait("Category", "AtlasDataLake")]
-        [UnifiedTestsTheory("atlas_data_lake_testing.tests.unified")]
-        public void AtlasDataLake(JsonDrivenTestCase testCase)
-        {
-            RequireEnvironment.Check().EnvironmentVariable("ATLAS_DATA_LAKE_TESTS_ENABLED");
-            Run(testCase);
-        }
+        [UnifiedTestsTheory("causal_consistency.tests")]
+        public void CausalConsistency(JsonDrivenTestCase testCase) => Run(testCase);
 
         [Category("SupportLoadBalancing")]
         [UnifiedTestsTheory("change_streams.tests.unified")]
@@ -59,27 +55,29 @@ namespace MongoDB.Driver.Tests.Specifications
         [UnifiedTestsTheory("client_side_operations_timeout.tests")]
         public void ClientSideOperationsTimeout(JsonDrivenTestCase testCase)
         {
-            SkipNotSupportedTestCases("dropIndexes");
-            SkipNotSupportedTestCases("findOne");
-            SkipNotSupportedTestCases("listIndexNames");
+            SkipNotSupportedTestCases(testCase, "dropIndexes");
+            SkipNotSupportedTestCases(testCase, "findOne");
+            SkipNotSupportedTestCases(testCase, "listIndexNames");
             // TODO: CSOT: further skipped tests should be unblocked by upcoming fixes
-            SkipNotSupportedTestCases("with only 1 RTT"); // blocked by CSHARP-5627
-            SkipNotSupportedTestCases("createChangeStream"); // TODO: CSOT not implemented yet, CSHARP-3539
-            SkipNotSupportedTestCases("runCommand"); // TODO: CSOT: TimeoutMS is not implemented yet for runCommand
-            SkipNotSupportedTestCases("timeoutMS applies to whole operation, not individual attempts"); // blocked by DRIVERS-3247
-            SkipNotSupportedTestCases("WaitQueueTimeoutError does not clear the pool"); // TODO: CSOT: TimeoutMS is not implemented yet for runCommand
-            SkipNotSupportedTestCases("write concern error MaxTimeMSExpired is transformed"); // TODO: CSOT: investigate error transformation, implementing the requirement might be breaking change
-            SkipNotSupportedTestCases("operation succeeds after one socket timeout - listDatabases on client"); // TODO: listDatabases is not retryable in CSharp Driver, CSHARP-5714
+            SkipNotSupportedTestCases(testCase, "with only 1 RTT"); // blocked by CSHARP-5627
+            SkipNotSupportedTestCases(testCase, "createChangeStream"); // TODO: CSOT not implemented yet, CSHARP-3539
+            SkipNotSupportedTestCases(testCase, "runCommand"); // TODO: CSOT: TimeoutMS is not implemented yet for runCommand
+            SkipNotSupportedTestCases(testCase, "timeoutMS applies to whole operation, not individual attempts"); // blocked by DRIVERS-3247
+            SkipNotSupportedTestCases(testCase, "WaitQueueTimeoutError does not clear the pool"); // TODO: CSOT: TimeoutMS is not implemented yet for runCommand
+            SkipNotSupportedTestCases(testCase, "write concern error MaxTimeMSExpired is transformed"); // TODO: CSOT: investigate error transformation, implementing the requirement might be breaking change
+            SkipNotSupportedTestCases(testCase, "operation succeeds after one socket timeout - listDatabases on client"); // TODO: listDatabases is not retryable in CSharp Driver, CSHARP-5714
 
             Run(testCase);
+        }
 
-            void SkipNotSupportedTestCases(string operationName)
-            {
-                if (testCase.Name.Contains(operationName))
-                {
-                    throw new SkipException($"Test skipped because {operationName} is not supported.");
-                }
-            }
+        [UnifiedTestsTheory("client_backpressure.tests")]
+        public void ClientBackpressure(JsonDrivenTestCase testCase)
+        {
+            SkipNotSupportedTestCases(testCase, "dropIndexes");
+            SkipNotSupportedTestCases(testCase, "findOne");
+            SkipNotSupportedTestCases(testCase, "listIndexNames");
+
+            Run(testCase);
         }
 
         [Category("CSFLE")]
@@ -98,7 +96,7 @@ namespace MongoDB.Driver.Tests.Specifications
             // This spec test includes an AWS sessionToken in its config, indicating it should use temporary AWS credentials
             if (testCaseNameLower.Contains("localschema.json"))
             {
-                RequireEnvironment.Check().EnvironmentVariable("FLE_AWS_TEMPORARY_CREDS_ENABLED");
+                RequireEnvironment.Check().EnvironmentVariable("CSFLE_AWS_TEMPORARY_CREDS_ENABLED");
             }
 
             if (testCaseNameLower.Contains("kmip") ||
@@ -131,7 +129,15 @@ namespace MongoDB.Driver.Tests.Specifications
         public void GridFS(JsonDrivenTestCase testCase) => Run(testCase);
 
         [UnifiedTestsTheory("index_management.tests")]
-        public void IndexManagement(JsonDrivenTestCase testCase) => Run(testCase);
+        public void IndexManagement(JsonDrivenTestCase testCase)
+        {
+            // Skip sharded due to CSHARP-5833/SERVER-117001
+            RequireServer
+                .Check()
+                .VersionGreaterThanOrEqualTo(SemanticVersion.Parse("8.0.0"));
+
+            Run(testCase);
+        }
 
         [Category("SupportLoadBalancing")]
         [UnifiedTestsTheory("load_balancers.tests")]
@@ -165,6 +171,25 @@ namespace MongoDB.Driver.Tests.Specifications
            Run(testCase);
         }
 
+        [UnifiedTestsTheory("open_telemetry.operation")]
+        public void OpenTelemetry(JsonDrivenTestCase testCase)
+        {
+            // TODO: Unskip the tests once CSHARP-5856 is fixed.
+            if (testCase.Name.Contains("create_collection.json"))
+            {
+                var serverVersion = CoreTestConfiguration.ServerVersion;
+                if (serverVersion < SemanticVersion.Parse("7.0.0"))
+                {
+                    throw new SkipException($"Test skipped for MongoDB < 7.0 due to non-idempotent createCollection. See CSHARP-5856.");
+                }
+            }
+
+            Run(testCase);
+        }
+
+        [UnifiedTestsTheory("open_telemetry.transaction")]
+        public void OpenTelemetryTransactions(JsonDrivenTestCase testCase) => Run(testCase);
+
         [Category("SupportLoadBalancing")]
         [UnifiedTestsTheory("read_write_concern.tests.operation")]
         public void ReadWriteConcern(JsonDrivenTestCase testCase) => Run(testCase);
@@ -190,9 +215,15 @@ namespace MongoDB.Driver.Tests.Specifications
         [UnifiedTestsTheory("server_discovery_and_monitoring.tests.unified")]
         public void ServerDiscoveryAndMonitoring(JsonDrivenTestCase testCase)
         {
-            if (testCase.Name.Contains("pool-clear-"))
+            // These tests require full RS topology discovery (multiple topology change events).
+            // A single-node RS (whether via directConnect or replicaSet= with one member) only fires 2 topology
+            // events, never the full RS discovery sequence with secondary discovery. CSHARP-6008.
+            if (IsSingleNodeReplicaSet())
             {
-                throw new SkipException("This test is flaky and is skipped while being investigated.");
+                const string singleNodeRsReason = "Test skipped because single-node replica set does not produce full RS topology discovery events (CSHARP-6008).";
+                SkipFile(testCase, "logging-replicaset.json", singleNodeRsReason);
+                SkipFile(testCase, "replicaset-emit-topology-changed-before-close.json", singleNodeRsReason);
+                SkipFile(testCase, "rediscover-quickly-after-step-down.json", singleNodeRsReason);
             }
 
             Run(testCase, IsSdamLogValid, new SdamRunnerEventsProcessor(testCase.Name));
@@ -200,7 +231,17 @@ namespace MongoDB.Driver.Tests.Specifications
 
         [Category("SupportLoadBalancing")]
         [UnifiedTestsTheory("server_selection.tests.logging")]
-        public void ServerSelection(JsonDrivenTestCase testCase) => Run(testCase);
+        public void ServerSelection(JsonDrivenTestCase testCase)
+        {
+            // replica-set.json expects full RS topology discovery events and a secondary, not available on a
+            // single-node RS (whether via directConnect or replicaSet= with one member). CSHARP-6008.
+            if (IsSingleNodeReplicaSet())
+            {
+                SkipFile(testCase, "replica-set.json", "Test skipped because single-node replica set does not have a secondary (CSHARP-6008).");
+            }
+
+            Run(testCase);
+        }
 
         [UnifiedTestsTheory("sessions.tests")]
         public void Sessions(JsonDrivenTestCase testCase) => Run(testCase);
@@ -263,7 +304,36 @@ namespace MongoDB.Driver.Tests.Specifications
         private static void RequireKmsMock() =>
             RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED");
 
-        // used by SkippedTestsProvider property in UnifiedTests attribute.
+        private static bool IsSingleNodeReplicaSet() => DriverTestConfiguration.IsSingleNodeReplicaSet(CoreTestConfiguration.Cluster);
+
+
+        /// <summary>
+        /// Skip all tests sourced from a specific JSON spec file. The source file is identified via
+        /// the "_fileName" value the discoverer stamps onto every test case (see
+        /// UnifiedTestsDiscoverer), rather than by parsing the composite test-case name.
+        /// </summary>
+        private static void SkipFile(JsonDrivenTestCase testCase, string fileName, string reason)
+        {
+            if (testCase.Shared.GetValue("_fileName", null)?.AsString == fileName)
+            {
+                throw new SkipException(reason);
+            }
+        }
+
+        /// <summary>
+        /// Skip tests whose name contains the given operation substring.
+        /// </summary>
+        private static void SkipNotSupportedTestCases(JsonDrivenTestCase testCase, string operationName)
+        {
+            if (testCase.Name.Contains(operationName))
+            {
+                throw new SkipException($"Test skipped because {operationName} is not supported.");
+            }
+        }
+
+        /// <summary>
+        /// Used by SkippedTestsProvider property in UnifiedTests attribute.
+        /// </summary>
         private static readonly HashSet<string> __ignoredTests = new(
         [
             // CMAP
@@ -287,12 +357,6 @@ namespace MongoDB.Driver.Tests.Specifications
             "collection.listIndexNames succeeds after retryable handshake network error",
 
             // SDAM
-#if NET472
-            // https://jira.mongodb.org/browse/CSHARP-3165
-            "Connection pool clear uses interruptInUseConnections=true after monitor timeout",
-            "Error returned from connection pool clear with interruptInUseConnections=true is retryable",
-            "Error returned from connection pool clear with interruptInUseConnections=true is retryable for write",
-#endif
             // "Not implemented: https://jira.mongodb.org/browse/CSHARP-3138"
             "connectTimeoutMS=0",
             // https://jira.mongodb.org/browse/CSHARP-4459

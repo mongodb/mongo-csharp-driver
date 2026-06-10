@@ -43,17 +43,21 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 Microseconds = timeOnly,
                 Ticks = timeOnly,
                 Nanoseconds = timeOnly,
+                Document = timeOnly
             };
 
             var json = testObj.ToJson();
 
-            var expected = "{ \"Hours\" : 13, "
-                           + "\"Minutes\" : 804, "
-                           + "\"Seconds\" : 48293, "
-                           + "\"Milliseconds\" : 48293000, "
-                           + "\"Microseconds\" : 48293000000, "
-                           + "\"Ticks\" : 482930000000, "
-                           + "\"Nanoseconds\" : 48293000000000 }";
+            var baseString =  """
+            { "Hours" : 13, "Minutes" : 804, "Seconds" : 48293, "Milliseconds" : 48293000, "Microseconds" : 48293000000, "Ticks" : 482930000000, "Nanoseconds" : 48293000000000
+            """;
+
+            var documentString =  """
+                              { "Hour" : 13, "Minute" : 24, "Second" : 53, "Millisecond" : 0, "Microsecond" : 0, "Nanosecond" : 0, "Ticks" : 482930000000 }
+                              """;
+
+
+            var expected = baseString + """, "Document" : """ + documentString + " }";
             Assert.Equal(expected, json);
         }
 
@@ -69,7 +73,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [Theory]
         [ParameterAttributeData]
         public void Constructor_with_representation_should_return_expected_result(
-            [Values(BsonType.String, BsonType.Int64, BsonType.Int32, BsonType.Double)]
+            [Values(BsonType.String, BsonType.Int64, BsonType.Int32, BsonType.Double, BsonType.Document)]
             BsonType representation,
             [Values(TimeOnlyUnits.Ticks, TimeOnlyUnits.Hours, TimeOnlyUnits.Minutes, TimeOnlyUnits.Seconds,
                 TimeOnlyUnits.Milliseconds, TimeOnlyUnits.Microseconds, TimeOnlyUnits.Nanoseconds)]
@@ -79,6 +83,60 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             subject.Representation.Should().Be(representation);
             subject.Units.Should().Be(units);
+        }
+
+        [Theory]
+        [InlineData("""{ "x" : { "Hour" : { "$numberInt" : "8" }, "Minute" : { "$numberInt" : "32" }, "Second" : { "$numberInt" : "5" }, "Millisecond" : { "$numberInt" : "594" }, "Microsecond" : { "$numberInt" : "658" }, "Nanosecond" : { "$numberInt" : "300" }, "Ticks" : { "$numberLong" : "307255946583" } } }""","08:32:05.5946583" )]
+        [InlineData("""{ "x" : { "Hour" : { "$numberInt" : "0" }, "Minute" : { "$numberInt" : "0" }, "Second" : { "$numberInt" : "0" }, "Millisecond" : { "$numberInt" : "0" }, "Microsecond" : { "$numberInt" : "0" }, "Nanosecond" : { "$numberInt" : "0" }, "Ticks" : { "$numberLong" : "0" } } }""","00:00:00.0000000" )]
+        [InlineData("""{ "x" : { "Hour" : { "$numberInt" : "23" }, "Minute" : { "$numberInt" : "59" }, "Second" : { "$numberInt" : "59" }, "Millisecond" : { "$numberInt" : "999" }, "Microsecond" : { "$numberInt" : "999" }, "Nanosecond" : { "$numberInt" : "900" }, "Ticks" : { "$numberLong" : "863999999999" } } }""","23:59:59.9999999" )]
+        public void Deserialize_with_document_should_have_expected_result(string json, string expectedResult)
+        {
+            var subject = new TimeOnlySerializer();
+            TestDeserialize(subject, json, expectedResult);
+        }
+
+        [Theory]
+        [InlineData("""{ "x" : { "Hour" : { "$numberInt" : "8" }, "Minute" : { "$numberInt" : "32" }, "Second" : { "$numberInt" : "5" }, "Millisecond" : { "$numberInt" : "594" }, "Microsecond" : { "$numberInt" : "658" }, "Ticks" : { "$numberLong" : "307255946583" } } }""","08:32:05.5946583" )]
+        [InlineData("""{ "x" : { "Hour" : { "$numberInt" : "8" }, "Minute" : { "$numberInt" : "32" }, "Second" : { "$numberInt" : "5" }, "Millisecond" : { "$numberInt" : "594" }, "Nanosecond" : { "$numberInt" : "300" }, "Ticks" : { "$numberLong" : "307255946583" } } }""","08:32:05.5946583" )]
+        [InlineData("""{ "x" : { "Hour" : { "$numberInt" : "8" }, "Minute" : { "$numberInt" : "32" }, "Second" : { "$numberInt" : "5" }, "Millisecond" : { "$numberInt" : "594" }, "Ticks" : { "$numberLong" : "307255946583" } } }""","08:32:05.5946583" )]
+        public void Deserialize_with_document_should_work_with_missing_microsecond_or_nanosecond(string json, string expectedResult)
+        {
+            var subject = new TimeOnlySerializer();
+            TestDeserialize(subject, json, expectedResult);
+        }
+
+        [Theory]
+        [InlineData("""{ "x" : { "Hour" : { "$numberInt" : "7" }, "Minute" : { "$numberInt" : "32" }, "Second" : { "$numberInt" : "5" }, "Millisecond" : { "$numberInt" : "594" }, "Microsecond" : { "$numberInt" : "658" }, "Nanosecond" : { "$numberInt" : "300" }, "Ticks" : { "$numberLong" : "307255946583" } } }""")]
+        [InlineData("""{ "x" : { "Hour" : { "$numberInt" : "8" }, "Minute" : { "$numberInt" : "33" }, "Second" : { "$numberInt" : "5" }, "Millisecond" : { "$numberInt" : "594" }, "Microsecond" : { "$numberInt" : "658" }, "Nanosecond" : { "$numberInt" : "300" }, "Ticks" : { "$numberLong" : "307255946583" } } }""")]
+        [InlineData("""{ "x" : { "Hour" : { "$numberInt" : "8" }, "Minute" : { "$numberInt" : "32" }, "Second" : { "$numberInt" : "6" }, "Millisecond" : { "$numberInt" : "594" }, "Microsecond" : { "$numberInt" : "658" }, "Nanosecond" : { "$numberInt" : "300" }, "Ticks" : { "$numberLong" : "307255946583" } } }""")]
+        public void Deserialize_with_document_should_throw_when_component_is_not_correct(string json)
+        {
+            var subject = new TimeOnlySerializer();
+
+            using var reader = new JsonReader(json);
+            reader.ReadStartDocument();
+            reader.ReadName("x");
+            var context = BsonDeserializationContext.CreateRoot(reader);
+
+            var exception = Record.Exception(() => subject.Deserialize(context));
+            exception.Should().BeOfType<BsonSerializationException>();
+            exception.Message.Should().Be("Deserialized TimeOnly components do not match the ticks value.");
+        }
+
+        [Fact]
+        public void Deserialize_with_document_should_throw_when_field_is_unknown()
+        {
+            const string json = """{ "x" : { "Unknown": "test", Ticks: { "$numberDouble" : "307255946583" }  } }""";
+            var subject = new TimeOnlySerializer();
+
+            using var reader = new JsonReader(json);
+            reader.ReadStartDocument();
+            reader.ReadName("x");
+            var context = BsonDeserializationContext.CreateRoot(reader);
+
+            var exception = Record.Exception(() => subject.Deserialize(context));
+            exception.Should().BeOfType<BsonSerializationException>();
+            exception.Message.Should().Be("Invalid element: 'Unknown'.");
         }
 
         [Theory]
@@ -274,6 +332,17 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         }
 
         [Theory]
+        [InlineData("08:32:05.5946583", """{ "x" : { "Hour" : { "$numberInt" : "8" }, "Minute" : { "$numberInt" : "32" }, "Second" : { "$numberInt" : "5" }, "Millisecond" : { "$numberInt" : "594" }, "Microsecond" : { "$numberInt" : "658" }, "Nanosecond" : { "$numberInt" : "300" }, "Ticks" : { "$numberLong" : "307255946583" } } }""")]
+        [InlineData("00:00:00.0000000", """{ "x" : { "Hour" : { "$numberInt" : "0" }, "Minute" : { "$numberInt" : "0" }, "Second" : { "$numberInt" : "0" }, "Millisecond" : { "$numberInt" : "0" }, "Microsecond" : { "$numberInt" : "0" }, "Nanosecond" : { "$numberInt" : "0" }, "Ticks" : { "$numberLong" : "0" } } }""")]
+        [InlineData("23:59:59.9999999", """{ "x" : { "Hour" : { "$numberInt" : "23" }, "Minute" : { "$numberInt" : "59" }, "Second" : { "$numberInt" : "59" }, "Millisecond" : { "$numberInt" : "999" }, "Microsecond" : { "$numberInt" : "999" }, "Nanosecond" : { "$numberInt" : "900" }, "Ticks" : { "$numberLong" : "863999999999" } } }""")]
+        public void Serialize_with_document_representation_should_have_expected_result(string valueString, string expectedResult)
+        {
+            var subject = new TimeOnlySerializer(BsonType.Document);
+
+            TestSerialize(subject, valueString, expectedResult);
+        }
+
+        [Theory]
         [InlineData(BsonType.String, "08:32:05.5946583", """{ "x" : "08:32:05.5946583" }""")]
         [InlineData(BsonType.String, "00:00:00.0000000", """{ "x" : "00:00:00.0000000" }""")]
         [InlineData(BsonType.String, "23:59:59.9999999", """{ "x" : "23:59:59.9999999" }""")]
@@ -407,8 +476,8 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [Theory]
         [ParameterAttributeData]
         public void WithRepresentation_should_return_expected_result(
-            [Values(BsonType.String, BsonType.Int64, BsonType.Int32, BsonType.Double)] BsonType oldRepresentation,
-            [Values(BsonType.String, BsonType.Int64, BsonType.Int32, BsonType.Double)] BsonType newRepresentation)
+            [Values(BsonType.String, BsonType.Int64, BsonType.Int32, BsonType.Double, BsonType.Document)] BsonType oldRepresentation,
+            [Values(BsonType.String, BsonType.Int64, BsonType.Int32, BsonType.Double, BsonType.Document)] BsonType newRepresentation)
         {
             var subject = new TimeOnlySerializer(oldRepresentation);
 
@@ -473,6 +542,9 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             [BsonTimeOnlyOptions(BsonType.Int64, TimeOnlyUnits.Nanoseconds )]
             public TimeOnly Nanoseconds { get; set; }
+
+            [BsonTimeOnlyOptions(BsonType.Document)]
+            public TimeOnly Document { get; set; }
         }
     }
 #endif

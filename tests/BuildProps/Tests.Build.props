@@ -6,7 +6,22 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1;net6.0</TargetFrameworks>
+    <Configurations>Debug;Release;Release_CSharp_14</Configurations>
+    <Platforms>AnyCPU</Platforms>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release_CSharp_14' ">
+    <Optimize Condition=" '$(Optimize)' == '' ">true</Optimize>
+    <DefineConstants>$(DefineConstants);CSHARP_14</DefineConstants>
+    <LangVersion>14</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' != 'Release_CSharp_14' ">
+    <LangVersion>12</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp3.1;net6.0;net10.0</TargetFrameworks>
     <TargetFrameworks Condition="'$(IsWindows)'=='true'">$(TargetFrameworks);net472</TargetFrameworks>
     <IsPackable>false</IsPackable>
     <SignAssembly>true</SignAssembly>
@@ -14,7 +29,6 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <LangVersion>12</LangVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
@@ -28,7 +42,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(IsWindows)'=='true'">
     <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
@@ -47,6 +61,13 @@
     <PackageReference Include="Moq" Version="4.9.0" />
     <PackageReference Include="xunit" Version="2.4.2" />
     <PackageReference Include="JunitXml.TestLogger" Version="2.1.81" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- CSHARP-6038: SharpCompress directory-traversal advisory does not affect the driver,
+         which only uses in-memory ZLib stream compression and never calls IArchive.WriteToDirectory.
+         Remove once the SharpCompress dependency is dropped. -->
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-6c8g-7p36-r338" />
   </ItemGroup>
 
 </Project>
