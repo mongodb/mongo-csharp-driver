@@ -628,38 +628,31 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static IReadOnlyMethodInfoSet ReverseOverloads => __reverseOverloads;
 
         // public methods
-        public static bool IsContainsMethod(MethodCallExpression methodCallExpression, out Expression sourceExpression, out Expression valueExpression)
+        public static bool IsContainsMethod(MethodInfo method)
         {
-            var method = methodCallExpression.Method;
             var parameters = method.GetParameters();
-            var arguments = methodCallExpression.Arguments;
-
             if (method.Name == "Contains" && method.ReturnType == typeof(bool))
             {
                 if (method.IsStatic)
                 {
-                    if (parameters.Length == 2)
-                    {
-                        if (parameters[0].ParameterType.ImplementsIEnumerableOf(parameters[1].ParameterType))
-                        {
-                            sourceExpression = arguments[0];
-                            valueExpression = arguments[1];
-                            return true;
-                        }
-                    }
+                    return parameters.Length == 2 && parameters[0].ParameterType.ImplementsIEnumerableOf(parameters[1].ParameterType);
                 }
-                else
-                {
-                    if (parameters.Length == 1)
-                    {
-                        if (method.DeclaringType.ImplementsIEnumerableOf(parameters[0].ParameterType))
-                        {
-                            sourceExpression = methodCallExpression.Object;
-                            valueExpression = arguments[0];
-                            return true;
-                        }
-                    }
-                }
+
+                return parameters.Length == 1 && method.DeclaringType.ImplementsIEnumerableOf(parameters[0].ParameterType);
+            }
+
+            return false;
+        }
+
+        public static bool IsContainsMethod(MethodCallExpression methodCallExpression, out Expression sourceExpression, out Expression valueExpression)
+        {
+            var method = methodCallExpression.Method;
+            if (IsContainsMethod(method))
+            {
+                var arguments = methodCallExpression.Arguments;
+                sourceExpression = method.IsStatic ? arguments[0] : methodCallExpression.Object;
+                valueExpression = method.IsStatic ? arguments[1] : arguments[0];
+                return true;
             }
 
             sourceExpression = null;

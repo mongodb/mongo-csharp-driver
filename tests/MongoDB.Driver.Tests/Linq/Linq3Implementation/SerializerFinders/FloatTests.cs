@@ -42,7 +42,7 @@ public class FloatTests
         [TestHelpers.MakeLambda((MyModel model) => model.Value.CompareTo(model.Other)), typeof(Int32Serializer)],
         [TestHelpers.MakeLambda((MyModel model) => model.Value.Equals(1f)), typeof(BooleanSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => model.Value.Equals(model.Other)), typeof(BooleanSerializer)],
-        [TestHelpers.MakeLambda((MyModel model) => float.Parse("42")), typeof(SingleSerializer)],
+        [TestHelpers.MakeLambda((MyModel model) => float.Parse(model.StringValue)), typeof(SingleSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => model.Value.ToString()), typeof(StringSerializer)],
     ];
 
@@ -50,5 +50,6 @@ public class FloatTests
     {
         public float Value { get; set; }
         public float Other { get; set; }
+        public string StringValue { get; set; }
     }
 }
