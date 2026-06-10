@@ -61,43 +61,15 @@ echo -e "\n================================="
 echo "Resolving libmongocrypt version"
 echo "================================="
 
-MONGOCRYPT_COMMIT=$(sed -n 's/.*<LibMongoCryptCommit>\([^<]*\)<\/LibMongoCryptCommit>.*/\1/p' \
+LIBMONGOCRYPT_VERSION=$(sed -n 's/.*<LibMongoCryptVersion>\([^<]*\)<\/LibMongoCryptVersion>.*/\1/p' \
   src/MongoDB.Driver.Encryption/MongoDB.Driver.Encryption.csproj | head -1)
 
-if [[ -z "$MONGOCRYPT_COMMIT" ]]; then
-  echo "ERROR: Could not extract LibMongoCryptCommit from MongoDB.Driver.Encryption.csproj" >&2
+if [[ -z "$LIBMONGOCRYPT_VERSION" ]]; then
+  echo "ERROR: Could not extract LibMongoCryptVersion from MongoDB.Driver.Encryption.csproj" >&2
   exit 1
 fi
 
-echo "Looking up tag for libmongocrypt commit ${MONGOCRYPT_COMMIT}"
-github_auth_args=()
-[[ -n "${GITHUB_APIKEY:-}" ]] && github_auth_args=(-H "Authorization: Bearer ${GITHUB_APIKEY}")
-
-# The tags API returns newest-first; bare semver tags (1.x.y) may not appear until page 2+
-# because pymongocrypt-* and node-v* tags dominate the first pages. Stop early when found.
-LIBMONGOCRYPT_VERSION=""
-for page in 1 2 3 4 5; do
-  tags_json=$(curl -sSL \
-    -H "Accept: application/vnd.github+json" \
-    "${github_auth_args[@]+"${github_auth_args[@]}"}" \
-    "https://api.github.com/repos/mongodb/libmongocrypt/tags?per_page=100&page=${page}" \
-    2>/dev/null || echo '[]')
-  [[ $(jq -r 'type' <<< "$tags_json") != "array" ]] && { echo "Unexpected GitHub API response (not an array), stopping tag lookup" >&2; break; }
-  [[ $(jq 'length' <<< "$tags_json") -eq 0 ]] && break
-  # Prefer bare semver tags (e.g. 1.15.1) over language-prefixed tags for the same commit
-  LIBMONGOCRYPT_VERSION=$(jq -r --arg sha "$MONGOCRYPT_COMMIT" \
-    '[.[] | select(.commit.sha == $sha) | .name] |
-     (map(select(test("^[0-9]"))) | first) // (first // empty)' \
-    <<< "$tags_json")
-  [[ -n "$LIBMONGOCRYPT_VERSION" ]] && break
-done
-
-if [[ -z "$LIBMONGOCRYPT_VERSION" ]]; then
-  echo "No tag found for commit ${MONGOCRYPT_COMMIT}, using SHA as version"
-  LIBMONGOCRYPT_VERSION="$MONGOCRYPT_COMMIT"
-else
-  echo "Resolved commit ${MONGOCRYPT_COMMIT} to tag ${LIBMONGOCRYPT_VERSION}"
-fi
+echo "libmongocrypt version: ${LIBMONGOCRYPT_VERSION}"
 
 LIBMONGOCRYPT_PURL="pkg:github/mongodb/libmongocrypt@${LIBMONGOCRYPT_VERSION}"
 ENCRYPTION_PURL="pkg:nuget/MongoDB.Driver.Encryption@${PACKAGE_VERSION}"
