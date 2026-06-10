@@ -260,7 +260,49 @@ functions:
         script: |
           ${PREPARE_SHELL}
           ./evergreen/generate-sbom.sh
-          
+
+  upload-sbom:
+    - command: expansions.update
+      params:
+        updates:
+          - key: DOCKER_CONFIG
+            value: "${workdir}/.docker"
+    - command: ec2.assume_role
+      display_name: Assume ECR readonly IAM role
+      params:
+        role_arn: arn:aws:iam::901841024863:role/ecr-role-evergreen-ro
+    - command: subprocess.exec
+      type: setup
+      display_name: Log in to ECR
+      params:
+        binary: bash
+        include_expansions_in_env:
+          - AWS_ACCESS_KEY_ID
+          - AWS_SECRET_ACCESS_KEY
+          - AWS_SESSION_TOKEN
+          - DOCKER_CONFIG
+        args:
+          - -c
+          - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 901841024863.dkr.ecr.us-east-1.amazonaws.com
+    - command: ec2.assume_role
+      display_name: Assume Silkbomb IAM role
+      params:
+        role_arn: arn:aws:iam::901841024863:role/silkbomb
+    - command: subprocess.exec
+      type: test
+      display_name: Upload SBOM via Silkbomb
+      params:
+        binary: bash
+        working_dir: mongo-csharp-driver
+        include_expansions_in_env:
+          - branch_name
+          - DOCKER_CONFIG
+          - AWS_ACCESS_KEY_ID
+          - AWS_SECRET_ACCESS_KEY
+          - AWS_SESSION_TOKEN
+        args:
+          - evergreen/upload-sbom.sh
+
   download-and-promote-augmented-sbom-to-s3-bucket:
     - command: ec2.assume_role
       params:
@@ -1700,6 +1742,13 @@ tasks:
         - func: build-apidocs
         - func: upload-apidocs
 
+    - name: upload-sbom
+      tags: ["ssdlc"]
+      allowed_requesters: ["commit"]
+      exec_timeout_secs: 600
+      commands:
+        - func: upload-sbom
+
     - name: generate-ssdlc-reports
       commands:
         - command: ec2.assume_role
@@ -2762,3 +2811,14 @@ buildvariants:
       depends_on:
         - name: push-packages-myget
           variant: ".push-packages-myget"
+
+- name: sbom
+  display_name: "SBOM"
+  allowed_requesters: ["commit"]
+  stepback: false
+  paths:
+    - sbom.json
+  run_on:
+    - ubuntu2004-small
+  tasks:
+    - name: upload-sbom
