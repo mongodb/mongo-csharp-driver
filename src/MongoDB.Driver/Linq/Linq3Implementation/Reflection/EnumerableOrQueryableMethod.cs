@@ -912,7 +912,7 @@ internal static class EnumerableOrQueryableMethod
         [
             __skipOverloads,
             __takeOverloads,
-            __takeLastOverloads // TakeLast shares the slice-based prologue but is kept out of __takeOverloads (which means positive $slice)
+            __takeLastOverloads
         ]);
     }
 
