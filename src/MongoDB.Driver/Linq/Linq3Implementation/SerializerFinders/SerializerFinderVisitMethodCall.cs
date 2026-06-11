@@ -127,6 +127,7 @@ internal partial class SerializerFinderVisitor
                 case "IsMatch": DeduceIsMatchMethodSerializers(); break;
                 case "IsSubsetOf": DeduceIsSubsetOfMethodSerializers(); break;
                 case "Join": DeduceJoinMethodSerializers(); break;
+                case "LeftJoin": DeduceLeftJoinMethodSerializers(); break;
                 case "Locf": DeduceLocfMethodSerializers(); break;
                 case "Lookup": DeduceLookupMethodSerializers(); break;
                 case "OfType": DeduceOfTypeMethodSerializers(); break;
@@ -1752,6 +1753,32 @@ internal partial class SerializerFinderVisitor
                 DeduceItemAndCollectionSerializers(innerKeySelectorItemParameter, innerExpression);
                 DeduceItemAndCollectionSerializers(resultSelectorOuterItemParameter, outerExpression);
                 DeduceItemAndCollectionSerializers(resultSelectorInnerItemsParameter, innerExpression);
+                DeduceCollectionAndItemSerializers(node, resultSelectorLambda.Body);
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
+        }
+
+        void DeduceLeftJoinMethodSerializers()
+        {
+            if (method.IsOneOf(MongoQueryableMethod.LeftJoin, QueryableMethod.LeftJoin))
+            {
+                var outerExpression = arguments[0];
+                var innerExpression = arguments[1];
+                var outerKeySelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[2]);
+                var outerKeySelectorItemParameter = outerKeySelectorLambda.Parameters.Single();
+                var innerKeySelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[3]);
+                var innerKeySelectorItemParameter = innerKeySelectorLambda.Parameters.Single();
+                var resultSelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[4]);
+                var resultSelectorOuterItemParameter = resultSelectorLambda.Parameters[0];
+                var resultSelectorInnerItemParameter = resultSelectorLambda.Parameters[1];
+
+                DeduceItemAndCollectionSerializers(outerKeySelectorItemParameter, outerExpression);
+                DeduceItemAndCollectionSerializers(innerKeySelectorItemParameter, innerExpression);
+                DeduceItemAndCollectionSerializers(resultSelectorOuterItemParameter, outerExpression);
+                DeduceItemAndCollectionSerializers(resultSelectorInnerItemParameter, innerExpression);
                 DeduceCollectionAndItemSerializers(node, resultSelectorLambda.Body);
             }
             else

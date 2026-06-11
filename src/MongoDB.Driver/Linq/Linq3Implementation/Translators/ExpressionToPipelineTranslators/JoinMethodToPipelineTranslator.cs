@@ -34,7 +34,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.Is(QueryableMethod.Join))
+            var isLeftJoin = method.IsOneOf(MongoQueryableMethod.LeftJoin, QueryableMethod.LeftJoin);
+            if (isLeftJoin || method.Is(QueryableMethod.Join))
             {
                 var outerExpression = arguments[0];
                 var innerExpression = arguments[1];
@@ -63,17 +64,34 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                     AstProject.Exclude("_id"));
                 var wrappedOuterSerializer = WrappedValueSerializer.Create("_outer", outerSerializer);
 
-                var (innerCollectionName, innerSerializer) = innerExpression.GetCollectionInfoFromQueryable(containerExpression: expression);
+                string innerCollectionName;
+                IBsonSerializer innerSerializer;
+                AstPipeline innerFilterPipeline = null;
+
+                if (innerExpression is ConstantExpression)
+                {
+                    (innerCollectionName, innerSerializer) = innerExpression.GetCollectionInfoFromQueryable(containerExpression: expression);
+                }
+                else
+                {
+                    var rootInnerExpression = TranslationContext.GetUltimateSource(innerExpression);
+                    (innerCollectionName, innerSerializer) = rootInnerExpression.GetCollectionInfoFromQueryable(containerExpression: expression);
+                    var innerTranslation = ExpressionToPipelineTranslator.Translate(context, innerExpression);
+                    innerSerializer = innerTranslation.OutputSerializer;
+                    innerFilterPipeline = innerTranslation.Ast.Stages.Count > 0 ? innerTranslation.Ast : null;
+                }
+
                 var localField = outerKeySelectorLambda.TranslateToDottedFieldName(context, wrappedOuterSerializer);
                 var foreignField = innerKeySelectorLambda.TranslateToDottedFieldName(context, innerSerializer);
 
-                var lookupStage = AstStage.Lookup(
-                    from: innerCollectionName,
-                    localField,
-                    foreignField,
-                    @as: "_inner");
+                // When the inner sequence is filtered we emit a $lookup that combines localField/foreignField
+                // with a pipeline. That concise syntax requires MongoDB 5.0+ (Feature.LookupConciseSyntax);
+                // a bare inner sequence uses the simpler localField/foreignField form supported by all servers.
+                var lookupStage = innerFilterPipeline != null
+                    ? AstStage.Lookup(innerCollectionName, localField, foreignField, [], innerFilterPipeline, "_inner")
+                    : AstStage.Lookup(from: innerCollectionName, localField, foreignField, @as: "_inner");
 
-                var unwindStage = AstStage.Unwind("_inner");
+                var unwindStage = AstStage.Unwind("_inner", preserveNullAndEmptyArrays: isLeftJoin ? true : null);
 
                 var outerParameter = resultSelectorLambda.Parameters[0];
                 var outerField = AstExpression.GetField(AstExpression.RootVar, "_outer");

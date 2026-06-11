@@ -88,7 +88,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
             return new TranslationContext(translationOptions, nodeSerializers, data, symbolTable, nameGenerator);
         }
 
-        private static Expression GetUltimateSource(Expression expression)
+        internal static Expression GetUltimateSource(Expression expression)
         {
             if (expression is ConstantExpression constantExpression &&
                 constantExpression.Value is IQueryable queryable &&
