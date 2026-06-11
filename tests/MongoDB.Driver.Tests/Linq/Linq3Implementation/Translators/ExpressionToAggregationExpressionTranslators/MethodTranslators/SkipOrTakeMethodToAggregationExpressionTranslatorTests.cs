@@ -112,10 +112,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         {
             protected override IEnumerable<C> InitialData =>
             [
-                new C { Id = 0, A = new int[0] },
-                new C { Id = 1, A = new int[] { 1 } },
-                new C { Id = 2, A = new int[] { 1, 2 } },
-                new C { Id = 3, A = new int[] { 1, 2, 3 } }
+                new() { Id = 0, A = [] },
+                new() { Id = 1, A = [1] },
+                new() { Id = 2, A = [1, 2] },
+                new() { Id = 3, A = [1, 2, 3] }
             ];
         }
     }

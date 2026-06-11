@@ -34,8 +34,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         {
         }
 
-        #region Accumulator operators
-
         // $bottom examples are from: https://www.mongodb.com/docs/v6.0/reference/operator/aggregation/bottom/
         [Fact]
         public void Bottom_find_the_bottom_score_in_a_single_game_example_using_GroupBy_with_result_selector_should_work()
@@ -1913,8 +1911,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                 exception.Message.Should().Contain("TopN can only be used as an accumulator with GroupBy");
             }
         }
-
-        #endregion
 
         public sealed class ClassFixture : MongoDatabaseFixture
         {
