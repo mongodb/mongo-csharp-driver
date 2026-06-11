@@ -28,7 +28,7 @@ internal static class TakeLastMethodToAggregationExpressionTranslator
         var method = expression.Method;
         var arguments = expression.Arguments;
 
-        if (method.Is(EnumerableMethod.TakeLast) || method.Is(QueryableMethod.TakeLast))
+        if (method.IsOneOf(EnumerableOrQueryableMethod.TakeLastOverloads))
         {
             var sourceExpression = arguments[0];
             var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);

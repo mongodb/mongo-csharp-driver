@@ -2763,8 +2763,7 @@ internal partial class SerializerFinderVisitor
         void DeduceSkipOrTakeMethodSerializers()
         {
             if (method.IsOneOf(EnumerableOrQueryableMethod.SkipOrTakeOverloads) ||
-                method.Is(EnumerableMethod.TakeLast) ||
-                method.Is(QueryableMethod.TakeLast))
+                method.IsOneOf(EnumerableOrQueryableMethod.TakeLastOverloads))
             {
                 var sourceExpression = arguments[0];
 

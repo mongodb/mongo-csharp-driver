@@ -116,6 +116,7 @@ internal static class EnumerableOrQueryableMethod
     private static readonly IReadOnlyMethodInfoSet __skipWhileWithPredicateTakingIndexOrTakeWhileWithPredicateTakingIndex;
     private static readonly IReadOnlyMethodInfoSet __sumOverloads;
     private static readonly IReadOnlyMethodInfoSet __sumWithSelectorOverloads;
+    private static readonly IReadOnlyMethodInfoSet __takeLastOverloads;
     private static readonly IReadOnlyMethodInfoSet __takeOverloads;
     private static readonly IReadOnlyMethodInfoSet __thenByOverloads;
 
@@ -842,6 +843,12 @@ internal static class EnumerableOrQueryableMethod
             QueryableMethod.SumSingleWithSelector,
         ]);
 
+        __takeLastOverloads = MethodInfoSet.Create(
+        [
+            EnumerableMethod.TakeLast,
+            QueryableMethod.TakeLast
+        ]);
+
       __takeOverloads = MethodInfoSet.Create(
         [
             __take,
@@ -1002,6 +1009,7 @@ internal static class EnumerableOrQueryableMethod
     public static IReadOnlyMethodInfoSet SkipWhileWithPredicateTakingIndexOrTakeWhileWithPredicateTakingIndex => __skipWhileWithPredicateTakingIndexOrTakeWhileWithPredicateTakingIndex;
     public static IReadOnlyMethodInfoSet SumOverloads => __sumOverloads;
     public static IReadOnlyMethodInfoSet SumWithSelectorOverloads => __sumWithSelectorOverloads;
+    public static IReadOnlyMethodInfoSet TakeLastOverloads => __takeLastOverloads;
     public static IReadOnlyMethodInfoSet TakeOverloads => __takeOverloads;
     public static IReadOnlyMethodInfoSet ThenByOverloads => __thenByOverloads;
 }
