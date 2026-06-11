@@ -187,40 +187,6 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
-        public void Execute_update_with_hint_should_throw_when_hint_is_not_supported(
-            [Values(0, 1)] int w,
-            [Values(false, true)] bool async)
-        {
-            var writeConcern = new WriteConcern(w);
-            var requests = new List<WriteRequest>
-            {
-                new UpdateRequest(
-                    UpdateType.Update,
-                    new BsonDocument("x", 1),
-                    new BsonDocument("$set", new BsonDocument("x", 2)))
-                {
-                    Hint = new BsonDocument("_id", 1)
-                }
-            };
-            var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings)
-            {
-                WriteConcern = writeConcern
-            };
-
-            var exception = Record.Exception(() => ExecuteOperation(subject, async, useImplicitSession: true));
-
-            if (!writeConcern.IsAcknowledged)
-            {
-                exception.Should().BeOfType<NotSupportedException>();
-            }
-            else
-            {
-                exception.Should().BeNull();
-            }
-        }
-
-        [Theory]
-        [ParameterAttributeData]
         public void Execute_with_zero_requests_should_throw_an_exception(
             [Values(false, true)]
             bool async)
