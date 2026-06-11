@@ -911,7 +911,8 @@ internal static class EnumerableOrQueryableMethod
         __skipOrTakeOverloads = MethodInfoSet.Create(
         [
             __skipOverloads,
-            __takeOverloads
+            __takeOverloads,
+            __takeLastOverloads // TakeLast shares the slice-based prologue but is kept out of __takeOverloads (which means positive $slice)
         ]);
     }
 

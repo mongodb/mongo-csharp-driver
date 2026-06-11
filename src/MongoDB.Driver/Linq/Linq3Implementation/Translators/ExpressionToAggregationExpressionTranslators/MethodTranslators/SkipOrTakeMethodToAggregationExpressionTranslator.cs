@@ -29,8 +29,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(EnumerableOrQueryableMethod.SkipOrTakeOverloads) ||
-                method.IsOneOf(EnumerableOrQueryableMethod.TakeLastOverloads))
+            if (method.IsOneOf(EnumerableOrQueryableMethod.SkipOrTakeOverloads))
             {
                 var sourceExpression = arguments[0];
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
