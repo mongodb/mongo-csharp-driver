@@ -19,6 +19,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Linq.Linq3Implementation.Ast;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
@@ -149,6 +150,18 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         [
             WindowMethod.Shift,
             WindowMethod.ShiftWithDefaultValue
+        ]);
+
+        private static readonly IReadOnlyMethodInfoSet __pickOverloads = MethodInfoSet.Create(
+        [
+            WindowMethod.Bottom,
+            WindowMethod.BottomN,
+            WindowMethod.FirstN,
+            WindowMethod.LastN,
+            WindowMethod.MaxN,
+            WindowMethod.MinN,
+            WindowMethod.Top,
+            WindowMethod.TopN
         ]);
 
         private static readonly IReadOnlyMethodInfoSet __quantileOverloads = MethodInfoSet.Create(
@@ -282,6 +295,31 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     return new TranslatedExpression(expression, ast, serializer);
                 }
 
+                if (method.IsOneOf(__pickOverloads))
+                {
+                    ThrowIfSelectorTranslationIsNull(selectorTranslation);
+                    var @operator = GetPickAccumulatorOperator(method);
+
+                    AstSortFields sortBy = null;
+                    if (HasArgument<Expression>(parameters, "sortBy", arguments, out var sortByExpression))
+                    {
+                        var sortByDefinition = PickMethodToAggregationExpressionTranslator.GetSortByDefinition(sortByExpression, expression);
+                        sortBy = PickMethodToAggregationExpressionTranslator.TranslateSortByDefinition(expression, sortByExpression, sortByDefinition, inputSerializer, context.TranslationOptions);
+                    }
+
+                    AstExpression n = null;
+                    if (HasArgument<Expression>(parameters, "n", arguments, out var nExpression))
+                    {
+                        n = ExpressionToAggregationExpressionTranslator.Translate(context, nExpression).Ast;
+                    }
+
+                    var ast = AstExpression.PickWindowExpression(@operator, sortBy, selectorTranslation.Ast, n, window);
+                    var serializer = n == null ?
+                        selectorTranslation.Serializer :
+                        IEnumerableSerializer.Create(selectorTranslation.Serializer);
+                    return new TranslatedExpression(expression, ast, serializer);
+                }
+
                 if (method.IsOneOf(__shiftOverloads))
                 {
                     ThrowIfSelectorTranslationIsNull(selectorTranslation);
@@ -332,6 +370,22 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             {
                 "Derivative" => AstDerivativeOrIntegralWindowOperator.Derivative,
                 "Integral" => AstDerivativeOrIntegralWindowOperator.Integral,
+                _ => throw new InvalidOperationException($"Invalid method name: {method.Name}.")
+            };
+        }
+
+        public static AstPickAccumulatorOperator GetPickAccumulatorOperator(MethodInfo method)
+        {
+            return method.Name switch
+            {
+                "Bottom" => AstPickAccumulatorOperator.Bottom,
+                "BottomN" => AstPickAccumulatorOperator.BottomN,
+                "FirstN" => AstPickAccumulatorOperator.FirstN,
+                "LastN" => AstPickAccumulatorOperator.LastN,
+                "MaxN" => AstPickAccumulatorOperator.MaxN,
+                "MinN" => AstPickAccumulatorOperator.MinN,
+                "Top" => AstPickAccumulatorOperator.Top,
+                "TopN" => AstPickAccumulatorOperator.TopN,
                 _ => throw new InvalidOperationException($"Invalid method name: {method.Name}.")
             };
         }

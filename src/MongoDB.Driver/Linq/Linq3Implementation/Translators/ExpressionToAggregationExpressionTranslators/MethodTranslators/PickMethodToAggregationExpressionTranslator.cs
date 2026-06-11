@@ -33,6 +33,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
     {
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
+            if (WindowMethodToAggregationExpressionTranslator.CanTranslate(expression))
+            {
+                return WindowMethodToAggregationExpressionTranslator.Translate(context, expression);
+            }
+
             var method = expression.Method;
             var arguments = expression.Arguments.ToArray();
 
@@ -175,7 +180,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             }
         }
 
-        private static object GetSortByDefinition(Expression sortByExpression, Expression expression)
+        internal static object GetSortByDefinition(Expression sortByExpression, Expression expression)
         {
             if (sortByExpression.NodeType == ExpressionType.Constant)
             {
@@ -211,7 +216,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 getFieldExpression.FieldName.IsStringConstant("_id");
         }
 
-        private static AstSortFields TranslateSortByDefinition(
+        internal static AstSortFields TranslateSortByDefinition(
             Expression expression,
             Expression sortByExpression,
             object sortByDefinition,

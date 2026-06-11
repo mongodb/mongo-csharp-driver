@@ -116,6 +116,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast
         PercentileWindowExpression,
         PickAccumulatorExpression,
         PickExpression,
+        PickWindowExpression,
         Pipeline,
         PlanCacheStatsStage,
         ProjectStage,

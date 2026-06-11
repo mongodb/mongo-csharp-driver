@@ -245,6 +245,46 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         }
 
         [Fact]
+        public void Translate_should_return_expected_result_for_Bottom()
+        {
+            RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Bottom(Builders<C>.Sort.Ascending(x => x.Int32Field), x => x.Int32Field, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $bottom : { sortBy : { Int32Field : 1 }, output : '$Int32Field' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsInt32.Should().Be(3);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_BottomN()
+        {
+            RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.BottomN(Builders<C>.Sort.Ascending(x => x.Int32Field), x => x.Int32Field, 2, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $bottomN : { sortBy : { Int32Field : 1 }, output : '$Int32Field', n : 2 } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsBsonArray.Select(i => i.AsInt32).Should().Equal(2, 3);
+            }
+        }
+
+        [Fact]
         public void Translate_should_return_expected_result_for_Count()
         {
             var collection = Fixture.Collection;
@@ -1204,6 +1244,26 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         }
 
         [Fact]
+        public void Translate_should_return_expected_result_for_FirstN()
+        {
+            RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.FirstN(x => x.Int32Field, 2, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $firstN : { input : '$Int32Field', n : 2 } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsBsonArray.Select(i => i.AsInt32).Should().Equal(1, 2);
+            }
+        }
+
+        [Fact]
         public void Translate_should_return_expected_result_for_Integral_with_Decimal()
         {
             var collection = Fixture.Collection;
@@ -1453,6 +1513,26 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         }
 
         [Fact]
+        public void Translate_should_return_expected_result_for_LastN()
+        {
+            RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.LastN(x => x.Int32Field, 2, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $lastN : { input : '$Int32Field', n : 2 } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsBsonArray.Select(i => i.AsInt32).Should().Equal(2, 3);
+            }
+        }
+
+        [Fact]
         public void Translate_should_return_expected_result_for_Locf()
         {
             RequireServer.Check().Supports(Feature.SetWindowFieldsLocf);
@@ -1485,6 +1565,26 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             foreach (var result in results)
             {
                 result["Result"].AsInt32.Should().Be(3);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_MaxN()
+        {
+            RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.MaxN(x => x.Int32Field, 2, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $maxN : { input : '$Int32Field', n : 2 } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsBsonArray.Select(i => i.AsInt32).Should().Equal(3, 2);
             }
         }
 
@@ -1742,6 +1842,26 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             foreach (var result in results)
             {
                 result["Result"].AsInt32.Should().Be(1);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_MinN()
+        {
+            RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.MinN(x => x.Int32Field, 2, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $minN : { input : '$Int32Field', n : 2 } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsBsonArray.Select(i => i.AsInt32).Should().Equal(1, 2);
             }
         }
 
@@ -2686,6 +2806,46 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             foreach (var result in results)
             {
                 result["Result"].AsDouble.Should().Be(6.0);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Top()
+        {
+            RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Top(Builders<C>.Sort.Ascending(x => x.Int32Field), x => x.Int32Field, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $top : { sortBy : { Int32Field : 1 }, output : '$Int32Field' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsInt32.Should().Be(1);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_TopN()
+        {
+            RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.TopN(Builders<C>.Sort.Ascending(x => x.Int32Field), x => x.Int32Field, 2, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $topN : { sortBy : { Int32Field : 1 }, output : '$Int32Field', n : 2 } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsBsonArray.Select(i => i.AsInt32).Should().Equal(1, 2);
             }
         }
 
