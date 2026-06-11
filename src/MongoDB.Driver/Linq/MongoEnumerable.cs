@@ -115,36 +115,6 @@ namespace MongoDB.Driver.Linq
         }
 
         /// <summary>
-        /// Returns the bottom element of an array according to a sort order.
-        /// </summary>
-        /// <typeparam name="TSource">The source type.</typeparam>
-        /// <param name="source">The source array.</param>
-        /// <param name="sortBy">The sort order.</param>
-        /// <returns>The bottom element.</returns>
-        public static TSource Bottom<TSource>(
-            this IEnumerable<TSource> source,
-            SortDefinition<TSource> sortBy)
-        {
-            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
-        }
-
-        /// <summary>
-        /// Returns the bottom n elements of an array according to a sort order.
-        /// </summary>
-        /// <typeparam name="TSource">The source type.</typeparam>
-        /// <param name="source">The source array.</param>
-        /// <param name="sortBy">The sort order.</param>
-        /// <param name="n">The number of elements to return.</param>
-        /// <returns>The bottom n elements.</returns>
-        public static IEnumerable<TSource> BottomN<TSource>(
-            this IEnumerable<TSource> source,
-            SortDefinition<TSource> sortBy,
-            int n)
-        {
-            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
-        }
-
-        /// <summary>
         /// Represents the first matching element in an array used in a query (corresponds to the server's "$" update operator).
         /// </summary>
         /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
@@ -1337,36 +1307,6 @@ namespace MongoDB.Driver.Linq
             Func<TSource, TResult> selector,
             TKey key,
             Func<TKey, int> n)
-        {
-            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
-        }
-
-        /// <summary>
-        /// Returns the top element of an array according to a sort order.
-        /// </summary>
-        /// <typeparam name="TSource">The source type.</typeparam>
-        /// <param name="source">The source array.</param>
-        /// <param name="sortBy">The sort order.</param>
-        /// <returns>The top element.</returns>
-        public static TSource Top<TSource>(
-            this IEnumerable<TSource> source,
-            SortDefinition<TSource> sortBy)
-        {
-            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
-        }
-
-        /// <summary>
-        /// Returns the top n elements of an array according to a sort order.
-        /// </summary>
-        /// <typeparam name="TSource">The source type.</typeparam>
-        /// <param name="source">The source array.</param>
-        /// <param name="sortBy">The sort order.</param>
-        /// <param name="n">The number of elements to return.</param>
-        /// <returns>The top n elements.</returns>
-        public static IEnumerable<TSource> TopN<TSource>(
-            this IEnumerable<TSource> source,
-            SortDefinition<TSource> sortBy,
-            int n)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }

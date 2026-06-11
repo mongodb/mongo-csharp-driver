@@ -399,11 +399,6 @@ public class Feature
     public static Feature PickAccumulatorsNewIn52 { get; } = new("PickAccumulatorsNewIn52", WireVersion.Server52);
 
     /// <summary>
-    /// Gets the $top, $bottom, $topN and $bottomN expression operators feature.
-    /// </summary>
-    public static Feature PickExpressionOperators { get; } = new("PickExpressionOperators", WireVersion.Server83);
-
-    /// <summary>
     /// Gets the $rankFusion feature.
     /// </summary>
     public static Feature RankFusionStage { get; } = new("RankFusionStage", WireVersion.Server81);

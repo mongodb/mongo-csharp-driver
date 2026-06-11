@@ -20,9 +20,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
     internal enum AstPickOperator
     {
         BottomPlaceholder,
-        BottomArray,
         BottomNPlaceholder,
-        BottomNArray,
         FirstNPlaceholder,
         FirstNArray,
         LastNPlaceholder,
@@ -32,9 +30,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
         MinNPlaceholder,
         MinNArray,
         TopPlaceholder,
-        TopArray,
-        TopNPlaceholder,
-        TopNArray
+        TopNPlaceholder
     }
 
     internal static class AstPickOperatorExtensions
@@ -44,9 +40,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return @operator switch
             {
                 AstPickOperator.BottomPlaceholder => "$bottom(placeholder)",
-                AstPickOperator.BottomArray => "$bottom",
                 AstPickOperator.BottomNPlaceholder => "$bottomN(placeholder)",
-                AstPickOperator.BottomNArray => "$bottomN",
                 AstPickOperator.FirstNPlaceholder => "$firstN(placeholder)",
                 AstPickOperator.FirstNArray => "$firstN",
                 AstPickOperator.LastNPlaceholder => "$lastN(placeholder)",
@@ -56,9 +50,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
                 AstPickOperator.MinNPlaceholder => "$minN(placeholder)",
                 AstPickOperator.MinNArray => "$minN",
                 AstPickOperator.TopPlaceholder => "$top(placeholder)",
-                AstPickOperator.TopArray => "$top",
                 AstPickOperator.TopNPlaceholder => "$topN(placeholder)",
-                AstPickOperator.TopNArray => "$topN",
                 _ => throw new InvalidOperationException($"Invalid operator: {@operator}.")
             };
         }

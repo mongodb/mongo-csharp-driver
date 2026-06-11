@@ -64,6 +64,44 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             results[3].Should().Equal(1, 2);
         }
 
+#if NETCOREAPP || NET6_0_OR_GREATER
+        [Fact]
+        public void Enumerable_TakeLast_should_work()
+        {
+            var collection = Fixture.Collection;
+
+            var queryable = collection.AsQueryable().Select(x => x.A.TakeLast(2));
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : { $slice : ['$A', -2] }, _id : 0 } }");
+
+            var results = queryable.ToList();
+            results.Should().HaveCount(4);
+            results[0].Should().Equal();
+            results[1].Should().Equal(1);
+            results[2].Should().Equal(1, 2);
+            results[3].Should().Equal(2, 3);
+        }
+
+        [Fact]
+        public void Queryable_TakeLast_should_work()
+        {
+            var collection = Fixture.Collection;
+
+            var queryable = collection.AsQueryable().Select(x => x.A.AsQueryable().TakeLast(2));
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : { $slice : ['$A', -2] }, _id : 0 } }");
+
+            var results = queryable.ToList();
+            results.Should().HaveCount(4);
+            results[0].Should().Equal();
+            results[1].Should().Equal(1);
+            results[2].Should().Equal(1, 2);
+            results[3].Should().Equal(2, 3);
+        }
+#endif
+
         public class C
         {
             public int Id { get; set; }

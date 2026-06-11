@@ -28,14 +28,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
         {
             switch (@operator)
             {
-                case AstPickOperator.BottomArray:
-                case AstPickOperator.BottomNArray:
                 case AstPickOperator.FirstNArray:
                 case AstPickOperator.LastNArray:
                 case AstPickOperator.MaxNArray:
                 case AstPickOperator.MinNArray:
-                case AstPickOperator.TopArray:
-                case AstPickOperator.TopNArray:
                     Ensure.IsNull(@as, nameof(@as));
                     Ensure.IsNull(selector, nameof(selector));
                     break;
@@ -64,13 +60,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             switch (@operator)
             {
                 case AstPickOperator.BottomPlaceholder:
-                case AstPickOperator.BottomArray:
                 case AstPickOperator.TopPlaceholder:
-                case AstPickOperator.TopArray:
                     return Ensure.IsNull(n, nameof(n));
 
                 case AstPickOperator.BottomNPlaceholder:
-                case AstPickOperator.BottomNArray:
                 case AstPickOperator.FirstNPlaceholder:
                 case AstPickOperator.FirstNArray:
                 case AstPickOperator.LastNPlaceholder:
@@ -80,7 +73,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
                 case AstPickOperator.MinNPlaceholder:
                 case AstPickOperator.MinNArray:
                 case AstPickOperator.TopNPlaceholder:
-                case AstPickOperator.TopNArray:
                     return Ensure.IsNotNull(n, nameof(n));
 
                 default:
@@ -93,13 +85,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             switch (@operator)
             {
                 case AstPickOperator.BottomPlaceholder:
-                case AstPickOperator.BottomArray:
                 case AstPickOperator.BottomNPlaceholder:
-                case AstPickOperator.BottomNArray:
                 case AstPickOperator.TopPlaceholder:
-                case AstPickOperator.TopArray:
                 case AstPickOperator.TopNPlaceholder:
-                case AstPickOperator.TopNArray:
                     return Ensure.IsNotNull(sortBy, nameof(sortBy));
 
                 case AstPickOperator.FirstNPlaceholder:
@@ -200,21 +188,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
                             {
                                 { "input", _source.Render() },
                                 { "n", _n.Render() }
-                            }
-                        }
-                    };
-
-                case AstPickOperator.BottomArray:
-                case AstPickOperator.BottomNArray:
-                case AstPickOperator.TopArray:
-                case AstPickOperator.TopNArray:
-                    return new BsonDocument
-                    {
-                        { _operator.Render(), new BsonDocument
-                            {
-                                { "input", _source.Render() },
-                                { "sortBy", new BsonDocument(_sortBy.Select(f => f.RenderAsElement())) },
-                                { "n", _n?.Render(), _n != null }
                             }
                         }
                     };

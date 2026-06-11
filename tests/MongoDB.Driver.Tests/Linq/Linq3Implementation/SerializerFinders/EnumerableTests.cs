@@ -84,9 +84,6 @@ public class EnumerableTests
         [TestHelpers.MakeLambda((MyQueryableModel model) => model.FloatItems.Average()), typeof(SingleSerializer)],
         [TestHelpers.MakeLambda((MyQueryableModel model) => model.FloatItems.Average(x => x * 2)), typeof(SingleSerializer)],
 
-        [TestHelpers.MakeLambda((MyModel model) => model.Items.Bottom(Builders<int>.Sort.Ascending(x => x))), typeof(Int32Serializer)],
-        [TestHelpers.MakeLambda((MyModel model) => model.Items.BottomN(Builders<int>.Sort.Ascending(x => x), 2)), typeof(IEnumerableSerializer<int>)],
-
         [TestHelpers.MakeLambda((MyModel model) => model.Items.Concat(model.OtherItems)), typeof(IEnumerableDeserializingAsCollectionSerializer<IEnumerable<int>,int,List<int>>)],
         [TestHelpers.MakeLambda((MyQueryableModel model) => model.Items.Concat(model.OtherItems)), typeof(EnumerableInterfaceImplementerSerializer<IQueryable<int>,int>)],
 
@@ -228,9 +225,6 @@ public class EnumerableTests
 
         [TestHelpers.MakeLambda((MyModel model) => model.Items.ToArray()), typeof(ArraySerializer<int>)],
         [TestHelpers.MakeLambda((MyQueryableModel model) => model.Items.ToArray()), typeof(ArraySerializer<int>)],
-
-        [TestHelpers.MakeLambda((MyModel model) => model.Items.Top(Builders<int>.Sort.Ascending(x => x))), typeof(Int32Serializer)],
-        [TestHelpers.MakeLambda((MyModel model) => model.Items.TopN(Builders<int>.Sort.Ascending(x => x), 2)), typeof(IEnumerableSerializer<int>)],
 
         [TestHelpers.MakeLambda((MyModel model) => model.Items.Where(x => x > 1)), typeof(IEnumerableDeserializingAsCollectionSerializer<IEnumerable<int>, int, List<int>>)],
         [TestHelpers.MakeLambda((MyModel model) => model.Items.Where((x, i) => i < 2)), typeof(IEnumerableDeserializingAsCollectionSerializer<IEnumerable<int>, int, List<int>>)],

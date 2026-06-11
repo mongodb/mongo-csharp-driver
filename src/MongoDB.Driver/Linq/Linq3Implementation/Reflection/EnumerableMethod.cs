@@ -55,9 +55,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __averageSingle;
         private static readonly MethodInfo __averageSingleWithSelector;
         private static readonly MethodInfo __bottom;
-        private static readonly MethodInfo __bottomExpressionOperator;
         private static readonly MethodInfo __bottomN;
-        private static readonly MethodInfo __bottomNExpressionOperator;
         private static readonly MethodInfo __bottomNWithComputedN;
         private static readonly MethodInfo __cast;
         private static readonly MethodInfo __concat;
@@ -184,6 +182,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __sumSingle;
         private static readonly MethodInfo __sumSingleWithSelector;
         private static readonly MethodInfo __take;
+        private static readonly MethodInfo __takeLast = null; // null when target framework does not have this method
         private static readonly MethodInfo __takeWhile;
         private static readonly MethodInfo __takeWhileWithPredicateTakingIndex;
         private static readonly MethodInfo __thenBy;
@@ -191,9 +190,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __toArray;
         private static readonly MethodInfo __toList;
         private static readonly MethodInfo __top;
-        private static readonly MethodInfo __topExpressionOperator;
         private static readonly MethodInfo __topN;
-        private static readonly MethodInfo __topNExpressionOperator;
         private static readonly MethodInfo __topNWithComputedN;
         private static readonly MethodInfo __union;
         private static readonly MethodInfo __where;
@@ -201,7 +198,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __zip;
 
         // sets of methods
-        private static readonly IReadOnlyMethodInfoSet __pickExpressionOperatorOverloads;
         private static readonly IReadOnlyMethodInfoSet __pickOverloads;
         private static readonly IReadOnlyMethodInfoSet __pickOverloadsThatCanOnlyBeUsedAsGroupByAccumulators;
         private static readonly IReadOnlyMethodInfoSet __pickWithComputedNOverloads;
@@ -242,9 +238,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __averageSingle = ReflectionInfo.Method((IEnumerable<float> source) => source.Average());
             __averageSingleWithSelector = ReflectionInfo.Method((IEnumerable<object> source, Func<object, float> selector) => source.Average(selector));
             __bottom = ReflectionInfo.Method((IEnumerable<object> source, SortDefinition<object> sortBy, Func<object, object> selector) => source.Bottom(sortBy, selector));
-            __bottomExpressionOperator = ReflectionInfo.Method((IEnumerable<object> source, SortDefinition<object> sortBy) => source.Bottom(sortBy));
             __bottomN = ReflectionInfo.Method((IEnumerable<object> source, SortDefinition<object> sortBy, Func<object, object> selector, int n) => source.BottomN(sortBy, selector, n));
-            __bottomNExpressionOperator = ReflectionInfo.Method((IEnumerable<object> source, SortDefinition<object> sortBy, int n) => source.BottomN(sortBy, n));
             __bottomNWithComputedN = ReflectionInfo.Method((IEnumerable<object> source, SortDefinition<object> sortBy, Func<object, object> selector, object key, Func<object, int> n) => source.BottomN(sortBy, selector, key, n));
             __cast = ReflectionInfo.Method((IEnumerable source) => source.Cast<object>());
             __concat = ReflectionInfo.Method((IEnumerable<object> first, IEnumerable<object> second) => first.Concat(second));
@@ -371,6 +365,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __sumSingle = ReflectionInfo.Method((IEnumerable<float> source) => source.Sum());
             __sumSingleWithSelector = ReflectionInfo.Method((IEnumerable<object> source, Func<object, float> selector) => source.Sum(selector));
             __take = ReflectionInfo.Method((IEnumerable<object> source, int count) => source.Take(count));
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+            __takeLast = ReflectionInfo.Method((IEnumerable<object> source, int count) => source.TakeLast(count));
+#endif
             __takeWhile = ReflectionInfo.Method((IEnumerable<object> source, Func<object, bool> predicate) => source.TakeWhile(predicate));
             __takeWhileWithPredicateTakingIndex = ReflectionInfo.Method((IEnumerable<object> source, Func<object, int, bool> predicate) => source.TakeWhile(predicate));
             __thenBy = ReflectionInfo.Method((IOrderedEnumerable<object> source, Func<object, object> keySelector) => source.ThenBy(keySelector));
@@ -378,9 +375,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __toArray = ReflectionInfo.Method((IEnumerable<object> source) => source.ToArray());
             __toList = ReflectionInfo.Method((IEnumerable<object> source) => source.ToList());
             __top = ReflectionInfo.Method((IEnumerable<object> source, SortDefinition<object> sortBy, Func<object, object> selector) => source.Top(sortBy, selector));
-            __topExpressionOperator = ReflectionInfo.Method((IEnumerable<object> source, SortDefinition<object> sortBy) => source.Top(sortBy));
             __topN = ReflectionInfo.Method((IEnumerable<object> source, SortDefinition<object> sortBy, Func<object, object> selector, int n) => source.TopN(sortBy, selector, n));
-            __topNExpressionOperator = ReflectionInfo.Method((IEnumerable<object> source, SortDefinition<object> sortBy, int n) => source.TopN(sortBy, n));
             __topNWithComputedN = ReflectionInfo.Method((IEnumerable<object> source, SortDefinition<object> sortBy, Func<object, object> selector, object key, Func<object, int> n) => source.TopN(sortBy, selector, key, n));
             __union = ReflectionInfo.Method((IEnumerable<object> first, IEnumerable<object> second) => first.Union(second));
             __where = ReflectionInfo.Method((IEnumerable<object> source, Func<object, bool> predicate) => source.Where(predicate));
@@ -388,20 +383,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __zip = ReflectionInfo.Method((IEnumerable<object> first, IEnumerable<object> second, Func<object, object, object> resultSelector) => first.Zip(second, resultSelector));
 
             // initialize sets of methods after methods
-            __pickExpressionOperatorOverloads = MethodInfoSet.Create(
-            [
-                __bottomExpressionOperator,
-                __bottomNExpressionOperator,
-                __topExpressionOperator,
-                __topNExpressionOperator
-            ]);
-
             __pickOverloads = MethodInfoSet.Create(
             [
                 __bottom,
-                __bottomExpressionOperator,
                 __bottomN,
-                __bottomNExpressionOperator,
                 __bottomNWithComputedN,
                 __firstN,
                 __firstNWithComputedN,
@@ -412,9 +397,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
                 __minN,
                 __minNWithComputedN,
                 __top,
-                __topExpressionOperator,
                 __topN,
-                __topNExpressionOperator,
                 __topNWithComputedN
             ]);
 
@@ -499,9 +482,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo AverageSingle => __averageSingle;
         public static MethodInfo AverageSingleWithSelector => __averageSingleWithSelector;
         public static MethodInfo Bottom => __bottom;
-        public static MethodInfo BottomExpressionOperator => __bottomExpressionOperator;
         public static MethodInfo BottomN => __bottomN;
-        public static MethodInfo BottomNExpressionOperator => __bottomNExpressionOperator;
         public static MethodInfo BottomNWithComputedN  => __bottomNWithComputedN;
         public static MethodInfo Cast => __cast;
         public static MethodInfo Concat => __concat;
@@ -628,6 +609,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo SumSingle => __sumSingle;
         public static MethodInfo SumSingleWithSelector => __sumSingleWithSelector;
         public static MethodInfo Take => __take;
+        public static MethodInfo TakeLast => __takeLast;
         public static MethodInfo TakeWhile => __takeWhile;
         public static MethodInfo TakeWhileWithPredicateTakingIndex => __takeWhileWithPredicateTakingIndex;
         public static MethodInfo ThenBy => __thenBy;
@@ -635,9 +617,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo ToArray => __toArray;
         public static MethodInfo ToList => __toList;
         public static MethodInfo Top => __top;
-        public static MethodInfo TopExpressionOperator => __topExpressionOperator;
         public static MethodInfo TopN => __topN;
-        public static MethodInfo TopNExpressionOperator => __topNExpressionOperator;
         public static MethodInfo TopNWithComputedN => __topNWithComputedN;
         public static MethodInfo Union => __union;
         public static MethodInfo Where => __where;
@@ -645,7 +625,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo Zip => __zip;
 
         // sets of methods
-        public static IReadOnlyMethodInfoSet PickExpressionOperatorOverloads => __pickExpressionOperatorOverloads;
         public static IReadOnlyMethodInfoSet PickOverloads => __pickOverloads;
         public static IReadOnlyMethodInfoSet PickOverloadsThatCanOnlyBeUsedAsGroupByAccumulators => __pickOverloadsThatCanOnlyBeUsedAsGroupByAccumulators;
         public static IReadOnlyMethodInfoSet PickWithComputedNOverloads => __pickWithComputedNOverloads;

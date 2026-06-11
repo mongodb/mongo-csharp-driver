@@ -302,6 +302,7 @@ internal partial class SerializerFinderVisitor
                 case "Skip":
                 case "SkipWhile":
                 case "Take":
+                case "TakeLast":
                 case "TakeWhile":
                     DeduceSkipOrTakeMethodSerializers();
                     break;
@@ -2039,30 +2040,6 @@ internal partial class SerializerFinderVisitor
         {
             if (method.IsOneOf(EnumerableMethod.PickOverloads))
             {
-                if (method.IsOneOf(EnumerableMethod.PickExpressionOperatorOverloads))
-                {
-                    var sortByExpression = arguments[1];
-                    if (IsNotKnown(sortByExpression))
-                    {
-                        AddNodeSerializer(sortByExpression, IgnoreSubtreeSerializer.Create(sortByExpression.Type));
-                    }
-
-                    if (IsNotKnown(node))
-                    {
-                        var arraySourceExpression = arguments[0];
-                        if (IsKnown(arraySourceExpression, out var arraySourceSerializer))
-                        {
-                            var sourceItemSerializer = ArraySerializerHelper.GetItemSerializer(arraySourceSerializer);
-                            var nodeSerializer = method.IsOneOf(EnumerableMethod.TopExpressionOperator, EnumerableMethod.BottomExpressionOperator) ?
-                                sourceItemSerializer :
-                                IEnumerableSerializer.Create(sourceItemSerializer);
-                            AddNodeSerializer(node, nodeSerializer);
-                        }
-                    }
-
-                    return;
-                }
-
                 if (method.IsOneOf(EnumerableMethod.PickWithSortByOverloads))
                 {
                     var sortByExpression = arguments[1];
@@ -2785,7 +2762,9 @@ internal partial class SerializerFinderVisitor
 
         void DeduceSkipOrTakeMethodSerializers()
         {
-            if (method.IsOneOf(EnumerableOrQueryableMethod.SkipOrTakeOverloads))
+            if (method.IsOneOf(EnumerableOrQueryableMethod.SkipOrTakeOverloads) ||
+                method.Is(EnumerableMethod.TakeLast) ||
+                method.Is(QueryableMethod.TakeLast))
             {
                 var sourceExpression = arguments[0];
 
