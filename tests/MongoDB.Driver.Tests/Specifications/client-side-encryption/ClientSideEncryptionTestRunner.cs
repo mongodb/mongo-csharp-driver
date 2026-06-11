@@ -340,14 +340,6 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
     // nested types
     public class TestCaseFactory : JsonDrivenTestCaseFactory
     {
-        #region static
-        private static readonly string[] __versionedApiIgnoredTestNames =
-        {
-            // https://jira.mongodb.org/browse/SERVER-58293
-            "explain.json:Explain a find with deterministic encryption"
-        };
-        #endregion
-
         // protected properties
         protected override string PathPrefix => "MongoDB.Driver.Tests.Specifications.client_side_encryption.tests.legacy.";
 
@@ -355,10 +347,6 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
         protected override IEnumerable<JsonDrivenTestCase> CreateTestCases(BsonDocument document)
         {
             var testCases = base.CreateTestCases(document);
-            if (CoreTestConfiguration.RequireApiVersion)
-            {
-                testCases = testCases.Where(test => !__versionedApiIgnoredTestNames.Any(ignoredName => test.Name.EndsWith(ignoredName)));
-            }
             foreach (var testCase in testCases)
             {
                 foreach (var async in new[] { false, true })
