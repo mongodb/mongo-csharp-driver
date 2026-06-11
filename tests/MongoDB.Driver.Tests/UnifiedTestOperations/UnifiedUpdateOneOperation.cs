@@ -174,10 +174,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             var document = new BsonDocument
             {
-                { "matchedCount", result.MatchedCount },
-                { "modifiedCount", result.ModifiedCount },
-                { "upsertedCount", result.UpsertedId == null ? 0 : 1 },
-                { "upsertedId", result.UpsertedId, result.UpsertedId != null}
+                { "matchedCount", () => result.MatchedCount, result.IsAcknowledged },
+                { "modifiedCount", () => result.ModifiedCount, result.IsAcknowledged },
+                { "upsertedCount", () => result.UpsertedId == null ? 0 : 1, result.IsAcknowledged },
+                { "upsertedId", () => result.UpsertedId, result.IsAcknowledged && result.UpsertedId != null}
             };
 
             return OperationResult.FromResult(document);

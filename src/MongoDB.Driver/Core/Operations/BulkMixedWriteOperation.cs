@@ -165,7 +165,6 @@ namespace MongoDB.Driver.Core.Operations
             using (BeginOperation())
             using (var context = new RetryableWriteContext(binding, _retryRequested, _maxAdaptiveRetries, _enableOverloadRetargeting))
             {
-                EnsureHintIsSupportedIfAnyRequestHasHint();
                 var helper = new BatchHelper(_requests, _isOrdered, _writeConcern);
                 foreach (var batch in helper.GetBatches())
                 {
@@ -180,7 +179,6 @@ namespace MongoDB.Driver.Core.Operations
             using (BeginOperation())
             using (var context = new RetryableWriteContext(binding, _retryRequested, _maxAdaptiveRetries, _enableOverloadRetargeting))
             {
-                EnsureHintIsSupportedIfAnyRequestHasHint();
                 var helper = new BatchHelper(_requests, _isOrdered, _writeConcern);
                 foreach (var batch in helper.GetBatches())
                 {
@@ -249,17 +247,6 @@ namespace MongoDB.Driver.Core.Operations
                 case WriteRequestType.Insert: return CreateBulkInsertOperation(batch);
                 case WriteRequestType.Update: return CreateBulkUpdateOperation(batch);
                 default: throw new ArgumentException("Invalid batch type.", nameof(batch));
-            }
-        }
-
-        private void EnsureHintIsSupportedIfAnyRequestHasHint()
-        {
-            foreach (var request in _requests)
-            {
-                if (RequestHasHint(request) && !_writeConcern.IsAcknowledged)
-                {
-                    throw new NotSupportedException("Hint is not supported for unacknowledged writes.");
-                }
             }
         }
 

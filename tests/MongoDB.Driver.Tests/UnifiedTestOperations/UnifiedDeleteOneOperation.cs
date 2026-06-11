@@ -130,7 +130,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             var document = new BsonDocument
             {
-                { "deletedCount", result.DeletedCount }
+                { "deletedCount", () => result.DeletedCount, result.IsAcknowledged }
             };
 
             return OperationResult.FromResult(document);
