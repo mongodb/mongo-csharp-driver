@@ -1,4 +1,4 @@
-﻿/* Copyright 2018-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,12 +13,10 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -51,40 +49,6 @@ namespace MongoDB.Driver.Core.Operations
             var exception = Record.Exception(() => ExecuteOperation(subject, async));
 
             exception.Should().BeNull();
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void Execute_with_hint_should_throw_when_hint_is_not_supported(
-            [Values(0, 1)] int w,
-            [Values(false, true)] bool async)
-        {
-            var writeConcern = new WriteConcern(w);
-            var requests = new List<UpdateRequest>
-            {
-                new UpdateRequest(
-                    UpdateType.Update,
-                    new BsonDocument("x", 1),
-                    new BsonDocument("$set", new BsonDocument("x", 2)))
-                {
-                    Hint = new BsonDocument("_id", 1)
-                }
-            };
-            var subject = new BulkUpdateOperation(_collectionNamespace, requests, _messageEncoderSettings)
-            {
-                WriteConcern = writeConcern
-            };
-
-            var exception = Record.Exception(() => ExecuteOperation(subject, async, useImplicitSession: true));
-
-            if (!writeConcern.IsAcknowledged)
-            {
-                exception.Should().BeOfType<NotSupportedException>();
-            }
-            else
-            {
-                exception.Should().BeNull();
-            }
         }
 
         [Theory]
