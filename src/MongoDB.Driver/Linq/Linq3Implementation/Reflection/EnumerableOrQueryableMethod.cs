@@ -849,7 +849,7 @@ internal static class EnumerableOrQueryableMethod
             QueryableMethod.TakeLast
         ]);
 
-      __takeOverloads = MethodInfoSet.Create(
+        __takeOverloads = MethodInfoSet.Create(
         [
             __take,
             __takeWhile, // it's convenient to treat TakeWhile as if it was an overload of Take
