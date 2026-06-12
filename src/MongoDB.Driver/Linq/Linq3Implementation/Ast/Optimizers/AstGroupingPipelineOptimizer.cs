@@ -549,7 +549,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
 
             private bool IsMappedElementsField(AstExpression expression, out AstExpression rewrittenArg)
             {
-                if (expression is AstMapExpression mapExpression && IsElementsField(mapExpression.Input))
+                // a map binding an index variable (arrayIndexAs) can't be collapsed: removing the $map would leave the index var unbound
+                if (expression is AstMapExpression mapExpression && mapExpression.ArrayIndexAs == null && IsElementsField(mapExpression.Input))
                 {
                     rewrittenArg = (AstExpression)AstNodeReplacer.Replace(mapExpression.In, (mapExpression.As, _element));
                     return true;

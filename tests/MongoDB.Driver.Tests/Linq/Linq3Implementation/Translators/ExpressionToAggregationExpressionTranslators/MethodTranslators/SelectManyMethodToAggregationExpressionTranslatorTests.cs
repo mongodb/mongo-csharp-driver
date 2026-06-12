@@ -163,6 +163,29 @@ public class SelectManyMethodToAggregationExpressionTranslatorTests : LinqIntegr
     }
 
     [Fact]
+    public void SelectMany_with_index_in_GroupBy_should_not_be_rewritten_to_accumulator()
+    {
+        var collection = Fixture.Collection;
+
+        // the index overload binds an arrayIndexAs variable referenced in the selector, so the $map can't be collapsed into a $concatArrays accumulator
+        var queryable = collection.AsQueryable()
+            .GroupBy(x => x.Cat)
+            .Select(g => new { Cat = g.Key, AllTags = g.SelectMany((x, i) => x.Tags.Select(t => t + i)).ToList() });
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages,
+            "{ $group : { _id : '$Cat', _elements : { $push : '$$ROOT' } } }",
+            "{ $project : { Cat : '$_id', AllTags : { $reduce : { input : { $map : { input : '$_elements', as : 'x', arrayIndexAs : 'i', in : { $map : { input : '$$x.Tags', as : 't', in : { $concat : ['$$t', { $toString : '$$i' }] } } } } }, initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } } }, _id : 0 } }");
+
+        var results = queryable.ToList().OrderBy(x => x.Cat).ToList();
+        results.Should().HaveCount(2);
+        results[0].Cat.Should().Be("A");
+        results[0].AllTags.Should().BeEquivalentTo(new[] { "x0", "y0", "x1", "z1" });
+        results[1].Cat.Should().Be("B");
+        results[1].AllTags.Should().BeEquivalentTo(new[] { "y0", "z0" });
+    }
+
+    [Fact]
     public void SelectMany_in_GroupBy_with_result_selector_should_work()
     {
         var collection = Fixture.Collection;
