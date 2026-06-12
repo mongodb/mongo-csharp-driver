@@ -640,6 +640,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return new AstMedianWindowExpression(input, window);
         }
 
+        public static AstWindowExpression MinMaxScalerWindowExpression(AstExpression input, AstExpression min, AstExpression max, AstWindow window)
+        {
+            return new AstMinMaxScalerWindowExpression(input, min, max, window);
+        }
+
         public static AstExpression Min(AstExpression array)
         {
             return new AstUnaryExpression(AstUnaryOperator.Min, array);

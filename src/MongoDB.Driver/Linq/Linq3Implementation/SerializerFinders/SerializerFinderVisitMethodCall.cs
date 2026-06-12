@@ -307,6 +307,10 @@ internal partial class SerializerFinderVisitor
                     DeduceMaxOrMinMethodSerializers();
                     break;
 
+                case "MinMaxScaler":
+                    DeduceMinMaxScalerMethodSerializers();
+                    break;
+
                 case "OrderBy":
                 case "OrderByDescending":
                 case "ThenBy":
@@ -2055,6 +2059,21 @@ internal partial class SerializerFinderVisitor
                 var selectorLambda = (LambdaExpression)arguments[1];
                 DeduceWindowMethodSelectorParameterSerializer(partitionExpression, selectorLambda);
                 DeduceSerializers(node, selectorLambda.Body);
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
+        }
+
+        void DeduceMinMaxScalerMethodSerializers()
+        {
+            if (method.IsOneOf(WindowMethod.MinMaxScalerOverloads))
+            {
+                var partitionExpression = arguments[0];
+                var selectorLambda = (LambdaExpression)arguments[1];
+                DeduceWindowMethodSelectorParameterSerializer(partitionExpression, selectorLambda);
+                DeduceStandardSerializer(node);
             }
             else
             {

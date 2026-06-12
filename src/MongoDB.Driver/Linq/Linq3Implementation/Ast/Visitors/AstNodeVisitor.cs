@@ -542,6 +542,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors
             return node.Update(VisitAndConvert(node.Input), node.Window);
         }
 
+        public virtual AstNode VisitMinMaxScalerWindowExpression(AstMinMaxScalerWindowExpression node)
+        {
+            return node.Update(VisitAndConvert(node.Input), VisitAndConvert(node.MinValue), VisitAndConvert(node.MaxValue), node.Window);
+        }
+
         public virtual AstNode VisitMergeStage(AstMergeStage node)
         {
             return node.Update(VisitAndConvert(node.Let));

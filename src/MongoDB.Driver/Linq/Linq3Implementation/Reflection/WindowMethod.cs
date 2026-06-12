@@ -101,6 +101,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __medianWithNullableSingle;
         private static readonly MethodInfo __medianWithSingle;
         private static readonly MethodInfo __min;
+        private static readonly MethodInfo __minMaxScalerWithDecimal;
+        private static readonly MethodInfo __minMaxScalerWithDouble;
+        private static readonly MethodInfo __minMaxScalerWithInt32;
+        private static readonly MethodInfo __minMaxScalerWithInt64;
+        private static readonly MethodInfo __minMaxScalerWithNullableDecimal;
+        private static readonly MethodInfo __minMaxScalerWithNullableDouble;
+        private static readonly MethodInfo __minMaxScalerWithNullableInt32;
+        private static readonly MethodInfo __minMaxScalerWithNullableInt64;
+        private static readonly MethodInfo __minMaxScalerWithNullableSingle;
+        private static readonly MethodInfo __minMaxScalerWithSingle;
         private static readonly MethodInfo __minN;
         private static readonly MethodInfo __percentileWithDecimal;
         private static readonly MethodInfo __percentileWithDouble;
@@ -157,6 +167,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly IReadOnlyMethodInfoSet __exponentialMovingAverageOverloads;
         private static readonly IReadOnlyMethodInfoSet __integralOverloads;
         private static readonly IReadOnlyMethodInfoSet __medianOverloads;
+        private static readonly IReadOnlyMethodInfoSet __minMaxScalerOverloads;
         private static readonly IReadOnlyMethodInfoSet __percentileOverloads;
         private static readonly IReadOnlyMethodInfoSet __pickOverloads;
         private static readonly IReadOnlyMethodInfoSet __standardDeviationPopulationOverloads;
@@ -251,6 +262,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __medianWithNullableSingle = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, float?> selector, SetWindowFieldsWindow window) => partition.Median(selector, window));
             __medianWithSingle = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, float> selector, SetWindowFieldsWindow window) => partition.Median(selector, window));
             __min = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, object> selector, SetWindowFieldsWindow window) => partition.Min(selector, window));
+            __minMaxScalerWithDecimal = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, decimal> selector, double min, double max, SetWindowFieldsWindow window) => partition.MinMaxScaler(selector, min, max, window));
+            __minMaxScalerWithDouble = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, double> selector, double min, double max, SetWindowFieldsWindow window) => partition.MinMaxScaler(selector, min, max, window));
+            __minMaxScalerWithInt32 = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, int> selector, double min, double max, SetWindowFieldsWindow window) => partition.MinMaxScaler(selector, min, max, window));
+            __minMaxScalerWithInt64 = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, long> selector, double min, double max, SetWindowFieldsWindow window) => partition.MinMaxScaler(selector, min, max, window));
+            __minMaxScalerWithNullableDecimal = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, decimal?> selector, double min, double max, SetWindowFieldsWindow window) => partition.MinMaxScaler(selector, min, max, window));
+            __minMaxScalerWithNullableDouble = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, double?> selector, double min, double max, SetWindowFieldsWindow window) => partition.MinMaxScaler(selector, min, max, window));
+            __minMaxScalerWithNullableInt32 = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, int?> selector, double min, double max, SetWindowFieldsWindow window) => partition.MinMaxScaler(selector, min, max, window));
+            __minMaxScalerWithNullableInt64 = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, long?> selector, double min, double max, SetWindowFieldsWindow window) => partition.MinMaxScaler(selector, min, max, window));
+            __minMaxScalerWithNullableSingle = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, float?> selector, double min, double max, SetWindowFieldsWindow window) => partition.MinMaxScaler(selector, min, max, window));
+            __minMaxScalerWithSingle = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, float> selector, double min, double max, SetWindowFieldsWindow window) => partition.MinMaxScaler(selector, min, max, window));
             __minN = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, object> selector, int n, SetWindowFieldsWindow window) => partition.MinN(selector, n, window));
             __percentileWithDecimal = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, decimal> selector, IEnumerable<double> percentiles, SetWindowFieldsWindow window) => partition.Percentile(selector, percentiles, window));
             __percentileWithDouble = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, double> selector, IEnumerable<double> percentiles, SetWindowFieldsWindow window) => partition.Percentile(selector, percentiles, window));
@@ -391,6 +412,20 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
                 __medianWithNullableInt64,
                 __medianWithNullableSingle,
                 __medianWithSingle
+            ]);
+
+            __minMaxScalerOverloads = MethodInfoSet.Create(
+            [
+                __minMaxScalerWithDecimal,
+                __minMaxScalerWithDouble,
+                __minMaxScalerWithInt32,
+                __minMaxScalerWithInt64,
+                __minMaxScalerWithNullableDecimal,
+                __minMaxScalerWithNullableDouble,
+                __minMaxScalerWithNullableInt32,
+                __minMaxScalerWithNullableInt64,
+                __minMaxScalerWithNullableSingle,
+                __minMaxScalerWithSingle
             ]);
 
             __percentileOverloads = MethodInfoSet.Create(
@@ -561,6 +596,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo MedianWithNullableSingle => __medianWithNullableSingle;
         public static MethodInfo MedianWithSingle => __medianWithSingle;
         public static MethodInfo Min => __min;
+        public static MethodInfo MinMaxScalerWithDecimal => __minMaxScalerWithDecimal;
+        public static MethodInfo MinMaxScalerWithDouble => __minMaxScalerWithDouble;
+        public static MethodInfo MinMaxScalerWithInt32 => __minMaxScalerWithInt32;
+        public static MethodInfo MinMaxScalerWithInt64 => __minMaxScalerWithInt64;
+        public static MethodInfo MinMaxScalerWithNullableDecimal => __minMaxScalerWithNullableDecimal;
+        public static MethodInfo MinMaxScalerWithNullableDouble => __minMaxScalerWithNullableDouble;
+        public static MethodInfo MinMaxScalerWithNullableInt32 => __minMaxScalerWithNullableInt32;
+        public static MethodInfo MinMaxScalerWithNullableInt64 => __minMaxScalerWithNullableInt64;
+        public static MethodInfo MinMaxScalerWithNullableSingle => __minMaxScalerWithNullableSingle;
+        public static MethodInfo MinMaxScalerWithSingle => __minMaxScalerWithSingle;
         public static MethodInfo MinN => __minN;
         public static MethodInfo PercentileWithDecimal => __percentileWithDecimal;
         public static MethodInfo PercentileWithDouble => __percentileWithDouble;
@@ -617,6 +662,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static IReadOnlyMethodInfoSet ExponentialMovingAverageOverloads => __exponentialMovingAverageOverloads;
         public static IReadOnlyMethodInfoSet IntegralOverloads => __integralOverloads;
         public static IReadOnlyMethodInfoSet MedianOverloads => __medianOverloads;
+        public static IReadOnlyMethodInfoSet MinMaxScalerOverloads => __minMaxScalerOverloads;
         public static IReadOnlyMethodInfoSet PercentileOverloads => __percentileOverloads;
         public static IReadOnlyMethodInfoSet PickOverloads => __pickOverloads;
         public static IReadOnlyMethodInfoSet StandardDeviationPopulationOverloads => __standardDeviationPopulationOverloads;
