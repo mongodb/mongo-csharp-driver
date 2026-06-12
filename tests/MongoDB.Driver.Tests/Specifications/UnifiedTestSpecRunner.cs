@@ -141,7 +141,7 @@ namespace MongoDB.Driver.Tests.Specifications
 
             if (testCase.Shared["_fileName"].AsString.EndsWith("-rawdata.json"))
             {
-                throw new SkipException("CSharpDriver does not support Aggregate with rawData.");
+                throw new SkipException("CSharpDriver does not support rawData option.");
             }
 
             if (testCase.Shared["_fileName"].AsString == "distinct-hint.json")
