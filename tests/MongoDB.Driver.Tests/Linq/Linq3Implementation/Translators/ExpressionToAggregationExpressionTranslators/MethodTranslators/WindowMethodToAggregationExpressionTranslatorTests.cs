@@ -265,6 +265,30 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         }
 
         [Fact]
+        public void Translate_should_return_expected_result_for_Bottom_with_window()
+        {
+            RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(
+                    partitionBy: x => 1,
+                    sortBy: Builders<C>.Sort.Ascending(x => x.Id),
+                    output: p => new { Result = p.Bottom(Builders<C>.Sort.Ascending(x => x.Int32Field), x => x.Int32Field, DocumentsWindow.Create(-1, 0)) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { partitionBy : 1, sortBy : { _id : 1 }, output : { Result : { $bottom : { sortBy : { Int32Field : 1 }, output : '$Int32Field' }, window : { documents : [-1, 0] } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            var expectedResults = new[] { 1, 2, 3 };
+            for (var n = 0; n < results.Count; n++)
+            {
+                results[n]["Result"].AsInt32.Should().Be(expectedResults[n]);
+            }
+        }
+
+        [Fact]
         public void Translate_should_return_expected_result_for_BottomN()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
@@ -281,6 +305,30 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             foreach (var result in results)
             {
                 result["Result"].AsBsonArray.Select(i => i.AsInt32).Should().Equal(2, 3);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_BottomN_with_window()
+        {
+            RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(
+                    partitionBy: x => 1,
+                    sortBy: Builders<C>.Sort.Ascending(x => x.Id),
+                    output: p => new { Result = p.BottomN(Builders<C>.Sort.Ascending(x => x.Int32Field), x => x.Int32Field, 2, DocumentsWindow.Create(-1, 0)) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { partitionBy : 1, sortBy : { _id : 1 }, output : { Result : { $bottomN : { sortBy : { Int32Field : 1 }, output : '$Int32Field', n : 2 }, window : { documents : [-1, 0] } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            var expectedResults = new[] { new[] { 1 }, new[] { 1, 2 }, new[] { 2, 3 } };
+            for (var n = 0; n < results.Count; n++)
+            {
+                results[n]["Result"].AsBsonArray.Select(i => i.AsInt32).Should().Equal(expectedResults[n]);
             }
         }
 
@@ -1264,6 +1312,30 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         }
 
         [Fact]
+        public void Translate_should_return_expected_result_for_FirstN_with_window()
+        {
+            RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(
+                    partitionBy: x => 1,
+                    sortBy: Builders<C>.Sort.Ascending(x => x.Id),
+                    output: p => new { Result = p.FirstN(x => x.Int32Field, 2, DocumentsWindow.Create(-1, 0)) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { partitionBy : 1, sortBy : { _id : 1 }, output : { Result : { $firstN : { input : '$Int32Field', n : 2 }, window : { documents : [-1, 0] } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            var expectedResults = new[] { new[] { 1 }, new[] { 1, 2 }, new[] { 2, 3 } };
+            for (var n = 0; n < results.Count; n++)
+            {
+                results[n]["Result"].AsBsonArray.Select(i => i.AsInt32).Should().Equal(expectedResults[n]);
+            }
+        }
+
+        [Fact]
         public void Translate_should_return_expected_result_for_Integral_with_Decimal()
         {
             var collection = Fixture.Collection;
@@ -1533,6 +1605,30 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         }
 
         [Fact]
+        public void Translate_should_return_expected_result_for_LastN_with_window()
+        {
+            RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(
+                    partitionBy: x => 1,
+                    sortBy: Builders<C>.Sort.Ascending(x => x.Id),
+                    output: p => new { Result = p.LastN(x => x.Int32Field, 2, DocumentsWindow.Create(-1, 0)) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { partitionBy : 1, sortBy : { _id : 1 }, output : { Result : { $lastN : { input : '$Int32Field', n : 2 }, window : { documents : [-1, 0] } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            var expectedResults = new[] { new[] { 1 }, new[] { 1, 2 }, new[] { 2, 3 } };
+            for (var n = 0; n < results.Count; n++)
+            {
+                results[n]["Result"].AsBsonArray.Select(i => i.AsInt32).Should().Equal(expectedResults[n]);
+            }
+        }
+
+        [Fact]
         public void Translate_should_return_expected_result_for_Locf()
         {
             RequireServer.Check().Supports(Feature.SetWindowFieldsLocf);
@@ -1585,6 +1681,30 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             foreach (var result in results)
             {
                 result["Result"].AsBsonArray.Select(i => i.AsInt32).Should().Equal(3, 2);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_MaxN_with_window()
+        {
+            RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(
+                    partitionBy: x => 1,
+                    sortBy: Builders<C>.Sort.Ascending(x => x.Id),
+                    output: p => new { Result = p.MaxN(x => x.Int32Field, 2, DocumentsWindow.Create(-1, 0)) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { partitionBy : 1, sortBy : { _id : 1 }, output : { Result : { $maxN : { input : '$Int32Field', n : 2 }, window : { documents : [-1, 0] } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            var expectedResults = new[] { new[] { 1 }, new[] { 2, 1 }, new[] { 3, 2 } };
+            for (var n = 0; n < results.Count; n++)
+            {
+                results[n]["Result"].AsBsonArray.Select(i => i.AsInt32).Should().Equal(expectedResults[n]);
             }
         }
 
@@ -1862,6 +1982,30 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             foreach (var result in results)
             {
                 result["Result"].AsBsonArray.Select(i => i.AsInt32).Should().Equal(1, 2);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_MinN_with_window()
+        {
+            RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(
+                    partitionBy: x => 1,
+                    sortBy: Builders<C>.Sort.Ascending(x => x.Id),
+                    output: p => new { Result = p.MinN(x => x.Int32Field, 2, DocumentsWindow.Create(-1, 0)) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { partitionBy : 1, sortBy : { _id : 1 }, output : { Result : { $minN : { input : '$Int32Field', n : 2 }, window : { documents : [-1, 0] } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            var expectedResults = new[] { new[] { 1 }, new[] { 1, 2 }, new[] { 2, 3 } };
+            for (var n = 0; n < results.Count; n++)
+            {
+                results[n]["Result"].AsBsonArray.Select(i => i.AsInt32).Should().Equal(expectedResults[n]);
             }
         }
 
@@ -2830,6 +2974,30 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         }
 
         [Fact]
+        public void Translate_should_return_expected_result_for_Top_with_window()
+        {
+            RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(
+                    partitionBy: x => 1,
+                    sortBy: Builders<C>.Sort.Ascending(x => x.Id),
+                    output: p => new { Result = p.Top(Builders<C>.Sort.Ascending(x => x.Int32Field), x => x.Int32Field, DocumentsWindow.Create(-1, 0)) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { partitionBy : 1, sortBy : { _id : 1 }, output : { Result : { $top : { sortBy : { Int32Field : 1 }, output : '$Int32Field' }, window : { documents : [-1, 0] } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            var expectedResults = new[] { 1, 1, 2 };
+            for (var n = 0; n < results.Count; n++)
+            {
+                results[n]["Result"].AsInt32.Should().Be(expectedResults[n]);
+            }
+        }
+
+        [Fact]
         public void Translate_should_return_expected_result_for_TopN()
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
@@ -2846,6 +3014,30 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             foreach (var result in results)
             {
                 result["Result"].AsBsonArray.Select(i => i.AsInt32).Should().Equal(1, 2);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_TopN_with_window()
+        {
+            RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(
+                    partitionBy: x => 1,
+                    sortBy: Builders<C>.Sort.Ascending(x => x.Id),
+                    output: p => new { Result = p.TopN(Builders<C>.Sort.Ascending(x => x.Int32Field), x => x.Int32Field, 2, DocumentsWindow.Create(-1, 0)) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { partitionBy : 1, sortBy : { _id : 1 }, output : { Result : { $topN : { sortBy : { Int32Field : 1 }, output : '$Int32Field', n : 2 }, window : { documents : [-1, 0] } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            var expectedResults = new[] { new[] { 1 }, new[] { 1, 2 }, new[] { 2, 3 } };
+            for (var n = 0; n < results.Count; n++)
+            {
+                results[n]["Result"].AsBsonArray.Select(i => i.AsInt32).Should().Equal(expectedResults[n]);
             }
         }
 
