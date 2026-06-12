@@ -559,11 +559,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
                 return false;
             }
 
-            // Matches the AST shape that SelectMany(x => f(x)) emits over _elements:
+            // Recognizes the flatten idiom that SelectMany(x => f(x)) emits over _elements, so it can be
+            // upgraded into a $concatArrays/$setUnion group accumulator instead of running per-group:
             //   $reduce(input: $map(input: $_elements, as: x, in: f(x)),
             //           initialValue: [],
             //           in: $concatArrays($$value, $$this))
-            // and yields f with x rebound to the element expression.
+            // Returns f with x rebound to the element expression (the accumulator's argument).
             private bool IsSelectManyShapeOverElements(AstReduceExpression node, out AstExpression rewrittenArg)
             {
                 if (IsMappedElementsField(node.Input, out var mappedArg) &&
