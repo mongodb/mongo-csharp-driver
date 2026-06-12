@@ -339,7 +339,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
                 _translationOptions = translationOptions;
             }
 
-            // $concatArrays and $setUnion accumulators require server 8.1; only rewrite when the targeted compatibility level supports them
             private bool ArrayAccumulatorsSupported =>
                 Feature.ConcatArraysAndSetUnionAccumulators.IsSupported((_translationOptions?.CompatibilityLevel).ToWireVersion());
 
