@@ -21,6 +21,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Encryption;
