@@ -139,12 +139,8 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // public methods
-        public BulkWriteOperationResult Execute(OperationContext operationContext, RetryableWriteContext context)
-        {
-            EnsureHintIsSupportedIfAnyRequestHasHint();
-
-            return ExecuteBatches(operationContext, context);
-        }
+        public BulkWriteOperationResult Execute(OperationContext operationContext, RetryableWriteContext context) =>
+            ExecuteBatches(operationContext, context);
 
         public BulkWriteOperationResult Execute(OperationContext operationContext, IWriteBinding binding)
         {
@@ -155,12 +151,8 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public Task<BulkWriteOperationResult> ExecuteAsync(OperationContext operationContext, RetryableWriteContext context)
-        {
-            EnsureHintIsSupportedIfAnyRequestHasHint();
-
-            return ExecuteBatchesAsync(operationContext, context);
-        }
+        public Task<BulkWriteOperationResult> ExecuteAsync(OperationContext operationContext, RetryableWriteContext context) =>
+            ExecuteBatchesAsync(operationContext, context);
 
         public async Task<BulkWriteOperationResult> ExecuteAsync(OperationContext operationContext, IWriteBinding binding)
         {
@@ -194,17 +186,6 @@ namespace MongoDB.Driver.Core.Operations
                 writeCommandResult,
                 indexMap,
                 writeConcernException);
-        }
-
-        private void EnsureHintIsSupportedIfAnyRequestHasHint()
-        {
-            foreach (var request in _requests)
-            {
-                if (RequestHasHint(request) && !_writeConcern.IsAcknowledged)
-                {
-                    throw new NotSupportedException("Hint is not supported for unacknowledged writes.");
-                }
-            }
         }
 
         private BulkWriteBatchResult ExecuteBatch(OperationContext operationContext, RetryableWriteContext context, Batch batch)

@@ -114,18 +114,6 @@ namespace MongoDB.Driver.Core.Operations
 
         public override BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber)
         {
-            var wireVersion = connectionDescription.MaxWireVersion;
-            // TODO: Investigate and remove code below in scope of https://jira.mongodb.org/browse/CSHARP-6061
-#pragma warning disable CS0618 // Type or member is obsolete
-            if (Feature.HintForFindAndModifyFeature.DriverMustThrowIfNotSupported(wireVersion) || (WriteConcern != null && !WriteConcern.IsAcknowledged))
-#pragma warning restore CS0618 // Type or member is obsolete
-            {
-                if (_hint != null)
-                {
-                    throw new NotSupportedException($"Server version {WireVersion.GetServerVersionForErrorMessage(wireVersion)} does not support hints.");
-                }
-            }
-
             var readConcern = ReadConcernHelper.GetReadConcernForWriteCommand(session, connectionDescription);
             var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, session, WriteConcern);
             return new BsonDocument

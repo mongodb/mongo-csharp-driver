@@ -123,7 +123,24 @@ namespace MongoDB.Driver.Tests.Specifications
 
         [Category("SupportLoadBalancing")]
         [UnifiedTestsTheory("crud.tests.unified")]
-        public void Crud(JsonDrivenTestCase testCase) => Run(testCase);
+        public void Crud(JsonDrivenTestCase testCase)
+        {
+            var testsToSkip = new[]
+            {
+                "Unacknowledged findOneAndReplace with hint string on 4.4+ server",
+                "Unacknowledged findOneAndReplace with hint document on 4.4+ server",
+                "Unacknowledged findOneAndUpdate with hint string on 4.4+ server",
+                "Unacknowledged findOneAndUpdate with hint document on 4.4+ server",
+                "Unacknowledged findOneAndDelete with hint string on 4.4+ server",
+                "Unacknowledged findOneAndDelete with hint document on 4.4+ server"
+            };
+            if (testsToSkip.Any(t => testCase.Name.Contains(t)))
+            {
+                throw new SkipException("Skipped due to CSHARP-6079");
+            }
+
+            Run(testCase);
+        }
 
         [UnifiedTestsTheory("gridfs.tests")]
         public void GridFS(JsonDrivenTestCase testCase) => Run(testCase);

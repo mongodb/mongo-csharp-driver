@@ -65,14 +65,6 @@ namespace MongoDB.Driver.Core.Operations
 
         protected override BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber)
         {
-            if (WriteConcern != null && !WriteConcern.IsAcknowledged)
-            {
-                if (_deletes.Items.Skip(_deletes.Offset).Take(_deletes.Count).Any(u => u.Hint != null))
-                {
-                    throw new NotSupportedException("Hint is not supported for unacknowledged writes.");
-                }
-            }
-
             var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, session, WriteConcern);
             var readConcern = ReadConcernHelper.GetReadConcernForWriteCommand(session, connectionDescription);
             return new BsonDocument

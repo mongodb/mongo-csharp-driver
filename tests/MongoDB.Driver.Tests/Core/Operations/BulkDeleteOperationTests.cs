@@ -13,12 +13,10 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -51,43 +49,6 @@ namespace MongoDB.Driver.Core.Operations
             var exception = Record.Exception(() => ExecuteOperation(subject, async));
 
             exception.Should().BeNull();
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void Execute_with_hint_should_throw_when_hint_is_not_supported(
-            [Values(0, 1)] int w,
-            [Values(false, true)] bool async)
-        {
-            var writeConcern = new WriteConcern(w);
-            var requests = new List<DeleteRequest>
-            {
-                new DeleteRequest(new BsonDocument("x", 1))
-                {
-                    Hint = new BsonDocument("_id", 1)
-                }
-            };
-            var subject = new BulkDeleteOperation(_collectionNamespace, requests, _messageEncoderSettings)
-            {
-                WriteConcern = writeConcern
-            };
-
-            var exception = Record.Exception(() => ExecuteOperation(subject, async, useImplicitSession: true));
-
-            if (!writeConcern.IsAcknowledged)
-            {
-                exception.Should().BeOfType<NotSupportedException>();
-            }
-#pragma warning disable CS0618 // Type or member is obsolete
-            else if (Feature.HintForDeleteOperations.IsSupported(CoreTestConfiguration.MaxWireVersion))
-#pragma warning restore CS0618 // Type or member is obsolete
-            {
-                exception.Should().BeNull();
-            }
-            else
-            {
-                exception.Should().BeOfType<MongoCommandException>();
-            }
         }
 
         [Theory]

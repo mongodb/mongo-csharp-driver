@@ -1,4 +1,4 @@
-﻿/* Copyright 2020-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -25,41 +24,6 @@ namespace MongoDB.Driver.Core.Operations
 {
     public class RetryableUpdateCommandOperationTests : OperationTestBase
     {
-        [Theory]
-        [ParameterAttributeData]
-        public void Execute_with_hint_should_throw_when_hint_is_not_supported(
-            [Values(0, 1)] int w,
-            [Values(false, true)] bool async)
-        {
-            var writeConcern = new WriteConcern(w);
-            var requests = new List<UpdateRequest>
-            {
-                new UpdateRequest(
-                    UpdateType.Update,
-                    new BsonDocument("x", 1),
-                    new BsonDocument("$set", new BsonDocument("x", 2)))
-                {
-                    Hint = new BsonDocument("_id", 1)
-                }
-            };
-            var batch = new BatchableSource<UpdateRequest>(requests);
-            var subject = new RetryableUpdateCommandOperation(_collectionNamespace, batch, _messageEncoderSettings)
-            {
-                WriteConcern = writeConcern
-            };
-
-            var exception = Record.Exception(() => ExecuteOperation(subject, async, useImplicitSession: true));
-
-            if (!writeConcern.IsAcknowledged)
-            {
-                exception.Should().BeOfType<NotSupportedException>();
-            }
-            else
-            {
-                exception.Should().BeNull();
-            }
-        }
-
         [Theory]
         [ParameterAttributeData]
         public void Let_get_and_set_should_work([Values(null, "{ name : 'name' }")] string let)

@@ -166,43 +166,6 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
-        public void Execute_delete_with_hint_should_throw_when_hint_is_not_supported(
-            [Values(0, 1)] int w,
-            [Values(false, true)] bool async)
-        {
-            var writeConcern = new WriteConcern(w);
-            var requests = new List<WriteRequest>
-            {
-                new DeleteRequest(new BsonDocument("x", 1))
-                {
-                    Hint = new BsonDocument("_id", 1)
-                }
-            };
-            var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings)
-            {
-                WriteConcern = writeConcern
-            };
-
-            var exception = Record.Exception(() => ExecuteOperation(subject, async, useImplicitSession: true));
-
-            if (!writeConcern.IsAcknowledged)
-            {
-                exception.Should().BeOfType<NotSupportedException>();
-            }
-#pragma warning disable CS0618 // Type or member is obsolete
-            else if (Feature.HintForDeleteOperations.IsSupported(CoreTestConfiguration.MaxWireVersion))
-#pragma warning restore CS0618 // Type or member is obsolete
-            {
-                exception.Should().BeNull();
-            }
-            else
-            {
-                exception.Should().BeOfType<MongoCommandException>();
-            }
-        }
-
-        [Theory]
-        [ParameterAttributeData]
         public async Task Execute_should_set_operation_name(
             [Values(false, true)] bool async,
             [Values("delete", "insert", "update")] string operationName)
@@ -220,40 +183,6 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new BulkMixedWriteOperation(_collectionNamespace, new[] { request }, _messageEncoderSettings);
 
             await VerifyOperationNameIsSet(subject, async, operationName);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void Execute_update_with_hint_should_throw_when_hint_is_not_supported(
-            [Values(0, 1)] int w,
-            [Values(false, true)] bool async)
-        {
-            var writeConcern = new WriteConcern(w);
-            var requests = new List<WriteRequest>
-            {
-                new UpdateRequest(
-                    UpdateType.Update,
-                    new BsonDocument("x", 1),
-                    new BsonDocument("$set", new BsonDocument("x", 2)))
-                {
-                    Hint = new BsonDocument("_id", 1)
-                }
-            };
-            var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings)
-            {
-                WriteConcern = writeConcern
-            };
-
-            var exception = Record.Exception(() => ExecuteOperation(subject, async, useImplicitSession: true));
-
-            if (!writeConcern.IsAcknowledged)
-            {
-                exception.Should().BeOfType<NotSupportedException>();
-            }
-            else
-            {
-                exception.Should().BeNull();
-            }
         }
 
         [Theory]
