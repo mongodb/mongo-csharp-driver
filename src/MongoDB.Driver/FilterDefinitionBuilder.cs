@@ -540,7 +540,7 @@ namespace MongoDB.Driver
         /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A filter.</returns>
-        public FilterDefinition<TDocument> EncStrContains(FieldDefinition<TDocument> field, string value)
+        public FilterDefinition<TDocument> EncStrContains(FieldDefinition<TDocument, string> field, string value)
         {
             return new EncStrFilterDefinition<TDocument>(AstEncStrOperator.Contains, field, value);
         }
@@ -551,9 +551,9 @@ namespace MongoDB.Driver
         /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A filter.</returns>
-        public FilterDefinition<TDocument> EncStrContains(Expression<Func<TDocument, object>> field, string value)
+        public FilterDefinition<TDocument> EncStrContains(Expression<Func<TDocument, string>> field, string value)
         {
-            return EncStrContains(new ExpressionFieldDefinition<TDocument>(field), value);
+            return EncStrContains(new ExpressionFieldDefinition<TDocument, string>(field), value);
         }
 
         /// <summary>
@@ -562,7 +562,7 @@ namespace MongoDB.Driver
         /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A filter.</returns>
-        public FilterDefinition<TDocument> EncStrEndsWith(FieldDefinition<TDocument> field, string value)
+        public FilterDefinition<TDocument> EncStrEndsWith(FieldDefinition<TDocument, string> field, string value)
         {
             return new EncStrFilterDefinition<TDocument>(AstEncStrOperator.EndsWith, field, value);
         }
@@ -573,9 +573,9 @@ namespace MongoDB.Driver
         /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A filter.</returns>
-        public FilterDefinition<TDocument> EncStrEndsWith(Expression<Func<TDocument, object>> field, string value)
+        public FilterDefinition<TDocument> EncStrEndsWith(Expression<Func<TDocument, string>> field, string value)
         {
-            return EncStrEndsWith(new ExpressionFieldDefinition<TDocument>(field), value);
+            return EncStrEndsWith(new ExpressionFieldDefinition<TDocument, string>(field), value);
         }
 
         /// <summary>
@@ -584,7 +584,7 @@ namespace MongoDB.Driver
         /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A filter.</returns>
-        public FilterDefinition<TDocument> EncStrNormalizedEq(FieldDefinition<TDocument> field, string value)
+        public FilterDefinition<TDocument> EncStrNormalizedEq(FieldDefinition<TDocument, string> field, string value)
         {
             return new EncStrFilterDefinition<TDocument>(AstEncStrOperator.NormalizedEq, field, value);
         }
@@ -595,9 +595,9 @@ namespace MongoDB.Driver
         /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A filter.</returns>
-        public FilterDefinition<TDocument> EncStrNormalizedEq(Expression<Func<TDocument, object>> field, string value)
+        public FilterDefinition<TDocument> EncStrNormalizedEq(Expression<Func<TDocument, string>> field, string value)
         {
-            return EncStrNormalizedEq(new ExpressionFieldDefinition<TDocument>(field), value);
+            return EncStrNormalizedEq(new ExpressionFieldDefinition<TDocument, string>(field), value);
         }
 
         /// <summary>
@@ -606,7 +606,7 @@ namespace MongoDB.Driver
         /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A filter.</returns>
-        public FilterDefinition<TDocument> EncStrStartsWith(FieldDefinition<TDocument> field, string value)
+        public FilterDefinition<TDocument> EncStrStartsWith(FieldDefinition<TDocument, string> field, string value)
         {
             return new EncStrFilterDefinition<TDocument>(AstEncStrOperator.StartsWith, field, value);
         }
@@ -617,9 +617,9 @@ namespace MongoDB.Driver
         /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A filter.</returns>
-        public FilterDefinition<TDocument> EncStrStartsWith(Expression<Func<TDocument, object>> field, string value)
+        public FilterDefinition<TDocument> EncStrStartsWith(Expression<Func<TDocument, string>> field, string value)
         {
-            return EncStrStartsWith(new ExpressionFieldDefinition<TDocument>(field), value);
+            return EncStrStartsWith(new ExpressionFieldDefinition<TDocument, string>(field), value);
         }
 
         /// <summary>
