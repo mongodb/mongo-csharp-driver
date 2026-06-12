@@ -341,7 +341,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
                         return new ReplaceOneModel<BsonDocument>(filter, replacement)
                         {
-                            Collation =  collation,
+                            Collation = collation,
                             Hint = hint,
                             IsUpsert = isUpsert,
                             Sort = sort
