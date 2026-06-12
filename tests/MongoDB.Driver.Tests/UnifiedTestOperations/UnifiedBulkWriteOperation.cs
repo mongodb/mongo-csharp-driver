@@ -145,15 +145,20 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         private void ParseDeleteModel(
             BsonDocument model,
             out FilterDefinition<BsonDocument> filter,
-            out BsonValue hint)
+            out BsonValue hint,
+            out Collation collation)
         {
             filter = null;
             hint = null;
+            collation = null;
 
             foreach (BsonElement argument in model.Elements)
             {
                 switch (argument.Name)
                 {
+                    case "collation":
+                        collation = Collation.FromBsonDocument(argument.Value.AsBsonDocument);
+                        break;
                     case "hint":
                         hint = argument.Value;
                         break;
@@ -191,18 +196,23 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             out BsonDocument replacement,
             out BsonValue hint,
             out bool isUpsert,
-            out BsonDocument sort)
+            out BsonDocument sort,
+            out Collation collation)
         {
             filter = null;
             replacement = null;
             hint = null;
             isUpsert = false;
             sort = null;
+            collation = null;
 
             foreach (BsonElement argument in model.Elements)
             {
                 switch (argument.Name)
                 {
+                    case "collation":
+                        collation = Collation.FromBsonDocument(argument.Value.AsBsonDocument);
+                        break;
                     case "filter":
                         filter = new BsonDocumentFilterDefinition<BsonDocument>(argument.Value.AsBsonDocument);
                         break;
@@ -231,7 +241,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             out List<ArrayFilterDefinition> arrayFilters,
             out BsonValue hint,
             out bool isUpsert,
-            out BsonDocument sort)
+            out BsonDocument sort,
+            out Collation collation)
         {
             arrayFilters = null;
             filter = null;
@@ -239,6 +250,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             hint = null;
             isUpsert = false;
             sort = null;
+            collation = null;
 
             foreach (BsonElement argument in model.Elements)
             {
@@ -251,6 +263,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                             .Cast<BsonDocument>()
                             .Select(x => new BsonDocumentArrayFilterDefinition<BsonValue>(x))
                             .ToList<ArrayFilterDefinition>();
+                        break;
+                    case "collation":
+                        collation = Collation.FromBsonDocument(argument.Value.AsBsonDocument);
                         break;
                     case "filter":
                         filter = new BsonDocumentFilterDefinition<BsonDocument>(argument.Value.AsBsonDocument);
@@ -296,19 +311,21 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             {
                 case "deleteMany":
                     {
-                        ParseDeleteModel(model, out var filter, out var hint);
+                        ParseDeleteModel(model, out var filter, out var hint, out var collation);
 
                         return new DeleteManyModel<BsonDocument>(filter)
                         {
+                            Collation =  collation,
                             Hint = hint
                         };
                     }
                 case "deleteOne":
                     {
-                        ParseDeleteModel(model, out var filter, out var hint);
+                        ParseDeleteModel(model, out var filter, out var hint, out var collation);
 
                         return new DeleteOneModel<BsonDocument>(filter)
                         {
+                            Collation =  collation,
                             Hint = hint
                         };
                     }
@@ -320,10 +337,11 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     }
                 case "replaceOne":
                     {
-                        ParseReplaceModel(model, out var filter, out var replacement, out var hint, out bool isUpsert, out var sort);
+                        ParseReplaceModel(model, out var filter, out var replacement, out var hint, out bool isUpsert, out var sort, out var collation);
 
                         return new ReplaceOneModel<BsonDocument>(filter, replacement)
                         {
+                            Collation =  collation,
                             Hint = hint,
                             IsUpsert = isUpsert,
                             Sort = sort
@@ -331,22 +349,24 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     }
                 case "updateMany":
                     {
-                        ParseUpdateModel(model, out var filter, out var update, out var arrayFilters, out var hint, out var isUpsert, out _);
+                        ParseUpdateModel(model, out var filter, out var update, out var arrayFilters, out var hint, out var isUpsert, out _, out var collation);
 
                         return new UpdateManyModel<BsonDocument>(filter, update)
                         {
                             ArrayFilters = arrayFilters,
+                            Collation =  collation,
                             Hint = hint,
                             IsUpsert = isUpsert
                         };
                     }
                 case "updateOne":
                     {
-                        ParseUpdateModel(model, out var filter, out var update, out var arrayFilters, out var hint, out var isUpsert, out var sort);
+                        ParseUpdateModel(model, out var filter, out var update, out var arrayFilters, out var hint, out var isUpsert, out var sort, out var collation);
 
                         return new UpdateOneModel<BsonDocument>(filter, update)
                         {
                             ArrayFilters = arrayFilters,
+                            Collation =  collation,
                             Hint = hint,
                             IsUpsert = isUpsert,
                             Sort = sort

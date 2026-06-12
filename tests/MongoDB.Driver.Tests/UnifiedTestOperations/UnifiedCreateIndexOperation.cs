@@ -127,6 +127,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         createOneIndexOptions ??= new CreateOneIndexOptions();
                         createOneIndexOptions.Timeout = UnifiedEntityMap.ParseTimeout(argument.Value);
                         break;
+                    case "unique":
+                        options ??= new CreateIndexOptions();
+                        options.Unique = argument.Value.AsBoolean;
+                        break;
                     default:
                         throw new FormatException($"Invalid CreateIndexOperation argument name: '{argument.Name}'.");
                 }
