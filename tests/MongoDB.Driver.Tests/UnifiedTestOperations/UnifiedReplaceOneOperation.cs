@@ -101,6 +101,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         options ??= new();
                         options.BypassDocumentValidation = argument.Value.AsBoolean;
                         break;
+                    case "collation":
+                        options ??= new ReplaceOptions<BsonDocument>();
+                        options.Collation = Collation.FromBsonDocument(argument.Value.AsBsonDocument);
+                        break;
                     case "comment":
                         options ??= new ReplaceOptions<BsonDocument>();
                         options.Comment = argument.Value;
@@ -152,6 +156,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 { "matchedCount", () => result.MatchedCount, result.IsAcknowledged },
                 { "modifiedCount", () => result.ModifiedCount, result.IsModifiedCountAvailable },
                 { "upsertedCount", () => result.UpsertedId == null ? 0 : 1, result.IsAcknowledged },
+                { "upsertedId", () => result.UpsertedId, result.IsAcknowledged && result.UpsertedId != null }
             };
 
             return OperationResult.FromResult(document);

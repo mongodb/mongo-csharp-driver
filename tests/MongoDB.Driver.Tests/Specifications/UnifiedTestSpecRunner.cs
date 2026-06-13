@@ -139,6 +139,21 @@ namespace MongoDB.Driver.Tests.Specifications
                 throw new SkipException("Skipped due to CSHARP-6079");
             }
 
+            if (testCase.Shared["_fileName"].AsString.EndsWith("-rawdata.json"))
+            {
+                throw new SkipException("CSharpDriver does not support rawData option.");
+            }
+
+            if (testCase.Shared["_fileName"].AsString == "distinct-hint.json")
+            {
+                throw new SkipException("CSharpDriver does not support Hint for Distinct operation.");
+            }
+
+            if (testCase.Name.Contains("findOneAndUpdate document validation errInfo is accessible"))
+            {
+                throw new SkipException("CSharpDriver does not support modifyCollection.");
+            }
+
             Run(testCase);
         }
 

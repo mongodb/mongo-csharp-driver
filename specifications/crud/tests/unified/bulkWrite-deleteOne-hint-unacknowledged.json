@@ -1,4 +1,4 @@
-﻿{
+{
   "description": "bulkWrite-deleteOne-hint-unacknowledged",
   "schemaVersion": "1.0",
   "createEntities": [

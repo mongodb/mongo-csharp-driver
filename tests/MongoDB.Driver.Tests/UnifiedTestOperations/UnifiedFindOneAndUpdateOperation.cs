@@ -98,9 +98,22 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             {
                 switch (argument.Name)
                 {
+                    case "arrayFilters":
+                        options ??= new FindOneAndUpdateOptions<BsonDocument>();
+                        options.ArrayFilters = argument
+                            .Value
+                            .AsBsonArray
+                            .Cast<BsonDocument>()
+                            .Select(x => new BsonDocumentArrayFilterDefinition<BsonValue>(x))
+                            .ToList<ArrayFilterDefinition>();
+                        break;
                     case "bypassDocumentValidation":
                         options ??= new();
                         options.BypassDocumentValidation = argument.Value.AsBoolean;
+                        break;
+                    case "collation":
+                        options ??= new FindOneAndUpdateOptions<BsonDocument>();
+                        options.Collation = Collation.FromBsonDocument(argument.Value.AsBsonDocument);
                         break;
                     case "comment":
                         options ??= new FindOneAndUpdateOptions<BsonDocument>();
@@ -123,6 +136,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         options.MaxTime = TimeSpan.FromMilliseconds(argument.Value.AsInt32);
                         break;
 #pragma warning restore CS0618 // Type or member is obsolete
+                    case "projection":
+                        options ??= new FindOneAndUpdateOptions<BsonDocument>();
+                        options.Projection = argument.Value.AsBsonDocument;
+                        break;
                     case "returnDocument":
                         options ??= new FindOneAndUpdateOptions<BsonDocument>();
                         options.ReturnDocument = (ReturnDocument)Enum.Parse(typeof(ReturnDocument), argument.Value.AsString);

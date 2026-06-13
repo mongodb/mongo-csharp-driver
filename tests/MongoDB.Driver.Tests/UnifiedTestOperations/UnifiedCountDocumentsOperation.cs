@@ -93,6 +93,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             {
                 switch (argument.Name)
                 {
+                    case "collation":
+                        options ??= new CountOptions();
+                        options.Collation = Collation.FromBsonDocument(argument.Value.AsBsonDocument);
+                        break;
                     case "comment":
                         options ??= new CountOptions();
                         options.Comment = argument.Value;
@@ -100,8 +104,16 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     case "filter":
                         filter = new BsonDocumentFilterDefinition<BsonDocument>(argument.Value.AsBsonDocument);
                         break;
+                    case "limit":
+                        options ??= new CountOptions();
+                        options.Limit = argument.Value.AsInt32;
+                        break;
                     case "session":
                         session = _entityMap.Sessions[argument.Value.AsString];
+                        break;
+                    case "skip":
+                        options ??= new CountOptions();
+                        options.Skip = argument.Value.AsInt32;
                         break;
                     case "timeoutMS":
                         options ??= new CountOptions();

@@ -101,6 +101,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         options ??= new();
                         options.BypassDocumentValidation = argument.Value.AsBoolean;
                         break;
+                    case "collation":
+                        options ??= new FindOneAndReplaceOptions<BsonDocument>();
+                        options.Collation = Collation.FromBsonDocument(argument.Value.AsBsonDocument);
+                        break;
                     case "comment":
                         options ??= new FindOneAndReplaceOptions<BsonDocument>();
                         options.Comment = argument.Value;
@@ -122,6 +126,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         options.MaxTime = TimeSpan.FromMilliseconds(argument.Value.AsInt32);
                         break;
 #pragma warning restore CS0618 // Type or member is obsolete
+                    case "projection":
+                        options ??= new FindOneAndReplaceOptions<BsonDocument>();
+                        options.Projection = argument.Value.AsBsonDocument;
+                        break;
                     case "replacement":
                         replacement = argument.Value.AsBsonDocument;
                         break;
@@ -131,6 +139,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         break;
                     case "session":
                         session = _entityMap.Sessions[argument.Value.AsString];
+                        break;
+                    case "sort":
+                        options ??= new FindOneAndReplaceOptions<BsonDocument>();
+                        options.Sort = argument.Value.AsBsonDocument;
                         break;
                     case "upsert":
                         options ??= new FindOneAndReplaceOptions<BsonDocument>();
