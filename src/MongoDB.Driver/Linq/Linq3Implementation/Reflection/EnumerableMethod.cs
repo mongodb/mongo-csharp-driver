@@ -182,6 +182,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __sumSingle;
         private static readonly MethodInfo __sumSingleWithSelector;
         private static readonly MethodInfo __take;
+        private static readonly MethodInfo __takeLast = null; // null when target framework does not have this method
         private static readonly MethodInfo __takeWhile;
         private static readonly MethodInfo __takeWhileWithPredicateTakingIndex;
         private static readonly MethodInfo __thenBy;
@@ -364,6 +365,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __sumSingle = ReflectionInfo.Method((IEnumerable<float> source) => source.Sum());
             __sumSingleWithSelector = ReflectionInfo.Method((IEnumerable<object> source, Func<object, float> selector) => source.Sum(selector));
             __take = ReflectionInfo.Method((IEnumerable<object> source, int count) => source.Take(count));
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+            __takeLast = ReflectionInfo.Method((IEnumerable<object> source, int count) => source.TakeLast(count));
+#endif
             __takeWhile = ReflectionInfo.Method((IEnumerable<object> source, Func<object, bool> predicate) => source.TakeWhile(predicate));
             __takeWhileWithPredicateTakingIndex = ReflectionInfo.Method((IEnumerable<object> source, Func<object, int, bool> predicate) => source.TakeWhile(predicate));
             __thenBy = ReflectionInfo.Method((IOrderedEnumerable<object> source, Func<object, object> keySelector) => source.ThenBy(keySelector));
@@ -605,6 +609,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo SumSingle => __sumSingle;
         public static MethodInfo SumSingleWithSelector => __sumSingleWithSelector;
         public static MethodInfo Take => __take;
+        public static MethodInfo TakeLast => __takeLast;
         public static MethodInfo TakeWhile => __takeWhile;
         public static MethodInfo TakeWhileWithPredicateTakingIndex => __takeWhileWithPredicateTakingIndex;
         public static MethodInfo ThenBy => __thenBy;

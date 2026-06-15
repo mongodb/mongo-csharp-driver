@@ -64,6 +64,44 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             results[3].Should().Equal(1, 2);
         }
 
+#if NETCOREAPP || NET6_0_OR_GREATER
+        [Fact]
+        public void Enumerable_TakeLast_should_work()
+        {
+            var collection = Fixture.Collection;
+
+            var queryable = collection.AsQueryable().Select(x => x.A.TakeLast(2));
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : { $slice : ['$A', -2] }, _id : 0 } }");
+
+            var results = queryable.ToList();
+            results.Should().HaveCount(4);
+            results[0].Should().Equal();
+            results[1].Should().Equal(1);
+            results[2].Should().Equal(1, 2);
+            results[3].Should().Equal(2, 3);
+        }
+
+        [Fact]
+        public void Queryable_TakeLast_should_work()
+        {
+            var collection = Fixture.Collection;
+
+            var queryable = collection.AsQueryable().Select(x => x.A.AsQueryable().TakeLast(2));
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : { $slice : ['$A', -2] }, _id : 0 } }");
+
+            var results = queryable.ToList();
+            results.Should().HaveCount(4);
+            results[0].Should().Equal();
+            results[1].Should().Equal(1);
+            results[2].Should().Equal(1, 2);
+            results[3].Should().Equal(2, 3);
+        }
+#endif
+
         public class C
         {
             public int Id { get; set; }
@@ -74,10 +112,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         {
             protected override IEnumerable<C> InitialData =>
             [
-                new C { Id = 0, A = new int[0] },
-                new C { Id = 1, A = new int[] { 1 } },
-                new C { Id = 2, A = new int[] { 1, 2 } },
-                new C { Id = 3, A = new int[] { 1, 2, 3 } }
+                new() { Id = 0, A = [] },
+                new() { Id = 1, A = [1] },
+                new() { Id = 2, A = [1, 2] },
+                new() { Id = 3, A = [1, 2, 3] }
             ];
         }
     }

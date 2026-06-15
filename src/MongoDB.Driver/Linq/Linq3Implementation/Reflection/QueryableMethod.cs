@@ -126,6 +126,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __sumSingle;
         private static readonly MethodInfo __sumSingleWithSelector;
         private static readonly MethodInfo __take;
+        private static readonly MethodInfo __takeLast = null; // null when target framework does not have this method
         private static readonly MethodInfo __takeWhile;
         private static readonly MethodInfo __takeWhileWithPredicateTakingIndex;
         private static readonly MethodInfo __thenBy;
@@ -263,6 +264,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __sumSingle = ReflectionInfo.Method((IQueryable<float> source) => source.Sum());
             __sumSingleWithSelector = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, float>> selector) => source.Sum(selector));
             __take = ReflectionInfo.Method((IQueryable<object> source, int count) => Queryable.Take(source, count));
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+            __takeLast = ReflectionInfo.Method((IQueryable<object> source, int count) => Queryable.TakeLast(source, count));
+#endif
             __takeWhile = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, bool>> predicate) => Queryable.TakeWhile(source, predicate));
             __takeWhileWithPredicateTakingIndex = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, int, bool>> predicate) => Queryable.TakeWhile(source, predicate));
             __thenBy = ReflectionInfo.Method((IOrderedQueryable<object> source, Expression<Func<object, object>> keySelector) => source.ThenBy(keySelector));
@@ -551,6 +555,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo SumSingle => __sumSingle;
         public static MethodInfo SumSingleWithSelector => __sumSingleWithSelector;
         public static MethodInfo Take => __take;
+        public static MethodInfo TakeLast => __takeLast;
         public static MethodInfo TakeWhile => __takeWhile;
         public static MethodInfo TakeWhileWithPredicateTakingIndex => __takeWhileWithPredicateTakingIndex;
         public static MethodInfo ThenBy => __thenBy;

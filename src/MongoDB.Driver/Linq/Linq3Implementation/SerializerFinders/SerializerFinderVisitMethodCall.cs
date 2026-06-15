@@ -303,6 +303,7 @@ internal partial class SerializerFinderVisitor
                 case "Skip":
                 case "SkipWhile":
                 case "Take":
+                case "TakeLast":
                 case "TakeWhile":
                     DeduceSkipOrTakeMethodSerializers();
                     break;
