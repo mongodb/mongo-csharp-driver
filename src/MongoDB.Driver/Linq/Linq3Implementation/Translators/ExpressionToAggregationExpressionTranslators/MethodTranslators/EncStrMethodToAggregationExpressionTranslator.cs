@@ -16,7 +16,6 @@
 using System;
 using System.Linq.Expressions;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
@@ -35,8 +34,8 @@ internal static class EncStrMethodToAggregationExpressionTranslator
         {
             var inputTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, arguments[0]);
             var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, arguments[1]);
-            EnsureSerializedAsString(inputTranslation, arguments[0], expression);
-            EnsureSerializedAsString(valueTranslation, arguments[1], expression);
+            SerializationHelper.EnsureSerializerRepresentation(expression, inputTranslation.Serializer, BsonType.String);
+            SerializationHelper.EnsureSerializerRepresentation(expression, valueTranslation.Serializer, BsonType.String);
 
             var @operator = method.Name switch
             {
@@ -52,14 +51,5 @@ internal static class EncStrMethodToAggregationExpressionTranslator
         }
 
         throw new ExpressionNotSupportedException(expression);
-    }
-
-    private static void EnsureSerializedAsString(TranslatedExpression translation, Expression argument, Expression containingExpression)
-    {
-        if (translation.Serializer is IRepresentationConfigurable representationConfigurable &&
-            representationConfigurable.Representation != BsonType.String)
-        {
-            throw new ExpressionNotSupportedException(argument, containingExpression, because: "it is not serialized as a string");
-        }
     }
 }

@@ -72,7 +72,7 @@ public class EncStrMethodToAggregationExpressionTranslatorTests
             EncStrMethodToAggregationExpressionTranslator.Translate(translationContext, (MethodCallExpression)expression.Body));
 
         exception.Should().BeOfType<ExpressionNotSupportedException>();
-        exception.Message.Should().Contain("it is not serialized as a string");
+        exception.Message.Should().Contain("the expression is not represented as an String in the database");
     }
 
     [Fact]
@@ -85,7 +85,7 @@ public class EncStrMethodToAggregationExpressionTranslatorTests
             EncStrMethodToAggregationExpressionTranslator.Translate(translationContext, (MethodCallExpression)expression.Body));
 
         exception.Should().BeOfType<ExpressionNotSupportedException>();
-        exception.Message.Should().Contain("it is not serialized as a string");
+        exception.Message.Should().Contain("the expression is not represented as an String in the database");
     }
 
     public class MyModel
