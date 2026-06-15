@@ -339,7 +339,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
                 _translationOptions = translationOptions;
             }
 
-            private bool ArrayAccumulatorsSupported =>
+            private bool ConcatArraysAndSetUnionAccumulatorsSupported =>
                 Feature.ConcatArraysAndSetUnionAccumulators.IsSupported((_translationOptions?.CompatibilityLevel).ToWireVersion());
 
             public override AstNode VisitFilterField(AstFilterField node)
@@ -486,7 +486,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
             {
                 // { $reduce : { input : { $map : { input : "$_elements", as : "x", in : f(x) } }, initialValue : [], in : { $concatArrays : ["$$value", "$$this"] } } }
                 // => { __agg0 : { $concatArrays : f(x => element) } } + "$__agg0"
-                if (ArrayAccumulatorsSupported && IsSelectManyShapeOverElements(node, out var rewrittenArg))
+                if (ConcatArraysAndSetUnionAccumulatorsSupported && IsSelectManyShapeOverElements(node, out var rewrittenArg))
                 {
                     var accumulatorExpression = AstExpression.UnaryAccumulator(AstUnaryAccumulatorOperator.ConcatArrays, rewrittenArg);
                     return CreateGetAccumulatorFieldExpression(accumulatorExpression);
@@ -510,7 +510,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
 
                 // { $setUnion : { $reduce : { input : { $map : { input : "$_elements", as : "x", in : f(x) } }, initialValue : [], in : { $concatArrays : ["$$value", "$$this"] } } } }
                 // => { __agg0 : { $setUnion : f(x => element) } } + "$__agg0"
-                if (ArrayAccumulatorsSupported &&
+                if (ConcatArraysAndSetUnionAccumulatorsSupported &&
                     node.Operator == AstUnaryOperator.SetUnion &&
                     node.Arg is AstReduceExpression setUnionReduceArg &&
                     IsSelectManyShapeOverElements(setUnionReduceArg, out var setUnionArg))

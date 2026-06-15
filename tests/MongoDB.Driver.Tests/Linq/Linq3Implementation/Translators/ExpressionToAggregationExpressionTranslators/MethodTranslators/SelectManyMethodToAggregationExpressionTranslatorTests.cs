@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
 
 public class SelectManyMethodToAggregationExpressionTranslatorTests : LinqIntegrationTest<SelectManyMethodToAggregationExpressionTranslatorTests.ClassFixture>
 {
-    private static readonly bool __accumulatorsSupported = Feature.ConcatArraysAndSetUnionAccumulators.IsSupported(CoreTestConfiguration.MaxWireVersion);
+    private static readonly bool __concatArraysAndSetUnionAccumulatorsSupported = Feature.ConcatArraysAndSetUnionAccumulators.IsSupported(CoreTestConfiguration.MaxWireVersion);
 
     public SelectManyMethodToAggregationExpressionTranslatorTests(ClassFixture fixture)
         : base(fixture)
@@ -110,7 +110,7 @@ public class SelectManyMethodToAggregationExpressionTranslatorTests : LinqIntegr
             .Select(g => new { Cat = g.Key, AllTags = g.SelectMany(x => x.Tags).ToList() });
 
         var stages = Translate(collection, queryable);
-        if (__accumulatorsSupported)
+        if (__concatArraysAndSetUnionAccumulatorsSupported)
         {
             AssertStages(stages,
                 "{ $group : { _id : '$Cat', __agg0 : { $concatArrays : '$Tags' } } }",
@@ -141,7 +141,7 @@ public class SelectManyMethodToAggregationExpressionTranslatorTests : LinqIntegr
             .Select(g => new { Cat = g.Key, UniqueTags = g.SelectMany(x => x.Tags).Distinct().ToList() });
 
         var stages = Translate(collection, queryable);
-        if (__accumulatorsSupported)
+        if (__concatArraysAndSetUnionAccumulatorsSupported)
         {
             AssertStages(stages,
                 "{ $group : { _id : '$Cat', __agg0 : { $setUnion : '$Tags' } } }",
@@ -221,7 +221,7 @@ public class SelectManyMethodToAggregationExpressionTranslatorTests : LinqIntegr
             .GroupBy(x => x.Cat, (key, elements) => new { Cat = key, AllTags = elements.SelectMany(x => x.Tags).ToList() });
 
         var stages = Translate(collection, queryable);
-        if (__accumulatorsSupported)
+        if (__concatArraysAndSetUnionAccumulatorsSupported)
         {
             AssertStages(stages,
                 "{ $group : { _id : '$Cat', __agg0 : { $concatArrays : '$Tags' } } }",
@@ -254,7 +254,7 @@ public class SelectManyMethodToAggregationExpressionTranslatorTests : LinqIntegr
                 g => new { Id = g.Key, AllTags = g.SelectMany(x => x.Tags) });
 
         var stages = Translate(collection, aggregate);
-        if (__accumulatorsSupported)
+        if (__concatArraysAndSetUnionAccumulatorsSupported)
         {
             AssertStages(stages,
                 "{ $bucket : { groupBy : '$_id', boundaries : [1, 3, 5], output : { __agg0 : { $concatArrays : '$Tags' } } } }",
@@ -287,7 +287,7 @@ public class SelectManyMethodToAggregationExpressionTranslatorTests : LinqIntegr
                 g => new { Id = g.Key, UniqueTags = g.SelectMany(x => x.Tags).Distinct() });
 
         var stages = Translate(collection, aggregate);
-        if (__accumulatorsSupported)
+        if (__concatArraysAndSetUnionAccumulatorsSupported)
         {
             AssertStages(stages,
                 "{ $bucketAuto : { groupBy : '$_id', buckets : 2, output : { __agg0 : { $setUnion : '$Tags' } } } }",
