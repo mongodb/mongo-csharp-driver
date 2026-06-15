@@ -153,23 +153,19 @@ namespace MongoDB.Bson.Serialization.Serializers
         protected override TValue FinalizeResult(object accumulator)
         {
             // find and call a constructor that we can pass the accumulator to
-            var accumulatorType = accumulator.GetType();
-            foreach (var constructorInfo in typeof(TValue).GetTypeInfo().GetConstructors())
+            var accumulatorCtor = FindSingleArgumentConstructor(accumulator.GetType());
+            if (accumulatorCtor != null)
             {
-                var parameterInfos = constructorInfo.GetParameters();
-                if (parameterInfos.Length == 1 && parameterInfos[0].ParameterType.GetTypeInfo().IsAssignableFrom(accumulatorType))
-                {
-                    return (TValue)constructorInfo.Invoke(new object[] { accumulator });
-                }
+                return (TValue)accumulatorCtor.Invoke(new object[] { accumulator });
             }
 
             // otherwise try to find a no-argument constructor and an Add method
             var valueTypeInfo = typeof(TValue).GetTypeInfo();
-            var noArgumentConstructorInfo = valueTypeInfo.GetConstructor(new Type[] { });
-            var addMethodInfo = typeof(TValue).GetTypeInfo().GetMethod("Add", new Type[] { typeof(TItem) });
+            var noArgumentConstructorInfo = valueTypeInfo.GetConstructor(Type.EmptyTypes);
+            var addMethodInfo = valueTypeInfo.GetMethod("Add", new Type[] { typeof(TItem) });
             if (noArgumentConstructorInfo != null && addMethodInfo != null)
             {
-                var value = (TValue)noArgumentConstructorInfo.Invoke(new Type[] { });
+                var value = (TValue)noArgumentConstructorInfo.Invoke(null);
                 foreach (var item in (IEnumerable<TItem>)accumulator)
                 {
                     addMethodInfo.Invoke(value, new object[] { item });
@@ -177,8 +173,30 @@ namespace MongoDB.Bson.Serialization.Serializers
                 return value;
             }
 
+            // last resort: find a constructor that accepts a HashSet<TItem> (e.g. ReadOnlySet<T>(ISet<T>))
+            // Note: collapses duplicate elements, which is correct for set-shaped targets.
+            var setCtor = FindSingleArgumentConstructor(typeof(HashSet<TItem>));
+            if (setCtor != null)
+            {
+                var hashSet = new HashSet<TItem>((IEnumerable<TItem>)accumulator);
+                return (TValue)setCtor.Invoke(new object[] { hashSet });
+            }
+
             var message = string.Format("Type '{0}' does not have a suitable constructor or Add method.", typeof(TValue).FullName);
             throw new BsonSerializationException(message);
+        }
+
+        private static ConstructorInfo FindSingleArgumentConstructor(Type argumentType)
+        {
+            foreach (var constructorInfo in typeof(TValue).GetTypeInfo().GetConstructors())
+            {
+                var parameterInfos = constructorInfo.GetParameters();
+                if (parameterInfos.Length == 1 && parameterInfos[0].ParameterType.GetTypeInfo().IsAssignableFrom(argumentType))
+                {
+                    return constructorInfo;
+                }
+            }
+            return null;
         }
 
         // explicit interface implementations
