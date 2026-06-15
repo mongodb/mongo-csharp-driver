@@ -114,9 +114,6 @@ public class MqlHashTests : LinqIntegrationTest<MqlHashTests.ClassFixture>
 
         [BsonIgnoreIfNull]
         public BsonBinaryData Data { get; set; }
-
-        [BsonIgnoreIfNull]
-        public BsonBoolean Truth { get; set; }
     }
 
     public sealed class ClassFixture : MongoCollectionFixture<C>
@@ -129,4 +126,3 @@ public class MqlHashTests : LinqIntegrationTest<MqlHashTests.ClassFixture>
         ];
     }
 }
-
