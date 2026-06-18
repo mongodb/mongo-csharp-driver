@@ -617,13 +617,27 @@ namespace MongoDB.Driver.Core.ConnectionPools
             public void Open(OperationContext operationContext)
             {
                 ThrowIfDisposed();
-                _reference.Instance.Open(operationContext);
+                try
+                {
+                    _reference.Instance.Open(operationContext);
+                }
+                catch (ObjectDisposedException ex)
+                {
+                    throw CreateConnectionException(ex);
+                }
             }
 
-            public Task OpenAsync(OperationContext operationContext)
+            public async Task OpenAsync(OperationContext operationContext)
             {
                 ThrowIfDisposed();
-                return _reference.Instance.OpenAsync(operationContext);
+                try
+                {
+                    await _reference.Instance.OpenAsync(operationContext).ConfigureAwait(false);
+                }
+                catch (ObjectDisposedException ex)
+                {
+                    throw CreateConnectionException(ex);
+                }
             }
 
             public void Reauthenticate(OperationContext operationContext)
@@ -638,28 +652,56 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 return _reference.Instance.ReauthenticateAsync(operationContext);
             }
 
-            public Task<ResponseMessage> ReceiveMessageAsync(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings)
+            public async Task<ResponseMessage> ReceiveMessageAsync(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings)
             {
                 ThrowIfDisposed();
-                return _reference.Instance.ReceiveMessageAsync(operationContext, responseTo, encoderSelector, messageEncoderSettings);
+                try
+                {
+                    return await _reference.Instance.ReceiveMessageAsync(operationContext, responseTo, encoderSelector, messageEncoderSettings).ConfigureAwait(false);
+                }
+                catch (ObjectDisposedException ex)
+                {
+                    throw CreateConnectionException(ex);
+                }
             }
 
             public ResponseMessage ReceiveMessage(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings)
             {
                 ThrowIfDisposed();
-                return _reference.Instance.ReceiveMessage(operationContext, responseTo, encoderSelector, messageEncoderSettings);
+                try
+                {
+                    return _reference.Instance.ReceiveMessage(operationContext, responseTo, encoderSelector, messageEncoderSettings);
+                }
+                catch (ObjectDisposedException ex)
+                {
+                    throw CreateConnectionException(ex);
+                }
             }
 
             public void SendMessage(OperationContext operationContext, RequestMessage message, MessageEncoderSettings messageEncoderSettings)
             {
                 ThrowIfDisposed();
-                _reference.Instance.SendMessage(operationContext, message, messageEncoderSettings);
+                try
+                {
+                    _reference.Instance.SendMessage(operationContext, message, messageEncoderSettings);
+                }
+                catch (ObjectDisposedException ex)
+                {
+                    throw CreateConnectionException(ex);
+                }
             }
 
-            public Task SendMessageAsync(OperationContext operationContext, RequestMessage message, MessageEncoderSettings messageEncoderSettings)
+            public async Task SendMessageAsync(OperationContext operationContext, RequestMessage message, MessageEncoderSettings messageEncoderSettings)
             {
                 ThrowIfDisposed();
-                return _reference.Instance.SendMessageAsync(operationContext, message, messageEncoderSettings);
+                try
+                {
+                    await _reference.Instance.SendMessageAsync(operationContext, message, messageEncoderSettings).ConfigureAwait(false);
+                }
+                catch (ObjectDisposedException ex)
+                {
+                    throw CreateConnectionException(ex);
+                }
             }
 
             public void CompleteCommandActivityWithException(Exception exception)
@@ -679,6 +721,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 ThrowIfDisposed();
                 _reference.Instance.SetCheckOutReasonIfNotAlreadySet(reason);
             }
+
+            private MongoConnectionException CreateConnectionException(Exception ex) =>
+                new (_reference.Instance.ConnectionId, "The underlying connection was closed.", ex);
 
             private void ThrowIfDisposed()
             {
