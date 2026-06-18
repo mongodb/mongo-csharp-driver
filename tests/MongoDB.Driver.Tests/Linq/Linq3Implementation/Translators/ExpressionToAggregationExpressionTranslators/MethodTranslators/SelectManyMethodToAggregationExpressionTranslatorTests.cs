@@ -311,6 +311,11 @@ public class SelectManyMethodToAggregationExpressionTranslatorTests : LinqIntegr
     [InlineData(ServerVersion.Server80, false)]
     public void SelectMany_in_GroupBy_should_emit_accumulator_only_when_CompatibilityLevel_supports_it(ServerVersion compatibilityLevel, bool expectAccumulator)
     {
+        if (expectAccumulator)
+        {
+            RequireServer.Check().Supports(Feature.ConcatArraysAndSetUnionAccumulators);
+        }
+
         var collection = Fixture.Collection;
         var options = new AggregateOptions { TranslationOptions = new ExpressionTranslationOptions { CompatibilityLevel = compatibilityLevel } };
 
@@ -331,6 +336,13 @@ public class SelectManyMethodToAggregationExpressionTranslatorTests : LinqIntegr
                 "{ $group : { _id : '$Cat', __agg0 : { $push : '$Tags' } } }",
                 "{ $project : { Cat : '$_id', AllTags : { $reduce : { input : '$__agg0', initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } } }, _id : 0 } }");
         }
+
+        var results = queryable.ToList().OrderBy(x => x.Cat).ToList();
+        results.Should().HaveCount(2);
+        results[0].Cat.Should().Be("A");
+        results[0].AllTags.Should().BeEquivalentTo(new[] { "x", "y", "x", "z" });
+        results[1].Cat.Should().Be("B");
+        results[1].AllTags.Should().BeEquivalentTo(new[] { "y", "z" });
     }
 
     [Theory]
@@ -338,6 +350,11 @@ public class SelectManyMethodToAggregationExpressionTranslatorTests : LinqIntegr
     [InlineData(ServerVersion.Server80, false)]
     public void SelectMany_Distinct_in_GroupBy_should_emit_accumulator_only_when_CompatibilityLevel_supports_it(ServerVersion compatibilityLevel, bool expectAccumulator)
     {
+        if (expectAccumulator)
+        {
+            RequireServer.Check().Supports(Feature.ConcatArraysAndSetUnionAccumulators);
+        }
+
         var collection = Fixture.Collection;
         var options = new AggregateOptions { TranslationOptions = new ExpressionTranslationOptions { CompatibilityLevel = compatibilityLevel } };
 
@@ -358,6 +375,13 @@ public class SelectManyMethodToAggregationExpressionTranslatorTests : LinqIntegr
                 "{ $group : { _id : '$Cat', __agg0 : { $push : '$Tags' } } }",
                 "{ $project : { Cat : '$_id', UniqueTags : { $setUnion : { $reduce : { input : '$__agg0', initialValue : [], in : { $concatArrays : ['$$value', '$$this'] } } } }, _id : 0 } }");
         }
+
+        var results = queryable.ToList().OrderBy(x => x.Cat).ToList();
+        results.Should().HaveCount(2);
+        results[0].Cat.Should().Be("A");
+        results[0].UniqueTags.Should().BeEquivalentTo(new[] { "x", "y", "z" });
+        results[1].Cat.Should().Be("B");
+        results[1].UniqueTags.Should().BeEquivalentTo(new[] { "y", "z" });
     }
 
     public class C
