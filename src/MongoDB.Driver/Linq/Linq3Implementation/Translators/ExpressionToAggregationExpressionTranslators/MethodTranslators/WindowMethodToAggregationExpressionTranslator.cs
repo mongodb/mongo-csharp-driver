@@ -176,8 +176,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             WindowMethod.PercentileWithSingle
         ]);
 
-        private static readonly IReadOnlyMethodInfoSet __minMaxScalerOverloads = WindowMethod.MinMaxScalerOverloads;
-
         public static bool CanTranslate(MethodCallExpression expression)
         {
             return IsWindowMethod(expression.Method);
@@ -308,7 +306,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     return new TranslatedExpression(expression, ast, serializer);
                 }
 
-                if (method.IsOneOf(__minMaxScalerOverloads))
+                if (method.IsOneOf(WindowMethod.MinMaxScalerOverloads))
                 {
                     ThrowIfSelectorTranslationIsNull(selectorTranslation);
                     var min = GetArgument<Expression>(parameters, "min", arguments).GetConstantValue<double>(expression);
@@ -319,7 +317,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                         AstExpression.Constant(min),
                         AstExpression.Constant(max),
                         window);
-                    var serializer = StandardSerializers.GetSerializer(method.ReturnType);
+                    var serializer = context.GetSerializer(expression);
                     return new TranslatedExpression(expression, ast, serializer);
                 }
 

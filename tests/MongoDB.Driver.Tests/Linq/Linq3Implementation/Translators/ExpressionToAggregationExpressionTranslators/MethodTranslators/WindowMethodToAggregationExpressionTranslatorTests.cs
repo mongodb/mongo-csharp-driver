@@ -2128,66 +2128,141 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_MinMaxScaler_with_nullable_Decimal()
         {
+            RequireServer.Check().Supports(Feature.MinMaxScalerOperator);
+
             var collection = Fixture.Collection;
 
+            // $minMaxScaler rejects null inputs, so filter them out before scaling
             var aggregate = collection.Aggregate()
-                .SetWindowFields(output: p => new { Result = p.MinMaxScaler(x => x.NullableDecimalField, 0, 1, null) });
+                .Match(x => x.NullableDecimalField != null)
+                .SetWindowFields(
+                    partitionBy: x => 1,
+                    sortBy: Builders<C>.Sort.Ascending(x => x.Id),
+                    output: p => new { Result = p.MinMaxScaler(x => x.NullableDecimalField, 0, 1, null) });
 
             var stages = Translate(collection, aggregate);
-            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $minMaxScaler : { input : '$NullableDecimalField', min : 0.0, max : 1.0 } } } } }" };
+            var expectedStages = new[]
+            {
+                "{ $match : { NullableDecimalField : { $ne : null } } }",
+                "{ $setWindowFields : { partitionBy : 1, sortBy : { _id : 1 }, output : { Result : { $minMaxScaler : { input : '$NullableDecimalField', min : 0.0, max : 1.0 } } } } }"
+            };
             AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            results[0]["Result"].ToDecimal().Should().Be(0.0M);
+            results[1]["Result"].ToDecimal().Should().Be(1.0M);
         }
 
         [Fact]
         public void Translate_should_return_expected_result_for_MinMaxScaler_with_nullable_Double()
         {
+            RequireServer.Check().Supports(Feature.MinMaxScalerOperator);
+
             var collection = Fixture.Collection;
 
+            // $minMaxScaler rejects null inputs, so filter them out before scaling
             var aggregate = collection.Aggregate()
-                .SetWindowFields(output: p => new { Result = p.MinMaxScaler(x => x.NullableDoubleField, 0, 1, null) });
+                .Match(x => x.NullableDoubleField != null)
+                .SetWindowFields(
+                    partitionBy: x => 1,
+                    sortBy: Builders<C>.Sort.Ascending(x => x.Id),
+                    output: p => new { Result = p.MinMaxScaler(x => x.NullableDoubleField, 0, 1, null) });
 
             var stages = Translate(collection, aggregate);
-            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $minMaxScaler : { input : '$NullableDoubleField', min : 0.0, max : 1.0 } } } } }" };
+            var expectedStages = new[]
+            {
+                "{ $match : { NullableDoubleField : { $ne : null } } }",
+                "{ $setWindowFields : { partitionBy : 1, sortBy : { _id : 1 }, output : { Result : { $minMaxScaler : { input : '$NullableDoubleField', min : 0.0, max : 1.0 } } } } }"
+            };
             AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            results[0]["Result"].ToDouble().Should().Be(0.0);
+            results[1]["Result"].ToDouble().Should().Be(1.0);
         }
 
         [Fact]
         public void Translate_should_return_expected_result_for_MinMaxScaler_with_nullable_Int32()
         {
+            RequireServer.Check().Supports(Feature.MinMaxScalerOperator);
+
             var collection = Fixture.Collection;
 
+            // $minMaxScaler rejects null inputs, so filter them out before scaling
             var aggregate = collection.Aggregate()
-                .SetWindowFields(output: p => new { Result = p.MinMaxScaler(x => x.NullableInt32Field, 0, 1, null) });
+                .Match(x => x.NullableInt32Field != null)
+                .SetWindowFields(
+                    partitionBy: x => 1,
+                    sortBy: Builders<C>.Sort.Ascending(x => x.Id),
+                    output: p => new { Result = p.MinMaxScaler(x => x.NullableInt32Field, 0, 1, null) });
 
             var stages = Translate(collection, aggregate);
-            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $minMaxScaler : { input : '$NullableInt32Field', min : 0.0, max : 1.0 } } } } }" };
+            var expectedStages = new[]
+            {
+                "{ $match : { NullableInt32Field : { $ne : null } } }",
+                "{ $setWindowFields : { partitionBy : 1, sortBy : { _id : 1 }, output : { Result : { $minMaxScaler : { input : '$NullableInt32Field', min : 0.0, max : 1.0 } } } } }"
+            };
             AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            results[0]["Result"].ToDouble().Should().Be(0.0);
+            results[1]["Result"].ToDouble().Should().Be(1.0);
         }
 
         [Fact]
         public void Translate_should_return_expected_result_for_MinMaxScaler_with_nullable_Int64()
         {
+            RequireServer.Check().Supports(Feature.MinMaxScalerOperator);
+
             var collection = Fixture.Collection;
 
+            // $minMaxScaler rejects null inputs, so filter them out before scaling
             var aggregate = collection.Aggregate()
-                .SetWindowFields(output: p => new { Result = p.MinMaxScaler(x => x.NullableInt64Field, 0, 1, null) });
+                .Match(x => x.NullableInt64Field != null)
+                .SetWindowFields(
+                    partitionBy: x => 1,
+                    sortBy: Builders<C>.Sort.Ascending(x => x.Id),
+                    output: p => new { Result = p.MinMaxScaler(x => x.NullableInt64Field, 0, 1, null) });
 
             var stages = Translate(collection, aggregate);
-            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $minMaxScaler : { input : '$NullableInt64Field', min : 0.0, max : 1.0 } } } } }" };
+            var expectedStages = new[]
+            {
+                "{ $match : { NullableInt64Field : { $ne : null } } }",
+                "{ $setWindowFields : { partitionBy : 1, sortBy : { _id : 1 }, output : { Result : { $minMaxScaler : { input : '$NullableInt64Field', min : 0.0, max : 1.0 } } } } }"
+            };
             AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            results[0]["Result"].ToDouble().Should().Be(0.0);
+            results[1]["Result"].ToDouble().Should().Be(1.0);
         }
 
         [Fact]
         public void Translate_should_return_expected_result_for_MinMaxScaler_with_nullable_Single()
         {
+            RequireServer.Check().Supports(Feature.MinMaxScalerOperator);
+
             var collection = Fixture.Collection;
 
+            // $minMaxScaler rejects null inputs, so filter them out before scaling
             var aggregate = collection.Aggregate()
-                .SetWindowFields(output: p => new { Result = p.MinMaxScaler(x => x.NullableSingleField, 0, 1, null) });
+                .Match(x => x.NullableSingleField != null)
+                .SetWindowFields(
+                    partitionBy: x => 1,
+                    sortBy: Builders<C>.Sort.Ascending(x => x.Id),
+                    output: p => new { Result = p.MinMaxScaler(x => x.NullableSingleField, 0, 1, null) });
 
             var stages = Translate(collection, aggregate);
-            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $minMaxScaler : { input : '$NullableSingleField', min : 0.0, max : 1.0 } } } } }" };
+            var expectedStages = new[]
+            {
+                "{ $match : { NullableSingleField : { $ne : null } } }",
+                "{ $setWindowFields : { partitionBy : 1, sortBy : { _id : 1 }, output : { Result : { $minMaxScaler : { input : '$NullableSingleField', min : 0.0, max : 1.0 } } } } }"
+            };
             AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            results[0]["Result"].ToDouble().Should().Be(0.0);
+            results[1]["Result"].ToDouble().Should().Be(1.0);
         }
 
         [Fact]

@@ -144,6 +144,15 @@ public class WindowTests
         [TestHelpers.MakeLambda((ISetWindowFieldsPartition<MyModel> p) => p.Min(x => x.IntField, null)), typeof(Int32Serializer)],
         [TestHelpers.MakeLambda((ISetWindowFieldsPartition<MyModel> p) => p.Min(x => x.DecimalField, null)), typeof(DecimalSerializer)],
 
+        // MinMaxScaler
+        [TestHelpers.MakeLambda((ISetWindowFieldsPartition<MyModel> p) => p.MinMaxScaler(x => x.DecimalField, 0, 1, null)), typeof(DecimalSerializer)],
+        [TestHelpers.MakeLambda((ISetWindowFieldsPartition<MyModel> p) => p.MinMaxScaler(x => x.DoubleField, 0, 1, null)), typeof(DoubleSerializer)],
+        [TestHelpers.MakeLambda((ISetWindowFieldsPartition<MyModel> p) => p.MinMaxScaler(x => x.FloatField, 0, 1, null)), typeof(SingleSerializer)],
+        [TestHelpers.MakeLambda((ISetWindowFieldsPartition<MyModel> p) => p.MinMaxScaler(x => x.IntField, 0, 1, null)), typeof(DoubleSerializer)],
+        [TestHelpers.MakeLambda((ISetWindowFieldsPartition<MyModel> p) => p.MinMaxScaler(x => x.LongField, 0, 1, null)), typeof(DoubleSerializer)],
+        [TestHelpers.MakeLambda((ISetWindowFieldsPartition<MyModel> p) => p.MinMaxScaler(x => x.NullableDecimalField, 0, 1, null)), typeof(NullableSerializer<decimal>)],
+        [TestHelpers.MakeLambda((ISetWindowFieldsPartition<MyModel> p) => p.MinMaxScaler(x => x.NullableIntField, 0, 1, null)), typeof(NullableSerializer<double>)],
+
         // MinN
         [TestHelpers.MakeLambda((ISetWindowFieldsPartition<MyModel> p) => p.MinN(x => x.IntField, 2, null)), typeof(IEnumerableSerializer<int>)],
 
