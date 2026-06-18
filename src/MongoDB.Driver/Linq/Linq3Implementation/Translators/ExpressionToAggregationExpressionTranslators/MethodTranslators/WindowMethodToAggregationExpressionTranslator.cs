@@ -152,18 +152,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             WindowMethod.ShiftWithDefaultValue
         ]);
 
-        private static readonly IReadOnlyMethodInfoSet __pickOverloads = MethodInfoSet.Create(
-        [
-            WindowMethod.Bottom,
-            WindowMethod.BottomN,
-            WindowMethod.FirstN,
-            WindowMethod.LastN,
-            WindowMethod.MaxN,
-            WindowMethod.MinN,
-            WindowMethod.Top,
-            WindowMethod.TopN
-        ]);
-
         private static readonly IReadOnlyMethodInfoSet __quantileOverloads = MethodInfoSet.Create(
         [
             WindowMethod.MedianWithDecimal,
@@ -295,7 +283,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     return new TranslatedExpression(expression, ast, serializer);
                 }
 
-                if (method.IsOneOf(__pickOverloads))
+                if (method.IsOneOf(WindowMethod.PickOverloads))
                 {
                     ThrowIfSelectorTranslationIsNull(selectorTranslation);
                     var @operator = GetPickAccumulatorOperator(method);
@@ -314,9 +302,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     }
 
                     var ast = AstExpression.PickWindowExpression(@operator, sortBy, selectorTranslation.Ast, n, window);
-                    var serializer = n == null ?
-                        selectorTranslation.Serializer :
-                        IEnumerableSerializer.Create(selectorTranslation.Serializer);
+                    var serializer = context.GetSerializer(expression);
                     return new TranslatedExpression(expression, ast, serializer);
                 }
 

@@ -158,6 +158,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly IReadOnlyMethodInfoSet __integralOverloads;
         private static readonly IReadOnlyMethodInfoSet __medianOverloads;
         private static readonly IReadOnlyMethodInfoSet __percentileOverloads;
+        private static readonly IReadOnlyMethodInfoSet __pickOverloads;
         private static readonly IReadOnlyMethodInfoSet __standardDeviationPopulationOverloads;
         private static readonly IReadOnlyMethodInfoSet __standardDeviationSampleOverloads;
         private static readonly IReadOnlyMethodInfoSet __sumOverloads;
@@ -406,6 +407,18 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
                 __percentileWithSingle
             ]);
 
+            __pickOverloads = MethodInfoSet.Create(
+            [
+                __bottom,
+                __bottomN,
+                __firstN,
+                __lastN,
+                __maxN,
+                __minN,
+                __top,
+                __topN
+            ]);
+
             __standardDeviationPopulationOverloads = MethodInfoSet.Create(
             [
                 __standardDeviationPopulationWithDecimal,
@@ -605,6 +618,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static IReadOnlyMethodInfoSet IntegralOverloads => __integralOverloads;
         public static IReadOnlyMethodInfoSet MedianOverloads => __medianOverloads;
         public static IReadOnlyMethodInfoSet PercentileOverloads => __percentileOverloads;
+        public static IReadOnlyMethodInfoSet PickOverloads => __pickOverloads;
         public static IReadOnlyMethodInfoSet StandardDeviationPopulationOverloads => __standardDeviationPopulationOverloads;
         public static IReadOnlyMethodInfoSet StandardDeviationSampleOverloads => __standardDeviationSampleOverloads;
         public static IReadOnlyMethodInfoSet SumOverloads => __sumOverloads;

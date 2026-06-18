@@ -68,6 +68,13 @@ public class WindowTests
         [TestHelpers.MakeLambda((ISetWindowFieldsPartition<MyModel> p) => p.Average(x => x.NullableDecimalField, null)), typeof(NullableSerializer<decimal>)],
         [TestHelpers.MakeLambda((ISetWindowFieldsPartition<MyModel> p) => p.Average(x => x.NullableIntField, null)), typeof(NullableSerializer<double>)],
 
+        // Bottom
+        [TestHelpers.MakeLambda((ISetWindowFieldsPartition<MyModel> p) => p.Bottom(Builders<MyModel>.Sort.Ascending(x => x.IntField), x => x.IntField, null)), typeof(Int32Serializer)],
+        [TestHelpers.MakeLambda((ISetWindowFieldsPartition<MyModel> p) => p.Bottom(Builders<MyModel>.Sort.Ascending(x => x.IntField), x => x.DecimalField, null)), typeof(DecimalSerializer)],
+
+        // BottomN
+        [TestHelpers.MakeLambda((ISetWindowFieldsPartition<MyModel> p) => p.BottomN(Builders<MyModel>.Sort.Ascending(x => x.IntField), x => x.IntField, 2, null)), typeof(IEnumerableSerializer<int>)],
+
         // Count
         [TestHelpers.MakeLambda((ISetWindowFieldsPartition<MyModel> p) => p.Count(null)), typeof(Int64Serializer)],
 
@@ -100,6 +107,9 @@ public class WindowTests
         [TestHelpers.MakeLambda((ISetWindowFieldsPartition<MyModel> p) => p.First(x => x.IntField, null)), typeof(Int32Serializer)],
         [TestHelpers.MakeLambda((ISetWindowFieldsPartition<MyModel> p) => p.First(x => x.DecimalField, null)), typeof(DecimalSerializer)],
 
+        // FirstN
+        [TestHelpers.MakeLambda((ISetWindowFieldsPartition<MyModel> p) => p.FirstN(x => x.IntField, 2, null)), typeof(IEnumerableSerializer<int>)],
+
         // Integral
         [TestHelpers.MakeLambda((ISetWindowFieldsPartition<MyModel> p) => p.Integral(x => x.DecimalField, null)), typeof(DecimalSerializer)],
         [TestHelpers.MakeLambda((ISetWindowFieldsPartition<MyModel> p) => p.Integral(x => x.DecimalField, WindowTimeUnit.Day, null)), typeof(DecimalSerializer)],
@@ -110,12 +120,18 @@ public class WindowTests
         [TestHelpers.MakeLambda((ISetWindowFieldsPartition<MyModel> p) => p.Last(x => x.IntField, null)), typeof(Int32Serializer)],
         [TestHelpers.MakeLambda((ISetWindowFieldsPartition<MyModel> p) => p.Last(x => x.DecimalField, null)), typeof(DecimalSerializer)],
 
+        // LastN
+        [TestHelpers.MakeLambda((ISetWindowFieldsPartition<MyModel> p) => p.LastN(x => x.IntField, 2, null)), typeof(IEnumerableSerializer<int>)],
+
         // Locf
         [TestHelpers.MakeLambda((ISetWindowFieldsPartition<MyModel> p) => p.Locf(x => x.IntField, null)), typeof(Int32Serializer)],
 
         // Max
         [TestHelpers.MakeLambda((ISetWindowFieldsPartition<MyModel> p) => p.Max(x => x.IntField, null)), typeof(Int32Serializer)],
         [TestHelpers.MakeLambda((ISetWindowFieldsPartition<MyModel> p) => p.Max(x => x.DecimalField, null)), typeof(DecimalSerializer)],
+
+        // MaxN
+        [TestHelpers.MakeLambda((ISetWindowFieldsPartition<MyModel> p) => p.MaxN(x => x.IntField, 2, null)), typeof(IEnumerableSerializer<int>)],
 
         // Median
         [TestHelpers.MakeLambda((ISetWindowFieldsPartition<MyModel> p) => p.Median(x => x.DecimalField, null)), typeof(DecimalSerializer)],
@@ -127,6 +143,9 @@ public class WindowTests
         // Min
         [TestHelpers.MakeLambda((ISetWindowFieldsPartition<MyModel> p) => p.Min(x => x.IntField, null)), typeof(Int32Serializer)],
         [TestHelpers.MakeLambda((ISetWindowFieldsPartition<MyModel> p) => p.Min(x => x.DecimalField, null)), typeof(DecimalSerializer)],
+
+        // MinN
+        [TestHelpers.MakeLambda((ISetWindowFieldsPartition<MyModel> p) => p.MinN(x => x.IntField, 2, null)), typeof(IEnumerableSerializer<int>)],
 
         // Percentile
         [TestHelpers.MakeLambda((ISetWindowFieldsPartition<MyModel> p) => p.Percentile(x => x.DecimalField, new double[] { 0.5 }, null)), typeof(ArraySerializer<decimal>)],
@@ -158,6 +177,13 @@ public class WindowTests
         [TestHelpers.MakeLambda((ISetWindowFieldsPartition<MyModel> p) => p.Sum(x => x.FloatField, null)), typeof(SingleSerializer)],
         [TestHelpers.MakeLambda((ISetWindowFieldsPartition<MyModel> p) => p.Sum(x => x.IntField, null)), typeof(Int64Serializer)],
         [TestHelpers.MakeLambda((ISetWindowFieldsPartition<MyModel> p) => p.Sum(x => x.LongField, null)), typeof(Int64Serializer)],
+
+        // Top
+        [TestHelpers.MakeLambda((ISetWindowFieldsPartition<MyModel> p) => p.Top(Builders<MyModel>.Sort.Ascending(x => x.IntField), x => x.IntField, null)), typeof(Int32Serializer)],
+        [TestHelpers.MakeLambda((ISetWindowFieldsPartition<MyModel> p) => p.Top(Builders<MyModel>.Sort.Ascending(x => x.IntField), x => x.DecimalField, null)), typeof(DecimalSerializer)],
+
+        // TopN
+        [TestHelpers.MakeLambda((ISetWindowFieldsPartition<MyModel> p) => p.TopN(Builders<MyModel>.Sort.Ascending(x => x.IntField), x => x.IntField, 2, null)), typeof(IEnumerableSerializer<int>)],
     ];
 
     private class MyModel

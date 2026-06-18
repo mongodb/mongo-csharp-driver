@@ -46,18 +46,6 @@ internal partial class SerializerFinderVisitor
         WindowMethod.PercentileOverloads
     ]);
 
-    private static readonly IReadOnlyMethodInfoSet __pickWindowMethodOverloads = MethodInfoSet.Create(
-    [
-        WindowMethod.Bottom,
-        WindowMethod.BottomN,
-        WindowMethod.FirstN,
-        WindowMethod.LastN,
-        WindowMethod.MaxN,
-        WindowMethod.MinN,
-        WindowMethod.Top,
-        WindowMethod.TopN
-    ]);
-
     private static readonly IReadOnlyMethodInfoSet __pickWindowMethodWithSortByOverloads = MethodInfoSet.Create(
     [
         WindowMethod.Bottom,
@@ -2130,7 +2118,7 @@ internal partial class SerializerFinderVisitor
                     }
                 }
             }
-            else if (method.IsOneOf(__pickWindowMethodOverloads))
+            else if (method.IsOneOf(WindowMethod.PickOverloads))
             {
                 var partitionExpression = arguments[0];
                 var withSortBy = method.IsOneOf(__pickWindowMethodWithSortByOverloads);
