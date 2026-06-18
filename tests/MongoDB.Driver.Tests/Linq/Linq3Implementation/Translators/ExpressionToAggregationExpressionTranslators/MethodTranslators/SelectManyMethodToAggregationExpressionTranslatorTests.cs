@@ -167,6 +167,8 @@ public class SelectManyMethodToAggregationExpressionTranslatorTests : LinqIntegr
     [InlineData(ServerVersion.Server81)]
     public void SelectMany_with_index_in_GroupBy_should_not_be_rewritten_to_accumulator(ServerVersion compatibilityLevel)
     {
+        RequireServer.Check().Supports(Feature.ArrayIndexAs);
+
         var collection = Fixture.Collection;
         var options = new AggregateOptions { TranslationOptions = new ExpressionTranslationOptions { CompatibilityLevel = compatibilityLevel } };
 
@@ -192,6 +194,8 @@ public class SelectManyMethodToAggregationExpressionTranslatorTests : LinqIntegr
     [InlineData(ServerVersion.Server81)]
     public void SelectMany_Distinct_with_index_in_GroupBy_should_not_be_rewritten_to_accumulator(ServerVersion compatibilityLevel)
     {
+        RequireServer.Check().Supports(Feature.ArrayIndexAs);
+
         var collection = Fixture.Collection;
         var options = new AggregateOptions { TranslationOptions = new ExpressionTranslationOptions { CompatibilityLevel = compatibilityLevel } };
 
