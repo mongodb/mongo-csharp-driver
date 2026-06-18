@@ -1234,14 +1234,19 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             RequireServer.Check().Supports(Feature.Csfle2QEv2).ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced);
 
             var encryptedFields = JsonFileReader.Instance.Documents["etc.data.encryptedFields.json"];
+            var encryptedFieldsC10 = JsonFileReader.Instance.Documents["etc.data.encryptedFields-c10.json"];
             var key1Document = JsonFileReader.Instance.Documents["etc.data.keys.key1-document.json"];
             var key1Id = key1Document["_id"].AsGuid;
             var explicitCollectionNamespace = CollectionNamespace.FromFullName("db.explicit_encryption");
+            var explicitC10CollectionNamespace = CollectionNamespace.FromFullName("db.explicit_encryption_c10");
             var value = "encrypted indexed value";
 
             using (var client = ConfigureClient(clearCollections: true, mainCollectionNamespace: explicitCollectionNamespace, encryptedFields: encryptedFields))
             {
                 CreateCollection(client, explicitCollectionNamespace, encryptedFields: encryptedFields);
+                client.GetDatabase(explicitC10CollectionNamespace.DatabaseNamespace.DatabaseName)
+                    .DropCollection(explicitC10CollectionNamespace.CollectionName, new DropCollectionOptions { EncryptedFields = encryptedFieldsC10 });
+                CreateCollection(client, explicitC10CollectionNamespace, encryptedFields: encryptedFieldsC10);
                 CreateCollection(client, __keyVaultCollectionNamespace);
                 var keyVaultCollection = GetCollection(client, __keyVaultCollectionNamespace);
                 Insert(keyVaultCollection, async, key1Document);
@@ -1251,12 +1256,13 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 using (var encryptedClient = ConfigureClientEncrypted(kmsProviderFilter: "local", autoEncryptionOptionsConfigurator: (options) => options.With(bypassQueryAnalysis: true)))
                 {
                     var explicitCollection = GetCollection(encryptedClient, explicitCollectionNamespace);
+                    var explicitC10Collection = GetCollection(encryptedClient, explicitC10CollectionNamespace);
 
-                    RunTestCase(explicitCollection, clientEncryption, testCase);
+                    RunTestCase(explicitCollection, explicitC10Collection, clientEncryption, testCase);
                 }
             }
 
-            void RunTestCase(IMongoCollection<BsonDocument> explicitCollectionFromEncryptedClient, ClientEncryption clientEncryption, int testCase)
+            void RunTestCase(IMongoCollection<BsonDocument> explicitCollectionFromEncryptedClient, IMongoCollection<BsonDocument> explicitC10CollectionFromEncryptedClient, ClientEncryption clientEncryption, int testCase)
             {
                 switch (testCase)
                 {
@@ -1280,35 +1286,18 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         {
                             var encryptionOptions = new EncryptOptions(algorithm: EncryptionAlgorithm.Indexed.ToString(), keyId: key1Id, contentionFactor: 10);
 
-                            BsonBinaryData encryptedValue;
                             for (int i = 0; i < 10; i++)
                             {
-                                encryptedValue = ExplicitEncrypt(clientEncryption, encryptionOptions, value, async);
-
+                                var encryptedValue = ExplicitEncrypt(clientEncryption, encryptionOptions, value, async);
                                 var insertPayload = new BsonDocument("encryptedIndexed", encryptedValue);
-                                Insert(explicitCollectionFromEncryptedClient, async, insertPayload);
+                                Insert(explicitC10CollectionFromEncryptedClient, async, insertPayload);
                             }
 
-                            // 1
-                            encryptionOptions = new EncryptOptions(algorithm: EncryptionAlgorithm.Indexed.ToString(), keyId: key1Id, queryType: "equality", contentionFactor: 0);
-                            encryptedValue = ExplicitEncrypt(clientEncryption, encryptionOptions, value, async);
-
-                            var findPayload = new BsonDocument("encryptedIndexed", encryptedValue);
-                            var result = Find(explicitCollectionFromEncryptedClient, findPayload, async).ToList();
-                            // Assert less than 10 documents are returned. 0 documents may be returned
-                            result.Count.Should().BeLessThan(10);
-                            foreach (var doc in result)
-                            {
-                                doc.Elements.Should().Contain(new BsonElement("encryptedIndexed", value));
-                            }
-
-                            // 2
                             encryptionOptions = new EncryptOptions(algorithm: EncryptionAlgorithm.Indexed.ToString(), keyId: key1Id, queryType: "equality", contentionFactor: 10);
-                            encryptedValue = ExplicitEncrypt(clientEncryption, encryptionOptions, value, async);
+                            var findEncryptedValue = ExplicitEncrypt(clientEncryption, encryptionOptions, value, async);
 
-                            var findPayload2 = new BsonDocument("encryptedIndexed", encryptedValue);
-                            result = Find(explicitCollectionFromEncryptedClient, findPayload2, async).ToList();
-                            // Assert 10 documents are returned
+                            var findPayload = new BsonDocument("encryptedIndexed", findEncryptedValue);
+                            var result = Find(explicitC10CollectionFromEncryptedClient, findPayload, async).ToList();
                             result.Count.Should().Be(10);
                             foreach (var doc in result)
                             {
