@@ -353,7 +353,7 @@ namespace MongoDB.Driver.Core.Operations
                 Hint = hint
             };
             using var session = OperationTestHelper.CreateSession();
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.HintForFindAndModifyFeature.FirstSupportedWireVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.HintForFindAndModifyOperations.FirstSupportedWireVersion);
             using var operationContext = new OperationContext(session);
 
             var result = subject.CreateCommand(operationContext, connectionDescription, null);

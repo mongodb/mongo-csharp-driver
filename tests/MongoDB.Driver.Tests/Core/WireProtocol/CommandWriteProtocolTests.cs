@@ -381,13 +381,14 @@ namespace MongoDB.Driver.Core.WireProtocol
                 null,
                 TimeSpan.FromMilliseconds(42));
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             if (async)
             {
-                await subject.ExecuteAsync(OperationContext.NoTimeout, connection);
+                await subject.ExecuteAsync(operationContext, connection);
             }
             else
             {
-                subject.Execute(OperationContext.NoTimeout, connection);
+                subject.Execute(operationContext, connection);
             }
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(4))
@@ -449,13 +450,14 @@ namespace MongoDB.Driver.Core.WireProtocol
                 null,
                 TimeSpan.FromMilliseconds(42));
 
+            using var operationContext2 = new OperationContext(NoCoreSession.NewHandle());
             if (async)
             {
-                await subject.ExecuteAsync(OperationContext.NoTimeout, connection);
+                await subject.ExecuteAsync(operationContext2, connection);
             }
             else
             {
-                subject.Execute(OperationContext.NoTimeout, connection);
+                subject.Execute(operationContext2, connection);
             }
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(4))

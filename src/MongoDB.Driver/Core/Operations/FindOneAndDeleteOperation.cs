@@ -74,17 +74,6 @@ namespace MongoDB.Driver.Core.Operations
 
         public override BsonDocument CreateCommand(OperationContext operationContext, ConnectionDescription connectionDescription, long? transactionNumber)
         {
-            var wireVersion = connectionDescription.MaxWireVersion;
-            FindProjectionChecker.ThrowIfAggregationExpressionIsUsedWhenNotSupported(_projection, wireVersion);
-
-            if (Feature.HintForFindAndModifyFeature.DriverMustThrowIfNotSupported(wireVersion) || (WriteConcern != null && !WriteConcern.IsAcknowledged))
-            {
-                if (_hint != null)
-                {
-                    throw new NotSupportedException($"Server version {WireVersion.GetServerVersionForErrorMessage(wireVersion)} does not support hints.");
-                }
-            }
-
             var readConcern = ReadConcernHelper.GetReadConcernForWriteCommand(operationContext.Session, connectionDescription);
             var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, WriteConcern);
             return new BsonDocument
