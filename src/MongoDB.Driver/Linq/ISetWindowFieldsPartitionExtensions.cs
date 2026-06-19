@@ -169,6 +169,37 @@ namespace MongoDB.Driver.Linq
         }
 
         /// <summary>
+        /// Returns the bottom result.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
+        /// <typeparam name="TResult">The result type.</typeparam>
+        /// <param name="partition">The partition.</param>
+        /// <param name="sortBy">The sort order.</param>
+        /// <param name="selector">The selector that selects a value from the input document.</param>
+        /// <param name="window">The window boundaries.</param>
+        /// <returns>The bottom result.</returns>
+        public static TResult Bottom<TInput, TResult>(this ISetWindowFieldsPartition<TInput> partition, SortDefinition<TInput> sortBy, Func<TInput, TResult> selector, SetWindowFieldsWindow window = null)
+        {
+            throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
+        }
+
+        /// <summary>
+        /// Returns the bottom n results.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
+        /// <typeparam name="TResult">The result type.</typeparam>
+        /// <param name="partition">The partition.</param>
+        /// <param name="sortBy">The sort order.</param>
+        /// <param name="selector">The selector that selects a value from the input document.</param>
+        /// <param name="n">The number of results to return.</param>
+        /// <param name="window">The window boundaries.</param>
+        /// <returns>The bottom n results.</returns>
+        public static IEnumerable<TResult> BottomN<TInput, TResult>(this ISetWindowFieldsPartition<TInput> partition, SortDefinition<TInput> sortBy, Func<TInput, TResult> selector, int n, SetWindowFieldsWindow window = null)
+        {
+            throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
+        }
+
+        /// <summary>
         /// Returns the number of documents in the window.
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
@@ -704,6 +735,21 @@ namespace MongoDB.Driver.Linq
         }
 
         /// <summary>
+        /// Returns the first n results.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
+        /// <typeparam name="TResult">The result type.</typeparam>
+        /// <param name="partition">The partition.</param>
+        /// <param name="selector">The selector that selects a value from the input document.</param>
+        /// <param name="n">The number of results to return.</param>
+        /// <param name="window">The window boundaries.</param>
+        /// <returns>The first n results.</returns>
+        public static IEnumerable<TResult> FirstN<TInput, TResult>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, TResult> selector, int n, SetWindowFieldsWindow window = null)
+        {
+            throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
+        }
+
+        /// <summary>
         /// Returns the approximation of the area under a curve.
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
@@ -853,6 +899,21 @@ namespace MongoDB.Driver.Linq
         }
 
         /// <summary>
+        /// Returns the last n results.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
+        /// <typeparam name="TResult">The result type.</typeparam>
+        /// <param name="partition">The partition.</param>
+        /// <param name="selector">The selector that selects a value from the input document.</param>
+        /// <param name="n">The number of results to return.</param>
+        /// <param name="window">The window boundaries.</param>
+        /// <returns>The last n results.</returns>
+        public static IEnumerable<TResult> LastN<TInput, TResult>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, TResult> selector, int n, SetWindowFieldsWindow window = null)
+        {
+            throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
+        }
+
+        /// <summary>
         /// Returns the last observation carried forward.
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
@@ -876,6 +937,21 @@ namespace MongoDB.Driver.Linq
         /// <param name="window">The window boundaries.</param>
         /// <returns>The maximum of the selected values.</returns>
         public static TValue Max<TInput, TValue>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, TValue> selector, SetWindowFieldsWindow window = null)
+        {
+            throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
+        }
+
+        /// <summary>
+        /// Returns the max n results.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
+        /// <typeparam name="TResult">The result type.</typeparam>
+        /// <param name="partition">The partition.</param>
+        /// <param name="selector">The selector that selects a value from the input document.</param>
+        /// <param name="n">The number of results to return.</param>
+        /// <param name="window">The window boundaries.</param>
+        /// <returns>The max n results.</returns>
+        public static IEnumerable<TResult> MaxN<TInput, TResult>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, TResult> selector, int n, SetWindowFieldsWindow window = null)
         {
             throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
         }
@@ -1020,6 +1096,21 @@ namespace MongoDB.Driver.Linq
         /// <param name="window">The window boundaries.</param>
         /// <returns>The minimum of the selected values.</returns>
         public static TValue Min<TInput, TValue>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, TValue> selector, SetWindowFieldsWindow window = null)
+        {
+            throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
+        }
+
+        /// <summary>
+        /// Returns the min n results.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
+        /// <typeparam name="TResult">The result type.</typeparam>
+        /// <param name="partition">The partition.</param>
+        /// <param name="selector">The selector that selects a value from the input document.</param>
+        /// <param name="n">The number of results to return.</param>
+        /// <param name="window">The window boundaries.</param>
+        /// <returns>The min n results.</returns>
+        public static IEnumerable<TResult> MinN<TInput, TResult>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, TResult> selector, int n, SetWindowFieldsWindow window = null)
         {
             throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
         }
@@ -1605,6 +1696,37 @@ namespace MongoDB.Driver.Linq
         /// <param name="window">The window boundaries.</param>
         /// <returns>The sum of the values.</returns>
         public static long? Sum<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, long?> selector, SetWindowFieldsWindow window = null)
+        {
+            throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
+        }
+
+        /// <summary>
+        /// Returns the top result.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
+        /// <typeparam name="TResult">The result type.</typeparam>
+        /// <param name="partition">The partition.</param>
+        /// <param name="sortBy">The sort order.</param>
+        /// <param name="selector">The selector that selects a value from the input document.</param>
+        /// <param name="window">The window boundaries.</param>
+        /// <returns>The top result.</returns>
+        public static TResult Top<TInput, TResult>(this ISetWindowFieldsPartition<TInput> partition, SortDefinition<TInput> sortBy, Func<TInput, TResult> selector, SetWindowFieldsWindow window = null)
+        {
+            throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
+        }
+
+        /// <summary>
+        /// Returns the top n results.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
+        /// <typeparam name="TResult">The result type.</typeparam>
+        /// <param name="partition">The partition.</param>
+        /// <param name="sortBy">The sort order.</param>
+        /// <param name="selector">The selector that selects a value from the input document.</param>
+        /// <param name="n">The number of results to return.</param>
+        /// <param name="window">The window boundaries.</param>
+        /// <returns>The top n results.</returns>
+        public static IEnumerable<TResult> TopN<TInput, TResult>(this ISetWindowFieldsPartition<TInput> partition, SortDefinition<TInput> sortBy, Func<TInput, TResult> selector, int n, SetWindowFieldsWindow window = null)
         {
             throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
         }

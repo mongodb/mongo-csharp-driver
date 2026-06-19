@@ -46,6 +46,14 @@ internal partial class SerializerFinderVisitor
         WindowMethod.PercentileOverloads
     ]);
 
+    private static readonly IReadOnlyMethodInfoSet __pickWindowMethodWithSortByOverloads = MethodInfoSet.Create(
+    [
+        WindowMethod.Bottom,
+        WindowMethod.BottomN,
+        WindowMethod.Top,
+        WindowMethod.TopN
+    ]);
+
     private static readonly IReadOnlyMethodInfoSet __averageOrMedianOrPercentileWithSelectorOverloads = MethodInfoSet.Create(
     [
         EnumerableOrQueryableMethod.AverageWithSelectorOverloads,
@@ -2136,6 +2144,32 @@ internal partial class SerializerFinderVisitor
                             IEnumerableSerializer.Create(selectorItemSerializer);
                         AddNodeSerializer(node, nodeSerializer);
                     }
+                }
+            }
+            else if (method.IsOneOf(WindowMethod.PickOverloads))
+            {
+                var partitionExpression = arguments[0];
+                var withSortBy = method.IsOneOf(__pickWindowMethodWithSortByOverloads);
+
+                if (withSortBy)
+                {
+                    var sortByExpression = arguments[1];
+                    if (IsNotKnown(sortByExpression))
+                    {
+                        var ignoreSubTreeSerializer = IgnoreSubtreeSerializer.Create(sortByExpression.Type);
+                        AddNodeSerializer(sortByExpression, ignoreSubTreeSerializer);
+                    }
+                }
+
+                var selectorLambda = (LambdaExpression)arguments[withSortBy ? 2 : 1];
+                DeduceWindowMethodSelectorParameterSerializer(partitionExpression, selectorLambda);
+
+                if (IsNotKnown(node) && IsKnown(selectorLambda.Body, out var selectorBodySerializer))
+                {
+                    var nodeSerializer = method.IsOneOf(WindowMethod.Bottom, WindowMethod.Top) ?
+                        selectorBodySerializer :
+                        IEnumerableSerializer.Create(selectorBodySerializer);
+                    AddNodeSerializer(node, nodeSerializer);
                 }
             }
             else

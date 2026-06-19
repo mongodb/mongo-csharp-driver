@@ -718,6 +718,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return new AstPickAccumulatorExpression(@operator, sortBy, selector, n);
         }
 
+        public static AstWindowExpression PickWindowExpression(AstPickAccumulatorOperator @operator, AstSortFields sortBy, AstExpression selector, AstExpression n, AstWindow window)
+        {
+            return new AstPickWindowExpression(@operator, sortBy, selector, n, window);
+        }
+
         public static AstExpression Pow(AstExpression arg, AstExpression exponent)
         {
             return new AstBinaryExpression(AstBinaryOperator.Pow, arg, exponent);
