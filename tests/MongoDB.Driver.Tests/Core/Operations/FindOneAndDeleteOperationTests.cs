@@ -119,7 +119,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 Hint = hint
             };
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.HintForFindAndModifyFeature.FirstSupportedWireVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.HintForFindAndModifyOperations.FirstSupportedWireVersion);
             using var session = OperationTestHelper.CreateSession();
             using var operationContext = new OperationContext(session);
 
