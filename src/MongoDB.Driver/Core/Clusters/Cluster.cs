@@ -95,6 +95,11 @@ namespace MongoDB.Driver.Core.Clusters
 
         public void AppendClientMetadata(LibraryInfo libraryInfo)
         {
+            if (_clientMetadata == null)
+            {
+                throw new InvalidOperationException("Client metadata has not been initialized for this cluster.");
+            }
+
             _clientMetadata.Append(libraryInfo);
         }
 

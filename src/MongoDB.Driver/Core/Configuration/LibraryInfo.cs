@@ -15,6 +15,7 @@
 
 using System;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Configuration
 {
@@ -111,7 +112,12 @@ namespace MongoDB.Driver.Core.Configuration
         public override bool Equals(object obj) => Equals(obj as LibraryInfo);
 
         /// <inheritdoc/>
-        public override int GetHashCode() => base.GetHashCode();
+        public override int GetHashCode() =>
+            new Hasher()
+                .Hash(Name)
+                .Hash(Version)
+                .Hash(Platform)
+                .GetHashCode();
 
         /// <inheritdoc/>
         public override string ToString() => Platform == null ? $"{Name}-{Version}" : $"{Name}-{Version}-{Platform}";

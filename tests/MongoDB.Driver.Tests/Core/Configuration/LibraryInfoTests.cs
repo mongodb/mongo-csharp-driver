@@ -52,4 +52,13 @@ public class LibraryInfoTests
 
         subject.Equals(other).Should().Be(expectedEqual);
     }
+
+    [Fact]
+    public void GetHashCode_should_be_equal_for_equal_instances()
+    {
+        var subject = new LibraryInfo("name", "version", "platform");
+        var equal = new LibraryInfo("name", "version", "platform");
+
+        subject.GetHashCode().Should().Be(equal.GetHashCode());
+    }
 }
