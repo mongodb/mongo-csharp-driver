@@ -55,6 +55,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     return NotExpressionToAggregationExpressionTranslator.Translate(context, (UnaryExpression)expression);
 
                 case ExpressionType.Add:
+                case ExpressionType.AddChecked:
                 case ExpressionType.And:
                 case ExpressionType.AndAlso:
                 case ExpressionType.Coalesce:
@@ -67,11 +68,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case ExpressionType.LessThanOrEqual:
                 case ExpressionType.Modulo:
                 case ExpressionType.Multiply:
+                case ExpressionType.MultiplyChecked:
                 case ExpressionType.NotEqual:
                 case ExpressionType.Or:
                 case ExpressionType.OrElse:
                 case ExpressionType.Power:
                 case ExpressionType.Subtract:
+                case ExpressionType.SubtractChecked:
                     return BinaryExpressionToAggregationExpressionTranslator.Translate(context, (BinaryExpression)expression);
 
                 case ExpressionType.ArrayIndex:
@@ -93,6 +96,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case ExpressionType.MemberInit:
                     return MemberInitExpressionToAggregationExpressionTranslator.Translate(context, (MemberInitExpression)expression);
                 case ExpressionType.Negate:
+                case ExpressionType.NegateChecked:
                     return NegateExpressionToAggregationExpressionTranslator.Translate(context, (UnaryExpression)expression);
                 case ExpressionType.New:
                     return NewExpressionToAggregationExpressionTranslator.Translate(context, (NewExpression)expression);

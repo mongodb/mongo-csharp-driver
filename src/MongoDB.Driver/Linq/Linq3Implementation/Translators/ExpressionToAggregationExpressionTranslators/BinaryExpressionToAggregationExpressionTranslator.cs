@@ -152,7 +152,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             return expression.NodeType switch
             {
                 ExpressionType.Add => true,
+                ExpressionType.AddChecked => true,
                 ExpressionType.Subtract => true,
+                ExpressionType.SubtractChecked => true,
                 _ => false
             };
         }
@@ -167,14 +169,17 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             return nodeType switch
             {
                 ExpressionType.Add => true,
+                ExpressionType.AddChecked => true,
                 ExpressionType.And => true, // bitwise and
                 ExpressionType.Divide => true,
                 ExpressionType.ExclusiveOr => true, // bitwise xor
                 ExpressionType.Modulo => true,
                 ExpressionType.Multiply => true,
+                ExpressionType.MultiplyChecked => true,
                 ExpressionType.Or => true, // bitwise or
                 ExpressionType.Power => true,
                 ExpressionType.Subtract => true,
+                ExpressionType.SubtractChecked => true,
                 _ => false
             };
         }
@@ -259,14 +264,17 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var ast = expression.NodeType switch
             {
                 ExpressionType.Add => AstExpression.Add(leftAst, rightAst),
+                ExpressionType.AddChecked => AstExpression.Add(leftAst, rightAst),
                 ExpressionType.And => AstExpression.BitAnd(leftAst, rightAst),
                 ExpressionType.Divide => AstExpression.Divide(leftAst, rightAst),
                 ExpressionType.ExclusiveOr => AstExpression.BitXor(leftAst, rightAst),
                 ExpressionType.Modulo => AstExpression.Mod(leftAst, rightAst),
                 ExpressionType.Multiply => AstExpression.Multiply(leftAst, rightAst),
+                ExpressionType.MultiplyChecked => AstExpression.Multiply(leftAst, rightAst),
                 ExpressionType.Or => AstExpression.BitOr(leftAst, rightAst),
                 ExpressionType.Power => AstExpression.Pow(leftAst, rightAst),
                 ExpressionType.Subtract => AstExpression.Subtract(leftAst, rightAst),
+                ExpressionType.SubtractChecked => AstExpression.Subtract(leftAst, rightAst),
                 _ => throw new ExpressionNotSupportedException(expression)
             };
             var serializer = StandardSerializers.GetSerializer(expression.Type);
@@ -405,7 +413,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var ast = expression.NodeType switch
             {
                 ExpressionType.Add => AstExpression.Add(leftAst, rightAst),
+                ExpressionType.AddChecked => AstExpression.Add(leftAst, rightAst),
                 ExpressionType.Subtract => AstExpression.Subtract(leftAst, rightAst),
+                ExpressionType.SubtractChecked => AstExpression.Subtract(leftAst, rightAst),
                 _ => throw new ExpressionNotSupportedException(expression)
             };
             var serializer = enumTranslation.Serializer;

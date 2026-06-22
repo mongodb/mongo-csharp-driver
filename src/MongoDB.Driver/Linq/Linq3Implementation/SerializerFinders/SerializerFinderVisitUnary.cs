@@ -35,6 +35,7 @@ internal partial class SerializerFinderVisitor
         switch (unaryOperator)
         {
             case ExpressionType.Negate:
+            case ExpressionType.NegateChecked:
                 DeduceNegateSerializers(); // TODO: fold into general case?
                 break;
 
