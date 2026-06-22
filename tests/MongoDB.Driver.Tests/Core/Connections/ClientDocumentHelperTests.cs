@@ -119,6 +119,21 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
+        [Theory]
+        [InlineData(null, "net45")]
+        [InlineData("", "net45")]
+        [InlineData("lib-platform", "net45|lib-platform")]
+        public void CreateClientDocument_should_append_library_info_platform_to_platform_field(string libraryPlatform, string expectedPlatform)
+        {
+            var driverDocument = BsonDocument.Parse("{ name : 'mongo-csharp-driver', version : '3.6.0' }");
+            var osDocument = BsonDocument.Parse("{ type : 'Windows', name : 'Windows 10', architecture : 'x86_64', version : '10.0' }");
+            var libraryInfo = new LibraryInfo("lib", "1.0", libraryPlatform);
+
+            var result = ClientDocumentHelper.CreateClientDocument(null, driverDocument, osDocument, "net45", envDocument: null, libraryInfo);
+
+            result["platform"].AsString.Should().Be(expectedPlatform);
+        }
+
         [Fact]
         public void CreateDriverDocument_should_return_expected_result()
         {

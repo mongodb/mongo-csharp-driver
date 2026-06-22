@@ -21,6 +21,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
@@ -38,6 +39,41 @@ namespace MongoDB.Driver.Tests
 
             var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
             argumentNullException.ParamName.Should().Be("settings");
+        }
+
+        [Fact]
+        public void AppendMetadata_should_throw_when_libraryInfo_is_null()
+        {
+            var client = CreateClientWithMockedCluster(out _);
+
+            var exception = Record.Exception(() => client.AppendMetadata(null));
+
+            exception.Should().BeOfType<ArgumentNullException>().Subject.ParamName.Should().Be("libraryInfo");
+        }
+
+        [Theory]
+        [InlineData("lib|x", "1.0", null)]
+        [InlineData("lib", "1.0|x", null)]
+        [InlineData("lib", "1.0", "platform|x")]
+        public void AppendMetadata_should_throw_when_value_contains_separator(string name, string version, string platform)
+        {
+            var client = CreateClientWithMockedCluster(out var mockCluster);
+
+            var exception = Record.Exception(() => client.AppendMetadata(new LibraryInfo(name, version, platform)));
+
+            exception.Should().BeOfType<ArgumentException>().Subject.ParamName.Should().Be("libraryInfo");
+            mockCluster.Verify(c => c.AppendClientMetadata(It.IsAny<LibraryInfo>()), Times.Never);
+        }
+
+        [Fact]
+        public void AppendMetadata_should_throw_when_disposed()
+        {
+            var client = CreateClientWithMockedCluster(out _);
+            client.Dispose();
+
+            var exception = Record.Exception(() => client.AppendMetadata(new LibraryInfo("lib", "1.0")));
+
+            exception.Should().BeOfType<ObjectDisposedException>();
         }
 
         [Fact]
@@ -444,6 +480,15 @@ namespace MongoDB.Driver.Tests
         }
 
         // private methods
+        private static MongoClient CreateClientWithMockedCluster(out Mock<IClusterInternal> mockCluster)
+        {
+            mockCluster = new Mock<IClusterInternal>();
+            var clusterSource = new Mock<IClusterSource>();
+            clusterSource.Setup(c => c.Get(It.IsAny<ClusterKey>())).Returns(mockCluster.Object);
+            var settings = new MongoClientSettings { ClusterSource = clusterSource.Object };
+            return new MongoClient(settings);
+        }
+
         private IClientSessionHandle CreateClientSession()
         {
             var client = new Mock<IMongoClient>().Object;

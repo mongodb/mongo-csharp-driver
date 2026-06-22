@@ -203,6 +203,9 @@ namespace MongoDB.Driver.Tests.Specifications
            Run(testCase);
         }
 
+        [UnifiedTestsTheory("mongodb_handshake.tests.unified")]
+        public void MongoDbHandshake(JsonDrivenTestCase testCase) => Run(testCase);
+
         [UnifiedTestsTheory("open_telemetry.operation")]
         public void OpenTelemetry(JsonDrivenTestCase testCase)
         {

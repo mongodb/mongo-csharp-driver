@@ -66,6 +66,11 @@ namespace MongoDB.Driver.Core.Connections
         {
             driverDocument = AppendLibraryInfoToDriverDocument(driverDocument, libraryInfo);
 
+            if (libraryInfo != null && !string.IsNullOrWhiteSpace(libraryInfo.Platform))
+            {
+                platformString = string.IsNullOrEmpty(platformString) ? libraryInfo.Platform : $"{platformString}|{libraryInfo.Platform}";
+            }
+
             var clientDocument = new BsonDocument
             {
                 { "application", () => new BsonDocument("name", applicationName), applicationName != null },

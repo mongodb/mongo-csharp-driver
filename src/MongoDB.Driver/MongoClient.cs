@@ -24,6 +24,7 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
@@ -130,6 +131,25 @@ namespace MongoDB.Driver
         }
 
         // public methods
+        /// <summary>
+        /// Appends the specified library information to the metadata that is sent to the server in the connection handshake.
+        /// The information is included in the handshake of connections opened after this call; existing connections are not affected.
+        /// </summary>
+        /// <param name="libraryInfo">The library information to append.</param>
+        public void AppendMetadata(LibraryInfo libraryInfo)
+        {
+            ThrowIfDisposed();
+            Ensure.IsNotNull(libraryInfo, nameof(libraryInfo));
+            if (ContainsSeparator(libraryInfo.Name) || ContainsSeparator(libraryInfo.Version) || ContainsSeparator(libraryInfo.Platform))
+            {
+                throw new ArgumentException("Client metadata values must not contain the '|' character.", nameof(libraryInfo));
+            }
+
+            _cluster.AppendClientMetadata(libraryInfo);
+
+            static bool ContainsSeparator(string value) => value != null && value.Contains("|");
+        }
+
         /// <inheritdoc/>
         public ClientBulkWriteResult BulkWrite(IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null, CancellationToken cancellationToken = default)
         {

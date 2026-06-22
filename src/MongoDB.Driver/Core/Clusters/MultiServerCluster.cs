@@ -21,6 +21,7 @@ using System.Net;
 using System.Threading;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
@@ -44,8 +45,9 @@ namespace MongoDB.Driver.Core.Clusters
             IClusterableServerFactory serverFactory,
             IEventSubscriber eventSubscriber,
             ILoggerFactory loggerFactory,
-            IDnsMonitorFactory dnsMonitorFactory = null)
-            : base(settings, serverFactory, eventSubscriber, loggerFactory)
+            IDnsMonitorFactory dnsMonitorFactory = null,
+            ClientMetadata clientMetadata = null)
+            : base(settings, serverFactory, eventSubscriber, loggerFactory, clientMetadata)
         {
             Ensure.IsGreaterThanZero(settings.EndPoints.Count, nameof(settings.EndPoints.Count));
             Ensure.That(!settings.DirectConnection, $"DirectConnection is not supported for a {nameof(MultiServerCluster)}.");

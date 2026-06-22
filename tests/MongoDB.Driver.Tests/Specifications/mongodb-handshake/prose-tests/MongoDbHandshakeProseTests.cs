@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+using System;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -126,6 +127,257 @@ namespace MongoDB.Driver.Tests.Specifications.mongodb_handshake.prose_tests
                 doc["backpressure"].AsBoolean.Should().BeTrue();
             }
         }
+
+        [Theory]
+        [ParameterAttributeData]
+        // https://github.com/mongodb/specifications/blob/290ee48973ed0dc8a7c54668e35b19cb012e94ed/source/mongodb-handshake/tests/README.md#test-1-test-that-the-driver-updates-metadata
+        public async Task ClientMetadataUpdate_Test1_driver_updates_metadata(
+            [Values("2.0", null)] string version,
+            [Values("Framework Platform", null)] string platform)
+        {
+            RequireServer.Check().Authentication(authentication: false); // speculative authentication makes events asserting hard
+
+            var eventCapturer = CreateHelloEventCapturer();
+            using var client = CreateClient(eventCapturer, new LibraryInfo("library", "1.2", "Library Platform"));
+
+            await Ping(client);
+            var initialClientMetadata = HelloClientDocument(eventCapturer);
+            await WaitForIdleConnection();
+
+            client.AppendMetadata(new LibraryInfo("framework", version, platform));
+            await Ping(client);
+
+            HelloClientDocument(eventCapturer).Should().Be(WithAppended(initialClientMetadata, "framework", version, platform));
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        // https://github.com/mongodb/specifications/blob/290ee48973ed0dc8a7c54668e35b19cb012e94ed/source/mongodb-handshake/tests/README.md#test-2-multiple-successive-metadata-updates
+        public async Task ClientMetadataUpdate_Test2_multiple_successive_metadata_updates(
+            [Values("2.0", null)] string version,
+            [Values("Framework Platform", null)] string platform)
+        {
+            RequireServer.Check().Authentication(authentication: false);
+
+            var eventCapturer = CreateHelloEventCapturer();
+            using var client = CreateClient(eventCapturer, libraryInfo: null);
+
+            client.AppendMetadata(new LibraryInfo("library", "1.2", "Library Platform"));
+            await Ping(client);
+            var clientMetadata = HelloClientDocument(eventCapturer);
+            await WaitForIdleConnection();
+
+            client.AppendMetadata(new LibraryInfo("framework", version, platform));
+            await Ping(client);
+
+            HelloClientDocument(eventCapturer).Should().Be(WithAppended(clientMetadata, "framework", version, platform));
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        // https://github.com/mongodb/specifications/blob/290ee48973ed0dc8a7c54668e35b19cb012e94ed/source/mongodb-handshake/tests/README.md#test-3-multiple-successive-metadata-updates-with-duplicate-data
+        public async Task ClientMetadataUpdate_Test3_multiple_successive_metadata_updates_with_duplicate_data(
+            [Values(1, 2, 3, 4, 5, 6, 7)] int testCase)
+        {
+            RequireServer.Check().Authentication(authentication: false);
+
+            var (name, version, platform) = testCase switch
+            {
+                1 => ("library", "1.2", "Library Platform"),
+                2 => ("framework", "1.2", "Library Platform"),
+                3 => ("library", "2.0", "Library Platform"),
+                4 => ("library", "1.2", "Framework Platform"),
+                5 => ("framework", "2.0", "Library Platform"),
+                6 => ("framework", "1.2", "Framework Platform"),
+                7 => ("library", "2.0", "Framework Platform"),
+                _ => throw new ArgumentOutOfRangeException(nameof(testCase))
+            };
+
+            var eventCapturer = CreateHelloEventCapturer();
+            using var client = CreateClient(eventCapturer, libraryInfo: null);
+
+            client.AppendMetadata(new LibraryInfo("library", "1.2", "Library Platform"));
+            await Ping(client);
+            var updatedClientMetadata = HelloClientDocument(eventCapturer);
+            await WaitForIdleConnection();
+
+            client.AppendMetadata(new LibraryInfo(name, version, platform));
+            await Ping(client);
+
+            var isIdenticalToSetup = name == "library" && version == "1.2" && platform == "Library Platform";
+            var expected = isIdenticalToSetup ? updatedClientMetadata : WithAppended(updatedClientMetadata, name, version, platform);
+            HelloClientDocument(eventCapturer).Should().Be(expected);
+        }
+
+        [Fact]
+        // https://github.com/mongodb/specifications/blob/290ee48973ed0dc8a7c54668e35b19cb012e94ed/source/mongodb-handshake/tests/README.md#test-4-multiple-metadata-updates-with-duplicate-data
+        public async Task ClientMetadataUpdate_Test4_multiple_metadata_updates_with_duplicate_data()
+        {
+            RequireServer.Check().Authentication(authentication: false);
+
+            var eventCapturer = CreateHelloEventCapturer();
+            using var client = CreateClient(eventCapturer, libraryInfo: null);
+
+            client.AppendMetadata(new LibraryInfo("library", "1.2", "Library Platform"));
+            await Ping(client);
+            await WaitForIdleConnection();
+
+            client.AppendMetadata(new LibraryInfo("framework", "2.0", "Framework Platform"));
+            await Ping(client);
+            var clientMetadata = HelloClientDocument(eventCapturer);
+            await WaitForIdleConnection();
+
+            client.AppendMetadata(new LibraryInfo("library", "1.2", "Library Platform"));
+            await Ping(client);
+
+            HelloClientDocument(eventCapturer).Should().Be(clientMetadata);
+        }
+
+        [Fact]
+        // https://github.com/mongodb/specifications/blob/290ee48973ed0dc8a7c54668e35b19cb012e94ed/source/mongodb-handshake/tests/README.md#test-5-metadata-is-not-appended-if-identical-to-initial-metadata
+        public async Task ClientMetadataUpdate_Test5_metadata_is_not_appended_if_identical_to_initial_metadata()
+        {
+            RequireServer.Check().Authentication(authentication: false);
+
+            var eventCapturer = CreateHelloEventCapturer();
+            using var client = CreateClient(eventCapturer, new LibraryInfo("library", "1.2", "Library Platform"));
+
+            await Ping(client);
+            var clientMetadata = HelloClientDocument(eventCapturer);
+            await WaitForIdleConnection();
+
+            client.AppendMetadata(new LibraryInfo("library", "1.2", "Library Platform"));
+            await Ping(client);
+
+            HelloClientDocument(eventCapturer).Should().Be(clientMetadata);
+        }
+
+        [Fact]
+        // https://github.com/mongodb/specifications/blob/290ee48973ed0dc8a7c54668e35b19cb012e94ed/source/mongodb-handshake/tests/README.md#test-6-metadata-is-not-appended-if-identical-to-initial-metadata-separated-by-non-identical-metadata
+        public async Task ClientMetadataUpdate_Test6_metadata_is_not_appended_if_identical_to_initial_metadata_separated_by_non_identical_metadata()
+        {
+            RequireServer.Check().Authentication(authentication: false);
+
+            var eventCapturer = CreateHelloEventCapturer();
+            using var client = CreateClient(eventCapturer, new LibraryInfo("library", "1.2", "Library Platform"));
+
+            await Ping(client);
+            await WaitForIdleConnection();
+
+            client.AppendMetadata(new LibraryInfo("framework", "1.2", "Library Platform"));
+            await Ping(client);
+            var clientMetadata = HelloClientDocument(eventCapturer);
+            await WaitForIdleConnection();
+
+            client.AppendMetadata(new LibraryInfo("library", "1.2", "Library Platform"));
+            await Ping(client);
+
+            HelloClientDocument(eventCapturer).Should().Be(clientMetadata);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        // https://github.com/mongodb/specifications/blob/290ee48973ed0dc8a7c54668e35b19cb012e94ed/source/mongodb-handshake/tests/README.md#test-7-empty-strings-are-considered-unset-when-appending-duplicate-metadata
+        public async Task ClientMetadataUpdate_Test7_empty_strings_are_unset_when_appending_duplicate_metadata(
+            [Values(2, 3)] int testCase) // case 1 (null name) is not applicable: the driver requires a non-null library name
+        {
+            RequireServer.Check().Authentication(authentication: false);
+
+            var (appended, duplicate) = testCase switch
+            {
+                2 => (new LibraryInfo("library", null, "Library Platform"), new LibraryInfo("library", "", "Library Platform")),
+                3 => (new LibraryInfo("library", "1.2", null), new LibraryInfo("library", "1.2", "")),
+                _ => throw new ArgumentOutOfRangeException(nameof(testCase))
+            };
+
+            var eventCapturer = CreateHelloEventCapturer();
+            using var client = CreateClient(eventCapturer, libraryInfo: null);
+
+            client.AppendMetadata(appended);
+            await Ping(client);
+            var clientMetadata = HelloClientDocument(eventCapturer);
+            await WaitForIdleConnection();
+
+            client.AppendMetadata(duplicate);
+            await Ping(client);
+
+            HelloClientDocument(eventCapturer).Should().Be(clientMetadata);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        // https://github.com/mongodb/specifications/blob/290ee48973ed0dc8a7c54668e35b19cb012e94ed/source/mongodb-handshake/tests/README.md#test-8-empty-strings-are-considered-unset-when-appending-metadata-identical-to-initial-metadata
+        public async Task ClientMetadataUpdate_Test8_empty_strings_are_unset_when_appending_metadata_identical_to_initial_metadata(
+            [Values(2, 3)] int testCase) // case 1 (null name) is not applicable: the driver requires a non-null library name
+        {
+            RequireServer.Check().Authentication(authentication: false);
+
+            var (initial, appended) = testCase switch
+            {
+                2 => (new LibraryInfo("library", null, "Library Platform"), new LibraryInfo("library", "", "Library Platform")),
+                3 => (new LibraryInfo("library", "1.2", null), new LibraryInfo("library", "1.2", "")),
+                _ => throw new ArgumentOutOfRangeException(nameof(testCase))
+            };
+
+            var eventCapturer = CreateHelloEventCapturer();
+            using var client = CreateClient(eventCapturer, initial);
+
+            await Ping(client);
+            var initialClientMetadata = HelloClientDocument(eventCapturer);
+            await WaitForIdleConnection();
+
+            client.AppendMetadata(appended);
+            await Ping(client);
+
+            HelloClientDocument(eventCapturer).Should().Be(initialClientMetadata);
+        }
+
+        // private methods
+        private static EventCapturer CreateHelloEventCapturer() =>
+            new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName is "hello" or OppressiveLanguageConstants.LegacyHelloCommandName);
+
+        private static MongoClient CreateClient(EventCapturer eventCapturer, LibraryInfo libraryInfo) =>
+            (MongoClient)DriverTestConfiguration.CreateMongoClient(settings =>
+            {
+                settings.LibraryInfo = libraryInfo;
+                settings.MaxConnectionIdleTime = TimeSpan.FromMilliseconds(1);
+                var clusterConfigurator = settings.ClusterConfigurator;
+                settings.ClusterConfigurator = builder => { clusterConfigurator?.Invoke(builder); builder.Subscribe(eventCapturer); };
+            });
+
+        private static BsonDocument HelloClientDocument(EventCapturer eventCapturer) =>
+            eventCapturer.Events
+                .OfType<CommandStartedEvent>()
+                .Last(e => e.Command.Contains("client"))
+                .Command["client"].AsBsonDocument.DeepClone().AsBsonDocument;
+
+        private static BsonDocument WithAppended(BsonDocument clientDocument, string name, string version, string platform)
+        {
+            var expected = clientDocument.DeepClone().AsBsonDocument;
+            if (name != null)
+            {
+                expected["driver"].AsBsonDocument["name"] = $"{expected["driver"]["name"].AsString}|{name}";
+            }
+            if (version != null)
+            {
+                expected["driver"].AsBsonDocument["version"] = $"{expected["driver"]["version"].AsString}|{version}";
+            }
+            if (platform != null)
+            {
+                expected["platform"] = $"{expected["platform"].AsString}|{platform}";
+            }
+            return expected;
+        }
+
+        private static async Task Ping(IMongoClient client)
+        {
+            var database = client.GetDatabase("admin");
+            var ping = new BsonDocument("ping", 1);
+            await database.RunCommandAsync<BsonDocument>(ping);
+        }
+
+        // wait long enough for the pooled connection to exceed maxConnectionIdleTime (1ms) so the next ping handshakes a new connection
+        private static Task WaitForIdleConnection() => Task.Delay(TimeSpan.FromMilliseconds(10));
     }
 
     internal static class BinaryConnectionReflector

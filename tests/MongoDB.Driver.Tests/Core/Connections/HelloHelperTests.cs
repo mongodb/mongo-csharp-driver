@@ -62,7 +62,8 @@ namespace MongoDB.Driver.Core.Connections
             var command = HelloHelper.CreateCommand(null);
             var libraryInfo = new LibraryInfo("lib", "1.0.0");
             var connectionInitializer = new ConnectionInitializer("test", new CompressorConfiguration[0], serverApi: null, libraryInfo: libraryInfo);
-            var subjectClientDocument = (BsonDocument)Reflector.GetFieldValue(connectionInitializer, "_clientDocument");
+            var clientMetadata = (ClientMetadata)Reflector.GetFieldValue(connectionInitializer, "_clientMetadata");
+            var subjectClientDocument = clientMetadata.GetClientDocument();
             var result = HelloHelper.AddClientDocumentToCommand(command, subjectClientDocument);
 
             var names = result.Names.ToList();

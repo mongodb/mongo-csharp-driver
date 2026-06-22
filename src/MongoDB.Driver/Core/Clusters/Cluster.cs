@@ -24,6 +24,7 @@ using Microsoft.Extensions.Logging;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
@@ -43,6 +44,7 @@ namespace MongoDB.Driver.Core.Clusters
         #endregion
 
         private readonly TimeSpan _minHeartbeatInterval = __minHeartbeatIntervalDefault;
+        private readonly ClientMetadata _clientMetadata;
         private readonly IClusterClock _clusterClock = new ClusterClock();
         private readonly ClusterId _clusterId;
         private ExpirableClusterDescription _expirableClusterDescription;
@@ -56,10 +58,11 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly InterlockedInt32 _state;
 
         // constructors
-        protected Cluster(ClusterSettings settings, IClusterableServerFactory serverFactory, IEventSubscriber eventSubscriber, ILoggerFactory loggerFactory)
+        protected Cluster(ClusterSettings settings, IClusterableServerFactory serverFactory, IEventSubscriber eventSubscriber, ILoggerFactory loggerFactory, ClientMetadata clientMetadata = null)
         {
             _settings = Ensure.IsNotNull(settings, nameof(settings));
             Ensure.That(!_settings.LoadBalanced, "LoadBalanced mode is not supported.");
+            _clientMetadata = clientMetadata;
             _serverFactory = Ensure.IsNotNull(serverFactory, nameof(serverFactory));
             Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
             _state = new InterlockedInt32(State.Initial);
@@ -88,6 +91,11 @@ namespace MongoDB.Driver.Core.Clusters
         public ICoreServerSession AcquireServerSession()
         {
             return _serverSessionPool.AcquireSession();
+        }
+
+        public void AppendClientMetadata(LibraryInfo libraryInfo)
+        {
+            _clientMetadata.Append(libraryInfo);
         }
 
         protected IClusterableServer CreateServer(EndPoint endPoint)

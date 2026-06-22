@@ -33,6 +33,11 @@ namespace MongoDB.Driver.Core.Configuration
         /// </summary>
         public string Version { get; }
 
+        /// <summary>
+        /// Gets the library platform.
+        /// </summary>
+        public string Platform { get; }
+
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="LibraryInfo"/> class.
@@ -43,6 +48,19 @@ namespace MongoDB.Driver.Core.Configuration
         {
             Name = Ensure.IsNotNullOrEmpty(name, nameof(name));
             Version = version;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LibraryInfo"/> class.
+        /// </summary>
+        /// <param name="name">The library name.</param>
+        /// <param name="version">The library version.</param>
+        /// <param name="platform">The library platform.</param>
+        public LibraryInfo(string name, string version, string platform)
+        {
+            Name = Ensure.IsNotNullOrEmpty(name, nameof(name));
+            Version = version;
+            Platform = platform;
         }
 
         // public operators
@@ -85,7 +103,8 @@ namespace MongoDB.Driver.Core.Configuration
             return
                 rhs != null &&
                 Name == rhs.Name &&
-                Version == rhs.Version;
+                Version == rhs.Version &&
+                Platform == rhs.Platform;
         }
 
         /// <inheritdoc/>
@@ -95,6 +114,6 @@ namespace MongoDB.Driver.Core.Configuration
         public override int GetHashCode() => base.GetHashCode();
 
         /// <inheritdoc/>
-        public override string ToString() => $"{Name}-{Version}";
+        public override string ToString() => Platform == null ? $"{Name}-{Version}" : $"{Name}-{Version}-{Platform}";
     }
 }

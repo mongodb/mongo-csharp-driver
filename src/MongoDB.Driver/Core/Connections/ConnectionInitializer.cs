@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Core.Connections
     /// </summary>
     internal class ConnectionInitializer : IConnectionInitializer
     {
-        private readonly BsonDocument _clientDocument;
+        private readonly ClientMetadata _clientMetadata;
         private readonly IReadOnlyList<CompressorConfiguration> _compressors;
         private readonly ServerApi _serverApi;
 
@@ -39,8 +39,16 @@ namespace MongoDB.Driver.Core.Connections
             IReadOnlyList<CompressorConfiguration> compressors,
             ServerApi serverApi,
             LibraryInfo libraryInfo)
+            : this(new ClientMetadata(applicationName, libraryInfo), compressors, serverApi)
         {
-            _clientDocument = ClientDocumentHelper.CreateClientDocument(applicationName, libraryInfo);
+        }
+
+        public ConnectionInitializer(
+            ClientMetadata clientMetadata,
+            IReadOnlyList<CompressorConfiguration> compressors,
+            ServerApi serverApi)
+        {
+            _clientMetadata = Ensure.IsNotNull(clientMetadata, nameof(clientMetadata));
             _compressors = Ensure.IsNotNull(compressors, nameof(compressors));
             _serverApi = serverApi;
         }
@@ -168,7 +176,7 @@ namespace MongoDB.Driver.Core.Connections
         private BsonDocument CreateInitialHelloCommand(OperationContext operationContext, IAuthenticator authenticator, bool loadBalanced = false)
         {
             var command = HelloHelper.CreateCommand(_serverApi, loadBalanced: loadBalanced);
-            HelloHelper.AddClientDocumentToCommand(command, _clientDocument);
+            HelloHelper.AddClientDocumentToCommand(command, _clientMetadata.GetClientDocument());
             HelloHelper.AddCompressorsToCommand(command, _compressors);
             return HelloHelper.CustomizeCommand(operationContext, command, authenticator);
         }
