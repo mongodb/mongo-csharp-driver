@@ -58,8 +58,9 @@ namespace MongoDB.Driver.Core.Operations
 
         public override string OperationName => "bulkWrite";
 
-        protected override BsonDocument CreateCommand(OperationContext operationContext, long? transactionNumber)
+        protected override BsonDocument CreateCommand(OperationContext operationContext, ConnectionDescription connectionDescription, long? transactionNumber)
         {
+            var readConcern = ReadConcernHelper.GetReadConcernForWriteCommand(operationContext.Session, connectionDescription);
             var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, WriteConcern);
             return new BsonDocument
             {
@@ -69,6 +70,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "bypassDocumentValidation", () => _bypassDocumentValidation, _bypassDocumentValidation.HasValue },
                 { "comment", Comment, Comment != null },
                 { "let", _let, _let != null },
+                { "readConcern", readConcern, readConcern != null },
                 { "writeConcern", writeConcern, writeConcern != null },
                 { "txnNumber", () => transactionNumber.Value, transactionNumber.HasValue }
             };
