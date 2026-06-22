@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
             TranslatedPipeline unoptimizedPipeline,
             IExecutableQueryFinalizer<TOutput, TResult> finalizer)
         {
-            var optimizedAstPipeline = AstPipelineOptimizer.Optimize(unoptimizedPipeline.Ast);
+            var optimizedAstPipeline = AstPipelineOptimizer.Optimize(unoptimizedPipeline.Ast, provider.GetTranslationOptions());
             var optimizedPipeline = new TranslatedPipeline(optimizedAstPipeline, unoptimizedPipeline.OutputSerializer);
             return provider.Collection == null ?
                 new ExecutableQuery<TDocument, TOutput, TResult>(provider.Database, provider.Options, optimizedPipeline, finalizer) :

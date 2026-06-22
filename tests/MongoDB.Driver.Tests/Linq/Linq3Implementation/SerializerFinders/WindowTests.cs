@@ -75,6 +75,9 @@ public class WindowTests
         // BottomN
         [TestHelpers.MakeLambda((ISetWindowFieldsPartition<MyModel> p) => p.BottomN(Builders<MyModel>.Sort.Ascending(x => x.IntField), x => x.IntField, 2, null)), typeof(IEnumerableSerializer<int>)],
 
+        // ConcatArrays
+        [TestHelpers.MakeLambda((ISetWindowFieldsPartition<MyModel> p) => p.ConcatArrays(x => x.IntArrayField, null)), typeof(IEnumerableSerializer<int>)],
+
         // Count
         [TestHelpers.MakeLambda((ISetWindowFieldsPartition<MyModel> p) => p.Count(null)), typeof(Int64Serializer)],
 
@@ -157,6 +160,9 @@ public class WindowTests
         // Rank
         [TestHelpers.MakeLambda((ISetWindowFieldsPartition<MyModel> p) => p.Rank()), typeof(DecimalSerializer)],
 
+        // SetUnion
+        [TestHelpers.MakeLambda((ISetWindowFieldsPartition<MyModel> p) => p.SetUnion(x => x.IntArrayField, null)), typeof(IEnumerableSerializer<int>)],
+
         // Shift
         [TestHelpers.MakeLambda((ISetWindowFieldsPartition<MyModel> p) => p.Shift(x => x.IntField, 1)), typeof(Int32Serializer)],
         [TestHelpers.MakeLambda((ISetWindowFieldsPartition<MyModel> p) => p.Shift(x => x.IntField, 1, 0)), typeof(Int32Serializer)],
@@ -195,5 +201,6 @@ public class WindowTests
         public float FloatField { get; set; }
         public int? NullableIntField { get; set; }
         public decimal? NullableDecimalField { get; set; }
+        public int[] IntArrayField { get; set; }
     }
 }

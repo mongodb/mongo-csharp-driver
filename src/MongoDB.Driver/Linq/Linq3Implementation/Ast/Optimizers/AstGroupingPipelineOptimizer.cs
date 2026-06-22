@@ -18,6 +18,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages;
@@ -28,9 +29,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
     internal class AstGroupingPipelineOptimizer
     {
         #region static
-        public static AstPipeline Optimize(AstPipeline pipeline)
+        public static AstPipeline Optimize(AstPipeline pipeline, ExpressionTranslationOptions translationOptions)
         {
-            var optimizer = new AstGroupingPipelineOptimizer();
+            var optimizer = new AstGroupingPipelineOptimizer(translationOptions);
             for (var i = 0; i < pipeline.Stages.Count; i++)
             {
                 var stage = pipeline.Stages[i];
@@ -55,6 +56,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
 
         private readonly AccumulatorSet _accumulators = new AccumulatorSet();
         private AstExpression _element; // normally either "$$ROOT" or "$_v"
+        private readonly ExpressionTranslationOptions _translationOptions;
+
+        private AstGroupingPipelineOptimizer(ExpressionTranslationOptions translationOptions)
+        {
+            _translationOptions = translationOptions;
+        }
 
         private AstPipeline OptimizeGroupingStage(AstPipeline pipeline, int i, AstStage groupingStage)
         {
@@ -237,7 +244,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
 
         private AstStage OptimizeMatchStage(AstMatchStage stage)
         {
-            var optimizedFilter = AccumulatorMover.MoveAccumulators(_accumulators, _element, stage.Filter);
+            var optimizedFilter = AccumulatorMover.MoveAccumulators(_accumulators, _element, _translationOptions, stage.Filter);
             return stage.Update(optimizedFilter);
         }
 
@@ -265,7 +272,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
 
         private AstProjectStageSpecification OptimizeProjectStageSetFieldSpecification(AstProjectStageSetFieldSpecification specification)
         {
-            var optimizedValue = AccumulatorMover.MoveAccumulators(_accumulators, _element, specification.Value);
+            var optimizedValue = AccumulatorMover.MoveAccumulators(_accumulators, _element, _translationOptions, specification.Value);
             return specification.Update(optimizedValue);
         }
 
@@ -313,22 +320,27 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
         private class AccumulatorMover : AstNodeVisitor
         {
             #region static
-            public static TNode MoveAccumulators<TNode>(AccumulatorSet accumulators, AstExpression element, TNode node)
+            public static TNode MoveAccumulators<TNode>(AccumulatorSet accumulators, AstExpression element, ExpressionTranslationOptions translationOptions, TNode node)
                 where TNode : AstNode
             {
-                var mover = new AccumulatorMover(accumulators, element);
+                var mover = new AccumulatorMover(accumulators, element, translationOptions);
                 return mover.VisitAndConvert(node);
             }
             #endregion
 
             private readonly AccumulatorSet _accumulators;
             private readonly AstExpression _element;
+            private readonly ExpressionTranslationOptions _translationOptions;
 
-            private AccumulatorMover(AccumulatorSet accumulator, AstExpression element)
+            private AccumulatorMover(AccumulatorSet accumulator, AstExpression element, ExpressionTranslationOptions translationOptions)
             {
                 _accumulators = accumulator;
                 _element = element;
+                _translationOptions = translationOptions;
             }
+
+            private bool ConcatArraysAndSetUnionAccumulatorsSupported =>
+                Feature.ConcatArraysAndSetUnionAccumulators.IsSupported((_translationOptions?.CompatibilityLevel).ToWireVersion());
 
             public override AstNode VisitFilterField(AstFilterField node)
             {
@@ -470,6 +482,19 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
                 return base.VisitPickExpression(node);
             }
 
+            public override AstNode VisitReduceExpression(AstReduceExpression node)
+            {
+                // { $reduce : { input : { $map : { input : "$_elements", as : "x", in : f(x) } }, initialValue : [], in : { $concatArrays : ["$$value", "$$this"] } } }
+                // => { __agg0 : { $concatArrays : f(x => element) } } + "$__agg0"
+                if (ConcatArraysAndSetUnionAccumulatorsSupported && IsSelectManyShapeOverElements(node, out var rewrittenArg))
+                {
+                    var accumulatorExpression = AstExpression.UnaryAccumulator(AstUnaryAccumulatorOperator.ConcatArrays, rewrittenArg);
+                    return CreateGetAccumulatorFieldExpression(accumulatorExpression);
+                }
+
+                return base.VisitReduceExpression(node);
+            }
+
             public override AstNode VisitUnaryExpression(AstUnaryExpression node)
             {
                 // { $size : "$_elements" } => { __agg0 : { $sum : 1 } } + "$__agg0"
@@ -481,6 +506,17 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
                         var accumulatorExpression = AstExpression.UnaryAccumulator(AstUnaryAccumulatorOperator.Sum, 1);
                         return CreateGetAccumulatorFieldExpression(accumulatorExpression);
                     }
+                }
+
+                // { $setUnion : { $reduce : { input : { $map : { input : "$_elements", as : "x", in : f(x) } }, initialValue : [], in : { $concatArrays : ["$$value", "$$this"] } } } }
+                // => { __agg0 : { $setUnion : f(x => element) } } + "$__agg0"
+                if (ConcatArraysAndSetUnionAccumulatorsSupported &&
+                    node.Operator == AstUnaryOperator.SetUnion &&
+                    node.Arg is AstReduceExpression setUnionReduceArg &&
+                    IsSelectManyShapeOverElements(setUnionReduceArg, out var setUnionArg))
+                {
+                    var accumulatorExpression = AstExpression.UnaryAccumulator(AstUnaryAccumulatorOperator.SetUnion, setUnionArg);
+                    return CreateGetAccumulatorFieldExpression(accumulatorExpression);
                 }
 
                 // { $accumulator : { $getField : { input : "$$ROOT", field : "_elements" } } } => { __agg0 : { $accumulator : element } } + "$__agg0"
@@ -512,7 +548,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
 
             private bool IsMappedElementsField(AstExpression expression, out AstExpression rewrittenArg)
             {
-                if (expression is AstMapExpression mapExpression && IsElementsField(mapExpression.Input))
+                // can't collapse a $map that binds an index var: it would leave the index unbound
+                if (expression is AstMapExpression mapExpression && mapExpression.ArrayIndexAs == null && IsElementsField(mapExpression.Input))
                 {
                     rewrittenArg = (AstExpression)AstNodeReplacer.Replace(mapExpression.In, (mapExpression.As, _element));
                     return true;
@@ -520,6 +557,44 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
 
                 rewrittenArg = null;
                 return false;
+            }
+
+            // Recognizes the flatten idiom that SelectMany(x => f(x)) emits over _elements, so it can be
+            // upgraded into a $concatArrays/$setUnion group accumulator instead of running per-group:
+            //   $reduce(input: $map(input: $_elements, as: x, in: f(x)),
+            //           initialValue: [],
+            //           in: $concatArrays($$value, $$this))
+            // Returns f with x rebound to the element expression (the accumulator's argument).
+            private bool IsSelectManyShapeOverElements(AstReduceExpression node, out AstExpression rewrittenArg)
+            {
+                if (IsMappedElementsField(node.Input, out var mappedArg) &&
+                    IsEmptyArrayConstant(node.InitialValue) &&
+                    IsConcatArraysOfValueAndThis(node.In))
+                {
+                    rewrittenArg = mappedArg;
+                    return true;
+                }
+
+                rewrittenArg = null;
+                return false;
+            }
+
+            private static bool IsEmptyArrayConstant(AstExpression expression)
+            {
+                return
+                    expression is AstConstantExpression constant &&
+                    constant.Value is BsonArray array &&
+                    array.Count == 0;
+            }
+
+            private static bool IsConcatArraysOfValueAndThis(AstExpression expression)
+            {
+                return
+                    expression is AstNaryExpression nary &&
+                    nary.Operator == AstNaryOperator.ConcatArrays &&
+                    nary.Args.Count == 2 &&
+                    nary.Args[0] is AstVarExpression valueVar && valueVar.Name == "value" &&
+                    nary.Args[1] is AstVarExpression thisVar && thisVar.Name == "this";
             }
 
             private AstExpression CreateGetAccumulatorFieldExpression(AstAccumulatorExpression accumulatorExpression)

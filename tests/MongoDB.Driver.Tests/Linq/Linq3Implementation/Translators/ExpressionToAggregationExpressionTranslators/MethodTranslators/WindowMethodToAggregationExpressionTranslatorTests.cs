@@ -55,6 +55,27 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         }
 
         [Fact]
+        public void Translate_should_return_expected_result_for_ConcatArrays()
+        {
+            RequireServer.Check().Supports(Feature.ConcatArraysAndSetUnionAccumulators);
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.ConcatArrays(x => x.Int32ArrayField, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $concatArrays : '$Int32ArrayField' } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            var expectedResult = new[] { 1, 10, 2, 20, 3, 30 };
+            foreach (var result in results)
+            {
+                result["Result"].AsBsonArray.Select(i => i.AsInt32).Should().Equal(expectedResult);
+            }
+        }
+
+        [Fact]
         public void Translate_should_return_expected_result_for_Average_with_Decimal()
         {
             var collection = Fixture.Collection;
@@ -2315,6 +2336,27 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         }
 
         [Fact]
+        public void Translate_should_return_expected_result_for_SetUnion()
+        {
+            RequireServer.Check().Supports(Feature.ConcatArraysAndSetUnionAccumulators);
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.SetUnion(x => x.Int32ArrayField, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $setUnion : '$Int32ArrayField' } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            var expectedResult = new[] { 1, 2, 3, 10, 20, 30 };
+            foreach (var result in results)
+            {
+                result["Result"].AsBsonArray.Select(i => i.AsInt32).Should().BeEquivalentTo(expectedResult);
+            }
+        }
+
+        [Fact]
         public void Translate_should_return_expected_result_for_Rank()
         {
             var collection = Fixture.Collection;
@@ -3057,6 +3099,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             public int Int32Field { get; set; }
             public int Int32Field1 { get; set; }
             public int Int32Field2 { get; set; }
+            public int[] Int32ArrayField { get; set; }
             public long Int64Field { get; set; }
             public long Int64Field1 { get; set; }
             public long Int64Field2 { get; set; }
@@ -3104,6 +3147,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                             Int32Field = n,
                             Int32Field1 = n,
                             Int32Field2 = n,
+                            Int32ArrayField = new[] { n, n * 10 },
                             Int64Field = n,
                             Int64Field1 = n,
                             Int64Field2 = n,

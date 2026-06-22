@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
             var serializerRegistry = args.SerializerRegistry;
             var groupingStage = RenderGroupingStage(inputSerializer, serializerRegistry, args.TranslationOptions, out var groupingSerializer);
             var projectStage = RenderProjectStage(groupingSerializer, serializerRegistry, args.TranslationOptions,  out var outputSerializer);
-            var optimizedStages = OptimizeGroupingStages(groupingStage, projectStage, inputSerializer, outputSerializer);
+            var optimizedStages = OptimizeGroupingStages(groupingStage, projectStage, inputSerializer, outputSerializer, args.TranslationOptions);
             var renderedStages = optimizedStages.Select(x => x.Render().AsBsonDocument);
 
             return new RenderedPipelineStageDefinition<TOutput>(OperatorName, renderedStages, outputSerializer);
@@ -72,10 +72,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
             return projectStage;
         }
 
-        private IReadOnlyList<AstStage> OptimizeGroupingStages(AstStage groupingStage, AstStage projectStage, IBsonSerializer inputSerializer, IBsonSerializer outputSerializer)
+        private IReadOnlyList<AstStage> OptimizeGroupingStages(AstStage groupingStage, AstStage projectStage, IBsonSerializer inputSerializer, IBsonSerializer outputSerializer, ExpressionTranslationOptions translationOptions)
         {
             var pipeline = new AstPipeline([groupingStage, projectStage]);
-            var optimizedPipeline = AstPipelineOptimizer.Optimize(pipeline);
+            var optimizedPipeline = AstPipelineOptimizer.Optimize(pipeline, translationOptions);
             return optimizedPipeline.Stages;
         }
     }

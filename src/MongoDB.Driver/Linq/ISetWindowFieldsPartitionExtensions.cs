@@ -212,6 +212,20 @@ namespace MongoDB.Driver.Linq
         }
 
         /// <summary>
+        /// Returns the concatenation of the selected arrays.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
+        /// <typeparam name="TValue">The type of the array elements.</typeparam>
+        /// <param name="partition">The partition.</param>
+        /// <param name="selector">The selector that selects an array from the input document.</param>
+        /// <param name="window">The window boundaries.</param>
+        /// <returns>The concatenation of the selected arrays.</returns>
+        public static IEnumerable<TValue> ConcatArrays<TInput, TValue>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, IEnumerable<TValue>> selector, SetWindowFieldsWindow window = null)
+        {
+            throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
+        }
+
+        /// <summary>
         /// Returns the population covariance of two numeric expressions that are evaluated using documents in the partition window.
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
@@ -1306,6 +1320,20 @@ namespace MongoDB.Driver.Linq
         /// <param name="defaultValue">The default value to use if the document position is outside the partition.</param>
         /// <returns>The value from an expression applied to a document in a specified position relative to the current document.</returns>
         public static TValue Shift<TInput, TValue>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, TValue> selector, int by, TValue defaultValue)
+        {
+            throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
+        }
+
+        /// <summary>
+        /// Returns the union (with duplicates removed) of the selected arrays.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
+        /// <typeparam name="TValue">The type of the array elements.</typeparam>
+        /// <param name="partition">The partition.</param>
+        /// <param name="selector">The selector that selects an array from the input document.</param>
+        /// <param name="window">The window boundaries.</param>
+        /// <returns>The union of the selected arrays.</returns>
+        public static IEnumerable<TValue> SetUnion<TInput, TValue>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, IEnumerable<TValue>> selector, SetWindowFieldsWindow window = null)
         {
             throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
         }
