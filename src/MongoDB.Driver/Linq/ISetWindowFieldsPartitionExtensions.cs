@@ -1130,6 +1130,156 @@ namespace MongoDB.Driver.Linq
         }
 
         /// <summary>
+        /// Normalizes the numeric value to the output range [min, max] using the minimum and maximum values in the window.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
+        /// <param name="partition">The partition.</param>
+        /// <param name="selector">The selector that selects a value from the input document.</param>
+        /// <param name="min">The minimum value of the output range.</param>
+        /// <param name="max">The maximum value of the output range.</param>
+        /// <param name="window">The window boundaries.</param>
+        /// <returns>The normalized value.</returns>
+        public static decimal MinMaxScaler<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, decimal> selector, double min = 0, double max = 1, SetWindowFieldsWindow window = null)
+        {
+            throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
+        }
+
+        /// <summary>
+        /// Normalizes the numeric value to the output range [min, max] using the minimum and maximum values in the window.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
+        /// <param name="partition">The partition.</param>
+        /// <param name="selector">The selector that selects a value from the input document.</param>
+        /// <param name="min">The minimum value of the output range.</param>
+        /// <param name="max">The maximum value of the output range.</param>
+        /// <param name="window">The window boundaries.</param>
+        /// <returns>The normalized value.</returns>
+        public static decimal? MinMaxScaler<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, decimal?> selector, double min = 0, double max = 1, SetWindowFieldsWindow window = null)
+        {
+            throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
+        }
+
+        /// <summary>
+        /// Normalizes the numeric value to the output range [min, max] using the minimum and maximum values in the window.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
+        /// <param name="partition">The partition.</param>
+        /// <param name="selector">The selector that selects a value from the input document.</param>
+        /// <param name="min">The minimum value of the output range.</param>
+        /// <param name="max">The maximum value of the output range.</param>
+        /// <param name="window">The window boundaries.</param>
+        /// <returns>The normalized value.</returns>
+        public static double MinMaxScaler<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, double> selector, double min = 0, double max = 1, SetWindowFieldsWindow window = null)
+        {
+            throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
+        }
+
+        /// <summary>
+        /// Normalizes the numeric value to the output range [min, max] using the minimum and maximum values in the window.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
+        /// <param name="partition">The partition.</param>
+        /// <param name="selector">The selector that selects a value from the input document.</param>
+        /// <param name="min">The minimum value of the output range.</param>
+        /// <param name="max">The maximum value of the output range.</param>
+        /// <param name="window">The window boundaries.</param>
+        /// <returns>The normalized value.</returns>
+        public static double? MinMaxScaler<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, double?> selector, double min = 0, double max = 1, SetWindowFieldsWindow window = null)
+        {
+            throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
+        }
+
+        /// <summary>
+        /// Normalizes the numeric value to the output range [min, max] using the minimum and maximum values in the window.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
+        /// <param name="partition">The partition.</param>
+        /// <param name="selector">The selector that selects a value from the input document.</param>
+        /// <param name="min">The minimum value of the output range.</param>
+        /// <param name="max">The maximum value of the output range.</param>
+        /// <param name="window">The window boundaries.</param>
+        /// <returns>The normalized value.</returns>
+        public static float MinMaxScaler<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, float> selector, double min = 0, double max = 1, SetWindowFieldsWindow window = null)
+        {
+            throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
+        }
+
+        /// <summary>
+        /// Normalizes the numeric value to the output range [min, max] using the minimum and maximum values in the window.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
+        /// <param name="partition">The partition.</param>
+        /// <param name="selector">The selector that selects a value from the input document.</param>
+        /// <param name="min">The minimum value of the output range.</param>
+        /// <param name="max">The maximum value of the output range.</param>
+        /// <param name="window">The window boundaries.</param>
+        /// <returns>The normalized value.</returns>
+        public static float? MinMaxScaler<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, float?> selector, double min = 0, double max = 1, SetWindowFieldsWindow window = null)
+        {
+            throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
+        }
+
+        /// <summary>
+        /// Normalizes the numeric value to the output range [min, max] using the minimum and maximum values in the window.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
+        /// <param name="partition">The partition.</param>
+        /// <param name="selector">The selector that selects a value from the input document.</param>
+        /// <param name="min">The minimum value of the output range.</param>
+        /// <param name="max">The maximum value of the output range.</param>
+        /// <param name="window">The window boundaries.</param>
+        /// <returns>The normalized value.</returns>
+        public static double MinMaxScaler<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, int> selector, double min = 0, double max = 1, SetWindowFieldsWindow window = null)
+        {
+            throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
+        }
+
+        /// <summary>
+        /// Normalizes the numeric value to the output range [min, max] using the minimum and maximum values in the window.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
+        /// <param name="partition">The partition.</param>
+        /// <param name="selector">The selector that selects a value from the input document.</param>
+        /// <param name="min">The minimum value of the output range.</param>
+        /// <param name="max">The maximum value of the output range.</param>
+        /// <param name="window">The window boundaries.</param>
+        /// <returns>The normalized value.</returns>
+        public static double? MinMaxScaler<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, int?> selector, double min = 0, double max = 1, SetWindowFieldsWindow window = null)
+        {
+            throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
+        }
+
+        /// <summary>
+        /// Normalizes the numeric value to the output range [min, max] using the minimum and maximum values in the window.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
+        /// <param name="partition">The partition.</param>
+        /// <param name="selector">The selector that selects a value from the input document.</param>
+        /// <param name="min">The minimum value of the output range.</param>
+        /// <param name="max">The maximum value of the output range.</param>
+        /// <param name="window">The window boundaries.</param>
+        /// <returns>The normalized value.</returns>
+        public static double MinMaxScaler<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, long> selector, double min = 0, double max = 1, SetWindowFieldsWindow window = null)
+        {
+            throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
+        }
+
+        /// <summary>
+        /// Normalizes the numeric value to the output range [min, max] using the minimum and maximum values in the window.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
+        /// <param name="partition">The partition.</param>
+        /// <param name="selector">The selector that selects a value from the input document.</param>
+        /// <param name="min">The minimum value of the output range.</param>
+        /// <param name="max">The maximum value of the output range.</param>
+        /// <param name="window">The window boundaries.</param>
+        /// <returns>The normalized value.</returns>
+        public static double? MinMaxScaler<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, long?> selector, double min = 0, double max = 1, SetWindowFieldsWindow window = null)
+        {
+            throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
+        }
+
+        /// <summary>
         /// Returns the values at the given percentiles. Percentile ignores non-numeric values.
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>

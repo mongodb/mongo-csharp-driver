@@ -308,6 +308,21 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     return new TranslatedExpression(expression, ast, serializer);
                 }
 
+                if (method.IsOneOf(WindowMethod.MinMaxScalerOverloads))
+                {
+                    ThrowIfSelectorTranslationIsNull(selectorTranslation);
+                    var min = GetArgument<Expression>(parameters, "min", arguments).GetConstantValue<double>(expression);
+                    var max = GetArgument<Expression>(parameters, "max", arguments).GetConstantValue<double>(expression);
+
+                    var ast = AstExpression.MinMaxScalerWindowExpression(
+                        selectorTranslation.Ast,
+                        AstExpression.Constant(min),
+                        AstExpression.Constant(max),
+                        window);
+                    var serializer = context.GetSerializer(expression);
+                    return new TranslatedExpression(expression, ast, serializer);
+                }
+
                 if (method.IsOneOf(__shiftOverloads))
                 {
                     ThrowIfSelectorTranslationIsNull(selectorTranslation);

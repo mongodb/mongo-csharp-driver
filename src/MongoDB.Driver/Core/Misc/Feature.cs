@@ -394,6 +394,11 @@ public class Feature
     public static Feature MedianOperator { get; } = new("MedianOperator", WireVersion.Server70);
 
     /// <summary>
+    /// Gets the $minMaxScaler window operator added in 8.2
+    /// </summary>
+    public static Feature MinMaxScalerOperator { get; } = new("MinMaxScalerOperator", WireVersion.Server82);
+
+    /// <summary>
     /// Gets the $percentile operator added in 7.0
     /// </summary>
     public static Feature PercentileOperator { get; } = new("PercentileOperator", WireVersion.Server70);
