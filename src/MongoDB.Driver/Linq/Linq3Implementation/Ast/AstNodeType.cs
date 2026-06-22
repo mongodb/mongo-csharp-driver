@@ -56,6 +56,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast
         DeserializeEJsonExpression,
         DocumentsStage,
         ElemMatchFilterOperation,
+        EncStrExpression,
         ExistsFilterOperation,
         ExponentialMovingAverageWindowExpression,
         ExprFilter,

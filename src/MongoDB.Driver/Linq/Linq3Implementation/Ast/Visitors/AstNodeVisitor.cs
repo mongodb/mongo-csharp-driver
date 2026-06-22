@@ -322,6 +322,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors
             return node.Update(VisitAndConvert(node.Filter));
         }
 
+        public virtual AstNode VisitEncStrExpression(AstEncStrExpression node)
+        {
+            return node.Update(VisitAndConvert(node.Input), VisitAndConvert(node.Value));
+        }
+
         public virtual AstNode VisitExistsFilterOperation(AstExistsFilterOperation node)
         {
             return node;
