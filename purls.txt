@@ -1,1 +1,1 @@
-pkg:github/mongodb/libmongocrypt@1.18.2
+pkg:github/mongodb/libmongocrypt@1.19.1

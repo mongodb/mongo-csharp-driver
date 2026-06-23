@@ -96,8 +96,7 @@ namespace MongoDB.Driver.Encryption
     /// Prefix options.
     /// </summary>
     /// <remarks>
-    /// PrefixOptions is used with TextOptions and provides further options to support "prefixPreview" queries.
-    /// PrefixOptions is currently unstable API and subject to backwards breaking changes.
+    /// PrefixOptions is used with StringOptions (or the deprecated TextOptions) and provides further options to support "prefix" and "prefixPreview" queries.
     /// </remarks>
     public sealed class PrefixOptions
     {
@@ -141,7 +140,7 @@ namespace MongoDB.Driver.Encryption
     /// Substring options.
     /// </summary>
     /// <remarks>
-    /// SubstringOptions is used with TextOptions and provides further options to support "substringPreview" queries.
+    /// SubstringOptions is used with StringOptions (or the deprecated TextOptions) and provides further options to support "substringPreview" queries.
     /// SubstringOptions is currently unstable API and subject to backwards breaking changes.
     /// </remarks>
     public sealed class SubstringOptions
@@ -201,8 +200,7 @@ namespace MongoDB.Driver.Encryption
     /// Suffix options.
     /// </summary>
     /// <remarks>
-    /// SuffixOptions is used with TextOptions and provides further options to support "suffixPreview" queries.
-    /// SuffixOptions is currently unstable API and subject to backwards breaking changes.
+    /// SuffixOptions is used with StringOptions (or the deprecated TextOptions) and provides further options to support "suffix" and "suffixPreview" queries.
     /// </remarks>
     public sealed class SuffixOptions
     {
@@ -243,13 +241,75 @@ namespace MongoDB.Driver.Encryption
     }
 
     /// <summary>
+    /// String options.
+    /// </summary>
+    /// <remarks>
+    /// StringOptions specifies options for a Queryable Encryption field that supports the "prefix", "prefixPreview", "suffix", "suffixPreview", and "substringPreview" query types.
+    /// StringOptions only applies when the encryption algorithm is "String".
+    /// </remarks>
+    public sealed class StringOptions
+    {
+        private readonly bool _caseSensitive;
+        private readonly bool _diacriticSensitive;
+        private readonly PrefixOptions _prefixOptions;
+        private readonly SubstringOptions _substringOptions;
+        private readonly SuffixOptions _suffixOptions;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StringOptions"/> class.
+        /// </summary>
+        /// <param name="caseSensitive">The indicator of whether string indexes for this field are case-sensitive.</param>
+        /// <param name="diacriticSensitive">The indicator of whether string indexes for this field are diacritic sensitive.</param>
+        /// <param name="prefixOptions">The prefix options.</param>
+        /// <param name="substringOptions">The substring options.</param>
+        /// <param name="suffixOptions">The suffix options.</param>
+        public StringOptions(
+            bool caseSensitive,
+            bool diacriticSensitive,
+            Optional<PrefixOptions> prefixOptions = default,
+            Optional<SubstringOptions> substringOptions = default,
+            Optional<SuffixOptions> suffixOptions = default)
+        {
+            _caseSensitive = caseSensitive;
+            _diacriticSensitive = diacriticSensitive;
+            _prefixOptions = prefixOptions.WithDefault(null);
+            _substringOptions = substringOptions.WithDefault(null);
+            _suffixOptions = suffixOptions.WithDefault(null);
+        }
+
+        /// <summary>
+        /// Gets whether string indexes for this field are case-sensitive.
+        /// </summary>
+        public bool CaseSensitive => _caseSensitive;
+
+        /// <summary>
+        /// Gets whether string indexes for this field are diacritic sensitive.
+        /// </summary>
+        public bool DiacriticSensitive => _diacriticSensitive;
+
+        /// <summary>
+        /// Gets the prefix options.
+        /// </summary>
+        public PrefixOptions PrefixOptions => _prefixOptions;
+
+        /// <summary>
+        /// Gets the substring options.
+        /// </summary>
+        public SubstringOptions SubstringOptions => _substringOptions;
+
+        /// <summary>
+        /// Gets the suffix options.
+        /// </summary>
+        public SuffixOptions SuffixOptions => _suffixOptions;
+    }
+
+    /// <summary>
     /// Text options.
     /// </summary>
     /// <remarks>
-    /// TextOptions specifies options for a Queryable Encryption field supporting "textPreview" queries.
-    /// TextOptions is currently unstable API and subject to backwards breaking changes.
-    /// TextOptions only applies when the encryption algorithm is "textPreview".
+    /// This is a deprecated alias for <see cref="StringOptions"/>. Use <see cref="StringOptions"/> instead.
     /// </remarks>
+    [Obsolete("Use StringOptions instead.")]
     public sealed class TextOptions
     {
         private readonly bool _caseSensitive;
@@ -317,10 +377,13 @@ namespace MongoDB.Driver.Encryption
             {
                 EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic => "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic",
                 EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random => "AEAD_AES_256_CBC_HMAC_SHA_512-Random",
+#pragma warning disable CS0618 // TextPreview is a deprecated alias for String and is translated to "String".
+                EncryptionAlgorithm.TextPreview => EncryptionAlgorithm.String.ToString(),
+#pragma warning restore CS0618
                 _ => encryptionAlgorithm.ToString(),
             };
 
-        private static readonly string[] ValidTextQueryTypes = ["prefixPreview", "substringPreview", "suffixPreview"];
+        private static readonly string[] ValidStringQueryTypes = ["prefix", "prefixPreview", "substringPreview", "suffix", "suffixPreview"];
         #endregion
 
         // private fields
@@ -329,7 +392,10 @@ namespace MongoDB.Driver.Encryption
         private readonly long? _contentionFactor;
         private readonly Guid? _keyId;
         private readonly RangeOptions _rangeOptions;
+        private readonly StringOptions _stringOptions;
+#pragma warning disable CS0618 // _textOptions is the deprecated alias for _stringOptions.
         private readonly TextOptions _textOptions;
+#pragma warning restore CS0618
         private readonly string _queryType;
 
         // constructors
@@ -372,11 +438,48 @@ namespace MongoDB.Driver.Encryption
         /// Initializes a new instance of the <see cref="EncryptOptions"/> class.
         /// </summary>
         /// <param name="algorithm">The encryption algorithm.</param>
+        /// <param name="stringOptions">The string options.</param>
+        /// <param name="alternateKeyName">The alternate key name.</param>
+        /// <param name="keyId">The key Id.</param>
+        /// <param name="contentionFactor">The contention factor.</param>
+        /// <param name="queryType">The query type.</param>
+        public EncryptOptions(
+            string algorithm,
+            StringOptions stringOptions,
+            Optional<string> alternateKeyName = default,
+            Optional<long?> contentionFactor = default,
+            Optional<Guid?> keyId = default,
+            Optional<string> queryType = default)
+        {
+            Ensure.IsNotNull(algorithm, nameof(algorithm));
+            Ensure.IsNotNull(stringOptions, nameof(stringOptions));
+            if (Enum.TryParse<EncryptionAlgorithm>(algorithm, out var @enumStr))
+            {
+                _algorithm = ConvertEnumAlgorithmToString(@enumStr);
+            }
+            else
+            {
+                _algorithm = algorithm;
+            }
+
+            _alternateKeyName = alternateKeyName.WithDefault(null);
+            _contentionFactor = contentionFactor.WithDefault(null);
+            _keyId = keyId.WithDefault(null);
+            _stringOptions = stringOptions;
+            _queryType = queryType.WithDefault(null);
+            EnsureThatOptionsAreValid();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EncryptOptions"/> class.
+        /// </summary>
+        /// <param name="algorithm">The encryption algorithm.</param>
         /// <param name="textOptions">The text options.</param>
         /// <param name="alternateKeyName">The alternate key name.</param>
         /// <param name="keyId">The key Id.</param>
         /// <param name="contentionFactor">The contention factor.</param>
         /// <param name="queryType">The query type.</param>
+        [Obsolete("Use the StringOptions overload instead.")]
         public EncryptOptions(
             string algorithm,
             TextOptions textOptions,
@@ -434,11 +537,38 @@ namespace MongoDB.Driver.Encryption
         /// Initializes a new instance of the <see cref="EncryptOptions"/> class.
         /// </summary>
         /// <param name="algorithm">The encryption algorithm.</param>
+        /// <param name="stringOptions">The string options.</param>
+        /// <param name="alternateKeyName">The alternate key name.</param>
+        /// <param name="keyId">The key Id.</param>
+        /// <param name="contentionFactor">The contention factor.</param>
+        /// <param name="queryType">The query type.</param>
+        public EncryptOptions(
+            EncryptionAlgorithm algorithm,
+            StringOptions stringOptions,
+            Optional<string> alternateKeyName = default,
+            Optional<Guid?> keyId = default,
+            Optional<long?> contentionFactor = default,
+            Optional<string> queryType = default)
+            : this(
+                algorithm: ConvertEnumAlgorithmToString(algorithm),
+                stringOptions,
+                alternateKeyName,
+                contentionFactor,
+                keyId,
+                queryType)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EncryptOptions"/> class.
+        /// </summary>
+        /// <param name="algorithm">The encryption algorithm.</param>
         /// <param name="textOptions">The text options.</param>
         /// <param name="alternateKeyName">The alternate key name.</param>
         /// <param name="keyId">The key Id.</param>
         /// <param name="contentionFactor">The contention factor.</param>
         /// <param name="queryType">The query type.</param>
+        [Obsolete("Use the StringOptions overload instead.")]
         public EncryptOptions(
             EncryptionAlgorithm algorithm,
             TextOptions textOptions,
@@ -496,7 +626,7 @@ namespace MongoDB.Driver.Encryption
         /// The query type.
         /// </value>
         /// <remarks>
-        /// Currently, we only support "equality", "range", "prefixPreview", "suffixPreview" or "substringPreview" queryTypes.
+        /// Currently, we only support "equality", "range", "prefix", "prefixPreview", "suffix", "suffixPreview" or "substringPreview" queryTypes.
         /// </remarks>
         public string QueryType => _queryType;
 
@@ -514,13 +644,21 @@ namespace MongoDB.Driver.Encryption
         public RangeOptions RangeOptions => _rangeOptions;
 
         /// <summary>
+        /// Gets the string options.
+        /// </summary>
+        /// <remarks>
+        /// StringOptions specifies options for a Queryable Encryption field that supports the "prefix", "prefixPreview", "suffix", "suffixPreview", and "substringPreview" query types.
+        /// StringOptions only applies when the encryption algorithm is "String".
+        /// </remarks>
+        public StringOptions StringOptions => _stringOptions;
+
+        /// <summary>
         /// Gets the text options.
         /// </summary>
         /// <remarks>
-        /// TextOptions specifies options for a Queryable Encryption field supporting "textPreview" queries.
-        /// TextOptions is currently unstable API and subject to backwards breaking changes.
-        /// TextOptions only applies when the encryption algorithm is "textPreview".
+        /// This is a deprecated alias for <see cref="StringOptions"/>. Use <see cref="StringOptions"/> instead.
         /// </remarks>
+        [Obsolete("Use StringOptions instead.")]
         public TextOptions TextOptions => _textOptions;
 
         /// <summary>
@@ -553,6 +691,33 @@ namespace MongoDB.Driver.Encryption
         /// <summary>
         /// Returns a new EncryptOptions instance with some settings changed.
         /// </summary>
+        /// <param name="stringOptions">The string options.</param>
+        /// <param name="algorithm">The encryption algorithm.</param>
+        /// <param name="alternateKeyName">The alternate key name.</param>
+        /// <param name="keyId">The keyId.</param>
+        /// <param name="contentionFactor">The contention factor.</param>
+        /// <param name="queryType">The query type.</param>
+        /// <returns>A new EncryptOptions instance.</returns>
+        public EncryptOptions With(
+            StringOptions stringOptions,
+            Optional<string> algorithm = default,
+            Optional<string> alternateKeyName = default,
+            Optional<Guid?> keyId = default,
+            Optional<long?> contentionFactor = default,
+            Optional<string> queryType = default)
+        {
+            return new EncryptOptions(
+                algorithm: algorithm.WithDefault(_algorithm),
+                alternateKeyName: alternateKeyName.WithDefault(_alternateKeyName),
+                contentionFactor: contentionFactor.WithDefault(_contentionFactor),
+                keyId: keyId.WithDefault(_keyId),
+                queryType: queryType.WithDefault(_queryType),
+                stringOptions: stringOptions);
+        }
+
+        /// <summary>
+        /// Returns a new EncryptOptions instance with some settings changed.
+        /// </summary>
         /// <param name="textOptions">The text options.</param>
         /// <param name="algorithm">The encryption algorithm.</param>
         /// <param name="alternateKeyName">The alternate key name.</param>
@@ -560,6 +725,7 @@ namespace MongoDB.Driver.Encryption
         /// <param name="contentionFactor">The contention factor.</param>
         /// <param name="queryType">The query type.</param>
         /// <returns>A new EncryptOptions instance.</returns>
+        [Obsolete("Use the StringOptions overload instead.")]
         public EncryptOptions With(
             TextOptions textOptions,
             Optional<string> algorithm = default,
@@ -577,35 +743,43 @@ namespace MongoDB.Driver.Encryption
                 textOptions: textOptions);
         }
 
+        // internal methods
+#pragma warning disable CS0618 // marshal whichever of StringOptions/TextOptions was set.
+        internal BsonDocument GetStringOptionsDocument() => _stringOptions?.CreateDocument() ?? _textOptions?.CreateDocument();
+#pragma warning restore CS0618
+
         // private methods
         private void EnsureThatOptionsAreValid()
         {
             Ensure.That(!(!_keyId.HasValue && _alternateKeyName == null), "Key Id and AlternateKeyName may not both be null.");
             Ensure.That(!(_keyId.HasValue && _alternateKeyName != null), "Key Id and AlternateKeyName may not both be set.");
-            Ensure.That(!(_contentionFactor.HasValue && (_algorithm != EncryptionAlgorithm.Indexed.ToString() && _algorithm != EncryptionAlgorithm.Range.ToString() && _algorithm != EncryptionAlgorithm.TextPreview.ToString())), "ContentionFactor only applies for Indexed, Range, or TextPreview algorithm.");
-            Ensure.That(!(_queryType != null && (_algorithm != EncryptionAlgorithm.Indexed.ToString() && _algorithm != EncryptionAlgorithm.Range.ToString() && _algorithm != EncryptionAlgorithm.TextPreview.ToString())), "QueryType only applies for Indexed, Range, or TextPreview algorithm.");
+            Ensure.That(!(_contentionFactor.HasValue && (_algorithm != EncryptionAlgorithm.Indexed.ToString() && _algorithm != EncryptionAlgorithm.Range.ToString() && _algorithm != EncryptionAlgorithm.String.ToString())), "ContentionFactor only applies for Indexed, Range, or String algorithm.");
+            Ensure.That(!(_queryType != null && (_algorithm != EncryptionAlgorithm.Indexed.ToString() && _algorithm != EncryptionAlgorithm.Range.ToString() && _algorithm != EncryptionAlgorithm.String.ToString())), "QueryType only applies for Indexed, Range, or String algorithm.");
             Ensure.That(!(_rangeOptions != null && _algorithm != EncryptionAlgorithm.Range.ToString()), "RangeOptions only applies for Range algorithm.");
-            Ensure.That(!(_textOptions != null && _algorithm != EncryptionAlgorithm.TextPreview.ToString()), "TextOptions only applies for TextPreview algorithm.");
+            Ensure.That(!(_stringOptions != null && _algorithm != EncryptionAlgorithm.String.ToString()), "StringOptions only applies for String algorithm.");
+#pragma warning disable CS0618 // _textOptions is the deprecated alias; validate whichever options were set.
+            Ensure.That(!(_textOptions != null && _algorithm != EncryptionAlgorithm.String.ToString()), "TextOptions only applies for String algorithm.");
 
-            if (_algorithm == EncryptionAlgorithm.TextPreview.ToString() && _queryType != null)
+            if (_algorithm == EncryptionAlgorithm.String.ToString() && _queryType != null)
             {
                 Ensure.That(
-                    ValidTextQueryTypes.Contains(_queryType),
-                    $"QueryType '{_queryType}' is not valid for TextPreview algorithm. Use: {string.Join(", ", ValidTextQueryTypes)}.");
+                    ValidStringQueryTypes.Contains(_queryType),
+                    $"QueryType '{_queryType}' is not valid for String algorithm. Use: {string.Join(", ", ValidStringQueryTypes)}.");
             }
 
-            if (_textOptions != null && _queryType != null)
+            if ((_stringOptions != null || _textOptions != null) && _queryType != null)
             {
                 Ensure.That(
-                    !(_queryType == "prefixPreview" && _textOptions.PrefixOptions == null),
-                    "PrefixOptions must be set when queryType is 'prefixPreview'");
+                    !((_queryType == "prefix" || _queryType == "prefixPreview") && (_stringOptions?.PrefixOptions ?? _textOptions?.PrefixOptions) == null),
+                    "PrefixOptions must be set when queryType is 'prefix' or 'prefixPreview'");
                 Ensure.That(
-                    !(_queryType == "substringPreview" && _textOptions.SubstringOptions == null),
+                    !(_queryType == "substringPreview" && (_stringOptions?.SubstringOptions ?? _textOptions?.SubstringOptions) == null),
                     "SubstringOptions must be set when queryType is 'substringPreview'");
                 Ensure.That(
-                    !(_queryType == "suffixPreview" && _textOptions.SuffixOptions == null),
-                    "SuffixOptions must be set when queryType is 'suffixPreview'");
+                    !((_queryType == "suffix" || _queryType == "suffixPreview") && (_stringOptions?.SuffixOptions ?? _textOptions?.SuffixOptions) == null),
+                    "SuffixOptions must be set when queryType is 'suffix' or 'suffixPreview'");
             }
+#pragma warning restore CS0618
         }
     }
 }

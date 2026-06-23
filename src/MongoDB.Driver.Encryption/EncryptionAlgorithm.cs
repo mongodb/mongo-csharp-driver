@@ -13,6 +13,8 @@
 * limitations under the License.
 */
 
+using System;
+
 namespace MongoDB.Driver.Encryption
 {
     /// <summary>
@@ -56,13 +58,23 @@ namespace MongoDB.Driver.Encryption
         Range,
 
         /// <summary>
+        /// String algorithm.
+        /// </summary>
+        /// <remarks>
+        /// To insert or query with a "String" encrypted payload, use a MongoClient configured with AutoEncryptionOptions.
+        /// AutoEncryptionOptions.BypassQueryAnalysis may be true. AutoEncryptionOptions.BypassAutoEncryption must be false.
+        /// </remarks>
+#pragma warning disable CA1720
+        String,
+#pragma warning restore CA1720
+
+        /// <summary>
         /// TextPreview algorithm.
         /// </summary>
         /// <remarks>
-        /// The TextPreview algorithm is in preview and should be used for experimental workloads only.
-        /// To insert or query with a "TextPreview" encrypted payload, use a MongoClient configured with AutoEncryptionOptions.
-        /// AutoEncryptionOptions.BypassQueryAnalysis may be true. AutoEncryptionOptions.BypassAutoEncryption must be false.
+        /// This is a deprecated alias for <see cref="String"/> and is translated to "String". Use <see cref="String"/> instead.
         /// </remarks>
+        [Obsolete("Use String instead.")]
         TextPreview
     }
 }
