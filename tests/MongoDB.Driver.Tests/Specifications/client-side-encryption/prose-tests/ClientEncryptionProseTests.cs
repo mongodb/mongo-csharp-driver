@@ -2878,6 +2878,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 IMongoCollection<BsonDocument> substringCiDiCollectionExplicit)
             {
                 // Prefix/suffix cases (1-4) use the GA query types on 9.0+ and the preview query types on older servers.
+                // Cases 7-9 are GA-only (they are never run by StringPreviewExplicitEncryptionTest) and intentionally
+                // hardcode the GA query types rather than using these variables.
                 var prefixQueryType = isPreview ? "prefixPreview" : "prefix";
                 var suffixQueryType = isPreview ? "suffixPreview" : "suffix";
 
