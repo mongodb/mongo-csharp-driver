@@ -74,6 +74,9 @@ namespace MongoDB.Driver.GridFS
         /// <summary>
         /// Gets or sets whether to assume the GridFS indexes already exist, skipping the index check and creation before the first upload.
         /// </summary>
+        /// <remarks>
+        /// When <c>true</c>, the driver never verifies or creates the GridFS indexes, so the caller is responsible for ensuring they exist.
+        /// </remarks>
         /// <value>
         /// <c>true</c> if the GridFS indexes are assumed to exist; otherwise, <c>false</c>.
         /// </value>
@@ -211,6 +214,9 @@ namespace MongoDB.Driver.GridFS
         /// <summary>
         /// Gets whether to assume the GridFS indexes already exist, skipping the index check and creation before the first upload.
         /// </summary>
+        /// <remarks>
+        /// When <c>true</c>, the driver never verifies or creates the GridFS indexes, so the caller is responsible for ensuring they exist.
+        /// </remarks>
         /// <value>
         /// <c>true</c> if the GridFS indexes are assumed to exist; otherwise, <c>false</c>.
         /// </value>
