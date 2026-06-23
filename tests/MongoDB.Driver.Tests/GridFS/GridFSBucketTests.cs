@@ -729,6 +729,10 @@ namespace MongoDB.Driver.Tests.GridFS
             filesIndexes.Should().NotContain(index => index["name"] == "filename_1_uploadDate_1");
             var chunksIndexes = database.GetCollection<BsonDocument>("fs.chunks").Indexes.List().ToList();
             chunksIndexes.Should().NotContain(index => index["name"] == "files_id_1_n_1");
+
+            // clean up: this test leaves the shared collections non-empty without the GridFS indexes,
+            // which would suppress index creation for later tests that share the same bucket
+            subject.Drop();
         }
 
         [Theory]
