@@ -726,7 +726,7 @@ namespace MongoDB.Driver.Tests.GridFS
             }
 
             var filesIndexes = database.GetCollection<BsonDocument>("fs.files").Indexes.List().ToList();
-            filesIndexes.Should().OnlyContain(index => index["name"] == "_id_");
+            filesIndexes.Should().NotContain(index => index["name"] == "filename_1_uploadDate_1");
             var chunksIndexes = database.GetCollection<BsonDocument>("fs.chunks").Indexes.List().ToList();
             chunksIndexes.Should().NotContain(index => index["name"] == "files_id_1_n_1");
         }

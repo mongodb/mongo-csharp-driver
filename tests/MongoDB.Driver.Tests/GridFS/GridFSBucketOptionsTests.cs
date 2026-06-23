@@ -291,7 +291,7 @@ namespace MongoDB.Driver.Tests.GridFS
         [Fact]
         public void constructor_with_no_arguments_should_initialize_instance_with_default_values()
         {
-            var result = new GridFSBucketOptions();
+            var result = new ImmutableGridFSBucketOptions();
 
             result.AssumeIndexesExist.Should().BeFalse();
             result.BucketName.Should().Be("fs");
