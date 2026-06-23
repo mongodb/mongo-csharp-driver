@@ -31,9 +31,22 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods
             else
             {
                 LambdaExpression lambda = Expression.Lambda(expression);
-                Delegate fn = lambda.Compile();
+                Delegate fn = lambda.CompileForOneShotEvaluation();
                 return fn.DynamicInvoke(null);
             }
+        }
+
+        // Compiles a lambda that will be invoked exactly once and then discarded. Preferring
+        // interpretation avoids creating a DynamicMethod for the single invocation, which sidesteps
+        // a .NET 10 tiered-JIT race where the background recompiler can dereference the method's IL
+        // after the delegate has become GC-eligible (CSHARP-6093, originally reported as CSHARP-6087).
+        internal static Delegate CompileForOneShotEvaluation(this LambdaExpression lambda)
+        {
+#if NET472
+            return lambda.Compile();
+#else
+            return lambda.Compile(preferInterpretation: true);
+#endif
         }
 
         public static (string CollectionName, IBsonSerializer DocumentSerializer) GetCollectionInfoFromQueryable(this Expression queryableExpression, Expression containerExpression)

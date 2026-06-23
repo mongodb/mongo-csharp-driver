@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
@@ -217,7 +218,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                     return expression;
                 }
                 LambdaExpression lambda = Expression.Lambda(expression);
-                Delegate fn = lambda.Compile();
+                Delegate fn = lambda.CompileForOneShotEvaluation();
                 return Expression.Constant(fn.DynamicInvoke(null), expression.Type);
             }
 

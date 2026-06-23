@@ -187,11 +187,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 return sortByExpression.GetConstantValue<object>(sortByExpression);
             }
 
-            // we get here when the PartialEvaluator couldn't fully evalute the SortDefinition
+            // we get here when the PartialEvaluator couldn't fully evaluate the SortDefinition
             try
             {
                 LambdaExpression lambda = Expression.Lambda(sortByExpression);
-                Delegate @delegate = lambda.Compile();
+                Delegate @delegate = lambda.CompileForOneShotEvaluation();
                 return @delegate.DynamicInvoke(null);
             }
             catch (Exception ex)
