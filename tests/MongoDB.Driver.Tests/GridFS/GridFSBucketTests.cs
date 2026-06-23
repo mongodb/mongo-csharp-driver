@@ -703,6 +703,61 @@ namespace MongoDB.Driver.Tests.GridFS
             }
         }
 
+        [Theory]
+        [ParameterAttributeData]
+        [Trait("Category", "Integration")]
+        public void Upload_should_not_create_indexes_when_AssumeIndexesExist_is_true(
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check();
+            var client = DriverTestConfiguration.Client;
+            var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
+            var options = new GridFSBucketOptions { AssumeIndexesExist = true };
+            var subject = new GridFSBucket(database, options);
+            subject.Drop();
+
+            if (async)
+            {
+                subject.UploadFromBytesAsync("filename", new byte[] { 0 }).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.UploadFromBytes("filename", new byte[] { 0 });
+            }
+
+            var filesIndexes = database.GetCollection<BsonDocument>("fs.files").Indexes.List().ToList();
+            filesIndexes.Should().OnlyContain(index => index["name"] == "_id_");
+            var chunksIndexes = database.GetCollection<BsonDocument>("fs.chunks").Indexes.List().ToList();
+            chunksIndexes.Should().NotContain(index => index["name"] == "files_id_1_n_1");
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        [Trait("Category", "Integration")]
+        public void Upload_should_create_indexes_when_AssumeIndexesExist_is_false(
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check();
+            var client = DriverTestConfiguration.Client;
+            var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
+            var subject = new GridFSBucket(database);
+            subject.Drop();
+
+            if (async)
+            {
+                subject.UploadFromBytesAsync("filename", new byte[] { 0 }).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.UploadFromBytes("filename", new byte[] { 0 });
+            }
+
+            var filesIndexes = database.GetCollection<BsonDocument>("fs.files").Indexes.List().ToList();
+            filesIndexes.Should().Contain(index => index["name"] == "filename_1_uploadDate_1");
+            var chunksIndexes = database.GetCollection<BsonDocument>("fs.chunks").Indexes.List().ToList();
+            chunksIndexes.Should().Contain(index => index["name"] == "files_id_1_n_1");
+        }
+
         // private methods
         private GridFSBucket CreateSubject(GridFSBucketOptions options = null)
         {

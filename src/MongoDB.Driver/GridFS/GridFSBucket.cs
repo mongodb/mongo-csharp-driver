@@ -897,6 +897,11 @@ namespace MongoDB.Driver.GridFS
 
         private void EnsureIndexes(OperationContext operationContext, IReadWriteBindingHandle binding)
         {
+            if (_options.AssumeIndexesExist)
+            {
+                return;
+            }
+
             _ensureIndexesSemaphore.Wait(operationContext.RemainingTimeout, operationContext.CancellationToken);
             try
             {
@@ -926,6 +931,11 @@ namespace MongoDB.Driver.GridFS
 
         private async Task EnsureIndexesAsync(OperationContext operationContext, IReadWriteBindingHandle binding)
         {
+            if (_options.AssumeIndexesExist)
+            {
+                return;
+            }
+
             await _ensureIndexesSemaphore.WaitAsync(operationContext.RemainingTimeout, operationContext.CancellationToken).ConfigureAwait(false);
             try
             {
