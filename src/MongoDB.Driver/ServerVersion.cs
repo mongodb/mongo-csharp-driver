@@ -209,7 +209,7 @@ namespace MongoDB.Driver
         {
             return serverVersion switch
             {
-                null => WireVersion.Server40,
+                null => WireVersion.SupportedWireVersionRange.Min,
                 ServerVersion.Server26 => WireVersion.Server26,
                 ServerVersion.Server30 => WireVersion.Server30,
                 ServerVersion.Server32 => WireVersion.Server32,
