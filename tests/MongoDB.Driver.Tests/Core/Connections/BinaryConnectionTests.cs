@@ -163,10 +163,9 @@ namespace MongoDB.Driver.Core.Connections
                 .ReturnsAsync(stream);
 
             var connectionInitializer = new ConnectionInitializer(
-                null,
+                new ClientMetadata(applicationName: null, libraryInfo: null),
                 new CompressorConfiguration[0],
-                new ServerApi(ServerApiVersion.V1), // use serverApi to choose command message protocol
-                null);
+                new ServerApi(ServerApiVersion.V1)); // use serverApi to choose command message protocol
 
             var authenticatorMock = new Mock<IAuthenticator>();
             authenticatorMock

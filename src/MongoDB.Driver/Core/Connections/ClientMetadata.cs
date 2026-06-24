@@ -14,7 +14,6 @@
 */
 
 using System.Collections.Generic;
-using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
@@ -50,7 +49,7 @@ internal sealed class ClientMetadata
 
         lock (_lock)
         {
-            return _clientDocument ??= ClientDocumentHelper.CreateClientDocument(_applicationName, MergeLibraryInfos());
+            return _clientDocument ??= ClientDocumentHelper.CreateClientDocument(_applicationName, _libraryInfos);
         }
     }
 
@@ -85,18 +84,4 @@ internal sealed class ClientMetadata
         return new LibraryInfo(libraryInfo.Name, version, platform);
     }
 
-    private LibraryInfo MergeLibraryInfos()
-    {
-        if (_libraryInfos.Count == 0)
-        {
-            return null;
-        }
-
-        // entries are normalized on insertion, so null is the only unset form
-        var name = string.Join("|", _libraryInfos.Select(libraryInfo => libraryInfo.Name));
-        var version = string.Join("|", _libraryInfos.Where(libraryInfo => libraryInfo.Version != null).Select(libraryInfo => libraryInfo.Version));
-        var platform = string.Join("|", _libraryInfos.Where(libraryInfo => libraryInfo.Platform != null).Select(libraryInfo => libraryInfo.Platform));
-
-        return new LibraryInfo(name, version, platform);
-    }
 }

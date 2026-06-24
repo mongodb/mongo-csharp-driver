@@ -140,14 +140,7 @@ namespace MongoDB.Driver
         {
             ThrowIfDisposed();
             Ensure.IsNotNull(libraryInfo, nameof(libraryInfo));
-            if (ContainsSeparator(libraryInfo.Name) || ContainsSeparator(libraryInfo.Version) || ContainsSeparator(libraryInfo.Platform))
-            {
-                throw new ArgumentException("Client metadata values must not contain the '|' character.", nameof(libraryInfo));
-            }
-
             _cluster.AppendClientMetadata(libraryInfo);
-
-            static bool ContainsSeparator(string value) => value != null && value.Contains("|");
         }
 
         /// <inheritdoc/>

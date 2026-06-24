@@ -232,7 +232,7 @@ namespace MongoDB.Driver.Core.Connections
             var helloReply = RawBsonDocumentHelper.FromJson($"{{ ok : 1, connectionId : 1, maxWireVersion : {WireVersion.Server44} }}");
             connection.EnqueueCommandResponseMessage(MessageHelper.BuildCommandResponse(helloReply));
 
-            var subject = new ConnectionInitializer("test", new[] { new CompressorConfiguration(CompressorType.Zlib) }, serverApi, null);
+            var subject = new ConnectionInitializer(new ClientMetadata("test", libraryInfo: null), new[] { new CompressorConfiguration(CompressorType.Zlib) }, serverApi);
 
             var result = await InitializeConnection(subject, connection, async);
 
@@ -398,10 +398,9 @@ namespace MongoDB.Driver.Core.Connections
 
         private ConnectionInitializer CreateSubject(bool withServerApi = false) =>
             new ConnectionInitializer(
-                "test",
+                new ClientMetadata("test", libraryInfo: null),
                 new[] { new CompressorConfiguration(CompressorType.Zlib) },
-                serverApi: withServerApi ? new ServerApi(ServerApiVersion.V1) : null,
-                libraryInfo: null);
+                serverApi: withServerApi ? new ServerApi(ServerApiVersion.V1) : null);
 
         private async Task<ConnectionDescription> InitializeConnection(ConnectionInitializer connectionInitializer, MockConnection connection, bool async)
         {

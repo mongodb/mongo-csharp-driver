@@ -35,7 +35,9 @@ namespace MongoDB.Driver.Core.Configuration
         public string Version { get; }
 
         /// <summary>
-        /// Gets the library platform.
+        /// Gets the library platform. This is a free-form description of the runtime the library targets;
+        /// it is appended to the platform information (for example, the .NET runtime description) reported in
+        /// the connection handshake. It is not the operating system, which the handshake reports separately.
         /// </summary>
         public string Platform { get; }
 
@@ -46,9 +48,8 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="name">The library name.</param>
         /// <param name="version">The library version.</param>
         public LibraryInfo(string name, string version = default)
+            : this(name, version, platform: null)
         {
-            Name = Ensure.IsNotNullOrEmpty(name, nameof(name));
-            Version = version;
         }
 
         /// <summary>
@@ -59,9 +60,9 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="platform">The library platform.</param>
         public LibraryInfo(string name, string version, string platform)
         {
-            Name = Ensure.IsNotNullOrEmpty(name, nameof(name));
-            Version = version;
-            Platform = platform;
+            Name = EnsureNoSeparator(Ensure.IsNotNullOrEmpty(name, nameof(name)), nameof(name));
+            Version = EnsureNoSeparator(version, nameof(version));
+            Platform = EnsureNoSeparator(platform, nameof(platform));
         }
 
         // public operators
@@ -121,5 +122,16 @@ namespace MongoDB.Driver.Core.Configuration
 
         /// <inheritdoc/>
         public override string ToString() => Platform == null ? $"{Name}-{Version}" : $"{Name}-{Version}-{Platform}";
+
+        // private methods
+        private static string EnsureNoSeparator(string value, string paramName)
+        {
+            if (value != null && value.Contains("|"))
+            {
+                throw new ArgumentException("LibraryInfo values must not contain the '|' character.", paramName);
+            }
+
+            return value;
+        }
     }
 }

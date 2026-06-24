@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
@@ -57,19 +58,15 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         // private static methods
-        internal static BsonDocument CreateClientDocument(string applicationName, LibraryInfo libraryInfo)
+        internal static BsonDocument CreateClientDocument(string applicationName, IReadOnlyList<LibraryInfo> libraryInfos)
         {
-            return CreateClientDocument(applicationName, __driverDocument.Value, __osDocument.Value, __platformString.Value, __envDocument.Value, libraryInfo);
+            return CreateClientDocument(applicationName, __driverDocument.Value, __osDocument.Value, __platformString.Value, __envDocument.Value, libraryInfos);
         }
 
-        internal static BsonDocument CreateClientDocument(string applicationName, BsonDocument driverDocument, BsonDocument osDocument, string platformString, BsonDocument envDocument, LibraryInfo libraryInfo)
+        internal static BsonDocument CreateClientDocument(string applicationName, BsonDocument driverDocument, BsonDocument osDocument, string platformString, BsonDocument envDocument, IReadOnlyList<LibraryInfo> libraryInfos)
         {
-            driverDocument = AppendLibraryInfoToDriverDocument(driverDocument, libraryInfo);
-
-            if (libraryInfo != null && !string.IsNullOrWhiteSpace(libraryInfo.Platform))
-            {
-                platformString = string.IsNullOrEmpty(platformString) ? libraryInfo.Platform : $"{platformString}|{libraryInfo.Platform}";
-            }
+            driverDocument = AppendLibraryInfosToDriverDocument(driverDocument, libraryInfos);
+            platformString = AppendLibraryPlatformsToPlatformString(platformString, libraryInfos);
 
             var clientDocument = new BsonDocument
             {
@@ -417,26 +414,49 @@ namespace MongoDB.Driver.Core.Connections
             return clientDocument;
         }
 
-        private static BsonDocument AppendLibraryInfoToDriverDocument(BsonDocument driverDocument, LibraryInfo libraryInfo)
+        private static BsonDocument AppendLibraryInfosToDriverDocument(BsonDocument driverDocument, IReadOnlyList<LibraryInfo> libraryInfos)
         {
-            if (libraryInfo == null)
+            if (libraryInfos == null || libraryInfos.Count == 0)
             {
                 return driverDocument;
             }
 
-            var driverName = $"{driverDocument["name"]}|{libraryInfo.Name}";
-            var driverVersion = driverDocument["version"];
+            var driverName = driverDocument["name"].AsString;
+            var driverVersion = driverDocument["version"].AsString;
 
-            if (!string.IsNullOrWhiteSpace(libraryInfo.Version))
+            foreach (var libraryInfo in libraryInfos)
             {
-                driverVersion = $"{driverVersion}|{libraryInfo.Version}";
+                driverName = $"{driverName}|{libraryInfo.Name}";
+
+                if (!string.IsNullOrWhiteSpace(libraryInfo.Version))
+                {
+                    driverVersion = $"{driverVersion}|{libraryInfo.Version}";
+                }
             }
 
-            return new()
+            return new BsonDocument
             {
                 { "name", driverName },
                 { "version", driverVersion }
             };
+        }
+
+        private static string AppendLibraryPlatformsToPlatformString(string platformString, IReadOnlyList<LibraryInfo> libraryInfos)
+        {
+            if (libraryInfos == null)
+            {
+                return platformString;
+            }
+
+            foreach (var libraryInfo in libraryInfos)
+            {
+                if (!string.IsNullOrWhiteSpace(libraryInfo.Platform))
+                {
+                    platformString = string.IsNullOrEmpty(platformString) ? libraryInfo.Platform : $"{platformString}|{libraryInfo.Platform}";
+                }
+            }
+
+            return platformString;
         }
 
         private static bool TryGetType(string typeName, out Type type)

@@ -35,15 +35,6 @@ namespace MongoDB.Driver.Core.Connections
         private readonly ServerApi _serverApi;
 
         public ConnectionInitializer(
-            string applicationName,
-            IReadOnlyList<CompressorConfiguration> compressors,
-            ServerApi serverApi,
-            LibraryInfo libraryInfo)
-            : this(new ClientMetadata(applicationName, libraryInfo), compressors, serverApi)
-        {
-        }
-
-        public ConnectionInitializer(
             ClientMetadata clientMetadata,
             IReadOnlyList<CompressorConfiguration> compressors,
             ServerApi serverApi)

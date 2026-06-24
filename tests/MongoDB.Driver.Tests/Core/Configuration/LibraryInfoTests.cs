@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using FluentAssertions;
 using MongoDB.Driver.Core.Configuration;
 using Xunit;
@@ -51,6 +52,17 @@ public class LibraryInfoTests
         var other = new LibraryInfo(name, version, platform);
 
         subject.Equals(other).Should().Be(expectedEqual);
+    }
+
+    [Theory]
+    [InlineData("lib|x", "1.0", null, "name")]
+    [InlineData("lib", "1.0|x", null, "version")]
+    [InlineData("lib", "1.0", "platform|x", "platform")]
+    public void constructor_should_throw_when_value_contains_separator(string name, string version, string platform, string expectedParamName)
+    {
+        var exception = Record.Exception(() => new LibraryInfo(name, version, platform));
+
+        exception.Should().BeOfType<ArgumentException>().Subject.ParamName.Should().Be(expectedParamName);
     }
 
     [Fact]

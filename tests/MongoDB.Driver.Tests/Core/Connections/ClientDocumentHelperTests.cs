@@ -66,7 +66,8 @@ namespace MongoDB.Driver.Core.Connections
             var (libraryInfo, driverDocumentStringCombined) = ParselibraryInfo();
 
             var envDocument = env != null ? new BsonDocument("name", env) : null;
-            var result = ClientDocumentHelper.CreateClientDocument(applicationName, driverDocument, osDocument, platformString, envDocument, libraryInfo);
+            var libraryInfos = libraryInfo == null ? null : new[] { libraryInfo };
+            var result = ClientDocumentHelper.CreateClientDocument(applicationName, driverDocument, osDocument, platformString, envDocument, libraryInfos);
 
             var applicationNameElement = applicationName == null ? null : $"application : {{ name : '{applicationName}' }},";
             var envElement = envDocument == null ? null : $", env : {{ name : '{env}' }}";
@@ -105,7 +106,7 @@ namespace MongoDB.Driver.Core.Connections
             var libraryInfo = libName != null ? new LibraryInfo(libName, libVersion) : null;
 
             ClientDocumentHelper.Initialize();
-            var driverDocument = ClientDocumentHelper.CreateClientDocument(null, libraryInfo)["driver"];
+            var driverDocument = ClientDocumentHelper.CreateClientDocument(null, libraryInfo == null ? null : new[] { libraryInfo })["driver"];
 
             driverDocument["name"].AsString.Should().Be(expectedDriverName);
 
@@ -129,7 +130,7 @@ namespace MongoDB.Driver.Core.Connections
             var osDocument = BsonDocument.Parse("{ type : 'Windows', name : 'Windows 10', architecture : 'x86_64', version : '10.0' }");
             var libraryInfo = new LibraryInfo("lib", "1.0", libraryPlatform);
 
-            var result = ClientDocumentHelper.CreateClientDocument(null, driverDocument, osDocument, "net45", envDocument: null, libraryInfo);
+            var result = ClientDocumentHelper.CreateClientDocument(null, driverDocument, osDocument, "net45", envDocument: null, new[] { libraryInfo });
 
             result["platform"].AsString.Should().Be(expectedPlatform);
         }
