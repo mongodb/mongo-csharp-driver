@@ -28,7 +28,6 @@ using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;

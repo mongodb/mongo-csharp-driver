@@ -361,6 +361,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             private CheckOutReason? _checkOutReason;
             private readonly IConnection _connection;
             private readonly ExclusiveConnectionPool _connectionPool;
+            private volatile bool _closedByPoolClear;
             private int _generation;
             private bool _disposed;
 
@@ -414,6 +415,12 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 get { return _connection.Settings; }
             }
 
+            public void CloseForPoolClear()
+            {
+                _closedByPoolClear = true;
+                Dispose();
+            }
+
             public void Dispose()
             {
                 if (!_disposed)
@@ -430,6 +437,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     _connection.Open(operationContext);
                     SetEffectiveGenerationIfRequired(_connection.Description);
                 }
+                catch (ObjectDisposedException ex) when (_closedByPoolClear)
+                {
+                    throw CreateConnectionClosedException(ex);
+                }
                 catch (MongoConnectionException ex)
                 {
                     SetEffectiveGenerationIfRequired(_connection.Description);
@@ -444,6 +455,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 {
                     await _connection.OpenAsync(operationContext).ConfigureAwait(false);
                     SetEffectiveGenerationIfRequired(_connection.Description);
+                }
+                catch (ObjectDisposedException ex) when (_closedByPoolClear)
+                {
+                    throw CreateConnectionClosedException(ex);
                 }
                 catch (MongoConnectionException ex)
                 {
@@ -463,6 +478,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 {
                     return _connection.ReceiveMessage(operationContext, responseTo, encoderSelector, messageEncoderSettings);
                 }
+                catch (ObjectDisposedException ex) when (_closedByPoolClear)
+                {
+                    throw CreateConnectionClosedException(ex);
+                }
                 catch (MongoConnectionException ex)
                 {
                     EnrichExceptionDetails(ex);
@@ -475,6 +494,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 try
                 {
                     return await _connection.ReceiveMessageAsync(operationContext, responseTo, encoderSelector, messageEncoderSettings).ConfigureAwait(false);
+                }
+                catch (ObjectDisposedException ex) when (_closedByPoolClear)
+                {
+                    throw CreateConnectionClosedException(ex);
                 }
                 catch (MongoConnectionException ex)
                 {
@@ -489,6 +512,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 {
                     _connection.SendMessage(operationContext, message, messageEncoderSettings);
                 }
+                catch (ObjectDisposedException ex) when (_closedByPoolClear)
+                {
+                    throw CreateConnectionClosedException(ex);
+                }
                 catch (MongoConnectionException ex)
                 {
                     EnrichExceptionDetails(ex);
@@ -501,6 +528,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 try
                 {
                     await _connection.SendMessageAsync(operationContext, message, messageEncoderSettings).ConfigureAwait(false);
+                }
+                catch (ObjectDisposedException ex) when (_closedByPoolClear)
+                {
+                    throw CreateConnectionClosedException(ex);
                 }
                 catch (MongoConnectionException ex)
                 {
@@ -529,6 +560,13 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
 
             // private methods
+            private MongoConnectionException CreateConnectionClosedException(Exception ex)
+            {
+                var connectionException = new MongoConnectionException(ConnectionId, "The underlying connection was closed.", ex);
+                EnrichExceptionDetails(connectionException);
+                return connectionException;
+            }
+
             private void EnrichExceptionDetails(MongoConnectionException ex)
             {
                 // should be refactored in CSHARP-3720
@@ -617,27 +655,13 @@ namespace MongoDB.Driver.Core.ConnectionPools
             public void Open(OperationContext operationContext)
             {
                 ThrowIfDisposed();
-                try
-                {
-                    _reference.Instance.Open(operationContext);
-                }
-                catch (ObjectDisposedException ex)
-                {
-                    throw CreateConnectionException(ex);
-                }
+                _reference.Instance.Open(operationContext);
             }
 
-            public async Task OpenAsync(OperationContext operationContext)
+            public Task OpenAsync(OperationContext operationContext)
             {
                 ThrowIfDisposed();
-                try
-                {
-                    await _reference.Instance.OpenAsync(operationContext).ConfigureAwait(false);
-                }
-                catch (ObjectDisposedException ex)
-                {
-                    throw CreateConnectionException(ex);
-                }
+                return _reference.Instance.OpenAsync(operationContext);
             }
 
             public void Reauthenticate(OperationContext operationContext)
@@ -652,56 +676,28 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 return _reference.Instance.ReauthenticateAsync(operationContext);
             }
 
-            public async Task<ResponseMessage> ReceiveMessageAsync(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings)
+            public Task<ResponseMessage> ReceiveMessageAsync(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings)
             {
                 ThrowIfDisposed();
-                try
-                {
-                    return await _reference.Instance.ReceiveMessageAsync(operationContext, responseTo, encoderSelector, messageEncoderSettings).ConfigureAwait(false);
-                }
-                catch (ObjectDisposedException ex)
-                {
-                    throw CreateConnectionException(ex);
-                }
+                return _reference.Instance.ReceiveMessageAsync(operationContext, responseTo, encoderSelector, messageEncoderSettings);
             }
 
             public ResponseMessage ReceiveMessage(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings)
             {
                 ThrowIfDisposed();
-                try
-                {
-                    return _reference.Instance.ReceiveMessage(operationContext, responseTo, encoderSelector, messageEncoderSettings);
-                }
-                catch (ObjectDisposedException ex)
-                {
-                    throw CreateConnectionException(ex);
-                }
+                return _reference.Instance.ReceiveMessage(operationContext, responseTo, encoderSelector, messageEncoderSettings);
             }
 
             public void SendMessage(OperationContext operationContext, RequestMessage message, MessageEncoderSettings messageEncoderSettings)
             {
                 ThrowIfDisposed();
-                try
-                {
-                    _reference.Instance.SendMessage(operationContext, message, messageEncoderSettings);
-                }
-                catch (ObjectDisposedException ex)
-                {
-                    throw CreateConnectionException(ex);
-                }
+                _reference.Instance.SendMessage(operationContext, message, messageEncoderSettings);
             }
 
-            public async Task SendMessageAsync(OperationContext operationContext, RequestMessage message, MessageEncoderSettings messageEncoderSettings)
+            public Task SendMessageAsync(OperationContext operationContext, RequestMessage message, MessageEncoderSettings messageEncoderSettings)
             {
                 ThrowIfDisposed();
-                try
-                {
-                    await _reference.Instance.SendMessageAsync(operationContext, message, messageEncoderSettings).ConfigureAwait(false);
-                }
-                catch (ObjectDisposedException ex)
-                {
-                    throw CreateConnectionException(ex);
-                }
+                return _reference.Instance.SendMessageAsync(operationContext, message, messageEncoderSettings);
             }
 
             public void CompleteCommandActivityWithException(Exception exception)
@@ -721,9 +717,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 ThrowIfDisposed();
                 _reference.Instance.SetCheckOutReasonIfNotAlreadySet(reason);
             }
-
-            private MongoConnectionException CreateConnectionException(Exception ex) =>
-                new (_reference.Instance.ConnectionId, "The underlying connection was closed.", ex);
 
             private void ThrowIfDisposed()
             {
@@ -807,7 +800,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                                 continue;
                             }
 
-                            RemoveConnection(connection);
+                            RemoveConnection(connection, true);
                             connections.Remove(connection);
 
                             if (signal)
@@ -869,13 +862,21 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
-            public void RemoveConnection(PooledConnection connection)
+            public void RemoveConnection(PooledConnection connection, bool isCloseInUse = false)
             {
                 _eventLogger.LogAndPublish(new ConnectionPoolRemovingConnectionEvent(connection.ConnectionId, EventContext.OperationId));
 
                 var stopwatch = Stopwatch.StartNew();
                 UntrackInUseConnection(connection); // no op if connection is not in use
-                connection.Dispose();
+                if (isCloseInUse)
+                {
+                    connection.CloseForPoolClear();
+                }
+                else
+                {
+                    connection.Dispose();
+                }
+
                 stopwatch.Stop();
 
                 _eventLogger.LogAndPublish(new ConnectionPoolRemovedConnectionEvent(connection.ConnectionId, stopwatch.Elapsed, EventContext.OperationId));
