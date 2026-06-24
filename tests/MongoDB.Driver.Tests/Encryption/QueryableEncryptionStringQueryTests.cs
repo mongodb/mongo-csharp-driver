@@ -37,13 +37,13 @@ namespace MongoDB.Driver.Tests.Encryption;
 
 [Trait("Category", "CSFLE")]
 [Trait("Category", "Integration")]
-public class QueryableEncryptionTextQueryTests : LoggableTestClass
+public class QueryableEncryptionStringQueryTests : LoggableTestClass
 {
     private static readonly CollectionNamespace __keyVaultCollectionNamespace = CollectionNamespace.FromFullName("keyvault.datakeys");
     private static readonly CollectionNamespace __prefixSuffixCollectionNamespace = CollectionNamespace.FromFullName("db.prefix-suffix");
     private static readonly CollectionNamespace __substringCollectionNamespace = CollectionNamespace.FromFullName("db.substring");
 
-    public QueryableEncryptionTextQueryTests(ITestOutputHelper testOutputHelper)
+    public QueryableEncryptionStringQueryTests(ITestOutputHelper testOutputHelper)
         : base(testOutputHelper)
     {
     }
@@ -52,7 +52,7 @@ public class QueryableEncryptionTextQueryTests : LoggableTestClass
     [ParameterAttributeData]
     public void EncStr_filter_builder_should_match_encrypted_text([Values(false, true)] bool async)
     {
-        RequireTextPreviewSupport();
+        RequireStringSupport();
 
         using var encryptedClient = SetupEncryptedCollections();
         var prefixSuffix = GetCollection(encryptedClient, __prefixSuffixCollectionNamespace);
@@ -73,7 +73,7 @@ public class QueryableEncryptionTextQueryTests : LoggableTestClass
     [ParameterAttributeData]
     public void Mql_EncStr_in_LINQ_should_match_encrypted_text([Values(false, true)] bool async)
     {
-        RequireTextPreviewSupport();
+        RequireStringSupport();
 
         using var encryptedClient = SetupEncryptedCollections();
         var prefixSuffix = GetCollection(encryptedClient, __prefixSuffixCollectionNamespace);
@@ -90,14 +90,15 @@ public class QueryableEncryptionTextQueryTests : LoggableTestClass
             .Should().BeEmpty();
     }
 
-    private static void RequireTextPreviewSupport()
+    private static void RequireStringSupport()
     {
+        // GA prefix/suffix string queries require server 9.0+. The substring query (EncStrContains) is still
+        // preview (substringPreview) but remains valid on 9.0, so it is exercised here under the same gate.
         RequireServer.Check()
-            .Supports(Feature.Csfle2QEv2TextPreviewAlgorithm)
-            .ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced)
-            .VersionLessThanOrEqualTo("8.99.99"); // QE text search is in preview before 9.0; the prefixPreview/suffixPreview/substringPreview query type names used in the fixtures graduate (get renamed) in 9.0, which rejects the old names (SERVER-123416)
+            .Supports(Feature.Csfle2QEv2StringAlgorithm)
+            .ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced);
 
-        // QE text queries require crypt_shared; skip when only mongocryptd is available (see SERVER-106469).
+        // QE string queries require crypt_shared; skip when only mongocryptd is available (see SERVER-106469).
         CoreTestConfiguration.SkipMongocryptdTests_SERVER_106469(checkForSharedLib: true);
     }
 
