@@ -440,8 +440,8 @@ namespace MongoDB.Driver.Encryption
         /// <param name="algorithm">The encryption algorithm.</param>
         /// <param name="stringOptions">The string options.</param>
         /// <param name="alternateKeyName">The alternate key name.</param>
-        /// <param name="keyId">The key Id.</param>
         /// <param name="contentionFactor">The contention factor.</param>
+        /// <param name="keyId">The key Id.</param>
         /// <param name="queryType">The query type.</param>
         public EncryptOptions(
             string algorithm,
@@ -476,8 +476,8 @@ namespace MongoDB.Driver.Encryption
         /// <param name="algorithm">The encryption algorithm.</param>
         /// <param name="textOptions">The text options.</param>
         /// <param name="alternateKeyName">The alternate key name.</param>
-        /// <param name="keyId">The key Id.</param>
         /// <param name="contentionFactor">The contention factor.</param>
+        /// <param name="keyId">The key Id.</param>
         /// <param name="queryType">The query type.</param>
         [Obsolete("Use the StringOptions overload instead.")]
         public EncryptOptions(
