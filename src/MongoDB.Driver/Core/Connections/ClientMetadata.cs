@@ -20,9 +20,6 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Connections;
 
-/// <summary>
-/// Holds the client handshake metadata for a cluster and the library information appended to it after construction.
-/// </summary>
 internal sealed class ClientMetadata
 {
     private readonly string _applicationName;

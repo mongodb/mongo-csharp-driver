@@ -132,8 +132,8 @@ namespace MongoDB.Driver
 
         // public methods
         /// <summary>
-        /// Appends the specified library information to the metadata that is sent to the server in the connection handshake.
-        /// The information is included in the handshake of connections opened after this call; existing connections are not affected.
+        /// Appends the specified library information to the metadata sent to the server in the connection handshake.
+        /// Only connections opened after this call are affected.
         /// </summary>
         /// <param name="libraryInfo">The library information to append.</param>
         public void AppendMetadata(LibraryInfo libraryInfo)

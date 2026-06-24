@@ -42,13 +42,25 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
-        public void AppendMetadata_should_throw_when_libraryInfo_is_null()
+        public void AppendMetadata_extension_should_append_to_cluster()
         {
-            var client = CreateClientWithMockedCluster(out _);
+            IMongoClient client = CreateClientWithMockedCluster(out var mockCluster);
+            var libraryInfo = new LibraryInfo("lib", "1.0");
 
-            var exception = Record.Exception(() => client.AppendMetadata(null));
+            client.AppendMetadata(libraryInfo);
 
-            exception.Should().BeOfType<ArgumentNullException>().Subject.ParamName.Should().Be("libraryInfo");
+            mockCluster.Verify(c => c.AppendClientMetadata(libraryInfo), Times.Once);
+        }
+
+        [Fact]
+        public void AppendMetadata_should_append_to_cluster()
+        {
+            var client = CreateClientWithMockedCluster(out var mockCluster);
+            var libraryInfo = new LibraryInfo("lib", "1.0");
+
+            client.AppendMetadata(libraryInfo);
+
+            mockCluster.Verify(c => c.AppendClientMetadata(libraryInfo), Times.Once);
         }
 
         [Fact]
@@ -60,6 +72,16 @@ namespace MongoDB.Driver.Tests
             var exception = Record.Exception(() => client.AppendMetadata(new LibraryInfo("lib", "1.0")));
 
             exception.Should().BeOfType<ObjectDisposedException>();
+        }
+
+        [Fact]
+        public void AppendMetadata_should_throw_when_libraryInfo_is_null()
+        {
+            var client = CreateClientWithMockedCluster(out _);
+
+            var exception = Record.Exception(() => client.AppendMetadata(null));
+
+            exception.Should().BeOfType<ArgumentNullException>().Subject.ParamName.Should().Be("libraryInfo");
         }
 
         [Fact]
