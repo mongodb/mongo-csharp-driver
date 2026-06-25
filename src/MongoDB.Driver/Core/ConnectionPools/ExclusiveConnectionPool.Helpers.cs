@@ -361,6 +361,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             private CheckOutReason? _checkOutReason;
             private readonly IConnection _connection;
             private readonly ExclusiveConnectionPool _connectionPool;
+            private volatile bool _closedWhileInUse;
             private int _generation;
             private bool _disposed;
 
@@ -414,6 +415,12 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 get { return _connection.Settings; }
             }
 
+            public void CloseWhileInUse()
+            {
+                _closedWhileInUse = true;
+                Dispose();
+            }
+
             public void Dispose()
             {
                 if (!_disposed)
@@ -430,6 +437,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     _connection.Open(operationContext);
                     SetEffectiveGenerationIfRequired(_connection.Description);
                 }
+                catch (ObjectDisposedException ex) when (_closedWhileInUse)
+                {
+                    throw CreateConnectionClosedException(ex);
+                }
                 catch (MongoConnectionException ex)
                 {
                     SetEffectiveGenerationIfRequired(_connection.Description);
@@ -445,6 +456,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     await _connection.OpenAsync(operationContext).ConfigureAwait(false);
                     SetEffectiveGenerationIfRequired(_connection.Description);
                 }
+                catch (ObjectDisposedException ex) when (_closedWhileInUse)
+                {
+                    throw CreateConnectionClosedException(ex);
+                }
                 catch (MongoConnectionException ex)
                 {
                     SetEffectiveGenerationIfRequired(_connection.Description);
@@ -453,15 +468,39 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
-            public void Reauthenticate(OperationContext operationContext) => _connection.Reauthenticate(operationContext);
+            public void Reauthenticate(OperationContext operationContext)
+            {
+                try
+                {
+                    _connection.Reauthenticate(operationContext);
+                }
+                catch (ObjectDisposedException ex) when (_closedWhileInUse)
+                {
+                    throw CreateConnectionClosedException(ex);
+                }
+            }
 
-            public Task ReauthenticateAsync(OperationContext operationContext) => _connection.ReauthenticateAsync(operationContext);
+            public async Task ReauthenticateAsync(OperationContext operationContext)
+            {
+                try
+                {
+                    await _connection.ReauthenticateAsync(operationContext).ConfigureAwait(false);
+                }
+                catch (ObjectDisposedException ex) when (_closedWhileInUse)
+                {
+                    throw CreateConnectionClosedException(ex);
+                }
+            }
 
             public ResponseMessage ReceiveMessage(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings)
             {
                 try
                 {
                     return _connection.ReceiveMessage(operationContext, responseTo, encoderSelector, messageEncoderSettings);
+                }
+                catch (ObjectDisposedException ex) when (_closedWhileInUse)
+                {
+                    throw CreateConnectionClosedException(ex);
                 }
                 catch (MongoConnectionException ex)
                 {
@@ -476,6 +515,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 {
                     return await _connection.ReceiveMessageAsync(operationContext, responseTo, encoderSelector, messageEncoderSettings).ConfigureAwait(false);
                 }
+                catch (ObjectDisposedException ex) when (_closedWhileInUse)
+                {
+                    throw CreateConnectionClosedException(ex);
+                }
                 catch (MongoConnectionException ex)
                 {
                     EnrichExceptionDetails(ex);
@@ -489,6 +532,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 {
                     _connection.SendMessage(operationContext, message, messageEncoderSettings);
                 }
+                catch (ObjectDisposedException ex) when (_closedWhileInUse)
+                {
+                    throw CreateConnectionClosedException(ex);
+                }
                 catch (MongoConnectionException ex)
                 {
                     EnrichExceptionDetails(ex);
@@ -501,6 +548,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 try
                 {
                     await _connection.SendMessageAsync(operationContext, message, messageEncoderSettings).ConfigureAwait(false);
+                }
+                catch (ObjectDisposedException ex) when (_closedWhileInUse)
+                {
+                    throw CreateConnectionClosedException(ex);
                 }
                 catch (MongoConnectionException ex)
                 {
@@ -529,6 +580,13 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
 
             // private methods
+            private MongoConnectionException CreateConnectionClosedException(Exception ex)
+            {
+                var connectionException = new MongoConnectionException(ConnectionId, "The underlying connection was closed.", ex);
+                EnrichExceptionDetails(connectionException);
+                return connectionException;
+            }
+
             private void EnrichExceptionDetails(MongoConnectionException ex)
             {
                 // should be refactored in CSHARP-3720
@@ -829,8 +887,15 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 _eventLogger.LogAndPublish(new ConnectionPoolRemovingConnectionEvent(connection.ConnectionId, EventContext.OperationId));
 
                 var stopwatch = Stopwatch.StartNew();
-                UntrackInUseConnection(connection); // no op if connection is not in use
-                connection.Dispose();
+                if (UntrackInUseConnection(connection))
+                {
+                    connection.CloseWhileInUse();
+                }
+                else
+                {
+                    connection.Dispose();
+                }
+
                 stopwatch.Stop();
 
                 _eventLogger.LogAndPublish(new ConnectionPoolRemovedConnectionEvent(connection.ConnectionId, stopwatch.Elapsed, EventContext.OperationId));
@@ -859,11 +924,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
-            public void UntrackInUseConnection(PooledConnection connection)
+            public bool UntrackInUseConnection(PooledConnection connection)
             {
                 lock (_lockInUse)
                 {
-                    _connectionsInUse.Remove(connection);
+                    return _connectionsInUse.Remove(connection);
                 }
             }
         }
