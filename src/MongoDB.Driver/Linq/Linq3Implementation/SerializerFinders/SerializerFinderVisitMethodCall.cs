@@ -32,6 +32,8 @@ internal partial class SerializerFinderVisitor
 {
     private static readonly IBsonSerializer __binarySubTypeSerializer = NullableSerializer.Create(new EnumSerializer<BsonBinarySubType>());
 
+    private static readonly IBsonSerializer __bsonBinaryDataSerializer = new BsonValueCSharpNullSerializer<BsonBinaryData>(BsonBinaryDataSerializer.Instance);
+
     private static readonly IReadOnlyMethodInfoSet __averageOrMedianOrPercentileOverloads = MethodInfoSet.Create(
     [
         EnumerableOrQueryableMethod.AverageOverloads,
@@ -1692,7 +1694,7 @@ internal partial class SerializerFinderVisitor
         {
             if (method.Is(MqlMethod.Hash))
             {
-                DeduceSerializer(node, BsonBinaryDataSerializer.Instance);
+                DeduceSerializer(node, __bsonBinaryDataSerializer);
             }
             else
             {
