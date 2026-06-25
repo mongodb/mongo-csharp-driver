@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-using System.Collections.Generic;
+using System;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
@@ -23,17 +23,14 @@ namespace MongoDB.Driver.Core.Connections;
 internal sealed class ClientMetadata
 {
     private readonly string _applicationName;
-    private readonly List<LibraryInfo> _libraryInfos = new();
     private readonly object _lock = new();
+    private volatile LibraryInfo[] _libraryInfos;
     private volatile BsonDocument _clientDocument;
 
     public ClientMetadata(string applicationName, LibraryInfo libraryInfo)
     {
         _applicationName = applicationName;
-        if (libraryInfo != null)
-        {
-            _libraryInfos.Add(Normalize(libraryInfo));
-        }
+        _libraryInfos = libraryInfo != null ? [Normalize(libraryInfo)] : [];
     }
 
     public BsonDocument GetClientDocument()
@@ -55,14 +52,23 @@ internal sealed class ClientMetadata
         Ensure.IsNotNull(libraryInfo, nameof(libraryInfo));
         libraryInfo = Normalize(libraryInfo);
 
+        if (Array.IndexOf(_libraryInfos, libraryInfo) >= 0)
+        {
+            return;
+        }
+
         lock (_lock)
         {
-            if (_libraryInfos.Contains(libraryInfo))
+            var current = _libraryInfos;
+            if (Array.IndexOf(current, libraryInfo) >= 0)
             {
                 return;
             }
 
-            _libraryInfos.Add(libraryInfo);
+            var updated = new LibraryInfo[current.Length + 1];
+            Array.Copy(current, updated, current.Length);
+            updated[current.Length] = libraryInfo;
+            _libraryInfos = updated;
             _clientDocument = null;
         }
     }
