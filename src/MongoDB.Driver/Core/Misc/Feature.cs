@@ -217,7 +217,7 @@ public class Feature
     /// <summary>
     /// Gets the csfle2 textPreview algorithm feature.
     /// </summary>
-    [Obsolete("Use Csfle2QEv2StringAlgorithm instead.")]
+    [Obsolete("Use Csfle2QEv2StringPreviewAlgorithm instead.")]
     public static Feature Csfle2QEv2TextPreviewAlgorithm { get; } = new("csfle2Qev2TextPreviewAlgorithm", WireVersion.Server82);
 
     /// <summary>

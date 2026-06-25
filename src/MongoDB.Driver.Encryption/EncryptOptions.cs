@@ -453,9 +453,9 @@ namespace MongoDB.Driver.Encryption
         {
             Ensure.IsNotNull(algorithm, nameof(algorithm));
             Ensure.IsNotNull(stringOptions, nameof(stringOptions));
-            if (Enum.TryParse<EncryptionAlgorithm>(algorithm, out var @enumStr))
+            if (Enum.TryParse<EncryptionAlgorithm>(algorithm, out var @enum))
             {
-                _algorithm = ConvertEnumAlgorithmToString(@enumStr);
+                _algorithm = ConvertEnumAlgorithmToString(@enum);
             }
             else
             {
