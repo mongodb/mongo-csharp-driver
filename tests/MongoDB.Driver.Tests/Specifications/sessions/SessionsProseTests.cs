@@ -1,4 +1,4 @@
-﻿/* Copyright 2021-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -386,7 +386,6 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
             var mongoClient = DriverTestConfiguration.Client;
 
             using var session = mongoClient.StartSession(sessionOptions);
-
             var exception = Record.Exception(() => session.GetSnapshotTime());
             exception.Should().BeOfType<InvalidOperationException>();
             exception.Message.Should().Contain("non-snapshot session");

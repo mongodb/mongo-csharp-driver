@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -90,7 +89,8 @@ public class ClientBackpressureProseTestsUnit
         Action<OperationContext, TContext> executeSync,
         Func<OperationContext, TContext, Task> executeAsync)
     {
-        var operationContext = new OperationContext(TimeSpan.FromSeconds(30), CancellationToken.None);
+        using var session = NoCoreSession.NewHandle();
+        using var operationContext = new OperationContext(session, timeout: TimeSpan.FromSeconds(30));
 
         // Test with no backoff (jitter = 0)
         var noBackoffRandom = new Mock<IRandom>();
@@ -129,12 +129,9 @@ public class ClientBackpressureProseTestsUnit
 
     private static RetryableReadContext CreateRetryableReadContext(IRandom random, int maxAdaptiveRetries = 2)
     {
-        var sessionMock = new Mock<ICoreSessionHandle>();
-        sessionMock.SetupGet(s => s.IsInTransaction).Returns(false);
         var (channelSourceMock, channelMock) = CreateChannelMocks();
 
         var bindingMock = new Mock<IReadBinding>();
-        bindingMock.SetupGet(b => b.Session).Returns(sessionMock.Object);
         bindingMock.Setup(b => b.GetReadChannelSource(It.IsAny<OperationContext>(), It.IsAny<IReadOnlyCollection<ServerDescription>>()))
             .Returns(channelSourceMock.Object);
         bindingMock.Setup(b => b.GetReadChannelSourceAsync(It.IsAny<OperationContext>(), It.IsAny<IReadOnlyCollection<ServerDescription>>()))
@@ -148,13 +145,9 @@ public class ClientBackpressureProseTestsUnit
 
     private static RetryableWriteContext CreateRetryableWriteContext(IRandom random)
     {
-        var sessionMock = new Mock<ICoreSessionHandle>();
-        sessionMock.SetupGet(s => s.IsInTransaction).Returns(false);
-        sessionMock.SetupGet(s => s.Id).Returns(new BsonDocument("id", 1));
         var (channelSourceMock, channelMock) = CreateChannelMocks();
 
         var bindingMock = new Mock<IWriteBinding>();
-        bindingMock.SetupGet(b => b.Session).Returns(sessionMock.Object);
         bindingMock.Setup(b => b.GetWriteChannelSource(It.IsAny<OperationContext>(), It.IsAny<IReadOnlyCollection<ServerDescription>>()))
             .Returns(channelSourceMock.Object);
         bindingMock.Setup(b => b.GetWriteChannelSourceAsync(It.IsAny<OperationContext>(), It.IsAny<IReadOnlyCollection<ServerDescription>>()))

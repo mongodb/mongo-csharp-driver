@@ -68,9 +68,10 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
 
             var subject = new CompositeWriteOperation<BsonDocument>((healthyOperation1.Object, IsMainOperation: false), (faultyOperation2.Object, IsMainOperation: false), (healthyOperation3.Object, IsMainOperation: true));
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var resultedException = async
-                ? await Record.ExceptionAsync(() => subject.ExecuteAsync(OperationContext.NoTimeout, Mock.Of<IWriteBinding>()))
-                : Record.Exception(() => subject.Execute(OperationContext.NoTimeout, Mock.Of<IWriteBinding>()));
+                ? await Record.ExceptionAsync(() => subject.ExecuteAsync(operationContext, Mock.Of<IWriteBinding>()))
+                : Record.Exception(() => subject.Execute(operationContext, Mock.Of<IWriteBinding>()));
 
             resultedException.Should().Be(testException);
 
@@ -91,9 +92,10 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
 
             var subject = new CompositeWriteOperation<BsonDocument>((operation1.Object, IsMainOperation: false), (operation2.Object, IsMainOperation: true), (operation3.Object, IsMainOperation: false));
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var result = async
-                ? subject.ExecuteAsync(OperationContext.NoTimeout, Mock.Of<IWriteBinding>()).GetAwaiter().GetResult()
-                : subject.Execute(OperationContext.NoTimeout, Mock.Of<IWriteBinding>());
+                ? subject.ExecuteAsync(operationContext, Mock.Of<IWriteBinding>()).GetAwaiter().GetResult()
+                : subject.Execute(operationContext, Mock.Of<IWriteBinding>());
 
             result.Should().Be(operation2Result);
 

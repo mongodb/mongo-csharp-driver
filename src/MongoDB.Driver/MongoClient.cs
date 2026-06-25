@@ -590,35 +590,39 @@ namespace MongoDB.Driver
                     : operationContext.Fork();
             }
 
-            return isTracingEnabled
-                ? new OperationContext(timeout ?? _settings.Timeout, operationName, "admin", null, isTracingEnabled, cancellationToken)
-                : new OperationContext(timeout ?? _settings.Timeout, cancellationToken);
+            return new OperationContext(session.WrappedCoreSession, timeout ?? _settings.Timeout, cancellationToken)
+            {
+                IsTracingEnabled = isTracingEnabled,
+                OperationName = isTracingEnabled ? operationName : null,
+                DatabaseName = isTracingEnabled ? "admin" : null,
+                CollectionName = null,
+            };
         }
 
         private TResult ExecuteReadOperation<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, TimeSpan? timeout, CancellationToken cancellationToken)
         {
             var readPreference = session.GetEffectiveReadPreference(_settings.ReadPreference);
             using var operationContext = CreateOperationContext(session, timeout, operation.OperationName, cancellationToken);
-            return _operationExecutor.ExecuteReadOperation(operationContext, session, operation, readPreference, false);
+            return _operationExecutor.ExecuteReadOperation(operationContext, operation, readPreference, false);
         }
 
         private async Task<TResult> ExecuteReadOperationAsync<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, TimeSpan? timeout, CancellationToken cancellationToken)
         {
             var readPreference = session.GetEffectiveReadPreference(_settings.ReadPreference);
             using var operationContext = CreateOperationContext(session, timeout, operation.OperationName, cancellationToken);
-            return await _operationExecutor.ExecuteReadOperationAsync(operationContext, session, operation, readPreference, false).ConfigureAwait(false);
+            return await _operationExecutor.ExecuteReadOperationAsync(operationContext, operation, readPreference, false).ConfigureAwait(false);
         }
 
         private TResult ExecuteWriteOperation<TResult>(IClientSessionHandle session, IWriteOperation<TResult> operation, TimeSpan? timeout, CancellationToken cancellationToken)
         {
             using var operationContext = CreateOperationContext(session, timeout, operation.OperationName, cancellationToken);
-            return _operationExecutor.ExecuteWriteOperation(operationContext, session, operation, false);
+            return _operationExecutor.ExecuteWriteOperation(operationContext, operation, false);
         }
 
         private async Task<TResult> ExecuteWriteOperationAsync<TResult>(IClientSessionHandle session, IWriteOperation<TResult> operation, TimeSpan? timeout, CancellationToken cancellationToken)
         {
             using var operationContext = CreateOperationContext(session, timeout, operation.OperationName, cancellationToken);
-            return await _operationExecutor.ExecuteWriteOperationAsync(operationContext, session, operation, false).ConfigureAwait(false);
+            return await _operationExecutor.ExecuteWriteOperationAsync(operationContext, operation, false).ConfigureAwait(false);
         }
 
         private MessageEncoderSettings GetMessageEncoderSettings()

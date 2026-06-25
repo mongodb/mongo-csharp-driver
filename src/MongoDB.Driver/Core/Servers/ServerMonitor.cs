@@ -19,6 +19,7 @@ using System.Net;
 using System.Threading;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Logging;
@@ -321,7 +322,7 @@ namespace MongoDB.Driver.Core.Servers
 
         private void Heartbeat(CancellationToken cancellationToken)
         {
-            using var operationContext = new OperationContext(null, cancellationToken);
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle(), null, cancellationToken);
             CommandWireProtocol<BsonDocument> helloProtocol = null;
             bool processAnother = true;
             while (processAnother && !cancellationToken.IsCancellationRequested)

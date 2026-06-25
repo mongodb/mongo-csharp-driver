@@ -68,10 +68,11 @@ namespace MongoDB.Driver.Core.Operations
             {
                 { "drop", _collectionNamespace.CollectionName }
             };
-            var session = OperationTestHelper.CreateSession();
+            using var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            using var operationContext = new OperationContext(session);
 
-            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription, null);
+            var result = subject.CreateCommand(operationContext, connectionDescription, null);
 
             result.Should().Be(expectedResult);
         }
@@ -94,11 +95,11 @@ namespace MongoDB.Driver.Core.Operations
             {
                 WriteConcern = writeConcern
             };
-            var operationContext = hasOperationTimeout ? new OperationContext(TimeSpan.FromSeconds(42), CancellationToken.None) : OperationContext.NoTimeout;
-            var session = OperationTestHelper.CreateSession();
+            using var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            using var operationContext = hasOperationTimeout ? new OperationContext(session, TimeSpan.FromSeconds(42), CancellationToken.None) : new OperationContext(session);
 
-            var result = subject.CreateCommand(operationContext, session, connectionDescription, null);
+            var result = subject.CreateCommand(operationContext, connectionDescription, null);
 
             var expectedConcern = writeConcern?.ToBsonDocument();
             if (hasOperationTimeout)
@@ -118,12 +119,12 @@ namespace MongoDB.Driver.Core.Operations
         public void CreateEncryptedDropCollectionOperationIfConfigured_should_return_expected_result_when_EncryptedFields_is_null()
         {
             var subject = DropCollectionOperation.CreateEncryptedDropCollectionOperationIfConfigured(_collectionNamespace, encryptedFields: null, _messageEncoderSettings, null);
-            var session = OperationTestHelper.CreateSession();
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
-
             var s = subject.Should().BeOfType<DropCollectionOperation>().Subject;
+            using var session = OperationTestHelper.CreateSession();
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            using var operationContext = new OperationContext(session);
 
-            var command = s.CreateCommand(OperationContext.NoTimeout, session, connectionDescription, null);
+            var command = s.CreateCommand(operationContext, connectionDescription, null);
 
             var expectedResult = new BsonDocument
             {
@@ -156,7 +157,8 @@ namespace MongoDB.Driver.Core.Operations
             }}");
 
             var subject = DropCollectionOperation.CreateEncryptedDropCollectionOperationIfConfigured(_collectionNamespace, encryptedFields, _messageEncoderSettings, null);
-            var session = OperationTestHelper.CreateSession();
+            using var session = OperationTestHelper.CreateSession();
+            using var operationContext = new OperationContext(session);
 
             var operations = ((CompositeWriteOperation<BsonDocument>)subject)._operations<BsonDocument>();
 
@@ -185,7 +187,7 @@ namespace MongoDB.Driver.Core.Operations
                 operationInfo.IsMainOperation.Should().Be(isMainOperation);
                 var operation = operationInfo.Operation.Should().BeOfType<DropCollectionOperation>().Subject;
                 var connectionDescription = OperationTestHelper.CreateConnectionDescription();
-                var result = operation.CreateCommand(OperationContext.NoTimeout, session, connectionDescription, null);
+                var result = operation.CreateCommand(operationContext, connectionDescription, null);
                 var expectedResult = new BsonDocument
                 {
                     { "drop", collectionNamespace.CollectionName },

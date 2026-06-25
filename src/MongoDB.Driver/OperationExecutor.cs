@@ -40,23 +40,21 @@ namespace MongoDB.Driver
 
         public TResult ExecuteReadOperation<TResult>(
             OperationContext operationContext,
-            IClientSessionHandle session,
             IReadOperation<TResult> operation,
             ReadPreference readPreference,
             bool allowChannelPinning)
         {
             Ensure.IsNotNull(operationContext, nameof(operationContext));
-            Ensure.IsNotNull(session, nameof(session));
             Ensure.IsNotNull(operation, nameof(operation));
             Ensure.IsNotNull(readPreference, nameof(readPreference));
             ThrowIfDisposed();
 
-            using var transactionActivityScope = TransactionActivityScope.CreateIfNeeded(session.WrappedCoreSession.CurrentTransaction);
+            using var transactionActivityScope = TransactionActivityScope.CreateIfNeeded(operationContext.Session.CurrentTransaction);
             using var activity = MongoTelemetry.StartOperationActivity(operationContext);
 
             try
             {
-                using var binding = CreateReadBinding(session, readPreference, allowChannelPinning);
+                using var binding = CreateReadBinding(operationContext.Session, readPreference, allowChannelPinning);
                 var result = operation.Execute(operationContext, binding);
                 activity?.SetStatus(ActivityStatusCode.Ok);
                 return result;
@@ -70,23 +68,21 @@ namespace MongoDB.Driver
 
         public async Task<TResult> ExecuteReadOperationAsync<TResult>(
             OperationContext operationContext,
-            IClientSessionHandle session,
             IReadOperation<TResult> operation,
             ReadPreference readPreference,
             bool allowChannelPinning)
         {
             Ensure.IsNotNull(operationContext, nameof(operationContext));
-            Ensure.IsNotNull(session, nameof(session));
             Ensure.IsNotNull(operation, nameof(operation));
             Ensure.IsNotNull(readPreference, nameof(readPreference));
             ThrowIfDisposed();
 
-            using var transactionActivityScope = TransactionActivityScope.CreateIfNeeded(session.WrappedCoreSession.CurrentTransaction);
+            using var transactionActivityScope = TransactionActivityScope.CreateIfNeeded(operationContext.Session.CurrentTransaction);
             using var activity = MongoTelemetry.StartOperationActivity(operationContext);
 
             try
             {
-                using var binding = CreateReadBinding(session, readPreference, allowChannelPinning);
+                using var binding = CreateReadBinding(operationContext.Session, readPreference, allowChannelPinning);
                 var result = await operation.ExecuteAsync(operationContext, binding).ConfigureAwait(false);
                 activity?.SetStatus(ActivityStatusCode.Ok);
                 return result;
@@ -100,21 +96,19 @@ namespace MongoDB.Driver
 
         public TResult ExecuteWriteOperation<TResult>(
             OperationContext operationContext,
-            IClientSessionHandle session,
             IWriteOperation<TResult> operation,
             bool allowChannelPinning)
         {
             Ensure.IsNotNull(operationContext, nameof(operationContext));
-            Ensure.IsNotNull(session, nameof(session));
             Ensure.IsNotNull(operation, nameof(operation));
             ThrowIfDisposed();
 
-            using var transactionActivityScope = TransactionActivityScope.CreateIfNeeded(session.WrappedCoreSession.CurrentTransaction);
+            using var transactionActivityScope = TransactionActivityScope.CreateIfNeeded(operationContext.Session.CurrentTransaction);
             using var activity = MongoTelemetry.StartOperationActivity(operationContext);
 
             try
             {
-                using var binding = CreateReadWriteBinding(session, allowChannelPinning);
+                using var binding = CreateReadWriteBinding(operationContext.Session, allowChannelPinning);
                 var result = operation.Execute(operationContext, binding);
                 activity?.SetStatus(ActivityStatusCode.Ok);
                 return result;
@@ -128,21 +122,19 @@ namespace MongoDB.Driver
 
         public async Task<TResult> ExecuteWriteOperationAsync<TResult>(
             OperationContext operationContext,
-            IClientSessionHandle session,
             IWriteOperation<TResult> operation,
             bool allowChannelPinning)
         {
             Ensure.IsNotNull(operationContext, nameof(operationContext));
-            Ensure.IsNotNull(session, nameof(session));
             Ensure.IsNotNull(operation, nameof(operation));
             ThrowIfDisposed();
 
-            using var transactionActivityScope = TransactionActivityScope.CreateIfNeeded(session.WrappedCoreSession.CurrentTransaction);
+            using var transactionActivityScope = TransactionActivityScope.CreateIfNeeded(operationContext.Session.CurrentTransaction);
             using var activity = MongoTelemetry.StartOperationActivity(operationContext);
 
             try
             {
-                using var binding = CreateReadWriteBinding(session, allowChannelPinning);
+                using var binding = CreateReadWriteBinding(operationContext.Session, allowChannelPinning);
                 var result = await operation.ExecuteAsync(operationContext, binding).ConfigureAwait(false);
                 activity?.SetStatus(ActivityStatusCode.Ok);
                 return result;
@@ -165,7 +157,7 @@ namespace MongoDB.Driver
             return new ClientSessionHandle(_client, options, coreSession);
         }
 
-        private IReadBindingHandle CreateReadBinding(IClientSessionHandle session, ReadPreference readPreference, bool allowChannelPinning)
+        private IReadBindingHandle CreateReadBinding(ICoreSessionHandle session, ReadPreference readPreference, bool allowChannelPinning)
         {
             if (session.IsInTransaction && readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary)
             {
@@ -174,21 +166,21 @@ namespace MongoDB.Driver
 
             if (allowChannelPinning)
             {
-                return ChannelPinningHelper.CreateReadBinding(_client.GetClusterInternal(), session.WrappedCoreSession.Fork(), readPreference);
+                return ChannelPinningHelper.CreateReadBinding(_client.GetClusterInternal(), session, readPreference);
             }
 
-            var binding = new ReadPreferenceBinding(_client.GetClusterInternal(), readPreference, session.WrappedCoreSession.Fork());
+            var binding = new ReadPreferenceBinding(_client.GetClusterInternal(), readPreference);
             return new ReadBindingHandle(binding);
         }
 
-        private IReadWriteBindingHandle CreateReadWriteBinding(IClientSessionHandle session, bool allowChannelPinning)
+        private IReadWriteBindingHandle CreateReadWriteBinding(ICoreSessionHandle session, bool allowChannelPinning)
         {
             if (allowChannelPinning)
             {
-                return ChannelPinningHelper.CreateReadWriteBinding(_client.GetClusterInternal(), session.WrappedCoreSession.Fork());
+                return ChannelPinningHelper.CreateReadWriteBinding(_client.GetClusterInternal(), session);
             }
 
-            var binding = new WritableServerBinding(_client.GetClusterInternal(), session.WrappedCoreSession.Fork());
+            var binding = new WritableServerBinding(_client.GetClusterInternal());
             return new ReadWriteBindingHandle(binding);
         }
 

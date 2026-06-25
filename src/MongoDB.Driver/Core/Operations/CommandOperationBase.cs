@@ -75,13 +75,12 @@ namespace MongoDB.Driver.Core.Operations
             get { return _resultSerializer; }
         }
 
-        protected TCommandResult ExecuteProtocol(OperationContext operationContext, IChannelHandle channel, ICoreSessionHandle session, ReadPreference readPreference, BsonDocument command)
+        protected TCommandResult ExecuteProtocol(OperationContext operationContext, IChannelHandle channel, ReadPreference readPreference, BsonDocument command)
         {
             var additionalOptions = GetEffectiveAdditionalOptions();
 
             return channel.Command(
                 operationContext,
-                session,
                 readPreference,
                 _databaseNamespace,
                 command,
@@ -97,23 +96,21 @@ namespace MongoDB.Driver.Core.Operations
         protected TCommandResult ExecuteProtocol(
             OperationContext operationContext,
             IChannelSource channelSource,
-            ICoreSessionHandle session,
             ReadPreference readPreference,
             BsonDocument command)
         {
             using (var channel = channelSource.GetChannel(operationContext))
             {
-                return ExecuteProtocol(operationContext, channel, session, readPreference, command);
+                return ExecuteProtocol(operationContext, channel, readPreference, command);
             }
         }
 
-        protected Task<TCommandResult> ExecuteProtocolAsync(OperationContext operationContext, IChannelHandle channel, ICoreSessionHandle session, ReadPreference readPreference, BsonDocument command)
+        protected Task<TCommandResult> ExecuteProtocolAsync(OperationContext operationContext, IChannelHandle channel, ReadPreference readPreference, BsonDocument command)
         {
             var additionalOptions = GetEffectiveAdditionalOptions();
 
             return channel.CommandAsync(
                 operationContext,
-                session,
                 readPreference,
                 _databaseNamespace,
                 command,
@@ -129,13 +126,12 @@ namespace MongoDB.Driver.Core.Operations
         protected async Task<TCommandResult> ExecuteProtocolAsync(
             OperationContext operationContext,
             IChannelSource channelSource,
-            ICoreSessionHandle session,
             ReadPreference readPreference,
             BsonDocument command)
         {
             using (var channel = await channelSource.GetChannelAsync(operationContext).ConfigureAwait(false))
             {
-                return await ExecuteProtocolAsync(operationContext, channel, session, readPreference, command).ConfigureAwait(false);
+                return await ExecuteProtocolAsync(operationContext, channel, readPreference, command).ConfigureAwait(false);
             }
         }
 

@@ -90,14 +90,14 @@ namespace MongoDB.Driver.Core.Operations
             var mockChannel = CreateMockChannel();
             var channelSource = CreateMockChannelSource(serverDescription, mockChannel.Object).Object;
             var binding = CreateMockReadBinding(readPreference, channelSource).Object;
+            using var operationContext = new OperationContext(OperationTestHelper.CreateSession());
 
-            ExecuteOperation(subject, binding, async);
+            ExecuteOperation(operationContext, subject, binding, async);
             if (async)
             {
                 mockChannel.Verify(
                     c => c.CommandAsync(
                         It.IsAny<OperationContext>(),
-                        binding.Session,
                         readPreference,
                         subject.DatabaseNamespace,
                         subject.Command,
@@ -115,7 +115,6 @@ namespace MongoDB.Driver.Core.Operations
                 mockChannel.Verify(
                     c => c.Command(
                         It.IsAny<OperationContext>(),
-                        binding.Session,
                         readPreference,
                         subject.DatabaseNamespace,
                         subject.Command,
@@ -144,14 +143,14 @@ namespace MongoDB.Driver.Core.Operations
             var channelSource = CreateMockChannelSource(serverDescription, mockChannel.Object).Object;
             var binding = CreateMockReadBinding(readPreference, channelSource).Object;
             var additionalOptions = BsonDocument.Parse("{ $comment : \"comment\", additional : 1 }");
+            using var operationContext = new OperationContext(OperationTestHelper.CreateSession());
 
-            ExecuteOperation(subject, binding, async);
+            ExecuteOperation(operationContext, subject, binding, async);
             if (async)
             {
                 mockChannel.Verify(
                     c => c.CommandAsync(
                         It.IsAny<OperationContext>(),
-                        binding.Session,
                         readPreference,
                         subject.DatabaseNamespace,
                         subject.Command,
@@ -169,7 +168,6 @@ namespace MongoDB.Driver.Core.Operations
                 mockChannel.Verify(
                     c => c.Command(
                         It.IsAny<OperationContext>(),
-                        binding.Session,
                         readPreference,
                         subject.DatabaseNamespace,
                         subject.Command,
@@ -197,14 +195,14 @@ namespace MongoDB.Driver.Core.Operations
             var channelSource = CreateMockChannelSource(serverDescription, mockChannel.Object).Object;
             var binding = CreateMockReadBinding(readPreference, channelSource).Object;
             var additionalOptions = BsonDocument.Parse("{ $comment : \"comment\" }");
+            using var operationContext = new OperationContext(OperationTestHelper.CreateSession());
 
-            ExecuteOperation(subject, binding, async);
+            ExecuteOperation(operationContext, subject, binding, async);
             if (async)
             {
                 mockChannel.Verify(
                     c => c.CommandAsync(
                         It.IsAny<OperationContext>(),
-                        binding.Session,
                         readPreference,
                         subject.DatabaseNamespace,
                         subject.Command,
@@ -222,7 +220,6 @@ namespace MongoDB.Driver.Core.Operations
                 mockChannel.Verify(
                     c => c.Command(
                         It.IsAny<OperationContext>(),
-                        binding.Session,
                         readPreference,
                         subject.DatabaseNamespace,
                         subject.Command,
@@ -251,14 +248,14 @@ namespace MongoDB.Driver.Core.Operations
             var channelSource = CreateMockChannelSource(serverDescription, mockChannel.Object).Object;
             var binding = CreateMockReadBinding(readPreference, channelSource).Object;
             var additionalOptions = BsonDocument.Parse("{ $comment : \"comment\", additional : 1 }");
+            using var operationContext = new OperationContext(OperationTestHelper.CreateSession());
 
-            ExecuteOperation(subject, binding, async);
+            ExecuteOperation(operationContext, subject, binding, async);
             if (async)
             {
                 mockChannel.Verify(
                     c => c.CommandAsync(
                         It.IsAny<OperationContext>(),
-                        binding.Session,
                         readPreference,
                         subject.DatabaseNamespace,
                         subject.Command,
@@ -276,7 +273,6 @@ namespace MongoDB.Driver.Core.Operations
                 mockChannel.Verify(
                     c => c.Command(
                         It.IsAny<OperationContext>(),
-                        binding.Session,
                         readPreference,
                         subject.DatabaseNamespace,
                         subject.Command,
@@ -301,8 +297,9 @@ namespace MongoDB.Driver.Core.Operations
             var mockChannel = CreateMockChannel();
             var mockChannelSource = CreateMockChannelSource(serverDescription, mockChannel.Object);
             var binding = CreateMockReadBinding(readPreference, mockChannelSource.Object).Object;
+            using var operationContext = new OperationContext(OperationTestHelper.CreateSession());
 
-            ExecuteOperation(subject, binding, async);
+            ExecuteOperation(operationContext, subject, binding, async);
             if (async)
             {
                 mockChannelSource.Verify(c => c.GetChannelAsync(It.IsAny<OperationContext>()), Times.Once);
@@ -317,9 +314,7 @@ namespace MongoDB.Driver.Core.Operations
         private Mock<IReadBinding> CreateMockReadBinding(ReadPreference readPreference, IChannelSourceHandle channelSource)
         {
             var mockBinding = new Mock<IReadBinding>();
-            var mockSession = new Mock<ICoreSessionHandle>();
             mockBinding.SetupGet(b => b.ReadPreference).Returns(readPreference);
-            mockBinding.SetupGet(b => b.Session).Returns(mockSession.Object);
             mockBinding.Setup(b => b.GetReadChannelSource(It.IsAny<OperationContext>(), It.IsAny<IReadOnlyCollection<ServerDescription>>())).Returns(channelSource);
             mockBinding.Setup(b => b.GetReadChannelSourceAsync(It.IsAny<OperationContext>(), It.IsAny<IReadOnlyCollection<ServerDescription>>())).Returns(Task.FromResult(channelSource));
             return mockBinding;

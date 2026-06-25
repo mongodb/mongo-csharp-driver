@@ -306,11 +306,12 @@ namespace MongoDB.Driver
         private static int GetMaxWireVersion()
         {
             using (var session = StartSession())
-            using (var binding = CreateReadBinding(session))
+            using (var operationContext = new OperationContext(session))
+            using (var binding = CreateReadBinding())
             {
                 var command = new BsonDocument("hello", 1);
                 var operation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, __messageEncoderSettings);
-                var response = operation.Execute(OperationContext.NoTimeout, binding);
+                var response = operation.Execute(operationContext, binding);
                 return response["maxWireVersion"].AsInt32;
             }
         }
@@ -318,11 +319,12 @@ namespace MongoDB.Driver
         private static SemanticVersion GetServerVersion()
         {
             using (var session = StartSession())
-            using (var binding = CreateReadBinding(session))
+            using (var operationContext = new OperationContext(session))
+            using (var binding = CreateReadBinding())
             {
                 var command = new BsonDocument("buildinfo", 1);
                 var operation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, __messageEncoderSettings);
-                var response = operation.Execute(OperationContext.NoTimeout, binding);
+                var response = operation.Execute(operationContext, binding);
                 return SemanticVersion.Parse(response["version"].AsString);
             }
         }
@@ -330,11 +332,12 @@ namespace MongoDB.Driver
         public static BsonDocument GetServerParameters()
         {
             using (var session = StartSession())
-            using (var binding = CreateReadBinding(session))
+            using (var operationContext = new OperationContext(session))
+            using (var binding = CreateReadBinding())
             {
                 var command = new BsonDocument("getParameter", new BsonString("*"));
                 var operation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, __messageEncoderSettings);
-                var serverParameters = operation.Execute(OperationContext.NoTimeout, binding);
+                var serverParameters = operation.Execute(operationContext, binding);
 
                 return serverParameters;
             }
@@ -384,47 +387,37 @@ namespace MongoDB.Driver
                 (clusterDescription.LogicalSessionTimeout.HasValue || clusterDescription.Type == ClusterType.LoadBalanced);
         }
 
-        private static IReadBindingHandle CreateReadBinding(ICoreSessionHandle session)
+        private static IReadBindingHandle CreateReadBinding()
         {
-            return CreateReadBinding(ReadPreference.Primary, session);
+            return CreateReadBinding(ReadPreference.Primary);
         }
 
-        private static IReadBindingHandle CreateReadBinding(ReadPreference readPreference, ICoreSessionHandle session)
+        private static IReadBindingHandle CreateReadBinding(ReadPreference readPreference)
         {
-            return CreateReadBinding(__cluster.Value, readPreference, session);
+            return CreateReadBinding(__cluster.Value, readPreference);
         }
 
-        private static IReadBindingHandle CreateReadBinding(IClusterInternal cluster, ReadPreference readPreference, ICoreSessionHandle session)
+        private static IReadBindingHandle CreateReadBinding(IClusterInternal cluster, ReadPreference readPreference)
         {
-            var binding = new ReadPreferenceBinding(cluster, readPreference, session.Fork());
+            var binding = new ReadPreferenceBinding(cluster, readPreference);
             return new ReadBindingHandle(binding);
         }
 
         private static IReadWriteBindingHandle CreateReadWriteBinding(ICoreSessionHandle session)
         {
-            var binding = new WritableServerBinding(__cluster.Value, session.Fork());
+            var binding = new WritableServerBinding(__cluster.Value);
             return new ReadWriteBindingHandle(binding);
-        }
-
-        private static void DropDatabase()
-        {
-            var operation = new DropDatabaseOperation(__databaseNamespace.Value, __messageEncoderSettings);
-
-            using (var session = StartSession())
-            using (var binding = CreateReadWriteBinding(session))
-            {
-                operation.Execute(OperationContext.NoTimeout, binding);
-            }
         }
 
         private static IEnumerable<BsonDocument> FindDocuments(IClusterInternal cluster, CollectionNamespace collectionNamespace)
         {
             using (var session = StartSession(cluster))
-            using (var binding = CreateReadBinding(cluster, ReadPreference.Primary, session))
+            using (var operationContext = new OperationContext(session))
+            using (var binding = CreateReadBinding(cluster, ReadPreference.Primary))
             {
                 var operation = new FindOperation<BsonDocument>(collectionNamespace, BsonDocumentSerializer.Instance, __messageEncoderSettings);
 
-                return operation.Execute(OperationContext.NoTimeout, binding).ToList();
+                return operation.Execute(operationContext, binding).ToList();
             }
         }
 
@@ -499,11 +492,12 @@ namespace MongoDB.Driver
             {
                 var command = new BsonDocument("serverStatus", 1);
                 using (var session = StartSession(cluster))
-                using (var binding = CreateReadBinding(cluster, ReadPreference.PrimaryPreferred, session))
+                using (var operationContext = new OperationContext(session))
+                using (var binding = CreateReadBinding(cluster, ReadPreference.PrimaryPreferred))
                 {
                     var operation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, __messageEncoderSettings);
 
-                    var response = operation.Execute(OperationContext.NoTimeout, binding);
+                    var response = operation.Execute(operationContext, binding);
                     if (response.TryGetValue("storageEngine", out var storageEngine) && storageEngine.AsBsonDocument.TryGetValue("name", out var name))
                     {
                         return name.AsString;

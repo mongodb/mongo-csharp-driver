@@ -42,6 +42,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private readonly int? _batchSize;
         private readonly CollectionNamespace _collectionNamespace;
+        private ICoreSessionHandle _session;
         private IChannelSource _channelSource;
         private bool _closed;
         private readonly BsonValue _comment;
@@ -63,6 +64,7 @@ namespace MongoDB.Driver.Core.Operations
 
         public AsyncCursor(
             IChannelSource channelSource,
+            ICoreSessionHandle session,
             CollectionNamespace collectionNamespace,
             BsonValue comment,
             IReadOnlyList<TDocument> firstBatch,
@@ -77,6 +79,7 @@ namespace MongoDB.Driver.Core.Operations
             bool enableOverloadRetargeting)
             : this(
                 channelSource,
+                session,
                 collectionNamespace,
                 comment,
                 firstBatch,
@@ -95,6 +98,7 @@ namespace MongoDB.Driver.Core.Operations
 
         public AsyncCursor(
             IChannelSource channelSource,
+            ICoreSessionHandle session,
             CollectionNamespace collectionNamespace,
             BsonValue comment,
             IReadOnlyList<TDocument> firstBatch,
@@ -111,6 +115,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             _operationId = EventContext.OperationId;
             _channelSource = channelSource;
+            _session = Ensure.IsNotNull(session, nameof(session));
             _comment = comment;
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
             _firstBatch = Ensure.IsNotNull(firstBatch, nameof(firstBatch));
@@ -228,15 +233,12 @@ namespace MongoDB.Driver.Core.Operations
             return command;
         }
 
-        private CursorBatch<TDocument> ExecuteGetMoreCommand(IChannelHandle channel, CancellationToken cancellationToken)
+        private CursorBatch<TDocument> ExecuteGetMoreCommand(OperationContext operationContext, IChannelHandle channel)
         {
             var command = CreateGetMoreCommand(channel.ConnectionDescription);
             BsonDocument result;
             try
             {
-                // TODO: CSOT: Implement operation context support for Cursors
-                var operationContext = new OperationContext(null, cancellationToken);
-
                 var operation = new ReadCommandOperation<BsonDocument>(
                     _collectionNamespace.DatabaseNamespace,
                     command,
@@ -251,8 +253,7 @@ namespace MongoDB.Driver.Core.Operations
 
                 using var channelBinding = new ChannelReadWriteBinding(
                     _channelSource.Server,
-                    channel,
-                    _channelSource.Session.Fork());
+                    channel);
                 result = operation.Execute(operationContext, channelBinding);
             }
             catch (MongoCommandException ex) when (IsMongoCursorNotFoundException(ex))
@@ -263,15 +264,12 @@ namespace MongoDB.Driver.Core.Operations
             return CreateCursorBatch(result);
         }
 
-        private async Task<CursorBatch<TDocument>> ExecuteGetMoreCommandAsync(IChannelHandle channel, CancellationToken cancellationToken)
+        private async Task<CursorBatch<TDocument>> ExecuteGetMoreCommandAsync(OperationContext operationContext, IChannelHandle channel)
         {
             var command = CreateGetMoreCommand(channel.ConnectionDescription);
             BsonDocument result;
             try
             {
-                // TODO: CSOT: Implement operation context support for Cursors
-                var operationContext = new OperationContext(null, cancellationToken);
-
                 var operation = new ReadCommandOperation<BsonDocument>(
                     _collectionNamespace.DatabaseNamespace,
                     command,
@@ -286,8 +284,7 @@ namespace MongoDB.Driver.Core.Operations
 
                 using var channelBinding = new ChannelReadWriteBinding(
                     _channelSource.Server,
-                    channel,
-                    _channelSource.Session.Fork());
+                    channel);
                 result = await operation.ExecuteAsync(operationContext, channelBinding).ConfigureAwait(false);
             }
             catch (MongoCommandException ex) when (IsMongoCursorNotFoundException(ex))
@@ -298,14 +295,11 @@ namespace MongoDB.Driver.Core.Operations
             return CreateCursorBatch(result);
         }
 
-        private void ExecuteKillCursorsCommand(IChannelHandle channel, CancellationToken cancellationToken)
+        private void ExecuteKillCursorsCommand(OperationContext operationContext, IChannelHandle channel)
         {
-            // TODO: CSOT: Implement operation context support for Cursors
-            var operationContext = new OperationContext(null, cancellationToken);
             var command = CreateKillCursorsCommand();
             var result = channel.Command(
                 operationContext,
-                _channelSource.Session,
                 null, // readPreference
                 _collectionNamespace.DatabaseNamespace,
                 command,
@@ -320,14 +314,11 @@ namespace MongoDB.Driver.Core.Operations
             ThrowIfKillCursorsCommandFailed(result, channel.ConnectionDescription.ConnectionId);
         }
 
-        private async Task ExecuteKillCursorsCommandAsync(IChannelHandle channel, CancellationToken cancellationToken)
+        private async Task ExecuteKillCursorsCommandAsync(OperationContext operationContext, IChannelHandle channel)
         {
-            // TODO: CSOT: Implement operation context support for Cursors
-            var operationContext = new OperationContext(null, cancellationToken);
             var command = CreateKillCursorsCommand();
             var result = await channel.CommandAsync(
                 operationContext,
-                _channelSource.Session,
                 null, // readPreference
                 _collectionNamespace.DatabaseNamespace,
                 command,
@@ -356,11 +347,8 @@ namespace MongoDB.Driver.Core.Operations
                 if (!_disposed)
                 {
                     CloseIfNotAlreadyClosedFromDispose();
-
-                    if (_channelSource != null)
-                    {
-                        _channelSource.Dispose();
-                    }
+                    _channelSource?.Dispose();
+                    _session?.Dispose();
                     _disposed = true;
                 }
             }
@@ -376,7 +364,8 @@ namespace MongoDB.Driver.Core.Operations
                     {
                         try
                         {
-                            KillCursors(cancellationToken);
+                            using var operationContext = new OperationContext(_session, cancellationToken: cancellationToken);
+                            KillCursors(operationContext);
                         }
                         catch
                         {
@@ -401,7 +390,8 @@ namespace MongoDB.Driver.Core.Operations
                     {
                         try
                         {
-                            await KillCursorsAsync(cancellationToken).ConfigureAwait(false);
+                            using var operationContext = new OperationContext(_session, cancellationToken: cancellationToken);
+                            await KillCursorsAsync(operationContext).ConfigureAwait(false);
                         }
                         catch
                         {
@@ -420,10 +410,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             try
             {
-                using (var source = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
-                {
-                    CloseIfNotAlreadyClosed(source.Token);
-                }
+                CloseIfNotAlreadyClosed(CancellationToken.None);
             }
             catch
             {
@@ -438,27 +425,29 @@ namespace MongoDB.Driver.Core.Operations
                 _channelSource.Dispose();
                 _channelSource = null;
             }
-        }
 
-        private CursorBatch<TDocument> GetNextBatch(CancellationToken cancellationToken)
-        {
-            // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(null, cancellationToken);
-            using (EventContext.BeginOperation(_operationId))
-            using (var channel = _channelSource.GetChannel(operationContext))
+            if (_session != null && _cursorId == 0)
             {
-                return ExecuteGetMoreCommand(channel, cancellationToken);
+                _session.Dispose();
+                _session = null;
             }
         }
 
-        private async Task<CursorBatch<TDocument>> GetNextBatchAsync(CancellationToken cancellationToken)
+        private CursorBatch<TDocument> GetNextBatch(OperationContext operationContext)
         {
-            // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(null, cancellationToken);
+            using (EventContext.BeginOperation(_operationId))
+            using (var channel = _channelSource.GetChannel(operationContext))
+            {
+                return ExecuteGetMoreCommand(operationContext, channel);
+            }
+        }
+
+        private async Task<CursorBatch<TDocument>> GetNextBatchAsync(OperationContext operationContext)
+        {
             using (EventContext.BeginOperation(_operationId))
             using (var channel = await _channelSource.GetChannelAsync(operationContext).ConfigureAwait(false))
             {
-                return await ExecuteGetMoreCommandAsync(channel, cancellationToken).ConfigureAwait(false);
+                return await ExecuteGetMoreCommandAsync(operationContext, channel).ConfigureAwait(false);
             }
         }
 
@@ -467,32 +456,28 @@ namespace MongoDB.Driver.Core.Operations
             return exception.Code == (int)ServerErrorCode.CursorNotFound;
         }
 
-        private void KillCursors(CancellationToken cancellationToken)
+        private void KillCursors(OperationContext operationContext)
         {
-            // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(null, cancellationToken);
             using (EventContext.BeginOperation(_operationId))
             using (EventContext.BeginKillCursors(_collectionNamespace))
             using (var channel = _channelSource.GetChannel(operationContext.WithTimeout(TimeSpan.FromSeconds(10))))
             {
                 if (!channel.Connection.IsExpired)
                 {
-                    ExecuteKillCursorsCommand(channel, cancellationToken);
+                    ExecuteKillCursorsCommand(operationContext, channel);
                 }
             }
         }
 
-        private async Task KillCursorsAsync(CancellationToken cancellationToken)
+        private async Task KillCursorsAsync(OperationContext operationContext)
         {
-            // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(null, cancellationToken);
             using (EventContext.BeginOperation(_operationId))
             using (EventContext.BeginKillCursors(_collectionNamespace))
             using (var channel = await _channelSource.GetChannelAsync(operationContext.WithTimeout(TimeSpan.FromSeconds(10))).ConfigureAwait(false))
             {
                 if (!channel.Connection.IsExpired)
                 {
-                    await ExecuteKillCursorsCommandAsync(channel, cancellationToken).ConfigureAwait(false);
+                    await ExecuteKillCursorsCommandAsync(operationContext, channel).ConfigureAwait(false);
                 }
             }
         }
@@ -508,7 +493,8 @@ namespace MongoDB.Driver.Core.Operations
                 return hasMore;
             }
 
-            var batch = GetNextBatch(cancellationToken);
+            using var operationContext = new OperationContext(_session, cancellationToken: cancellationToken);
+            var batch = GetNextBatch(operationContext);
             SaveBatch(batch);
             return true;
         }
@@ -524,7 +510,8 @@ namespace MongoDB.Driver.Core.Operations
                 return hasMore;
             }
 
-            var batch = await GetNextBatchAsync(cancellationToken).ConfigureAwait(false);
+            using var operationContext = new OperationContext(_session, cancellationToken: cancellationToken);
+            var batch = await GetNextBatchAsync(operationContext).ConfigureAwait(false);
             SaveBatch(batch);
             return true;
         }

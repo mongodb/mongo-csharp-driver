@@ -39,7 +39,7 @@ namespace MongoDB.Driver
         {
             var attempt = 0;
             var transactionTimeout = transactionOptions?.Timeout ?? clientSession.Options.DefaultTransactionOptions?.Timeout;
-            using var operationContext = new OperationContext(clock, transactionTimeout, cancellationToken);
+            using var operationContext = new OperationContext(clientSession.WrappedCoreSession, clock, transactionTimeout, cancellationToken);
 
             while (true)
             {
@@ -85,7 +85,7 @@ namespace MongoDB.Driver
         {
             var attempt = 0;
             var transactionTimeout = transactionOptions?.Timeout ?? clientSession.Options.DefaultTransactionOptions?.Timeout;
-            using var operationContext = new OperationContext(clock, transactionTimeout, cancellationToken);
+            using var operationContext = new OperationContext(clientSession.WrappedCoreSession, clock, transactionTimeout, cancellationToken);
 
             while (true)
             {

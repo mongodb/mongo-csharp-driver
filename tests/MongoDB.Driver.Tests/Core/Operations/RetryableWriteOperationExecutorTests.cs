@@ -64,8 +64,10 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
             bool expectedResult)
         {
             var context = CreateContext(retryRequested, areRetryableWritesSupported, hasSessionId, isInTransaction);
+            using var session = CreateSession(hasSessionId, isInTransaction);
+            using var operationContext = new OperationContext(session);
 
-            var result = RetryableWriteOperationExecutorReflector.DoesContextAllowRetries(context, context.ChannelSource.ServerDescription);
+            var result = RetryableWriteOperationExecutorReflector.DoesContextAllowRetries(operationContext, context, context.ChannelSource.ServerDescription);
 
             result.Should().Be(expectedResult);
         }
@@ -87,9 +89,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
         private IWriteBinding CreateBinding(bool areRetryableWritesSupported, bool hasSessionId, bool isInTransaction)
         {
             var mockBinding = new Mock<IWriteBinding>();
-            var session = CreateSession(hasSessionId, isInTransaction);
             var channelSource = CreateChannelSource(areRetryableWritesSupported);
-            mockBinding.SetupGet(m => m.Session).Returns(session);
             mockBinding.Setup(m => m.GetWriteChannelSource(It.IsAny<OperationContext>(), It.IsAny<IReadOnlyCollection<ServerDescription>>())).Returns(channelSource);
             return mockBinding.Object;
         }
@@ -118,8 +118,9 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
         {
             var binding = CreateBinding(areRetryableWritesSupported, hasSessionId, isInTransaction);
             var context = new RetryableWriteContext(binding, retryRequested, RetryabilityHelper.OperationRetryBackpressureConstants.DefaultMaxRetries, false);
-            context.SelectServer(OperationContext.NoTimeout, null);
-            context.AcquireChannel(OperationContext.NoTimeout);
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
+            context.SelectServer(operationContext, null);
+            context.AcquireChannel(operationContext);
             return context;
         }
 
@@ -138,8 +139,8 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
         public static bool AreRetryableWritesSupported(ServerDescription serverDescription)
             => (bool)Reflector.InvokeStatic(typeof(RetryableWriteOperationExecutor), nameof(AreRetryableWritesSupported), serverDescription);
 
-        public static bool DoesContextAllowRetries(RetryableWriteContext context, ServerDescription server)
-            => (bool)Reflector.InvokeStatic(typeof(RetryableWriteOperationExecutor), nameof(DoesContextAllowRetries), context, server);
+        public static bool DoesContextAllowRetries(OperationContext operationContext, RetryableWriteContext context, ServerDescription server)
+            => (bool)Reflector.InvokeStatic(typeof(RetryableWriteOperationExecutor), nameof(DoesContextAllowRetries), operationContext, context, server);
 
         public static bool IsOperationAcknowledged(WriteConcern writeConcern)
             => (bool)Reflector.InvokeStatic(typeof(RetryableWriteOperationExecutor), nameof(IsOperationAcknowledged), writeConcern);

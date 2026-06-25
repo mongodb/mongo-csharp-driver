@@ -68,10 +68,10 @@ namespace MongoDB.Driver.Core.Operations
             get { return _documentSerializer; }
         }
 
-        protected override BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber)
+        protected override BsonDocument CreateCommand(OperationContext operationContext, ConnectionDescription connectionDescription,  long? transactionNumber)
         {
-            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, session, WriteConcern);
-            var readConcern = ReadConcernHelper.GetReadConcernForWriteCommand(session, connectionDescription);
+            var readConcern = ReadConcernHelper.GetReadConcernForWriteCommand(operationContext.Session, connectionDescription);
+            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, WriteConcern);
             return new BsonDocument
             {
                 { "insert", _collectionNamespace.CollectionName },

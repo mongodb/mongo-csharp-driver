@@ -123,19 +123,19 @@ namespace MongoDB.Driver.Core.Operations
         public TCommandResult ExecuteAttempt(OperationContext operationContext, RetryableReadContext context, int attempt, long? transactionNumber)
         {
             var command = _commandCreator != null
-                ? _commandCreator.CreateCommand(operationContext, context.Binding.Session, context.Channel.ConnectionDescription)
+                ? _commandCreator.CreateCommand(operationContext, context.Channel.ConnectionDescription)
                 : _command;
 
-            return ExecuteProtocol(operationContext, context.Channel, context.Binding.Session, context.Binding.ReadPreference, command);
+            return ExecuteProtocol(operationContext, context.Channel, context.Binding.ReadPreference, command);
         }
 
         public Task<TCommandResult> ExecuteAttemptAsync(OperationContext operationContext, RetryableReadContext context, int attempt, long? transactionNumber)
         {
             var command = _commandCreator != null
-                ? _commandCreator.CreateCommand(operationContext, context.Binding.Session, context.Channel.ConnectionDescription)
+                ? _commandCreator.CreateCommand(operationContext, context.Channel.ConnectionDescription)
                 : _command;
 
-            return ExecuteProtocolAsync(operationContext, context.Channel, context.Binding.Session, context.Binding.ReadPreference, command);
+            return ExecuteProtocolAsync(operationContext, context.Channel, context.Binding.ReadPreference, command);
         }
     }
 }

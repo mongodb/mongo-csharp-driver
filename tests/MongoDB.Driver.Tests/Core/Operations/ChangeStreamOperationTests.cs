@@ -635,8 +635,10 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = CreateSubject();
             var binding = new Mock<IReadBinding>().Object;
+            using var session = OperationTestHelper.CreateSession();
+            using var operationContext = new OperationContext(session);
 
-            var exception = Record.Exception(() => ExecuteOperation(subject, binding, async));
+            var exception = Record.Exception(() => ExecuteOperation(operationContext, subject, binding, async));
 
             var argumentException = exception.Should().BeOfType<ArgumentException>().Subject;
             argumentException.ParamName.Should().Be("binding");

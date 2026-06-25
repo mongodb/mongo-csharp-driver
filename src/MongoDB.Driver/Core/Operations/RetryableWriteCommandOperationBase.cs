@@ -141,7 +141,6 @@ namespace MongoDB.Driver.Core.Operations
             var args = GetCommandArgs(operationContext, context, attempt, transactionNumber);
             return context.Channel.Command<BsonDocument>(
                 operationContext,
-                context.ChannelSource.Session,
                 ReadPreference.Primary,
                 _databaseNamespace,
                 args.Command,
@@ -159,7 +158,6 @@ namespace MongoDB.Driver.Core.Operations
             var args = GetCommandArgs(operationContext, context, attempt, transactionNumber);
             return context.Channel.CommandAsync<BsonDocument>(
                 operationContext,
-                context.ChannelSource.Session,
                 ReadPreference.Primary,
                 _databaseNamespace,
                 args.Command,
@@ -172,7 +170,7 @@ namespace MongoDB.Driver.Core.Operations
                 args.MessageEncoderSettings);
         }
 
-        protected abstract BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber);
+        protected abstract BsonDocument CreateCommand(OperationContext operationContext, ConnectionDescription connectionDescription, long? transactionNumber);
 
         protected abstract IEnumerable<BatchableCommandMessageSection> CreateCommandPayloads(IChannelHandle channel, int attempt);
 
@@ -188,7 +186,7 @@ namespace MongoDB.Driver.Core.Operations
         private CommandArgs GetCommandArgs(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
         {
             var args = new CommandArgs();
-            args.Command = CreateCommand(operationContext, context.Binding.Session, context.Channel.ConnectionDescription, transactionNumber);
+            args.Command = CreateCommand(operationContext, context.Channel.ConnectionDescription, transactionNumber);
             args.CommandPayloads = CreateCommandPayloads(context.Channel, attempt).ToList();
             args.PostWriteAction = GetPostWriteAction(args.CommandPayloads);
             args.ResponseHandling = GetResponseHandling();

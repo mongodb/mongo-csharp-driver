@@ -18,6 +18,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Threading;
 using Microsoft.Extensions.Logging;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
@@ -125,7 +126,7 @@ namespace MongoDB.Driver.Core.Servers
             _logger?.LogDebug(_serverId, "Monitoring started");
 
             var helloOk = false;
-            using var operationContext = new OperationContext(null, _cancellationToken);
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle(), null, _cancellationToken);
             while (!operationContext.IsCancelledOrTimedOut())
             {
                 try

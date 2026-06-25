@@ -186,7 +186,8 @@ namespace MongoDB.Driver.Core.TestHelpers
                     var maxWireVersion = description.MaxWireVersion;
                     var server = (Server)result.Server;
                     var helloResult = new HelloResult(new BsonDocument { { "compressors", new BsonArray() }, { "maxWireVersion", maxWireVersion } });
-                    var mockConnection = Mock.Get(server._connectionPool().AcquireConnection(OperationContext.NoTimeout));
+
+                    var mockConnection = Mock.Get(server._connectionPool().AcquireConnection(It.IsAny<OperationContext>()));
                     mockConnection.SetupGet(c => c.Description)
                         .Returns(new ConnectionDescription(new ConnectionId(description.ServerId, 0), helloResult));
                 }

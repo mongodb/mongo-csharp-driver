@@ -23,7 +23,6 @@ namespace MongoDB.Driver.Core.Bindings
     {
         IServer Server { get; }
         ServerDescription ServerDescription { get; }
-        ICoreSessionHandle Session { get; }
 
         IChannelHandle GetChannel(OperationContext operationContext);
         Task<IChannelHandle> GetChannelAsync(OperationContext operationContext);

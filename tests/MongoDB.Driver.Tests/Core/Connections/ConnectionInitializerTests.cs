@@ -22,6 +22,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Authentication;
 using MongoDB.Driver.Authentication.ScramSha;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Compression;
@@ -63,9 +64,10 @@ namespace MongoDB.Driver.Core.Connections
         {
             var connectionInitializerContext = new ConnectionInitializerContext(__emptyConnectionDescription, null);
             var subject = CreateSubject();
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.AuthenticateAsync(OperationContext.NoTimeout, null, connectionInitializerContext)) :
-                Record.Exception(() => subject.Authenticate(OperationContext.NoTimeout, null, connectionInitializerContext));
+                await Record.ExceptionAsync(() => subject.AuthenticateAsync(operationContext, null, connectionInitializerContext)) :
+                Record.Exception(() => subject.Authenticate(operationContext, null, connectionInitializerContext));
 
             exception.Should().BeOfType<ArgumentNullException>()
                 .Subject.ParamName.Should().Be("connection");
@@ -77,9 +79,10 @@ namespace MongoDB.Driver.Core.Connections
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.AuthenticateAsync(OperationContext.NoTimeout, Mock.Of<IConnection>(), null)) :
-                Record.Exception(() => subject.Authenticate(OperationContext.NoTimeout, Mock.Of<IConnection>(), null));
+                await Record.ExceptionAsync(() => subject.AuthenticateAsync(operationContext, Mock.Of<IConnection>(), null)) :
+                Record.Exception(() => subject.Authenticate(operationContext, Mock.Of<IConnection>(), null));
 
             exception.Should().BeOfType<ArgumentNullException>()
                 .Subject.ParamName.Should().Be("connectionInitializerContext");
@@ -143,9 +146,10 @@ namespace MongoDB.Driver.Core.Connections
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.SendHelloAsync(OperationContext.NoTimeout, null)) :
-                Record.Exception(() => subject.SendHello(OperationContext.NoTimeout, null));
+                await Record.ExceptionAsync(() => subject.SendHelloAsync(operationContext, null)) :
+                Record.Exception(() => subject.SendHello(operationContext, null));
             exception.Should().BeOfType<ArgumentNullException>();
         }
 
@@ -406,18 +410,19 @@ namespace MongoDB.Driver.Core.Connections
         private async Task<ConnectionDescription> InitializeConnection(ConnectionInitializer connectionInitializer, MockConnection connection, bool async)
         {
             ConnectionInitializerContext connectionInitializerContext;
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             if (async)
             {
-                connectionInitializerContext = await connectionInitializer.SendHelloAsync(OperationContext.NoTimeout, connection);
+                connectionInitializerContext = await connectionInitializer.SendHelloAsync(operationContext, connection);
                 connection.Description = connectionInitializerContext.Description;
-                connectionInitializerContext = await connectionInitializer.AuthenticateAsync(OperationContext.NoTimeout, connection, connectionInitializerContext);
+                connectionInitializerContext = await connectionInitializer.AuthenticateAsync(operationContext, connection, connectionInitializerContext);
                 return connectionInitializerContext.Description;
             }
             else
             {
-                connectionInitializerContext = connectionInitializer.SendHello(OperationContext.NoTimeout, connection);
+                connectionInitializerContext = connectionInitializer.SendHello(operationContext, connection);
                 connection.Description = connectionInitializerContext.Description;
-                connectionInitializerContext = connectionInitializer.Authenticate(OperationContext.NoTimeout, connection, connectionInitializerContext);
+                connectionInitializerContext = connectionInitializer.Authenticate(operationContext, connection, connectionInitializerContext);
                 return connectionInitializerContext.Description;
             }
         }
@@ -428,7 +433,10 @@ namespace MongoDB.Driver.Core.Connections
         public static BsonDocument CreateInitialHelloCommand(
             this ConnectionInitializer initializer,
             IAuthenticator authenticator,
-            bool loadBalanced) =>
-                (BsonDocument)Reflector.Invoke(initializer, nameof(CreateInitialHelloCommand), OperationContext.NoTimeout, authenticator, loadBalanced);
+            bool loadBalanced)
+        {
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
+            return (BsonDocument)Reflector.Invoke(initializer, nameof(CreateInitialHelloCommand), operationContext, authenticator, loadBalanced);
+        }
     }
 }

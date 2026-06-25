@@ -22,6 +22,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Configuration;
@@ -97,7 +98,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
 
                 // Trigger Cluster._rapidHeartbeatTimer
                 using var cancellationTokenSource = new CancellationTokenSource();
-                var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationTokenSource.Token);
+                using var operationContext = new OperationContext(NoCoreSession.NewHandle(), Timeout.InfiniteTimeSpan, cancellationTokenSource.Token);
                 cluster.SelectServerAsync(operationContext, CreateWritableServerAndEndPointSelector(__endPoint1))
                     .IgnoreExceptions();
 
@@ -147,13 +148,14 @@ namespace MongoDB.Driver.Core.Tests.Jira
                     server.DescriptionChanged += ProcessServerDescriptionChanged;
                 }
 
-                var selectedServer = cluster.SelectServer(OperationContext.NoTimeout, CreateWritableServerAndEndPointSelector(__endPoint1));
+                using var operationContext = new OperationContext(NoCoreSession.NewHandle(), Timeout.InfiniteTimeSpan);
+                var selectedServer = cluster.SelectServer(operationContext, CreateWritableServerAndEndPointSelector(__endPoint1));
                 initialSelectedEndpoint = selectedServer.EndPoint;
                 initialSelectedEndpoint.Should().Be(__endPoint1);
 
                 // Change primary
                 currentPrimaries.Add(__serverId2);
-                selectedServer = cluster.SelectServer(OperationContext.NoTimeout, CreateWritableServerAndEndPointSelector(__endPoint2));
+                selectedServer = cluster.SelectServer(operationContext, CreateWritableServerAndEndPointSelector(__endPoint2));
                 selectedServer.EndPoint.Should().Be(__endPoint2);
 
                 // Ensure stalling happened

@@ -15,7 +15,6 @@
 
 using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -138,10 +137,11 @@ namespace MongoDB.Driver.Core.Operations
                 { "dropIndexes", _collectionNamespace.CollectionName },
                 { "index", indexName }
             };
-            var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            using var session = OperationTestHelper.CreateSession();
+using var operationContext = new OperationContext(session);
 
-            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription, null);
+            var result = subject.CreateCommand(operationContext, connectionDescription, null);
 
             result.Should().Be(expectedResult);
         }
@@ -167,10 +167,11 @@ namespace MongoDB.Driver.Core.Operations
                 { "index", indexName },
                 { "maxTimeMS", expectedMaxTimeMS }
             };
-            var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            using var session = OperationTestHelper.CreateSession();
+using var operationContext = new OperationContext(session);
 
-            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription, null);
+            var result = subject.CreateCommand(operationContext, connectionDescription, null);
 
             result.Should().Be(expectedResult);
             result["maxTimeMS"].BsonType.Should().Be(BsonType.Int32);
@@ -186,11 +187,10 @@ namespace MongoDB.Driver.Core.Operations
             {
                 MaxTime = TimeSpan.FromSeconds(10)
             };
-            var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            using var operationContext = new OperationContext(OperationTestHelper.CreateSession(), timeout: TimeSpan.FromMilliseconds(timeoutMs));
 
-            var operationContext = new OperationContext(TimeSpan.FromMilliseconds(timeoutMs), CancellationToken.None);
-            var result = subject.CreateCommand(operationContext, session, connectionDescription, null);
+            var result = subject.CreateCommand(operationContext, connectionDescription, null);
 
             result.Should().NotContain("maxTimeMS");
         }
@@ -214,11 +214,10 @@ namespace MongoDB.Driver.Core.Operations
             {
                 WriteConcern = writeConcern
             };
-            var operationContext = hasOperationTimeout ? new OperationContext(TimeSpan.FromSeconds(42), CancellationToken.None) : OperationContext.NoTimeout;
-            var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            using var operationContext = new OperationContext(OperationTestHelper.CreateSession(), timeout: hasOperationTimeout ? TimeSpan.FromSeconds(42) : null);
 
-            var result = subject.CreateCommand(operationContext, session, connectionDescription, null);
+            var result = subject.CreateCommand(operationContext, connectionDescription, null);
 
             var expectedWriteConcern = writeConcern?.ToBsonDocument();
             if (hasOperationTimeout)
@@ -276,8 +275,10 @@ namespace MongoDB.Driver.Core.Operations
         {
             var indexName = "x_1";
             var subject = new DropIndexOperation(_collectionNamespace, indexName, _messageEncoderSettings);
+            using var session = OperationTestHelper.CreateSession();
+            using var operationContext = new OperationContext(session);
 
-            Action action = () => ExecuteOperation(subject, null, async);
+            Action action = () => ExecuteOperation(operationContext, subject, null, async);
             var ex = action.ShouldThrow<ArgumentNullException>().Subject.Single();
 
             ex.ParamName.Should().Be("binding");
@@ -294,7 +295,10 @@ namespace MongoDB.Driver.Core.Operations
 
             using (var failPoint = FailPoint.ConfigureAlwaysOn(FailPointName.MaxTimeAlwaysTimeout))
             {
-                var exception = Record.Exception(() => ExecuteOperation(subject, failPoint.Binding, async));
+                using var session = OperationTestHelper.CreateSession();
+                using var operationContext = new OperationContext(session);
+
+                var exception = Record.Exception(() => ExecuteOperation(operationContext, subject, failPoint.Binding, async));
 
                 exception.Should().BeOfType<MongoExecutionTimeoutException>();
             }
