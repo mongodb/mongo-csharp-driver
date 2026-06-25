@@ -105,7 +105,7 @@ namespace MongoDB.Driver.Core.Connections
                 driverName = $"{driverName}|efcore";
             }
 
-            return new BsonDocument
+            return new()
             {
                 { "name", driverName },
                 { "version", driverVersion }

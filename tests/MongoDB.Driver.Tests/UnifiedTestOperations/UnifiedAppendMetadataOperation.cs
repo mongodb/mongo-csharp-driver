@@ -19,82 +19,81 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Configuration;
 
-namespace MongoDB.Driver.Tests.UnifiedTestOperations
+namespace MongoDB.Driver.Tests.UnifiedTestOperations;
+
+public class UnifiedAppendMetadataOperation : IUnifiedEntityTestOperation
 {
-    public class UnifiedAppendMetadataOperation : IUnifiedEntityTestOperation
+    private readonly MongoClient _client;
+    private readonly LibraryInfo _libraryInfo;
+
+    public UnifiedAppendMetadataOperation(MongoClient client, LibraryInfo libraryInfo)
     {
-        private readonly MongoClient _client;
-        private readonly LibraryInfo _libraryInfo;
-
-        public UnifiedAppendMetadataOperation(MongoClient client, LibraryInfo libraryInfo)
-        {
-            _client = client;
-            _libraryInfo = libraryInfo;
-        }
-
-        public OperationResult Execute(CancellationToken cancellationToken)
-        {
-            try
-            {
-                _client.AppendMetadata(_libraryInfo);
-                return OperationResult.Empty();
-            }
-            catch (Exception exception)
-            {
-                return OperationResult.FromException(exception);
-            }
-        }
-
-        public Task<OperationResult> ExecuteAsync(CancellationToken cancellationToken) =>
-            Task.FromResult(Execute(cancellationToken));
+        _client = client;
+        _libraryInfo = libraryInfo;
     }
 
-    public class UnifiedAppendMetadataOperationBuilder
+    public OperationResult Execute(CancellationToken cancellationToken)
     {
-        private readonly UnifiedEntityMap _entityMap;
-
-        public UnifiedAppendMetadataOperationBuilder(UnifiedEntityMap entityMap)
+        try
         {
-            _entityMap = entityMap;
+            _client.AppendMetadata(_libraryInfo);
+            return OperationResult.Empty();
         }
-
-        public UnifiedAppendMetadataOperation Build(string targetClientId, BsonDocument arguments)
+        catch (Exception exception)
         {
-            var client = (MongoClient)_entityMap.Clients[targetClientId];
+            return OperationResult.FromException(exception);
+        }
+    }
 
-            string name = null;
-            string version = null;
-            string platform = null;
+    public Task<OperationResult> ExecuteAsync(CancellationToken cancellationToken) =>
+        Task.FromResult(Execute(cancellationToken));
+}
 
-            foreach (var argument in arguments)
+public class UnifiedAppendMetadataOperationBuilder
+{
+    private readonly UnifiedEntityMap _entityMap;
+
+    public UnifiedAppendMetadataOperationBuilder(UnifiedEntityMap entityMap)
+    {
+        _entityMap = entityMap;
+    }
+
+    public UnifiedAppendMetadataOperation Build(string targetClientId, BsonDocument arguments)
+    {
+        var client = (MongoClient)_entityMap.Clients[targetClientId];
+
+        string name = null;
+        string version = null;
+        string platform = null;
+
+        foreach (var argument in arguments)
+        {
+            switch (argument.Name)
             {
-                switch (argument.Name)
-                {
-                    case "driverInfoOptions":
-                        foreach (var option in argument.Value.AsBsonDocument)
+                case "driverInfoOptions":
+                    foreach (var option in argument.Value.AsBsonDocument)
+                    {
+                        switch (option.Name)
                         {
-                            switch (option.Name)
-                            {
-                                case "name":
-                                    name = option.Value.AsString;
-                                    break;
-                                case "version":
-                                    version = option.Value.AsString;
-                                    break;
-                                case "platform":
-                                    platform = option.Value.AsString;
-                                    break;
-                                default:
-                                    throw new FormatException($"Invalid {nameof(UnifiedAppendMetadataOperation)} driverInfoOptions name: '{option.Name}'.");
-                            }
+                            case "name":
+                                name = option.Value.AsString;
+                                break;
+                            case "version":
+                                version = option.Value.AsString;
+                                break;
+                            case "platform":
+                                platform = option.Value.AsString;
+                                break;
+                            default:
+                                throw new FormatException($"Invalid {nameof(UnifiedAppendMetadataOperation)} driverInfoOptions name: '{option.Name}'.");
                         }
-                        break;
-                    default:
-                        throw new FormatException($"Invalid {nameof(UnifiedAppendMetadataOperation)} argument name: '{argument.Name}'.");
-                }
+                    }
+                    break;
+                default:
+                    throw new FormatException($"Invalid {nameof(UnifiedAppendMetadataOperation)} argument name: '{argument.Name}'.");
             }
-
-            return new(client, new LibraryInfo(name, version, platform));
         }
+
+        return new(client, new LibraryInfo(name, version, platform));
     }
 }
