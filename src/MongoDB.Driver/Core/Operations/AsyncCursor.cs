@@ -298,10 +298,8 @@ namespace MongoDB.Driver.Core.Operations
             return CreateCursorBatch(result);
         }
 
-        private void ExecuteKillCursorsCommand(IChannelHandle channel, CancellationToken cancellationToken)
+        private void ExecuteKillCursorsCommand(OperationContext operationContext, IChannelHandle channel)
         {
-            // TODO: CSOT: Implement operation context support for Cursors
-            var operationContext = new OperationContext(null, cancellationToken);
             var command = CreateKillCursorsCommand();
             var result = channel.Command(
                 operationContext,
@@ -320,10 +318,8 @@ namespace MongoDB.Driver.Core.Operations
             ThrowIfKillCursorsCommandFailed(result, channel.ConnectionDescription.ConnectionId);
         }
 
-        private async Task ExecuteKillCursorsCommandAsync(IChannelHandle channel, CancellationToken cancellationToken)
+        private async Task ExecuteKillCursorsCommandAsync(OperationContext operationContext, IChannelHandle channel)
         {
-            // TODO: CSOT: Implement operation context support for Cursors
-            var operationContext = new OperationContext(null, cancellationToken);
             var command = CreateKillCursorsCommand();
             var result = await channel.CommandAsync(
                 operationContext,
@@ -420,10 +416,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             try
             {
-                using (var source = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
-                {
-                    CloseIfNotAlreadyClosed(source.Token);
-                }
+                CloseIfNotAlreadyClosed(CancellationToken.None);
             }
             catch
             {
@@ -473,11 +466,12 @@ namespace MongoDB.Driver.Core.Operations
             var operationContext = new OperationContext(null, cancellationToken);
             using (EventContext.BeginOperation(_operationId))
             using (EventContext.BeginKillCursors(_collectionNamespace))
-            using (var channel = _channelSource.GetChannel(operationContext.WithTimeout(TimeSpan.FromSeconds(10))))
+            using (var killCursorOperationContext = operationContext.WithTimeout(TimeSpan.FromSeconds(10)))
+            using (var channel = _channelSource.GetChannel(killCursorOperationContext))
             {
                 if (!channel.Connection.IsExpired)
                 {
-                    ExecuteKillCursorsCommand(channel, cancellationToken);
+                    ExecuteKillCursorsCommand(killCursorOperationContext, channel);
                 }
             }
         }
@@ -488,11 +482,12 @@ namespace MongoDB.Driver.Core.Operations
             var operationContext = new OperationContext(null, cancellationToken);
             using (EventContext.BeginOperation(_operationId))
             using (EventContext.BeginKillCursors(_collectionNamespace))
-            using (var channel = await _channelSource.GetChannelAsync(operationContext.WithTimeout(TimeSpan.FromSeconds(10))).ConfigureAwait(false))
+            using (var killCursorOperationContext = operationContext.WithTimeout(TimeSpan.FromSeconds(10)))
+            using (var channel = await _channelSource.GetChannelAsync(killCursorOperationContext).ConfigureAwait(false))
             {
                 if (!channel.Connection.IsExpired)
                 {
-                    await ExecuteKillCursorsCommandAsync(channel, cancellationToken).ConfigureAwait(false);
+                    await ExecuteKillCursorsCommandAsync(killCursorOperationContext, channel).ConfigureAwait(false);
                 }
             }
         }
