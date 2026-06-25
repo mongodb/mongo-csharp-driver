@@ -20,3 +20,5 @@ docker run --platform="linux/amd64" --rm -v ${PWD}:/pwd \
   --env-file ${PWD}/kondukto_credentials.env \
   901841024863.dkr.ecr.us-east-1.amazonaws.com/release-infrastructure/silkbomb:2.0 \
   augment --repo mongodb/mongo-csharp-driver --branch main --sbom-in /pwd/sbom.json --sbom-out /pwd/${SSDLC_PATH}/augmented-sbom.json
+
+cp "${SSDLC_PATH}/augmented-sbom.json" ./vex.cdx.json
