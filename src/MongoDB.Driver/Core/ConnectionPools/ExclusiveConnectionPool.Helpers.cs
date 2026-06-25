@@ -468,9 +468,29 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
-            public void Reauthenticate(OperationContext operationContext) => _connection.Reauthenticate(operationContext);
+            public void Reauthenticate(OperationContext operationContext)
+            {
+                try
+                {
+                    _connection.Reauthenticate(operationContext);
+                }
+                catch (ObjectDisposedException ex) when (_closedWhileInUse)
+                {
+                    throw CreateConnectionClosedException(ex);
+                }
+            }
 
-            public Task ReauthenticateAsync(OperationContext operationContext) => _connection.ReauthenticateAsync(operationContext);
+            public async Task ReauthenticateAsync(OperationContext operationContext)
+            {
+                try
+                {
+                    await _connection.ReauthenticateAsync(operationContext).ConfigureAwait(false);
+                }
+                catch (ObjectDisposedException ex) when (_closedWhileInUse)
+                {
+                    throw CreateConnectionClosedException(ex);
+                }
+            }
 
             public ResponseMessage ReceiveMessage(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings)
             {
