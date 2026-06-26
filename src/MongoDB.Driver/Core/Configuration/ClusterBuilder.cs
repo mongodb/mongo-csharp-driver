@@ -223,16 +223,19 @@ namespace MongoDB.Driver.Core.Configuration
         // private methods
         private IClusterFactory CreateClusterFactory()
         {
-            var serverFactory = CreateServerFactory();
+            var clientMetadata = new ClientMetadata(_connectionSettings.ApplicationName, _connectionSettings.LibraryInfo);
+
+            var serverFactory = CreateServerFactory(clientMetadata);
 
             return new ClusterFactory(
                 _clusterSettings,
                 serverFactory,
                 _eventAggregator,
-                _loggingSettings?.ToInternalLoggerFactory());
+                _loggingSettings?.ToInternalLoggerFactory(),
+                clientMetadata);
         }
 
-        private IConnectionPoolFactory CreateConnectionPoolFactory()
+        private IConnectionPoolFactory CreateConnectionPoolFactory(ClientMetadata clientMetadata)
         {
             var streamFactory = CreateTcpStreamFactory(_tcpStreamSettings);
 
@@ -241,6 +244,7 @@ namespace MongoDB.Driver.Core.Configuration
                 streamFactory,
                 _eventAggregator,
                 _clusterSettings.ServerApi,
+                clientMetadata,
                 _loggingSettings.ToInternalLoggerFactory(),
                 _tracingOptions,
                 _tcpStreamSettings.ReadTimeout,
@@ -255,10 +259,10 @@ namespace MongoDB.Driver.Core.Configuration
                 _loggingSettings.ToInternalLoggerFactory());
         }
 
-        private ServerFactory CreateServerFactory()
+        private ServerFactory CreateServerFactory(ClientMetadata clientMetadata)
         {
-            var connectionPoolFactory = CreateConnectionPoolFactory();
-            var serverMonitorFactory = CreateServerMonitorFactory();
+            var connectionPoolFactory = CreateConnectionPoolFactory(clientMetadata);
+            var serverMonitorFactory = CreateServerMonitorFactory(clientMetadata);
 
             return new ServerFactory(
                 _clusterSettings.DirectConnection,
@@ -270,7 +274,7 @@ namespace MongoDB.Driver.Core.Configuration
                 _loggingSettings.ToInternalLoggerFactory());
         }
 
-        private IServerMonitorFactory CreateServerMonitorFactory()
+        private IServerMonitorFactory CreateServerMonitorFactory(ClientMetadata clientMetadata)
         {
             var serverMonitorConnectionSettings = _connectionSettings
                 .WithInternal(authenticatorFactory: null);
@@ -304,6 +308,7 @@ namespace MongoDB.Driver.Core.Configuration
                 serverMonitorStreamFactory,
                 new EventAggregator(),
                 _clusterSettings.ServerApi,
+                clientMetadata,
                 loggerFactory: null,
                 tracingOptions: new TracingOptions { Disabled = true },
                 _tcpStreamSettings.ReadTimeout,

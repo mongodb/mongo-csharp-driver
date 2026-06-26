@@ -25,6 +25,7 @@ using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using Moq;
@@ -143,7 +144,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_selection
                     return server.Object;
                 });
 
-            var result = new MultiServerCluster(clusterSettings, mockServerFactory.Object, new EventCapturer(), LoggerFactory);
+            var result = new MultiServerCluster(clusterSettings, mockServerFactory.Object, new EventCapturer(), LoggerFactory, new ClientMetadata(null, null));
             result.Initialize();
             return result;
         }

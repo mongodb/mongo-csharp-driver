@@ -24,6 +24,7 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
@@ -130,6 +131,18 @@ namespace MongoDB.Driver
         }
 
         // public methods
+        /// <summary>
+        /// Appends the specified library information to the metadata sent to the server in the connection handshake.
+        /// Only connections opened after this call are affected.
+        /// </summary>
+        /// <param name="libraryInfo">The library information to append.</param>
+        public void AppendMetadata(LibraryInfo libraryInfo)
+        {
+            ThrowIfDisposed();
+            Ensure.IsNotNull(libraryInfo, nameof(libraryInfo));
+            _cluster.AppendClientMetadata(libraryInfo);
+        }
+
         /// <inheritdoc/>
         public ClientBulkWriteResult BulkWrite(IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null, CancellationToken cancellationToken = default)
         {

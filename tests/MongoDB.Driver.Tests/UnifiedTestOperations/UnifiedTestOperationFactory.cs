@@ -77,6 +77,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 },
                 _ when _entityMap.Clients.ContainsKey(targetEntityId) => operationName switch
                 {
+                    "appendMetadata" => new UnifiedAppendMetadataOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "clientBulkWrite" => new UnifiedClientBulkWriteOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "close" => new UnifiedCloseClientOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "createChangeStream" => new UnifiedCreateChangeStreamOnClientOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),

@@ -21,6 +21,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
@@ -38,6 +39,49 @@ namespace MongoDB.Driver.Tests
 
             var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
             argumentNullException.ParamName.Should().Be("settings");
+        }
+
+        [Fact]
+        public void AppendMetadata_extension_should_append_to_cluster()
+        {
+            IMongoClient client = CreateClientWithMockedCluster(out var mockCluster);
+            var libraryInfo = new LibraryInfo("lib", "1.0");
+
+            client.AppendMetadata(libraryInfo);
+
+            mockCluster.Verify(c => c.AppendClientMetadata(libraryInfo), Times.Once);
+        }
+
+        [Fact]
+        public void AppendMetadata_should_append_to_cluster()
+        {
+            var client = CreateClientWithMockedCluster(out var mockCluster);
+            var libraryInfo = new LibraryInfo("lib", "1.0");
+
+            client.AppendMetadata(libraryInfo);
+
+            mockCluster.Verify(c => c.AppendClientMetadata(libraryInfo), Times.Once);
+        }
+
+        [Fact]
+        public void AppendMetadata_should_throw_when_disposed()
+        {
+            var client = CreateClientWithMockedCluster(out _);
+            client.Dispose();
+
+            var exception = Record.Exception(() => client.AppendMetadata(new LibraryInfo("lib", "1.0")));
+
+            exception.Should().BeOfType<ObjectDisposedException>();
+        }
+
+        [Fact]
+        public void AppendMetadata_should_throw_when_libraryInfo_is_null()
+        {
+            var client = CreateClientWithMockedCluster(out _);
+
+            var exception = Record.Exception(() => client.AppendMetadata(null));
+
+            exception.Should().BeOfType<ArgumentNullException>().Subject.ParamName.Should().Be("libraryInfo");
         }
 
         [Fact]
@@ -444,6 +488,15 @@ namespace MongoDB.Driver.Tests
         }
 
         // private methods
+        private static MongoClient CreateClientWithMockedCluster(out Mock<IClusterInternal> mockCluster)
+        {
+            mockCluster = new Mock<IClusterInternal>();
+            var clusterSource = new Mock<IClusterSource>();
+            clusterSource.Setup(c => c.Get(It.IsAny<ClusterKey>())).Returns(mockCluster.Object);
+            var settings = new MongoClientSettings { ClusterSource = clusterSource.Object };
+            return new MongoClient(settings);
+        }
+
         private IClientSessionHandle CreateClientSession()
         {
             var client = new Mock<IMongoClient>().Object;

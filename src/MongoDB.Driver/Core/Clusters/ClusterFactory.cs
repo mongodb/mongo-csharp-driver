@@ -17,6 +17,7 @@ using System;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
@@ -27,18 +28,20 @@ namespace MongoDB.Driver.Core.Clusters
     internal sealed class ClusterFactory : IClusterFactory
     {
         // fields
+        private readonly ClientMetadata _clientMetadata;
         private readonly IEventSubscriber _eventSubscriber;
         private readonly ILoggerFactory _loggerFactory;
         private readonly IClusterableServerFactory _serverFactory;
         private readonly ClusterSettings _settings;
 
         // constructors
-        public ClusterFactory(ClusterSettings settings, IClusterableServerFactory serverFactory, IEventSubscriber eventSubscriber, ILoggerFactory loggerFactory)
+        public ClusterFactory(ClusterSettings settings, IClusterableServerFactory serverFactory, IEventSubscriber eventSubscriber, ILoggerFactory loggerFactory, ClientMetadata clientMetadata)
         {
             _settings = Ensure.IsNotNull(settings, nameof(settings));
             _serverFactory = Ensure.IsNotNull(serverFactory, nameof(serverFactory));
             _eventSubscriber = Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
             _loggerFactory = loggerFactory;
+            _clientMetadata = Ensure.IsNotNull(clientMetadata, nameof(clientMetadata));
         }
 
         // methods
@@ -64,17 +67,17 @@ namespace MongoDB.Driver.Core.Clusters
 
         private MultiServerCluster CreateMultiServerCluster(ClusterSettings settings)
         {
-            return new MultiServerCluster(settings, _serverFactory, _eventSubscriber, _loggerFactory);
+            return new MultiServerCluster(settings, _serverFactory, _eventSubscriber, _loggerFactory, clientMetadata: _clientMetadata);
         }
 
         private SingleServerCluster CreateSingleServerCluster(ClusterSettings settings)
         {
-            return new SingleServerCluster(settings, _serverFactory, _eventSubscriber, _loggerFactory);
+            return new SingleServerCluster(settings, _serverFactory, _eventSubscriber, _loggerFactory, _clientMetadata);
         }
 
         private LoadBalancedCluster CreateLoadBalancedCluster(ClusterSettings setting)
         {
-            return new LoadBalancedCluster(setting, _serverFactory, _eventSubscriber, _loggerFactory);
+            return new LoadBalancedCluster(setting, _serverFactory, _eventSubscriber, _loggerFactory, _clientMetadata);
         }
 
         private void ProcessClusterEnvironment(ClusterSettings settings)
