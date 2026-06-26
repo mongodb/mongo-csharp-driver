@@ -18,6 +18,7 @@ using System.Linq;
 using System.Net;
 using FluentAssertions;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
@@ -47,7 +48,7 @@ namespace MongoDB.Driver.Core.Clusters
         public void Constructor_should_throw_if_more_than_one_endpoint_is_specified()
         {
             _settings = _settings.With(endPoints: new[] { _endPoint, new DnsEndPoint("localhost", 27018) });
-            Action act = () => new SingleServerCluster(_settings, _mockServerFactory, _capturedEvents, loggerFactory: null);
+            Action act = () => new SingleServerCluster(_settings, _mockServerFactory, _capturedEvents, loggerFactory: null, clientMetadata: new ClientMetadata(null, null));
 
             act.ShouldThrow<ArgumentException>();
         }
@@ -57,7 +58,7 @@ namespace MongoDB.Driver.Core.Clusters
         {
             _settings = _settings.With(srvMaxHosts: 2);
 
-            var exception = Record.Exception(() => new SingleServerCluster(_settings, _mockServerFactory, _capturedEvents, loggerFactory: null));
+            var exception = Record.Exception(() => new SingleServerCluster(_settings, _mockServerFactory, _capturedEvents, loggerFactory: null, clientMetadata: new ClientMetadata(null, null)));
 
             exception.Should().BeOfType<ArgumentException>();
         }
@@ -175,7 +176,7 @@ namespace MongoDB.Driver.Core.Clusters
         // private methods
         private SingleServerCluster CreateSubject()
         {
-            return new SingleServerCluster(_settings, _mockServerFactory, _capturedEvents, LoggerFactory);
+            return new SingleServerCluster(_settings, _mockServerFactory, _capturedEvents, LoggerFactory, new ClientMetadata(null, null));
         }
 
         private void PublishDescription(EndPoint endPoint, ServerType serverType, ReplicaSetConfig replicaSetConfig = null)

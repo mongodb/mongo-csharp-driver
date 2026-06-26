@@ -30,7 +30,7 @@ internal sealed class ClientMetadata
     public ClientMetadata(string applicationName, LibraryInfo libraryInfo)
     {
         _applicationName = applicationName;
-        _libraryInfos = libraryInfo != null ? [Normalize(libraryInfo)] : [];
+        _libraryInfos = libraryInfo != null ? [libraryInfo] : [];
     }
 
     public BsonDocument GetClientDocument()
@@ -50,7 +50,6 @@ internal sealed class ClientMetadata
     public void Append(LibraryInfo libraryInfo)
     {
         Ensure.IsNotNull(libraryInfo, nameof(libraryInfo));
-        libraryInfo = Normalize(libraryInfo);
 
         if (Array.IndexOf(_libraryInfos, libraryInfo) >= 0)
         {
@@ -65,26 +64,9 @@ internal sealed class ClientMetadata
                 return;
             }
 
-            var updated = new LibraryInfo[current.Length + 1];
-            Array.Copy(current, updated, current.Length);
-            updated[current.Length] = libraryInfo;
+            LibraryInfo[] updated = [..current, libraryInfo];
             _libraryInfos = updated;
             _clientDocument = null;
         }
     }
-
-    // empty strings are considered unset, so normalize them to null for deduplication
-    private static LibraryInfo Normalize(LibraryInfo libraryInfo)
-    {
-        var version = string.IsNullOrWhiteSpace(libraryInfo.Version) ? null : libraryInfo.Version;
-        var platform = string.IsNullOrWhiteSpace(libraryInfo.Platform) ? null : libraryInfo.Platform;
-
-        if (version == libraryInfo.Version && platform == libraryInfo.Platform)
-        {
-            return libraryInfo;
-        }
-
-        return new LibraryInfo(libraryInfo.Name, version, platform);
-    }
-
 }

@@ -26,6 +26,7 @@ using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Misc;
@@ -504,7 +505,7 @@ namespace MongoDB.Driver.Core.Clusters
                 IEventSubscriber eventSubscriber,
                 ILoggerFactory loggerFactory,
                 ClusterType? clusterType = null)
-                : base(settings, serverFactory, eventSubscriber, loggerFactory)
+                : base(settings, serverFactory, eventSubscriber, loggerFactory, new ClientMetadata(null, null))
             {
                 _clusterType = clusterType;
             }

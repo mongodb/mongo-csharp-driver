@@ -23,6 +23,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
@@ -60,7 +61,7 @@ namespace MongoDB.Driver.Core.Clusters
             var mockEventSubscriber = new Mock<IEventSubscriber>();
             var dnsMonitorFactory = Mock.Of<IDnsMonitorFactory>();
 
-            var result = new MultiServerCluster(settings, serverFactory, mockEventSubscriber.Object, null, dnsMonitorFactory);
+            var result = new MultiServerCluster(settings, serverFactory, mockEventSubscriber.Object, null, new ClientMetadata(null, null), dnsMonitorFactory);
 
             result._dnsMonitorFactory().Should().BeSameAs(dnsMonitorFactory);
             result._replicaSetName().Should().BeSameAs(settings.ReplicaSetName);
@@ -71,7 +72,7 @@ namespace MongoDB.Driver.Core.Clusters
         public void Constructor_should_throw_if_no_endpoints_are_specified()
         {
             var settings = new ClusterSettings(endPoints: new EndPoint[0]);
-            Action act = () => new MultiServerCluster(settings, _serverFactory, _capturedEvents, loggerFactory: null);
+            Action act = () => new MultiServerCluster(settings, _serverFactory, _capturedEvents, loggerFactory: null, clientMetadata: new ClientMetadata(null, null));
 
             act.ShouldThrow<ArgumentOutOfRangeException>();
         }
@@ -83,7 +84,7 @@ namespace MongoDB.Driver.Core.Clusters
             var serverFactory = Mock.Of<IClusterableServerFactory>();
             var eventSubscriber = Mock.Of<IEventSubscriber>();
 
-            var result = new MultiServerCluster(settings, serverFactory, eventSubscriber, loggerFactory: null, dnsMonitorFactory: null);
+            var result = new MultiServerCluster(settings, serverFactory, eventSubscriber, loggerFactory: null, clientMetadata: new ClientMetadata(null, null), dnsMonitorFactory: null);
 
             var dnsMonitorFactory = result._dnsMonitorFactory().Should().BeOfType<DnsMonitorFactory>().Subject;
             dnsMonitorFactory._eventSubscriber().Should().BeSameAs(eventSubscriber);
@@ -1183,7 +1184,7 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         private MultiServerCluster CreateSubject(ClusterSettings settings = null, IDnsMonitorFactory dnsMonitorFactory = null) =>
-            new(settings ?? _settings, _serverFactory, _capturedEvents, LoggerFactory, dnsMonitorFactory);
+            new(settings ?? _settings, _serverFactory, _capturedEvents, LoggerFactory, new ClientMetadata(null, null), dnsMonitorFactory);
 
         private void TimeSpanShouldBeShort(TimeSpan value)
         {

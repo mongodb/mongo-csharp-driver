@@ -58,11 +58,11 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly InterlockedInt32 _state;
 
         // constructors
-        protected Cluster(ClusterSettings settings, IClusterableServerFactory serverFactory, IEventSubscriber eventSubscriber, ILoggerFactory loggerFactory, ClientMetadata clientMetadata = null)
+        protected Cluster(ClusterSettings settings, IClusterableServerFactory serverFactory, IEventSubscriber eventSubscriber, ILoggerFactory loggerFactory, ClientMetadata clientMetadata)
         {
             _settings = Ensure.IsNotNull(settings, nameof(settings));
             Ensure.That(!_settings.LoadBalanced, "LoadBalanced mode is not supported.");
-            _clientMetadata = clientMetadata;
+            _clientMetadata = Ensure.IsNotNull(clientMetadata, nameof(clientMetadata));
             _serverFactory = Ensure.IsNotNull(serverFactory, nameof(serverFactory));
             Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
             _state = new InterlockedInt32(State.Initial);
@@ -95,11 +95,6 @@ namespace MongoDB.Driver.Core.Clusters
 
         public void AppendClientMetadata(LibraryInfo libraryInfo)
         {
-            if (_clientMetadata == null)
-            {
-                throw new InvalidOperationException("Client metadata has not been initialized for this cluster.");
-            }
-
             _clientMetadata.Append(libraryInfo);
         }
 

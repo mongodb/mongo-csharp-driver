@@ -89,18 +89,6 @@ public class ClientMetadataTests
     }
 
     [Fact]
-    public void Append_should_treat_empty_string_as_unset_for_dedup()
-    {
-        var subject = new ClientMetadata(applicationName: null, libraryInfo: null);
-        subject.Append(new LibraryInfo("library", version: null, platform: "Library Platform"));
-        var before = subject.GetClientDocument();
-
-        subject.Append(new LibraryInfo("library", version: "", platform: "Library Platform")); // "" == unset, so identical => no-op
-
-        subject.GetClientDocument().Should().Be(before);
-    }
-
-    [Fact]
     public void Append_should_throw_when_library_info_is_null()
     {
         var subject = new ClientMetadata(applicationName: null, libraryInfo: null);

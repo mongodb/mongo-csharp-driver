@@ -35,13 +35,13 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly ClusterSettings _settings;
 
         // constructors
-        public ClusterFactory(ClusterSettings settings, IClusterableServerFactory serverFactory, IEventSubscriber eventSubscriber, ILoggerFactory loggerFactory, ClientMetadata clientMetadata = null)
+        public ClusterFactory(ClusterSettings settings, IClusterableServerFactory serverFactory, IEventSubscriber eventSubscriber, ILoggerFactory loggerFactory, ClientMetadata clientMetadata)
         {
             _settings = Ensure.IsNotNull(settings, nameof(settings));
             _serverFactory = Ensure.IsNotNull(serverFactory, nameof(serverFactory));
             _eventSubscriber = Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
             _loggerFactory = loggerFactory;
-            _clientMetadata = clientMetadata;
+            _clientMetadata = Ensure.IsNotNull(clientMetadata, nameof(clientMetadata));
         }
 
         // methods

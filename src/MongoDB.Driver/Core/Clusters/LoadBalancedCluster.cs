@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Core.Clusters
             IClusterableServerFactory serverFactory,
             IEventSubscriber eventSubscriber,
             ILoggerFactory loggerFactory,
-            ClientMetadata clientMetadata = null)
+            ClientMetadata clientMetadata)
             : this(
                   settings,
                   serverFactory,
@@ -73,7 +73,7 @@ namespace MongoDB.Driver.Core.Clusters
             IEventSubscriber eventSubscriber,
             ILoggerFactory loggerFactory,
             IDnsMonitorFactory dnsMonitorFactory,
-            ClientMetadata clientMetadata = null)
+            ClientMetadata clientMetadata)
         {
             Ensure.That(!settings.DirectConnection, $"DirectConnection mode is not supported for {nameof(LoadBalancedCluster)}.");
             Ensure.That(settings.LoadBalanced, $"Only Load balanced mode is supported for a {nameof(LoadBalancedCluster)}.");
@@ -81,7 +81,7 @@ namespace MongoDB.Driver.Core.Clusters
             Ensure.IsNull(settings.ReplicaSetName, nameof(settings.ReplicaSetName));
             Ensure.That(settings.SrvMaxHosts == 0, "srvMaxHosts cannot be used with load balanced mode.");
 
-            _clientMetadata = clientMetadata;
+            _clientMetadata = Ensure.IsNotNull(clientMetadata, nameof(clientMetadata));
             _clusterClock = new ClusterClock();
             _clusterId = new ClusterId();
 
@@ -119,11 +119,6 @@ namespace MongoDB.Driver.Core.Clusters
 
         public void AppendClientMetadata(LibraryInfo libraryInfo)
         {
-            if (_clientMetadata == null)
-            {
-                throw new InvalidOperationException("Client metadata has not been initialized for this cluster.");
-            }
-
             _clientMetadata.Append(libraryInfo);
         }
 

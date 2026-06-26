@@ -45,8 +45,8 @@ namespace MongoDB.Driver.Core.Clusters
             IClusterableServerFactory serverFactory,
             IEventSubscriber eventSubscriber,
             ILoggerFactory loggerFactory,
-            IDnsMonitorFactory dnsMonitorFactory = null,
-            ClientMetadata clientMetadata = null)
+            ClientMetadata clientMetadata,
+            IDnsMonitorFactory dnsMonitorFactory = null)
             : base(settings, serverFactory, eventSubscriber, loggerFactory, clientMetadata)
         {
             Ensure.IsGreaterThanZero(settings.EndPoints.Count, nameof(settings.EndPoints.Count));

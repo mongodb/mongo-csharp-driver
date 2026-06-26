@@ -105,7 +105,7 @@ namespace MongoDB.Driver.Core.Connections
                 driverName = $"{driverName}|efcore";
             }
 
-            return new()
+            return new BsonDocument
             {
                 { "name", driverName },
                 { "version", driverVersion }
@@ -428,13 +428,13 @@ namespace MongoDB.Driver.Core.Connections
             {
                 driverName = $"{driverName}|{libraryInfo.Name}";
 
-                if (!string.IsNullOrWhiteSpace(libraryInfo.Version))
+                if (libraryInfo.Version != null)
                 {
                     driverVersion = $"{driverVersion}|{libraryInfo.Version}";
                 }
             }
 
-            return new BsonDocument
+            return new()
             {
                 { "name", driverName },
                 { "version", driverVersion }
@@ -450,7 +450,7 @@ namespace MongoDB.Driver.Core.Connections
 
             foreach (var libraryInfo in libraryInfos)
             {
-                if (!string.IsNullOrWhiteSpace(libraryInfo.Platform))
+                if (libraryInfo.Platform != null)
                 {
                     platformString = string.IsNullOrEmpty(platformString) ? libraryInfo.Platform : $"{platformString}|{libraryInfo.Platform}";
                 }

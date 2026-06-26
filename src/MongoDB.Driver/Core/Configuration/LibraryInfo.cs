@@ -61,8 +61,8 @@ namespace MongoDB.Driver.Core.Configuration
         public LibraryInfo(string name, string version, string platform)
         {
             Name = EnsureNoSeparator(Ensure.IsNotNullOrEmpty(name, nameof(name)), nameof(name));
-            Version = EnsureNoSeparator(version, nameof(version));
-            Platform = EnsureNoSeparator(platform, nameof(platform));
+            Version = NormalizeOptionalValue(version, nameof(version));
+            Platform = NormalizeOptionalValue(platform, nameof(platform));
         }
 
         // public operators
@@ -132,6 +132,13 @@ namespace MongoDB.Driver.Core.Configuration
             }
 
             return value;
+        }
+
+        // empty or whitespace optional values are treated as unset and normalized to null
+        private static string NormalizeOptionalValue(string value, string paramName)
+        {
+            EnsureNoSeparator(value, paramName);
+            return string.IsNullOrWhiteSpace(value) ? null : value;
         }
     }
 }

@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 .Setup(f => f.CreateServer(It.IsAny<ClusterType>(), It.IsAny<ClusterId>(), It.IsAny<IClusterClock>(), It.IsAny<EndPoint>()))
                 .Returns(serverMock.Object);
 
-            using (var cluster = new MultiServerCluster(clusterSettings, serverFactoryMock.Object, new EventCapturer(), LoggerFactory))
+            using (var cluster = new MultiServerCluster(clusterSettings, serverFactoryMock.Object, new EventCapturer(), LoggerFactory, new ClientMetadata(null, null)))
             {
                 cluster._minHeartbeatInterval(TimeSpan.FromMilliseconds(10));
 
@@ -259,7 +259,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
             var serverMonitorFactory = new ServerMonitorFactory(serverMonitorSettings, serverMonitorConnectionFactory, eventCapturer, serverApi: null, LoggerFactory);
 
             var serverFactory = new ServerFactory(__directConnection, serverSettings, connectionPoolFactory, serverMonitorFactory, eventCapturer, serverApi: null, null);
-            return new MultiServerCluster(clusterSettings, serverFactory, eventCapturer, LoggerFactory);
+            return new MultiServerCluster(clusterSettings, serverFactory, eventCapturer, LoggerFactory, new ClientMetadata(null, null));
         }
 
         private IServerSelector CreateWritableServerAndEndPointSelector(EndPoint endPoint)

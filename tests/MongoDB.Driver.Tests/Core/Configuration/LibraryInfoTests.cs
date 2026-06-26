@@ -65,6 +65,19 @@ public class LibraryInfoTests
         exception.Should().BeOfType<ArgumentException>().Subject.ParamName.Should().Be(expectedParamName);
     }
 
+    [Theory]
+    [InlineData(null, null)]
+    [InlineData("", null)]
+    [InlineData("   ", null)]
+    [InlineData("1.0", "1.0")]
+    public void constructor_should_normalize_empty_optional_values_to_null(string value, string expected)
+    {
+        var subject = new LibraryInfo("name", value, value);
+
+        subject.Version.Should().Be(expected);
+        subject.Platform.Should().Be(expected);
+    }
+
     [Fact]
     public void GetHashCode_should_be_equal_for_equal_instances()
     {
