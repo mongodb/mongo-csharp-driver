@@ -205,8 +205,19 @@ public class Feature
     public static Feature Csfle2QEv2RangeAlgorithm { get; } = new("csfle2Qev2RangeAlgorithm", WireVersion.Server80);
 
     /// <summary>
+    /// Gets the csfle2 string algorithm feature.
+    /// </summary>
+    public static Feature Csfle2QEv2StringAlgorithm { get; } = new("csfle2Qev2StringAlgorithm", WireVersion.Server90);
+
+    /// <summary>
+    /// Gets the csfle2 string (preview) query types feature (prefixPreview, suffixPreview, substringPreview).
+    /// </summary>
+    public static Feature Csfle2QEv2StringPreviewAlgorithm { get; } = new("csfle2Qev2StringPreviewAlgorithm", WireVersion.Server82);
+
+    /// <summary>
     /// Gets the csfle2 textPreview algorithm feature.
     /// </summary>
+    [Obsolete("Use Csfle2QEv2StringPreviewAlgorithm instead.")]
     public static Feature Csfle2QEv2TextPreviewAlgorithm { get; } = new("csfle2Qev2TextPreviewAlgorithm", WireVersion.Server82);
 
     /// <summary>
