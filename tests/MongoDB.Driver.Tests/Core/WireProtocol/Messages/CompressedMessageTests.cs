@@ -1,4 +1,4 @@
-﻿/* Copyright 2019-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Core.Tests.Core.WireProtocol.Messages
         private RequestCommandMessage GetCommandMessage() =>
             new(
                 1,
-                new CommandMessageSection[1]
+                new CommandMessageSection[]
                 {
                     new Type0CommandMessageSection<BsonDocument>(new BsonDocument(), BsonDocumentSerializer.Instance )
                 },
