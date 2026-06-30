@@ -315,7 +315,7 @@ namespace MongoDB.Driver.Core.Clusters
                 .Setup(c => c.ReceiveMessage(It.IsAny<OperationContext>(), It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), It.IsAny<MessageEncoderSettings>()))
                 .Returns(GetHelloResponse);
 
-            ResponseMessage GetHelloResponse()
+            CommandMessage GetHelloResponse()
             {
                 var helloDocument = primaries.Contains(serverId) ? primaryDocument : secondaryDocument;
 

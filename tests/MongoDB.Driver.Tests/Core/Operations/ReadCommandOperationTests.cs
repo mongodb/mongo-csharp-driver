@@ -18,7 +18,6 @@ using System.Net;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.TestHelpers.XunitExtensions;
@@ -45,10 +44,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var result = new ReadCommandOperation<BsonDocument>(databaseNamespace, command, resultSerializer, messageEncoderSettings);
 
-            result.AdditionalOptions.Should().BeNull();
             result.Command.Should().BeSameAs(command);
-            result.CommandValidator.Should().BeOfType<NoOpElementNameValidator>();
-            result.Comment.Should().BeNull();
             result.DatabaseNamespace.Should().BeSameAs(databaseNamespace);
             result.MessageEncoderSettings.Should().BeSameAs(messageEncoderSettings);
             result.ResultSerializer.Should().BeSameAs(resultSerializer);
@@ -102,8 +98,6 @@ namespace MongoDB.Driver.Core.Operations
                         subject.DatabaseNamespace,
                         subject.Command,
                         null, // commandPayloads
-                        subject.CommandValidator,
-                        null, // additionalOptions
                         null, // postWriteAction
                         CommandResponseHandling.Return,
                         subject.ResultSerializer,
@@ -120,8 +114,6 @@ namespace MongoDB.Driver.Core.Operations
                         subject.DatabaseNamespace,
                         subject.Command,
                         null, // commandPayloads
-                        subject.CommandValidator,
-                        null, // additionalOptions
                         null, // postWriteAction
                         CommandResponseHandling.Return,
                         subject.ResultSerializer,
@@ -132,125 +124,15 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
-        public void Execute_should_call_channel_Command_with_wrapped_command_when_additionalOptions_need_wrapping(
-            [Values(false, true)] bool async)
-        {
-            var subject = CreateSubject<BsonDocument>();
-            subject.AdditionalOptions = new BsonDocument("additional", 1);
-            subject.Comment = "comment";
-            var readPreference = ReadPreference.Primary;
-            var serverDescription = CreateServerDescription(ServerType.Standalone);
-            var mockChannel = CreateMockChannel();
-            var channelSource = CreateMockChannelSource(serverDescription, mockChannel.Object).Object;
-            var binding = CreateMockReadBinding(readPreference, channelSource).Object;
-            var additionalOptions = BsonDocument.Parse("{ $comment : \"comment\", additional : 1 }");
-
-            ExecuteOperation(subject, binding, async);
-            if (async)
-            {
-                mockChannel.Verify(
-                    c => c.CommandAsync(
-                        It.IsAny<OperationContext>(),
-                        binding.Session,
-                        readPreference,
-                        subject.DatabaseNamespace,
-                        subject.Command,
-                        null, // commandPayloads
-                        subject.CommandValidator,
-                        additionalOptions,
-                        null, // postWriteAction
-                        CommandResponseHandling.Return,
-                        subject.ResultSerializer,
-                        subject.MessageEncoderSettings),
-                    Times.Once);
-            }
-            else
-            {
-                mockChannel.Verify(
-                    c => c.Command(
-                        It.IsAny<OperationContext>(),
-                        binding.Session,
-                        readPreference,
-                        subject.DatabaseNamespace,
-                        subject.Command,
-                        null, // commandPayloads
-                        subject.CommandValidator,
-                        additionalOptions,
-                        null, // postWriteAction
-                        CommandResponseHandling.Return,
-                        subject.ResultSerializer,
-                        subject.MessageEncoderSettings),
-                    Times.Once);
-            }
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void Execute_should_call_channel_Command_with_wrapped_command_when_comment_needs_wrapping(
-            [Values(false, true)] bool async)
-        {
-            var subject = CreateSubject<BsonDocument>();
-            subject.Comment = "comment";
-            var readPreference = ReadPreference.Primary;
-            var serverDescription = CreateServerDescription(ServerType.Standalone);
-            var mockChannel = CreateMockChannel();
-            var channelSource = CreateMockChannelSource(serverDescription, mockChannel.Object).Object;
-            var binding = CreateMockReadBinding(readPreference, channelSource).Object;
-            var additionalOptions = BsonDocument.Parse("{ $comment : \"comment\" }");
-
-            ExecuteOperation(subject, binding, async);
-            if (async)
-            {
-                mockChannel.Verify(
-                    c => c.CommandAsync(
-                        It.IsAny<OperationContext>(),
-                        binding.Session,
-                        readPreference,
-                        subject.DatabaseNamespace,
-                        subject.Command,
-                        null, // commandPayloads
-                        subject.CommandValidator,
-                        additionalOptions,
-                        null, // postWriteAction
-                        CommandResponseHandling.Return,
-                        subject.ResultSerializer,
-                        subject.MessageEncoderSettings),
-                    Times.Once);
-            }
-            else
-            {
-                mockChannel.Verify(
-                    c => c.Command(
-                        It.IsAny<OperationContext>(),
-                        binding.Session,
-                        readPreference,
-                        subject.DatabaseNamespace,
-                        subject.Command,
-                        null, // commandPayloads
-                        subject.CommandValidator,
-                        additionalOptions,
-                        null, // postWriteAction
-                        CommandResponseHandling.Return,
-                        subject.ResultSerializer,
-                        subject.MessageEncoderSettings),
-                    Times.Once);
-            }
-        }
-
-        [Theory]
-        [ParameterAttributeData]
         public void Execute_should_call_channel_Command_with_wrapped_command_when_readPreference_needs_wrapping(
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject<BsonDocument>();
-            subject.AdditionalOptions = new BsonDocument("additional", 1);
-            subject.Comment = "comment";
             var readPreference = ReadPreference.Secondary;
             var serverDescription = CreateServerDescription(ServerType.ShardRouter);
             var mockChannel = CreateMockChannel();
             var channelSource = CreateMockChannelSource(serverDescription, mockChannel.Object).Object;
             var binding = CreateMockReadBinding(readPreference, channelSource).Object;
-            var additionalOptions = BsonDocument.Parse("{ $comment : \"comment\", additional : 1 }");
 
             ExecuteOperation(subject, binding, async);
             if (async)
@@ -263,8 +145,6 @@ namespace MongoDB.Driver.Core.Operations
                         subject.DatabaseNamespace,
                         subject.Command,
                         null, // commandPayloads
-                        subject.CommandValidator,
-                        additionalOptions,
                         null, // postWriteAction
                         CommandResponseHandling.Return,
                         subject.ResultSerializer,
@@ -281,8 +161,6 @@ namespace MongoDB.Driver.Core.Operations
                         subject.DatabaseNamespace,
                         subject.Command,
                         null, // commandPayloads
-                        subject.CommandValidator,
-                        additionalOptions,
                         null, // postWriteAction
                         CommandResponseHandling.Return,
                         subject.ResultSerializer,

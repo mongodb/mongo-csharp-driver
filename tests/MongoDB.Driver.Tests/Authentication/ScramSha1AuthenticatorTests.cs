@@ -217,7 +217,7 @@ namespace MongoDB.Driver.Tests.Authentication
             var helloResult = (BsonDocument)__descriptionCommandWireProtocol.HelloResult.Wrapped.Clone();
             if (useSpeculativeAuthenticate)
             {
-                helloResult.Add("speculativeAuthenticate", ((Type0CommandMessageSection<RawBsonDocument>)saslStartResponse.WrappedMessage.Sections[0]).Document);
+                helloResult.Add("speculativeAuthenticate", ((Type0CommandMessageSection<RawBsonDocument>)saslStartResponse.Sections[0]).Document);
             }
 
             connection.Description = new ConnectionDescription(__descriptionCommandWireProtocol.ConnectionId, new HelloResult(helloResult));

@@ -36,10 +36,8 @@ namespace MongoDB.Driver.Core.WireProtocol
     internal sealed class CommandUsingCommandMessageWireProtocol<TCommandResult> : IWireProtocol<TCommandResult>
     {
         // private fields
-        private readonly BsonDocument _additionalOptions; // TODO: can these be supported when using CommandMessage?
         private readonly BsonDocument _command;
         private readonly List<BatchableCommandMessageSection> _commandPayloads;
-        private readonly IElementNameValidator _commandValidator; // TODO: how can this be supported when using CommandMessage?
         private readonly DatabaseNamespace _databaseNamespace;
         private readonly IBinaryDocumentFieldDecryptor _documentFieldDecryptor;
         private readonly IBinaryCommandFieldEncryptor _documentFieldEncryptor;
@@ -62,8 +60,6 @@ namespace MongoDB.Driver.Core.WireProtocol
             DatabaseNamespace databaseNamespace,
             BsonDocument command,
             IEnumerable<BatchableCommandMessageSection> commandPayloads,
-            IElementNameValidator commandValidator,
-            BsonDocument additionalOptions,
             CommandResponseHandling responseHandling,
             IBsonSerializer<TCommandResult> resultSerializer,
             MessageEncoderSettings messageEncoderSettings,
@@ -83,8 +79,6 @@ namespace MongoDB.Driver.Core.WireProtocol
             _databaseNamespace = Ensure.IsNotNull(databaseNamespace, nameof(databaseNamespace));
             _command = Ensure.IsNotNull(command, nameof(command));
             _commandPayloads = commandPayloads?.ToList(); // can be null
-            _commandValidator = Ensure.IsNotNull(commandValidator, nameof(commandValidator));
-            _additionalOptions = additionalOptions; // can be null
             _responseHandling = responseHandling;
             _resultSerializer = Ensure.IsNotNull(resultSerializer, nameof(resultSerializer));
             _messageEncoderSettings = messageEncoderSettings;
@@ -108,7 +102,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             try
             {
                 int responseTo;
-                CommandRequestMessage message = null;
+                RequestCommandMessage message = null;
 
                 if (_moreToCome)
                 {
@@ -119,7 +113,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                     message = CreateCommandMessage(operationContext, connection.Description);
                     // TODO: CSOT: Propagate operationContext into Encryption
                     message = AutoEncryptFieldsIfNecessary(message, connection, operationContext.CancellationToken);
-                    responseTo = message.WrappedMessage.RequestId;
+                    responseTo = message.RequestId;
                 }
 
                 try
@@ -146,7 +140,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             try
             {
                 int responseTo;
-                CommandRequestMessage message = null;
+                RequestCommandMessage message = null;
 
                 if (_moreToCome)
                 {
@@ -157,7 +151,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                     message = CreateCommandMessage(operationContext, connection.Description);
                     // TODO: CSOT: Propagate operationContext into Encryption
                     message = await AutoEncryptFieldsIfNecessaryAsync(message, connection, operationContext.CancellationToken).ConfigureAwait(false);
-                    responseTo = message.WrappedMessage.RequestId;
+                    responseTo = message.RequestId;
                 }
 
                 try
@@ -196,7 +190,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
         }
 
-        private CommandResponseMessage AutoDecryptFieldsIfNecessary(CommandResponseMessage encryptedResponseMessage, CancellationToken cancellationToken)
+        private ResponseCommandMessage AutoDecryptFieldsIfNecessary(ResponseCommandMessage encryptedResponseMessage, CancellationToken cancellationToken)
         {
             if (_documentFieldDecryptor == null)
             {
@@ -209,7 +203,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
         }
 
-        private async Task<CommandResponseMessage> AutoDecryptFieldsIfNecessaryAsync(CommandResponseMessage encryptedResponseMessage, CancellationToken cancellationToken)
+        private async Task<ResponseCommandMessage> AutoDecryptFieldsIfNecessaryAsync(ResponseCommandMessage encryptedResponseMessage, CancellationToken cancellationToken)
         {
             if (_documentFieldDecryptor == null)
             {
@@ -222,7 +216,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
         }
 
-        private CommandRequestMessage AutoEncryptFieldsIfNecessary(CommandRequestMessage unencryptedRequestMessage, IConnection connection, CancellationToken cancellationToken)
+        private RequestCommandMessage AutoEncryptFieldsIfNecessary(RequestCommandMessage unencryptedRequestMessage, IConnection connection, CancellationToken cancellationToken)
         {
             if (_documentFieldEncryptor == null)
             {
@@ -240,7 +234,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
         }
 
-        private async Task<CommandRequestMessage> AutoEncryptFieldsIfNecessaryAsync(CommandRequestMessage unencryptedRequestMessage, IConnection connection, CancellationToken cancellationToken)
+        private async Task<RequestCommandMessage> AutoEncryptFieldsIfNecessaryAsync(RequestCommandMessage unencryptedRequestMessage, IConnection connection, CancellationToken cancellationToken)
         {
             if (_documentFieldEncryptor == null)
             {
@@ -258,21 +252,18 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
         }
 
-        private CommandRequestMessage CreateCommandMessage(OperationContext operationContext, ConnectionDescription connectionDescription)
+        private RequestCommandMessage CreateCommandMessage(OperationContext operationContext, ConnectionDescription connectionDescription)
         {
-            var requestId = RequestMessage.GetNextRequestId();
-            var responseTo = 0;
+            var requestId = RequestCommandMessage.GetNextRequestId();
             var sections = CreateSections(operationContext, connectionDescription);
 
             var moreToComeRequest = _responseHandling == CommandResponseHandling.NoResponseExpected;
 
-            var wrappedMessage = new CommandMessage(requestId, responseTo, sections, moreToComeRequest)
+            return new RequestCommandMessage(requestId, sections, moreToComeRequest)
             {
                 PostWriteAction = _postWriteAction,
                 ExhaustAllowed = _responseHandling == CommandResponseHandling.ExhaustAllowed,
             };
-
-            return new CommandRequestMessage(wrappedMessage);
         }
 
         private IEnumerable<CommandMessageSection> CreateSections(OperationContext operationContext, ConnectionDescription connectionDescription)
@@ -430,7 +421,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 errmsg.AsString.StartsWith("Transaction numbers", StringComparison.Ordinal);
         }
 
-        private void MessageWasProbablySent(CommandRequestMessage message)
+        private void MessageWasProbablySent(RequestCommandMessage message)
         {
             if (!message.WasSent)
             {
@@ -450,7 +441,7 @@ namespace MongoDB.Driver.Core.WireProtocol
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]
-        private TCommandResult ProcessResponse(ConnectionId connectionId, CommandMessage responseMessage)
+        private TCommandResult ProcessResponse(ConnectionId connectionId, ResponseCommandMessage responseMessage)
         {
             using (new CommandMessageDisposer(responseMessage))
             {
@@ -552,13 +543,13 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
         }
 
-        private void SaveResponseInfo(CommandResponseMessage response)
+        private void SaveResponseInfo(ResponseCommandMessage response)
         {
             _previousRequestId = response.RequestId;
-            _moreToCome = response.WrappedMessage.MoreToCome;
+            _moreToCome = response.MoreToCome;
         }
 
-        private TCommandResult SendMessageAndProcessResponse(OperationContext operationContext, CommandRequestMessage message, int responseTo, IConnection connection)
+        private TCommandResult SendMessageAndProcessResponse(OperationContext operationContext, RequestCommandMessage message, int responseTo, IConnection connection)
         {
             var responseExpected = true;
             if (message != null)
@@ -573,18 +564,18 @@ namespace MongoDB.Driver.Core.WireProtocol
                     MessageWasProbablySent(message);
                 }
 
-                responseExpected = message.WrappedMessage.ResponseExpected; // mutable, read after sending
+                responseExpected = message.ResponseExpected; // mutable, read after sending
             }
 
             if (responseExpected)
             {
-                var encoderSelector = new CommandResponseMessageEncoderSelector();
-                var response = (CommandResponseMessage)connection.ReceiveMessage(operationContext, responseTo, encoderSelector, _messageEncoderSettings);
+                var encoderSelector = new CommandMessageEncoderSelector();
+                var response = connection.ReceiveMessage(operationContext, responseTo, encoderSelector, _messageEncoderSettings);
                 try
                 {
                     // TODO: CSOT: Propagate operationContext into Encryption
                     response = AutoDecryptFieldsIfNecessary(response, operationContext.CancellationToken);
-                    var result = ProcessResponse(connection.ConnectionId, response.WrappedMessage);
+                    var result = ProcessResponse(connection.ConnectionId, response);
                     SaveResponseInfo(response);
                     return result;
                 }
@@ -609,7 +600,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
         }
 
-        private async Task<TCommandResult> SendMessageAndProcessResponseAsync(OperationContext operationContext, CommandRequestMessage message, int responseTo, IConnection connection)
+        private async Task<TCommandResult> SendMessageAndProcessResponseAsync(OperationContext operationContext, RequestCommandMessage message, int responseTo, IConnection connection)
         {
             var responseExpected = true;
             if (message != null)
@@ -623,18 +614,18 @@ namespace MongoDB.Driver.Core.WireProtocol
                 {
                     MessageWasProbablySent(message);
                 }
-                responseExpected = message.WrappedMessage.ResponseExpected; // mutable, read after sending
+                responseExpected = message.ResponseExpected; // mutable, read after sending
             }
 
             if (responseExpected)
             {
-                var encoderSelector = new CommandResponseMessageEncoderSelector();
-                var response = (CommandResponseMessage)await connection.ReceiveMessageAsync(operationContext, responseTo, encoderSelector, _messageEncoderSettings).ConfigureAwait(false);
+                var encoderSelector = new CommandMessageEncoderSelector();
+                var response = await connection.ReceiveMessageAsync(operationContext, responseTo, encoderSelector, _messageEncoderSettings).ConfigureAwait(false);
                 try
                 {
                     // TODO: CSOT: Propagate operationContext into Encryption
                     response = await AutoDecryptFieldsIfNecessaryAsync(response, operationContext.CancellationToken).ConfigureAwait(false);
-                    var result = ProcessResponse(connection.ConnectionId, response.WrappedMessage);
+                    var result = ProcessResponse(connection.ConnectionId, response);
                     SaveResponseInfo(response);
                     return result;
                 }

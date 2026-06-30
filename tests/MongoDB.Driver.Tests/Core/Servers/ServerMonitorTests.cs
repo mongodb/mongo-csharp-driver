@@ -599,7 +599,7 @@ namespace MongoDB.Driver.Core.Servers
             }
         }
 
-        private CommandResponseMessage CreateHeartbeatCommandResponseMessage(bool moreToCome = false)
+        private ResponseCommandMessage CreateHeartbeatCommandResponseMessage(bool moreToCome = false)
         {
             var section0BsonDocument = new BsonDocument
             {

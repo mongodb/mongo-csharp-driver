@@ -39,7 +39,6 @@ namespace MongoDB.Driver.Core.Tests.Core.WireProtocol.Messages
 
             result.CompressorType.Should().Be(compressorType);
             result.OriginalMessage.ShouldBeEquivalentTo(commandMessage);
-            result.MessageType.Should().Be(MongoDBMessageType.Compressed);
         }
 
         [Fact]
@@ -66,8 +65,7 @@ namespace MongoDB.Driver.Core.Tests.Core.WireProtocol.Messages
 
         private CommandMessage GetCommandMessage()
         {
-            return new CommandMessage(
-                1,
+            return new RequestCommandMessage(
                 1,
                 new CommandMessageSection[1]
                 {

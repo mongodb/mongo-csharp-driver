@@ -102,8 +102,10 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         public void ReadMessage_should_read_responseTo(
             [Values(1, 2)] int responseTo)
         {
-            var message = CreateMessage(responseTo: responseTo);
-            var subject = CreateSubject(message);
+            var message = CreateMessage();
+            var messageDocument = CreateMessageDocument(message);
+            messageDocument["responseTo"] = responseTo;
+            var subject = CreateSubject(messageDocument);
 
             var result = subject.ReadMessage();
 
@@ -134,7 +136,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
 
             var result = subject.ReadMessage();
 
-            result.ExhaustAllowed.Should().Be(exhaustAllowed);
             result.MoreToCome.Should().Be(moreToCome);
         }
 
@@ -234,7 +235,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         {
             var writer = new StringWriter();
             var subject = CreateSubject(textWriter: writer);
-            var message = CreateMessage(responseTo: responseTo);
+            var sections = new[] { CreateType0Section() };
+            var message = new ResponseCommandMessage(1, responseTo, sections, false);
 
             subject.WriteMessage(message);
             var result = writer.ToString();
@@ -333,7 +335,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         }
 
         // private methods
-        private CommandMessage CreateMessage(
+        private RequestCommandMessage CreateMessage(
             int requestId = 1,
             int responseTo = 2,
             IEnumerable<CommandMessageSection> sections = null,
@@ -341,19 +343,19 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             bool exhaustAllowed = false)
         {
             sections = sections ?? new[] { CreateType0Section() };
-            return new CommandMessage(requestId, responseTo, sections, moreToCome)
+            return new RequestCommandMessage(requestId, sections, moreToCome)
             {
                 ExhaustAllowed = exhaustAllowed
             };
         }
 
-        private BsonDocument CreateMessageDocument(CommandMessage message)
+        private BsonDocument CreateMessageDocument(RequestCommandMessage message)
         {
             var messageDocument = new BsonDocument
             {
                 { "opcode", "opmsg" },
                 { "requestId", message.RequestId },
-                { "responseTo", message.ResponseTo },
+                { "responseTo", 0 },
                 { "exhaustAllowed", true, message.ExhaustAllowed },
                 { "moreToCome", true, message.MoreToCome },
                 { "sections", new BsonArray(message.Sections.Select(s => CreateSectionDocument(s))) }
@@ -410,7 +412,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             return CreateSubject(document.ToJson());
         }
 
-        private CommandMessageJsonEncoder CreateSubject(CommandMessage message)
+        private CommandMessageJsonEncoder CreateSubject(RequestCommandMessage message)
         {
             var messageDocument = CreateMessageDocument(message);
             return CreateSubject(messageDocument);

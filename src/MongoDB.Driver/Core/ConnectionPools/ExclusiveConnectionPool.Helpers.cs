@@ -492,7 +492,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
-            public ResponseMessage ReceiveMessage(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings)
+            public ResponseCommandMessage ReceiveMessage(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings)
             {
                 try
                 {
@@ -509,7 +509,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
-            public async Task<ResponseMessage> ReceiveMessageAsync(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings)
+            public async Task<ResponseCommandMessage> ReceiveMessageAsync(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings)
             {
                 try
                 {
@@ -526,7 +526,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
-            public void SendMessage(OperationContext operationContext, RequestMessage message, MessageEncoderSettings messageEncoderSettings)
+            public void SendMessage(OperationContext operationContext, RequestCommandMessage message, MessageEncoderSettings messageEncoderSettings)
             {
                 try
                 {
@@ -543,7 +543,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
-            public async Task SendMessageAsync(OperationContext operationContext, RequestMessage message, MessageEncoderSettings messageEncoderSettings)
+            public async Task SendMessageAsync(OperationContext operationContext, RequestCommandMessage message, MessageEncoderSettings messageEncoderSettings)
             {
                 try
                 {
@@ -696,25 +696,25 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 return _reference.Instance.ReauthenticateAsync(operationContext);
             }
 
-            public Task<ResponseMessage> ReceiveMessageAsync(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings)
+            public Task<ResponseCommandMessage> ReceiveMessageAsync(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings)
             {
                 ThrowIfDisposed();
                 return _reference.Instance.ReceiveMessageAsync(operationContext, responseTo, encoderSelector, messageEncoderSettings);
             }
 
-            public ResponseMessage ReceiveMessage(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings)
+            public ResponseCommandMessage ReceiveMessage(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings)
             {
                 ThrowIfDisposed();
                 return _reference.Instance.ReceiveMessage(operationContext, responseTo, encoderSelector, messageEncoderSettings);
             }
 
-            public void SendMessage(OperationContext operationContext, RequestMessage message, MessageEncoderSettings messageEncoderSettings)
+            public void SendMessage(OperationContext operationContext, RequestCommandMessage message, MessageEncoderSettings messageEncoderSettings)
             {
                 ThrowIfDisposed();
                 _reference.Instance.SendMessage(operationContext, message, messageEncoderSettings);
             }
 
-            public Task SendMessageAsync(OperationContext operationContext, RequestMessage message, MessageEncoderSettings messageEncoderSettings)
+            public Task SendMessageAsync(OperationContext operationContext, RequestCommandMessage message, MessageEncoderSettings messageEncoderSettings)
             {
                 ThrowIfDisposed();
                 return _reference.Instance.SendMessageAsync(operationContext, message, messageEncoderSettings);

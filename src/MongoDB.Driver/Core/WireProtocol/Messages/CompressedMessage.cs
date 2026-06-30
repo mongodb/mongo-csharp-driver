@@ -37,7 +37,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         }
 
         public CompressorType CompressorType => _compressorType;
-        public override MongoDBMessageType MessageType => MongoDBMessageType.Compressed;
         public MongoDBMessage OriginalMessage => _originalMessage;
         public BsonStream OriginalMessageStream => _originalMessageStream;
 

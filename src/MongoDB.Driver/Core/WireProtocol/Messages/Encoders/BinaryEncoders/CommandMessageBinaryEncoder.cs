@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         }
 
         // public methods
-        public CommandMessage ReadMessage()
+        public ResponseCommandMessage ReadMessage()
         {
             var reader = CreateBinaryReader();
             var stream = reader.BsonStream;
@@ -59,10 +59,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             EnsureExactlyOneType0SectionIsPresent(sections);
             EnsureMessageEndedAtEndPosition(stream, messageEndPosition);
 
-            return new CommandMessage(requestId, responseTo, sections, moreToCome)
-            {
-                ExhaustAllowed = exhaustAllowed
-            };
+            return new ResponseCommandMessage(requestId, responseTo, sections, moreToCome);
         }
 
         public void WriteMessage(CommandMessage message)
@@ -73,15 +70,20 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             var stream = writer.BsonStream;
             var messageStartPosition = stream.Position;
 
+            var responseTo = message is ResponseCommandMessage response ? response.ResponseTo : 0;
+
             stream.WriteInt32(0); // messageLength
             stream.WriteInt32(message.RequestId);
-            stream.WriteInt32(message.ResponseTo);
+            stream.WriteInt32(responseTo);
             stream.WriteInt32((int)Opcode.OpMsg);
             stream.WriteInt32((int)CreateFlags(message));
             WriteSections(writer, message.Sections, messageStartPosition);
             stream.BackpatchSize(messageStartPosition);
 
-            message.PostWriteAction?.Invoke(new PostProcessor(message, stream, messageStartPosition));
+            if (message is RequestCommandMessage request)
+            {
+                request.PostWriteAction?.Invoke(new PostProcessor(message, stream, messageStartPosition));
+            }
         }
 
         // explicit interface implementations
@@ -103,7 +105,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             {
                 flags |= OpMsgFlags.MoreToCome;
             }
-            if (message.ExhaustAllowed)
+            if (message is RequestCommandMessage req && req.ExhaustAllowed)
             {
                 flags |= OpMsgFlags.ExhaustAllowed;
             }

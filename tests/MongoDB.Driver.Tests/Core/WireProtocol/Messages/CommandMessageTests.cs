@@ -42,24 +42,12 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         {
             var sections = CreateSections(numberOfSections);
 
-            var result = new CommandMessage(requestId, responseTo, sections, moreToCome);
+            var result = new ResponseCommandMessage(requestId, responseTo, sections, moreToCome);
 
             result.MoreToCome.Should().Be(moreToCome);
-            result.PostWriteAction.Should().BeNull();
             result.RequestId.Should().Be(requestId);
-            result.ResponseExpected.Should().Be(!moreToCome);
             result.ResponseTo.Should().Be(responseTo);
             result.Sections.Should().Equal(sections, CommandMessageSectionEqualityComparer.Instance.Equals);
-        }
-
-        [Fact]
-        public void MessageType_should_return_expected_result()
-        {
-            var subject = CreateSubject();
-
-            var result = subject.MessageType;
-
-            result.Should().Be(MongoDBMessageType.Command);
         }
 
         [Theory]
@@ -141,7 +129,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         public void ResponseTo_should_return_expected_result(
             [Values(1, 2)] int responseTo)
         {
-            var subject = CreateSubject(responseTo: responseTo);
+            var sections = new[] { CreateType0Section() };
+            var subject = new ResponseCommandMessage(1, responseTo, sections, false);
 
             var result = subject.ResponseTo;
 
@@ -183,7 +172,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             return sections;
         }
 
-        private CommandMessage CreateSubject(
+        private RequestCommandMessage CreateSubject(
             int requestId = 1,
             int responseTo = 2,
             IEnumerable<CommandMessageSection> sections = null,
@@ -191,7 +180,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             Action<IMessageEncoderPostProcessor> postWriteAction = null)
         {
             sections = sections ?? new[] { CreateType0Section() };
-            return new CommandMessage(requestId, responseTo, sections, moreToCome)
+            return new RequestCommandMessage(requestId, sections, moreToCome)
             {
                 PostWriteAction = postWriteAction
             };

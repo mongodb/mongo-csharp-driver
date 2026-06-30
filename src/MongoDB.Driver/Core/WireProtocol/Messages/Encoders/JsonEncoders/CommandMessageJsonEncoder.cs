@@ -36,7 +36,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         }
 
         // public methods
-        public CommandMessage ReadMessage()
+        public ResponseCommandMessage ReadMessage()
         {
             var reader = CreateJsonReader();
             var context = BsonDeserializationContext.CreateRoot(reader);
@@ -47,16 +47,12 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             {
                 throw new FormatException($"Command message invalid opcode: \"{opcode}\".");
             }
-            var exhaustAllowed = messageDocument.GetValue("exhaustAllowed", false).ToBoolean();
             var requestId = messageDocument["requestId"].ToInt32();
             var responseTo = messageDocument["responseTo"].ToInt32();
             var moreToCome = messageDocument.GetValue("moreToCome", false).ToBoolean();
             var sections = ReadSections(messageDocument["sections"].AsBsonArray.Cast<BsonDocument>());
 
-            return new CommandMessage(requestId, responseTo, sections, moreToCome)
-            {
-                ExhaustAllowed = exhaustAllowed
-            };
+            return new ResponseCommandMessage(requestId, responseTo, sections, moreToCome);
         }
 
         public void WriteMessage(CommandMessage message)
@@ -65,15 +61,18 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
 
             var writer = CreateJsonWriter();
 
+            var responseTo = message is ResponseCommandMessage response ? response.ResponseTo : 0;
+            var exhaustAllowed = message is RequestCommandMessage request && request.ExhaustAllowed;
+
             writer.WriteStartDocument();
             writer.WriteString("opcode", "opmsg");
             writer.WriteInt32("requestId", message.RequestId);
-            writer.WriteInt32("responseTo", message.ResponseTo);
+            writer.WriteInt32("responseTo", responseTo);
             if (message.MoreToCome)
             {
                 writer.WriteBoolean("moreToCome", true);
             }
-            if (message.ExhaustAllowed)
+            if (exhaustAllowed)
             {
                 writer.WriteBoolean("exhaustAllowed", true);
             }

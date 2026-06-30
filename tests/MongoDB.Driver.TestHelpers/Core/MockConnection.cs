@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Core.TestHelpers
         private DateTime _lastUsedAtUtc;
         private DateTime _openedAtUtc;
         private readonly Queue<ActionQueueItem> _replyActions;
-        private readonly List<RequestMessage> _sentMessages;
+        private readonly List<RequestCommandMessage> _sentMessages;
 
         private readonly Action<ConnectionOpeningEvent> _openingEventHandler;
         private readonly Action<ConnectionOpenedEvent> _openedEventHandler;
@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Core.TestHelpers
         public MockConnection(ConnectionId connectionId, ConnectionSettings connectionSettings, IEventSubscriber eventSubscriber, TaskCompletionSource<bool> isExpiredTaskCompletionSource = null)
         {
             _replyActions = new Queue<ActionQueueItem>();
-            _sentMessages = new List<RequestMessage>();
+            _sentMessages = new List<RequestCommandMessage>();
             _connectionSettings = connectionSettings;
             _connectionId = connectionId;
             _isExpiredTaskCompletionSource = isExpiredTaskCompletionSource;
@@ -151,24 +151,14 @@ namespace MongoDB.Driver.Core.TestHelpers
             _replyActions.Enqueue(new ActionQueueItem(message: null, exception: exception));
         }
 
-        public void EnqueueCommandResponseMessage(CommandResponseMessage replyMessage)
+        public void EnqueueCommandResponseMessage(ResponseCommandMessage replyMessage)
         {
             _replyActions.Enqueue(new ActionQueueItem(replyMessage));
         }
 
-        public void EnqueueCommandResponseMessage(CommandResponseMessage replyMessage, TimeSpan? delay)
+        public void EnqueueCommandResponseMessage(ResponseCommandMessage replyMessage, TimeSpan? delay)
         {
             _replyActions.Enqueue(new ActionQueueItem(replyMessage, delay: delay));
-        }
-
-        public void EnqueueReplyMessage(Exception exception)
-        {
-            _replyActions.Enqueue(new ActionQueueItem(message: null, exception: exception));
-        }
-
-        public void EnqueueReplyMessage<TDocument>(ReplyMessage<TDocument> replyMessage)
-        {
-            _replyActions.Enqueue(new ActionQueueItem(replyMessage));
         }
 
         public IConnectionHandle Fork()
@@ -176,7 +166,7 @@ namespace MongoDB.Driver.Core.TestHelpers
             return this;
         }
 
-        public List<RequestMessage> GetSentMessages()
+        public List<RequestCommandMessage> GetSentMessages()
         {
             return _sentMessages;
         }
@@ -213,24 +203,24 @@ namespace MongoDB.Driver.Core.TestHelpers
         public Task ReauthenticateAsync(OperationContext operationContext)
             => _replyActions.Dequeue().GetEffectiveMessageAsync();
 
-        public ResponseMessage ReceiveMessage(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings)
+        public ResponseCommandMessage ReceiveMessage(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings)
         {
             var action = _replyActions.Dequeue();
-            return (ResponseMessage)action.GetEffectiveMessage();
+            return (ResponseCommandMessage)action.GetEffectiveMessage();
         }
 
-        public async Task<ResponseMessage> ReceiveMessageAsync(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings)
+        public async Task<ResponseCommandMessage> ReceiveMessageAsync(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings)
         {
             var action = _replyActions.Dequeue();
-            return (ResponseMessage)await action.GetEffectiveMessageAsync().ConfigureAwait(false);
+            return (ResponseCommandMessage)await action.GetEffectiveMessageAsync().ConfigureAwait(false);
         }
 
-        public void SendMessage(OperationContext operationContext, RequestMessage message, MessageEncoderSettings messageEncoderSettings)
+        public void SendMessage(OperationContext operationContext, RequestCommandMessage message, MessageEncoderSettings messageEncoderSettings)
         {
             _sentMessages.Add(message);
         }
 
-        public Task SendMessageAsync(OperationContext operationContext, RequestMessage message, MessageEncoderSettings messageEncoderSettings)
+        public Task SendMessageAsync(OperationContext operationContext, RequestCommandMessage message, MessageEncoderSettings messageEncoderSettings)
         {
             _sentMessages.Add(message);
             return Task.CompletedTask;

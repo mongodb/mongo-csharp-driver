@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.WireProtocol;
@@ -38,8 +37,6 @@ namespace MongoDB.Driver.Core.Bindings
             DatabaseNamespace databaseNamespace,
             BsonDocument command,
             IEnumerable<BatchableCommandMessageSection> commandPayloads,
-            IElementNameValidator commandValidator,
-            BsonDocument additionalOptions,
             Action<IMessageEncoderPostProcessor> postWriteAction,
             CommandResponseHandling responseHandling,
             IBsonSerializer<TResult> resultSerializer,
@@ -52,8 +49,6 @@ namespace MongoDB.Driver.Core.Bindings
             DatabaseNamespace databaseNamespace,
             BsonDocument command,
             IEnumerable<BatchableCommandMessageSection> commandPayloads,
-            IElementNameValidator commandValidator,
-            BsonDocument additionalOptions,
             Action<IMessageEncoderPostProcessor> postWriteAction,
             CommandResponseHandling responseHandling,
             IBsonSerializer<TResult> resultSerializer,

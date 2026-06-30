@@ -83,7 +83,7 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.EnqueueCommandResponseMessage(saslStartResponse);
             connection.Description = __descriptionCommandWireProtocol;
 
-            var expectedRequestId = RequestMessage.CurrentGlobalRequestId + 1;
+            var expectedRequestId = RequestCommandMessage.CurrentGlobalRequestId + 1;
 
             if (async)
             {
@@ -120,7 +120,7 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.EnqueueCommandResponseMessage(saslStartResponse);
             connection.Description = __descriptionCommandWireProtocol;
 
-            var expectedRequestId = RequestMessage.CurrentGlobalRequestId + 1;
+            var expectedRequestId = RequestCommandMessage.CurrentGlobalRequestId + 1;
 
             if (async)
             {
@@ -155,7 +155,7 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.EnqueueCommandResponseMessage(saslStartResponse);
             connection.Description = null;
 
-            var expectedRequestId = RequestMessage.CurrentGlobalRequestId + 1;
+            var expectedRequestId = RequestCommandMessage.CurrentGlobalRequestId + 1;
 
             if (async)
             {
