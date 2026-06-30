@@ -249,6 +249,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets a value indicating whether overload retargeting is enabled.
         /// </summary>
+        /// <remarks>This option works with MongoDB Server Version 9.0 and above.</remarks>
         public bool? EnableOverloadRetargeting => _enableOverloadRetargeting;
 
         /// <summary>
@@ -332,6 +333,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the maximum number of adaptive retries for overload errors.
         /// </summary>
+        /// <remarks>This option works with MongoDB Server Version 9.0 and above.</remarks>
         public int? MaxAdaptiveRetries => _maxAdaptiveRetries;
 
         /// <summary>
