@@ -23,15 +23,15 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     internal sealed class RequestCommandMessage : CommandMessage
     {
         // static
-        private static int __requestId;
+        private static int __lastRequestId;
 
         // static properties
-        public static int CurrentGlobalRequestId => __requestId;
+        public static int CurrentGlobalLastRequestId => __lastRequestId;
 
         // static methods
         public static int GetNextRequestId()
         {
-            return Interlocked.Increment(ref __requestId);
+            return Interlocked.Increment(ref __lastRequestId);
         }
 
         // fields

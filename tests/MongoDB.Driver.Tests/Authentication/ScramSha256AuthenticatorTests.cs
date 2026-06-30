@@ -303,7 +303,7 @@ namespace MongoDB.Driver.Tests.Authentication
                 connection.EnqueueCommandResponseMessage(saslLastStepResponse);
             }
 
-            var expectedRequestId = RequestCommandMessage.CurrentGlobalRequestId + 1;
+            var expectedRequestId = RequestCommandMessage.CurrentGlobalLastRequestId + 1;
 
             if (async)
             {
