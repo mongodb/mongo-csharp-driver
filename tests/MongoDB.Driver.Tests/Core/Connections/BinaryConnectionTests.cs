@@ -200,7 +200,7 @@ namespace MongoDB.Driver.Core.Connections
 
             authenticatorFactoryMock.Verify(f => f.Create(), Times.Once());
 
-            CommandMessage CreateResponseMessage()
+            ResponseCommandMessage CreateResponseMessage()
             {
                 var section0Document = $"{{ {OppressiveLanguageConstants.LegacyHelloResponseIsWritablePrimaryFieldName} : true, ok : 1, connectionId : 1 }}";
                 var section0 = new Type0CommandMessageSection<RawBsonDocument>(

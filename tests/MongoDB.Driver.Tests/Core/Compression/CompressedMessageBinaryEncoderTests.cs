@@ -91,7 +91,7 @@ namespace MongoDB.Driver.Core.Compression
         }
 
         // private methods
-        private CommandMessage CreateMessage(
+        private RequestCommandMessage CreateMessage(
             int requestId = 0,
             int responseTo = 0,
             IEnumerable<CommandMessageSection> sections = null,

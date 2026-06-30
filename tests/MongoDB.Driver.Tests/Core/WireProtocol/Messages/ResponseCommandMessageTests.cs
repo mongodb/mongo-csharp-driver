@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -25,12 +24,11 @@ using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders;
-using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages
 {
-    public class CommandMessageTests
+    public class ResponseCommandMessageTests
     {
         [Theory]
         [ParameterAttributeData]
@@ -52,20 +50,16 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
 
         [Theory]
         [ParameterAttributeData]
-        public void MoreToCome_get_should_return_expected_result(
-            [Values(false, true)] bool value)
+        public void MoreToCome_get_should_return_expected_result([Values(false, true)] bool value)
         {
             var subject = CreateSubject(moreToCome: value);
 
-            var result = subject.MoreToCome;
-
-            result.Should().Be(value);
+            subject.MoreToCome.Should().Be(value);
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void MoreToCome_set_should_have_expected_result(
-            [Values(false, true)] bool value)
+        public void MoreToCome_set_should_have_expected_result([Values(false, true)] bool value)
         {
             var subject = CreateSubject();
 
@@ -76,78 +70,31 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
 
         [Theory]
         [ParameterAttributeData]
-        public void PostWriteAction_get_should_return_expected_result(
-            [Values(false, true)] bool isNull)
-        {
-            var value = isNull ? null : (Action<IMessageEncoderPostProcessor>)(operations => { });
-            var subject = CreateSubject(postWriteAction: value);
-
-            var result = subject.PostWriteAction;
-
-            result.Should().BeSameAs(value);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void PostWriteAction_set_should_have_expected_result(
-            [Values(false, true)] bool isNull)
-        {
-            var subject = CreateSubject();
-            var value = isNull ? null : (Action<IMessageEncoderPostProcessor>)(operations => { });
-
-            subject.PostWriteAction = value;
-
-            subject.PostWriteAction.Should().BeSameAs(value);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void RequestId_should_return_expected_result(
-            [Values(1, 2)] int requestId)
+        public void RequestId_should_return_expected_result([Values(1, 2)] int requestId)
         {
             var subject = CreateSubject(requestId: requestId);
 
-            var result = subject.RequestId;
-
-            result.Should().Be(requestId);
+            subject.RequestId.Should().Be(requestId);
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void ResponseExpected_get_should_return_expected_result(
-            [Values(false, true)] bool value)
-        {
-            var subject = CreateSubject(moreToCome: !value);
-
-            var result = subject.ResponseExpected;
-
-            result.Should().Be(value);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void ResponseTo_should_return_expected_result(
-            [Values(1, 2)] int responseTo)
+        public void ResponseTo_should_return_expected_result([Values(1, 2)] int responseTo)
         {
             var sections = new[] { CreateType0Section() };
             var subject = new ResponseCommandMessage(1, responseTo, sections, false);
 
-            var result = subject.ResponseTo;
-
-            result.Should().Be(responseTo);
+            subject.ResponseTo.Should().Be(responseTo);
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void Sections_should_return_expected_result(
-            [Values(1, 2, 3)] int numberOfSections)
+        public void Sections_should_return_expected_result([Values(1, 2, 3)] int numberOfSections)
         {
             var sections = CreateSections(numberOfSections);
             var subject = CreateSubject(sections: sections);
 
-            var result = subject.Sections;
-
-            result.Should().Equal(sections, CommandMessageSectionEqualityComparer.Instance.Equals);
+            subject.Sections.Should().Equal(sections, CommandMessageSectionEqualityComparer.Instance.Equals);
         }
 
         [Fact]
@@ -172,18 +119,14 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             return sections;
         }
 
-        private RequestCommandMessage CreateSubject(
+        private ResponseCommandMessage CreateSubject(
             int requestId = 1,
             int responseTo = 2,
             IEnumerable<CommandMessageSection> sections = null,
-            bool moreToCome = false,
-            Action<IMessageEncoderPostProcessor> postWriteAction = null)
+            bool moreToCome = false)
         {
             sections = sections ?? new[] { CreateType0Section() };
-            return new RequestCommandMessage(requestId, sections, moreToCome)
-            {
-                PostWriteAction = postWriteAction
-            };
+            return new ResponseCommandMessage(requestId, responseTo, sections, moreToCome);
         }
 
         private Type0CommandMessageSection<BsonDocument> CreateType0Section()

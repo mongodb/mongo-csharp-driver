@@ -35,9 +35,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         }
 
         // fields
-        private bool _exhaustAllowed;
-        private Action<IMessageEncoderPostProcessor> _postWriteAction;
-        private bool _wasSent;
 
         // constructors
         public RequestCommandMessage(
@@ -49,24 +46,12 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         }
 
         // public properties
-        public bool ExhaustAllowed
-        {
-            get { return _exhaustAllowed; }
-            set { _exhaustAllowed = value; }
-        }
+        public bool ExhaustAllowed { get; set; }
 
-        public Action<IMessageEncoderPostProcessor> PostWriteAction
-        {
-            get { return _postWriteAction; }
-            set { _postWriteAction = value; }
-        }
+        public Action<IMessageEncoderPostProcessor> PostWriteAction { get; set; }
 
         public bool ResponseExpected => !MoreToCome;
 
-        public bool WasSent
-        {
-            get { return _wasSent; }
-            set { _wasSent = value; }
-        }
+        public bool WasSent { get; set; }
     }
 }
