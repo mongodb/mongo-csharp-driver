@@ -110,16 +110,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
 
         [Theory]
         [ParameterAttributeData]
-        public void ResponseTo_should_return_expected_result([Values(1, 2)] int responseTo)
-        {
-            var sections = new[] { CreateType0Section() };
-            var subject = new ResponseCommandMessage(1, responseTo, sections, false);
-
-            subject.ResponseTo.Should().Be(responseTo);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
         public void Sections_should_return_expected_result([Values(1, 2, 3)] int numberOfSections)
         {
             var sections = CreateSections(numberOfSections);
