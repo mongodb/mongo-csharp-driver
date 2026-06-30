@@ -26,7 +26,7 @@ using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using Xunit;
 
-namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
+namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Misc
 {
 #pragma warning disable CA1040 // Avoid empty interfaces
     public class DocumentSerializerHelperTests
