@@ -14,7 +14,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AWSSDK.SecurityToken" Version="3.7.100.14" />
+    <PackageReference Include="AWSSDK.SecurityToken" Version="4.0.100" />
   </ItemGroup>
 
   <ItemGroup>
