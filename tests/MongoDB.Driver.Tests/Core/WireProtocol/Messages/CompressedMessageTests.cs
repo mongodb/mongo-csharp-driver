@@ -63,15 +63,13 @@ namespace MongoDB.Driver.Core.Tests.Core.WireProtocol.Messages
             return new CompressedMessage(message, Mock.Of<BsonStream>(), compressorType);
         }
 
-        private CommandMessage GetCommandMessage()
-        {
-            return new RequestCommandMessage(
+        private RequestCommandMessage GetCommandMessage() =>
+            new(
                 1,
                 new CommandMessageSection[1]
                 {
                     new Type0CommandMessageSection<BsonDocument>(new BsonDocument(), BsonDocumentSerializer.Instance )
                 },
                 false);
-        }
     }
 }
