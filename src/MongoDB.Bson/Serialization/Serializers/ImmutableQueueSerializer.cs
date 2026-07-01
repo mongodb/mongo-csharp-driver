@@ -25,6 +25,19 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <typeparam name="T">The type of element stored by the collection.</typeparam>
     public class ImmutableQueueSerializer<T>: EnumerableInterfaceImplementerSerializerBase<ImmutableQueue<T>, T>
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ImmutableQueueSerializer{T}"/> class.
+        /// </summary>
+        public ImmutableQueueSerializer()
+            : this(BsonSerializationDomain.Default)
+        {
+        }
+
+        internal ImmutableQueueSerializer(IBsonSerializationDomain serializationDomain)
+            : base(serializationDomain)
+        {
+        }
+
         /// <inheritdoc/>
         protected override object CreateAccumulator()
         {

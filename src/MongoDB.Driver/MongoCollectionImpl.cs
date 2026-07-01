@@ -42,7 +42,7 @@ namespace MongoDB.Driver
 
         // constructors
         public MongoCollectionImpl(IMongoDatabase database, CollectionNamespace collectionNamespace, MongoCollectionSettings settings, IClusterInternal cluster, IOperationExecutor operationExecutor)
-            : this(database, collectionNamespace, settings, cluster, operationExecutor, Ensure.IsNotNull(settings, "settings").SerializerRegistry.GetSerializer<TDocument>())
+            : this(database, collectionNamespace, settings, cluster, operationExecutor, Ensure.IsNotNull(settings, "settings").SerializationDomain.LookupSerializer<TDocument>())
         {
         }
 
@@ -591,7 +591,7 @@ namespace MongoDB.Driver
 
         public override IFilteredMongoCollection<TDerivedDocument> OfType<TDerivedDocument>()
         {
-            var derivedDocumentSerializer = _settings.SerializerRegistry.GetSerializer<TDerivedDocument>();
+            var derivedDocumentSerializer = _settings.SerializationDomain.LookupSerializer<TDerivedDocument>();
             var ofTypeSerializer = new OfTypeSerializer<TDocument, TDerivedDocument>(derivedDocumentSerializer);
             var derivedDocumentCollection = new MongoCollectionImpl<TDerivedDocument>(_database, _collectionNamespace, _settings, _cluster, _operationExecutor, ofTypeSerializer);
 
@@ -896,7 +896,8 @@ namespace MongoDB.Driver
                 _database.Client.Settings.RetryReads,
                 _database.Client.Settings.MaxAdaptiveRetries,
                 _database.Client.Settings.EnableOverloadRetargeting,
-                translationOptions);
+                translationOptions,
+                _settings.SerializationDomain);
         }
 
         private CountDocumentsOperation CreateCountDocumentsOperation(
@@ -953,7 +954,7 @@ namespace MongoDB.Driver
             options ??= new DistinctOptions();
             var renderArgs = GetRenderArgs();
             var renderedField = field.Render(renderArgs);
-            var valueSerializer = GetValueSerializerForDistinct(renderedField, _settings.SerializerRegistry);
+            var valueSerializer = GetValueSerializerForDistinct(renderedField, _settings.SerializationDomain);
 
             return new DistinctOperation<TField>(
                 _collectionNamespace,
@@ -980,7 +981,7 @@ namespace MongoDB.Driver
             options ??= new DistinctOptions();
             var renderArgs = GetRenderArgs();
             var renderedField = field.Render(renderArgs);
-            var itemSerializer = GetItemSerializerForDistinctMany(renderedField, _settings.SerializerRegistry);
+            var itemSerializer = GetItemSerializerForDistinctMany(renderedField, _settings.SerializationDomain);
 
             return new DistinctOperation<TItem>(
                 _collectionNamespace,
@@ -1341,7 +1342,7 @@ namespace MongoDB.Driver
             return messageEncoderSettings;
         }
 
-        private IBsonSerializer<TField> GetValueSerializerForDistinct<TField>(RenderedFieldDefinition<TField> renderedField, IBsonSerializerRegistry serializerRegistry)
+        private IBsonSerializer<TField> GetValueSerializerForDistinct<TField>(RenderedFieldDefinition<TField> renderedField, IBsonSerializationDomain serializationDomain)
         {
             if (renderedField.UnderlyingSerializer != null)
             {
@@ -1364,10 +1365,10 @@ namespace MongoDB.Driver
                 }
             }
 
-            return serializerRegistry.GetSerializer<TField>();
+            return serializationDomain.LookupSerializer<TField>();
         }
 
-        private IBsonSerializer<TItem> GetItemSerializerForDistinctMany<TItem>(RenderedFieldDefinition<IEnumerable<TItem>> renderedField, IBsonSerializerRegistry serializerRegistry)
+        private IBsonSerializer<TItem> GetItemSerializerForDistinctMany<TItem>(RenderedFieldDefinition<IEnumerable<TItem>> renderedField, IBsonSerializationDomain serializationDomain)
         {
             if (renderedField.UnderlyingSerializer != null)
             {
@@ -1384,19 +1385,19 @@ namespace MongoDB.Driver
                 }
             }
 
-            return serializerRegistry.GetSerializer<TItem>();
+            return serializationDomain.LookupSerializer<TItem>();
         }
 
         private RenderArgs<TDocument> GetRenderArgs()
         {
             var translationOptions = _database.Client.Settings.TranslationOptions;
-            return new RenderArgs<TDocument>(_documentSerializer, _settings.SerializerRegistry, translationOptions: translationOptions);
+            return new RenderArgs<TDocument>(_documentSerializer, _settings.SerializationDomain, translationOptions: translationOptions);
         }
 
         private RenderArgs<TDocument> GetRenderArgs(ExpressionTranslationOptions translationOptions)
         {
             translationOptions = translationOptions.AddMissingOptionsFrom(_database.Client.Settings.TranslationOptions);
-            return new RenderArgs<TDocument>(_documentSerializer, _settings.SerializerRegistry, translationOptions: translationOptions);
+            return new RenderArgs<TDocument>(_documentSerializer, _settings.SerializationDomain, translationOptions: translationOptions);
         }
 
         private IEnumerable<BsonDocument> RenderArrayFilters(IEnumerable<ArrayFilterDefinition> arrayFilters)
@@ -1409,7 +1410,7 @@ namespace MongoDB.Driver
             var renderedArrayFilters = new List<BsonDocument>();
             foreach (var arrayFilter in arrayFilters)
             {
-                var renderedArrayFilter = arrayFilter.Render(null, _settings.SerializerRegistry);
+                var renderedArrayFilter = arrayFilter.Render(null, _settings.SerializationDomain.SerializerRegistry);
                 renderedArrayFilters.Add(renderedArrayFilter);
             }
 
@@ -1428,7 +1429,7 @@ namespace MongoDB.Driver
                 return (IBsonSerializer<TResult>)_documentSerializer;
             }
 
-            return _settings.SerializerRegistry.GetSerializer<TResult>();
+            return _settings.SerializationDomain.LookupSerializer<TResult>();
         }
 
         // nested types

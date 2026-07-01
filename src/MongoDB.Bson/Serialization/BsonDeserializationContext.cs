@@ -100,7 +100,20 @@ namespace MongoDB.Bson.Serialization
             IBsonReader reader,
             Action<Builder> configurator = null)
         {
-            var builder = new Builder(null, reader);
+            var builder = new Builder(reader, BsonSerializationDomain.Default);
+            if (configurator != null)
+            {
+                configurator(builder);
+            }
+            return builder.Build();
+        }
+
+        internal static BsonDeserializationContext CreateRoot(
+            IBsonReader reader,
+            IBsonSerializationDomain serializationDomain,
+            Action<Builder> configurator = null)
+        {
+            var builder = new Builder(reader, serializationDomain);
             if (configurator != null)
             {
                 configurator(builder);
@@ -140,11 +153,27 @@ namespace MongoDB.Bson.Serialization
             private IBsonReader _reader;
 
             // constructors
+            internal Builder(IBsonReader reader, IBsonSerializationDomain serializationDomain)
+            {
+                if (reader == null)
+                {
+                    throw new ArgumentNullException(nameof(reader));
+                }
+                if (serializationDomain == null)
+                {
+                    throw new ArgumentNullException(nameof(serializationDomain));
+                }
+
+                _reader = reader;
+                _dynamicArraySerializer = serializationDomain.BsonDefaults.DynamicArraySerializer;
+                _dynamicDocumentSerializer = serializationDomain.BsonDefaults.DynamicDocumentSerializer;
+            }
+
             internal Builder(BsonDeserializationContext other, IBsonReader reader)
             {
                 if (reader == null)
                 {
-                    throw new ArgumentNullException("reader");
+                    throw new ArgumentNullException(nameof(reader));
                 }
 
                 _reader = reader;
@@ -153,11 +182,6 @@ namespace MongoDB.Bson.Serialization
                     _allowDuplicateElementNames = other.AllowDuplicateElementNames;
                     _dynamicArraySerializer = other.DynamicArraySerializer;
                     _dynamicDocumentSerializer = other.DynamicDocumentSerializer;
-                }
-                else
-                {
-                    _dynamicArraySerializer = BsonDefaults.DynamicArraySerializer;
-                    _dynamicDocumentSerializer = BsonDefaults.DynamicDocumentSerializer;
                 }
             }
 

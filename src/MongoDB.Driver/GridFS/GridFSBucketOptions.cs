@@ -235,6 +235,9 @@ namespace MongoDB.Driver.GridFS
             get { return _readPreference; }
         }
 
+        //DOMAIN-API Remove in 4.0: this getter hard-codes the global registry. The bucket now
+        //resolves its registry through the owning client's serialization domain; this property
+        //is retained only for binary back-compat with external readers.
         /// <summary>
         /// Gets the serializer registry.
         /// </summary>

@@ -23,13 +23,14 @@ namespace MongoDB.Bson.Serialization
     /// <summary>
     /// Represents the mapping between a field or property and a BSON element.
     /// </summary>
-    public class BsonMemberMap
+    public class BsonMemberMap : IHasSerializationDomain
     {
         // private fields
         private readonly BsonClassMap _classMap;
         private readonly MemberInfo _memberInfo;
         private readonly Type _memberType;
         private readonly bool _memberTypeIsBsonValue;
+        private readonly IBsonSerializationDomain _serializationDomain;
 
         private string _elementName;
         private bool _frozen; // once a class map has been frozen no further changes are allowed
@@ -53,7 +54,13 @@ namespace MongoDB.Bson.Serialization
         /// <param name="classMap">The class map this member map belongs to.</param>
         /// <param name="memberInfo">The member info.</param>
         public BsonMemberMap(BsonClassMap classMap, MemberInfo memberInfo)
+            : this(classMap.SerializationDomain, classMap, memberInfo)
         {
+        }
+
+        internal BsonMemberMap(IBsonSerializationDomain serializationDomain, BsonClassMap classMap, MemberInfo memberInfo)
+        {
+            _serializationDomain = serializationDomain;
             _classMap = classMap;
             _memberInfo = memberInfo;
             _memberType = BsonClassMap.GetMemberInfoType(memberInfo);
@@ -133,6 +140,8 @@ namespace MongoDB.Bson.Serialization
                 return _getter;
             }
         }
+
+        IBsonSerializationDomain IHasSerializationDomain.SerializationDomain => _serializationDomain;
 
         /// <summary>
         /// Gets the setter function.
@@ -243,6 +252,8 @@ namespace MongoDB.Bson.Serialization
             }
         }
 
+        internal IBsonSerializationDomain SerializationDomain => _serializationDomain;
+
         // public methods
         /// <summary>
         /// Applies the default value to the member of an object.
@@ -301,7 +312,7 @@ namespace MongoDB.Bson.Serialization
                 // return special serializer for BsonValue members that handles the _csharpnull representation
                 if (_memberTypeIsBsonValue)
                 {
-                    var wrappedSerializer = BsonSerializer.LookupSerializer(_memberType);
+                    var wrappedSerializer = _serializationDomain.LookupSerializer(_memberType);
                     var isBsonArraySerializer = wrappedSerializer is IBsonArraySerializer;
                     var isBsonDocumentSerializer = wrappedSerializer is IBsonDocumentSerializer;
 
@@ -329,7 +340,7 @@ namespace MongoDB.Bson.Serialization
                 }
                 else
                 {
-                    _serializer = BsonSerializer.LookupSerializer(_memberType);
+                    _serializer = _serializationDomain.LookupSerializer(_memberType);
                 }
             }
             return _serializer;

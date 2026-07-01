@@ -15,6 +15,7 @@
 
 using System;
 using FluentAssertions;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.SerializerFinders;
 using Xunit;
@@ -29,7 +30,7 @@ public class EnumTests
         var expression = TestHelpers.MakeLambda<MyModel, bool>(model => model.Status.HasFlag(MyFlags.Read));
         var serializerMap = TestHelpers.CreateSerializerMap(expression);
 
-        SerializerFinder.FindSerializers(expression.Body, null, serializerMap);
+        SerializerFinder.FindSerializers(BsonSerializer.DefaultSerializationDomain, expression.Body, null, serializerMap);
 
         serializerMap.IsKnown(expression.Body, out _).Should().BeTrue();
         serializerMap.GetSerializer(expression.Body).Should().BeOfType<BooleanSerializer>();

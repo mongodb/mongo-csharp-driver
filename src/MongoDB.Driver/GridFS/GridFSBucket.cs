@@ -60,7 +60,7 @@ namespace MongoDB.Driver.GridFS
 
             _cluster = database.Client.GetClusterInternal();
 
-            var idSerializer = _options.SerializerRegistry.GetSerializer<TFileId>();
+            var idSerializer = _database.Client.Settings.SerializationDomain.SerializerRegistry.GetSerializer<TFileId>();
             _idSerializationInfo = new BsonSerializationInfo("_id", idSerializer, typeof(TFileId));
             _fileInfoSerializer = new GridFSFileInfoSerializer<TFileId>(idSerializer);
         }
@@ -698,7 +698,7 @@ namespace MongoDB.Driver.GridFS
         {
             var filesCollectionNamespace = this.GetFilesCollectionNamespace();
             var messageEncoderSettings = this.GetMessageEncoderSettings();
-            var args = new RenderArgs<GridFSFileInfo<TFileId>>(_fileInfoSerializer, _options.SerializerRegistry, translationOptions: translationOptions);
+            var args = new RenderArgs<GridFSFileInfo<TFileId>>(_fileInfoSerializer, _database.Client.Settings.SerializationDomain, translationOptions: translationOptions);
             var renderedFilter = filter.Render(args);
             var renderedSort = options.Sort == null ? null : options.Sort.Render(args);
 

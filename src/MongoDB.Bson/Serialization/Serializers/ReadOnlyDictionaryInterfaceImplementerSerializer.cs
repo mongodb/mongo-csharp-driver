@@ -39,6 +39,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
         }
 
+        internal ReadOnlyDictionaryInterfaceImplementerSerializer(IBsonSerializationDomain serializationDomain)
+            : base(serializationDomain, DictionaryRepresentation.Document)
+        {
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ReadOnlyDictionaryInterfaceImplementerSerializer{TDictionary, TKey, TValue}"/> class.
         /// </summary>

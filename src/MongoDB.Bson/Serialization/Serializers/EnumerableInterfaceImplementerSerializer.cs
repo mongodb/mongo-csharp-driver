@@ -37,12 +37,22 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
         }
 
+        internal EnumerableInterfaceImplementerSerializer(IBsonSerializationDomain serializationDomain)
+            : base(serializationDomain)
+        {
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="EnumerableInterfaceImplementerSerializer{TValue}"/> class.
         /// </summary>
         /// <param name="itemSerializer">The item serializer.</param>
         public EnumerableInterfaceImplementerSerializer(IBsonSerializer itemSerializer)
             : base(itemSerializer)
+        {
+        }
+
+        internal EnumerableInterfaceImplementerSerializer(IBsonSerializationDomain serializationDomain, IBsonSerializer itemSerializer)
+            : base(serializationDomain, itemSerializer)
         {
         }
 
@@ -63,7 +73,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>The reconfigured serializer.</returns>
         public EnumerableInterfaceImplementerSerializer<TValue> WithItemSerializer(IBsonSerializer itemSerializer)
         {
-            return new EnumerableInterfaceImplementerSerializer<TValue>(itemSerializer);
+            return new EnumerableInterfaceImplementerSerializer<TValue>(_serializationDomain, itemSerializer);
         }
 
         // protected methods
@@ -106,12 +116,22 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
         }
 
+        internal EnumerableInterfaceImplementerSerializer(IBsonSerializationDomain serializationDomain)
+            : base(serializationDomain)
+        {
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="EnumerableInterfaceImplementerSerializer{TValue, TItem}"/> class.
         /// </summary>
         /// <param name="itemSerializer">The item serializer.</param>
         public EnumerableInterfaceImplementerSerializer(IBsonSerializer<TItem> itemSerializer)
             : base(itemSerializer)
+        {
+        }
+
+        internal EnumerableInterfaceImplementerSerializer(IBsonSerializationDomain serializationDomain, IBsonSerializer<TItem> itemSerializer)
+            : base(serializationDomain, itemSerializer)
         {
         }
 
@@ -132,7 +152,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>The reconfigured serializer.</returns>
         public EnumerableInterfaceImplementerSerializer<TValue, TItem> WithItemSerializer(IBsonSerializer<TItem> itemSerializer)
         {
-            return new EnumerableInterfaceImplementerSerializer<TValue, TItem>(itemSerializer);
+            return new EnumerableInterfaceImplementerSerializer<TValue, TItem>(_serializationDomain, itemSerializer);
         }
 
         // protected methods

@@ -628,7 +628,7 @@ namespace MongoDB.Driver
         {
             options ??= new CreateCollectionOptions<TDocument>();
             var translationOptions = _client.Settings.TranslationOptions;
-            var serializerRegistry = options.SerializerRegistry ?? BsonSerializer.SerializerRegistry;
+            var serializerRegistry = options.SerializerRegistry ?? _settings.SerializationDomain.SerializerRegistry;
             var documentSerializer = options.DocumentSerializer ?? serializerRegistry.GetSerializer<TDocument>();
 
             var clusteredIndex = options.ClusteredIndex?.Render(documentSerializer, serializerRegistry, translationOptions);
@@ -671,7 +671,7 @@ namespace MongoDB.Driver
             options ??= new CreateViewOptions<TDocument>();
 
             var translationOptions = _client.Settings.TranslationOptions;
-            var serializerRegistry = options.SerializerRegistry ?? BsonSerializer.SerializerRegistry;
+            var serializerRegistry = options.SerializerRegistry ?? _settings.SerializationDomain.SerializerRegistry;
             var documentSerializer = options.DocumentSerializer ?? serializerRegistry.GetSerializer<TDocument>();
             var pipelineDocuments = pipeline.Render(new (documentSerializer, serializerRegistry, translationOptions: translationOptions)).Documents;
             return new CreateViewOperation(_databaseNamespace, viewName, viewOn, pipelineDocuments, GetMessageEncoderSettings())
@@ -775,7 +775,8 @@ namespace MongoDB.Driver
                 _client.Settings.RetryReads,
                 _client.Settings.MaxAdaptiveRetries,
                 _client.Settings.EnableOverloadRetargeting,
-                translationOptions);
+                translationOptions,
+                _settings.SerializationDomain);
         }
 
         private OperationContext CreateOperationContext(IClientSessionHandle session, TimeSpan? timeout, string operationName, string collectionName, CancellationToken cancellationToken)
@@ -898,13 +899,13 @@ namespace MongoDB.Driver
         private RenderArgs<TDocument> GetRenderArgs<TDocument>(IBsonSerializer<TDocument> documentSerializer)
         {
             var translationOptions = _client.Settings.TranslationOptions;
-            return new RenderArgs<TDocument>(documentSerializer, _settings.SerializerRegistry, translationOptions: translationOptions);
+            return new RenderArgs<TDocument>(documentSerializer, _settings.SerializationDomain, translationOptions: translationOptions);
         }
 
         private RenderArgs<TDocument> GetRenderArgs<TDocument>(IBsonSerializer<TDocument> documentSerializer, ExpressionTranslationOptions translationOptions)
         {
             translationOptions = translationOptions.AddMissingOptionsFrom(_client.Settings.TranslationOptions);
-            return new RenderArgs<TDocument>(documentSerializer, _settings.SerializerRegistry, translationOptions: translationOptions);
+            return new RenderArgs<TDocument>(documentSerializer, _settings.SerializationDomain, translationOptions: translationOptions);
         }
     }
 }

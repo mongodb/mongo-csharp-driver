@@ -58,6 +58,11 @@ namespace MongoDB.Driver.Linq
         IBsonSerializer PipelineInputSerializer { get; }
 
         /// <summary>
+        /// Gets the serialization domain.
+        /// </summary>
+        IBsonSerializationDomain SerializationDomain { get; }
+
+        /// <summary>
         /// Gets the translation options.
         /// </summary>
         /// <returns>The translation options.</returns>

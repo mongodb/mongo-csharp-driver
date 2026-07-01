@@ -80,6 +80,7 @@ namespace MongoDB.Driver.Encryption
     public class EncryptedCollectionBuilder<TDocument>
     {
         private readonly BsonDocument _schema = new("bsonType", "object");
+        //DOMAIN-API needs user-supplied domain: TDocument is a user type whose serializers may be registered on a non-default domain
         private readonly RenderArgs<TDocument> _args = new(BsonSerializer.LookupSerializer<TDocument>(), BsonSerializer.SerializerRegistry);
 
         internal EncryptedCollectionBuilder()

@@ -80,6 +80,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Initializes a new instance of the <see cref="KeyValuePairSerializer{TKey, TValue}"/> class.
         /// </summary>
+        //DOMAIN-API parameterless/representation ctors chain to Default; add (IBsonSerializationDomain) ctor in 4.0 for consistency with the paired-ctor pattern.
         public KeyValuePairSerializer()
             : this(BsonType.Document)
         {
@@ -89,8 +90,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the <see cref="KeyValuePairSerializer{TKey, TValue}"/> class.
         /// </summary>
         /// <param name="representation">The representation.</param>
+        //DOMAIN-API parameterless/representation ctors chain to Default; add (IBsonSerializationDomain) ctor in 4.0 for consistency with the paired-ctor pattern.
         public KeyValuePairSerializer(BsonType representation)
-            : this(representation, BsonSerializer.SerializerRegistry)
+            : this(representation, BsonSerializationDomain.Default.SerializerRegistry)
         {
         }
 
