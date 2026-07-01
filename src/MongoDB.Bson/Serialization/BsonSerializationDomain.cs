@@ -72,7 +72,7 @@ namespace MongoDB.Bson.Serialization
         private Dictionary<Type, IIdGenerator> _idGenerators = new();
         private Dictionary<Type, IDiscriminatorConvention> _discriminatorConventions = new();
         private Dictionary<BsonValue, HashSet<Type>> _discriminators = new();
-        private HashSet<Type> _discriminatedTypes = new();
+        private ConcurrentDictionary<Type, bool> _discriminatedTypes = new();
         private BsonSerializerRegistry _serializerRegistry;
         private TypeMappingSerializationProvider _typeMappingSerializationProvider;
         // ConcurrentDictionary<Type, object> is being used as a concurrent set of Type. The values will always be null.
@@ -402,7 +402,7 @@ namespace MongoDB.Bson.Serialization
         public bool IsTypeDiscriminated(Type type)
         {
             var typeInfo = type.GetTypeInfo();
-            return typeInfo.IsInterface || _discriminatedTypes.Contains(type);
+            return typeInfo.IsInterface || _discriminatedTypes.ContainsKey(type);
         }
 
         /// <summary>
@@ -670,7 +670,7 @@ namespace MongoDB.Bson.Serialization
                     // mark all base types as discriminated (so we know that it's worth reading a discriminator)
                     for (var baseType = typeInfo.BaseType; baseType != null; baseType = baseType.GetTypeInfo().BaseType)
                     {
-                        _discriminatedTypes.Add(baseType);
+                        _discriminatedTypes.TryAdd(baseType, true);
                     }
                 }
             }
