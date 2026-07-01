@@ -294,7 +294,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     if (HasArgument<Expression>(parameters, "sortBy", arguments, out var sortByExpression))
                     {
                         var sortByDefinition = PickMethodToAggregationExpressionTranslator.GetSortByDefinition(sortByExpression, expression);
-                        sortBy = PickMethodToAggregationExpressionTranslator.TranslateSortByDefinition(expression, sortByExpression, sortByDefinition, inputSerializer, context.TranslationOptions);
+                        sortBy = PickMethodToAggregationExpressionTranslator.TranslateSortByDefinition(expression, sortByExpression, sortByDefinition, inputSerializer, context.SerializationDomain, context.TranslationOptions);
                     }
 
                     AstExpression n = null;
