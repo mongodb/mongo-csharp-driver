@@ -26,7 +26,7 @@ internal class BsonClassMapRegistry : IBsonClassMapRegistry, IHasSerializationDo
     private readonly Dictionary<Type, BsonClassMap> _classMaps = new();
     private readonly IBsonSerializationDomain _serializationDomain;
 
-    public BsonClassMapRegistry(BsonSerializationDomain serializationDomain)
+    public BsonClassMapRegistry(IBsonSerializationDomain serializationDomain)
     {
         _serializationDomain = serializationDomain;
     }
