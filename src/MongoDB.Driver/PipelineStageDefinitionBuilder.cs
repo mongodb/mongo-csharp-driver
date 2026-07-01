@@ -551,7 +551,7 @@ namespace MongoDB.Driver
                 {
                     ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
                     var facetsDocument = RenderFacets(materializedFacets, args);
-                    var document = new BsonDocument("$facet", facetsDocument);
+                    var document = new BsonDocument(operatorName, facetsDocument);
                     var outputSerializer = options?.OutputSerializer ?? args.SerializerRegistry.GetSerializer<TOutput>();
                     return new RenderedPipelineStageDefinition<TOutput>(operatorName, document, outputSerializer);
                 });
@@ -577,7 +577,7 @@ namespace MongoDB.Driver
                 {
                     ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
                     var facetsDocument = RenderFacets(materializedFacets, args);
-                    var document = new BsonDocument("$facet", facetsDocument);
+                    var document = new BsonDocument(operatorName, facetsDocument);
                     var outputSerializer = new AggregateFacetResultsSerializer(
                         materializedFacets.Select(f => f.Name),
                         materializedFacets.Select(f => f.OutputSerializer ?? args.SerializerRegistry.GetSerializer(f.OutputType)));
