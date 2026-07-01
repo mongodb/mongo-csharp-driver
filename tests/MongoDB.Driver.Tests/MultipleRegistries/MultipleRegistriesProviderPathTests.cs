@@ -19,6 +19,7 @@ using System.Collections.ObjectModel;
 using System.Dynamic;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Conventions;
@@ -373,6 +374,69 @@ public class MultipleRegistriesProviderPathTests
 
         var reconfigured = listSerializer.WithItemSerializer(new CustomStringSerializer("_Y"));
         domainField.GetValue(reconfigured).Should().BeSameAs(customDomain);
+    }
+
+    [Fact]
+    public void Two_custom_domains_with_different_serializers_produce_different_output()
+    {
+        var domainA = BsonSerializationDomain.CreateWithDefaultConfiguration("A");
+        domainA.RegisterSerializer(new CustomStringSerializer("_A"));
+        var domainB = BsonSerializationDomain.CreateWithDefaultConfiguration("B");
+        domainB.RegisterSerializer(new CustomStringSerializer("_B"));
+
+        var person = new Person { Id = ObjectId.Empty, Name = "Mario", Age = 24 };
+
+        SerializeToBsonDocument(domainA, person)["Name"].AsString.Should().Be("Mario_A");
+        SerializeToBsonDocument(domainB, person)["Name"].AsString.Should().Be("Mario_B");
+        SerializeToBsonDocument(BsonSerializationDomain.Default, person)["Name"].AsString.Should().Be("Mario");
+    }
+
+    [Fact]
+    public void Two_custom_domains_with_different_conventions_produce_different_element_names()
+    {
+        var lowerDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("lower");
+        var lowerPack = new ConventionPack(lowerDomain);
+        lowerPack.AddMemberMapConvention("LowerCaseElementName", m => m.SetElementName(m.MemberName.ToLower()));
+        lowerDomain.ConventionRegistry.Register("lowerPack", lowerPack, t => t == typeof(Person));
+
+        var defaultCasingDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("default-casing");
+
+        var person = new Person { Id = ObjectId.Empty, Name = "Mario", Age = 24 };
+
+        var lowerDocument = SerializeToBsonDocument(lowerDomain, person);
+        lowerDocument.Contains("name").Should().BeTrue();
+        lowerDocument.Contains("age").Should().BeTrue();
+
+        var defaultCasingDocument = SerializeToBsonDocument(defaultCasingDomain, person);
+        defaultCasingDocument.Contains("Name").Should().BeTrue();
+        defaultCasingDocument.Contains("Age").Should().BeTrue();
+    }
+
+    [Fact]
+    public void Two_custom_domains_deserialize_independently_with_their_own_serializers()
+    {
+        var domainA = BsonSerializationDomain.CreateWithDefaultConfiguration("A");
+        domainA.RegisterSerializer(new CustomStringSerializer("_A"));
+        var domainB = BsonSerializationDomain.CreateWithDefaultConfiguration("B");
+        domainB.RegisterSerializer(new CustomStringSerializer("_B"));
+
+        // CustomStringSerializer strips its own suffix on read, so each domain recovers "Mario".
+        var documentForA = new BsonDocument { { "_id", ObjectId.Empty }, { "Name", "Mario_A" }, { "Age", 24 } };
+        var documentForB = new BsonDocument { { "_id", ObjectId.Empty }, { "Name", "Mario_B" }, { "Age", 24 } };
+
+        domainA.Deserialize<Person>(documentForA).Name.Should().Be("Mario");
+        domainB.Deserialize<Person>(documentForB).Name.Should().Be("Mario");
+    }
+
+    private static BsonDocument SerializeToBsonDocument<T>(IBsonSerializationDomain domain, T value)
+    {
+        var document = new BsonDocument();
+        using (var writer = new BsonDocumentWriter(document))
+        {
+            domain.Serialize(writer, value);
+        }
+
+        return document;
     }
 }
 
