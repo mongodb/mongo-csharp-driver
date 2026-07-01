@@ -109,7 +109,7 @@ public class LinqTranslationBenchmark
         return LinqProviderAdapter.TranslateExpressionToFilter(
             _multiFieldSearchExpression,
             _orderSerializer,
-            BsonSerializer.SerializerRegistry,
+            BsonSerializer.DefaultSerializationDomain,
             _translationOptions);
     }
 
@@ -119,7 +119,7 @@ public class LinqTranslationBenchmark
         return LinqProviderAdapter.TranslateExpressionToFilter(
             _orFilterExpression,
             _orderSerializer,
-            BsonSerializer.SerializerRegistry,
+            BsonSerializer.DefaultSerializationDomain,
             _translationOptions);
     }
 
@@ -129,7 +129,7 @@ public class LinqTranslationBenchmark
         return LinqProviderAdapter.TranslateExpressionToFilter(
             _batchLookupExpression,
             _orderSerializer,
-            BsonSerializer.SerializerRegistry,
+            BsonSerializer.DefaultSerializationDomain,
             _translationOptions);
     }
 
@@ -139,7 +139,7 @@ public class LinqTranslationBenchmark
         return LinqProviderAdapter.TranslateExpressionToFilter(
             _arrayElementQueryExpression,
             _orderSerializer,
-            BsonSerializer.SerializerRegistry,
+            BsonSerializer.DefaultSerializationDomain,
             _translationOptions);
     }
 
@@ -149,7 +149,7 @@ public class LinqTranslationBenchmark
         return LinqProviderAdapter.TranslateExpressionToField(
             _fieldSelectionExpression,
             _orderSerializer,
-            BsonSerializer.SerializerRegistry,
+            BsonSerializer.DefaultSerializationDomain,
             _translationOptions,
             subPathRoot: null);
     }
@@ -160,7 +160,7 @@ public class LinqTranslationBenchmark
         return LinqProviderAdapter.TranslateExpressionToProjection(
             _aggregationProjectionExpression,
             _orderSerializer,
-            BsonSerializer.SerializerRegistry,
+            BsonSerializer.DefaultSerializationDomain,
             _translationOptions);
     }
 
@@ -170,7 +170,7 @@ public class LinqTranslationBenchmark
         return LinqProviderAdapter.TranslateExpressionToSetStage(
             _updatePipelineExpression,
             _orderSerializer,
-            BsonSerializer.SerializerRegistry,
+            BsonSerializer.DefaultSerializationDomain,
             _translationOptions);
     }
 
