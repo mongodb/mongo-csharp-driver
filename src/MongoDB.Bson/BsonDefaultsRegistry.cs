@@ -15,7 +15,6 @@
 
 using System.Collections.Generic;
 using System.Dynamic;
-using System.Threading;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson
@@ -39,8 +38,7 @@ namespace MongoDB.Bson
             {
                 if (!_dynamicArraySerializerWasSet && _dynamicArraySerializer == null)
                 {
-                    var computed = _serializationDomain.LookupSerializer<List<object>>();
-                    Interlocked.CompareExchange(ref _dynamicArraySerializer, computed, null);
+                    _dynamicArraySerializer = _serializationDomain.LookupSerializer<List<object>>();
                 }
                 return _dynamicArraySerializer;
             }
@@ -57,8 +55,7 @@ namespace MongoDB.Bson
             {
                 if (!_dynamicDocumentSerializerWasSet && _dynamicDocumentSerializer == null)
                 {
-                    var computed = _serializationDomain.LookupSerializer<ExpandoObject>();
-                    Interlocked.CompareExchange(ref _dynamicDocumentSerializer, computed, null);
+                    _dynamicDocumentSerializer = _serializationDomain.LookupSerializer<ExpandoObject>();
                 }
                 return _dynamicDocumentSerializer;
             }
