@@ -93,6 +93,45 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             json.Should().Contain("\"X:3\"").And.Contain("\"Y:4\"");
         }
 
+        [Fact]
+        public void GeoJsonGeometryCollectionSerializer_resolved_under_custom_domain_uses_domains_inner_coordinates_serializer()
+        {
+            var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("GeoJsonCustomDomainTests-GeometryCollection");
+            customDomain.RegisterSerializer(new TaggedGeoJson2DCoordinatesSerializer());
+
+            var geometryCollection = GeoJson.GeometryCollection(
+                GeoJson.Point(GeoJson.Position(7.0, 8.0)));
+            var json = SerializeToJson(customDomain, geometryCollection);
+
+            json.Should().Contain("\"X:7\"").And.Contain("\"Y:8\"");
+        }
+
+        [Fact]
+        public void GeoJsonFeatureSerializer_resolved_under_custom_domain_uses_domains_inner_coordinates_serializer()
+        {
+            var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("GeoJsonCustomDomainTests-Feature");
+            customDomain.RegisterSerializer(new TaggedGeoJson2DCoordinatesSerializer());
+
+            var feature = GeoJson.Feature(
+                GeoJson.Point(GeoJson.Position(9.0, 10.0)));
+            var json = SerializeToJson(customDomain, feature);
+
+            json.Should().Contain("\"X:9\"").And.Contain("\"Y:10\"");
+        }
+
+        [Fact]
+        public void GeoJsonFeatureCollectionSerializer_resolved_under_custom_domain_uses_domains_inner_coordinates_serializer()
+        {
+            var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("GeoJsonCustomDomainTests-FeatureCollection");
+            customDomain.RegisterSerializer(new TaggedGeoJson2DCoordinatesSerializer());
+
+            var featureCollection = GeoJson.FeatureCollection(
+                GeoJson.Feature(GeoJson.Point(GeoJson.Position(11.0, 12.0))));
+            var json = SerializeToJson(customDomain, featureCollection);
+
+            json.Should().Contain("\"X:11\"").And.Contain("\"Y:12\"");
+        }
+
         private static string SerializeToJson<T>(IBsonSerializationDomain domain, T value)
         {
             using var stringWriter = new StringWriter();
