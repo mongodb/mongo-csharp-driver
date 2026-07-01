@@ -24,6 +24,7 @@ namespace MongoDB.Driver.GridFS
     public class GridFSBucketOptions
     {
         // fields
+        private bool _assumeIndexesExist;
         private string _bucketName;
         private int _chunkSizeBytes;
         private ReadConcern _readConcern;
@@ -46,6 +47,7 @@ namespace MongoDB.Driver.GridFS
         public GridFSBucketOptions(GridFSBucketOptions other)
         {
             Ensure.IsNotNull(other, nameof(other));
+            _assumeIndexesExist = other.AssumeIndexesExist;
             _bucketName = other.BucketName;
             _chunkSizeBytes = other.ChunkSizeBytes;
             _readConcern = other.ReadConcern;
@@ -60,6 +62,7 @@ namespace MongoDB.Driver.GridFS
         public GridFSBucketOptions(ImmutableGridFSBucketOptions other)
         {
             Ensure.IsNotNull(other, nameof(other));
+            _assumeIndexesExist = other.AssumeIndexesExist;
             _bucketName = other.BucketName;
             _chunkSizeBytes = other.ChunkSizeBytes;
             _readConcern = other.ReadConcern;
@@ -68,6 +71,21 @@ namespace MongoDB.Driver.GridFS
         }
 
         // properties
+        /// <summary>
+        /// Gets or sets whether to assume the GridFS indexes already exist, skipping the index check and creation before the first upload.
+        /// </summary>
+        /// <remarks>
+        /// When <c>true</c>, the driver never verifies or creates the GridFS indexes, so the caller is responsible for ensuring they exist.
+        /// </remarks>
+        /// <value>
+        /// <c>true</c> if the GridFS indexes are assumed to exist; otherwise, <c>false</c>.
+        /// </value>
+        public bool AssumeIndexesExist
+        {
+            get { return _assumeIndexesExist; }
+            set { _assumeIndexesExist = value; }
+        }
+
         /// <summary>
         /// Gets or sets the bucket name.
         /// </summary>
@@ -160,6 +178,7 @@ namespace MongoDB.Driver.GridFS
         #endregion
 
         // fields
+        private readonly bool _assumeIndexesExist;
         private readonly string _bucketName;
         private readonly int _chunkSizeBytes;
         private readonly ReadConcern _readConcern;
@@ -183,6 +202,7 @@ namespace MongoDB.Driver.GridFS
         public ImmutableGridFSBucketOptions(GridFSBucketOptions other)
         {
             Ensure.IsNotNull(other, nameof(other));
+            _assumeIndexesExist = other.AssumeIndexesExist;
             _bucketName = other.BucketName;
             _chunkSizeBytes = other.ChunkSizeBytes;
             _readConcern = other.ReadConcern;
@@ -191,6 +211,20 @@ namespace MongoDB.Driver.GridFS
         }
 
         // properties
+        /// <summary>
+        /// Gets whether to assume the GridFS indexes already exist, skipping the index check and creation before the first upload.
+        /// </summary>
+        /// <remarks>
+        /// When <c>true</c>, the driver never verifies or creates the GridFS indexes, so the caller is responsible for ensuring they exist.
+        /// </remarks>
+        /// <value>
+        /// <c>true</c> if the GridFS indexes are assumed to exist; otherwise, <c>false</c>.
+        /// </value>
+        public bool AssumeIndexesExist
+        {
+            get { return _assumeIndexesExist; }
+        }
+
         /// <summary>
         /// Gets the bucket name.
         /// </summary>
