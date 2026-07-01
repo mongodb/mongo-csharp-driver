@@ -545,7 +545,7 @@ namespace MongoDB.Driver
             }
         }
 
-        IBsonSerializationDomain IInheritableMongoClientSettings.SerializationDomain => _serializationDomain;
+        IBsonSerializationDomain IInheritableMongoClientSettings.SerializationDomain => SerializationDomain;
 
         /// <summary>
         /// Gets or sets the name of the replica set.

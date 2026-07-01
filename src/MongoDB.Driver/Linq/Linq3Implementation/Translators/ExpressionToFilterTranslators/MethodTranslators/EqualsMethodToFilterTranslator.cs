@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             }
             else if (fieldType.IsNumericOrNullableNumeric() && valueType.IsNumeric())
             {
-                valueSerializer = FieldValueSerializerHelper.GetSerializerForValueType(fieldTranslation.Serializer, BsonSerializer.SerializerRegistry, valueType);
+                valueSerializer = FieldValueSerializerHelper.GetSerializerForValueType(fieldTranslation.Serializer, context.SerializationDomain.SerializerRegistry, valueType);
             }
             else
             {
