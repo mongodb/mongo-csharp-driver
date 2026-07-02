@@ -1,8 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <CodeAnalysisRuleSet>..\..\MongoDB.ruleset</CodeAnalysisRuleSet>
     <RootNamespace>MongoDB.Benchmarks</RootNamespace>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <AnalysisMode>None</AnalysisMode>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -17,7 +20,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>
     <Configuration>Release</Configuration>
-    <NoWarn>NU1701,CA1001</NoWarn>
+    <NoWarn>NU1701,CA1001,CA2007</NoWarn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <IsPackable>false</IsPackable>
     <SignAssembly>true</SignAssembly>

@@ -30,6 +30,10 @@
 
   <PropertyGroup>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <AnalysisMode>None</AnalysisMode>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Version)'==''">
@@ -56,7 +60,6 @@
 
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="4.12.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.2" />
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" PrivateAssets="All" Version="1.0.0" />
     <PackageReference Include="Moq" Version="4.9.0" />
     <PackageReference Include="xunit" Version="2.4.2" />
