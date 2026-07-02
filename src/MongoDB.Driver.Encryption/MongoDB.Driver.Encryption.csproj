@@ -14,7 +14,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <LibMongoCryptVersion>1.19.1</LibMongoCryptVersion>
+    <LibMongoCryptVersion>1.20.0</LibMongoCryptVersion>
     <LibMongoCryptBaseUrl>https://github.com/mongodb/libmongocrypt/releases/download/$(LibMongoCryptVersion)</LibMongoCryptBaseUrl>
   </PropertyGroup>
 
