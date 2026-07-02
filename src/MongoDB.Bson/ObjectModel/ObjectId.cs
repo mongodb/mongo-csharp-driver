@@ -87,8 +87,8 @@ namespace MongoDB.Bson
             {
                 throw new ArgumentNullException(nameof(value));
             }
-
-            var bytes = BsonUtils.ParseHexString(value);
+            Span<byte> bytes = stackalloc byte[12];
+            BsonUtils.ParseHexString(value.AsSpan(), bytes);
             FromBytesSpan(bytes, out _a, out _b, out _c);
         }
 
@@ -255,11 +255,27 @@ namespace MongoDB.Bson
         /// <returns>True if the string was parsed successfully.</returns>
         public static bool TryParse(string s, out ObjectId objectId)
         {
-            // don't throw ArgumentNullException if s is null
-            if (s != null && s.Length == 24)
+            if (s == null)
             {
-                byte[] bytes;
-                if (BsonUtils.TryParseHexString(s, out bytes))
+                // don't throw ArgumentNullException if s is null
+                objectId = default(ObjectId);
+                return false;
+            }
+            return TryParse(s.AsSpan(), out objectId);
+        }
+
+        /// <summary>
+        /// Tries to parse a span of chars and create a new ObjectId.
+        /// </summary>
+        /// <param name="s">The span value.</param>
+        /// <param name="objectId">The new ObjectId.</param>
+        /// <returns>True if the string was parsed successfully.</returns>
+        public static bool TryParse(ReadOnlySpan<char> s, out ObjectId objectId)
+        {
+            if (s.Length == 24)
+            {
+                Span<byte> bytes = stackalloc byte[12];
+                if (BsonUtils.TryParseHexString(s, bytes))
                 {
                     objectId = new ObjectId(bytes);
                     return true;
