@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
 
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
@@ -26,9 +25,6 @@ namespace MongoDB.Driver.Core.Operations
 {
     internal abstract class CommandOperationBase<TCommandResult>
     {
-        private BsonDocument _additionalOptions;
-        private IElementNameValidator _commandValidator = NoOpElementNameValidator.Instance;
-        private string _comment;
         private DatabaseNamespace _databaseNamespace;
         private MessageEncoderSettings _messageEncoderSettings;
         private IBsonSerializer<TCommandResult> _resultSerializer;
@@ -40,24 +36,6 @@ namespace MongoDB.Driver.Core.Operations
             _databaseNamespace = Ensure.IsNotNull(databaseNamespace, nameof(databaseNamespace));
             _resultSerializer = Ensure.IsNotNull(resultSerializer, nameof(resultSerializer));
             _messageEncoderSettings = messageEncoderSettings;
-        }
-
-        public BsonDocument AdditionalOptions
-        {
-            get { return _additionalOptions; }
-            set { _additionalOptions = value; }
-        }
-
-        public IElementNameValidator CommandValidator
-        {
-            get { return _commandValidator; }
-            set { _commandValidator = Ensure.IsNotNull(value, nameof(value)); }
-        }
-
-        public string Comment
-        {
-            get { return _comment; }
-            set { _comment = value; }
         }
 
         public DatabaseNamespace DatabaseNamespace
@@ -75,24 +53,18 @@ namespace MongoDB.Driver.Core.Operations
             get { return _resultSerializer; }
         }
 
-        protected TCommandResult ExecuteProtocol(OperationContext operationContext, IChannelHandle channel, ICoreSessionHandle session, ReadPreference readPreference, BsonDocument command)
-        {
-            var additionalOptions = GetEffectiveAdditionalOptions();
-
-            return channel.Command(
+        protected TCommandResult ExecuteProtocol(OperationContext operationContext, IChannelHandle channel, ICoreSessionHandle session, ReadPreference readPreference, BsonDocument command) =>
+            channel.Command(
                 operationContext,
                 session,
                 readPreference,
                 _databaseNamespace,
                 command,
                 null, // commandPayloads
-                _commandValidator,
-                additionalOptions,
                 null, // postWriteAction,
                 CommandResponseHandling.Return,
                 _resultSerializer,
                 _messageEncoderSettings);
-        }
 
         protected TCommandResult ExecuteProtocol(
             OperationContext operationContext,
@@ -107,24 +79,18 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        protected Task<TCommandResult> ExecuteProtocolAsync(OperationContext operationContext, IChannelHandle channel, ICoreSessionHandle session, ReadPreference readPreference, BsonDocument command)
-        {
-            var additionalOptions = GetEffectiveAdditionalOptions();
-
-            return channel.CommandAsync(
+        protected Task<TCommandResult> ExecuteProtocolAsync(OperationContext operationContext, IChannelHandle channel, ICoreSessionHandle session, ReadPreference readPreference, BsonDocument command) =>
+           channel.CommandAsync(
                 operationContext,
                 session,
                 readPreference,
                 _databaseNamespace,
                 command,
                 null, // TODO: support commandPayloads
-                _commandValidator,
-                additionalOptions,
                 null, // postWriteAction,
                 CommandResponseHandling.Return,
                 _resultSerializer,
                 _messageEncoderSettings);
-        }
 
         protected async Task<TCommandResult> ExecuteProtocolAsync(
             OperationContext operationContext,
@@ -136,28 +102,6 @@ namespace MongoDB.Driver.Core.Operations
             using (var channel = await channelSource.GetChannelAsync(operationContext).ConfigureAwait(false))
             {
                 return await ExecuteProtocolAsync(operationContext, channel, session, readPreference, command).ConfigureAwait(false);
-            }
-        }
-
-        private BsonDocument GetEffectiveAdditionalOptions()
-        {
-            if (_additionalOptions == null && _comment == null)
-            {
-                return null;
-            }
-            else if (_additionalOptions != null && _comment == null)
-            {
-                return _additionalOptions;
-            }
-            else if (_additionalOptions == null && _comment != null)
-            {
-                return new BsonDocument("$comment", _comment);
-            }
-            else
-            {
-                var additionalOptions = new BsonDocument("$comment", _comment);
-                additionalOptions.Merge(_additionalOptions, overwriteExistingElements: false);
-                return additionalOptions;
             }
         }
     }

@@ -1,4 +1,4 @@
-﻿/* Copyright 2015-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -438,8 +438,6 @@ namespace MongoDB.Driver.Core.Operations
                         databaseNamespace,
                         It.IsAny<BsonDocument>(),
                         null,
-                        NoOpElementNameValidator.Instance,
-                        null,
                         null,
                         CommandResponseHandling.Return,
                         It.IsAny<IBsonSerializer<BsonDocument>>(),
@@ -459,8 +457,6 @@ namespace MongoDB.Driver.Core.Operations
                         ReadPreference.Primary,
                         databaseNamespace,
                         It.IsAny<BsonDocument>(),
-                        null,
-                        NoOpElementNameValidator.Instance,
                         null,
                         null,
                         CommandResponseHandling.Return,
@@ -553,8 +549,6 @@ namespace MongoDB.Driver.Core.Operations
                             It.IsAny<DatabaseNamespace>(),
                             It.IsAny<BsonDocument>(),
                             It.IsAny<IEnumerable<Type1CommandMessageSection>>(),
-                            It.IsAny<IElementNameValidator>(),
-                            It.IsAny<BsonDocument>(),
                             It.IsAny<Action<IMessageEncoderPostProcessor>>(),
                             It.IsAny<CommandResponseHandling>(),
                             It.IsAny<IBsonSerializer<BsonDocument>>(),
@@ -580,8 +574,6 @@ namespace MongoDB.Driver.Core.Operations
                             It.IsAny<DatabaseNamespace>(),
                             It.IsAny<BsonDocument>(),
                             It.IsAny<IEnumerable<Type1CommandMessageSection>>(),
-                            It.IsAny<IElementNameValidator>(),
-                            It.IsAny<BsonDocument>(),
                             It.IsAny<Action<IMessageEncoderPostProcessor>>(),
                             It.IsAny<CommandResponseHandling>(),
                             It.IsAny<IBsonSerializer<BsonDocument>>(),
@@ -606,8 +598,6 @@ namespace MongoDB.Driver.Core.Operations
                         It.IsAny<DatabaseNamespace>(),
                         It.IsAny<BsonDocument>(),
                         It.IsAny<IEnumerable<Type1CommandMessageSection>>(),
-                        It.IsAny<IElementNameValidator>(),
-                        It.IsAny<BsonDocument>(),
                         It.IsAny<Action<IMessageEncoderPostProcessor>>(),
                         It.IsAny<CommandResponseHandling>(),
                         It.IsAny<IBsonSerializer<BsonDocument>>(),
@@ -624,8 +614,6 @@ namespace MongoDB.Driver.Core.Operations
                         It.IsAny<DatabaseNamespace>(),
                         It.IsAny<BsonDocument>(),
                         It.IsAny<IEnumerable<Type1CommandMessageSection>>(),
-                        It.IsAny<IElementNameValidator>(),
-                        It.IsAny<BsonDocument>(),
                         It.IsAny<Action<IMessageEncoderPostProcessor>>(),
                         It.IsAny<CommandResponseHandling>(),
                         It.IsAny<IBsonSerializer<BsonDocument>>(),
@@ -702,8 +690,6 @@ namespace MongoDB.Driver.Core.Operations
                 _databaseNamespace,
                 command,
                 null, // payloads
-                NoOpElementNameValidator.Instance,
-                null, // additionalOptions
                 null, // postWriteAction
                 CommandResponseHandling.Return,
                 BsonDocumentSerializer.Instance,

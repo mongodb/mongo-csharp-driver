@@ -25,12 +25,11 @@ using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders;
-using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages
 {
-    public class CommandMessageTests
+    public class RequestCommandMessageTests
     {
         [Theory]
         [ParameterAttributeData]
@@ -42,42 +41,25 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         {
             var sections = CreateSections(numberOfSections);
 
-            var result = new CommandMessage(requestId, responseTo, sections, moreToCome);
+            var result = new RequestCommandMessage(requestId, sections, moreToCome);
 
             result.MoreToCome.Should().Be(moreToCome);
-            result.PostWriteAction.Should().BeNull();
             result.RequestId.Should().Be(requestId);
-            result.ResponseExpected.Should().Be(!moreToCome);
-            result.ResponseTo.Should().Be(responseTo);
             result.Sections.Should().Equal(sections, CommandMessageSectionEqualityComparer.Instance.Equals);
         }
 
-        [Fact]
-        public void MessageType_should_return_expected_result()
-        {
-            var subject = CreateSubject();
-
-            var result = subject.MessageType;
-
-            result.Should().Be(MongoDBMessageType.Command);
-        }
-
         [Theory]
         [ParameterAttributeData]
-        public void MoreToCome_get_should_return_expected_result(
-            [Values(false, true)] bool value)
+        public void MoreToCome_get_should_return_expected_result([Values(false, true)] bool value)
         {
             var subject = CreateSubject(moreToCome: value);
 
-            var result = subject.MoreToCome;
-
-            result.Should().Be(value);
+            subject.MoreToCome.Should().Be(value);
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void MoreToCome_set_should_have_expected_result(
-            [Values(false, true)] bool value)
+        public void MoreToCome_set_should_have_expected_result([Values(false, true)] bool value)
         {
             var subject = CreateSubject();
 
@@ -88,21 +70,17 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
 
         [Theory]
         [ParameterAttributeData]
-        public void PostWriteAction_get_should_return_expected_result(
-            [Values(false, true)] bool isNull)
+        public void PostWriteAction_get_should_return_expected_result([Values(false, true)] bool isNull)
         {
             var value = isNull ? null : (Action<IMessageEncoderPostProcessor>)(operations => { });
             var subject = CreateSubject(postWriteAction: value);
 
-            var result = subject.PostWriteAction;
-
-            result.Should().BeSameAs(value);
+            subject.PostWriteAction.Should().BeSameAs(value);
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void PostWriteAction_set_should_have_expected_result(
-            [Values(false, true)] bool isNull)
+        public void PostWriteAction_set_should_have_expected_result([Values(false, true)] bool isNull)
         {
             var subject = CreateSubject();
             var value = isNull ? null : (Action<IMessageEncoderPostProcessor>)(operations => { });
@@ -114,51 +92,30 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
 
         [Theory]
         [ParameterAttributeData]
-        public void RequestId_should_return_expected_result(
-            [Values(1, 2)] int requestId)
+        public void RequestId_should_return_expected_result([Values(1, 2)] int requestId)
         {
             var subject = CreateSubject(requestId: requestId);
 
-            var result = subject.RequestId;
-
-            result.Should().Be(requestId);
+            subject.RequestId.Should().Be(requestId);
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void ResponseExpected_get_should_return_expected_result(
-            [Values(false, true)] bool value)
+        public void ResponseExpected_get_should_return_expected_result([Values(false, true)] bool value)
         {
             var subject = CreateSubject(moreToCome: !value);
 
-            var result = subject.ResponseExpected;
-
-            result.Should().Be(value);
+            subject.ResponseExpected.Should().Be(value);
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void ResponseTo_should_return_expected_result(
-            [Values(1, 2)] int responseTo)
-        {
-            var subject = CreateSubject(responseTo: responseTo);
-
-            var result = subject.ResponseTo;
-
-            result.Should().Be(responseTo);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void Sections_should_return_expected_result(
-            [Values(1, 2, 3)] int numberOfSections)
+        public void Sections_should_return_expected_result([Values(1, 2, 3)] int numberOfSections)
         {
             var sections = CreateSections(numberOfSections);
             var subject = CreateSubject(sections: sections);
 
-            var result = subject.Sections;
-
-            result.Should().Equal(sections, CommandMessageSectionEqualityComparer.Instance.Equals);
+            subject.Sections.Should().Equal(sections, CommandMessageSectionEqualityComparer.Instance.Equals);
         }
 
         [Fact]
@@ -183,15 +140,14 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             return sections;
         }
 
-        private CommandMessage CreateSubject(
+        private RequestCommandMessage CreateSubject(
             int requestId = 1,
-            int responseTo = 2,
             IEnumerable<CommandMessageSection> sections = null,
             bool moreToCome = false,
             Action<IMessageEncoderPostProcessor> postWriteAction = null)
         {
             sections = sections ?? new[] { CreateType0Section() };
-            return new CommandMessage(requestId, responseTo, sections, moreToCome)
+            return new RequestCommandMessage(requestId, sections, moreToCome)
             {
                 PostWriteAction = postWriteAction
             };

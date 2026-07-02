@@ -1,4 +1,4 @@
-﻿/* Copyright 2015-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -66,8 +66,6 @@ namespace MongoDB.Driver.Core.WireProtocol
                 new DatabaseNamespace("test"),
                 new BsonDocument("cmd", 1),
                 null, // commandPayloads
-                NoOpElementNameValidator.Instance,
-                null, // additionalOptions
                 null, // postWriteAction
                 responseHandling,
                 BsonDocumentSerializer.Instance,
@@ -151,8 +149,6 @@ namespace MongoDB.Driver.Core.WireProtocol
                 new DatabaseNamespace("test"),
                 new BsonDocument("getMore", 1),
                 commandPayloads: null,
-                NoOpElementNameValidator.Instance,
-                additionalOptions: null,
                 postWriteAction: null,
                 CommandResponseHandling.Return,
                 BsonDocumentSerializer.Instance,
@@ -196,8 +192,6 @@ namespace MongoDB.Driver.Core.WireProtocol
                 new DatabaseNamespace("test"),
                 new BsonDocument("moreGet", 1),
                 commandPayloads: null,
-                NoOpElementNameValidator.Instance,
-                additionalOptions: null,
                 postWriteAction: null,
                 CommandResponseHandling.Return,
                 BsonDocumentSerializer.Instance,
@@ -245,8 +239,6 @@ namespace MongoDB.Driver.Core.WireProtocol
                 new DatabaseNamespace("test"),
                 new BsonDocument("cmd", 1),
                 null, // commandPayloads
-                NoOpElementNameValidator.Instance,
-                null, // additionalOptions
                 null, // postWriteAction
                 CommandResponseHandling.Return,
                 BsonDocumentSerializer.Instance,
@@ -257,7 +249,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             var mockConnection = new Mock<IConnection>();
             mockConnection.Setup(c => c.Settings).Returns(() => new ConnectionSettings());
 
-            var commandResponse = MessageHelper.BuildReply(CreateRawBsonDocument(new BsonDocument("ok", 1)));
+            var commandResponse = MessageHelper.BuildCommandResponse(CreateRawBsonDocument(new BsonDocument("ok", 1)));
             mockConnection
                 .Setup(c => c.ReceiveMessage(It.IsAny<OperationContext>(), It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), messageEncoderSettings))
                 .Returns(commandResponse);
@@ -276,8 +268,6 @@ namespace MongoDB.Driver.Core.WireProtocol
                 new DatabaseNamespace("test"),
                 new BsonDocument("cmd", 1),
                 null, // commandPayloads
-                NoOpElementNameValidator.Instance,
-                null, // additionalOptions
                 null, // postWriteAction
                 CommandResponseHandling.NoResponseExpected,
                 BsonDocumentSerializer.Instance,
@@ -293,7 +283,7 @@ namespace MongoDB.Driver.Core.WireProtocol
 
             mockConnection.Verify(
                 c => c.ReceiveMessageAsync(It.IsAny<OperationContext>(), It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), messageEncoderSettings),
-                Times.Once);
+                Times.Never);
         }
 
         [Fact]
@@ -306,8 +296,6 @@ namespace MongoDB.Driver.Core.WireProtocol
                 new DatabaseNamespace("test"),
                 new BsonDocument("cmd", 1),
                 null, // commandPayloads
-                NoOpElementNameValidator.Instance,
-                null, // additionalOptions
                 null, // postWriteAction
                 CommandResponseHandling.Return,
                 BsonDocumentSerializer.Instance,
@@ -318,10 +306,10 @@ namespace MongoDB.Driver.Core.WireProtocol
             var mockConnection = new Mock<IConnection>();
             mockConnection.Setup(c => c.Settings).Returns(() => new ConnectionSettings());
 
-            var commandResponse = MessageHelper.BuildReply(CreateRawBsonDocument(new BsonDocument("ok", 1)));
+            var commandResponse = MessageHelper.BuildCommandResponse(CreateRawBsonDocument(new BsonDocument("ok", 1)));
             mockConnection
                 .Setup(c => c.ReceiveMessageAsync(It.IsAny<OperationContext>(), It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), messageEncoderSettings))
-                .Returns(Task.FromResult<ResponseMessage>(commandResponse));
+                .Returns(Task.FromResult<ResponseCommandMessage>(commandResponse));
 
             var result = await subject.ExecuteAsync(OperationContext.NoTimeout, mockConnection.Object);
             result.Should().Be("{ok: 1}");
@@ -337,8 +325,6 @@ namespace MongoDB.Driver.Core.WireProtocol
                 new DatabaseNamespace("test"),
                 new BsonDocument("cmd", 1),
                 null, // commandPayloads
-                NoOpElementNameValidator.Instance,
-                null, // additionalOptions
                 null, // postWriteAction
                 CommandResponseHandling.NoResponseExpected,
                 BsonDocumentSerializer.Instance,
@@ -352,7 +338,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             var result = await subject.ExecuteAsync(OperationContext.NoTimeout, mockConnection.Object);
             result.Should().BeNull();
 
-            mockConnection.Verify(c => c.ReceiveMessageAsync(It.IsAny<OperationContext>(), It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), messageEncoderSettings), Times.Once);
+            mockConnection.Verify(c => c.ReceiveMessageAsync(It.IsAny<OperationContext>(), It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), messageEncoderSettings), Times.Never);
         }
 
         [Theory]
@@ -384,8 +370,6 @@ namespace MongoDB.Driver.Core.WireProtocol
                 new DatabaseNamespace("test"),
                 command,
                 commandPayloads: null,
-                NoOpElementNameValidator.Instance,
-                additionalOptions: null,
                 postWriteAction: null,
                 CommandResponseHandling.Return,
                 BsonDocumentSerializer.Instance,
@@ -454,8 +438,6 @@ namespace MongoDB.Driver.Core.WireProtocol
                 new DatabaseNamespace("test"),
                 command,
                 commandPayloads: null,
-                NoOpElementNameValidator.Instance,
-                additionalOptions: null,
                 postWriteAction: null,
                 CommandResponseHandling.Return,
                 BsonDocumentSerializer.Instance,

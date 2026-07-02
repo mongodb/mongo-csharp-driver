@@ -1,4 +1,4 @@
-﻿/* Copyright 2019-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -35,8 +35,7 @@ namespace MongoDB.Driver.Core.Tests.Core.WireProtocol.Messages.Encoders.JsonEnco
         private static readonly string __jsonMessage;
         private static readonly MessageEncoderSettings __messageEncoderSettings = new MessageEncoderSettings();
         private static readonly IMessageEncoderSelector __originalEncoderSelector;
-        private static readonly CommandResponseMessage __originalMessage;
-        private static readonly int __responseId = 2;
+        private static readonly CommandMessage __originalMessage;
         private static readonly int __requestId = 1;
         private static readonly CompressedMessage __testMessage;
 
@@ -45,12 +44,11 @@ namespace MongoDB.Driver.Core.Tests.Core.WireProtocol.Messages.Encoders.JsonEnco
         {
             var document = new BsonDocument("x", 1);
             var sections = new[] { new Type0CommandMessageSection<BsonDocument>(document, BsonDocumentSerializer.Instance) };
-            var commandMessage = new CommandMessage(__requestId, __responseId, sections, false);
-            __originalMessage = new CommandResponseMessage(commandMessage);
+            __originalMessage = new RequestCommandMessage(__requestId, sections, false);
             __jsonMessage = CreateCompressedMessageJson(__originalMessage, __compressorType);
             __testMessage = new CompressedMessage(__originalMessage, null, __compressorType);
 
-            __originalEncoderSelector = new CommandResponseMessageEncoderSelector();
+            __originalEncoderSelector = new CommandMessageEncoderSelector();
         }
         #endregion
 
@@ -99,9 +97,8 @@ namespace MongoDB.Driver.Core.Tests.Core.WireProtocol.Messages.Encoders.JsonEnco
                 var message = subject.ReadMessage();
 
                 message.CompressorType.Should().Be(__compressorType);
-                message.MessageType.Should().Be(MongoDBMessageType.Compressed);
 
-                var originalMessage = (CommandResponseMessage)message.OriginalMessage;
+                var originalMessage = (CommandMessage)message.OriginalMessage;
                 originalMessage.ShouldBeEquivalentTo(__originalMessage);
             }
         }
@@ -170,14 +167,13 @@ namespace MongoDB.Driver.Core.Tests.Core.WireProtocol.Messages.Encoders.JsonEnco
             return compressedMessage.ToJson();
         }
 
-        private static string CreateCompressedMessageJson(CommandResponseMessage message, CompressorType compressorType)
+        private static string CreateCompressedMessageJson(CommandMessage message, CompressorType compressorType)
         {
             var textReader = new StringReader("");
             var textWriter = new StringWriter();
             var encoderSettings = new MessageEncoderSettings();
             var commandMessageEncoder = new CommandMessageJsonEncoder(textReader, textWriter, encoderSettings);
-            var commandResponseMessageEncoder = new CommandResponseMessageJsonEncoder(commandMessageEncoder);
-            commandResponseMessageEncoder.WriteMessage(message);
+            commandMessageEncoder.WriteMessage(message);
             var originalMessage = BsonDocument.Parse(textWriter.ToString());
 
             return CreateCompressedMessageJson(originalMessage, compressorType);

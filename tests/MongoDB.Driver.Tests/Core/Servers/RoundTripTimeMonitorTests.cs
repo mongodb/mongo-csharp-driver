@@ -296,13 +296,13 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
             return CreateSubject(frequency, mockConnection, mockConnectionFactory);
         }
 
-        private ResponseMessage CreateResponseMessage()
+        private ResponseCommandMessage CreateResponseMessage()
         {
             var section0Document = $"{{ {OppressiveLanguageConstants.LegacyHelloResponseIsWritablePrimaryFieldName} : true, topologyVersion : {{ processId : ObjectId('5ee3f0963109d4fe5e71dd28'), counter : NumberLong(0) }}, ok : 1.0 }}";
             var section0 = new Type0CommandMessageSection<RawBsonDocument>(
                 new RawBsonDocument(BsonDocument.Parse(section0Document).ToBson()),
                 RawBsonDocumentSerializer.Instance);
-            return new CommandResponseMessage(new CommandMessage(1, 1, new[] { section0 }, false));
+            return new ResponseCommandMessage(1, 1, new[] { section0 }, false);
         }
     }
 

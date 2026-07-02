@@ -13,35 +13,27 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
+
 namespace MongoDB.Driver.Core.WireProtocol.Messages
 {
-    internal abstract class ResponseMessage : MongoDBMessage
+    internal sealed class ResponseCommandMessage : CommandMessage
     {
         // fields
-        private readonly int _requestId;
         private readonly int _responseTo;
 
         // constructors
-        protected ResponseMessage(int requestId, int responseTo)
+        public ResponseCommandMessage(
+            int requestId,
+            int responseTo,
+            IEnumerable<CommandMessageSection> sections,
+            bool moreToCome)
+            : base(requestId, sections, moreToCome)
         {
-            _requestId = requestId;
             _responseTo = responseTo;
         }
 
-        // properties
-        public override MongoDBMessageType MessageType
-        {
-            get { return MongoDBMessageType.Reply; }
-        }
-
-        public int RequestId
-        {
-            get { return _requestId; }
-        }
-
-        public int ResponseTo
-        {
-            get { return _responseTo; }
-        }
+        // public properties
+        public int ResponseTo => _responseTo;
     }
 }

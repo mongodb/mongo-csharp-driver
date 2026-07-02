@@ -22,7 +22,6 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.ConnectionPools;
@@ -315,7 +314,7 @@ namespace MongoDB.Driver.Core.Clusters
                 .Setup(c => c.ReceiveMessage(It.IsAny<OperationContext>(), It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), It.IsAny<MessageEncoderSettings>()))
                 .Returns(GetHelloResponse);
 
-            ResponseMessage GetHelloResponse()
+            ResponseCommandMessage GetHelloResponse()
             {
                 var helloDocument = primaries.Contains(serverId) ? primaryDocument : secondaryDocument;
 

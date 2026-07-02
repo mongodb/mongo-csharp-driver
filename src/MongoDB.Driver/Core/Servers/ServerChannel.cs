@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
@@ -58,8 +57,6 @@ namespace MongoDB.Driver.Core.Servers
             DatabaseNamespace databaseNamespace,
             BsonDocument command,
             IEnumerable<BatchableCommandMessageSection> commandPayloads,
-            IElementNameValidator commandValidator,
-            BsonDocument additionalOptions,
             Action<IMessageEncoderPostProcessor> postWriteAction,
             CommandResponseHandling responseHandling,
             IBsonSerializer<TResult> resultSerializer,
@@ -77,8 +74,6 @@ namespace MongoDB.Driver.Core.Servers
                 databaseNamespace,
                 command,
                 commandPayloads,
-                commandValidator,
-                additionalOptions,
                 postWriteAction,
                 responseHandling,
                 resultSerializer,
@@ -96,8 +91,6 @@ namespace MongoDB.Driver.Core.Servers
             DatabaseNamespace databaseNamespace,
             BsonDocument command,
             IEnumerable<BatchableCommandMessageSection> commandPayloads,
-            IElementNameValidator commandValidator,
-            BsonDocument additionalOptions,
             Action<IMessageEncoderPostProcessor> postWriteAction,
             CommandResponseHandling responseHandling,
             IBsonSerializer<TResult> resultSerializer,
@@ -115,8 +108,6 @@ namespace MongoDB.Driver.Core.Servers
                 databaseNamespace,
                 command,
                 commandPayloads,
-                commandValidator,
-                additionalOptions,
                 postWriteAction,
                 responseHandling,
                 resultSerializer,

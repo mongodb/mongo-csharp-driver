@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Bindings;
@@ -847,8 +846,6 @@ namespace MongoDB.Driver.Core.Servers
                             DatabaseNamespace.Admin,
                             command,
                             null, // payloads
-                            NoOpElementNameValidator.Instance,
-                            null, // additionalOptions
                             null, // postWriteAction
                             CommandResponseHandling.Return,
                             BsonDocumentSerializer.Instance,
@@ -889,8 +886,6 @@ namespace MongoDB.Driver.Core.Servers
                         DatabaseNamespace.Admin,
                         command,
                         null, // payloads
-                        NoOpElementNameValidator.Instance,
-                        null, // additionalOptions
                         null, // postWriteAction
                         CommandResponseHandling.Return,
                         BsonDocumentSerializer.Instance,
@@ -935,8 +930,6 @@ namespace MongoDB.Driver.Core.Servers
                                 DatabaseNamespace.Admin,
                                 command,
                                 null, // payloads
-                                NoOpElementNameValidator.Instance,
-                                null, // additionalOptions
                                 null, // postWriteAction
                                 CommandResponseHandling.Return,
                                 BsonDocumentSerializer.Instance,
@@ -951,8 +944,6 @@ namespace MongoDB.Driver.Core.Servers
                             DatabaseNamespace.Admin,
                             command,
                             null, // payloads
-                            NoOpElementNameValidator.Instance,
-                            null, // additionalOptions
                             null, // postWriteAction
                             CommandResponseHandling.Return,
                             BsonDocumentSerializer.Instance,

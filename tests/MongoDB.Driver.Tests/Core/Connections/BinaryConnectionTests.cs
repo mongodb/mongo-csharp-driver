@@ -151,7 +151,7 @@ namespace MongoDB.Driver.Core.Connections
             using var memoryStream = new MemoryStream();
             var clonedMessageEncoderSettings = _messageEncoderSettings.Clone();
             var encoderFactory = new BinaryMessageEncoderFactory(memoryStream, clonedMessageEncoderSettings, compressorSource: null);
-            var encoder = encoderFactory.GetCommandResponseMessageEncoder();
+            var encoder = encoderFactory.GetCommandMessageEncoder();
             encoder.WriteMessage(CreateResponseMessage());
             var mockStreamFactory = new Mock<IStreamFactory>();
             using var stream = new IgnoreWritesMemoryStream(memoryStream.ToArray());
@@ -200,13 +200,13 @@ namespace MongoDB.Driver.Core.Connections
 
             authenticatorFactoryMock.Verify(f => f.Create(), Times.Once());
 
-            ResponseMessage CreateResponseMessage()
+            ResponseCommandMessage CreateResponseMessage()
             {
                 var section0Document = $"{{ {OppressiveLanguageConstants.LegacyHelloResponseIsWritablePrimaryFieldName} : true, ok : 1, connectionId : 1 }}";
                 var section0 = new Type0CommandMessageSection<RawBsonDocument>(
                     new RawBsonDocument(BsonDocument.Parse(section0Document).ToBson()),
                     RawBsonDocumentSerializer.Instance);
-                return new CommandResponseMessage(new CommandMessage(1, 1 /* will be overriden by IgnoreWritesMemoryStream */, new[] { section0 }, false));
+                return new ResponseCommandMessage(1, 1 /* will be overriden by IgnoreWritesMemoryStream */, new[] { section0 }, false);
             }
         }
 
@@ -370,7 +370,7 @@ namespace MongoDB.Driver.Core.Connections
                 _mockStreamFactory.Setup(f => f.CreateStreamAsync(_endPoint, It.IsAny<CancellationToken>())).ReturnsAsync(stream);
                 _mockStreamFactory.Setup(f => f.CreateStream(_endPoint, It.IsAny<CancellationToken>())).Returns(stream);
                 await _subject.OpenAsync(OperationContext.NoTimeout);
-                var encoderSelector = new ReplyMessageEncoderSelector<BsonDocument>(BsonDocumentSerializer.Instance);
+                var encoderSelector = new CommandMessageEncoderSelector();
 
                 var exception = async ?
                     await Record.ExceptionAsync(() => _subject.ReceiveMessageAsync(OperationContext.NoTimeout, 10, encoderSelector, _messageEncoderSettings)) :
@@ -435,7 +435,7 @@ namespace MongoDB.Driver.Core.Connections
         {
             using (var stream = new BlockingMemoryStream())
             {
-                var messageToReceive = MessageHelper.BuildReply<BsonDocument>(new BsonDocument(), BsonDocumentSerializer.Instance, responseTo: 10);
+                var messageToReceive = MessageHelper.BuildCommandResponse(new RawBsonDocument(new BsonDocument("ok", 1).ToBson()), responseTo: 10);
                 MessageHelper.WriteResponsesToStream(stream, messageToReceive);
 
                 _mockStreamFactory.Setup(f => f.CreateStreamAsync(_endPoint, It.IsAny<CancellationToken>()))
@@ -445,7 +445,7 @@ namespace MongoDB.Driver.Core.Connections
                 await _subject.OpenAsync(OperationContext.NoTimeout);
                 _capturedEvents.Clear();
 
-                var encoderSelector = new ReplyMessageEncoderSelector<BsonDocument>(BsonDocumentSerializer.Instance);
+                var encoderSelector = new CommandMessageEncoderSelector();
 
                 var received = async ?
                     await _subject.ReceiveMessageAsync(OperationContext.NoTimeout, 10, encoderSelector, _messageEncoderSettings) :
@@ -477,7 +477,7 @@ namespace MongoDB.Driver.Core.Connections
                 await _subject.OpenAsync(OperationContext.NoTimeout);
                 _capturedEvents.Clear();
 
-                var encoderSelector = new ReplyMessageEncoderSelector<BsonDocument>(BsonDocumentSerializer.Instance);
+                var encoderSelector = new CommandMessageEncoderSelector();
 
                 var receiveMessageTask = async ?
                     _subject.ReceiveMessageAsync(OperationContext.NoTimeout, 10, encoderSelector, _messageEncoderSettings) :
@@ -485,7 +485,7 @@ namespace MongoDB.Driver.Core.Connections
 
                 receiveMessageTask.IsCompleted.Should().BeFalse();
 
-                var messageToReceive = MessageHelper.BuildReply<BsonDocument>(new BsonDocument(), BsonDocumentSerializer.Instance, responseTo: 10);
+                var messageToReceive = MessageHelper.BuildCommandResponse(new RawBsonDocument(new BsonDocument("ok", 1).ToBson()), responseTo: 10);
                 MessageHelper.WriteResponsesToStream(stream, messageToReceive);
 
                 var received = await receiveMessageTask;
@@ -517,7 +517,7 @@ namespace MongoDB.Driver.Core.Connections
             try
             {
                 TaskScheduler.UnobservedTaskException += eventHandler;
-                var encoderSelector = new ReplyMessageEncoderSelector<BsonDocument>(BsonDocumentSerializer.Instance);
+                var encoderSelector = new CommandMessageEncoderSelector();
 
                 _mockStreamFactory
                     .Setup(f => f.CreateStream(_endPoint, CancellationToken.None))
@@ -560,7 +560,7 @@ namespace MongoDB.Driver.Core.Connections
             try
             {
                 TaskScheduler.UnobservedTaskException += eventHandler;
-                var encoderSelector = new ReplyMessageEncoderSelector<BsonDocument>(BsonDocumentSerializer.Instance);
+                var encoderSelector = new CommandMessageEncoderSelector();
 
                 _mockStreamFactory
                     .Setup(f => f.CreateStream(_endPoint, It.IsAny<CancellationToken>()))
@@ -609,7 +609,7 @@ namespace MongoDB.Driver.Core.Connections
                 await _subject.OpenAsync(OperationContext.NoTimeout);
                 _capturedEvents.Clear();
 
-                var encoderSelector = new ReplyMessageEncoderSelector<BsonDocument>(BsonDocumentSerializer.Instance);
+                var encoderSelector = new CommandMessageEncoderSelector();
 
                 var exception1 = async1 ?
                     await Record.ExceptionAsync(() => _subject.ReceiveMessageAsync(OperationContext.NoTimeout, 1, encoderSelector, _messageEncoderSettings)) :
@@ -652,7 +652,7 @@ namespace MongoDB.Driver.Core.Connections
             [Values(false, true)]
             bool async)
         {
-            var message = MessageHelper.BuildQuery();
+            var message = MessageHelper.BuildCommand(new BsonDocument("find", "test"));
             _subject.Dispose();
 
             var exception = async ?
@@ -668,7 +668,7 @@ namespace MongoDB.Driver.Core.Connections
             [Values(false, true)]
             bool async)
         {
-            var message = MessageHelper.BuildQuery();
+            var message = MessageHelper.BuildCommand(new BsonDocument("find", "test"));
 
             var exception = async ?
                 await Record.ExceptionAsync(() => _subject.SendMessageAsync(OperationContext.NoTimeout, message, _messageEncoderSettings)) :
@@ -690,7 +690,7 @@ namespace MongoDB.Driver.Core.Connections
                 _subject.OpenAsync(OperationContext.NoTimeout).GetAwaiter().GetResult();
                 _capturedEvents.Clear();
 
-                var message = MessageHelper.BuildQuery(query: new BsonDocument("x", 1));
+                var message = MessageHelper.BuildCommand(new BsonDocument("find", "test").Add("filter", new BsonDocument("x", 1)));
 
                 if (async)
                 {

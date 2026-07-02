@@ -1,4 +1,4 @@
-/* Copyright 2010-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,26 +13,13 @@
 * limitations under the License.
 */
 
-using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Core.Misc;
-
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
 {
-    internal sealed class ReplyMessageEncoderSelector<TDocument> : IMessageEncoderSelector
+    internal sealed class CommandMessageEncoderSelector : IMessageEncoderSelector
     {
-        // fields
-        private readonly IBsonSerializer<TDocument> _documentSerializer;
-
-        // constructors
-        public ReplyMessageEncoderSelector(IBsonSerializer<TDocument> documentSerializer)
-        {
-            _documentSerializer = Ensure.IsNotNull(documentSerializer, nameof(documentSerializer));
-        }
-
-        // methods
         public IMessageEncoder GetEncoder(IMessageEncoderFactory encoderFactory)
         {
-            return encoderFactory.GetReplyMessageEncoder<TDocument>(_documentSerializer);
+            return encoderFactory.GetCommandMessageEncoder();
         }
     }
 }

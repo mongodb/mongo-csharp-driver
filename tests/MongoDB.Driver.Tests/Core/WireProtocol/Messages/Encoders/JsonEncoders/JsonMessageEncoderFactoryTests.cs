@@ -16,8 +16,6 @@
 using System;
 using System.IO;
 using FluentAssertions;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Serializers;
 using Xunit;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
@@ -100,50 +98,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
                 var encoderFactory = new JsonMessageEncoderFactory(null, textWriter, __messageEncoderSettings);
                 var encoder = encoderFactory.GetCommandMessageEncoder();
                 encoder.Should().BeOfType<CommandMessageJsonEncoder>();
-            }
-        }
-
-        [Fact]
-        public void GetCommandRequestMessageEncoder_should_return_a_CommandRequestMessageJsonEncoder()
-        {
-            using (var textWriter = new StringWriter())
-            {
-                var encoderFactory = new JsonMessageEncoderFactory(null, textWriter, __messageEncoderSettings);
-                var encoder = encoderFactory.GetCommandRequestMessageEncoder();
-                encoder.Should().BeOfType<CommandRequestMessageJsonEncoder>();
-            }
-        }
-
-        [Fact]
-        public void GetCommandResponseMessageEncoder_should_return_a_CommandResponseMessageJsonEncoder()
-        {
-            using (var textWriter = new StringWriter())
-            {
-                var encoderFactory = new JsonMessageEncoderFactory(null, textWriter, __messageEncoderSettings);
-                var encoder = encoderFactory.GetCommandResponseMessageEncoder();
-                encoder.Should().BeOfType<CommandResponseMessageJsonEncoder>();
-            }
-        }
-
-        [Fact]
-        public void GetQueryMessageEncoder_should_return_a_QueryMessageJsonEncoder()
-        {
-            using (var textWriter = new StringWriter())
-            {
-                var encoderFactory = new JsonMessageEncoderFactory(null, textWriter, __messageEncoderSettings);
-                var encoder = encoderFactory.GetQueryMessageEncoder();
-                encoder.Should().BeOfType<QueryMessageJsonEncoder>();
-            }
-        }
-
-        [Fact]
-        public void GetReplyMessageEncoder_should_return_a_ReplyMessageJsonEncoder()
-        {
-            using (var textReader = new StringReader(""))
-            {
-                var encoderFactory = new JsonMessageEncoderFactory(textReader, null, __messageEncoderSettings);
-                var encoder = encoderFactory.GetReplyMessageEncoder<BsonDocument>(BsonDocumentSerializer.Instance);
-                encoder.Should().BeOfType<ReplyMessageJsonEncoder<BsonDocument>>();
             }
         }
 

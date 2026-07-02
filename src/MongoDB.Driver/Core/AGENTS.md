@@ -171,14 +171,14 @@ This file covers the **Server Discovery And Monitoring (SDAM)** topology layer, 
 
 ## 5. WireProtocol / OP_MSG and command messaging
 
-**Files:** `CommandWireProtocol.cs`, `CommandUsingCommandMessageWireProtocol.cs`, `CommandUsingQueryMessageWireProtocol.cs`, `CursorBatch.cs`, `Messages/`, `WireProtocolMessageEncoders/`.
+**Files:** `CommandWireProtocol.cs`, `CommandUsingCommandMessageWireProtocol.cs`, `CursorBatch.cs`, `Messages/`, `WireProtocolMessageEncoders/`.
 
 ### Command wire protocol layers
 
 - **`IWireProtocol<TResult>`** — abstract interface for a single request–response exchange.
-- **`CommandWireProtocol<T>`** — generic high-level protocol. Routes to either `CommandUsingCommandMessageWireProtocol` (OP_MSG, modern) or `CommandUsingQueryMessageWireProtocol` (OP_QUERY, legacy fallback).
+- **`CommandWireProtocol<T>`** — thin caching wrapper that always delegates to `CommandUsingCommandMessageWireProtocol` (OP_MSG). The legacy OP_QUERY path was removed when the minimum supported server version exceeded 3.6.
 
-### OP_MSG (MongoDB 3.6+)
+### OP_MSG
 
 - **`CommandUsingCommandMessageWireProtocol`** — sends commands as OP_MSG (opcode 2013).
 - **Message format:**
@@ -188,13 +188,7 @@ This file covers the **Server Discovery And Monitoring (SDAM)** topology layer, 
     - Document sections (type 1): bulk write payloads (insert/update/delete).
     - Compressed payloads: if compression is negotiated, the entire message is compressed.
 - **`moreToCome`:** A bidirectional OP_MSG flag bit. **Inbound** (server-set on a response): more responses will follow on the same request — used by exhaust cursors (see also `Core/Operations/AGENTS.md` for cursor lifecycle) and the streaming `hello` heartbeat. **Outbound** (client-set on a request): tells the server not to reply at all — used by unacknowledged writes (`w: 0`) and other fire-and-forget command shapes. It is **not** a way for clients to batch outbound `getMore` requests — outbound batching uses cursor `batchSize` instead.
-- **Response:** `CommandResponseMessage` contains a server reply document and optional cursor data.
-
-### Legacy OP_QUERY / OP_GET_MORE / OP_KILL_CURSORS
-
-- **`CommandUsingQueryMessageWireProtocol`** — fallback for servers < 3.6. Sends OP_QUERY (opcode 2004).
-- Still present but deprecated; new feature work does not go here.
-- getMore via OP_GET_MORE, cursor cleanup via OP_KILL_CURSORS.
+- Both request and response messages extend the common `CommandMessage` base type. `IConnection.SendMessage` is typed as `RequestCommandMessage`; `IConnection.ReceiveMessage` returns `ResponseCommandMessage`.
 
 ### Cursor batching
 
@@ -204,9 +198,8 @@ This file covers the **Server Discovery And Monitoring (SDAM)** topology layer, 
 
 ### Messages subdirectory
 
-- `CommandMessage`, `CommandRequestMessage`, `CommandResponseMessage` — wire message types.
+- `CommandMessage` — the single wire message type for both requests and responses (OP_MSG, opcode 2013).
 - `CommandMessageSection`, `BatchableCommandMessageSection` — payload sections within OP_MSG.
-- `QueryMessage`, `ReplyMessage` — legacy OP_QUERY / OP_REPLY.
 - `CompressedMessage` — OP_COMPRESSED wrapper (opcode 2012). The wire format is a standard message header with opcode 2012, followed by the `originalOpcode` of the wrapped message, a `compressorId`, and the compressed payload. It is a distinct message type, not a flag on OP_MSG.
 
 ### Encoders
@@ -340,11 +333,11 @@ This file covers the **Server Discovery And Monitoring (SDAM)** topology layer, 
 - If the server advertises a compressor the client doesn't have (e.g., zstd), the connection falls back to no compression.
 - Network errors during compression/decompression are fatal to the connection.
 
-### 7. **isMaster vs hello (during driver/server transition)**
+### 7. **isMaster vs hello**
 
-- The driver sends `hello` against servers that advertise `helloOk` in their initial reply, and falls back to `isMaster` (legacy `OP_QUERY`) otherwise.
+- The driver sends `hello` against servers that advertise `helloOk` in their initial reply, and falls back to `isMaster` otherwise. Both travel over OP_MSG.
 - The `hello` response payload is identical to `isMaster` except for the command name.
-- **Deprecated:** `isMaster` is the legacy command name (`hello` replaced it); the driver's `CommandUsingQueryMessageWireProtocol` (OP_QUERY) path exists only to talk to pre-3.6 servers. OP_QUERY can be removed once the supported-server floor passes 3.6 — gated by minimum-server-version policy, not by any server-side `isMaster` removal date.
+- OP_QUERY support was removed from the driver when the minimum supported server version exceeded 3.6. All commands, including the initial handshake, now use OP_MSG exclusively.
 
 ### 8. **Streaming hello / awaitable heartbeat edge cases**
 

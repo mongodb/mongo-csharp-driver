@@ -20,7 +20,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
@@ -107,7 +106,7 @@ public class AcquiredConnectionTests : LoggableTestClass
         pool.Initialize();
         pool.SetReady();
         using var acquired = pool.AcquireConnection(OperationContext.NoTimeout);
-        var encoderSelector = new ReplyMessageEncoderSelector<BsonDocument>(BsonDocumentSerializer.Instance);
+        var encoderSelector = new CommandMessageEncoderSelector();
 
         var receiveTask = async ?
             acquired.ReceiveMessageAsync(OperationContext.NoTimeout, 1, encoderSelector, _messageEncoderSettings) :

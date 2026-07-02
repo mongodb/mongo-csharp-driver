@@ -13,49 +13,45 @@
 * limitations under the License.
 */
 
+using System;
+using System.Collections.Generic;
 using System.Threading;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages
 {
-    internal abstract class RequestMessage : MongoDBMessage
+    internal sealed class RequestCommandMessage : CommandMessage
     {
-        #region static
-        // static fields
-        private static int __requestId;
+        // static
+        private static int __lastRequestId;
 
         // static properties
-        public static int CurrentGlobalRequestId
-        {
-            get { return __requestId; }
-        }
+        public static int CurrentGlobalLastRequestId => __lastRequestId;
 
         // static methods
         public static int GetNextRequestId()
         {
-            return Interlocked.Increment(ref __requestId);
+            return Interlocked.Increment(ref __lastRequestId);
         }
-        #endregion
 
         // fields
-        private readonly int _requestId;
-        private bool _wasSent;
 
         // constructors
-        protected RequestMessage(int requestId)
+        public RequestCommandMessage(
+            int requestId,
+            IEnumerable<CommandMessageSection> sections,
+            bool moreToCome)
+            : base(requestId, sections, moreToCome)
         {
-            _requestId = requestId;
         }
 
-        // properties
-        public int RequestId
-        {
-            get { return _requestId; }
-        }
+        // public properties
+        public bool ExhaustAllowed { get; set; }
 
-        public bool WasSent
-        {
-            get { return _wasSent; }
-            set { _wasSent = value; }
-        }
+        public Action<IMessageEncoderPostProcessor> PostWriteAction { get; set; }
+
+        public bool ResponseExpected => !MoreToCome;
+
+        public bool WasSent { get; set; }
     }
 }

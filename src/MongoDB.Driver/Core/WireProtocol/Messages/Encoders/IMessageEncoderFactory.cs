@@ -13,17 +13,11 @@
 * limitations under the License.
 */
 
-using MongoDB.Bson.Serialization;
-
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
 {
     internal interface IMessageEncoderFactory
     {
         IMessageEncoder GetCommandMessageEncoder();
-        IMessageEncoder GetCommandRequestMessageEncoder();
-        IMessageEncoder GetCommandResponseMessageEncoder();
         IMessageEncoder GetCompressedMessageEncoder(IMessageEncoderSelector originalEncoderSelector);
-        IMessageEncoder GetQueryMessageEncoder();
-        IMessageEncoder GetReplyMessageEncoder<TDocument>(IBsonSerializer<TDocument> serializer);
     }
 }

@@ -407,7 +407,7 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        public ResponseMessage ReceiveMessage(
+        public ResponseCommandMessage ReceiveMessage(
             OperationContext operationContext,
             int responseTo,
             IMessageEncoderSelector encoderSelector,
@@ -442,7 +442,7 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        public async Task<ResponseMessage> ReceiveMessageAsync(
+        public async Task<ResponseCommandMessage> ReceiveMessageAsync(
             OperationContext operationContext,
             int responseTo,
             IMessageEncoderSelector encoderSelector,
@@ -525,7 +525,7 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        public void SendMessage(OperationContext operationContext, RequestMessage message, MessageEncoderSettings messageEncoderSettings)
+        public void SendMessage(OperationContext operationContext, RequestCommandMessage message, MessageEncoderSettings messageEncoderSettings)
         {
             Ensure.IsNotNull(message, nameof(message));
             ThrowIfCancelledOrDisposedOrNotOpen(operationContext);
@@ -561,7 +561,7 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        public async Task SendMessageAsync(OperationContext operationContext, RequestMessage message, MessageEncoderSettings messageEncoderSettings)
+        public async Task SendMessageAsync(OperationContext operationContext, RequestCommandMessage message, MessageEncoderSettings messageEncoderSettings)
         {
             Ensure.IsNotNull(message, nameof(message));
             ThrowIfCancelledOrDisposedOrNotOpen(operationContext);
@@ -627,7 +627,7 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        private bool ShouldBeCompressed(RequestMessage message)
+        private bool ShouldBeCompressed(CommandMessage message)
         {
             return _sendCompressorType.HasValue && message.MayBeCompressed;
         }
@@ -639,7 +639,7 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         private IByteBuffer CompressMessage(
-            RequestMessage message,
+            CommandMessage message,
             IByteBuffer uncompressedBuffer,
             MessageEncoderSettings messageEncoderSettings)
         {
@@ -672,7 +672,7 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         private void CompressMessage(
-            RequestMessage message,
+            CommandMessage message,
             ByteBufferStream uncompressedMessageStream,
             ByteBufferStream compressedStream,
             MessageEncoderSettings messageEncoderSettings)
@@ -824,14 +824,14 @@ namespace MongoDB.Driver.Core.Connections
                 _messageEncoderSettings = messageEncoderSettings;
             }
 
-            public ResponseMessage DecodeMessage(OperationContext operationContext, IByteBuffer buffer, IMessageEncoderSelector encoderSelector)
+            public ResponseCommandMessage DecodeMessage(OperationContext operationContext, IByteBuffer buffer, IMessageEncoderSelector encoderSelector)
             {
                 operationContext.ThrowIfTimedOutOrCanceled();
 
                 _stopwatch.Stop();
                 _networkDuration = _stopwatch.Elapsed;
 
-                ResponseMessage message;
+                ResponseCommandMessage message;
                 _stopwatch.Restart();
                 using (var stream = new ByteBufferStream(buffer, ownsBuffer: false))
                 {
@@ -842,12 +842,12 @@ namespace MongoDB.Driver.Core.Connections
                     {
                         var compresedMessageEncoder = encoderFactory.GetCompressedMessageEncoder(encoderSelector);
                         var compressedMessage = (CompressedMessage)compresedMessageEncoder.ReadMessage();
-                        message = (ResponseMessage)compressedMessage.OriginalMessage;
+                        message = (ResponseCommandMessage)compressedMessage.OriginalMessage;
                     }
                     else
                     {
                         var encoder = encoderSelector.GetEncoder(encoderFactory);
-                        message = (ResponseMessage)encoder.ReadMessage();
+                        message = (ResponseCommandMessage)encoder.ReadMessage();
                     }
                 }
                 _stopwatch.Stop();
@@ -866,7 +866,7 @@ namespace MongoDB.Driver.Core.Connections
                 _connection._eventLogger.LogAndPublish(new ConnectionReceivingMessageFailedEvent(_connection.ConnectionId, _responseTo, exception, EventContext.OperationId));
             }
 
-            public void ReceivedMessage(IByteBuffer buffer, ResponseMessage message)
+            public void ReceivedMessage(IByteBuffer buffer, ResponseCommandMessage message)
             {
                 if (_connection._commandEventHelper.ShouldCallAfterReceiving)
                 {
@@ -898,11 +898,11 @@ namespace MongoDB.Driver.Core.Connections
             private readonly Stopwatch _commandStopwatch;
             private readonly BinaryConnection _connection;
             private readonly MessageEncoderSettings _messageEncoderSettings;
-            private readonly RequestMessage _message;
+            private readonly RequestCommandMessage _message;
             private TimeSpan _serializationDuration;
             private Stopwatch _networkStopwatch;
 
-            public SendMessageHelper(BinaryConnection connection, RequestMessage message, MessageEncoderSettings messageEncoderSettings)
+            public SendMessageHelper(BinaryConnection connection, RequestCommandMessage message, MessageEncoderSettings messageEncoderSettings)
             {
                 _connection = connection;
                 _message = message;
@@ -911,7 +911,7 @@ namespace MongoDB.Driver.Core.Connections
                 _commandStopwatch = Stopwatch.StartNew();
             }
 
-            public IByteBuffer EncodeMessage(OperationContext operationContext, out RequestMessage sentMessage)
+            public IByteBuffer EncodeMessage(OperationContext operationContext, out RequestCommandMessage sentMessage)
             {
                 sentMessage = null;
                 operationContext.ThrowIfTimedOutOrCanceled();

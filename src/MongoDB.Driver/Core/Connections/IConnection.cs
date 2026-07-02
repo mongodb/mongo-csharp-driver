@@ -35,10 +35,10 @@ namespace MongoDB.Driver.Core.Connections
         Task OpenAsync(OperationContext operationContext);
         void Reauthenticate(OperationContext operationContext);
         Task ReauthenticateAsync(OperationContext operationContext);
-        ResponseMessage ReceiveMessage(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings);
-        Task<ResponseMessage> ReceiveMessageAsync(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings);
-        void SendMessage(OperationContext operationContext, RequestMessage message, MessageEncoderSettings messageEncoderSettings);
-        Task SendMessageAsync(OperationContext operationContext, RequestMessage message, MessageEncoderSettings messageEncoderSettings);
+        ResponseCommandMessage ReceiveMessage(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings);
+        Task<ResponseCommandMessage> ReceiveMessageAsync(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings);
+        void SendMessage(OperationContext operationContext, RequestCommandMessage message, MessageEncoderSettings messageEncoderSettings);
+        Task SendMessageAsync(OperationContext operationContext, RequestCommandMessage message, MessageEncoderSettings messageEncoderSettings);
 
         void CompleteCommandActivityWithException(Exception exception);
         void EnsureCommandActivityCompleted();

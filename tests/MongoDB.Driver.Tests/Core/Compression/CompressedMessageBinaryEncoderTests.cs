@@ -31,7 +31,6 @@ namespace MongoDB.Driver.Core.Compression
 {
     public class CompressedMessageBinaryEncoderTests
     {
-#if WINDOWS
         private readonly MessageEncoderSettings _messageEncoderSettings = new MessageEncoderSettings();
 
         [Fact]
@@ -92,20 +91,20 @@ namespace MongoDB.Driver.Core.Compression
         }
 
         // private methods
-        private CommandResponseMessage CreateMessage(
+        private RequestCommandMessage CreateMessage(
             int requestId = 0,
             int responseTo = 0,
             IEnumerable<CommandMessageSection> sections = null,
             bool moreToCome = false)
         {
             sections = sections ?? new[] { CreateType0Section() };
-            return new CommandResponseMessage(new CommandMessage(requestId, responseTo, sections, moreToCome));
+            return new RequestCommandMessage(requestId, sections, moreToCome);
         }
 
         private CompressedMessageBinaryEncoder CreateSubject(Stream stream, params CompressorConfiguration[] compressors)
         {
             var compressorSource = GetCompressorSource(compressors);
-            var encoderSelector = new CommandResponseMessageEncoderSelector();
+            var encoderSelector = new CommandMessageEncoderSelector();
             var subject = new CompressedMessageBinaryEncoder(stream, encoderSelector, compressorSource, _messageEncoderSettings);
             return subject;
         }
@@ -150,6 +149,5 @@ namespace MongoDB.Driver.Core.Compression
             }
             return new CompressorSource(compressors);
         }
-#endif
     }
 }

@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
@@ -31,12 +30,10 @@ namespace MongoDB.Driver.Core.WireProtocol
     internal sealed class CommandWireProtocol<TCommandResult> : IWireProtocol<TCommandResult>
     {
         // private fields
-        private readonly BsonDocument _additionalOptions;
         private IWireProtocol<TCommandResult> _cachedWireProtocol;
         private ConnectionId _cachedConnectionId;
         private readonly BsonDocument _command;
         private readonly List<BatchableCommandMessageSection> _commandPayloads;
-        private readonly IElementNameValidator _commandValidator;
         private readonly DatabaseNamespace _databaseNamespace;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly Action<IMessageEncoderPostProcessor> _postWriteAction;
@@ -80,8 +77,6 @@ namespace MongoDB.Driver.Core.WireProtocol
                 databaseNamespace,
                 command,
                 null, // commandPayloads
-                NoOpElementNameValidator.Instance,
-                null, // additionalOptions
                 null, // postWriteAction
                 commandResponseHandling,
                 resultSerializer,
@@ -97,8 +92,6 @@ namespace MongoDB.Driver.Core.WireProtocol
             DatabaseNamespace databaseNamespace,
             BsonDocument command,
             IEnumerable<BatchableCommandMessageSection> commandPayloads,
-            IElementNameValidator commandValidator,
-            BsonDocument additionalOptions,
             Action<IMessageEncoderPostProcessor> postWriteAction,
             CommandResponseHandling responseHandling,
             IBsonSerializer<TCommandResult> resultSerializer,
@@ -118,8 +111,6 @@ namespace MongoDB.Driver.Core.WireProtocol
             _databaseNamespace = Ensure.IsNotNull(databaseNamespace, nameof(databaseNamespace));
             _command = Ensure.IsNotNull(command, nameof(command));
             _commandPayloads = commandPayloads?.ToList(); // can be null
-            _commandValidator = Ensure.IsNotNull(commandValidator, nameof(commandValidator));
-            _additionalOptions = additionalOptions; // can be null
             _responseHandling = responseHandling;
             _resultSerializer = Ensure.IsNotNull(resultSerializer, nameof(resultSerializer));
             _messageEncoderSettings = messageEncoderSettings;
@@ -153,8 +144,6 @@ namespace MongoDB.Driver.Core.WireProtocol
                 _databaseNamespace,
                 _command,
                 _commandPayloads,
-                _commandValidator,
-                _additionalOptions,
                 _responseHandling,
                 _resultSerializer,
                 _messageEncoderSettings,
@@ -163,58 +152,15 @@ namespace MongoDB.Driver.Core.WireProtocol
                 _roundTripTime);
         }
 
-        private IWireProtocol<TCommandResult> CreateCommandUsingQueryMessageWireProtocol()
-        {
-            var responseHandling = _responseHandling == CommandResponseHandling.NoResponseExpected ? CommandResponseHandling.Ignore : _responseHandling;
-
-            return new CommandUsingQueryMessageWireProtocol<TCommandResult>(
-                _session,
-                _readPreference,
-                _databaseNamespace,
-                _command,
-                _commandPayloads,
-                _commandValidator,
-                _additionalOptions,
-                responseHandling,
-                _resultSerializer,
-                _messageEncoderSettings,
-                _postWriteAction,
-                _serverApi);
-        }
-
         private IWireProtocol<TCommandResult> CreateSupportedWireProtocol(IConnection connection)
         {
             if (_cachedWireProtocol != null && _cachedConnectionId == connection.ConnectionId)
             {
-                // Switch to using OP_MSG if supported by server
-                if (connection.Description?.MaxWireVersion >= WireVersion.Server36 && _cachedWireProtocol is CommandUsingQueryMessageWireProtocol<TCommandResult>)
-                {
-                    return _cachedWireProtocol = CreateCommandUsingCommandMessageWireProtocol();
-                }
-
                 return _cachedWireProtocol;
             }
-            else
-            {
-                _cachedConnectionId = connection.ConnectionId;
-                // If server API versioning has been requested, then we SHOULD send the initial hello command
-                // using OP_MSG. Since this is the first message and hello/legacy hello hasn't been sent yet,
-                // connection.Description will be null and we can't rely on the server check to determine if
-                // the server supports OP_MSG.
-                // As well since server API versioning is supported on MongoDB 5.0+, we also know that
-                // OP_MSG will be supported regardless and can skip the server checks for other messages.
-                if (_serverApi != null || connection.Description?.MaxWireVersion >= WireVersion.Server36 || connection.Settings.LoadBalanced)
-                {
-                    return _cachedWireProtocol = CreateCommandUsingCommandMessageWireProtocol();
-                }
-                else
-                {
-                    // The driver doesn't support servers less than 4.2. However it's still useful to support OP_QUERY for initial handshake.
-                    // For pre-3.6 servers, it will allow throwing unsupported wire protocol exception on the driver side.
-                    // If we only supported OP_MSG, we would throw a general server error about closing connection without actual reason of why it happened
-                    return _cachedWireProtocol = CreateCommandUsingQueryMessageWireProtocol();
-                }
-            }
+
+            _cachedConnectionId = connection.ConnectionId;
+            return _cachedWireProtocol = CreateCommandUsingCommandMessageWireProtocol();
         }
     }
 }

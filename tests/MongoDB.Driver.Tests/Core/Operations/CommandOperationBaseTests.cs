@@ -1,4 +1,4 @@
-﻿/* Copyright 2016-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ using System;
 using System.Net;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.TestHelpers.XunitExtensions;
@@ -31,56 +30,6 @@ namespace MongoDB.Driver.Core.Operations
 {
     public class CommandOperationBaseTests
     {
-        // public methods
-        [Theory]
-        [ParameterAttributeData]
-        public void AdditionalOptions_get_and_set_should_work(
-            [Values(null, "{ additional : 1 }")] string additionalOptionsString)
-        {
-            var subject = CreateSubject<BsonDocument>();
-            var additionalOptions = additionalOptionsString == null ? null : BsonDocument.Parse(additionalOptionsString);
-
-            subject.AdditionalOptions = additionalOptions;
-            var result = subject.AdditionalOptions;
-
-            result.Should().BeSameAs(additionalOptions);
-        }
-
-        [Fact]
-        public void CommandValidator_get_and_set_should_work()
-        {
-            var subject = CreateSubject<BsonDocument>();
-            var commandValidator = new Mock<IElementNameValidator>().Object;
-
-            subject.CommandValidator = commandValidator;
-            var result = subject.CommandValidator;
-
-            result.Should().BeSameAs(commandValidator);
-        }
-
-        [Fact]
-        public void CommandValidator_set_should_throw_when_value_is_null()
-        {
-            var subject = CreateSubject<BsonDocument>();
-
-            Action action = () => subject.CommandValidator = null;
-
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("value");
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void Comment_get_and_set_should_work(
-           [Values(null, "comment")] string comment)
-        {
-            var subject = CreateSubject<BsonDocument>();
-
-            subject.Comment = comment;
-            var result = subject.Comment;
-
-            result.Should().BeSameAs(comment);
-        }
-
         [Fact]
         public void constructor_should_initialize_instance()
         {
@@ -91,9 +40,6 @@ namespace MongoDB.Driver.Core.Operations
 
             var result = new FakeCommandOperation<BsonDocument>(databaseNamespace, resultSerializer, messageEncoderSettings);
 
-            result.AdditionalOptions.Should().BeNull();
-            result.CommandValidator.Should().BeOfType<NoOpElementNameValidator>();
-            result.Comment.Should().BeNull();
             result.DatabaseNamespace.Should().BeSameAs(databaseNamespace);
             result.ResultSerializer.Should().BeSameAs(resultSerializer);
             result.MessageEncoderSettings.Should().BeSameAs(messageEncoderSettings);

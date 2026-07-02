@@ -14,7 +14,6 @@
 */
 
 using System.IO;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Misc;
 
@@ -44,31 +43,9 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             return new CommandMessageBinaryEncoder(_stream, _encoderSettings);
         }
 
-        public IMessageEncoder GetCommandRequestMessageEncoder()
-        {
-            var wrappedEncoder = (CommandMessageBinaryEncoder)GetCommandMessageEncoder();
-            return new CommandRequestMessageBinaryEncoder(wrappedEncoder);
-        }
-
-        public IMessageEncoder GetCommandResponseMessageEncoder()
-        {
-            var wrappedEncoder = (CommandMessageBinaryEncoder)GetCommandMessageEncoder();
-            return new CommandResponseMessageBinaryEncoder(wrappedEncoder);
-        }
-
         public IMessageEncoder GetCompressedMessageEncoder(IMessageEncoderSelector originalEncoderSelector)
         {
             return new CompressedMessageBinaryEncoder(_stream, originalEncoderSelector, _compressorSource, _encoderSettings);
-        }
-
-        public IMessageEncoder GetQueryMessageEncoder()
-        {
-            return new QueryMessageBinaryEncoder(_stream, _encoderSettings);
-        }
-
-        public IMessageEncoder GetReplyMessageEncoder<TDocument>(IBsonSerializer<TDocument> serializer)
-        {
-            return new ReplyMessageBinaryEncoder<TDocument>(_stream, _encoderSettings, serializer);
         }
     }
 }

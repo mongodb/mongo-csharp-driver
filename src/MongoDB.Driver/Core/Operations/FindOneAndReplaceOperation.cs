@@ -15,7 +15,6 @@
 
 using System;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
@@ -126,11 +125,6 @@ namespace MongoDB.Driver.Core.Operations
                 { "txnNumber", () => transactionNumber, transactionNumber.HasValue },
                 { "let", _let, _let != null }
             };
-        }
-
-        protected override IElementNameValidator GetCommandValidator()
-        {
-            return NoOpElementNameValidator.Instance;
         }
     }
 }

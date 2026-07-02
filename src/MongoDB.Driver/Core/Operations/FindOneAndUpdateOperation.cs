@@ -16,12 +16,10 @@
 using System;
 using System.Collections.Generic;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.Operations.ElementNameValidators;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
@@ -138,11 +136,6 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        protected override IElementNameValidator GetCommandValidator()
-        {
-            return Validator.Instance;
-        }
-
         private BsonValue EnsureUpdateIsValid(BsonValue update)
         {
             Ensure.IsNotNull(update, nameof(update));
@@ -172,27 +165,6 @@ namespace MongoDB.Driver.Core.Operations
             }
 
             return update;
-        }
-
-        private class Validator : IElementNameValidator
-        {
-            public readonly static Validator Instance = new Validator();
-
-            public IElementNameValidator GetValidatorForChildContent(string elementName)
-            {
-                if (elementName == "update")
-                {
-                    return UpdateElementNameValidator.Instance;
-                }
-
-                return NoOpElementNameValidator.Instance;
-            }
-
-            public bool IsValidElementName(string elementName)
-            {
-                Ensure.IsNotNull(elementName, nameof(elementName));
-                return true;
-            }
         }
     }
 }

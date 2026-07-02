@@ -323,7 +323,7 @@ namespace MongoDB.Driver.Core.Clusters
                         mockConnection.Object.ConnectionId,
                         new HelloResult(helloDocument)));
 
-            Func<ResponseMessage> commandResponseAction;
+            Func<ResponseCommandMessage> commandResponseAction;
             if (streamable)
             {
                 commandResponseAction = () => { return MessageHelper.BuildCommandResponse(new RawBsonDocument(helloDocument.ToBson()), moreToCome: true); };
