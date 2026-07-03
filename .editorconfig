@@ -167,7 +167,6 @@ dotnet_diagnostic.CA1401.severity = warning
 dotnet_diagnostic.CA1821.severity = warning
 dotnet_diagnostic.CA2002.severity = warning
 dotnet_diagnostic.CA2007.severity = warning
-dotnet_diagnostic.CA2100.severity = warning
 dotnet_diagnostic.CA2101.severity = warning
 dotnet_diagnostic.CA2200.severity = warning
 dotnet_diagnostic.CA2207.severity = warning
@@ -175,7 +174,6 @@ dotnet_diagnostic.CA2213.severity = warning
 dotnet_diagnostic.CA2214.severity = warning
 dotnet_diagnostic.CA2216.severity = warning
 dotnet_diagnostic.CA2231.severity = warning
-dotnet_diagnostic.CA2237.severity = warning
 dotnet_diagnostic.CA2241.severity = warning
 dotnet_diagnostic.CA2242.severity = warning
 
