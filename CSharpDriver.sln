@@ -34,10 +34,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B071AF36-EED4-4CFF-A006-ECDAD0A87F99}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
-		MongoDB.ruleset = MongoDB.ruleset
-		MongoDBLegacy.ruleset = MongoDBLegacy.ruleset
-		MongoDBLegacyTest.ruleset = MongoDBLegacyTest.ruleset
-		MongoDBTest.ruleset = MongoDBTest.ruleset
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MongoDB.Driver.SmokeTests.Sdk", "tests\SmokeTests\MongoDB.Driver.SmokeTests.Sdk\MongoDB.Driver.SmokeTests.Sdk.csproj", "{B711A69F-A337-452C-95E1-A6B15C727CBA}"

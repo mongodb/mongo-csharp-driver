@@ -21,12 +21,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
 {
-#pragma warning disable CA1001
-    // we are suppressing this warning as we currently use the old Microsoft.CodeAnalysis.FxCopAnalyzers which doesn't
-    // have a concept of IAsyncDisposable.
-    // TODO: remove this suppression once we update our analyzers to use Microsoft.CodeAnalysis.NetAnalyzers
     internal sealed class AsyncCursorSourceEnumerator<TDocument> : IAsyncEnumerator<TDocument>
-#pragma warning restore CA1001
     {
         private readonly CancellationToken _cancellationToken;
         private AsyncCursorEnumerator<TDocument> _cursorEnumerator;
