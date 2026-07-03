@@ -2,9 +2,6 @@
   <Import Project="..\BuildProps\Tests.Build.props" />
 
   <PropertyGroup>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <AssemblyTitle>MongoDB.Driver.Examples</AssemblyTitle>
     <Product>MongoDB.Driver.Examples</Product>
     <Description>MongoDB.Driver examples.</Description>

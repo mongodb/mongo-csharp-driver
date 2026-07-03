@@ -20,7 +20,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>
     <Configuration>Release</Configuration>
-    <NoWarn>NU1701,CA1001,CA2007</NoWarn>
+    <NoWarn>NU1701,CA1001</NoWarn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <IsPackable>false</IsPackable>
     <SignAssembly>true</SignAssembly>

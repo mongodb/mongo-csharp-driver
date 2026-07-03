@@ -2,9 +2,6 @@
   <Import Project="..\BuildProps\Tests.Build.props" />
 
   <PropertyGroup>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <AssemblyTitle>MongoDB.Bson.Tests</AssemblyTitle>
     <Product>MongoDB.Bson.Tests</Product>
     <Description>MongoDB.Bson tests.</Description>

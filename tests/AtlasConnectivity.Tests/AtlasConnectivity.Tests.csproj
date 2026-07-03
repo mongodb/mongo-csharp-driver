@@ -2,9 +2,6 @@
   <Import Project="..\BuildProps\Tests.Build.props" />
 
   <PropertyGroup>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <AssemblyTitle>AtlasConnectivity.Tests</AssemblyTitle>
     <Product>AtlasConnectivity.Tests</Product>
     <Description>Atlas connectivity tests.</Description>

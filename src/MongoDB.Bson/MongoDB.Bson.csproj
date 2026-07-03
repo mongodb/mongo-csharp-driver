@@ -1,9 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <AssemblyTitle>MongoDB.Bson</AssemblyTitle>
     <Product>MongoDB.Bson</Product>
     <PackageId>MongoDB.Bson</PackageId>

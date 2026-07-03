@@ -1,9 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <AssemblyTitle>MongoDB.Driver.GridFS</AssemblyTitle>
     <Product>MongoDB.Driver.GridFS</Product>
     <PackageId>MongoDB.Driver.GridFS</PackageId>

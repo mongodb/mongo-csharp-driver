@@ -1,9 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <AssemblyTitle>MongoDB.Driver</AssemblyTitle>
     <Product>MongoDB.Driver</Product>
     <PackageId>MongoDB.Driver</PackageId>

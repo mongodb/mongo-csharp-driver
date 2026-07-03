@@ -1,9 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <AssemblyTitle>MongoDB.Driver.Authentication.AWS</AssemblyTitle>
     <Product>MongoDB.Driver.Authentication.AWS</Product>
     <PackageId>MongoDB.Driver.Authentication.AWS</PackageId>
