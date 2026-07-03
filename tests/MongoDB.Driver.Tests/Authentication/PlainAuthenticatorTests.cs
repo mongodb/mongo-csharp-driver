@@ -28,7 +28,6 @@ using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
-using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -83,8 +82,6 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.EnqueueCommandResponseMessage(saslStartResponse);
             connection.Description = __descriptionCommandWireProtocol;
 
-            var expectedRequestId = RequestCommandMessage.CurrentGlobalLastRequestId + 1;
-
             if (async)
             {
                 await subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
@@ -96,13 +93,10 @@ namespace MongoDB.Driver.Tests.Authentication
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(5)).Should().BeTrue();
 
-            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
+            var sentMessages = connection.GetSentMessages();
             sentMessages.Count.Should().Be(1);
 
-            var actualRequestId = sentMessages[0]["requestId"].AsInt32;
-            actualRequestId.Should().BeInRange(expectedRequestId, expectedRequestId + 10);
-
-            sentMessages[0].Should().Be("{ \"opcode\" : \"opmsg\", \"requestId\" : " + actualRequestId + ", \"responseTo\" : 0, \"sections\" : [{ \"payloadType\" : 0, \"document\" : { \"saslStart\" : 1, \"mechanism\" : \"PLAIN\", \"payload\" : new BinData(0, \"AHVzZXIAcGVuY2ls\"), \"$db\" : \"source\" } }] }");
+            MessageHelper.ToCommandPayload(sentMessages[0]).Should().Be("{ saslStart : 1, mechanism : 'PLAIN', payload : new BinData(0, 'AHVzZXIAcGVuY2ls'), $db : 'source' }");
         }
 
         [Theory]
@@ -120,8 +114,6 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.EnqueueCommandResponseMessage(saslStartResponse);
             connection.Description = __descriptionCommandWireProtocol;
 
-            var expectedRequestId = RequestCommandMessage.CurrentGlobalLastRequestId + 1;
-
             if (async)
             {
                 await subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
@@ -133,14 +125,11 @@ namespace MongoDB.Driver.Tests.Authentication
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(5)).Should().BeTrue();
 
-            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
+            var sentMessages = connection.GetSentMessages();
             sentMessages.Count.Should().Be(1);
 
-            var actualRequestId = sentMessages[0]["requestId"].AsInt32;
-            actualRequestId.Should().BeInRange(expectedRequestId, expectedRequestId + 10);
-
-            var expectedServerApiString = useServerApi ? ", apiVersion : \"1\", apiStrict : true, apiDeprecationErrors : true" : "";
-            sentMessages[0].Should().Be($"{{ opcode : \"opmsg\", requestId : {actualRequestId}, responseTo : 0, sections : [ {{ payloadType : 0, document : {{ saslStart : 1, mechanism : \"PLAIN\", payload : new BinData(0, \"AHVzZXIAcGVuY2ls\"), $db : \"source\"{expectedServerApiString} }} }} ] }}");
+            var expectedServerApiString = useServerApi ? ", apiVersion : '1', apiStrict : true, apiDeprecationErrors : true" : "";
+            MessageHelper.ToCommandPayload(sentMessages[0]).Should().Be($"{{ saslStart : 1, mechanism : 'PLAIN', payload : new BinData(0, 'AHVzZXIAcGVuY2ls'), $db : 'source'{expectedServerApiString} }}");
         }
 
         [Theory]
@@ -155,8 +144,6 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.EnqueueCommandResponseMessage(saslStartResponse);
             connection.Description = null;
 
-            var expectedRequestId = RequestCommandMessage.CurrentGlobalLastRequestId + 1;
-
             if (async)
             {
                 await subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
@@ -168,14 +155,11 @@ namespace MongoDB.Driver.Tests.Authentication
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(5)).Should().BeTrue();
 
-            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
+            var sentMessages = connection.GetSentMessages();
             sentMessages.Count.Should().Be(1);
 
-            var actualRequestId = sentMessages[0]["requestId"].AsInt32;
-            actualRequestId.Should().BeInRange(expectedRequestId, expectedRequestId + 10);
-
-            var expectedEndString = ", \"$readPreference\" : { \"mode\" : \"primaryPreferred\" }";
-            sentMessages[0].Should().Be($"{{ opcode : \"opmsg\", requestId : {actualRequestId}, responseTo : 0, sections : [ {{ payloadType : 0, document : {{ saslStart : 1, mechanism : \"PLAIN\", payload : new BinData(0, \"AHVzZXIAcGVuY2ls\"), $db : \"source\"{expectedEndString} }} }} ] }}");
+            var expectedEndString = ", $readPreference : { mode : 'primaryPreferred' }";
+            MessageHelper.ToCommandPayload(sentMessages[0]).Should().Be($"{{ saslStart : 1, mechanism : 'PLAIN', payload : new BinData(0, 'AHVzZXIAcGVuY2ls'), $db : 'source'{expectedEndString} }}");
         }
 
         private static IAuthenticator CreatePlainSaslAuthenticator(ServerApi serverApi)

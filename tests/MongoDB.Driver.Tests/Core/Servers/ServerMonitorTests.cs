@@ -450,9 +450,8 @@ namespace MongoDB.Driver.Core.Servers
                 SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(4)).Should().BeTrue();
             }
 
-            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
-            var requestId = sentMessages[0]["requestId"].AsInt32;
-            sentMessages[0].Should().Be($"{{ opcode : \"opmsg\", requestId : {requestId}, responseTo : 0, exhaustAllowed : true, sections : [ {{ payloadType : 0, document : {{ hello : 1, helloOk: true, topologyVersion : {{ processId : ObjectId(\"000000000000000000000000\"), counter : NumberLong(0) }}, maxAwaitTimeMS : NumberLong(86400000), \"backpressure\" : true, $db : \"admin\", apiVersion : \"1\" }} }} ] }}");
+            var sentMessages = connection.GetSentMessages();
+            MessageHelper.ToCommandPayload(sentMessages[0]).Should().Be("{ hello : 1, helloOk: true, topologyVersion : { processId : ObjectId('000000000000000000000000'), counter : NumberLong(0) }, maxAwaitTimeMS : NumberLong(86400000), backpressure : true, $db : 'admin', apiVersion : '1' }");
         }
 
         [Fact]
@@ -470,9 +469,8 @@ namespace MongoDB.Driver.Core.Servers
                 SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(4)).Should().BeTrue();
             }
 
-            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
-            var requestId = sentMessages[0]["requestId"].AsInt32;
-            sentMessages[0].Should().Be($"{{ opcode : \"opmsg\", requestId : {requestId}, responseTo : 0, exhaustAllowed : true, sections : [ {{ payloadType : 0, document : {{ {OppressiveLanguageConstants.LegacyHelloCommandName} : 1, helloOk : true, topologyVersion : {{ processId : ObjectId(\"000000000000000000000000\"), counter : NumberLong(0) }}, maxAwaitTimeMS : NumberLong(86400000), backpressure : true, $db : \"admin\" }} }} ] }}");
+            var sentMessages = connection.GetSentMessages();
+            MessageHelper.ToCommandPayload(sentMessages[0]).Should().Be($"{{ {OppressiveLanguageConstants.LegacyHelloCommandName} : 1, helloOk : true, topologyVersion : {{ processId : ObjectId('000000000000000000000000'), counter : NumberLong(0) }}, maxAwaitTimeMS : NumberLong(86400000), backpressure : true, $db : 'admin' }}");
         }
 
         [Fact]
@@ -490,9 +488,8 @@ namespace MongoDB.Driver.Core.Servers
                 SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(4)).Should().BeTrue();
             }
 
-            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
-            var requestId = sentMessages[0]["requestId"].AsInt32;
-            sentMessages[0].Should().Be($"{{ opcode : \"opmsg\", requestId : {requestId}, responseTo : 0, exhaustAllowed : true, sections : [ {{ payloadType : 0, document : {{ hello : 1, helloOk: true, topologyVersion : {{ processId : ObjectId(\"000000000000000000000000\"), counter : NumberLong(0) }}, maxAwaitTimeMS : NumberLong(86400000), loadBalanced: true, backpressure : true, $db : \"admin\" }} }} ] }}");
+            var sentMessages = connection.GetSentMessages();
+            MessageHelper.ToCommandPayload(sentMessages[0]).Should().Be("{ hello : 1, helloOk: true, topologyVersion : { processId : ObjectId('000000000000000000000000'), counter : NumberLong(0) }, maxAwaitTimeMS : NumberLong(86400000), loadBalanced: true, backpressure : true, $db : 'admin' }");
         }
 
         [Theory]

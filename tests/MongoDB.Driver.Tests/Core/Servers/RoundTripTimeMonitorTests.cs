@@ -189,15 +189,13 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
 
             SpinWait.SpinUntil(() => thread.ThreadState == ThreadState.Stopped, TimeSpan.FromMilliseconds(500)).Should().BeTrue();
 
-            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
+            var sentMessages = connection.GetSentMessages();
             sentMessages.Count.Should().BeInRange(1, 2);
 
-            var requestId = sentMessages[0]["requestId"].AsInt32;
-            sentMessages[0].Should().Be($"{{ \"opcode\" : \"opmsg\", \"requestId\" : {requestId}, \"responseTo\" : 0, \"sections\" : [{{ \"payloadType\" : 0, \"document\" : {{ \"hello\" : 1, \"helloOk\" : true, \"backpressure\" : true, \"$db\" : \"admin\", \"$readPreference\" : {{ \"mode\" : \"primaryPreferred\" }}, \"apiVersion\" : \"1\" }} }}] }}");
+            MessageHelper.ToCommandPayload(sentMessages[0]).Should().Be("{ hello : 1, helloOk : true, backpressure : true, $db : 'admin', $readPreference : { mode : 'primaryPreferred' }, apiVersion : '1' }");
             if (sentMessages.Count > 1)
             {
-                requestId = sentMessages[1]["requestId"].AsInt32;
-                sentMessages[1].Should().Be($"{{ \"opcode\" : \"opmsg\", \"requestId\" : {requestId}, \"responseTo\" : 0, \"sections\" : [{{ \"payloadType\" : 0, \"document\" : {{ \"hello\" : 1, \"helloOk\" : true, \"backpressure\" : true, \"$db\" : \"admin\", \"$readPreference\" : {{ \"mode\" : \"primaryPreferred\" }}, \"apiVersion\" : \"1\" }} }}] }}");
+                MessageHelper.ToCommandPayload(sentMessages[1]).Should().Be("{ hello : 1, helloOk : true, backpressure : true, $db : 'admin', $readPreference : { mode : 'primaryPreferred' }, apiVersion : '1' }");
             }
         }
 
@@ -231,15 +229,13 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
 
             SpinWait.SpinUntil(() => thread.ThreadState == ThreadState.Stopped, TimeSpan.FromMilliseconds(500)).Should().BeTrue();
 
-            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
+            var sentMessages = connection.GetSentMessages();
             sentMessages.Count.Should().BeInRange(1, 2);
 
-            var requestId = sentMessages[0]["requestId"].AsInt32;
-            sentMessages[0].Should().Be($"{{ \"opcode\" : \"opmsg\", \"requestId\" : {requestId}, \"responseTo\" : 0, \"sections\" : [{{ \"payloadType\" : 0, \"document\" : {{ \"hello\" : 1, \"helloOk\" : true, \"loadBalanced\" : true, \"backpressure\" : true, \"$db\" : \"admin\", \"$readPreference\" : {{ \"mode\" : \"primaryPreferred\" }} }} }}] }}");
+            MessageHelper.ToCommandPayload(sentMessages[0]).Should().Be("{ hello : 1, helloOk : true, loadBalanced : true, backpressure : true, $db : 'admin', $readPreference : { mode : 'primaryPreferred' } }");
             if (sentMessages.Count > 1)
             {
-                requestId = sentMessages[1]["requestId"].AsInt32;
-                sentMessages[1].Should().Be($"{{ \"opcode\" : \"opmsg\", \"requestId\" : {requestId}, \"responseTo\" : 0, \"sections\" : [{{ \"payloadType\" : 0, \"document\" : {{ \"hello\" : 1, \"helloOk\" : true, \"loadBalanced\" : true, \"backpressure\" : true, \"$db\" : \"admin\", \"$readPreference\" : {{ \"mode\" : \"primaryPreferred\" }} }} }}] }}");
+                MessageHelper.ToCommandPayload(sentMessages[1]).Should().Be("{ hello : 1, helloOk : true, loadBalanced : true, backpressure : true, $db : 'admin', $readPreference : { mode : 'primaryPreferred' } }");
             }
         }
 
