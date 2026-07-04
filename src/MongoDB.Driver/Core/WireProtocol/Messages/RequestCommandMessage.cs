@@ -25,16 +25,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         // static
         private static int __lastRequestId;
 
-        // static properties
-        public static int CurrentGlobalLastRequestId => __lastRequestId;
-
         // static methods
         public static int GetNextRequestId()
         {
             return Interlocked.Increment(ref __lastRequestId);
         }
-
-        // fields
 
         // constructors
         public RequestCommandMessage(

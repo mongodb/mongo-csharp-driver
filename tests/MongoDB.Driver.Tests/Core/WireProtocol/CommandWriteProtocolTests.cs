@@ -167,11 +167,10 @@ namespace MongoDB.Driver.Core.WireProtocol
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(4)).Should().BeTrue();
 
-            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
+            var sentMessages = connection.GetSentMessages();
             sentMessages.Count.Should().Be(1);
-            var actualRequestId = sentMessages[0]["requestId"].AsInt32;
-            var expectedServerApiString = useServerApi ? ", apiVersion : \"1\", apiStrict : true, apiDeprecationErrors : true" : "";
-            sentMessages[0].Should().Be($"{{ opcode : \"opmsg\", requestId : {actualRequestId}, responseTo : 0, sections : [ {{ payloadType : 0, document : {{ getMore : 1, $db : \"test\"{expectedServerApiString} }} }} ] }}");
+            var expectedServerApiString = useServerApi ? ", apiVersion : '1', apiStrict : true, apiDeprecationErrors : true" : "";
+            MessageHelper.ToCommandPayload(sentMessages[0]).Should().Be($"{{ getMore : 1, $db : 'test'{expectedServerApiString} }}");
         }
 
         [Theory]
@@ -210,11 +209,10 @@ namespace MongoDB.Driver.Core.WireProtocol
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(4)).Should().BeTrue();
 
-            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
+            var sentMessages = connection.GetSentMessages();
             sentMessages.Count.Should().Be(1);
-            var actualRequestId = sentMessages[0]["requestId"].AsInt32;
-            var expectedServerApiString = useServerApi ? ", apiVersion : \"1\", apiStrict : true, apiDeprecationErrors : true" : "";
-            sentMessages[0].Should().Be($"{{ opcode : \"opmsg\", requestId : {actualRequestId}, responseTo : 0, sections : [ {{ payloadType : 0, document : {{ moreGet : 1, $db : \"test\", txnNumber : NumberLong(1), autocommit : false{expectedServerApiString} }} }} ] }}");
+            var expectedServerApiString = useServerApi ? ", apiVersion : '1', apiStrict : true, apiDeprecationErrors : true" : "";
+            MessageHelper.ToCommandPayload(sentMessages[0]).Should().Be($"{{ moreGet : 1, $db : 'test', txnNumber : NumberLong(1), autocommit : false{expectedServerApiString} }}");
 
             ICoreSession CreateMockSessionInTransaction()
             {
@@ -389,8 +387,8 @@ namespace MongoDB.Driver.Core.WireProtocol
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(4))
                 .Should().BeTrue();
 
-            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
-            var document = sentMessages[0]["sections"][0]["document"].AsBsonDocument;
+            var sentMessages = connection.GetSentMessages();
+            var document = MessageHelper.ToCommandPayload(sentMessages[0]);
 
             var readConcernElements = document.Elements.Where(e => e.Name == "readConcern").ToList();
             readConcernElements.Should().HaveCount(1,
@@ -457,8 +455,8 @@ namespace MongoDB.Driver.Core.WireProtocol
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(4))
                 .Should().BeTrue();
 
-            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
-            var document = sentMessages[0]["sections"][0]["document"].AsBsonDocument;
+            var sentMessages = connection.GetSentMessages();
+            var document = MessageHelper.ToCommandPayload(sentMessages[0]);
 
             var readConcernElements = document.Elements.Where(e => e.Name == "readConcern").ToList();
             readConcernElements.Should().HaveCount(1,

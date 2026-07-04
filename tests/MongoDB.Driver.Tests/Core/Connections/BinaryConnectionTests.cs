@@ -436,7 +436,7 @@ namespace MongoDB.Driver.Core.Connections
             using (var stream = new BlockingMemoryStream())
             {
                 var messageToReceive = MessageHelper.BuildCommandResponse(new RawBsonDocument(new BsonDocument("ok", 1).ToBson()), responseTo: 10);
-                MessageHelper.WriteResponsesToStream(stream, messageToReceive);
+                MessageHelper.WriteResponseToStream(stream, messageToReceive);
 
                 _mockStreamFactory.Setup(f => f.CreateStreamAsync(_endPoint, It.IsAny<CancellationToken>()))
                     .ReturnsAsync(stream);
@@ -451,10 +451,7 @@ namespace MongoDB.Driver.Core.Connections
                     await _subject.ReceiveMessageAsync(OperationContext.NoTimeout, 10, encoderSelector, _messageEncoderSettings) :
                     _subject.ReceiveMessage(OperationContext.NoTimeout, 10, encoderSelector, _messageEncoderSettings);
 
-                var expected = MessageHelper.TranslateMessagesToBsonDocuments(new[] { messageToReceive });
-                var actual = MessageHelper.TranslateMessagesToBsonDocuments(new[] { received });
-
-                actual.Should().BeEquivalentTo(expected);
+                MessageHelper.ToCommandPayload(received).Should().BeEquivalentTo(MessageHelper.ToCommandPayload(messageToReceive));
 
                 _capturedEvents.Next().Should().BeOfType<ConnectionReceivingMessageEvent>();
                 _capturedEvents.Next().Should().BeOfType<ConnectionReceivedMessageEvent>();
@@ -486,14 +483,11 @@ namespace MongoDB.Driver.Core.Connections
                 receiveMessageTask.IsCompleted.Should().BeFalse();
 
                 var messageToReceive = MessageHelper.BuildCommandResponse(new RawBsonDocument(new BsonDocument("ok", 1).ToBson()), responseTo: 10);
-                MessageHelper.WriteResponsesToStream(stream, messageToReceive);
+                MessageHelper.WriteResponseToStream(stream, messageToReceive);
 
                 var received = await receiveMessageTask;
 
-                var expected = MessageHelper.TranslateMessagesToBsonDocuments(new[] { messageToReceive });
-                var actual = MessageHelper.TranslateMessagesToBsonDocuments(new[] { received });
-
-                actual.Should().BeEquivalentTo(expected);
+                MessageHelper.ToCommandPayload(received).Should().BeEquivalentTo(MessageHelper.ToCommandPayload(messageToReceive));
 
                 _capturedEvents.Next().Should().BeOfType<ConnectionReceivingMessageEvent>();
                 _capturedEvents.Next().Should().BeOfType<ConnectionReceivedMessageEvent>();
@@ -701,10 +695,7 @@ namespace MongoDB.Driver.Core.Connections
                     _subject.SendMessage(OperationContext.NoTimeout, message, _messageEncoderSettings);
                 }
 
-                var expectedRequests = MessageHelper.TranslateMessagesToBsonDocuments(new[] { message });
-                var sentRequests = MessageHelper.TranslateMessagesToBsonDocuments(stream.ToArray());
-
-                sentRequests.Should().BeEquivalentTo(expectedRequests);
+                stream.ToArray().Should().BeEquivalentTo(MessageHelper.ToWireBytes(message));
                 _capturedEvents.Next().Should().BeOfType<ConnectionSendingMessagesEvent>();
                 _capturedEvents.Next().Should().BeOfType<CommandStartedEvent>();
                 _capturedEvents.Next().Should().BeOfType<ConnectionSentMessagesEvent>();

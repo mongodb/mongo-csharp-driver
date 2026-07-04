@@ -27,7 +27,6 @@ using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
-using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -68,8 +67,6 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.EnqueueCommandResponseMessage(response);
             connection.Description = __descriptionCommandWireProtocol;
 
-            var expectedRequestId = RequestCommandMessage.CurrentGlobalLastRequestId + 1;
-
             if (async)
             {
                 await subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
@@ -81,14 +78,11 @@ namespace MongoDB.Driver.Tests.Authentication
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(5)).Should().BeTrue();
 
-            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
+            var sentMessages = connection.GetSentMessages();
             sentMessages.Count.Should().Be(1);
 
-            var actualRequestId = sentMessages[0]["requestId"].AsInt32;
-            actualRequestId.Should().BeInRange(expectedRequestId, expectedRequestId + 10);
-
-            var expectedServerApiString = useServerApi ? ", apiVersion : \"1\", apiStrict : true, apiDeprecationErrors : true" : "";
-            sentMessages[0].Should().Be($"{{ opcode : \"opmsg\", requestId : {actualRequestId}, responseTo : 0, sections : [ {{ payloadType : 0, document : {{ authenticate : 1, mechanism : \"MONGODB-X509\", user : \"CN=client,OU=kerneluser,O=10Gen,L=New York City,ST=New York,C=US\", $db : \"$external\"{expectedServerApiString} }} }} ] }}");
+            var expectedServerApiString = useServerApi ? ", apiVersion : '1', apiStrict : true, apiDeprecationErrors : true" : "";
+            MessageHelper.ToCommandPayload(sentMessages[0]).Should().Be($"{{ authenticate : 1, mechanism : 'MONGODB-X509', user : 'CN=client,OU=kerneluser,O=10Gen,L=New York City,ST=New York,C=US', $db : '$external'{expectedServerApiString} }}");
         }
 
         [Theory]
@@ -103,8 +97,6 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.EnqueueCommandResponseMessage(response);
             connection.Description = null;
 
-            var expectedRequestId = RequestCommandMessage.CurrentGlobalLastRequestId + 1;
-
             if (async)
             {
                 await subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
@@ -116,14 +108,11 @@ namespace MongoDB.Driver.Tests.Authentication
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(5)).Should().BeTrue();
 
-            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
+            var sentMessages = connection.GetSentMessages();
             sentMessages.Count.Should().Be(1);
 
-            var actualRequestId = sentMessages[0]["requestId"].AsInt32;
-            actualRequestId.Should().BeInRange(expectedRequestId, expectedRequestId + 10);
-
-            var expectedEndString = ", \"$readPreference\" : { \"mode\" : \"primaryPreferred\" }";
-            sentMessages[0].Should().Be($"{{ opcode : \"opmsg\", requestId : {actualRequestId}, responseTo : 0, sections : [ {{ payloadType : 0, document : {{ authenticate : 1, mechanism : \"MONGODB-X509\", user : \"CN=client,OU=kerneluser,O=10Gen,L=New York City,ST=New York,C=US\", $db : \"$external\"{expectedEndString} }} }} ] }}");
+            var expectedEndString = ", '$readPreference' : { mode : 'primaryPreferred' }";
+            MessageHelper.ToCommandPayload(sentMessages[0]).Should().Be($"{{ authenticate : 1, mechanism : 'MONGODB-X509', user : 'CN=client,OU=kerneluser,O=10Gen,L=New York City,ST=New York,C=US', $db : '$external'{expectedEndString} }}");
         }
 
 

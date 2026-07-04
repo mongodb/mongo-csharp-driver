@@ -208,8 +208,8 @@ namespace MongoDB.Driver.Core.Connections
             var exception = await Record.ExceptionAsync(() => InitializeConnection(subject, connection, async));
             exception.Message.Should().Be("Queue empty.");
 
-            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
-            var helloDocument = sentMessages[0]["sections"][0]["document"].AsBsonDocument;
+            var sentMessages = connection.GetSentMessages();
+            var helloDocument = MessageHelper.ToCommandPayload(sentMessages[0]);
             helloDocument.Should().Contain("speculativeAuthenticate");
             var speculativeAuthenticateDocument = helloDocument["speculativeAuthenticate"].AsBsonDocument;
             speculativeAuthenticateDocument.Should().Contain("mechanism");
@@ -238,11 +238,10 @@ namespace MongoDB.Driver.Core.Connections
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(5)).Should().BeTrue();
 
-            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
+            var sentMessages = connection.GetSentMessages();
             sentMessages.Count.Should().Be(1);
 
-            sentMessages[0]["opcode"].AsString.Should().Be("opmsg");
-            var helloRequestDocument = sentMessages[0]["sections"][0]["document"];
+            var helloRequestDocument = MessageHelper.ToCommandPayload(sentMessages[0]);
             helloRequestDocument["hello"].AsInt32.Should().Be(1);
             helloRequestDocument["apiVersion"].AsString.Should().Be("1");
             helloRequestDocument["apiStrict"].AsBoolean.Should().Be(true);
@@ -265,11 +264,10 @@ namespace MongoDB.Driver.Core.Connections
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(5)).Should().BeTrue();
 
-            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
+            var sentMessages = connection.GetSentMessages();
             sentMessages.Count.Should().Be(1);
 
-            sentMessages[0]["opcode"].AsString.Should().Be("opmsg");
-            var helloRequestDocument = sentMessages[0]["sections"][0]["document"];
+            var helloRequestDocument = MessageHelper.ToCommandPayload(sentMessages[0]);
             helloRequestDocument[OppressiveLanguageConstants.LegacyHelloCommandName].AsInt32.Should().Be(1);
             helloRequestDocument.AsBsonDocument.TryGetElement("apiVersion", out _).Should().BeFalse();
             helloRequestDocument.AsBsonDocument.TryGetElement("apiStrict", out _).Should().BeFalse();
@@ -292,11 +290,10 @@ namespace MongoDB.Driver.Core.Connections
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(5)).Should().BeTrue();
 
-            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
+            var sentMessages = connection.GetSentMessages();
             sentMessages.Count.Should().Be(1);
 
-            sentMessages[0]["opcode"].AsString.Should().Be("opmsg");
-            var helloRequestDocument = sentMessages[0]["sections"][0]["document"];
+            var helloRequestDocument = MessageHelper.ToCommandPayload(sentMessages[0]);
             helloRequestDocument["hello"].AsInt32.Should().Be(1);
             helloRequestDocument.AsBsonDocument.TryGetElement("apiVersion", out _).Should().BeFalse();
             helloRequestDocument.AsBsonDocument.TryGetElement("apiStrict", out _).Should().BeFalse();

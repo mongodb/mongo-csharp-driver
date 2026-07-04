@@ -13,14 +13,12 @@
 * limitations under the License.
 */
 
-using System.Collections.Generic;
+using System;
 using System.IO;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.WireProtocol.Messages;
-using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders;
-using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders;
 
 namespace MongoDB.Driver.Core.Helpers
 {
@@ -68,53 +66,43 @@ namespace MongoDB.Driver.Core.Helpers
             return new ResponseCommandMessage(requestId, responseTo, new[] { section }, moreToCome);
         }
 
-        public static List<BsonDocument> TranslateMessagesToBsonDocuments(IEnumerable<MongoDBMessage> requests)
+        public static BsonDocument ToCommandPayload(CommandMessage commandMessage)
         {
-            var docs = new List<BsonDocument>();
-            foreach (var request in requests)
-            {
-                using (var stringWriter = new StringWriter())
-                {
-                    var encoderFactory = new JsonMessageEncoderFactory(stringWriter, null);
+            using var stream = new MemoryStream();
 
-                    request.GetEncoder(encoderFactory).WriteMessage(request);
-                    docs.Add(BsonDocument.Parse(stringWriter.GetStringBuilder().ToString()));
-                }
+            var encoderFactory = new BinaryMessageEncoderFactory(stream, null);
+            encoderFactory.GetCommandMessageEncoder().WriteMessage(commandMessage);
+
+            stream.Seek(0, SeekOrigin.Begin);
+            var message = (CommandMessage)encoderFactory.GetCommandMessageEncoder().ReadMessage();
+            if (message.Sections.Count > 1)
+            {
+                throw new NotSupportedException("Multiple sections are not supported.");
             }
-            return docs;
+
+            var commandSection = (Type0CommandMessageSection<RawBsonDocument>)message.Sections[0];
+            return commandSection.Document;
         }
 
-        public static List<BsonDocument> TranslateMessagesToBsonDocuments(byte[] bytes)
+        public static byte[] ToWireBytes(CommandMessage commandMessage)
         {
-            var docs = new List<BsonDocument>();
-            using (var stream = new MemoryStream(bytes))
-            {
-                while (stream.Position < stream.Length)
-                {
-                    var encoderFactory = new BinaryMessageEncoderFactory(stream, null);
-                    var encoderSelector = new CommandMessageEncoderSelector();
-                    var message = encoderSelector.GetEncoder(encoderFactory).ReadMessage();
-                    using (var stringWriter = new StringWriter())
-                    {
-                        var jsonEncoderFactory = new JsonMessageEncoderFactory(stringWriter, null);
-                        message.GetEncoder(jsonEncoderFactory).WriteMessage(message);
-                        docs.Add(BsonDocument.Parse(stringWriter.GetStringBuilder().ToString()));
-                    }
-                }
-            }
-            return docs;
+            using var stream = new MemoryStream();
+
+            var encoderFactory = new BinaryMessageEncoderFactory(stream, null);
+            encoderFactory.GetCommandMessageEncoder().WriteMessage(commandMessage);
+
+            return stream.ToArray();
         }
 
-        public static void WriteResponsesToStream(Stream stream, params CommandMessage[] messages)
+        public static void WriteResponseToStream(Stream stream, CommandMessage message)
         {
             var position = stream.Position;
             stream.Seek(0, SeekOrigin.End);
-            foreach (var message in messages)
-            {
-                var encoderFactory = new BinaryMessageEncoderFactory(stream, null);
-                var encoder = encoderFactory.GetCommandMessageEncoder();
-                encoder.WriteMessage(message);
-            }
+
+            var encoderFactory = new BinaryMessageEncoderFactory(stream, null);
+            var encoder = encoderFactory.GetCommandMessageEncoder();
+            encoder.WriteMessage(message);
+
             stream.Position = position;
         }
     }
