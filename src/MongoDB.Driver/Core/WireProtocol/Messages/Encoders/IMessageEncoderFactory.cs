@@ -18,6 +18,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
     internal interface IMessageEncoderFactory
     {
         IMessageEncoder GetCommandMessageEncoder();
-        IMessageEncoder GetCompressedMessageEncoder(IMessageEncoderSelector originalEncoderSelector);
+        IMessageEncoder GetCompressedMessageEncoder();
     }
 }

@@ -492,11 +492,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
-            public ResponseCommandMessage ReceiveMessage(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings)
+            public ResponseCommandMessage ReceiveMessage(OperationContext operationContext, int responseTo, MessageEncoderSettings messageEncoderSettings)
             {
                 try
                 {
-                    return _connection.ReceiveMessage(operationContext, responseTo, encoderSelector, messageEncoderSettings);
+                    return _connection.ReceiveMessage(operationContext, responseTo, messageEncoderSettings);
                 }
                 catch (ObjectDisposedException ex) when (_closedWhileInUse)
                 {
@@ -509,11 +509,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
-            public async Task<ResponseCommandMessage> ReceiveMessageAsync(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings)
+            public async Task<ResponseCommandMessage> ReceiveMessageAsync(OperationContext operationContext, int responseTo, MessageEncoderSettings messageEncoderSettings)
             {
                 try
                 {
-                    return await _connection.ReceiveMessageAsync(operationContext, responseTo, encoderSelector, messageEncoderSettings).ConfigureAwait(false);
+                    return await _connection.ReceiveMessageAsync(operationContext, responseTo, messageEncoderSettings).ConfigureAwait(false);
                 }
                 catch (ObjectDisposedException ex) when (_closedWhileInUse)
                 {
@@ -696,16 +696,16 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 return _reference.Instance.ReauthenticateAsync(operationContext);
             }
 
-            public Task<ResponseCommandMessage> ReceiveMessageAsync(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings)
+            public Task<ResponseCommandMessage> ReceiveMessageAsync(OperationContext operationContext, int responseTo, MessageEncoderSettings messageEncoderSettings)
             {
                 ThrowIfDisposed();
-                return _reference.Instance.ReceiveMessageAsync(operationContext, responseTo, encoderSelector, messageEncoderSettings);
+                return _reference.Instance.ReceiveMessageAsync(operationContext, responseTo, messageEncoderSettings);
             }
 
-            public ResponseCommandMessage ReceiveMessage(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings)
+            public ResponseCommandMessage ReceiveMessage(OperationContext operationContext, int responseTo, MessageEncoderSettings messageEncoderSettings)
             {
                 ThrowIfDisposed();
-                return _reference.Instance.ReceiveMessage(operationContext, responseTo, encoderSelector, messageEncoderSettings);
+                return _reference.Instance.ReceiveMessage(operationContext, responseTo, messageEncoderSettings);
             }
 
             public void SendMessage(OperationContext operationContext, RequestCommandMessage message, MessageEncoderSettings messageEncoderSettings)

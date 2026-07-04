@@ -106,11 +106,10 @@ public class AcquiredConnectionTests : LoggableTestClass
         pool.Initialize();
         pool.SetReady();
         using var acquired = pool.AcquireConnection(OperationContext.NoTimeout);
-        var encoderSelector = new CommandMessageEncoderSelector();
 
         var receiveTask = async ?
-            acquired.ReceiveMessageAsync(OperationContext.NoTimeout, 1, encoderSelector, _messageEncoderSettings) :
-            Task.Run(() => acquired.ReceiveMessage(OperationContext.NoTimeout, 1, encoderSelector, _messageEncoderSettings));
+            acquired.ReceiveMessageAsync(OperationContext.NoTimeout, 1, _messageEncoderSettings) :
+            Task.Run(() => acquired.ReceiveMessage(OperationContext.NoTimeout, 1, _messageEncoderSettings));
         readStarted.Wait(TimeSpan.FromSeconds(5)).Should().BeTrue();
 
         pool.Clear(closeInUseConnections: true);

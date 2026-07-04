@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
 
         public override IMessageEncoder GetEncoder(IMessageEncoderFactory encoderFactory)
         {
-            return encoderFactory.GetCompressedMessageEncoder(null);
+            return encoderFactory.GetCompressedMessageEncoder();
         }
     }
 }

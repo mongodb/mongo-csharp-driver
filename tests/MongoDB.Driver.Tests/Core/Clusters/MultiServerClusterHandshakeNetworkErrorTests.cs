@@ -362,7 +362,7 @@ namespace MongoDB.Driver.Core.Clusters
                     });
 
                 mockFaultyConnection
-                    .Setup(c => c.ReceiveMessage(It.IsAny<OperationContext>(), It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), It.IsAny<MessageEncoderSettings>()))
+                    .Setup(c => c.ReceiveMessage(It.IsAny<OperationContext>(), It.IsAny<int>(), It.IsAny<MessageEncoderSettings>()))
                     .Returns(() =>
                     {
                         WaitForTaskOrTimeout(
@@ -378,10 +378,10 @@ namespace MongoDB.Driver.Core.Clusters
                 mockHealthyConnection.Setup(c => c.Open(It.IsAny<OperationContext>())); // no action is required
                 mockHealthyConnection.Setup(c => c.OpenAsync(It.IsAny<OperationContext>())).Returns(Task.FromResult(true)); // no action is required
                 mockHealthyConnection
-                    .Setup(c => c.ReceiveMessage(It.IsAny<OperationContext>(), It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), It.IsAny<MessageEncoderSettings>()))
+                    .Setup(c => c.ReceiveMessage(It.IsAny<OperationContext>(), It.IsAny<int>(), It.IsAny<MessageEncoderSettings>()))
                     .Returns(commandResponseAction);
                 mockConnection
-                    .Setup(c => c.ReceiveMessageAsync(It.IsAny<OperationContext>(), It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), It.IsAny<MessageEncoderSettings>()))
+                    .Setup(c => c.ReceiveMessageAsync(It.IsAny<OperationContext>(), It.IsAny<int>(), It.IsAny<MessageEncoderSettings>()))
                     .ReturnsAsync(commandResponseAction);
             }
         }

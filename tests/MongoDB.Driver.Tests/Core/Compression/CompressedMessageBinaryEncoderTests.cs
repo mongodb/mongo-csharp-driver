@@ -104,8 +104,7 @@ namespace MongoDB.Driver.Core.Compression
         private CompressedMessageBinaryEncoder CreateSubject(Stream stream, params CompressorConfiguration[] compressors)
         {
             var compressorSource = GetCompressorSource(compressors);
-            var encoderSelector = new CommandMessageEncoderSelector();
-            var subject = new CompressedMessageBinaryEncoder(stream, encoderSelector, compressorSource, _messageEncoderSettings);
+            var subject = new CompressedMessageBinaryEncoder(stream, compressorSource, _messageEncoderSettings);
             return subject;
         }
 

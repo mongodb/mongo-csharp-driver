@@ -118,7 +118,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 }
 
                 connection
-                    .Setup(c => c.ReceiveMessage(OperationContext.NoTimeout, It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), messageEncoderSettings))
+                    .Setup(c => c.ReceiveMessage(OperationContext.NoTimeout, It.IsAny<int>(), messageEncoderSettings))
                     .Returns(commandResponse);
                 connection.SetupGet(c => c.ConnectionId).Returns(id);
                 connection
@@ -249,7 +249,7 @@ namespace MongoDB.Driver.Core.WireProtocol
 
             var commandResponse = MessageHelper.BuildCommandResponse(CreateRawBsonDocument(new BsonDocument("ok", 1)));
             mockConnection
-                .Setup(c => c.ReceiveMessage(It.IsAny<OperationContext>(), It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), messageEncoderSettings))
+                .Setup(c => c.ReceiveMessage(It.IsAny<OperationContext>(), It.IsAny<int>(), messageEncoderSettings))
                 .Returns(commandResponse);
 
             var result = subject.Execute(OperationContext.NoTimeout, mockConnection.Object);
@@ -280,7 +280,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             result.Should().BeNull();
 
             mockConnection.Verify(
-                c => c.ReceiveMessageAsync(It.IsAny<OperationContext>(), It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), messageEncoderSettings),
+                c => c.ReceiveMessageAsync(It.IsAny<OperationContext>(), It.IsAny<int>(), messageEncoderSettings),
                 Times.Never);
         }
 
@@ -306,7 +306,7 @@ namespace MongoDB.Driver.Core.WireProtocol
 
             var commandResponse = MessageHelper.BuildCommandResponse(CreateRawBsonDocument(new BsonDocument("ok", 1)));
             mockConnection
-                .Setup(c => c.ReceiveMessageAsync(It.IsAny<OperationContext>(), It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), messageEncoderSettings))
+                .Setup(c => c.ReceiveMessageAsync(It.IsAny<OperationContext>(), It.IsAny<int>(), messageEncoderSettings))
                 .Returns(Task.FromResult<ResponseCommandMessage>(commandResponse));
 
             var result = await subject.ExecuteAsync(OperationContext.NoTimeout, mockConnection.Object);
@@ -336,7 +336,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             var result = await subject.ExecuteAsync(OperationContext.NoTimeout, mockConnection.Object);
             result.Should().BeNull();
 
-            mockConnection.Verify(c => c.ReceiveMessageAsync(It.IsAny<OperationContext>(), It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), messageEncoderSettings), Times.Never);
+            mockConnection.Verify(c => c.ReceiveMessageAsync(It.IsAny<OperationContext>(), It.IsAny<int>(), messageEncoderSettings), Times.Never);
         }
 
         [Theory]
