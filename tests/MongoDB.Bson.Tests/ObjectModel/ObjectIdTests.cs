@@ -431,6 +431,21 @@ public class ObjectIdTests
     }
 
     [Fact]
+    public void TestTryParseSpan()
+    {
+        ObjectId objectId1, objectId2;
+        Assert.True(ObjectId.TryParse("0102030405060708090a0b0c".AsSpan(), out objectId1)); // lower case
+        Assert.True(ObjectId.TryParse("0102030405060708090A0B0C".AsSpan(), out objectId2)); // upper case
+        Assert.True(objectId1.ToByteArray().SequenceEqual(objectId2.ToByteArray()));
+        Assert.True(objectId1.ToString() == "0102030405060708090a0b0c"); // ToString returns lower case
+        Assert.True(objectId1.ToString() == objectId2.ToString());
+        Assert.False(ObjectId.TryParse("102030405060708090a0b0c".AsSpan(), out objectId1)); // too short
+        Assert.False(ObjectId.TryParse("x102030405060708090a0b0c".AsSpan(), out objectId1)); // invalid character
+        Assert.False(ObjectId.TryParse("00102030405060708090a0b0c".AsSpan(), out objectId1)); // too long
+        Assert.False(ObjectId.TryParse(ReadOnlySpan<char>.Empty, out objectId1)); // should return false not throw ArgumentNullException
+    }
+
+    [Fact]
     public void TestConvertObjectIdToObjectId()
     {
         var oid = ObjectId.GenerateNewId();
