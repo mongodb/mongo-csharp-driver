@@ -25,6 +25,8 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.IdGenerators;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.GeoJsonObjectModel;
+using MongoDB.Driver.GeoJsonObjectModel.Serializers;
 using MongoDB.Driver.GridFS;
 using Xunit;
 
@@ -221,6 +223,33 @@ public class MultipleRegistriesProviderPathTests
         var serializer = customDomain.SerializerRegistry.GetSerializer<ExpandoObject>();
 
         serializer.Should().BeOfType<ExpandoObjectSerializer>();
+        ((IHasSerializationDomain)serializer).SerializationDomain.Should().BeSameAs(customDomain);
+    }
+
+    // Instantiation path: BsonSerializationProviderBase.CreateSerializer (reflection) via AttributedSerializationProvider.
+    // GeoJsonGeometrySerializer is the polymorphic dispatch base for GeoJsonGeometry<T>; it must implement
+    // IHasSerializationDomain so GetSerializerForDerivedType routes concrete-type lookups through the same domain.
+    [Fact]
+    public void Provider_path_GeoJsonGeometrySerializer_uses_custom_domain()
+    {
+        var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
+
+        var serializer = customDomain.SerializerRegistry.GetSerializer<GeoJsonGeometry<GeoJson2DCoordinates>>();
+
+        serializer.Should().BeOfType<GeoJsonGeometrySerializer<GeoJson2DCoordinates>>();
+        ((IHasSerializationDomain)serializer).SerializationDomain.Should().BeSameAs(customDomain);
+    }
+
+    // Instantiation path: BsonSerializationProviderBase.CreateSerializer (reflection) via AttributedSerializationProvider.
+    // GeoJsonObjectSerializer is the polymorphic dispatch base for GeoJsonObject<T> (Feature, FeatureCollection, geometries).
+    [Fact]
+    public void Provider_path_GeoJsonObjectSerializer_uses_custom_domain()
+    {
+        var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
+
+        var serializer = customDomain.SerializerRegistry.GetSerializer<GeoJsonObject<GeoJson2DCoordinates>>();
+
+        serializer.Should().BeOfType<GeoJsonObjectSerializer<GeoJson2DCoordinates>>();
         ((IHasSerializationDomain)serializer).SerializationDomain.Should().BeSameAs(customDomain);
     }
 

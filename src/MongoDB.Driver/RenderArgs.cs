@@ -138,7 +138,8 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the serializer registry.
         /// </summary>
-        public readonly IBsonSerializerRegistry SerializerRegistry  //TODO: we should probably remove this property
+        //DOMAIN-API we should probably remove this property
+        public readonly IBsonSerializerRegistry SerializerRegistry
         {
             get => _serializerRegistry;
             init => _serializerRegistry = Ensure.IsNotNull(value, nameof(value));
