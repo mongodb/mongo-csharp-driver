@@ -16,6 +16,7 @@
 using System.Globalization;
 using System.IO;
 using FluentAssertions;
+using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
@@ -130,6 +131,36 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             var json = SerializeToJson(customDomain, featureCollection);
 
             json.Should().Contain("\"X:11\"").And.Contain("\"Y:12\"");
+        }
+
+        // All the tests above only serialize, so the resolved leaf serializer's own domain-aware constructor is
+        // enough to prove propagation. Deserializing through the abstract GeoJsonObject<T> type additionally
+        // exercises GeoJsonObjectSerializer.GetActualType + GetSerializerForDerivedType: the discriminator-driven
+        // polymorphic dispatch must route the derived-type lookup through the same custom domain, not the default.
+        [Fact]
+        public void GeoJsonObjectSerializer_polymorphic_dispatch_deserializes_using_custom_domains_inner_coordinates_serializer()
+        {
+            var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("GeoJsonCustomDomainTests-PolymorphicDispatch");
+            customDomain.RegisterSerializer(new TaggedGeoJson2DCoordinatesSerializer());
+
+            var document = new BsonDocument
+            {
+                { "type", "Point" },
+                { "coordinates", new BsonArray { "X:1", "Y:2" } }
+            };
+
+            var serializer = customDomain.LookupSerializer<GeoJsonObject<GeoJson2DCoordinates>>();
+
+            GeoJsonObject<GeoJson2DCoordinates> result;
+            using (var reader = new BsonDocumentReader(document))
+            {
+                var context = BsonDeserializationContext.CreateRoot(reader);
+                result = serializer.Deserialize(context);
+            }
+
+            var point = (GeoJsonPoint<GeoJson2DCoordinates>)result;
+            point.Coordinates.X.Should().Be(1.0);
+            point.Coordinates.Y.Should().Be(2.0);
         }
 
         private static string SerializeToJson<T>(IBsonSerializationDomain domain, T value)
