@@ -73,6 +73,15 @@ internal partial class SerializerFinderVisitor
 
         private static readonly ConcurrentDictionary<MethodKey, Action<SerializerFinderVisitor, MethodCallExpression>> __serializerDeducers = new();
         private static readonly IBsonSerializer __binarySubTypeSerializer = NullableSerializer.Create(new EnumSerializer<BsonBinarySubType>());
+        private static readonly IBsonSerializer __bsonBinaryDataSerializer = new BsonValueCSharpNullSerializer<BsonBinaryData>(BsonBinaryDataSerializer.Instance);
+
+        private static readonly IReadOnlyMethodInfoSet __pickWindowMethodWithSortByOverloads = MethodInfoSet.Create(
+        [
+            WindowMethod.Bottom,
+            WindowMethod.BottomN,
+            WindowMethod.Top,
+            WindowMethod.TopN
+        ]);
 
         private static readonly IReadOnlyMethodInfoSet __averageOrMedianOrPercentileOverloads = MethodInfoSet.Create(
         [
@@ -151,6 +160,7 @@ internal partial class SerializerFinderVisitor
             RegisterSerializerDeducers([EnumerableMethod.GroupJoin, QueryableMethod.GroupJoin], DeduceGroupJoinMethodSerializers);
             RegisterSerializerDeducers(EnumerableOrQueryableMethod.Intersect, (visitor, expression) => visitor.DeduceCollectionAndCollectionSerializers(expression, expression.Arguments[0]));
             RegisterSerializerDeducers([EnumerableMethod.Join, QueryableMethod.Join], DeduceJoinMethodSerializers);
+            RegisterSerializerDeducers([MongoQueryableMethod.LeftJoin, QueryableMethod.LeftJoin], DeduceLeftJoinMethodSerializers);
             RegisterSerializerDeducer(MongoQueryableMethod.LookupWithDocumentsAndLocalFieldAndForeignField, DeduceLookupWithDocumentsAndLocalFieldAndForeignFieldMethodSerializers);
             RegisterSerializerDeducer(MongoQueryableMethod.LookupWithDocumentsAndLocalFieldAndForeignFieldAndPipeline, DeduceLookupWithDocumentsAndLocalFieldAndForeignFieldAndPipelineMethodSerializers);
             RegisterSerializerDeducer(MongoQueryableMethod.LookupWithDocumentsAndPipeline, DeduceLookupWithDocumentsAndPipelineMethodSerializers);
@@ -207,9 +217,10 @@ internal partial class SerializerFinderVisitor
             RegisterSerializerDeducer(MqlMethod.CreateObjectId, (visitor, expression) => visitor.DeduceSerializer(expression, ObjectIdSerializer.Instance));
             RegisterSerializerDeducers(MqlMethod.DateFromStringOverloads, DeduceDateFromStringMethodSerializers);
             RegisterSerializerDeducer(MqlMethod.DeserializeEJson, DeduceDeserializeEJsonMethodSerializers);
+            RegisterSerializerDeducers(MqlMethod.EncStrMethodOverloads, DeduceEncStrMethodSerializers);
             RegisterSerializerDeducers([MqlMethod.Exists, MqlMethod.IsMissing, MqlMethod.IsNullOrMissing], (visitor, expression) => visitor.DeduceSerializer(expression, BooleanSerializer.Instance));
             RegisterSerializerDeducer(MqlMethod.Field, DeduceFieldMethodSerializers);
-            RegisterSerializerDeducer(MqlMethod.Hash, (visitor, expression) => visitor.DeduceSerializer(expression, BsonBinaryDataSerializer.Instance));
+            RegisterSerializerDeducer(MqlMethod.Hash, (visitor, expression) => visitor.DeduceSerializer(expression, __bsonBinaryDataSerializer));
             RegisterSerializerDeducer(MqlMethod.HexHash, (visitor, expression) => visitor.DeduceSerializer(expression, StringSerializer.Instance));
             RegisterSerializerDeducer(MqlMethod.SerializeEJson, DeduceSerializeEJsonMethodSerializers);
             RegisterSerializerDeducer(MqlMethod.Sigmoid, (visitor, expression) => visitor.DeduceSerializer(expression, DoubleSerializer.Instance));
@@ -244,6 +255,7 @@ internal partial class SerializerFinderVisitor
 
             // WindowMethod
             RegisterSerializerDeducer(WindowMethod.AddToSet, DeduceAddToSetMethodSerializers);
+            RegisterSerializerDeducer(WindowMethod.ConcatArrays, DeduceConcatArraysMethodSerializers);
             RegisterSerializerDeducers(__averageOrMedianOrPercentileWindowMethodOverloads, DeduceAverageOrMedianOrPercentileWindowMethodSerializers);
             RegisterSerializerDeducer(WindowMethod.Count, (visitor, expression) => visitor.DeduceSerializer(expression, Int64Serializer.Instance));
             RegisterSerializerDeducers(WindowMethod.CovarianceOverloads, DeduceCovarianceMethodSerializers);
@@ -254,7 +266,10 @@ internal partial class SerializerFinderVisitor
             RegisterSerializerDeducers([WindowMethod.First, WindowMethod.Last], DeduceFirstOrLastWindowMethodsSerializers);
             RegisterSerializerDeducer(WindowMethod.Locf, DeduceLocfMethodSerializers);
             RegisterSerializerDeducers([WindowMethod.Max, WindowMethod.Min], DeduceWindowMaxOrMinMethodSerializers);
+            RegisterSerializerDeducers(WindowMethod.MinMaxScalerOverloads, DeduceMinMaxScalerMethodSerializers);
+            RegisterSerializerDeducers(WindowMethod.PickOverloads, DeducePickWindowMethodSerializers);
             RegisterSerializerDeducer(WindowMethod.Push, DeducePushMethodSerializers);
+            RegisterSerializerDeducer(WindowMethod.SetUnion, DeduceSetUnionMethodSerializers);
             RegisterSerializerDeducers([WindowMethod.Shift, WindowMethod.ShiftWithDefaultValue], DeduceShiftMethodSerializers);
             RegisterSerializerDeducers(WindowMethod.StandardDeviationOverloads, DeduceWindowStandardDeviationMethodSerializers);
             RegisterSerializerDeducers(WindowMethod.SumOverloads, DeduceWindowSumMethodSerializers);
@@ -286,6 +301,99 @@ internal partial class SerializerFinderVisitor
             var selectorLambda = (LambdaExpression)expression.Arguments[1];
             DeduceWindowMethodSelectorParameterSerializer(visitor, partitionExpression, selectorLambda);
             visitor.DeduceCollectionAndItemSerializers(expression, selectorLambda.Body);
+        }
+
+        // DeduceConcatArraysMethodSerializers
+        private static void DeduceConcatArraysMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var partitionExpression = expression.Arguments[0];
+            var selectorLambda = (LambdaExpression)expression.Arguments[1];
+            DeduceWindowMethodSelectorParameterSerializer(visitor, partitionExpression, selectorLambda);
+            visitor.DeduceCollectionAndCollectionSerializers(expression, selectorLambda.Body);
+        }
+
+        // DeduceSetUnionMethodSerializers
+        private static void DeduceSetUnionMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var partitionExpression = expression.Arguments[0];
+            var selectorLambda = (LambdaExpression)expression.Arguments[1];
+            DeduceWindowMethodSelectorParameterSerializer(visitor, partitionExpression, selectorLambda);
+            visitor.DeduceCollectionAndCollectionSerializers(expression, selectorLambda.Body);
+        }
+
+        // DeduceMinMaxScalerMethodSerializers
+        private static void DeduceMinMaxScalerMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var partitionExpression = expression.Arguments[0];
+            var selectorLambda = (LambdaExpression)expression.Arguments[1];
+            DeduceWindowMethodSelectorParameterSerializer(visitor, partitionExpression, selectorLambda);
+            visitor.DeduceStandardSerializer(expression);
+        }
+
+        // DeduceEncStrMethodSerializers
+        private static void DeduceEncStrMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var inputExpression = expression.Arguments[0];
+            var valueExpression = expression.Arguments[1];
+            if (visitor.IsNotKnown(inputExpression))
+            {
+                visitor.AddNodeSerializer(inputExpression, StringSerializer.Instance);
+            }
+            if (visitor.IsNotKnown(valueExpression))
+            {
+                visitor.AddNodeSerializer(valueExpression, StringSerializer.Instance);
+            }
+            visitor.DeduceSerializer(expression, BooleanSerializer.Instance);
+        }
+
+        // DeduceLeftJoinMethodSerializers
+        private static void DeduceLeftJoinMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var method = expression.Method;
+            var outerExpression = expression.Arguments[0];
+            var innerExpression = expression.Arguments[1];
+            var outerKeySelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, expression.Arguments[2]);
+            var outerKeySelectorItemParameter = outerKeySelectorLambda.Parameters.Single();
+            var innerKeySelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, expression.Arguments[3]);
+            var innerKeySelectorItemParameter = innerKeySelectorLambda.Parameters.Single();
+            var resultSelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, expression.Arguments[4]);
+            var resultSelectorOuterItemParameter = resultSelectorLambda.Parameters[0];
+            var resultSelectorInnerItemParameter = resultSelectorLambda.Parameters[1];
+
+            visitor.DeduceItemAndCollectionSerializers(outerKeySelectorItemParameter, outerExpression);
+            visitor.DeduceItemAndCollectionSerializers(innerKeySelectorItemParameter, innerExpression);
+            visitor.DeduceItemAndCollectionSerializers(resultSelectorOuterItemParameter, outerExpression);
+            visitor.DeduceItemAndCollectionSerializers(resultSelectorInnerItemParameter, innerExpression);
+            visitor.DeduceCollectionAndItemSerializers(expression, resultSelectorLambda.Body);
+        }
+
+        // DeducePickWindowMethodSerializers
+        private static void DeducePickWindowMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
+        {
+            var method = expression.Method;
+            var partitionExpression = expression.Arguments[0];
+            var withSortBy = method.IsOneOf(__pickWindowMethodWithSortByOverloads);
+
+            if (withSortBy)
+            {
+                var sortByExpression = expression.Arguments[1];
+                if (visitor.IsNotKnown(sortByExpression))
+                {
+                    var ignoreSubTreeSerializer = IgnoreSubtreeSerializer.Create(sortByExpression.Type);
+                    visitor.AddNodeSerializer(sortByExpression, ignoreSubTreeSerializer);
+                }
+            }
+
+            var selectorLambda = (LambdaExpression)expression.Arguments[withSortBy ? 2 : 1];
+            DeduceWindowMethodSelectorParameterSerializer(visitor, partitionExpression, selectorLambda);
+
+            if (visitor.IsNotKnown(expression) && visitor.IsKnown(selectorLambda.Body, out var selectorBodySerializer))
+            {
+                var nodeSerializer = method.IsOneOf(WindowMethod.Bottom, WindowMethod.Top) ?
+                    selectorBodySerializer :
+                    IEnumerableSerializer.Create(selectorBodySerializer);
+                visitor.AddNodeSerializer(expression, nodeSerializer);
+            }
         }
 
         // DeduceAggregateMethodSerializers + EnumerableOrQueryableMethod.AggregateWithFunc branch
