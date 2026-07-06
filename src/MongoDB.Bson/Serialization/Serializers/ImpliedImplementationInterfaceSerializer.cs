@@ -81,8 +81,14 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="serializerRegistry">The serializer registry.</param>
         public ImpliedImplementationInterfaceSerializer(IBsonSerializerRegistry serializerRegistry)
-            : this((serializerRegistry as BsonSerializerRegistry)?.SerializationDomain)
+            : this(
+                (serializerRegistry as IHasSerializationDomain)?.SerializationDomain ?? BsonSerializationDomain.Default,
+                new Lazy<IBsonSerializer<TImplementation>>(() => serializerRegistry.GetSerializer<TImplementation>()))
         {
+            if (serializerRegistry == null)
+            {
+                throw new ArgumentNullException(nameof(serializerRegistry));
+            }
         }
 
         internal ImpliedImplementationInterfaceSerializer(IBsonSerializationDomain serializationDomain)
