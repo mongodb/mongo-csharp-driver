@@ -2730,7 +2730,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         }
 
         // https://github.com/mongodb/specifications/blob/master/source/client-side-encryption/tests/README.md#27-string-explicit-encryption
-        // Prefix and suffix queries require server 9.0+ (GA). Substring queries (still preview) are covered by StringSubstringExplicitEncryptionTest.
+        // Prefix and suffix queries require server 9.0+ (GA). Substring queries are covered by StringSubstringExplicitEncryptionTest.
         [Theory]
         [ParameterAttributeData]
         public void StringExplicitEncryptionTest(
@@ -2909,9 +2909,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 IMongoCollection<BsonDocument> substringCiDiCollectionAuto,
                 IMongoCollection<BsonDocument> substringCiDiCollectionExplicit)
             {
-                // Prefix/suffix cases (1-4) use the GA query types on 9.0+ and the preview query types on older servers.
-                // Cases 7-9 are GA-only (they are never run by StringPreviewExplicitEncryptionTest) and intentionally
-                // hardcode the GA query types rather than using these variables.
+                // Cases 1-4 (prefix/suffix) and 5-6 (substring) use the GA query types on 9.0+ and the preview
+                // query types on older servers, via the variables below. Cases 7-11 are GA-only (never run by the
+                // *PreviewExplicitEncryptionTest theories) and intentionally hardcode the GA query types.
                 var prefixQueryType = isPreview ? "prefixPreview" : "prefix";
                 var suffixQueryType = isPreview ? "suffixPreview" : "suffix";
                 var substringQueryType = isPreview ? "substringPreview" : "substring";
