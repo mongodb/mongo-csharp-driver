@@ -276,8 +276,12 @@ internal partial class SerializerFinderVisitor
 
             void RegisterSerializerDeducer(MethodInfo method, Action<SerializerFinderVisitor, MethodCallExpression> deducer)
             {
-                Ensure.IsNotNull(method, nameof(method));
                 Ensure.IsNotNull(deducer, nameof(deducer));
+
+                if (method == null)
+                {
+                    return;
+                }
 
                 if (!__serializerDeducers.TryAdd(new MethodKey(method), deducer))
                 {
